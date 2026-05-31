@@ -9277,6 +9277,137 @@
         <a href="#agenda" class="veh-tool-card"><span class="veh-icon">📜</span><span class="veh-label">People's Mandate</span><span class="veh-desc">Vote on real reforms.</span></a>
       </div>
 
+      <!-- ═══ YOUR LOCATION — Prominent Hub Hero (relocated to top) ═══ -->
+      <div class="pm-location-bar animate-on-scroll" id="vh-location-hero" style="margin-bottom:2.25rem;">
+            <div style="position:relative;z-index:1;margin-bottom:1.75rem;padding:1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);">
+              <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;">
+                <div style="width:5.5rem;height:5.5rem;border-radius:1.25rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:2.8rem;box-shadow:0 0 40px rgba(192,21,42,0.6),0 0 20px rgba(26,58,107,0.4),0 0 80px rgba(192,21,42,0.2);border:3px solid rgba(255,255,255,0.25);flex-shrink:0;animation:pulse 3s ease-in-out infinite;">📍</div>
+                <div>
+                  <div class="font-display" style="font-size:1.5rem;letter-spacing:0.28em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.5rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5),0 0 60px rgba(239,68,68,0.2);">YOUR LOCATION</div>
+                  <div id="vh-loc-city" class="font-display" style="font-size:4.25rem;line-height:1;letter-spacing:0.03em;color:white;text-shadow:0 0 50px rgba(192,21,42,0.5),0 2px 10px rgba(0,0,0,0.6),0 0 80px rgba(59,130,246,0.2);font-weight:900;">Your <span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Area</span></div>
+                  <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;">
+                    <span style="width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#3b82f6);flex-shrink:0;box-shadow:0 0 12px rgba(239,68,68,0.5);"></span>
+                    <span id="vh-loc-subdesc" class="font-condensed" style="font-size:1.15rem;letter-spacing:0.1em;color:#cbd5e1;font-weight:600;">Set Your Location to see your representatives</span>
+                    <span style="display:inline-block;margin-left:0.25rem;padding:0.2rem 0.75rem;border-radius:9999px;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(59,130,246,0.25));border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;font-family:'Barlow Condensed',sans-serif;">YOUR REPS</span>
+                  </div>
+                </div>
+              </div>
+              <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.5rem;border-radius:2px;opacity:0.7;"></div>
+          <!-- State / County / District display + Change Location -->
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;margin-top:1.1rem;position:relative;z-index:1;">
+            <span class="font-condensed" style="display:inline-flex;align-items:center;gap:0.45rem;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#cbd5e1;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:9999px;padding:0.38rem 0.9rem;">State <strong id="vh-hero-state" style="color:#fff;font-weight:700;">Not set</strong></span>
+            <span class="font-condensed" style="display:inline-flex;align-items:center;gap:0.45rem;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:9999px;padding:0.38rem 0.9rem;">County / City <strong id="vh-hero-county" style="color:#fff;font-weight:700;">Not set</strong></span>
+            <span class="font-condensed" style="display:inline-flex;align-items:center;gap:0.45rem;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#cbd5e1;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:9999px;padding:0.38rem 0.9rem;">District <strong id="vh-hero-district" style="color:#fff;font-weight:700;">All</strong></span>
+            <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 rounded-xl transition-all shadow-md flex items-center gap-1.5" style="margin-left:auto;font-size:0.78rem;letter-spacing:0.08em;padding:0.6rem 1.15rem;min-height:44px;cursor:pointer;">📍 Change Location</button>
+          </div>
+            </div>
+      </div>
+
+      <!-- ═══ RELEVANT TO ME ═══ -->
+      <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px;">
+        <!-- State Overview Card — dynamic "voter map" for the user's saved state -->
+        <div id="state-overview-relevant"></div>
+        <!-- Relevant to Me Section Header -->
+        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">📍</div>
+              <div>
+                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
+                <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
+              </div>
+            </div>
+            <div class="flex-shrink-0">
+              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">
+                📍 Change Location
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Location Selector Form (collapsible) -->
+        <div id="change-location-form" class="mb-6 p-5 rounded-2xl bg-navy-800/80 border border-white/10" style="display: none;">
+          <div class="font-condensed text-xs font-700 uppercase tracking-widest text-steel-400 mb-3">Manually Override Your Voting Location</div>
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-1.5">
+              <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Select State / Region</label>
+              <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
+                <option value="">— Set your state —</option>
+                <option value="National">🇺🇸 National (Federal Focus)</option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
+                <option value="District of Columbia">District of Columbia</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Carolina">North Carolina</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas">Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
+              </select>
+            </div>
+            
+            <div id="voter-county-wrap" class="flex flex-col gap-1.5">
+              <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">City / County (optional)</label>
+              <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
+            </div>
+
+            <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
+              <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Congressional District <span class="text-steel-500 normal-case">(optional)</span></label>
+              <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
+            </div>
+
+            <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
+              Close Form
+            </button>
+          </div>
+        </div>
+
+        <!-- Relevant cards — grouped by type & location -->
+        <div id="relevant-browse-grid"></div>
+      </div>
+
       <!-- ═══ TEAM BUILDER (was Compare/My Team — now merged into Voter Hub) ═══ -->
       <div id="compare-hub" class="py-8 md:py-12">
 
@@ -9424,111 +9555,6 @@
             </a>
           </div>
         </div>
-      </div>
-
-      <!-- ═══ RELEVANT TO ME ═══ -->
-      <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px;">
-        <!-- State Overview Card — dynamic "voter map" for the user's saved state -->
-        <div id="state-overview-relevant"></div>
-        <!-- Relevant to Me Section Header -->
-        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
-          <div class="flex items-center justify-between gap-4 flex-wrap">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">📍</div>
-              <div>
-                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
-              </div>
-            </div>
-            <div class="flex-shrink-0">
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">
-                📍 Change Location
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Change Location Selector Form (collapsible) -->
-        <div id="change-location-form" class="mb-6 p-5 rounded-2xl bg-navy-800/80 border border-white/10" style="display: none;">
-          <div class="font-condensed text-xs font-700 uppercase tracking-widest text-steel-400 mb-3">Manually Override Your Voting Location</div>
-          <div class="flex flex-wrap gap-4 items-end">
-            <div class="flex flex-col gap-1.5">
-              <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Select State / Region</label>
-              <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
-                <option value="">— Set your state —</option>
-                <option value="National">🇺🇸 National (Federal Focus)</option>
-                <option value="Alabama">Alabama</option>
-                <option value="Alaska">Alaska</option>
-                <option value="Arizona">Arizona</option>
-                <option value="Arkansas">Arkansas</option>
-                <option value="California">California</option>
-                <option value="Colorado">Colorado</option>
-                <option value="Connecticut">Connecticut</option>
-                <option value="Delaware">Delaware</option>
-                <option value="District of Columbia">District of Columbia</option>
-                <option value="Florida">Florida</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Hawaii">Hawaii</option>
-                <option value="Idaho">Idaho</option>
-                <option value="Illinois">Illinois</option>
-                <option value="Indiana">Indiana</option>
-                <option value="Iowa">Iowa</option>
-                <option value="Kansas">Kansas</option>
-                <option value="Kentucky">Kentucky</option>
-                <option value="Louisiana">Louisiana</option>
-                <option value="Maine">Maine</option>
-                <option value="Maryland">Maryland</option>
-                <option value="Massachusetts">Massachusetts</option>
-                <option value="Michigan">Michigan</option>
-                <option value="Minnesota">Minnesota</option>
-                <option value="Mississippi">Mississippi</option>
-                <option value="Missouri">Missouri</option>
-                <option value="Montana">Montana</option>
-                <option value="Nebraska">Nebraska</option>
-                <option value="Nevada">Nevada</option>
-                <option value="New Hampshire">New Hampshire</option>
-                <option value="New Jersey">New Jersey</option>
-                <option value="New Mexico">New Mexico</option>
-                <option value="New York">New York</option>
-                <option value="North Carolina">North Carolina</option>
-                <option value="North Dakota">North Dakota</option>
-                <option value="Ohio">Ohio</option>
-                <option value="Oklahoma">Oklahoma</option>
-                <option value="Oregon">Oregon</option>
-                <option value="Pennsylvania">Pennsylvania</option>
-                <option value="Rhode Island">Rhode Island</option>
-                <option value="South Carolina">South Carolina</option>
-                <option value="South Dakota">South Dakota</option>
-                <option value="Tennessee">Tennessee</option>
-                <option value="Texas">Texas</option>
-                <option value="Utah">Utah</option>
-                <option value="Vermont">Vermont</option>
-                <option value="Virginia">Virginia</option>
-                <option value="Washington">Washington</option>
-                <option value="West Virginia">West Virginia</option>
-                <option value="Wisconsin">Wisconsin</option>
-                <option value="Wyoming">Wyoming</option>
-              </select>
-            </div>
-            
-            <div id="voter-county-wrap" class="flex flex-col gap-1.5">
-              <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">City / County (optional)</label>
-              <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
-            </div>
-
-            <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
-              <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Congressional District <span class="text-steel-500 normal-case">(optional)</span></label>
-              <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
-            </div>
-
-            <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
-              Close Form
-            </button>
-          </div>
-        </div>
-
-        <!-- Relevant cards — grouped by type & location -->
-        <div id="relevant-browse-grid"></div>
       </div>
 
       <!-- ═══ PROMISE TRACKER ═══ -->
@@ -9716,23 +9742,7 @@
 
           <!-- ── Prominent Location Selector ─────────────────── -->
           <div class="pm-location-bar">
-            <!-- ── BIG Location Header ── -->
-            <div style="position:relative;z-index:1;margin-bottom:1.75rem;padding:1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);">
-              <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;">
-                <div style="width:5.5rem;height:5.5rem;border-radius:1.25rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:2.8rem;box-shadow:0 0 40px rgba(192,21,42,0.6),0 0 20px rgba(26,58,107,0.4),0 0 80px rgba(192,21,42,0.2);border:3px solid rgba(255,255,255,0.25);flex-shrink:0;animation:pulse 3s ease-in-out infinite;">📍</div>
-                <div>
-                  <div class="font-display" style="font-size:1.5rem;letter-spacing:0.28em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.5rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5),0 0 60px rgba(239,68,68,0.2);">YOUR LOCATION</div>
-                  <div id="vh-loc-city" class="font-display" style="font-size:4.25rem;line-height:1;letter-spacing:0.03em;color:white;text-shadow:0 0 50px rgba(192,21,42,0.5),0 2px 10px rgba(0,0,0,0.6),0 0 80px rgba(59,130,246,0.2);font-weight:900;">Your <span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Area</span></div>
-                  <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;">
-                    <span style="width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#3b82f6);flex-shrink:0;box-shadow:0 0 12px rgba(239,68,68,0.5);"></span>
-                    <span id="vh-loc-subdesc" class="font-condensed" style="font-size:1.15rem;letter-spacing:0.1em;color:#cbd5e1;font-weight:600;">Set Your Location to see your representatives</span>
-                    <span style="display:inline-block;margin-left:0.25rem;padding:0.2rem 0.75rem;border-radius:9999px;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(59,130,246,0.25));border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;font-family:'Barlow Condensed',sans-serif;">YOUR REPS</span>
-                  </div>
-                </div>
-              </div>
-              <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.5rem;border-radius:2px;opacity:0.7;"></div>
-            </div>
-
+            <!-- BIG Location Header relocated to the top of the hub as the prominent YOUR LOCATION hero -->
             <!-- ── Quick-Jump Navigation Pills ── -->
             <div style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.5rem;position:relative;z-index:1;padding:0.75rem 1rem;background:rgba(15,23,42,0.5);border-radius:1rem;border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(8px);" id="pm-quickjump-nav">
               <a href="#pm-tier-federal" onclick="event.preventDefault();document.getElementById('pm-tier-federal').classList.add('open');requestAnimationFrame(function(){document.getElementById('pm-tier-federal').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(239,68,68,0.45);color:#f87171;background:rgba(239,68,68,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(239,68,68,0.25)';this.style.borderColor='rgba(239,68,68,0.8)';this.style.boxShadow='0 0 16px rgba(239,68,68,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.borderColor='rgba(239,68,68,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🦅 Federal Level</a>
@@ -19620,11 +19630,18 @@
     var eduEl     = document.getElementById('vh-ballot-edu');
     var pmStateSel  = document.getElementById('pm-state-sel');
     var pmCountySel = document.getElementById('pm-county-sel');
+    // Prominent "YOUR LOCATION" hero pills (state / county / district)
+    var heroStateEl    = document.getElementById('vh-hero-state');
+    var heroCountyEl    = document.getElementById('vh-hero-county');
+    var heroDistrictEl = document.getElementById('vh-hero-district');
 
     if (!window._hasUserLocation) {
       if (cityEl) cityEl.innerHTML = 'Your ' + grad + 'Area</span>';
       if (subEl)  subEl.textContent = 'Set Your Location to see your representatives';
       if (labelEl) labelEl.innerHTML = '📍 Set Your Location to see your representatives';
+      if (heroStateEl)    heroStateEl.textContent = 'Not set';
+      if (heroCountyEl)    heroCountyEl.textContent = 'Not set';
+      if (heroDistrictEl) heroDistrictEl.textContent = 'All';
       if (pmStateSel)  pmStateSel.value = '';
       if (pmCountySel) pmCountySel.value = 'all';
       if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
@@ -19648,6 +19665,10 @@
 
     if (pmStateSel) pmStateSel.value = (state === 'National' ? 'national' : 'all');
     if (pmCountySel) pmCountySel.value = 'all';
+
+    if (heroStateEl)    heroStateEl.textContent = state || 'Not set';
+    if (heroCountyEl)    heroCountyEl.textContent = (loc.city || loc.county) || (state ? 'Statewide' : 'Not set');
+    if (heroDistrictEl) heroDistrictEl.textContent = loc.district ? String(loc.district) : 'All';
 
     if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
   };
