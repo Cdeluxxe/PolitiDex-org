@@ -3321,6 +3321,8 @@
     .myteam-slot-compare-btn { color: #93c5fd; border-color: rgba(59,130,246,0.35); background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.08)); box-shadow: 0 1px 6px rgba(59,130,246,0.1); }
     .myteam-slot-compare-btn:hover { background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.18)); border-color: rgba(59,130,246,0.6); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.2); }
     .myteam-slot-compare-btn.chub-added { background: rgba(59,130,246,0.25); border-color: rgba(59,130,246,0.55); color: #bfdbfe; }
+    .myteam-slot-jump-btn { color: #fad96a; border-color: rgba(245, 200, 66, 0.35); background: linear-gradient(135deg, rgba(245, 200, 66, 0.15), rgba(245, 200, 66, 0.08)); box-shadow: 0 1px 6px rgba(245, 200, 66, 0.1); }
+    .myteam-slot-jump-btn:hover { background: linear-gradient(135deg, rgba(245, 200, 66, 0.3), rgba(245, 200, 66, 0.18)); border-color: rgba(245, 200, 66, 0.6); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(245, 200, 66, 0.2); }
     .myteam-slot-profile-btn { color: #e2e8f0; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
     .myteam-slot-profile-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); transform: translateY(-2px); box-shadow: 0 3px 12px rgba(255,255,255,0.05); }
     .myteam-slot-clear-btn { color: #f87171; opacity: 0; font-size: 0.85rem; padding: 0.2rem 0.4rem; position: absolute; top: 0.6rem; right: 0.6rem; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(248,113,113,0.2); z-index: 3; transition: all 0.2s; }
@@ -18122,6 +18124,25 @@
     }
   };
 
+  window._triggerLocationReaction = function() {
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+    var state = loc.state || '';
+    
+    if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
+    if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
+    if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
+    if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
+    if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
+    if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+    if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
+    if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
+    if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    
+    var pmStateSel = document.getElementById('pm-state-sel');
+    if (pmStateSel) pmStateSel.value = (state === 'National' ? 'national' : 'all');
+    if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
+  };
+
   window.voterLocationStateChanged = function() {
     var stateSel = document.getElementById('voter-state-sel');
     var countyWrap = document.getElementById('voter-county-wrap');
@@ -18151,20 +18172,7 @@
       window.saveVoterLocation();
     }
 
-    if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
-
-    var pmStateSel = document.getElementById('pm-state-sel');
-    if (pmStateSel) pmStateSel.value = (state === 'National' ? 'national' : 'all');
-    if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
-
-    window.updateRelevantLocationText();
-
-    if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
-    if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
-    if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
-    if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
-    if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
-    if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    window._triggerLocationReaction();
   };
 
   window.voterLocationDistrictChanged = function() {
@@ -18174,13 +18182,7 @@
     window._currentVoterLocation.district = num;
     window.saveVoterLocation();
 
-    if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
-    if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
-    if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
-    if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
-    if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
-    if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
-    if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    window._triggerLocationReaction();
   };
 
   window.voterLocationCountyChanged = function() {
@@ -18191,17 +18193,8 @@
     window._currentVoterLocation.city = val;
     window._currentVoterLocation.county = val;
     window.saveVoterLocation();
-    if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
 
-    if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
-
-    window.updateRelevantLocationText();
-
-    if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
-    if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
-    if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
-    if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
-    if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    window._triggerLocationReaction();
   };
 
   window.updateRelevantLocationText = function() {
@@ -21268,9 +21261,52 @@
       }
     }
 
+    function _findRaceKeyForPolitician(pid) {
+      if (typeof window.TEAM_POSITIONS === 'undefined') return null;
+      if (typeof window._ballotCandidates !== 'function') return null;
+      for (var i = 0; i < window.TEAM_POSITIONS.length; i++) {
+        var key = window.TEAM_POSITIONS[i].key;
+        var cands = window._ballotCandidates(key);
+        if (cands && cands.some(function(c) { return c.pid === pid; })) {
+          return key;
+        }
+      }
+      
+      var d = CMP_DATA[pid];
+      if (!d) return null;
+      var o = (d.office || '').toLowerCase();
+      if (/president/i.test(o) && !/state/i.test(o)) return 'president';
+      if (/senator/i.test(o) && !/state/i.test(o)) return 'senate';
+      if (/representative/i.test(o) && !/state/i.test(o)) return 'house';
+      if (/governor/i.test(o)) return 'governor';
+      if (/state\s*sen/i.test(o)) return 'statesenate';
+      if (/state\s*rep/i.test(o)) return 'statehouse';
+      if (/mayor|county|local/i.test(o)) return 'local';
+      return null;
+    }
+
     window.mypolToggle = function(pid) {
-      if (_myPoliticians.has(pid)) { _myPoliticians.delete(pid); }
-      else { _myPoliticians.add(pid); }
+      var wasOnTeam = _myPoliticians.has(pid);
+      if (wasOnTeam) { 
+        _myPoliticians.delete(pid);
+        var selections = window._ballotLoad ? window._ballotLoad() : {};
+        var raceKey = _findRaceKeyForPolitician(pid);
+        if (raceKey && selections[raceKey] === pid) {
+          delete selections[raceKey];
+          if (window._ballotSave) window._ballotSave(selections);
+          if (window._ballotRender) window._ballotRender();
+        }
+      }
+      else { 
+        _myPoliticians.add(pid); 
+        var raceKey = _findRaceKeyForPolitician(pid);
+        if (raceKey) {
+          var selections = window._ballotLoad ? window._ballotLoad() : {};
+          selections[raceKey] = pid;
+          if (window._ballotSave) window._ballotSave(selections);
+          if (window._ballotRender) window._ballotRender();
+        }
+      }
       _mypolSave();
       _mypolBuildGrid();
       chubBuildAll();
@@ -21279,8 +21315,26 @@
 
     window.mypolToggleAnimated = function(btn, pid) {
       var wasOnTeam = _myPoliticians.has(pid);
-      if (wasOnTeam) { _myPoliticians.delete(pid); }
-      else { _myPoliticians.add(pid); }
+      if (wasOnTeam) { 
+        _myPoliticians.delete(pid);
+        var selections = window._ballotLoad ? window._ballotLoad() : {};
+        var raceKey = _findRaceKeyForPolitician(pid);
+        if (raceKey && selections[raceKey] === pid) {
+          delete selections[raceKey];
+          if (window._ballotSave) window._ballotSave(selections);
+          if (window._ballotRender) window._ballotRender();
+        }
+      }
+      else { 
+        _myPoliticians.add(pid); 
+        var raceKey = _findRaceKeyForPolitician(pid);
+        if (raceKey) {
+          var selections = window._ballotLoad ? window._ballotLoad() : {};
+          selections[raceKey] = pid;
+          if (window._ballotSave) window._ballotSave(selections);
+          if (window._ballotRender) window._ballotRender();
+        }
+      }
       if (!wasOnTeam && btn) {
         btn.classList.add('just-added');
         btn.innerHTML = '✓ Added!';
@@ -21490,14 +21544,15 @@
           d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2.5 py-0.5 font-condensed text-steel-500" style="font-size:0.58rem;">' + i + '</span>'; }).join('') +
         '</div>' +
         '<div class="myteam-slot-actions">' +
-          '<button class="myteam-slot-profile-btn" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">📋 Full Profile</button>' +
+          '<button class="myteam-slot-profile-btn" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">📋 Profile</button>' +
           '<button class="myteam-slot-compare-btn ' + (sel ? 'chub-added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">' + (sel ? '✓ Comparing' : '⚖️ Compare') + '</button>' +
+          '<button class="myteam-slot-jump-btn" onclick="event.stopPropagation();window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Browse candidates for this position">🔍 Browse</button>' +
         '</div>' +
       '</div>';
     }
 
     function _renderSlotEmpty(pos) {
-      return '<div class="myteam-slot-empty" onclick="ballotScrollToRace(\'' + pos.key + '\')">' +
+      return '<div class="myteam-slot-empty" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '35;color:' + pos.color + '80;">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div style="width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(30,53,96,0.1);border:2.5px dashed rgba(255,255,255,0.08);font-size:2rem;margin:0.4rem auto 0.75rem;color:#3d5a80;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
         '<div class="font-condensed text-base text-steel-400 tracking-wider font-700" style="margin-bottom:0.25rem;">Open Slot</div>' +
