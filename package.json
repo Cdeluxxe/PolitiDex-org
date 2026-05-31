@@ -1,0 +1,13 @@
+{
+  "name": "politidex",
+  "version": "1.0.0",
+  "description": "PolitiDex — political promise tracker and voter accountability platform",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.0",
+    "@google/genai": "^2.7.0",
+    "@netlify/functions": "^5.3.0",
+    "openai": "^6.39.0"
+  }
+}
