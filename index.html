@@ -10608,6 +10608,40 @@
         </div>
       </div>
 
+      <!-- ═══ YOUR LOCATION — prominent hub banner ═══ -->
+      <div id="hub-your-location" class="mb-6 animate-on-scroll" style="position:relative;overflow:hidden;border-radius:1.5rem;padding:1.6rem 1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.14) 0%,rgba(15,23,42,0.92) 45%,rgba(26,58,107,0.22) 100%);border:2px solid rgba(255,255,255,0.12);box-shadow:0 16px 50px rgba(0,0,0,0.45),0 0 60px rgba(192,21,42,0.12),inset 0 1px 0 rgba(255,255,255,0.06);">
+        <!-- patriotic top stripe -->
+        <div aria-hidden="true" style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.9;"></div>
+        <div class="flex items-center justify-between gap-5 flex-wrap" style="position:relative;z-index:1;">
+          <div class="flex items-center gap-5" style="min-width:0;">
+            <div style="width:4.5rem;height:4.5rem;border-radius:1.25rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:2.4rem;box-shadow:0 0 36px rgba(192,21,42,0.55),0 0 18px rgba(26,58,107,0.4);border:3px solid rgba(255,255,255,0.22);flex-shrink:0;animation:pulse 3s ease-in-out infinite;">📍</div>
+            <div style="min-width:0;">
+              <div class="font-display" style="font-size:1.05rem;letter-spacing:0.32em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.4rem;font-weight:800;text-shadow:0 0 28px rgba(239,68,68,0.5);">YOUR LOCATION</div>
+              <div id="hub-loc-place" class="font-display" style="font-size:2.9rem;line-height:0.95;letter-spacing:0.02em;color:#fff;text-shadow:0 0 44px rgba(192,21,42,0.45),0 2px 10px rgba(0,0,0,0.6);font-weight:900;">Your <span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Area</span></div>
+              <div id="hub-loc-detail" class="font-condensed" style="font-size:1rem;letter-spacing:0.08em;color:#cbd5e1;font-weight:600;margin-top:0.45rem;">Set Your Location to see your representatives</div>
+            </div>
+          </div>
+          <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed font-700 tracking-widest uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 rounded-xl transition-all shadow-md flex items-center gap-2 flex-shrink-0" style="padding:0.85rem 1.4rem;font-size:0.85rem;box-shadow:0 6px 24px rgba(37,99,235,0.35);min-height:48px;">
+            <span style="font-size:1.05rem;">📍</span> Change Location
+          </button>
+        </div>
+        <!-- State / City-County / District chips -->
+        <div class="grid grid-cols-3 gap-2.5" style="position:relative;z-index:1;margin-top:1.25rem;">
+          <div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:0.9rem;padding:0.7rem 0.85rem;">
+            <div class="font-condensed" style="font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;">State</div>
+            <div id="hub-loc-state" class="font-display" style="font-size:1.25rem;line-height:1.05;letter-spacing:0.02em;color:#fff;margin-top:0.2rem;">&mdash;</div>
+          </div>
+          <div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:0.9rem;padding:0.7rem 0.85rem;">
+            <div class="font-condensed" style="font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;">City / County</div>
+            <div id="hub-loc-county" class="font-display" style="font-size:1.25rem;line-height:1.05;letter-spacing:0.02em;color:#fff;margin-top:0.2rem;">&mdash;</div>
+          </div>
+          <div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:0.9rem;padding:0.7rem 0.85rem;">
+            <div class="font-condensed" style="font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;">District</div>
+            <div id="hub-loc-district" class="font-display" style="font-size:1.25rem;line-height:1.05;letter-spacing:0.02em;color:#fff;margin-top:0.2rem;">&mdash;</div>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ STATE OVERVIEW CARD — dynamic "voter map" for the user's saved state ═══ -->
       <style id="state-overview-styles">
         .so-card{position:relative;overflow:hidden;border-radius:1.25rem;padding:1.1rem 1.25rem 1.2rem;margin-bottom:1.5rem;
@@ -10646,92 +10680,8 @@
       </style>
       <div id="state-overview-myteam"></div>
 
-      <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
-      <div id="myteam-selected-panel" class="mb-6">
-        <div class="bg-gradient-to-br from-amber-900/22 via-navy-800/80 to-navy-900/90 border-2 border-amber-500/30 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(245,158,11,0.08);">
-          <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-            <div class="flex items-center gap-3">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">🗳️</div>
-              <div>
-                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">YOUR TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
-                <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
-                <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
-              </div>
-            </div>
-            <div class="flex gap-2 items-center flex-wrap">
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
-              <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
-              <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
-            </div>
-          </div>
-
-          <!-- Team stats bar -->
-          <div id="myteam-stats" class="mb-6" style="display:none;">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-              <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Avg Promise Score</div>
-              </div>
-              <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Members</div>
-              </div>
-              <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Positions Filled</div>
-              </div>
-              <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Alignment</div>
-              </div>
-            </div>
-            <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
-              <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
-                <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Compare My Team
-              </button>
-            </div>
-          </div>
-
-          <!-- 6-Slot Position Grid -->
-          <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
-
-          <!-- Compare All + Alignment Action Bar -->
-          <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
-            <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
-              <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              ⚖️ Compare All Team Members Side-by-Side
-            </button>
-            <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
-          </div>
-
-          <!-- Team Alignment Summary -->
-          <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700/80 flex items-center justify-center text-base" style="flex-shrink:0;box-shadow:0 0 12px rgba(139,92,246,0.3);">🎯</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-300 mb-0.5">Team Alignment</div>
-              <div id="myteam-alignment-detail" class="font-condensed text-xs text-steel-400 tracking-wide"></div>
-            </div>
-          </div>
-
-          <!-- Empty state for team -->
-          <div id="myteam-empty" class="text-center py-16" style="display:none;">
-            <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
-            <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR BALLOT</div>
-            <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Start filling your 6 ballot positions by browsing the full list of politicians below. Each slot represents a key elected office — from the U.S. Senate down to your local government.</p>
-            <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Sign in to save your team to your account and access it from any device.</p>
-            <a href="#myteam-browse-panel" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
-              <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-              Browse Politicians Below
-            </a>
-          </div>
-        </div>
-      </div>
-
       <!-- ═══ RELEVANT TO ME ═══ -->
       <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px;">
-        <!-- State Overview Card — dynamic "voter map" for the user's saved state -->
-        <div id="state-overview-relevant"></div>
         <!-- Relevant to Me Section Header -->
         <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
           <div class="flex items-center justify-between gap-4 flex-wrap">
@@ -10831,6 +10781,88 @@
 
         <!-- Relevant cards — grouped by type & location -->
         <div id="relevant-browse-grid"></div>
+      </div>
+
+      <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
+      <div id="myteam-selected-panel" class="mb-6">
+        <div class="bg-gradient-to-br from-amber-900/22 via-navy-800/80 to-navy-900/90 border-2 border-amber-500/30 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(245,158,11,0.08);">
+          <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">🗳️</div>
+              <div>
+                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">YOUR TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
+                <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
+                <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
+              </div>
+            </div>
+            <div class="flex gap-2 items-center flex-wrap">
+              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
+              <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
+              <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
+            </div>
+          </div>
+
+          <!-- Team stats bar -->
+          <div id="myteam-stats" class="mb-6" style="display:none;">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
+                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Avg Promise Score</div>
+              </div>
+              <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
+                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Members</div>
+              </div>
+              <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
+                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Positions Filled</div>
+              </div>
+              <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
+                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Alignment</div>
+              </div>
+            </div>
+            <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
+              <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
+                <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Compare My Team
+              </button>
+            </div>
+          </div>
+
+          <!-- 6-Slot Position Grid -->
+          <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
+
+          <!-- Compare All + Alignment Action Bar -->
+          <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
+            <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
+              <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              ⚖️ Compare All Team Members Side-by-Side
+            </button>
+            <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
+          </div>
+
+          <!-- Team Alignment Summary -->
+          <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700/80 flex items-center justify-center text-base" style="flex-shrink:0;box-shadow:0 0 12px rgba(139,92,246,0.3);">🎯</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-300 mb-0.5">Team Alignment</div>
+              <div id="myteam-alignment-detail" class="font-condensed text-xs text-steel-400 tracking-wide"></div>
+            </div>
+          </div>
+
+          <!-- Empty state for team -->
+          <div id="myteam-empty" class="text-center py-16" style="display:none;">
+            <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
+            <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR BALLOT</div>
+            <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Start filling your 6 ballot positions by browsing the full list of politicians below. Each slot represents a key elected office — from the U.S. Senate down to your local government.</p>
+            <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Sign in to save your team to your account and access it from any device.</p>
+            <a href="#myteam-browse-panel" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
+              <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              Browse Politicians Below
+            </a>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ PROMISE TRACKER ═══ -->
@@ -19895,7 +19927,49 @@
     'Wyoming':{house:1,senate:31,lower:62,lowerName:'State House'}
   };
 
+  // Sync the prominent "YOUR LOCATION" hub banner (state / city-county / district
+  // chips) at the top of the combined Voter Hub. Driven entirely from the saved
+  // location — no hardcoded defaults.
+  window.updateHubLocationCard = function() {
+    var placeEl = document.getElementById('hub-loc-place');
+    if (!placeEl) return;
+    var detailEl = document.getElementById('hub-loc-detail');
+    var stateEl  = document.getElementById('hub-loc-state');
+    var countyEl = document.getElementById('hub-loc-county');
+    var distEl   = document.getElementById('hub-loc-district');
+    var grad = '<span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">';
+
+    if (!window._hasUserLocation) {
+      placeEl.innerHTML = 'Your ' + grad + 'Area</span>';
+      if (detailEl) detailEl.textContent = 'Set Your Location to see your representatives';
+      if (stateEl)  stateEl.innerHTML  = '&mdash;';
+      if (countyEl) countyEl.innerHTML = '&mdash;';
+      if (distEl)   distEl.innerHTML   = '&mdash;';
+      return;
+    }
+
+    var loc = window._currentVoterLocation || { state:'', city:'', county:'', district:'' };
+    if (loc.state === 'National') {
+      placeEl.innerHTML = 'The ' + grad + 'United States</span>';
+      if (detailEl) detailEl.textContent = 'Federal Focus · Key national offices on your ballot';
+      if (stateEl)  stateEl.textContent  = 'National 🇺🇸';
+      if (countyEl) countyEl.innerHTML   = '&mdash;';
+      if (distEl)   distEl.textContent   = 'Federal';
+      return;
+    }
+
+    var city  = loc.city || loc.county || '';
+    var state = loc.state || '';
+    var place = [city, state].filter(Boolean).join(', ') || 'Your Area';
+    placeEl.textContent = place;
+    if (detailEl) detailEl.textContent = (state || 'Your area') + (loc.district ? ' · Congressional District ' + loc.district : ' · Your direct representatives');
+    if (stateEl)  stateEl.textContent  = state || '—';
+    if (countyEl) countyEl.textContent = city  || '—';
+    if (distEl)   distEl.textContent   = loc.district ? ('District ' + loc.district) : '—';
+  };
+
   window.renderStateOverview = function() {
+    if (typeof window.updateHubLocationCard === 'function') window.updateHubLocationCard();
     var hosts = [document.getElementById('state-overview-myteam'), document.getElementById('state-overview-relevant')];
     hosts = hosts.filter(Boolean);
     if (!hosts.length) return;
