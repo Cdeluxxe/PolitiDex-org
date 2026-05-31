@@ -22400,9 +22400,84 @@
       if (relevantCountBadge) relevantCountBadge.textContent = pids.length;
 
       if (pids.length > 0) {
-        // Start fully minimized so users see the whole office → state → district/county
-        // map at a glance with minimal scrolling.
-        relevantGrid.innerHTML = _renderGroupedBrowse(pids, 'relevant-', { defaultOpen: false });
+        var officeGroups = {};
+        pids.forEach(function(pid) {
+          var type = _classifyBrowseType(pid);
+          if (!officeGroups[type]) officeGroups[type] = [];
+          officeGroups[type].push(pid);
+        });
+
+        var customOfficeTypes = [
+          { key: 'president', label: 'PRESIDENT / EXECUTIVE', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
+          { key: 'senator', label: 'U.S. SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
+          { key: 'representative', label: 'U.S. HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
+          { key: 'governor', label: 'GOVERNORS', icon: '🦅', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
+          { key: 'state_senator', label: 'STATE SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
+          { key: 'state_rep', label: 'STATE HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
+          { key: 'local', label: 'LOCAL GOV', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
+          { key: 'candidate', label: 'CANDIDATES / NOMINEES', icon: '🗳', bg: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(30,53,96,0.3))' },
+          { key: 'cabinet', label: 'CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' }
+        ];
+
+        var html = '';
+        customOfficeTypes.forEach(function(tDef) {
+          var officePids = officeGroups[tDef.key];
+          if (!officePids || officePids.length === 0) return;
+
+          var groupKey = tDef.key;
+          var isOfficeOpen = _browseGroupState['relevant-office-' + groupKey] !== undefined
+            ? _browseGroupState['relevant-office-' + groupKey]
+            : false;
+          var officeExpandedClass = isOfficeOpen ? ' expanded' : '';
+
+          html += '<div class="browse-type-group' + officeExpandedClass + '" id="relevant-browse-group-' + groupKey + '">';
+          html += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'relevant-browse-group-' + groupKey + '\', \'relevant-office-' + groupKey + '\')">';
+          html += '<div class="browse-type-title">';
+          html += '<div class="browse-type-icon" style="background:' + tDef.bg + ';">' + tDef.icon + '</div>';
+          html += '<span class="browse-type-name">' + tDef.label + '</span>';
+          html += '<span class="browse-type-count">' + officePids.length + '</span>';
+          html += '</div>';
+          html += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
+          html += '</button>';
+          html += '<div class="browse-type-body"><div class="browse-type-inner">';
+          
+          html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+          _sortInOfficeFirst(officePids).forEach(function(pid) {
+            html += _renderBrowseTeamCard(pid);
+          });
+          html += '</div>';
+
+          html += '</div></div></div>';
+        });
+
+        if (officeGroups['other'] && officeGroups['other'].length > 0) {
+          var otherPids = officeGroups['other'];
+          var isOtherOpen = _browseGroupState['relevant-office-other'] !== undefined
+            ? _browseGroupState['relevant-office-other']
+            : false;
+          var otherExpandedClass = isOtherOpen ? ' expanded' : '';
+
+          html += '<div class="browse-type-group' + otherExpandedClass + '" id="relevant-browse-group-other">';
+          html += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'relevant-browse-group-other\', \'relevant-office-other\')">';
+          html += '<div class="browse-type-title">';
+          html += '<div class="browse-type-icon" style="background:linear-gradient(135deg, rgba(100,116,139,0.2), rgba(30,53,96,0.3));">👤</div>';
+          html += '<span class="browse-type-name">OTHER REPRESENTATIVES</span>';
+          html += '<span class="browse-type-count">' + otherPids.length + '</span>';
+          html += '</div>';
+          html += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
+          html += '</button>';
+          html += '<div class="browse-type-body"><div class="browse-type-inner">';
+          
+          html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+          _sortInOfficeFirst(otherPids).forEach(function(pid) {
+            html += _renderBrowseTeamCard(pid);
+          });
+          html += '</div>';
+
+          html += '</div></div></div>';
+        }
+
+        relevantGrid.innerHTML = html;
       } else {
         relevantGrid.innerHTML = '<div class="text-center text-steel-500 font-condensed py-6">No relevant politicians found for your location.</div>';
       }
