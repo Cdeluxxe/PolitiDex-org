@@ -9256,1507 +9256,40 @@
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
           <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ Voter Empowerment Hub</span>
         </div>
-        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">YOUR POWER <span class="text-crimson-400">MAP</span></h2>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">YOUR VOTING <span class="text-crimson-400">HUB</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Every politician below has direct power over your daily life — your taxes, your land, your healthcare, your rights.
-          <strong class="text-white">Know their record. Hold them accountable.</strong>
+          Your centralized command center for personalizing your ballot, tracking representatives, and building the ultimate voting team.
         </p>
       </div>
 
-      <!-- ── Toolkit row ────────────────────────────────────── -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 mb-10 animate-on-scroll" style="transition-delay:0.04s;">
-        <a href="#tracker" class="veh-tool-card"><span class="veh-icon">📊</span><span class="veh-label">Promise Tracker</span><span class="veh-desc">Scored, sourced promises.</span></a>
-        <a href="#my-politicians" class="veh-tool-card"><span class="veh-icon">🎴</span><span class="veh-label">Browse Politicians</span><span class="veh-desc">Full deep-dive profiles.</span></a>
-        <a href="#compare-hub" class="veh-tool-card"><span class="veh-icon">⚖️</span><span class="veh-label">Compare</span><span class="veh-desc">Side-by-side comparison.</span></a>
-        <a href="#agenda" class="veh-tool-card"><span class="veh-icon">📜</span><span class="veh-label">People's Mandate</span><span class="veh-desc">Vote on real reforms.</span></a>
-      </div>
-
-      <!-- ── Power Map + Side panel ─────────────────────────── -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <!-- LEFT: Power Map Tree (2/3 width) -->
-        <div class="lg:col-span-2 animate-on-scroll" style="transition-delay:0.07s;">
-
-          <!-- ── Prominent Location Selector ─────────────────── -->
-          <div class="pm-location-bar">
-            <!-- ── BIG Location Header ── -->
-            <div style="position:relative;z-index:1;margin-bottom:1.75rem;padding:1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);">
-              <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;">
-                <div style="width:5.5rem;height:5.5rem;border-radius:1.25rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:2.8rem;box-shadow:0 0 40px rgba(192,21,42,0.6),0 0 20px rgba(26,58,107,0.4),0 0 80px rgba(192,21,42,0.2);border:3px solid rgba(255,255,255,0.25);flex-shrink:0;animation:pulse 3s ease-in-out infinite;">📍</div>
-                <div>
-                  <div class="font-display" style="font-size:1.5rem;letter-spacing:0.28em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.5rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5),0 0 60px rgba(239,68,68,0.2);">YOUR LOCATION</div>
-                  <div id="vh-loc-city" class="font-display" style="font-size:4.25rem;line-height:1;letter-spacing:0.03em;color:white;text-shadow:0 0 50px rgba(192,21,42,0.5),0 2px 10px rgba(0,0,0,0.6),0 0 80px rgba(59,130,246,0.2);font-weight:900;">Your <span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Area</span></div>
-                  <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;">
-                    <span style="width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#3b82f6);flex-shrink:0;box-shadow:0 0 12px rgba(239,68,68,0.5);"></span>
-                    <span id="vh-loc-subdesc" class="font-condensed" style="font-size:1.15rem;letter-spacing:0.1em;color:#cbd5e1;font-weight:600;">Set Your Location to see your representatives</span>
-                    <span style="display:inline-block;margin-left:0.25rem;padding:0.2rem 0.75rem;border-radius:9999px;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(59,130,246,0.25));border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;font-family:'Barlow Condensed',sans-serif;">YOUR REPS</span>
-                  </div>
-                </div>
-              </div>
-              <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.5rem;border-radius:2px;opacity:0.7;"></div>
-            </div>
-
-            <!-- ── Quick-Jump Navigation Pills ── -->
-            <div style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.5rem;position:relative;z-index:1;padding:0.75rem 1rem;background:rgba(15,23,42,0.5);border-radius:1rem;border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(8px);" id="pm-quickjump-nav">
-              <a href="#pm-tier-federal" onclick="event.preventDefault();document.getElementById('pm-tier-federal').classList.add('open');requestAnimationFrame(function(){document.getElementById('pm-tier-federal').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(239,68,68,0.45);color:#f87171;background:rgba(239,68,68,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(239,68,68,0.25)';this.style.borderColor='rgba(239,68,68,0.8)';this.style.boxShadow='0 0 16px rgba(239,68,68,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.borderColor='rgba(239,68,68,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🦅 Federal Level</a>
-              <a href="#pm-sub-governor" onclick="event.preventDefault();document.getElementById('pm-tier-state').classList.add('open');requestAnimationFrame(function(){document.getElementById('pm-sub-governor').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(245,200,66,0.45);color:#f5c842;background:rgba(245,200,66,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(245,200,66,0.25)';this.style.borderColor='rgba(245,200,66,0.8)';this.style.boxShadow='0 0 16px rgba(245,200,66,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(245,200,66,0.1)';this.style.borderColor='rgba(245,200,66,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🏛 Governor</a>
-              <a href="#pm-sub-senate" onclick="event.preventDefault();document.getElementById('pm-tier-state').classList.add('open');requestAnimationFrame(function(){document.getElementById('pm-sub-senate').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(245,200,66,0.45);color:#f5c842;background:rgba(245,200,66,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(245,200,66,0.25)';this.style.borderColor='rgba(245,200,66,0.8)';this.style.boxShadow='0 0 16px rgba(245,200,66,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(245,200,66,0.1)';this.style.borderColor='rgba(245,200,66,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🏛 State Senate</a>
-              <a href="#pm-sub-house" onclick="event.preventDefault();document.getElementById('pm-tier-state').classList.add('open');requestAnimationFrame(function(){document.getElementById('pm-sub-house').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(245,200,66,0.45);color:#f5c842;background:rgba(245,200,66,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(245,200,66,0.25)';this.style.borderColor='rgba(245,200,66,0.8)';this.style.boxShadow='0 0 16px rgba(245,200,66,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(245,200,66,0.1)';this.style.borderColor='rgba(245,200,66,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🏛 State House</a>
-              <a href="#pm-tier-federal" onclick="event.preventDefault();pmToggleFullState();requestAnimationFrame(function(){document.getElementById('pm-tier-federal').scrollIntoView({behavior:'smooth',block:'start'});});" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.2rem;border-radius:9999px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(52,211,153,0.45);color:#34d399;background:rgba(52,211,153,0.1);transition:all 0.25s;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);" onmouseover="this.style.background='rgba(52,211,153,0.25)';this.style.borderColor='rgba(52,211,153,0.8)';this.style.boxShadow='0 0 16px rgba(52,211,153,0.25)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='rgba(52,211,153,0.1)';this.style.borderColor='rgba(52,211,153,0.45)';this.style.boxShadow='0 1px 4px rgba(0,0,0,0.2)';this.style.transform='translateY(0)'">🏔 Full State View</a>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-3 relative" style="z-index:1;">
-              <!-- Hidden Power Map filter controls. These are NOT a location picker —
-                   they are driven programmatically from the user's saved location in
-                   localStorage (see _vhSyncBanner). The single, national location
-                   picker is the "Change My Location" button below, which opens the
-                   unified 50-state form. The option values here are internal data
-                   keys for the map engine, not user-facing location text. -->
-              <select id="pm-state-sel" onchange="pmFilterLocation()" class="pm-loc-select" style="display:none;" aria-hidden="true" tabindex="-1">
-                <option value="">Set Your Location</option>
-                <option value="national">National</option>
-                <option value="all">All</option>
-              </select>
-              <select id="pm-county-sel" onchange="pmFilterLocation()" class="pm-loc-select" style="display:none;" aria-hidden="true" tabindex="-1">
-                <option value="all" selected>All</option>
-              </select>
-              <select id="pm-district-sel" onchange="pmFilterLocation()" class="pm-loc-select" style="display:none;" aria-hidden="true" tabindex="-1">
-                <option value="all">All Districts</option>
-              </select>
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px] flex-shrink-0">📍 Change My Location</button>
-              <button id="pm-fullstate-btn" onclick="pmToggleFullState()" class="font-condensed text-xs tracking-widest uppercase text-amber-400 hover:text-amber-300 transition-all flex-shrink-0" style="background:linear-gradient(135deg,rgba(245,200,66,0.15),rgba(192,21,42,0.1));border:1px solid rgba(245,200,66,0.35);padding:0.4rem 0.8rem;border-radius:0.5rem;cursor:pointer;font-weight:700;letter-spacing:0.12em;">🗺 View Full Map</button>
-              <button onclick="pmExpandAll()" class="font-condensed text-xs tracking-widest uppercase text-steel-500 hover:text-steel-300 transition-colors flex-shrink-0" style="background:none;border:none;cursor:pointer;">Expand All ▾</button>
-            </div>
-            <div id="pm-location-label" class="font-condensed text-xs text-green-400 mt-2.5 relative" style="letter-spacing:0.06em;z-index:1;">
-              📍 Set Your Location to see your representatives
-            </div>
-          </div>
-
-          <!-- ── YOUR 2026 BALLOT BREAKDOWN — Enhanced ────────── -->
-          <div id="ballot-breakdown" class="ballot-section-enhanced">
-            <div class="flex items-center gap-3 mb-2" style="position:relative;z-index:1;">
-              <div style="width:2.75rem;height:2.75rem;border-radius:0.75rem;background:linear-gradient(135deg,#c0152a,#1a3a6b);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px rgba(192,21,42,0.4);border:2px solid rgba(255,255,255,0.2);flex-shrink:0;">🗳️</div>
-              <div>
-                <h3 class="font-display text-xl tracking-wider text-crimson-400 uppercase" style="line-height:1.1;text-shadow:0 0 20px rgba(192,21,42,0.3);">YOUR 2026 BALLOT BREAKDOWN</h3>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Build your personal voting team — one pick per race</p>
-              </div>
-              <button onclick="ballotClearAll()" class="ml-auto font-condensed text-xs text-steel-500 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;">Reset All</button>
-            </div>
-
-            <p id="vh-ballot-edu" class="ballot-edu-text" style="max-width:42rem;position:relative;z-index:1;">You'll vote for <strong style="color:#e2e8f0;">6 key positions</strong> that shape everything from federal law to your local roads. Select your preferred candidate for each race below to build your personal <strong style="color:#4ade80;">"My Voting Team"</strong> slate.</p>
-
-            <!-- Progress bar -->
-            <div class="flex items-center gap-2 mb-4" style="position:relative;z-index:1;">
-              <div class="ballot-progress-bar flex-1">
-                <div id="ballot-progress-fill" class="ballot-progress-fill" style="width:0%"></div>
-              </div>
-              <span id="ballot-progress-label" class="font-condensed text-xs text-steel-500 tracking-wider">0 / 6 picked</span>
-            </div>
-
-            <!-- ★ MY 2026 VOTING TEAM — Prominent Summary Box ★ -->
-            <div id="myteam-summary-box" class="myteam-summary-box" style="position:relative;z-index:1;">
-              <div class="myteam-summary-header">
-                <div class="myteam-summary-title-group">
-                  <div class="myteam-summary-icon">⭐</div>
-                  <div>
-                    <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
-                    <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
-                  </div>
-                  <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
-                </div>
-                <div class="myteam-summary-actions">
-                  <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Share My Team
-                  </button>
-                  <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
-                </div>
-              </div>
-              <!-- Empty state prompt - shown when no picks made -->
-              <div id="myteam-empty-prompt" class="myteam-empty-prompt">
-                <div class="myteam-empty-inner">
-                  <div class="myteam-empty-icons">
-                    <span>🏛</span><span>🦅</span><span>🏙</span>
-                  </div>
-                  <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Start Building Your Team</div>
-                  <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick one candidate for each of the <strong id="myteam-empty-count" style="color:#e2e8f0;">6 races</strong> below. Your choices are <strong style="color:#4ade80;">saved automatically</strong> to this browser and will be here when you come back.</div>
-                  <div class="font-condensed" style="font-size:0.6rem;color:#4e72a0;margin-top:0.5rem;letter-spacing:0.08em;">&#8595; SCROLL DOWN TO START PICKING &#8595;</div>
-                </div>
-              </div>
-              <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
-              <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
-            </div>
-
-            <!-- Educational race cards — rendered dynamically -->
-            <div style="position:relative;z-index:1;">
-              <div class="flex items-center gap-2 mb-3">
-                <span style="font-size:0.9rem;">📋</span>
-                <span class="font-display text-sm tracking-wider text-white uppercase">Select Your Picks</span>
-                <span class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-left:0.25rem;">— click any candidate card</span>
-              </div>
-              <div id="ballot-races"></div>
-            </div>
-          </div>
-
-          <!-- Share toast notification -->
-          <div id="myteam-share-toast" class="myteam-share-toast">Copied to clipboard!</div>
-          <div id="account-save-toast" class="account-save-toast">💾 Saved to your account</div>
-          <div id="vote-save-toast" class="account-save-toast">✅ Vote saved to your account</div>
-          <div id="signin-prompt-toast" class="signin-prompt-toast">
-            <span>Sign in to save your team permanently</span>
-            <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideSigninPrompt();">Sign In</button>
-          </div>
-          <div id="vote-signin-nudge" class="signin-prompt-toast">
-            <span>Sign in to save your votes &amp; comments</span>
-            <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideVoteSigninNudge();">Sign In</button>
-          </div>
-
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-display text-lg tracking-wider text-white flex items-center gap-2.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-green-400 badge-live"></span> WHO HAS POWER OVER <span class="text-crimson-400">YOU</span> <span class="font-condensed text-xs font-600 tracking-widest text-steel-400" style="margin-left:0.5rem;">·</span> <span id="pm-loc-title" class="font-condensed text-xs font-600 tracking-widest" style="color:#34d399;">Your Representatives</span>
-            </h3>
-          </div>
-
-          <!-- ── Friendly subheader ────────────────────────────── -->
-          <p style="font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.55;color:#94a3b8;margin-bottom:1rem;max-width:38rem;" id="pm-area-desc">
-            These are the politicians who directly affect <strong style="color:#fbbf24;">YOUR daily life</strong>. Know their record. Hold them accountable.
-          </p>
-          <!-- ── How to Use This Power Map ────────────────── -->
-          <div class="pm-help-box">
-            <div class="pm-help-box-title">💡 How to Use This Power Map</div>
-            <ul>
-              <li><strong>Search:</strong> Type any name or topic in the search bar above to instantly find a politician — try "water" or "Blake Moore."</li>
-              <li><strong>Filter by Issue:</strong> Click the issue chips (Taxes, Healthcare, etc.) to see only politicians who affect that topic. Stack multiple chips to narrow results.</li>
-              <li><strong>Explore Profiles:</strong> Hit "View Full Profile" on any card to see their promises kept vs. broken, voting record, and a full deep-dive.</li>
-              <li><strong>Compare Side-by-Side:</strong> Click "+ Compare" on two or more cards, then open the comparison to see them head-to-head on the issues you care about.</li>
-            </ul>
-          </div>
-
-          <!-- ── Quick Find + Issue Filters ────────────────────── -->
-          <div class="pm-search-filters">
-            <div class="pm-search-bar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" id="pm-search-input" placeholder="Quick Find Politician…" autocomplete="off">
-            </div>
-            <div class="pm-filter-chips">
-              <span class="pm-filter-chip" data-filter="taxes" onclick="pmToggleFilter(this)">Taxes</span>
-              <span class="pm-filter-chip" data-filter="public lands" onclick="pmToggleFilter(this)">Public Lands</span>
-              <span class="pm-filter-chip" data-filter="environment" onclick="pmToggleFilter(this)">Environment</span>
-              <span class="pm-filter-chip" data-filter="gun rights" onclick="pmToggleFilter(this)">Gun Rights</span>
-              <span class="pm-filter-chip" data-filter="healthcare" onclick="pmToggleFilter(this)">Healthcare</span>
-              <span class="pm-filter-chip" data-filter="education" onclick="pmToggleFilter(this)">Education</span>
-              <span class="pm-filter-chip" data-filter="border security" onclick="pmToggleFilter(this)">Border Security</span>
-              <span class="pm-filter-chip" data-filter="economy" onclick="pmToggleFilter(this)">Economy</span>
-              <span class="pm-filter-chip" data-filter="water rights" onclick="pmToggleFilter(this)">Water Rights</span>
-              <span class="pm-filter-chip" data-filter="constitutional" onclick="pmToggleFilter(this)">Constitutional Freedoms</span>
-              <button class="pm-clear-filters-btn" id="pm-clear-filters" onclick="pmClearFilters()">✕ Clear All Filters</button>
-            </div>
-          </div>
-
-          <!-- ── The Tree ──────────────────────────────────────── -->
-          <div class="pm-tree">
-            <div class="pm-no-results" id="pm-no-results">No politicians match your current filters. Try removing a filter or clearing your search.</div>
-
-            <!-- ══ TIER 1: FEDERAL ═════════════════════════════ -->
-            <div class="pm-tier open" id="pm-tier-federal" style="border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.04);">
-              <div class="pm-tier-header" onclick="pmToggle('pm-tier-federal')" style="background:rgba(239,68,68,0.1);">
-                <div class="pm-tier-title">
-                  <span style="font-size:1.3rem;">🦅</span>
-                  Federal Level
-                  <span class="pm-tier-badge" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;">HIGH DAILY IMPACT</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="font-condensed text-xs text-steel-500 hidden sm:block">Taxes · Trade · Military · Healthcare</span>
-                  <svg class="pm-chevron w-5 h-5 text-steel-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </div>
-              </div>
-              <div class="pm-tier-body" style="background:rgba(5,8,20,0.5);--tier-color:rgba(239,68,68,0.35);--tier-glow:rgba(239,68,68,0.15);">
-                <div class="pm-tree-trunk">
-
-                  <!-- ── President ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">PRESIDENT</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(239,68,68,0.25);" data-county="all" data-pmstate="national" data-name="Donald Trump" data-issues="Immigration & Border,Trade Policy,Tax Reform,Healthcare,National Debt,Foreign Policy">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(239,68,68,0.4);"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/500px-Donald_Trump_official_portrait.jpg" alt="Donald Trump" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🦅</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Donald Trump</div>
-                                <div class="pm-card-office">🦅 47th President · U.S.</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f87171;">23%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f87171;"></span>Signs executive orders affecting your taxes, tariffs, healthcare, and national security daily.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('trump')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-trump" onclick="pmAddCompare('trump',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Cabinet / Intel ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">CABINET</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(96,165,250,0.18);" data-county="all" data-pmstate="national" data-name="Tulsi Gabbard" data-issues="Intelligence Reform,Anti-Interventionism,Civil Liberties,Military">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000571.jpg" alt="Tulsi Gabbard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🦅</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Tulsi Gabbard</div>
-                                <div class="pm-card-office">🦅 Director, Nat. Intel · U.S.</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">55%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Controls intelligence priorities, surveillance policy, and national security briefings affecting your civil liberties.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('tgabbard')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-tgabbard" onclick="pmAddCompare('tgabbard',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(96,165,250,0.18);" data-county="all" data-pmstate="national" data-name="Pete Hegseth" data-issues="Anti-DEI Military Reform,National Defense,Veterans Policy,DoD Restructuring">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(100,116,139,0.3);"><img src="" alt="Pete Hegseth" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🦅</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Pete Hegseth</div>
-                                <div class="pm-card-office">🦅 Secretary of Defense · U.S.</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#9fb4d4;">—</div>
-                                <div class="pm-card-score-label">New</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#64748b;"></span>Manages $858B DoD budget, military readiness, and veteran policy — directly affects 1.3M active-duty personnel and their families.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('hegseth')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-hegseth" onclick="pmAddCompare('hegseth',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(96,165,250,0.18);" data-county="all" data-pmstate="national" data-name="Robert F. Kennedy Jr." data-issues="Vaccine Safety,Food & Nutrition Reform,Chronic Disease,Make America Healthy Again">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(100,116,139,0.3);"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Robert_F._Kennedy_Jr._official_HHS_portrait.jpg/500px-Robert_F._Kennedy_Jr._official_HHS_portrait.jpg" alt="Robert F. Kennedy Jr." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🦅</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Robert F. Kennedy Jr.</div>
-                                <div class="pm-card-office">🦅 HHS Secretary · U.S.</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#9fb4d4;">—</div>
-                                <div class="pm-card-score-label">New</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#64748b;"></span>Oversees FDA, CDC, NIH — controls food safety, drug approval, vaccine policy, and public health decisions affecting every American.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('rfkjr')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-rfkjr" onclick="pmAddCompare('rfkjr',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Senators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">SENATORS</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.2);" data-county="all_ut" data-pmstate="utah" data-district="statewide" data-name="John Curtis" data-issues="Western Water Rights,Fiscal Conservatism,Technology Policy,Public Lands,Border Security,Rural Broadband">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(74,222,128,0.35);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001114.jpg" alt="John Curtis" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">John Curtis</div>
-                                <div class="pm-card-office">🏛 U.S. Senator · Utah</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#4ade80;">78%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span>Votes on federal spending, water rights, broadband — directly shapes Utah's economic and infrastructure future.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('curtis')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-curtis" onclick="pmAddCompare('curtis',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.18);" data-county="all_ut" data-pmstate="utah" data-district="statewide" data-name="Mike Lee" data-issues="Constitutional Originalism,Anti-Surveillance,Second Amendment,Anti-Deficit Spending,Civil Liberties,Audit the Fed">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(74,222,128,0.35);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000577.jpg" alt="Mike Lee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Mike Lee</div>
-                                <div class="pm-card-office">🏛 U.S. Senator · Utah</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#4ade80;">72%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span>Shapes constitutional law, federal land policy, and religious liberty legislation — 14 years of outsized Senate influence.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('lee')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-lee" onclick="pmAddCompare('lee',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── House Representatives ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">HOUSE REPRESENTATIVES</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.35);position:relative;" data-county="davis" data-pmstate="utah" data-district="district1" data-name="Blake Moore" data-issues="Tax Policy (Ways & Means Committee),Western Water Rights,Small Business,Hill Air Force Base,Rural Broadband">
-                          <div style="background:linear-gradient(90deg,rgba(52,211,153,0.22),rgba(34,197,94,0.18));border:1px solid rgba(52,211,153,0.55);border-radius:6px;padding:5px 12px;margin:8px 8px 0 8px;display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;box-shadow:0 0 14px rgba(52,211,153,0.18),0 0 6px rgba(34,197,94,0.12);">
-                            <span style="font-size:0.85rem;">⭐</span> <span style="color:#4ade80;">YOUR HOUSE REP</span> <span style="color:rgba(159,180,212,0.4);">–</span> <span style="color:#34d399;">Most Direct Impact</span>
-                          </div>
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(52,211,153,0.45);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg" alt="Blake Moore" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Blake Moore</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · District 1</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">66%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span><strong style="color:white;">Your federal House rep.</strong> Ways &amp; Means Committee — votes on your taxes, water rights, and Hill AFB funding. Most direct federal impact on your district.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('bmoore')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-bmoore-fed" onclick="pmAddCompare('bmoore',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.18);" data-county="slc" data-pmstate="utah" data-district="district4" data-name="Burgess Owens" data-issues="Education Freedom,School Choice,Second Amendment,Anti-CRT,Fiscal Conservatism,Religious Liberty">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg" alt="Burgess Owens" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Burgess Owens</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · District 4</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">64%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Votes on education, school choice, and Second Amendment legislation affecting every family in District 4.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('owens')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-owens" onclick="pmAddCompare('owens',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.18);" data-county="washington" data-pmstate="utah" data-district="district2" data-name="Celeste Maloy" data-issues="Public Lands,Western Water Rights,Border Security,Fiscal Conservatism,Rural Utah,NEPA Reform">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg" alt="Celeste Maloy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Celeste Maloy</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · District 2</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">61%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Controls votes on Western water rights, public lands, and energy extraction — matters to every rancher and rural Utahn in District 2.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('maloy')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-maloy" onclick="pmAddCompare('maloy',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.18);" data-county="utah_co" data-pmstate="utah" data-district="district3" data-name="Mike Kennedy" data-issues="Healthcare Reform,Constitutional Conservatism,Religious Liberty,Fiscal Reform,Education Freedom,Anti-Regulatory">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000404.jpg" alt="Mike Kennedy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Mike Kennedy</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · District 3 (Utah County)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#9fb4d4;">—</div>
-                                <div class="pm-card-score-label">New</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Physician and attorney representing Utah County and Provo area. Healthcare reform, school choice, and constitutional conservatism. First federal term — promises being tracked.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('kennedy')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-kennedy" onclick="pmAddCompare('kennedy',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.18);" data-county="all" data-pmstate="national" data-name="Thomas Massie" data-issues="Constitutional Originalism,Federalism,Deficit Reduction,Religious Liberty,Anti-Regulatory,Term Limits">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(74,222,128,0.35);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg" alt="Thomas Massie" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Thomas Massie</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · KY-04</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#4ade80;">73%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span>Most consistent "No" voter in Congress — blocks surveillance, spending, and gun control regardless of party pressure.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('massie')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-massie" onclick="pmAddCompare('massie',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Tier Connector: Federal → State ──────────── -->
-            <div class="pm-tier-connector" style="--from-color:rgba(239,68,68,0.3);--to-color:rgba(245,200,66,0.3);">
-              <div class="pm-tier-connector-icon">▼</div>
-            </div>
-
-            <!-- ══ TIER 2: STATE ═══════════════════════════════ -->
-            <div class="pm-tier open" id="pm-tier-state" style="border:1px solid rgba(245,200,66,0.18);background:rgba(245,200,66,0.03);">
-              <div class="pm-tier-header" onclick="pmToggle('pm-tier-state')" style="background:rgba(245,200,66,0.08);">
-                <div class="pm-tier-title">
-                  <span style="font-size:1.3rem;">🏛</span>
-                  State Level
-                  <span class="pm-tier-badge" style="background:rgba(245,200,66,0.2);border:1px solid rgba(245,200,66,0.4);color:#f5c842;">HIGH DAILY IMPACT</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="font-condensed text-xs text-steel-500 hidden sm:block">Schools · Roads · Land · Water · Taxes</span>
-                  <svg class="pm-chevron w-5 h-5 text-steel-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </div>
-              </div>
-              <div class="pm-tier-body" style="background:rgba(5,8,20,0.5);--tier-color:rgba(245,200,66,0.35);--tier-glow:rgba(245,200,66,0.1);">
-                <div class="pm-tree-trunk">
-
-                  <!-- ── Governor ── -->
-                  <div class="pm-sub-group" id="pm-sub-governor">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">GOVERNOR</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.2);" data-county="all_ut" data-pmstate="utah" data-district="statewide" data-name="Spencer Cox" data-issues="Rural Utah Development,Water Policy,Mental Health Reform,Education Funding,Economic Development,Data Center Controversy">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Spencer_Cox_official_photo.jpg/440px-Spencer_Cox_official_photo.jpg" alt="Spencer Cox" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Spencer Cox</div>
-                                <div class="pm-card-office">🏛 Governor · Utah</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">67%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#fb923c;"></span>High daily impact on state budget, public lands, water rights, and education. Signs every state bill into law and controls Utah's $28B budget.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('cox')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-cox" onclick="pmAddCompare('cox',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── YOUR U.S. House Rep ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">YOUR U.S. HOUSE REP</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.35);position:relative;" data-county="davis" data-pmstate="utah" data-name="Blake Moore" data-issues="Tax Policy (Ways & Means Committee),Western Water Rights,Small Business,Hill Air Force Base,Rural Broadband">
-                          <div style="background:linear-gradient(90deg,rgba(52,211,153,0.22),rgba(34,197,94,0.18));border:1px solid rgba(52,211,153,0.55);border-radius:6px;padding:5px 12px;margin:8px 8px 0 8px;display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;box-shadow:0 0 14px rgba(52,211,153,0.18),0 0 6px rgba(34,197,94,0.12);">
-                            <span style="font-size:0.85rem;">⭐</span> <span style="color:#4ade80;">YOUR HOUSE REP</span> <span style="color:rgba(159,180,212,0.4);">–</span> <span style="color:#34d399;">Most Direct Impact</span>
-                          </div>
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(52,211,153,0.45);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg" alt="Blake Moore" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Blake Moore</div>
-                                <div class="pm-card-office">🏛 U.S. House Representative</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">66%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span><strong style="color:white;">Your federal House rep.</strong> Ways &amp; Means Committee — votes on your taxes, water rights, and Hill AFB funding. Most direct federal impact on your district.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('bmoore')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-bmoore-st" onclick="pmAddCompare('bmoore',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── State Senator ── -->
-                  <div class="pm-sub-group" id="pm-sub-senate">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE SENATE</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.2);" data-county="davis" data-pmstate="utah" data-name="Jerry Stevenson" data-issues="Transportation & Roads,Water Policy,Economic Development,Your County Infrastructure,UTA Transit Funding">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="" alt="Jerry Stevenson" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Jerry Stevenson</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 6</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">62%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Controls transportation funding, water policy, and economic development for your area. Chairs Infrastructure &amp; General Government Appropriations — decides road and transit budgets that affect your daily commute.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('jstevenson')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-jstevenson-st" onclick="pmAddCompare('jstevenson',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.2);" data-county="davis" data-pmstate="utah" data-name="Todd Weiler" data-issues="Internet Safety,Tech Regulation,Social Media for Minors,Criminal Justice,Education Technology,Family Law">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="" alt="Todd Weiler" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Todd Weiler</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 23</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">65%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Authored Utah's landmark internet age-verification and social media parental consent laws — first-in-nation legislation now replicated by 14+ states. Key voice on tech regulation affecting families.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('tweiler')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-tweiler-st" onclick="pmAddCompare('tweiler',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.2);" data-county="davis" data-pmstate="utah" data-name="Ray Ward" data-issues="Healthcare Policy,Medicaid,Mental Health Funding,Education,Bipartisan Legislation,Public Health">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="" alt="Ray Ward" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Ray Ward</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 19</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#4ade80;">70%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#4ade80;"></span>Physician and healthcare policy leader. Championed Medicaid expansion covering 150K Utahns, $50M mental health funding, and hospital price transparency. Most influential healthcare voice in the UT Senate.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('rward')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-rward-st" onclick="pmAddCompare('rward',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── State House Representative ── -->
-                  <div class="pm-sub-group" id="pm-sub-house">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE HOUSE REPRESENTATIVE</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="davis" data-pmstate="utah" data-name="Trevor Lee" data-issues="Education,Local Infrastructure,Family Values,Public Lands">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://le.utah.gov/images/legislator/LEETR.jpg" alt="Trevor Lee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Trevor Lee</div>
-                                <div class="pm-card-office">🏛 UT State Rep · District 16</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">68%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Your state house rep. Serves on Commerce Committee — votes on education funding, small business regulation, and tax policy directly affecting local families.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('tlee')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-tlee-st" onclick="pmAddCompare('tlee',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── UT House Speaker ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">UT HOUSE SPEAKER</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.25);" data-county="weber" data-pmstate="utah" data-name="Mike Schultz" data-issues="Legislative Leadership,State Budget,Education Funding,Water Policy,Economic Development,Agriculture">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="" alt="Mike Schultz" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Mike Schultz</div>
-                                <div class="pm-card-office">🏛 UT House Speaker · District 12 (Your Region)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">63%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span><strong style="color:white;">Controls the Utah House floor.</strong> As Speaker, decides which bills become law. Sets legislative agenda for all 75 House members. Your Region resident — one of the most powerful people in Utah government.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('mschultz')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-mschultz-st" onclick="pmAddCompare('mschultz',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Salt Lake County State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE LEGISLATORS (SALT LAKE COUNTY)</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="slc" data-pmstate="utah" data-name="Kirk Cullimore" data-issues="Business Law,Technology Regulation,Privacy,Economic Development,Criminal Justice,Insurance">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Kirk Cullimore" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Kirk Cullimore</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 9 (Draper/Sandy)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">64%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Senate Majority Whip. Authored data privacy and tech regulation legislation. Key voice on business law and economic development affecting the Silicon Slopes corridor.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('kcullimore')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-kcullimore" onclick="pmAddCompare('kcullimore',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="slc" data-pmstate="utah" data-name="Angela Romero" data-issues="Housing,Social Services,Immigration,Labor Rights,Education,Community Development">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(96,165,250,0.3);"><img src="" alt="Angela Romero" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Angela Romero</div>
-                                <div class="pm-card-office">🏛 UT State Rep · District 26 (West SLC)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">61%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#60a5fa;"></span>One of few Democratic voices in the Legislature. Champions affordable housing, immigrant rights, and labor protections for West Salt Lake communities.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('aromero')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-aromero" onclick="pmAddCompare('aromero',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Utah County State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE LEGISLATORS (UTAH COUNTY)</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="utah_co" data-pmstate="utah" data-name="Curt Bramble" data-issues="Tax Policy,Business Regulation,Economic Development,Higher Education,Fiscal Conservatism,State Budget">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Curt Bramble" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Curt Bramble</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 16 (Provo)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">66%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>One of Utah's most powerful senators. Former Senate President Pro Tempore. Key voice on tax policy and BYU/higher education funding that shapes Utah County's economy.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('cbramble')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-cbramble" onclick="pmAddCompare('cbramble',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="utah_co" data-pmstate="utah" data-name="Brad Wilson" data-issues="Budget & Appropriations,School Choice & Education,Tax Reform,Water Policy,Economic Development">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Brad Wilson" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Brad Wilson</div>
-                                <div class="pm-card-office">🏛 UT State Senator · (Utah County)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">60%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Former House Speaker who passed school choice and multiple tax cuts. Now in Senate Appropriations — continues to shape Utah's $28B+ budget.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('bwilson')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-bwilson" onclick="pmAddCompare('bwilson',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Washington County (St. George) State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE LEGISLATORS (WASHINGTON COUNTY / ST. GEORGE)</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="washington" data-pmstate="utah" data-name="Don Ipson" data-issues="Public Lands,Water Rights,Rural Utah,Agriculture,Transportation,Economic Development">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Don Ipson" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Don Ipson</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 29 (St. George)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">63%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Key voice for southern Utah. Chairs Natural Resources Committee — controls water rights, public lands, and rural development legislation affecting Washington County's explosive growth.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('dipson')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-dipson" onclick="pmAddCompare('dipson',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="washington" data-pmstate="utah" data-name="Rex Shipp" data-issues="Water Conservation,Growth Management,Public Lands,Education,Transportation,Fiscal Conservatism">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Rex Shipp" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Rex Shipp</div>
-                                <div class="pm-card-office">🏛 UT State Rep · District 72 (St. George)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">59%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Represents Utah's fastest-growing region. Focused on water conservation, managing growth, and protecting southern Utah's public lands access for recreation and ranching.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('rshipp')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-rshipp" onclick="pmAddCompare('rshipp',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Cache County (Logan) State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE LEGISLATORS (CACHE COUNTY / LOGAN)</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="cache" data-pmstate="utah" data-name="Scott Sandall" data-issues="Agriculture Policy,Water Rights,Utah State University Funding,Rural Broadband,Public Lands,Bear River Development">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://le.utah.gov/images/legislator/SANDAS.jpg" alt="Scott Sandall" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Scott Sandall</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 1 (Box Elder/Cache)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">64%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Controls agricultural and water funding for Cache Valley. Chairs Natural Resources Appropriations — decides water rights, USU funding, and Bear River development.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('ssandall')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-ssandall" onclick="pmAddCompare('ssandall',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="cache" data-pmstate="utah" data-name="Jack Draxler" data-issues="Education Funding,USU & Higher Education,Cache Valley Economic Development,Transportation,Agriculture,Rural Growth Management">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Jack Draxler" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Jack Draxler</div>
-                                <div class="pm-card-office">🏛 UT State Rep · District 3 (Logan)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">61%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Represents Logan and North Logan. Education and Revenue &amp; Taxation committees — votes on school funding, USU appropriations, and tax policy for Cache Valley families.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('jdraxler')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-jdraxler" onclick="pmAddCompare('jdraxler',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Iron County (Cedar City) State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f5c842;">STATE LEGISLATORS (IRON COUNTY / CEDAR CITY)</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="iron" data-pmstate="utah" data-name="Evan Vickers" data-issues="Rural Healthcare,SUU & Higher Education,Public Lands,Tourism & Recreation Economy,Water Rights,Rural Economic Development">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Evan Vickers" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Evan Vickers</div>
-                                <div class="pm-card-office">🏛 UT State Senator · District 28 (Cedar City/Iron)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">66%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Former Senate Majority Leader. Controls rural healthcare, SUU funding, and public lands policy for Iron, Beaver, and Garfield counties. Key voice for communities near Zion and Bryce Canyon.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('evickers')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-evickers" onclick="pmAddCompare('evickers',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.18);" data-county="iron" data-pmstate="utah" data-name="John Westwood" data-issues="Education Funding,SUU & Higher Education,Rural Economic Development,Public Lands,Tourism,Tax Policy">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://le.utah.gov/images/legislator/WESTWJ.jpg" alt="John Westwood" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">John Westwood</div>
-                                <div class="pm-card-office">🏛 UT State Rep · District 71 (Cedar City)</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">60%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Represents Cedar City and SUU community. Education and Revenue &amp; Taxation committees — votes on school funding, tourism policy, and tax rates for Iron County residents.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('jwestwood')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-jwestwood" onclick="pmAddCompare('jwestwood',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Tier Connector: State → Local ───────────── -->
-            <div class="pm-tier-connector" style="--from-color:rgba(245,200,66,0.3);--to-color:rgba(52,211,153,0.3);">
-              <div class="pm-tier-connector-icon">▼</div>
-            </div>
-
-            <!-- ══ TIER 3: LOCAL ═══════════════════════════════ -->
-            <div class="pm-tier open" id="pm-tier-local" style="border:1px solid rgba(52,211,153,0.2);background:rgba(52,211,153,0.03);">
-              <div class="pm-tier-header" onclick="pmToggle('pm-tier-local')" style="background:rgba(52,211,153,0.09);">
-                <div class="pm-tier-title">
-                  <span style="font-size:1.3rem;">🏙</span>
-                  Local — Your City &amp; County
-                  <span class="pm-tier-badge" style="background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.4);color:#34d399;">MOST DIRECT IMPACT</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="font-condensed text-xs text-steel-500 hidden sm:block">Roads · Schools · Police · Zoning</span>
-                  <svg class="pm-chevron w-5 h-5 text-steel-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </div>
-              </div>
-              <div class="pm-tier-body" style="background:rgba(5,8,20,0.5);--tier-color:rgba(52,211,153,0.35);--tier-glow:rgba(52,211,153,0.1);">
-                <div class="pm-tree-trunk">
-
-                  <!-- ── Your Federal House Rep ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#34d399;">YOUR HOUSE REPRESENTATIVE</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.2);" data-county="all_ut" data-pmstate="utah" data-name="Blake Moore" data-issues="Tax Policy (Ways & Means Committee),Western Water Rights,Small Business,Hill Air Force Base,Rural Broadband">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(52,211,153,0.4);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg" alt="Blake Moore" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Blake Moore</div>
-                                <div class="pm-card-office">🏛 U.S. House Representative</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">66%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#34d399;"></span><strong style="color:white;">Your federal House rep.</strong> Votes on your taxes, water rights, and defense. Ways &amp; Means Committee controls all federal tax law.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('bmoore')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-bmoore" onclick="pmAddCompare('bmoore',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Mayor ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#34d399;">LOCAL MAYOR</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.2);" data-county="davis" data-pmstate="utah" data-name="Joy Petro" data-issues="Your City Budget,Public Safety & Police,Growth & Development Approvals,Roads & Infrastructure,Parks & Recreation,Hill AFB Community Impact">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(52,211,153,0.4);"><img src="" alt="Joy Petro" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏙</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Joy Petro</div>
-                                <div class="pm-card-office">🏙 Mayor · Local City</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#64748b;">—</div>
-                                <div class="pm-card-score-label">New</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#34d399;"></span><strong style="color:white;">Highest local impact.</strong> Controls your city budget, road maintenance schedule, police staffing, park development, and every zoning decision in the city.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('jpetro')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-jpetro" onclick="pmAddCompare('jpetro',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Local State Legislators ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#34d399;">LOCAL STATE LEGISLATORS</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.15);" data-county="davis" data-pmstate="utah" data-name="Jerry Stevenson" data-issues="Transportation & Roads,Water Policy,Economic Development,Your County Infrastructure,UTA Transit Funding">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Jerry Stevenson" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Jerry Stevenson</div>
-                                <div class="pm-card-office">🏛 UT Senate · District 6</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">62%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span><strong style="color:white;">Your state senator.</strong> Transportation Committee chair — controls state highway funding for transportation and transit routes.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('jstevenson')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-jstevenson" onclick="pmAddCompare('jstevenson',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(52,211,153,0.15);" data-county="davis" data-pmstate="utah" data-name="Trevor Lee" data-issues="Education,Local Infrastructure,Family Values,Public Lands">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="https://le.utah.gov/images/legislator/LEETR.jpg" alt="Trevor Lee" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Trevor Lee</div>
-                                <div class="pm-card-office">🏛 UT House · District 16</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">68%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span><strong style="color:white;">Your state house rep.</strong> Votes on education funding, small business regulation, and tax policy directly affecting local families and businesses.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('tlee')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-tlee" onclick="pmAddCompare('tlee',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(245,200,66,0.25);" data-county="davis" data-pmstate="utah" data-name="Stuart Adams" data-issues="Utah Senate Floor Control,Budget & Appropriations,Transportation,Economic Development,Education Policy">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.4);"><img src="" alt="Stuart Adams" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Stuart Adams</div>
-                                <div class="pm-card-office">🏛 UT Senate President</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">65%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span><strong style="color:white;">Most powerful state legislator.</strong> As Senate President he controls which bills become law. His district includes local neighborhoods.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('sadams')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-sadams" onclick="pmAddCompare('sadams',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Tier Connector: Local → Watch List ──────── -->
-            <div class="pm-tier-connector" style="--from-color:rgba(52,211,153,0.3);--to-color:rgba(192,21,42,0.3);">
-              <div class="pm-tier-connector-icon">🚨</div>
-            </div>
-
-            <!-- ══ TIER 4: NATIONAL WATCH LIST ═════════════════ -->
-            <div class="pm-tier" id="pm-tier-watch" style="border:1px solid rgba(192,21,42,0.18);background:rgba(192,21,42,0.02);">
-              <div class="pm-tier-header" onclick="pmToggle('pm-tier-watch')" style="background:rgba(192,21,42,0.07);">
-                <div class="pm-tier-title">
-                  <span style="font-size:1.3rem;">🚨</span>
-                  National Watch List
-                  <span class="pm-tier-badge" style="background:rgba(192,21,42,0.2);border:1px solid rgba(192,21,42,0.4);color:#f87171;">CONTROVERSIAL</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="font-condensed text-xs text-steel-500 hidden sm:block">High profile · Broken promises · Active investigations</span>
-                  <svg class="pm-chevron w-5 h-5 text-steel-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </div>
-              </div>
-              <div class="pm-tier-body" style="background:rgba(5,8,20,0.5);--tier-color:rgba(192,21,42,0.35);--tier-glow:rgba(192,21,42,0.12);">
-                <div class="pm-tree-trunk">
-
-                  <!-- ── Controversial Reps ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">UNDER SCRUTINY</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(248,113,113,0.18);" data-county="all" data-pmstate="national" data-name="Lauren Boebert" data-issues="Second Amendment,Anti-Establishment,Border Security,Energy Independence">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(248,113,113,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000825.jpg" alt="Lauren Boebert" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Lauren Boebert</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · CO-4</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">54%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f87171;"></span>Abandoned CO-3 voters for a safer seat. Votes on gun rights and federal spending affect all Americans.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('boebert')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-boebert" onclick="pmAddCompare('boebert',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(248,113,113,0.18);" data-county="all" data-pmstate="national" data-name="Marjorie Taylor Greene" data-issues="MAGA Agenda,Anti-Establishment,Border Security,Government Downsizing">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(248,113,113,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000596.jpg" alt="Marjorie Taylor Greene" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Marjorie Taylor Greene</div>
-                                <div class="pm-card-office">🏛 U.S. Rep · GA-14</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f87171;">44%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f87171;"></span>Stripped of committees. Motion to vacate Johnson failed 359-43. More focused on media than legislation.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('mtg')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-mtg" onclick="pmAddCompare('mtg',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(248,113,113,0.18);" data-county="all" data-pmstate="national" data-name="Matt Gaetz" data-issues="Anti-Establishment,DOJ Reform,Border Security,McCarthy Ouster">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(248,113,113,0.3);"><img src="https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000578.jpg" alt="Matt Gaetz" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Matt Gaetz</div>
-                                <div class="pm-card-office">🏛 Former U.S. Rep · FL-1</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">51%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f87171;"></span>Resigned after Ethics Committee investigation. Led McCarthy ouster. AG nomination collapsed. His record shows what unchecked ambition looks like.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('gaetz')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-gaetz" onclick="pmAddCompare('gaetz',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- ── Candidates / Newcomers ── -->
-                  <div class="pm-sub-group">
-                    <div class="pm-sub-label" style="--tier-color:#f87171;">CANDIDATES &amp; NEWCOMERS</div>
-                    <div class="pm-tree-branch">
-                      <div class="pm-sub-cards">
-                        <div class="pm-card" style="border:1px solid rgba(100,116,139,0.2);" data-county="all" data-pmstate="national" data-name="Dan Bilzerian" data-issues="Term Limits,Anti-Establishment,Fiscal Reform,Border Security,Anti-Lobbying,Veterans' Rights">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(100,116,139,0.3);"><div class="pm-card-photo-placeholder">🃏</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Dan Bilzerian</div>
-                                <div class="pm-card-office">🃏 Candidate · FL-06</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#64748b;">—</div>
-                                <div class="pm-card-score-label">Watch</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#64748b;"></span>Social media outsider with 12 unscored campaign pledges. No political experience. We're watching.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('bilzerian')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-bilzerian" onclick="pmAddCompare('bilzerian',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(100,116,139,0.2);" data-county="all" data-pmstate="national" data-name="Randy Fine" data-issues="Pro-Israel Legislation,School Choice,Anti-Vaccine Mandates,Trans Policy">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(100,116,139,0.3);"><img src="" alt="Randy Fine" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Randy Fine</div>
-                                <div class="pm-card-office">🏛 FL State Rep / Candidate</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#64748b;">—</div>
-                                <div class="pm-card-score-label">Watch</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#64748b;"></span>Running for FL-6 on a combative pro-Israel platform. State-level school choice and anti-mandate record being tracked.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('rfine')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-rfine" onclick="pmAddCompare('rfine',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="pm-card" style="border:1px solid rgba(159,180,212,0.15);" data-county="all" data-pmstate="national" data-name="Ed Gallrein" data-issues="Border Security,America First,Veterans' Rights,Fiscal Responsibility,Second Amendment,Anti-Surveillance">
-                          <div class="pm-card-inner">
-                            <div class="pm-card-top">
-                              <div class="pm-card-photo" style="border-color:rgba(245,200,66,0.3);"><img src="" alt="Ed Gallrein" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pm-card-photo-placeholder" style="display:none;">🏛</div></div>
-                              <div class="pm-card-info">
-                                <div class="pm-card-name">Ed Gallrein</div>
-                                <div class="pm-card-office">🏛 Republican Nominee · KY-04</div>
-                              </div>
-                              <div class="pm-card-score-wrap">
-                                <div class="pm-card-score" style="color:#f5c842;">58%</div>
-                                <div class="pm-card-score-label">Score</div>
-                              </div>
-                            </div>
-                            <div class="pm-card-impact"><span class="pm-impact-dot" style="background:#f5c842;"></span>Navy SEAL who beat Massie with Trump's backing. Already broke his no-PAC pledge. New blood, same old money.</div>
-                            <div class="pm-card-actions">
-                              <button class="pm-btn-profile" onclick="showProfile('gallrein')">View Full Profile</button>
-                              <button class="pm-btn-compare" id="pmc-gallrein" onclick="pmAddCompare('gallrein',this)">+ Compare</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /pm-tree -->
-
-          <!-- Compare tray -->
-          <div class="pm-compare-tray" id="pm-compare-tray" style="display:none;">
-            <div class="flex-1 min-w-0">
-              <div class="font-condensed text-xs font-700 tracking-widest uppercase text-blue-300 mb-1.5">⚖️ Selected for Comparison</div>
-              <div class="pm-compare-tray-pills" id="pm-compare-pills"></div>
-            </div>
-            <div class="flex gap-2 flex-shrink-0">
-              <button onclick="openCompare()" class="font-condensed font-700 text-xs tracking-widest uppercase bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-5 py-2.5 rounded-lg transition-all cursor-pointer flex items-center gap-2" style="border:none;box-shadow:0 2px 12px rgba(59,130,246,0.3);">
-                <svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Compare Selected
-              </button>
-              <button onclick="pmClearAll()" class="font-condensed font-700 text-xs tracking-widest uppercase border border-steel-400/30 hover:border-red-400/50 text-steel-400 hover:text-red-300 px-3 py-2.5 rounded-lg transition-all cursor-pointer" style="background:none;">Clear</button>
-            </div>
-          </div>
-
-        </div><!-- /LEFT power map -->
-
-        <!-- RIGHT: How Vote Matters + Key issues -->
-        <div class="animate-on-scroll" style="transition-delay:0.1s;">
-
-          <h3 class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-4">How Your Vote Actually Matters</h3>
-
-          <div class="flex flex-col gap-3 mb-6">
-            <div class="veh-example-card">
-              <div class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-400 mb-1">📋 The Promise Gap</div>
-              <p class="text-sm text-steel-300 leading-relaxed">Politicians keep <strong class="text-white">23% fewer promises</strong> in their second term. They've already won. PolitiDex makes the second-term record as visible as the first-term pitch.</p>
-            </div>
-            <div class="veh-example-card">
-              <div class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-400 mb-1">🗺️ Local Races = National Impact</div>
-              <p class="text-sm text-steel-300 leading-relaxed">Massie won his 2022 primary by <strong class="text-white">fewer than 4,000 votes</strong> — then helped decide who became Speaker of the House. One race. National consequences.</p>
-            </div>
-            <div class="veh-example-card">
-              <div class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-400 mb-1">💬 Your Catch Changes a Score</div>
-              <p class="text-sm text-steel-300 leading-relaxed">Every sourced submission you contribute is reviewed by the community and can update a politician's score in real time. <strong class="text-white">You are the researcher.</strong></p>
-            </div>
-          </div>
-
-          <!-- Impact legend -->
-          <div class="bg-navy-900/60 border border-white/8 rounded-xl p-4 mb-4">
-            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mb-3">Impact Color Guide</div>
-            <div class="flex flex-col gap-2">
-              <div class="flex items-center gap-2.5"><span class="pm-impact-dot flex-shrink-0" style="background:#4ade80;width:0.75rem;height:0.75rem;"></span><span class="font-condensed text-xs text-steel-300">High promise score (70%+) — relatively accountable</span></div>
-              <div class="flex items-center gap-2.5"><span class="pm-impact-dot flex-shrink-0" style="background:#f5c842;width:0.75rem;height:0.75rem;"></span><span class="font-condensed text-xs text-steel-300">Mid score (40–69%) — mixed record, watch closely</span></div>
-              <div class="flex items-center gap-2.5"><span class="pm-impact-dot flex-shrink-0" style="background:#f87171;width:0.75rem;height:0.75rem;"></span><span class="font-condensed text-xs text-steel-300">Low score (0–39%) — significant promise failures</span></div>
-              <div class="flex items-center gap-2.5"><span class="pm-impact-dot flex-shrink-0" style="background:#fb923c;width:0.75rem;height:0.75rem;"></span><span class="font-condensed text-xs text-steel-300">🔥 Active controversy or alert</span></div>
-              <div class="flex items-center gap-2.5"><span class="pm-impact-dot flex-shrink-0" style="background:#64748b;width:0.75rem;height:0.75rem;"></span><span class="font-condensed text-xs text-steel-300">Monitoring — candidate or new appointment</span></div>
-            </div>
-          </div>
-
-          <!-- CTA -->
-          <div class="flex flex-col gap-2.5">
-            <a href="#tracker" class="flex items-center justify-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 px-4 rounded-xl btn-glow transition-all text-center">📊 Open Promise Tracker</a>
-            <button onclick="openCompare()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-700/70 to-blue-600/70 hover:from-blue-600/80 hover:to-blue-500/80 border border-blue-500/30 text-blue-200 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 px-4 rounded-xl transition-all" style="cursor:pointer;box-shadow:0 2px 12px rgba(59,130,246,0.15);">
-              <svg style="width:0.85rem;height:0.85rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              Open Comparison Tool
-            </button>
-            <a href="#submit" class="flex items-center justify-center gap-2 border border-white/12 hover:border-white/30 text-steel-400 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 px-4 rounded-xl transition-all text-center">📌 Submit Evidence</a>
-          </div>
-
-        </div><!-- /RIGHT panel -->
-
-      </div><!-- /main grid -->
-
-    </div><!-- /container -->
-  </section>
-  <!-- /VOTER EMPOWERMENT HUB -->
-
-
-  <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
-  <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-
-    <!-- ── My Politicians — Cohesive Team Builder View ──── -->
-    <div id="my-politicians" class="mb-10 animate-on-scroll" style="transition-delay:0.05s; scroll-margin-top: 80px;">
-      <!-- Section header -->
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center gap-2 bg-amber-950/60 border border-amber-500/25 rounded-full px-5 py-2 mb-4">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 badge-live"></span>
-          <span class="font-condensed text-sm tracking-widest uppercase text-amber-300 font-700">🗳️ Build Your Team</span>
-        </div>
-        <h2 class="section-title font-display text-5xl md:text-7xl tracking-wider mb-3">BUILD YOUR <span class="text-amber-400">TEAM</span></h2>
-        <p class="text-steel-300 font-body text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-6">Fill <span id="byt-intro-count">6</span> key ballot positions, track accountability scores, compare records side by side, and see exactly how your team aligns with the issues that matter to you.</p>
-        <div class="inline-grid grid-cols-3 gap-3 sm:gap-5 max-w-md mx-auto">
-          <button type="button" onclick="bytQuickAction('slots')" aria-label="Fill your ballot slots — jump to the politicians list" class="byt-quick-btn byt-quick-btn--amber">
-            <div class="byt-quick-icon">🗳️</div>
-            <span class="font-condensed text-xs tracking-wider text-amber-400/90 font-700 uppercase">Fill <span id="byt-slots-count">6</span> Slots</span>
-          </button>
-          <button type="button" onclick="bytQuickAction('compare')" aria-label="Compare politicians side by side" class="byt-quick-btn byt-quick-btn--blue">
-            <div class="byt-quick-icon">⚖️</div>
-            <span class="font-condensed text-xs tracking-wider text-blue-400/90 font-700 uppercase">Compare</span>
-          </button>
-          <button type="button" onclick="bytQuickAction('alignment')" aria-label="Jump to the Team Alignment Score tool" class="byt-quick-btn byt-quick-btn--purple">
-            <div class="byt-quick-icon">🎯</div>
-            <span class="font-condensed text-xs tracking-wider text-purple-400/90 font-700 uppercase">Alignment</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ═══ STATE OVERVIEW CARD — dynamic "voter map" for the user's saved state ═══ -->
-      <style id="state-overview-styles">
-        .so-card{position:relative;overflow:hidden;border-radius:1.25rem;padding:1.1rem 1.25rem 1.2rem;margin-bottom:1.5rem;
-          background:linear-gradient(135deg, rgba(13,21,38,0.96) 0%, rgba(17,29,54,0.92) 55%, rgba(22,39,74,0.9) 100%);
-          border:2px solid rgba(245,200,66,0.22);
-          box-shadow:0 12px 44px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);}
-        .so-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
-          background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.85;}
-        .so-head{display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;}
-        .so-flag{font-size:1.75rem;line-height:1;width:3rem;height:3rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-          border-radius:0.9rem;background:linear-gradient(135deg,rgba(192,21,42,0.25),rgba(30,58,138,0.25));border:1px solid rgba(255,255,255,0.12);
-          box-shadow:0 0 22px rgba(245,200,66,0.12);}
-        .so-name{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;letter-spacing:0.03em;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,0.4);}
-        .so-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.2rem;}
-        .so-pill{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
-          color:#fad96a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:999px;padding:0.3rem 0.8rem;white-space:nowrap;}
-        .so-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:0.6rem;margin-top:0.95rem;}
-        .so-tile{background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.85rem;padding:0.7rem 0.8rem;
-          display:flex;flex-direction:column;gap:0.1rem;transition:border-color 0.2s ease, transform 0.2s ease;}
-        .so-tile:hover{border-color:rgba(255,255,255,0.16);transform:translateY(-2px);}
-        .so-num{font-family:'Bebas Neue',sans-serif;font-size:1.95rem;line-height:1;letter-spacing:0.02em;}
-        .so-label{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#cdd9ec;line-height:1.15;}
-        .so-tilesub{font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;letter-spacing:0.03em;color:#5b7299;line-height:1.2;}
-        .so-learn{margin-top:0.5rem;align-self:flex-start;display:inline-flex;align-items:center;gap:0.3rem;font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9fc0ef;
-          background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);border-radius:9999px;padding:0.24rem 0.6rem;cursor:pointer;transition:color 0.2s ease,background 0.2s ease,border-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;}
-        .so-learn .so-learn-i{font-size:0.78rem;line-height:1;}
-        .so-learn:hover{color:#fff;background:rgba(96,165,250,0.28);border-color:rgba(96,165,250,0.6);transform:translateY(-1px);box-shadow:0 0 14px rgba(96,165,250,0.25);}
-        .so-learn:focus-visible{outline:2px solid rgba(147,197,253,0.8);outline-offset:2px;}
-        .so-foot{display:flex;align-items:center;gap:0.5rem;margin-top:0.95rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.06);
-          font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.03em;color:#9fb4d4;}
-        .so-foot strong{color:#fad96a;font-weight:700;}
-        .so-prompt-btn{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;
-          background:#2563eb;border:1px solid rgba(96,165,250,0.5);border-radius:0.75rem;padding:0.55rem 1.1rem;cursor:pointer;transition:background 0.2s ease;}
-        .so-prompt-btn:hover{background:#3b82f6;}
-        @media (max-width:480px){.so-grid{grid-template-columns:repeat(2,1fr);}.so-name{font-size:1.6rem;}}
-      </style>
-      <div id="state-overview-myteam"></div>
-
-      <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
-      <div id="myteam-selected-panel" class="mb-6">
-        <div class="bg-gradient-to-br from-amber-900/22 via-navy-800/80 to-navy-900/90 border-2 border-amber-500/30 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(245,158,11,0.08);">
-          <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-            <div class="flex items-center gap-3">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">🗳️</div>
-              <div>
-                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">YOUR TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
-                <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
-                <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
-              </div>
-            </div>
-            <div class="flex gap-2 items-center flex-wrap">
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
-              <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
-              <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
-            </div>
-          </div>
-
-          <!-- Team stats bar -->
-          <div id="myteam-stats" class="mb-6" style="display:none;">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-              <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Avg Promise Score</div>
-              </div>
-              <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Members</div>
-              </div>
-              <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Positions Filled</div>
-              </div>
-              <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
-                <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Alignment</div>
-              </div>
-            </div>
-            <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
-              <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
-                <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Compare My Team
-              </button>
-            </div>
-          </div>
-
-          <!-- 6-Slot Position Grid -->
-          <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
-
-          <!-- Compare All + Alignment Action Bar -->
-          <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
-            <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
-              <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              ⚖️ Compare All Team Members Side-by-Side
-            </button>
-            <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
-          </div>
-
-          <!-- Team Alignment Summary -->
-          <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700/80 flex items-center justify-center text-base" style="flex-shrink:0;box-shadow:0 0 12px rgba(139,92,246,0.3);">🎯</div>
-            <div class="flex-1 min-w-0">
-              <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-300 mb-0.5">Team Alignment</div>
-              <div id="myteam-alignment-detail" class="font-condensed text-xs text-steel-400 tracking-wide"></div>
-            </div>
-          </div>
-
-          <!-- Empty state for team -->
-          <div id="myteam-empty" class="text-center py-16" style="display:none;">
-            <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
-            <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR BALLOT</div>
-            <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Start filling your 6 ballot positions by browsing the full list of politicians below. Each slot represents a key elected office — from the U.S. Senate down to your local government.</p>
-            <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Sign in to save your team to your account and access it from any device.</p>
-            <a href="#myteam-browse-panel" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
-              <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-              Browse Politicians Below
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ RELEVANT TO ME ═══ -->
-      <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px;">
-        <!-- State Overview Card — dynamic "voter map" for the user's saved state -->
-        <div id="state-overview-relevant"></div>
-        <!-- Relevant to Me Section Header -->
-        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+      <!-- ── Prominent Location Selector Card ──────────────── -->
+      <div class="pm-location-bar mb-6 animate-on-scroll" style="transition-delay:0.04s;">
+        <div style="position:relative;z-index:1;padding:1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);">
           <div class="flex items-center justify-between gap-4 flex-wrap">
             <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">📍</div>
+              <div style="width:4.5rem;height:4.5rem;border-radius:1.25rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:0 0 40px rgba(192,21,42,0.6),0 0 20px rgba(26,58,107,0.4),0 0 80px rgba(192,21,42,0.2);border:3px solid rgba(255,255,255,0.25);flex-shrink:0;">📍</div>
               <div>
-                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
+                <div class="font-display" style="font-size:1.2rem;letter-spacing:0.2em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.35rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5);">YOUR VOTING LOCATION</div>
+                <div id="vh-loc-city" class="font-display text-4xl sm:text-5xl tracking-wider text-white" style="line-height:1.1;font-weight:900;">Your Area</div>
+                <p id="vh-loc-subdesc" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
               </div>
             </div>
-            <div class="flex-shrink-0">
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">
-                📍 Change Location
-              </button>
+            <div class="flex gap-2.5 flex-wrap items-center">
+              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
             </div>
           </div>
+          <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.5rem;border-radius:2px;opacity:0.7;"></div>
         </div>
+      </div>
 
-        <!-- Change Location Selector Form (collapsible) -->
-        <div id="change-location-form" class="mb-6 p-5 rounded-2xl bg-navy-800/80 border border-white/10" style="display: none;">
-          <div class="font-condensed text-xs font-700 uppercase tracking-widest text-steel-400 mb-3">Manually Override Your Voting Location</div>
-          <div class="flex flex-wrap gap-4 items-end">
-            <div class="flex flex-col gap-1.5">
-              <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Select State / Region</label>
-              <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
+      <!-- Change Location Selector Form (collapsible) -->
+      <div id="change-location-form" class="mb-6 p-5 rounded-2xl bg-navy-800/80 border border-white/10 animate-on-scroll" style="display: none; transition-delay:0.05s;">
+        <div class="font-condensed text-xs font-700 uppercase tracking-widest text-steel-400 mb-3">Manually Override Your Voting Location</div>
+        <div class="flex flex-wrap gap-4 items-end">
+          <div class="flex flex-col gap-1.5">
+            <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Select State / Region</label>
+            <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
+              
                 <option value="">— Set your state —</option>
                 <option value="National">🇺🇸 National (Federal Focus)</option>
                 <option value="Alabama">Alabama</option>
@@ -10810,22 +9343,129 @@
                 <option value="West Virginia">West Virginia</option>
                 <option value="Wisconsin">Wisconsin</option>
                 <option value="Wyoming">Wyoming</option>
-              </select>
-            </div>
-            
-            <div id="voter-county-wrap" class="flex flex-col gap-1.5">
-              <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">City / County (optional)</label>
-              <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
+
+            </select>
+          </div>
+          
+          <div id="voter-county-wrap" class="flex flex-col gap-1.5">
+            <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">City / County (optional)</label>
+            <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
+          </div>
+
+          <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
+            <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Congressional District <span class="text-steel-500 normal-case">(optional)</span></label>
+            <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
+          </div>
+
+          <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
+            Close Form
+          </button>
+        </div>
+      </div>
+
+      <!-- ── YOUR 2026 BALLOT BREAKDOWN (State Overview numbers) ── -->
+      <div class="mb-8 animate-on-scroll" style="transition-delay:0.06s;">
+        <div id="state-overview-voterhub"></div>
+      </div>
+
+      <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
+      <div id="my-politicians" class="mb-10 animate-on-scroll" style="transition-delay:0.08s; scroll-margin-top: 80px;">
+        <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
+        <div id="myteam-selected-panel" class="mb-6">
+          <div class="bg-gradient-to-br from-amber-900/22 via-navy-800/80 to-navy-900/90 border-2 border-amber-500/30 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(245,158,11,0.08);">
+            <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
+                <div>
+                  <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
+                  <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
+                  <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
+                </div>
+              </div>
+              <div class="flex gap-2 items-center flex-wrap">
+                <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
+                <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
+              </div>
             </div>
 
-            <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
-              <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Congressional District <span class="text-steel-500 normal-case">(optional)</span></label>
-              <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
+            <!-- Team stats bar -->
+            <div id="myteam-stats" class="mb-6" style="display:none;">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                  <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Avg Promise Score</div>
+                </div>
+                <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                  <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Members</div>
+                </div>
+                <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                  <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Positions Filled</div>
+                </div>
+                <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+                  <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Alignment</div>
+                </div>
+              </div>
+              <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
+                <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
+                  <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                  Compare My Team
+                </button>
+              </div>
             </div>
 
-            <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
-              Close Form
-            </button>
+            <!-- 6-Slot Position Grid -->
+            <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
+
+            <!-- Compare All + Alignment Action Bar -->
+            <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
+              <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
+                <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                ⚖️ Compare All Team Members Side-by-Side
+              </button>
+              <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
+            </div>
+
+            <!-- Team Alignment Summary -->
+            <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700/80 flex items-center justify-center text-base" style="flex-shrink:0;box-shadow:0 0 12px rgba(139,92,246,0.3);">🎯</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-300 mb-0.5">Team Alignment</div>
+                <div id="myteam-alignment-detail" class="font-condensed text-xs text-steel-400 tracking-wide"></div>
+              </div>
+            </div>
+
+            <!-- Empty state for team -->
+            <div id="myteam-empty" class="text-center py-16" style="display:none;">
+              <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
+              <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR BALLOT</div>
+              <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Start filling your 6 ballot positions by browsing the representatives below. Each slot represents a key elected office — from the U.S. Senate down to your local government.</p>
+              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Sign in to save your team to your account and access it from any device.</p>
+              <button onclick="window.jumpToRelevantAccordion('senate')" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
+                <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                Browse Candidates Below
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RELEVANT TO ME section directly below team builder ── -->
+      <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.1s;">
+        <!-- Hidden state overview so JS updates safely -->
+        <div id="state-overview-relevant" style="display:none;"></div>
+        <!-- Relevant to Me Section Header -->
+        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">📍</div>
+              <div>
+                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
+                <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -10833,165 +9473,179 @@
         <div id="relevant-browse-grid"></div>
       </div>
 
-      <!-- ═══ PROMISE TRACKER ═══ -->
-      <div id="tracker" style="scroll-margin-top:80px;">
-        <div id="myteam-browse-panel" class="w-full">
-          <!-- Promise Tracker Section Header -->
-          <div class="mb-6 animate-on-scroll" style="background:linear-gradient(135deg, rgba(192,21,42,0.1) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(192,21,42,0.2); border-radius:1.25rem; padding:1.25rem 1.5rem;">
-            <div class="flex items-center gap-4 flex-wrap justify-between">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-crimson-600 to-crimson-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(192,21,42,0.25);">📊</div>
-                <div>
-                  <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                  <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
-                </div>
-              </div>
-              <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
-                <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Slots Filled</span>
-                <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
-                  <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Compare tip banner -->
-          <div class="flex items-center justify-between gap-3 bg-blue-950/60 border border-blue-500/25 rounded-xl px-4 py-3 mb-6 animate-on-scroll" style="transition-delay:0.02s;">
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="text-lg flex-shrink-0">💡</span>
-              <p class="font-condensed text-sm text-blue-200 tracking-wide leading-snug">
-                <strong class="text-white">Tip:</strong> Click the blue <strong class="text-blue-300">+ COMPARE</strong> button on any politician card to compare them side-by-side!
-              </p>
-            </div>
-            <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3 py-2 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
-              ⚖️ Open Compare
-            </button>
-          </div>
-
-          <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
-          <div id="browse-toolbar-sentinel" class="w-full h-px pointer-events-none"></div>
-
-          <!-- Search & filter bar — sticky, mobile-friendly -->
-          <div class="browse-toolbar" id="browse-toolbar">
-            
-            <!-- Collapsed compact bar -->
-            <div id="browse-toolbar-collapsed-content" class="hidden flex items-center justify-between w-full cursor-pointer select-none" onclick="toggleStickyFilters(event)">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">🔍</span>
-                <span class="font-display text-lg tracking-wider text-white">FILTERS &amp; SEARCH</span>
-                <span id="collapsed-filter-count-badge" class="hidden font-condensed text-xs font-bold bg-crimson-600 text-white rounded-full px-2 py-0.5">0</span>
-              </div>
-              <button class="flex items-center gap-1.5 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all h-auto min-h-0" style="min-height: 32px !important;">
-                <span id="expand-btn-icon"></span>&nbsp;<span id="expand-btn-text"></span>
-              </button>
-            </div>
-
-            <!-- Expanded full content -->
-            <div id="browse-toolbar-expanded-content">
-
-              <div class="browse-search-wrap">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input id="myteam-browse-search" type="text" placeholder="Search by name, office, state, or issue..." oninput="myteamBrowseFilter()"
-                  class="browse-search-input" autocomplete="off" autocorrect="off" spellcheck="false"/>
-                <button class="browse-search-clear" id="browse-search-clear" onclick="document.getElementById('myteam-browse-search').value='';this.classList.remove('visible');myteamBrowseFilter();" aria-label="Clear search">&times;</button>
-              </div>
-
-              <!-- ── Team Alignment Score — integrated into the filter bar ── -->
-              <div id="alignment-panel" style="background:linear-gradient(145deg, rgba(139,92,246,0.08) 0%, rgba(10,15,30,0.4) 100%);border:1px solid rgba(139,92,246,0.28);border-radius:0.9rem;padding:0.85rem 1rem;margin-bottom:0.75rem;">
-                <div class="flex items-center gap-2.5 mb-2.5">
-                  <div class="flex items-center justify-center" style="width:2rem;height:2rem;border-radius:0.6rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 0 14px rgba(139,92,246,0.35);flex-shrink:0;font-size:1rem;">🎯</div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-display text-base tracking-wider text-purple-300 uppercase" style="line-height:1.1; text-shadow: 0 0 20px rgba(139,92,246,0.25);">TEAM ALIGNMENT SCORE</h3>
-                    <p class="font-condensed text-xs text-purple-400/60 tracking-wide" style="line-height:1.15;">Select your priority issues — see how your team stacks up</p>
-                  </div>
-                  <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400/50 hover:text-purple-300 tracking-wider uppercase transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-purple-500/10 flex-shrink-0" style="background:none;border:none;">Clear</button>
-                </div>
-                <div id="align-chips" class="flex flex-wrap gap-2 mb-2">
-                  <button class="align-chip" data-align-issue="taxes" onclick="alignToggle(this)">💰 Taxes & Spending</button>
-                  <button class="align-chip" data-align-issue="publiclands" onclick="alignToggle(this)">🏔 Public Lands</button>
-                  <button class="align-chip" data-align-issue="guns" onclick="alignToggle(this)">🔫 Gun Rights</button>
-                  <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare</button>
-                  <button class="align-chip" data-align-issue="education" onclick="alignToggle(this)">📚 Education</button>
-                  <button class="align-chip" data-align-issue="border" onclick="alignToggle(this)">🛡 Border Security</button>
-                  <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water Rights</button>
-                  <button class="align-chip" data-align-issue="constitution" onclick="alignToggle(this)">📜 Constitutional Freedoms</button>
-                  <button class="align-chip" data-align-issue="termlimits" onclick="alignToggle(this)">⏳ Term Limits</button>
-                  <button class="align-chip" data-align-issue="veterans" onclick="alignToggle(this)">🎖 Veterans</button>
-                  <button class="align-chip" data-align-issue="tech" onclick="alignToggle(this)">🖥 Tech & Privacy</button>
-                  <button class="align-chip" data-align-issue="housing" onclick="alignToggle(this)">🏠 Housing</button>
-                </div>
-                <div id="align-status" class="font-condensed text-xs text-steel-500 tracking-wide" style="min-height:1.2rem;">
-                  Select issues above to see personalized alignment scores on every politician card.
-                </div>
-              </div>
-
-              <div class="browse-filters-row">
-                <select id="myteam-browse-office" onchange="myteamBrowseFilter()" class="browse-filter-select browse-filter-select-lg">
-                  <option value="">All Offices</option>
-                  <option value="president">President / Executive</option>
-                  <option value="senator">U.S. Senator</option>
-                  <option value="representative">U.S. Representative</option>
-                  <option value="governor">Governor</option>
-                  <option value="state">State Legislator</option>
-                  <option value="local">Local / Mayor</option>
-                  <option value="candidate">Candidate / Nominee</option>
-                  <option value="cabinet">Cabinet / Appointed</option>
-                </select>
-                <select id="myteam-browse-state" onchange="myteamBrowseFilter()" class="browse-filter-select browse-filter-select-lg">
-                  <option value="">All States</option>
-                  <option value="Utah">Utah</option>
-                  <option value="Kentucky">Kentucky</option>
-                  <option value="Florida">Florida</option>
-                  <option value="Colorado">Colorado</option>
-                  <option value="Georgia">Georgia</option>
-                  <option value="National">National / Cabinet</option>
-                </select>
-                <select id="myteam-browse-score" onchange="myteamBrowseFilter()" class="browse-filter-select browse-filter-select-lg">
-                  <option value="">All Scores</option>
-                  <option value="high">High (70%+)</option>
-                  <option value="mid">Medium (40-69%)</option>
-                  <option value="low">Low (&lt;40%)</option>
-                </select>
-                <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="browse-filter-select browse-filter-select-lg">
-                  <option value="score-desc">Score: High → Low</option>
-                  <option value="score-asc">Score: Low → High</option>
-                  <option value="align-desc">🎯 Alignment: High → Low</option>
-                  <option value="alpha">A → Z</option>
-                </select>
-              </div>
-              <div class="browse-bottom-bar">
-                <div class="flex items-center gap-3 flex-wrap">
-                  <label class="font-condensed text-xs tracking-widest uppercase text-steel-400" style="font-size:0.72rem;">Show:</label>
-                  <select id="myteam-browse-show" onchange="myteamBrowseFilter()" class="browse-filter-select browse-filter-select-lg" style="min-width:150px;max-width:200px;">
-                    <option value="all">All Politicians</option>
-                    <option value="not-on-team">Not on My Team</option>
-                    <option value="on-team">On My Team Only</option>
-                  </select>
-                </div>
-                <div id="myteam-browse-count-label" class="font-condensed text-xs tracking-widest uppercase text-steel-400"></div>
-              </div>
-              <div class="browse-active-filters" id="browse-active-filters"></div>
-            </div>
-          </div>
-
-        <!-- Browse cards — grouped by type & location -->
-        <div id="myteam-browse-grid"></div>
-
-        <!-- Browse empty state -->
-        <div id="myteam-browse-empty" class="hidden text-center py-10">
-          <div class="text-4xl mb-3" style="filter:drop-shadow(0 0 15px rgba(159,180,212,0.3));">🔍</div>
-          <div class="font-display text-xl tracking-wider text-steel-300 mb-2">NO RESULTS FOUND</div>
-          <p class="text-steel-500 text-sm mb-4 max-w-xs mx-auto">Try adjusting your search or removing some filters.</p>
-          <button onclick="myteamBrowseReset()" class="browse-clear-btn" style="font-size:0.82rem;padding:0.55rem 1.25rem;">
-            <svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            Clear All Filters
-          </button>
-        </div>
+      <!-- Hidden elements for legacy JS compatibility to prevent crashes -->
+      <div style="display:none;">
+        <input id="pm-search-input" type="hidden" />
+        <div id="pm-quickjump-nav"></div>
+        <button id="pm-fullstate-btn"></button>
+        <button id="pm-clear-filters"></button>
+        <div id="pm-no-results"></div>
+        <p id="pm-area-desc"></p>
+        <span id="pm-loc-title"></span>
+        <p id="vh-ballot-edu"></p>
+        <div id="ballot-races"></div>
+        <div id="ballot-breakdown"></div>
+        <div id="state-overview-myteam"></div>
       </div>
 
-      <!-- Hidden containers for JS compatibility -->
-      <div id="mypol-potential-section" style="display:none;"><div id="potential-grid"></div><div id="potential-empty" style="display:none;"></div><span id="potential-count-badge" style="display:none;"></span></div>
-      <div id="mypol-favorites-section" style="display:none;"><div id="favorites-grid"></div><div id="favorites-empty" style="display:none;"></div><span id="favorites-count-badge" style="display:none;"></span></div>
+      <!-- Share toast notification -->
+      <div id="myteam-share-toast" class="myteam-share-toast">Copied to clipboard!</div>
+      <div id="account-save-toast" class="account-save-toast">💾 Saved to your account</div>
+      <div id="vote-save-toast" class="account-save-toast">✅ Vote saved to your account</div>
+      <div id="signin-prompt-toast" class="signin-prompt-toast">
+        <span>Sign in to save your team permanently</span>
+        <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideSigninPrompt();">Sign In</button>
+      </div>
+      <div id="vote-signin-nudge" class="signin-prompt-toast">
+        <span>Sign in to save your votes &amp; comments</span>
+        <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideVoteSigninNudge();">Sign In</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
+  <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
+
+    <!-- ═══ PROMISE TRACKER ═══ -->
+    <div id="tracker" style="scroll-margin-top:80px;">
+      <div id="myteam-browse-panel" class="w-full">
+        <!-- Promise Tracker Section Header -->
+        <div class="mb-6 animate-on-scroll" style="background:linear-gradient(135deg, rgba(192,21,42,0.1) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(192,21,42,0.2); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+          <div class="flex items-center gap-4 flex-wrap justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-crimson-600 to-crimson-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(192,21,42,0.25);">📊</div>
+              <div>
+                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
+                <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
+              </div>
+            </div>
+            <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
+              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Slots Filled</span>
+              <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
+                <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ★ MY 2026 VOTING TEAM — Compact Reference Summary Box ★ -->
+        <div id="myteam-summary-box" class="myteam-summary-box mb-6 animate-on-scroll" style="position:relative;z-index:1; transition-delay:0.02s;">
+          <div class="myteam-summary-header">
+            <div class="myteam-summary-title-group">
+              <div class="myteam-summary-icon">⭐</div>
+              <div>
+                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
+                <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
+              </div>
+              <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
+            </div>
+            <div class="myteam-summary-actions">
+              <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share My Team
+              </button>
+              <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
+            </div>
+          </div>
+          <!-- Empty state prompt - shown when no picks made -->
+          <div id="myteam-empty-prompt" class="myteam-empty-prompt">
+            <div class="myteam-empty-inner">
+              <div class="myteam-empty-icons">
+                <span>🏛</span><span>🦅</span><span>🏙</span>
+              </div>
+              <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Your Team Summary</div>
+              <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick candidates in the Voter Hub above. Your choices are <strong style="color:#4ade80;">saved automatically</strong> and will appear here as a reference panel.</div>
+            </div>
+          </div>
+          <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
+          <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
+        </div>
+
+        <!-- Compare tip banner -->
+        <div class="flex items-center justify-between gap-3 bg-blue-950/60 border border-blue-500/25 rounded-xl px-4 py-3 mb-6 animate-on-scroll" style="transition-delay:0.04s;">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-lg flex-shrink-0">💡</span>
+            <p class="font-condensed text-sm text-blue-200 tracking-wide leading-snug">
+              <strong class="text-white">Tip:</strong> Click the blue <strong class="text-blue-300">+ COMPARE</strong> button on any politician card to compare them side-by-side!
+            </p>
+          </div>
+          <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3 py-2 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
+            ⚖️ Open Compare
+          </button>
+        </div>
+
+        <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
+        <div id="browse-toolbar-sentinel" class="w-full h-px pointer-events-none"></div>
+
+        <!-- Search & filter bar — sticky, mobile-friendly -->
+        <div class="browse-toolbar" id="browse-toolbar">
+          <div class="browse-toolbar-inner">
+            <div class="flex-1 min-w-[240px]">
+              <div class="relative">
+                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, issue, party..." class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" />
+                <span class="absolute left-3.5 top-3.5 text-steel-500 pointer-events-none text-xs">🔍</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+              <select id="myteam-browse-office" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[140px] min-h-[44px]">
+                <option value="">— Filter Office —</option>
+                <option value="president">President</option>
+                <option value="senator">U.S. Senator</option>
+                <option value="representative">U.S. Representative</option>
+                <option value="governor">Governor</option>
+                <option value="state">State Leg</option>
+                <option value="local">Local / Mayor</option>
+                <option value="candidate">Candidate</option>
+                <option value="cabinet">Cabinet</option>
+              </select>
+
+              <select id="myteam-browse-state" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="">— Filter State —</option>
+                <option value="National">National</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Utah">Utah</option>
+              </select>
+
+              <select id="myteam-browse-score" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="">— Filter Score —</option>
+                <option value="high">70%+ (High)</option>
+                <option value="mid">40%-69% (Mid)</option>
+                <option value="low">&lt; 40% (Low)</option>
+                <option value="na">No Score Yet</option>
+              </select>
+
+              <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="score-desc">Score: High to Low</option>
+                <option value="score-asc">Score: Low to High</option>
+                <option value="align-desc">Alignment Match</option>
+                <option value="alpha">Alphabetical (A-Z)</option>
+              </select>
+
+              <button onclick="myteamBrowseReset()" class="font-condensed text-xs text-steel-500 hover:text-white uppercase transition-colors px-3 py-2.5 rounded-xl border border-white/5 bg-white/5" style="min-height: 44px;">Reset</button>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between mt-2 px-1">
+            <span id="myteam-browse-count-label" class="font-condensed text-xs text-steel-400 font-bold tracking-wide">0 politicians found</span>
+            <div class="flex gap-2">
+              <button id="scope-btn-all" onclick="setBrowseScope('all')" class="scope-btn active">All Databases</button>
+              <button id="scope-btn-relevant" onclick="setBrowseScope('relevant')" class="scope-btn">Relevant To Me</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="myteam-browse-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+        <div id="myteam-browse-empty" class="text-center py-10 hidden">
+          <div class="text-4xl mb-2">🤷‍♂️</div>
+          <div class="font-display text-lg text-white">No results found</div>
+          <p class="font-condensed text-xs text-steel-500 tracking-wide mt-1">Try adjusting your filters or search query to broaden your results.</p>
+        </div>
+      </div>
       <div id="mypol-empty" style="display:none;"></div>
       <div style="display:none;"><div id="chub-all-grid"></div><div id="chub-empty"></div><div id="chub-count"></div><div id="chub-chips"></div><div id="chub-align-wrap"><div id="chub-align-status"></div><div id="chub-align-chips"></div></div><input id="chub-search" type="hidden"/><select id="chub-office"></select><select id="chub-state"></select><select id="chub-score"></select><select id="chub-sort"><option value="score-desc"></option></select></div>
     </div>
@@ -11009,9 +9663,7 @@
     </div>
 
   </section>
-
-
-  <!-- ═══════════════════════ THE PEOPLE'S MANDATE ══════════ -->
+<!-- ═══════════════════════ THE PEOPLE'S MANDATE ══════════ -->
   <section id="agenda" class="py-16 md:py-24 mandate-section">
   <div class="mandate-star-accents" aria-hidden="true">
     <span style="top:8%;left:6%;font-size:1.2rem;animation-delay:0s;">✦</span>
@@ -19896,7 +18548,11 @@
   };
 
   window.renderStateOverview = function() {
-    var hosts = [document.getElementById('state-overview-myteam'), document.getElementById('state-overview-relevant')];
+    var hosts = [
+      document.getElementById('state-overview-myteam'),
+      document.getElementById('state-overview-relevant'),
+      document.getElementById('state-overview-voterhub')
+    ];
     hosts = hosts.filter(Boolean);
     if (!hosts.length) return;
 
@@ -20000,12 +18656,48 @@
           tile('1', 'Governor', 'Statewide executive', '#34d399', 'governor') +
           legTiles +
           tile('★', 'Local Offices', 'Mayor · Council · School Bd', '#fbbf24', 'local') +
-        '</div>' +
+        }
         '<div class="so-foot"><span>★</span><span>These are the <strong>key elected positions</strong> you vote on in ' + loc.state + '.</span></div>' +
       '</div>';
     }
 
     for (var i = 0; i < hosts.length; i++) hosts[i].innerHTML = html;
+  };
+
+  window.jumpToRelevantAccordion = function(officeKey) {
+    var categoryKey = '';
+    if (officeKey === 'senate') categoryKey = 'senator';
+    else if (officeKey === 'house') categoryKey = 'representative';
+    else if (officeKey === 'governor') categoryKey = 'governor';
+    else if (officeKey === 'statesenate') categoryKey = 'state_senator';
+    else if (officeKey === 'statehouse') categoryKey = 'state_rep';
+    else if (officeKey === 'local') categoryKey = 'local';
+    else if (officeKey === 'president') categoryKey = 'president';
+    else if (officeKey === 'ltgovernor') categoryKey = 'governor';
+    else if (officeKey === 'secstate' || officeKey === 'secretaryofstate' || officeKey === 'attorneygeneral' || officeKey === 'chiefjustice' || officeKey === 'defense' || officeKey === 'intel') categoryKey = 'cabinet';
+    else categoryKey = 'other';
+
+    var el = document.getElementById('relevant-browse-group-' + categoryKey);
+    if (el) {
+      if (!el.classList.contains('expanded')) {
+        window.toggleBrowseAccordion('relevant-browse-group-' + categoryKey, 'relevant-office-' + categoryKey);
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var header = el.querySelector('.browse-type-header');
+      if (header) {
+        header.style.boxShadow = '0 0 30px rgba(245,158,11,0.25), 0 0 10px rgba(245,158,11,0.15)';
+        header.style.borderColor = 'rgba(245,158,11,0.5)';
+        setTimeout(function() {
+          header.style.boxShadow = '';
+          header.style.borderColor = '';
+        }, 1500);
+      }
+    } else {
+      var relSection = document.getElementById('relevant-section');
+      if (relSection) {
+        relSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   };
 
   // Perform initial load
@@ -20017,8 +18709,6 @@
   if (typeof _mypolBuildGrid === 'function') _mypolBuildGrid();
   if (typeof renderRelevantToMe === 'function') renderRelevantToMe();
   if (typeof myteamBrowseFilter === 'function') myteamBrowseFilter();
-  // Sync the Power Map "YOUR LOCATION" banner once all later scripts (which
-  // define pmFilterLocation) have parsed — i.e. on DOMContentLoaded.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() { window._vhSyncBanner(); });
   } else {
