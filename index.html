@@ -3324,6 +3324,20 @@
     .myteam-slot-profile-btn { color: #e2e8f0; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
     .myteam-slot-profile-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); transform: translateY(-2px); box-shadow: 0 3px 12px rgba(255,255,255,0.05); }
     .myteam-slot-clear-btn { color: #f87171; opacity: 0; font-size: 0.85rem; padding: 0.2rem 0.4rem; position: absolute; top: 0.6rem; right: 0.6rem; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(248,113,113,0.2); z-index: 3; transition: all 0.2s; }
+    /* Per-slot Quick Jump → Relevant to Me (filtered by office) */
+    .myteam-slot-jump-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+      width: 100%; margin-top: 0.6rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.07em; text-transform: uppercase;
+      color: #93c5fd;
+      background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(30,58,138,0.1));
+      border: 1px solid rgba(59,130,246,0.32); border-radius: 0.6rem;
+      padding: 0.42rem 0.7rem; cursor: pointer; transition: all 0.22s; white-space: nowrap;
+    }
+    .myteam-slot-jump-btn:hover { color: #fff; background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(30,58,138,0.2)); border-color: rgba(96,165,250,0.6); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(59,130,246,0.2); }
+    .myteam-slot-jump-btn:active { transform: translateY(0); }
+    .myteam-slot-jump-btn:focus-visible { outline: 2px solid rgba(147,197,253,0.8); outline-offset: 2px; }
     .myteam-slot:hover .myteam-slot-clear-btn { opacity: 0.6; }
     .myteam-slot .myteam-slot-clear-btn:hover { opacity: 1; background: rgba(239,68,68,0.3); border-color: rgba(248,113,113,0.5); transform: scale(1.1); }
     .myteam-compare-all-bar {
@@ -9332,71 +9346,7 @@
             </div>
           </div>
 
-          <!-- ── YOUR 2026 BALLOT BREAKDOWN — Enhanced ────────── -->
-          <div id="ballot-breakdown" class="ballot-section-enhanced">
-            <div class="flex items-center gap-3 mb-2" style="position:relative;z-index:1;">
-              <div style="width:2.75rem;height:2.75rem;border-radius:0.75rem;background:linear-gradient(135deg,#c0152a,#1a3a6b);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px rgba(192,21,42,0.4);border:2px solid rgba(255,255,255,0.2);flex-shrink:0;">🗳️</div>
-              <div>
-                <h3 class="font-display text-xl tracking-wider text-crimson-400 uppercase" style="line-height:1.1;text-shadow:0 0 20px rgba(192,21,42,0.3);">YOUR 2026 BALLOT BREAKDOWN</h3>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Build your personal voting team — one pick per race</p>
-              </div>
-              <button onclick="ballotClearAll()" class="ml-auto font-condensed text-xs text-steel-500 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;">Reset All</button>
-            </div>
-
-            <p id="vh-ballot-edu" class="ballot-edu-text" style="max-width:42rem;position:relative;z-index:1;">You'll vote for <strong style="color:#e2e8f0;">6 key positions</strong> that shape everything from federal law to your local roads. Select your preferred candidate for each race below to build your personal <strong style="color:#4ade80;">"My Voting Team"</strong> slate.</p>
-
-            <!-- Progress bar -->
-            <div class="flex items-center gap-2 mb-4" style="position:relative;z-index:1;">
-              <div class="ballot-progress-bar flex-1">
-                <div id="ballot-progress-fill" class="ballot-progress-fill" style="width:0%"></div>
-              </div>
-              <span id="ballot-progress-label" class="font-condensed text-xs text-steel-500 tracking-wider">0 / 6 picked</span>
-            </div>
-
-            <!-- ★ MY 2026 VOTING TEAM — Prominent Summary Box ★ -->
-            <div id="myteam-summary-box" class="myteam-summary-box" style="position:relative;z-index:1;">
-              <div class="myteam-summary-header">
-                <div class="myteam-summary-title-group">
-                  <div class="myteam-summary-icon">⭐</div>
-                  <div>
-                    <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
-                    <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
-                  </div>
-                  <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
-                </div>
-                <div class="myteam-summary-actions">
-                  <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Share My Team
-                  </button>
-                  <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
-                </div>
-              </div>
-              <!-- Empty state prompt - shown when no picks made -->
-              <div id="myteam-empty-prompt" class="myteam-empty-prompt">
-                <div class="myteam-empty-inner">
-                  <div class="myteam-empty-icons">
-                    <span>🏛</span><span>🦅</span><span>🏙</span>
-                  </div>
-                  <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Start Building Your Team</div>
-                  <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick one candidate for each of the <strong id="myteam-empty-count" style="color:#e2e8f0;">6 races</strong> below. Your choices are <strong style="color:#4ade80;">saved automatically</strong> to this browser and will be here when you come back.</div>
-                  <div class="font-condensed" style="font-size:0.6rem;color:#4e72a0;margin-top:0.5rem;letter-spacing:0.08em;">&#8595; SCROLL DOWN TO START PICKING &#8595;</div>
-                </div>
-              </div>
-              <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
-              <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
-            </div>
-
-            <!-- Educational race cards — rendered dynamically -->
-            <div style="position:relative;z-index:1;">
-              <div class="flex items-center gap-2 mb-3">
-                <span style="font-size:0.9rem;">📋</span>
-                <span class="font-display text-sm tracking-wider text-white uppercase">Select Your Picks</span>
-                <span class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-left:0.25rem;">— click any candidate card</span>
-              </div>
-              <div id="ballot-races"></div>
-            </div>
-          </div>
+          <!-- Ballot breakdown relocated into the unified Voting Team section (see #my-politicians) -->
 
           <!-- Share toast notification -->
           <div id="myteam-share-toast" class="myteam-share-toast">Copied to clipboard!</div>
@@ -10608,6 +10558,42 @@
         </div>
       </div>
 
+      <!-- ═══ YOUR LOCATION — Combined Hub Card (drives ballot, team & relevant) ═══ -->
+      <div id="hub-location-card" class="mb-6" style="position:relative;overflow:hidden;border-radius:1.25rem;padding:1.25rem 1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.14) 0%,rgba(13,21,38,0.92) 45%,rgba(26,58,107,0.2) 100%);border:2px solid rgba(255,255,255,0.1);box-shadow:0 12px 44px rgba(0,0,0,0.4),0 0 40px rgba(192,21,42,0.12);scroll-margin-top:80px;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.85;"></div>
+        <div class="flex items-center justify-between gap-4 flex-wrap" style="position:relative;z-index:1;">
+          <div class="flex items-center gap-4" style="min-width:0;">
+            <div style="width:3.75rem;height:3.75rem;border-radius:1rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 50%,#c0152a 100%);display:flex;align-items:center;justify-content:center;font-size:1.9rem;box-shadow:0 0 30px rgba(192,21,42,0.5),0 0 16px rgba(26,58,107,0.35);border:2.5px solid rgba(255,255,255,0.22);flex-shrink:0;">📍</div>
+            <div style="min-width:0;">
+              <div class="font-condensed" style="font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#ef4444;">Your Voting Location</div>
+              <div id="hub-loc-headline" class="font-display tracking-wider text-white" style="font-size:2.1rem;line-height:1.05;text-shadow:0 2px 12px rgba(0,0,0,0.5);">Set Your Location</div>
+              <div id="hub-loc-sub" class="font-condensed text-steel-300" style="font-size:0.85rem;letter-spacing:0.04em;margin-top:0.15rem;">Choose your state to personalize your ballot, voting team &amp; representatives.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 flex-wrap" style="justify-content:flex-end;">
+            <button id="explore-toggle-btn" onclick="window.startExploring()" class="font-condensed font-700 tracking-wider uppercase text-blue-200 hover:text-white bg-blue-900/40 hover:bg-blue-800/60 border border-blue-400/30 hover:border-blue-400/60 px-4 py-3 rounded-xl transition-all flex items-center gap-2 min-h-[48px]" style="font-size:0.78rem;display:none;" title="Preview the ballot &amp; team for any other state without changing your saved location">🔭 Explore Another State</button>
+            <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-2 min-h-[48px]" style="font-size:0.8rem;">📍 Change Location</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ EXPLORE MODE — "you're viewing another state" return banner ═══ -->
+      <div id="explore-return-banner" style="display:none;margin-bottom:1.5rem;border-radius:1rem;padding:0.9rem 1.1rem;background:linear-gradient(135deg,rgba(59,130,246,0.16) 0%,rgba(13,21,38,0.92) 100%);border:1.5px dashed rgba(96,165,250,0.55);box-shadow:0 6px 24px rgba(0,0,0,0.3);">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-2.5" style="min-width:0;">
+            <span style="font-size:1.5rem;line-height:1;flex-shrink:0;">🔭</span>
+            <div style="min-width:0;">
+              <div class="font-condensed font-700 tracking-wider uppercase" style="font-size:0.8rem;color:#93c5fd;">Exploring <span id="explore-active-name" style="color:#fff;">another state</span></div>
+              <div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;letter-spacing:0.02em;line-height:1.4;margin-top:0.1rem;">Just looking around — your saved location is <strong id="explore-home-name" style="color:#fbbf24;">your location</strong>. This preview doesn't change your real voting team.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 flex-wrap" style="justify-content:flex-end;">
+            <button onclick="window.saveExploredAsHome()" class="font-condensed text-xs font-700 tracking-wider uppercase text-white bg-amber-600 hover:bg-amber-500 border border-amber-400/40 px-3.5 py-2.5 rounded-xl transition-all min-h-[44px]">🏠 Make This My Location</button>
+            <button onclick="window.returnToMyLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-3.5 py-2.5 rounded-xl transition-all min-h-[44px]">↩ Return to My Location</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ STATE OVERVIEW CARD — dynamic "voter map" for the user's saved state ═══ -->
       <style id="state-overview-styles">
         .so-card{position:relative;overflow:hidden;border-radius:1.25rem;padding:1.1rem 1.25rem 1.2rem;margin-bottom:1.5rem;
@@ -10644,7 +10630,41 @@
         .so-prompt-btn:hover{background:#3b82f6;}
         @media (max-width:480px){.so-grid{grid-template-columns:repeat(2,1fr);}.so-name{font-size:1.6rem;}}
       </style>
-      <div id="state-overview-myteam"></div>
+
+          <!-- ── YOUR 2026 BALLOT BREAKDOWN — Enhanced ────────── -->
+          <div id="ballot-breakdown" class="ballot-section-enhanced">
+            <div class="flex items-center gap-3 mb-2" style="position:relative;z-index:1;">
+              <div style="width:2.75rem;height:2.75rem;border-radius:0.75rem;background:linear-gradient(135deg,#c0152a,#1a3a6b);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 0 20px rgba(192,21,42,0.4);border:2px solid rgba(255,255,255,0.2);flex-shrink:0;">🗳️</div>
+              <div>
+                <h3 class="font-display text-xl tracking-wider text-crimson-400 uppercase" style="line-height:1.1;text-shadow:0 0 20px rgba(192,21,42,0.3);">YOUR 2026 BALLOT BREAKDOWN</h3>
+                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Build your personal voting team — one pick per race</p>
+              </div>
+              <button onclick="ballotClearAll()" class="ml-auto font-condensed text-xs text-steel-500 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;">Reset All</button>
+            </div>
+
+            <p id="vh-ballot-edu" class="ballot-edu-text" style="max-width:42rem;position:relative;z-index:1;">You'll vote for <strong style="color:#e2e8f0;">6 key positions</strong> that shape everything from federal law to your local roads. Select your preferred candidate for each race below to build your personal <strong style="color:#4ade80;">"My Voting Team"</strong> slate.</p>
+
+            <!-- 6 numbered "ballot at a glance" cards (with Learn More) -->
+            <div id="state-overview-myteam"></div>
+
+            <!-- Progress bar -->
+            <div class="flex items-center gap-2 mb-4" style="position:relative;z-index:1;">
+              <div class="ballot-progress-bar flex-1">
+                <div id="ballot-progress-fill" class="ballot-progress-fill" style="width:0%"></div>
+              </div>
+              <span id="ballot-progress-label" class="font-condensed text-xs text-steel-500 tracking-wider">0 / 6 picked</span>
+            </div>
+
+            <!-- Educational race cards — rendered dynamically -->
+            <div style="position:relative;z-index:1;">
+              <div class="flex items-center gap-2 mb-3">
+                <span style="font-size:0.9rem;">📋</span>
+                <span class="font-display text-sm tracking-wider text-white uppercase">Select Your Picks</span>
+                <span class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-left:0.25rem;">— click any candidate card</span>
+              </div>
+              <div id="ballot-races"></div>
+            </div>
+          </div>
 
       <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
       <div id="myteam-selected-panel" class="mb-6">
@@ -10653,7 +10673,7 @@
             <div class="flex items-center gap-3">
               <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">🗳️</div>
               <div>
-                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">YOUR TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
+                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY 2026 VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
                 <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
                 <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
               </div>
@@ -10731,7 +10751,7 @@
       <!-- ═══ RELEVANT TO ME ═══ -->
       <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px;">
         <!-- State Overview Card — dynamic "voter map" for the user's saved state -->
-        <div id="state-overview-relevant"></div>
+        <!-- voter-map cards shown once above in the breakdown (de-duplicated) -->
         <!-- Relevant to Me Section Header -->
         <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
           <div class="flex items-center justify-between gap-4 flex-wrap">
@@ -10823,6 +10843,9 @@
               <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
             </div>
 
+            <button id="explore-save-home-btn" onclick="window.saveExploredAsHome()" class="font-condensed text-xs font-700 tracking-widest uppercase text-white bg-amber-600 hover:bg-amber-500 px-4 py-3 rounded-xl transition-colors border border-amber-400/40 min-h-[44px]" style="display:none;">
+              🏠 Save as My Location
+            </button>
             <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
               Close Form
             </button>
@@ -10853,6 +10876,40 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- ★ YOUR BALLOT PICKS — Persistent reference panel (relocated from the team builder) ★ -->
+          <div id="myteam-summary-box" class="myteam-summary-box animate-on-scroll" style="position:relative;z-index:1;">
+            <div class="myteam-summary-header">
+              <div class="myteam-summary-title-group">
+                <div class="myteam-summary-icon">⭐</div>
+                <div>
+                  <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">YOUR BALLOT PICKS</div>
+                  <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
+                </div>
+                <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
+              </div>
+              <div class="myteam-summary-actions">
+                <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  Share My Team
+                </button>
+                <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
+              </div>
+            </div>
+            <!-- Empty state prompt - shown when no picks made -->
+            <div id="myteam-empty-prompt" class="myteam-empty-prompt">
+              <div class="myteam-empty-inner">
+                <div class="myteam-empty-icons">
+                  <span>🏛</span><span>🦅</span><span>🏙</span>
+                </div>
+                <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Start Building Your Team</div>
+                <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick one candidate for each of the <strong id="myteam-empty-count" style="color:#e2e8f0;">6 races</strong> in the <strong style="color:#fbbf24;">My Voting Team</strong> builder above. Your choices are <strong style="color:#4ade80;">saved automatically</strong> to this browser and will be here when you come back.</div>
+                <div class="font-condensed" style="font-size:0.6rem;color:#4e72a0;margin-top:0.5rem;letter-spacing:0.08em;">&#8593; BUILD YOUR TEAM ABOVE TO FILL THIS IN &#8593;</div>
+              </div>
+            </div>
+            <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
+            <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
           </div>
 
           <!-- Compare tip banner -->
@@ -19400,6 +19457,83 @@
   // Tracks whether the user has actually chosen/saved a location.
   window._hasUserLocation = false;
 
+  // ── "Home" location vs. temporary "exploring" ─────────────────────────
+  // _homeVoterLocation is the user's REAL, saved location (the one persisted to
+  // localStorage / their account). _currentVoterLocation is the location that is
+  // currently being *viewed*. They are identical unless the user is exploring
+  // another state — in that case _exploreMode is true, _currentVoterLocation
+  // points at the explored area, the home stays untouched, and a banner offers a
+  // one-click way back to the user's real location & team.
+  window._homeVoterLocation = { state: '', city: '', county: '', district: '' };
+  window._exploreMode = false;
+
+  window._pdxCloneLoc = function(l) {
+    l = l || {};
+    return { state: l.state || '', city: l.city || '', county: l.county || '', district: l.district || '' };
+  };
+
+  // ── Shared, fully-national location resolver ──────────────────────────
+  // Single source of truth for turning a politician's free-form `state` (or
+  // `office`) field into a normalized full state name + congressional district.
+  // Handles every format in the dataset — "Utah", "UT", "UT-4", "UT District 6",
+  // "Utah · UT-1", "Utah · District 3", "KY-04", "District 2", etc. No state is
+  // special-cased; this behaves identically for all 50 states + DC, so adding a
+  // location for any state immediately drives the ballot, team & relevant lists.
+  window._PDX_STATE_ABBR = {
+    al:'Alabama',ak:'Alaska',az:'Arizona',ar:'Arkansas',ca:'California',co:'Colorado',
+    ct:'Connecticut',de:'Delaware',dc:'District of Columbia',fl:'Florida',ga:'Georgia',
+    hi:'Hawaii',id:'Idaho',il:'Illinois',in:'Indiana',ia:'Iowa',ks:'Kansas',ky:'Kentucky',
+    la:'Louisiana',me:'Maine',md:'Maryland',ma:'Massachusetts',mi:'Michigan',mn:'Minnesota',
+    ms:'Mississippi',mo:'Missouri',mt:'Montana',ne:'Nebraska',nv:'Nevada',nh:'New Hampshire',
+    nj:'New Jersey',nm:'New Mexico',ny:'New York',nc:'North Carolina',nd:'North Dakota',
+    oh:'Ohio',ok:'Oklahoma',or:'Oregon',pa:'Pennsylvania',ri:'Rhode Island',sc:'South Carolina',
+    sd:'South Dakota',tn:'Tennessee',tx:'Texas',ut:'Utah',vt:'Vermont',va:'Virginia',
+    wa:'Washington',wv:'West Virginia',wi:'Wisconsin',wy:'Wyoming'
+  };
+  // Full state names, longest first, so "West Virginia" wins over "Virginia".
+  window._PDX_STATE_NAMES = Object.keys(window._PDX_STATE_ABBR)
+    .map(function(k){ return window._PDX_STATE_ABBR[k]; })
+    .sort(function(a, b){ return b.length - a.length; });
+
+  window._pdxResolvePolState = function(raw) {
+    raw = String(raw == null ? '' : raw).trim();
+    if (!raw) return '';
+    var lower = raw.toLowerCase();
+    if (lower === 'national' || lower === 'u.s.' || lower === 'us' || lower === 'cabinet' ||
+        lower.indexOf('united states') !== -1) return 'National';
+    var names = window._PDX_STATE_NAMES;
+    // 1) Leading full state name (e.g. "Utah · …", "New York …").
+    for (var i = 0; i < names.length; i++) {
+      var n = names[i].toLowerCase();
+      if (lower === n || lower.indexOf(n) === 0) return names[i];
+    }
+    // 2) Leading 2-letter postal code (e.g. "UT District 6", "KY-04", "UT-4").
+    var lead = raw.match(/^([A-Za-z]{2})\b/);
+    if (lead && window._PDX_STATE_ABBR[lead[1].toLowerCase()]) return window._PDX_STATE_ABBR[lead[1].toLowerCase()];
+    // 3) Full state name anywhere in the string.
+    for (var j = 0; j < names.length; j++) {
+      if (lower.indexOf(names[j].toLowerCase()) !== -1) return names[j];
+    }
+    // 4) Any standalone UPPERCASE postal code (avoids matching lowercase English
+    //    words like "in", "or", "me").
+    var codes = raw.match(/\b([A-Z]{2})\b/g);
+    if (codes) {
+      for (var k = 0; k < codes.length; k++) {
+        if (window._PDX_STATE_ABBR[codes[k].toLowerCase()]) return window._PDX_STATE_ABBR[codes[k].toLowerCase()];
+      }
+    }
+    return '';
+  };
+
+  window._pdxResolvePolDistrict = function(raw) {
+    raw = String(raw == null ? '' : raw);
+    var m = raw.match(/[A-Za-z]{2}\s*-\s*0*(\d{1,2})/);   // "UT-4", "KY-04"
+    if (m) return String(parseInt(m[1], 10));
+    m = raw.match(/district\s*0*(\d{1,2})/i);              // "District 3"
+    if (m) return String(parseInt(m[1], 10));
+    return '';
+  };
+
   window.loadVoterLocation = function() {
     window._hasUserLocation = false;
     try {
@@ -19426,11 +19560,20 @@
     } catch(e) {
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
     }
+    // A freshly loaded location is always the user's "home". Exploring is a
+    // transient, in-session state, so it never survives a reload.
+    window._exploreMode = false;
+    window._homeVoterLocation = window._pdxCloneLoc(window._currentVoterLocation);
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.saveVoterLocation = function() {
     window._hasUserLocation = true;
+    // Saving always commits the current view as the user's real "home" location
+    // and ends any temporary exploration.
+    window._exploreMode = false;
+    window._homeVoterLocation = window._pdxCloneLoc(window._currentVoterLocation);
     try {
       localStorage.setItem('politidex_voter_location', JSON.stringify(window._currentVoterLocation));
     } catch(e) {}
@@ -19470,6 +19613,98 @@
     }
   };
 
+  // ── Temporary "explore another state" mode ────────────────────────────
+  // Lets a voter view the ballot, team slots and representatives for any state
+  // without disturbing their own saved location/team, and always offers a clear
+  // one-click way back home.
+  window._pdxSyncLocationForm = function() {
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+    var stateSel = document.getElementById('voter-state-sel');
+    var countyInput = document.getElementById('voter-county-input');
+    var countyWrap = document.getElementById('voter-county-wrap');
+    var distWrap = document.getElementById('voter-district-wrap');
+    var distSel = document.getElementById('voter-district-sel');
+    if (stateSel) stateSel.value = loc.state || '';
+    if (countyInput) countyInput.value = loc.city || loc.county || '';
+    if (countyWrap) countyWrap.style.display = 'flex';
+    if (distWrap) distWrap.style.display = (loc.state && loc.state !== 'National') ? 'flex' : 'none';
+    if (distSel) distSel.value = loc.district || '';
+  };
+
+  // Re-run every location-driven render in one place (used after exploring /
+  // returning home so all sections stay in sync).
+  window._pdxRerenderAllLocation = function() {
+    ['_updateTeamPositionsForLocation','pmFilterLocation','updateRelevantLocationText','updateMyTeamLocationText','renderStateOverview','updateRacesAndPositions','_vhBallotRerender','_vhSyncBanner','_mypolBuildGrid','renderRelevantToMe','myteamBrowseFilter','_renderExploreBanner'].forEach(function(fn) {
+      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+    });
+    var pmStateSel = document.getElementById('pm-state-sel');
+    if (pmStateSel) pmStateSel.value = (((window._currentVoterLocation || {}).state) === 'National' ? 'national' : 'all');
+  };
+
+  // Begin exploring: open the location form, but changes made now are previewed
+  // only (not saved) until the user either returns home or adopts the new area.
+  window.startExploring = function() {
+    window._exploreMode = true;
+    var form = document.getElementById('change-location-form');
+    if (form) {
+      form.style.display = 'block';
+      window._pdxSyncLocationForm();
+      try { form.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+    }
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
+  };
+
+  // Snap back to the user's real saved location & team, discarding the preview.
+  window.returnToMyLocation = function() {
+    window._exploreMode = false;
+    var home = window._homeVoterLocation || { state: '' };
+    if ((home.state || '').trim()) {
+      window._currentVoterLocation = window._pdxCloneLoc(home);
+      window._hasUserLocation = true;
+    } else {
+      window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+      window._hasUserLocation = false;
+    }
+    window._pdxSyncLocationForm();
+    window._pdxRerenderAllLocation();
+    var form = document.getElementById('change-location-form');
+    if (form) form.style.display = 'none';
+    var card = document.getElementById('hub-location-card');
+    if (card) { try { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {} }
+  };
+
+  // Promote the area currently being explored to the user's permanent home.
+  window.saveExploredAsHome = function() {
+    window._exploreMode = false;
+    var hasState = !!((window._currentVoterLocation || {}).state || '').trim();
+    if (hasState) {
+      window.saveVoterLocation(); // commits home + persists locally and to account
+    }
+    window._pdxRerenderAllLocation();
+    var form = document.getElementById('change-location-form');
+    if (form) form.style.display = 'none';
+  };
+
+  // Show/hide the explore entry button + the "you're exploring" banner and keep
+  // their labels in sync with the current vs. home location.
+  window._renderExploreBanner = function() {
+    var home = window._homeVoterLocation || { state: '' };
+    var homeSet = !!((home.state || '').trim());
+    var exploreBtn = document.getElementById('explore-toggle-btn');
+    var saveHomeBtn = document.getElementById('explore-save-home-btn');
+    var banner = document.getElementById('explore-return-banner');
+    if (exploreBtn) exploreBtn.style.display = (homeSet && !window._exploreMode) ? 'inline-flex' : 'none';
+    if (saveHomeBtn) saveHomeBtn.style.display = window._exploreMode ? 'inline-flex' : 'none';
+    if (!banner) return;
+    if (!window._exploreMode) { banner.style.display = 'none'; return; }
+    banner.style.display = 'block';
+    var active = window._currentVoterLocation || { state: '' };
+    var aEl = document.getElementById('explore-active-name');
+    var hEl = document.getElementById('explore-home-name');
+    if (aEl) aEl.textContent = (active.state || '').trim() || 'another area';
+    if (hEl) hEl.textContent = homeSet ? (home.city ? home.city + ', ' + home.state : home.state) : 'your location';
+  };
+
   window.voterLocationStateChanged = function() {
     var stateSel = document.getElementById('voter-state-sel');
     var countyWrap = document.getElementById('voter-county-wrap');
@@ -19480,9 +19715,14 @@
     window._currentVoterLocation.state = state;
 
     if (!state) {
-      window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
-      window._hasUserLocation = false;
-      try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
+      if (window._exploreMode) {
+        // Previewing only — keep the saved home intact.
+        window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+      } else {
+        window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+        window._hasUserLocation = false;
+        try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
+      }
       if (countyWrap) countyWrap.style.display = 'none';
       if (distWrap) distWrap.style.display = 'none';
     } else if (state === 'National') {
@@ -19491,12 +19731,12 @@
       window._currentVoterLocation.city = '';
       window._currentVoterLocation.county = '';
       window._currentVoterLocation.district = '';
-      window.saveVoterLocation();
+      if (!window._exploreMode) window.saveVoterLocation();
     } else {
       if (countyWrap) countyWrap.style.display = 'flex';
       if (distWrap) distWrap.style.display = 'flex';
       window._currentVoterLocation.district = (distSel && distSel.value) ? distSel.value.replace(/[^0-9]/g, '') : '';
-      window.saveVoterLocation();
+      if (!window._exploreMode) window.saveVoterLocation();
     }
 
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
@@ -19508,11 +19748,13 @@
     window.updateRelevantLocationText();
 
     if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
+    if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
     if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
     if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.voterLocationDistrictChanged = function() {
@@ -19520,7 +19762,7 @@
     if (!distSel) return;
     var num = (distSel.value || '').replace(/[^0-9]/g, '');
     window._currentVoterLocation.district = num;
-    window.saveVoterLocation();
+    if (!window._exploreMode) window.saveVoterLocation();
 
     if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
     if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
@@ -19529,6 +19771,7 @@
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.voterLocationCountyChanged = function() {
@@ -19538,18 +19781,20 @@
     // Store both city and county as the free-text value for 100% dynamic national use
     window._currentVoterLocation.city = val;
     window._currentVoterLocation.county = val;
-    window.saveVoterLocation();
+    if (!window._exploreMode) window.saveVoterLocation();
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
 
     if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
 
     window.updateRelevantLocationText();
 
+    if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
     if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
     if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.updateRelevantLocationText = function() {
@@ -20006,6 +20251,42 @@
     }
 
     for (var i = 0; i < hosts.length; i++) hosts[i].innerHTML = html;
+
+    if (typeof window._hubSyncLocationCard === 'function') window._hubSyncLocationCard();
+  };
+
+  // Sync the prominent "Your Location" card at the top of the combined Voting Team
+  // hub. Fully dynamic — reflects whatever state/city/county/district the user saved.
+  window._hubSyncLocationCard = function() {
+    var headEl = document.getElementById('hub-loc-headline');
+    var subEl  = document.getElementById('hub-loc-sub');
+    if (!headEl) return;
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+
+    if (!window._hasUserLocation || !loc.state) {
+      headEl.textContent = 'Set Your Location';
+      if (subEl) subEl.innerHTML = 'Choose your state to personalize your ballot, voting team &amp; representatives.';
+      return;
+    }
+
+    if (loc.state === 'National') {
+      headEl.textContent = 'United States 🇺🇸';
+      if (subEl) subEl.innerHTML = 'Federal focus — your ballot, team &amp; representatives reflect national offices.';
+      return;
+    }
+
+    var city = loc.city || loc.county || '';
+    var headline = [city, loc.state].filter(Boolean).join(', ') || loc.state;
+    headEl.textContent = headline;
+
+    if (subEl) {
+      var distStr = loc.district ? 'District ' + loc.district + ' · ' : '';
+      var c = window.STATE_CIVICS && window.STATE_CIVICS[loc.state];
+      var seatStr = c
+        ? (distStr + '2 U.S. Senators · ' + c.house + ' U.S. House · 1 Governor · ' + c.senate + ' State Senate · ' + c.lower + ' ' + c.lowerName)
+        : (distStr + 'Your ballot, team &amp; representatives updated for ' + loc.state);
+      subEl.innerHTML = '📍 ' + seatStr;
+    }
   };
 
   // Perform initial load
@@ -20017,6 +20298,7 @@
   if (typeof _mypolBuildGrid === 'function') _mypolBuildGrid();
   if (typeof renderRelevantToMe === 'function') renderRelevantToMe();
   if (typeof myteamBrowseFilter === 'function') myteamBrowseFilter();
+  if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   // Sync the Power Map "YOUR LOCATION" banner once all later scripts (which
   // define pmFilterLocation) have parsed — i.e. on DOMContentLoaded.
   if (document.readyState === 'loading') {
@@ -20140,7 +20422,7 @@
       }
     },
     owens: {
-      name:'Burgess Owens', office:'U.S. Representative', state:'District 4', party:'R',
+      name:'Burgess Owens', office:'U.S. Representative', state:'Utah · UT-4', party:'R',
       score:64, kept:18, broken:7, pending:8, icon:'🏛',
       issues:['Education Freedom','School Choice','Second Amendment','Anti-CRT'],
       stances:{
@@ -20156,7 +20438,7 @@
       }
     },
     maloy: {
-      name:'Celeste Maloy', office:'U.S. Representative', state:'District 2', party:'R',
+      name:'Celeste Maloy', office:'U.S. Representative', state:'Utah · UT-2', party:'R',
       score:61, kept:11, broken:5, pending:9, icon:'🏛',
       issues:['Public Lands','Western Water Rights','Border Security','Fiscal Conservatism'],
       stances:{
@@ -22803,6 +23085,7 @@
           '<button class="myteam-slot-profile-btn" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">📋 Full Profile</button>' +
           '<button class="myteam-slot-compare-btn ' + (sel ? 'chub-added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">' + (sel ? '✓ Comparing' : '⚖️ Compare') + '</button>' +
         '</div>' +
+        '<button class="myteam-slot-jump-btn" onclick="event.stopPropagation();relevantJumpToOffice(\'' + pos.key + '\')" title="Jump to ' + pos.label + ' in Relevant to Me">🔎 Browse ' + pos.label + ' →</button>' +
       '</div>';
     }
 
@@ -22816,6 +23099,7 @@
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
           'Pick a Candidate' +
         '</div>' +
+        '<button class="myteam-slot-jump-btn" onclick="event.stopPropagation();relevantJumpToOffice(\'' + pos.key + '\')" title="Jump to ' + pos.label + ' in Relevant to Me">🔎 Browse ' + pos.label + ' →</button>' +
       '</div>';
     }
 
@@ -23387,64 +23671,12 @@
       // National scope selected — only nationals shown (handled above).
       if (userState === 'National') return false;
 
-      // Build a normalized state name for the politician from free-form state field.
-      var stateMap = {
-        'al':'Alabama','alabama':'Alabama','ak':'Alaska','alaska':'Alaska',
-        'az':'Arizona','arizona':'Arizona','ar':'Arkansas','arkansas':'Arkansas',
-        'ca':'California','california':'California','co':'Colorado','colorado':'Colorado',
-        'ct':'Connecticut','connecticut':'Connecticut','de':'Delaware','delaware':'Delaware',
-        'dc':'District of Columbia','fl':'Florida','florida':'Florida',
-        'ga':'Georgia','georgia':'Georgia','hi':'Hawaii','hawaii':'Hawaii',
-        'id':'Idaho','idaho':'Idaho','il':'Illinois','illinois':'Illinois',
-        'in':'Indiana','indiana':'Indiana','ia':'Iowa','iowa':'Iowa',
-        'ks':'Kansas','kansas':'Kansas','ky':'Kentucky','kentucky':'Kentucky',
-        'la':'Louisiana','louisiana':'Louisiana','me':'Maine','maine':'Maine',
-        'md':'Maryland','maryland':'Maryland','ma':'Massachusetts','massachusetts':'Massachusetts',
-        'mi':'Michigan','michigan':'Michigan','mn':'Minnesota','minnesota':'Minnesota',
-        'ms':'Mississippi','mississippi':'Mississippi','mo':'Missouri','missouri':'Missouri',
-        'mt':'Montana','montana':'Montana','ne':'Nebraska','nebraska':'Nebraska',
-        'nv':'Nevada','nevada':'Nevada','nh':'New Hampshire','new hampshire':'New Hampshire',
-        'nj':'New Jersey','new jersey':'New Jersey','nm':'New Mexico','new mexico':'New Mexico',
-        'ny':'New York','new york':'New York','nc':'North Carolina','north carolina':'North Carolina',
-        'nd':'North Dakota','north dakota':'North Dakota','oh':'Ohio','ohio':'Ohio',
-        'ok':'Oklahoma','oklahoma':'Oklahoma','or':'Oregon','oregon':'Oregon',
-        'pa':'Pennsylvania','pennsylvania':'Pennsylvania','ri':'Rhode Island','rhode island':'Rhode Island',
-        'sc':'South Carolina','south carolina':'South Carolina','sd':'South Dakota','south dakota':'South Dakota',
-        'tn':'Tennessee','tennessee':'Tennessee','tx':'Texas','texas':'Texas',
-        'ut':'Utah','utah':'Utah','vt':'Vermont','vermont':'Vermont',
-        'va':'Virginia','virginia':'Virginia','wa':'Washington','washington':'Washington',
-        'wv':'West Virginia','west virginia':'West Virginia','wi':'Wisconsin','wisconsin':'Wisconsin',
-        'wy':'Wyoming','wyoming':'Wyoming'
-      };
+      // Normalize the politician's state + district from their free-form fields
+      // using the shared, fully-national resolver (no per-state special-casing).
+      var polStateName = window._pdxResolvePolState(polStateRaw) || window._pdxResolvePolState(d.office || '');
+      var polDistNum = window._pdxResolvePolDistrict(polStateRaw) || window._pdxResolvePolDistrict(d.office || '');
 
-      var polStateName = null;
-      var polDistNum = '';
-
-      // Match "XX-##" or "XX ##" district patterns for state + district.
-      var cdMatch = polStateRaw.match(/([A-Za-z]{2})\s*-?\s*(\d{1,2})\b/);
-      if (cdMatch && stateMap[cdMatch[1].toLowerCase()]) {
-        polStateName = stateMap[cdMatch[1].toLowerCase()];
-        polDistNum = String(parseInt(cdMatch[2], 10));
-      }
-
-      // Fallback: any full state name in the string.
-      if (!polStateName) {
-        var _fulls = Object.keys(stateMap).filter(function(k){ return k.length > 2; })
-                       .sort(function(a, b){ return b.length - a.length; });
-        for (var _f = 0; _f < _fulls.length; _f++) {
-          if (polLower.indexOf(_fulls[_f]) !== -1) { polStateName = stateMap[_fulls[_f]]; break; }
-        }
-      }
-
-      // Fallback: standalone 2-letter code.
-      if (!polStateName) {
-        var _tok = polLower.match(/\b([a-z]{2})\b/);
-        if (_tok && stateMap[_tok[1]] && stateMap[_tok[1]].length > 2) {
-          polStateName = stateMap[_tok[1]];
-        }
-      }
-
-      if (!polStateName) return false;
+      if (!polStateName || polStateName === 'National') return false;
       if (polStateName.toLowerCase() !== userState.toLowerCase()) return false;
 
       // District match for House reps if user saved a district.
@@ -23661,6 +23893,46 @@
       } else {
         relevantGrid.innerHTML = '<div class="text-center text-steel-500 font-condensed py-6">No relevant politicians found for your location.</div>';
       }
+    };
+
+    // Quick Jump: from a Team Builder slot, smoothly scroll down to the
+    // "Relevant to Me" accordion and expand the office group for that slot.
+    window.relevantJumpToOffice = function(slotKey) {
+      var officeMap = {
+        senate: 'senator',
+        house: 'representative',
+        governor: 'governor',
+        statesenate: 'state_senator',
+        statehouse: 'state_rep',
+        local: 'local'
+      };
+      var groupKey = officeMap[slotKey] || slotKey;
+
+      // Pre-expand the matching office group, then (re)render so it opens.
+      if (typeof _browseGroupState !== 'undefined') {
+        _browseGroupState['relevant-office-' + groupKey] = true;
+      }
+      if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
+
+      // Let the accordion DOM update before scrolling + highlighting.
+      setTimeout(function() {
+        var groupEl = document.getElementById('relevant-browse-group-' + groupKey);
+        var sectionEl = document.getElementById('relevant-section');
+        var target = groupEl || sectionEl;
+        if (!target) return;
+        if (groupEl) {
+          groupEl.classList.add('expanded');
+          groupEl.style.scrollMarginTop = '90px';
+        }
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        var hl = groupEl || sectionEl;
+        if (hl) {
+          hl.style.transition = 'box-shadow 0.35s ease';
+          hl.style.boxShadow = '0 0 0 2px rgba(59,130,246,0.6), 0 0 30px rgba(59,130,246,0.32)';
+          setTimeout(function() { hl.style.boxShadow = ''; }, 1700);
+        }
+      }, 70);
     };
 
     (function() {
@@ -24090,10 +24362,13 @@
     var BALLOT_KEY = 'politidex_my_team';
 
     function _generateBallotRaces() {
-      var state = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.state) || '';
-      var county = window._vhCurrentCounty || '';
-      var data = (window._vhCountyData || {})[county] || { city:'', county:'', usDistrict:'', usDistrictLabel:'', usDistrictDesc:'' };
-      
+      var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+      var hasLoc = !!window._hasUserLocation;
+      var state = (hasLoc && loc.state) || '';
+      var stateName = (state && state !== 'National') ? state : 'your state';
+      var district = (hasLoc && loc.district) ? String(loc.district).replace(/[^0-9]/g, '') : '';
+      var area = (hasLoc && (loc.city || loc.county)) ? (loc.city || loc.county) : '';
+
       var positions = window.TEAM_POSITIONS || [
         { key: 'senate', label: 'U.S. Senate', icon: '\u{1F3DB}', color: '#818cf8' },
         { key: 'house', label: 'U.S. House', icon: '\u{1F3DB}', color: '#60a5fa' },
@@ -24106,29 +24381,25 @@
       return positions.map(function(pos) {
         var desc = '';
         var edu = '';
-        
-        var isUtah = (state === 'Utah');
-        var stateName = state || 'your state';
-        
+
         if (pos.key === 'senate') {
           desc = stateName + '\'s two U.S. Senators';
           edu = stateName + '\'s two U.S. Senators serve 6-year terms and shape federal law, confirm Supreme Court justices, approve treaties, and vote on the federal budget. They represent the entire state.';
         } else if (pos.key === 'house') {
-          var distLabel = isUtah ? data.usDistrictLabel : (window._currentVoterLocation && window._currentVoterLocation.district ? 'District ' + window._currentVoterLocation.district : 'Your Congressional District');
-          var distDesc = isUtah ? data.usDistrictDesc : 'your local area';
-          desc = 'Your congressional district';
+          desc = district ? 'Your district · District ' + district : 'Your congressional district';
+          var distDesc = district ? stateName + '\'s District ' + district : 'your local area';
           edu = 'Your House Representative is your direct voice in Congress for ' + distDesc + '. They vote on spending bills, taxes, and federal programs. Each district has one representative serving 2-year terms.';
         } else if (pos.key === 'governor') {
           desc = stateName + '\'s chief executive';
           edu = stateName + '\'s Governor signs or vetoes state laws, sets the state budget, leads emergency response, and appoints judges and agency heads.';
         } else if (pos.key === 'statesenate') {
-          desc = isUtah ? data.county : 'State Senate District';
-          edu = 'Your State Senator represents your district in the state capitol. They write and vote on laws affecting state taxes, schools, water rights, land use, and criminal justice.';
+          desc = 'Your State Senate district' + (area ? ' · ' + area : '');
+          edu = 'Your State Senator represents your district in the state capitol. They write and vote on laws affecting state taxes, schools, land use, and criminal justice.';
         } else if (pos.key === 'statehouse') {
-          desc = isUtah ? data.county + ' · ' + data.city + ' area' : 'State House District';
+          desc = 'Your State House district' + (area ? ' · ' + area + ' area' : '');
           edu = 'Your State House Representative is your closest state-level voice. They handle issues like school funding, zoning, road projects, and community services.';
         } else if (pos.key === 'local') {
-          desc = 'Local positions';
+          desc = area ? 'Local positions · ' + area : 'Local positions';
           edu = 'Your local officials make decisions closest to your daily life — property taxes, zoning, parks, roads, police staffing, and local services. These positions often have the most direct impact on your neighborhood.';
         } else {
           desc = pos.label;
@@ -24137,7 +24408,7 @@
 
         return {
           key: pos.key,
-          label: pos.key === 'house' && isUtah ? 'U.S. House (' + data.usDistrictLabel + ')' : pos.label,
+          label: (pos.key === 'house' && district) ? 'U.S. House · District ' + district : pos.label,
           icon: pos.icon || '\u{1F3DB}',
           color: pos.color || '#9fb4d4',
           desc: desc,
@@ -24148,62 +24419,10 @@
 
     var BALLOT_RACES = _generateBallotRaces();
 
-    window._countyTerms = {
-      davis:['davis','layton','clearfield','bountiful','kaysville','farmington','centerville','syracuse','district 17','district 6','district 16'],
-      slc:['salt lake','murray','draper','sandy','south jordan','riverton','herriman','west valley','west jordan','midvale','cottonwood','holladay','millcreek','taylorsville','district 2','district 1','district 9','district 23','district 26','district 39','district 42','kearns','west slc'],
-      utah_co:['utah county','provo','orem','spanish fork','lehi','american fork','pleasant grove','springville','payson','eagle mountain','saratoga springs','district 16','district 15','district 60','district 64','district 13'],
-      weber:['weber','ogden','roy','north ogden','south ogden','riverdale'],
-      washington:['washington county','st. george','st george','hurricane','ivins','santa clara','district 29','district 72'],
-      cache:['cache','logan','north logan','smithfield','hyrum','providence','district 1','district 3'],
-      iron:['iron county','cedar city','parowan','enoch','district 28','district 71'],
-      box_elder:['box elder','brigham city','tremonton','perry','willard','district 1'],
-      summit:['summit','park city','coalville','district 65','district 68'],
-      tooele:['tooele','grantsville','stansbury','district 67','district 68'],
-      wasatch:['wasatch','heber','midway','heber city','district 68','district 65']
-    };
-
-    function _pidMatchesCounty(pid, county) {
-      if (!county) return false;
-      var btn = document.getElementById('pmc-' + pid);
-      if (btn) {
-        var card = btn.closest('.pm-card[data-county]');
-        if (card) {
-          var cc = card.dataset.county;
-          return (cc === county || cc === 'all_ut' || cc === 'all');
-        }
-      }
-      if (typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]) {
-        var st = (CMP_DATA[pid].state || '').toLowerCase();
-        var terms = _countyTerms[county] || [];
-        for (var i = 0; i < terms.length; i++) {
-          if (st.indexOf(terms[i]) !== -1) return true;
-        }
-      }
-      return false;
-    }
-
     function _ballotCandidates(raceKey) {
       if (typeof CMP_DATA === 'undefined') return [];
       var userState = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.state) || '';
       var userDistrict = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.district) || '';
-      var county = window._vhCurrentCounty || '';
-
-      var stateMap = {
-        'alabama': 'al', 'alaska': 'ak', 'arizona': 'az', 'arkansas': 'ar', 'california': 'ca',
-        'colorado': 'co', 'connecticut': 'ct', 'delaware': 'de', 'florida': 'fl', 'georgia': 'ga',
-        'hawaii': 'hi', 'idaho': 'id', 'illinois': 'il', 'indiana': 'in', 'iowa': 'ia',
-        'kansas': 'ks', 'kentucky': 'ky', 'louisiana': 'la', 'maine': 'me', 'maryland': 'md',
-        'massachusetts': 'ma', 'michigan': 'mi', 'minnesota': 'mn', 'mississippi': 'ms', 'missouri': 'mo',
-        'montana': 'mt', 'nebraska': 'ne', 'nevada': 'nv', 'new hampshire': 'nh', 'new jersey': 'nj',
-        'new mexico': 'nm', 'new york': 'ny', 'north carolina': 'nc', 'north dakota': 'nd', 'ohio': 'oh',
-        'oklahoma': 'ok', 'oregon': 'or', 'pennsylvania': 'pa', 'rhode island': 'ri', 'south carolina': 'sc',
-        'south dakota': 'sd', 'tennessee': 'tn', 'texas': 'tx', 'utah': 'ut', 'vermont': 'vt',
-        'virginia': 'va', 'washington': 'wa', 'west virginia': 'wv', 'wisconsin': 'wi', 'wyoming': 'wy'
-      };
-
-      // Find reverse mapping as well
-      var revStateMap = {};
-      for (var k in stateMap) { revStateMap[stateMap[k]] = k; }
 
       var results = [];
       var pids = Object.keys(CMP_DATA);
@@ -24211,27 +24430,21 @@
         var d = CMP_DATA[pid];
         if (!d) return;
         var o = (d.office || '').toLowerCase();
-        
-        var polStateBase = (d.state || '').trim();
-        if (polStateBase.includes(' · ')) {
-          polStateBase = polStateBase.split(' · ')[0];
-        } else if (polStateBase.includes(' - ')) {
-          polStateBase = polStateBase.split(' - ')[0];
-        } else if (polStateBase.includes('-')) {
-          polStateBase = polStateBase.split('-')[0];
-        }
-        polStateBase = polStateBase.toLowerCase();
-        var polStateName = revStateMap[polStateBase] || polStateBase;
+
+        // Fully national: normalize the politician's state + district from their
+        // free-form fields using the shared resolver — no per-state special-casing.
+        var polStateName = window._pdxResolvePolState(d.state) || window._pdxResolvePolState(d.office) || '';
+        var polDistNum = window._pdxResolvePolDistrict(d.state) || window._pdxResolvePolDistrict(d.office) || '';
+        var stateMatches = !!polStateName && polStateName.toLowerCase() === userState.toLowerCase();
 
         var match = false;
-        
-        // For other positions defined in TEAM_POSITIONS, let's match by keywords
+
         if (raceKey === 'president') {
           match = /president/i.test(o) && !/state/i.test(o);
         } else if (raceKey === 'secretaryofstate' || raceKey === 'secstate') {
-          match = /secretary\s*of\s*state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+          match = /secretary\s*of\s*state/i.test(o) && stateMatches;
         } else if (raceKey === 'attorneygeneral') {
-          match = /attorney\s*general/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+          match = /attorney\s*general/i.test(o) && stateMatches;
         } else if (raceKey === 'chiefjustice') {
           match = /justice/i.test(o);
         } else if (raceKey === 'defense') {
@@ -24239,46 +24452,27 @@
         } else if (raceKey === 'intel') {
           match = /intelligence/i.test(o) || /intel/i.test(o);
         } else if (raceKey === 'ltgovernor') {
-          match = (/lt\.\s*governor|lieutenant\s*governor/i.test(o)) && polStateName.toLowerCase() === userState.toLowerCase();
+          match = (/lt\.\s*governor|lieutenant\s*governor/i.test(o)) && stateMatches;
         } else if (raceKey === 'senate') {
-          match = (/u\.s\.\s*senator|^senator/i.test(o)) && !/state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+          match = (/u\.s\.\s*senator|^senator/i.test(o)) && !/state/i.test(o) && stateMatches;
         } else if (raceKey === 'house') {
-          var isHouse = (/u\.s\.\s*rep|^representative/i.test(o) || /house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o);
-          if (isHouse) {
-            var stateMatch = polStateName.toLowerCase() === userState.toLowerCase();
+          var isHouse = (/u\.s\.\s*rep|^representative|u\.s\.\s*house|house\s*(rep|cand)/i.test(o)) && !/state/i.test(o) && !/house\s*speaker/i.test(o);
+          if (isHouse && stateMatches) {
             var distMatch = true;
-            if (userDistrict) {
-              var polDistNum = '';
-              if (d.state && d.state.includes('-')) {
-                polDistNum = d.state.split('-')[1].replace(/[^0-9]/g, '');
-              }
-              var userDistNum = userDistrict.replace(/[^0-9]/g, '');
-              if (userDistNum && polDistNum) {
-                distMatch = (parseInt(userDistNum) === parseInt(polDistNum));
-              }
+            var userDistNum = userDistrict.replace(/[^0-9]/g, '');
+            if (userDistNum && polDistNum) {
+              distMatch = (parseInt(userDistNum, 10) === parseInt(polDistNum, 10));
             }
-            match = stateMatch && distMatch;
+            match = distMatch;
           }
         } else if (raceKey === 'governor') {
-          match = /governor/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
+          match = /governor/i.test(o) && stateMatches;
         } else if (raceKey === 'statesenate') {
-          if (userState === 'Utah') {
-            match = /senate\s*president|state\s*sen|utah\s*sen/i.test(o) && _pidMatchesCounty(pid, county);
-          } else {
-            match = (/state\s*sen|senator/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
-          }
+          match = (/state\s*sen|senate\s*president/i.test(o) || (/\bsenat/i.test(o) && /state/i.test(o))) && stateMatches;
         } else if (raceKey === 'statehouse') {
-          if (userState === 'Utah') {
-            match = (/state\s*rep|ut\s*state\s*rep|house\s*speaker/i.test(o)) && _pidMatchesCounty(pid, county);
-          } else {
-            match = (/state\s*rep|representative/i.test(o)) && /state/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
-          }
+          match = (/state\s*rep|state\s*house|state\s*assembly|house\s*speaker|assembly|delegate/i.test(o)) && stateMatches;
         } else if (raceKey === 'local') {
-          if (userState === 'Utah') {
-            match = /mayor|county\s*(commis|council)|city\s*council|local|county\s*mayor|auditor/i.test(o) && _pidMatchesCounty(pid, county);
-          } else {
-            match = /mayor|county|city\s*council|local|auditor/i.test(o) && polStateName.toLowerCase() === userState.toLowerCase();
-          }
+          match = /mayor|county|city\s*council|local|auditor|school\s*board/i.test(o) && stateMatches;
         }
 
         if (match) {
