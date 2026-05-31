@@ -10570,7 +10570,27 @@
               <div id="hub-loc-sub" class="font-condensed text-steel-300" style="font-size:0.85rem;letter-spacing:0.04em;margin-top:0.15rem;">Choose your state to personalize your ballot, voting team &amp; representatives.</div>
             </div>
           </div>
-          <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-2 min-h-[48px] flex-shrink-0" style="font-size:0.8rem;">📍 Change Location</button>
+          <div class="flex items-center gap-2 flex-shrink-0 flex-wrap" style="justify-content:flex-end;">
+            <button id="explore-toggle-btn" onclick="window.startExploring()" class="font-condensed font-700 tracking-wider uppercase text-blue-200 hover:text-white bg-blue-900/40 hover:bg-blue-800/60 border border-blue-400/30 hover:border-blue-400/60 px-4 py-3 rounded-xl transition-all flex items-center gap-2 min-h-[48px]" style="font-size:0.78rem;display:none;" title="Preview the ballot &amp; team for any other state without changing your saved location">🔭 Explore Another State</button>
+            <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-5 py-3 rounded-xl transition-all shadow-md flex items-center gap-2 min-h-[48px]" style="font-size:0.8rem;">📍 Change Location</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ EXPLORE MODE — "you're viewing another state" return banner ═══ -->
+      <div id="explore-return-banner" style="display:none;margin-bottom:1.5rem;border-radius:1rem;padding:0.9rem 1.1rem;background:linear-gradient(135deg,rgba(59,130,246,0.16) 0%,rgba(13,21,38,0.92) 100%);border:1.5px dashed rgba(96,165,250,0.55);box-shadow:0 6px 24px rgba(0,0,0,0.3);">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-2.5" style="min-width:0;">
+            <span style="font-size:1.5rem;line-height:1;flex-shrink:0;">🔭</span>
+            <div style="min-width:0;">
+              <div class="font-condensed font-700 tracking-wider uppercase" style="font-size:0.8rem;color:#93c5fd;">Exploring <span id="explore-active-name" style="color:#fff;">another state</span></div>
+              <div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;letter-spacing:0.02em;line-height:1.4;margin-top:0.1rem;">Just looking around — your saved location is <strong id="explore-home-name" style="color:#fbbf24;">your location</strong>. This preview doesn't change your real voting team.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 flex-wrap" style="justify-content:flex-end;">
+            <button onclick="window.saveExploredAsHome()" class="font-condensed text-xs font-700 tracking-wider uppercase text-white bg-amber-600 hover:bg-amber-500 border border-amber-400/40 px-3.5 py-2.5 rounded-xl transition-all min-h-[44px]">🏠 Make This My Location</button>
+            <button onclick="window.returnToMyLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-3.5 py-2.5 rounded-xl transition-all min-h-[44px]">↩ Return to My Location</button>
+          </div>
         </div>
       </div>
 
@@ -10823,6 +10843,9 @@
               <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
             </div>
 
+            <button id="explore-save-home-btn" onclick="window.saveExploredAsHome()" class="font-condensed text-xs font-700 tracking-widest uppercase text-white bg-amber-600 hover:bg-amber-500 px-4 py-3 rounded-xl transition-colors border border-amber-400/40 min-h-[44px]" style="display:none;">
+              🏠 Save as My Location
+            </button>
             <button onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl transition-colors border border-white/5 min-h-[44px]">
               Close Form
             </button>
@@ -19434,6 +19457,21 @@
   // Tracks whether the user has actually chosen/saved a location.
   window._hasUserLocation = false;
 
+  // ── "Home" location vs. temporary "exploring" ─────────────────────────
+  // _homeVoterLocation is the user's REAL, saved location (the one persisted to
+  // localStorage / their account). _currentVoterLocation is the location that is
+  // currently being *viewed*. They are identical unless the user is exploring
+  // another state — in that case _exploreMode is true, _currentVoterLocation
+  // points at the explored area, the home stays untouched, and a banner offers a
+  // one-click way back to the user's real location & team.
+  window._homeVoterLocation = { state: '', city: '', county: '', district: '' };
+  window._exploreMode = false;
+
+  window._pdxCloneLoc = function(l) {
+    l = l || {};
+    return { state: l.state || '', city: l.city || '', county: l.county || '', district: l.district || '' };
+  };
+
   // ── Shared, fully-national location resolver ──────────────────────────
   // Single source of truth for turning a politician's free-form `state` (or
   // `office`) field into a normalized full state name + congressional district.
@@ -19522,11 +19560,20 @@
     } catch(e) {
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
     }
+    // A freshly loaded location is always the user's "home". Exploring is a
+    // transient, in-session state, so it never survives a reload.
+    window._exploreMode = false;
+    window._homeVoterLocation = window._pdxCloneLoc(window._currentVoterLocation);
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.saveVoterLocation = function() {
     window._hasUserLocation = true;
+    // Saving always commits the current view as the user's real "home" location
+    // and ends any temporary exploration.
+    window._exploreMode = false;
+    window._homeVoterLocation = window._pdxCloneLoc(window._currentVoterLocation);
     try {
       localStorage.setItem('politidex_voter_location', JSON.stringify(window._currentVoterLocation));
     } catch(e) {}
@@ -19566,6 +19613,98 @@
     }
   };
 
+  // ── Temporary "explore another state" mode ────────────────────────────
+  // Lets a voter view the ballot, team slots and representatives for any state
+  // without disturbing their own saved location/team, and always offers a clear
+  // one-click way back home.
+  window._pdxSyncLocationForm = function() {
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+    var stateSel = document.getElementById('voter-state-sel');
+    var countyInput = document.getElementById('voter-county-input');
+    var countyWrap = document.getElementById('voter-county-wrap');
+    var distWrap = document.getElementById('voter-district-wrap');
+    var distSel = document.getElementById('voter-district-sel');
+    if (stateSel) stateSel.value = loc.state || '';
+    if (countyInput) countyInput.value = loc.city || loc.county || '';
+    if (countyWrap) countyWrap.style.display = 'flex';
+    if (distWrap) distWrap.style.display = (loc.state && loc.state !== 'National') ? 'flex' : 'none';
+    if (distSel) distSel.value = loc.district || '';
+  };
+
+  // Re-run every location-driven render in one place (used after exploring /
+  // returning home so all sections stay in sync).
+  window._pdxRerenderAllLocation = function() {
+    ['_updateTeamPositionsForLocation','pmFilterLocation','updateRelevantLocationText','updateMyTeamLocationText','renderStateOverview','updateRacesAndPositions','_vhBallotRerender','_vhSyncBanner','_mypolBuildGrid','renderRelevantToMe','myteamBrowseFilter','_renderExploreBanner'].forEach(function(fn) {
+      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+    });
+    var pmStateSel = document.getElementById('pm-state-sel');
+    if (pmStateSel) pmStateSel.value = (((window._currentVoterLocation || {}).state) === 'National' ? 'national' : 'all');
+  };
+
+  // Begin exploring: open the location form, but changes made now are previewed
+  // only (not saved) until the user either returns home or adopts the new area.
+  window.startExploring = function() {
+    window._exploreMode = true;
+    var form = document.getElementById('change-location-form');
+    if (form) {
+      form.style.display = 'block';
+      window._pdxSyncLocationForm();
+      try { form.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+    }
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
+  };
+
+  // Snap back to the user's real saved location & team, discarding the preview.
+  window.returnToMyLocation = function() {
+    window._exploreMode = false;
+    var home = window._homeVoterLocation || { state: '' };
+    if ((home.state || '').trim()) {
+      window._currentVoterLocation = window._pdxCloneLoc(home);
+      window._hasUserLocation = true;
+    } else {
+      window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+      window._hasUserLocation = false;
+    }
+    window._pdxSyncLocationForm();
+    window._pdxRerenderAllLocation();
+    var form = document.getElementById('change-location-form');
+    if (form) form.style.display = 'none';
+    var card = document.getElementById('hub-location-card');
+    if (card) { try { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {} }
+  };
+
+  // Promote the area currently being explored to the user's permanent home.
+  window.saveExploredAsHome = function() {
+    window._exploreMode = false;
+    var hasState = !!((window._currentVoterLocation || {}).state || '').trim();
+    if (hasState) {
+      window.saveVoterLocation(); // commits home + persists locally and to account
+    }
+    window._pdxRerenderAllLocation();
+    var form = document.getElementById('change-location-form');
+    if (form) form.style.display = 'none';
+  };
+
+  // Show/hide the explore entry button + the "you're exploring" banner and keep
+  // their labels in sync with the current vs. home location.
+  window._renderExploreBanner = function() {
+    var home = window._homeVoterLocation || { state: '' };
+    var homeSet = !!((home.state || '').trim());
+    var exploreBtn = document.getElementById('explore-toggle-btn');
+    var saveHomeBtn = document.getElementById('explore-save-home-btn');
+    var banner = document.getElementById('explore-return-banner');
+    if (exploreBtn) exploreBtn.style.display = (homeSet && !window._exploreMode) ? 'inline-flex' : 'none';
+    if (saveHomeBtn) saveHomeBtn.style.display = window._exploreMode ? 'inline-flex' : 'none';
+    if (!banner) return;
+    if (!window._exploreMode) { banner.style.display = 'none'; return; }
+    banner.style.display = 'block';
+    var active = window._currentVoterLocation || { state: '' };
+    var aEl = document.getElementById('explore-active-name');
+    var hEl = document.getElementById('explore-home-name');
+    if (aEl) aEl.textContent = (active.state || '').trim() || 'another area';
+    if (hEl) hEl.textContent = homeSet ? (home.city ? home.city + ', ' + home.state : home.state) : 'your location';
+  };
+
   window.voterLocationStateChanged = function() {
     var stateSel = document.getElementById('voter-state-sel');
     var countyWrap = document.getElementById('voter-county-wrap');
@@ -19576,9 +19715,14 @@
     window._currentVoterLocation.state = state;
 
     if (!state) {
-      window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
-      window._hasUserLocation = false;
-      try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
+      if (window._exploreMode) {
+        // Previewing only — keep the saved home intact.
+        window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+      } else {
+        window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
+        window._hasUserLocation = false;
+        try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
+      }
       if (countyWrap) countyWrap.style.display = 'none';
       if (distWrap) distWrap.style.display = 'none';
     } else if (state === 'National') {
@@ -19587,12 +19731,12 @@
       window._currentVoterLocation.city = '';
       window._currentVoterLocation.county = '';
       window._currentVoterLocation.district = '';
-      window.saveVoterLocation();
+      if (!window._exploreMode) window.saveVoterLocation();
     } else {
       if (countyWrap) countyWrap.style.display = 'flex';
       if (distWrap) distWrap.style.display = 'flex';
       window._currentVoterLocation.district = (distSel && distSel.value) ? distSel.value.replace(/[^0-9]/g, '') : '';
-      window.saveVoterLocation();
+      if (!window._exploreMode) window.saveVoterLocation();
     }
 
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
@@ -19610,6 +19754,7 @@
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.voterLocationDistrictChanged = function() {
@@ -19617,7 +19762,7 @@
     if (!distSel) return;
     var num = (distSel.value || '').replace(/[^0-9]/g, '');
     window._currentVoterLocation.district = num;
-    window.saveVoterLocation();
+    if (!window._exploreMode) window.saveVoterLocation();
 
     if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
     if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
@@ -19626,6 +19771,7 @@
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.voterLocationCountyChanged = function() {
@@ -19635,7 +19781,7 @@
     // Store both city and county as the free-text value for 100% dynamic national use
     window._currentVoterLocation.city = val;
     window._currentVoterLocation.county = val;
-    window.saveVoterLocation();
+    if (!window._exploreMode) window.saveVoterLocation();
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
 
     if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
@@ -19648,6 +19794,7 @@
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   };
 
   window.updateRelevantLocationText = function() {
@@ -20151,6 +20298,7 @@
   if (typeof _mypolBuildGrid === 'function') _mypolBuildGrid();
   if (typeof renderRelevantToMe === 'function') renderRelevantToMe();
   if (typeof myteamBrowseFilter === 'function') myteamBrowseFilter();
+  if (typeof window._renderExploreBanner === 'function') window._renderExploreBanner();
   // Sync the Power Map "YOUR LOCATION" banner once all later scripts (which
   // define pmFilterLocation) have parsed — i.e. on DOMContentLoaded.
   if (document.readyState === 'loading') {
