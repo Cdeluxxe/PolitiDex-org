@@ -14,7 +14,7 @@ import { GoogleGenAI } from '@google/genai'
 // The panel of models we cross-reference. Each entry is a real model exposed
 // through the Netlify AI Gateway. Labels are what the UI shows the visitor.
 const PANEL = [
-  { id: 'claude', label: 'Claude', provider: 'Anthropic', model: 'claude-sonnet-4-5' },
+  { id: 'claude', label: 'Claude', provider: 'Anthropic', model: 'claude-sonnet-4-6' },
   { id: 'gemini', label: 'Gemini', provider: 'Google',    model: 'gemini-2.5-flash' },
   { id: 'gpt',    label: 'GPT',    provider: 'OpenAI',    model: 'gpt-4o' },
 ]
