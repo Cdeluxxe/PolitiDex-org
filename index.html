@@ -9872,6 +9872,7 @@
               </div>
             </div>
             <div class="flex gap-2.5 flex-wrap items-center">
+              <button id="detect-loc-btn" onclick="window.triggerManualLocationDetection()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-slate-700 hover:bg-slate-600 border border-slate-500/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">🌐 Detect my location</button>
               <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
             </div>
           </div>
@@ -16371,23 +16372,200 @@
   // Apply a geolocation-detected state exactly the way an explicit picker change
   // would: set + persist the location, then refresh every location-aware view so
   // "Relevant to Me", "My Team" and the ballot all reflect the user's real area.
-  window._applyDetectedState = function(state) {
-    if (!state || window._hasUserLocation) return;
-    window._currentVoterLocation = { state: state, city: '', county: '', district: '' };
+  window._applyDetectedLocation = function(loc, force) {
+    if (!loc || !loc.state) return;
+    if (window._hasUserLocation && !force) return;
+
+    window._currentVoterLocation = {
+      state: loc.state,
+      city: loc.county || '',
+      county: loc.county || '',
+      district: loc.district || ''
+    };
     window.saveVoterLocation();
+
     var stateSel = document.getElementById('voter-state-sel');
-    if (stateSel) stateSel.value = state;
-    if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
-    if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
-    if (typeof window.renderStateOverview === 'function') window.renderStateOverview();
-    if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
-    if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
-    if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
-    if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
-    if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
-    if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
-    var pmStateSel = document.getElementById('pm-state-sel');
-    if (pmStateSel) { pmStateSel.value = 'all'; if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation(); }
+    if (stateSel) stateSel.value = loc.state;
+
+    var countyInput = document.getElementById('voter-county-input');
+    if (countyInput) countyInput.value = loc.county || '';
+
+    var distSel = document.getElementById('voter-district-sel');
+    if (distSel) distSel.value = loc.district || '';
+
+    window._triggerLocationReaction();
+  };
+
+  window._applyDetectedState = function(state) {
+    if (!state) return;
+    window._applyDetectedLocation({ state: state });
+  };
+
+  // Helper for JSONP calls
+  function getJSONP(url, callbackName, timeoutMs) {
+    return new Promise(function(resolve, reject) {
+      var timer = setTimeout(function() {
+        cleanup();
+        reject(new Error('JSONP timeout'));
+      }, timeoutMs || 5000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[callbackName];
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      }
+
+      window[callbackName] = function(data) {
+        cleanup();
+        resolve(data);
+      };
+
+      var script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
+        cleanup();
+        reject(new Error('JSONP load error'));
+      };
+      document.body.appendChild(script);
+    });
+  }
+
+  window._reverseGeocode = function(lat, lon) {
+    return new Promise(function(resolve, reject) {
+      // 1. Try Census API via JSONP
+      var cbName = 'census_cb_' + Math.floor(Math.random() * 1000000);
+      var url = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=' + lon + '&y=' + lat + '&benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&callback=' + cbName;
+      
+      getJSONP(url, cbName, 6000)
+        .then(function(data) {
+          var state = '';
+          var county = '';
+          var district = '';
+          if (data && data.result && data.result.geographies) {
+            var geos = data.result.geographies;
+            
+            for (var k in geos) {
+              var kl = k.toLowerCase();
+              if (kl === 'states' && geos[k].length > 0) {
+                state = geos[k][0].NAME || '';
+              } else if (kl === 'counties' && geos[k].length > 0) {
+                county = geos[k][0].NAME || '';
+              } else if (kl.indexOf('congressional district') !== -1 && geos[k].length > 0) {
+                var distObj = geos[k][0];
+                var distVal = distObj.DISTRICT || distObj.NAME || '';
+                if (distVal) {
+                  var num = parseInt(distVal, 10);
+                  if (!isNaN(num)) {
+                    district = String(num);
+                  } else {
+                    var m = distVal.match(/\d+/);
+                    if (m) district = String(parseInt(m[0], 10));
+                  }
+                }
+              }
+            }
+          }
+          
+          if (state) {
+            resolve({ state: state, county: county, district: district });
+          } else {
+            reject(new Error('Census API: No state returned'));
+          }
+        })
+        .catch(function(err) {
+          console.warn('Census reverse geocode failed, trying Nominatim...', err);
+          fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lon)
+            .then(function(res) {
+              if (!res.ok) throw new Error('Nominatim HTTP ' + res.status);
+              return res.json();
+            })
+            .then(function(data) {
+              var state = '';
+              var county = '';
+              if (data && data.address) {
+                state = data.address.state || '';
+                county = data.address.county || '';
+              }
+              if (state) {
+                resolve({ state: state, county: county, district: '' });
+              } else {
+                reject(new Error('Nominatim API: No state returned'));
+              }
+            })
+            .catch(function(err2) {
+              console.warn('Nominatim reverse geocode failed, trying centroid fallback...', err2);
+              var st = window._stateFromCoords(lat, lon);
+              if (st) {
+                resolve({ state: st, county: '', district: '' });
+              } else {
+                reject(new Error('All geocoding methods failed'));
+              }
+            });
+        });
+    });
+  };
+
+  // Helper to show modern toasts
+  window._showToast = function(msg) {
+    var toast = document.getElementById('myteam-share-toast');
+    if (toast) {
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      setTimeout(function() { toast.classList.remove('visible'); }, 3500);
+    } else {
+      console.log('Toast: ' + msg);
+    }
+  };
+
+  window.triggerManualLocationDetection = function() {
+    var btn = document.getElementById('detect-loc-btn');
+    var oldText = btn ? btn.innerHTML : '🌐 Detect my location';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Detecting...';
+    }
+    
+    if (!('geolocation' in navigator)) {
+      window._showToast('Geolocation is not supported by your browser.');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+      }
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        window._reverseGeocode(pos.coords.latitude, pos.coords.longitude)
+          .then(function(locObj) {
+            window._applyDetectedLocation(locObj, true);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = oldText;
+            }
+            window._showToast('Detected: ' + (locObj.county ? locObj.county + ', ' : '') + locObj.state + (locObj.district ? ' (District ' + locObj.district + ')' : ''));
+          })
+          .catch(function(err) {
+            console.error(err);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = oldText;
+            }
+            window._showToast('Could not geocode location. Try manual selection.');
+          });
+      },
+      function(err) {
+        console.warn('Geolocation error:', err);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldText;
+        }
+        window._showToast('Location permission denied or unavailable. Try manual selection.');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   // Set of valid U.S. state / DC names (built from the centroid table) used to
@@ -16433,9 +16611,17 @@
       navigator.geolocation.getCurrentPosition(
         function(pos) {
           if (window._hasUserLocation) return; // user set it manually in the meantime
-          var st = window._stateFromCoords(pos.coords.latitude, pos.coords.longitude);
-          if (st) window._applyDetectedState(st);
-          else window._detectVoterLocationByIP(); // coords outside the U.S. — try IP
+          window._reverseGeocode(pos.coords.latitude, pos.coords.longitude)
+            .then(function(loc) {
+              if (loc && loc.state) {
+                window._applyDetectedLocation(loc);
+              } else {
+                window._detectVoterLocationByIP();
+              }
+            })
+            .catch(function() {
+              window._detectVoterLocationByIP();
+            });
         },
         function() { window._detectVoterLocationByIP(); }, // denied / unavailable — fall back to IP
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
