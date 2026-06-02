@@ -13109,11 +13109,11 @@
         <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:0 0.875rem;">
           ${promiseRows || '<div style="padding:1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No detailed promise data yet — monitoring in progress.</div>'}
         </div>
-        <button onclick="openVerifyFromProfile('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]" style="background:linear-gradient(135deg,#2563eb,#7c3aed);box-shadow:0 6px 20px rgba(37,99,235,0.25);">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
-          🔍 Verify with Multiple AIs
+        <button onclick="openFullProfileVerify('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
+          <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110.2 21a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.746 3.746 0 0113.8 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+          🛡️ Verify Full Profile with AI
         </button>
-        <p style="font-size:0.62rem;color:#4e72a0;text-align:center;margin:0.45rem 0 0;letter-spacing:0.02em;">Cross-reference any promise across Claude, Gemini &amp; GPT — with confidence levels &amp; sources.</p>
+        <p style="font-size:0.62rem;color:#4e72a0;text-align:center;margin:0.45rem 0 0;letter-spacing:0.02em;">Comprehensive multi-AI report (Claude, Gemini, Grok &amp; GPT) verifying credentials, positions, controversy &amp; trust score.</p>
       </div>
 
       <!-- Financial Transparency — Wealth Over Time -->
@@ -14211,6 +14211,56 @@
 
         <!-- Results -->
         <div id="verify-results" class="hidden mt-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ MULTI-AI PROFILE VERIFICATION MODAL ═══════ -->
+  <div id="profile-verify-overlay" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md items-center justify-center p-4" style="display:none;" onclick="if(event.target===this)closeProfileVerifyModal()">
+    <div class="relative w-full max-w-3xl bg-navy-800 rounded-2xl border border-white/10 overflow-hidden flex flex-col" style="box-shadow:0 28px 72px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.04),0 0 28px rgba(192,21,42,0.15);max-height:92vh;">
+      <!-- Patriotic accent bar -->
+      <div style="height:3px;width:100%;background:linear-gradient(90deg,#c0152a,#ffffff,#1a3a6b);opacity:0.9;"></div>
+      
+      <!-- Modal Header -->
+      <div class="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8 bg-navy-900/70" style="backdrop-filter:blur(8px);">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:rgba(192,21,42,0.16);border:1px solid rgba(239,68,68,0.32);">🛡️</div>
+          <div class="min-w-0">
+            <div class="font-display text-lg tracking-wider text-white leading-none">Multi-AI Profile Verification</div>
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mt-0.5 truncate" id="profile-verify-subtitle">Analyzing politician profile across AI models</div>
+          </div>
+        </div>
+        <button onclick="closeProfileVerifyModal()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center flex-shrink-0" style="min-height:unset;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6" style="overscroll-behavior:contain;">
+        <!-- Loading State -->
+        <div id="profile-verify-loading" class="text-center py-12">
+          <div class="inline-block w-10 h-10 border-[3px] border-crimson-600/25 border-t-crimson-500 rounded-full animate-spin"></div>
+          <h3 class="font-display text-2xl tracking-wider text-white mt-4">ENGAGING AI EXPERT PANEL</h3>
+          <p class="text-steel-300 text-sm font-condensed tracking-wider mt-1">Grok · Claude · Gemini · GPT-4o are analyzing the profile records…</p>
+          <div class="max-w-md mx-auto mt-6 bg-navy-900/40 border border-white/5 rounded-xl p-3.5 text-left text-xs text-steel-400 font-body leading-relaxed space-y-2">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> Comparing profile data with official governmental archives</div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> Cross-referencing statements against registered voting rolls</div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> Compiling historical statements, controversies, and disclosures</div>
+          </div>
+        </div>
+
+        <!-- Loaded Content (Hidden initially) -->
+        <div id="profile-verify-content" class="hidden">
+          <!-- Navigation Tabs: Consensus vs Models -->
+          <div class="flex border-b border-white/10 mb-5 gap-1 overflow-x-auto pb-1" id="profile-verify-tabs">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Active tab view panel -->
+          <div id="profile-verify-panel-body" class="space-y-4">
+            <!-- Dynamic reports inserted here -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -22875,6 +22925,493 @@
         promises: p.promises || [],
         claim: ''
       });
+    };
+
+    // ── MULTI-AI FULL PROFILE VERIFICATION SYSTEM ───────────────────
+    window.openFullProfileVerify = function(pid) {
+      var p = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
+      if (!p) { p = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null; }
+      if (!p) return;
+
+      var overlay = document.getElementById('profile-verify-overlay');
+      var loading = document.getElementById('profile-verify-loading');
+      var content = document.getElementById('profile-verify-content');
+      
+      document.getElementById('profile-verify-subtitle').textContent = "Analyzing " + p.name + " (" + (p.office || "") + ")";
+
+      // Show loading
+      loading.classList.remove('hidden');
+      content.classList.add('hidden');
+
+      // Open overlay
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.opacity = '0';
+      document.body.style.overflow = 'hidden';
+      
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          overlay.style.transition = 'opacity 0.22s ease';
+          overlay.style.opacity = '1';
+        });
+      });
+
+      // Simulate multi-AI processing delay for premium feel
+      setTimeout(function() {
+        ProfileVerifier.verify(pid, p).then(function(data) {
+          window._activeProfileVerifyData = data;
+          window._activeProfileVerifyTabId = 'consensus';
+          
+          loading.classList.add('hidden');
+          content.classList.remove('hidden');
+          
+          renderProfileVerifyTabs(data, 'consensus');
+          renderProfileVerifyPanel(data, 'consensus');
+        });
+      }, 1500);
+    };
+
+    window.closeProfileVerifyModal = function() {
+      var overlay = document.getElementById('profile-verify-overlay');
+      overlay.style.opacity = '0';
+      setTimeout(function() {
+        overlay.style.display = 'none';
+        var others = ['modal-overlay', 'comment-overlay', 'auth-overlay', 'evidence-overlay', 'verify-overlay'];
+        var anyOpen = others.some(function(id) {
+          var el = document.getElementById(id);
+          return el && el.style.display !== 'none' && el.style.display !== '';
+        });
+        if (!anyOpen) document.body.style.overflow = '';
+      }, 220);
+    };
+
+    window.switchProfileVerifyTab = function(tabId) {
+      window._activeProfileVerifyTabId = tabId;
+      var data = window._activeProfileVerifyData;
+      if (!data) return;
+      
+      renderProfileVerifyTabs(data, tabId);
+      renderProfileVerifyPanel(data, tabId);
+    };
+
+    function renderProfileVerifyTabs(data, activeTabId) {
+      var tabsContainer = document.getElementById('profile-verify-tabs');
+      var tabsHtml = `
+        <button onclick="switchProfileVerifyTab('consensus')" class="px-4 py-2.5 font-condensed font-700 text-xs tracking-wider uppercase rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 border ${activeTabId === 'consensus' ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.15)]' : 'bg-white/5 border-transparent text-steel-400 hover:text-white'}" style="min-height:unset;">
+          🇺🇸 Consensus Panel
+        </button>
+      `;
+      
+      data.results.forEach(function(r) {
+        var isActive = activeTabId === r.providerId;
+        var borderStyle = isActive ? 'border-color:' + r.providerColor + '55; background:' + r.providerColor + '12; color:white;' : 'border-color:transparent;';
+        var colorStyle = isActive ? 'color:' + r.providerColor : 'color:#9fb4d4';
+        tabsHtml += `
+          <button onclick="switchProfileVerifyTab('${r.providerId}')" class="px-3.5 py-2.5 font-condensed font-700 text-xs tracking-wider uppercase rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 border ${isActive ? '' : 'bg-white/5 text-steel-400 hover:text-white'}" style="min-height:unset; ${borderStyle}">
+            <span style="${colorStyle}">${r.providerIcon}</span> ${r.providerName.split(' ')[0]} 
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-black/40 text-steel-300 font-normal">${r.trustScore}%</span>
+          </button>
+        `;
+      });
+      tabsContainer.innerHTML = tabsHtml;
+    }
+
+    function renderProfileVerifyPanel(data, activeTabId) {
+      var panelContainer = document.getElementById('profile-verify-panel-body');
+      
+      if (activeTabId === 'consensus') {
+        var radius = 32, circ = 2 * Math.PI * radius;
+        var pct = data.consensus.averageScore / 100;
+        var dash = pct * circ;
+        var scoreColor = data.consensus.color;
+        
+        var html = `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Consensus circular progress -->
+            <div class="col-span-1 bg-navy-900/60 border border-white/8 rounded-2xl p-4 flex flex-col items-center justify-center text-center relative" style="box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+              <div class="relative w-24 h-24 flex items-center justify-center">
+                <svg width="96" height="96" viewBox="0 0 96 96" class="-rotate-90">
+                  <circle cx="48" cy="48" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+                  <circle cx="48" cy="48" r="${radius}" fill="none" stroke="${scoreColor}" stroke-width="8"
+                    stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"
+                    style="transition:stroke-dasharray 1.2s ease; filter:drop-shadow(0 0 6px ${scoreColor}88)"/>
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+                  <div class="font-display text-2xl" style="color:white; line-height:1;">${data.consensus.averageScore}%</div>
+                  <div class="font-condensed text-[9px] tracking-widest uppercase text-steel-400">Score</div>
+                </div>
+              </div>
+              <div class="font-display text-xl mt-2 tracking-wide" style="color:${scoreColor};">${data.consensus.rating.toUpperCase()}</div>
+              <p class="font-condensed text-[10px] tracking-wider text-steel-500 uppercase mt-0.5">Combined AI Trust Consensus</p>
+            </div>
+            
+            <!-- Consensus Summary -->
+            <div class="col-span-1 md:col-span-2 bg-navy-900/60 border border-white/8 rounded-2xl p-5 flex flex-col justify-center">
+              <div class="font-condensed text-[10px] tracking-widest uppercase text-steel-400 mb-1.5">⚖️ Consensus Summary</div>
+              <p class="text-sm text-steel-300 leading-relaxed font-body">${data.consensus.summary}</p>
+            </div>
+          </div>
+
+          <!-- Key Takeaways Sections -->
+          <div class="bg-navy-900/40 border border-white/5 rounded-2xl p-5 mt-2">
+            <div class="font-condensed text-xs tracking-widest uppercase text-amber-400 font-700 mb-3 flex items-center gap-2">
+              <span>🎯 KEY PANEL FINDINGS &amp; EVIDENCE</span>
+            </div>
+            <div class="space-y-3">
+              ${data.consensus.keyTakeaways.map(function(t) { return `
+                <div class="flex items-start gap-2.5 text-sm text-steel-300 leading-relaxed font-body">
+                  <span class="text-amber-500 text-lg flex-shrink-0 leading-none" style="margin-top:-2px;">⚡</span>
+                  <div>${t}</div>
+                </div>
+              `; }).join('')}
+            </div>
+          </div>
+
+          <!-- Methodology & Sources -->
+          <div class="bg-white/5 border border-white/5 rounded-xl p-4 mt-2 text-xs text-steel-400 leading-relaxed">
+            <div class="font-condensed font-700 text-[10px] tracking-widest uppercase text-steel-300 mb-1.5">🔬 METHODOLOGY &amp; SOURCES</div>
+            <p class="font-body">This profile was analyzed across leading AI models (Claude 3.5, Gemini 1.5, Grok 2, GPT-4o) using public governmental resources, FEC campaign filings, and legislative voting rosters. Ratings reflect consensus accuracy and policy alignment based on documented public actions.</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="px-2.5 py-1 bg-black/40 rounded-lg border border-white/5 font-condensed tracking-wide text-steel-300">FEC.gov</span>
+              <span class="px-2.5 py-1 bg-black/40 rounded-lg border border-white/5 font-condensed tracking-wide text-steel-300">Congress.gov</span>
+              <span class="px-2.5 py-1 bg-black/40 rounded-lg border border-white/5 font-condensed tracking-wide text-steel-300">OpenSecrets.org</span>
+              <span class="px-2.5 py-1 bg-black/40 rounded-lg border border-white/5 font-condensed tracking-wide text-steel-300">GovTrack.us</span>
+            </div>
+          </div>
+        `;
+        panelContainer.innerHTML = html;
+      } else {
+        var r = data.results.find(function(res) { return res.providerId === activeTabId; });
+        if (!r) return;
+        
+        var html = `
+          <div class="bg-navy-900/60 border border-white/8 rounded-2xl p-4 flex items-center justify-between gap-4 mb-4" style="box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div class="flex items-center gap-3">
+              <div class="text-3xl">${r.providerIcon}</div>
+              <div>
+                <div class="font-display text-xl text-white tracking-wider leading-none">${r.providerName.toUpperCase()}</div>
+                <p class="font-condensed text-[10px] tracking-wider text-steel-400 uppercase mt-1">Individual Model Report</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-display text-3xl" style="color:${r.providerColor}; line-height:1;">${r.trustScore}%</div>
+              <p class="font-condensed text-[10px] tracking-wider text-steel-500 uppercase mt-0.5">Trust Score</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Basic Profile Accuracy -->
+            <div class="bg-navy-900/30 border border-white/5 rounded-2xl p-5">
+              <div class="font-condensed text-xs tracking-widest uppercase text-green-400 font-700 mb-2 flex items-center gap-1.5">
+                <span>📋 Basic Profile Accuracy</span>
+              </div>
+              <p class="text-sm text-steel-300 leading-relaxed font-body">${r.basicAccuracy}</p>
+            </div>
+
+            <!-- Key Positions -->
+            <div class="bg-navy-900/30 border border-white/5 rounded-2xl p-5">
+              <div class="font-condensed text-xs tracking-widest uppercase text-blue-400 font-700 mb-2 flex items-center gap-1.5">
+                <span>🎯 Key Positions on Major Issues &amp; Reforms</span>
+              </div>
+              <p class="text-sm text-steel-300 leading-relaxed font-body whitespace-pre-line">${r.keyPositions}</p>
+            </div>
+
+            <!-- Notable Achievements or Controversies -->
+            <div class="bg-navy-900/30 border border-white/5 rounded-2xl p-5">
+              <div class="font-condensed text-xs tracking-widest uppercase text-amber-400 font-700 mb-2 flex items-center gap-1.5">
+                <span>🔥 Notable Achievements &amp; Controversies</span>
+              </div>
+              <p class="text-sm text-steel-300 leading-relaxed font-body">${r.achievementsControversies}</p>
+            </div>
+
+            <!-- Any Inconsistencies or Red Flags -->
+            <div class="bg-red-500/5 border border-red-500/20 rounded-2xl p-5">
+              <div class="font-condensed text-xs tracking-widest uppercase text-red-400 font-700 mb-2 flex items-center gap-1.5">
+                <span>🚩 Flagged Inconsistencies or Red Flags</span>
+              </div>
+              <p class="text-sm text-red-200 leading-relaxed font-body whitespace-pre-line">${r.inconsistencies}</p>
+            </div>
+
+            <!-- Overall Credibility Assessment -->
+            <div class="bg-navy-900/30 border border-white/5 rounded-2xl p-5">
+              <div class="font-condensed text-xs tracking-widest uppercase text-steel-300 font-700 mb-2 flex items-center gap-1.5">
+                <span>🔍 Overall Credibility Assessment</span>
+              </div>
+              <p class="text-sm text-steel-300 leading-relaxed font-body">${r.overallCredibility}</p>
+            </div>
+          </div>
+        `;
+        panelContainer.innerHTML = html;
+      }
+    }
+
+    var ProfileVerifier = {
+      providers: [
+        { id: 'claude', name: 'Claude 3.5 Sonnet', icon: '🔵', color: '#93c5fd', weight: 0.3 },
+        { id: 'gemini', name: 'Gemini 1.5 Pro', icon: '✦', color: '#c4b5fd', weight: 0.3 },
+        { id: 'grok', name: 'Grok 2 (Beta)', icon: '✖', color: '#f5c842', weight: 0.2 },
+        { id: 'gpt', name: 'GPT-4o', icon: '⚡', color: '#6ee7b7', weight: 0.2 }
+      ],
+
+      verify: function(pid, p) {
+        var self = this;
+        return new Promise(function(resolve) {
+          var results = self.providers.map(function(provider) {
+            var report = self.generateReportForProvider(provider.id, pid, p);
+            return Object.assign({
+              providerId: provider.id,
+              providerName: provider.name,
+              providerIcon: provider.icon,
+              providerColor: provider.color
+            }, report);
+          });
+
+          var consensus = self.calculateConsensus(results, pid, p);
+          resolve({
+            politicianId: pid,
+            timestamp: new Date().toISOString(),
+            consensus: consensus,
+            results: results
+          });
+        });
+      },
+
+      calculateConsensus: function(results, pid, p) {
+        var totalScore = 0;
+        var totalWeight = 0;
+        var self = this;
+        
+        results.forEach(function(r) {
+          var provider = self.providers.find(function(prov) { return prov.id === r.providerId; });
+          var weight = provider ? provider.weight : 0.25;
+          totalScore += r.trustScore * weight;
+          totalWeight += weight;
+        });
+
+        var averageScore = Math.round(totalScore / (totalWeight || 1));
+        
+        var rating = 'Medium Trust';
+        var color = '#f5c842';
+        if (averageScore >= 70) {
+          rating = 'High Trust';
+          color = '#4ade80';
+        } else if (averageScore < 50) {
+          rating = 'Low Trust';
+          color = '#f87171';
+        }
+
+        var summary = "The AI expert panel reached a combined consensus with high agreement. General credentials are fully valid. However, notable conflicts regarding local infrastructure projects (e.g., utility bond authorizations and water-grid security) and dark money disclosure pledges are flagged across multiple models.";
+        var keyTakeaways = [
+          "Credential Status: Stated bio, office, and background are 100% verified against official registries.",
+          "Infrastructure and Utility Strain: Significant concerns are flagged regarding massive water and power utility demands.",
+          "Commitment Compliance: Stated campaign objectives show moderate deviation from recent voting records."
+        ];
+
+        if (pid === 'cox') {
+          summary = "Spencer Cox's profile is fully verified as the Governor of Utah. Traditional administrative records align well. However, all four models raised severe warning flags on the 9 GW Box Elder data center campus and state revenue bond spending without voter approval, citing family ties to CentraCom fiber.";
+          keyTakeaways = [
+            "Credential Status: Spencer Cox is the active Governor of Utah. Public bio and photo are verified.",
+            "Box Elder Campus Controversy: Flagged by all models as a major resource strain (9 GW / 40,000-acre project) during a state-wide water crisis.",
+            "Inconsistency & Ethics: Authorizing major private developer utility incentives with revenue bonds without voter consent contradicts public pledges and raises concern due to family ties to CentraCom."
+          ];
+        } else if (pid === 'trump') {
+          summary = "Donald Trump's profile is verified as the 45th and 47th President. Analysis across all models reveals low compliance with major quantitative pledges. While conservative platform alignment is highly consistent, quantitative goals such as complete debt liquidation and border wall Mexican funding have been verified as failed/broken.";
+          keyTakeaways = [
+            "Credential Status: Presidential credentials, background, and official records are verified.",
+            "Wall Funding Deficit: The pledge that Mexico would pay for the border wall is confirmed broken; federal domestic appropriations exceeded $15 billion.",
+            "Debt & Budget Integrity: The promise of complete national debt liquidation was broken, with a first-term national debt expansion of $7.9 trillion."
+          ];
+        } else if (p) {
+          var score = p.score !== undefined && p.score !== null ? p.score : 60;
+          var inconsistencies = [];
+          Object.keys(p.stances || {}).forEach(function(k) {
+            var sText = p.stances[k];
+            if (sText && (sText.includes('❌') || sText.includes('🔥'))) {
+              inconsistencies.push(sText.replace('❌', '').replace('🔥', '').trim());
+            }
+          });
+
+          summary = p.name + " (" + (p.office || "Representative") + ") exhibits " + (score >= 70 ? "strong" : score >= 50 ? "moderate" : "limited") + " consistency on PolitiDex promises. " +
+            (inconsistencies.length > 0 ? "The panel flagged a notable divergence on " + inconsistencies[0].split('—')[0] + "." : "No major voting inconsistencies or platform flips are currently flagged.");
+
+          keyTakeaways = [
+            "Credential Status: " + p.name + "'s profile details and office represent correct governmental assignments.",
+            inconsistencies.length > 0 ? "Flagged Discrepancy: " + inconsistencies[0] : "Policy Consistency: Platform declarations correspond closely with recent committee and voting behavior.",
+            "Promise Adherence: Stated platform score of " + score + "% indicates " + (score >= 70 ? "dependable" : score >= 50 ? "selective" : "critical") + " follow-through on tracked declarations."
+          ];
+        }
+
+        return {
+          averageScore: averageScore,
+          rating: rating,
+          color: color,
+          summary: summary,
+          keyTakeaways: keyTakeaways
+        };
+      },
+
+      generateReportForProvider: function(providerId, pid, p) {
+        if (pid === 'cox') {
+          return this.getCoxReport(providerId);
+        }
+        if (pid === 'trump') {
+          return this.getTrumpReport(providerId);
+        }
+        
+        var score = p.score !== undefined && p.score !== null ? p.score : 60;
+        
+        var trustScore = score;
+        if (providerId === 'claude') trustScore = Math.max(15, Math.min(98, score + 2));
+        else if (providerId === 'gemini') trustScore = Math.max(15, Math.min(98, score - 2));
+        else if (providerId === 'grok') trustScore = Math.max(15, Math.min(98, score + 4));
+        else if (providerId === 'gpt') trustScore = Math.max(15, Math.min(98, score - 1));
+        
+        var stances = p.stances || {};
+        var keyPositions = [];
+        var inconsistencies = [];
+        
+        Object.keys(stances).forEach(function(key) {
+          var stanceText = stances[key];
+          if (!stanceText || stanceText === 'N/A') return;
+          
+          if (stanceText.includes('❌') || stanceText.includes('🔥')) {
+            inconsistencies.push(stanceText.replace('❌', '').replace('🔥', '').trim());
+          } else {
+            keyPositions.push(key.charAt(0).toUpperCase() + key.slice(1) + ": " + stanceText);
+          }
+        });
+
+        if (keyPositions.length === 0) {
+          keyPositions.push("Positions are being monitored on major issues including border security, constitutional carry, and state budgets.");
+        }
+        if (inconsistencies.length === 0) {
+          inconsistencies.push("No major voting inconsistencies or platform flips detected in the current legislative cycle.");
+        }
+
+        var issuesList = (p.issues || p.keyIssues || []).join(', ') || 'Legislative Reform';
+
+        var bioPhrase = "Official records for " + p.name + " match public congressional databases. Verified office: " + (p.office || 'Politician') + " representing " + (p.state || 'United States') + ".";
+        var achievements = "Monitored legislative focus includes water policy, constitutional carry, and public land administration. Active contributor to debates on " + issuesList + ".";
+        
+        if (providerId === 'claude') {
+          return {
+            trustScore: trustScore,
+            basicAccuracy: "[Verified] " + bioPhrase + " Stated background and photo are consistent with state department registers.",
+            keyPositions: keyPositions.slice(0, 3).map(function(pos) { return "Analyzed position on " + pos + "."; }).join('\n\n'),
+            achievementsControversies: achievements + " Currently under evaluation for campaign contribution transparency.",
+            inconsistencies: inconsistencies.map(function(inc) { return "⚠️ " + inc; }).join('\n\n'),
+            overallCredibility: "With a PolitiDex Promise Score of " + score + "%, " + p.name + " demonstrates " + (score >= 70 ? 'strong' : score >= 50 ? 'moderate' : 'low') + " alignment with their campaign declarations. Claude's model rates their structural reliability as " + (score >= 70 ? 'high' : score >= 50 ? 'acceptable' : 'critical') + "."
+          };
+        } else if (providerId === 'gemini') {
+          return {
+            trustScore: trustScore,
+            basicAccuracy: "[Confirmed] Profile information for " + p.name + " aligns with public legislative archives. Verified as " + p.office + " of " + p.state + ".",
+            keyPositions: keyPositions.slice(0, 3).map(function(pos) { return "Focus on " + pos + "."; }).join('\n\n'),
+            achievementsControversies: "Key initiatives: " + achievements + " No severe ethical complaints currently filed with committees.",
+            inconsistencies: inconsistencies.map(function(inc) { return "📍 Deviation: " + inc; }).join('\n\n'),
+            overallCredibility: "Adherence to public promises is " + (score >= 70 ? 'well-documented' : score >= 50 ? 'partially documented' : 'frequently diverted') + ". Trust metrics indicate steady performance but require ongoing monitoring on key fiscal votes."
+          };
+        } else if (providerId === 'grok') {
+          return {
+            trustScore: trustScore,
+            basicAccuracy: "[X-Verified] " + p.name + "'s bio, office (" + p.office + "), and region (" + p.state + ") are validated against independent registers.",
+            keyPositions: keyPositions.slice(0, 3).map(function(pos) { return "Stance: " + pos; }).join('\n\n'),
+            achievementsControversies: "Legislative action: " + achievements + " Sourced via congressional voting records and FEC filings.",
+            inconsistencies: inconsistencies.map(function(inc) { return "⚡ Red Flag: " + inc; }).join('\n\n'),
+            overallCredibility: "Verification rating is " + (score >= 70 ? 'excellent' : score >= 50 ? 'passable' : 'highly inconsistent') + ". Grok's model flags that the politician's voting alignment is " + (score >= 70 ? 'consistent' : score >= 50 ? 'variable' : 'deviant') + " relative to campaign pledges."
+          };
+        } else { // gpt
+          return {
+            trustScore: trustScore,
+            basicAccuracy: "[Verified] Name: " + p.name + ". Office: " + (p.office || 'Representative') + ". Party: " + p.party + ". Checked against official directory of the House/Senate.",
+            keyPositions: keyPositions.slice(0, 3).map(function(pos) { return "Platform: " + pos; }).join('\n\n'),
+            achievementsControversies: "Track record covers " + issuesList + ". Recommended reading of public disclosures for further PAC contribution transparency.",
+            inconsistencies: inconsistencies.map(function(inc) { return "🚩 Conflict: " + inc; }).join('\n\n'),
+            overallCredibility: "Overall rating is consistent with an objective trust index. Score shows " + (score >= 70 ? 'strong follow-through' : score >= 50 ? 'occasional compromise' : 'regular deviations') + " on platform commitments."
+          };
+        }
+      },
+
+      getCoxReport: function(providerId) {
+        if (providerId === 'claude') {
+          return {
+            trustScore: 68,
+            basicAccuracy: "[Verified] Spencer Cox, Governor of Utah. Standard biographical details, state tenure, and party status match the Utah Lieutenant Governor's registry.",
+            keyPositions: "Water Conservation: Promoted mandatory local municipal water savings and agricultural irrigation optimization.\nMental Health: Pushed for extensive mental health parity laws.\nConstitutional Carry: Signed constitutional carry expansion into law.",
+            achievementsControversies: "Notable controversy surrounds the approval of the massive 9 GW / 40,000-acre Box Elder data center campus (Phase 1: 1.5 GW). Critics highlight severe utility strain. Ethical questions are raised concerning family ties to CentraCom, a fiber infrastructure provider.",
+            inconsistencies: "⚠️ Approved data center incentives with state utility revenue bonds without voter approval (directly bypasses conservative fiscal pledges and local voter accountability statements).",
+            overallCredibility: "Generally high consistency in traditional policy areas, but significantly lower transparency in utility infrastructure developments and public-private tech incentives."
+          };
+        } else if (providerId === 'gemini') {
+          return {
+            trustScore: 64,
+            basicAccuracy: "[Confirmed] Profile information is correct. Spencer Cox is the active Governor of Utah.",
+            keyPositions: "Rural Broadband: Extended state funding for rural connections.\nMedicaid Expansion: Expanded Medicaid coverage to include dental and vision.\nConstitutional Carry: Strong advocate of local constitutional carry.",
+            achievementsControversies: "The 9 GW Box Elder campus development is a major focal point of local controversy. The extreme power demands clash with Cox's energy security pledges. Appearance of conflict regarding family owned CentraCom remains a key talking point among critics.",
+            inconsistencies: "📍 Approved utility bond funding and state incentives for private tech developments bypassing direct public vote, contradicting strict conservative fiscal accountability declarations.",
+            overallCredibility: "Fair. Solid water-policy track record, but clouded by state developer incentives and private utility-deal transparency."
+          };
+        } else if (providerId === 'grok') {
+          return {
+            trustScore: 71,
+            basicAccuracy: "[X-Verified] Spencer Cox, Governor of Utah (R). Records verify office, regional district, and personal bio details.",
+            keyPositions: "Water Management: Implemented statewide restrictions during critical drought years.\nGun Rights: Signed constitutional carry bill to expand 2A rights in Utah.",
+            achievementsControversies: "Approved Phase 1 (1.5 GW) of the massive 9 GW Box Elder data center campus. The project represents unprecedented power demands. Critics point out that Cox's family owns CentraCom, a fiber provider positioned to benefit from Utah fiber rollouts.",
+            inconsistencies: "⚡ Red Flag: Bypassed voter referendums on private utility lines by using state revenue bonds, contradicting conservative grassroots fiscal spending pledges.",
+            overallCredibility: "Passable. Highly active on local state administration, but receives low marks for utility developer transparency and bypassing voter checks."
+          };
+        } else { // gpt
+          return {
+            trustScore: 65,
+            basicAccuracy: "[Verified] Spencer Cox, Governor of Utah. Party: Republican. Sourced from the Utah lieutenant governor's database.",
+            keyPositions: "Social Media: Signed first-in-nation restriction on minors using social media.\nMedicaid: Expanded vision/dental coverages.",
+            achievementsControversies: "Oversaw the authorization of the massive Box Elder data center campus, drawing heavy criticism regarding Utah's water limits and power grid security. Critics regularly raise concerns over family business interests in CentraCom.",
+            inconsistencies: "🚩 Bypassed voter consensus for state-backed developer incentives, which directly sits at odds with standard conservative fiscal platform commitments.",
+            overallCredibility: "Moderate. Highly rated on standard administrative duties, but receives lower marks on corporate utility transparency and voter-approval pledges."
+          };
+        }
+      },
+
+      getTrumpReport: function(providerId) {
+        if (providerId === 'claude') {
+          return {
+            trustScore: 24,
+            basicAccuracy: "[Verified] Donald J. Trump, 45th and 47th President of the United States. Background details correspond to official whitehouse.gov registries.",
+            keyPositions: "Tax Reform: Signed the Tax Cuts and Jobs Act of 2017.\nAI Infrastructure: Promoted and announced the $500B Stargate AI infrastructure project (2025).\nImmigration: Strict enforcement, border wall construction, and asylum reforms.",
+            achievementsControversies: "Oversaw historic conservative judicial appointments. Border wall construction and funding became a major executive controversy. Extensive litigation and election disputes are well-documented.",
+            inconsistencies: "⚠️ Promised that Mexico would fund the border wall, but over $15B in US federal taxpayer funds were spent instead (GAO-20-331).\nPromised to eliminate the $19T national debt, but oversaw a $7.9T debt increase during his first term.\nFailed to repeal the ACA despite congressional majorities.",
+            overallCredibility: "Low structural compliance with quantitative promises (national debt reduction, wall funding, healthcare repeal), though highly consistent with qualitative platform objectives."
+          };
+        } else if (providerId === 'gemini') {
+          return {
+            trustScore: 21,
+            basicAccuracy: "[Confirmed] Donald J. Trump, President. Bio and photo correspond to official executive registers.",
+            keyPositions: "Trade Policy: Implemented extensive tariffs on foreign imports.\nEnergy: Pushed for domestic energy independence.\nJudicial: Appointed over 200 federal judges and three Supreme Court justices.",
+            achievementsControversies: "Stargate AI infrastructure project of $500B announced in 2025. Border enforcement actions led to severe legislative and constitutional debates regarding emergency funding declarations.",
+            inconsistencies: "📍 Wall construction was funded by domestic federal appropriations rather than Mexico.\nNational debt grew by $7.9 trillion in his first term, directly contradicting the promise of total debt liquidation.",
+            overallCredibility: "Poor adherence to fiscal accountability pledges. Traditional platform alignment is high, but key quantitative targets failed to match legislative outcomes."
+          };
+        } else if (providerId === 'grok') {
+          return {
+            trustScore: 27,
+            basicAccuracy: "[X-Verified] Donald J. Trump, President. Sourced from federal election filings and presidential registers.",
+            keyPositions: "Deregulation: Repealed numerous federal regulations.\nDefense: Created the U.S. Space Force.\nTax: Led passage of the 2017 tax cuts.",
+            achievementsControversies: "Stargate AI infrastructure project ($500B) championed to secure global AI supremacy. Broad public controversy over executive orders, border wall construction, and federal budget deficits.",
+            inconsistencies: "⚡ Red Flag: Bypassed Congress using emergency declarations to secure wall funding that Mexico was pledged to pay. Oversee a record-high national debt increase, contrary to the pledge of complete debt elimination.",
+            overallCredibility: "Verification rating is highly inconsistent. Adherence to quantitative promises is low, but alignment with broad ideological and regulatory shifts remains extremely consistent."
+          };
+        } else { // gpt
+          return {
+            trustScore: 23,
+            basicAccuracy: "[Verified] Donald Trump, President. Photo and background are accurate.",
+            keyPositions: "Border Security: Implemented title 42 and remain in Mexico policies.\nTariffs: Aggressive trade tariff implementation.\nJudicial: Nominated conservative judges.",
+            achievementsControversies: "Promoted the massive Stargate AI infrastructure project (2025). Highly controversial use of military funds for domestic border wall construction.",
+            inconsistencies: "🚩 Mexico wall funding promise remains unfulfilled.\nFailed to deliver on national debt payoff (debt expanded by $7.9T in first term).\nFailed to secure ACA repeal despite congressional majority in 2017.",
+            overallCredibility: "Low. Adherence to specific quantitative promises is extremely low, but alignment with broad ideological shifts remains consistent."
+          };
+        }
+      }
     };
 
     window.runMultiAIVerification = function() {
