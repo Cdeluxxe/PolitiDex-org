@@ -18745,26 +18745,57 @@
     if (pmStateSel) { pmStateSel.value = 'all'; if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation(); }
   };
 
-  // Browser-geolocation fallback. Runs ONLY when the user has no saved location.
-  // We prompt at most once per browser (tracked in localStorage) so a returning
-  // visitor who declined — or who prefers to set it manually — is never nagged.
+  // Set of valid U.S. state / DC names (built from the centroid table) used to
+  // sanity-check whatever a detection source hands back before we apply it.
+  window._isKnownState = function(name) {
+    if (!name) return false;
+    var arr = window._STATE_CENTROIDS || [];
+    for (var i = 0; i < arr.length; i++) { if (arr[i][0] === name) return true; }
+    return false;
+  };
+
+  // IP-based fallback. Silent (no permission prompt): looks up the visitor's
+  // approximate state from their IP via ipapi.co and applies it the same way an
+  // explicit picker change would. Runs only when no location is saved and the
+  // browser geolocation path did not yield a state.
+  window._detectVoterLocationByIP = function() {
+    try {
+      if (window._hasUserLocation) return;
+      fetch('https://ipapi.co/json/')
+        .then(function(r) { return r && r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data || window._hasUserLocation) return;
+          // ipapi only returns a meaningful state for U.S. visitors; ignore others.
+          if (data.country_code && data.country_code !== 'US') return;
+          var st = (data.region || '').trim();
+          if (window._isKnownState(st)) window._applyDetectedState(st);
+        })
+        .catch(function() { /* network blocked / offline — stay neutral */ });
+    } catch (e) { /* never let detection break page load */ }
+  };
+
+  // Automatic location detection on page load. Runs ONLY when the user has no
+  // saved location. First tries browser geolocation (prompted at most once per
+  // browser so a returning visitor who declined is never nagged); if that is
+  // unavailable, denied, or inconclusive, it silently falls back to an IP lookup.
   window.detectVoterLocation = function() {
     try {
       if (window._hasUserLocation) return;
-      if (!('geolocation' in navigator)) return;
+      if (!('geolocation' in navigator)) { window._detectVoterLocationByIP(); return; }
       var FLAG = 'politidex_geo_prompted';
-      if (localStorage.getItem(FLAG) === '1') return;
+      if (localStorage.getItem(FLAG) === '1') { window._detectVoterLocationByIP(); return; }
       localStorage.setItem(FLAG, '1');
       navigator.geolocation.getCurrentPosition(
         function(pos) {
           if (window._hasUserLocation) return; // user set it manually in the meantime
           var st = window._stateFromCoords(pos.coords.latitude, pos.coords.longitude);
           if (st) window._applyDetectedState(st);
+          else window._detectVoterLocationByIP(); // coords outside the U.S. — try IP
         },
-        function() { /* denied / unavailable — stay on the neutral "Set Your Location" prompt */ },
+        function() { window._detectVoterLocationByIP(); }, // denied / unavailable — fall back to IP
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
       );
-    } catch (e) { /* no-op: never let detection break page load */ }
+    } catch (e) { try { window._detectVoterLocationByIP(); } catch (e2) {} }
   };
 
   // ── STATE OVERVIEW CARD ─────────────────────────────────────────────
