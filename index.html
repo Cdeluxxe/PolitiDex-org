@@ -16,16 +16,52 @@
   var _firestoreLoaded = false;
   var _domContentLoaded = false;
 
+  // Global cache for original states before they get overwritten by Firestore
+  window._originalStates = {};
+
   function _checkAndTrigger() {
     if (_firestoreLoaded && _domContentLoaded) {
       console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
       // Copy PROFILES to CMP_DATA if CMP_DATA is defined
       if (typeof CMP_DATA !== 'undefined') {
+        // Cache original states before merging Firestore profiles
+        Object.keys(CMP_DATA).forEach(function(id) {
+          if (CMP_DATA[id] && CMP_DATA[id].state) {
+            window._originalStates[id] = CMP_DATA[id].state;
+          }
+        });
+
         Object.keys(PROFILES).forEach(function(id) {
+          var p = PROFILES[id];
+          if (p) {
+            // Ensure essential properties have defaults so rendering never crashes
+            p.name = p.name || '';
+            p.office = p.office || '';
+            p.state = p.state || '';
+            p.party = p.party || '';
+            p.score = p.score !== undefined ? p.score : null;
+            p.kept = p.kept !== undefined ? p.kept : 0;
+            p.broken = p.broken !== undefined ? p.broken : 0;
+            p.pending = p.pending !== undefined ? p.pending : 0;
+            p.icon = p.icon || '🏛';
+            
+            // Normalize issues array
+            var rawIssues = p.issues || p.keyIssues || [];
+            if (!Array.isArray(rawIssues)) {
+              if (typeof rawIssues === 'string') {
+                p.issues = rawIssues.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+              } else {
+                p.issues = [];
+              }
+            } else {
+              p.issues = rawIssues;
+            }
+          }
+
           if (!CMP_DATA[id]) {
-            CMP_DATA[id] = PROFILES[id];
+            CMP_DATA[id] = p;
           } else {
-            Object.assign(CMP_DATA[id], PROFILES[id]);
+            Object.assign(CMP_DATA[id], p);
           }
         });
       }
@@ -400,16 +436,25 @@
     /* ── Browse toolbar: search & filters (non-sticky) ──────── */
     .browse-toolbar {
       position: relative;
-      z-index: 1;
-      background: rgba(13,21,38,0.97);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 2px solid rgba(255,255,255,0.08);
+      z-index: 100 !important;
+      background: #0d1526 !important; /* solid background */
+      border: 2px solid rgba(255,255,255,0.12);
       border-radius: 1.25rem;
       padding: 1rem 1.25rem;
       margin-bottom: 1rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
       transition: box-shadow 0.3s;
+    }
+    .browse-toolbar select {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
+      border-color: rgba(255,255,255,0.2) !important;
+      position: relative !important;
+      z-index: 101 !important;
+    }
+    .browse-toolbar select option {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
     }
     .browse-toolbar.is-stuck {
       box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
@@ -1055,7 +1100,7 @@
       overflow: hidden;
       transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .browse-sub-group.expanded .browse-sub-body {
+    .browse-sub-group.expanded > .browse-sub-body {
       max-height: 50000px;
       transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -8390,6 +8435,15 @@
     }
     #myteam-browse-grid [id^="browse-dist-"] > button {
       background: rgba(13,22,42,0.55) !important;
+    }
+    #myteam-browse-grid .browse-sub-group.expanded svg {
+      transform: rotate(180deg);
+    }
+    #myteam-browse-grid [id^="browse-dist-"].expanded .browse-sub-body {
+      max-height: 50000px;
+    }
+    #myteam-browse-grid [id^="browse-dist-"].expanded svg {
+      transform: rotate(180deg);
     }
 
     /* ── RELEVANT TO ME — top-level branch headers (Federal / State / Local) ──
@@ -20158,48 +20212,39 @@
     };
 
     function _getPoliticianState(pid) {
-      var d = CMP_DATA[pid];
-      if (!d) return 'National';
-      var st = (d.state || '').trim();
+      // Try resolving using original hardcoded state first (avoiding Firestore bare-district overwrite)
+      var origSt = window._originalStates && window._originalStates[pid];
+      var checkVal = origSt || (CMP_DATA[pid] && CMP_DATA[pid].state) || '';
+      var st = checkVal.trim();
       if (!st) return 'National';
 
-      // Some U.S. House members carry only a bare "District N" in their state
-      // field (no state name). Resolve those to their actual state so they nest
-      // correctly UNDER the State accordion instead of surfacing as their own
-      // bogus top-level "District 2" / "District 4" rows beside the real states.
-      // Scoped to this browse-grouping helper only — the source data and every
-      // other section of the page are left untouched.
-      var _bareDistrictState = { owens: 'Utah', maloy: 'Utah' };
-      if (_bareDistrictState[pid] && /^district\s+\d/i.test(st)) return _bareDistrictState[pid];
-
       if (st === 'U.S.' || st.toLowerCase() === 'national' || st.toLowerCase() === 'cabinet') return 'National';
-      
+
       var stLower = st.toLowerCase();
-      if (stLower.includes('utah') || stLower.startsWith('ut') || stLower.includes('county') || stLower.includes('district 13') || stLower.includes('district 14')) return 'Utah';
+      if (stLower.includes('utah') || stLower.startsWith('ut') || stLower.includes('county') || stLower.includes('district 13') || stLower.includes('district 14') || pid === 'owens' || pid === 'maloy' || pid === 'bmoore' || pid === 'kennedy') return 'Utah';
       if (stLower.includes('kentucky') || stLower.startsWith('ky')) return 'Kentucky';
       if (stLower.includes('florida') || stLower.startsWith('fl')) return 'Florida';
       if (stLower.includes('colorado') || stLower.startsWith('co')) return 'Colorado';
       if (stLower.includes('georgia') || stLower.startsWith('ga')) return 'Georgia';
-      
+
       return st;
     }
 
     function _getPoliticianDistrictOrCounty(pid) {
       var d = CMP_DATA[pid];
       if (!d) return 'Statewide';
+      
+      // If we cached the original state before Firestore overwrite, let's use it to find the district
+      var origSt = window._originalStates && window._originalStates[pid];
       var st = (d.state || '').trim();
-      if (!st) return 'Statewide';
       
-      if (st === 'U.S.' || st.toLowerCase() === 'national' || st.toLowerCase() === 'cabinet') {
-        return 'Federal';
-      }
-      
-      var matchHyphen = st.match(/^[A-Z]{2}-(\d+)/i);
+      // Let's check both strings for a district match:
+      var matchHyphen = st.match(/^[A-Z]{2}-(\d+)/i) || (origSt && origSt.match(/^[A-Z]{2}-(\d+)/i));
       if (matchHyphen) {
         return 'District ' + parseInt(matchHyphen[1], 10);
       }
       
-      var matchDistrict = st.match(/District\s+([^\s]+(?:\s+\([^)]+\))?)/i);
+      var matchDistrict = st.match(/District\s+([^\s]+(?:\s+\([^)]+\))?)/i) || (origSt && origSt.match(/District\s+([^\s]+(?:\s+\([^)]+\))?)/i));
       if (matchDistrict) {
         return 'District ' + matchDistrict[1];
       }
@@ -20208,9 +20253,16 @@
         return st;
       }
       
-      if (st === 'Utah' || st === 'Kentucky' || st === 'Florida' || st === 'Colorado' || st === 'Georgia') {
+      var stLower = st.toLowerCase();
+      if (stLower === 'utah' || stLower === 'kentucky' || stLower === 'florida' || stLower === 'colorado' || stLower === 'georgia') {
         return 'Statewide';
       }
+      
+      // Additional fallback for known bare districts or codes:
+      if (pid === 'bmoore') return 'District 1';
+      if (pid === 'maloy') return 'District 2';
+      if (pid === 'kennedy') return 'District 3';
+      if (pid === 'owens') return 'District 4';
       
       return 'Statewide';
     }
