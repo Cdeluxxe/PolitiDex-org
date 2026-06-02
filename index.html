@@ -8046,6 +8046,112 @@
       #relevant-browse-grid .chub-card .flex.items-center.gap-3 > .flex.flex-wrap { flex-basis: 100%; }
     }
 
+    /* ── Promise Tracker / All Politicians — spacing polish ──────────────────
+       Scoped to #myteam-browse-grid ONLY, so the Voter Hub, Relevant to Me,
+       team builder, navigation, colors and every other section stay exactly as
+       they were. Goal: give the politician cards, scores and action buttons
+       room to breathe (nothing overlaps or feels crowded) and keep the U.S.
+       Representatives — and every office group — as a clean, clearly nested
+       States → Districts accordion. */
+
+    /* Cards: generous internal breathing room so nothing feels crowded. */
+    #myteam-browse-grid .chub-card { padding: 1.5rem 1.5rem 1.35rem; }
+    #myteam-browse-grid .chub-card > .flex.items-start { gap: 1.15rem; align-items: flex-start; }
+
+    /* Name + status badges row: clear gap so wrapped badges never touch the
+       office line below them. */
+    #myteam-browse-grid .chub-card .flex-1 > .flex.items-center:first-child {
+      row-gap: 0.45rem;
+      column-gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Office / state line: a touch of room below it. */
+    #myteam-browse-grid .chub-card .flex-1 > p { margin-bottom: 0.9rem; line-height: 1.4; }
+
+    /* Score box + alignment ring + issue tags: roomier, top-aligned and wraps
+       cleanly so the score and tags never collide or overlap, however narrow the
+       card gets. */
+    #myteam-browse-grid .chub-card .flex.items-center.gap-3 {
+      align-items: flex-start;
+      gap: 1rem 0.85rem;
+      margin-bottom: 1.1rem;
+    }
+    #myteam-browse-grid .chub-card .flex.items-center.gap-3 > .flex.flex-wrap {
+      gap: 0.4rem;
+      align-content: flex-start;
+      padding-top: 0.15rem;
+    }
+
+    /* Action buttons (Add to Team / Compare / Profile): a clear divider above
+       them, plus equal-height pills with consistent spacing so they never crowd
+       or overlap — however the card wraps. */
+    #myteam-browse-grid .chub-card .flex-1 > div:last-child {
+      margin-top: 1.1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      gap: 0.6rem;
+      row-gap: 0.6rem;
+    }
+    #myteam-browse-grid .chub-card .flex-1 > div:last-child > button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── STATES → DISTRICTS hierarchy — clean colored accordion ──────────────
+       The U.S. Representatives group (and every office group) expands into a
+       tidy, colored STATES accordion; expanding a state reveals its DISTRICTS
+       nested one level deeper — the same clean, layered look used by the
+       Relevant to Me branch headers. */
+    #myteam-browse-grid .browse-sub-group {
+      margin-bottom: 0.85rem !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-left: 4px solid rgba(96,165,250,0.75) !important;
+      border-radius: 0.85rem !important;
+      overflow: hidden;
+      background: transparent !important;
+    }
+    #myteam-browse-grid .browse-sub-group > button {
+      background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(30,53,96,0.34)) !important;
+      border-radius: 0 !important;
+      padding: 0.85rem 1.1rem !important;
+      min-height: 52px;
+      transition: filter 0.2s ease;
+    }
+    #myteam-browse-grid .browse-sub-group > button:hover { filter: brightness(1.12); }
+    /* State name reads bright & spaced, like the relevant branch labels. */
+    #myteam-browse-grid .browse-sub-group > button .font-condensed.text-sm {
+      color: #fff !important;
+      letter-spacing: 0.1em;
+    }
+
+    /* Per-state accent colors so each state is instantly distinguishable. */
+    #myteam-browse-grid .browse-sub-group[id$="-colorado"] { border-left-color:#3b82f6 !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-colorado"] > button { background:linear-gradient(135deg, rgba(59,130,246,0.3), rgba(30,53,96,0.34)) !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-florida"] { border-left-color:#f59e0b !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-florida"] > button { background:linear-gradient(135deg, rgba(245,158,11,0.26), rgba(30,53,96,0.34)) !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-georgia"] { border-left-color:#22c55e !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-georgia"] > button { background:linear-gradient(135deg, rgba(34,197,94,0.24), rgba(30,53,96,0.34)) !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-kentucky"] { border-left-color:#a855f7 !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-kentucky"] > button { background:linear-gradient(135deg, rgba(168,85,247,0.26), rgba(30,53,96,0.34)) !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-utah"] { border-left-color:#c0152a !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-utah"] > button { background:linear-gradient(135deg, rgba(192,21,42,0.26), rgba(30,53,96,0.34)) !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-national"] { border-left-color:#64748b !important; }
+    #myteam-browse-grid .browse-sub-group[id$="-national"] > button { background:linear-gradient(135deg, rgba(100,116,139,0.26), rgba(30,53,96,0.34)) !important; }
+
+    /* DISTRICT rows: clearly indented one level deeper with a guide line. */
+    #myteam-browse-grid [id^="browse-dist-"] {
+      margin-left: 0.8rem;
+      border-left: 2px solid rgba(255,255,255,0.12) !important;
+      border-radius: 0.55rem;
+    }
+    #myteam-browse-grid [id^="browse-dist-"] > button {
+      background: rgba(13,22,42,0.55) !important;
+    }
+
     /* ── RELEVANT TO ME — top-level branch headers (Federal / State / Local) ──
        These colorful section bars group the office accordions into a clean,
        expandable tree. Scoped to #relevant-browse-grid ONLY, so the Promise
@@ -22206,7 +22312,16 @@
       if (!d) return 'National';
       var st = (d.state || '').trim();
       if (!st) return 'National';
-      
+
+      // Some U.S. House members carry only a bare "District N" in their state
+      // field (no state name). Resolve those to their actual state so they nest
+      // correctly UNDER the State accordion instead of surfacing as their own
+      // bogus top-level "District 2" / "District 4" rows beside the real states.
+      // Scoped to this browse-grouping helper only — the source data and every
+      // other section of the page are left untouched.
+      var _bareDistrictState = { owens: 'Utah', maloy: 'Utah' };
+      if (_bareDistrictState[pid] && /^district\s+\d/i.test(st)) return _bareDistrictState[pid];
+
       if (st === 'U.S.' || st.toLowerCase() === 'national' || st.toLowerCase() === 'cabinet') return 'National';
       
       var stLower = st.toLowerCase();
