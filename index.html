@@ -8381,6 +8381,52 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-left-width: 4px;
       box-shadow: 0 3px 14px rgba(0,0,0,0.25);
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: filter 0.2s, transform 0.1s ease;
+    }
+    @media (hover: hover) {
+      #relevant-browse-grid .relevant-level-header:hover {
+        filter: brightness(1.15);
+      }
+    }
+    #relevant-browse-grid .relevant-level-header:active {
+      transform: scale(0.99);
+    }
+    #relevant-browse-grid .relevant-level-chevron-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.15rem;
+      height: 2.15rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+      transition: background 0.25s, border-color 0.25s, transform 0.15s;
+      margin-left: 0.5rem;
+    }
+    #relevant-browse-grid .relevant-level-header:hover .relevant-level-chevron-wrap {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+    }
+    #relevant-browse-grid .relevant-level-chevron {
+      width: 1.1rem;
+      height: 1.1rem;
+      color: #9fb4d4;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+    #relevant-browse-grid .relevant-level.expanded .relevant-level-chevron {
+      transform: rotate(180deg);
+    }
+    #relevant-browse-grid .relevant-level.expanded .relevant-level-chevron-wrap {
+      background: rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.25);
     }
     #relevant-browse-grid .relevant-level-icon {
       width: 2.1rem;
@@ -8434,15 +8480,26 @@
     }
     /* The office accordions sit gently indented under their branch. */
     #relevant-browse-grid .relevant-level-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       padding-left: 0.55rem;
       margin-left: 0.7rem;
-      border-left: 2px dashed rgba(255,255,255,0.08);
+      border-left: 2px dashed transparent;
+    }
+    #relevant-browse-grid .relevant-level.expanded .relevant-level-body {
+      max-height: 50000px;
+      border-left-color: rgba(255,255,255,0.08);
+      transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+      margin-bottom: 0.75rem;
     }
     @media (max-width: 640px) {
       #relevant-browse-grid .relevant-level-header { padding: 0.55rem 0.8rem; gap: 0.55rem; }
       #relevant-browse-grid .relevant-level-name { font-size: 1.12rem; letter-spacing: 0.09em; }
       #relevant-browse-grid .relevant-level-icon { width: 1.9rem; height: 1.9rem; font-size: 0.95rem; }
       #relevant-browse-grid .relevant-level-body { padding-left: 0.4rem; margin-left: 0.45rem; }
+      #relevant-browse-grid .relevant-level-chevron-wrap { width: 1.85rem; height: 1.85rem; margin-left: 0.35rem; }
+      #relevant-browse-grid .relevant-level-chevron { width: 0.95rem; height: 0.95rem; }
     }
   </style>
 
@@ -20454,12 +20511,18 @@
           });
           if (!inner) return;
 
-          html += '<div class="relevant-level relevant-level-' + lvl.key + '">';
-          html += '<div class="relevant-level-header">';
+          var isLevelOpen = _browseGroupState['relevant-level-' + lvl.key] !== undefined
+            ? _browseGroupState['relevant-level-' + lvl.key]
+            : false;
+          var levelExpandedClass = isLevelOpen ? ' expanded' : '';
+
+          html += '<div class="relevant-level relevant-level-' + lvl.key + levelExpandedClass + '" id="relevant-level-group-' + lvl.key + '">';
+          html += '<button class="relevant-level-header" onclick="toggleBrowseAccordion(\'relevant-level-group-' + lvl.key + '\', \'relevant-level-' + lvl.key + '\')">';
           html += '<div class="relevant-level-icon">' + lvl.icon + '</div>';
           html += '<span class="relevant-level-name">' + lvl.label + '</span>';
           html += '<span class="relevant-level-count">' + levelTotal + ' ' + (levelTotal === 1 ? 'OFFICIAL' : 'OFFICIALS') + '</span>';
-          html += '</div>';
+          html += _chevronWrapped('relevant-level-chevron-wrap', 'relevant-level-chevron');
+          html += '</button>';
           html += '<div class="relevant-level-body">' + inner + '</div>';
           html += '</div>';
         });
