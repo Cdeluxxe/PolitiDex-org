@@ -19334,13 +19334,42 @@
           console.warn('Error loading user comments from Firestore:', e);
         });
 
-        _mypolBuildGrid();
         _potentialBuildGrid();
         _favoritesBuildGrid();
         _refreshAllHeartUI();
-        _mypolUpdateCount();
         if (typeof filterDirectory === 'function') filterDirectory();
-        if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+
+        db.collection('userTeams').doc(uid).get().then(function(teamDoc) {
+          if (teamDoc.exists) {
+            var teamData = teamDoc.data();
+            if (teamData && Array.isArray(teamData.team)) {
+              console.log("Loaded team from userTeams:", teamData.team);
+              var selections = {};
+              teamData.team.forEach(function(pid) {
+                var raceKey = null;
+                if (typeof window._findRaceKeyForPolitician === 'function') {
+                  raceKey = window._findRaceKeyForPolitician(pid);
+                } else if (typeof _findRaceKeyForPolitician === 'function') {
+                  raceKey = _findRaceKeyForPolitician(pid);
+                }
+                if (raceKey) {
+                  selections[raceKey] = pid;
+                }
+                _myPoliticians.add(pid);
+              });
+              try { localStorage.setItem('politidex_my_team', JSON.stringify(selections)); } catch(e) {}
+              _mypolSave();
+            }
+          }
+          _mypolBuildGrid();
+          _mypolUpdateCount();
+          if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+        }).catch(function(err) {
+          console.warn("Failed to load userTeams:", err);
+          _mypolBuildGrid();
+          _mypolUpdateCount();
+          if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+        });
       }).catch(function(error) {
         console.error("Error syncing Firestore user data:", error);
         _mypolLoad();
@@ -19362,6 +19391,7 @@
     window.loginWithGoogle = loginWithGoogle;
     window.updateNavAuth = updateNavAuth;
     window.syncUserDataFromFirestore = syncUserDataFromFirestore;
+    window._findRaceKeyForPolitician = _findRaceKeyForPolitician;
 
     // Reconcile the nav account indicator with whatever auth state Firebase has
     // already resolved. This covers the case where onAuthStateChanged fired
@@ -21364,16 +21394,29 @@
     function _ballotSave(selections) {
       try { localStorage.setItem(BALLOT_KEY, JSON.stringify(selections)); } catch(e) {}
       var user = typeof auth !== 'undefined' ? auth.currentUser : null;
-      if (user && !user.isAnonymous) {
-        db.collection('users').doc(user.uid).set({
-          team_ballot: selections
-        }, { merge: true }).then(function() {
-          _showAccountSaveToast();
+      if (user) {
+        var teamArray = [];
+        for (var k in selections) {
+          if (selections[k]) teamArray.push(selections[k]);
+        }
+        db.collection('userTeams').doc(user.uid).set({
+          team: teamArray,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).catch(function(e) {
-          console.warn("Firestore save team_ballot failed:", e);
+          console.warn("Firestore save to userTeams failed:", e);
         });
-      } else if (user && user.isAnonymous) {
-        _showSigninPrompt();
+
+        if (!user.isAnonymous) {
+          db.collection('users').doc(user.uid).set({
+            team_ballot: selections
+          }, { merge: true }).then(function() {
+            _showAccountSaveToast();
+          }).catch(function(e) {
+            console.warn("Firestore save team_ballot failed:", e);
+          });
+        } else {
+          _showSigninPrompt();
+        }
       }
     }
 
