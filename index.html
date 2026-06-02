@@ -21679,6 +21679,7 @@
       _renderBallotRaces(selections);
       if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     }
+    window._ballotRender = _ballotRender;
 
     window.ballotPick = function(selectEl) {
       var race = selectEl.getAttribute('data-race');
@@ -21913,6 +21914,19 @@
           _ballotRender();
         }
       });
+
+      // Auto-sync team and other user data from Firestore on page load once Auth is ready
+      if (typeof _fbAuthReady !== 'undefined') {
+        _fbAuthReady.then(function() {
+          var user = typeof auth !== 'undefined' ? auth.currentUser : null;
+          if (user) {
+            console.log("⚡ Auto-syncing user team from Firestore on page load:", user.uid);
+            if (typeof syncUserDataFromFirestore === 'function') {
+              syncUserDataFromFirestore(user.uid);
+            }
+          }
+        });
+      }
     }
 
     window._vhBallotRerender = function() {
