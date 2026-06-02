@@ -13017,6 +13017,33 @@
         </div>
       </div>` : ''}
 
+      <!-- AI Fact Check Panel (Phase 1) -->
+      <div class="modal-section" style="border-top:1px solid rgba(255,255,255,0.07);padding-top:1.25rem;margin-bottom:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.08em;color:white;display:flex;align-items:center;gap:0.4rem;">
+            <span>🤖 AI Verification</span>
+          </div>
+          <span class="badge-live text-[9px] font-condensed font-700 tracking-wider text-crimson-400 bg-crimson-600/10 border border-crimson-600/25 px-2 py-0.5 rounded-full uppercase">Active</span>
+        </div>
+        
+        <div id="ai-verify-initial-state-${id}">
+          <button onclick="runPoliticianAIVerification('${id}')" id="politician-ai-verify-btn-${id}" class="w-full text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#d91a31);box-shadow:0 6px 20px rgba(192,21,42,0.2);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            Verify with AI
+          </button>
+        </div>
+
+        <div id="ai-verify-loading-state-${id}" style="display:none;" class="text-center py-6 bg-navy-900/40 border border-white/5 rounded-xl">
+          <div class="inline-block w-8 h-8 border-2 border-crimson-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+          <div class="font-condensed text-xs tracking-wider text-steel-400 uppercase">Consulting AI Knowledge Bases...</div>
+          <p class="text-[10px] text-steel-500 mt-1 font-body">Analyzing background, promises, voting patterns, and sources</p>
+        </div>
+
+        <div id="ai-verify-result-panel-${id}" style="display:none;" class="bg-navy-900/60 border border-white/10 rounded-xl p-4 transition-all duration-300">
+          <!-- Content injected here -->
+        </div>
+      </div>
+
       <!-- Deep Dive: Full Promise Breakdown -->
       ${(function(){
         const pb = p.promiseBreakdown || {};
