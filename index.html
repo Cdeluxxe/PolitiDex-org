@@ -2746,41 +2746,44 @@
 
     /* ── Individual politician card (tree node) ────── */
     .pm-card {
-      background: rgba(5,8,22,0.7);
-      border-radius: 0.875rem;
+      background: linear-gradient(160deg, rgba(9,14,32,0.82), rgba(5,8,22,0.86));
+      border-radius: 1.1rem;
       padding: 0;
       display: flex;
       flex-direction: column;
-      transition: transform 0.2s cubic-bezier(.34,1.4,.64,1), box-shadow 0.2s;
+      transition: transform 0.2s cubic-bezier(.34,1.4,.64,1), box-shadow 0.2s, border-color 0.2s;
       position: relative;
       overflow: hidden;
       backdrop-filter: blur(6px);
+      box-shadow: 0 8px 26px rgba(0,0,0,0.36), 0 1px 0 rgba(255,255,255,0.04) inset, 0 0 14px var(--tier-glow, rgba(192,21,42,0.05));
     }
     .pm-card:hover {
-      transform: translateY(-3px) scale(1.008);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 20px var(--tier-glow, rgba(192,21,42,0.1)), 0 0 6px rgba(59,130,246,0.08), 0 0 10px rgba(192,21,42,0.08);
+      transform: translateY(-4px) scale(1.008);
+      box-shadow: 0 16px 44px rgba(0,0,0,0.46), 0 0 26px var(--tier-glow, rgba(192,21,42,0.14)), 0 0 8px rgba(59,130,246,0.1), 0 1px 0 rgba(255,255,255,0.05) inset;
       border-color: rgba(192,21,42,0.35) !important;
     }
     .pm-card-inner {
-      padding: 0.875rem;
+      padding: 1.4rem 1.4rem 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
+      gap: 0.85rem;
     }
     .pm-card-top {
       display: flex;
       align-items: flex-start;
-      gap: 0.65rem;
+      gap: 0.9rem;
     }
     .pm-card-photo {
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       overflow: hidden;
       flex-shrink: 0;
       border: 2px solid var(--tier-color, rgba(255,255,255,0.15));
       background: rgba(30,53,96,0.5);
       position: relative;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,255,255,0.02);
+      margin-top: 0.1rem;
     }
     .pm-card-photo img {
       width: 100%;
@@ -2797,83 +2800,104 @@
       font-size: 1.4rem;
       background: linear-gradient(135deg, rgba(30,53,96,0.7), rgba(10,15,30,0.8));
     }
-    .pm-card-info { flex: 1; min-width: 0; }
+    .pm-card-info { flex: 1; min-width: 0; padding-top: 0.1rem; }
     .pm-card-name {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.05rem;
-      letter-spacing: 0.05em;
+      font-size: 1.3rem;
+      letter-spacing: 0.055em;
       color: white;
-      line-height: 1.15;
+      line-height: 1.12;
     }
     .pm-card-office {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.62rem;
-      letter-spacing: 0.07em;
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
       color: #7596c0;
-      margin-top: 0.15rem;
+      margin-top: 0.3rem;
     }
     .pm-card-score-wrap {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
+      background: rgba(8,13,30,0.7);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 0.85rem;
+      padding: 0.45rem 0.75rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.28);
+      min-width: 66px;
     }
     .pm-card-score {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.55rem;
+      font-size: 1.95rem;
       line-height: 1;
       flex-shrink: 0;
     }
     .pm-card-score-label {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.5rem;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: #7596c0;
-      text-align: right;
+      text-align: center;
+      margin-top: 0.18rem;
     }
     .pm-card-impact {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.68rem;
+      font-size: 0.72rem;
       letter-spacing: 0.03em;
       color: #9fb4d4;
-      line-height: 1.5;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 0.45rem;
+      line-height: 1.55;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 0.7rem;
+      margin-top: 0.1rem;
     }
     .pm-card-actions {
       display: flex;
-      gap: 0.4rem;
-      margin-top: 0.25rem;
+      align-items: stretch;
+      gap: 0.6rem;
+      margin-top: 0.3rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
     }
     .pm-btn-profile {
       flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: linear-gradient(135deg, rgba(192,21,42,0.85), rgba(160,15,30,0.9));
       border: none;
       color: white;
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 700;
-      font-size: 0.6rem;
+      font-size: 0.64rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 0.42rem 0;
-      border-radius: 0.5rem;
+      padding: 0.6rem 0.9rem;
+      min-height: 40px;
+      border-radius: 0.6rem;
       cursor: pointer;
-      transition: background 0.15s, transform 0.12s;
+      box-shadow: 0 4px 14px rgba(192,21,42,0.18);
+      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
     }
-    .pm-btn-profile:hover { background: linear-gradient(135deg, #d91a31, #c0152a); transform: translateY(-1px); }
+    .pm-btn-profile:hover { background: linear-gradient(135deg, #d91a31, #c0152a); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(192,21,42,0.3); }
     .pm-btn-compare {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(30,64,175,0.45);
       border: 1px solid rgba(96,165,250,0.35);
       color: #93c5fd;
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 700;
-      font-size: 0.62rem;
+      font-size: 0.64rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.45rem 0.7rem;
-      border-radius: 0.5rem;
+      padding: 0.6rem 1rem;
+      min-height: 40px;
+      border-radius: 0.6rem;
       cursor: pointer;
       transition: all 0.2s ease;
       white-space: nowrap;
@@ -8046,59 +8070,200 @@
       #relevant-browse-grid .chub-card .flex.items-center.gap-3 > .flex.flex-wrap { flex-basis: 100%; }
     }
 
-    /* ── Promise Tracker / All Politicians — spacing polish ──────────────────
+    /* ── Promise Tracker / All Politicians — PREMIUM & SPACIOUS spacing polish ──────────────────
        Scoped to #myteam-browse-grid ONLY, so the Voter Hub, Relevant to Me,
        team builder, navigation, colors and every other section stay exactly as
-       they were. Goal: give the politician cards, scores and action buttons
-       room to breathe (nothing overlaps or feels crowded) and keep the U.S.
-       Representatives — and every office group — as a clean, clearly nested
-       States → Districts accordion. */
+       they were. Goal: make the politician cards look modern, clean, and luxurious. */
 
-    /* Cards: generous internal breathing room so nothing feels crowded. */
-    #myteam-browse-grid .chub-card { padding: 1.5rem 1.5rem 1.35rem; }
-    #myteam-browse-grid .chub-card > .flex.items-start { gap: 1.15rem; align-items: flex-start; }
-
-    /* Name + status badges row: clear gap so wrapped badges never touch the
-       office line below them. */
-    #myteam-browse-grid .chub-card .flex-1 > .flex.items-center:first-child {
-      row-gap: 0.45rem;
-      column-gap: 0.5rem;
-      margin-bottom: 0.6rem;
+    /* Cards: generous internal padding & premium design */
+    #myteam-browse-grid .chub-card {
+      padding: 1.15rem 1.35rem !important;
+      border-radius: 1.15rem !important;
+      background: linear-gradient(135deg, #0d1526 0%, #0a0f1e 100%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #myteam-browse-grid .chub-card:hover {
+      transform: translateY(-3px) !important;
+      border-color: rgba(96, 165, 250, 0.25) !important;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.1) !important;
     }
 
-    /* Office / state line: a touch of room below it. */
-    #myteam-browse-grid .chub-card .flex-1 > p { margin-bottom: 0.9rem; line-height: 1.4; }
+    /* Politician Photo Container & Spacing */
+    #myteam-browse-grid .chub-photo-wrapper {
+      width: 60px !important;
+      height: 60px !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      flex-shrink: 0 !important;
+      border: 2px solid rgba(255, 255, 255, 0.15) !important;
+      background: rgba(30, 53, 96, 0.5) !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35) !important;
+      transition: border-color 0.2s ease !important;
+    }
+    #myteam-browse-grid .chub-card:has(.myteam-add-btn.on-team) .chub-photo-wrapper {
+      border-color: rgba(74, 222, 128, 0.5) !important;
+    }
+    #myteam-browse-grid .chub-photo-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: top center !important;
+    }
+    #myteam-browse-grid .chub-photo-placeholder {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: linear-gradient(135deg, rgba(30, 53, 96, 0.7), rgba(10, 15, 30, 0.8)) !important;
+    }
 
-    /* Score box + alignment ring + issue tags: roomier, top-aligned and wraps
-       cleanly so the score and tags never collide or overlap, however narrow the
-       card gets. */
-    #myteam-browse-grid .chub-card .flex.items-center.gap-3 {
-      align-items: flex-start;
-      gap: 1rem 0.85rem;
-      margin-bottom: 1.1rem;
-    }
-    #myteam-browse-grid .chub-card .flex.items-center.gap-3 > .flex.flex-wrap {
-      gap: 0.4rem;
-      align-content: flex-start;
-      padding-top: 0.15rem;
+    /* Name is bold and prominent at the top */
+    #myteam-browse-grid .chub-card .font-display {
+      font-size: 1.15rem !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      letter-spacing: 0.025em !important;
+      line-height: 1.2 !important;
     }
 
-    /* Action buttons (Add to Team / Compare / Profile): a clear divider above
-       them, plus equal-height pills with consistent spacing so they never crowd
-       or overlap — however the card wraps. */
-    #myteam-browse-grid .chub-card .flex-1 > div:last-child {
-      margin-top: 1.1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      gap: 0.6rem;
-      row-gap: 0.6rem;
+    /* Office + state line is clean and well-spaced below the name */
+    #myteam-browse-grid .chub-card p.font-condensed {
+      font-size: 0.725rem !important;
+      color: #a4b9dc !important;
+      margin-top: 0.15rem !important;
+      margin-bottom: 0.25rem !important;
+      letter-spacing: 0.03em !important;
     }
-    #myteam-browse-grid .chub-card .flex-1 > div:last-child > button {
-      min-height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
+
+    /* Promise % score is large, eye-catching, and has its own clean background or subtle ring */
+    #myteam-browse-grid .chub-score-container {
+      background: rgba(10, 15, 30, 0.8) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 0.5rem !important;
+      padding: 0.25rem 0.6rem !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      min-width: 72px !important;
+      gap: 0.35rem !important;
+      transition: border-color 0.2s ease !important;
+    }
+    #myteam-browse-grid .chub-score {
+      font-size: 1.7rem !important;
+      font-family: 'Bebas Neue', sans-serif !important;
+      line-height: 1 !important;
+      font-weight: 900 !important;
+    }
+
+    /* Issue tags have comfortable spacing and wrap nicely */
+    #myteam-browse-grid .chub-card .flex.flex-wrap.gap-1.5 {
+      gap: 0.4rem !important;
+    }
+    #myteam-browse-grid .chub-card .flex.flex-wrap.gap-1.5 span {
+      background: rgba(22, 39, 74, 0.4) !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      color: #9fb4d4 !important;
+      font-size: 0.55rem !important;
+      padding: 0.15rem 0.5rem !important;
+      border-radius: 9999px !important;
+      letter-spacing: 0.04em !important;
+      text-transform: uppercase !important;
+      font-family: 'Barlow Condensed', sans-serif !important;
+      font-weight: 600 !important;
+    }
+
+    /* Divider line */
+    #myteam-browse-grid .chub-card-divider {
+      height: 1px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      margin-top: 0.8rem !important;
+      margin-bottom: 0.8rem !important;
+    }
+
+    /* Two Action Buttons in a clean, evenly spaced row with equal height and no crowding */
+    #myteam-browse-grid .chub-card .grid.grid-cols-2 {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 0.6rem !important;
+      width: 100% !important;
+    }
+
+    /* Uniform action button styles */
+    #myteam-browse-grid .chub-card .grid.grid-cols-2 > button {
+      height: 36px !important;
+      min-height: 36px !important;
+      border-radius: 0.5rem !important;
+      font-family: 'Barlow Condensed', sans-serif !important;
+      font-weight: 700 !important;
+      font-size: 0.68rem !important;
+      letter-spacing: 0.04em !important;
+      text-transform: uppercase !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.2s ease !important;
+      cursor: pointer !important;
+      border: 1px solid transparent !important;
+      line-height: 1 !important;
+    }
+
+    /* "VIEW FULL PROFILE" button custom styling */
+    #myteam-browse-grid .chub-view-profile-btn {
+      background: rgba(30, 53, 96, 0.4) !important;
+      border: 1px solid rgba(117, 150, 192, 0.2) !important;
+      color: #9fb4d4 !important;
+    }
+    #myteam-browse-grid .chub-view-profile-btn:hover {
+      background: rgba(30, 53, 96, 0.6) !important;
+      border-color: rgba(117, 150, 192, 0.4) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* "+ COMPARE" button custom styling */
+    #myteam-browse-grid .bp-compare-btn {
+      background: rgba(59, 130, 246, 0.1) !important;
+      border: 1px solid rgba(96, 165, 250, 0.3) !important;
+      color: #93c5fd !important;
+    }
+    #myteam-browse-grid .bp-compare-btn:hover {
+      background: rgba(59, 130, 246, 0.2) !important;
+      border-color: rgba(96, 165, 250, 0.5) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+    }
+    #myteam-browse-grid .bp-compare-btn.added {
+      background: rgba(59, 130, 246, 0.25) !important;
+      border-color: rgba(96, 165, 250, 0.6) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.2) !important;
+    }
+
+    /* "ADD TO TEAM" button custom styling */
+    #myteam-browse-grid .myteam-add-btn {
+      background: rgba(245, 158, 11, 0.1) !important;
+      border: 1px solid rgba(245, 158, 11, 0.3) !important;
+      color: #fbbf24 !important;
+    }
+    #myteam-browse-grid .myteam-add-btn:hover {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-color: rgba(245, 158, 11, 0.5) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15) !important;
+    }
+    #myteam-browse-grid .myteam-add-btn.on-team {
+      background: rgba(74, 222, 128, 0.1) !important;
+      border: 1px solid rgba(74, 222, 128, 0.35) !important;
+      color: #4ade80 !important;
+    }
+    #myteam-browse-grid .myteam-add-btn.on-team:hover {
+      background: rgba(239, 68, 68, 0.12) !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      color: #f87171 !important;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15) !important;
     }
 
     /* ── STATES → DISTRICTS hierarchy — clean colored accordion ──────────────
@@ -10009,7 +10174,7 @@
           </div>
         </div>
 
-        <div id="myteam-browse-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+        <div id="myteam-browse-grid" class="grid grid-cols-1 gap-4 mb-6"></div>
         <div id="myteam-browse-empty" class="text-center py-10 hidden">
           <div class="text-4xl mb-2">🤷‍♂️</div>
           <div class="font-display text-lg text-white">No results found</div>
@@ -22238,6 +22403,74 @@
       '</div>';
     }
 
+    function _renderAllPoliticiansCard(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return '';
+      var sc = d.score;
+      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
+      var scCol = _chubScoreColor(sc);
+      var sel = _cmpSelected.has(pid);
+      var isMy = _myPoliticians.has(pid);
+      var isFav = _favoritePids.has(pid);
+      var isLocal = _pdxIsLocalToUser(pid);
+      var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
+      var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '';
+
+      var photoUrl = BROWSE_PHOTOS[pid] || '';
+      var photoHtml = photoUrl
+        ? '<div class="chub-photo-wrapper"><img src="' + photoUrl + '" alt="' + d.name + '" class="chub-photo-img" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div class=\\\'chub-photo-placeholder\\\' style=\\\'font-size:1.5rem\\\'><span class=\\\'chub-photo-placeholder-icon\\\'>' + d.icon + '</span></div>\'"></div>'
+        : '<div class="chub-photo-wrapper"><div class="chub-photo-placeholder" style="font-size:1.5rem;"><span class="chub-photo-placeholder-icon">' + d.icon + '</span></div></div>';
+      var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:0.9rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
+
+      var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
+
+      var isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
+      var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
+      var cardStyle = isInOffice
+        ? 'border-color:rgba(34,197,94,0.6);box-shadow:0 0 0 1px rgba(34,197,94,0.25),0 0 22px rgba(34,197,94,0.2);'
+        : (isMy ? 'border-color:rgba(74,222,128,0.25);' : '');
+
+      return '<div class="chub-card" data-pid="' + pid + '" style="' + cardStyle + '">' +
+        // Compact horizontal layout container
+        '<div class="flex flex-row items-start gap-4 mb-4">' +
+          // Left side: circular photo
+          '<div class="flex-shrink-0">' +
+            photoHtml +
+          '</div>' +
+          // Right side: name, office, score, tags
+          '<div class="flex-1 min-w-0 flex flex-col gap-1.5">' +
+            // Name line
+            '<div class="flex items-center gap-2 flex-wrap">' +
+              '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
+              window._pdxStatusBadge(d, { size: 'sm' }) +
+              unopposedBadge +
+              localBadge + teamBadge +
+              heartHtml +
+            '</div>' +
+            // Office + state
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium leading-none" style="margin: 0.1rem 0;">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            // Score badges & Issue tags in a nice horizontal block
+            '<div class="flex flex-wrap items-center gap-3 mt-1">' +
+              '<div class="chub-score-container" style="background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-flex;align-items:center;gap:0.35rem;">' +
+                '<span class="chub-score" style="color:' + scCol + ';font-size:1.7rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</span>' +
+                '<span class="font-condensed text-[10px] text-steel-400 tracking-wider uppercase font-bold" style="font-size:0.55rem;letter-spacing:0.05em;line-height:1.1;">Promise<br>Score</span>' +
+              '</div>' +
+              alignHtml +
+              '<div class="flex flex-wrap gap-1">' +
+                d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        // Divider & Buttons row
+        '<div class="chub-card-divider"></div>' +
+        '<div class="grid grid-cols-2 gap-3 w-full">' +
+          '<button onclick="showProfile(\'' + pid + '\')" class="chub-view-profile-btn">VIEW FULL PROFILE</button>' +
+          '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '">' + (sel ? '✓ COMPARING' : '+ COMPARE') + '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
     var _browseScope = 'all';
 
     var _browseGroupState = {};
@@ -22483,9 +22716,9 @@
             html += '</button>';
             html += '<div class="browse-sub-body"><div class="p-2">';
             
-            html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
             _sortInOfficeFirst(distPids).forEach(function(pid) {
-              html += _renderBrowseTeamCard(pid);
+              html += _renderAllPoliticiansCard(pid);
             });
             html += '</div>';
 
@@ -23142,7 +23375,11 @@
         }
         const bpBtn = card.querySelector('.bp-compare-btn');
         if (bpBtn) {
-          bpBtn.textContent = sel ? '✓ Comparing' : '⚖️ Compare';
+          if (card.closest('#myteam-browse-grid')) {
+            bpBtn.textContent = sel ? '✓ COMPARING' : '+ COMPARE';
+          } else {
+            bpBtn.textContent = sel ? '✓ Comparing' : '⚖️ Compare';
+          }
           bpBtn.classList.toggle('added', sel);
         }
       });
