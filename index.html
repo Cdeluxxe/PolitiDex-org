@@ -13,6 +13,37 @@
     }
   };
 
+  var _firestoreLoaded = false;
+  var _domContentLoaded = false;
+
+  function _checkAndTrigger() {
+    if (_firestoreLoaded && _domContentLoaded) {
+      console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
+      // Copy PROFILES to CMP_DATA if CMP_DATA is defined
+      if (typeof CMP_DATA !== 'undefined') {
+        Object.keys(PROFILES).forEach(function(id) {
+          if (!CMP_DATA[id]) {
+            CMP_DATA[id] = PROFILES[id];
+          } else {
+            Object.assign(CMP_DATA[id], PROFILES[id]);
+          }
+        });
+      }
+      // Populate DIR_DATA
+      if (typeof _populateDirData === 'function') {
+        _populateDirData();
+      }
+      // Trigger deferred DOMContentLoaded events
+      _triggerDeferredEvents();
+    }
+  }
+
+  _originalAddEventListener.call(document, 'DOMContentLoaded', function() {
+    console.log("📁 Browser DOMContentLoaded officially fired.");
+    _domContentLoaded = true;
+    _checkAndTrigger();
+  });
+
   function _triggerDeferredEvents() {
     console.log("⚡ Triggering deferred DOMContentLoaded events with dynamic PROFILES data... Total listeners:", _deferredDomEvents.length);
     // 1. Run all of the deferred DOMContentLoaded listeners in order
@@ -56,16 +87,12 @@
     querySnapshot.forEach(function(doc) {
       PROFILES[doc.id] = doc.data();
     });
-    // Populate DIR_DATA
-    if (typeof _populateDirData === 'function') {
-      _populateDirData();
-    }
-    // Trigger deferred DOMContentLoaded events
-    _triggerDeferredEvents();
+    _firestoreLoaded = true;
+    _checkAndTrigger();
   }).catch(function(error) {
     console.error("❌ Error loading politicians from Firestore:", error);
-    // Trigger deferred events anyway to prevent site lockup
-    _triggerDeferredEvents();
+    _firestoreLoaded = true;
+    _checkAndTrigger();
   });
 
   var _fbAuthResolve;
@@ -20351,8 +20378,8 @@
 
     window.setBrowseScope = function(scope) {
       _browseScope = scope;
-      var relevantBtn = document.getElementById('scope-relevant');
-      var allBtn = document.getElementById('scope-all');
+      var relevantBtn = document.getElementById('scope-relevant') || document.getElementById('scope-btn-relevant');
+      var allBtn = document.getElementById('scope-all') || document.getElementById('scope-btn-all');
       if (relevantBtn) relevantBtn.classList.toggle('active', scope === 'relevant');
       if (allBtn) allBtn.classList.toggle('active', scope === 'all');
       myteamBrowseFilter();
@@ -20580,7 +20607,8 @@
       if (search) {
         pids = pids.filter(function(pid) {
           var d = CMP_DATA[pid];
-          var haystack = [d.name, d.office, d.state].concat(d.issues).join(' ').toLowerCase();
+          if (!d) return false;
+          var haystack = [d.name || '', d.office || '', d.state || ''].concat(d.issues || []).join(' ').toLowerCase();
           return haystack.includes(search);
         });
       }
