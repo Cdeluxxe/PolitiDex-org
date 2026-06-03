@@ -10649,13 +10649,42 @@
             <button id="expansion-trigger-btn" onclick="triggerExpansionAISearch()" class="w-full btn-glow relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:16px;letter-spacing:0.12em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
               <span>⚡ Trigger AI Search</span>
             </button>
+
+            <!-- ── OR divider ─────────────────────────────────── -->
+            <div class="flex items-center gap-3 py-1">
+              <span class="flex-1 h-px bg-white/10"></span>
+              <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Or paste a list</span>
+              <span class="flex-1 h-px bg-white/10"></span>
+            </div>
+
+            <!-- ── Paste-a-List Importer ──────────────────────── -->
+            <div class="bg-gradient-to-br from-blue-500/10 to-navy-900/40 border border-blue-500/30 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-blue-200">📋 Paste a List of Politicians</label>
+                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-blue-200/90 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">AI-friendly</span>
+              </div>
+              <p class="text-xs text-steel-300 font-body leading-snug">
+                Paste a list from anywhere — one politician per line. Plain names work, or use a structured row:
+                <span class="block mt-1 font-mono text-[11px] text-blue-200 bg-navy-950/70 border border-white/5 rounded-lg px-2 py-1">Name | District | Office | County | Party</span>
+              </p>
+              <textarea id="expansion-paste-list" placeholder="Jane Doe | District 30 | State Representative | Salt Lake County | Republican
+John Smith | District 12 | State Senator | Utah County | Democrat
+Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-blue-400 focus:outline-none h-32 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span id="expansion-paste-hint" class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Names &amp; pipe-separated rows both supported</span>
+                <button type="button" onclick="document.getElementById('expansion-paste-list').value='';document.getElementById('expansion-paste-hint').textContent='Names &amp; pipe-separated rows both supported';document.getElementById('expansion-paste-hint').className='text-[10px] uppercase tracking-widest font-condensed text-steel-400';" class="text-[11px] font-body text-steel-400 hover:text-crimson-400 transition-colors">🗑️ Clear</button>
+              </div>
+              <button id="expansion-process-list-btn" onclick="processPastedExpansionList()" class="w-full btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:14px;letter-spacing:0.1em;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.22);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+                <span>🔎 Process List &amp; Check Duplicates</span>
+              </button>
+            </div>
           </div>
 
           <!-- AI Suggested Output Column (Right side) -->
           <div class="lg:col-span-7 space-y-6">
             <div>
               <h3 class="font-display text-2xl tracking-wider text-white mb-2">Suggested Discoveries</h3>
-              <p class="text-sm text-steel-300 font-body">Each result is tagged <span class="text-green-300 font-semibold">✦ New</span> or <span class="text-amber-300 font-semibold">⚠ Potential Duplicate</span>. New picks are pre-selected — multi-select and import a whole batch, or toggle on duplicates to review and re-import them too.</p>
+              <p class="text-sm text-steel-300 font-body">Results from an AI search <span class="text-steel-400">or your pasted list</span> appear here, each tagged <span class="text-green-300 font-semibold">✦ New</span> or <span class="text-amber-300 font-semibold">⚠ Potential Duplicate</span>. New picks are pre-selected — multi-select and import a whole batch, or toggle on duplicates to review and re-import them too.</p>
             </div>
 
             <!-- Suggestion Results Display -->
@@ -11839,6 +11868,139 @@
 
       return suggestions;
     }
+
+    // ── Paste-a-List importer ─────────────────────────────────────
+    // Parse a user-pasted list of politicians (plain names, or structured
+    // "Name | District | Office | County | Party" rows) into suggestion
+    // objects, then route them through the same duplicate-aware renderer
+    // the AI search uses — so New/Potential-Duplicate tagging, multi-select,
+    // and batch import all work identically for pasted entries.
+
+    function normalizeExpansionParty(raw) {
+      var v = (raw || '').toLowerCase().trim();
+      if (!v) return '';
+      if (v === 'r' || v.indexOf('rep') === 0 || v.indexOf('gop') !== -1) return 'Republican';
+      if (v === 'd' || v.indexOf('dem') === 0) return 'Democrat';
+      if (v === 'i' || v.indexOf('ind') === 0 || v.indexOf('lib') === 0 || v.indexOf('const') === 0 || v.indexOf('green') === 0) return 'Independent';
+      // Already a full, capitalized party name.
+      return raw.trim().charAt(0).toUpperCase() + raw.trim().slice(1);
+    }
+
+    // Turn one pasted line into a suggestion object (or null if unusable).
+    function parseExpansionListLine(line, index, level) {
+      // Drop common list decorations: "1. ", "- ", "* ", "• ", numbering.
+      var clean = (line || '').replace(/^\s*(?:[-*•]|\d+[.)])\s+/, '').trim();
+      if (!clean) return null;
+
+      var name = '', district = '', office = '', county = '', party = '';
+      // Structured rows use "|" or tab delimiters; commas are left alone so
+      // names like "Smith, Jr." aren't split apart.
+      var delim = clean.indexOf('|') !== -1 ? '|' : (clean.indexOf('\t') !== -1 ? '\t' : null);
+
+      if (delim) {
+        var parts = clean.split(delim).map(function(p) { return p.trim(); });
+        name = parts[0] || '';
+        district = parts[1] || '';
+        office = parts[2] || '';
+        county = parts[3] || '';
+        party = parts[4] || '';
+      } else {
+        name = clean;
+      }
+
+      if (!name) return null;
+
+      var isCandidateLevel = (level === 'utah-cand-2026') || /candidate|2026/i.test(office);
+      if (!office) office = isCandidateLevel ? 'Candidate (Utah)' : 'State Legislator (Utah)';
+      var locality = district || county || 'Utah';
+      if (district && county && district.indexOf(county) === -1) locality = district + ' (' + county + ')';
+
+      var normalizedParty = normalizeExpansionParty(party) || 'Independent';
+      var icon = isCandidateLevel ? '🗳️' : '🏛';
+
+      var id = 'pasted_' + index + '_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+      return {
+        id: id,
+        name: name,
+        office: office,
+        state: 'Utah',
+        party: normalizedParty,
+        district: locality,
+        why: 'Added from a pasted list. Office: ' + office + (locality ? ' · ' + locality : '') + '. Review the details and import to PolitiDex.',
+        score: null, kept: 0, broken: 0, pending: 0,
+        icon: icon, tier: 'gray',
+        keyIssues: [],
+        bio: name + (office ? ' — ' + office : '') + (locality ? ', ' + locality : '') + '.',
+        photo: ''
+      };
+    }
+
+    window.processPastedExpansionList = function() {
+      var ta = document.getElementById('expansion-paste-list');
+      var hint = document.getElementById('expansion-paste-hint');
+      var btn = document.getElementById('expansion-process-list-btn');
+      if (!ta) return;
+
+      var raw = ta.value || '';
+      var lines = raw.split(/\r?\n/);
+      var level = document.getElementById('expansion-level').value;
+
+      var parsed = [], usedIds = {};
+      lines.forEach(function(line, i) {
+        var item = parseExpansionListLine(line, i, level);
+        if (!item) return;
+        // Keep ids unique even if two pasted rows share a name.
+        var baseId = item.id, n = 2;
+        while (usedIds[item.id]) { item.id = baseId + '_' + n; n++; }
+        usedIds[item.id] = true;
+        parsed.push(item);
+      });
+
+      if (!parsed.length) {
+        if (hint) {
+          hint.textContent = 'Nothing to process — paste at least one name first.';
+          hint.className = 'text-[10px] uppercase tracking-widest font-condensed text-amber-300';
+        }
+        return;
+      }
+
+      // Brief processing feedback so the duplicate check feels responsive.
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; btn.innerHTML = '<span>⏳ Checking ' + parsed.length + ' against database...</span>'; }
+
+      setTimeout(function() {
+        // Reuse the AI-search renderer: it tags New vs Potential Duplicate,
+        // resets the bulk toolbar, and reveals the results panel.
+        renderExpansionResults(parsed, level);
+
+        // Auto-reveal duplicates so the user immediately sees flagged matches.
+        var newCount = parsed.filter(function(s) { return !isSuggestionInDb(s); }).length;
+        var dupCount = parsed.length - newCount;
+        var showDups = document.getElementById('expansion-show-dups');
+        var list = document.getElementById('expansion-results-list');
+        if (dupCount > 0 && showDups && list) {
+          showDups.checked = true;
+          list.classList.add('show-dups');
+          window.updateExpansionSelectionCount();
+        }
+
+        if (hint) {
+          hint.textContent = 'Processed ' + parsed.length + ' · ' + newCount + ' new · ' + dupCount + ' possible duplicate' + (dupCount === 1 ? '' : 's');
+          hint.className = 'text-[10px] uppercase tracking-widest font-condensed text-blue-200';
+        }
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = '<span>🔎 Process List &amp; Check Duplicates</span>'; }
+
+        if (typeof window._showToast === 'function') {
+          window._showToast('Processed ' + parsed.length + ' pasted ' + (parsed.length === 1 ? 'entry' : 'entries') + ' — ' + newCount + ' new, ' + dupCount + ' possible duplicate' + (dupCount === 1 ? '' : 's') + '. Review & import below. 📋');
+        }
+
+        // Scroll the results into view on smaller screens.
+        var container = document.getElementById('expansion-results-container');
+        if (container && container.scrollIntoView) {
+          try { container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { container.scrollIntoView(); }
+        }
+      }, 350);
+    };
 
     // Run stats immediately when script loads
     setTimeout(window.updateExpansionStats, 100);
