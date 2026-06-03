@@ -10374,6 +10374,19 @@
 
       <!-- ── Interactive Expansion Tool Workspace ────────────── -->
       <div class="bg-navy-800/60 border-2 border-white/10 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 40px rgba(0,0,0,0.5);">
+
+        <!-- ⚡ Bulk Import Mode banner (admin-focused) -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 bg-gradient-to-r from-crimson-950/70 via-navy-900/70 to-navy-900/70 border border-crimson-500/40 rounded-2xl px-5 py-3.5 mb-8" style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);">
+          <div class="flex items-center gap-3 flex-1">
+            <span class="text-2xl flex-shrink-0">⚡</span>
+            <div>
+              <p class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-300">Bulk Import Mode</p>
+              <p class="text-xs text-steel-300 font-body leading-snug">For adding many politicians quickly — search, multi-select, and import to the database in one batch.</p>
+            </div>
+          </div>
+          <span class="self-start sm:self-center font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300 bg-gold-500/10 border border-gold-500/30 rounded-full px-3 py-1 whitespace-nowrap">🛠 Admin Tool</span>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           <!-- Control Panel Column (Left side) -->
@@ -10434,12 +10447,32 @@
 
               <!-- Results List (hidden by default) -->
               <div id="expansion-results-container" class="hidden w-full space-y-4">
-                <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-2">
+
+                <!-- Count + Clear row -->
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
                   <span id="expansion-results-count-label" class="font-condensed text-xs font-bold text-steel-400 uppercase tracking-widest">0 suggestions found</span>
                   <button onclick="clearExpansionResults()" class="font-condensed text-xs text-steel-400 hover:text-crimson-400 flex items-center gap-1 transition-colors">
                     <span>🗑️ Clear</span>
                   </button>
                 </div>
+
+                <!-- Bulk action toolbar -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between bg-navy-900/70 border border-white/10 rounded-xl px-4 py-3">
+                  <div class="flex items-center gap-4 flex-wrap">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                      <input type="checkbox" id="expansion-select-all" onchange="toggleExpansionSelectAll(this)" class="w-4 h-4 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer">
+                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-300">Select All</span>
+                    </label>
+                    <span id="expansion-selection-counter" class="font-condensed text-xs font-bold text-gold-400 tracking-wide">0 selected out of 0 suggestions</span>
+                  </div>
+                  <button id="expansion-bulk-import-btn" onclick="bulkImportSelectedPoliticians()" disabled class="btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 disabled:cursor-not-allowed text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95" style="font-size:13px;letter-spacing:0.1em;padding:11px 18px;border:1.5px solid rgba(255,255,255,0.22);opacity:0.5;white-space:nowrap;">
+                    <span id="expansion-bulk-import-label">📥 Import Selected to Database</span>
+                  </button>
+                </div>
+
+                <!-- Import feedback (hidden until an import runs) -->
+                <div id="expansion-bulk-feedback" class="hidden text-sm font-body rounded-xl px-4 py-3 border"></div>
+
                 <div id="expansion-results-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
                   <!-- Dynamic suggestion cards injected here -->
                 </div>
@@ -10570,9 +10603,106 @@
           score: 75, kept: 12, broken: 3, pending: 8, icon: "🏛", tier: "silver",
           keyIssues: ["Family Support Policies", "Climate Consensus", "Affordable Housing"],
           bio: "Becky Edwards is a former Utah State Representative known for her moderate, collaborative approach. She is a top-tier contender for congressional seats in the 2026 elections."
+        },
+        {
+          id: "maloy",
+          name: "Celeste Maloy",
+          office: "Candidate for Congress (CD-2)",
+          state: "Utah",
+          party: "Republican",
+          district: "Congressional District 2",
+          why: "Incumbent congresswoman expected to defend Utah's 2nd District in 2026. Background in natural resources and rural water law.",
+          score: 73, kept: 10, broken: 2, pending: 9, icon: "🦅", tier: "silver",
+          keyIssues: ["Public Lands", "Water Policy", "Rural Communities"],
+          bio: "Celeste Maloy is an attorney and member of Congress representing Utah's 2nd Congressional District, with a focus on natural resource and public-land issues heading into the 2026 cycle."
+        },
+        {
+          id: "blake_moore",
+          name: "Blake Moore",
+          office: "Candidate for Congress (CD-1)",
+          state: "Utah",
+          party: "Republican",
+          district: "Congressional District 1",
+          why: "Incumbent representative for northern Utah seeking re-election in 2026. Active on budget and fiscal-policy leadership.",
+          score: 76, kept: 14, broken: 3, pending: 7, icon: "🦅", tier: "silver",
+          keyIssues: ["Fiscal Responsibility", "National Defense", "Economic Growth"],
+          bio: "Blake Moore represents Utah's 1st Congressional District and serves in House Republican leadership, making him a leading 2026 federal candidate for northern Utah."
+        },
+        {
+          id: "burgess_owens",
+          name: "Burgess Owens",
+          office: "Candidate for Congress (CD-4)",
+          state: "Utah",
+          party: "Republican",
+          district: "Congressional District 4",
+          why: "Incumbent congressman and former NFL athlete defending a competitive Salt Lake-area seat in 2026.",
+          score: 70, kept: 11, broken: 4, pending: 8, icon: "🦅", tier: "silver",
+          keyIssues: ["Education Choice", "Small Business", "Public Safety"],
+          bio: "Burgess Owens represents Utah's 4th Congressional District, a battleground seat that makes him a closely watched 2026 candidate."
+        },
+        {
+          id: "glenn_wright",
+          name: "Glenn J. Wright",
+          office: "Candidate for State Senate",
+          state: "Utah",
+          party: "Democrat",
+          district: "Summit County",
+          why: "Active county-level Democratic figure organizing for the 2026 cycle on growth-management and conservation issues.",
+          score: 68, kept: 7, broken: 2, pending: 9, icon: "🏛", tier: "gray",
+          keyIssues: ["Growth Management", "Conservation", "Local Governance"],
+          bio: "Glenn J. Wright is a Summit County elected official and Democratic organizer focused on managed growth and open-space protection ahead of 2026."
         }
       ]
     };
+
+    // ── Extended bulk discovery catalog (appended for Bulk Import Mode) ──
+    // These real Utah officeholders broaden each AI search so the tool can
+    // surface dozens of suggestions at once for fast bulk importing.
+    var EXPANSION_BULK_EXTRA = {
+      "utah-leg": [
+        { id: "mccay", name: "Daniel McCay", office: "State Senator (Dist. 11)", state: "Utah", party: "Republican", district: "District 11 (Salt Lake County)", why: "Influential tax and revenue committee leader shaping statewide fiscal policy.", score: 72, kept: 20, broken: 6, pending: 4, icon: "🏛", tier: "silver", keyIssues: ["Tax Policy", "Economic Development", "Education Funding"], bio: "Daniel McCay is a Republican state senator from Salt Lake County known for his work on tax and revenue legislation." },
+        { id: "cullimore", name: "Kirk Cullimore", office: "State Senator (Dist. 19)", state: "Utah", party: "Republican", district: "District 19 (Salt Lake County)", why: "Senate Majority Whip active on consumer protection and judiciary issues.", score: 70, kept: 18, broken: 5, pending: 4, icon: "🏛", tier: "silver", keyIssues: ["Consumer Protection", "Judiciary", "Privacy"], bio: "Kirk Cullimore is an attorney and Republican member of the Utah Senate serving in leadership." },
+        { id: "fillmore", name: "Lincoln Fillmore", office: "State Senator (Dist. 17)", state: "Utah", party: "Republican", district: "District 17 (Salt Lake County)", why: "Prominent voice on education reform, school choice, and appropriations.", score: 71, kept: 19, broken: 5, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Education Reform", "School Choice", "Appropriations"], bio: "Lincoln Fillmore is a Republican state senator focused on education policy and budget appropriations." },
+        { id: "harper", name: "Wayne Harper", office: "State Senator (Dist. 16)", state: "Utah", party: "Republican", district: "District 16 (Salt Lake County)", why: "Veteran legislator with deep expertise in transportation and taxation.", score: 69, kept: 24, broken: 7, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Transportation", "Taxation", "Infrastructure"], bio: "Wayne Harper is a long-serving Republican legislator known for transportation and tax policy work." },
+        { id: "stevenson", name: "Jerry Stevenson", office: "State Senator (Dist. 6)", state: "Utah", party: "Republican", district: "District 6 (Davis County)", why: "Senior appropriations leader influencing the state budget process.", score: 70, kept: 23, broken: 6, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["State Budget", "Appropriations", "Economic Development"], bio: "Jerry Stevenson is a Republican state senator from Davis County and a key figure in budget appropriations." },
+        { id: "millner", name: "Ann Millner", office: "State Senator (Dist. 5)", state: "Utah", party: "Republican", district: "District 5 (Weber County)", why: "Former university president and leading voice on higher education and workforce.", score: 74, kept: 21, broken: 4, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Higher Education", "Workforce Development", "Healthcare"], bio: "Ann Millner is a Republican state senator and former Weber State University president focused on education and workforce policy." },
+        { id: "sandall_s", name: "Scott Sandall", office: "State Senator (Dist. 1)", state: "Utah", party: "Republican", district: "District 1 (Box Elder, Cache, Tooele)", why: "Rural agriculture and water-policy leader in the Senate majority.", score: 68, kept: 20, broken: 6, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Agriculture", "Water Rights", "Rural Development"], bio: "Scott Sandall is a farmer and Republican state senator representing rural northern Utah." },
+        { id: "blouin", name: "Nate Blouin", office: "State Senator (Dist. 13)", state: "Utah", party: "Democrat", district: "District 13 (Salt Lake County)", why: "Progressive senator advocating clean energy and renter protections.", score: 80, kept: 9, broken: 2, pending: 6, icon: "🏛", tier: "silver", keyIssues: ["Clean Energy", "Housing", "Air Quality"], bio: "Nate Blouin is a Democratic state senator from Salt Lake County focused on energy and housing policy." },
+        { id: "plumb", name: "Jennifer Plumb", office: "State Senator (Dist. 14)", state: "Utah", party: "Democrat", district: "District 14 (Salt Lake County)", why: "Physician-legislator known for public health and overdose-prevention work.", score: 83, kept: 11, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Public Health", "Mental Health", "Overdose Prevention"], bio: "Jennifer Plumb is a pediatrician and Democratic state senator recognized for public-health advocacy." },
+        { id: "riebe", name: "Kathleen Riebe", office: "State Senator (Dist. 15)", state: "Utah", party: "Democrat", district: "District 15 (Salt Lake County)", why: "Educator and Senate Democrat focused on public-education funding.", score: 81, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Teacher Pay", "Student Welfare"], bio: "Kathleen Riebe is a teacher and Democratic state senator advocating for public schools." },
+        { id: "grover", name: "Keith Grover", office: "State Senator (Dist. 22)", state: "Utah", party: "Republican", district: "District 22 (Utah County)", why: "Education committee leader from Utah County active on school policy.", score: 67, kept: 17, broken: 6, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Education", "Elections", "Public Safety"], bio: "Keith Grover is a Republican state senator from Provo focused on education and election policy." },
+        { id: "mckell", name: "Mike McKell", office: "State Senator (Dist. 25)", state: "Utah", party: "Republican", district: "District 25 (Utah County)", why: "Attorney-legislator influential on social media, judiciary, and civil law.", score: 70, kept: 18, broken: 5, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Tech Regulation", "Judiciary", "Civil Law"], bio: "Mike McKell is an attorney and Republican state senator from Utah County known for tech and judiciary legislation." },
+        { id: "val_peterson", name: "Val Peterson", office: "State Representative (Dist. 56)", state: "Utah", party: "Republican", district: "District 56 (Utah County)", why: "Veteran House appropriations leader and higher-education advocate.", score: 68, kept: 22, broken: 7, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Higher Education", "Appropriations", "Economic Development"], bio: "Val Peterson is a Republican state representative from Orem with a focus on budget and higher education." },
+        { id: "eliason", name: "Steve Eliason", office: "State Representative (Dist. 45)", state: "Utah", party: "Republican", district: "District 45 (Salt Lake County)", why: "Leading legislator on mental-health and suicide-prevention policy.", score: 75, kept: 20, broken: 4, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Mental Health", "Suicide Prevention", "Public Safety"], bio: "Steve Eliason is a Republican state representative recognized for mental-health and suicide-prevention legislation." },
+        { id: "teuscher", name: "Jordan Teuscher", office: "State Representative (Dist. 42)", state: "Utah", party: "Republican", district: "District 42 (Salt Lake County)", why: "Rising House leader active on business law and education funding.", score: 69, kept: 16, broken: 5, pending: 5, icon: "🏛", tier: "gray", keyIssues: ["Business Law", "Education Funding", "Housing"], bio: "Jordan Teuscher is an attorney and Republican state representative in House leadership." },
+        { id: "pierucci", name: "Candice Pierucci", office: "State Representative (Dist. 49)", state: "Utah", party: "Republican", district: "District 49 (Salt Lake/Utah County)", why: "Young conservative leader focused on education and child safety online.", score: 70, kept: 15, broken: 4, pending: 6, icon: "🏛", tier: "silver", keyIssues: ["Education", "Online Child Safety", "Families"], bio: "Candice Pierucci is a Republican state representative known for education and child-safety legislation." },
+        { id: "hollins", name: "Sandra Hollins", office: "State Representative (Dist. 24)", state: "Utah", party: "Democrat", district: "District 24 (Salt Lake County)", why: "First Black woman in the Utah Legislature; leader on homelessness and equity.", score: 84, kept: 12, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Homelessness", "Racial Equity", "Social Services"], bio: "Sandra Hollins is a social worker and Democratic state representative representing west Salt Lake City." },
+        { id: "ray_ward", name: "Ray Ward", office: "State Representative (Dist. 19)", state: "Utah", party: "Republican", district: "District 19 (Davis County)", why: "Physician-legislator focused on healthcare access and tax fairness.", score: 73, kept: 18, broken: 4, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Healthcare Access", "Tax Fairness", "Public Health"], bio: "Ray Ward is a family physician and Republican state representative from Bountiful focused on healthcare policy." },
+        { id: "clancy", name: "Tyler Clancy", office: "State Representative (Dist. 60)", state: "Utah", party: "Republican", district: "District 60 (Utah County)", why: "Police-officer legislator working on homelessness and public safety reform.", score: 71, kept: 9, broken: 2, pending: 7, icon: "🏛", tier: "gray", keyIssues: ["Public Safety", "Homelessness", "Mental Health"], bio: "Tyler Clancy is a police officer and Republican state representative from Provo focused on public safety." },
+        { id: "bennion", name: "Gay Lynn Bennion", office: "State Representative (Dist. 40)", state: "Utah", party: "Democrat", district: "District 40 (Salt Lake County)", why: "Educator and House Democrat advocating for public education and air quality.", score: 80, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Air Quality", "Healthcare"], bio: "Gay Lynn Bennion is an educator and Democratic state representative from Cottonwood Heights." },
+        { id: "spackman_moss", name: "Carol Spackman Moss", office: "State Representative (Dist. 37)", state: "Utah", party: "Democrat", district: "District 37 (Salt Lake County)", why: "Veteran educator-legislator and longtime advocate for teachers and students.", score: 79, kept: 14, broken: 3, pending: 4, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Teacher Support", "Arts Funding"], bio: "Carol Spackman Moss is a retired teacher and long-serving Democratic state representative from Holladay." },
+        { id: "snider", name: "Casey Snider", office: "State Representative (Dist. 5)", state: "Utah", party: "Republican", district: "District 5 (Cache County)", why: "Natural-resources leader from northern Utah focused on land and wildlife policy.", score: 69, kept: 16, broken: 5, pending: 5, icon: "🏛", tier: "gray", keyIssues: ["Natural Resources", "Wildlife", "Rural Issues"], bio: "Casey Snider is a Republican state representative from Cache County focused on natural-resource policy." }
+      ],
+      "utah-cand-2026": [
+        { id: "mike_kennedy", name: "Mike Kennedy", office: "Candidate for Congress (CD-3)", state: "Utah", party: "Republican", district: "Congressional District 3", why: "Physician and former state senator now in Congress, a leading 2026 federal candidate.", score: 72, kept: 12, broken: 3, pending: 8, icon: "🦅", tier: "silver", keyIssues: ["Healthcare", "Fiscal Policy", "Family Values"], bio: "Mike Kennedy is a physician, attorney, and member of Congress representing Utah's 3rd District heading into 2026." },
+        { id: "darlene_mcdonald", name: "Darlene McDonald", office: "Candidate for Congress", state: "Utah", party: "Democrat", district: "Congressional District 4", why: "Community advocate and repeat Democratic congressional candidate active for 2026.", score: 70, kept: 6, broken: 1, pending: 10, icon: "🗳️", tier: "gray", keyIssues: ["Economic Justice", "Voting Rights", "Healthcare"], bio: "Darlene McDonald is a writer and community organizer running as a Democrat for Utah congressional office in 2026." },
+        { id: "nate_blouin_cand", name: "Nate Blouin", office: "Candidate for Re-election (Senate Dist. 13)", state: "Utah", party: "Democrat", district: "District 13 (Salt Lake County)", why: "Incumbent progressive senator campaigning for re-election in 2026 on clean energy.", score: 79, kept: 9, broken: 2, pending: 6, icon: "🗳️", tier: "silver", keyIssues: ["Clean Energy", "Housing", "Air Quality"], bio: "Nate Blouin is a Democratic state senator seeking re-election in 2026 with a clean-energy platform." }
+      ]
+    };
+
+    // Merge the extended catalog into the primary suggestion sets.
+    (function mergeBulkExtra() {
+      try {
+        Object.keys(EXPANSION_BULK_EXTRA).forEach(function(lvl) {
+          if (!Array.isArray(EXPANSION_SUGGESTIONS[lvl])) EXPANSION_SUGGESTIONS[lvl] = [];
+          var existingIds = {};
+          EXPANSION_SUGGESTIONS[lvl].forEach(function(it) { existingIds[it.id] = true; });
+          EXPANSION_BULK_EXTRA[lvl].forEach(function(it) {
+            if (!existingIds[it.id]) EXPANSION_SUGGESTIONS[lvl].push(it);
+          });
+        });
+      } catch (e) { console.warn('Bulk catalog merge skipped:', e); }
+    })();
 
     var utahFirstNames = ["Spencer", "Brad", "Deidre", "Derek", "Stuart", "Ann", "Nathan", "Aimee", "Mark", "Curt", "Todd", "Jefferson", "Lois", "Genevieve", "Gail", "Lowell", "LaVarr"];
     var utahLastNames = ["Huntsman", "Romney", "Oveson", "Chaffetz", "Love", "McAdams", "Herbert", "Bangerter", "Christofferson", "Sandall", "Manning", "Olsen", "Hughes", "Niederhauser", "Anderegg"];
@@ -10714,6 +10844,13 @@
           document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
         }
 
+        // Reset bulk-selection UI for the freshly rendered result set.
+        var _fb = document.getElementById('expansion-bulk-feedback');
+        if (_fb) _fb.classList.add('hidden');
+        var _sa = document.getElementById('expansion-select-all');
+        if (_sa) { _sa.checked = false; _sa.indeterminate = false; }
+        window.updateExpansionSelectionCount();
+
         loader.classList.add('hidden');
         container.classList.remove('hidden');
 
@@ -10793,6 +10930,13 @@
           window._showToast("Loaded suggestions from safe offline local catalog! 🇺🇸");
         }
 
+        // Reset bulk-selection UI for the freshly rendered result set.
+        var _fb = document.getElementById('expansion-bulk-feedback');
+        if (_fb) _fb.classList.add('hidden');
+        var _sa = document.getElementById('expansion-select-all');
+        if (_sa) { _sa.checked = false; _sa.indeterminate = false; }
+        window.updateExpansionSelectionCount();
+
         loader.classList.add('hidden');
         container.classList.remove('hidden');
 
@@ -10805,6 +10949,201 @@
     window.clearExpansionResults = function() {
       document.getElementById('expansion-results-container').classList.add('hidden');
       document.getElementById('expansion-idle').classList.remove('hidden');
+    };
+
+    // ── Bulk selection + bulk import helpers ──────────────────────
+    window.updateExpansionSelectionCount = function() {
+      var boxes = document.querySelectorAll('.expansion-select-checkbox');
+      var total = boxes.length;
+      var selected = 0;
+      boxes.forEach(function(b) { if (b.checked) selected++; });
+
+      var counter = document.getElementById('expansion-selection-counter');
+      if (counter) {
+        counter.textContent = selected + ' selected out of ' + total + ' suggestion' + (total === 1 ? '' : 's');
+      }
+
+      var bulkBtn = document.getElementById('expansion-bulk-import-btn');
+      var bulkLabel = document.getElementById('expansion-bulk-import-label');
+      if (bulkBtn) {
+        bulkBtn.disabled = selected === 0;
+        bulkBtn.style.opacity = selected === 0 ? '0.5' : '1';
+      }
+      if (bulkLabel) {
+        bulkLabel.textContent = selected > 0 ? ('📥 Import Selected (' + selected + ')') : '📥 Import Selected to Database';
+      }
+
+      var selectAll = document.getElementById('expansion-select-all');
+      if (selectAll) {
+        selectAll.checked = total > 0 && selected === total;
+        selectAll.indeterminate = selected > 0 && selected < total;
+      }
+    };
+
+    window.toggleExpansionSelectAll = function(source) {
+      var check = source ? !!source.checked : true;
+      document.querySelectorAll('.expansion-select-checkbox').forEach(function(b) { b.checked = check; });
+      window.updateExpansionSelectionCount();
+    };
+
+    // Build a Firestore-ready record from a raw suggestion object.
+    function buildExpansionImportData(pData) {
+      var data = {
+        name: pData.name,
+        office: pData.office,
+        state: pData.state || "Utah",
+        party: pData.party,
+        score: pData.score !== undefined ? pData.score : null,
+        kept: pData.kept !== undefined ? pData.kept : 0,
+        broken: pData.broken !== undefined ? pData.broken : 0,
+        pending: pData.pending !== undefined ? pData.pending : 0,
+        icon: pData.icon || "🏛",
+        tier: pData.tier || "gray",
+        keyIssues: pData.keyIssues || [],
+        bio: pData.bio || '',
+        photo: pData.photo || ''
+      };
+      data.stances = pData.stances || {
+        border: 'Stance on border security',
+        debt: 'Stance on debt and fiscal policy',
+        gun: 'Stance on gun rights and safety legislation',
+        termLimits: 'Stance on legislative term limits',
+        campaign: 'Stance on campaign finance reform',
+        dataCenters: 'No stated position',
+        healthcare: 'Stance on healthcare policies',
+        audit: 'Stance on Federal Reserve audit bills'
+      };
+      return data;
+    }
+
+    // Locate a suggestion's raw data by id (live search results first, then catalog).
+    function lookupSuggestionById(id) {
+      if (_customSuggestionsMap[id]) return _customSuggestionsMap[id];
+      var levels = Object.keys(EXPANSION_SUGGESTIONS);
+      for (var i = 0; i < levels.length; i++) {
+        var found = (EXPANSION_SUGGESTIONS[levels[i]] || []).find(function(it) { return it.id === id; });
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function renderExpansionBulkFeedback(importedCount, skipped, isError) {
+      var fb = document.getElementById('expansion-bulk-feedback');
+      if (!fb) return;
+      fb.classList.remove('hidden');
+
+      if (isError) {
+        fb.className = 'text-sm font-body rounded-xl px-4 py-3 border bg-red-950/50 border-red-500/40 text-red-300';
+        fb.innerHTML = '❌ ' + isError;
+        return;
+      }
+
+      var skippedCount = skipped.length;
+      var tone = importedCount > 0
+        ? 'bg-green-950/50 border-green-500/40 text-green-300'
+        : 'bg-amber-950/50 border-amber-500/40 text-amber-300';
+      fb.className = 'text-sm font-body rounded-xl px-4 py-3 border ' + tone;
+
+      var msg = '<strong>' + (importedCount > 0 ? '✓ ' : '⚠️ ') +
+        'Successfully imported ' + importedCount + ' politician' + (importedCount === 1 ? '' : 's') + '.</strong>';
+      if (skippedCount > 0) {
+        msg += ' ' + skippedCount + ' skipped (duplicate' + (skippedCount === 1 ? '' : 's') + ').';
+        var names = skipped.map(function(s) { return s.name + ' — ' + s.reason; });
+        msg += '<div class="mt-2 text-xs text-steel-300 leading-relaxed"><span class="uppercase tracking-widest text-steel-400 font-condensed">Skipped:</span> ' +
+          names.join('; ') + '</div>';
+      }
+      fb.innerHTML = msg;
+    }
+
+    window.bulkImportSelectedPoliticians = function() {
+      var checked = Array.prototype.slice.call(document.querySelectorAll('.expansion-select-checkbox:checked'));
+      if (!checked.length) return;
+
+      var bulkBtn = document.getElementById('expansion-bulk-import-btn');
+      var bulkLabel = document.getElementById('expansion-bulk-import-label');
+
+      // Build duplicate-detection sets from existing Firestore-backed profiles.
+      var existingNames = {};
+      var existingIds = {};
+      if (typeof PROFILES !== 'undefined') {
+        Object.keys(PROFILES).forEach(function(k) {
+          existingIds[k] = true;
+          if (PROFILES[k] && PROFILES[k].name) {
+            existingNames[PROFILES[k].name.toLowerCase().trim()] = true;
+          }
+        });
+      }
+
+      var toImport = [];
+      var skipped = [];
+      var seenInBatch = {};
+
+      checked.forEach(function(box) {
+        var id = box.getAttribute('data-id');
+        var pData = lookupSuggestionById(id);
+        if (!pData) { skipped.push({ name: id, reason: 'data not found' }); return; }
+
+        var nameKey = (pData.name || '').toLowerCase().trim();
+        var cleanId = (pData.name || id).toLowerCase().replace(/[^a-z0-9]+/g, '_') || id;
+
+        if (existingNames[nameKey] || existingIds[cleanId]) {
+          skipped.push({ name: pData.name, reason: 'already in database' });
+          return;
+        }
+        if (seenInBatch[cleanId]) {
+          skipped.push({ name: pData.name, reason: 'duplicate in selection' });
+          return;
+        }
+        seenInBatch[cleanId] = true;
+        toImport.push({ id: id, cleanId: cleanId, data: buildExpansionImportData(pData) });
+      });
+
+      if (!toImport.length) {
+        renderExpansionBulkFeedback(0, skipped, false);
+        return;
+      }
+
+      if (bulkBtn) { bulkBtn.disabled = true; bulkBtn.style.opacity = '0.7'; }
+      if (bulkLabel) { bulkLabel.textContent = '⏳ Importing ' + toImport.length + '...'; }
+
+      // Single atomic Firestore batch write for all selected politicians.
+      var batch = db.batch();
+      toImport.forEach(function(item) {
+        batch.set(db.collection("politicians").doc(item.cleanId), item.data);
+      });
+
+      batch.commit().then(function() {
+        toImport.forEach(function(item) {
+          PROFILES[item.cleanId] = item.data;
+          if (typeof CMP_DATA !== 'undefined') { CMP_DATA[item.cleanId] = item.data; }
+          var card = document.getElementById('card-' + item.id);
+          if (card) { card.parentNode && card.parentNode.removeChild(card); }
+        });
+
+        if (typeof _populateDirData === 'function') { _populateDirData(); }
+        window.updateExpansionStats();
+
+        // Refresh the "N Suggestions Found" label and selection counter.
+        var resultsList = document.getElementById('expansion-results-list');
+        var remaining = resultsList ? resultsList.children.length : 0;
+        var countLabel = document.getElementById('expansion-results-count-label');
+        if (countLabel) { countLabel.textContent = remaining + ' Suggestions Found'; }
+        window.updateExpansionSelectionCount();
+
+        renderExpansionBulkFeedback(toImport.length, skipped, false);
+
+        if (typeof window._showToast === 'function') {
+          window._showToast('Bulk import complete — added ' + toImport.length + ' politician' + (toImport.length === 1 ? '' : 's') + '! 🇺🇸');
+        }
+
+        if (bulkLabel) { bulkLabel.textContent = '📥 Import Selected to Database'; }
+        if (bulkBtn) { bulkBtn.style.opacity = '1'; }
+      }).catch(function(error) {
+        console.error("Bulk import failed:", error);
+        renderExpansionBulkFeedback(0, skipped, 'Bulk import failed: ' + (error && error.message ? error.message : 'unknown error'));
+        if (bulkBtn) { bulkBtn.disabled = false; bulkBtn.style.opacity = '1'; }
+        if (bulkLabel) { bulkLabel.textContent = '📥 Import Selected to Database'; }
+      });
     };
 
     window.toggleEditForm = function(id) {
@@ -10931,6 +11270,9 @@
                 clearExpansionResults();
               }
             }
+            if (typeof window.updateExpansionSelectionCount === 'function') {
+              window.updateExpansionSelectionCount();
+            }
           }, 400);
         }
 
@@ -10973,27 +11315,38 @@
           ✏️ Edit Details
         </button>`;
 
+      var checkboxHtml = isAlreadyInDb ?
+        `<div class="flex-shrink-0 mt-1" title="Already in database">
+          <div class="w-5 h-5 rounded border border-green-500/50 bg-green-950/40 flex items-center justify-center text-green-400 text-xs">✓</div>
+        </div>` :
+        `<label class="flex-shrink-0 mt-1 cursor-pointer" title="Select for bulk import">
+          <input type="checkbox" data-id="${suggestion.id}" class="expansion-select-checkbox w-5 h-5 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer" checked onchange="updateExpansionSelectionCount()">
+        </label>`;
+
       return `
         <div id="card-${suggestion.id}" class="bg-navy-900/90 border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/20 transition-all">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="text-2xl">${suggestion.icon || '🏛'}</span>
-                <h4 class="font-display text-xl tracking-wider text-white">${suggestion.name}</h4>
-                <span class="font-condensed text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${partyColor}">
-                  ${suggestion.party}
-                </span>
-                <span class="text-xs text-steel-300 font-semibold uppercase font-condensed tracking-wider bg-navy-800/80 px-2.5 py-0.5 rounded border border-white/5">
-                  ${suggestion.office}
-                </span>
+          <div class="flex items-start gap-3">
+            ${checkboxHtml}
+            <div class="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <span class="text-2xl">${suggestion.icon || '🏛'}</span>
+                  <h4 class="font-display text-xl tracking-wider text-white">${suggestion.name}</h4>
+                  <span class="font-condensed text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${partyColor}">
+                    ${suggestion.party}
+                  </span>
+                  <span class="text-xs text-steel-300 font-semibold uppercase font-condensed tracking-wider bg-navy-800/80 px-2.5 py-0.5 rounded border border-white/5">
+                    ${suggestion.office}
+                  </span>
+                </div>
+                <p class="text-xs text-steel-400 font-body">
+                  📍 District / Location: <span class="text-white font-medium">${suggestion.district}</span>
+                </p>
               </div>
-              <p class="text-xs text-steel-400 font-body">
-                📍 District / Location: <span class="text-white font-medium">${suggestion.district}</span>
-              </p>
-            </div>
-            <div class="flex items-center gap-3">
-              ${editToggleHtml}
-              ${btnHtml}
+              <div class="flex items-center gap-3">
+                ${editToggleHtml}
+                ${btnHtml}
+              </div>
             </div>
           </div>
 
