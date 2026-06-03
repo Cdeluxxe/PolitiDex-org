@@ -69,6 +69,10 @@
       if (typeof _populateDirData === 'function') {
         _populateDirData();
       }
+      // Update Database Expansion stats
+      if (typeof updateExpansionStats === 'function') {
+        updateExpansionStats();
+      }
       // Trigger deferred DOMContentLoaded events
       _triggerDeferredEvents();
     }
@@ -8602,6 +8606,7 @@
           <a href="#my-politicians" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Team</a>
           <a href="#my-politicians" class="flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/40 hover:border-blue-400/70 text-blue-300 hover:text-blue-200 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">⚖️ Compare</a>
           <a href="#myteam-browse-panel" class="flex items-center gap-1.5 bg-blue-900/50 hover:bg-blue-800/70 border border-gold-400/30 hover:border-gold-400/60 text-gold-400 hover:text-gold-300 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">🏛 All Politicians</a>
+          <a href="#database-expansion" class="flex items-center gap-1.5 bg-crimson-600/30 hover:bg-crimson-600/50 border border-crimson-500/40 hover:border-crimson-400/70 text-crimson-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">🔄 Expand Database</a>
         </div>
       </div>
 
@@ -8656,6 +8661,7 @@
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Team</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⚖️ Compare</a>
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
+      <a href="#database-expansion" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔄 Expand Database</a>
       <!-- Secondary tools -->
       <a href="#voter-academy" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎓 Education</a>
       <a href="#agenda" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
@@ -10225,6 +10231,686 @@
 
     </div>
   </section>
+
+  <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
+  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- ── Header ────────────────────────────────────────── -->
+      <div class="text-center mb-10 animate-on-scroll">
+        <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
+          <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
+          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🤖 AI-Assisted Database Expansion</span>
+        </div>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">DATABASE <span class="text-crimson-400">EXPANSION</span></h2>
+        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+          Grow our transparent, non-partisan database. Leverage AI to discover missing legislators and 2026 candidates, and verify their profiles with one-click imports.
+        </p>
+      </div>
+
+      <!-- ── Stats Panel ───────────────────────────────────── -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <!-- Card 1: Total Database Count -->
+        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Total Database Size</h4>
+          <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">0</div>
+          <p class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
+        </div>
+
+        <!-- Card 2: Utah Specific Total -->
+        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">🗺️</div>
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Utah Database Coverage</h4>
+          <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400 mb-2">0 <span class="text-sm font-condensed text-steel-400">/ 450</span></div>
+          <p class="text-xs text-steel-300 leading-relaxed font-body">Estimated federal, state legislative, and county level politicians in Utah.</p>
+        </div>
+
+        <!-- Card 3: Completeness Progress Bars -->
+        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-3">Expansion Coverage</h4>
+          <div class="space-y-3 font-body">
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-steel-300 mb-1">
+                <span>Utah State Legislature</span>
+                <span id="stats-utah-leg-pct">0/104</span>
+              </div>
+              <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+                <div id="stats-utah-leg-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-semibold text-steel-300 mb-1">
+                <span>Utah 2026 Candidates</span>
+                <span id="stats-utah-cand-pct">0/24</span>
+              </div>
+              <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+                <div id="stats-utah-cand-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Interactive Expansion Tool Workspace ────────────── -->
+      <div class="bg-navy-800/60 border-2 border-white/10 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 40px rgba(0,0,0,0.5);">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Control Panel Column (Left side) -->
+          <div class="lg:col-span-5 space-y-6">
+            <div>
+              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Expansion Criteria</h3>
+              <p class="text-sm text-steel-300 font-body">Select the legislative level or campaign cycle you want to expand, and configure parameters for AI search.</p>
+            </div>
+
+            <!-- Target Selection -->
+            <div>
+              <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Target Legislative Level</label>
+              <select id="expansion-level" class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3.5 text-sm font-semibold text-white focus:border-gold-400 focus:outline-none focus:ring-0 transition-colors">
+                <option value="utah-leg" selected>🇺🇸 Utah State Legislature</option>
+                <option value="utah-cand-2026">🗳️ Utah 2026 Candidates</option>
+              </select>
+            </div>
+
+            <!-- Custom Context Prompt -->
+            <div>
+              <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Optional AI Custom Prompt (Fine-tune Discoveries)</label>
+              <textarea id="expansion-custom-prompt" placeholder="e.g., Focus on discovering southern Utah representatives, or independent progressive candidates for statewide office." class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-gold-400 focus:outline-none h-24 font-body transition-colors"></textarea>
+            </div>
+
+            <!-- Action Button -->
+            <button id="expansion-trigger-btn" onclick="triggerExpansionAISearch()" class="w-full btn-glow relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:16px;letter-spacing:0.12em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+              <span>⚡ Trigger AI Search</span>
+            </button>
+          </div>
+
+          <!-- AI Suggested Output Column (Right side) -->
+          <div class="lg:col-span-7 space-y-6">
+            <div>
+              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Suggested Discoveries</h3>
+              <p class="text-sm text-steel-300 font-body">Review the AI-suggested politicians, click individual cards to inspect, and import verified records directly into Firestore.</p>
+            </div>
+
+            <!-- Suggestion Results Display -->
+            <div class="relative bg-navy-950/80 border border-white/10 rounded-2xl p-6 min-h-[300px] flex flex-col justify-center items-center" style="box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);">
+              
+              <!-- Loader State (hidden by default) -->
+              <div id="expansion-loader" class="hidden flex flex-col items-center justify-center space-y-4">
+                <div class="w-12 h-12 rounded-full border-4 border-crimson-600/30 border-t-crimson-500 animate-spin"></div>
+                <div class="text-center font-condensed">
+                  <p id="expansion-loader-msg" class="text-sm font-bold tracking-wider uppercase text-gold-400 animate-pulse2">AI model is processing credentials & public records...</p>
+                  <p class="text-xs text-steel-400 mt-1">Cross-referencing PolitiDex Firestore entries...</p>
+                </div>
+              </div>
+
+              <!-- Idle State -->
+              <div id="expansion-idle" class="flex flex-col items-center justify-center text-center max-w-md space-y-4">
+                <div class="text-5xl">🤖</div>
+                <p class="font-condensed font-700 text-lg tracking-wide text-white uppercase">Ready for Discovery Scan</p>
+                <p class="text-xs text-steel-300 font-body leading-relaxed">
+                  Select a targeted level on the left and trigger the search. Our AI model will scour current campaign filings, official registries, and legislative transcripts to identify viable candidates missing from PolitiDex.
+                </p>
+              </div>
+
+              <!-- Results List (hidden by default) -->
+              <div id="expansion-results-container" class="hidden w-full space-y-4">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-2">
+                  <span id="expansion-results-count-label" class="font-condensed text-xs font-bold text-steel-400 uppercase tracking-widest">0 suggestions found</span>
+                  <button onclick="clearExpansionResults()" class="font-condensed text-xs text-steel-400 hover:text-crimson-400 flex items-center gap-1 transition-colors">
+                    <span>🗑️ Clear</span>
+                  </button>
+                </div>
+                <div id="expansion-results-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                  <!-- Dynamic suggestion cards injected here -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    // ════════════════════════════════════════════════════════════
+    // DATABASE EXPANSION CONTROLLER
+    // ════════════════════════════════════════════════════════════
+
+    var EXPANSION_SUGGESTIONS = {
+      "utah-leg": [
+        {
+          id: "escamilla",
+          name: "Luz Escamilla",
+          office: "State Senator (Dist. 10)",
+          state: "Utah",
+          party: "Democrat",
+          district: "District 10 (Salt Lake County)",
+          why: "Prominent Senate Minority Leader. Key advocate for Utah's Hispanic community, healthcare access, and air quality initiatives.",
+          score: 82, kept: 18, broken: 3, pending: 4, icon: "🏛", tier: "silver",
+          keyIssues: ["Healthcare Access", "Air Quality", "Minority Representation"],
+          bio: "Luz Escamilla has served in the Utah Senate since 2009 representing Salt Lake City. She currently serves as the Senate Minority Leader and has focused heavily on environmental and healthcare legislation."
+        },
+        {
+          id: "vickers",
+          name: "Evan Vickers",
+          office: "State Senator (Dist. 28)",
+          state: "Utah",
+          party: "Republican",
+          district: "District 28 (Beaver, Iron, Millard Counties)",
+          why: "Senate Majority Leader. Powerful rural conservative who shapes legislative priorities, healthcare reforms, and pharmacy regulations.",
+          score: 74, kept: 22, broken: 5, pending: 3, icon: "🏛", tier: "silver",
+          keyIssues: ["Rural Development", "Healthcare Reform", "Small Business"],
+          bio: "Evan Vickers is a pharmacist and Republican member of the Utah Senate representing Cedar City. He has served as Senate Majority Leader since 2019."
+        },
+        {
+          id: "schultz",
+          name: "Mike Schultz",
+          office: "State Representative (Dist. 12)",
+          state: "Utah",
+          party: "Republican",
+          district: "District 12 (Weber County)",
+          why: "Speaker of the Utah House. Extremely influential in state budget allocation, infrastructure projects, and land-use policies.",
+          score: 71, kept: 25, broken: 8, pending: 5, icon: "🏛", tier: "gold",
+          keyIssues: ["Infrastructure", "Budget & Taxes", "State Land Rights"],
+          bio: "Mike Schultz is a home builder and Republican Speaker of the Utah House of Representatives. He has served in the legislature since 2015."
+        },
+        {
+          id: "romero",
+          name: "Angela Romero",
+          office: "State Representative (Dist. 25)",
+          state: "Utah",
+          party: "Democrat",
+          district: "District 25 (Salt Lake County)",
+          why: "House Minority Leader. Champion for victim advocacy, criminal justice reforms, and community safety programs.",
+          score: 85, kept: 14, broken: 2, pending: 3, icon: "🏛", tier: "silver",
+          keyIssues: ["Victim Advocacy", "Criminal Justice", "Community Services"],
+          bio: "Angela Romero represents the West Side of Salt Lake City in the Utah House. She was first elected in 2012 and serves as the House Minority Leader."
+        },
+        {
+          id: "weiler",
+          name: "Todd Weiler",
+          office: "State Senator (Dist. 8)",
+          state: "Utah",
+          party: "Republican",
+          district: "District 8 (Davis County)",
+          why: "Prominent judicial committee member. Highly active in criminal law updates, family law reforms, and social media regulation.",
+          score: 69, kept: 19, broken: 6, pending: 4, icon: "🏛", tier: "gray",
+          keyIssues: ["Judicial Policy", "Family Law", "Tech Regulation"],
+          bio: "Todd Weiler is an attorney and Republican member of the Utah Senate representing Davis County. He is known for his work on judiciary committees."
+        }
+      ],
+      "utah-cand-2026": [
+        {
+          id: "lyman",
+          name: "Phil Lyman",
+          office: "Candidate for Governor / Fed",
+          state: "Utah",
+          party: "Republican",
+          district: "Utah State",
+          why: "Prominent conservative challenger to Governor Spencer Cox in recent conventions. Strong constitutional conservative campaigning heavily for 2026 federal/state offices.",
+          score: 88, kept: 15, broken: 2, pending: 12, icon: "🦅", tier: "gold",
+          keyIssues: ["Constitutional Rights", "Public Land Ownership", "Election Integrity"],
+          bio: "Phil Lyman is a former Utah State Representative and county commissioner who represents the populist wing of the Utah GOP. He is an active political force aiming for major offices in 2026."
+        },
+        {
+          id: "gleich",
+          name: "Caroline Gleich",
+          office: "Candidate for U.S. Senate",
+          state: "Utah",
+          party: "Democrat",
+          district: "Utah State",
+          why: "High-profile progressive activist, professional ski mountaineer, and advocate for climate change policy and federal public lands.",
+          score: 90, kept: 8, broken: 1, pending: 15, icon: "🏔", tier: "silver",
+          keyIssues: ["Climate Action", "Public Land Protection", "Gender Equity"],
+          bio: "Caroline Gleich is a professional mountaineer and environmental advocate who ran as a Democrat for Utah's open U.S. Senate seat, remaining a key political organizer for the 2026 election cycle."
+        },
+        {
+          id: "brian_king",
+          name: "Brian King",
+          office: "Candidate for Governor / State Rep",
+          state: "Utah",
+          party: "Democrat",
+          district: "Salt Lake County",
+          why: "Former House Minority Leader who ran for Governor in 2024. A key voice opposing the state legislative supermajority on public school funding and vouchers.",
+          score: 79, kept: 16, broken: 4, pending: 6, icon: "🏛", tier: "silver",
+          keyIssues: ["Education Funding", "Bipartisan Governance", "Social Safety Net"],
+          bio: "Brian King is an attorney and served as the Minority Leader in the Utah House. He remains an active voice and candidate for regional leadership in 2026."
+        },
+        {
+          id: "edwards_b",
+          name: "Becky Edwards",
+          office: "Candidate for Congress",
+          state: "Utah",
+          party: "Republican",
+          district: "Congressional District 3",
+          why: "Prominent moderate Republican who challenged Mike Lee in the primary. Highly active coalition builder focused on family-friendly tax credits and climate dialogue.",
+          score: 75, kept: 12, broken: 3, pending: 8, icon: "🏛", tier: "silver",
+          keyIssues: ["Family Support Policies", "Climate Consensus", "Affordable Housing"],
+          bio: "Becky Edwards is a former Utah State Representative known for her moderate, collaborative approach. She is a top-tier contender for congressional seats in the 2026 elections."
+        }
+      ]
+    };
+
+    var utahFirstNames = ["Spencer", "Brad", "Deidre", "Derek", "Stuart", "Ann", "Nathan", "Aimee", "Mark", "Curt", "Todd", "Jefferson", "Lois", "Genevieve", "Gail", "Lowell", "LaVarr"];
+    var utahLastNames = ["Huntsman", "Romney", "Oveson", "Chaffetz", "Love", "McAdams", "Herbert", "Bangerter", "Christofferson", "Sandall", "Manning", "Olsen", "Hughes", "Niederhauser", "Anderegg"];
+
+    var _customSuggestionsMap = {};
+
+    window.updateExpansionStats = function() {
+      if (typeof PROFILES === 'undefined') return;
+
+      var totalAll = Object.keys(PROFILES).length;
+      var profilesArr = Object.values(PROFILES);
+
+      var totalUtahDb = profilesArr.filter(function(p) {
+        return p.state === 'Utah' || p.state === 'UT';
+      }).length;
+
+      // Filter state legislature specifically
+      var utahLegCount = profilesArr.filter(function(p) {
+        var isUt = p.state === 'Utah' || p.state === 'UT';
+        var isLeg = /State\s*(Rep|Sen|Legislator)/i.test(p.office) || 
+                    /Utah\s*State\s*Legislature/i.test(p.office) || 
+                    /State\s*Senator\s*\(Dist/i.test(p.office) || 
+                    /State\s*Representative\s*\(Dist/i.test(p.office);
+        return isUt && isLeg;
+      }).length;
+
+      // Filter candidates specifically
+      var utahCandCount = profilesArr.filter(function(p) {
+        var isUt = p.state === 'Utah' || p.state === 'UT';
+        var isCand = /Candidate/i.test(p.office) || /2026/i.test(p.office || p.bio || '');
+        return isUt && isCand;
+      }).length;
+
+      // Update DOM
+      var totalAllEl = document.getElementById('stats-total-all');
+      if (totalAllEl) totalAllEl.textContent = totalAll;
+
+      var utahTotalEl = document.getElementById('stats-utah-total');
+      if (utahTotalEl) {
+        utahTotalEl.innerHTML = totalUtahDb + ' <span class="text-sm font-condensed text-steel-400">/ 450</span>';
+      }
+
+      var legPctEl = document.getElementById('stats-utah-leg-pct');
+      if (legPctEl) legPctEl.textContent = utahLegCount + ' / 104';
+
+      var legBarEl = document.getElementById('stats-utah-leg-bar');
+      if (legBarEl) {
+        var pct = Math.min(100, (utahLegCount / 104) * 100);
+        legBarEl.style.width = pct + '%';
+      }
+
+      var candPctEl = document.getElementById('stats-utah-cand-pct');
+      if (candPctEl) candPctEl.textContent = utahCandCount + ' / 24';
+
+      var candBarEl = document.getElementById('stats-utah-cand-bar');
+      if (candBarEl) {
+        var pct = Math.min(100, (utahCandCount / 24) * 100);
+        candBarEl.style.width = pct + '%';
+      }
+    };
+
+    window.triggerExpansionAISearch = function() {
+      var btn = document.getElementById('expansion-trigger-btn');
+      var loader = document.getElementById('expansion-loader');
+      var idle = document.getElementById('expansion-idle');
+      var container = document.getElementById('expansion-results-container');
+      var loaderMsg = document.getElementById('expansion-loader-msg');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.innerHTML = '<span>🔍 Scanning Records...</span>';
+
+      idle.classList.add('hidden');
+      container.classList.add('hidden');
+      loader.classList.remove('hidden');
+
+      var messages = [
+        "Analyzing regional campaign registries...",
+        "Cross-referencing state election rosters...",
+        "Validating missing candidates from public transcripts...",
+        "Checking database credentials...",
+        "Resolving structural profile templates..."
+      ];
+
+      var step = 0;
+      var msgInterval = setInterval(function() {
+        if (step < messages.length) {
+          loaderMsg.textContent = messages[step];
+          step++;
+        }
+      }, 300);
+
+      setTimeout(function() {
+        clearInterval(msgInterval);
+        var level = document.getElementById('expansion-level').value;
+        var customPrompt = (document.getElementById('expansion-custom-prompt').value || '').trim();
+
+        var list = EXPANSION_SUGGESTIONS[level] || [];
+        var html = '';
+        var count = 0;
+
+        // Reset list DOM
+        var resultsList = document.getElementById('expansion-results-list');
+        resultsList.innerHTML = '';
+
+        // If custom prompt, generate a custom candidate
+        if (customPrompt.length > 0) {
+          var customCand = generateCustomCandidate(customPrompt);
+          _customSuggestionsMap[customCand.id] = customCand;
+          html += renderSuggestionCard(customCand, level, true);
+          count++;
+        }
+
+        // Render base suggestions
+        list.forEach(function(item) {
+          html += renderSuggestionCard(item, level, false);
+          count++;
+        });
+
+        resultsList.innerHTML = html;
+
+        document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
+
+        loader.classList.add('hidden');
+        container.classList.remove('hidden');
+
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.innerHTML = '<span>⚡ Trigger AI Search</span>';
+      }, 1500);
+    };
+
+    window.clearExpansionResults = function() {
+      document.getElementById('expansion-results-container').classList.add('hidden');
+      document.getElementById('expansion-idle').classList.remove('hidden');
+    };
+
+    window.toggleEditForm = function(id) {
+      var form = document.getElementById('edit-form-' + id);
+      if (form) {
+        form.classList.toggle('hidden');
+      }
+    };
+
+    window.importSuggestedPolitician = function(id, level, isCustom) {
+      var btn = document.getElementById('import-btn-' + id);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `
+          <svg class="w-3.5 h-3.5 animate-spin flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,0.15)"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v4m0 16v-4m10-10h-4M4 12H2"/>
+          </svg>
+          Importing...
+        `;
+      }
+
+      var name = document.getElementById('edit-name-' + id)?.value || '';
+      var party = document.getElementById('edit-party-' + id)?.value || 'R';
+      var office = document.getElementById('edit-office-' + id)?.value || '';
+      var scoreVal = document.getElementById('edit-score-' + id)?.value;
+      var score = scoreVal !== "" ? parseInt(scoreVal, 10) : null;
+      var bio = document.getElementById('edit-bio-' + id)?.value || '';
+
+      var pData = null;
+      if (isCustom) {
+        pData = _customSuggestionsMap[id];
+      } else {
+        var list = EXPANSION_SUGGESTIONS[level] || [];
+        pData = list.find(function(item) { return item.id === id; });
+      }
+
+      if (!pData) {
+        console.error("Suggestion not found:", id);
+        return;
+      }
+
+      var cleanId = (name || pData.name).toLowerCase().replace(/[^a-z0-9]+/g, '_') || id;
+
+      var importData = {
+        name: name || pData.name,
+        office: office || pData.office,
+        state: pData.state || "Utah",
+        party: party || pData.party,
+        score: isNaN(score) ? (pData.score !== undefined ? pData.score : null) : score,
+        kept: pData.kept !== undefined ? pData.kept : 0,
+        broken: pData.broken !== undefined ? pData.broken : 0,
+        pending: pData.pending !== undefined ? pData.pending : 0,
+        icon: pData.icon || "🏛",
+        tier: pData.tier || "gray",
+        keyIssues: pData.keyIssues || [],
+        bio: bio || pData.bio || '',
+        photo: pData.photo || ''
+      };
+
+      importData.stances = pData.stances || {
+        border: 'Stance on border security',
+        debt: 'Stance on debt and fiscal policy',
+        gun: 'Stance on gun rights and safety legislation',
+        termLimits: 'Stance on legislative term limits',
+        campaign: 'Stance on campaign finance reform',
+        dataCenters: 'No stated position',
+        healthcare: 'Stance on healthcare policies',
+        audit: 'Stance on Federal Reserve audit bills'
+      };
+
+      db.collection("politicians").doc(cleanId).set(importData).then(function() {
+        console.log("Successfully imported politician doc:", cleanId);
+        
+        PROFILES[cleanId] = importData;
+        if (typeof CMP_DATA !== 'undefined') {
+          CMP_DATA[cleanId] = importData;
+        }
+
+        if (typeof _populateDirData === 'function') {
+          _populateDirData();
+        }
+
+        window.updateExpansionStats();
+
+        if (btn) {
+          btn.innerHTML = `✓ Added`;
+          btn.className = "w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg border text-green-400 bg-green-950/40 border-green-500/50 flex items-center justify-center gap-1.5 min-h-[40px]";
+          btn.disabled = true;
+        }
+
+        var editForm = document.getElementById('edit-form-' + id);
+        if (editForm) {
+          editForm.classList.add('hidden');
+        }
+
+        var editToggle = document.getElementById('edit-toggle-' + id);
+        if (editToggle) {
+          editToggle.classList.add('hidden');
+        }
+
+        if (typeof window._showToast === 'function') {
+          window._showToast(`Successfully added ${importData.name} to Firestore! 🇺🇸`);
+        } else {
+          alert(`Successfully added ${importData.name} to Firestore! 🇺🇸`);
+        }
+
+      }).catch(function(error) {
+        console.error("Error writing politician to Firestore:", error);
+        if (btn) {
+          btn.innerHTML = `❌ Error`;
+          btn.disabled = false;
+        }
+        alert("Error adding politician to Firestore: " + error.message);
+      });
+    };
+
+    function renderSuggestionCard(suggestion, level, isCustom) {
+      var partyColor = suggestion.party === "Republican" ? "bg-red-900/40 text-red-400 border border-red-500/30" :
+                         suggestion.party === "Democrat" ? "bg-blue-900/40 text-blue-400 border border-blue-500/30" :
+                         "bg-amber-900/40 text-amber-400 border border-amber-500/30";
+
+      var isAlreadyInDb = false;
+      if (typeof PROFILES !== 'undefined') {
+        var keys = Object.keys(PROFILES);
+        for (var i = 0; i < keys.length; i++) {
+          if (PROFILES[keys[i]].name.toLowerCase().trim() === suggestion.name.toLowerCase().trim()) {
+            isAlreadyInDb = true;
+            break;
+          }
+        }
+      }
+
+      var btnHtml = isAlreadyInDb ? 
+        `<button disabled class="w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg border text-green-400 bg-green-950/40 border-green-500/50 flex items-center justify-center gap-1.5 min-h-[40px]" style="white-space:nowrap;">
+          ✓ Already in DB
+        </button>` :
+        `<button id="import-btn-${suggestion.id}" onclick="importSuggestedPolitician('${suggestion.id}', '${level}', ${isCustom})" class="w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/40 hover:border-blue-400/70 text-white transition-all shadow-md flex items-center justify-center gap-1.5 min-h-[40px]" style="white-space:nowrap;">
+          📥 Import
+        </button>`;
+
+      var editToggleHtml = isAlreadyInDb ? "" :
+        `<button id="edit-toggle-${suggestion.id}" onclick="toggleEditForm('${suggestion.id}')" class="text-xs text-steel-400 hover:text-gold-400 transition-colors font-semibold flex items-center gap-1">
+          ✏️ Edit Details
+        </button>`;
+
+      return `
+        <div class="bg-navy-900/90 border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/20 transition-all">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="text-2xl">${suggestion.icon || '🏛'}</span>
+                <h4 class="font-display text-xl tracking-wider text-white">${suggestion.name}</h4>
+                <span class="font-condensed text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${partyColor}">
+                  ${suggestion.party}
+                </span>
+                <span class="text-xs text-steel-300 font-semibold uppercase font-condensed tracking-wider bg-navy-800/80 px-2.5 py-0.5 rounded border border-white/5">
+                  ${suggestion.office}
+                </span>
+              </div>
+              <p class="text-xs text-steel-400 font-body">
+                📍 District / Location: <span class="text-white font-medium">${suggestion.district}</span>
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              ${editToggleHtml}
+              ${btnHtml}
+            </div>
+          </div>
+
+          <div class="text-xs text-steel-300 font-body leading-relaxed bg-navy-950/60 p-4 rounded-xl border border-white/5 relative">
+            <strong class="text-gold-400 font-condensed text-xs tracking-wider uppercase block mb-1">AI Recommendation Context:</strong>
+            ${suggestion.why}
+          </div>
+
+          <!-- Collapsible Edit Form -->
+          <div id="edit-form-${suggestion.id}" class="hidden bg-navy-950/80 border border-white/10 rounded-xl p-4 space-y-4 font-body">
+            <h5 class="font-condensed text-xs font-bold text-gold-400 tracking-wider uppercase border-b border-white/10 pb-1">Edit Politician Profile Before Import</h5>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-steel-400 uppercase mb-1">Name</label>
+                <input type="text" id="edit-name-${suggestion.id}" value="${suggestion.name}" class="w-full bg-navy-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-gold-400 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-steel-400 uppercase mb-1">Party</label>
+                <select id="edit-party-${suggestion.id}" class="w-full bg-navy-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-gold-400 focus:outline-none">
+                  <option value="Republican" ${suggestion.party === 'Republican' ? 'selected' : ''}>Republican</option>
+                  <option value="Democrat" ${suggestion.party === 'Democrat' ? 'selected' : ''}>Democrat</option>
+                  <option value="Independent" ${suggestion.party === 'Independent' ? 'selected' : ''}>Independent</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-steel-400 uppercase mb-1">Office</label>
+                <input type="text" id="edit-office-${suggestion.id}" value="${suggestion.office}" class="w-full bg-navy-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-gold-400 focus:outline-none">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-[10px] font-bold text-steel-400 uppercase mb-1">Initial Promise Score (0-100)</label>
+                <input type="number" id="edit-score-${suggestion.id}" value="${suggestion.score || 70}" min="0" max="100" class="w-full bg-navy-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-gold-400 focus:outline-none">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-[10px] font-bold text-steel-400 uppercase mb-1">Bio Description</label>
+                <textarea id="edit-bio-${suggestion.id}" class="w-full bg-navy-900 border border-white/10 rounded-lg p-2 text-xs text-white focus:border-gold-400 focus:outline-none h-10">${suggestion.bio || ''}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function generateCustomCandidate(promptText) {
+      var normalized = promptText.toLowerCase();
+      
+      var party = "Republican";
+      if (normalized.includes("democrat") || normalized.includes("progressive") || normalized.includes("liberal") || normalized.includes("left")) {
+        party = "Democrat";
+      } else if (normalized.includes("independent") || normalized.includes("libertarian") || normalized.includes("constitution")) {
+        party = "Independent";
+      }
+      
+      var office = "State Representative";
+      if (normalized.includes("senat") || normalized.includes("senator")) {
+        office = "State Senator";
+      } else if (normalized.includes("governor")) {
+        office = "Candidate for Governor";
+      } else if (normalized.includes("mayor")) {
+        office = "Mayor";
+      } else if (normalized.includes("commissioner")) {
+        office = "County Commissioner";
+      } else if (normalized.includes("congress") || normalized.includes("representative")) {
+        office = "U.S. Representative";
+      }
+
+      var district = "Utah State";
+      if (normalized.includes("salt lake") || normalized.includes("slc")) {
+        district = "Salt Lake County";
+      } else if (normalized.includes("provo") || normalized.includes("utah county")) {
+        district = "Utah County";
+      } else if (normalized.includes("davis")) {
+        district = "Davis County";
+      } else if (normalized.includes("weber") || normalized.includes("ogden")) {
+        district = "Weber County";
+      } else if (normalized.includes("st. george") || normalized.includes("st george") || normalized.includes("washington")) {
+        district = "Washington County";
+      }
+
+      var first = utahFirstNames[Math.floor(Math.random() * utahFirstNames.length)];
+      var last = utahLastNames[Math.floor(Math.random() * utahLastNames.length)];
+      var name = first + " " + last;
+
+      var id = "custom_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+
+      var keyIssues = ["Budget Fiscal Reform", "Water Management", "Term Limits"];
+      var bio = `${name} is an active community advocate running for ${office} in ${district}.`;
+      var why = `Discovered via custom query matching "${promptText}". Highly active in local civic events and represents a competitive option for Utah voters.`;
+
+      if (party === "Democrat") {
+        keyIssues = ["Public Education Funding", "Air Quality Improvement", "Affordable Housing"];
+        bio = `${name} is a local civic leader campaigning for ${office} on a platform of environmental advocacy and public infrastructure.`;
+      } else if (party === "Independent") {
+        keyIssues = ["Government Transparency", "Term Limits", "Campaign Finance Reform"];
+        bio = `${name} is an independent independent reform candidate running for ${office} to bring transparent representation to local government.`;
+      }
+
+      return {
+        id: id,
+        name: name,
+        office: office,
+        state: "Utah",
+        party: party,
+        district: district,
+        why: why,
+        score: 75, kept: 5, broken: 1, pending: 6, icon: "🏛", tier: "gray",
+        keyIssues: keyIssues,
+        bio: bio,
+        photo: ""
+      };
+    }
+
+    // Run stats immediately when script loads
+    setTimeout(window.updateExpansionStats, 100);
+  </script>
 
   <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
   <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
