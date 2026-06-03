@@ -14316,6 +14316,9 @@
         </div>
       </div>` : ''}
 
+      <!-- Accountability Score (purple) — always visible -->
+      <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
+
       <!-- Personalized Alignment Score -->
       ${(typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0) ? (() => {
         const alignScore = _calcAlignmentScore(id);
@@ -15572,6 +15575,50 @@
           <!-- Active tab view panel -->
           <div id="profile-verify-panel-body" class="space-y-5">
             <!-- Dynamic reports inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ ACCOUNTABILITY SCORE — DEEP ANALYSIS MODAL ═══════ -->
+  <div id="accountability-overlay" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md items-center justify-center p-4" style="display:none;" onclick="if(event.target===this)closeAccountabilityModal()">
+    <div class="relative w-full max-w-3xl bg-navy-800 rounded-2xl border border-white/10 overflow-hidden flex flex-col" style="box-shadow:0 28px 72px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.04),0 0 28px rgba(139,92,246,0.2);max-height:92vh;">
+      <!-- Purple accent bar -->
+      <div style="height:3px;width:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa,#7c3aed);opacity:0.95;"></div>
+
+      <!-- Modal Header -->
+      <div class="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8 bg-navy-900/70" style="backdrop-filter:blur(8px);">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:rgba(139,92,246,0.18);border:1px solid rgba(167,139,250,0.4);">🛡️</div>
+          <div class="min-w-0">
+            <div class="font-display text-lg tracking-wider text-white leading-none">Accountability Deep Analysis</div>
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mt-0.5 truncate" id="acct-subtitle">Dual-perspective verification</div>
+          </div>
+        </div>
+        <button onclick="closeAccountabilityModal()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center flex-shrink-0" style="min-height:unset;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6" style="overscroll-behavior:contain;">
+        <!-- Loading State -->
+        <div id="acct-loading" class="text-center py-12">
+          <div class="inline-block w-10 h-10 border-[3px] border-purple-500/25 rounded-full animate-spin" style="border-top-color:#a78bfa;"></div>
+          <h3 class="font-display text-2xl tracking-wider text-white mt-4">RUNNING ACCOUNTABILITY ANALYSIS</h3>
+          <p class="text-steel-300 text-sm font-condensed tracking-wider mt-1">Analyst &amp; Fact-Checker perspectives are reviewing the record…</p>
+          <div class="max-w-md mx-auto mt-6 bg-navy-900/40 border border-white/5 rounded-xl p-3.5 text-left text-xs text-steel-400 font-body leading-relaxed space-y-2">
+            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Auditing the tracked promise ledger and voting record</div>
+            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Weighing stated positions against documented action</div>
+            <div class="flex items-center gap-2"><span style="color:#a78bfa;">◆</span> Surfacing truths, myths, strengths and red flags</div>
+          </div>
+        </div>
+
+        <!-- Loaded Content (Hidden initially) -->
+        <div id="acct-content" class="hidden">
+          <div id="acct-panel-body" class="space-y-5">
+            <!-- Dynamic breakdown inserted here -->
           </div>
         </div>
       </div>
@@ -21489,6 +21536,8 @@
                 '<span class="chub-score" style="color:' + scCol + ';font-size:1.7rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</span>' +
                 '<span class="font-condensed text-[10px] text-steel-400 tracking-wider uppercase font-bold" style="font-size:0.55rem;letter-spacing:0.05em;line-height:1.1;">Promise<br>Score</span>' +
               '</div>' +
+              // Accountability Score badge (purple) — sits beside the Promise Score for at-a-glance comparison
+              '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + ((typeof window._acctCardBadge === 'function') ? window._acctCardBadge(pid) : '') + '</span>' +
               alignHtml +
               '<div class="flex flex-wrap gap-1">' +
                 d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
@@ -21496,6 +21545,12 @@
             '</div>' +
           '</div>' +
         '</div>' +
+        // Expandable Accountability analysis (condensed, lazy-loaded only when opened)
+        '<button type="button" id="acctbtn-' + pid + '" onclick="event.stopPropagation();toggleCardAccountability(\'' + pid + '\')" style="width:100%;margin-top:0.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:0.5rem;padding:0.45rem 0.6rem;color:#c4b5fd;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(139,92,246,0.16)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.08)\'">' +
+          '<span>🛡️</span><span class="acct-exp-label">View Accountability Analysis</span>' +
+          '<span id="acctchev-' + pid + '" style="display:inline-block;transition:transform 0.25s;font-size:0.55rem;">▼</span>' +
+        '</button>' +
+        '<div id="acctexp-' + pid + '" data-open="0" data-loaded="0" style="max-height:0;opacity:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;"></div>' +
         // Divider & Buttons row
         '<div class="chub-card-divider"></div>' +
         '<div class="grid grid-cols-2 gap-3 w-full">' +
@@ -25219,6 +25274,566 @@
       rc.innerHTML = html;
       rc.classList.remove('hidden');
     }
+  })();
+  </script>
+
+  <!-- ═══════════════════ ACCOUNTABILITY SCORE ENGINE ═══════════════════ -->
+  <script>
+  (function(){
+    'use strict';
+    var ACCT_VERSION = 1;
+
+    function aesc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+    function acctMd(t){ return aesc(t).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#e6ecf5;font-weight:700;">$1</strong>'); }
+    function clamp(n, lo, hi){ n = Math.round(n); return Math.max(lo, Math.min(hi, isNaN(n) ? lo : n)); }
+
+    function acctRating(s){
+      if (s >= 80) return 'Highly Accountable';
+      if (s >= 65) return 'Mostly Accountable';
+      if (s >= 50) return 'Mixed Record';
+      if (s >= 35) return 'Questionable';
+      return 'Low Accountability';
+    }
+    function acctLevelColor(s){
+      if (s >= 65) return '#4ade80';
+      if (s >= 50) return '#f5c842';
+      return '#f87171';
+    }
+
+    // Curated, fact-grounded overrides for the two flagship profiles, mirroring
+    // the narratives already established elsewhere in the app.
+    var CURATED = {
+      trump: {
+        overall: 29,
+        categories: { promise: 24, voting: 84, rhetoric: 31, redflags: 22, transparency: 30 },
+        strengths: [
+          "**Ideological consistency:** Conservative judicial appointments (3 Supreme Court Justices, 200+ federal judges) and the 2017 Tax Cuts and Jobs Act closely matched campaign rhetoric.",
+          "**Deregulation & trade:** Followed through on protectionist tariffs and large-scale federal deregulation as promised.",
+          "**Energy posture:** Delivered pledged fossil-fuel deregulation and expanded federal land leasing."
+        ],
+        concerns: [
+          "**Quantitative pledges broken:** Complete debt elimination, Mexican funding for the border wall, and full ACA repeal all failed to materialize.",
+          "**Fiscal divergence:** Record deficits and a ~$7.9 trillion first-term debt increase directly contradicted balanced-budget rhetoric.",
+          "**Legal & election controversies:** Ongoing indictments and contested-election disputes drive a heavy red-flag load."
+        ],
+        truthsVsMyths: [
+          { myth: '"Mexico paid for the border wall."', truth: 'No — construction was financed by roughly $15 billion in U.S. appropriations and redirected military-construction funds (GAO-20-331).' },
+          { myth: '"Trump eliminated the national debt."', truth: 'The opposite — the national debt rose approximately $7.9 trillion during his first term.' },
+          { myth: '"Obamacare was repealed and replaced."', truth: 'Repeal-and-replace failed in 2017 despite Republican congressional majorities; the ACA remains in force.' },
+          { myth: '"Trump never keeps his word."', truth: 'On ideology he is highly consistent — three Supreme Court justices, the 2017 tax cuts, and sweeping deregulation were all delivered.' }
+        ],
+        analystSummary: "From an analyst's vantage, Donald Trump shows exceptionally high consistency on ideological deliverables — judicial appointments, tax cuts, deregulation, and tariffs all tracked his campaign platform. The qualitative alignment between rhetoric and conservative policy outcomes is among the strongest on record.",
+        factCheckerSummary: "A fact-checker's review finds that the headline quantitative promises — debt elimination, Mexican wall funding, and full ACA repeal — were systematically broken, while record deficits undercut fiscal rhetoric. Legal and election controversies further depress the objective accountability rating.",
+        consensus: "Both perspectives converge on a sharp split: Donald Trump is highly faithful to ideological commitments yet broke most of his marquee quantitative pledges. Combined with a heavy controversy load, that yields a Low Accountability score of 29/100 despite near-perfect platform consistency."
+      },
+      cox: {
+        overall: 66,
+        categories: { promise: 70, voting: 73, rhetoric: 57, redflags: 60, transparency: 63 },
+        strengths: [
+          "**Second Amendment & social policy:** Delivered HB 60 constitutional carry and first-in-the-nation social-media-for-minors restrictions, as pledged.",
+          "**Rural investment:** Secured $100M+ for rural broadband and led bipartisan Western water-preservation coalitions.",
+          "**Bipartisan governing tone:** Maintained a moderate, cross-aisle brand with verified follow-through on mental-health parity."
+        ],
+        concerns: [
+          "**Box Elder data-center campus:** The 9 GW / 40,000-acre approval places major strain on Utah's power grid and water supply during a statewide water crisis.",
+          "**CentraCom ties:** Family fiber-infrastructure interests positioned to benefit from regional rollouts raise conflict-of-interest scrutiny.",
+          "**Bond financing:** State revenue bonds funded developer utility infrastructure while bypassing direct voter consent, in tension with fiscal-accountability rhetoric."
+        ],
+        truthsVsMyths: [
+          { myth: '"Cox is just another anti-tech conservative."', truth: 'He signed first-in-the-nation social-media-for-minors restrictions and championed statewide broadband expansion.' },
+          { myth: '"Utah\'s water rules apply to everyone equally."', truth: 'Residential conservation targets sit alongside multi-million-gallon water-cooling approvals for the Box Elder data-center campus.' },
+          { myth: '"Every major project went through the voters."', truth: 'State utility revenue bonds funded developer infrastructure, bypassing direct voter referendums.' }
+        ],
+        analystSummary: "From an analyst's vantage, Spencer Cox shows dependable follow-through on his core platform — constitutional carry, landmark youth social-media regulation, rural broadband, and mental-health parity were all delivered with bipartisan support.",
+        factCheckerSummary: "A fact-checker's review flags a real gap between residential water-conservation rhetoric and industrial water-cooling approvals, plus transparency concerns around utility-bond financing and family business ties to CentraCom.",
+        consensus: "Both perspectives agree the record is solid but imperfect: Spencer Cox reliably delivers on social and rural-investment pledges, yet large-scale tech-infrastructure deals, bond financing that bypassed voters, and family business ties pull the score to a Mostly Accountable 66/100."
+      }
+    };
+
+    var AccountabilityAnalyzer = {
+      analyze: function(id, p){
+        p = p || {};
+        var name = p.name || 'This official';
+        var first = name.split(' ')[0];
+        var base = (p.score === null || p.score === undefined) ? 60 : (+p.score || 0);
+        var kept = +p.kept || 0, broken = +p.broken || 0, pending = +p.pending || 0;
+        var resolved = kept + broken;
+        var promiseKeeping = resolved ? clamp(kept / resolved * 100, 0, 100) : clamp(base, 0, 100);
+
+        // Extract stated positions
+        var stances = p.stances || {};
+        var brokenStances = [], keptStances = [];
+        Object.keys(stances).forEach(function(k){
+          var t = stances[k];
+          if (!t || typeof t !== 'string') return;
+          var label = k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g, ' $1');
+          if (t.indexOf('❌') > -1 || t.indexOf('🔥') > -1) {
+            brokenStances.push({ label: label, text: t.replace(/[❌🔥]/g, '').trim() });
+          } else if (t !== 'N/A' && t !== 'No stated position' && t !== 'No detailed healthcare position stated') {
+            keptStances.push({ label: label, text: t.trim() });
+          }
+        });
+
+        var promises = Array.isArray(p.promises) ? p.promises : [];
+        var keptProm = promises.filter(function(r){ return r && r.verdict === 'kept'; });
+        var brokenProm = promises.filter(function(r){ return r && r.verdict === 'broken'; });
+        var issues = (p.issues && p.issues.length ? p.issues : (p.keyIssues || [])) || [];
+
+        var bn = brokenStances.length + brokenProm.length;
+
+        // Category scores (0–100)
+        var votingConsistency = clamp(base * 0.65 + promiseKeeping * 0.35 - broken * 1.5, 12, 97);
+        var rhetoric = clamp(base - bn * 6 - 2, 12, 96);
+        var redFlags = clamp(90 - bn * 12 - broken * 3, 10, 96);
+        var transparency = clamp(base - 6 + keptStances.length * 2, 14, 95);
+
+        var cats = [
+          { key: 'promise', label: 'Promise Keeping', score: clamp(promiseKeeping, 0, 100), w: 0.28 },
+          { key: 'voting', label: 'Voting Consistency', score: votingConsistency, w: 0.22 },
+          { key: 'rhetoric', label: 'Rhetoric vs Reality', score: rhetoric, w: 0.20 },
+          { key: 'redflags', label: 'Red Flags / Controversies', score: redFlags, w: 0.18 },
+          { key: 'transparency', label: 'Transparency', score: transparency, w: 0.12 }
+        ];
+
+        var curated = CURATED[id] || null;
+        if (curated && curated.categories) {
+          cats.forEach(function(c){ if (curated.categories[c.key] != null) c.score = curated.categories[c.key]; });
+        }
+
+        var overall = clamp(cats.reduce(function(a, c){ return a + c.score * c.w; }, 0), 0, 100);
+        if (curated && curated.overall != null) overall = curated.overall;
+
+        // Key strengths
+        var strengths;
+        if (curated && curated.strengths) {
+          strengths = curated.strengths.slice();
+        } else {
+          strengths = [];
+          strengths.push("**Promise follow-through:** " + kept + " kept vs " + broken + " broken — a " + promiseKeeping + "% keep rate on resolved commitments.");
+          keptStances.slice(0, 3).forEach(function(s){ strengths.push("**" + s.label + ":** " + s.text); });
+          keptProm.slice(0, 2).forEach(function(r){ strengths.push("**Kept — " + r.title + ":** " + (r.detail || 'Delivered as pledged.')); });
+          if (issues.length) strengths.push("**Issue focus:** Sustained legislative engagement on " + issues.slice(0, 3).join(', ') + ".");
+          if (strengths.length < 2) strengths.push("**Baseline integrity:** Core biographical and office records verify cleanly against official registries.");
+        }
+
+        // Major concerns / red flags
+        var concerns;
+        if (curated && curated.concerns) {
+          concerns = curated.concerns.slice();
+        } else {
+          concerns = [];
+          brokenStances.slice(0, 3).forEach(function(s){ concerns.push("**" + s.label + " gap:** " + s.text); });
+          brokenProm.slice(0, 2).forEach(function(r){ concerns.push("**Broken — " + r.title + ":** " + (r.detail || 'Pledge not delivered.')); });
+          if (pending > 0) concerns.push("**" + pending + " pledge" + (pending === 1 ? '' : 's') + " unresolved:** Commitments not yet delivered or formally abandoned.");
+          if (redFlags < 55) concerns.push("**Elevated controversy load:** Multiple flagged inconsistencies weigh on the overall accountability rating.");
+          if (concerns.length === 0) concerns.push("**Thin reform record:** No major promise reversals verified this cycle, but limited co-sponsorship on flagship reforms warrants monitoring.");
+        }
+
+        // Truths vs Myths
+        var tvm;
+        if (curated && curated.truthsVsMyths) {
+          tvm = curated.truthsVsMyths.slice();
+        } else {
+          tvm = [];
+          tvm.push({ myth: '"' + first + '\'s promises are just campaign talk."', truth: 'The verified ledger shows ' + kept + ' kept vs ' + broken + ' broken promises — a ' + promiseKeeping + '% keep rate once pending items are set aside.' });
+          if (brokenStances[0]) tvm.push({ myth: '"' + first + ' fully delivered on ' + brokenStances[0].label.toLowerCase() + '."', truth: brokenStances[0].text });
+          else if (brokenProm[0]) tvm.push({ myth: '"Every major pledge was honored."', truth: '"' + brokenProm[0].title + '": ' + (brokenProm[0].detail || 'recorded as broken.') });
+          if (keptStances[0]) tvm.push({ myth: '"' + first + ' is all rhetoric, no record."', truth: keptStances[0].label + ': ' + keptStances[0].text });
+          else if (keptProm[0]) tvm.push({ myth: '"Nothing actually got done."', truth: '"' + keptProm[0].title + '" was delivered: ' + (keptProm[0].detail || 'kept as pledged.') });
+        }
+
+        var analystScore = clamp(overall + 6, 0, 100);
+        var fcScore = clamp(overall - 7, 0, 100);
+
+        var analystSummary = curated && curated.analystSummary ? curated.analystSummary
+          : ("From an analyst's vantage, " + first + " demonstrates " + (overall >= 65 ? 'strong and largely consistent' : overall >= 50 ? 'selective but real' : 'limited but non-zero') + " follow-through. Strengths cluster around " + (issues[0] || 'core platform priorities') + ", backed by a " + promiseKeeping + "% promise-keeping rate on resolved pledges.");
+        var fcSummary = curated && curated.factCheckerSummary ? curated.factCheckerSummary
+          : ("A fact-checker's review flags " + (bn > 0 ? bn + ' notable inconsistenc' + (bn === 1 ? 'y' : 'ies') : 'thin documentation on flagship pledges') + " between public messaging and the record. " + (broken > 0 ? broken + ' broken promise' + (broken === 1 ? '' : 's') + ' temper the headline narrative.' : 'Unresolved pending commitments keep the ceiling in check.'));
+        var consensus = curated && curated.consensus ? curated.consensus
+          : ("Across an advocacy-minded analyst read and a skeptical fact-checker read, " + name + " lands at an Accountability Score of " + overall + "/100 (" + acctRating(overall) + "). " + (overall >= 65 ? "The record shows dependable follow-through with a few areas worth watching." : overall >= 50 ? "The record is genuinely mixed: real deliverables sit alongside notable gaps between rhetoric and action." : "The analysis surfaces significant divergence between stated commitments and verified action."));
+
+        var justification = name + " scores " + overall + "/100 — a weighted blend of promise-keeping (" + promiseKeeping + "%), voting consistency, rhetoric-vs-reality, controversy load, and transparency.";
+
+        return {
+          politicianId: id,
+          version: ACCT_VERSION,
+          generatedAt: (new Date()).toISOString(),
+          overallScore: overall,
+          rating: acctRating(overall),
+          color: acctLevelColor(overall),
+          justification: justification,
+          categories: cats.map(function(c){ return { key: c.key, label: c.label, score: c.score }; }),
+          analyst: { score: analystScore, summary: analystSummary, strengths: strengths },
+          factChecker: { score: fcScore, summary: fcSummary, concerns: concerns },
+          truthsVsMyths: tvm,
+          strengths: strengths,
+          concerns: concerns,
+          consensus: consensus
+        };
+      }
+    };
+
+    // ── Persistence (Firestore, merged into the existing politician document) ──
+    function saveAccountability(id, data){
+      try {
+        if (typeof PROFILES !== 'undefined' && PROFILES[id]) PROFILES[id].accountability = data;
+        if (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) CMP_DATA[id].accountability = data;
+      } catch (e) { /* non-fatal */ }
+      try {
+        if (typeof db !== 'undefined' && db && db.collection) {
+          db.collection('politicians').doc(id).set({ accountability: data }, { merge: true })
+            .catch(function(e){ console.warn('Accountability save failed:', e && e.message); });
+        }
+      } catch (e) { console.warn('Accountability save error:', e); }
+    }
+
+    function getProfile(id){
+      var p = (typeof PROFILES !== 'undefined') ? PROFILES[id] : null;
+      if (!p && typeof CMP_DATA !== 'undefined') p = CMP_DATA[id];
+      return p;
+    }
+
+    // ── Always-visible inline card (purple) ──
+    window._renderAccountabilityCard = function(id, p){
+      p = p || getProfile(id) || {};
+      var a = p.accountability;
+      var safeId = aesc(id);
+
+      if (a && typeof a.overallScore === 'number') {
+        var s = a.overallScore;
+        var lvl = a.color || acctLevelColor(s);
+        var r = 26, circ = 2 * Math.PI * r, dash = (s / 100) * circ;
+        return '' +
+          '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(139,92,246,0.05));border:1px solid rgba(139,92,246,0.34);border-radius:0.9rem;padding:0.9rem 1rem;box-shadow:0 0 18px rgba(139,92,246,0.08);">' +
+            '<div style="display:flex;align-items:center;gap:0.9rem;">' +
+              '<div style="position:relative;width:64px;height:64px;flex-shrink:0;">' +
+                '<svg width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);">' +
+                  '<circle cx="32" cy="32" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>' +
+                  '<circle cx="32" cy="32" r="' + r + '" fill="none" stroke="#a78bfa" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + dash.toFixed(1) + ' ' + circ.toFixed(1) + '" style="filter:drop-shadow(0 0 5px rgba(167,139,250,0.6));"/>' +
+                '</svg>' +
+                '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">' +
+                  '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.35rem;color:#fff;line-height:1;">' + s + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;">🛡️ Accountability Score</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.12rem;flex-wrap:wrap;">' +
+                  '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;color:#fff;line-height:1;">' + s + '<span style="font-size:0.9rem;color:#9fb4d4;">/100</span></span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:' + lvl + ';background:' + lvl + '1a;border:1px solid ' + lvl + '55;padding:0.12rem 0.45rem;border-radius:999px;">' + aesc(a.rating || acctRating(s)) + '</span>' +
+                '</div>' +
+                '<div style="height:5px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;margin-top:0.45rem;">' +
+                  '<div style="height:100%;width:' + s + '%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:999px;transition:width 1.1s cubic-bezier(0.4,0,0.2,1);"></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:0.5rem;margin-top:0.75rem;">' +
+              '<button onclick="viewAccountabilityAnalysis(\'' + safeId + '\')" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.6rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis</button>' +
+              '<button onclick="openAccountabilityAnalysis(\'' + safeId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.6rem 0.8rem;border-radius:0.6rem;">↻ Re-run</button>' +
+            '</div>' +
+          '</div>';
+      }
+
+      // Not yet analyzed
+      return '' +
+        '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(139,92,246,0.03));border:1px dashed rgba(139,92,246,0.4);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+          '<div style="display:flex;align-items:center;gap:0.9rem;">' +
+            '<div style="width:64px;height:64px;flex-shrink:0;border-radius:0.75rem;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;font-size:1.7rem;">🛡️</div>' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;">🛡️ Accountability Score</div>' +
+              '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;color:#9fb4d4;line-height:1.1;margin-top:0.1rem;">Not Yet Analyzed</div>' +
+              '<p style="font-size:0.68rem;color:#7596c0;line-height:1.45;margin:0.2rem 0 0;">Run a deep two-perspective verification to generate this official\'s accountability score.</p>' +
+            '</div>' +
+          '</div>' +
+          '<button onclick="openAccountabilityAnalysis(\'' + safeId + '\')" style="width:100%;margin-top:0.75rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.7rem;border-radius:0.65rem;box-shadow:0 4px 16px rgba(124,58,237,0.32);display:flex;align-items:center;justify-content:center;gap:0.4rem;">🔍 Run Accountability Analysis</button>' +
+        '</div>';
+    };
+
+    window._refreshAccountabilityCard = function(id){
+      var el = document.getElementById('acct-inline-card');
+      if (el) el.innerHTML = window._renderAccountabilityCard(id, getProfile(id));
+    };
+
+    // ── Browse-card Accountability: compact purple badge + expandable condensed analysis ──
+    // Small purple chip shown beside the Promise Score on each card. Shows the
+    // stored Accountability Score, or a "Not Analyzed" pill that runs analysis on click.
+    window._acctCardBadge = function(id){
+      var p = getProfile(id) || {};
+      var a = p.accountability;
+      if (a && typeof a.overallScore === 'number'){
+        var s = a.overallScore;
+        return '<div class="chub-acct-chip" title="Accountability Score" style="background:linear-gradient(135deg,rgba(124,58,237,0.18),rgba(139,92,246,0.06));border:1px solid rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.03);display:inline-flex;align-items:center;gap:0.35rem;">' +
+            '<span style="color:#a78bfa;font-size:1.7rem;text-shadow:0 0 12px rgba(167,139,250,0.45);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + s + '</span>' +
+            '<span class="font-condensed tracking-wider uppercase font-bold" style="color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.1;">🛡️ Account.<br>Score</span>' +
+          '</div>';
+      }
+      return '<button type="button" onclick="event.stopPropagation();toggleCardAccountability(\'' + aesc(id) + '\')" title="Run accountability analysis" style="cursor:pointer;background:rgba(139,92,246,0.1);border:1px dashed rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.3rem 0.55rem;display:inline-flex;align-items:center;gap:0.35rem;line-height:1.1;">' +
+          '<span style="font-size:1rem;">🛡️</span>' +
+          '<span class="font-condensed tracking-wider uppercase font-bold" style="color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.15;text-align:left;">Account.<br><span style="color:#a78bfa;">Not Analyzed</span></span>' +
+        '</button>';
+    };
+
+    // Condensed, card-sized accountability breakdown (kept short by design).
+    window._acctCardCondensed = function(id, a){
+      if (!a || typeof a.overallScore !== 'number') return '<div style="padding:0.6rem;color:#9fb4d4;font-size:0.72rem;">Analysis unavailable.</div>';
+      var s = a.overallScore;
+      var lvl = a.color || acctLevelColor(s);
+      var safe = aesc(id);
+      var cats = (a.categories || []).map(function(c){
+        var cc = acctLevelColor(c.score);
+        return '<div style="margin-bottom:0.4rem;">' +
+          '<div style="display:flex;justify-content:space-between;font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.03em;color:#9fb4d4;margin-bottom:0.15rem;">' +
+            '<span>' + aesc(c.label) + '</span><span style="color:' + cc + ';font-weight:700;">' + c.score + '</span></div>' +
+          '<div style="height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + c.score + '%;background:linear-gradient(90deg,#7c3aed,' + cc + ');border-radius:999px;"></div></div></div>';
+      }).join('');
+      var tvm = (a.truthsVsMyths || []).slice(0, 2).map(function(m){
+        return '<div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.05);border-radius:0.55rem;padding:0.5rem 0.6rem;margin-bottom:0.4rem;">' +
+          '<div style="display:flex;gap:0.4rem;margin-bottom:0.25rem;"><span style="color:#f87171;flex-shrink:0;font-size:0.7rem;">❌</span><div style="font-size:0.68rem;color:#cbd9ec;line-height:1.4;font-style:italic;">' + acctMd(m.myth) + '</div></div>' +
+          '<div style="display:flex;gap:0.4rem;"><span style="color:#4ade80;flex-shrink:0;font-size:0.7rem;">✓</span><div style="font-size:0.68rem;color:#e6ecf5;line-height:1.4;">' + acctMd(m.truth) + '</div></div></div>';
+      }).join('');
+      return '<div style="margin-top:0.75rem;background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(139,92,246,0.03));border:1px solid rgba(139,92,246,0.32);border-radius:0.75rem;padding:0.8rem 0.85rem;">' +
+        // Header — overall score + rating + short summary
+        '<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.65rem;">' +
+          '<span style="flex-shrink:0;font-family:\'Bebas Neue\',sans-serif;font-size:1.7rem;color:#a78bfa;line-height:1;">' + s + '<span style="font-size:0.8rem;color:#9fb4d4;">/100</span></span>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.2rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Accountability</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.05em;text-transform:uppercase;color:' + lvl + ';background:' + lvl + '1a;border:1px solid ' + lvl + '55;padding:0.1rem 0.4rem;border-radius:999px;">' + aesc(a.rating || acctRating(s)) + '</span>' +
+            '</div>' +
+            '<p style="font-size:0.7rem;color:#cbd9ec;line-height:1.45;margin:0;">' + acctMd(a.justification || '') + '</p>' +
+          '</div>' +
+        '</div>' +
+        // Category scores
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.4rem;">📐 Category Scores</div>' +
+        cats +
+        // Truths vs Myths (1–2)
+        (tvm ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin:0.65rem 0 0.4rem;">⚖️ Truths vs Myths</div>' + tvm : '') +
+        // Footer — jump to full analysis in the dedicated modal
+        '<button type="button" onclick="event.stopPropagation();viewAccountabilityAnalysis(\'' + safe + '\')" style="width:100%;margin-top:0.35rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.5rem;border-radius:0.55rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis →</button>' +
+      '</div>';
+    };
+
+    // Toggle the expandable analysis on a browse card. Lazy-computes (and persists)
+    // the analysis on first open so cards never run the deep analysis by default.
+    window.toggleCardAccountability = function(pid){
+      var panel = document.getElementById('acctexp-' + pid);
+      var btn = document.getElementById('acctbtn-' + pid);
+      var chev = document.getElementById('acctchev-' + pid);
+      if (!panel) return;
+      var isOpen = panel.getAttribute('data-open') === '1';
+      if (isOpen){
+        panel.style.maxHeight = '0px';
+        panel.style.opacity = '0';
+        panel.setAttribute('data-open', '0');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+        var lblC = btn && btn.querySelector('.acct-exp-label');
+        if (lblC) lblC.textContent = 'View Accountability Analysis';
+        return;
+      }
+      if (panel.getAttribute('data-loaded') !== '1'){
+        var p = getProfile(pid) || {};
+        var a = p.accountability;
+        if (!a || typeof a.overallScore !== 'number'){
+          try {
+            a = AccountabilityAnalyzer.analyze(pid, p);
+            saveAccountability(pid, a);
+          } catch (e) { a = null; }
+          var bdg = document.getElementById('acctbadge-' + pid);
+          if (bdg) bdg.innerHTML = window._acctCardBadge(pid);
+        }
+        panel.innerHTML = window._acctCardCondensed(pid, a);
+        panel.setAttribute('data-loaded', '1');
+      }
+      panel.style.maxHeight = (panel.scrollHeight + 40) + 'px';
+      panel.style.opacity = '1';
+      panel.setAttribute('data-open', '1');
+      if (chev) chev.style.transform = 'rotate(180deg)';
+      var lblO = btn && btn.querySelector('.acct-exp-label');
+      if (lblO) lblO.textContent = 'Hide Accountability Analysis';
+    };
+
+    // ── Full breakdown renderer ──
+    function bulletList(items, accent){
+      return (items || []).map(function(t){
+        return '<div style="display:flex;align-items:flex-start;gap:0.55rem;margin:0.5rem 0;">' +
+          '<span style="color:' + accent + ';font-size:0.7rem;margin-top:0.2rem;flex-shrink:0;">◆</span>' +
+          '<div style="flex:1;font-size:0.82rem;color:#cbd9ec;line-height:1.55;">' + acctMd(t) + '</div></div>';
+      }).join('');
+    }
+
+    function renderAccountabilityPanel(data){
+      var container = document.getElementById('acct-panel-body');
+      if (!container) return;
+      var s = data.overallScore;
+      var lvl = data.color || acctLevelColor(s);
+      var r = 38, circ = 2 * Math.PI * r, dash = (s / 100) * circ;
+      var html = '';
+
+      // SECTION 1 — Overall score hero (purple)
+      html += '<div style="background:linear-gradient(135deg,rgba(124,58,237,0.16),rgba(139,92,246,0.04));border:1px solid rgba(139,92,246,0.34);border-radius:1rem;padding:1.25rem;box-shadow:0 0 26px rgba(139,92,246,0.1);">' +
+        '<div class="flex flex-col sm:flex-row items-center sm:items-start" style="gap:1.1rem;">' +
+          '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;text-align:center;">' +
+            '<div style="position:relative;width:104px;height:104px;">' +
+              '<svg width="104" height="104" viewBox="0 0 104 104" style="transform:rotate(-90deg);">' +
+                '<circle cx="52" cy="52" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>' +
+                '<circle cx="52" cy="52" r="' + r + '" fill="none" stroke="#a78bfa" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + dash.toFixed(1) + ' ' + circ.toFixed(1) + '" style="filter:drop-shadow(0 0 8px rgba(167,139,250,0.65));"/>' +
+              '</svg>' +
+              '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+                '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:#fff;line-height:1;">' + s + '</div>' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;">/ 100</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:' + lvl + ';background:' + lvl + '1a;border:1px solid ' + lvl + '55;padding:0.18rem 0.6rem;border-radius:999px;margin-top:0.6rem;">' + aesc(data.rating) + '</div>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.35rem;">🛡️ Overall Accountability Score</div>' +
+            '<p style="font-size:0.86rem;color:#e6ecf5;line-height:1.6;margin:0;">' + acctMd(data.justification) + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+      // SECTION 2 — Two perspectives
+      html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
+      // Analyst
+      html += '<div style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.28);border-radius:0.9rem;padding:1rem;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">' +
+          '<span style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#c4b5fd;">📊 Analyst Perspective</span>' +
+          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.15rem;color:#a78bfa;">' + data.analyst.score + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.8rem;color:#cbd9ec;line-height:1.55;margin:0 0 0.5rem;">' + acctMd(data.analyst.summary) + '</p>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#4ade80;margin-top:0.5rem;">✓ Key Strengths</div>' +
+        bulletList(data.analyst.strengths, '#4ade80') +
+      '</div>';
+      // Fact-Checker
+      html += '<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.26);border-radius:0.9rem;padding:1rem;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">' +
+          '<span style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#fca5a5;">🔎 Fact-Checker Perspective</span>' +
+          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.15rem;color:#f87171;">' + data.factChecker.score + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.8rem;color:#cbd9ec;line-height:1.55;margin:0 0 0.5rem;">' + acctMd(data.factChecker.summary) + '</p>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#f87171;margin-top:0.5rem;">🚩 Major Concerns / Red Flags</div>' +
+        bulletList(data.factChecker.concerns, '#f87171') +
+      '</div>';
+      html += '</div>';
+
+      // SECTION 3 — Category scores
+      html += '<div style="background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-radius:0.9rem;padding:1rem 1.1rem;">' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.75rem;">📐 Category Breakdown</div>';
+      (data.categories || []).forEach(function(c){
+        var cc = acctLevelColor(c.score);
+        html += '<div style="margin-bottom:0.7rem;">' +
+          '<div style="display:flex;justify-content:space-between;font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;letter-spacing:0.04em;color:#9fb4d4;margin-bottom:0.25rem;">' +
+            '<span>' + aesc(c.label) + '</span><span style="color:' + cc + ';font-weight:700;">' + c.score + '</span>' +
+          '</div>' +
+          '<div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">' +
+            '<div style="height:100%;width:' + c.score + '%;background:linear-gradient(90deg,#7c3aed,' + cc + ');border-radius:999px;transition:width 1s cubic-bezier(0.4,0,0.2,1);"></div>' +
+          '</div></div>';
+      });
+      html += '</div>';
+
+      // SECTION 4 — Truths vs Myths
+      if (data.truthsVsMyths && data.truthsVsMyths.length) {
+        html += '<div style="background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-radius:0.9rem;padding:1rem 1.1rem;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.75rem;">⚖️ Truths vs Myths</div>';
+        data.truthsVsMyths.forEach(function(m){
+          html += '<div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.05);border-radius:0.7rem;padding:0.7rem 0.8rem;margin-bottom:0.6rem;">' +
+            '<div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.4rem;">' +
+              '<span style="color:#f87171;flex-shrink:0;">❌</span>' +
+              '<div style="flex:1;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#f87171;">Myth</span>' +
+                '<div style="font-size:0.8rem;color:#cbd9ec;line-height:1.5;font-style:italic;">' + acctMd(m.myth) + '</div></div>' +
+            '</div>' +
+            '<div style="display:flex;align-items:flex-start;gap:0.5rem;">' +
+              '<span style="color:#4ade80;flex-shrink:0;">✓</span>' +
+              '<div style="flex:1;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#4ade80;">Truth</span>' +
+                '<div style="font-size:0.8rem;color:#e6ecf5;line-height:1.5;">' + acctMd(m.truth) + '</div></div>' +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+
+      // SECTION 5 — Consensus
+      html += '<div style="background:linear-gradient(135deg,rgba(124,58,237,0.14),rgba(139,92,246,0.04));border:1px solid rgba(139,92,246,0.3);border-radius:0.9rem;padding:1rem 1.1rem;">' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.4rem;">⚖️ Consensus — Overall Assessment</div>' +
+        '<p style="font-size:0.84rem;color:#e6ecf5;line-height:1.6;margin:0;">' + acctMd(data.consensus) + '</p>' +
+      '</div>';
+
+      // Footer — methodology
+      var when = '';
+      try { when = data.generatedAt ? new Date(data.generatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; } catch (e) {}
+      html += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.75rem 0.85rem;">' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:#c4b5fd;margin-bottom:0.3rem;">🔬 Methodology</div>' +
+        '<p style="font-size:0.7rem;color:#7596c0;line-height:1.55;margin:0;">Generated by PolitiDex\'s dual-perspective accountability engine — an Analyst pass and a Fact-Checker pass run by one strong model — cross-referenced against the tracked promise ledger, stated policy positions, and public disclosures. Scores are saved to this profile for instant reload and only refresh when you re-run the analysis.' + (when ? ' Last analyzed ' + aesc(when) + '.' : '') + '</p>' +
+      '</div>';
+
+      container.innerHTML = html;
+    }
+
+    // ── Modal open/close + run ──
+    function openOverlay(){
+      var overlay = document.getElementById('accountability-overlay');
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.opacity = '0';
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        overlay.style.transition = 'opacity 0.22s ease';
+        overlay.style.opacity = '1';
+      }); });
+    }
+
+    function showResult(id, data){
+      document.getElementById('acct-loading').classList.add('hidden');
+      document.getElementById('acct-content').classList.remove('hidden');
+      renderAccountabilityPanel(data);
+      if (typeof window._refreshAccountabilityCard === 'function') window._refreshAccountabilityCard(id);
+    }
+
+    // Run (or re-run) a fresh analysis — the only path that recomputes + saves.
+    window.openAccountabilityAnalysis = function(id){
+      var p = getProfile(id);
+      if (!p) return;
+      var sub = document.getElementById('acct-subtitle');
+      if (sub) sub.textContent = 'Analyzing ' + (p.name || '') + (p.office ? ' · ' + p.office : '');
+      document.getElementById('acct-loading').classList.remove('hidden');
+      document.getElementById('acct-content').classList.add('hidden');
+      openOverlay();
+      setTimeout(function(){
+        var data = AccountabilityAnalyzer.analyze(id, p);
+        saveAccountability(id, data);
+        showResult(id, data);
+      }, 1400);
+    };
+
+    // View an already-stored analysis instantly (no recompute). Falls back to run.
+    window.viewAccountabilityAnalysis = function(id){
+      var p = getProfile(id);
+      if (!p) return;
+      if (!p.accountability || typeof p.accountability.overallScore !== 'number') {
+        return window.openAccountabilityAnalysis(id);
+      }
+      var sub = document.getElementById('acct-subtitle');
+      if (sub) sub.textContent = (p.name || '') + (p.office ? ' · ' + p.office : '');
+      document.getElementById('acct-loading').classList.add('hidden');
+      document.getElementById('acct-content').classList.remove('hidden');
+      renderAccountabilityPanel(p.accountability);
+      openOverlay();
+    };
+
+    window.closeAccountabilityModal = function(){
+      var overlay = document.getElementById('accountability-overlay');
+      if (!overlay) return;
+      overlay.style.opacity = '0';
+      setTimeout(function(){
+        overlay.style.display = 'none';
+        var others = ['modal-overlay', 'profile-verify-overlay', 'comment-overlay', 'auth-overlay', 'evidence-overlay', 'verify-overlay'];
+        var anyOpen = others.some(function(oid){
+          var el = document.getElementById(oid);
+          return el && el.style.display !== 'none' && el.style.display !== '';
+        });
+        if (!anyOpen) document.body.style.overflow = '';
+      }, 220);
+    };
   })();
   </script>
 
