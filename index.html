@@ -460,6 +460,38 @@
       background-color: #0d1526 !important;
       color: #ffffff !important;
     }
+    /* ── All Politicians: search & filter inputs — dark-theme fix ──
+       The `navy-950` Tailwind shade is undefined in the config, so the
+       search field fell back to a white background with white (invisible)
+       text. Force a solid dark background, readable text, visible
+       placeholder, and a patriotic focus ring across all of these
+       controls regardless of utility-class resolution. */
+    #myteam-browse-search,
+    #myteam-browse-office,
+    #myteam-browse-state,
+    #myteam-browse-score,
+    #myteam-browse-sort {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255,255,255,0.14) !important;
+    }
+    #myteam-browse-search::placeholder { color: #7596c0 !important; opacity: 1; }
+    #myteam-browse-office option,
+    #myteam-browse-state option,
+    #myteam-browse-score option,
+    #myteam-browse-sort option {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
+    }
+    #myteam-browse-search:focus,
+    #myteam-browse-office:focus,
+    #myteam-browse-state:focus,
+    #myteam-browse-score:focus,
+    #myteam-browse-sort:focus {
+      outline: none !important;
+      border-color: rgba(245,158,11,0.6) !important;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
+    }
     .browse-toolbar.is-stuck {
       box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
       border-color: rgba(245,158,11,0.2);
