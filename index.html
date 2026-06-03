@@ -10535,6 +10535,10 @@
 
   <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
   <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+    <style>
+      /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
+      #expansion-results-list:not(.show-dups) .expansion-dup-card { display: none; }
+    </style>
     <div class="max-w-6xl mx-auto px-4">
 
       <!-- ── Header ────────────────────────────────────────── -->
@@ -10626,10 +10630,19 @@
               </select>
             </div>
 
-            <!-- Custom Context Prompt -->
-            <div>
-              <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Optional AI Custom Prompt (Fine-tune Discoveries)</label>
-              <textarea id="expansion-custom-prompt" placeholder="e.g., Focus on discovering southern Utah representatives, or independent progressive candidates for statewide office." class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-gold-400 focus:outline-none h-24 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
+            <!-- Custom Context Prompt (highlighted — best results) -->
+            <div class="bg-gradient-to-br from-gold-500/10 to-navy-900/40 border border-gold-500/30 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-gold-300">✨ Custom AI Prompt — Power Search</label>
+                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">★ Best Results</span>
+              </div>
+              <p class="text-xs text-steel-300 font-body leading-snug">Describe exactly who you want and the AI casts a wider net. The more specific the request, the bigger and better the batch it returns.</p>
+              <textarea id="expansion-custom-prompt" placeholder="e.g., All Utah State House members from Salt Lake & Davis counties, plus any 2026 county-commission candidates." class="w-full bg-navy-950 border-2 border-gold-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-gold-400 focus:outline-none h-24 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Try one:</span>
+                <button type="button" onclick="setExpansionPromptExample('All Utah State Senate members, including leadership and committee chairs.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🏛 Full Senate roster</button>
+                <button type="button" onclick="setExpansionPromptExample('Every 2026 Utah candidate for federal and statewide office, all parties.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🗳️ All 2026 candidates</button>
+              </div>
             </div>
 
             <!-- Action Button -->
@@ -10642,7 +10655,7 @@
           <div class="lg:col-span-7 space-y-6">
             <div>
               <h3 class="font-display text-2xl tracking-wider text-white mb-2">Suggested Discoveries</h3>
-              <p class="text-sm text-steel-300 font-body">Review the AI-suggested politicians, click individual cards to inspect, and import verified records directly into Firestore.</p>
+              <p class="text-sm text-steel-300 font-body">Each result is tagged <span class="text-green-300 font-semibold">✦ New</span> or <span class="text-amber-300 font-semibold">⚠ Potential Duplicate</span>. New picks are pre-selected — multi-select and import a whole batch, or toggle on duplicates to review and re-import them too.</p>
             </div>
 
             <!-- Suggestion Results Display -->
@@ -10684,7 +10697,11 @@
                       <input type="checkbox" id="expansion-select-all" onchange="toggleExpansionSelectAll(this)" class="w-4 h-4 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer">
                       <span class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-300">Select All</span>
                     </label>
-                    <span id="expansion-selection-counter" class="font-condensed text-xs font-bold text-gold-400 tracking-wide">0 selected out of 0 suggestions</span>
+                    <span id="expansion-selection-counter" class="font-condensed text-xs font-bold text-gold-400 tracking-wide">0 selected out of 0 shown</span>
+                    <label class="flex items-center gap-2 cursor-pointer select-none" title="Show politicians that may already exist in the database">
+                      <input type="checkbox" id="expansion-show-dups" onchange="toggleExpansionShowDuplicates(this)" class="w-4 h-4 rounded border-2 border-amber-500/60 bg-navy-950 accent-amber-500 cursor-pointer">
+                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-300">Include potential duplicates</span>
+                    </label>
                   </div>
                   <button id="expansion-bulk-import-btn" onclick="bulkImportSelectedPoliticians()" disabled class="btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 disabled:cursor-not-allowed text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95" style="font-size:13px;letter-spacing:0.1em;padding:11px 18px;border:1.5px solid rgba(255,255,255,0.22);opacity:0.5;white-space:nowrap;">
                     <span id="expansion-bulk-import-label">📥 Import Selected to Database</span>
@@ -11042,35 +11059,9 @@
       })
       .then(function(data) {
         clearInterval(msgInterval);
-        
+
         var suggestions = data.suggestions || [];
-        var html = '';
-        var count = 0;
-
-        // Reset list DOM
-        var resultsList = document.getElementById('expansion-results-list');
-        resultsList.innerHTML = '';
-
-        suggestions.forEach(function(suggestion) {
-          _customSuggestionsMap[suggestion.id] = suggestion;
-          html += renderSuggestionCard(suggestion, level, true);
-          count++;
-        });
-
-        if (count === 0) {
-          resultsList.innerHTML = '<div class="text-center text-steel-400 py-8 font-body text-sm">No new missing politicians found matching these criteria! Try adjusting your criteria.</div>';
-          document.getElementById('expansion-results-count-label').textContent = '0 Suggestions Found';
-        } else {
-          resultsList.innerHTML = html;
-          document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
-        }
-
-        // Reset bulk-selection UI for the freshly rendered result set.
-        var _fb = document.getElementById('expansion-bulk-feedback');
-        if (_fb) _fb.classList.add('hidden');
-        var _sa = document.getElementById('expansion-select-all');
-        if (_sa) { _sa.checked = false; _sa.indeterminate = false; }
-        window.updateExpansionSelectionCount();
+        renderExpansionResults(suggestions, level);
 
         loader.classList.add('hidden');
         container.classList.remove('hidden');
@@ -11084,16 +11075,10 @@
         console.warn("AI Search API failed or is not available. Falling back to high-quality client-side generation...", error);
         
         var baseSuggestions = EXPANSION_SUGGESTIONS[level] || [];
-        
-        // Filter out those already in db
-        var suggestions = baseSuggestions.filter(function(item) {
-          return !existingNames.some(function(name) {
-            return name.toLowerCase().trim() === item.name.toLowerCase().trim();
-          });
-        });
 
-        // Deep copy
-        suggestions = JSON.parse(JSON.stringify(suggestions));
+        // Show the full catalog (potential duplicates are flagged, not hidden) so
+        // broad searches still surface meaningful suggestions instead of nothing.
+        var suggestions = JSON.parse(JSON.stringify(baseSuggestions));
 
         // If user provided a custom prompt, generate a custom tailored candidate
         if (customPrompt && customPrompt.length > 0) {
@@ -11126,37 +11111,11 @@
           });
         }
 
-        var html = '';
-        var count = 0;
-
-        // Reset list DOM
-        var resultsList = document.getElementById('expansion-results-list');
-        resultsList.innerHTML = '';
-
-        suggestions.forEach(function(suggestion) {
-          _customSuggestionsMap[suggestion.id] = suggestion;
-          html += renderSuggestionCard(suggestion, level, true);
-          count++;
-        });
-
-        if (count === 0) {
-          resultsList.innerHTML = '<div class="text-center text-steel-400 py-8 font-body text-sm">No new missing politicians found matching these criteria! Try adjusting your criteria.</div>';
-          document.getElementById('expansion-results-count-label').textContent = '0 Suggestions Found';
-        } else {
-          resultsList.innerHTML = html;
-          document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
-        }
+        renderExpansionResults(suggestions, level);
 
         if (typeof window._showToast === 'function') {
-          window._showToast("Loaded suggestions from safe offline local catalog! 🇺🇸");
+          window._showToast("Loaded suggestions from the local catalog — duplicates are flagged below. 🇺🇸");
         }
-
-        // Reset bulk-selection UI for the freshly rendered result set.
-        var _fb = document.getElementById('expansion-bulk-feedback');
-        if (_fb) _fb.classList.add('hidden');
-        var _sa = document.getElementById('expansion-select-all');
-        if (_sa) { _sa.checked = false; _sa.indeterminate = false; }
-        window.updateExpansionSelectionCount();
 
         loader.classList.add('hidden');
         container.classList.remove('hidden');
@@ -11172,16 +11131,131 @@
       document.getElementById('expansion-idle').classList.remove('hidden');
     };
 
+    // ── Duplicate-aware rendering helpers ─────────────────────────
+    // Fill the custom prompt box from an example chip.
+    window.setExpansionPromptExample = function(text) {
+      var ta = document.getElementById('expansion-custom-prompt');
+      if (!ta) return;
+      ta.value = text;
+      ta.focus();
+    };
+
+    // True when a politician with this name already exists in the live database.
+    function isSuggestionInDb(suggestion) {
+      if (typeof PROFILES === 'undefined' || !suggestion || !suggestion.name) return false;
+      var target = suggestion.name.toLowerCase().trim();
+      var keys = Object.keys(PROFILES);
+      for (var i = 0; i < keys.length; i++) {
+        var p = PROFILES[keys[i]];
+        if (p && p.name && p.name.toLowerCase().trim() === target) return true;
+      }
+      return false;
+    }
+
+    function setExpansionCountLabel(newCount, dupCount) {
+      var el = document.getElementById('expansion-results-count-label');
+      if (!el) return;
+      var parts = [newCount + ' New'];
+      if (dupCount > 0) parts.push(dupCount + ' Potential Duplicate' + (dupCount === 1 ? '' : 's'));
+      el.textContent = parts.join(' · ');
+    }
+
+    // Recompute the header label from whatever cards are currently in the DOM.
+    function refreshExpansionCountLabel() {
+      var list = document.getElementById('expansion-results-list');
+      if (!list) return;
+      var cards = list.querySelectorAll('.expansion-suggestion-card');
+      var dup = 0, nw = 0;
+      cards.forEach(function(c) { if (c.classList.contains('expansion-dup-card')) dup++; else nw++; });
+      setExpansionCountLabel(nw, dup);
+    }
+
+    // Friendly, actionable guidance shown above the cards when few/no NEW records turn up.
+    function renderExpansionLowResultsNote(newCount, dupCount) {
+      if (newCount > 0) return '';
+      var headline, body;
+      if (dupCount > 0) {
+        headline = 'Everything matched existing records';
+        body = 'All ' + dupCount + ' result' + (dupCount === 1 ? '' : 's') + ' for this search already appear to be in the database. Turn on <strong class="text-amber-300">“Include potential duplicates”</strong> above to review or re-import them, switch the target level, or use the <strong class="text-gold-300">Custom AI Prompt</strong> on the left to target a more specific group.';
+      } else {
+        headline = 'No suggestions returned';
+        body = 'Try a broader target level, or describe exactly who you want in the <strong class="text-gold-300">Custom AI Prompt</strong> — e.g. <em>“All Utah State House members from Utah County”</em> or <em>“2026 county-commission candidates, all parties.”</em>';
+      }
+      return '<div class="bg-navy-900/70 border border-gold-500/30 rounded-xl px-4 py-4 mb-1 text-sm font-body text-steel-200 leading-relaxed">' +
+        '<p class="font-condensed text-xs font-700 tracking-widest uppercase text-gold-300 mb-1.5">💡 ' + headline + '</p>' +
+        '<p>' + body + '</p></div>';
+    }
+
+    // Shared renderer for both the API and offline-catalog code paths.
+    function renderExpansionResults(suggestions, level) {
+      var resultsList = document.getElementById('expansion-results-list');
+      if (!resultsList) return;
+      suggestions = suggestions || [];
+
+      var newCount = 0, dupCount = 0, cardsHtml = '';
+      suggestions.forEach(function(s) {
+        _customSuggestionsMap[s.id] = s;
+        if (isSuggestionInDb(s)) dupCount++; else newCount++;
+        cardsHtml += renderSuggestionCard(s, level, true);
+      });
+
+      resultsList.innerHTML = renderExpansionLowResultsNote(newCount, dupCount) + cardsHtml;
+      setExpansionCountLabel(newCount, dupCount);
+
+      // Reset bulk-selection UI for the freshly rendered result set.
+      var fb = document.getElementById('expansion-bulk-feedback');
+      if (fb) fb.classList.add('hidden');
+      var selectAll = document.getElementById('expansion-select-all');
+      if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+      var showDups = document.getElementById('expansion-show-dups');
+      if (showDups && showDups.checked) {
+        resultsList.classList.add('show-dups');
+      } else {
+        resultsList.classList.remove('show-dups');
+      }
+
+      // Reveal the results before counting — the selection counter measures
+      // visible rows, so the container must be on-screen first.
+      var idleEl = document.getElementById('expansion-idle');
+      var loaderEl = document.getElementById('expansion-loader');
+      var containerEl = document.getElementById('expansion-results-container');
+      if (idleEl) idleEl.classList.add('hidden');
+      if (loaderEl) loaderEl.classList.add('hidden');
+      if (containerEl) containerEl.classList.remove('hidden');
+
+      window.updateExpansionSelectionCount();
+    }
+
+    // Toggle visibility of potential-duplicate cards.
+    window.toggleExpansionShowDuplicates = function(src) {
+      var list = document.getElementById('expansion-results-list');
+      if (!list) return;
+      var show = !!(src && src.checked);
+      if (show) {
+        list.classList.add('show-dups');
+      } else {
+        list.classList.remove('show-dups');
+        // Don't keep hidden duplicates selected for import.
+        document.querySelectorAll('.expansion-select-checkbox[data-dup="1"]').forEach(function(cb) { cb.checked = false; });
+      }
+      window.updateExpansionSelectionCount();
+    };
+
     // ── Bulk selection + bulk import helpers ──────────────────────
     window.updateExpansionSelectionCount = function() {
       var boxes = document.querySelectorAll('.expansion-select-checkbox');
-      var total = boxes.length;
+      var total = 0;
       var selected = 0;
-      boxes.forEach(function(b) { if (b.checked) selected++; });
+      boxes.forEach(function(b) {
+        // Only count rows the user can actually see and act on.
+        if (b.offsetParent === null) return;
+        total++;
+        if (b.checked) selected++;
+      });
 
       var counter = document.getElementById('expansion-selection-counter');
       if (counter) {
-        counter.textContent = selected + ' selected out of ' + total + ' suggestion' + (total === 1 ? '' : 's');
+        counter.textContent = selected + ' selected out of ' + total + ' shown';
       }
 
       var bulkBtn = document.getElementById('expansion-bulk-import-btn');
@@ -11203,7 +11277,11 @@
 
     window.toggleExpansionSelectAll = function(source) {
       var check = source ? !!source.checked : true;
-      document.querySelectorAll('.expansion-select-checkbox').forEach(function(b) { b.checked = check; });
+      document.querySelectorAll('.expansion-select-checkbox').forEach(function(b) {
+        // Only toggle visible rows so hidden duplicates aren't silently queued.
+        if (b.offsetParent === null) return;
+        b.checked = check;
+      });
       window.updateExpansionSelectionCount();
     };
 
@@ -11248,10 +11326,11 @@
       return null;
     }
 
-    function renderExpansionBulkFeedback(importedCount, skipped, isError) {
+    function renderExpansionBulkFeedback(importedCount, skipped, isError, dupCount) {
       var fb = document.getElementById('expansion-bulk-feedback');
       if (!fb) return;
       fb.classList.remove('hidden');
+      dupCount = dupCount || 0;
 
       if (isError) {
         fb.className = 'text-sm font-body rounded-xl px-4 py-3 border bg-red-950/50 border-red-500/40 text-red-300';
@@ -11267,8 +11346,11 @@
 
       var msg = '<strong>' + (importedCount > 0 ? '✓ ' : '⚠️ ') +
         'Successfully imported ' + importedCount + ' politician' + (importedCount === 1 ? '' : 's') + '.</strong>';
+      if (dupCount > 0) {
+        msg += ' <span class="text-amber-300">' + dupCount + ' potential duplicate' + (dupCount === 1 ? '' : 's') + ' updated/overwritten.</span>';
+      }
       if (skippedCount > 0) {
-        msg += ' ' + skippedCount + ' skipped (duplicate' + (skippedCount === 1 ? '' : 's') + ').';
+        msg += ' ' + skippedCount + ' skipped.';
         var names = skipped.map(function(s) { return s.name + ' — ' + s.reason; });
         msg += '<div class="mt-2 text-xs text-steel-300 leading-relaxed"><span class="uppercase tracking-widest text-steel-400 font-condensed">Skipped:</span> ' +
           names.join('; ') + '</div>';
@@ -11298,6 +11380,7 @@
       var toImport = [];
       var skipped = [];
       var seenInBatch = {};
+      var dupSelected = 0;
 
       checked.forEach(function(box) {
         var id = box.getAttribute('data-id');
@@ -11307,21 +11390,33 @@
         var nameKey = (pData.name || '').toLowerCase().trim();
         var cleanId = (pData.name || id).toLowerCase().replace(/[^a-z0-9]+/g, '_') || id;
 
-        if (existingNames[nameKey] || existingIds[cleanId]) {
-          skipped.push({ name: pData.name, reason: 'already in database' });
-          return;
-        }
         if (seenInBatch[cleanId]) {
           skipped.push({ name: pData.name, reason: 'duplicate in selection' });
           return;
         }
         seenInBatch[cleanId] = true;
-        toImport.push({ id: id, cleanId: cleanId, data: buildExpansionImportData(pData) });
+
+        // Potential duplicates are allowed through (the user opted in) but counted
+        // so we can warn before overwriting any records that already exist.
+        var isDup = box.getAttribute('data-dup') === '1' || !!existingNames[nameKey] || !!existingIds[cleanId];
+        if (isDup) dupSelected++;
+        toImport.push({ id: id, cleanId: cleanId, data: buildExpansionImportData(pData), isDup: isDup });
       });
 
       if (!toImport.length) {
-        renderExpansionBulkFeedback(0, skipped, false);
+        renderExpansionBulkFeedback(0, skipped, false, 0);
         return;
+      }
+
+      // Warn once before overwriting/updating records that already exist.
+      if (dupSelected > 0) {
+        var proceed = window.confirm(dupSelected + ' of the selected politician' + (dupSelected === 1 ? '' : 's') +
+          ' may already exist in the database and will be overwritten/updated. Import anyway?');
+        if (!proceed) {
+          if (bulkBtn) { bulkBtn.disabled = false; bulkBtn.style.opacity = '1'; }
+          if (bulkLabel) { bulkLabel.textContent = '📥 Import Selected to Database'; }
+          return;
+        }
       }
 
       if (bulkBtn) { bulkBtn.disabled = true; bulkBtn.style.opacity = '0.7'; }
@@ -11344,14 +11439,11 @@
         if (typeof _populateDirData === 'function') { _populateDirData(); }
         window.updateExpansionStats();
 
-        // Refresh the "N Suggestions Found" label and selection counter.
-        var resultsList = document.getElementById('expansion-results-list');
-        var remaining = resultsList ? resultsList.children.length : 0;
-        var countLabel = document.getElementById('expansion-results-count-label');
-        if (countLabel) { countLabel.textContent = remaining + ' Suggestions Found'; }
+        // Refresh the header label and selection counter from the remaining cards.
+        refreshExpansionCountLabel();
         window.updateExpansionSelectionCount();
 
-        renderExpansionBulkFeedback(toImport.length, skipped, false);
+        renderExpansionBulkFeedback(toImport.length, skipped, false, dupSelected);
 
         if (typeof window._showToast === 'function') {
           window._showToast('Bulk import complete — added ' + toImport.length + ' politician' + (toImport.length === 1 ? '' : 's') + '! 🇺🇸');
@@ -11480,16 +11572,13 @@
           card.style.transition = 'all 0.4s ease';
           setTimeout(function() {
             card.remove();
-            
-            // Dynamically update count label
+
+            // Dynamically update count label from remaining suggestion cards.
             var resultsList = document.getElementById('expansion-results-list');
-            var remaining = resultsList ? resultsList.children.length : 0;
-            var countLabel = document.getElementById('expansion-results-count-label');
-            if (countLabel) {
-              countLabel.textContent = remaining + ' Suggestions Found';
-              if (remaining === 0) {
-                clearExpansionResults();
-              }
+            var remaining = resultsList ? resultsList.querySelectorAll('.expansion-suggestion-card').length : 0;
+            refreshExpansionCountLabel();
+            if (remaining === 0) {
+              clearExpansionResults();
             }
             if (typeof window.updateExpansionSelectionCount === 'function') {
               window.updateExpansionSelectionCount();
@@ -11512,40 +11601,34 @@
                          suggestion.party === "Democrat" ? "bg-blue-900/40 text-blue-400 border border-blue-500/30" :
                          "bg-amber-900/40 text-amber-400 border border-amber-500/30";
 
-      var isAlreadyInDb = false;
-      if (typeof PROFILES !== 'undefined') {
-        var keys = Object.keys(PROFILES);
-        for (var i = 0; i < keys.length; i++) {
-          if (PROFILES[keys[i]].name.toLowerCase().trim() === suggestion.name.toLowerCase().trim()) {
-            isAlreadyInDb = true;
-            break;
-          }
-        }
-      }
+      var isAlreadyInDb = isSuggestionInDb(suggestion);
 
-      var btnHtml = isAlreadyInDb ? 
-        `<button disabled class="w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg border text-green-400 bg-green-950/40 border-green-500/50 flex items-center justify-center gap-1.5 min-h-[40px]" style="white-space:nowrap;">
-          ✓ Already in DB
+      // Status badge — clearly mark New vs Potential Duplicate.
+      var statusBadge = isAlreadyInDb ?
+        `<span class="font-condensed text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 border border-amber-500/40" title="A politician with this name already appears in the database">⚠ Potential Duplicate</span>` :
+        `<span class="font-condensed text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-green-900/40 text-green-300 border border-green-500/40">✦ New</span>`;
+
+      // Duplicates stay actionable — flagged, selectable, and importable with a warning.
+      var btnHtml = isAlreadyInDb ?
+        `<button id="import-btn-${suggestion.id}" onclick="importSuggestedPolitician('${suggestion.id}', '${level}', ${isCustom})" class="w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg bg-amber-900/50 hover:bg-amber-800/70 border border-amber-500/40 hover:border-amber-400/70 text-amber-100 transition-all shadow-md flex items-center justify-center gap-1.5 min-h-[40px]" style="white-space:nowrap;" title="May overwrite an existing record">
+          📥 Import Anyway
         </button>` :
         `<button id="import-btn-${suggestion.id}" onclick="importSuggestedPolitician('${suggestion.id}', '${level}', ${isCustom})" class="w-full md:w-auto font-condensed font-700 text-xs tracking-widest uppercase px-4 py-2.5 rounded-lg bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/40 hover:border-blue-400/70 text-white transition-all shadow-md flex items-center justify-center gap-1.5 min-h-[40px]" style="white-space:nowrap;">
           📥 Import to Database
         </button>`;
 
-      var editToggleHtml = isAlreadyInDb ? "" :
+      var editToggleHtml =
         `<button id="edit-toggle-${suggestion.id}" onclick="toggleEditForm('${suggestion.id}')" class="text-xs text-steel-400 hover:text-gold-400 transition-colors font-semibold flex items-center gap-1">
           ✏️ Edit Details
         </button>`;
 
-      var checkboxHtml = isAlreadyInDb ?
-        `<div class="flex-shrink-0 mt-1" title="Already in database">
-          <div class="w-5 h-5 rounded border border-green-500/50 bg-green-950/40 flex items-center justify-center text-green-400 text-xs">✓</div>
-        </div>` :
-        `<label class="flex-shrink-0 mt-1 cursor-pointer" title="Select for bulk import">
-          <input type="checkbox" data-id="${suggestion.id}" class="expansion-select-checkbox w-5 h-5 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer" checked onchange="updateExpansionSelectionCount()">
+      var checkboxHtml =
+        `<label class="flex-shrink-0 mt-1 cursor-pointer" title="${isAlreadyInDb ? 'Potential duplicate — select to import anyway' : 'Select for bulk import'}">
+          <input type="checkbox" data-id="${suggestion.id}"${isAlreadyInDb ? ' data-dup="1"' : ''} class="expansion-select-checkbox w-5 h-5 rounded border-2 ${isAlreadyInDb ? 'border-amber-500/60 accent-amber-500' : 'border-steel-500 accent-crimson-500'} bg-navy-950 cursor-pointer"${isAlreadyInDb ? '' : ' checked'} onchange="updateExpansionSelectionCount()">
         </label>`;
 
       return `
-        <div id="card-${suggestion.id}" class="bg-navy-900/90 border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/20 transition-all">
+        <div id="card-${suggestion.id}" class="expansion-suggestion-card ${isAlreadyInDb ? 'expansion-dup-card border-amber-500/30' : 'border-white/10'} bg-navy-900/90 border rounded-2xl p-5 space-y-4 hover:border-white/20 transition-all">
           <div class="flex items-start gap-3">
             ${checkboxHtml}
             <div class="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -11559,6 +11642,7 @@
                   <span class="text-xs text-steel-300 font-semibold uppercase font-condensed tracking-wider bg-navy-800/80 px-2.5 py-0.5 rounded border border-white/5">
                     ${suggestion.office}
                   </span>
+                  ${statusBadge}
                 </div>
                 <p class="text-xs text-steel-400 font-body">
                   📍 District / Location: <span class="text-white font-medium">${suggestion.district}</span>
