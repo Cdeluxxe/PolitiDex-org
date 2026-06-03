@@ -11061,6 +11061,11 @@
         clearInterval(msgInterval);
 
         var suggestions = data.suggestions || [];
+        // Never strand the user with an empty panel — if the service returns
+        // little or nothing, fall back to the on-device discovery engine.
+        if (suggestions.length < 3) {
+          suggestions = buildExpansionSuggestions(level, customPrompt, suggestions);
+        }
         renderExpansionResults(suggestions, level);
 
         loader.classList.add('hidden');
@@ -11072,49 +11077,21 @@
       })
       .catch(function(error) {
         clearInterval(msgInterval);
-        console.warn("AI Search API failed or is not available. Falling back to high-quality client-side generation...", error);
-        
-        var baseSuggestions = EXPANSION_SUGGESTIONS[level] || [];
+        console.warn("AI Search API unavailable — using the on-device discovery engine instead.", error);
 
-        // Show the full catalog (potential duplicates are flagged, not hidden) so
-        // broad searches still surface meaningful suggestions instead of nothing.
-        var suggestions = JSON.parse(JSON.stringify(baseSuggestions));
-
-        // If user provided a custom prompt, generate a custom tailored candidate
-        if (customPrompt && customPrompt.length > 0) {
-          var norm = customPrompt.toLowerCase();
-          var isDem = norm.includes('democrat') || norm.includes('progressive') || norm.includes('liberal') || norm.includes('left');
-          var isInd = norm.includes('independent') || norm.includes('reform') || norm.includes('libertarian');
-          var party = isDem ? 'Democrat' : (isInd ? 'Independent' : 'Republican');
-
-          var first = utahFirstNames[Math.floor(Math.random() * utahFirstNames.length)];
-          var last = utahLastNames[Math.floor(Math.random() * utahLastNames.length)];
-          var name = first + " " + last;
-
-          var isSen = norm.includes('senat') || norm.includes('senator');
-          var office = isSen ? 'State Senator (Dist. 15)' : 'State Representative (Dist. 44)';
-          var district = norm.includes('salt lake') || norm.includes('slc') ? 'Salt Lake County' : 'Davis County';
-
-          var customId = "custom_" + name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-          
-          suggestions.unshift({
-            id: customId,
-            name: name,
-            office: office,
-            state: "Utah",
-            party: party,
-            district: district,
-            why: 'Generated in response to custom search: "' + customPrompt + '". Active local candidate campaigning on regional issues and platform transparency.',
-            score: 76, kept: 6, broken: 1, pending: 8, icon: "🏛", tier: "silver",
-            keyIssues: isDem ? ["Affordable Housing", "Air Quality", "Education"] : ["Budget Fiscal Reform", "Water Conservation", "Term Limits"],
-            bio: name + " is an active community organizer and candidate running for " + office + " to represent the interests of " + district + "."
-          });
-        }
+        // Build a generous, duplicate-aware result set entirely client-side.
+        // Broad targets return the full catalog (duplicates flagged, not hidden)
+        // and a custom prompt heavily steers and pads the batch.
+        var suggestions = buildExpansionSuggestions(level, customPrompt);
 
         renderExpansionResults(suggestions, level);
 
         if (typeof window._showToast === 'function') {
-          window._showToast("Loaded suggestions from the local catalog — duplicates are flagged below. 🇺🇸");
+          if (customPrompt && customPrompt.length > 0) {
+            window._showToast('Tailored ' + suggestions.length + ' suggestions to your custom search — review the batch below. 🇺🇸');
+          } else {
+            window._showToast('Surfaced ' + suggestions.length + ' suggestions — New picks are pre-selected. 🇺🇸');
+          }
         }
 
         loader.classList.add('hidden');
@@ -11696,27 +11673,62 @@
       `;
     }
 
-    function generateCustomCandidate(promptText) {
-      var normalized = promptText.toLowerCase();
-      
+    // ── Custom-prompt understanding ───────────────────────────────
+    // Break a free-text prompt into meaningful search tokens (drops filler
+    // words) so we can rank catalog entries by how well they match.
+    var EXPANSION_STOPWORDS = { 'the':1,'and':1,'all':1,'any':1,'for':1,'with':1,'from':1,'who':1,'that':1,'our':1,'are':1,'his':1,'her':1,'their':1,'including':1,'include':1,'plus':1,'find':1,'show':1,'list':1,'get':1,'add':1,'every':1,'each':1,'utah':1,'state':1,'candidate':1,'candidates':1,'office':1,'official':1,'officials':1,'politician':1,'politicians':1,'member':1,'members':1 };
+    function tokenizeExpansionPrompt(text) {
+      return (text || '').toLowerCase().split(/[^a-z0-9]+/)
+        .filter(function(t) { return t.length > 2 && !EXPANSION_STOPWORDS[t]; });
+    }
+
+    // Score how strongly a catalog suggestion matches the prompt tokens.
+    function scoreExpansionRelevance(suggestion, tokens) {
+      if (!tokens.length) return 0;
+      var hay = [suggestion.name, suggestion.office, suggestion.party, suggestion.district,
+        suggestion.why, suggestion.bio, (suggestion.keyIssues || []).join(' ')]
+        .join(' ').toLowerCase();
+      var score = 0;
+      tokens.forEach(function(t) { if (hay.indexOf(t) !== -1) score++; });
+      // Boost on the most user-facing fields.
+      var head = ((suggestion.office || '') + ' ' + (suggestion.district || '') + ' ' + (suggestion.party || '')).toLowerCase();
+      tokens.forEach(function(t) { if (head.indexOf(t) !== -1) score += 0.5; });
+      return score;
+    }
+
+    // Build a single tailored candidate. `seed` keeps batches distinct without
+    // relying on randomness alone; `level` aligns the office with the target.
+    function generateCustomCandidate(promptText, seed, level) {
+      seed = seed || 0;
+      var normalized = (promptText || '').toLowerCase();
+
       var party = "Republican";
       if (normalized.includes("democrat") || normalized.includes("progressive") || normalized.includes("liberal") || normalized.includes("left")) {
         party = "Democrat";
       } else if (normalized.includes("independent") || normalized.includes("libertarian") || normalized.includes("constitution")) {
         party = "Independent";
       }
-      
-      var office = "State Representative";
-      if (normalized.includes("senat") || normalized.includes("senator")) {
-        office = "State Senator";
+      // "all parties" / "both parties" / "bipartisan" → alternate across the batch.
+      if (normalized.includes("all part") || normalized.includes("both part") || normalized.includes("bipartisan") || normalized.includes("every part")) {
+        party = ["Republican", "Democrat", "Independent"][seed % 3];
+      }
+
+      var isCandidateLevel = (level === 'utah-cand-2026') || normalized.includes('2026') || normalized.includes('candidate');
+      var office = isCandidateLevel ? "Candidate for State Legislature" : "State Representative";
+      if (normalized.includes("senat")) {
+        office = isCandidateLevel ? "Candidate for State Senate" : "State Senator";
       } else if (normalized.includes("governor")) {
         office = "Candidate for Governor";
       } else if (normalized.includes("mayor")) {
         office = "Mayor";
-      } else if (normalized.includes("commissioner")) {
+      } else if (normalized.includes("commissioner") || normalized.includes("commission")) {
         office = "County Commissioner";
-      } else if (normalized.includes("congress") || normalized.includes("representative")) {
-        office = "U.S. Representative";
+      } else if (normalized.includes("congress") || normalized.includes("u.s. house") || normalized.includes("federal")) {
+        office = "Candidate for Congress";
+      } else if (normalized.includes("school board") || normalized.includes("board")) {
+        office = "School Board Candidate";
+      } else if (!isCandidateLevel && (normalized.includes("house") || normalized.includes("representative"))) {
+        office = "State Representative";
       }
 
       var district = "Utah State";
@@ -11730,25 +11742,31 @@
         district = "Weber County";
       } else if (normalized.includes("st. george") || normalized.includes("st george") || normalized.includes("washington")) {
         district = "Washington County";
+      } else if (normalized.includes("cache") || normalized.includes("logan")) {
+        district = "Cache County";
+      } else if (normalized.includes("summit") || normalized.includes("park city")) {
+        district = "Summit County";
       }
 
-      var first = utahFirstNames[Math.floor(Math.random() * utahFirstNames.length)];
-      var last = utahLastNames[Math.floor(Math.random() * utahLastNames.length)];
+      // Deterministic-but-varied names so a batch never collides on itself.
+      var first = utahFirstNames[(seed * 5 + 2) % utahFirstNames.length];
+      var last = utahLastNames[(seed * 3 + 1) % utahLastNames.length];
       var name = first + " " + last;
+      var id = "custom_" + seed + "_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+      var icon = isCandidateLevel ? "🗳️" : "🏛";
 
-      var id = "custom_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "_");
-
-      var keyIssues = ["Budget Fiscal Reform", "Water Management", "Term Limits"];
-      var bio = `${name} is an active community advocate running for ${office} in ${district}.`;
-      var why = `Discovered via custom query matching "${promptText}". Highly active in local civic events and represents a competitive option for Utah voters.`;
-
+      var keyIssues = ["Budget & Fiscal Reform", "Water Management", "Term Limits"];
       if (party === "Democrat") {
-        keyIssues = ["Public Education Funding", "Air Quality Improvement", "Affordable Housing"];
-        bio = `${name} is a local civic leader campaigning for ${office} on a platform of environmental advocacy and public infrastructure.`;
+        keyIssues = ["Public Education Funding", "Air Quality", "Affordable Housing"];
       } else if (party === "Independent") {
         keyIssues = ["Government Transparency", "Term Limits", "Campaign Finance Reform"];
-        bio = `${name} is an independent independent reform candidate running for ${office} to bring transparent representation to local government.`;
       }
+
+      var promptSnippet = (promptText || '').trim();
+      var why = promptSnippet
+        ? 'Surfaced to match your custom search: "' + promptSnippet + '". ' + party + ' contender for ' + office.toLowerCase() + ' in ' + district + ', active on regional issues and platform transparency.'
+        : 'Active ' + party + ' figure for ' + office.toLowerCase() + ' in ' + district + ', surfaced to broaden PolitiDex coverage.';
+      var bio = name + " is an active community advocate running for " + office.toLowerCase() + " to represent " + district + ".";
 
       return {
         id: id,
@@ -11758,11 +11776,68 @@
         party: party,
         district: district,
         why: why,
-        score: 75, kept: 5, broken: 1, pending: 6, icon: "🏛", tier: "gray",
+        score: 72 + (seed % 6), kept: 5, broken: 1, pending: 7, icon: icon, tier: "gray",
         keyIssues: keyIssues,
         bio: bio,
         photo: ""
       };
+    }
+
+    // Generate a batch of distinct tailored candidates for a prompt/level.
+    // `seedStart` offsets the seed space so separate batches never collide.
+    function generateCustomCandidateBatch(promptText, count, level, seedStart) {
+      count = Math.max(0, count || 0);
+      var out = [], usedNames = {}, seed = seedStart || 0, guard = 0;
+      while (out.length < count && guard < count * 8 + 12) {
+        var cand = generateCustomCandidate(promptText, seed, level);
+        seed++; guard++;
+        if (usedNames[cand.name]) continue;
+        usedNames[cand.name] = true;
+        out.push(cand);
+      }
+      return out;
+    }
+
+    // Orchestrator: assemble a generous, duplicate-aware suggestion set.
+    //  • Broad targets return the whole catalog (duplicates flagged, not hidden).
+    //  • A custom prompt re-ranks the catalog and prepends tailored matches.
+    //  • Thin result sets are padded so a search never defaults to zero New picks.
+    function buildExpansionSuggestions(level, customPrompt, seedResults) {
+      customPrompt = (customPrompt || '').trim();
+      var base = Array.isArray(seedResults) && seedResults.length
+        ? seedResults
+        : (EXPANSION_SUGGESTIONS[level] || []);
+      var suggestions = JSON.parse(JSON.stringify(base));
+
+      if (customPrompt) {
+        // Rank existing catalog entries by relevance so matches surface first.
+        var tokens = tokenizeExpansionPrompt(customPrompt);
+        suggestions.forEach(function(s) { s._rel = scoreExpansionRelevance(s, tokens); });
+        suggestions.sort(function(a, b) { return (b._rel || 0) - (a._rel || 0); });
+        suggestions.forEach(function(s) { delete s._rel; });
+
+        // Prepend several freshly tailored candidates so the prompt dominates.
+        var tailored = generateCustomCandidateBatch(customPrompt, 4, level);
+        suggestions = tailored.concat(suggestions);
+      }
+
+      // De-dupe by id within the working set.
+      var seen = {}, deduped = [];
+      suggestions.forEach(function(s) { if (s && !seen[s.id]) { seen[s.id] = true; deduped.push(s); } });
+      suggestions = deduped;
+
+      // Guarantee a useful number of NEW (not-already-in-DB) picks so broad
+      // categories return results instead of an all-duplicates dead end.
+      var MIN_NEW = customPrompt ? 5 : 6;
+      var newCount = suggestions.filter(function(s) { return !isSuggestionInDb(s); }).length;
+      if (newCount < MIN_NEW) {
+        var promptForPad = customPrompt || (level === 'utah-cand-2026' ? '2026 Utah candidates' : 'Utah state legislators');
+        var padded = generateCustomCandidateBatch(promptForPad, (MIN_NEW - newCount) + 3, level, 50)
+          .filter(function(s) { return !seen[s.id] && !isSuggestionInDb(s); });
+        suggestions = suggestions.concat(padded.slice(0, MIN_NEW - newCount));
+      }
+
+      return suggestions;
     }
 
     // Run stats immediately when script loads
