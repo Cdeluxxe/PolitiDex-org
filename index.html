@@ -10197,6 +10197,85 @@
           </div>
         </div>
 
+        <!-- 🎯 My Key Alignments Panel (Purple Theme) -->
+        <div id="relevant-alignments-panel" class="mb-6 rounded-2xl border border-purple-500/30 overflow-hidden" style="background: linear-gradient(135deg, rgba(88, 28, 135, 0.15) 0%, rgba(139, 92, 246, 0.04) 100%);">
+          <!-- Expandable Header -->
+          <button onclick="toggleRelevantAlignments()" class="w-full flex items-center justify-between p-4 bg-purple-950/40 hover:bg-purple-900/30 border-none text-left transition-colors cursor-pointer focus:outline-none" style="min-height: 56px;">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow: 0 0 15px rgba(139,92,246,0.35);">🎯</div>
+              <div>
+                <h4 class="font-display text-lg tracking-wider text-purple-300 uppercase leading-none m-0">My Key Alignments</h4>
+                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Select issues to customize alignment scores on your local representative cards</p>
+              </div>
+            </div>
+            <div id="relevant-alignments-chevron" class="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/20 text-purple-300 border border-purple-500/20 transition-transform duration-300">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </button>
+          
+          <!-- Expandable Body -->
+          <div id="relevant-alignments-body" class="p-4 border-t border-purple-500/20" style="display: none;">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <span class="font-condensed text-xs text-purple-400 font-bold uppercase tracking-wider">Toggle Custom Issues</span>
+              <button onclick="relevantAlignClearAll()" class="font-condensed text-xs text-purple-300 hover:text-purple-200 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;cursor:pointer;">Clear All</button>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
+              <!-- Issue Toggles -->
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="border" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🛡 Immigration</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="taxes" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">💰 Economy / Taxes</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="publiclands" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🏔 Environment</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="guns" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🔫 Gun Rights</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="healthcare" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🏥 Healthcare</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="education" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">📚 Education</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="constitution" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">📜 Civil liberties</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="termlimits" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">⏳ Term Limits</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="veterans" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🎖 Veterans / Defense</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="tech" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🖥 Tech & Privacy</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="housing" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🏠 Housing</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="water" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">💧 Water Rights</span>
+              </label>
+            </div>
+            
+            <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
+          </div>
+        </div>
+
         <!-- Relevant cards — grouped by type & location -->
         <div id="relevant-browse-grid"></div>
       </div>
@@ -23034,9 +23113,14 @@
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
     }
 
-    function _alignScoreHtml(pid, size) {
+    function _alignScoreHtml(pid, size, usePurpleTheme) {
       if (_alignIssues.size === 0) {
         if (size === 'ring') {
+          if (usePurpleTheme) {
+            return '<button onclick="event.stopPropagation();var p=document.getElementById(\'relevant-alignments-panel\')||document.getElementById(\'alignment-panel\');if(p){p.scrollIntoView({behavior:\'smooth\',block:\'center\'});var body=document.getElementById(\'relevant-alignments-body\');if(body&&body.style.display===\'none\'){toggleRelevantAlignments();}}" class="font-condensed text-[10px] font-bold text-purple-300 hover:text-purple-200 hover:bg-purple-900/20 border border-purple-500/30 rounded-lg px-3 py-1.5 transition-all flex items-center gap-1 uppercase tracking-wider" style="background:rgba(139,92,246,0.1);min-height:38px;box-shadow:0 0 10px rgba(139,92,246,0.15);">' +
+              '<span>🎯</span> Set Align' +
+              '</button>';
+          }
           return '<button onclick="event.stopPropagation();var p=document.getElementById(\'alignment-panel\');if(p)p.scrollIntoView({behavior:\'smooth\',block:\'center\'});" class="font-condensed text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-900/10 border border-purple-500/20 rounded-lg px-2.5 py-1.5 transition-all flex items-center gap-1 uppercase tracking-wider" style="background:rgba(139,92,246,0.05);min-height:30px;">' +
             '<span>🎯</span> Align' +
             '</button>';
@@ -23045,11 +23129,21 @@
       }
       var score = _calcAlignmentScore(pid);
       if (score === null) return '';
-      var col = _alignScoreColor(score);
+      var col = usePurpleTheme ? '#c084fc' : _alignScoreColor(score);
       var cls = _alignScoreClass(score);
       if (size === 'small') {
         return '<span class="align-score-badge" style="border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 ' + score + '% Aligned</span>';
       }
+      
+      if (usePurpleTheme) {
+        return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;">' +
+          '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
+            '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
+            '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">Alignment %</div>' +
+          '</div>' +
+        '</div>';
+      }
+
       return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;">' +
         '<div class="align-score-ring ' + cls + '" style="border-color:' + col + '99;color:' + col + ';background:' + col + '14;box-shadow:0 0 14px ' + col + '22;">' + score + '%</div>' +
         '<div class="align-pct-label" style="color:' + col + '99;">🎯 Align</div>' +
@@ -23080,6 +23174,14 @@
       _alignUpdateStatus();
       _alignSyncBrowseChips();
 
+      if (typeof syncRelevantAlignmentUI === 'function') {
+        syncRelevantAlignmentUI();
+      }
+
+      if (typeof window.renderRelevantToMe === 'function') {
+        window.renderRelevantToMe();
+      }
+
       if (typeof _mypolBuildGrid === 'function') _mypolBuildGrid();
 
       if (typeof chubFilter === 'function') chubFilter();
@@ -23093,6 +23195,102 @@
         if (typeof _buildCmpTable === 'function') _buildCmpTable();
       }
     }
+
+    function syncRelevantAlignmentUI() {
+      document.querySelectorAll('#relevant-alignments-panel input[type="checkbox"]').forEach(function(checkbox) {
+        var issue = checkbox.getAttribute('data-relevant-issue');
+        checkbox.checked = _alignIssues.has(issue);
+      });
+      
+      var statusEl = document.getElementById('relevant-align-status');
+      if (statusEl) {
+        var n = _alignIssues.size;
+        if (n === 0) {
+          statusEl.textContent = 'No issues selected. All representative cards show default view.';
+          statusEl.style.color = '';
+        } else {
+          var labels = [];
+          _alignIssues.forEach(function(k) { 
+            var lbls = {
+              border: 'Immigration',
+              taxes: 'Economy / Taxes',
+              publiclands: 'Environment',
+              guns: 'Gun Rights',
+              healthcare: 'Healthcare',
+              education: 'Education',
+              constitution: 'Civil liberties',
+              termlimits: 'Term Limits',
+              veterans: 'Veterans / Defense',
+              tech: 'Tech & Privacy',
+              housing: 'Housing',
+              water: 'Water Rights'
+            };
+            if (lbls[k]) labels.push(lbls[k]);
+          });
+          statusEl.innerHTML = '<span style="color:#c084fc;font-weight:700;">' + n + ' active issue' + (n > 1 ? 's' : '') + '</span> — <span class="text-steel-400">' + labels.join(' · ') + '</span>';
+        }
+      }
+    }
+
+    window.syncRelevantAlignmentUI = syncRelevantAlignmentUI;
+
+    window.toggleRelevantCheckbox = function(checkbox) {
+      var issue = checkbox.getAttribute('data-relevant-issue');
+      if (!issue) return;
+      
+      if (checkbox.checked) {
+        _alignIssues.add(issue);
+      } else {
+        _alignIssues.delete(issue);
+      }
+      
+      _alignSave();
+      
+      // Update chips in main alignment panel
+      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(chip) {
+        var chipIssue = chip.getAttribute('data-align-issue');
+        if (_alignIssues.has(chipIssue)) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+      
+      _alignRefreshAll();
+    };
+
+    window.relevantAlignClearAll = function() {
+      _alignIssues.clear();
+      _alignSave();
+      
+      // Clear main alignment panel active chips
+      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(c) { 
+        c.classList.remove('active'); 
+      });
+      
+      _alignRefreshAll();
+    };
+
+    window.toggleRelevantAlignments = function(openState) {
+      var body = document.getElementById('relevant-alignments-body');
+      var chevron = document.getElementById('relevant-alignments-chevron');
+      if (!body) return;
+      
+      var isCollapsed = body.style.display === 'none';
+      var shouldOpen = (openState !== undefined) ? openState : isCollapsed;
+      
+      if (shouldOpen) {
+        body.style.display = 'block';
+        if (chevron) {
+          chevron.style.transform = 'rotate(180deg)';
+        }
+      } else {
+        body.style.display = 'none';
+        if (chevron) {
+          chevron.style.transform = '';
+        }
+      }
+    };
 
     function _alignInjectIntoCard(card, pid) {
       var existing = card.querySelector('.align-inject');
@@ -23157,6 +23355,7 @@
       });
       _alignUpdateStatus();
       _alignSyncBrowseChips();
+      syncRelevantAlignmentUI();
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _alignInit);
