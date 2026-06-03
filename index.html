@@ -10610,55 +10610,80 @@
         return res.json();
       })
       .then(function(data) {
-        clearInterval(msgInterval);
-        
-        var suggestions = data.suggestions || [];
-        var html = '';
-        var count = 0;
-
-        // Reset list DOM
-        var resultsList = document.getElementById('expansion-results-list');
-        resultsList.innerHTML = '';
-
-        suggestions.forEach(function(suggestion) {
-          _customSuggestionsMap[suggestion.id] = suggestion;
-          html += renderSuggestionCard(suggestion, level, true);
-          count++;
-        });
-
-        if (count === 0) {
-          resultsList.innerHTML = '<div class="text-center text-steel-400 py-8 font-body text-sm">No new missing politicians found matching these criteria! Try adjusting your criteria.</div>';
-          document.getElementById('expansion-results-count-label').textContent = '0 Suggestions Found';
-        } else {
-          resultsList.innerHTML = html;
-          document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
-        }
-
-        loader.classList.add('hidden');
-        container.classList.remove('hidden');
-
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.innerHTML = '<span>⚡ Trigger AI Search</span>';
+        _displayExpansionSuggestions(data.suggestions || [], level, msgInterval);
       })
       .catch(function(error) {
-        clearInterval(msgInterval);
-        console.error("AI Search Error:", error);
-        
+        // The live AI endpoint is unreachable (offline, function cold-start
+        // failure, etc.). Rather than leaving the button looking broken, fall
+        // back to building importable suggestions entirely client-side.
+        console.error("AI Search endpoint unavailable, using local fallback:", error);
+        var fallback = _buildLocalExpansionSuggestions(level, customPrompt, existingNames);
+        _displayExpansionSuggestions(fallback, level, msgInterval);
+
         if (typeof window._showToast === 'function') {
-          window._showToast("Error during AI search: " + error.message);
-        } else {
-          alert("Error during AI search: " + error.message);
+          window._showToast("Live AI search unavailable — showing locally generated suggestions.");
         }
-
-        loader.classList.add('hidden');
-        idle.classList.remove('hidden');
-
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.innerHTML = '<span>⚡ Trigger AI Search</span>';
       });
     };
+
+    // Shared renderer: paints the suggestion cards, updates the count label, and
+    // restores the loader/button state. Used by both the live AI path and the
+    // offline client-side fallback so the resulting UI is identical either way.
+    function _displayExpansionSuggestions(suggestions, level, msgInterval) {
+      if (msgInterval) clearInterval(msgInterval);
+
+      var loader = document.getElementById('expansion-loader');
+      var idle = document.getElementById('expansion-idle');
+      var container = document.getElementById('expansion-results-container');
+      var btn = document.getElementById('expansion-trigger-btn');
+      var resultsList = document.getElementById('expansion-results-list');
+
+      resultsList.innerHTML = '';
+      var html = '';
+      var count = 0;
+
+      (suggestions || []).forEach(function(suggestion) {
+        if (!suggestion || !suggestion.id) return;
+        _customSuggestionsMap[suggestion.id] = suggestion;
+        html += renderSuggestionCard(suggestion, level, true);
+        count++;
+      });
+
+      if (count === 0) {
+        resultsList.innerHTML = '<div class="text-center text-steel-400 py-8 font-body text-sm">No new missing politicians found matching these criteria! Try adjusting your criteria.</div>';
+        document.getElementById('expansion-results-count-label').textContent = '0 Suggestions Found';
+      } else {
+        resultsList.innerHTML = html;
+        document.getElementById('expansion-results-count-label').textContent = count + ' Suggestions Found';
+      }
+
+      idle.classList.add('hidden');
+      loader.classList.add('hidden');
+      container.classList.remove('hidden');
+
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.innerHTML = '<span>⚡ Trigger AI Search</span>';
+    }
+
+    // Offline fallback: builds importable suggestions purely client-side from the
+    // built-in EXPANSION_SUGGESTIONS catalogue (plus an optional custom-prompt
+    // candidate), filtering out anyone already present in Firestore/PROFILES so
+    // we never suggest a duplicate.
+    function _buildLocalExpansionSuggestions(level, customPrompt, existingNames) {
+      var lowerExisting = (existingNames || []).map(function(n) { return (n || '').toLowerCase().trim(); });
+      var base = (EXPANSION_SUGGESTIONS[level] || []).slice();
+
+      var out = base.filter(function(item) {
+        return lowerExisting.indexOf(item.name.toLowerCase().trim()) === -1;
+      });
+
+      if (customPrompt && customPrompt.length > 0) {
+        out.unshift(generateCustomCandidate(customPrompt));
+      }
+
+      return out;
+    }
 
     window.clearExpansionResults = function() {
       document.getElementById('expansion-results-container').classList.add('hidden');
