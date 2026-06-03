@@ -10344,6 +10344,195 @@
     </div>
   </section>
 
+  <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
+  <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
+
+    <!-- ═══ PROMISE TRACKER ═══ -->
+    <div id="tracker" style="scroll-margin-top:80px;">
+      <div id="myteam-browse-panel" class="w-full">
+        <!-- Promise Tracker Section Header -->
+        <div class="mb-6 animate-on-scroll" style="background:linear-gradient(135deg, rgba(192,21,42,0.1) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(192,21,42,0.2); border-radius:1.25rem; padding:1.25rem 1.5rem;">
+          <div class="flex items-center gap-4 flex-wrap justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-crimson-600 to-crimson-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(192,21,42,0.25);">📊</div>
+              <div>
+                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
+                <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
+              </div>
+            </div>
+            <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
+              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Slots Filled</span>
+              <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
+                <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ★ MY 2026 VOTING TEAM — Compact Reference Summary Box ★ -->
+        <div id="myteam-summary-box" class="myteam-summary-box mb-6 animate-on-scroll" style="position:relative;z-index:1; transition-delay:0.02s;">
+          <div class="myteam-summary-header">
+            <div class="myteam-summary-title-group">
+              <div class="myteam-summary-icon">⭐</div>
+              <div>
+                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
+                <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
+              </div>
+              <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
+            </div>
+            <div class="myteam-summary-actions">
+              <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share My Team
+              </button>
+              <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
+            </div>
+          </div>
+          <!-- Empty state prompt - shown when no picks made -->
+          <div id="myteam-empty-prompt" class="myteam-empty-prompt">
+            <div class="myteam-empty-inner">
+              <div class="myteam-empty-icons">
+                <span>🏛</span><span>🦅</span><span>🏙</span>
+              </div>
+              <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Your Team Summary</div>
+              <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick candidates in the Voter Hub above. Your choices are <strong style="color:#4ade80;">saved automatically</strong> and will appear here as a reference panel.</div>
+            </div>
+          </div>
+          <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
+          <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
+        </div>
+
+        <!-- 🎯 Alignment Score Tool Panel -->
+        <div id="alignment-panel" class="align-panel mb-6 animate-on-scroll" style="transition-delay:0.03s;">
+          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
+              <div>
+                <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
+                <p class="font-condensed text-xs text-steel-400 mt-1">Select key issues to display personalized alignment scores on every politician card</p>
+              </div>
+            </div>
+            <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
+          </div>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button class="align-chip" data-align-issue="taxes" onclick="alignToggle(this)">💰 Taxes & Spending</button>
+            <button class="align-chip" data-align-issue="publiclands" onclick="alignToggle(this)">🏔 Public Lands</button>
+            <button class="align-chip" data-align-issue="guns" onclick="alignToggle(this)">🔫 Gun Rights</button>
+            <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare</button>
+            <button class="align-chip" data-align-issue="education" onclick="alignToggle(this)">📚 Education</button>
+            <button class="align-chip" data-align-issue="border" onclick="alignToggle(this)">🛡 Border Security</button>
+            <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water Rights</button>
+            <button class="align-chip" data-align-issue="constitution" onclick="alignToggle(this)">📜 Constitutional Freedoms</button>
+            <button class="align-chip" data-align-issue="termlimits" onclick="alignToggle(this)">⏳ Term Limits</button>
+            <button class="align-chip" data-align-issue="veterans" onclick="alignToggle(this)">🎖 Veterans</button>
+            <button class="align-chip" data-align-issue="tech" onclick="alignToggle(this)">🖥 Tech & Privacy</button>
+            <button class="align-chip" data-align-issue="housing" onclick="alignToggle(this)">🏠 Housing</button>
+          </div>
+          <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
+        </div>
+
+        <!-- Compare tip banner -->
+        <div class="flex items-center justify-between gap-3 bg-blue-950/60 border border-blue-500/25 rounded-xl px-4 py-3 mb-6 animate-on-scroll" style="transition-delay:0.04s;">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-lg flex-shrink-0">💡</span>
+            <p class="font-condensed text-sm text-blue-200 tracking-wide leading-snug">
+              <strong class="text-white">Tip:</strong> Click the blue <strong class="text-blue-300">+ COMPARE</strong> button on any politician card to compare them side-by-side!
+            </p>
+          </div>
+          <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3 py-2 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
+            ⚖️ Open Compare
+          </button>
+        </div>
+
+        <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
+        <div id="browse-toolbar-sentinel" class="w-full h-px pointer-events-none"></div>
+
+        <!-- Search & filter bar — sticky, mobile-friendly -->
+        <div class="browse-toolbar" id="browse-toolbar">
+          <div class="browse-toolbar-inner">
+            <div class="flex-1 min-w-[240px]">
+              <div class="relative">
+                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, issue, party..." class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" />
+                <span class="absolute left-3.5 top-3.5 text-steel-500 pointer-events-none text-xs">🔍</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+              <select id="myteam-browse-office" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[140px] min-h-[44px]">
+                <option value="">— Filter Office —</option>
+                <option value="president">President</option>
+                <option value="senator">U.S. Senator</option>
+                <option value="representative">U.S. Representative</option>
+                <option value="governor">Governor</option>
+                <option value="state">State Leg</option>
+                <option value="local">Local / Mayor</option>
+                <option value="candidate">Candidate</option>
+                <option value="cabinet">Cabinet</option>
+              </select>
+
+              <select id="myteam-browse-state" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="">— Filter State —</option>
+                <option value="National">National</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Utah">Utah</option>
+              </select>
+
+              <select id="myteam-browse-score" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="">— Filter Score —</option>
+                <option value="high">70%+ (High)</option>
+                <option value="mid">40%-69% (Mid)</option>
+                <option value="low">&lt; 40% (Low)</option>
+                <option value="na">No Score Yet</option>
+              </select>
+
+              <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="score-desc">Score: High to Low</option>
+                <option value="score-asc">Score: Low to High</option>
+                <option value="align-desc">Alignment Match</option>
+                <option value="alpha">Alphabetical (A-Z)</option>
+              </select>
+
+              <button onclick="myteamBrowseReset()" class="font-condensed text-xs text-steel-500 hover:text-white uppercase transition-colors px-3 py-2.5 rounded-xl border border-white/5 bg-white/5" style="min-height: 44px;">Reset</button>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between mt-2 px-1">
+            <span id="myteam-browse-count-label" class="font-condensed text-xs text-steel-400 font-bold tracking-wide">0 politicians found</span>
+            <div class="flex gap-2">
+              <button id="scope-btn-all" onclick="setBrowseScope('all')" class="scope-btn active">All Databases</button>
+              <button id="scope-btn-relevant" onclick="setBrowseScope('relevant')" class="scope-btn">Relevant To Me</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="myteam-browse-grid" class="grid grid-cols-1 gap-4 mb-6"></div>
+        <div id="myteam-browse-empty" class="text-center py-10 hidden">
+          <div class="text-4xl mb-2">🤷‍♂️</div>
+          <div class="font-display text-lg text-white">No results found</div>
+          <p class="font-condensed text-xs text-steel-500 tracking-wide mt-1">Try adjusting your filters or search query to broaden your results.</p>
+        </div>
+      </div>
+      <div id="mypol-empty" style="display:none;"></div>
+      <div style="display:none;"><div id="chub-all-grid"></div><div id="chub-empty"></div><div id="chub-count"></div><div id="chub-chips"></div><div id="chub-align-wrap"><div id="chub-align-status"></div><div id="chub-align-chips"></div></div><input id="chub-search" type="hidden"/><select id="chub-office"></select><select id="chub-state"></select><select id="chub-score"></select><select id="chub-sort"><option value="score-desc"></option></select></div>
+    </div>
+
+    <!-- ── Sticky Launch Bar ───────────────────────────────── -->
+    <div class="chub-launch-bar" id="chub-launch-bar" style="display:none;">
+      <div class="flex items-center justify-center gap-4 flex-wrap">
+        <div id="chub-sel-pills" class="flex flex-wrap gap-2 justify-center"></div>
+        <button id="chub-launch-btn" class="chub-launch-btn" onclick="chubLaunchCompare()" disabled>
+          <svg style="width:1.1rem;height:1.1rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Compare Selected
+        </button>
+      </div>
+      <p class="font-condensed text-xs text-steel-500 mt-2 tracking-wide" id="chub-launch-hint">Select 2–4 politicians above, then launch the comparison view</p>
+    </div>
+
+  </section>
+
   <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
   <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
     <div class="max-w-6xl mx-auto px-4">
@@ -11495,195 +11684,6 @@
     // Run stats immediately when script loads
     setTimeout(window.updateExpansionStats, 100);
   </script>
-
-  <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
-  <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-
-    <!-- ═══ PROMISE TRACKER ═══ -->
-    <div id="tracker" style="scroll-margin-top:80px;">
-      <div id="myteam-browse-panel" class="w-full">
-        <!-- Promise Tracker Section Header -->
-        <div class="mb-6 animate-on-scroll" style="background:linear-gradient(135deg, rgba(192,21,42,0.1) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(192,21,42,0.2); border-radius:1.25rem; padding:1.25rem 1.5rem;">
-          <div class="flex items-center gap-4 flex-wrap justify-between">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-crimson-600 to-crimson-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(192,21,42,0.25);">📊</div>
-              <div>
-                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
-              </div>
-            </div>
-            <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
-              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Slots Filled</span>
-              <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
-                <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ★ MY 2026 VOTING TEAM — Compact Reference Summary Box ★ -->
-        <div id="myteam-summary-box" class="myteam-summary-box mb-6 animate-on-scroll" style="position:relative;z-index:1; transition-delay:0.02s;">
-          <div class="myteam-summary-header">
-            <div class="myteam-summary-title-group">
-              <div class="myteam-summary-icon">⭐</div>
-              <div>
-                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
-                <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
-              </div>
-              <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
-            </div>
-            <div class="myteam-summary-actions">
-              <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                Share My Team
-              </button>
-              <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
-            </div>
-          </div>
-          <!-- Empty state prompt - shown when no picks made -->
-          <div id="myteam-empty-prompt" class="myteam-empty-prompt">
-            <div class="myteam-empty-inner">
-              <div class="myteam-empty-icons">
-                <span>🏛</span><span>🦅</span><span>🏙</span>
-              </div>
-              <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Your Team Summary</div>
-              <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Pick candidates in the Voter Hub above. Your choices are <strong style="color:#4ade80;">saved automatically</strong> and will appear here as a reference panel.</div>
-            </div>
-          </div>
-          <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
-          <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
-        </div>
-
-        <!-- 🎯 Alignment Score Tool Panel -->
-        <div id="alignment-panel" class="align-panel mb-6 animate-on-scroll" style="transition-delay:0.03s;">
-          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
-              <div>
-                <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
-                <p class="font-condensed text-xs text-steel-400 mt-1">Select key issues to display personalized alignment scores on every politician card</p>
-              </div>
-            </div>
-            <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
-          </div>
-          <div class="flex flex-wrap gap-2 mb-3">
-            <button class="align-chip" data-align-issue="taxes" onclick="alignToggle(this)">💰 Taxes & Spending</button>
-            <button class="align-chip" data-align-issue="publiclands" onclick="alignToggle(this)">🏔 Public Lands</button>
-            <button class="align-chip" data-align-issue="guns" onclick="alignToggle(this)">🔫 Gun Rights</button>
-            <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare</button>
-            <button class="align-chip" data-align-issue="education" onclick="alignToggle(this)">📚 Education</button>
-            <button class="align-chip" data-align-issue="border" onclick="alignToggle(this)">🛡 Border Security</button>
-            <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water Rights</button>
-            <button class="align-chip" data-align-issue="constitution" onclick="alignToggle(this)">📜 Constitutional Freedoms</button>
-            <button class="align-chip" data-align-issue="termlimits" onclick="alignToggle(this)">⏳ Term Limits</button>
-            <button class="align-chip" data-align-issue="veterans" onclick="alignToggle(this)">🎖 Veterans</button>
-            <button class="align-chip" data-align-issue="tech" onclick="alignToggle(this)">🖥 Tech & Privacy</button>
-            <button class="align-chip" data-align-issue="housing" onclick="alignToggle(this)">🏠 Housing</button>
-          </div>
-          <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
-        </div>
-
-        <!-- Compare tip banner -->
-        <div class="flex items-center justify-between gap-3 bg-blue-950/60 border border-blue-500/25 rounded-xl px-4 py-3 mb-6 animate-on-scroll" style="transition-delay:0.04s;">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-lg flex-shrink-0">💡</span>
-            <p class="font-condensed text-sm text-blue-200 tracking-wide leading-snug">
-              <strong class="text-white">Tip:</strong> Click the blue <strong class="text-blue-300">+ COMPARE</strong> button on any politician card to compare them side-by-side!
-            </p>
-          </div>
-          <button onclick="openCompare()" class="flex-shrink-0 flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-500/90 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-3 py-2 rounded-lg transition-all" style="white-space:nowrap;cursor:pointer;">
-            ⚖️ Open Compare
-          </button>
-        </div>
-
-        <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
-        <div id="browse-toolbar-sentinel" class="w-full h-px pointer-events-none"></div>
-
-        <!-- Search & filter bar — sticky, mobile-friendly -->
-        <div class="browse-toolbar" id="browse-toolbar">
-          <div class="browse-toolbar-inner">
-            <div class="flex-1 min-w-[240px]">
-              <div class="relative">
-                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, issue, party..." class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" />
-                <span class="absolute left-3.5 top-3.5 text-steel-500 pointer-events-none text-xs">🔍</span>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
-              <select id="myteam-browse-office" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[140px] min-h-[44px]">
-                <option value="">— Filter Office —</option>
-                <option value="president">President</option>
-                <option value="senator">U.S. Senator</option>
-                <option value="representative">U.S. Representative</option>
-                <option value="governor">Governor</option>
-                <option value="state">State Leg</option>
-                <option value="local">Local / Mayor</option>
-                <option value="candidate">Candidate</option>
-                <option value="cabinet">Cabinet</option>
-              </select>
-
-              <select id="myteam-browse-state" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="">— Filter State —</option>
-                <option value="National">National</option>
-                <option value="Colorado">Colorado</option>
-                <option value="Florida">Florida</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Kentucky">Kentucky</option>
-                <option value="Utah">Utah</option>
-              </select>
-
-              <select id="myteam-browse-score" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="">— Filter Score —</option>
-                <option value="high">70%+ (High)</option>
-                <option value="mid">40%-69% (Mid)</option>
-                <option value="low">&lt; 40% (Low)</option>
-                <option value="na">No Score Yet</option>
-              </select>
-
-              <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="score-desc">Score: High to Low</option>
-                <option value="score-asc">Score: Low to High</option>
-                <option value="align-desc">Alignment Match</option>
-                <option value="alpha">Alphabetical (A-Z)</option>
-              </select>
-
-              <button onclick="myteamBrowseReset()" class="font-condensed text-xs text-steel-500 hover:text-white uppercase transition-colors px-3 py-2.5 rounded-xl border border-white/5 bg-white/5" style="min-height: 44px;">Reset</button>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-between mt-2 px-1">
-            <span id="myteam-browse-count-label" class="font-condensed text-xs text-steel-400 font-bold tracking-wide">0 politicians found</span>
-            <div class="flex gap-2">
-              <button id="scope-btn-all" onclick="setBrowseScope('all')" class="scope-btn active">All Databases</button>
-              <button id="scope-btn-relevant" onclick="setBrowseScope('relevant')" class="scope-btn">Relevant To Me</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="myteam-browse-grid" class="grid grid-cols-1 gap-4 mb-6"></div>
-        <div id="myteam-browse-empty" class="text-center py-10 hidden">
-          <div class="text-4xl mb-2">🤷‍♂️</div>
-          <div class="font-display text-lg text-white">No results found</div>
-          <p class="font-condensed text-xs text-steel-500 tracking-wide mt-1">Try adjusting your filters or search query to broaden your results.</p>
-        </div>
-      </div>
-      <div id="mypol-empty" style="display:none;"></div>
-      <div style="display:none;"><div id="chub-all-grid"></div><div id="chub-empty"></div><div id="chub-count"></div><div id="chub-chips"></div><div id="chub-align-wrap"><div id="chub-align-status"></div><div id="chub-align-chips"></div></div><input id="chub-search" type="hidden"/><select id="chub-office"></select><select id="chub-state"></select><select id="chub-score"></select><select id="chub-sort"><option value="score-desc"></option></select></div>
-    </div>
-
-    <!-- ── Sticky Launch Bar ───────────────────────────────── -->
-    <div class="chub-launch-bar" id="chub-launch-bar" style="display:none;">
-      <div class="flex items-center justify-center gap-4 flex-wrap">
-        <div id="chub-sel-pills" class="flex flex-wrap gap-2 justify-center"></div>
-        <button id="chub-launch-btn" class="chub-launch-btn" onclick="chubLaunchCompare()" disabled>
-          <svg style="width:1.1rem;height:1.1rem;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          Compare Selected
-        </button>
-      </div>
-      <p class="font-condensed text-xs text-steel-500 mt-2 tracking-wide" id="chub-launch-hint">Select 2–4 politicians above, then launch the comparison view</p>
-    </div>
-
-  </section>
 <!-- ═══════════════════════ THE PEOPLE'S MANDATE ══════════ -->
   <section id="agenda" class="py-16 md:py-24 mandate-section">
   <div class="mandate-star-accents" aria-hidden="true">
@@ -25561,14 +25561,24 @@
       var a = p.accountability;
       if (a && typeof a.overallScore === 'number'){
         var s = a.overallScore;
-        return '<div class="chub-acct-chip" title="Accountability Score" style="background:linear-gradient(135deg,rgba(124,58,237,0.18),rgba(139,92,246,0.06));border:1px solid rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.03);display:inline-flex;align-items:center;gap:0.35rem;">' +
-            '<span style="color:#a78bfa;font-size:1.7rem;text-shadow:0 0 12px rgba(167,139,250,0.45);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + s + '</span>' +
-            '<span class="font-condensed tracking-wider uppercase font-bold" style="color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.1;">🛡️ Account.<br>Score</span>' +
+        var lvl = a.color || acctLevelColor(s);
+        // Polished purple chip — mirrors the Promise Score container's footprint so the
+        // two sit balanced side by side, with a clear purple identity and a tiny rating dot.
+        return '<div class="chub-acct-chip" title="Accountability Score: ' + s + '/100 (' + aesc(a.rating || acctRating(s)) + ')" style="background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1px solid rgba(167,139,250,0.55);border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px rgba(124,58,237,0.16),inset 0 1px 0 rgba(255,255,255,0.04);display:inline-flex;align-items:center;gap:0.4rem;">' +
+            '<span style="color:#a78bfa;font-size:1.7rem;text-shadow:0 0 12px rgba(167,139,250,0.5);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + s + '</span>' +
+            '<span class="font-condensed tracking-wider uppercase font-bold" style="display:inline-flex;flex-direction:column;color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.15;">' +
+              '<span style="display:inline-flex;align-items:center;gap:0.2rem;"><span style="font-size:0.6rem;">🛡️</span>Account.</span>' +
+              '<span style="display:inline-flex;align-items:center;gap:0.25rem;"><span style="width:5px;height:5px;border-radius:999px;background:' + lvl + ';box-shadow:0 0 5px ' + lvl + ';"></span>Score</span>' +
+            '</span>' +
           '</div>';
       }
-      return '<button type="button" onclick="event.stopPropagation();toggleCardAccountability(\'' + aesc(id) + '\')" title="Run accountability analysis" style="cursor:pointer;background:rgba(139,92,246,0.1);border:1px dashed rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.3rem 0.55rem;display:inline-flex;align-items:center;gap:0.35rem;line-height:1.1;">' +
-          '<span style="font-size:1rem;">🛡️</span>' +
-          '<span class="font-condensed tracking-wider uppercase font-bold" style="color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.15;text-align:left;">Account.<br><span style="color:#a78bfa;">Not Analyzed</span></span>' +
+      // Not analyzed — an intentional, inviting purple "Run Analysis" pill (not a broken-looking placeholder).
+      return '<button type="button" onclick="event.stopPropagation();toggleCardAccountability(\'' + aesc(id) + '\')" title="Run accountability analysis" style="cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,0.22),rgba(139,92,246,0.08));border:1px solid rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.4rem;line-height:1.1;box-shadow:0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.04);transition:transform 0.15s,box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(124,58,237,0.24),inset 0 1px 0 rgba(255,255,255,0.05)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.04)\'">' +
+          '<span style="font-size:1.15rem;filter:drop-shadow(0 0 6px rgba(167,139,250,0.55));">🛡️</span>' +
+          '<span class="font-condensed tracking-wider uppercase font-bold" style="display:inline-flex;flex-direction:column;text-align:left;line-height:1.2;">' +
+            '<span style="color:#8ea2c0;font-size:0.5rem;letter-spacing:0.07em;">Accountability</span>' +
+            '<span style="color:#c4b5fd;font-size:0.64rem;letter-spacing:0.03em;">⚡ Run Analysis</span>' +
+          '</span>' +
         '</button>';
     };
 
@@ -25580,35 +25590,35 @@
       var safe = aesc(id);
       var cats = (a.categories || []).map(function(c){
         var cc = acctLevelColor(c.score);
-        return '<div style="margin-bottom:0.4rem;">' +
-          '<div style="display:flex;justify-content:space-between;font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.03em;color:#9fb4d4;margin-bottom:0.15rem;">' +
-            '<span>' + aesc(c.label) + '</span><span style="color:' + cc + ';font-weight:700;">' + c.score + '</span></div>' +
-          '<div style="height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + c.score + '%;background:linear-gradient(90deg,#7c3aed,' + cc + ');border-radius:999px;"></div></div></div>';
+        return '<div style="margin-bottom:0.55rem;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;letter-spacing:0.03em;color:#b6c5db;margin-bottom:0.22rem;">' +
+            '<span>' + aesc(c.label) + '</span><span style="color:' + cc + ';font-weight:700;font-size:0.72rem;">' + c.score + '</span></div>' +
+          '<div style="height:5px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + c.score + '%;background:linear-gradient(90deg,#7c3aed,' + cc + ');border-radius:999px;"></div></div></div>';
       }).join('');
       var tvm = (a.truthsVsMyths || []).slice(0, 2).map(function(m){
-        return '<div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.05);border-radius:0.55rem;padding:0.5rem 0.6rem;margin-bottom:0.4rem;">' +
-          '<div style="display:flex;gap:0.4rem;margin-bottom:0.25rem;"><span style="color:#f87171;flex-shrink:0;font-size:0.7rem;">❌</span><div style="font-size:0.68rem;color:#cbd9ec;line-height:1.4;font-style:italic;">' + acctMd(m.myth) + '</div></div>' +
-          '<div style="display:flex;gap:0.4rem;"><span style="color:#4ade80;flex-shrink:0;font-size:0.7rem;">✓</span><div style="font-size:0.68rem;color:#e6ecf5;line-height:1.4;">' + acctMd(m.truth) + '</div></div></div>';
+        return '<div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.06);border-radius:0.6rem;padding:0.6rem 0.7rem;margin-bottom:0.5rem;">' +
+          '<div style="display:flex;gap:0.45rem;margin-bottom:0.4rem;"><span style="color:#f87171;flex-shrink:0;font-size:0.72rem;line-height:1.4;">❌</span><div style="font-size:0.7rem;color:#cbd9ec;line-height:1.5;font-style:italic;">' + acctMd(m.myth) + '</div></div>' +
+          '<div style="display:flex;gap:0.45rem;"><span style="color:#4ade80;flex-shrink:0;font-size:0.72rem;line-height:1.4;">✓</span><div style="font-size:0.7rem;color:#e6ecf5;line-height:1.5;">' + acctMd(m.truth) + '</div></div></div>';
       }).join('');
-      return '<div style="margin-top:0.75rem;background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(139,92,246,0.03));border:1px solid rgba(139,92,246,0.32);border-radius:0.75rem;padding:0.8rem 0.85rem;">' +
+      return '<div style="margin-top:0.75rem;background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(139,92,246,0.03));border:1px solid rgba(139,92,246,0.32);border-radius:0.75rem;padding:0.95rem 1rem;">' +
         // Header — overall score + rating + short summary
-        '<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.65rem;">' +
-          '<span style="flex-shrink:0;font-family:\'Bebas Neue\',sans-serif;font-size:1.7rem;color:#a78bfa;line-height:1;">' + s + '<span style="font-size:0.8rem;color:#9fb4d4;">/100</span></span>' +
+        '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.8rem;padding-bottom:0.7rem;border-bottom:1px solid rgba(139,92,246,0.18);">' +
+          '<span style="flex-shrink:0;font-family:\'Bebas Neue\',sans-serif;font-size:1.85rem;color:#a78bfa;line-height:1;text-shadow:0 0 12px rgba(167,139,250,0.35);">' + s + '<span style="font-size:0.8rem;color:#9fb4d4;">/100</span></span>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.2rem;">' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Accountability</span>' +
+            '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.3rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Accountability</span>' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.05em;text-transform:uppercase;color:' + lvl + ';background:' + lvl + '1a;border:1px solid ' + lvl + '55;padding:0.1rem 0.4rem;border-radius:999px;">' + aesc(a.rating || acctRating(s)) + '</span>' +
             '</div>' +
-            '<p style="font-size:0.7rem;color:#cbd9ec;line-height:1.45;margin:0;">' + acctMd(a.justification || '') + '</p>' +
+            '<p style="font-size:0.72rem;color:#cbd9ec;line-height:1.5;margin:0;">' + acctMd(a.justification || '') + '</p>' +
           '</div>' +
         '</div>' +
         // Category scores
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.4rem;">📐 Category Scores</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.5rem;">📐 Category Scores</div>' +
         cats +
         // Truths vs Myths (1–2)
-        (tvm ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin:0.65rem 0 0.4rem;">⚖️ Truths vs Myths</div>' + tvm : '') +
+        (tvm ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin:0.85rem 0 0.5rem;">⚖️ Truths vs Myths</div>' + tvm : '') +
         // Footer — jump to full analysis in the dedicated modal
-        '<button type="button" onclick="event.stopPropagation();viewAccountabilityAnalysis(\'' + safe + '\')" style="width:100%;margin-top:0.35rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.5rem;border-radius:0.55rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis →</button>' +
+        '<button type="button" onclick="event.stopPropagation();viewAccountabilityAnalysis(\'' + safe + '\')" style="width:100%;margin-top:0.5rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.6rem;border-radius:0.55rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis →</button>' +
       '</div>';
     };
 
