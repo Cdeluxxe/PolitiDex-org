@@ -8618,6 +8618,85 @@
       #relevant-browse-grid .relevant-level-chevron-wrap { width: 1.85rem; height: 1.85rem; margin-left: 0.35rem; }
       #relevant-browse-grid .relevant-level-chevron { width: 0.95rem; height: 0.95rem; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE RESPONSIVENESS POLISH — filter toolbar + politician card width
+       Scoped strictly to the politician browsing / filter areas. Adds no new
+       markup and changes no logic; it only re-flows the sticky filter toolbar
+       so the search box and dropdowns stack cleanly (never overlapping or
+       crowding each other) and lets the tree / list cards use the full screen
+       width on phones. The dark patriotic styling is left intact. Placed last
+       in the stylesheet so it reliably wins the cascade on small screens.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* ── 1 · Filter toolbar: stack search over a tidy 2-col dropdown grid ── */
+      .browse-toolbar { padding: 0.85rem !important; }
+      .browse-toolbar-inner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.6rem !important;
+      }
+      /* Search field claims the full row. */
+      .browse-toolbar-inner > .flex-1 { width: 100% !important; min-width: 0 !important; }
+      /* The Office / State / Score / Sort cluster becomes an even two-column
+         grid that can never overflow its container or sit on top of a neighbour. */
+      .browse-toolbar-inner > .flex.flex-wrap {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+      }
+      #myteam-browse-office,
+      #myteam-browse-state,
+      #myteam-browse-score,
+      #myteam-browse-sort {
+        min-width: 0 !important;
+        width: 100% !important;
+        padding-right: 1.7rem !important;
+        text-overflow: ellipsis;
+      }
+      /* Reset spans the full width beneath the four filters. */
+      .browse-toolbar-inner > .flex.flex-wrap > button { grid-column: 1 / -1 !important; }
+      /* Count label + scope toggle stack so the toggles stay full-width & tappable. */
+      .browse-toolbar > .flex.items-center.justify-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.5rem !important;
+      }
+      .browse-toolbar > .flex.items-center.justify-between > .flex.gap-2 { width: 100%; }
+      .browse-toolbar > .flex.items-center.justify-between > .flex.gap-2 .scope-btn { flex: 1 1 0 !important; }
+
+      /* ── 2 · Tree / list cards: reclaim horizontal width on phones ── */
+      /* Nudge the whole card map toward the screen edges without disturbing the
+         neighbouring alignment tools (only the card grids get the extra width). */
+      #myteam-browse-grid,
+      #relevant-browse-grid { margin-left: -0.3rem !important; margin-right: -0.3rem !important; }
+      /* Flatten the accordion indentation + inner padding that was making the
+         nested cards skinny and tall. */
+      #myteam-browse-grid [id^="browse-dist-"],
+      #relevant-browse-grid [id^="relevant-browse-dist-"] { margin-left: 0.3rem !important; }
+      #myteam-browse-grid .browse-sub-body > .p-3,
+      #relevant-browse-grid .browse-sub-body > .p-3,
+      #myteam-browse-grid .browse-sub-body > .p-2,
+      #relevant-browse-grid .browse-sub-body > .p-2 { padding: 0.45rem !important; }
+      #myteam-browse-grid .browse-sub-group > button,
+      #relevant-browse-grid .browse-sub-group > button { padding-left: 0.7rem !important; padding-right: 0.7rem !important; }
+      /* Cards: full width, comfortable padding, easy to read and tap. */
+      #myteam-browse-grid .chub-card,
+      #relevant-browse-grid .chub-card {
+        width: 100% !important;
+        padding: 0.95rem 1rem !important;
+      }
+      #myteam-browse-grid .chub-card .font-display,
+      #relevant-browse-grid .chub-card .font-display { font-size: 1.05rem !important; }
+      /* Action buttons get a taller, easier tap target. */
+      #myteam-browse-grid .chub-card .grid.grid-cols-2 > button,
+      #relevant-browse-grid .chub-card .grid.grid-cols-2 > button {
+        height: 42px !important;
+        min-height: 42px !important;
+        font-size: 0.7rem !important;
+      }
+    }
   </style>
 
       </head>
