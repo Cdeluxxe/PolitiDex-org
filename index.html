@@ -4460,12 +4460,13 @@
     .kr-incumbent-panel.is-pick::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
     .kr-incumbent-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.02em; line-height: 1.02; color: #fff; background: none; border: none; padding: 0; cursor: pointer; text-align: left; text-shadow: 0 1px 10px rgba(0,0,0,0.35); }
     .kr-incumbent-badge {
-      display: inline-flex; align-items: center; gap: 0.28rem; white-space: nowrap;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
-      color: #1a1206; background: linear-gradient(135deg, #ffd75e, #e0a82e);
-      padding: 0.18rem 0.62rem; border-radius: 999px; box-shadow: 0 2px 12px rgba(245,200,66,0.5), 0 0 0 1px rgba(245,200,66,0.4);
+      display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.74rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: #1a1206; background: linear-gradient(135deg, #ffe07a, #e0a82e);
+      padding: 0.26rem 0.78rem; border-radius: 999px; box-shadow: 0 3px 14px rgba(245,200,66,0.55), 0 0 0 1px rgba(245,200,66,0.45);
       animation: krIncBadgePulse 2.6s ease-in-out infinite;
     }
+    .kr-incumbent-badge .kr-incumbent-badge-ico { font-size: 0.82rem; line-height: 1; }
     @keyframes krIncBadgePulse {
       0%, 100% { box-shadow: 0 2px 12px rgba(245,200,66,0.45), 0 0 0 1px rgba(245,200,66,0.35); }
       50% { box-shadow: 0 3px 20px rgba(245,200,66,0.85), 0 0 0 1px rgba(245,200,66,0.55); }
@@ -4485,6 +4486,27 @@
        are the sitting officeholder(s). */
     .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
     .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
+
+    /* Challenger rows — deliberately the secondary tier beneath the gold incumbent
+       hero: cooler, flatter and lighter, with a thin blue left rail and slightly
+       smaller scores, so the people running to replace the officeholder never
+       compete with them for attention. */
+    .kr-challenger-card {
+      position: relative; padding: 0.7rem 0.85rem 0.75rem 0.95rem; border-radius: 0.9rem;
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.07);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .kr-challenger-card::before {
+      content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0.6rem; width: 3px;
+      border-radius: 999px; background: rgba(96,165,250,0.5);
+    }
+    .kr-challenger-card.is-pick { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.35); }
+    .kr-challenger-card.is-pick::before { background: linear-gradient(180deg, #4ade80, #22c55e); }
+    /* Scores stay legible and comparable across challengers, but a notch smaller
+       than the incumbent's so the hierarchy reads at a glance. */
+    .kr-challenger-card .kr-score-promise .kr-score-num,
+    .kr-challenger-card .kr-score-acct .kr-score-num { font-size: 1.6rem; }
+    .kr-challenger-card .kr-score-align .kr-score-num { font-size: 1.45rem; }
 
     /* Two-score strip on each 2026 candidate card:
        Accountability of Truth (purple, prominent) + Personalized Alignment (teal, secondary). */
@@ -24780,7 +24802,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? _krSpotPreviewHtml(pid, _krBuildSpotlight(pid)) : '';
 
       var actionsHtml = _krActionRow(pid, d);
-      return '<div style="padding:0.7rem 0.85rem;border-radius:0.9rem;background:' + (isPick ? 'rgba(74,222,128,0.07)' : 'rgba(10,15,30,0.45)') + ';border:1px solid ' + (isPick ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">' +
+      return '<div class="kr-challenger-card' + (isPick ? ' is-pick' : '') + '">' +
         '<div style="display:flex;align-items:center;gap:0.75rem;">' +
           _krPhoto(pid, d, race.color) +
           '<div style="flex:1;min-width:0;">' +
@@ -24856,7 +24878,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _krPhotoLg(pid, d, '#f5c842') +
           '<div style="flex:1;min-width:0;">' +
             '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-              '<span class="kr-incumbent-badge">✦ In Office Now</span>' + _krPartyBadge(d.party) +
+              '<span class="kr-incumbent-badge"><span class="kr-incumbent-badge-ico">★</span>In Office</span>' + _krPartyBadge(d.party) +
             '</div>' +
             '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-incumbent-name" style="display:block;margin-top:0.32rem;">' + d.name + '</button>' +
             '<div class="font-condensed" style="font-size:0.72rem;color:#fcd34d;margin-top:0.12rem;line-height:1.3;">' + (d.office || 'Current officeholder') + (note ? ' · ' + note : '') + '</div>' +
@@ -24909,7 +24931,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var candHtml = challengerPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid); }).join('');
 
       var hasRunningIncumbent = incList.length && !/retir|open seat/i.test(race.incumbentNote || '');
-      var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running in 2026' : '2026 Candidates');
+      var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running to Replace Them · 2026' : '2026 Candidates');
 
       var noteHtml = race.extraNote
         ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>'
