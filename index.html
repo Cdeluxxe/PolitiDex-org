@@ -4295,6 +4295,102 @@
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
+
+    /* ── Premium "Added to your team" toast (dark patriotic theme) ── */
+    .team-add-toast {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 280px;
+      max-width: 370px;
+      padding: 0.85rem 1.1rem 0.85rem 0.95rem;
+      background: linear-gradient(135deg, rgba(16,28,54,0.97) 0%, rgba(10,17,35,0.98) 100%);
+      border: 1px solid rgba(245,158,11,0.45);
+      border-radius: 1rem;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.04), 0 0 28px rgba(245,158,11,0.14);
+      z-index: 10050;
+      opacity: 0;
+      transform: translateX(130%) scale(0.96);
+      transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .team-add-toast::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+      background: linear-gradient(180deg, #4ade80, #22c55e);
+      box-shadow: 0 0 12px rgba(74,222,128,0.5);
+    }
+    .team-add-toast.removing::before { background: linear-gradient(180deg,#f87171,#ef4444); box-shadow: 0 0 12px rgba(248,113,113,0.5); }
+    .team-add-toast.complete { border-color: rgba(74,222,128,0.6); box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 32px rgba(74,222,128,0.26); }
+    .team-add-toast.complete::before { background: linear-gradient(180deg,#fbbf24,#f59e0b); box-shadow: 0 0 14px rgba(245,158,11,0.6); }
+    .team-add-toast.visible { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }
+    .team-add-toast-avatar {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: #9fb4d4;
+      background: rgba(30,53,96,0.5);
+      border: 2px solid rgba(245,158,11,0.45);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .team-add-toast-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .team-add-toast-body { flex: 1; min-width: 0; }
+    .team-add-toast-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.96rem; letter-spacing: 0.04em; color: #fff; line-height: 1.15;
+    }
+    .team-add-toast-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem;
+      letter-spacing: 0.02em; color: #9fb4d4; margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .team-add-toast-check {
+      flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; font-weight: 700; color: #0a0f1e;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      box-shadow: 0 0 16px rgba(74,222,128,0.45);
+    }
+    .team-add-toast.visible .team-add-toast-check { animation: team-toast-check-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .team-add-toast.removing .team-add-toast-check { background: linear-gradient(135deg,#f87171,#ef4444); color: #fff; box-shadow: 0 0 16px rgba(248,113,113,0.45); }
+    .team-add-toast.complete .team-add-toast-check { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 18px rgba(245,158,11,0.5); }
+    @keyframes team-toast-check-pop { 0%{transform:scale(0) rotate(-30deg);} 60%{transform:scale(1.25) rotate(0);} 100%{transform:scale(1);} }
+
+    /* Counter "pop" when the team count changes */
+    @keyframes myteam-count-pop {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.28); }
+      100% { transform: scale(1); }
+    }
+    .myteam-count-pop { animation: myteam-count-pop 0.6s cubic-bezier(0.34,1.56,0.64,1); display: inline-block; }
+
+    /* Key Races "Add to My Team" button pop on click */
+    @keyframes kr-btn-pop {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.12); }
+      55% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    .kr-btn-pop {
+      animation: kr-btn-pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      background: linear-gradient(135deg, rgba(74,222,128,0.30), rgba(74,222,128,0.14)) !important;
+      border-color: rgba(74,222,128,0.7) !important;
+      color: #4ade80 !important;
+    }
+    .kr-btn-check { display: inline-block; animation: team-toast-check-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    @media (max-width: 560px) {
+      .team-add-toast {
+        top: calc(0.75rem + env(safe-area-inset-top, 0px));
+        left: 0.75rem; right: 0.75rem; min-width: 0; max-width: none;
+        transform: translateY(-170%) scale(0.98);
+      }
+      .team-add-toast.visible { transform: translateY(0) scale(1); }
+    }
+
     .account-save-toast {
       position: fixed;
       bottom: 2rem;
@@ -10466,6 +10562,16 @@
       <div id="vote-signin-nudge" class="signin-prompt-toast">
         <span>Sign in to save your votes &amp; comments</span>
         <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideVoteSigninNudge();">Sign In</button>
+      </div>
+
+      <!-- Premium "Added to your team" toast -->
+      <div id="team-add-toast" class="team-add-toast" role="status" aria-live="polite">
+        <div id="team-add-toast-avatar" class="team-add-toast-avatar">🏛</div>
+        <div class="team-add-toast-body">
+          <div id="team-add-toast-title" class="team-add-toast-title">Added to your team</div>
+          <div id="team-add-toast-sub" class="team-add-toast-sub"></div>
+        </div>
+        <div id="team-add-toast-check" class="team-add-toast-check">✓</div>
       </div>
 
     </div>
@@ -18522,6 +18628,69 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   };
 
+  // Premium, name-aware toast for "Add to My Team" actions.
+  // action: 'add' | 'remove'.  opts: { count, total, complete }
+  var _teamToastTimer = null;
+  window._showTeamToast = function(pid, action, opts) {
+    opts = opts || {};
+    var toast = document.getElementById('team-add-toast');
+    if (!toast) return;
+    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    var name = (d && d.name) ? d.name : 'This pick';
+    var icon = (d && d.icon) ? d.icon : '🏛';
+    var total = opts.total || 6;
+
+    var avatar = document.getElementById('team-add-toast-avatar');
+    var title = document.getElementById('team-add-toast-title');
+    var sub = document.getElementById('team-add-toast-sub');
+    var check = document.getElementById('team-add-toast-check');
+
+    var photo = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(pid) : '';
+    if (avatar) {
+      if (photo) {
+        avatar.innerHTML = '<img src="' + photo + '" alt="" onerror="this.parentElement.textContent=\'' + icon + '\'">';
+      } else {
+        avatar.textContent = icon;
+      }
+    }
+
+    toast.classList.remove('removing', 'complete');
+    if (action === 'remove') {
+      toast.classList.add('removing');
+      if (check) check.textContent = '✕';
+      if (title) title.textContent = 'Removed from your team';
+      if (sub) sub.textContent = name;
+    } else if (opts.complete) {
+      toast.classList.add('complete');
+      if (check) check.textContent = '🎉';
+      if (title) title.textContent = 'Your voting team is complete!';
+      if (sub) sub.textContent = name + ' fills your final slot — all ' + total + ' picked';
+    } else {
+      if (check) check.textContent = '✓';
+      if (title) title.textContent = 'Added to your team';
+      if (sub) sub.textContent = name + (opts.count ? '  ·  ' + opts.count + '/' + total + ' slots filled' : '');
+    }
+
+    // Restart the entrance animation even if a toast is already showing.
+    toast.classList.remove('visible');
+    void toast.offsetWidth;
+    toast.classList.add('visible');
+    if (_teamToastTimer) clearTimeout(_teamToastTimer);
+    _teamToastTimer = setTimeout(function() { toast.classList.remove('visible'); }, action === 'remove' ? 2200 : 3000);
+  };
+
+  // Pulse the "My Voting Team" counters so the section feels alive.
+  window._popTeamCounter = function() {
+    ['myteam-count-badge', 'myteam-browse-slots-label'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('myteam-count-pop');
+      void el.offsetWidth;
+      el.classList.add('myteam-count-pop');
+      setTimeout(function() { el.classList.remove('myteam-count-pop'); }, 650);
+    });
+  };
+
   window.triggerManualLocationDetection = function() {
     var btn = document.getElementById('detect-loc-btn');
     var oldText = btn ? btn.innerHTML : '🌐 Detect my location';
@@ -21648,6 +21817,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         btn.innerHTML = '✓ Added!';
         setTimeout(function() { btn.classList.remove('just-added'); }, 600);
       }
+      if (typeof window._showTeamToast === 'function') {
+        window._showTeamToast(pid, wasOnTeam ? 'remove' : 'add', {});
+      }
+      if (typeof window._popTeamCounter === 'function') window._popTeamCounter();
       _mypolSave();
       setTimeout(function() {
         _mypolBuildGrid();
@@ -23726,6 +23899,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) return BROWSE_PHOTOS[pid];
       return '';
     }
+    window._getPhotoUrl = _getPhotoUrl;
 
     function _scoreColor(score) {
       if (score === null || score === undefined) return '#94a3b8';
@@ -24153,8 +24327,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? '<span style="color:' + _krScoreColor(d.score) + ';font-weight:700;">' + d.score + '% Promise</span>'
         : (isIncumbent ? '<span style="color:#7596c0;">Promise score being compiled</span>' : '<span style="color:#7596c0;">No voting record yet</span>');
       var btn = isPick
-        ? '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
-        : '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
+        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
+        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
       return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.85rem;border-radius:0.9rem;background:' + (isPick ? 'rgba(74,222,128,0.07)' : 'rgba(10,15,30,0.45)') + ';border:1px solid ' + (isPick ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">' +
         _krPhoto(pid, d, race.color) +
         '<div style="flex:1;min-width:0;">' +
@@ -24317,13 +24491,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window.ballotPickCard = function(raceKey, pid) {
       var selections = _ballotLoad();
       var wasEmpty = !selections[raceKey];
-      if (selections[raceKey] === pid) {
+      var isRemoving = selections[raceKey] === pid;
+      if (isRemoving) {
         delete selections[raceKey];
       } else {
         selections[raceKey] = pid;
       }
       _ballotSave(selections);
       _ballotRender();
+
+      // Premium feedback: named toast + counter pop on every team change.
+      try {
+        var _filled = 0;
+        for (var _bi = 0; _bi < BALLOT_RACES.length; _bi++) {
+          if (selections[BALLOT_RACES[_bi].key]) _filled++;
+        }
+        var _total = BALLOT_RACES.length;
+        if (typeof window._popTeamCounter === 'function') window._popTeamCounter();
+        if (typeof window._showTeamToast === 'function') {
+          if (isRemoving) {
+            window._showTeamToast(pid, 'remove', { count: _filled, total: _total });
+          } else {
+            window._showTeamToast(pid, 'add', { count: _filled, total: _total, complete: _filled === _total });
+          }
+        }
+      } catch (e) {}
 
       var summaryBox = document.getElementById('myteam-summary-box');
       if (summaryBox) {
@@ -24379,6 +24571,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 350);
         }
+      }
+    };
+
+    // Animated wrapper for the "Add to My Team" buttons in Your Key Races.
+    // Gives the clicked button an instant satisfying pop/check before the
+    // section re-renders, then delegates to the shared pick logic above.
+    window.ballotPickCardAnimated = function(btn, raceKey, pid) {
+      var selections = (typeof _ballotLoad === 'function') ? _ballotLoad() : {};
+      var isRemoving = selections[raceKey] === pid;
+      if (btn && !isRemoving) {
+        btn.classList.add('kr-btn-pop');
+        btn.innerHTML = '<span class="kr-btn-check">✓</span> Added!';
+        setTimeout(function() { window.ballotPickCard(raceKey, pid); }, 300);
+      } else {
+        window.ballotPickCard(raceKey, pid);
       }
     };
 
