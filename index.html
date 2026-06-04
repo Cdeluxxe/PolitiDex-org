@@ -10193,6 +10193,9 @@
         .so-i-n{flex-shrink:0;width:1.35rem;height:1.35rem;display:flex;align-items:center;justify-content:center;border-radius:0.4rem;background:rgba(52,211,153,0.16);border:1px solid rgba(52,211,153,0.4);color:#5ee7b0;font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;}
         .so-note{margin-top:0.6rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#8aa0c4;line-height:1.35;}
         .so-note strong{color:#cdd9ec;font-weight:700;}
+        .so-krloc{margin-top:0.45rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#7fa8e6;line-height:1.35;}
+        .so-krloc strong{color:#cfe0ff;font-weight:700;}
+        .so-intro-list li em.so-dist{color:#5ee7b0;font-weight:600;}
         .so-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:0.6rem;margin-top:0.95rem;}
         .so-tile{background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.85rem;padding:0.7rem 0.8rem;
           display:flex;flex-direction:column;gap:0.1rem;transition:border-color 0.2s ease, transform 0.2s ease;}
@@ -18769,7 +18772,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var c = window.STATE_CIVICS[loc.state];
       if (!c) c = { house: 1, senate: 0, lower: 0, lowerName: 'State Legislature' };
 
-      var houseSub = (loc.district ? 'Your district: ' + loc.district + ' · ' : '') +
+      // Pull the live district numbers from the "Your Key Races" selector so the
+      // top bar mirrors whichever area the user is currently exploring below.
+      // Key Races is Utah-only today, so we only borrow its numbers for Utah and
+      // fall back to the generic "(your district)" wording everywhere else.
+      var kr = (loc.state === 'Utah' && typeof window.keyRacesActiveDistricts === 'function')
+        ? window.keyRacesActiveDistricts() : null;
+
+      // "(District N)" when we know the number, generic fallback otherwise.
+      var soDist = function(num) {
+        return num
+          ? '<em class="so-dist">(District ' + num + ')</em>'
+          : '<em>(your district)</em>';
+      };
+
+      var houseDistrictNum = kr && kr.house ? kr.house : null;
+      var houseSub = (houseDistrictNum ? 'Your district: ' + houseDistrictNum + ' · '
+            : (loc.district ? 'Your district: ' + loc.district + ' · ' : '')) +
         c.house + ' statewide · you vote in 1';
 
       // Bicameral states let voters cast a ballot for both a state senator and a
@@ -18780,25 +18799,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (c.lower === 0) {
         // Unicameral legislature (Nebraska) — a single chamber.
         legTiles = tile(c.senate, 'State Legislature', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-legislature');
-        legIntro = '<li><span class="so-i-n">1</span> State Legislator <em>(your district)</em></li>';
+        legIntro = '<li><span class="so-i-n">1</span> State Legislator ' + soDist(kr && kr.senate) + '</li>';
         districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong> and <strong>' + c.senate + ' legislative</strong> districts';
       } else {
         legTiles = tile(c.senate, 'State Senate', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-senate') +
           tile(c.lower, c.lowerName, c.lower + ' statewide · you vote in 1', '#2dd4bf', 'state-house');
-        legIntro = '<li><span class="so-i-n">1</span> State Senator <em>(your district)</em></li>' +
-          '<li><span class="so-i-n">1</span> State House Representative <em>(your district)</em></li>';
+        legIntro = '<li><span class="so-i-n">1</span> State Senator ' + soDist(kr && kr.senate) + '</li>' +
+          '<li><span class="so-i-n">1</span> State House Representative ' + soDist(kr && kr.lower) + '</li>';
         districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong>, <strong>' + c.senate + ' State Senate</strong>, and <strong>' + c.lower + ' State House</strong> districts';
       }
+
+      // When we have a Key Races area, tell the user exactly whose districts these
+      // are and how to change them — connecting the top bar to the section below.
+      var krNote = kr
+        ? '<div class="so-krloc"><span>🗺️</span><span>District numbers shown for <strong>' + kr.label + '</strong> — change your area in <strong>Your Key Races</strong> below to update them.</span></div>'
+        : '';
 
       var intro = '<div class="so-intro">' +
           '<div class="so-intro-lead">You directly vote for <strong>' + mainCount + ' main positions</strong> at the federal + state level in ' + loc.state + ':</div>' +
           '<ul class="so-intro-list">' +
-            '<li><span class="so-i-n">1</span> U.S. House Representative <em>(your district)</em></li>' +
+            '<li><span class="so-i-n">1</span> U.S. House Representative ' + soDist(kr && kr.house) + '</li>' +
             '<li><span class="so-i-n">1</span> U.S. Senator</li>' +
             '<li><span class="so-i-n">1</span> Governor</li>' +
             legIntro +
           '</ul>' +
           '<div class="so-note"><span>📍</span><span>' + districtNote + ' — but each voter only votes in <strong>one</strong> of each.</span></div>' +
+          krNote +
         '</div>';
 
       html = '<div class="so-card">' +
@@ -24048,10 +24074,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return KEY_RACES_LOCATIONS[0];
     }
 
+    // Expose the active area's district numbers so the top "Utah Voter Map" info
+    // bar can show the exact U.S. House / State Senate / State House districts for
+    // whichever location is selected here. Returns null if data is unavailable.
+    window.keyRacesActiveDistricts = function() {
+      try {
+        var locId = _krCurrentLocationId();
+        var races = KEY_RACES_BY_LOCATION[locId];
+        if (!races) return null;
+        var meta = _krLocationMeta(locId);
+        var out = { locId: locId, label: meta.label, city: meta.city, county: meta.county,
+                    house: null, senate: null, lower: null };
+        races.forEach(function(r) {
+          var m = String(r.district || r.short || '').match(/(\d+)\s*$/);
+          var num = m ? m[1] : null;
+          if (r.raceKey === 'house') out.house = num;
+          else if (r.raceKey === 'statesenate') out.senate = num;
+          else if (r.raceKey === 'statehouse') out.lower = num;
+        });
+        return out;
+      } catch (e) { return null; }
+    };
+
     window.keyRacesSetLocation = function(id) {
       if (!KEY_RACES_BY_LOCATION[id]) return;
       try { localStorage.setItem(KR_LOCATION_KEY, id); } catch (e) {}
       if (window.renderKeyRaces) window.renderKeyRaces();
+      // Keep the top "Utah Voter Map" info bar in sync with the selected area.
+      if (window.renderStateOverview) window.renderStateOverview();
     };
 
     var _keyRacesHint = {};
@@ -24232,6 +24282,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     })();
     // Initial paint (DOM for this section already exists above this script).
     try { window.renderKeyRaces(); } catch (e) {}
+    // Now that the Key Races district data is defined, repaint the top info bar
+    // so it shows the active area's district numbers on first load too.
+    try { if (window.renderStateOverview) window.renderStateOverview(); } catch (e) {}
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function() { if (window.renderKeyRaces) window.renderKeyRaces(); });
     }
