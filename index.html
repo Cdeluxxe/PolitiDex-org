@@ -3582,6 +3582,16 @@
     .myteam-slot-empty:hover::after {
       border-color: rgba(245,158,11,0.2);
     }
+    .myteam-slot-empty:hover .myteam-empty-ring {
+      transform: scale(1.06);
+      border-color: rgba(245,158,11,0.6);
+      box-shadow: 0 0 22px rgba(245,158,11,0.18);
+    }
+    .myteam-slot-empty:hover .myteam-empty-cta {
+      background: linear-gradient(135deg, rgba(245,158,11,0.34), rgba(245,158,11,0.14)) !important;
+      box-shadow: 0 6px 20px rgba(245,158,11,0.22) !important;
+      transform: translateY(-1px);
+    }
     .myteam-slot-photo {
       width: 76px; height: 76px;
       border-radius: 50%;
@@ -4429,23 +4439,52 @@
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
-    .kr-incumbent-label { display: flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.13em; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.55rem; }
-    .kr-incumbent-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.85); flex-shrink: 0; }
+    .kr-incumbent-label { display: flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.55rem; }
+    .kr-incumbent-label::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 9px rgba(251,191,36,0.9); flex-shrink: 0; }
+    /* The current officeholder is the elevated "hero" of every race card — it gets
+       a gold accent bar, stronger glow and more padding than the secondary
+       challenger rows below, so who holds the seat today reads instantly. */
     .kr-incumbent-panel {
-      position: relative; border-radius: 1rem; padding: 0.85rem 0.95rem;
-      background: linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,158,11,0.035));
-      border: 1px solid rgba(245,200,66,0.42);
-      box-shadow: 0 6px 22px rgba(245,158,11,0.13), inset 0 1px 0 rgba(255,255,255,0.05);
+      position: relative; border-radius: 1.1rem; padding: 1.05rem 1.05rem 1.1rem; overflow: hidden;
+      background: linear-gradient(150deg, rgba(245,200,66,0.22), rgba(245,158,11,0.055) 55%, rgba(10,15,30,0.35));
+      border: 1.5px solid rgba(245,200,66,0.5);
+      box-shadow: 0 12px 36px rgba(245,158,11,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
     }
+    .kr-incumbent-panel::before {
+      content: ''; position: absolute; left: 0; top: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #ffd75e, #e0a82e); opacity: 0.95;
+    }
+    .kr-incumbent-panel + .kr-incumbent-panel { margin-top: 0.7rem; }
+    /* When the visitor has added the officeholder to their team, ring the hero green. */
+    .kr-incumbent-panel.is-pick { border-color: rgba(74,222,128,0.55); box-shadow: 0 12px 36px rgba(74,222,128,0.16), inset 0 1px 0 rgba(255,255,255,0.08); }
+    .kr-incumbent-panel.is-pick::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
+    .kr-incumbent-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.02em; line-height: 1.02; color: #fff; background: none; border: none; padding: 0; cursor: pointer; text-align: left; text-shadow: 0 1px 10px rgba(0,0,0,0.35); }
     .kr-incumbent-badge {
-      display: inline-flex; align-items: center; gap: 0.22rem; white-space: nowrap;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #1a1206; background: linear-gradient(135deg, #f5c842, #e0a82e);
-      padding: 0.1rem 0.46rem; border-radius: 999px; box-shadow: 0 2px 8px rgba(245,200,66,0.4);
+      display: inline-flex; align-items: center; gap: 0.28rem; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #1a1206; background: linear-gradient(135deg, #ffd75e, #e0a82e);
+      padding: 0.18rem 0.62rem; border-radius: 999px; box-shadow: 0 2px 12px rgba(245,200,66,0.5), 0 0 0 1px rgba(245,200,66,0.4);
+      animation: krIncBadgePulse 2.6s ease-in-out infinite;
     }
-    /* The "2026 Candidates" heading is intentionally lighter than the gold
-       incumbent label so the challengers read as the secondary tier. */
-    .kr-cand-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin: 0.9rem 0 0.55rem; }
+    @keyframes krIncBadgePulse {
+      0%, 100% { box-shadow: 0 2px 12px rgba(245,200,66,0.45), 0 0 0 1px rgba(245,200,66,0.35); }
+      50% { box-shadow: 0 3px 20px rgba(245,200,66,0.85), 0 0 0 1px rgba(245,200,66,0.55); }
+    }
+    @media (prefers-reduced-motion: reduce) { .kr-incumbent-badge { animation: none; } }
+    /* Tenure pill ("In office since YYYY"), short summary line and focus-area
+       chips that give the incumbent card real informational weight. */
+    .kr-inc-tenure { display: inline-flex; align-items: center; gap: 0.32rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.04em; color: #fcd34d; background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.32); padding: 0.14rem 0.55rem; border-radius: 999px; margin-top: 0.5rem; }
+    .kr-inc-summary { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; line-height: 1.5; color: #ecdfc0; margin-top: 0.55rem; }
+    .kr-inc-focus { display: flex; flex-wrap: wrap; align-items: center; gap: 0.32rem; margin-top: 0.6rem; }
+    .kr-inc-focus-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; color: #c8a657; }
+    .kr-inc-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; letter-spacing: 0.03em; color: #fcd34d; background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3); padding: 0.1rem 0.52rem; border-radius: 999px; }
+    /* The challenger heading is intentionally lighter/cooler than the gold
+       incumbent label so the people running read as the secondary tier. */
+    .kr-cand-label { display: flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin: 1rem 0 0.55rem; }
+    /* Clean "no challengers filed yet" state shown when the only people in a race
+       are the sitting officeholder(s). */
+    .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
+    .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
 
     /* Two-score strip on each 2026 candidate card:
        Accountability of Truth (purple, prominent) + Personalized Alignment (teal, secondary). */
@@ -22250,14 +22289,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     function _renderSlotEmpty(pos) {
-      return '<div class="myteam-slot-empty" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">' +
-        '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '35;color:' + pos.color + '80;">' + pos.icon + ' ' + pos.label + '</div>' +
-        '<div style="width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(30,53,96,0.1);border:2.5px dashed rgba(255,255,255,0.08);font-size:2rem;margin:0.4rem auto 0.75rem;color:#3d5a80;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
-        '<div class="font-condensed text-base text-steel-400 tracking-wider font-700" style="margin-bottom:0.25rem;">Open Slot</div>' +
-        '<div class="font-condensed" style="font-size:0.65rem;color:#4e72a0;margin-bottom:0.7rem;line-height:1.4;">No candidate selected yet</div>' +
-        '<div style="display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(245,158,11,0.08));border:1.5px solid rgba(245,158,11,0.45);color:rgba(245,158,11,0.95);font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.45rem 1rem;border-radius:999px;cursor:pointer;transition:all 0.25s;box-shadow:0 3px 12px rgba(245,158,11,0.1);">' +
+      return '<div class="myteam-slot-empty" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Choose your ' + pos.label + ' pick">' +
+        '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
+        '<div class="myteam-empty-ring" style="width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.08));border:2.5px dashed ' + pos.color + '55;font-size:2rem;margin:0.4rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
+        '<div class="font-condensed text-base text-steel-300 tracking-wider font-700" style="margin-bottom:0.2rem;">' + pos.label + '</div>' +
+        '<div class="font-condensed" style="font-size:0.66rem;color:#7d97bd;margin-bottom:0.75rem;line-height:1.4;">Your seat is open — pick the candidate you’d vote for.</div>' +
+        '<div class="myteam-empty-cta" style="display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(245,158,11,0.08));border:1.5px solid rgba(245,158,11,0.5);color:rgba(245,158,11,0.98);font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.45rem 1rem;border-radius:999px;cursor:pointer;transition:all 0.25s;box-shadow:0 3px 12px rgba(245,158,11,0.12);">' +
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
-          'Pick a Candidate' +
+          'Choose Candidate' +
         '</div>' +
       '</div>';
     }
@@ -24408,6 +24447,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'mkennedy',
           incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025,
+          incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
           addLabel: 'Add Congressional District 3 choice to My Team',
           candidates: ['mkennedy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
@@ -24438,6 +24479,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'maloy',
           incumbentNote: 'Incumbent — running for re-election in 2026',
+          incumbentSince: 2023,
+          incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
           addLabel: 'Add Congressional District 2 choice to My Team',
           candidates: ['maloy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
@@ -24488,7 +24531,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         district: 'Governor of Utah', chamber: 'Statewide · Executive',
         color: '#34d399', incumbentPid: 'cox',
         incumbentNote: 'Incumbent — elected 2020, re-elected 2024',
-        candidatesLabel: 'Officeholder & Contenders',
+        incumbentSince: 2021,
+        incumbentSummary: 'Utah’s 18th governor. Signs every state law and budget — known for rural development, water policy and mental-health initiatives.',
         addLabel: 'Add your Governor pick to My Team',
         candidates: ['cox', 'lyman'],
         extraNote: 'Utah’s governorship is a four-year office, last contested in 2024 and next on the ballot in 2028. It’s shown for every Utah voter because the Governor signs every state law and budget — add the leader whose record you want to track.'
@@ -24498,7 +24542,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         district: 'U.S. Senate — Utah', chamber: 'Statewide · Federal',
         color: '#818cf8', incumbentPid: 'lee', incumbentPids: ['lee', 'curtis'],
         incumbentNote: 'Senior Senator — seat next contested in 2028',
-        candidatesLabel: 'Utah’s U.S. Senators',
+        incumbentSince: { lee: 2011, curtis: 2025 },
+        incumbentNotes: {
+          lee: 'Senior Senator — seat next contested in 2028',
+          curtis: 'Junior Senator — seat next contested in 2030'
+        },
+        incumbentSummary: {
+          lee: 'Utah’s senior U.S. Senator and a leading constitutional-conservative voice in Washington.',
+          curtis: 'Utah’s junior U.S. Senator, formerly the 3rd District congressman, focused on energy and the environment.'
+        },
         addLabel: 'Add your U.S. Senate pick to My Team',
         candidates: ['lee', 'curtis'],
         extraNote: 'Each state elects its two U.S. Senators in different years, so only one of a state’s seats is ever up in a single cycle. Neither Utah seat is on the 2026 ballot — Sen. Lee’s is next in 2028 and Sen. Curtis’s in 2030 — but both senators represent every Utah voter, so their records are shown here.'
@@ -24667,6 +24719,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return { promise: promiseHtml, acct: acctHtml };
     }
 
+    // Shared "Add to My Team" / "On My Team" pick button so the incumbent hero
+    // and the challenger rows behave identically (same ballotPickCardAnimated
+    // mechanism, same 6-slot team store).
+    function _krPickBtn(race, pid, isPick) {
+      return isPick
+        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
+        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
+    }
+
+    // Compare / Profile action row shared by the incumbent hero and challenger rows.
+    function _krActionRow(pid, d) {
+      var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
+      return '<div class="kr-action-row">' +
+          '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
+            '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
+          '</button>' +
+          '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
+            '<span class="kr-action-ico">👤</span>Profile' +
+          '</button>' +
+        '</div>';
+    }
+
     function _krCandidateRow(race, pid, selectedPid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
@@ -24677,10 +24751,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
         : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
       var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : '2026 candidate');
-      var btn = isPick
-        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
-        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
-      var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
+      var btn = _krPickBtn(race, pid, isPick);
 
       // ── Score strip ──────────────────────────────────────────────────────
       // Row 1 — the two objective scores, side by side and easy to scan across
@@ -24708,15 +24779,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var spotPreviewHtml = (typeof _krBuildSpotlight === 'function')
         ? _krSpotPreviewHtml(pid, _krBuildSpotlight(pid)) : '';
 
-      var actionsHtml =
-        '<div class="kr-action-row">' +
-          '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
-            '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
-          '</button>' +
-          '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
-            '<span class="kr-action-ico">👤</span>Profile' +
-          '</button>' +
-        '</div>';
+      var actionsHtml = _krActionRow(pid, d);
       return '<div style="padding:0.7rem 0.85rem;border-radius:0.9rem;background:' + (isPick ? 'rgba(74,222,128,0.07)' : 'rgba(10,15,30,0.45)') + ';border:1px solid ' + (isPick ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">' +
         '<div style="display:flex;align-items:center;gap:0.75rem;">' +
           _krPhoto(pid, d, race.color) +
@@ -24735,6 +24798,81 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }
 
+    // Larger circular photo for the elevated incumbent hero (vs. the 46px
+    // challenger thumbnails) so the sitting officeholder reads as the focal point.
+    function _krPhotoLg(pid, d, color) {
+      var url = (typeof _getPhotoUrl === 'function') ? _getPhotoUrl(pid) : '';
+      if (url) {
+        return '<div style="width:62px;height:62px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2.5px solid ' + color + '99;background:#0a0f1e;box-shadow:0 4px 16px rgba(245,158,11,0.25);">' +
+          '<img src="' + url + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.7rem;color:#fcd34d&quot;>' + (d.icon || '🏛') + '</div>\'"></div>';
+      }
+      return '<div style="width:62px;height:62px;border-radius:50%;flex-shrink:0;border:2.5px solid ' + color + '99;background:rgba(245,200,66,0.12);display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:#fcd34d;box-shadow:0 4px 16px rgba(245,158,11,0.25);">' + (d.icon || '🏛') + '</div>';
+    }
+
+    // "In office since YYYY · N yrs" tenure pill. Only rendered where we have a
+    // confident start year (race.incumbentSince — a number, or a pid→year map for
+    // multi-incumbent races like the U.S. Senate); omitted otherwise rather than guessed.
+    function _krIncTenure(race, pid) {
+      var since = race.incumbentSince;
+      if (since && typeof since === 'object') since = since[pid];
+      if (!since) return '';
+      var yrs = 2026 - since;
+      var yrTxt = yrs > 0 ? ' · ' + yrs + ' yr' + (yrs === 1 ? '' : 's') + ' in office' : '';
+      return '<span class="kr-inc-tenure"><span>🗓️</span>In office since ' + since + yrTxt + '</span>';
+    }
+
+    // Optional one-line summary for the incumbent (race.incumbentSummary — string,
+    // or a pid→string map for multi-incumbent races).
+    function _krIncSummary(race, pid) {
+      var s = race.incumbentSummary;
+      if (s && typeof s === 'object') s = s[pid];
+      return s ? '<div class="kr-inc-summary">' + s + '</div>' : '';
+    }
+
+    // Focus-area chips drawn from the officeholder's tracked issues — the "key
+    // highlights" that give the incumbent card real informational weight.
+    function _krIncFocus(d) {
+      if (!d.issues || !d.issues.length) return '';
+      var chips = d.issues.slice(0, 4).map(function(i) { return '<span class="kr-inc-chip">' + i + '</span>'; }).join('');
+      return '<div class="kr-inc-focus"><span class="kr-inc-focus-label">Focus</span>' + chips + '</div>';
+    }
+
+    // The elevated "hero" card for a current officeholder. It is deliberately the
+    // richest card in the race — identity + prominent IN OFFICE badge, tenure, a
+    // short summary, focus areas, objective scores, the at-a-glance Spotlight, the
+    // visitor's personalized alignment, and its own Add-to-Team / Compare / Profile
+    // actions — so the person holding the seat today stands out far above the
+    // challengers and stays fully pickable without a duplicate row below.
+    function _krIncumbentCard(race, pid, selectedPid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return '';
+      var isPick = selectedPid === pid;
+      var note = (race.incumbentNotes && race.incumbentNotes[pid]) || race.incumbentNote || '';
+      var cells = _krScoreCells(pid, d, true);
+      var spot = (typeof _krBuildSpotlight === 'function') ? _krSpotPreviewHtml(pid, _krBuildSpotlight(pid)) : '';
+      var align = (typeof _krAlignInlineHtml === 'function') ? _krAlignInlineHtml(pid, d) : '';
+      return '<div class="kr-incumbent-panel' + (isPick ? ' is-pick' : '') + '">' +
+        '<div style="display:flex;align-items:flex-start;gap:0.8rem;">' +
+          _krPhotoLg(pid, d, '#f5c842') +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
+              '<span class="kr-incumbent-badge">✦ In Office Now</span>' + _krPartyBadge(d.party) +
+            '</div>' +
+            '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-incumbent-name" style="display:block;margin-top:0.32rem;">' + d.name + '</button>' +
+            '<div class="font-condensed" style="font-size:0.72rem;color:#fcd34d;margin-top:0.12rem;line-height:1.3;">' + (d.office || 'Current officeholder') + (note ? ' · ' + note : '') + '</div>' +
+          '</div>' +
+        '</div>' +
+        _krIncTenure(race, pid) +
+        _krIncSummary(race, pid) +
+        _krIncFocus(d) +
+        '<div class="kr-score-strip">' + cells.promise + cells.acct + '</div>' +
+        align +
+        spot +
+        '<div style="margin-top:0.7rem;display:flex;justify-content:flex-end;">' + _krPickBtn(race, pid, isPick) + '</div>' +
+        _krActionRow(pid, d) +
+      '</div>';
+    }
+
     function _krRaceCard(race) {
       var selections = (typeof _ballotLoad === 'function') ? _ballotLoad() : {};
       var selectedPid = selections[race.raceKey];
@@ -24742,39 +24880,53 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // selectedPid may also be the incumbent (e.g. retiring) if user picked them elsewhere
       if (selectedPid && !selInThisRace && CMP_DATA[selectedPid]) selInThisRace = selectedPid;
 
-      // Current officeholder block
-      var inc = race.incumbentPid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[race.incumbentPid] : null;
+      // ── Current officeholder(s) ─────────────────────────────────────────────
+      // A race can have more than one sitting officeholder (e.g. a state's two
+      // U.S. Senators), so we render every incumbent as its own elevated hero.
+      var incList = (race.incumbentPids && race.incumbentPids.length)
+        ? race.incumbentPids.slice()
+        : (race.incumbentPid ? [race.incumbentPid] : []);
+      incList = incList.filter(function(pid) { return typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]; });
+
       var holderHtml;
-      if (inc) {
-        var incCells = _krScoreCells(race.incumbentPid, inc, true);
-        holderHtml =
-          '<div style="display:flex;align-items:center;gap:0.75rem;">' +
-            _krPhoto(race.incumbentPid, inc, race.color) +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-                '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + race.incumbentPid + '\')" class="font-display text-xl text-white" style="background:none;border:none;padding:0;cursor:pointer;letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</button>' + _krPartyBadge(inc.party) +
-                '<span class="kr-incumbent-badge">★ In Office</span>' +
-              '</div>' +
-              '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div>' +
-            '</div>' +
-          '</div>' +
-          // Promise % + Accountability of Truth Score, shown by default so the
-          // sitting official's record is just as scannable as the challengers'.
-          '<div class="kr-score-strip">' + incCells.promise + incCells.acct + '</div>' +
-          // Same at-a-glance Spotlight strip the challengers get — incumbents
-          // tend to have the richest, most timely items.
-          ((typeof _krBuildSpotlight === 'function')
-            ? _krSpotPreviewHtml(race.incumbentPid, _krBuildSpotlight(race.incumbentPid)) : '');
+      if (incList.length) {
+        holderHtml = incList.map(function(pid) { return _krIncumbentCard(race, pid, selectedPid); }).join('');
       } else {
         holderHtml =
-          '<div style="display:flex;align-items:center;gap:0.75rem;">' +
-            '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px dashed ' + race.color + '55;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:' + race.color + ';">🪑</div>' +
-            '<div><div class="font-display text-lg text-white">Open Seat</div>' +
-            '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div></div>' +
+          '<div class="kr-incumbent-panel" style="background:linear-gradient(150deg,rgba(96,165,250,0.12),rgba(10,15,30,0.4));border-color:' + race.color + '55;box-shadow:none;">' +
+            '<div style="display:flex;align-items:center;gap:0.8rem;">' +
+              '<div style="width:62px;height:62px;border-radius:50%;flex-shrink:0;border:2.5px dashed ' + race.color + '88;display:flex;align-items:center;justify-content:center;font-size:1.7rem;color:' + race.color + ';">🪑</div>' +
+              '<div><div class="font-display text-xl text-white" style="line-height:1.05;">Open Seat</div>' +
+              '<div class="font-condensed" style="font-size:0.72rem;color:#9fb4d4;margin-top:0.15rem;">' + (race.incumbentNote || 'No incumbent on the 2026 ballot') + '</div></div>' +
+            '</div>' +
           '</div>';
       }
 
-      var candHtml = race.candidates.map(function(pid) { return _krCandidateRow(race, pid, selectedPid); }).join('');
+      // ── Challengers — everyone running who is NOT the sitting officeholder ───
+      // The incumbent already appears (once) in the hero above, so we never list
+      // them again here. That keeps the "who's running" list clean and secondary.
+      var challengerPids = race.candidates.filter(function(pid) { return incList.indexOf(pid) === -1; });
+      var candHtml = challengerPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid); }).join('');
+
+      var hasRunningIncumbent = incList.length && !/retir|open seat/i.test(race.incumbentNote || '');
+      var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running in 2026' : '2026 Candidates');
+
+      var noteHtml = race.extraNote
+        ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>'
+        : '';
+      var candSection;
+      if (challengerPids.length) {
+        candSection =
+          '<div class="kr-cand-label">' + candLabel + '</div>' +
+          '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + candHtml + '</div>' +
+          noteHtml;
+      } else {
+        // No one else is running yet — show a clean note instead of an empty list.
+        candSection =
+          '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>' +
+            (race.extraNote || 'No 2026 challengers have filed for this seat yet — check back as the field is certified.') +
+          '</span></div>';
+      }
 
       // Footer contextual button
       var footer;
@@ -24796,13 +24948,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
         '</div>' +
         '<div style="padding:1rem 1.1rem 0.35rem;">' +
-          '<div class="kr-incumbent-label">Currently Represented By</div>' +
-          '<div class="kr-incumbent-panel">' + holderHtml + '</div>' +
+          '<div class="kr-incumbent-label">' + (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') + '</div>' +
+          holderHtml +
         '</div>' +
         '<div style="padding:0.4rem 1.1rem 1rem;">' +
-          '<div class="kr-cand-label">' + (race.candidatesLabel || '2026 Candidates') + '</div>' +
-          '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + candHtml + '</div>' +
-          (race.extraNote ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>' : '') +
+          candSection +
           '<div style="margin-top:0.9rem;">' + footer + '</div>' +
         '</div>' +
       '</div>';
