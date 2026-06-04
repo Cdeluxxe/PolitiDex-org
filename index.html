@@ -4440,11 +4440,18 @@
     .kr-score-align { background: linear-gradient(135deg, rgba(20,184,166,0.18), rgba(45,212,191,0.05)); border: 1px solid rgba(45,212,191,0.5); box-shadow: 0 4px 16px rgba(20,184,166,0.12), inset 0 1px 0 rgba(255,255,255,0.04); }
     .kr-score-align .kr-score-num { color: #5eead4; font-size: 1.7rem; text-shadow: 0 0 12px rgba(45,212,191,0.4); }
     .kr-score-align .kr-score-label { color: #5eead4; }
+    /* Promise % — gold/amber, the prominent campaign-promise track record */
+    .kr-score-promise { background: linear-gradient(135deg, rgba(245,158,11,0.20), rgba(245,158,11,0.05)); border: 1px solid rgba(245,158,11,0.5); box-shadow: 0 4px 16px rgba(245,158,11,0.12), inset 0 1px 0 rgba(255,255,255,0.04); }
+    .kr-score-promise .kr-score-num { font-size: 1.95rem; }
+    .kr-score-promise .kr-score-label { color: #fbbf24; }
     /* Prompt cell shown in the alignment slot when no issues are chosen yet */
     .kr-score-setalign { background: rgba(20,184,166,0.07); border: 1px dashed rgba(45,212,191,0.42); justify-content: flex-start; }
     .kr-score-setalign .kr-score-label { color: #7ee7d8; }
+    /* Second strip row carries the single full-width alignment cell */
+    .kr-score-strip + .kr-score-strip { margin-top: 0.4rem; }
     @media (max-width: 380px) {
       .kr-score { padding: 0.45rem 0.5rem; gap: 0.4rem; }
+      .kr-score-promise .kr-score-num { font-size: 1.7rem; }
       .kr-score-acct .kr-score-num { font-size: 1.7rem; }
       .kr-score-align .kr-score-num { font-size: 1.5rem; }
     }
@@ -24443,20 +24450,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var roleTag = isIncumbent
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
         : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
-      var recordHtml = hasScore
-        ? '<span style="color:' + _krScoreColor(d.score) + ';font-weight:700;">' + d.score + '% Promise</span>'
-        : (isIncumbent ? '<span style="color:#7596c0;">Promise score being compiled</span>' : '<span style="color:#7596c0;">No voting record yet</span>');
+      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : '2026 candidate');
       var btn = isPick
         ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
         : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
       var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
 
-      // ── Two-score strip: Accountability of Truth (prominent) + Personalized Alignment ──
-      // The Accountability score is the objective truth/integrity rating; tapping it
-      // opens the full AI-verified analysis. The Alignment % is personalized and only
-      // carries a number once the visitor has chosen the issues that matter to them.
+      // ── Score strip ──────────────────────────────────────────────────────
+      // Row 1 — the two objective scores, side by side and easy to scan across
+      // candidates: Promise % (gold, prominent campaign-promise record) and the
+      // Accountability of Truth Score (purple, the objective integrity rating).
+      // Row 2 — the personalized Alignment %, kept visually distinct so the two
+      // scoring systems never blur together.
       // We only show a Truth Score where there is a real record to ground it — for
       // challengers with no record yet we say so plainly rather than inventing a number.
+      var promiseHtml;
+      if (hasScore) {
+        var pCol = _krScoreColor(d.score);
+        promiseHtml =
+          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; open full profile">' +
+            '<span class="kr-score-ico">📊</span>' +
+            '<span class="kr-score-num" style="color:' + pCol + ';">' + d.score + '<span style="font-size:0.95rem;">%</span></span>' +
+            '<span class="kr-score-meta">' +
+              '<span class="kr-score-label">Promise</span>' +
+              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + (d.kept || 0) + '</span> <span style="color:#f87171;">✕' + (d.broken || 0) + '</span> kept/broken</span>' +
+            '</span>' +
+          '</button>';
+      } else {
+        promiseHtml =
+          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — open full profile">' +
+            '<span class="kr-score-ico">📊</span>' +
+            '<span class="kr-score-meta">' +
+              '<span class="kr-score-label">Promise</span>' +
+              '<span class="kr-score-sub">' + (isIncumbent ? 'Being compiled' : 'No record yet') + '</span>' +
+            '</span>' +
+          '</button>';
+      }
+
       var acct = (d.accountability && typeof d.accountability.overallScore === 'number')
         ? d.accountability
         : ((hasScore && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
@@ -24501,11 +24531,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="kr-score-ico">🎯</span>' +
             '<span class="kr-score-meta">' +
               '<span class="kr-score-label">Set Your Issues</span>' +
-              '<span class="kr-score-sub">for your match %</span>' +
+              '<span class="kr-score-sub">to see your alignment</span>' +
             '</span>' +
           '</button>';
       }
-      var scoreStrip = '<div class="kr-score-strip">' + acctHtml + alignHtml + '</div>';
+      var scoreStrip =
+        '<div class="kr-score-strip">' + promiseHtml + acctHtml + '</div>' +
+        '<div class="kr-score-strip">' + alignHtml + '</div>';
 
       var actionsHtml =
         '<div class="kr-action-row">' +
@@ -24527,7 +24559,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="font-condensed font-700 text-white" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.95rem;letter-spacing:0.01em;">' + d.name + '</button>' +
               _krPartyBadge(d.party) + roleTag +
             '</div>' +
-            '<div class="font-condensed" style="font-size:0.68rem;color:#9fb4d4;margin-top:0.15rem;">' + recordHtml + (hasScore ? ' · <span style="color:#4ade80;">✓ ' + (d.kept || 0) + '</span> / <span style="color:#f87171;">✕ ' + (d.broken || 0) + '</span>' : '') + '</div>' +
+            '<div class="font-condensed" style="font-size:0.68rem;color:#9fb4d4;margin-top:0.15rem;">' + subLine + '</div>' +
           '</div>' +
           btn +
         '</div>' +
