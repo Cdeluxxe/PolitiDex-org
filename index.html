@@ -24570,30 +24570,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '📍 Showing key races for <strong style="color:#fff;">' + meta.label + '</strong>. Use the selector above to switch areas — more Utah locations are coming soon.';
     }
 
-    function _krCandidateRow(race, pid, selectedPid) {
-      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
-      if (!d) return '';
-      var isPick = selectedPid === pid;
-      var isIncumbent = race.incumbentPid === pid ||
-        (race.incumbentPids && race.incumbentPids.indexOf(pid) !== -1);
+    // ── Shared Promise % + Accountability of Truth score cells ───────────────
+    // Builds the two objective score buttons used on EVERY Key Races politician
+    // — current officeholders and 2026 candidates alike — so the Truth Score is
+    // displayed and styled identically everywhere and is easy to compare at a
+    // glance. Returns { promise, acct } HTML strings.
+    //   • Promise %  → gold, taps through to the full profile.
+    //   • Truth Score → purple, taps through to the deep AI analysis (View Full
+    //     Analysis). When no score exists yet it shows a clean "Tap to analyze"
+    //     (incumbents) / "No record yet" (challengers) prompt instead of a number.
+    function _krScoreCells(pid, d, isIncumbent) {
       var hasScore = d.score !== null && d.score !== undefined;
-      var roleTag = isIncumbent
-        ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
-        : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
-      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : '2026 candidate');
-      var btn = isPick
-        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
-        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
-      var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
-
-      // ── Score strip ──────────────────────────────────────────────────────
-      // Row 1 — the two objective scores, side by side and easy to scan across
-      // candidates: Promise % (gold, prominent campaign-promise record) and the
-      // Accountability of Truth Score (purple, the objective integrity rating).
-      // Row 2 — the personalized Alignment %, kept visually distinct so the two
-      // scoring systems never blur together.
-      // We only show a Truth Score where there is a real record to ground it — for
-      // challengers with no record yet we say so plainly rather than inventing a number.
       var promiseHtml;
       if (hasScore) {
         var pCol = _krScoreColor(d.score);
@@ -24625,7 +24612,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var as = acct.overallScore;
         var aLvl = acct.color || _krScoreColor(as);
         acctHtml =
-          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — view the AI analysis">' +
+          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — ' + as + ' out of 100; view the full AI analysis">' +
             '<span class="kr-score-ico">🛡️</span>' +
             '<span class="kr-score-num">' + as + '</span>' +
             '<span class="kr-score-meta">' +
@@ -24635,7 +24622,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</button>';
       } else {
         acctHtml =
-          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + '">' +
+          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — not yet analyzed">' +
             '<span class="kr-score-ico">🛡️</span>' +
             '<span class="kr-score-meta">' +
               '<span class="kr-score-label">Truth Score</span>' +
@@ -24643,6 +24630,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</span>' +
           '</button>';
       }
+      return { promise: promiseHtml, acct: acctHtml };
+    }
+
+    function _krCandidateRow(race, pid, selectedPid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return '';
+      var isPick = selectedPid === pid;
+      var isIncumbent = race.incumbentPid === pid ||
+        (race.incumbentPids && race.incumbentPids.indexOf(pid) !== -1);
+      var roleTag = isIncumbent
+        ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
+        : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
+      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : '2026 candidate');
+      var btn = isPick
+        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
+        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
+      var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
+
+      // ── Score strip ──────────────────────────────────────────────────────
+      // Row 1 — the two objective scores, side by side and easy to scan across
+      // candidates: Promise % (gold, prominent campaign-promise record) and the
+      // Accountability of Truth Score (purple, the objective integrity rating).
+      // Row 2 — the personalized Alignment %, kept visually distinct so the two
+      // scoring systems never blur together.
+      // We only show a Truth Score where there is a real record to ground it — for
+      // challengers with no record yet we say so plainly rather than inventing a number.
+      var _cells = _krScoreCells(pid, d, isIncumbent);
+      var promiseHtml = _cells.promise;
+      var acctHtml = _cells.acct;
       // ── Personalized alignment — shown INLINE on the card ────────────────
       // When the visitor has chosen issues we surface their match % right here so
       // it can be scanned and compared across candidates at a glance, with a tap
@@ -24693,27 +24709,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var inc = race.incumbentPid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[race.incumbentPid] : null;
       var holderHtml;
       if (inc) {
-        var hasScore = inc.score !== null && inc.score !== undefined;
+        var incCells = _krScoreCells(race.incumbentPid, inc, true);
         holderHtml =
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
             _krPhoto(race.incumbentPid, inc, race.color) +
             '<div style="flex:1;min-width:0;">' +
               '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-                '<span class="font-display text-xl text-white" style="letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</span>' + _krPartyBadge(inc.party) +
+                '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + race.incumbentPid + '\')" class="font-display text-xl text-white" style="background:none;border:none;padding:0;cursor:pointer;letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</button>' + _krPartyBadge(inc.party) +
                 '<span class="kr-incumbent-badge">★ In Office</span>' +
               '</div>' +
               '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div>' +
             '</div>' +
-            '<div style="text-align:center;flex-shrink:0;">' +
-              '<div class="font-display" style="font-size:1.8rem;line-height:1;color:' + _krScoreColor(inc.score) + ';">' + (hasScore ? inc.score + '%' : '—') + '</div>' +
-              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Promise</div>' +
-            '</div>' +
-            (hasScore ?
-            '<div style="text-align:center;flex-shrink:0;">' +
-              '<div class="font-condensed" style="font-size:0.78rem;"><span style="color:#4ade80;">✓ ' + (inc.kept || 0) + '</span> &nbsp; <span style="color:#f87171;">✕ ' + (inc.broken || 0) + '</span></div>' +
-              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Accountability</div>' +
-            '</div>' : '') +
-          '</div>';
+          '</div>' +
+          // Promise % + Accountability of Truth Score, shown by default so the
+          // sitting official's record is just as scannable as the challengers'.
+          '<div class="kr-score-strip">' + incCells.promise + incCells.acct + '</div>';
       } else {
         holderHtml =
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
