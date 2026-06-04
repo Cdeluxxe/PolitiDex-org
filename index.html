@@ -4410,13 +4410,42 @@
     .kr-action-btn .kr-action-ico { font-size: 0.82rem; line-height: 1; }
     .kr-action-compare { color: #93c5fd; background: rgba(59,130,246,0.12); border: 1px solid rgba(96,165,250,0.4); }
     .kr-action-compare.added { color: #4ade80; background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.55); }
-    /* Dynamic "Spotlight" button — gold, signals a live/timely highlight */
+    /* Dynamic "Spotlight" button — gold, signals a live/timely highlight.
+       The small pulsing dot tells the visitor this opens something current. */
     .kr-action-spotlight { color: #f5c842; background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.45); }
     .kr-action-spotlight:hover { background: rgba(245,200,66,0.18); border-color: rgba(245,200,66,0.6); }
+    .kr-spot-live { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: #f5c842; box-shadow: 0 0 0 0 rgba(245,200,66,0.6); animation: krSpotPulse 2.1s ease-out infinite; }
+    @keyframes krSpotPulse {
+      0% { box-shadow: 0 0 0 0 rgba(245,200,66,0.55); }
+      70% { box-shadow: 0 0 0 6px rgba(245,200,66,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,200,66,0); }
+    }
+    @media (prefers-reduced-motion: reduce) { .kr-spot-live { animation: none; } }
     .kr-action-profile { color: #cbd9ee; background: rgba(159,180,212,0.10); border: 1px solid rgba(159,180,212,0.32); }
     @media (max-width: 380px) {
       .kr-action-btn { font-size: 0.62rem; letter-spacing: 0.03em; }
     }
+
+    /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
+       Deliberately given stronger visual weight than the 2026 challenger rows
+       below, so it's instantly clear who holds the seat today vs. who's running. */
+    .kr-incumbent-label { display: flex; align-items: center; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.13em; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.55rem; }
+    .kr-incumbent-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.85); flex-shrink: 0; }
+    .kr-incumbent-panel {
+      position: relative; border-radius: 1rem; padding: 0.85rem 0.95rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,158,11,0.035));
+      border: 1px solid rgba(245,200,66,0.42);
+      box-shadow: 0 6px 22px rgba(245,158,11,0.13), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .kr-incumbent-badge {
+      display: inline-flex; align-items: center; gap: 0.22rem; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #1a1206; background: linear-gradient(135deg, #f5c842, #e0a82e);
+      padding: 0.1rem 0.46rem; border-radius: 999px; box-shadow: 0 2px 8px rgba(245,200,66,0.4);
+    }
+    /* The "2026 Candidates" heading is intentionally lighter than the gold
+       incumbent label so the challengers read as the secondary tier. */
+    .kr-cand-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin: 0.9rem 0 0.55rem; }
 
     /* Two-score strip on each 2026 candidate card:
        Accountability of Truth (purple, prominent) + Personalized Alignment (teal, secondary). */
@@ -4477,7 +4506,8 @@
     .kr-align-inline-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
     .kr-align-inline-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.1; font-size: 0.74rem; }
     .kr-align-inline-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; letter-spacing: 0.05em; color: #8ea2c0; text-transform: uppercase; line-height: 1.15; margin-top: 0.05rem; }
-    .kr-align-inline-chev { flex-shrink: 0; color: #5eead4; font-size: 0.9rem; line-height: 1; transition: transform 0.25s ease; }
+    .kr-align-inline-chev { flex-shrink: 0; color: #5eead4; font-size: 0.82rem; line-height: 1; width: 1.55rem; height: 1.55rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.32); transition: transform 0.25s ease, background 0.2s ease; }
+    .kr-align-inline:hover .kr-align-inline-chev { background: rgba(45,212,191,0.2); }
     .kr-align-inline-go { flex-shrink: 0; color: #7ee7d8; font-size: 1.25rem; line-height: 1; font-weight: 700; }
     .kr-align-inline-setup { background: rgba(20,184,166,0.06); border: 1px dashed rgba(45,212,191,0.42); }
     .kr-align-inline-setup .kr-align-inline-title { color: #7ee7d8; }
@@ -24629,7 +24659,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
           '</button>' +
           '<button onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-action-btn kr-action-spotlight" aria-label="See what is happening with ' + d.name + ' right now">' +
-            '<span class="kr-action-ico">🔦</span>Spotlight' +
+            '<span class="kr-spot-live" aria-hidden="true"></span><span class="kr-action-ico">🔦</span>Spotlight' +
           '</button>' +
           '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
             '<span class="kr-action-ico">👤</span>Profile' +
@@ -24669,7 +24699,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             _krPhoto(race.incumbentPid, inc, race.color) +
             '<div style="flex:1;min-width:0;">' +
               '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-                '<span class="font-display text-lg text-white" style="letter-spacing:0.02em;">' + inc.name + '</span>' + _krPartyBadge(inc.party) +
+                '<span class="font-display text-xl text-white" style="letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</span>' + _krPartyBadge(inc.party) +
+                '<span class="kr-incumbent-badge">★ In Office</span>' +
               '</div>' +
               '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div>' +
             '</div>' +
@@ -24713,12 +24744,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.18rem 0.6rem;border-radius:999px;">' + race.chamber + '</span>' +
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
         '</div>' +
-        '<div style="padding:1rem 1.1rem 0.6rem;">' +
-          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.5rem;">Currently Represented By</div>' +
-          holderHtml +
+        '<div style="padding:1rem 1.1rem 0.35rem;">' +
+          '<div class="kr-incumbent-label">Currently Represented By</div>' +
+          '<div class="kr-incumbent-panel">' + holderHtml + '</div>' +
         '</div>' +
         '<div style="padding:0.4rem 1.1rem 1rem;">' +
-          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:0.6rem 0 0.5rem;">' + (race.candidatesLabel || '2026 Candidates') + '</div>' +
+          '<div class="kr-cand-label">' + (race.candidatesLabel || '2026 Candidates') + '</div>' +
           '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + candHtml + '</div>' +
           (race.extraNote ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>' : '') +
           '<div style="margin-top:0.9rem;">' + footer + '</div>' +
@@ -24732,7 +24763,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       setTimeout(function() { _keyRacesHint[raceKey] = false; if (window.renderKeyRaces) window.renderKeyRaces(); }, 4000);
     };
 
-    // ── Quick-research actions on each 2026 candidate (Compare / Align / Profile) ──
+    // ── Quick-research actions on each 2026 candidate (Compare / Spotlight / Profile) ──
     // Compare: add/remove the candidate from the site-wide compare tool, reusing the
     // same selection state and floating-bar logic as every other Compare button.
     window.keyRacesCompare = function(btn, pid) {
