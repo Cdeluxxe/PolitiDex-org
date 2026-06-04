@@ -10633,7 +10633,8 @@
       </div>
 
       <!-- ── Stats Panel ───────────────────────────────────── -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <!-- Top row: headline totals -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <!-- Card 1: Total Database Count -->
         <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
           <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
@@ -10646,31 +10647,83 @@
         <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
           <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">🗺️</div>
           <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Utah Database Coverage</h4>
-          <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400 mb-2">0 <span class="text-sm font-condensed text-steel-400">/ 450</span></div>
-          <p class="text-xs text-steel-300 leading-relaxed font-body">Estimated federal, state legislative, and county level politicians in Utah.</p>
+          <div class="flex items-baseline gap-2 mb-3">
+            <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400">0 <span class="text-sm font-condensed text-steel-400">/ 0</span></div>
+            <span id="stats-utah-pct" class="font-condensed text-sm font-700 tracking-wide text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2.5 py-0.5">0%</span>
+          </div>
+          <!-- Overall coverage bar -->
+          <div class="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5 mb-3">
+            <div id="stats-utah-overall-bar" class="bg-gradient-to-r from-crimson-500 via-gold-400 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-steel-300 leading-relaxed font-body">Verified Utah officials and 2026 candidates tracked, against our target roster of federal, statewide, legislative, and county seats.</p>
         </div>
+      </div>
 
-        <!-- Card 3: Completeness Progress Bars -->
-        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-3">Expansion Coverage</h4>
-          <div class="space-y-3 font-body">
-            <div>
-              <div class="flex justify-between text-xs font-semibold text-steel-300 mb-1">
-                <span>Utah State Legislature</span>
-                <span id="stats-utah-leg-pct">0/104</span>
-              </div>
-              <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-                <div id="stats-utah-leg-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-              </div>
+      <!-- Expansion Coverage by category -->
+      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 md:p-7 mb-10 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400">Expansion Coverage by Category</h4>
+          <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400">Seats tracked / total seats</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5 font-body">
+          <!-- Federal Delegation -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏛️</span> Federal Delegation</span>
+              <span id="stats-cat-federal-pct" class="font-condensed tracking-wide text-steel-300">0 / 6</span>
             </div>
-            <div>
-              <div class="flex justify-between text-xs font-semibold text-steel-300 mb-1">
-                <span>Utah 2026 Candidates</span>
-                <span id="stats-utah-cand-pct">0/24</span>
-              </div>
-              <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-                <div id="stats-utah-cand-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-              </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-federal-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- Statewide Offices -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">⭐</span> Statewide Offices</span>
+              <span id="stats-cat-statewide-pct" class="font-condensed tracking-wide text-steel-300">0 / 5</span>
+            </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-statewide-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- State Senate -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏢</span> State Senate</span>
+              <span id="stats-cat-senate-pct" class="font-condensed tracking-wide text-steel-300">0 / 29</span>
+            </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-senate-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- State House -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏛</span> State House</span>
+              <span id="stats-cat-house-pct" class="font-condensed tracking-wide text-steel-300">0 / 75</span>
+            </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-house-bar" class="bg-gradient-to-r from-crimson-500 to-crimson-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- Local & County -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">📍</span> Local &amp; County</span>
+              <span id="stats-cat-local-pct" class="font-condensed tracking-wide text-steel-300">0 / 60</span>
+            </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-local-bar" class="bg-gradient-to-r from-steel-500 to-steel-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- 2026 Candidates -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🗳️</span> 2026 Candidates</span>
+              <span id="stats-cat-cand-pct" class="font-condensed tracking-wide text-steel-300">0 / 24</span>
+            </div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-cand-bar" class="bg-gradient-to-r from-gold-600 to-gold-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
           </div>
         </div>
@@ -11061,26 +11114,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var totalAll = Object.keys(PROFILES).length;
       var profilesArr = Object.values(PROFILES);
 
-      var totalUtahDb = profilesArr.filter(function(p) {
-        return p.state === 'Utah' || p.state === 'UT';
-      }).length;
+      var isUtah = function(p) { return p.state === 'Utah' || p.state === 'UT'; };
+      var utahProfiles = profilesArr.filter(isUtah);
 
-      // Filter state legislature specifically
-      var utahLegCount = profilesArr.filter(function(p) {
-        var isUt = p.state === 'Utah' || p.state === 'UT';
-        var isLeg = /State\s*(Rep|Sen|Legislator)/i.test(p.office) || 
-                    /Utah\s*State\s*Legislature/i.test(p.office) || 
-                    /State\s*Senator\s*\(Dist/i.test(p.office) || 
-                    /State\s*Representative\s*\(Dist/i.test(p.office);
-        return isUt && isLeg;
-      }).length;
+      var officeOf = function(p) { return (p.office || '') + ''; };
+      var isCandidate = function(p) {
+        return /Candidate/i.test(officeOf(p)) || /2026/i.test(officeOf(p) + ' ' + (p.bio || ''));
+      };
 
-      // Filter candidates specifically
-      var utahCandCount = profilesArr.filter(function(p) {
-        var isUt = p.state === 'Utah' || p.state === 'UT';
-        var isCand = /Candidate/i.test(p.office) || /2026/i.test(p.office || p.bio || '');
-        return isUt && isCand;
-      }).length;
+      // Category counts (candidates handled separately so seats aren't double-counted)
+      var federalCount = 0, statewideCount = 0, senateCount = 0, houseCount = 0, localCount = 0, candCount = 0;
+      utahProfiles.forEach(function(p) {
+        var office = officeOf(p);
+        if (isCandidate(p)) { candCount++; return; }
+        if (/State\s*Sen/i.test(office)) { senateCount++; return; }
+        if (/State\s*Rep|State\s*Legislat|Assembly/i.test(office)) { houseCount++; return; }
+        if (/U\.?S\.?\s*(Sen|Rep|House|Congress)|Congress|Senator|Representative/i.test(office)) { federalCount++; return; }
+        if (/Governor|Lt\.?\s*Governor|Lieutenant|Attorney\s*General|Treasurer|Auditor|Secretary\s*of\s*State|Statewide/i.test(office)) { statewideCount++; return; }
+        if (/County|Mayor|Council|Commission|School\s*Board|City|Sheriff|District\s*Attorney|Clerk|Recorder/i.test(office)) { localCount++; return; }
+        // Fallback: legislative-looking entries land in the House bucket
+        if (/Legislature|District/i.test(office)) { houseCount++; return; }
+        localCount++;
+      });
+
+      // Target roster of Utah seats by category
+      var targets = { federal: 6, statewide: 5, senate: 29, house: 75, local: 60, cand: 24 };
+      var counts  = { federal: federalCount, statewide: statewideCount, senate: senateCount, house: houseCount, local: localCount, cand: candCount };
+
+      var coveredTotal = 0, targetTotal = 0;
+      Object.keys(targets).forEach(function(k) {
+        coveredTotal += Math.min(counts[k], targets[k]);
+        targetTotal += targets[k];
+      });
+
+      var setBar = function(key) {
+        var pctEl = document.getElementById('stats-cat-' + key + '-pct');
+        var barEl = document.getElementById('stats-cat-' + key + '-bar');
+        var shown = Math.min(counts[key], targets[key]);
+        if (pctEl) pctEl.textContent = shown + ' / ' + targets[key];
+        if (barEl) barEl.style.width = Math.min(100, (counts[key] / targets[key]) * 100) + '%';
+      };
 
       // Update DOM
       var totalAllEl = document.getElementById('stats-total-all');
@@ -11088,26 +11161,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var utahTotalEl = document.getElementById('stats-utah-total');
       if (utahTotalEl) {
-        utahTotalEl.innerHTML = totalUtahDb + ' <span class="text-sm font-condensed text-steel-400">/ 450</span>';
+        utahTotalEl.innerHTML = coveredTotal + ' <span class="text-sm font-condensed text-steel-400">/ ' + targetTotal + '</span>';
       }
 
-      var legPctEl = document.getElementById('stats-utah-leg-pct');
-      if (legPctEl) legPctEl.textContent = utahLegCount + ' / 104';
+      var utahPctEl = document.getElementById('stats-utah-pct');
+      var overallPct = targetTotal ? Math.round((coveredTotal / targetTotal) * 100) : 0;
+      if (utahPctEl) utahPctEl.textContent = overallPct + '%';
 
-      var legBarEl = document.getElementById('stats-utah-leg-bar');
-      if (legBarEl) {
-        var pct = Math.min(100, (utahLegCount / 104) * 100);
-        legBarEl.style.width = pct + '%';
-      }
+      var overallBarEl = document.getElementById('stats-utah-overall-bar');
+      if (overallBarEl) overallBarEl.style.width = Math.min(100, overallPct) + '%';
 
-      var candPctEl = document.getElementById('stats-utah-cand-pct');
-      if (candPctEl) candPctEl.textContent = utahCandCount + ' / 24';
-
-      var candBarEl = document.getElementById('stats-utah-cand-bar');
-      if (candBarEl) {
-        var pct = Math.min(100, (utahCandCount / 24) * 100);
-        candBarEl.style.width = pct + '%';
-      }
+      ['federal', 'statewide', 'senate', 'house', 'local', 'cand'].forEach(setBar);
     };
 
     window.triggerExpansionAISearch = function() {
@@ -19461,12 +19525,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       issues:['School Choice','Tax Reform','Business Development','Constitutional Rights'],
       stances:{ border:'Supports state enforcement cooperation', debt:'Supports income tax reduction', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Focus on education and economic development', audit:'N/A' }
     },
-    nabbott: {
-      name:'Norm Thurston', office:'UT State Representative', state:'UT District 64 (Provo)', party:'R',
-      score:62, kept:14, broken:7, pending:4, icon:'🏛',
-      issues:['Healthcare Policy','Education Funding','Fiscal Conservatism','Tax Reform'],
-      stances:{ border:'Supports state enforcement', debt:'Supports balanced budgets', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Championed healthcare price transparency', audit:'N/A' }
-    },
     mrrobertson: {
       name:'Mike Robertson', office:'UT State Senator', state:'UT District 15 (Provo/Orem)', party:'R',
       score:63, kept:14, broken:6, pending:5, icon:'🏛',
@@ -20645,7 +20703,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       aowens: 'https://le.utah.gov/images/legislator/BILLINGA.jpg',
       jpark: 'https://le.utah.gov/images/legislator/TEUSCHJ.jpg',
       fgibson: 'https://le.utah.gov/images/legislator/GIBSONF.jpg',
-      nabbott: 'https://le.utah.gov/images/legislator/THURSTN.jpg',
       mrrobertson: 'https://le.utah.gov/images/legislator/ROBERTM.jpg',
       jsnyder: 'https://le.utah.gov/images/legislator/DUNNIGJ.jpg',
       jknotts: 'https://le.utah.gov/images/legislator/KNOTTJ.jpg',
