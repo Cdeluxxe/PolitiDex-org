@@ -10290,6 +10290,29 @@
             </div>
           </div>
         </div>
+
+        <!-- ═══ YOUR KEY RACES — personalized ballot builder (location-aware) ═══ -->
+        <div id="keyraces-panel" class="mb-6" style="scroll-margin-top:80px;">
+          <div class="rounded-3xl p-6 md:p-8" style="background:linear-gradient(135deg, rgba(30,58,138,0.20) 0%, rgba(10,15,30,0.92) 55%, rgba(30,41,59,0.85) 100%);border:2px solid rgba(96,165,250,0.30);box-shadow:0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(59,130,246,0.08);">
+            <!-- Header -->
+            <div class="flex items-start gap-3 mb-5 flex-wrap">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 32px rgba(59,130,246,0.35);">🗳️</div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(59,130,246,0.3);">Your Key Races</h3>
+                <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
+                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1">These are the races that matter most to you — add your pick in each to your team in one tap.</p>
+              </div>
+            </div>
+
+            <!-- Race cards injected here -->
+            <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
+
+            <p class="font-condensed text-xs text-steel-500 tracking-wide mt-5" style="line-height:1.5;">
+              Candidate fields are preliminary and update as the 2026 ballot is certified. Promise % and Accountability scores are shown only for current officeholders with a voting record — challengers have no record yet.
+            </p>
+          </div>
+        </div>
+
       </div>
 
       <!-- ── RELEVANT TO ME section directly below team builder ── -->
@@ -19061,6 +19084,58 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         audit:'N/A — state-level office',
       }
     },
+    // ── 2026 challengers for the Layton / Davis County key races ──
+    // Promise % / Accountability scores are intentionally null for challengers:
+    // they hold no current office and therefore have no kept/broken voting record yet.
+    h16_bstevenson: {
+      name:'Bob Stevenson', office:'UT State Representative Candidate (Dist. 16)', state:'UT District 16', party:'R', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah House District 16','2026 Candidate'],
+      bio:'Bob Stevenson is a 2026 Republican candidate for Utah House District 16 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    h16_atreasure: {
+      name:'Abigail Treasure', office:'UT State Representative Candidate (Dist. 16)', state:'UT District 16', party:'', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah House District 16','2026 Candidate'],
+      bio:'Abigail Treasure is a 2026 candidate for Utah House District 16 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    s6_ttran: {
+      name:'Tami Tran', office:'UT State Senate Candidate (Dist. 6)', state:'UT District 6', party:'', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Senate District 6','2026 Candidate'],
+      bio:'Tami Tran is a 2026 candidate for Utah Senate District 6 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    s6_rwanlass: {
+      name:'Robert Wanlass', office:'UT State Senate Candidate (Dist. 6)', state:'UT District 6', party:'', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Senate District 6','2026 Candidate'],
+      bio:'Robert Wanlass is a 2026 candidate for Utah Senate District 6 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    s6_jneal: {
+      name:'Jared Neal', office:'UT State Senate Candidate (Dist. 6)', state:'UT District 6', party:'', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Senate District 6','2026 Candidate'],
+      bio:'Jared Neal is a 2026 candidate for Utah Senate District 6 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    s6_jsmith: {
+      name:'Josh Smith', office:'UT State Senate Candidate (Dist. 6)', state:'UT District 6', party:'', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Senate District 6','2026 Candidate'],
+      bio:'Josh Smith is a 2026 candidate for Utah Senate District 6 in Davis County.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'N/A — state-level office' }
+    },
+    cd1_rowen: {
+      name:'Riley Owen', office:'U.S. Representative Candidate (UT-01)', state:'Utah-01', party:'R', rank:'candidate',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Congressional District 1','2026 Candidate'],
+      bio:'Riley Owen is a 2026 Republican candidate for Utah\'s 1st Congressional District.',
+      stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'No public voting record yet — 2026 candidate' }
+    },
     sadams: {
       name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Your County', party:'R',
       score:65, kept:20, broken:10, pending:5, icon:'🏛',
@@ -23719,6 +23794,227 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     }
     window._ballotRender = _ballotRender;
+
+    /* ═══════════════════════════════════════════════════════════════
+       YOUR KEY RACES — personalized ballot builder (Layton / Davis Co.)
+       Self-contained. Reads CMP_DATA + the shared ballot store and uses
+       the existing ballotPickCard() pick mechanism so picks land in the
+       same 6-slot "My Voting Team" grid. Never throws (guarded), so it
+       cannot break search, filters, or the district tree.
+       ═══════════════════════════════════════════════════════════════ */
+    var KEY_RACES_CONFIG = [
+      {
+        raceKey: 'statehouse', short: 'House District 16',
+        district: 'Utah House District 16', chamber: 'Utah State House',
+        color: '#2dd4bf', incumbentPid: 'tlee',
+        incumbentNote: 'Incumbent — running for re-election in 2026',
+        addLabel: 'Add House District 16 choice to My Team',
+        candidates: ['tlee', 'h16_bstevenson', 'h16_atreasure']
+      },
+      {
+        raceKey: 'statesenate', short: 'Senate District 6',
+        district: 'Utah Senate District 6', chamber: 'Utah State Senate',
+        color: '#a78bfa', incumbentPid: 'jstevenson',
+        incumbentNote: 'Retiring — not seeking re-election in 2026',
+        addLabel: 'Add Senate District 6 choice to My Team',
+        candidates: ['s6_ttran', 's6_rwanlass', 's6_jneal', 's6_jsmith']
+      },
+      {
+        raceKey: 'house', short: 'Congressional District 1',
+        district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
+        color: '#60a5fa', incumbentPid: null,
+        incumbentNote: 'Open seat — no incumbent on the 2026 ballot',
+        addLabel: 'Add Congressional District 1 choice to My Team',
+        candidates: ['cd1_rowen'],
+        extraNote: 'A Democratic primary is still taking shape — more candidates will appear here as the field is confirmed.'
+      }
+    ];
+
+    var _keyRacesHint = {};
+
+    function _krScoreColor(s) {
+      if (s === null || s === undefined) return '#9fb4d4';
+      return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
+    }
+    function _krPartyMeta(p) {
+      if (p === 'R') return { label: 'Republican', color: '#f87171' };
+      if (p === 'D') return { label: 'Democrat', color: '#60a5fa' };
+      if (p === 'I' || p === 'Ind.') return { label: 'Independent', color: '#a78bfa' };
+      return null;
+    }
+    function _krPartyBadge(p) {
+      var m = _krPartyMeta(p);
+      if (!m) return '';
+      return '<span class="font-condensed" style="font-size:0.56rem;letter-spacing:0.06em;color:' + m.color + ';background:' + m.color + '18;border:1px solid ' + m.color + '38;padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">' + m.label + '</span>';
+    }
+    function _krPhoto(pid, d, color) {
+      var url = (typeof _getPhotoUrl === 'function') ? _getPhotoUrl(pid) : '';
+      if (url) {
+        return '<div style="width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid ' + color + '55;background:#0a0f1e;">' +
+          '<img src="' + url + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.3rem;color:#9fb4d4&quot;>' + (d.icon || '🏛') + '</div>\'"></div>';
+      }
+      return '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '55;background:rgba(30,53,96,0.25);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
+    }
+
+    function _krLocationHeadline() {
+      var loc = window._currentVoterLocation || {};
+      var hasLoc = !!window._hasUserLocation;
+      var city = (loc.city || '').trim();
+      var county = (loc.county || '').toLowerCase();
+      var state = (loc.state || '').trim();
+      var isDavis = county.indexOf('davis') !== -1 || city.toLowerCase() === 'layton';
+      if (isDavis) {
+        var where = city || 'Layton';
+        return '📍 You live in <strong style="color:#fff;">' + where + '</strong> → these are the races that matter most to you:';
+      }
+      if (hasLoc && state.toLowerCase() === 'utah') {
+        return '📍 <strong style="color:#fff;">' + (city || 'Utah') + ', Utah</strong> — here is a preview of the Layton / Davis County key races. Personalized races for your district are coming soon.';
+      }
+      return '📍 Sample preview — <strong style="color:#fff;">Layton, Davis County, Utah</strong>. <button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">Set your location</button> to personalize.';
+    }
+
+    function _krCandidateRow(race, pid, selectedPid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return '';
+      var isPick = selectedPid === pid;
+      var isIncumbent = race.incumbentPid === pid;
+      var hasScore = d.score !== null && d.score !== undefined;
+      var roleTag = isIncumbent
+        ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
+        : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
+      var recordHtml = hasScore
+        ? '<span style="color:' + _krScoreColor(d.score) + ';font-weight:700;">' + d.score + '% Promise</span>'
+        : '<span style="color:#7596c0;">No voting record yet</span>';
+      var btn = isPick
+        ? '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
+        : '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
+      return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.85rem;border-radius:0.9rem;background:' + (isPick ? 'rgba(74,222,128,0.07)' : 'rgba(10,15,30,0.45)') + ';border:1px solid ' + (isPick ? 'rgba(74,222,128,0.35)' : 'rgba(255,255,255,0.07)') + ';">' +
+        _krPhoto(pid, d, race.color) +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
+            '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="font-condensed font-700 text-white" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.95rem;letter-spacing:0.01em;">' + d.name + '</button>' +
+            _krPartyBadge(d.party) + roleTag +
+          '</div>' +
+          '<div class="font-condensed" style="font-size:0.68rem;color:#9fb4d4;margin-top:0.15rem;">' + recordHtml + (hasScore ? ' · <span style="color:#4ade80;">✓ ' + (d.kept || 0) + '</span> / <span style="color:#f87171;">✕ ' + (d.broken || 0) + '</span>' : '') + '</div>' +
+        '</div>' +
+        btn +
+      '</div>';
+    }
+
+    function _krRaceCard(race) {
+      var selections = (typeof _ballotLoad === 'function') ? _ballotLoad() : {};
+      var selectedPid = selections[race.raceKey];
+      var selInThisRace = selectedPid && race.candidates.indexOf(selectedPid) !== -1 ? selectedPid : (selectedPid && race.incumbentPid === selectedPid ? selectedPid : null);
+      // selectedPid may also be the incumbent (e.g. retiring) if user picked them elsewhere
+      if (selectedPid && !selInThisRace && CMP_DATA[selectedPid]) selInThisRace = selectedPid;
+
+      // Current officeholder block
+      var inc = race.incumbentPid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[race.incumbentPid] : null;
+      var holderHtml;
+      if (inc) {
+        var hasScore = inc.score !== null && inc.score !== undefined;
+        holderHtml =
+          '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+            _krPhoto(race.incumbentPid, inc, race.color) +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
+                '<span class="font-display text-lg text-white" style="letter-spacing:0.02em;">' + inc.name + '</span>' + _krPartyBadge(inc.party) +
+              '</div>' +
+              '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div>' +
+            '</div>' +
+            '<div style="text-align:center;flex-shrink:0;">' +
+              '<div class="font-display" style="font-size:1.8rem;line-height:1;color:' + _krScoreColor(inc.score) + ';">' + (hasScore ? inc.score + '%' : '—') + '</div>' +
+              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Promise</div>' +
+            '</div>' +
+            (hasScore ?
+            '<div style="text-align:center;flex-shrink:0;">' +
+              '<div class="font-condensed" style="font-size:0.78rem;"><span style="color:#4ade80;">✓ ' + (inc.kept || 0) + '</span> &nbsp; <span style="color:#f87171;">✕ ' + (inc.broken || 0) + '</span></div>' +
+              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Accountability</div>' +
+            '</div>' : '') +
+          '</div>';
+      } else {
+        holderHtml =
+          '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+            '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px dashed ' + race.color + '55;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:' + race.color + ';">🪑</div>' +
+            '<div><div class="font-display text-lg text-white">Open Seat</div>' +
+            '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div></div>' +
+          '</div>';
+      }
+
+      var candHtml = race.candidates.map(function(pid) { return _krCandidateRow(race, pid, selectedPid); }).join('');
+
+      // Footer contextual button
+      var footer;
+      if (selInThisRace && CMP_DATA[selInThisRace]) {
+        footer =
+          '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + selInThisRace + '\')" class="w-full font-condensed font-700 text-sm tracking-wider uppercase rounded-xl transition-all cursor-pointer" style="padding:0.8rem 1rem;background:linear-gradient(135deg,rgba(74,222,128,0.20),rgba(74,222,128,0.08));border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;">' +
+            '✓ Your ' + race.short + ' pick: ' + CMP_DATA[selInThisRace].name + ' — On My Team <span style="opacity:0.7;font-weight:400;">(tap to remove)</span></button>';
+      } else {
+        var hintHtml = _keyRacesHint[race.raceKey]
+          ? '<div class="font-condensed" style="font-size:0.72rem;color:#fbbf24;text-align:center;margin-top:0.5rem;">👆 Tap “Add to My Team” next to your candidate above.</div>' : '';
+        footer =
+          '<button onclick="window.keyRacesHintRace(\'' + race.raceKey + '\')" class="w-full font-condensed font-700 text-sm tracking-wider uppercase rounded-xl transition-all cursor-pointer hover:scale-[1.01]" style="padding:0.8rem 1rem;background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(245,158,11,0.08));border:1.5px solid rgba(245,158,11,0.5);color:#fbbf24;box-shadow:0 4px 18px rgba(245,158,11,0.12);">' +
+            '➕ ' + race.addLabel + '</button>' + hintHtml;
+      }
+
+      return '<div style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);">' +
+        '<div style="padding:0.85rem 1.1rem;background:linear-gradient(135deg,' + race.color + '22,' + race.color + '08);border-bottom:1px solid ' + race.color + '30;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
+          '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.18rem 0.6rem;border-radius:999px;">' + race.chamber + '</span>' +
+          '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
+        '</div>' +
+        '<div style="padding:1rem 1.1rem 0.6rem;">' +
+          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.5rem;">Currently Represented By</div>' +
+          holderHtml +
+        '</div>' +
+        '<div style="padding:0.4rem 1.1rem 1rem;">' +
+          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:0.6rem 0 0.5rem;">2026 Candidates</div>' +
+          '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + candHtml + '</div>' +
+          (race.extraNote ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>' : '') +
+          '<div style="margin-top:0.9rem;">' + footer + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    window.keyRacesHintRace = function(raceKey) {
+      _keyRacesHint[raceKey] = true;
+      if (window.renderKeyRaces) window.renderKeyRaces();
+      setTimeout(function() { _keyRacesHint[raceKey] = false; if (window.renderKeyRaces) window.renderKeyRaces(); }, 4000);
+    };
+
+    window.renderKeyRaces = function() {
+      try {
+        var list = document.getElementById('keyraces-list');
+        if (!list) return;
+        var headline = document.getElementById('keyraces-headline');
+        if (headline) headline.innerHTML = _krLocationHeadline();
+        list.innerHTML = KEY_RACES_CONFIG.map(_krRaceCard).join('');
+      } catch (e) { /* never break the page */ }
+    };
+
+    // Keep Key Races in sync with every team change: wrap the central renderer.
+    (function() {
+      var _origBallotRender = window._ballotRender;
+      window._ballotRender = function() {
+        if (typeof _origBallotRender === 'function') _origBallotRender();
+        if (window.renderKeyRaces) window.renderKeyRaces();
+      };
+    })();
+    // Initial paint (DOM for this section already exists above this script).
+    try { window.renderKeyRaces(); } catch (e) {}
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { if (window.renderKeyRaces) window.renderKeyRaces(); });
+    }
+    // Refresh the location-aware headline whenever the user sets/changes location.
+    (function() {
+      if (typeof window._updateTeamPositionsForLocation === 'function') {
+        var _origUpd = window._updateTeamPositionsForLocation;
+        window._updateTeamPositionsForLocation = function() {
+          var r = _origUpd.apply(this, arguments);
+          if (window.renderKeyRaces) window.renderKeyRaces();
+          return r;
+        };
+      }
+    })();
 
     window.ballotPick = function(selectEl) {
       var race = selectEl.getAttribute('data-race');
