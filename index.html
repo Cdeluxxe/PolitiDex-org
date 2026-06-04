@@ -10184,6 +10184,15 @@
         .so-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.2rem;}
         .so-pill{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
           color:#fad96a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:999px;padding:0.3rem 0.8rem;white-space:nowrap;}
+        .so-intro{margin-top:0.95rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:0.85rem;padding:0.8rem 0.95rem;}
+        .so-intro-lead{font-family:'Barlow Condensed',sans-serif;font-size:0.96rem;letter-spacing:0.02em;color:#e6eefb;line-height:1.32;}
+        .so-intro-lead strong{color:#fad96a;font-weight:700;}
+        .so-intro-list{list-style:none;margin:0.6rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:0.35rem 0.9rem;}
+        .so-intro-list li{display:flex;align-items:center;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.84rem;letter-spacing:0.02em;color:#cdd9ec;line-height:1.2;}
+        .so-intro-list li em{font-style:normal;color:#7596c0;}
+        .so-i-n{flex-shrink:0;width:1.35rem;height:1.35rem;display:flex;align-items:center;justify-content:center;border-radius:0.4rem;background:rgba(52,211,153,0.16);border:1px solid rgba(52,211,153,0.4);color:#5ee7b0;font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;}
+        .so-note{margin-top:0.6rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#8aa0c4;line-height:1.35;}
+        .so-note strong{color:#cdd9ec;font-weight:700;}
         .so-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:0.6rem;margin-top:0.95rem;}
         .so-tile{background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.85rem;padding:0.7rem 0.8rem;
           display:flex;flex-direction:column;gap:0.1rem;transition:border-color 0.2s ease, transform 0.2s ease;}
@@ -18747,17 +18756,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var c = window.STATE_CIVICS[loc.state];
       if (!c) c = { house: 1, senate: 0, lower: 0, lowerName: 'State Legislature' };
 
-      var houseSub = (loc.district ? 'You vote in District ' + loc.district + ' · ' : '') +
-        c.house + ' district' + (c.house === 1 ? '' : 's') + ' statewide';
+      var houseSub = (loc.district ? 'Your district: ' + loc.district + ' · ' : '') +
+        c.house + ' statewide · you vote in 1';
 
-      var legTiles;
+      // Bicameral states let voters cast a ballot for both a state senator and a
+      // state house rep; unicameral (Nebraska) only has one legislative vote.
+      var mainCount = c.lower === 0 ? 4 : 5;
+
+      var legTiles, legIntro, districtNote;
       if (c.lower === 0) {
         // Unicameral legislature (Nebraska) — a single chamber.
-        legTiles = tile(c.senate, 'State Legislature', 'Unicameral · nonpartisan', '#a78bfa', 'state-legislature');
+        legTiles = tile(c.senate, 'State Legislature', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-legislature');
+        legIntro = '<li><span class="so-i-n">1</span> State Legislator <em>(your district)</em></li>';
+        districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong> and <strong>' + c.senate + ' legislative</strong> districts';
       } else {
-        legTiles = tile(c.senate, 'State Senate', 'Upper chamber seats', '#a78bfa', 'state-senate') +
-          tile(c.lower, c.lowerName, 'Lower chamber seats', '#2dd4bf', 'state-house');
+        legTiles = tile(c.senate, 'State Senate', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-senate') +
+          tile(c.lower, c.lowerName, c.lower + ' statewide · you vote in 1', '#2dd4bf', 'state-house');
+        legIntro = '<li><span class="so-i-n">1</span> State Senator <em>(your district)</em></li>' +
+          '<li><span class="so-i-n">1</span> State House Representative <em>(your district)</em></li>';
+        districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong>, <strong>' + c.senate + ' State Senate</strong>, and <strong>' + c.lower + ' State House</strong> districts';
       }
+
+      var intro = '<div class="so-intro">' +
+          '<div class="so-intro-lead">You directly vote for <strong>' + mainCount + ' main positions</strong> at the federal + state level in ' + loc.state + ':</div>' +
+          '<ul class="so-intro-list">' +
+            '<li><span class="so-i-n">1</span> U.S. House Representative <em>(your district)</em></li>' +
+            '<li><span class="so-i-n">1</span> U.S. Senator</li>' +
+            '<li><span class="so-i-n">1</span> Governor</li>' +
+            legIntro +
+          '</ul>' +
+          '<div class="so-note"><span>📍</span><span>' + districtNote + ' — but each voter only votes in <strong>one</strong> of each.</span></div>' +
+        '</div>';
 
       html = '<div class="so-card">' +
         '<div class="so-head">' +
@@ -18768,6 +18797,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
           '<div class="so-pill">📍 Your State</div>' +
         '</div>' +
+        intro +
         '<div class="so-grid">' +
           tile('2', 'U.S. Senators', 'Statewide · 6-yr terms', '#818cf8', 'us-senate') +
           tile(c.house, 'U.S. House Reps', houseSub, '#60a5fa', 'us-house') +
@@ -18775,7 +18805,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           legTiles +
           tile('★', 'Local Offices', 'Mayor · Council · School Bd', '#fbbf24', 'local') +
         '</div>' +
-        '<div class="so-foot"><span>★</span><span>These are the <strong>key elected positions</strong> you vote on in ' + loc.state + '.</span></div>' +
+        '<div class="so-foot"><span>★</span><span>These are the <strong>races where your vote has the most direct impact</strong>.</span></div>' +
       '</div>';
     }
 
