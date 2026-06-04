@@ -10313,6 +10313,19 @@
               </div>
             </div>
 
+            <!-- Location selector — drives the dynamic Key Races below -->
+            <div class="mb-5 rounded-2xl p-3.5 md:p-4" style="background:rgba(10,15,30,0.5);border:1px solid rgba(96,165,250,0.25);">
+              <div class="flex items-center gap-3 flex-wrap">
+                <label for="keyraces-location-select" class="font-condensed font-700 text-xs tracking-widest uppercase text-blue-300 flex items-center gap-1.5" style="white-space:nowrap;">📍 Your Location</label>
+                <div class="relative flex-1 min-w-[14rem]">
+                  <select id="keyraces-location-select" onchange="window.keyRacesSetLocation && window.keyRacesSetLocation(this.value)" class="w-full appearance-none font-condensed font-700 text-sm tracking-wide text-white cursor-pointer" style="background:rgba(30,53,96,0.55);border:1.5px solid rgba(96,165,250,0.4);border-radius:0.75rem;padding:0.6rem 2.25rem 0.6rem 0.9rem;outline:none;">
+                  </select>
+                  <span style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);pointer-events:none;color:#60a5fa;font-size:0.7rem;">▼</span>
+                </div>
+              </div>
+              <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">More Utah cities &amp; counties are coming soon.</span></p>
+            </div>
+
             <!-- Race cards injected here -->
             <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
 
@@ -19166,6 +19179,45 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       bio:'Riley Owen is a 2026 Republican candidate for Utah\'s 1st Congressional District.',
       stances:{ border:'No public voting record yet — 2026 candidate', debt:'No public voting record yet — 2026 candidate', gun:'No public voting record yet — 2026 candidate', termLimits:'No public voting record yet — 2026 candidate', campaign:'No public voting record yet — 2026 candidate', dataCenters:'N/A', healthcare:'No public voting record yet — 2026 candidate', audit:'No public voting record yet — 2026 candidate' }
     },
+    // ── Current officeholders for the other Key Races locations ──
+    // (Provo / Utah Co., St. George / Washington Co., Ogden / Weber Co.)
+    // Promise % / Accountability are shown only where PolitiDex has finished
+    // compiling a voting record — others read "being compiled" until then.
+    lshepherd: {
+      name:'Lisa Shepherd', office:'UT State Representative', state:'UT District 61', party:'R',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah House District 61','Provo / Orem','Education','Local Government'],
+      bio:'Lisa Shepherd is the Republican state representative for Utah House District 61 (southwest Orem and west Provo), serving since January 2025.',
+      stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'N/A — state-level office' }
+    },
+    kgrover: {
+      name:'Keith Grover', office:'Utah State Senator', state:'UT District 23', party:'R',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Senate District 23','Provo','Education','State Budget'],
+      bio:'Keith Grover is the Republican state senator for Utah Senate District 23, covering the Provo area. He is up for re-election in 2026.',
+      stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'N/A — state-level office' }
+    },
+    mkennedy: {
+      name:'Mike Kennedy', office:'U.S. Representative', state:'Utah · UT-3', party:'R',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah Congressional District 3','Utah County','Healthcare','Fiscal Conservatism'],
+      bio:'Mike Kennedy is the Republican U.S. Representative for Utah’s 3rd Congressional District (Utah County), first elected in 2024.',
+      stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'PolitiDex is compiling this official’s voting record.' }
+    },
+    jsawyer: {
+      name:'Jake Sawyer', office:'UT State Representative', state:'UT District 9', party:'R',
+      score:null, kept:0, broken:0, pending:0, icon:'🏛',
+      issues:['Utah House District 9','Ogden / Weber Co.','Local Government','Public Safety'],
+      bio:'Jake Sawyer is the Republican state representative for Utah House District 9 in the Ogden / Weber County area, elected in 2024.',
+      stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'N/A — state-level office' }
+    },
+    amillner: {
+      name:'Ann Millner', office:'Utah State Senator', state:'UT District 5', party:'R',
+      score:74, kept:21, broken:4, pending:5, icon:'🏛',
+      issues:['Higher Education','Workforce Development','Healthcare','Ogden / Weber Co.'],
+      bio:'Ann Millner is the Republican state senator for Utah Senate District 5 (Weber County) and a former Weber State University president, focused on education and workforce policy.',
+      stances:{ border:'Supports state cooperation with federal enforcement', debt:'Supports balanced state budgeting', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Leading voice on workforce and higher-education funding', audit:'N/A — state-level office' }
+    },
     sadams: {
       name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Your County', party:'R',
       score:65, kept:20, broken:10, pending:5, icon:'🏛',
@@ -19423,7 +19475,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     rshipp: {
-      name:'Rex Shipp', office:'UT State Representative', state:'UT District 72 (St. George)', party:'R',
+      name:'Rex Shipp', office:'UT State Representative', state:'UT District 71 (St. George)', party:'R',
       score:59, kept:10, broken:6, pending:5, icon:'🏛',
       issues:['Water Conservation','Growth Management','Public Lands','Education'],
       stances:{
@@ -23826,39 +23878,181 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._ballotRender = _ballotRender;
 
     /* ═══════════════════════════════════════════════════════════════
-       YOUR KEY RACES — personalized ballot builder (Layton / Davis Co.)
-       Self-contained. Reads CMP_DATA + the shared ballot store and uses
-       the existing ballotPickCard() pick mechanism so picks land in the
-       same 6-slot "My Voting Team" grid. Never throws (guarded), so it
-       cannot break search, filters, or the district tree.
+       YOUR KEY RACES — personalized, LOCATION-AWARE ballot builder.
+       A location selector drives which districts/races are shown. Each
+       location is self-contained; adding more is just another entry in
+       KEY_RACES_BY_LOCATION + KEY_RACES_LOCATIONS (and any new incumbent
+       / candidate records in CMP_DATA). Reads CMP_DATA + the shared
+       ballot store and reuses the existing ballotPickCard() pick
+       mechanism so picks land in the same 6-slot "My Voting Team" grid.
+       Fully guarded — it can never break search, filters, or the tree.
        ═══════════════════════════════════════════════════════════════ */
-    var KEY_RACES_CONFIG = [
-      {
-        raceKey: 'statehouse', short: 'House District 16',
-        district: 'Utah House District 16', chamber: 'Utah State House',
-        color: '#2dd4bf', incumbentPid: 'tlee',
-        incumbentNote: 'Incumbent — running for re-election in 2026',
-        addLabel: 'Add House District 16 choice to My Team',
-        candidates: ['tlee', 'h16_bstevenson', 'h16_atreasure']
-      },
-      {
-        raceKey: 'statesenate', short: 'Senate District 6',
-        district: 'Utah Senate District 6', chamber: 'Utah State Senate',
-        color: '#a78bfa', incumbentPid: 'jstevenson',
-        incumbentNote: 'Retiring — not seeking re-election in 2026',
-        addLabel: 'Add Senate District 6 choice to My Team',
-        candidates: ['s6_ttran', 's6_rwanlass', 's6_jneal', 's6_jsmith']
-      },
-      {
-        raceKey: 'house', short: 'Congressional District 1',
-        district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
-        color: '#60a5fa', incumbentPid: null,
-        incumbentNote: 'Open seat — no incumbent on the 2026 ballot',
-        addLabel: 'Add Congressional District 1 choice to My Team',
-        candidates: ['cd1_rowen'],
-        extraNote: 'A Democratic primary is still taking shape — more candidates will appear here as the field is confirmed.'
-      }
+    var KR_LOCATION_KEY = 'politidex_keyraces_location';
+
+    // Order of the selector dropdown. id must match a KEY_RACES_BY_LOCATION key.
+    var KEY_RACES_LOCATIONS = [
+      { id: 'davis',      label: 'Layton / Davis County',        city: 'Layton',     county: 'Davis County' },
+      { id: 'utah_co',    label: 'Provo / Utah County',          city: 'Provo',      county: 'Utah County' },
+      { id: 'washington', label: 'St. George / Washington County', city: 'St. George', county: 'Washington County' },
+      { id: 'weber',      label: 'Ogden / Weber County',         city: 'Ogden',      county: 'Weber County' }
     ];
+
+    var KEY_RACES_BY_LOCATION = {
+      // ── Layton / Davis County ──────────────────────────────────────
+      davis: [
+        {
+          raceKey: 'statehouse', short: 'House District 16',
+          district: 'Utah House District 16', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'tlee',
+          incumbentNote: 'Incumbent — running for re-election in 2026',
+          addLabel: 'Add House District 16 choice to My Team',
+          candidates: ['tlee', 'h16_bstevenson', 'h16_atreasure']
+        },
+        {
+          raceKey: 'statesenate', short: 'Senate District 6',
+          district: 'Utah Senate District 6', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentPid: 'jstevenson',
+          incumbentNote: 'Retiring — not seeking re-election in 2026',
+          addLabel: 'Add Senate District 6 choice to My Team',
+          candidates: ['s6_ttran', 's6_rwanlass', 's6_jneal', 's6_jsmith']
+        },
+        {
+          raceKey: 'house', short: 'Congressional District 1',
+          district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: null,
+          incumbentNote: 'Open seat — no incumbent on the 2026 ballot',
+          addLabel: 'Add Congressional District 1 choice to My Team',
+          candidates: ['cd1_rowen'],
+          extraNote: 'A Democratic primary is still taking shape — more candidates will appear here as the field is confirmed.'
+        }
+      ],
+      // ── Provo / Utah County ────────────────────────────────────────
+      utah_co: [
+        {
+          raceKey: 'statehouse', short: 'House District 61',
+          district: 'Utah House District 61', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'lshepherd',
+          incumbentNote: 'Incumbent — eligible for re-election in 2026',
+          addLabel: 'Add House District 61 choice to My Team',
+          candidates: ['lshepherd'],
+          extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
+        },
+        {
+          raceKey: 'statesenate', short: 'Senate District 23',
+          district: 'Utah Senate District 23', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentPid: 'kgrover',
+          incumbentNote: 'Incumbent — up for re-election in 2026',
+          addLabel: 'Add Senate District 23 choice to My Team',
+          candidates: ['kgrover'],
+          extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
+        },
+        {
+          raceKey: 'house', short: 'Congressional District 3',
+          district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'mkennedy',
+          incumbentNote: 'Incumbent — first elected in 2024',
+          addLabel: 'Add Congressional District 3 choice to My Team',
+          candidates: ['mkennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
+        }
+      ],
+      // ── St. George / Washington County ─────────────────────────────
+      washington: [
+        {
+          raceKey: 'statehouse', short: 'House District 71',
+          district: 'Utah House District 71', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'rshipp',
+          incumbentNote: 'Incumbent — eligible for re-election in 2026',
+          addLabel: 'Add House District 71 choice to My Team',
+          candidates: ['rshipp'],
+          extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
+        },
+        {
+          raceKey: 'statesenate', short: 'Senate District 29',
+          district: 'Utah Senate District 29', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentPid: 'dipson',
+          incumbentNote: 'Incumbent — current term runs through 2029',
+          addLabel: 'Add Senate District 29 choice to My Team',
+          candidates: ['dipson'],
+          extraNote: 'This seat is not on the 2026 ballot, but your senator’s record stays on your team for reference.'
+        },
+        {
+          raceKey: 'house', short: 'Congressional District 2',
+          district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'maloy',
+          incumbentNote: 'Incumbent — running for re-election in 2026',
+          addLabel: 'Add Congressional District 2 choice to My Team',
+          candidates: ['maloy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
+        }
+      ],
+      // ── Ogden / Weber County ───────────────────────────────────────
+      weber: [
+        {
+          raceKey: 'statehouse', short: 'House District 9',
+          district: 'Utah House District 9', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'jsawyer',
+          incumbentNote: 'Incumbent — eligible for re-election in 2026',
+          addLabel: 'Add House District 9 choice to My Team',
+          candidates: ['jsawyer'],
+          extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
+        },
+        {
+          raceKey: 'statesenate', short: 'Senate District 5',
+          district: 'Utah Senate District 5', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentPid: 'amillner',
+          incumbentNote: 'Incumbent — Weber County’s state senator',
+          addLabel: 'Add Senate District 5 choice to My Team',
+          candidates: ['amillner'],
+          extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
+        },
+        {
+          raceKey: 'house', short: 'Congressional District 1',
+          district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: null,
+          incumbentNote: 'Open seat — no incumbent on the 2026 ballot',
+          addLabel: 'Add Congressional District 1 choice to My Team',
+          candidates: ['cd1_rowen'],
+          extraNote: 'Northern Utah shares this open congressional race with Davis County — more candidates will appear here as the field is confirmed.'
+        }
+      ]
+    };
+
+    // Infer a location id from the user's real voter location, if it maps
+    // to one of the supported areas. Returns '' when there is no match.
+    function _krInferLocation() {
+      var loc = window._currentVoterLocation || {};
+      var county = ((window._vhCurrentCounty || loc.county || '') + '').toLowerCase();
+      var city = ((loc.city || '') + '').toLowerCase();
+      if (county.indexOf('davis') !== -1 || city === 'layton') return 'davis';
+      if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'orem') return 'utah_co';
+      if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1) return 'washington';
+      if (county.indexOf('weber') !== -1 || city === 'ogden') return 'weber';
+      return '';
+    }
+
+    // Active location: an explicit pick (localStorage) wins; otherwise we
+    // infer from the user's real location; otherwise fall back to Davis.
+    function _krCurrentLocationId() {
+      try {
+        var saved = localStorage.getItem(KR_LOCATION_KEY);
+        if (saved && KEY_RACES_BY_LOCATION[saved]) return saved;
+      } catch (e) {}
+      return _krInferLocation() || 'davis';
+    }
+
+    function _krLocationMeta(id) {
+      for (var i = 0; i < KEY_RACES_LOCATIONS.length; i++) {
+        if (KEY_RACES_LOCATIONS[i].id === id) return KEY_RACES_LOCATIONS[i];
+      }
+      return KEY_RACES_LOCATIONS[0];
+    }
+
+    window.keyRacesSetLocation = function(id) {
+      if (!KEY_RACES_BY_LOCATION[id]) return;
+      try { localStorage.setItem(KR_LOCATION_KEY, id); } catch (e) {}
+      if (window.renderKeyRaces) window.renderKeyRaces();
+    };
 
     var _keyRacesHint = {};
 
@@ -23886,21 +24080,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '55;background:rgba(30,53,96,0.25);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
     }
 
-    function _krLocationHeadline() {
-      var loc = window._currentVoterLocation || {};
-      var hasLoc = !!window._hasUserLocation;
-      var city = (loc.city || '').trim();
-      var county = (loc.county || '').toLowerCase();
-      var state = (loc.state || '').trim();
-      var isDavis = county.indexOf('davis') !== -1 || city.toLowerCase() === 'layton';
-      if (isDavis) {
-        var where = city || 'Layton';
-        return '📍 You live in <strong style="color:#fff;">' + where + '</strong> → these are the races that matter most to you:';
+    function _krLocationHeadline(locId) {
+      var meta = _krLocationMeta(locId);
+      var inferred = _krInferLocation();
+      var matchesUser = inferred && inferred === locId;
+      if (matchesUser) {
+        return '📍 You live in <strong style="color:#fff;">' + meta.city + ', ' + meta.county + '</strong> → these are the races that matter most to you:';
       }
-      if (hasLoc && state.toLowerCase() === 'utah') {
-        return '📍 <strong style="color:#fff;">' + (city || 'Utah') + ', Utah</strong> — here is a preview of the Layton / Davis County key races. Personalized races for your district are coming soon.';
-      }
-      return '📍 Sample preview — <strong style="color:#fff;">Layton, Davis County, Utah</strong>. <button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">Set your location</button> to personalize.';
+      return '📍 Showing key races for <strong style="color:#fff;">' + meta.label + '</strong>. Use the selector above to switch areas — more Utah locations are coming soon.';
     }
 
     function _krCandidateRow(race, pid, selectedPid) {
@@ -23914,7 +24101,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
       var recordHtml = hasScore
         ? '<span style="color:' + _krScoreColor(d.score) + ';font-weight:700;">' + d.score + '% Promise</span>'
-        : '<span style="color:#7596c0;">No voting record yet</span>';
+        : (isIncumbent ? '<span style="color:#7596c0;">Promise score being compiled</span>' : '<span style="color:#7596c0;">No voting record yet</span>');
       var btn = isPick
         ? '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
         : '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
@@ -24015,9 +24202,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       try {
         var list = document.getElementById('keyraces-list');
         if (!list) return;
+        var locId = _krCurrentLocationId();
+        var races = KEY_RACES_BY_LOCATION[locId] || [];
+
+        // Populate / sync the location selector.
+        var sel = document.getElementById('keyraces-location-select');
+        if (sel) {
+          if (sel.options.length !== KEY_RACES_LOCATIONS.length) {
+            sel.innerHTML = KEY_RACES_LOCATIONS.map(function(l) {
+              return '<option value="' + l.id + '">' + l.label + '</option>';
+            }).join('');
+          }
+          if (sel.value !== locId) sel.value = locId;
+        }
+
         var headline = document.getElementById('keyraces-headline');
-        if (headline) headline.innerHTML = _krLocationHeadline();
-        list.innerHTML = KEY_RACES_CONFIG.map(_krRaceCard).join('');
+        if (headline) headline.innerHTML = _krLocationHeadline(locId);
+        list.innerHTML = races.map(_krRaceCard).join('');
       } catch (e) { /* never break the page */ }
     };
 
