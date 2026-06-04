@@ -4410,7 +4410,9 @@
     .kr-action-btn .kr-action-ico { font-size: 0.82rem; line-height: 1; }
     .kr-action-compare { color: #93c5fd; background: rgba(59,130,246,0.12); border: 1px solid rgba(96,165,250,0.4); }
     .kr-action-compare.added { color: #4ade80; background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.55); }
-    .kr-action-align { color: #c4b5fd; background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.42); }
+    /* Dynamic "Spotlight" button — gold, signals a live/timely highlight */
+    .kr-action-spotlight { color: #f5c842; background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.45); }
+    .kr-action-spotlight:hover { background: rgba(245,200,66,0.18); border-color: rgba(245,200,66,0.6); }
     .kr-action-profile { color: #cbd9ee; background: rgba(159,180,212,0.10); border: 1px solid rgba(159,180,212,0.32); }
     @media (max-width: 380px) {
       .kr-action-btn { font-size: 0.62rem; letter-spacing: 0.03em; }
@@ -4489,6 +4491,22 @@
     .kr-align-issue-bar { height: 6px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
     .kr-align-inline-more { width: 100%; margin-top: 0.5rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: #7ee7d8; background: rgba(20,184,166,0.1); border: 1px solid rgba(45,212,191,0.34); padding: 0.45rem; border-radius: 0.5rem; }
     .kr-align-inline-more:hover { background: rgba(20,184,166,0.16); }
+    /* Quick-adjust issue chips inside an expanded alignment breakdown — tap to
+       add or remove an issue and watch the personalized match update in place. */
+    .kr-align-adjust { margin-top: 0.65rem; padding-top: 0.55rem; border-top: 1px dashed rgba(45,212,191,0.22); }
+    .kr-align-adjust-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; color: #7ee7d8; margin-bottom: 0.45rem; }
+    .kr-align-chip-row { display: flex; flex-wrap: wrap; gap: 0.32rem; }
+    .kr-align-chip {
+      display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.66rem; letter-spacing: 0.02em;
+      padding: 0.26rem 0.55rem; border-radius: 999px; line-height: 1.1;
+      color: #9fb4d4; background: rgba(10,15,30,0.55); border: 1px solid rgba(159,180,212,0.22);
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .kr-align-chip:hover { transform: translateY(-1px); border-color: rgba(45,212,191,0.5); color: #cbeee7; }
+    .kr-align-chip:active { transform: scale(0.96); }
+    .kr-align-chip .kr-align-chip-mark { font-weight: 800; opacity: 0.85; }
+    .kr-align-chip.on { color: #5eead4; background: rgba(20,184,166,0.16); border-color: rgba(45,212,191,0.6); }
     @media (max-width: 380px) {
       .kr-align-inline-num { font-size: 1.6rem; }
     }
@@ -4499,6 +4517,17 @@
     .kraq-issue-row { margin-bottom: 0.7rem; }
     .kraq-issue-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: #cbd9ec; margin-bottom: 0.28rem; }
     .kraq-issue-bar { height: 7px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
+
+    /* Dynamic "Spotlight" quick-view (opened from the new per-candidate Spotlight
+       button). Gold patriotic theme to match the site's SPOTLIGHT REPORT styling. */
+    .kr-spot-overlay { position: fixed; inset: 0; z-index: 130; background: rgba(2,6,18,0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
+    .kr-spot-card { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: linear-gradient(180deg, rgba(22,18,8,0.98), rgba(10,15,30,0.98)); border: 1px solid rgba(245,200,66,0.34); border-radius: 1.1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(245,200,66,0.12); }
+    .kr-spot-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 999px; }
+    .kr-spot-badge.news { color: #93c5fd; background: rgba(59,130,246,0.14); border: 1px solid rgba(96,165,250,0.4); }
+    .kr-spot-badge.flag { color: #fca5a5; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.45); }
+    .kr-spot-badge.vote { color: #5eead4; background: rgba(20,184,166,0.14); border: 1px solid rgba(45,212,191,0.45); }
+    .kr-spot-badge.position, .kr-spot-badge.monitoring { color: #f5c842; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.42); }
+    .kr-spot-badge.newcomer { color: #c4b5fd; background: rgba(139,92,246,0.14); border: 1px solid rgba(167,139,250,0.45); }
 
     @media (max-width: 560px) {
       .team-add-toast {
@@ -15414,7 +15443,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       <!-- In the Spotlight — Current Events & Controversies -->
       ${(function(){
-        const spotlightData = {
+        const spotlightData = (window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {
           trump: [
             { date:'May 2026', headline:'Trump Media & Technology Group Stock Under SEC Scrutiny', facts:'The SEC has opened a preliminary inquiry into trading activity in DJT (Trump Media) stock ahead of major policy announcements. The company\'s stock has experienced extreme volatility, rising 400% since inauguration. <a href="https://www.sec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">SEC.gov</a>', why:'Presidential financial interests tied to a publicly traded company create unprecedented conflict-of-interest questions for market regulators.' },
             { date:'Apr 2026', headline:'Executive Order Expanding Tariffs on Chinese Goods to 145%', facts:'New executive orders raised tariffs on an additional $200B in Chinese imports. Economic analysts project consumer price increases of 2-4% on affected goods. <a href="https://ustr.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">USTR.gov</a>', why:'Tariff policy directly affects household costs and has triggered retaliatory measures from trading partners impacting U.S. agricultural exports.' },
@@ -15513,7 +15542,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           bwilson: [
             { date:'Mar 2026', headline:'Former Speaker Wilson\'s Budget Legacy Under Scrutiny', facts:'A legislative audit found that state spending grew 42% during Wilson\'s speakership (FY2019-FY2023), from $17.5B to $24.9B, outpacing inflation by a factor of 4. Wilson defended the growth as investment in infrastructure and education.', why:'The spending growth during his tenure contradicts the fiscal conservatism platform of his party and may influence future Utah budget debates.' },
           ],
-        };
+        });
         const items = spotlightData[id];
         if (!items || !items.length) return '';
         var topCount = items.length <= 2 ? items.length : (items.length <= 3 ? 2 : 3);
@@ -24568,8 +24597,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
             '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
           '</button>' +
-          '<button onclick="window.keyRacesAlign(\'' + pid + '\')" class="kr-action-btn kr-action-align" aria-label="See how ' + d.name + ' aligns with your issues">' +
-            '<span class="kr-action-ico">🎯</span>Align' +
+          '<button onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-action-btn kr-action-spotlight" aria-label="See what is happening with ' + d.name + ' right now">' +
+            '<span class="kr-action-ico">🔦</span>Spotlight' +
           '</button>' +
           '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
             '<span class="kr-action-ico">👤</span>Profile' +
@@ -24727,7 +24756,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('');
     }
 
-    // The inline alignment block that lives on every 2026 candidate card.
+    // Quick-adjust issue chips shown at the bottom of an expanded alignment
+    // breakdown. Each chip toggles one issue in/out of the visitor's selection
+    // and instantly re-weights the personalized match — no leaving Key Races.
+    function _krAlignQuickAdjustHtml() {
+      var map = window._alignIssueMap || {};
+      var active = window._alignIssues;
+      var keys = Object.keys(map);
+      if (!keys.length) return '';
+      var chips = keys.map(function(key) {
+        var on = !!(active && active.has && active.has(key));
+        return '<button type="button" onclick="window.alignToggleIssue(\'' + key + '\')" class="kr-align-chip' + (on ? ' on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+          '<span class="kr-align-chip-mark">' + (on ? '✓' : '+') + '</span>' + map[key].label +
+        '</button>';
+      }).join('');
+      return '<div class="kr-align-adjust">' +
+        '<div class="kr-align-adjust-title">⚙ Quick-adjust your issues — tap to add or remove</div>' +
+        '<div class="kr-align-chip-row">' + chips + '</div>' +
+      '</div>';
+    }
+
     // • No issues chosen  → a clean prompt that opens the issue picker.
     // • Issues chosen      → a prominent "<n>% Aligned with your issues" bar that
     //   expands an issue-by-issue breakdown in place (no modal, no leaving the
@@ -24771,7 +24819,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</button>' +
         '<div class="kr-align-inline-body" style="display:' + (expanded ? 'block' : 'none') + ';">' +
           _krAlignInlineRows(bd) +
-          '<button type="button" onclick="window.keyRacesAlignQuickView(\'' + pid + '\')" class="kr-align-inline-more">View full breakdown &amp; adjust issues →</button>' +
+          _krAlignQuickAdjustHtml() +
+          '<button type="button" onclick="window.keyRacesAlignQuickView(\'' + pid + '\')" class="kr-align-inline-more">View full breakdown →</button>' +
         '</div>' +
       '</div>';
     }
@@ -24882,6 +24931,181 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
 
       var ov = _krEnsureAlignOverlay();
+      ov.innerHTML = html;
+      ov.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function() { requestAnimationFrame(function() { ov.style.opacity = '1'; }); });
+    };
+
+    // ── Dynamic Spotlight — one timely, interesting thing to know right now ──
+    // Replaces the old static "Align" button. For each candidate we pick the
+    // single most relevant/timely item from whatever data exists, in order:
+    //   1. A curated current-events headline / controversy (when loaded).
+    //   2. The most spotlight-worthy item from their own record — a concrete
+    //      vote, a red-flag pattern, or a signature position.
+    //   3. A "new on the ballot / record being compiled" note for candidates
+    //      who have no public record yet (so the card is never empty).
+    function _krStanceIssueLabel(key) {
+      return ({
+        border: '🛡 Border & Immigration', debt: '💰 Taxes & Spending', gun: '🔫 Gun Rights',
+        termLimits: '⏳ Term Limits', campaign: '🗳 Campaign & Conduct', healthcare: '🏥 Healthcare',
+        audit: '🔎 Government Audit', dataCenters: '🖥 Tech & Data'
+      })[key] || 'Key Position';
+    }
+    function _krStanceIsGeneric(t) {
+      return !t || /^N\/A|no public voting record|compiling|no formal position|^—/i.test(t);
+    }
+    function _krStanceIsFlag(t) {
+      return /no on all|voted against|opposed|exceeded|broke\b|never|skeptic|against/i.test(t);
+    }
+    function _krStanceIsConcrete(t) {
+      return /\bvot|hb ?\d|sb ?\d|h\.b|s\.b|\bbill\b|pledged|co-spons|amendment|signed|introduced|\bact\b|funding|\d{2,}/i.test(t);
+    }
+    function _krSpotlightIsControversy(text) {
+      return /scrutiny|controvers|under fire|allegation|criticism|rebuke|ethics|conviction|questions raised|misdemeanor|probe|investigat|drew .*rebuke|fire over/i.test(text || '');
+    }
+
+    function _krBuildSpotlight(pid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return null;
+
+      // 1) Curated current-events headline — the richest, most timely source.
+      var sd = (window.SPOTLIGHT_DATA && window.SPOTLIGHT_DATA[pid] && window.SPOTLIGHT_DATA[pid].length) ? window.SPOTLIGHT_DATA[pid] : null;
+      if (sd) {
+        var item = sd[0];
+        var flag = _krSpotlightIsControversy(item.headline);
+        return {
+          kind: flag ? 'flag' : 'news',
+          badge: flag ? 'Current Red Flag' : 'In the News',
+          badgeIco: flag ? '🚩' : '📰',
+          date: item.date || 'Recent',
+          title: item.headline,
+          body: (item.facts || '').replace(/<[^>]*>/g, '').trim(),
+          why: item.why || '',
+          total: sd.length
+        };
+      }
+
+      // 2) Most spotlight-worthy item from the candidate's own record.
+      var keys = ['debt', 'gun', 'border', 'healthcare', 'termLimits', 'audit', 'campaign', 'dataCenters'];
+      var best = null, bestRank = -1;
+      keys.forEach(function(k) {
+        var t = d.stances ? d.stances[k] : '';
+        if (_krStanceIsGeneric(t)) return;
+        var rank = 1;
+        if (_krStanceIsConcrete(t)) rank += 2;
+        if (_krStanceIsFlag(t)) rank += 1;
+        if (rank > bestRank) { bestRank = rank; best = { k: k, t: t }; }
+      });
+      if (best) {
+        var isFlag = _krStanceIsFlag(best.t);
+        var isVote = _krStanceIsConcrete(best.t);
+        var hasScore = d.score !== null && d.score !== undefined;
+        return {
+          kind: isFlag ? 'flag' : (isVote ? 'vote' : 'position'),
+          badge: isFlag ? 'On the Record' : (isVote ? 'Key Vote on File' : 'Where They Stand'),
+          badgeIco: isFlag ? '⚖️' : (isVote ? '🗳' : '📌'),
+          date: '',
+          title: _krStanceIssueLabel(best.k),
+          body: best.t,
+          why: hasScore
+            ? ('Track record so far: ' + (d.kept || 0) + ' promises kept · ' + (d.broken || 0) + ' broken (Promise ' + d.score + '%). Tap Profile for the receipts behind every one.')
+            : 'PolitiDex is still compiling this official’s full voting record — more lands on their profile soon.',
+          total: 0
+        };
+      }
+
+      // 3) No usable record yet — say so plainly instead of inventing news.
+      var isCandidate = (d.rank === 'candidate') || /candidate/i.test(d.office || '');
+      var headlineIssue = (d.issues || []).filter(function(i) {
+        return !/2026 candidate|district \d|congressional district|senate district|house district/i.test(i);
+      })[0];
+      return {
+        kind: isCandidate ? 'newcomer' : 'monitoring',
+        badge: isCandidate ? 'New on the 2026 Ballot' : 'Record Being Compiled',
+        badgeIco: isCandidate ? '🆕' : '🛰',
+        date: '',
+        title: isCandidate ? 'Just entered the race' : 'Now being tracked by PolitiDex',
+        body: (d.office || '2026 candidate') + '. ' + (headlineIssue ? ('Signature focus: ' + headlineIssue + '. ') : '') +
+          (isCandidate ? 'No public voting record yet — there is nothing to hold them to so far.' : 'A voting record is being compiled for this office right now.'),
+        why: 'Watch this space: the Promise % and Truth Score begin the moment they cast votes or make an on-the-record pledge.',
+        total: 0
+      };
+    }
+    window._krBuildSpotlight = _krBuildSpotlight;
+
+    function _krEnsureSpotOverlay() {
+      var ov = document.getElementById('kr-spotlight-overlay');
+      if (ov) return ov;
+      ov = document.createElement('div');
+      ov.id = 'kr-spotlight-overlay';
+      ov.className = 'kr-spot-overlay';
+      ov.addEventListener('click', function(e) { if (e.target === ov) window.keyRacesCloseSpotlight(); });
+      document.body.appendChild(ov);
+      return ov;
+    }
+
+    window.keyRacesCloseSpotlight = function() {
+      var ov = document.getElementById('kr-spotlight-overlay');
+      if (!ov) return;
+      ov.style.opacity = '0';
+      setTimeout(function() {
+        ov.style.display = 'none';
+        var others = ['modal-overlay', 'accountability-overlay', 'compare-overlay', 'auth-overlay', 'kr-align-overlay'];
+        var anyOpen = others.some(function(id) { var el = document.getElementById(id); return el && el.style.display && el.style.display !== 'none'; });
+        if (!anyOpen) document.body.style.overflow = '';
+      }, 200);
+    };
+
+    window.keyRacesSpotlight = function(pid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) { if (typeof showProfile === 'function') showProfile(pid); return; }
+      var s = _krBuildSpotlight(pid);
+      if (!s) { if (typeof showProfile === 'function') showProfile(pid); return; }
+
+      var photo = _krPhoto(pid, d, '#f5c842');
+      var partyMeta = _krPartyMeta(d.party);
+      var partyHtml = partyMeta ? '<span style="color:' + partyMeta.color + ';">' + partyMeta.label + '</span>' : '';
+      var dateChip = s.date
+        ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#f5c842;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);padding:0.12rem 0.45rem;border-radius:999px;">' + s.date + '</span>'
+        : '';
+      var whyHtml = s.why
+        ? ('<div style="background:rgba(245,200,66,0.06);border-left:2px solid rgba(245,200,66,0.4);border-radius:0 0.4rem 0.4rem 0;padding:0.5rem 0.7rem;margin-top:0.85rem;">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#f5c842;margin-bottom:0.15rem;">Why this matters</div>' +
+            '<p style="font-size:0.74rem;color:rgba(245,200,66,0.88);line-height:1.5;margin:0;">' + s.why + '</p>' +
+          '</div>')
+        : '';
+      var moreNote = (s.total > 1)
+        ? ('<p style="font-size:0.62rem;color:#7596c0;text-align:center;margin:0.7rem 0 0;">+ ' + (s.total - 1) + ' more recent ' + (s.total - 1 === 1 ? 'story' : 'stories') + ' in the full profile</p>')
+        : '';
+
+      var html =
+        '<div class="kr-spot-card">' +
+          '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(245,200,66,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
+            photo +
+            '<div style="flex:1;min-width:0;">' +
+              '<div class="font-condensed" style="font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:#f5c842;">🔦 Spotlight — What’s Happening Now</div>' +
+              '<div class="font-display text-lg text-white" style="line-height:1.1;">' + d.name + '</div>' +
+              '<div class="font-condensed" style="font-size:0.66rem;color:#9fb4d4;">' + partyHtml + (d.office ? ' · ' + d.office : '') + '</div>' +
+            '</div>' +
+            '<button type="button" onclick="window.keyRacesCloseSpotlight()" aria-label="Close" style="flex-shrink:0;width:34px;height:34px;border-radius:0.65rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;">✕</button>' +
+          '</div>' +
+          '<div style="padding:1.1rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">' +
+              '<span class="kr-spot-badge ' + s.kind + '">' + s.badgeIco + ' ' + s.badge + '</span>' + dateChip +
+            '</div>' +
+            '<div class="font-display text-white" style="font-size:1.12rem;line-height:1.25;margin-bottom:0.5rem;">' + s.title + '</div>' +
+            '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
+            whyHtml +
+            moreNote +
+            '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
+              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#e0a82e);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(245,200,66,0.3);">👤 Full Profile</button>' +
+              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){ if(window.keyRacesCompare){ window.keyRacesCompare(document.createElement(\'button\'),\'' + pid + '\'); } if(window.renderKeyRaces) window.renderKeyRaces(); },220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚖️ Compare</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      var ov = _krEnsureSpotOverlay();
       ov.innerHTML = html;
       ov.style.display = 'flex';
       document.body.style.overflow = 'hidden';
@@ -25787,6 +26011,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._alignScoreColor = _alignScoreColor;
     window._alignScoreClass = _alignScoreClass;
     window._alignIssues = _alignIssues;
+    // Exposed so the Key Races inline alignment breakdown can offer quick
+    // add/remove issue chips. ISSUE_MAP gives the available issues + labels;
+    // alignToggleIssue flips one and re-syncs every alignment-aware surface
+    // (including the main picker chips and the Key Races cards) in one call.
+    window._alignIssueMap = ISSUE_MAP;
+    window.alignToggleIssue = function(issueKey) {
+      if (!ISSUE_MAP[issueKey]) return;
+      if (_alignIssues.has(issueKey)) _alignIssues.delete(issueKey);
+      else _alignIssues.add(issueKey);
+      _alignSave();
+      // Mirror the change onto the main alignment-panel chips so the two stay
+      // consistent whichever surface the visitor used to make the change.
+      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(chip) {
+        var ci = chip.getAttribute('data-align-issue');
+        if (_alignIssues.has(ci)) chip.classList.add('active'); else chip.classList.remove('active');
+      });
+      _alignRefreshAll();
+    };
 
     function _alignInit() {
       _alignLoad();
