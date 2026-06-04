@@ -4559,6 +4559,40 @@
     .kr-spot-badge.position, .kr-spot-badge.monitoring { color: #f5c842; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.42); }
     .kr-spot-badge.newcomer { color: #c4b5fd; background: rgba(139,92,246,0.14); border: 1px solid rgba(167,139,250,0.45); }
 
+    /* ── At-a-glance Spotlight preview strip on each Key Races card ──
+       Surfaces the single most timely item (recent news, a red flag, a key
+       vote, or a signature stance) right on the card so voters grasp it without
+       tapping. Tap opens the full Spotlight modal with detail + source. The
+       left rail and badge colour change by item kind so a red flag reads
+       differently from routine news at a glance, while staying on the gold
+       patriotic theme. */
+    .kr-spot-preview {
+      width: 100%; display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.5rem 0.7rem; border-radius: 0.8rem; cursor: pointer; text-align: left; margin-top: 0.4rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.13), rgba(245,200,66,0.03));
+      border: 1px solid rgba(245,200,66,0.4); border-left: 3px solid rgba(245,200,66,0.85);
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .kr-spot-preview:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(245,200,66,0.19), rgba(245,200,66,0.05)); }
+    .kr-spot-preview:active { transform: scale(0.99); }
+    .kr-spot-preview .kr-spot-prev-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .kr-spot-prev-badge { display: flex; align-items: center; gap: 0.35rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; color: #f5c842; }
+    .kr-spot-prev-date { color: #9a8a55; font-weight: 600; letter-spacing: 0.04em; }
+    .kr-spot-prev-text { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; line-height: 1.2; color: #ece2c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kr-spot-prev-cta { flex-shrink: 0; font-size: 0.95rem; line-height: 1; opacity: 0.85; }
+    .kr-spot-preview.flag { background: linear-gradient(135deg, rgba(248,113,113,0.13), rgba(248,113,113,0.03)); border-color: rgba(248,113,113,0.4); border-left-color: rgba(248,113,113,0.85); }
+    .kr-spot-preview.flag .kr-spot-prev-badge { color: #fca5a5; }
+    .kr-spot-preview.flag .kr-spot-live { background: #f87171; box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+    .kr-spot-preview.news { background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.03)); border-color: rgba(96,165,250,0.38); border-left-color: rgba(96,165,250,0.8); }
+    .kr-spot-preview.news .kr-spot-prev-badge { color: #93c5fd; }
+    .kr-spot-preview.news .kr-spot-live { background: #60a5fa; box-shadow: 0 0 0 0 rgba(96,165,250,0.6); }
+    .kr-spot-preview.vote { background: linear-gradient(135deg, rgba(20,184,166,0.12), rgba(20,184,166,0.03)); border-color: rgba(45,212,191,0.4); border-left-color: rgba(45,212,191,0.8); }
+    .kr-spot-preview.vote .kr-spot-prev-badge { color: #5eead4; }
+    .kr-spot-preview.vote .kr-spot-live { background: #2dd4bf; box-shadow: 0 0 0 0 rgba(45,212,191,0.6); }
+    .kr-spot-preview.newcomer { background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.03)); border-color: rgba(167,139,250,0.4); border-left-color: rgba(167,139,250,0.8); }
+    .kr-spot-preview.newcomer .kr-spot-prev-badge { color: #c4b5fd; }
+    .kr-spot-preview.newcomer .kr-spot-live { background: #a78bfa; box-shadow: 0 0 0 0 rgba(167,139,250,0.6); }
+
     @media (max-width: 560px) {
       .team-add-toast {
         top: calc(0.75rem + env(safe-area-inset-top, 0px));
@@ -24669,13 +24703,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="kr-score-strip">' + promiseHtml + acctHtml + '</div>' +
         alignInlineHtml;
 
+      // At-a-glance Spotlight: the single most timely thing to know about this
+      // candidate, shown inline and tappable for the full modal + source.
+      var spotPreviewHtml = (typeof _krBuildSpotlight === 'function')
+        ? _krSpotPreviewHtml(pid, _krBuildSpotlight(pid)) : '';
+
       var actionsHtml =
         '<div class="kr-action-row">' +
           '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
             '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
-          '</button>' +
-          '<button onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-action-btn kr-action-spotlight" aria-label="See what is happening with ' + d.name + ' right now">' +
-            '<span class="kr-spot-live" aria-hidden="true"></span><span class="kr-action-ico">🔦</span>Spotlight' +
           '</button>' +
           '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
             '<span class="kr-action-ico">👤</span>Profile' +
@@ -24694,6 +24730,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           btn +
         '</div>' +
         scoreStrip +
+        spotPreviewHtml +
         actionsHtml +
       '</div>';
     }
@@ -24723,7 +24760,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
           // Promise % + Accountability of Truth Score, shown by default so the
           // sitting official's record is just as scannable as the challengers'.
-          '<div class="kr-score-strip">' + incCells.promise + incCells.acct + '</div>';
+          '<div class="kr-score-strip">' + incCells.promise + incCells.acct + '</div>' +
+          // Same at-a-glance Spotlight strip the challengers get — incumbents
+          // tend to have the richest, most timely items.
+          ((typeof _krBuildSpotlight === 'function')
+            ? _krSpotPreviewHtml(race.incumbentPid, _krBuildSpotlight(race.incumbentPid)) : '');
       } else {
         holderHtml =
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
@@ -25036,6 +25077,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krSpotlightIsControversy(text) {
       return /scrutiny|controvers|under fire|allegation|criticism|rebuke|ethics|conviction|questions raised|misdemeanor|probe|investigat|drew .*rebuke|fire over/i.test(text || '');
     }
+    // Pull the first source link out of a facts blob (the curated data embeds an
+    // <a href> to the primary source) so the modal can credit it instead of
+    // stripping it away with the rest of the markup.
+    function _krSpotlightExtractSource(html) {
+      var m = /<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i.exec(html || '');
+      if (!m) return null;
+      var label = (m[2] || '').replace(/<[^>]*>/g, '').trim();
+      return { url: m[1], label: label || 'Source' };
+    }
 
     function _krBuildSpotlight(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
@@ -25052,8 +25102,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           badgeIco: flag ? '🚩' : '📰',
           date: item.date || 'Recent',
           title: item.headline,
+          teaser: item.headline,
           body: (item.facts || '').replace(/<[^>]*>/g, '').trim(),
           why: item.why || '',
+          source: _krSpotlightExtractSource(item.facts),
           total: sd.length
         };
       }
@@ -25079,6 +25131,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           badgeIco: isFlag ? '⚖️' : (isVote ? '🗳' : '📌'),
           date: '',
           title: _krStanceIssueLabel(best.k),
+          teaser: best.t,
           body: best.t,
           why: hasScore
             ? ('Track record so far: ' + (d.kept || 0) + ' promises kept · ' + (d.broken || 0) + ' broken (Promise ' + d.score + '%). Tap Profile for the receipts behind every one.')
@@ -25098,6 +25151,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         badgeIco: isCandidate ? '🆕' : '🛰',
         date: '',
         title: isCandidate ? 'Just entered the race' : 'Now being tracked by PolitiDex',
+        teaser: isCandidate ? 'New candidate — no voting record yet' : 'Voting record being compiled',
         body: (d.office || '2026 candidate') + '. ' + (headlineIssue ? ('Signature focus: ' + headlineIssue + '. ') : '') +
           (isCandidate ? 'No public voting record yet — there is nothing to hold them to so far.' : 'A voting record is being compiled for this office right now.'),
         why: 'Watch this space: the Promise % and Truth Score begin the moment they cast votes or make an on-the-record pledge.',
@@ -25105,6 +25159,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
     }
     window._krBuildSpotlight = _krBuildSpotlight;
+
+    // Compact, tappable Spotlight strip rendered inline on a candidate card.
+    // Shows the timely item at a glance (badge + one-line teaser + date); the
+    // whole strip opens the full Spotlight modal with the detail and source.
+    function _krSpotPreviewHtml(pid, s) {
+      if (!s) return '';
+      var teaser = (s.teaser || s.title || '').toString();
+      var dateChip = s.date ? '<span class="kr-spot-prev-date">· ' + s.date + '</span>' : '';
+      return '<button type="button" onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-spot-preview ' + s.kind + '" aria-label="Spotlight — ' + s.badge + '. Tap for details and source.">' +
+          '<span class="kr-spot-live" aria-hidden="true"></span>' +
+          '<span class="kr-spot-prev-main">' +
+            '<span class="kr-spot-prev-badge">' + s.badgeIco + ' ' + s.badge + ' ' + dateChip + '</span>' +
+            '<span class="kr-spot-prev-text">' + teaser + '</span>' +
+          '</span>' +
+          '<span class="kr-spot-prev-cta" aria-hidden="true">🔦</span>' +
+        '</button>';
+    }
+    window._krSpotPreviewHtml = _krSpotPreviewHtml;
 
     function _krEnsureSpotOverlay() {
       var ov = document.getElementById('kr-spotlight-overlay');
@@ -25150,6 +25222,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var moreNote = (s.total > 1)
         ? ('<p style="font-size:0.62rem;color:#7596c0;text-align:center;margin:0.7rem 0 0;">+ ' + (s.total - 1) + ' more recent ' + (s.total - 1 === 1 ? 'story' : 'stories') + ' in the full profile</p>')
         : '';
+      var sourceHtml = s.source
+        ? ('<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(245,200,66,0.18);">' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;">Source</span>' +
+            '<a href="' + s.source.url + '" target="_blank" rel="noopener" style="font-size:0.74rem;color:#60a5fa;text-decoration:underline;word-break:break-word;">' + s.source.label + ' ↗</a>' +
+          '</div>')
+        : '';
 
       var html =
         '<div class="kr-spot-card">' +
@@ -25169,6 +25247,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="font-display text-white" style="font-size:1.12rem;line-height:1.25;margin-bottom:0.5rem;">' + s.title + '</div>' +
             '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
             whyHtml +
+            sourceHtml +
             moreNote +
             '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
               '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#e0a82e);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(245,200,66,0.3);">👤 Full Profile</button>' +
