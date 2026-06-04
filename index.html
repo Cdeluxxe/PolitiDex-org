@@ -24411,6 +24411,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ]
     };
 
+    // ── Statewide races — shown for EVERY location ──────────────────────
+    // Governor and U.S. Senate represent the whole state, so they appear
+    // above the district races no matter which area is selected. Same card
+    // shape as the district races, so the "Add to My Team" buttons, scores,
+    // Compare/Spotlight and pick logic all behave identically. The team
+    // already reserves a 'governor' and 'senate' slot for Utah, so picks
+    // land in the same 6-slot "My Voting Team" grid.
+    var KEY_RACES_STATEWIDE = [
+      {
+        raceKey: 'governor', short: 'Governor',
+        district: 'Governor of Utah', chamber: 'Statewide · Executive',
+        color: '#34d399', incumbentPid: 'cox',
+        incumbentNote: 'Incumbent — elected 2020, re-elected 2024',
+        candidatesLabel: 'Officeholder & Contenders',
+        addLabel: 'Add your Governor pick to My Team',
+        candidates: ['cox', 'lyman'],
+        extraNote: 'Utah’s governorship is a four-year office, last contested in 2024 and next on the ballot in 2028. It’s shown for every Utah voter because the Governor signs every state law and budget — add the leader whose record you want to track.'
+      },
+      {
+        raceKey: 'senate', short: 'U.S. Senate',
+        district: 'U.S. Senate — Utah', chamber: 'Statewide · Federal',
+        color: '#818cf8', incumbentPid: 'lee', incumbentPids: ['lee', 'curtis'],
+        incumbentNote: 'Senior Senator — seat next contested in 2028',
+        candidatesLabel: 'Utah’s U.S. Senators',
+        addLabel: 'Add your U.S. Senate pick to My Team',
+        candidates: ['lee', 'curtis'],
+        extraNote: 'Each state elects its two U.S. Senators in different years, so only one of a state’s seats is ever up in a single cycle. Neither Utah seat is on the 2026 ballot — Sen. Lee’s is next in 2028 and Sen. Curtis’s in 2030 — but both senators represent every Utah voter, so their records are shown here.'
+      }
+    ];
+
     // Infer a location id from the user's real voter location, if it maps
     // to one of the supported areas. Returns '' when there is no match.
     function _krInferLocation() {
@@ -24514,7 +24544,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
       var isPick = selectedPid === pid;
-      var isIncumbent = race.incumbentPid === pid;
+      var isIncumbent = race.incumbentPid === pid ||
+        (race.incumbentPids && race.incumbentPids.indexOf(pid) !== -1);
       var hasScore = d.score !== null && d.score !== undefined;
       var roleTag = isIncumbent
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
@@ -24687,7 +24718,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           holderHtml +
         '</div>' +
         '<div style="padding:0.4rem 1.1rem 1rem;">' +
-          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:0.6rem 0 0.5rem;">2026 Candidates</div>' +
+          '<div class="font-condensed" style="font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:0.6rem 0 0.5rem;">' + (race.candidatesLabel || '2026 Candidates') + '</div>' +
           '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + candHtml + '</div>' +
           (race.extraNote ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>' : '') +
           '<div style="margin-top:0.9rem;">' + footer + '</div>' +
@@ -25112,6 +25143,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       requestAnimationFrame(function() { requestAnimationFrame(function() { ov.style.opacity = '1'; }); });
     };
 
+    // Small section divider used to group the Key Races list into
+    // "Statewide Races" (always shown) and the location-specific district races.
+    function _krGroupHeader(icon, title, sub, color) {
+      return '<div style="margin:0.25rem 0 -0.25rem;">' +
+          '<div style="display:flex;align-items:center;gap:0.6rem;">' +
+            '<span style="font-size:1.05rem;line-height:1;">' + icon + '</span>' +
+            '<span class="font-display text-lg md:text-xl tracking-wide" style="color:' + color + ';text-shadow:0 0 18px ' + color + '33;">' + title + '</span>' +
+            '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + color + '55,transparent);"></span>' +
+          '</div>' +
+          (sub ? '<p class="font-condensed" style="font-size:0.72rem;color:#7596c0;letter-spacing:0.01em;margin:0.3rem 0 0;">' + sub + '</p>' : '') +
+        '</div>';
+    }
+
     window.renderKeyRaces = function() {
       try {
         var list = document.getElementById('keyraces-list');
@@ -25132,7 +25176,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         var headline = document.getElementById('keyraces-headline');
         if (headline) headline.innerHTML = _krLocationHeadline(locId);
-        list.innerHTML = races.map(_krRaceCard).join('');
+
+        // Statewide races (Governor, U.S. Senate) come first and show for every
+        // location; the selected area's district races follow underneath.
+        var statewide = (typeof KEY_RACES_STATEWIDE !== 'undefined') ? KEY_RACES_STATEWIDE : [];
+        var html = '';
+        if (statewide.length) {
+          html += _krGroupHeader('🏛', 'Statewide Races', 'On every Utah voter’s ballot — these offices represent the whole state.', '#fbbf24');
+          html += statewide.map(_krRaceCard).join('');
+        }
+        if (races.length) {
+          html += _krGroupHeader('📍', 'Your District Races', 'Specific to the area selected above — change your location to update them.', '#60a5fa');
+          html += races.map(_krRaceCard).join('');
+        }
+        list.innerHTML = html;
       } catch (e) { /* never break the page */ }
     };
 
