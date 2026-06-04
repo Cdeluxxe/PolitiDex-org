@@ -24656,7 +24656,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
     function _krPartyBadge(p) {
       var m = _krPartyMeta(p);
-      if (!m) return '';
+      // No confirmed party yet (e.g. a 2026 challenger whose filing is still being
+      // certified): show a clean, neutral "Party TBD" chip rather than leaving the
+      // card with a missing affiliation slot. Keeps every card looking complete and
+      // honest without inventing a party label.
+      if (!m) m = { label: 'Party TBD', color: '#94a3b8' };
       return '<span class="font-condensed" style="font-size:0.56rem;letter-spacing:0.06em;color:' + m.color + ';background:' + m.color + '18;border:1px solid ' + m.color + '38;padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">' + m.label + '</span>';
     }
     function _krPhoto(pid, d, color) {
@@ -25323,7 +25327,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         badgeIco: isCandidate ? '🆕' : '🛰',
         date: '',
         title: isCandidate ? 'Just entered the race' : 'Now being tracked by PolitiDex',
-        teaser: isCandidate ? 'New candidate — no voting record yet' : 'Voting record being compiled',
+        teaser: isCandidate
+          ? ('On the 2026 ballot' + (headlineIssue ? ' · Focus: ' + headlineIssue : ''))
+          : 'Voting record being compiled',
         body: (d.office || '2026 candidate') + '. ' + (headlineIssue ? ('Signature focus: ' + headlineIssue + '. ') : '') +
           (isCandidate ? 'No public voting record yet — there is nothing to hold them to so far.' : 'A voting record is being compiled for this office right now.'),
         why: 'Watch this space: the Promise % and Truth Score begin the moment they cast votes or make an on-the-record pledge.',
