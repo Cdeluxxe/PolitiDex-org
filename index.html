@@ -22046,8 +22046,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (o.includes('candidate')) return 'candidate';
         return 'governor';
       }
-      if (o.includes('state sen') || o.includes('senate president') || o.includes('utah senate') || o.includes('ut state sen')) return 'state_senator';
-      if (o.includes('state rep') || o.includes('house speaker') || o.includes('ut house') || o.includes('ut state rep') || o.includes('house minority') || o.includes('state auditor')) return 'state_rep';
+      if (o.includes('state sen') || o.includes('senate president') || o.includes('utah senate') || o.includes('ut state sen') || o.includes('state senate')) return 'state_senator';
+      if (o.includes('state rep') || o.includes('house speaker') || o.includes('ut house') || o.includes('ut state rep') || o.includes('house minority') || o.includes('state auditor') || o.includes('state house') || o.includes('state assembly') || o.includes('state legislature')) return 'state_rep';
+      // Bare-chamber legislative offices (e.g. "House District 56", "Candidate for
+      // Senate District 12") — including candidates — land in the right state
+      // chamber instead of the vague "Other" bucket. Federal seats are excluded
+      // (they are already classified above as U.S. Senator / Representative).
+      var _isFederalOffice = o.includes('u.s.') || o.includes('congress') || o.includes('federal');
+      if (!_isFederalOffice) {
+        if (o.includes('house district') || (o.includes('house') && o.includes('district')) || (o.includes('assembly') && o.includes('district'))) return 'state_rep';
+        if (o.includes('senate district') || (o.includes('senate') && o.includes('district')) || (o.includes('senator') && o.includes('district'))) return 'state_senator';
+      }
       if (o.includes('mayor') || o.includes('county')) return 'local';
       if (o.includes('candidate') || o.includes('nominee')) return 'candidate';
       return 'other';
@@ -22105,25 +22114,119 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return st;
     }
 
+    // Real county for each Utah State House district (1–75). Used to replace the
+    // placeholder "(Your County)" text that imported profile data ships with, so
+    // every district in the browse tree reads as its actual county.
+    var _UTAH_HOUSE_COUNTY = {
+      1:'Box Elder County', 2:'Cache County', 3:'Cache County', 4:'Cache County', 5:'Weber County',
+      6:'Weber County', 7:'Weber County', 8:'Weber County', 9:'Weber County', 10:'Weber County',
+      11:'Davis County', 12:'Weber County', 13:'Davis County', 14:'Davis County', 15:'Davis County',
+      16:'Weber County', 17:'Weber County', 18:'Weber County', 19:'Davis County', 20:'Davis County',
+      21:'Davis County', 22:'Davis County', 23:'Davis County', 24:'Davis County', 25:'Davis County',
+      26:'Davis County', 27:'Davis County', 28:'Weber County', 29:'Weber County', 30:'Morgan County',
+      31:'Salt Lake County', 32:'Salt Lake County', 33:'Salt Lake County', 34:'Salt Lake County', 35:'Salt Lake County',
+      36:'Salt Lake County', 37:'Salt Lake County', 38:'Salt Lake County', 39:'Salt Lake County', 40:'Salt Lake County',
+      41:'Salt Lake County', 42:'Salt Lake County', 43:'Salt Lake County', 44:'Salt Lake County', 45:'Salt Lake County',
+      46:'Salt Lake County', 47:'Salt Lake County', 48:'Salt Lake County', 49:'Salt Lake County', 50:'Salt Lake County',
+      51:'Salt Lake County', 52:'Salt Lake County', 53:'Tooele County', 54:'Salt Lake County', 55:'Salt Lake County',
+      56:'Salt Lake County', 57:'Utah County', 58:'Utah County', 59:'Utah County', 60:'Utah County',
+      61:'Utah County', 62:'Utah County', 63:'Utah County', 64:'Utah County', 65:'Utah County',
+      66:'Utah County', 67:'Utah County', 68:'Juab County', 69:'Sanpete County', 70:'Sevier County',
+      71:'Carbon County', 72:'Uintah County', 73:'Iron County', 74:'Washington County', 75:'Washington County'
+    };
+
+    // Collapsible district groupings for the Utah House tree (keeps the long
+    // 75-district list from being one giant scroll). Each range becomes one
+    // accordion section with a region label.
+    var _DISTRICT_RANGES = [
+      { min: 1,  max: 15, label: 'Northern Utah' },
+      { min: 16, max: 30, label: 'Davis & Weber' },
+      { min: 31, max: 45, label: 'Salt Lake County' },
+      { min: 46, max: 60, label: 'Salt Lake & South Valley' },
+      { min: 61, max: 75, label: 'Utah County & Southern Utah' }
+    ];
+
+    // Authoritative district + county for each Utah State Senator in the data set.
+    // Keyed by politician id so the browse tree shows a clean, unique "District N
+    // (County)" for every senator — replacing the old "Statewide" / "(Your County)"
+    // buckets and the duplicate district numbers that the raw profile data carried.
+    var _UTAH_SENATE_INFO = {
+      ssandall:   { d: 1,  c: 'Box Elder County' },
+      klisonbee:  { d: 2,  c: 'Salt Lake County' },
+      jstevenson: { d: 6,  c: 'Davis County' },
+      lgavala:    { d: 7,  c: 'Salt Lake County' },
+      kcullimore: { d: 9,  c: 'Salt Lake County' },
+      jwright:    { d: 13, c: 'Utah County' },
+      mrrobertson:{ d: 15, c: 'Utah County' },
+      cbramble:   { d: 16, c: 'Utah County' },
+      aowens:     { d: 17, c: 'Salt Lake County' },
+      rward:      { d: 19, c: 'Davis County' },
+      sadams:     { d: 22, c: 'Davis County' },
+      tweiler:    { d: 23, c: 'Davis County' },
+      bwilson:    { d: 24, c: 'Utah County' },
+      evickers:   { d: 28, c: 'Iron County' },
+      dipson:     { d: 29, c: 'Washington County' }
+    };
+
+    // County fallback for the 29 Utah Senate districts — used to label any
+    // dynamically-added senator whose district number parses but who is not in the
+    // authoritative map above.
+    var _UTAH_SENATE_COUNTY = {
+      1:'Box Elder County', 2:'Weber County', 3:'Weber County', 4:'Davis County', 5:'Davis County',
+      6:'Davis County', 7:'Salt Lake County', 8:'Salt Lake County', 9:'Salt Lake County', 10:'Salt Lake County',
+      11:'Salt Lake County', 12:'Salt Lake County', 13:'Utah County', 14:'Salt Lake County', 15:'Utah County',
+      16:'Utah County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Davis County', 20:'Tooele County',
+      21:'Utah County', 22:'Davis County', 23:'Davis County', 24:'Utah County', 25:'Utah County',
+      26:'Utah County', 27:'Wasatch County', 28:'Iron County', 29:'Washington County'
+    };
+
+    // Collapsible groupings for the 29 Utah Senate districts, mirroring the House
+    // range sections so the senator tree is three tidy, labelled buckets.
+    var _SENATE_RANGES = [
+      { min: 1,  max: 10, label: 'Northern Utah & Wasatch Front' },
+      { min: 11, max: 20, label: 'Salt Lake & Utah County' },
+      { min: 21, max: 29, label: 'Southern & Rural Utah' }
+    ];
+
     function _getPoliticianDistrictOrCounty(pid) {
       var d = CMP_DATA[pid];
       if (!d) return 'Statewide';
-      
+
+      var _isUtahSenator = (_classifyBrowseType(pid) === 'state_senator' && _getPoliticianState(pid) === 'Utah');
+      // Utah State Senators resolve to a clean, unique district + county from the
+      // authoritative map first (fixes the old "Statewide"/"(Your County)"/duplicate labels).
+      if (_isUtahSenator && _UTAH_SENATE_INFO[pid]) {
+        var si = _UTAH_SENATE_INFO[pid];
+        return 'District ' + si.d + ' (' + si.c + ')';
+      }
+
       // If we cached the original state before Firestore overwrite, let's use it to find the district
       var origSt = window._originalStates && window._originalStates[pid];
       var st = (d.state || '').trim();
-      
-      // Let's check both strings for a district match:
+
+      // Pull a plain district number out of either the live or original state
+      // string ("UT-5", "District 5", "District 5 (Your County)", etc.).
+      var distNum = null;
       var matchHyphen = st.match(/^[A-Z]{2}-(\d+)/i) || (origSt && origSt.match(/^[A-Z]{2}-(\d+)/i));
       if (matchHyphen) {
-        return 'District ' + parseInt(matchHyphen[1], 10);
+        distNum = parseInt(matchHyphen[1], 10);
+      } else {
+        var matchDistrict = st.match(/District\s+(\d+)/i) || (origSt && origSt.match(/District\s+(\d+)/i));
+        if (matchDistrict) distNum = parseInt(matchDistrict[1], 10);
       }
-      
-      var matchDistrict = st.match(/District\s+([^\s]+(?:\s+\([^)]+\))?)/i) || (origSt && origSt.match(/District\s+([^\s]+(?:\s+\([^)]+\))?)/i));
-      if (matchDistrict) {
-        return 'District ' + matchDistrict[1];
+      if (distNum !== null && !isNaN(distNum)) {
+        // Utah State House districts get their real county appended (fixing the
+        // "(Your County)" placeholder). Other offices stay as a clean label.
+        if (_classifyBrowseType(pid) === 'state_rep' && _getPoliticianState(pid) === 'Utah' && _UTAH_HOUSE_COUNTY[distNum]) {
+          return 'District ' + distNum + ' (' + _UTAH_HOUSE_COUNTY[distNum] + ')';
+        }
+        // Dynamically-added Utah State Senators get their county from the district map.
+        if (_isUtahSenator && _UTAH_SENATE_COUNTY[distNum]) {
+          return 'District ' + distNum + ' (' + _UTAH_SENATE_COUNTY[distNum] + ')';
+        }
+        return 'District ' + distNum;
       }
-      
+
       if (st.toLowerCase().includes('county')) {
         return st;
       }
@@ -22241,7 +22344,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
           });
 
-          districts.forEach(function(dist) {
+          // Renders a single district accordion (one district → its cards).
+          var renderDistAccordion = function(dist) {
             var distPids = districtGroups[dist];
             var distKey = stateKey + '-' + dist.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
             var isDistOpen = _forceOpen ? true : (_browseGroupState[prefix + 'dist-' + distKey] !== undefined
@@ -22249,25 +22353,85 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               : _defaultOpen);
             var distExpandedClass = isDistOpen ? ' expanded' : '';
 
-            html += '<div class="border border-white/5 rounded-lg overflow-hidden bg-navy-950/20' + distExpandedClass + '" id="' + prefix + 'browse-dist-' + distKey + '">';
-            html += '<button class="w-full flex items-center justify-between px-3 py-2 bg-navy-900/40 hover:bg-navy-900/60 text-left border-none" onclick="toggleBrowseAccordion(\'' + prefix + 'browse-dist-' + distKey + '\', \'' + prefix + 'dist-' + distKey + '\')" style="min-height: 38px;">';
-            html += '<div class="flex items-center gap-1.5">';
-            html += '<span class="text-[10px] text-steel-500">▶</span>';
-            html += '<span class="font-condensed font-600 text-xs text-steel-300 uppercase tracking-wide">' + dist + '</span>';
-            html += '<span class="text-[10px] text-steel-500 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.2 ml-1">' + distPids.length + '</span>';
-            html += '</div>';
-            html += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
-            html += '</button>';
-            html += '<div class="browse-sub-body"><div class="p-2">';
-            
-            html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+            var out = '';
+            out += '<div class="border border-white/5 rounded-lg overflow-hidden bg-navy-950/20' + distExpandedClass + '" id="' + prefix + 'browse-dist-' + distKey + '">';
+            out += '<button class="w-full flex items-center justify-between px-3 py-2 bg-navy-900/40 hover:bg-navy-900/60 text-left border-none" onclick="toggleBrowseAccordion(\'' + prefix + 'browse-dist-' + distKey + '\', \'' + prefix + 'dist-' + distKey + '\')" style="min-height: 38px;">';
+            out += '<div class="flex items-center gap-1.5">';
+            out += '<span class="text-[10px] text-steel-500">▶</span>';
+            out += '<span class="font-condensed font-600 text-xs text-steel-300 uppercase tracking-wide">' + dist + '</span>';
+            out += '<span class="text-[10px] text-steel-500 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.2 ml-1">' + distPids.length + '</span>';
+            out += '</div>';
+            out += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
+            out += '</button>';
+            out += '<div class="browse-sub-body"><div class="p-2">';
+            out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
             _sortInOfficeFirst(distPids).forEach(function(pid) {
-              html += _renderAllPoliticiansCard(pid);
+              out += _renderAllPoliticiansCard(pid);
             });
-            html += '</div>';
+            out += '</div>';
+            out += '</div></div></div>';
+            return out;
+          };
 
-            html += '</div></div></div>';
-          });
+          var distNumOf = function(dist) {
+            var m = dist.match(/^District\s+(\d+)/i);
+            return m ? parseInt(m[1], 10) : null;
+          };
+
+          // The Utah State House tree (75 districts) and the Utah State Senate tree
+          // (29 districts) are each grouped into collapsible range sections so they
+          // aren't one long scroll. Every other office/state keeps the flat list.
+          var _activeRanges = (state === 'Utah' && groupKey === 'state_rep') ? _DISTRICT_RANGES
+            : (state === 'Utah' && groupKey === 'state_senator') ? _SENATE_RANGES
+            : null;
+          var useRanges = (_activeRanges &&
+            districts.some(function(dist) { return distNumOf(dist) !== null; }));
+
+          if (!useRanges) {
+            districts.forEach(function(dist) { html += renderDistAccordion(dist); });
+          } else {
+            // Non-numeric districts (Statewide / county seats) stay at the top, ungrouped.
+            districts.filter(function(dist) { return distNumOf(dist) === null; })
+              .forEach(function(dist) { html += renderDistAccordion(dist); });
+
+            _activeRanges.forEach(function(rng) {
+              var inRange = districts.filter(function(dist) {
+                var n = distNumOf(dist);
+                return n !== null && n >= rng.min && n <= rng.max;
+              });
+              if (inRange.length === 0) return;
+              inRange.sort(function(a, b) { return distNumOf(a) - distNumOf(b); });
+
+              var rngPolCount = inRange.reduce(function(sum, dist) { return sum + districtGroups[dist].length; }, 0);
+              var rngKey = stateKey + '-rng-' + rng.min + '-' + rng.max;
+              var isRngOpen = _forceOpen ? true : (_browseGroupState[prefix + 'rng-' + rngKey] !== undefined
+                ? _browseGroupState[prefix + 'rng-' + rngKey]
+                : _defaultOpen);
+              var rngExpandedClass = isRngOpen ? ' expanded' : '';
+              var rngTitle = 'Districts ' + rng.min + '–' + rng.max + ' (' + rng.label + ')';
+
+              html += '<div class="browse-range-group border border-gold-400/15 rounded-lg overflow-hidden bg-navy-900/30 mb-2' + rngExpandedClass + '" id="' + prefix + 'browse-rng-' + rngKey + '">';
+              html += '<button class="w-full flex items-center justify-between px-3 py-2.5 bg-navy-800/50 hover:bg-navy-800/70 text-left border-none" onclick="toggleBrowseAccordion(\'' + prefix + 'browse-rng-' + rngKey + '\', \'' + prefix + 'rng-' + rngKey + '\')" style="min-height: 42px;">';
+              html += '<div class="flex items-center gap-1.5">';
+              html += '<span class="text-[11px] text-gold-400">▦</span>';
+              html += '<span class="font-condensed font-700 text-xs text-gold-300 uppercase tracking-wide">' + rngTitle + '</span>';
+              html += '<span class="text-[10px] text-steel-400 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.5 ml-1">' + rngPolCount + '</span>';
+              html += '</div>';
+              html += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
+              html += '</button>';
+              html += '<div class="browse-sub-body"><div class="p-2 space-y-2">';
+              inRange.forEach(function(dist) { html += renderDistAccordion(dist); });
+              html += '</div></div></div>';
+            });
+
+            // Numeric districts outside the defined ranges render flat afterwards.
+            districts.filter(function(dist) {
+              var n = distNumOf(dist);
+              if (n === null) return false;
+              return !_activeRanges.some(function(rng) { return n >= rng.min && n <= rng.max; });
+            }).sort(function(a, b) { return distNumOf(a) - distNumOf(b); })
+              .forEach(function(dist) { html += renderDistAccordion(dist); });
+          }
 
           html += '</div></div></div>';
         });
