@@ -4426,6 +4426,53 @@
       .kr-action-btn { font-size: 0.62rem; letter-spacing: 0.03em; }
     }
 
+    /* ── At-a-glance Spotlight teaser on each Key Races card ──
+       A compact, always-visible strip that surfaces the single most timely,
+       concrete thing about a politician right now — a recent vote, a current
+       red flag, a news item, or a signature stance — so voters can scan
+       "what's happening" without opening anything. Tapping it opens the full
+       Spotlight modal (details + cited source). Gold patriotic theme, with a
+       red variant that makes an active controversy jump out. */
+    .kr-spotlight-teaser {
+      position: relative; width: 100%; margin-top: 0.55rem;
+      display: flex; align-items: flex-start; gap: 0.55rem;
+      padding: 0.5rem 0.65rem 0.5rem 0.85rem; border-radius: 0.75rem;
+      text-align: left; cursor: pointer;
+      background: linear-gradient(135deg, rgba(245,200,66,0.13), rgba(245,158,11,0.03));
+      border: 1px solid rgba(245,200,66,0.4);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .kr-spotlight-teaser:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(245,158,11,0.05)); box-shadow: 0 4px 16px rgba(245,158,11,0.14); }
+    .kr-spotlight-teaser:active { transform: scale(0.99); }
+    .kr-spotlight-teaser .kr-st-rail { position: absolute; left: 0; top: 0.45rem; bottom: 0.45rem; width: 3px; border-radius: 999px; background: #f5c842; }
+    .kr-spotlight-teaser .kr-spot-live { margin-top: 0.28rem; }
+    .kr-st-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.16rem; }
+    .kr-st-eyebrow { display: flex; align-items: center; gap: 0.34rem; flex-wrap: wrap; }
+    .kr-st-tag { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: #f5c842; }
+    .kr-st-badge { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase; color: #f5c842; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.4); padding: 0.05rem 0.36rem; border-radius: 999px; }
+    .kr-st-date { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase; color: #b08d36; }
+    .kr-st-lead {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.8rem; line-height: 1.3; color: #f1e4c4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .kr-st-arrow { flex-shrink: 0; align-self: center; color: #f5c842; font-size: 1.2rem; line-height: 1; font-weight: 700; opacity: 0.8; }
+    /* Red-flag variant — an active controversy gets attention-grabbing red. */
+    .kr-spotlight-teaser.kr-st-flag { background: linear-gradient(135deg, rgba(248,113,113,0.13), rgba(248,113,113,0.03)); border-color: rgba(248,113,113,0.45); }
+    .kr-spotlight-teaser.kr-st-flag:hover { background: linear-gradient(135deg, rgba(248,113,113,0.2), rgba(248,113,113,0.05)); box-shadow: 0 4px 16px rgba(248,113,113,0.16); }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-rail { background: #f87171; }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-tag,
+    .kr-spotlight-teaser.kr-st-flag .kr-st-badge { color: #fca5a5; }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-badge { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-date { color: #d98a8a; }
+    .kr-spotlight-teaser.kr-st-flag .kr-spot-live { background: #f87171; box-shadow: 0 0 0 0 rgba(248,113,113,0.6); animation-name: krSpotPulseRed; }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-arrow { color: #f87171; }
+    .kr-spotlight-teaser.kr-st-flag .kr-st-lead { color: #f6d9d4; }
+    @keyframes krSpotPulseRed {
+      0% { box-shadow: 0 0 0 0 rgba(248,113,113,0.55); }
+      70% { box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+      100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); }
+    }
+
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
@@ -4486,6 +4533,27 @@
       .kr-score-acct .kr-score-num { font-size: 1.7rem; }
       .kr-score-align .kr-score-num { font-size: 1.5rem; }
     }
+
+    /* Prominent purple "Deep Dive + Verify" / "Run AI Analysis" call-to-action,
+       shown directly beneath the Truth Score on every Key Races card (incumbents
+       and candidates) so the AI breakdown, sources and promise analysis are always
+       one tap away — never hidden behind the score itself. */
+    .kr-deepdive-btn {
+      width: 100%; margin-top: 0.5rem; min-height: 40px;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #fff; cursor: pointer; border: none; border-radius: 0.6rem;
+      padding: 0.55rem 0.7rem;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      box-shadow: 0 4px 16px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .kr-deepdive-btn:hover { transform: translateY(-1px); filter: brightness(1.08); box-shadow: 0 6px 22px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.15); }
+    .kr-deepdive-btn:active { transform: scale(0.98); }
+    .kr-deepdive-btn.kr-deepdive-run { background: rgba(139,92,246,0.12); border: 1px dashed rgba(167,139,250,0.55); color: #c4b5fd; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+    .kr-deepdive-btn.kr-deepdive-run:hover { background: rgba(139,92,246,0.2); filter: none; box-shadow: 0 4px 16px rgba(124,58,237,0.18); }
+    .kr-deepdive-btn .kr-deepdive-arrow { font-size: 1rem; line-height: 1; opacity: 0.85; }
 
     /* ── Inline personalized alignment on each Key Races candidate card ──
        Prominent, scannable "<n>% Aligned with your issues" bar (teal "your match"
@@ -4558,6 +4626,9 @@
     .kr-spot-badge.vote { color: #5eead4; background: rgba(20,184,166,0.14); border: 1px solid rgba(45,212,191,0.45); }
     .kr-spot-badge.position, .kr-spot-badge.monitoring { color: #f5c842; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.42); }
     .kr-spot-badge.newcomer { color: #c4b5fd; background: rgba(139,92,246,0.14); border: 1px solid rgba(167,139,250,0.45); }
+    /* Cited-source link shown inside the Spotlight modal, beneath the highlight. */
+    .kr-spot-source { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.85rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.04em; color: #93c5fd; background: rgba(59,130,246,0.1); border: 1px solid rgba(96,165,250,0.38); padding: 0.38rem 0.65rem; border-radius: 0.55rem; text-decoration: none; transition: background 0.2s ease, border-color 0.2s ease; }
+    .kr-spot-source:hover { background: rgba(59,130,246,0.18); border-color: rgba(96,165,250,0.55); }
 
     @media (max-width: 560px) {
       .team-add-toast {
@@ -24570,13 +24641,121 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '📍 Showing key races for <strong style="color:#fff;">' + meta.label + '</strong>. Use the selector above to switch areas — more Utah locations are coming soon.';
     }
 
+    // ── Shared score-cell builders for Your Key Races ────────────────────────
+    // Both the current-officeholder hero and each 2026 candidate row render the
+    // same two objective scores so they can be scanned and compared at a glance:
+    //   • Promise %  (gold)   — campaign-promise track record
+    //   • Truth Score (purple) — the Accountability of Truth Score, the headline
+    //     objective integrity rating, always visible (never hidden behind a click).
+
+    function _krPromiseCell(pid, d, noScoreLabel) {
+      var hasScore = d.score !== null && d.score !== undefined;
+      if (hasScore) {
+        var pCol = _krScoreColor(d.score);
+        return '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; open full profile">' +
+            '<span class="kr-score-ico">📊</span>' +
+            '<span class="kr-score-num" style="color:' + pCol + ';">' + d.score + '<span style="font-size:0.95rem;">%</span></span>' +
+            '<span class="kr-score-meta">' +
+              '<span class="kr-score-label">Promise</span>' +
+              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + (d.kept || 0) + '</span> <span style="color:#f87171;">✕' + (d.broken || 0) + '</span> kept/broken</span>' +
+            '</span>' +
+          '</button>';
+      }
+      return '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — open full profile">' +
+          '<span class="kr-score-ico">📊</span>' +
+          '<span class="kr-score-meta">' +
+            '<span class="kr-score-label">Promise</span>' +
+            '<span class="kr-score-sub">' + noScoreLabel + '</span>' +
+          '</span>' +
+        '</button>';
+    }
+
+    // Resolve the Accountability of Truth Score for a Key Races politician, using
+    // the stored analysis when present and otherwise computing one on the fly (in
+    // memory only) so officials with a record always show a number. Returns null
+    // only when there is genuinely no record to ground a score (e.g. a brand-new
+    // challenger), in which case the card invites the visitor to run the analysis.
+    function _krResolveAcct(pid, d) {
+      if (d.accountability && typeof d.accountability.overallScore === 'number') return d.accountability;
+      var hasScore = d.score !== null && d.score !== undefined;
+      if (hasScore && typeof window._acctEnsureScore === 'function') return window._acctEnsureScore(pid);
+      return null;
+    }
+
+    function _krAcctCell(pid, d, noScoreLabel) {
+      var acct = _krResolveAcct(pid, d);
+      if (acct && typeof acct.overallScore === 'number') {
+        var as = acct.overallScore;
+        var aLvl = acct.color || _krScoreColor(as);
+        return '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — ' + as + ' out of 100; view the full AI analysis">' +
+            '<span class="kr-score-ico">🛡️</span>' +
+            '<span class="kr-score-num">' + as + '</span>' +
+            '<span class="kr-score-meta">' +
+              '<span class="kr-score-label">Truth Score</span>' +
+              '<span class="kr-score-rating" style="color:' + aLvl + ';background:' + aLvl + '1a;border:1px solid ' + aLvl + '55;">' + (acct.rating || '') + '</span>' +
+            '</span>' +
+          '</button>';
+      }
+      return '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — not yet analyzed">' +
+          '<span class="kr-score-ico">🛡️</span>' +
+          '<span class="kr-score-meta">' +
+            '<span class="kr-score-label">Truth Score</span>' +
+            '<span class="kr-score-sub">' + noScoreLabel + '</span>' +
+          '</span>' +
+        '</button>';
+    }
+
+    // The explicit, prominent CTA beneath the Truth Score. When a score already
+    // exists it opens the full AI breakdown ("Deep Dive + Verify"); when it does
+    // not, it runs the analysis ("Run AI Analysis"). viewAccountabilityAnalysis
+    // handles both (it falls back to running when nothing is stored yet).
+    function _krDeepDiveBtn(pid, d) {
+      var acct = _krResolveAcct(pid, d);
+      var analyzed = !!(acct && typeof acct.overallScore === 'number');
+      if (analyzed) {
+        return '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-deepdive-btn" aria-label="Open the full AI accountability analysis, sources and promise breakdown for ' + d.name + '">' +
+            '<span>🔬 Deep Dive + Verify</span><span class="kr-deepdive-arrow">›</span>' +
+          '</button>';
+      }
+      return '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-deepdive-btn kr-deepdive-run" aria-label="Run the AI accountability analysis for ' + d.name + '">' +
+          '<span>🔍 Run AI Analysis</span><span class="kr-deepdive-arrow">›</span>' +
+        '</button>';
+    }
+
+    // ── At-a-glance Spotlight teaser ───────────────────────────────────────
+    // Surfaces the single most timely, concrete thing about this politician
+    // right on the card — a recent vote, a current red flag, a news item, or a
+    // signature stance — so voters can scan "what's happening now" without
+    // opening anything. Built from the same _krBuildSpotlight data the modal
+    // uses; tapping it opens that full Spotlight modal (details + cited source).
+    function _krSpotlightTeaser(pid, d) {
+      var s = (typeof _krBuildSpotlight === 'function') ? _krBuildSpotlight(pid) : null;
+      if (!s) return '';
+      // Show the most concrete single line: for curated news/flags that's the
+      // headline itself; for record-based items it's the actual vote/stance.
+      var lead = (s.kind === 'news' || s.kind === 'flag') ? s.title : (s.body || s.title);
+      var dateChip = s.date ? '<span class="kr-st-date">' + s.date + '</span>' : '';
+      return '<button type="button" onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-spotlight-teaser kr-st-' + s.kind + '" aria-label="Spotlight on ' + d.name + ' — ' + s.badge + '. Tap for details and source.">' +
+          '<span class="kr-st-rail" aria-hidden="true"></span>' +
+          '<span class="kr-spot-live" aria-hidden="true"></span>' +
+          '<span class="kr-st-main">' +
+            '<span class="kr-st-eyebrow">' +
+              '<span class="kr-st-tag">🔦 Spotlight</span>' +
+              '<span class="kr-st-badge">' + s.badgeIco + ' ' + s.badge + '</span>' +
+              dateChip +
+            '</span>' +
+            '<span class="kr-st-lead">' + lead + '</span>' +
+          '</span>' +
+          '<span class="kr-st-arrow" aria-hidden="true">›</span>' +
+        '</button>';
+    }
+
     function _krCandidateRow(race, pid, selectedPid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
       var isPick = selectedPid === pid;
       var isIncumbent = race.incumbentPid === pid ||
         (race.incumbentPids && race.incumbentPids.indexOf(pid) !== -1);
-      var hasScore = d.score !== null && d.score !== undefined;
       var roleTag = isIncumbent
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
         : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
@@ -24589,60 +24768,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── Score strip ──────────────────────────────────────────────────────
       // Row 1 — the two objective scores, side by side and easy to scan across
       // candidates: Promise % (gold, prominent campaign-promise record) and the
-      // Accountability of Truth Score (purple, the objective integrity rating).
-      // Row 2 — the personalized Alignment %, kept visually distinct so the two
-      // scoring systems never blur together.
-      // We only show a Truth Score where there is a real record to ground it — for
-      // challengers with no record yet we say so plainly rather than inventing a number.
-      var promiseHtml;
-      if (hasScore) {
-        var pCol = _krScoreColor(d.score);
-        promiseHtml =
-          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; open full profile">' +
-            '<span class="kr-score-ico">📊</span>' +
-            '<span class="kr-score-num" style="color:' + pCol + ';">' + d.score + '<span style="font-size:0.95rem;">%</span></span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise</span>' +
-              '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + (d.kept || 0) + '</span> <span style="color:#f87171;">✕' + (d.broken || 0) + '</span> kept/broken</span>' +
-            '</span>' +
-          '</button>';
-      } else {
-        promiseHtml =
-          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — open full profile">' +
-            '<span class="kr-score-ico">📊</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise</span>' +
-              '<span class="kr-score-sub">' + (isIncumbent ? 'Being compiled' : 'No record yet') + '</span>' +
-            '</span>' +
-          '</button>';
-      }
-
-      var acct = (d.accountability && typeof d.accountability.overallScore === 'number')
-        ? d.accountability
-        : ((hasScore && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
-      var acctHtml;
-      if (acct && typeof acct.overallScore === 'number') {
-        var as = acct.overallScore;
-        var aLvl = acct.color || _krScoreColor(as);
-        acctHtml =
-          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — view the AI analysis">' +
-            '<span class="kr-score-ico">🛡️</span>' +
-            '<span class="kr-score-num">' + as + '</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Truth Score</span>' +
-              '<span class="kr-score-rating" style="color:' + aLvl + ';background:' + aLvl + '1a;border:1px solid ' + aLvl + '55;">' + (acct.rating || '') + '</span>' +
-            '</span>' +
-          '</button>';
-      } else {
-        acctHtml =
-          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + '">' +
-            '<span class="kr-score-ico">🛡️</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Truth Score</span>' +
-              '<span class="kr-score-sub">' + (isIncumbent ? 'Tap to analyze' : 'No record yet') + '</span>' +
-            '</span>' +
-          '</button>';
-      }
+      // Accountability of Truth Score (purple, the objective integrity rating),
+      // both always visible. A prominent "Deep Dive + Verify" CTA sits directly
+      // beneath them so the AI analysis is one tap away (and "Run AI Analysis"
+      // when no score exists yet). Row 2 — the personalized Alignment %, kept
+      // visually distinct so the two scoring systems never blur together.
+      var promiseHtml = _krPromiseCell(pid, d, isIncumbent ? 'Being compiled' : 'No record yet');
+      var acctHtml = _krAcctCell(pid, d, isIncumbent ? 'Tap to analyze' : 'Not yet analyzed');
+      var deepDiveHtml = _krDeepDiveBtn(pid, d);
       // ── Personalized alignment — shown INLINE on the card ────────────────
       // When the visitor has chosen issues we surface their match % right here so
       // it can be scanned and compared across candidates at a glance, with a tap
@@ -24651,15 +24784,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var alignInlineHtml = _krAlignInlineHtml(pid, d);
       var scoreStrip =
         '<div class="kr-score-strip">' + promiseHtml + acctHtml + '</div>' +
+        deepDiveHtml +
         alignInlineHtml;
+
+      // Always-visible "what's happening now" teaser; tapping opens the full
+      // Spotlight modal. It replaces the old tiny Spotlight action button so the
+      // timely highlight is readable at a glance instead of hidden behind a tap.
+      var spotlightTeaser = _krSpotlightTeaser(pid, d);
 
       var actionsHtml =
         '<div class="kr-action-row">' +
           '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
             '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
-          '</button>' +
-          '<button onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-action-btn kr-action-spotlight" aria-label="See what is happening with ' + d.name + ' right now">' +
-            '<span class="kr-spot-live" aria-hidden="true"></span><span class="kr-action-ico">🔦</span>Spotlight' +
           '</button>' +
           '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
             '<span class="kr-action-ico">👤</span>Profile' +
@@ -24677,6 +24813,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
           btn +
         '</div>' +
+        spotlightTeaser +
         scoreStrip +
         actionsHtml +
       '</div>';
@@ -24693,27 +24830,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var inc = race.incumbentPid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[race.incumbentPid] : null;
       var holderHtml;
       if (inc) {
-        var hasScore = inc.score !== null && inc.score !== undefined;
+        var incPid = race.incumbentPid;
         holderHtml =
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
-            _krPhoto(race.incumbentPid, inc, race.color) +
+            _krPhoto(incPid, inc, race.color) +
             '<div style="flex:1;min-width:0;">' +
               '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-                '<span class="font-display text-xl text-white" style="letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</span>' + _krPartyBadge(inc.party) +
+                '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + incPid + '\')" class="font-display text-xl text-white" style="background:none;border:none;padding:0;cursor:pointer;text-align:left;letter-spacing:0.02em;line-height:1.05;">' + inc.name + '</button>' + _krPartyBadge(inc.party) +
                 '<span class="kr-incumbent-badge">★ In Office</span>' +
               '</div>' +
               '<div class="font-condensed" style="font-size:0.68rem;color:#fbbf24;margin-top:0.1rem;">' + race.incumbentNote + '</div>' +
             '</div>' +
-            '<div style="text-align:center;flex-shrink:0;">' +
-              '<div class="font-display" style="font-size:1.8rem;line-height:1;color:' + _krScoreColor(inc.score) + ';">' + (hasScore ? inc.score + '%' : '—') + '</div>' +
-              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Promise</div>' +
-            '</div>' +
-            (hasScore ?
-            '<div style="text-align:center;flex-shrink:0;">' +
-              '<div class="font-condensed" style="font-size:0.78rem;"><span style="color:#4ade80;">✓ ' + (inc.kept || 0) + '</span> &nbsp; <span style="color:#f87171;">✕ ' + (inc.broken || 0) + '</span></div>' +
-              '<div class="font-condensed" style="font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Accountability</div>' +
-            '</div>' : '') +
-          '</div>';
+          '</div>' +
+          // At-a-glance "what's happening now" teaser for the sitting officeholder,
+          // opening the same Spotlight modal the challenger rows use.
+          _krSpotlightTeaser(incPid, inc) +
+          // Always-visible objective scores for the sitting officeholder — Promise %
+          // (gold) and the Accountability of Truth Score (purple) — followed by the
+          // prominent Deep Dive + Verify CTA and the personalized alignment, so the
+          // incumbent is rated at a glance exactly like the challengers below.
+          '<div class="kr-score-strip" style="margin-top:0.7rem;">' + _krPromiseCell(incPid, inc, 'Being compiled') + _krAcctCell(incPid, inc, 'Tap to analyze') + '</div>' +
+          _krDeepDiveBtn(incPid, inc) +
+          _krAlignInlineHtml(incPid, inc);
       } else {
         holderHtml =
           '<div style="display:flex;align-items:center;gap:0.75rem;">' +
@@ -25026,6 +25164,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krSpotlightIsControversy(text) {
       return /scrutiny|controvers|under fire|allegation|criticism|rebuke|ethics|conviction|questions raised|misdemeanor|probe|investigat|drew .*rebuke|fire over/i.test(text || '');
     }
+    // Pull the cited source (the in-text <a href> link) out of a facts string so
+    // the Spotlight modal can show it as a clear "Source" link voters can verify.
+    function _krExtractSource(html) {
+      if (!html) return null;
+      var m = html.match(/<a[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/i);
+      if (!m) return null;
+      return { url: m[1], label: (m[2] || '').trim() || 'View source' };
+    }
 
     function _krBuildSpotlight(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
@@ -25044,6 +25190,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           title: item.headline,
           body: (item.facts || '').replace(/<[^>]*>/g, '').trim(),
           why: item.why || '',
+          source: _krExtractSource(item.facts),
           total: sd.length
         };
       }
@@ -25140,6 +25287,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var moreNote = (s.total > 1)
         ? ('<p style="font-size:0.62rem;color:#7596c0;text-align:center;margin:0.7rem 0 0;">+ ' + (s.total - 1) + ' more recent ' + (s.total - 1 === 1 ? 'story' : 'stories') + ' in the full profile</p>')
         : '';
+      var sourceHtml = (s.source && s.source.url)
+        ? ('<div><a href="' + s.source.url + '" target="_blank" rel="noopener" class="kr-spot-source">🔗 Source: ' + s.source.label + ' ↗</a></div>')
+        : '';
 
       var html =
         '<div class="kr-spot-card">' +
@@ -25158,6 +25308,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>' +
             '<div class="font-display text-white" style="font-size:1.12rem;line-height:1.25;margin-bottom:0.5rem;">' + s.title + '</div>' +
             '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
+            sourceHtml +
             whyHtml +
             moreNote +
             '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
