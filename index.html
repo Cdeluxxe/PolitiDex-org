@@ -25270,19 +25270,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // 1) Curated current-events headline — the richest, most timely source.
       var sd = (window.SPOTLIGHT_DATA && window.SPOTLIGHT_DATA[pid] && window.SPOTLIGHT_DATA[pid].length) ? window.SPOTLIGHT_DATA[pid] : null;
       if (sd) {
-        var item = sd[0];
-        var flag = _krSpotlightIsControversy(item.headline);
+        // Normalize each curated entry into a "story" shared by the card strip and
+        // the modal timeline, so a vote, a bill, a news item or a controversy all
+        // render consistently with a date, the facts, why-it-matters and a source.
+        var mapStory = function(it) {
+          var f = _krSpotlightIsControversy(it.headline);
+          return {
+            kind: f ? 'flag' : 'news',
+            badge: f ? 'Red Flag' : 'In the News',
+            badgeIco: f ? '🚩' : '📰',
+            date: it.date || 'Recent',
+            title: it.headline,
+            body: (it.facts || '').replace(/<[^>]*>/g, '').trim(),
+            why: it.why || '',
+            source: _krSpotlightExtractSource(it.facts)
+          };
+        };
+        var stories = sd.map(mapStory);
+        // Lead with the most recent genuine controversy/red flag when one sits in
+        // the recent window — that is the single thing a voter most needs to know
+        // at a glance — otherwise lead with the newest item. Float the lead first.
+        var leadIdx = 0;
+        for (var li = 0; li < Math.min(stories.length, 4); li++) {
+          if (stories[li].kind === 'flag') { leadIdx = li; break; }
+        }
+        if (leadIdx > 0) { stories.unshift(stories.splice(leadIdx, 1)[0]); }
+        var top = stories[0];
         return {
-          kind: flag ? 'flag' : 'news',
-          badge: flag ? 'Current Red Flag' : 'In the News',
-          badgeIco: flag ? '🚩' : '📰',
-          date: item.date || 'Recent',
-          title: item.headline,
-          teaser: item.headline,
-          body: (item.facts || '').replace(/<[^>]*>/g, '').trim(),
-          why: item.why || '',
-          source: _krSpotlightExtractSource(item.facts),
-          total: sd.length
+          kind: top.kind,
+          badge: top.kind === 'flag' ? 'Current Red Flag' : 'In the News',
+          badgeIco: top.badgeIco,
+          date: top.date,
+          title: top.title,
+          teaser: top.title,
+          body: top.body,
+          why: top.why,
+          source: top.source,
+          total: stories.length,
+          stories: stories
         };
       }
 
@@ -25397,9 +25422,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<p style="font-size:0.74rem;color:rgba(245,200,66,0.88);line-height:1.5;margin:0;">' + s.why + '</p>' +
           '</div>')
         : '';
-      var moreNote = (s.total > 1)
-        ? ('<p style="font-size:0.62rem;color:#7596c0;text-align:center;margin:0.7rem 0 0;">+ ' + (s.total - 1) + ' more recent ' + (s.total - 1 === 1 ? 'story' : 'stories') + ' in the full profile</p>')
-        : '';
+      // Recent-activity timeline: every other curated story for this candidate,
+      // each collapsed and tappable to expand its facts, why-it-matters and source.
+      // This is what makes the Spotlight "expand to show more" rather than dead-end
+      // at a single headline — the whole recent record is one tap away, in place.
+      var extra = (s.stories && s.stories.length > 1) ? s.stories.slice(1) : [];
+      var timelineHtml = '';
+      if (extra.length) {
+        var rows = extra.map(function(st, i) {
+          var rid = 'krspot-row-' + pid + '-' + i;
+          var src = st.source
+            ? '<a href="' + st.source.url + '" target="_blank" rel="noopener" style="font-size:0.72rem;color:#60a5fa;text-decoration:underline;word-break:break-word;">' + st.source.label + ' ↗</a>'
+            : '';
+          var whyR = st.why
+            ? '<p style="font-size:0.72rem;color:rgba(245,200,66,0.85);line-height:1.5;margin:0.45rem 0 0;"><span style="color:#f5c842;font-weight:700;">Why it matters: </span>' + st.why + '</p>'
+            : '';
+          return '<div style="border-top:1px solid rgba(255,255,255,0.06);">' +
+              '<button type="button" onclick="(function(){var d=document.getElementById(\'' + rid + '\');var b=d.previousElementSibling;var o=d.style.maxHeight&&d.style.maxHeight!==\'0px\';d.style.maxHeight=o?\'0px\':d.scrollHeight+\'px\';b.querySelector(\'.krspot-chev\').style.transform=o?\'rotate(0deg)\':\'rotate(180deg)\';})()" style="width:100%;display:flex;align-items:flex-start;gap:0.55rem;text-align:left;background:none;border:none;cursor:pointer;padding:0.65rem 0.1rem;">' +
+                '<span class="kr-spot-badge ' + st.kind + '" style="flex-shrink:0;">' + st.badgeIco + '</span>' +
+                '<span style="flex:1;min-width:0;">' +
+                  '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">' + st.date + '</span>' +
+                  '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:600;font-size:0.82rem;color:#e8edf6;line-height:1.3;">' + st.title + '</span>' +
+                '</span>' +
+                '<svg class="krspot-chev" width="15" height="15" fill="none" stroke="#7596c0" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:0.15rem;transition:transform 0.2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+              '</button>' +
+              '<div id="' + rid + '" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;">' +
+                '<p style="font-size:0.76rem;color:#cbd9ec;line-height:1.55;margin:0;">' + st.body + '</p>' +
+                whyR +
+                (src ? '<div style="margin-top:0.45rem;">' + src + '</div>' : '') +
+                '<div style="height:0.7rem;"></div>' +
+              '</div>' +
+            '</div>';
+        }).join('');
+        timelineHtml =
+          '<div style="margin-top:1.05rem;border-top:1px solid rgba(245,200,66,0.18);padding-top:0.65rem;">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;margin-bottom:0.1rem;">📅 More recent activity · ' + extra.length + '</div>' +
+            rows +
+          '</div>';
+      }
       var sourceHtml = s.source
         ? ('<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(245,200,66,0.18);">' +
             '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;">Source</span>' +
@@ -25426,7 +25486,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
             whyHtml +
             sourceHtml +
-            moreNote +
+            timelineHtml +
             '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
               '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#e0a82e);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(245,200,66,0.3);">👤 Full Profile</button>' +
               '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){ if(window.keyRacesCompare){ window.keyRacesCompare(document.createElement(\'button\'),\'' + pid + '\'); } if(window.renderKeyRaces) window.renderKeyRaces(); },220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚖️ Compare</button>' +
