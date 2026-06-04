@@ -4456,6 +4456,43 @@
       .kr-score-align .kr-score-num { font-size: 1.5rem; }
     }
 
+    /* ── Inline personalized alignment on each Key Races candidate card ──
+       Prominent, scannable "<n>% Aligned with your issues" bar (teal "your match"
+       theme, distinct from the gold Promise % and purple Truth Score), expanding
+       an issue-by-issue breakdown in place — no modal, no leaving the section. */
+    .kr-align-inline-wrap { margin-top: 0.4rem; }
+    .kr-align-inline {
+      width: 100%; display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.55rem 0.7rem; border-radius: 0.75rem; cursor: pointer; text-align: left;
+      background: linear-gradient(135deg, rgba(20,184,166,0.16), rgba(45,212,191,0.04));
+      border: 1px solid rgba(45,212,191,0.45);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .kr-align-inline:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(20,184,166,0.22), rgba(45,212,191,0.06)); }
+    .kr-align-inline:active { transform: scale(0.99); }
+    .kr-align-inline-num { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1.85rem; line-height: 0.9; flex-shrink: 0; }
+    .kr-align-inline-ico { font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+    .kr-align-inline-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .kr-align-inline-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.1; font-size: 0.74rem; }
+    .kr-align-inline-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; letter-spacing: 0.05em; color: #8ea2c0; text-transform: uppercase; line-height: 1.15; margin-top: 0.05rem; }
+    .kr-align-inline-chev { flex-shrink: 0; color: #5eead4; font-size: 0.9rem; line-height: 1; transition: transform 0.25s ease; }
+    .kr-align-inline-go { flex-shrink: 0; color: #7ee7d8; font-size: 1.25rem; line-height: 1; font-weight: 700; }
+    .kr-align-inline-setup { background: rgba(20,184,166,0.06); border: 1px dashed rgba(45,212,191,0.42); }
+    .kr-align-inline-setup .kr-align-inline-title { color: #7ee7d8; }
+    .kr-align-inline-body {
+      margin-top: 0.5rem; padding: 0.7rem 0.75rem 0.6rem; border-radius: 0.7rem;
+      background: rgba(8,18,28,0.55); border: 1px solid rgba(45,212,191,0.22);
+    }
+    .kr-align-issue { margin-bottom: 0.55rem; }
+    .kr-align-issue:last-of-type { margin-bottom: 0.3rem; }
+    .kr-align-issue-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: #cbd9ec; margin-bottom: 0.22rem; }
+    .kr-align-issue-bar { height: 6px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
+    .kr-align-inline-more { width: 100%; margin-top: 0.5rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: #7ee7d8; background: rgba(20,184,166,0.1); border: 1px solid rgba(45,212,191,0.34); padding: 0.45rem; border-radius: 0.5rem; }
+    .kr-align-inline-more:hover { background: rgba(20,184,166,0.16); }
+    @media (max-width: 380px) {
+      .kr-align-inline-num { font-size: 1.6rem; }
+    }
+
     /* Personalized-alignment quick-view modal (opened from the Align button) */
     .kraq-overlay { position: fixed; inset: 0; z-index: 130; background: rgba(2,6,18,0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
     .kraq-card { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: linear-gradient(180deg, rgba(17,24,46,0.98), rgba(10,15,30,0.98)); border: 1px solid rgba(45,212,191,0.32); border-radius: 1.1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(20,184,166,0.12); }
@@ -24406,6 +24443,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     };
 
     var _keyRacesHint = {};
+    // Which candidate cards currently have their inline alignment breakdown expanded.
+    // Tracked so the open/closed state survives a Key Races re-render.
+    var _krAlignExpanded = new Set();
 
     function _krScoreColor(s) {
       if (s === null || s === undefined) return '#9fb4d4';
@@ -24513,31 +24553,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</span>' +
           '</button>';
       }
-      var alignScore = (typeof window._calcAlignmentScore === 'function') ? window._calcAlignmentScore(pid) : null;
-      var alignHtml;
-      if (alignScore !== null && alignScore !== undefined) {
-        alignHtml =
-          '<button type="button" onclick="window.keyRacesAlign(\'' + pid + '\')" class="kr-score kr-score-align" aria-label="Your personalized alignment with ' + d.name + ' — view the breakdown">' +
-            '<span class="kr-score-ico">🎯</span>' +
-            '<span class="kr-score-num">' + alignScore + '%</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Your Match</span>' +
-              '<span class="kr-score-sub">Personalized</span>' +
-            '</span>' +
-          '</button>';
-      } else {
-        alignHtml =
-          '<button type="button" onclick="window.keyRacesAlign(\'' + pid + '\')" class="kr-score kr-score-setalign" aria-label="Pick your issues to see your personalized alignment">' +
-            '<span class="kr-score-ico">🎯</span>' +
-            '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Set Your Issues</span>' +
-              '<span class="kr-score-sub">to see your alignment</span>' +
-            '</span>' +
-          '</button>';
-      }
+      // ── Personalized alignment — shown INLINE on the card ────────────────
+      // When the visitor has chosen issues we surface their match % right here so
+      // it can be scanned and compared across candidates at a glance, with a tap
+      // to expand an issue-by-issue breakdown without ever leaving Key Races.
+      // When no issues are set yet we show a clean prompt that opens the picker.
+      var alignInlineHtml = _krAlignInlineHtml(pid, d);
       var scoreStrip =
         '<div class="kr-score-strip">' + promiseHtml + acctHtml + '</div>' +
-        '<div class="kr-score-strip">' + alignHtml + '</div>';
+        alignInlineHtml;
 
       var actionsHtml =
         '<div class="kr-action-row">' +
@@ -24690,6 +24714,91 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krAlignColor(s) {
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
     }
+
+    // Build the inline issue-by-issue bars used inside an expanded card breakdown.
+    function _krAlignInlineRows(bd) {
+      return bd.issues.map(function(it) {
+        var ic = _krAlignColor(it.score);
+        var note = it.hasEvidence ? '' : '<span style="font-size:0.54rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>';
+        return '<div class="kr-align-issue">' +
+          '<div class="kr-align-issue-head"><span>' + it.label + note + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
+          '<div class="kr-align-issue-bar"><div style="height:100%;width:' + it.score + '%;background:linear-gradient(90deg,' + ic + '88,' + ic + ');border-radius:999px;"></div></div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // The inline alignment block that lives on every 2026 candidate card.
+    // • No issues chosen  → a clean prompt that opens the issue picker.
+    // • Issues chosen      → a prominent "<n>% Aligned with your issues" bar that
+    //   expands an issue-by-issue breakdown in place (no modal, no leaving the
+    //   Key Races section).
+    function _krAlignInlineHtml(pid, d) {
+      var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
+            : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
+      if (!n) {
+        return '<button type="button" onclick="window._krAlignGuideToPicker()" class="kr-align-inline kr-align-inline-setup" aria-label="Set your issues to see your personalized alignment with ' + d.name + '">' +
+            '<span class="kr-align-inline-ico">🎯</span>' +
+            '<span class="kr-align-inline-text">' +
+              '<span class="kr-align-inline-title">Set your issues to see alignment</span>' +
+              '<span class="kr-align-inline-sub">Pick the issues you care about</span>' +
+            '</span>' +
+            '<span class="kr-align-inline-go">›</span>' +
+          '</button>';
+      }
+      var bd = (typeof window._calcAlignmentBreakdown === 'function') ? window._calcAlignmentBreakdown(pid) : null;
+      if (!bd) {
+        // Issues are set but this candidate has no record to ground a match yet.
+        return '<div class="kr-align-inline kr-align-inline-setup" style="cursor:default;">' +
+            '<span class="kr-align-inline-ico">🎯</span>' +
+            '<span class="kr-align-inline-text">' +
+              '<span class="kr-align-inline-title">No alignment record yet</span>' +
+              '<span class="kr-align-inline-sub">Not enough data on this candidate</span>' +
+            '</span>' +
+          '</div>';
+      }
+      var overall = bd.overall;
+      var col = _krAlignColor(overall);
+      var expanded = _krAlignExpanded.has(pid);
+      var nIssues = bd.issues.length;
+      return '<div class="kr-align-inline-wrap">' +
+        '<button type="button" onclick="window._krToggleAlignInline(this,\'' + pid + '\')" class="kr-align-inline kr-align-inline-scored" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-label="' + overall + ' percent aligned with your issues for ' + d.name + ' — tap for an issue-by-issue breakdown" style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+          '<span class="kr-align-inline-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + overall + '<span style="font-size:1rem;">%</span></span>' +
+          '<span class="kr-align-inline-text">' +
+            '<span class="kr-align-inline-title" style="color:' + col + ';">Aligned with your issues</span>' +
+            '<span class="kr-align-inline-sub">' + nIssues + ' issue' + (nIssues === 1 ? '' : 's') + ' · tap for breakdown</span>' +
+          '</span>' +
+          '<span class="kr-align-inline-chev" style="transform:rotate(' + (expanded ? '180' : '0') + 'deg);">▾</span>' +
+        '</button>' +
+        '<div class="kr-align-inline-body" style="display:' + (expanded ? 'block' : 'none') + ';">' +
+          _krAlignInlineRows(bd) +
+          '<button type="button" onclick="window.keyRacesAlignQuickView(\'' + pid + '\')" class="kr-align-inline-more">View full breakdown &amp; adjust issues →</button>' +
+        '</div>' +
+      '</div>';
+    }
+    window._krAlignInlineHtml = _krAlignInlineHtml;
+
+    // Expand / collapse a card's inline alignment breakdown in place. We toggle the
+    // DOM directly (no full re-render) so the rest of the card never repaints.
+    window._krToggleAlignInline = function(btn, pid) {
+      try {
+        var wrap = btn.closest('.kr-align-inline-wrap');
+        if (!wrap) return;
+        var body = wrap.querySelector('.kr-align-inline-body');
+        var chev = btn.querySelector('.kr-align-inline-chev');
+        var open = _krAlignExpanded.has(pid);
+        if (open) {
+          _krAlignExpanded.delete(pid);
+          if (body) body.style.display = 'none';
+          btn.setAttribute('aria-expanded', 'false');
+          if (chev) chev.style.transform = 'rotate(0deg)';
+        } else {
+          _krAlignExpanded.add(pid);
+          if (body) body.style.display = 'block';
+          btn.setAttribute('aria-expanded', 'true');
+          if (chev) chev.style.transform = 'rotate(180deg)';
+        }
+      } catch (e) {}
+    };
 
     window.keyRacesAlign = function(pid) {
       var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
@@ -25520,6 +25629,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (cmpOverlay && cmpOverlay.style && cmpOverlay.style.display !== 'none') {
         if (typeof _buildCmpTable === 'function') _buildCmpTable();
       }
+
+      // Keep the inline alignment % on the Your Key Races candidate cards in sync
+      // with the issues the visitor just changed.
+      if (typeof window.renderKeyRaces === 'function') window.renderKeyRaces();
     }
 
     function syncRelevantAlignmentUI() {
