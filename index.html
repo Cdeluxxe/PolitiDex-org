@@ -7719,6 +7719,32 @@
       padding: 0.7rem 0.2rem; text-align: center; display: none; letter-spacing: 0.02em;
     }
 
+    /* ── Picker control bar: live selected-count + expand / collapse all ──
+       Gives the accordion a single, calm place to drive the whole list, so a long
+       set of topics never feels overwhelming. */
+    .align-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem;
+    }
+    .align-sel-count {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #9d8fe0;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .align-sel-count b { color: #d6cbff; font-weight: 800; }
+    .align-sel-count.pop { animation: alignBadgePop 0.3s ease; }
+    .align-toolbar-actions { display: flex; gap: 0.35rem; }
+    .align-tool-btn {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #c4b5fd;
+      background: rgba(30,53,96,0.5); border: 1px solid rgba(139,92,246,0.26);
+      border-radius: 999px; padding: 0.26rem 0.66rem; cursor: pointer; transition: all 0.16s;
+    }
+    .align-tool-btn:hover {
+      border-color: rgba(168,85,247,0.55); background: rgba(139,92,246,0.16);
+      color: #e6ddff; transform: translateY(-1px);
+    }
+
     /* ── Per-issue intensity presets (Strong / Moderate / Opposed) ──
        The row reveals its intensity controls only once the position is checked, so
        the picker stays calm until a visitor opts in. Pure-CSS reveal via sibling. */
@@ -11521,6 +11547,15 @@
               <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-rel');i.value='';alignSearch(i,'align-cats-rel');i.focus();">✕</button>
             </div>
 
+            <!-- Accordion controls mirror the main tool so both surfaces feel identical -->
+            <div class="align-toolbar">
+              <span class="align-sel-count" id="align-sel-count-rel" data-n="0">No positions selected yet</span>
+              <div class="align-toolbar-actions">
+                <button type="button" class="align-tool-btn" onclick="alignExpandAll('align-cats-rel')">⊕ Expand all</button>
+                <button type="button" class="align-tool-btn" onclick="alignCollapseAll('align-cats-rel')">⊖ Collapse all</button>
+              </div>
+            </div>
+
             <div class="align-cats" id="align-cats-rel">
               <!-- Same collapsible category accordion as the main panel, rendered by _alignRenderPickers() -->
             </div>
@@ -11661,6 +11696,15 @@
             <span class="align-search-ico">🔍</span>
             <input type="text" id="align-search-main" placeholder="Search issues — e.g. taxes, climate, guns, housing…" oninput="alignSearch(this,'align-cats-main')" aria-label="Search alignment issues" autocomplete="off" />
             <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-main');i.value='';alignSearch(i,'align-cats-main');i.focus();">✕</button>
+          </div>
+
+          <!-- Accordion controls: live count of chosen positions + open/close every topic at once -->
+          <div class="align-toolbar">
+            <span class="align-sel-count" id="align-sel-count-main" data-n="0">No positions selected yet</span>
+            <div class="align-toolbar-actions">
+              <button type="button" class="align-tool-btn" onclick="alignExpandAll('align-cats-main')">⊕ Expand all</button>
+              <button type="button" class="align-tool-btn" onclick="alignCollapseAll('align-cats-main')">⊖ Collapse all</button>
+            </div>
           </div>
 
           <div class="align-cats" id="align-cats-main">
@@ -27295,6 +27339,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
         }
       });
+      _alignUpdateToolbar();
+    }
+
+    // Live "N positions selected" count shown in each picker's control bar. Pops
+    // briefly whenever the total actually changes so the toolbar feels responsive.
+    function _alignUpdateToolbar() {
+      var n = _alignIssues.size;
+      document.querySelectorAll('.align-sel-count').forEach(function(el) {
+        var prev = el.getAttribute('data-n');
+        el.innerHTML = (n === 0)
+          ? 'No positions selected yet'
+          : '<b>' + n + '</b> position' + (n > 1 ? 's' : '') + ' selected';
+        if (String(n) !== prev) {
+          el.setAttribute('data-n', String(n));
+          if (n > 0) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+        }
+      });
     }
 
     function _alignRenderPickers() {
@@ -27320,6 +27381,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!cat) return;
       var open = cat.classList.toggle('open');
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    // Open or close every topic in a given picker at once. Scoped by the cats
+    // container id so the main tool and the "My Key Alignments" panel act
+    // independently; hidden (search-filtered) categories are left untouched.
+    window.alignExpandAll = function(catsId) {
+      var cats = document.getElementById(catsId || 'align-cats-main');
+      if (!cats) return;
+      cats.querySelectorAll('.align-cat').forEach(function(cat) {
+        if (cat.classList.contains('align-hide')) return;
+        cat.classList.add('open');
+        var h = cat.querySelector('.align-cat-head');
+        if (h) h.setAttribute('aria-expanded', 'true');
+      });
+    };
+
+    window.alignCollapseAll = function(catsId) {
+      var cats = document.getElementById(catsId || 'align-cats-main');
+      if (!cats) return;
+      cats.querySelectorAll('.align-cat').forEach(function(cat) {
+        cat.classList.remove('open');
+        var h = cat.querySelector('.align-cat-head');
+        if (h) h.setAttribute('aria-expanded', 'false');
+      });
     };
 
     // Keep only intensity entries that point at a currently-selected, known issue
