@@ -4932,6 +4932,17 @@
     .myteam-slot-match-bar { height: 4px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; }
     .myteam-slot-match-bar > span { display: block; height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
 
+    /* ── Inline "match drivers" on team-building cards ──
+       The visitor's own selected issues this candidate scores highest on, shown
+       right under the Your Match read so the % explains itself at a glance — no
+       modal required. Deliberately compact (a short lead-in + up to a few chips)
+       so it stays clean even across a dense candidate list. */
+    .align-drivers { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+    .align-drivers-lead { font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #7e93b3; }
+    .align-driver-chip { display: inline-flex; align-items: center; gap: 0.28rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.02em; line-height: 1.25; padding: 0.08rem 0.46rem; border-radius: 999px; background: rgba(10,15,30,0.55); border: 1px solid rgba(255,255,255,0.08); white-space: nowrap; }
+    .align-driver-chip b { font-weight: 800; }
+    .myteam-slot-match + .align-drivers { width: 90%; margin-left: auto; margin-right: auto; justify-content: center; margin-top: -0.2rem; margin-bottom: 0.45rem; }
+
     /* "Top Match" ribbon flagging the strongest alignment fits in the browse list. */
     .align-topmatch-badge {
       display: inline-flex; align-items: center; gap: 0.2rem;
@@ -24586,7 +24597,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       if (browseCount) browseCount.textContent = pids.length;
       var scopeLabel = _browseScope === 'relevant' ? ' relevant' : '';
-      if (browseCountLabel) browseCountLabel.textContent = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found';
+      if (browseCountLabel) {
+        var _matchCue = window._alignBrowseSortActive
+          ? ' · <span style="color:#5eead4;font-weight:700;">🎯 Best match for you first</span>'
+          : '';
+        browseCountLabel.innerHTML = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found' + _matchCue;
+      }
 
       if (pids.length > 0) {
         // Start fully minimized; auto-expand all levels only while a search/filter is active so matches stay visible.
@@ -28123,6 +28139,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
     }
 
+    // The visitor's own selected issues that this candidate scores highest on — the
+    // concrete reasons behind their Your Match %. Surfaced inline (right under the
+    // match bar / band) so the number explains itself at a glance, no modal needed.
+    // Only issues with real evidence and a genuinely matching score are shown, ranked
+    // best-first and capped, so it stays clean across a dense list. A ★ marks an issue
+    // the visitor weighted "strong". Returns '' when alignment isn't set up or there's
+    // no grounded breakdown to draw from.
+    function _alignDriverChips(pid, max) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      if (typeof _calcAlignmentBreakdown !== 'function') return '';
+      var bd = _calcAlignmentBreakdown(pid);
+      if (!bd || !bd.issues || !bd.issues.length) return '';
+      max = max || 2;
+      var ranked = bd.issues.filter(function(i) { return i.hasEvidence && i.score >= 50; })
+                            .sort(function(a, b) { return b.score - a.score; });
+      if (!ranked.length) return '';
+      var chips = ranked.slice(0, max).map(function(i) {
+        var c = _alignScoreColor(i.score);
+        var strong = (i.intensity === 'strong') ? '★ ' : '';
+        return '<span class="align-driver-chip" title="' + (strong ? 'You weighted this strongly · ' : '') + 'Your match on ' + i.label + '" style="border-color:' + c + '40;background:' + c + '12;">' +
+            '<span style="color:#cdd9ec;">' + strong + i.label + '</span><b style="color:' + c + ';">' + i.score + '%</b>' +
+          '</span>';
+      }).join('');
+      return '<div class="align-drivers"><span class="align-drivers-lead">▲ Driven by</span>' + chips + '</div>';
+    }
+    window._alignDriverChips = _alignDriverChips;
+
     function _alignScoreClass(s) {
       if (s === null || s === undefined) return '';
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
@@ -28155,6 +28198,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (score === null || score === undefined) return '';
       var col = _alignScoreColor(score);
       var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
@@ -28166,7 +28210,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
-        '</button>';
+        '</button>' + drivers;
     }
     window._alignCardBar = _alignCardBar;
 
@@ -28183,13 +28227,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (score === null || score === undefined) return '';
       var col = _alignScoreColor(score);
       var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 3) : '';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="myteam-slot-match" title="Your match on your selected issues — tap for the issue-by-issue breakdown" style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1f;">' +
           '<span class="myteam-slot-match-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.85rem;">%</span></span>' +
           '<span class="myteam-slot-match-mid">' +
             '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
             '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
           '</span>' +
-        '</button>';
+        '</button>' + drivers;
     }
     window._slotMatchBand = _slotMatchBand;
 
