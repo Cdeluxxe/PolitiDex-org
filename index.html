@@ -9474,7 +9474,8 @@
           <a href="#my-politicians" class="flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/40 hover:border-blue-400/70 text-blue-300 hover:text-blue-200 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">⚖️ Compare</a>
           <a href="#myteam-browse-panel" class="flex items-center gap-1.5 bg-blue-900/50 hover:bg-blue-800/70 border border-gold-400/30 hover:border-gold-400/60 text-gold-400 hover:text-gold-300 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">🏛 All Politicians</a>
           <!-- Navigation order: Expand Database positioned immediately after All Politicians -->
-          <a href="#database-expansion" class="flex items-center gap-1.5 bg-crimson-600/30 hover:bg-crimson-600/50 border border-crimson-500/40 hover:border-crimson-400/70 text-crimson-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">🔄 Expand Database</a>
+          <!-- ADMIN-ONLY entry point — hidden by default, revealed by the admin gate script. -->
+          <a href="#database-expansion" data-admin-only class="flex items-center gap-1.5 bg-crimson-600/30 hover:bg-crimson-600/50 border border-crimson-500/40 hover:border-crimson-400/70 text-crimson-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="display:none; white-space:nowrap;">🔄 Expand Database</a>
         </div>
       </div>
 
@@ -9529,7 +9530,7 @@
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Team</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⚖️ Compare</a>
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
-      <a href="#database-expansion" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔄 Expand Database</a>
+      <a href="#database-expansion" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🔄 Expand Database</a>
       <!-- Secondary tools -->
       <a href="#voter-academy" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎓 Education</a>
       <a href="#agenda" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
@@ -11382,7 +11383,17 @@
   </section>
 
   <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
-  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+  <!--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  ADMIN-ONLY: Bulk Import / Database Expansion tool.                ║
+    ║  Hidden from everyone by default (display:none below).            ║
+    ║  It is only revealed for the logged-in admin account — the email  ║
+    ║  is set in the ADMIN_EMAIL constant inside the gating script at   ║
+    ║  the end of this section. To change who can see the import tool,   ║
+    ║  search for "ADMIN_EMAIL" and update that value.                  ║
+    ╚══════════════════════════════════════════════════════════════════╝
+  -->
+  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
     <style>
       /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
       #expansion-results-list:not(.show-dups) .expansion-dup-card { display: none; }
@@ -12916,6 +12927,59 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     // Run stats immediately when script loads
     setTimeout(window.updateExpansionStats, 100);
+  </script>
+
+  <!-- ────────────────────────────────────────────────────────────────
+       ADMIN GATE for the Bulk Import / Database Expansion tool.
+
+       The section above is hidden by default (display:none). This script
+       reveals it ONLY when the logged-in Firebase user's email matches the
+       admin email below.
+
+       👉 TO CHANGE WHO CAN SEE THE IMPORT TOOL: edit the ADMIN_EMAILS list
+          below. You can list more than one admin by adding emails to the array.
+       ──────────────────────────────────────────────────────────────── -->
+  <script>
+    (function () {
+      // Hardcoded admin account(s) allowed to use the Bulk Import tool.
+      // Change this to your own admin email. Comparison is case-insensitive.
+      var ADMIN_EMAILS = ["your-email@gmail.com"];
+
+      function isAdminUser(user) {
+        if (!user || user.isAnonymous || !user.email) return false;
+        var email = String(user.email).trim().toLowerCase();
+        return ADMIN_EMAILS.some(function (a) {
+          return String(a).trim().toLowerCase() === email;
+        });
+      }
+
+      function applyAdminGate(user) {
+        var allowed = isAdminUser(user);
+        var section = document.getElementById('database-expansion');
+        if (section) {
+          // Show only for the admin; stay hidden for everyone else
+          // (logged out, anonymous, or a different account).
+          section.style.display = allowed ? '' : 'none';
+        }
+        // The "Expand Database" nav links (desktop + mobile) are entry points
+        // to the tool, so gate them the same way.
+        var links = document.querySelectorAll('[data-admin-only]');
+        for (var i = 0; i < links.length; i++) {
+          links[i].style.display = allowed ? '' : 'none';
+        }
+      }
+
+      // React to Firebase auth changes. Adding our own listener leaves the
+      // existing auth/login flow untouched (Firebase supports multiple).
+      function wireAdminGate() {
+        if (typeof auth === 'undefined' || !auth || !auth.onAuthStateChanged) {
+          return setTimeout(wireAdminGate, 200);
+        }
+        applyAdminGate(auth.currentUser || null);
+        auth.onAuthStateChanged(function (user) { applyAdminGate(user); });
+      }
+      wireAdminGate();
+    })();
   </script>
 <!-- ═══════════════════════ THE PEOPLE'S MANDATE ══════════ -->
   <section id="agenda" class="py-16 md:py-24 mandate-section">
