@@ -27217,28 +27217,60 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }, 600);
     }
 
-    // Pull the signed-in member's saved signature and make it authoritative. If
-    // they have none yet, seed it from whatever they've already picked locally so
-    // selections made before signing in are not lost. Mutates _alignIssues in
-    // place so window._alignIssues (shared with the Key Races quick-adjust) stays
-    // pointed at the same live Set.
+    // Active real-time subscription to the signed-in member's user document.
+    var _alignFsUnsub = null;   // onSnapshot unsubscribe handle (null when none)
+    var _alignFsUid = null;     // uid currently being streamed
+    var _alignSeededUid = null; // uid whose empty signature we've already seeded
+
+    // Make a saved-preferences array the authoritative selection. Returns true
+    // only when it actually changes the current picks, so callers repaint cards
+    // just once and our own Firestore write echoing back through the listener is
+    // a no-op (no repaint loop). Mutates _alignIssues in place so
+    // window._alignIssues (shared with the Key Races quick-adjust) keeps pointing
+    // at the same live Set.
+    function _alignApplySaved(saved) {
+      if (!Array.isArray(saved)) return false;
+      var keep = saved.filter(function(k) { return !!ISSUE_MAP[k]; });
+      var same = (keep.length === _alignIssues.size) && keep.every(function(k) { return _alignIssues.has(k); });
+      if (same) return false;
+      _alignIssues.clear();
+      keep.forEach(function(k) { _alignIssues.add(k); });
+      window._alignIssues = _alignIssues;
+      try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
+      return true;
+    }
+
+    function _alignStopFirestoreListener() {
+      if (_alignFsUnsub) { try { _alignFsUnsub(); } catch(e) {} }
+      _alignFsUnsub = null;
+      _alignFsUid = null;
+    }
+
+    // Stream the signed-in member's saved Alignment Signature and make it the live
+    // source of truth for every politician card's match %. Using a real-time
+    // onSnapshot listener (one lightweight per-user document, not polling) means
+    // the saved choices stay authoritative: change them on another device or tab
+    // and the cards here refresh automatically. If the member has no signature
+    // yet, seed it once from whatever they picked locally before signing in so
+    // pre-login selections are not lost. An empty saved array is respected as an
+    // intentional "cleared" state rather than re-seeded.
     function _alignLoadFromFirestore(uid) {
       if (!uid) return;
-      db.collection('users').doc(uid).get().then(function(doc) {
+      if (_alignFsUid === uid && _alignFsUnsub) return; // already streaming this user
+      _alignStopFirestoreListener();
+      _alignFsUid = uid;
+      _alignFsUnsub = db.collection('users').doc(uid).onSnapshot(function(doc) {
         var saved = (doc.exists && doc.data()) ? doc.data()[ALIGN_FS_FIELD] : null;
-        if (Array.isArray(saved) && saved.length) {
-          var keep = saved.filter(function(k) { return !!ISSUE_MAP[k]; });
-          _alignIssues.clear();
-          keep.forEach(function(k) { _alignIssues.add(k); });
-          window._alignIssues = _alignIssues;
-          try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
-          _alignRefreshAll();
-        } else if (_alignIssues.size > 0) {
-          // Brand-new signature → persist the visitor's current local picks.
+        if (Array.isArray(saved)) {
+          _alignSeededUid = uid;
+          if (_alignApplySaved(saved)) _alignRefreshAll();
+        } else if (_alignSeededUid !== uid && _alignIssues.size > 0) {
+          // Brand-new signature → persist the visitor's current local picks (once).
+          _alignSeededUid = uid;
           _alignSaveToFirestore();
         }
         _alignUpdateSigninPrompt();
-      }).catch(function(e) {
+      }, function(e) {
         console.warn('Alignment load from Firestore failed:', e);
         _alignUpdateSigninPrompt();
       });
@@ -27273,6 +27305,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (user && !user.isAnonymous) {
             _alignLoadFromFirestore(user.uid);
           } else {
+            // Signed out → stop streaming the previous member's signature and fall
+            // back to localStorage-only behaviour.
+            _alignStopFirestoreListener();
+            _alignSeededUid = null;
             _alignUpdateSigninPrompt();
           }
         });
