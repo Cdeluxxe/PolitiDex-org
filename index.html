@@ -4598,6 +4598,19 @@
     .kr-align-chip:active { transform: scale(0.96); }
     .kr-align-chip .kr-align-chip-mark { font-weight: 800; opacity: 0.85; }
     .kr-align-chip.on { color: #5eead4; background: rgba(20,184,166,0.16); border-color: rgba(45,212,191,0.6); }
+    /* Colour-coded "Strong / Partial / Weak match" pill next to the score, so the
+       number's meaning reads instantly without doing the mental math. */
+    .kr-align-inline-badge { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.07rem 0.42rem; border-radius: 999px; white-space: nowrap; line-height: 1.3; }
+    /* Slim progress bar under the title — a visual read of the % at a glance. */
+    .kr-align-mini { height: 5px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; margin-top: 0.3rem; }
+    .kr-align-mini > div { height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+    /* "Across <your issues>" line so it is always clear WHAT the score measures. */
+    .kr-align-issues-line { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; letter-spacing: 0.04em; color: #8ea2c0; text-transform: uppercase; line-height: 1.25; margin-top: 0.32rem; }
+    .kr-align-issues-line b { color: #9fdbd0; font-weight: 700; }
+    .kr-align-issues-line .kr-align-edit { color: #5eead4; font-weight: 700; }
+    /* Header row inside the expanded quick-adjust block. */
+    .kr-align-adjust-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem; }
+    .kr-align-adjust-count { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase; color: #5eead4; background: rgba(20,184,166,0.14); border: 1px solid rgba(45,212,191,0.4); border-radius: 999px; padding: 0.04rem 0.42rem; white-space: nowrap; }
     @media (max-width: 380px) {
       .kr-align-inline-num { font-size: 1.6rem; }
     }
@@ -25139,6 +25152,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
     }
 
+    // Plain-language quality label for a match %, using the same 70/50 thresholds
+    // (and therefore the same colour) as _krAlignColor so the badge and number
+    // always agree. Purely presentational — the score itself is unchanged.
+    function _krAlignMatchLabel(s) {
+      return s >= 70 ? 'Strong match' : s >= 50 ? 'Partial match' : 'Weak match';
+    }
+
     // Build the inline issue-by-issue bars used inside an expanded card breakdown.
     function _krAlignInlineRows(bd) {
       return bd.issues.map(function(it) {
@@ -25159,14 +25179,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var active = window._alignIssues;
       var keys = Object.keys(map);
       if (!keys.length) return '';
+      var selCount = 0;
+      // Selected issues first so the visitor instantly sees what's currently driving
+      // the score, then the rest available to add — every chip toggles in place.
+      keys.sort(function(a, b) {
+        var aOn = !!(active && active.has && active.has(a));
+        var bOn = !!(active && active.has && active.has(b));
+        return (bOn ? 1 : 0) - (aOn ? 1 : 0);
+      });
       var chips = keys.map(function(key) {
         var on = !!(active && active.has && active.has(key));
+        if (on) selCount++;
         return '<button type="button" onclick="window.alignToggleIssue(\'' + key + '\')" class="kr-align-chip' + (on ? ' on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
           '<span class="kr-align-chip-mark">' + (on ? '✓' : '+') + '</span>' + map[key].label +
         '</button>';
       }).join('');
       return '<div class="kr-align-adjust">' +
-        '<div class="kr-align-adjust-title">⚙ Quick-adjust your issues — tap to add or remove</div>' +
+        '<div class="kr-align-adjust-head">' +
+          '<div class="kr-align-adjust-title" style="margin-bottom:0;">⚙ Adjust your issues — tap to add or remove</div>' +
+          '<span class="kr-align-adjust-count">' + selCount + ' selected</span>' +
+        '</div>' +
         '<div class="kr-align-chip-row">' + chips + '</div>' +
       '</div>';
     }
@@ -25182,8 +25214,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return '<button type="button" onclick="window._krAlignGuideToPicker()" class="kr-align-inline kr-align-inline-setup" aria-label="Set your issues to see your personalized alignment with ' + d.name + '">' +
             '<span class="kr-align-inline-ico">🎯</span>' +
             '<span class="kr-align-inline-text">' +
-              '<span class="kr-align-inline-title">Set your issues to see alignment</span>' +
-              '<span class="kr-align-inline-sub">Pick the issues you care about</span>' +
+              '<span class="kr-align-inline-title">See your personal match</span>' +
+              '<span class="kr-align-inline-sub">Pick the issues you care about — we\'ll score this candidate for you</span>' +
             '</span>' +
             '<span class="kr-align-inline-go">›</span>' +
           '</button>';
@@ -25201,14 +25233,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       var overall = bd.overall;
       var col = _krAlignColor(overall);
+      var matchLabel = _krAlignMatchLabel(overall);
       var expanded = _krAlignExpanded.has(pid);
-      var nIssues = bd.issues.length;
+      // Always show WHICH of the visitor's issues this score is built from, so the
+      // number is transparent — name the first couple, then "+N more".
+      var labels = bd.issues.map(function(it) { return it.label; });
+      var shown = labels.slice(0, 2).join(' · ');
+      var extra = labels.length > 2 ? ' · +' + (labels.length - 2) + ' more' : '';
       return '<div class="kr-align-inline-wrap">' +
-        '<button type="button" onclick="window._krToggleAlignInline(this,\'' + pid + '\')" class="kr-align-inline kr-align-inline-scored" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-label="' + overall + ' percent aligned with your issues for ' + d.name + ' — tap for an issue-by-issue breakdown" style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+        '<button type="button" onclick="window._krToggleAlignInline(this,\'' + pid + '\')" class="kr-align-inline kr-align-inline-scored" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-label="' + overall + ' percent aligned with your issues for ' + d.name + ' — ' + matchLabel + '. Tap for an issue-by-issue breakdown and to adjust your issues." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="kr-align-inline-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + overall + '<span style="font-size:1rem;">%</span></span>' +
           '<span class="kr-align-inline-text">' +
-            '<span class="kr-align-inline-title" style="color:' + col + ';">Aligned with your issues</span>' +
-            '<span class="kr-align-inline-sub">' + nIssues + ' issue' + (nIssues === 1 ? '' : 's') + ' · tap for breakdown</span>' +
+            '<span style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
+              '<span class="kr-align-inline-title" style="color:' + col + ';">Aligned with your issues</span>' +
+              '<span class="kr-align-inline-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + matchLabel + '</span>' +
+            '</span>' +
+            '<span class="kr-align-mini"><div style="width:' + overall + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
+            '<span class="kr-align-issues-line">🎯 Across <b>' + shown + '</b>' + extra + ' · <span class="kr-align-edit">tap to view &amp; adjust</span></span>' +
           '</span>' +
           '<span class="kr-align-inline-chev" style="transform:rotate(' + (expanded ? '180' : '0') + 'deg);">▾</span>' +
         '</button>' +
