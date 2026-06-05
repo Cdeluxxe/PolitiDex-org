@@ -4558,6 +4558,19 @@
        are the sitting officeholder(s). */
     .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
     .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
+    /* "When is this seat next decided" badge in each race header — lets a voter
+       tell at a glance whether the office is actually on their 2026 ballot.
+       is-now = on the 2026 ballot, is-open = open seat being filled in 2026,
+       is-future = a sitting seat NOT up in 2026 (shown for reference). */
+    .kr-ballot-badge { margin-left: auto; display: inline-flex; align-items: center; gap: 0.32rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.09em; text-transform: uppercase; padding: 0.22rem 0.66rem; border-radius: 999px; white-space: nowrap; }
+    .kr-ballot-badge .kr-ballot-ico { font-size: 0.74rem; line-height: 1; }
+    .kr-ballot-badge.is-now    { color: #4ade80; background: rgba(74,222,128,0.14);  border: 1px solid rgba(74,222,128,0.5); box-shadow: 0 0 14px rgba(74,222,128,0.16); }
+    .kr-ballot-badge.is-open   { color: #fbbf24; background: rgba(245,158,11,0.15);  border: 1px solid rgba(245,158,11,0.5); }
+    .kr-ballot-badge.is-future { color: #b9c8df; background: rgba(117,150,192,0.13); border: 1px solid rgba(117,150,192,0.45); }
+    /* Emphasis variant of the incumbent status pill used when a seat is NOT on the
+       2026 ballot, so "next election" years read as muted-but-clear rather than
+       borrowing the gold of an active re-election pill. */
+    .kr-inc-status.is-future { color: #cdd9ec; background: rgba(117,150,192,0.14); border-color: rgba(117,150,192,0.46); }
 
     /* Challenger rows — deliberately the secondary tier beneath the gold incumbent
        hero: cooler, flatter and lighter, with a thin blue left rail and slightly
@@ -24745,6 +24758,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           district: 'Utah Senate District 29', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'dipson',
           incumbentNote: 'Incumbent — current term runs through 2029',
+          ballot: { tone: 'future', label: 'Not on the 2026 Ballot' },
           addLabel: 'Add Senate District 29 choice to My Team',
           candidates: ['dipson'],
           extraNote: 'This seat is not on the 2026 ballot, but your senator’s record stays on your team for reference.'
@@ -24805,7 +24819,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         raceKey: 'governor', short: 'Governor',
         district: 'Governor of Utah', chamber: 'Statewide · Executive',
         color: '#34d399', incumbentPid: 'cox',
-        incumbentNote: 'Incumbent — elected 2020, re-elected 2024',
+        ballot: { tone: 'future', label: 'Next Election · 2028' },
+        incumbentNote: 'Incumbent — elected 2020, re-elected 2024 · next up 2028',
         incumbentSince: 2021,
         incumbentSummary: 'Utah’s 18th governor. Signs every state law and budget — known for rural development, water policy and mental-health initiatives.',
         addLabel: 'Add your Governor pick to My Team',
@@ -24817,19 +24832,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         raceKey: 'senate', short: 'U.S. Senate',
         district: 'U.S. Senate — Utah', chamber: 'Statewide · Federal',
         color: '#818cf8', incumbentPid: 'lee', incumbentPids: ['lee', 'curtis'],
-        incumbentNote: 'Senior Senator — seat next contested in 2028',
+        ballot: { tone: 'future', label: 'Neither Seat on the 2026 Ballot' },
+        incumbentNote: 'Not on the 2026 ballot · Next election 2028',
         incumbentSince: { lee: 2011, curtis: 2025 },
         incumbentNotes: {
-          lee: 'Senior Senator — seat next contested in 2028',
-          curtis: 'Junior Senator — seat next contested in 2030'
+          lee: 'Not on the 2026 ballot · Next election 2028',
+          curtis: 'Not on the 2026 ballot · Next election 2030'
         },
         incumbentSummary: {
-          lee: 'Utah’s senior U.S. Senator and a leading constitutional-conservative voice in Washington.',
-          curtis: 'Utah’s junior U.S. Senator, formerly the 3rd District congressman, focused on energy and the environment.'
+          lee: 'Utah’s senior U.S. Senator and a leading constitutional-conservative voice in Washington. His seat was last contested in 2022.',
+          curtis: 'Utah’s junior U.S. Senator, formerly the 3rd District congressman, focused on energy and the environment. He won this seat in 2024.'
         },
         addLabel: 'Add your U.S. Senate pick to My Team',
         candidates: ['lee', 'curtis'],
-        extraNote: 'Each state elects its two U.S. Senators in different years, so only one of a state’s seats is ever up in a single cycle. Neither Utah seat is on the 2026 ballot — Sen. Lee’s is next in 2028 and Sen. Curtis’s in 2030 — but both senators represent every Utah voter, so their records are shown here.'
+        extraNote: 'Utah’s two U.S. Senate seats are elected in different years, so a seat is on the ballot only once every six years — and neither falls in 2026. Sen. Lee’s seat is next contested in 2028 and Sen. Curtis’s in 2030. Both senators represent every Utah voter, so their records are shown here for reference, but there is no U.S. Senate choice to make on your 2026 ballot.'
       }
     ];
 
@@ -25115,7 +25131,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var tenure = _krIncTenure(race, pid);
       if (tenure) bits.push(tenure);
       var note = (race.incumbentNotes && race.incumbentNotes[pid]) || race.incumbentNote || '';
-      if (note) bits.push('<span class="kr-inc-status">' + note + '</span>');
+      if (note) {
+        // A sitting seat that is NOT being decided in 2026 gets the muted "future"
+        // pill so its "next election" year doesn't read like an active re-election.
+        var future = /not on the 2026 ballot|next election|next contested|next up|runs through/i.test(note);
+        bits.push('<span class="kr-inc-status' + (future ? ' is-future' : '') + '">' + note + '</span>');
+      }
       if (!bits.length) return '';
       return '<div class="kr-inc-meta">' + bits.join('') + '</div>';
     }
@@ -25169,6 +25190,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div style="margin-top:0.7rem;display:flex;justify-content:flex-end;">' + _krPickBtn(race, pid, isPick) + '</div>' +
         _krActionRow(pid, d) +
       '</div>';
+    }
+
+    // Compact "when is this seat next decided" badge for the race header. Lets a
+    // voter tell at a glance whether the office is actually on their 2026 ballot:
+    //   • now    — on the 2026 ballot (green)
+    //   • open   — open seat being filled in 2026 (gold)
+    //   • future — a sitting seat NOT up in 2026, shown for reference with the real
+    //              year it is next contested (muted)
+    // Most races are 2026 contests, so the default is "On the 2026 Ballot"; a race
+    // carries an explicit `ballot` only when it is an exception (Governor, U.S.
+    // Senate, a staggered state-senate seat whose term spans past 2026).
+    function _krBallotBadge(race) {
+      var b = race.ballot;
+      if (!b) {
+        if (/open seat/i.test(race.incumbentNote || '')) b = { tone: 'open', label: 'Open Seat · 2026' };
+        else b = { tone: 'now', label: 'On the 2026 Ballot' };
+      }
+      var ico = b.tone === 'future' ? '🗓️' : (b.tone === 'open' ? '🪑' : '🗳️');
+      var cls = b.tone === 'future' ? 'is-future' : (b.tone === 'open' ? 'is-open' : 'is-now');
+      return '<span class="kr-ballot-badge ' + cls + '"><span class="kr-ballot-ico">' + ico + '</span>' + b.label + '</span>';
     }
 
     function _krRaceCard(race) {
@@ -25248,6 +25289,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
+          _krBallotBadge(race) +
         '</div>' +
         '<div style="padding:1.15rem 1.2rem 0.5rem;">' +
           '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
