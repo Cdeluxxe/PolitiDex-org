@@ -3848,12 +3848,42 @@
       gap: 0.85rem; flex-wrap: wrap; margin-top: 0.75rem;
     }
     .myteam-alignment-bar {
-      background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(168,85,247,0.06) 100%);
-      border: 1px solid rgba(139,92,246,0.25);
-      border-radius: 0.85rem;
-      padding: 0.75rem 1.25rem;
+      background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(168,85,247,0.05) 100%);
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 1rem;
+      padding: 1rem 1.15rem;
       margin-top: 0.75rem;
-      display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
+      display: flex; flex-direction: column; align-items: stretch; gap: 0.8rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 0 26px rgba(139,92,246,0.06);
+    }
+    /* ── Team Alignment Overview — the at-a-glance read on how aligned the whole
+       6-person team is, plus the issues driving the match up or down. ── */
+    .myteam-ao-top { display: flex; align-items: center; gap: 1rem; }
+    .myteam-ao-score { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 3.1rem; line-height: 0.85; flex-shrink: 0; }
+    .myteam-ao-score span { font-size: 1.4rem; }
+    .myteam-ao-head { flex: 1; min-width: 0; }
+    .myteam-ao-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: #c4b5fd; }
+    .myteam-ao-sentence { font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; color: #e9d5ff; line-height: 1.3; margin-top: 0.1rem; }
+    .myteam-ao-sub { color: #9fb4d4; font-size: 0.78rem; }
+    .myteam-ao-track { height: 7px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; margin-top: 0.5rem; }
+    .myteam-ao-track > span { display: block; height: 100%; border-radius: 999px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .myteam-ao-members { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .myteam-ao-chip { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; background: rgba(10,15,30,0.55); border: 1px solid rgba(139,92,246,0.3); border-radius: 999px; padding: 0.25rem 0.6rem; transition: transform 0.12s ease, background 0.2s ease; }
+    .myteam-ao-chip:hover { transform: translateY(-1px); background: rgba(139,92,246,0.12); }
+    .myteam-ao-chip-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: #cbd9ec; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .myteam-ao-chip-pct { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; line-height: 1; }
+    .myteam-ao-issues { display: flex; flex-direction: column; gap: 0.45rem; border-top: 1px solid rgba(139,92,246,0.16); padding-top: 0.7rem; }
+    .myteam-ao-drow { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+    .myteam-ao-drow-lab { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; margin-right: 0.15rem; }
+    .myteam-ao-issue { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.55rem; padding: 0.18rem 0.5rem; }
+    .myteam-ao-issue-lab { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #d7e2f2; }
+    .myteam-ao-issue-pct { font-family: 'Bebas Neue', sans-serif; font-size: 0.92rem; line-height: 1; }
+    .myteam-ao-foot { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: #8ea2c0; letter-spacing: 0.03em; }
+    .myteam-ao-foot button { background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: #c4b5fd; text-decoration: underline; text-underline-offset: 2px; }
+    .myteam-ao-foot button:hover { color: #e9d5ff; }
+    @media (max-width: 480px) {
+      .myteam-ao-score { font-size: 2.5rem; }
+      .myteam-ao-sentence { font-size: 0.86rem; }
     }
     .myteam-overflow-grid {
       display: grid;
@@ -4880,6 +4910,35 @@
     .align-card-bar.setup .align-card-title { color: #7ee7d8; }
     @media (max-width: 380px) {
       .align-card-num { font-size: 1.55rem; }
+    }
+
+    /* ── Prominent "Your Match" band on My Voting Team slot cards ──
+       The personalized fit, made glanceable on each filled slot: a big colour-coded
+       %, a Strong / Partial / Weak word and a mini bar. Tappable into the full
+       issue-by-issue breakdown. Sits below the Promise Score so the two reads never
+       compete. */
+    .myteam-slot-match {
+      width: 90%; margin: 0.1rem auto 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.55rem; border-radius: 0.6rem; cursor: pointer; text-align: left;
+      background: linear-gradient(135deg, rgba(45,212,191,0.05), rgba(20,184,166,0.02));
+      border: 1px solid rgba(45,212,191,0.4);
+      transition: transform 0.12s ease, background 0.2s ease;
+    }
+    .myteam-slot-match:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(45,212,191,0.1), rgba(20,184,166,0.03)); }
+    .myteam-slot-match:active { transform: scale(0.99); }
+    .myteam-slot-match-num { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1.5rem; line-height: 0.85; flex-shrink: 0; }
+    .myteam-slot-match-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+    .myteam-slot-match-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; color: #9fdbd0; line-height: 1; }
+    .myteam-slot-match-bar { height: 4px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; }
+    .myteam-slot-match-bar > span { display: block; height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+
+    /* "Top Match" ribbon flagging the strongest alignment fits in the browse list. */
+    .align-topmatch-badge {
+      display: inline-flex; align-items: center; gap: 0.2rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 0.12rem 0.5rem; border-radius: 999px;
+      color: #5eead4; background: rgba(20,184,166,0.16); border: 1px solid rgba(45,212,191,0.55);
+      box-shadow: 0 0 12px rgba(45,212,191,0.2);
     }
 
     /* Personalized-alignment quick-view modal (opened from the Align button) */
@@ -11447,14 +11506,10 @@
               <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
             </div>
 
-            <!-- Team Alignment Summary -->
-            <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;">
-              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-700/80 flex items-center justify-center text-base" style="flex-shrink:0;box-shadow:0 0 12px rgba(139,92,246,0.3);">🎯</div>
-              <div class="flex-1 min-w-0">
-                <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-300 mb-0.5">Team Alignment</div>
-                <div id="myteam-alignment-detail" class="font-condensed text-xs text-steel-400 tracking-wide"></div>
-              </div>
-            </div>
+            <!-- Team Alignment Overview — populated by _renderTeamAlignOverview():
+                 the team's overall Your Match %, a per-member breakdown, and the
+                 issues driving the match up or down. -->
+            <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;"></div>
 
             <!-- Empty state for team -->
             <div id="myteam-empty" class="text-center py-16" style="display:none;">
@@ -11784,10 +11839,10 @@
                 <option value="na">No Score Yet</option>
               </select>
 
-              <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+              <select id="myteam-browse-sort" onchange="myteamBrowseSortChanged()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
                 <option value="score-desc">Score: High to Low</option>
+                <option value="align-desc">🎯 Best Match for You</option>
                 <option value="score-asc">Score: Low to High</option>
-                <option value="align-desc">🎯 Your Match: High to Low</option>
                 <option value="alpha">Alphabetical (A-Z)</option>
               </select>
 
@@ -23253,7 +23308,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var photoHtml = photoUrl
         ? '<div class="myteam-slot-photo" style="border-color:' + pos.color + '80;"><img src="' + photoUrl + '" alt="' + d.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:2.2rem;color:#9fb4d4\\\'>' + (d.icon || '\u{1F3DB}') + '</div>\'"></div>'
         : '<div class="myteam-slot-photo" style="display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#9fb4d4;border-color:' + pos.color + '80;">' + (d.icon || '\u{1F3DB}') + '</div>';
-      var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'small') : '';
+      var matchBand = typeof _slotMatchBand === 'function' ? _slotMatchBand(pid) : '';
       var partyLabel = d.party ? (d.party === 'R' ? 'Republican' : d.party === 'D' ? 'Democrat' : d.party === 'I' ? 'Independent' : (d.party === 'F' || d.party === 'Forward') ? 'Forward Party' : '') : '';
       var partyColor = d.party === 'R' ? '#f87171' : d.party === 'D' ? '#60a5fa' : (d.party === 'F' || d.party === 'Forward') ? '#22d3ee' : '#a78bfa';
       var partyBadge = partyLabel ? '<span class="font-condensed" style="font-size:0.58rem;letter-spacing:0.06em;color:' + partyColor + ';background:' + partyColor + '15;border:1px solid ' + partyColor + '30;padding:0.1rem 0.4rem;border-radius:999px;font-weight:600;">' + partyLabel + '</span>' : '';
@@ -23281,9 +23336,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="chub-score" style="color:' + scCol + ';font-size:2rem;text-shadow:0 0 18px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;">' + scTxt + '</div>' +
             '<div class="myteam-slot-score-label" style="color:' + (sc !== null && sc !== undefined ? scCol + 'cc' : '#7d97bd') + ';">' + (sc !== null && sc !== undefined ? 'Promise Kept' : 'No Record Yet') + '</div>' +
           '</div>' +
-          (alignHtml ? '<span style="font-size:0.6rem;">' + alignHtml + '</span>' : '') +
         '</div>' +
         '<div style="width:88%;margin:0 auto 0.4rem;"><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
+        matchBand +
         keptBrokenHtml +
         '<div class="flex flex-wrap gap-1 justify-center mb-2" style="margin-top:0.4rem;">' +
           d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2.5 py-0.5 font-condensed text-steel-500" style="font-size:0.58rem;">' + i + '</span>'; }).join('') +
@@ -23403,18 +23458,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           } else if (alignEl) { alignEl.textContent = '—'; }
 
           if (alignmentBar && alignCount > 0) {
-            var avgAlign2 = Math.round(alignTotal / alignCount);
-            var detailEl = document.getElementById('myteam-alignment-detail');
-            if (detailEl) {
-              var alignDetails = filledPids.map(function(pid) {
-                var d = CMP_DATA[pid];
-                var as = _calcAlignmentScore(pid);
-                if (!d || as === null) return '';
-                return '<span style="color:' + (as >= 70 ? '#a78bfa' : as >= 50 ? '#c084fc' : '#f87171') + ';">' + d.name + ': ' + as + '%</span>';
-              }).filter(Boolean).join(' · ');
-              detailEl.innerHTML = 'Avg: <strong style="color:#a78bfa;">' + avgAlign2 + '%</strong> aligned with your issues · ' + alignDetails;
-            }
-            alignmentBar.style.display = '';
+            var _ta = (typeof _calcTeamAlignment === 'function') ? _calcTeamAlignment(filledPids) : null;
+            if (_ta && typeof _renderTeamAlignOverview === 'function') {
+              alignmentBar.innerHTML = _renderTeamAlignOverview(_ta);
+              alignmentBar.style.display = '';
+            } else { alignmentBar.style.display = 'none'; }
           } else if (alignmentBar) { alignmentBar.style.display = 'none'; }
         } else {
           if (alignEl) alignEl.textContent = '—';
@@ -23669,6 +23717,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="chub-incumbent-ribbon">✅ Currently In Office</span>' +
           unopposedBadge +
           localBadge + teamBadge +
+          (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') +
         '</div>' +
         // Compact horizontal layout container
         '<div class="flex flex-row items-start gap-4 mb-4">' +
@@ -23761,6 +23810,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           candLabel +
           unopposedBadge +
           localBadge + teamBadge +
+          (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') +
         '</div>' +
         '<div class="flex flex-row items-start gap-3">' +
           '<div class="flex-shrink-0">' + photoHtml + '</div>' +
@@ -24166,7 +24216,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             out += '</button>';
             out += '<div class="browse-sub-body"><div class="p-2">';
             out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
-            _sortInOfficeFirst(distPids).forEach(function(pid) {
+            var _leafPids = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function')
+              ? distPids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
+              : _sortInOfficeFirst(distPids);
+            _leafPids.forEach(function(pid) {
               out += _renderAllPoliticiansCard(pid);
             });
             out += '</div>';
@@ -24436,6 +24489,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var show = document.getElementById('myteam-browse-show')?.value || 'all';
       var sort = document.getElementById('myteam-browse-sort')?.value || 'score-desc';
 
+      // When the visitor has an Alignment Signature, default the browse to "Best
+      // Match for You" so the candidates that fit their values surface first while
+      // filling a slot — unless they've deliberately picked another sort. Flagging
+      // a switch back to score-desc when alignment is turned off keeps it honest.
+      var _alignActive = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var _sortEl = document.getElementById('myteam-browse-sort');
+      if (window._myteamBrowseSortAuto !== false) {
+        var _want = _alignActive ? 'align-desc' : 'score-desc';
+        if (sort !== _want) { sort = _want; if (_sortEl && _sortEl.value !== _want) _sortEl.value = _want; }
+      }
+      // Drives best-match-first ordering inside each district group in the grouped browse.
+      window._alignBrowseSortActive = (_alignActive && sort === 'align-desc');
+
       var clearBtn = document.getElementById('browse-search-clear');
       if (clearBtn) clearBtn.classList.toggle('visible', search.length > 0);
 
@@ -24537,6 +24603,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     };
 
+    // Remembers when the visitor deliberately chose a browse sort, so the
+    // alignment-aware auto-default (Best Match for You) stops overriding it.
+    window.myteamBrowseSortChanged = function() {
+      window._myteamBrowseSortAuto = false;
+      myteamBrowseFilter();
+    };
+
     window.myteamBrowseReset = function() {
       var searchEl = document.getElementById('myteam-browse-search');
       var officeEl = document.getElementById('myteam-browse-office');
@@ -24550,6 +24623,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (scoreEl) scoreEl.value = '';
       if (showEl) showEl.value = 'all';
       if (sortEl) sortEl.value = 'score-desc';
+      window._myteamBrowseSortAuto = true;
       setBrowseScope('all');
     };
 
@@ -27950,6 +28024,100 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return { overall: Math.round(totalScore / totalWeight), issues: perIssue };
     }
 
+    // Aggregate the whole 6-person team into a single alignment picture:
+    //   • overall  — the team's average Your Match %
+    //   • members  — each filled slot's name + match, sorted strongest first
+    //   • issues   — every selected issue with the team's average score on it,
+    //                sorted high→low, so we can surface what's driving the match
+    //                and where the team falls short of the visitor's values.
+    function _calcTeamAlignment(pids) {
+      if (typeof _calcAlignmentBreakdown !== 'function') return null;
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return null;
+      var members = [];
+      var issueAgg = {};
+      (pids || []).forEach(function(pid) {
+        var bd = _calcAlignmentBreakdown(pid);
+        var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+        if (!bd || !d) return;
+        members.push({ pid: pid, name: d.name, score: bd.overall });
+        bd.issues.forEach(function(it) {
+          if (!issueAgg[it.key]) issueAgg[it.key] = { key: it.key, label: it.label, total: 0, count: 0 };
+          issueAgg[it.key].total += it.score;
+          issueAgg[it.key].count++;
+        });
+      });
+      if (!members.length) return null;
+      var overall = Math.round(members.reduce(function(s, m) { return s + m.score; }, 0) / members.length);
+      var issues = Object.keys(issueAgg).map(function(k) {
+        var a = issueAgg[k];
+        return { key: k, label: a.label, score: Math.round(a.total / a.count) };
+      });
+      issues.sort(function(a, b) { return b.score - a.score; });
+      members.sort(function(a, b) { return b.score - a.score; });
+      return { overall: overall, members: members, issues: issues };
+    }
+    window._calcTeamAlignment = _calcTeamAlignment;
+
+    // Rich "Team Alignment Overview" rendered into #myteam-alignment-bar. Gives the
+    // visitor a plain-language read on how aligned their current team is, a per-member
+    // breakdown, and — crucially — which of their selected issues are driving the
+    // match up or dragging it down. Everything is tappable into the per-candidate
+    // breakdown so the overview is a launch pad, not a dead end.
+    function _renderTeamAlignOverview(ta) {
+      if (!ta) return '';
+      var col = _alignScoreColor(ta.overall);
+      var word = ta.overall >= 70 ? 'strongly aligned' : ta.overall >= 50 ? 'partly aligned' : 'weakly aligned';
+      var nIssues = ta.issues.length;
+
+      var memberChips = ta.members.map(function(m) {
+        var mc = _alignScoreColor(m.score);
+        return '<button type="button" onclick="if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + m.pid + '\');" class="myteam-ao-chip" title="See ' + m.name + '’s issue-by-issue breakdown" style="border-color:' + mc + '55;">' +
+            '<span class="myteam-ao-chip-name">' + m.name + '</span>' +
+            '<span class="myteam-ao-chip-pct" style="color:' + mc + ';">' + m.score + '%</span>' +
+          '</button>';
+      }).join('');
+
+      // Drivers: the issues the team scores best on (top, score ≥ 55) and the soft
+      // spots where it lags (bottom, score < 50). Caps keep it scannable.
+      var drivers = ta.issues.filter(function(i) { return i.score >= 55; }).slice(0, 3);
+      var weak = ta.issues.filter(function(i) { return i.score < 50; }).slice(-2).reverse();
+      var issueChip = function(i, kind) {
+        var ic = _alignScoreColor(i.score);
+        return '<span class="myteam-ao-issue ' + kind + '" style="border-color:' + ic + '4d;">' +
+            '<span class="myteam-ao-issue-lab">' + i.label + '</span>' +
+            '<span class="myteam-ao-issue-pct" style="color:' + ic + ';">' + i.score + '%</span>' +
+          '</span>';
+      };
+      var driversHtml = '';
+      if (drivers.length) {
+        driversHtml += '<div class="myteam-ao-drow"><span class="myteam-ao-drow-lab" style="color:#86efac;">▲ Driving your match</span>' +
+          drivers.map(function(i) { return issueChip(i, 'good'); }).join('') + '</div>';
+      }
+      if (weak.length) {
+        driversHtml += '<div class="myteam-ao-drow"><span class="myteam-ao-drow-lab" style="color:#fca5a5;">▼ Where your team falls short</span>' +
+          weak.map(function(i) { return issueChip(i, 'bad'); }).join('') + '</div>';
+      }
+      if (!driversHtml) {
+        driversHtml = '<div class="myteam-ao-drow"><span class="myteam-ao-drow-lab" style="color:#9fb4d4;">Across your ' + nIssues + ' selected issue' + (nIssues === 1 ? '' : 's') + '</span>' +
+          ta.issues.slice(0, 3).map(function(i) { return issueChip(i, 'good'); }).join('') + '</div>';
+      }
+
+      return '<div class="myteam-ao-top">' +
+          '<div class="myteam-ao-score" style="color:' + col + ';text-shadow:0 0 22px ' + col + '55;">' + ta.overall + '<span>%</span></div>' +
+          '<div class="myteam-ao-head">' +
+            '<div class="myteam-ao-title">🎯 Team Alignment Overview</div>' +
+            '<div class="myteam-ao-sentence">Your team is <b style="color:' + col + ';">' + ta.overall + '% ' + word + '</b> with your values' +
+              '<span class="myteam-ao-sub"> · averaged across ' + ta.members.length + ' pick' + (ta.members.length === 1 ? '' : 's') + ' &amp; your ' + nIssues + ' issue' + (nIssues === 1 ? '' : 's') + '</span></div>' +
+            '<div class="myteam-ao-track"><span style="width:' + ta.overall + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="myteam-ao-members">' + memberChips + '</div>' +
+        '<div class="myteam-ao-issues">' + driversHtml + '</div>' +
+        '<div class="myteam-ao-foot">Tap a name for their issue-by-issue breakdown · ' +
+          '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">⚙ Adjust your issues</button></div>';
+    }
+    window._renderTeamAlignOverview = _renderTeamAlignOverview;
+
     function _alignScoreColor(s) {
       if (s === null || s === undefined) return '#a78bfa';
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
@@ -28001,6 +28169,40 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</button>';
     }
     window._alignCardBar = _alignCardBar;
+
+    // Prominent, glanceable "Your Match" band for the My Voting Team slot cards.
+    // Replaces the old tiny corner pill: a big colour-coded %, a plain-language
+    // Strong / Partial / Weak word and a mini progress bar, so the personalized
+    // fit reads at a glance on every team slot. Tapping opens the same
+    // issue-by-issue breakdown modal used everywhere else. Returns '' when the
+    // visitor hasn't set up alignment (the section-level prompt handles that) or
+    // when there's no record to ground a score (keeps the slot clean).
+    function _slotMatchBand(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (score === null || score === undefined) return '';
+      var col = _alignScoreColor(score);
+      var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="myteam-slot-match" title="Your match on your selected issues — tap for the issue-by-issue breakdown" style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1f;">' +
+          '<span class="myteam-slot-match-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.85rem;">%</span></span>' +
+          '<span class="myteam-slot-match-mid">' +
+            '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
+            '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
+          '</span>' +
+        '</button>';
+    }
+    window._slotMatchBand = _slotMatchBand;
+
+    // "Top Match" ribbon for browse cards — clearly flags the strongest alignment
+    // matches at a glance while picking a candidate for a slot. Only appears once
+    // the visitor has an Alignment Signature and the match is genuinely high.
+    function _alignTopMatchBadge(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var s = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (s === null || s === undefined || s < 75) return '';
+      return '<span class="align-topmatch-badge">🎯 Top Match · ' + s + '%</span>';
+    }
+    window._alignTopMatchBadge = _alignTopMatchBadge;
 
     function _alignScoreHtml(pid, size, usePurpleTheme) {
       if (_alignIssues.size === 0) {
