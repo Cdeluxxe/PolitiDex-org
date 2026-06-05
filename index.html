@@ -13095,8 +13095,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var ADMIN_EMAILS = ["Cdeluxxe@gmail.com"];
 
       function isAdminUser(user) {
-        if (!user || user.isAnonymous || !user.email) return false;
-        if (user.email === "Cdeluxxe@gmail.com") { return true; }
+        if (user && user.email === "Cdeluxxe@gmail.com") {
+          return true;
+        }
         return false;
       }
 
