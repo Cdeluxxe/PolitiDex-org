@@ -7685,8 +7685,113 @@
       overflow: hidden;
       transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1);
     }
-    .align-cat.open .align-cat-body { max-height: 600px; }
+    .align-cat.open .align-cat-body { max-height: 1600px; }
     .align-cat-body-inner { padding: 0 0.8rem 0.8rem; }
+
+    /* ── Alignment issue search bar ─────────────────────────── */
+    .align-search-wrap { position: relative; margin-bottom: 0.7rem; }
+    .align-search-wrap input {
+      width: 100%;
+      background: rgba(10,15,30,0.62);
+      border: 1px solid rgba(139,92,246,0.28);
+      border-radius: 0.7rem;
+      padding: 0.62rem 2.1rem 0.62rem 2.1rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.86rem;
+      letter-spacing: 0.02em;
+      color: #e6ddff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .align-search-wrap input:focus { outline: none; border-color: rgba(168,85,247,0.62); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+    .align-search-wrap input::placeholder { color: #7c6bb0; }
+    .align-search-ico { position: absolute; left: 0.72rem; top: 50%; transform: translateY(-50%); font-size: 0.82rem; pointer-events: none; opacity: 0.75; }
+    .align-search-clear {
+      position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+      background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.3);
+      color: #c4b5fd; cursor: pointer; font-size: 0.72rem; line-height: 1;
+      width: 1.35rem; height: 1.35rem; border-radius: 999px; display: none;
+      align-items: center; justify-content: center; padding: 0;
+    }
+    .align-search-wrap.has-text .align-search-clear { display: inline-flex; }
+    .align-hide { display: none !important; }
+    .align-search-empty {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; color: #9d8fe0;
+      padding: 0.7rem 0.2rem; text-align: center; display: none; letter-spacing: 0.02em;
+    }
+
+    /* ── Per-issue intensity presets (Strong / Moderate / Opposed) ──
+       The row reveals its intensity controls only once the position is checked, so
+       the picker stays calm until a visitor opts in. Pure-CSS reveal via sibling. */
+    .align-opt-row { display: flex; flex-direction: column; }
+    .align-intensity {
+      display: none;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+      padding: 0.45rem 0.2rem 0.2rem 1.75rem;
+      animation: alignIntIn 0.24s ease;
+    }
+    .align-opt.active ~ .align-intensity { display: flex; }
+    @keyframes alignIntIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+    .align-int-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      color: #9d8fe0;
+      background: rgba(30,53,96,0.5);
+      border: 1px solid rgba(139,92,246,0.22);
+      border-radius: 999px; padding: 0.22rem 0.62rem; cursor: pointer;
+      transition: all 0.16s; white-space: nowrap;
+    }
+    .align-int-btn:hover { border-color: rgba(168,85,247,0.5); color: #c4b5fd; transform: translateY(-1px); }
+    .align-int-btn.sel[data-int="strong"]   { background: linear-gradient(135deg, rgba(74,222,128,0.28), rgba(34,197,94,0.16));  border-color: rgba(74,222,128,0.6); color: #bbf7d0; box-shadow: 0 0 8px rgba(74,222,128,0.22); }
+    .align-int-btn.sel[data-int="moderate"] { background: linear-gradient(135deg, rgba(245,200,66,0.26), rgba(234,179,8,0.14));  border-color: rgba(245,200,66,0.55); color: #fde68a; box-shadow: 0 0 8px rgba(245,200,66,0.18); }
+    .align-int-btn.sel[data-int="opposed"]  { background: linear-gradient(135deg, rgba(248,113,113,0.28), rgba(220,38,38,0.16)); border-color: rgba(248,113,113,0.6); color: #fecaca; box-shadow: 0 0 8px rgba(248,113,113,0.22); }
+    /* "Opposed" re-skins the checkbox to a red ✕ so its inverted meaning is obvious */
+    .align-opt-row.opposed .align-chip.active { background: linear-gradient(135deg, rgba(248,113,113,0.16), rgba(220,38,38,0.08)); border-color: rgba(248,113,113,0.5); color: #fde0e0; }
+    .align-opt-row.opposed .align-chip.active .align-opt-box { background: linear-gradient(135deg, #f87171, #dc2626); border-color: rgba(248,113,113,0.9); box-shadow: 0 0 8px rgba(248,113,113,0.45); }
+    .align-opt-row.opposed .align-chip.active .align-opt-box::after { content: '✕'; }
+
+    /* ── Toggle feedback ─────────────────────────────────────── */
+    @keyframes alignPop { 0% { transform: scale(1); } 40% { transform: scale(1.035); } 100% { transform: scale(1); } }
+    .align-chip.just-toggled { animation: alignPop 0.34s ease; }
+    @keyframes alignBadgePop { 0% { transform: scale(0.6); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .align-cat-badge.pop { animation: alignBadgePop 0.3s ease; }
+
+    /* ── My Alignment Profile summary ────────────────────────── */
+    .align-profile {
+      background: linear-gradient(135deg, rgba(139,92,246,0.13), rgba(10,15,30,0.5));
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 0.9rem;
+      padding: 0.95rem 1.05rem;
+      margin-bottom: 0.9rem;
+    }
+    .align-profile-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.55rem; }
+    .align-profile-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.07em; font-size: 1.12rem; color: #ece4ff; display: flex; align-items: center; gap: 0.45rem; }
+    .align-count-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(168,85,247,0.7)); border-radius: 999px; padding: 0.2rem 0.62rem; box-shadow: 0 0 10px rgba(139,92,246,0.35); }
+    .align-profile-strength { font-family: 'Barlow Condensed', sans-serif; font-size: 0.84rem; color: #c8bbf2; line-height: 1.45; margin-bottom: 0.55rem; }
+    .align-profile-strength b { font-weight: 800; }
+    .align-profile-strength .s-strong { color: #6ee7a0; }
+    .align-profile-strength .s-mod { color: #f5c842; }
+    .align-profile-strength .s-opp { color: #f89b9b; }
+    .align-strength-meter { display: flex; height: 9px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.07); margin-bottom: 0.8rem; }
+    .align-strength-seg { height: 100%; transition: width 0.55s cubic-bezier(0.4,0,0.2,1); }
+    .align-strength-seg.strong { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .align-strength-seg.moderate { background: linear-gradient(90deg, #eab308, #f5c842); }
+    .align-strength-seg.opposed { background: linear-gradient(90deg, #dc2626, #f87171); }
+    .align-profile-cols { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    @media (min-width: 640px) { .align-profile-cols { grid-template-columns: 1fr 1fr; } }
+    .align-profile-col-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9d8fe0; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem; }
+    .align-area-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .align-area-chip {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.73rem; font-weight: 600; letter-spacing: 0.03em;
+      background: rgba(30,53,96,0.5); border: 1px solid rgba(139,92,246,0.26); color: #c4b5fd;
+      border-radius: 999px; padding: 0.28rem 0.62rem; cursor: pointer; transition: all 0.16s;
+    }
+    .align-area-chip:hover { border-color: rgba(168,85,247,0.55); background: rgba(139,92,246,0.16); color: #e6ddff; transform: translateY(-1px); }
+    .align-area-chip .n { font-weight: 800; color: #a78bfa; }
+    .align-area-chip.todo { border-style: dashed; color: #9d8fe0; }
+    .align-profile-empty { font-family: 'Barlow Condensed', sans-serif; font-size: 0.86rem; color: #bcb1ea; line-height: 1.55; }
+    .align-profile-empty b { color: #d6cbff; }
     .align-score-badge {
       display: inline-flex;
       align-items: center;
@@ -11410,9 +11515,16 @@
               <button onclick="relevantAlignClearAll()" class="font-condensed text-xs text-purple-300 hover:text-purple-200 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;cursor:pointer;">Clear All</button>
             </div>
 
+            <div class="align-search-wrap">
+              <span class="align-search-ico">🔍</span>
+              <input type="text" id="align-search-rel" placeholder="Search issues…" oninput="alignSearch(this,'align-cats-rel')" aria-label="Search alignment issues" autocomplete="off" />
+              <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-rel');i.value='';alignSearch(i,'align-cats-rel');i.focus();">✕</button>
+            </div>
+
             <div class="align-cats" id="align-cats-rel">
               <!-- Same collapsible category accordion as the main panel, rendered by _alignRenderPickers() -->
             </div>
+            <div id="align-cats-rel-empty" class="align-search-empty">No issues match your search.</div>
 
             <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
 
@@ -11539,9 +11651,22 @@
             </div>
             <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
           </div>
+          <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
+               their strength mix, and the areas they have / haven't weighed in on.
+               Rendered by _alignRenderProfile(); every chip jumps into the picker. -->
+          <div id="align-profile-summary" class="align-profile"></div>
+
+          <!-- Quick search across every issue in every category -->
+          <div class="align-search-wrap">
+            <span class="align-search-ico">🔍</span>
+            <input type="text" id="align-search-main" placeholder="Search issues — e.g. taxes, climate, guns, housing…" oninput="alignSearch(this,'align-cats-main')" aria-label="Search alignment issues" autocomplete="off" />
+            <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-main');i.value='';alignSearch(i,'align-cats-main');i.focus();">✕</button>
+          </div>
+
           <div class="align-cats" id="align-cats-main">
             <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
           </div>
+          <div id="align-cats-main-empty" class="align-search-empty">No issues match your search.</div>
           <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
           <!-- Alignment Signature save status. Populated by _alignUpdateSigninPrompt():
                signed-in members see a "saved to your account" confirmation; signed-out
@@ -26032,8 +26157,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return bd.issues.map(function(it) {
         var ic = _krAlignColor(it.score);
         var note = it.hasEvidence ? '' : '<span style="font-size:0.54rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>';
+        // Surface the visitor's own intensity on the issue so the breakdown reflects
+        // how they weighted it (Strong = counts more, Opposed = inverted match).
+        var tag = '';
+        if (it.intensity === 'strong') tag = '<span style="font-size:0.5rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#6ee7a0;background:rgba(74,222,128,0.16);border:1px solid rgba(74,222,128,0.4);border-radius:999px;padding:0.02rem 0.32rem;margin-left:0.3rem;">💪 Strong</span>';
+        else if (it.intensity === 'opposed') tag = '<span style="font-size:0.5rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#f89b9b;background:rgba(248,113,113,0.16);border:1px solid rgba(248,113,113,0.4);border-radius:999px;padding:0.02rem 0.32rem;margin-left:0.3rem;">🚫 Opposed</span>';
         return '<div class="kr-align-issue">' +
-          '<div class="kr-align-issue-head"><span>' + it.label + note + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
+          '<div class="kr-align-issue-head"><span>' + it.label + note + tag + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
           '<div class="kr-align-issue-bar"><div style="height:100%;width:' + it.score + '%;background:linear-gradient(90deg,' + ic + '88,' + ic + ');border-radius:999px;"></div></div>' +
         '</div>';
       }).join('');
@@ -26936,7 +27066,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // ════════════════════════════════════════════════════════════
   (function() {
     var ALIGN_KEY = 'politidex_align_issues';
+    var ALIGN_INT_KEY = 'politidex_align_intensity';
     var _alignIssues = new Set();
+    // Optional per-issue intensity overlay: { issueKey: 'strong' | 'opposed' }.
+    // 'moderate' is the implicit default and is never stored, so an issue with no
+    // entry here scores EXACTLY as it did before this overlay existed — that keeps
+    // every previously-saved Alignment Signature (a plain array of keys) producing
+    // identical politician match %s. 'strong' weights the issue more heavily;
+    // 'opposed' inverts the match (a candidate who holds that position scores low).
+    var _alignIntensity = {};
 
     // Each topic now offers SEVERAL selectable positions (checkbox style) instead
     // of a forced "this side vs that side" pair — a visitor can agree with more
@@ -27075,13 +27213,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = ISSUE_MAP[key];
       if (!d) return '';
       // No party (R/D) badge — the option reads as a policy position, and the
-      // checkbox box on the left makes the multi-select nature obvious. The lean,
-      // when present, is used silently by the scoring engine only.
-      return '<button type="button" class="align-chip align-opt" data-align-issue="' + key + '"' +
-        ' aria-pressed="false" onclick="alignToggle(this)">' +
-        '<span class="align-opt-box" aria-hidden="true"></span>' +
-        '<span class="align-opt-text">' + d.chip + '</span>' +
-      '</button>';
+      // checkbox box on the left makes the multi-select nature obvious. Once an
+      // option is checked, an intensity row (Strong / Moderate / Opposed) reveals
+      // itself so a visitor can quickly weight how strongly they hold the position.
+      return '<div class="align-opt-row" data-opt-row="' + key + '">' +
+        '<button type="button" class="align-chip align-opt" data-align-issue="' + key + '"' +
+          ' aria-pressed="false" onclick="alignToggle(this)">' +
+          '<span class="align-opt-box" aria-hidden="true"></span>' +
+          '<span class="align-opt-text">' + d.chip + '</span>' +
+        '</button>' +
+        '<div class="align-intensity" role="group" aria-label="How strongly do you hold this position?">' +
+          '<button type="button" class="align-int-btn" data-int="strong" title="This is a strong, high-priority position for me" onclick="alignSetIntensity(\'' + key + '\',\'strong\')">💪 Strong</button>' +
+          '<button type="button" class="align-int-btn" data-int="moderate" title="I hold this position, but moderately" onclick="alignSetIntensity(\'' + key + '\',\'moderate\')">◐ Moderate</button>' +
+          '<button type="button" class="align-int-btn" data-int="opposed" title="I am actually opposed to this position" onclick="alignSetIntensity(\'' + key + '\',\'opposed\')">🚫 Opposed</button>' +
+        '</div>' +
+      '</div>';
     }
 
     function _alignCatBodyHtml(catKey) {
@@ -27122,6 +27268,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var on = _alignIssues.has(k);
         chip.classList.toggle('active', on);
         chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+        // Reflect the per-issue intensity onto the row: highlight the chosen preset
+        // and flag the "opposed" state (which re-skins the checkbox to a red ✕).
+        var row = chip.closest('.align-opt-row');
+        if (row) {
+          var lvl = on ? (_alignIntensity[k] || 'moderate') : null;
+          row.classList.toggle('opposed', lvl === 'opposed');
+          row.querySelectorAll('.align-int-btn').forEach(function(b) {
+            b.classList.toggle('sel', !!lvl && b.getAttribute('data-int') === lvl);
+          });
+        }
       });
       var counts = {};
       _alignIssues.forEach(function(k) {
@@ -27131,8 +27287,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       document.querySelectorAll('.align-cat-badge[data-cat-badge]').forEach(function(b) {
         var c = b.getAttribute('data-cat-badge');
         var n = counts[c] || 0;
+        var prev = b.textContent;
         b.textContent = n;
         b.style.display = n > 0 ? 'inline-flex' : 'none';
+        // Little pop whenever a category's count actually changes — satisfying, cheap.
+        if (n > 0 && String(n) !== prev) {
+          b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+        }
       });
     }
 
@@ -27161,6 +27322,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
 
+    // Keep only intensity entries that point at a currently-selected, known issue
+    // and carry a real non-default level, so the overlay can never go stale.
+    function _alignCleanIntensity() {
+      Object.keys(_alignIntensity).forEach(function(k) {
+        var lvl = _alignIntensity[k];
+        if (!ISSUE_MAP[k] || !_alignIssues.has(k) || (lvl !== 'strong' && lvl !== 'opposed')) {
+          delete _alignIntensity[k];
+        }
+      });
+    }
+
+    function _alignSanitizeIntensity(obj) {
+      var clean = {};
+      if (obj && typeof obj === 'object') {
+        Object.keys(obj).forEach(function(k) {
+          var lvl = obj[k];
+          if (ISSUE_MAP[k] && _alignIssues.has(k) && (lvl === 'strong' || lvl === 'opposed')) clean[k] = lvl;
+        });
+      }
+      return clean;
+    }
+
     function _alignLoad() {
       try {
         var saved = localStorage.getItem(ALIGN_KEY);
@@ -27172,10 +27355,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _alignIssues = new Set(keep);
         }
       } catch(e) {}
+      // Intensity loads after the selection so it can be intersected with it.
+      try {
+        var si = localStorage.getItem(ALIGN_INT_KEY);
+        if (si) _alignIntensity = _alignSanitizeIntensity(JSON.parse(si));
+      } catch(e) {}
     }
 
     function _alignSave() {
+      _alignCleanIntensity();
       try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
+      try { localStorage.setItem(ALIGN_INT_KEY, JSON.stringify(_alignIntensity)); } catch(e) {}
       // Mirror the selection to the signed-in member's profile so their Alignment
       // Signature persists across sessions and devices (no-op when logged out).
       _alignSaveToFirestore();
@@ -27187,6 +27377,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // card's match % — reloads exactly as they left it on any device. Logged-out
     // (or anonymous) visitors keep using localStorage only; nothing is written.
     var ALIGN_FS_FIELD = 'alignmentPreferences';
+    var ALIGN_FS_INT_FIELD = 'alignmentIntensity';
     var _alignFsSaveTimer = null;
 
     function _alignCurrentUser() {
@@ -27208,8 +27399,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var current = _alignCurrentUser();
         if (!current) return;
         try {
+          _alignCleanIntensity();
           var payload = {};
           payload[ALIGN_FS_FIELD] = [..._alignIssues];
+          payload[ALIGN_FS_INT_FIELD] = _alignIntensity;
           payload[ALIGN_FS_FIELD + '_updated'] = firebase.firestore.FieldValue.serverTimestamp();
           db.collection('users').doc(current.uid).set(payload, { merge: true })
             .catch(function(e) { console.warn('Alignment save to Firestore failed:', e); });
@@ -27240,6 +27433,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return true;
     }
 
+    // Mirror of _alignApplySaved for the intensity overlay. Sanitizes against the
+    // current selection (so a level can't apply to an unselected issue) and only
+    // reports a change when it actually differs, keeping the Firestore echo a no-op.
+    function _alignApplyIntensity(saved) {
+      var clean = _alignSanitizeIntensity(saved);
+      var aK = Object.keys(clean).sort();
+      var bK = Object.keys(_alignIntensity).sort();
+      var same = aK.length === bK.length && aK.every(function(k, i) { return k === bK[i] && clean[k] === _alignIntensity[bK[i]]; });
+      if (same) return false;
+      _alignIntensity = clean;
+      try { localStorage.setItem(ALIGN_INT_KEY, JSON.stringify(_alignIntensity)); } catch(e) {}
+      return true;
+    }
+
     function _alignStopFirestoreListener() {
       if (_alignFsUnsub) { try { _alignFsUnsub(); } catch(e) {} }
       _alignFsUnsub = null;
@@ -27260,12 +27467,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _alignStopFirestoreListener();
       _alignFsUid = uid;
       _alignFsUnsub = db.collection('users').doc(uid).onSnapshot(function(doc) {
-        var saved = (doc.exists && doc.data()) ? doc.data()[ALIGN_FS_FIELD] : null;
+        var data = (doc.exists && doc.data()) ? doc.data() : null;
+        var saved = data ? data[ALIGN_FS_FIELD] : null;
+        var savedInt = data ? data[ALIGN_FS_INT_FIELD] : null;
         if (Array.isArray(saved)) {
           _alignSeededUid = uid;
-          if (_alignApplySaved(saved)) _alignRefreshAll();
+          // Apply the selection first, then the intensity overlay (which is
+          // intersected against that selection). Repaint once if either changed.
+          var c1 = _alignApplySaved(saved);
+          var c2 = _alignApplyIntensity(savedInt);
+          if (c1 || c2) _alignRefreshAll();
         } else if (_alignSeededUid !== uid && _alignIssues.size > 0) {
-          // Brand-new signature → persist the visitor's current local picks (once).
+          // Brand-new signature → persist the visitor's current local picks (and
+          // their intensity overlay) once, rather than wiping them.
           _alignSeededUid = uid;
           _alignSaveToFirestore();
         }
@@ -27444,6 +27658,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
 
         issueScore = Math.min(100, Math.max(0, issueScore));
+
+        // Apply the optional intensity overlay. Default (no entry = moderate) leaves
+        // the score and weight untouched, so signatures saved before this feature
+        // score identically. 'strong' weights the issue more; 'opposed' inverts the
+        // match (a candidate who holds the position now scores LOW for this voter).
+        var _intens = _alignIntensity[issueKey];
+        if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
+        else if (_intens === 'strong') { issueWeight *= 1.7; }
+
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
       });
@@ -27563,11 +27786,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
 
         issueScore = Math.min(100, Math.max(0, issueScore));
+
+        // Same intensity overlay as _calcAlignmentScore (kept in lock-step).
+        var _intens = _alignIntensity[issueKey];
+        if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
+        else if (_intens === 'strong') { issueWeight *= 1.7; }
+
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
 
         var hasEvidence = (relevance > 0 || stanceCount > 0 || votingCount > 0 || promiseCount > 0);
-        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence });
+        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, intensity: _intens || 'moderate' });
       });
 
       if (totalWeight === 0) return null;
@@ -27669,19 +27898,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</button>';
     }
 
+    // Brief pulse on every chip that represents an issue, wherever it's mounted.
+    function _alignPulse(issue) {
+      document.querySelectorAll('.align-chip[data-align-issue="' + issue + '"]').forEach(function(c) {
+        c.classList.remove('just-toggled'); void c.offsetWidth; c.classList.add('just-toggled');
+        setTimeout(function() { c.classList.remove('just-toggled'); }, 360);
+      });
+    }
+
     window.alignToggle = function(btn) {
       var issue = btn.getAttribute('data-align-issue');
       if (!issue) return;
-      if (_alignIssues.has(issue)) _alignIssues.delete(issue);
-      else _alignIssues.add(issue);
+      if (_alignIssues.has(issue)) {
+        _alignIssues.delete(issue);
+        delete _alignIntensity[issue]; // dropping the issue drops its intensity too
+      } else {
+        _alignIssues.add(issue);
+      }
       _alignSave();
       // _alignRefreshAll re-syncs every chip across both panels, so the chip the
       // visitor clicked and its twin on the other surface stay in lockstep.
       _alignRefreshAll();
+      _alignPulse(issue);
+    };
+
+    // Quick Strong / Moderate / Opposed preset for a single position. Choosing any
+    // preset implies the position is selected, so a visitor can go from nothing to a
+    // weighted "Opposed" in one tap. 'moderate' is the default and clears the overlay.
+    window.alignSetIntensity = function(issue, level) {
+      if (!ISSUE_MAP[issue]) return;
+      if (!_alignIssues.has(issue)) _alignIssues.add(issue);
+      if (level === 'moderate') delete _alignIntensity[issue];
+      else if (level === 'strong' || level === 'opposed') _alignIntensity[issue] = level;
+      _alignSave();
+      _alignRefreshAll();
+      _alignPulse(issue);
     };
 
     window.alignClearAll = function() {
       _alignIssues.clear();
+      _alignIntensity = {};
       _alignSave();
       _alignRefreshAll();
     };
@@ -27689,6 +27945,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _alignRefreshAll() {
       _alignSyncAllChips();
       _alignUpdateStatus();
+      _alignRenderProfile();
       _alignSyncBrowseChips();
 
       if (typeof syncRelevantAlignmentUI === 'function') {
@@ -27751,6 +28008,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     window.relevantAlignClearAll = function() {
       _alignIssues.clear();
+      _alignIntensity = {};
       _alignSave();
       _alignRefreshAll();
     };
@@ -27839,12 +28097,153 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._alignIssueMap = ISSUE_MAP;
     window.alignToggleIssue = function(issueKey) {
       if (!ISSUE_MAP[issueKey]) return;
-      if (_alignIssues.has(issueKey)) _alignIssues.delete(issueKey);
-      else _alignIssues.add(issueKey);
+      if (_alignIssues.has(issueKey)) {
+        _alignIssues.delete(issueKey);
+        delete _alignIntensity[issueKey];
+      } else {
+        _alignIssues.add(issueKey);
+      }
       _alignSave();
       // _alignRefreshAll re-syncs both picker panels' chips, so a change made from
       // the Key Races quick-adjust mirrors onto the pickers and vice-versa.
       _alignRefreshAll();
+      _alignPulse(issueKey);
+    };
+
+    // ── My Alignment Profile summary ───────────────────────────
+    // A live, scannable overview of the visitor's current picks: how many positions,
+    // the Strong / Moderate / Opposed mix (with a proportional strength meter), the
+    // topics they've defined most, and the topics they haven't weighed in on yet.
+    // Every area chip jumps straight back into the picker for that topic.
+    function _alignRenderProfile() {
+      var el = document.getElementById('align-profile-summary');
+      if (!el) return;
+      var n = _alignIssues.size;
+      if (n === 0) {
+        el.innerHTML =
+          '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div></div>' +
+          '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strong</b>, <b>Moderate</b> or <b>Opposed</b> to fine-tune each one. Your match score then appears on every politician card.</div>';
+        return;
+      }
+
+      var strong = 0, opposed = 0;
+      var catCounts = {};
+      _alignIssues.forEach(function(k) {
+        var lvl = _alignIntensity[k];
+        if (lvl === 'strong') strong++;
+        else if (lvl === 'opposed') opposed++;
+        var d = ISSUE_MAP[k];
+        if (d && d.cat) catCounts[d.cat] = (catCounts[d.cat] || 0) + 1;
+      });
+      var moderate = n - strong - opposed;
+
+      // Plain-language strength sentence, mirroring the requested phrasing.
+      var parts = [];
+      if (strong > 0) parts.push('<b class="s-strong">strong</b> opinions on <b>' + strong + '</b>');
+      if (moderate > 0) parts.push('<b class="s-mod">moderate</b> on <b>' + moderate + '</b>');
+      if (opposed > 0) parts.push('<b class="s-opp">opposed</b> on <b>' + opposed + '</b>');
+      var sentence = parts.length
+        ? 'You have ' + (parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]) + ' of your <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.'
+        : 'You have selected <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.';
+
+      // Proportional three-segment strength meter.
+      var sw = Math.round(strong / n * 100);
+      var mw = Math.round(moderate / n * 100);
+      var ow = Math.max(0, 100 - sw - mw);
+      var meter = '<div class="align-strength-meter" aria-hidden="true">' +
+        (sw > 0 ? '<div class="align-strength-seg strong" style="width:' + sw + '%;"></div>' : '') +
+        (mw > 0 ? '<div class="align-strength-seg moderate" style="width:' + mw + '%;"></div>' : '') +
+        (ow > 0 ? '<div class="align-strength-seg opposed" style="width:' + ow + '%;"></div>' : '') +
+      '</div>';
+
+      // Strongest areas = the categories with the most chosen positions. Areas to
+      // explore = categories still untouched (the visitor's weakest coverage).
+      var withCounts = ALIGN_CATEGORIES.map(function(c) { return { c: c, n: catCounts[c.key] || 0 }; });
+      var covered = withCounts.filter(function(x) { return x.n > 0; }).sort(function(a, b) { return b.n - a.n; });
+      var todo = withCounts.filter(function(x) { return x.n === 0; });
+
+      function areaChip(x, isTodo) {
+        return '<button type="button" class="align-area-chip' + (isTodo ? ' todo' : '') + '" onclick="alignJumpToCategory(\'' + x.c.key + '\')" title="Jump to ' + x.c.label + ' in the picker">' +
+          '<span>' + x.c.icon + '</span><span>' + x.c.label + '</span>' +
+          (isTodo ? '' : '<span class="n">' + x.n + '</span>') +
+        '</button>';
+      }
+
+      var strongestHtml = covered.slice(0, 4).map(function(x) { return areaChip(x, false); }).join('');
+      var todoHtml = todo.length
+        ? todo.slice(0, 4).map(function(x) { return areaChip(x, true); }).join('')
+        : '<span class="align-profile-empty" style="font-size:0.78rem;">Every topic covered — nice work. 🎉</span>';
+
+      el.innerHTML =
+        '<div class="align-profile-head">' +
+          '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
+          '<span class="align-count-pill">' + n + ' position' + (n > 1 ? 's' : '') + '</span>' +
+        '</div>' +
+        '<div class="align-profile-strength">' + sentence + '</div>' +
+        meter +
+        '<div class="align-profile-cols">' +
+          '<div><div class="align-profile-col-label">💪 Strongest areas</div><div class="align-area-chips">' + strongestHtml + '</div></div>' +
+          '<div><div class="align-profile-col-label">🧩 Areas to explore</div><div class="align-area-chips">' + todoHtml + '</div></div>' +
+        '</div>';
+    }
+
+    // Jump back into the main picker, open the requested topic and scroll to it —
+    // the "make it easy to edit" affordance for the profile summary.
+    window.alignJumpToCategory = function(catKey) {
+      var panel = document.getElementById('alignment-panel');
+      var cats = document.getElementById('align-cats-main');
+      // Clear any active search so the target category is guaranteed visible.
+      var search = document.getElementById('align-search-main');
+      if (search && search.value) { search.value = ''; alignSearch(search, 'align-cats-main'); }
+      var cat = cats ? cats.querySelector('.align-cat[data-cat="' + catKey + '"]') : null;
+      if (cat) {
+        cat.classList.add('open');
+        var head = cat.querySelector('.align-cat-head');
+        if (head) head.setAttribute('aria-expanded', 'true');
+        cat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cat.style.transition = 'box-shadow 0.4s';
+        cat.style.boxShadow = '0 0 0 2px rgba(168,85,247,0.5)';
+        setTimeout(function() { cat.style.boxShadow = ''; }, 900);
+      } else if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    // ── Issue search ───────────────────────────────────────────
+    // Filters the accordion in one panel (scoped by catsId) against a query, hiding
+    // non-matching options and the categories that end up empty, and auto-expanding
+    // the categories that do match so results are visible without extra taps.
+    window.alignSearch = function(input, catsId) {
+      var q = (input.value || '').trim().toLowerCase();
+      var wrap = input.closest('.align-search-wrap');
+      if (wrap) wrap.classList.toggle('has-text', !!q);
+      var cats = document.getElementById(catsId);
+      if (!cats) return;
+      var anyVisible = false;
+      cats.querySelectorAll('.align-cat').forEach(function(cat) {
+        var head = cat.querySelector('.align-cat-title');
+        var headText = head ? head.textContent.toLowerCase() : '';
+        var headMatch = !!q && headText.indexOf(q) !== -1;
+        var catHasMatch = false;
+        cat.querySelectorAll('.align-opt-row').forEach(function(row) {
+          var txt = row.textContent.toLowerCase();
+          var match = !q || headMatch || txt.indexOf(q) !== -1;
+          row.classList.toggle('align-hide', !match);
+          if (match) catHasMatch = true;
+        });
+        var show = !q || catHasMatch;
+        cat.classList.toggle('align-hide', !show);
+        if (show) anyVisible = true;
+        if (q && show) {
+          cat.classList.add('open');
+          var h = cat.querySelector('.align-cat-head');
+          if (h) h.setAttribute('aria-expanded', 'true');
+        }
+      });
+      // Group dividers only add noise while searching across topics — hide them.
+      cats.querySelectorAll('.align-group-divider').forEach(function(d) { d.classList.toggle('align-hide', !!q); });
+      var empty = document.getElementById(catsId + '-empty');
+      if (empty) empty.style.display = (q && !anyVisible) ? 'block' : 'none';
     };
 
     function _alignInit() {
@@ -27854,6 +28253,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       window._alignIssues = _alignIssues;
       _alignRenderPickers();
       _alignUpdateStatus();
+      _alignRenderProfile();
       _alignSyncBrowseChips();
       syncRelevantAlignmentUI();
       _alignUpdateSigninPrompt();
