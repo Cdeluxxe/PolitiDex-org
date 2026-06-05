@@ -3237,6 +3237,85 @@
       border-radius: 50%;
       z-index: 3;
     }
+    /* ── Browse tree: incumbent vs candidate visual hierarchy ───────────────
+       Current officeholders (incumbents) are the premium, high-weight cards;
+       candidates / challengers are deliberately lighter and simpler so the
+       sitting officeholder always reads as the more important card in the race. */
+    .chub-card.is-incumbent {
+      background: linear-gradient(135deg, rgba(20,36,64,0.97), rgba(12,22,42,0.97));
+      border: 1.5px solid rgba(34,197,94,0.5);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.16), 0 10px 34px rgba(0,0,0,0.45), 0 0 22px rgba(34,197,94,0.13);
+    }
+    @media (hover: hover) {
+      .chub-card.is-incumbent:hover {
+        border-color: rgba(74,222,128,0.7);
+        transform: translateY(-3px);
+        box-shadow: 0 0 0 1px rgba(34,197,94,0.28), 0 14px 44px rgba(0,0,0,0.5), 0 0 26px rgba(34,197,94,0.2);
+      }
+    }
+    .chub-incumbent-ribbon-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid rgba(34,197,94,0.18);
+    }
+    .chub-incumbent-ribbon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(22,163,74,0.16));
+      border: 1.5px solid rgba(34,197,94,0.7);
+      color: #4ade80;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 0.64rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 0.24rem 0.62rem;
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(34,197,94,0.3);
+    }
+    .chub-incumbent-ribbon::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74,222,128,0.9);
+      flex-shrink: 0;
+    }
+    .chub-card.is-candidate {
+      background: rgba(14,23,42,0.55);
+      border: 1px dashed rgba(148,163,184,0.3);
+      border-radius: 0.8rem;
+      box-shadow: none;
+    }
+    .chub-card.is-candidate::before { display: none; }
+    @media (hover: hover) {
+      .chub-card.is-candidate:hover {
+        border-color: rgba(96,165,250,0.45);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+      }
+    }
+    .chub-candidate-norecord {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #7891b3;
+      background: rgba(148,163,184,0.08);
+      border: 1px solid rgba(148,163,184,0.18);
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+    }
     .chub-add-btn {
       display: inline-flex;
       align-items: center;
@@ -23123,6 +23202,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderAllPoliticiansCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
+      // Candidates / challengers and former officeholders render as the simpler,
+      // lighter card so the sitting officeholder stays the visual hero of the race.
+      var _status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      if (_status !== 'office') return _renderCandidateBrowseCard(pid);
       var sc = d.score;
       var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
       var scCol = _chubScoreColor(sc);
@@ -23141,13 +23224,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
 
-      var isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
       var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
-      var cardStyle = isInOffice
-        ? 'border-color:rgba(34,197,94,0.6);box-shadow:0 0 0 1px rgba(34,197,94,0.25),0 0 22px rgba(34,197,94,0.2);'
-        : (isMy ? 'border-color:rgba(74,222,128,0.25);' : '');
 
-      return '<div class="chub-card" data-pid="' + pid + '" style="' + cardStyle + '">' +
+      return '<div class="chub-card is-incumbent" data-pid="' + pid + '">' +
+        // Premium "currently in office" ribbon — the strong signal that this card
+        // is the sitting officeholder, not a challenger.
+        '<div class="chub-incumbent-ribbon-row">' +
+          '<span class="chub-incumbent-ribbon">✅ Currently In Office</span>' +
+          unopposedBadge +
+          localBadge + teamBadge +
+        '</div>' +
         // Compact horizontal layout container
         '<div class="flex flex-row items-start gap-4 mb-4">' +
           // Left side: circular photo
@@ -23159,9 +23245,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             // Name line
             '<div class="flex items-center gap-2 flex-wrap">' +
               '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
-              window._pdxStatusBadge(d, { size: 'sm' }) +
-              unopposedBadge +
-              localBadge + teamBadge +
               heartHtml +
             '</div>' +
             // Office + state
@@ -23196,6 +23279,61 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }
 
+    // Simpler, lighter card for candidates / challengers (and former officeholders).
+    // Deliberately less visual weight than the incumbent card: smaller avatar, no
+    // premium glow, no Promise/Accountability score block (challengers have no
+    // voting record yet) and a clear status badge so it always reads as someone
+    // running for — not currently holding — the seat.
+    function _renderCandidateBrowseCard(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return '';
+      var sel = _cmpSelected.has(pid);
+      var isMy = _myPoliticians.has(pid);
+      var isFav = _favoritePids.has(pid);
+      var isLocal = _pdxIsLocalToUser(pid);
+      var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
+      var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
+      var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'candidate';
+      var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(status, { size: 'sm' }) : '';
+      var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
+      var noRecord = (status === 'candidate' && (d.score === null || d.score === undefined))
+        ? '<span class="chub-candidate-norecord">⏳ No voting record yet</span>' : '';
+
+      var photoUrl = BROWSE_PHOTOS[pid] || '';
+      var photoHtml = photoUrl
+        ? '<div style="width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(148,163,184,0.3);background:rgba(30,53,96,0.4);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem\\\'>' + d.icon + '</div>\'"></div>'
+        : '<div style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.6),rgba(10,15,30,0.7));border:1.5px solid rgba(148,163,184,0.3);font-size:1.2rem;flex-shrink:0;">' + d.icon + '</div>';
+      var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:0.85rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
+
+      return '<div class="chub-card is-candidate" data-pid="' + pid + '">' +
+        '<div class="flex flex-row items-start gap-3">' +
+          '<div class="flex-shrink-0">' + photoHtml + '</div>' +
+          '<div class="flex-1 min-w-0 flex flex-col gap-1">' +
+            // Name + status badge
+            '<div class="flex items-center gap-1.5 flex-wrap">' +
+              '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
+              statusBadge +
+              unopposedBadge +
+              localBadge + teamBadge +
+              heartHtml +
+            '</div>' +
+            // Office + state (the seat they are running for)
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium" style="margin:0.05rem 0;">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            // Lightweight meta: no-record note + a couple of issue tags
+            '<div class="flex items-center gap-2 flex-wrap mt-0.5">' +
+              noRecord +
+              d.issues.slice(0, 2).map(function(i) { return '<span class="inline-block bg-navy-900/50 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
+            '</div>' +
+            // Buttons row (kept minimal)
+            '<div class="grid grid-cols-2 gap-2 w-full mt-2">' +
+              '<button onclick="showProfile(\'' + pid + '\')" class="chub-view-profile-btn">View Profile</button>' +
+              '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '">' + (sel ? '✓ Comparing' : '+ Compare') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
     var _browseScope = 'all';
 
     var _browseGroupState = {};
@@ -23208,7 +23346,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'state_senator', label: 'State Senators', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
       { key: 'state_rep', label: 'State Representatives', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
       { key: 'local', label: 'Local / Mayors', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
-      { key: 'candidate', label: 'Candidates / Nominees', icon: '🗳', bg: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(30,53,96,0.3))' },
       { key: 'cabinet', label: 'Cabinet / Appointed', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' }
     ];
 
@@ -23216,15 +23353,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = CMP_DATA[pid];
       if (!d) return 'other';
       var o = d.office.toLowerCase();
+      var st = (d.state || '').trim();
+
+      // Candidates are NOT a category of their own — they classify by the office
+      // they are running FOR, so a challenger nests under the same race as the
+      // incumbent (e.g. a U.S. House UT-01 candidate lands in U.S. Representatives →
+      // Utah). The incumbent/candidate distinction is carried by status, not bucket.
 
       if (o.includes('president') && !o.includes('senate president')) return 'president';
       if (o.includes('secretary') || o.includes('director') || o.includes('ambassador')) return 'cabinet';
-      if (o.includes('u.s. senator') || ((o.includes('senator') || o.includes('senate')) && !o.includes('state') && !o.includes('ut ') && !o.includes('utah'))) return 'senator';
-      if (o.includes('u.s. rep') || (o.includes('representative') && !o.includes('state') && !o.includes('ut '))) return 'representative';
-      if (o.includes('governor')) {
-        if (o.includes('candidate')) return 'candidate';
-        return 'governor';
-      }
+
+      // Federal Senate — incumbents and candidates ("Candidate for U.S. Senate").
+      if (o.includes('u.s. senator') || o.includes('u.s. senate') ||
+          ((o.includes('senator') || o.includes('senate')) && !o.includes('state') && !o.includes('ut ') && !o.includes('utah')))
+        return 'senator';
+
+      // Federal House / Congress — incumbents and candidates ("Candidate for
+      // Congress", "U.S. House Candidate", "Candidate · U.S. House (UT-01)").
+      if (o.includes('u.s. rep') || o.includes('u.s. house') || o.includes('congress') ||
+          (o.includes('representative') && !o.includes('state') && !o.includes('ut ')))
+        return 'representative';
+
+      // Governor — incumbents and candidates ("Governor Candidate", "Candidate for
+      // Governor / State Rep"). Checked before state chambers so a sitting state rep
+      // running for Governor classifies by the seat they are seeking.
+      if (o.includes('governor')) return 'governor';
+
       if (o.includes('state sen') || o.includes('senate president') || o.includes('utah senate') || o.includes('ut state sen') || o.includes('state senate')) return 'state_senator';
       if (o.includes('state rep') || o.includes('house speaker') || o.includes('ut house') || o.includes('ut state rep') || o.includes('house minority') || o.includes('state auditor') || o.includes('state house') || o.includes('state assembly') || o.includes('state legislature')) return 'state_rep';
       // Bare-chamber legislative offices (e.g. "House District 56", "Candidate for
@@ -23237,7 +23391,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (o.includes('senate district') || (o.includes('senate') && o.includes('district')) || (o.includes('senator') && o.includes('district'))) return 'state_senator';
       }
       if (o.includes('mayor') || o.includes('county')) return 'local';
-      if (o.includes('candidate') || o.includes('nominee')) return 'candidate';
+
+      // Generic candidate/nominee with no office hint (e.g. office "Candidate" or
+      // "Republican Nominee") but a congressional-district state code ("FL-06",
+      // "KY-04") is a U.S. House race — nest it under U.S. Representatives.
+      if ((o.includes('candidate') || o.includes('nominee')) && /^[A-Za-z]{2}-\d+$/.test(st)) return 'representative';
+
       return 'other';
     }
 
@@ -23392,6 +23551,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } else {
         var matchDistrict = st.match(/District\s+(\d+)/i) || (origSt && origSt.match(/District\s+(\d+)/i));
         if (matchDistrict) distNum = parseInt(matchDistrict[1], 10);
+      }
+      // Broader fallback for U.S. House candidates whose seat is encoded inside a
+      // compound state/office string ("Utah · UT-1", "Utah-01", "(UT-01)", "FL-06",
+      // "CD-2") rather than at the start. This lets a House challenger nest in the
+      // same "District N" node as the incumbent for that seat.
+      if (distNum === null) {
+        var _hay = st + ' ' + (origSt || '') + ' ' + (d.office || '');
+        var _gm = _hay.match(/\b[A-Za-z]{2}-0*(\d{1,2})\b/) || _hay.match(/[A-Za-z]{3,}-0*(\d{1,2})\b/);
+        if (_gm) distNum = parseInt(_gm[1], 10);
       }
       if (distNum !== null && !isNaN(distNum)) {
         // Utah State House districts get their real county appended (fixing the
