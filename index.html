@@ -4740,6 +4740,25 @@
     .kr-spot-preview.newcomer .kr-spot-prev-badge { color: #c4b5fd; }
     .kr-spot-preview.newcomer .kr-spot-live { background: #a78bfa; box-shadow: 0 0 0 0 rgba(167,139,250,0.6); }
 
+    /* Clean, non-interactive status note shown in place of the Spotlight strip for
+       genuinely low-information politicians — a brand-new 2026 candidate with no
+       record yet, or an officeholder whose voting record is still being compiled.
+       It keeps the card complete and on-theme without faking a "tap for the story"
+       spotlight that would open a near-empty modal. Same card slot, same width and
+       rounding as the spotlight strip, so every card stays structurally consistent. */
+    .kr-spot-status {
+      width: 100%; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.3rem 0.5rem;
+      padding: 0.5rem 0.7rem; border-radius: 0.8rem; margin-top: 0.4rem;
+      background: linear-gradient(135deg, rgba(148,163,184,0.10), rgba(148,163,184,0.02));
+      border: 1px solid rgba(148,163,184,0.26); border-left: 3px solid rgba(148,163,184,0.6);
+    }
+    .kr-spot-status-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase; color: #b8c4d6; white-space: nowrap; }
+    .kr-spot-status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; line-height: 1.3; color: #9fb4d4; }
+    .kr-spot-status.newcomer { background: linear-gradient(135deg, rgba(167,139,250,0.10), rgba(167,139,250,0.02)); border-color: rgba(167,139,250,0.28); border-left-color: rgba(167,139,250,0.7); }
+    .kr-spot-status.newcomer .kr-spot-status-badge { color: #c4b5fd; }
+    .kr-spot-status.monitoring { background: linear-gradient(135deg, rgba(96,165,250,0.10), rgba(96,165,250,0.02)); border-color: rgba(96,165,250,0.28); border-left-color: rgba(96,165,250,0.7); }
+    .kr-spot-status.monitoring .kr-spot-status-badge { color: #93c5fd; }
+
     @media (max-width: 560px) {
       .team-add-toast {
         top: calc(0.75rem + env(safe-area-inset-top, 0px));
@@ -25626,20 +25645,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         };
       }
 
-      // 3) No usable record yet — say so plainly instead of inventing news.
+      // 3) No usable record yet — say so plainly with a clean status note instead
+      // of a faux "tap for the story" spotlight. For a brand-new candidate the
+      // honest fact is simply that scoring begins once they hold office or pledge
+      // on the record; for an officeholder we surface that the record is in progress.
       var isCandidate = (d.rank === 'candidate') || /candidate/i.test(d.office || '');
       var headlineIssue = (d.issues || []).filter(function(i) {
         return !/2026 candidate|district \d|congressional district|senate district|house district/i.test(i);
       })[0];
       return {
         kind: isCandidate ? 'newcomer' : 'monitoring',
-        badge: isCandidate ? 'New on the 2026 Ballot' : 'Record Being Compiled',
+        badge: isCandidate ? 'On the 2026 Ballot' : 'Compiling Record',
         badgeIco: isCandidate ? '🆕' : '🛰',
         date: '',
-        title: isCandidate ? 'Just entered the race' : 'Now being tracked by PolitiDex',
+        title: isCandidate ? 'On the 2026 ballot' : 'Now being tracked by PolitiDex',
         teaser: isCandidate
-          ? ('On the 2026 ballot' + (headlineIssue ? ' · Focus: ' + headlineIssue : ''))
-          : 'Voting record being compiled',
+          ? 'Track record begins once they take office or pledge on the record.'
+          : 'PolitiDex is compiling this official’s voting record.',
         body: (d.office || '2026 candidate') + '. ' + (headlineIssue ? ('Signature focus: ' + headlineIssue + '. ') : '') +
           (isCandidate ? 'No public voting record yet — there is nothing to hold them to so far.' : 'A voting record is being compiled for this office right now.'),
         why: 'Watch this space: the Promise % and Truth Score begin the moment they cast votes or make an on-the-record pledge.',
@@ -25653,6 +25675,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // whole strip opens the full Spotlight modal with the detail and source.
     function _krSpotPreviewHtml(pid, s) {
       if (!s) return '';
+      // Genuinely low-information politicians (a brand-new 2026 candidate with no
+      // record, or an officeholder whose record is still being compiled) have no
+      // real story to open. Render a clean, honest status note in the same slot
+      // rather than a clickable spotlight that would open a near-empty modal —
+      // keeping these cards minimal, professional and structurally consistent.
+      if (s.kind === 'newcomer' || s.kind === 'monitoring') {
+        var statusText = (s.teaser || s.title || '').toString();
+        return '<div class="kr-spot-status ' + s.kind + '" role="note">' +
+            '<span class="kr-spot-status-badge">' + s.badgeIco + ' ' + s.badge + '</span>' +
+            '<span class="kr-spot-status-text">' + statusText + '</span>' +
+          '</div>';
+      }
       var teaser = (s.teaser || s.title || '').toString();
       var dateChip = s.date ? '<span class="kr-spot-prev-date">· ' + s.date + '</span>' : '';
       return '<button type="button" onclick="window.keyRacesSpotlight(\'' + pid + '\')" class="kr-spot-preview ' + s.kind + '" aria-label="Spotlight — ' + s.badge + '. Tap for details and source.">' +
