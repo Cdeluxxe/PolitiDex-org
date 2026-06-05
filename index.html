@@ -7338,6 +7338,77 @@
       color: #93c5fd;
       border: 1px solid rgba(59,130,246,0.32);
     }
+    /* ── Collapsible category accordion (shared by both picker panels) ── */
+    .align-cats {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+    .align-cat {
+      background: rgba(10,15,30,0.42);
+      border: 1px solid rgba(139,92,246,0.16);
+      border-radius: 0.85rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .align-cat.open { border-color: rgba(139,92,246,0.34); }
+    .align-cat-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.7rem 0.85rem;
+      text-align: left;
+      transition: background 0.18s;
+    }
+    .align-cat-head:hover { background: rgba(139,92,246,0.08); }
+    .align-cat-title {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #c4b5fd;
+    }
+    .align-cat-ico { font-size: 0.98rem; }
+    .align-cat-meta { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .align-cat-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.15rem;
+      height: 1.15rem;
+      padding: 0 0.35rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(168,85,247,0.7));
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.64rem;
+      font-weight: 800;
+      line-height: 1;
+      box-shadow: 0 0 9px rgba(139,92,246,0.4);
+    }
+    .align-cat-chev {
+      color: #7c6bb0;
+      font-size: 0.72rem;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .align-cat.open .align-cat-chev { transform: rotate(180deg); }
+    .align-cat-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1);
+    }
+    .align-cat.open .align-cat-body { max-height: 360px; }
+    .align-cat-body-inner { padding: 0 0.8rem 0.8rem; }
     .align-score-badge {
       display: inline-flex;
       align-items: center;
@@ -10960,58 +11031,10 @@
               <button onclick="relevantAlignClearAll()" class="font-condensed text-xs text-purple-300 hover:text-purple-200 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;cursor:pointer;">Clear All</button>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
-              <!-- Issue Toggles — opposing options sit next to each other -->
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="lands_preserve" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🏔 Preserve Lands</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="lands_energy" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">⛏ Energy / Develop</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="lower_taxes" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">💰 Lower Taxes</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="gov_services" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🏛 Public Services</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="border_security" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🛡 Border Security</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="immigration_reform" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🤝 Immig. Pathways</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="gun_rights" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🔫 Gun Rights</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="gun_safety" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🦺 Gun Safety</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="school_choice" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🎓 School Choice</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="public_schools" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🍎 Public Schools</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="water" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">💧 Water &amp; Drought</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="healthcare" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🏥 Healthcare</span>
-              </label>
+            <div class="align-cats" id="align-cats-rel">
+              <!-- Same collapsible category accordion as the main panel, rendered by _alignRenderPickers() -->
             </div>
-            
+
             <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
           </div>
         </div>
@@ -11131,54 +11154,8 @@
             </div>
             <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
           </div>
-          <div class="align-groups">
-            <div class="align-group">
-              <div class="align-group-label">🏔 Public Lands &amp; Energy</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="lands_preserve" data-lean="D" onclick="alignToggle(this)">Preserve Lands<span class="align-lean">D</span></button>
-                <span class="align-vs">vs</span>
-                <button class="align-chip" data-align-issue="lands_energy" data-lean="R" onclick="alignToggle(this)">Energy &amp; Develop<span class="align-lean">R</span></button>
-              </div>
-            </div>
-            <div class="align-group">
-              <div class="align-group-label">💰 Taxes &amp; Government</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="lower_taxes" data-lean="R" onclick="alignToggle(this)">Lower Taxes &amp; Small Gov<span class="align-lean">R</span></button>
-                <span class="align-vs">vs</span>
-                <button class="align-chip" data-align-issue="gov_services" data-lean="D" onclick="alignToggle(this)">Public Services &amp; Spending<span class="align-lean">D</span></button>
-              </div>
-            </div>
-            <div class="align-group">
-              <div class="align-group-label">🛡 Immigration</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="border_security" data-lean="R" onclick="alignToggle(this)">Strong Border Security<span class="align-lean">R</span></button>
-                <span class="align-vs">vs</span>
-                <button class="align-chip" data-align-issue="immigration_reform" data-lean="D" onclick="alignToggle(this)">Immigration Pathways<span class="align-lean">D</span></button>
-              </div>
-            </div>
-            <div class="align-group">
-              <div class="align-group-label">🔫 Gun Policy</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="gun_rights" data-lean="R" onclick="alignToggle(this)">Gun Rights<span class="align-lean">R</span></button>
-                <span class="align-vs">vs</span>
-                <button class="align-chip" data-align-issue="gun_safety" data-lean="D" onclick="alignToggle(this)">Gun Safety Laws<span class="align-lean">D</span></button>
-              </div>
-            </div>
-            <div class="align-group">
-              <div class="align-group-label">🎓 Education</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="school_choice" data-lean="R" onclick="alignToggle(this)">Education Choice<span class="align-lean">R</span></button>
-                <span class="align-vs">vs</span>
-                <button class="align-chip" data-align-issue="public_schools" data-lean="D" onclick="alignToggle(this)">Public School Funding<span class="align-lean">D</span></button>
-              </div>
-            </div>
-            <div class="align-group">
-              <div class="align-group-label">💧 Shared Utah Priorities</div>
-              <div class="align-group-row">
-                <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water &amp; Drought</button>
-                <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare Access</button>
-              </div>
-            </div>
+          <div class="align-cats" id="align-cats-main">
+            <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
           </div>
           <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
         </div>
@@ -26285,32 +26262,151 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Directional issues add `lean: 'R' | 'D'` — a balanced "pick a side" option
     // that nudges the match toward candidates on that side (see the directional
     // block in the scoring functions). Issues with no lean stay non-directional
-    // and behave exactly as the original engine did. `group` clusters opposing
-    // options together in the picker UI.
+    // and behave exactly as the original engine did.
+    //
+    // `cat` assigns each issue to one of the ALIGN_CATEGORIES below, which is what
+    // groups opposing options into the collapsible category sections of the picker.
+    // `label` is the full name (emoji + words) used in status lines, the Key Races
+    // breakdown and the quick-adjust chips; `chip` is the shorter button text shown
+    // inside a category row (the category header already supplies the topic + icon).
+    // Both picker surfaces — the main "Personalized Alignment Tool" and the
+    // "My Key Alignments" panel — are rendered from this single map, so they can
+    // never drift out of sync.
     var ISSUE_MAP = {
       // ── Public Lands & Energy ──
-      lands_preserve:     { label: '🏔 Preserve Public Lands', group: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
-      lands_energy:       { label: '⛏ Energy & Land Development', group: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
+      lands_preserve:     { label: '🏔 Preserve Public Lands', chip: 'Preserve Lands', cat: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
+      lands_energy:       { label: '⛏ Energy & Land Development', chip: 'Energy & Develop', cat: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
 
       // ── Taxes & Government ──
-      lower_taxes:        { label: '💰 Lower Taxes & Small Gov', group: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','fiscal','fiscal conservat','fiscal responsibility','deficit','debt','spending cut','small government','balanced budget','appropriation','income tax'] },
-      gov_services:       { label: '🏛 Public Services & Investment', group: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','funding','social','community service','services','paid leave','minimum wage','affordable'] },
+      lower_taxes:        { label: '💰 Lower Taxes & Small Gov', chip: 'Lower Taxes & Small Gov', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','fiscal','fiscal conservat','fiscal responsibility','deficit','debt','spending cut','small government','balanced budget','appropriation','income tax'] },
+      gov_services:       { label: '🏛 Public Services & Investment', chip: 'Public Services & Spending', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','funding','social','community service','services','paid leave','minimum wage','affordable'] },
 
       // ── Immigration ──
-      border_security:    { label: '🛡 Strong Border Security', group: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
-      immigration_reform: { label: '🤝 Immigration Pathways', group: 'immig', lean: 'D', stanceKeys: [], keywords: ['immigration reform','pathway','citizenship','dreamer','daca','asylum','refugee','immigrant','work visa'] },
+      border_security:    { label: '🛡 Strong Border Security', chip: 'Strong Border Security', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
+      immigration_reform: { label: '🤝 Immigration Pathways', chip: 'Immigration Pathways', cat: 'immig', lean: 'D', stanceKeys: [], keywords: ['immigration reform','pathway','citizenship','dreamer','daca','asylum','refugee','immigrant','work visa'] },
 
       // ── Gun Policy ──
-      gun_rights:         { label: '🔫 Gun Rights', group: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
-      gun_safety:         { label: '🦺 Gun Safety Laws', group: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
+      gun_rights:         { label: '🔫 Gun Rights', chip: 'Gun Rights', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
+      gun_safety:         { label: '🦺 Gun Safety Laws', chip: 'Gun Safety Laws', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
 
       // ── Education ──
-      school_choice:      { label: '🎓 Education Choice', group: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','voucher','charter','education freedom','scholarship','homeschool','parental rights'] },
-      public_schools:     { label: '🍎 Public School Funding', group: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
+      school_choice:      { label: '🎓 Education Choice', chip: 'Education Choice', cat: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','voucher','charter','education freedom','scholarship','homeschool','parental rights'] },
+      public_schools:     { label: '🍎 Public School Funding', chip: 'Public School Funding', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
 
-      // ── Shared Utah Priorities (non-directional) ──
-      water:              { label: '💧 Water & Drought', group: 'utah', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
-      healthcare:         { label: '🏥 Healthcare Access', group: 'utah', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','aca','hospital','medical','mental health','insurance','prescription','public health','overdose'] }
+      // ── Healthcare ──
+      healthcare_market:  { label: '💊 Free-Market Healthcare', chip: 'Free-Market Reform', cat: 'health', lean: 'R', stanceKeys: ['healthcare'], keywords: ['market-based','market healthcare','aca repeal','obamacare','deregulation','health savings','price transparency','competition','private insurance','medicaid reform','healthcare cost'] },
+      healthcare:         { label: '🏥 Expand Healthcare Access', chip: 'Expand Access', cat: 'health', lean: 'D', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','medicaid expansion','aca','coverage','uninsured','hospital','medical','mental health','insurance','prescription','public health','overdose'] },
+
+      // ── Economy & Jobs ──
+      econ_growth:        { label: '📈 Business & Growth', chip: 'Business & Growth', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['economy','economic growth','jobs','small business','business','deregulation','free market','entrepreneur','manufacturing','industry','pro-growth','inflation','trade','tariff'] },
+      econ_workers:       { label: '🛠 Workers & Wages', chip: 'Workers & Wages', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
+
+      // ── Water & Environment ──
+      water:              { label: '💧 Water & Drought', chip: '💧 Water & Drought', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
+      climate_action:     { label: '🌱 Climate Action', chip: 'Climate Action', cat: 'enviro', lean: 'D', stanceKeys: [], keywords: ['climate','clean energy','renewable','renewables','emissions','carbon','greenhouse','solar','wind','pollution','environment','air quality','conservation','paris agreement','electric vehicle'] }
+    };
+
+    // Ordered category list that drives the collapsible picker sections. Issues are
+    // slotted into a category via their `cat` key (above), so adding a new issue is
+    // a one-line change here-or-there and both picker surfaces pick it up for free.
+    var ALIGN_CATEGORIES = [
+      { key: 'land',   icon: '🏔', label: 'Public Lands & Energy' },
+      { key: 'gov',    icon: '💰', label: 'Taxes & Government' },
+      { key: 'immig',  icon: '🛡', label: 'Immigration' },
+      { key: 'guns',   icon: '🔫', label: 'Gun Policy' },
+      { key: 'edu',    icon: '🎓', label: 'Education' },
+      { key: 'health', icon: '🏥', label: 'Healthcare' },
+      { key: 'econ',   icon: '📈', label: 'Economy & Jobs' },
+      { key: 'enviro', icon: '💧', label: 'Water & Environment' }
+    ];
+
+    // ── Data-driven picker rendering ───────────────────────────
+    // Both the main "Personalized Alignment Tool" and the "My Key Alignments"
+    // panel mount the SAME accordion, built here from ISSUE_MAP + ALIGN_CATEGORIES.
+    // One source of truth = the two surfaces (and the Key Races chips) can't drift.
+    function _alignCatIssues(catKey) {
+      return Object.keys(ISSUE_MAP).filter(function(k) { return ISSUE_MAP[k].cat === catKey; });
+    }
+
+    function _alignChipHtml(key) {
+      var d = ISSUE_MAP[key];
+      if (!d) return '';
+      var leanAttr = d.lean ? ' data-lean="' + d.lean + '"' : '';
+      var leanBadge = d.lean ? '<span class="align-lean">' + d.lean + '</span>' : '';
+      return '<button type="button" class="align-chip" data-align-issue="' + key + '"' + leanAttr +
+        ' onclick="alignToggle(this)">' + d.chip + leanBadge + '</button>';
+    }
+
+    function _alignCatBodyHtml(catKey) {
+      var keys = _alignCatIssues(catKey);
+      // Two opposing, directional options render as a clear "this vs that" pair.
+      var pair = keys.length === 2 && ISSUE_MAP[keys[0]].lean && ISSUE_MAP[keys[1]].lean;
+      if (pair) {
+        return '<div class="align-group-row">' + _alignChipHtml(keys[0]) +
+          '<span class="align-vs">vs</span>' + _alignChipHtml(keys[1]) + '</div>';
+      }
+      return '<div class="align-group-row">' + keys.map(_alignChipHtml).join('') + '</div>';
+    }
+
+    function _alignBuildPicker() {
+      return ALIGN_CATEGORIES.map(function(c) {
+        return '<div class="align-cat" data-cat="' + c.key + '">' +
+          '<button type="button" class="align-cat-head" onclick="alignToggleCat(this)" aria-expanded="false">' +
+            '<span class="align-cat-title"><span class="align-cat-ico">' + c.icon + '</span>' + c.label + '</span>' +
+            '<span class="align-cat-meta">' +
+              '<span class="align-cat-badge" data-cat-badge="' + c.key + '" style="display:none;">0</span>' +
+              '<span class="align-cat-chev">▾</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="align-cat-body"><div class="align-cat-body-inner">' + _alignCatBodyHtml(c.key) + '</div></div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // Reflect the live selection onto every chip + per-category count badge across
+    // BOTH panels at once, so a change made on one surface shows on the other.
+    function _alignSyncAllChips() {
+      document.querySelectorAll('.align-chip[data-align-issue]').forEach(function(chip) {
+        var k = chip.getAttribute('data-align-issue');
+        if (_alignIssues.has(k)) chip.classList.add('active');
+        else chip.classList.remove('active');
+      });
+      var counts = {};
+      _alignIssues.forEach(function(k) {
+        var d = ISSUE_MAP[k];
+        if (d && d.cat) counts[d.cat] = (counts[d.cat] || 0) + 1;
+      });
+      document.querySelectorAll('.align-cat-badge[data-cat-badge]').forEach(function(b) {
+        var c = b.getAttribute('data-cat-badge');
+        var n = counts[c] || 0;
+        b.textContent = n;
+        b.style.display = n > 0 ? 'inline-flex' : 'none';
+      });
+    }
+
+    function _alignRenderPickers() {
+      var html = _alignBuildPicker();
+      ['align-cats-main', 'align-cats-rel'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      });
+      _alignSyncAllChips();
+      // Auto-expand any category that already has a selected issue so returning
+      // visitors immediately see what's driving their score; the rest stay tidy.
+      document.querySelectorAll('.align-cat').forEach(function(cat) {
+        if (cat.querySelector('.align-chip.active')) {
+          cat.classList.add('open');
+          var head = cat.querySelector('.align-cat-head');
+          if (head) head.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
+
+    window.alignToggleCat = function(btn) {
+      var cat = btn.closest('.align-cat');
+      if (!cat) return;
+      var open = cat.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
 
     function _alignLoad() {
@@ -26640,25 +26736,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     window.alignToggle = function(btn) {
       var issue = btn.getAttribute('data-align-issue');
-      if (_alignIssues.has(issue)) {
-        _alignIssues.delete(issue);
-        btn.classList.remove('active');
-      } else {
-        _alignIssues.add(issue);
-        btn.classList.add('active');
-      }
+      if (!issue) return;
+      if (_alignIssues.has(issue)) _alignIssues.delete(issue);
+      else _alignIssues.add(issue);
       _alignSave();
+      // _alignRefreshAll re-syncs every chip across both panels, so the chip the
+      // visitor clicked and its twin on the other surface stay in lockstep.
       _alignRefreshAll();
     };
 
     window.alignClearAll = function() {
       _alignIssues.clear();
       _alignSave();
-      document.querySelectorAll('.align-chip').forEach(function(c) { c.classList.remove('active'); });
       _alignRefreshAll();
     };
 
     function _alignRefreshAll() {
+      _alignSyncAllChips();
       _alignUpdateStatus();
       _alignSyncBrowseChips();
 
@@ -26689,11 +26783,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     function syncRelevantAlignmentUI() {
-      document.querySelectorAll('#relevant-alignments-panel input[type="checkbox"]').forEach(function(checkbox) {
-        var issue = checkbox.getAttribute('data-relevant-issue');
-        checkbox.checked = _alignIssues.has(issue);
-      });
-      
+      // Chip active-state is handled centrally by _alignSyncAllChips; here we only
+      // keep the "My Key Alignments" status line in step with the selection.
       var statusEl = document.getElementById('relevant-align-status');
       if (statusEl) {
         var n = _alignIssues.size;
@@ -26713,39 +26804,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window.syncRelevantAlignmentUI = syncRelevantAlignmentUI;
 
     window.toggleRelevantCheckbox = function(checkbox) {
+      // Legacy entry point (the panel now uses chips). Kept so any cached markup
+      // still toggles correctly; routes through the same unified path.
       var issue = checkbox.getAttribute('data-relevant-issue');
       if (!issue) return;
-      
-      if (checkbox.checked) {
-        _alignIssues.add(issue);
-      } else {
-        _alignIssues.delete(issue);
-      }
-      
+      if (checkbox.checked) _alignIssues.add(issue);
+      else _alignIssues.delete(issue);
       _alignSave();
-      
-      // Update chips in main alignment panel
-      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(chip) {
-        var chipIssue = chip.getAttribute('data-align-issue');
-        if (_alignIssues.has(chipIssue)) {
-          chip.classList.add('active');
-        } else {
-          chip.classList.remove('active');
-        }
-      });
-      
       _alignRefreshAll();
     };
 
     window.relevantAlignClearAll = function() {
       _alignIssues.clear();
       _alignSave();
-      
-      // Clear main alignment panel active chips
-      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(c) { 
-        c.classList.remove('active'); 
-      });
-      
       _alignRefreshAll();
     };
 
@@ -26836,21 +26907,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (_alignIssues.has(issueKey)) _alignIssues.delete(issueKey);
       else _alignIssues.add(issueKey);
       _alignSave();
-      // Mirror the change onto the main alignment-panel chips so the two stay
-      // consistent whichever surface the visitor used to make the change.
-      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(chip) {
-        var ci = chip.getAttribute('data-align-issue');
-        if (_alignIssues.has(ci)) chip.classList.add('active'); else chip.classList.remove('active');
-      });
+      // _alignRefreshAll re-syncs both picker panels' chips, so a change made from
+      // the Key Races quick-adjust mirrors onto the pickers and vice-versa.
       _alignRefreshAll();
     };
 
     function _alignInit() {
       _alignLoad();
-      document.querySelectorAll('#alignment-panel .align-chip').forEach(function(chip) {
-        var issue = chip.getAttribute('data-align-issue');
-        if (_alignIssues.has(issue)) chip.classList.add('active');
-      });
+      _alignRenderPickers();
       _alignUpdateStatus();
       _alignSyncBrowseChips();
       syncRelevantAlignmentUI();
