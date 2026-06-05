@@ -13101,7 +13101,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var ADMIN_EMAILS = ["Cdeluxxe@gmail.com"];
 
       function isAdminUser(user) {
+        // Simple, reliable check requested for the admin gate:
+        //   if (user && user.email === "Cdeluxxe@gmail.com")
         if (user && user.email === "Cdeluxxe@gmail.com") {
+          return true;
+        }
+        // Reliability guard: Firebase can return the email in a different
+        // letter case than it was typed (e.g. "cdeluxxe@gmail.com"), which
+        // would make the strict check above miss the admin. Compare again
+        // case-insensitively so the tool reliably appears for the admin.
+        if (user && typeof user.email === "string" &&
+            user.email.toLowerCase() === "cdeluxxe@gmail.com") {
           return true;
         }
         return false;
