@@ -7263,10 +7263,55 @@
       color: #e0d5ff;
       box-shadow: 0 0 12px rgba(139,92,246,0.2);
     }
-    .align-chip.active::before {
-      content: '✓ ';
-      font-size: 0.65rem;
+    /* ── Multi-select position list (checkbox style) ──
+       Each topic shows its positions as full-width, left-aligned checkbox rows so a
+       visitor can tick every perspective they agree with, including a balanced one. */
+    .align-opt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
     }
+    .align-opt-list .align-chip {
+      width: 100%;
+      justify-content: flex-start;
+      align-items: flex-start;
+      border-radius: 0.7rem;
+      padding: 0.55rem 0.7rem;
+      white-space: normal;
+      text-align: left;
+      line-height: 1.2;
+      gap: 0.55rem;
+    }
+    .align-opt-box {
+      flex: 0 0 auto;
+      width: 1.05rem;
+      height: 1.05rem;
+      margin-top: 0.05rem;
+      border-radius: 0.3rem;
+      border: 1.5px solid rgba(139,92,246,0.45);
+      background: rgba(10,15,30,0.5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s;
+    }
+    .align-opt-box::after {
+      content: '✓';
+      font-size: 0.7rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.18s;
+    }
+    .align-chip.active .align-opt-box {
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      border-color: rgba(168,85,247,0.9);
+      box-shadow: 0 0 8px rgba(139,92,246,0.45);
+    }
+    .align-chip.active .align-opt-box::after { opacity: 1; transform: scale(1); }
+    .align-opt-text { flex: 1 1 auto; min-width: 0; }
     /* Grouped, side-by-side issue picker — opposing options sit together so it's
        clear the visitor is choosing a side, not just a topic. */
     .align-groups {
@@ -7407,7 +7452,7 @@
       overflow: hidden;
       transition: max-height 0.32s cubic-bezier(0.4,0,0.2,1);
     }
-    .align-cat.open .align-cat-body { max-height: 360px; }
+    .align-cat.open .align-cat-body { max-height: 600px; }
     .align-cat-body-inner { padding: 0 0.8rem 0.8rem; }
     .align-score-badge {
       display: inline-flex;
@@ -11016,7 +11061,7 @@
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow: 0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-lg tracking-wider text-purple-300 uppercase leading-none m-0">My Key Alignments</h4>
-                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the issues you care about — and which side you lean — to personalize alignment scores on your representative cards</p>
+                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the positions you agree with on each issue — choose as many as you like — to personalize alignment scores on your representative cards</p>
               </div>
             </div>
             <div id="relevant-alignments-chevron" class="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/20 text-purple-300 border border-purple-500/20 transition-transform duration-300">
@@ -11149,7 +11194,7 @@
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
-                <p class="font-condensed text-xs text-steel-400 mt-1">Pick the issues you care about — and which side you lean. Every politician card updates with a personalized match.</p>
+                <p class="font-condensed text-xs text-steel-400 mt-1">Check the positions you agree with on each issue — pick as many as you like. Every politician card updates with a personalized match.</p>
               </div>
             </div>
             <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
@@ -26258,52 +26303,70 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var ALIGN_KEY = 'politidex_align_issues';
     var _alignIssues = new Set();
 
-    // Each issue carries the keywords/stanceKeys the engine already understands.
-    // Directional issues add `lean: 'R' | 'D'` — a balanced "pick a side" option
-    // that nudges the match toward candidates on that side (see the directional
-    // block in the scoring functions). Issues with no lean stay non-directional
-    // and behave exactly as the original engine did.
+    // Each topic now offers SEVERAL selectable positions (checkbox style) instead
+    // of a forced "this side vs that side" pair — a visitor can agree with more
+    // than one perspective on the same topic, and most topics include a balanced /
+    // middle-ground option for people who don't fall neatly on one end.
     //
-    // `cat` assigns each issue to one of the ALIGN_CATEGORIES below, which is what
-    // groups opposing options into the collapsible category sections of the picker.
-    // `label` is the full name (emoji + words) used in status lines, the Key Races
-    // breakdown and the quick-adjust chips; `chip` is the shorter button text shown
-    // inside a category row (the category header already supplies the topic + icon).
-    // Both picker surfaces — the main "Personalized Alignment Tool" and the
-    // "My Key Alignments" panel — are rendered from this single map, so they can
-    // never drift out of sync.
+    // Each option carries the keywords/stanceKeys the engine already understands.
+    // An optional `lean: 'R' | 'D'` is used only internally by the scoring engine
+    // to nudge the per-position match toward candidates with a matching record
+    // (see _alignApplyLean); it is intentionally NOT shown in the UI anymore, so
+    // the tool reads as policy positions rather than party branding. Options with
+    // no lean (including every balanced option) score purely on the candidate's
+    // own record and behave exactly as the original non-directional issues did.
+    //
+    // `cat` assigns each option to one of the ALIGN_CATEGORIES below, which groups
+    // the positions into the collapsible topic sections of the picker. `label` is
+    // the full name (emoji + words) used in status lines, the Key Races breakdown
+    // and the quick-adjust chips; `chip` is the position statement shown inside the
+    // topic's option list. Both picker surfaces — the main "Personalized Alignment
+    // Tool" and the "My Key Alignments" panel — are rendered from this single map,
+    // so they can never drift out of sync, and the scoring engine treats every
+    // selected position as its own weighted issue, so selecting several positions
+    // in one topic simply blends their matches together.
     var ISSUE_MAP = {
       // ── Public Lands & Energy ──
-      lands_preserve:     { label: '🏔 Preserve Public Lands', chip: 'Preserve Lands', cat: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
-      lands_energy:       { label: '⛏ Energy & Land Development', chip: 'Energy & Develop', cat: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
+      lands_preserve:     { label: '🏔 Protect Public Lands', chip: 'Protect public lands & wild places for future generations', cat: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
+      lands_balance:      { label: '⚖️ Balanced Land Use', chip: 'Balance conservation with responsible, limited development', cat: 'land', stanceKeys: ['dataCenters'], keywords: ['public land','conservation','multiple use','responsible development','recreation','stewardship','grazing','forest','water','land management','balance'] },
+      lands_local:        { label: '🤠 Local Land Control', chip: 'Give states & local communities more say over land decisions', cat: 'land', stanceKeys: [], keywords: ['state land','land rights','local control','federal land','transfer','county','public land','grazing','states rights'] },
+      lands_energy:       { label: '⛏ Energy & Resource Development', chip: 'Expand domestic energy, mining & resource development', cat: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
 
       // ── Taxes & Government ──
-      lower_taxes:        { label: '💰 Lower Taxes & Small Gov', chip: 'Lower Taxes & Small Gov', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','fiscal','fiscal conservat','fiscal responsibility','deficit','debt','spending cut','small government','balanced budget','appropriation','income tax'] },
-      gov_services:       { label: '🏛 Public Services & Investment', chip: 'Public Services & Spending', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','funding','social','community service','services','paid leave','minimum wage','affordable'] },
+      lower_taxes:        { label: '💰 Lower Taxes & Limited Government', chip: 'Cut taxes and keep government small and limited', cat: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','fiscal','fiscal conservat','fiscal responsibility','deficit','debt','spending cut','small government','balanced budget','appropriation','income tax'] },
+      gov_balance:        { label: '⚖️ Fiscal Balance', chip: 'Fund key priorities while keeping the budget balanced', cat: 'gov', stanceKeys: ['debt'], keywords: ['balanced budget','fiscal responsibility','deficit','debt','spending','accountability','efficiency','waste','reform','budget','bipartisan'] },
+      gov_services:       { label: '🏛 Invest in Public Services', chip: 'Invest in public services and a strong safety net', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','funding','social','community service','services','paid leave','minimum wage','affordable'] },
 
       // ── Immigration ──
-      border_security:    { label: '🛡 Strong Border Security', chip: 'Strong Border Security', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
-      immigration_reform: { label: '🤝 Immigration Pathways', chip: 'Immigration Pathways', cat: 'immig', lean: 'D', stanceKeys: [], keywords: ['immigration reform','pathway','citizenship','dreamer','daca','asylum','refugee','immigrant','work visa'] },
+      border_security:    { label: '🛡 Strong Border Security', chip: 'Secure the border and enforce immigration law', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
+      immig_balance:      { label: '⚖️ Secure Border + Legal Pathways', chip: 'Combine strong border security with earned legal pathways', cat: 'immig', stanceKeys: ['border'], keywords: ['border','immigration','legal immigration','work visa','reform','enforcement','pathway','comprehensive','bipartisan','guest worker'] },
+      immigration_reform: { label: '🤝 Pathways to Citizenship', chip: 'Create pathways to citizenship and welcome immigrants', cat: 'immig', lean: 'D', stanceKeys: [], keywords: ['immigration reform','pathway','citizenship','dreamer','daca','asylum','refugee','immigrant','work visa'] },
 
       // ── Gun Policy ──
-      gun_rights:         { label: '🔫 Gun Rights', chip: 'Gun Rights', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
-      gun_safety:         { label: '🦺 Gun Safety Laws', chip: 'Gun Safety Laws', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
+      gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
+      gun_balance:        { label: '⚖️ Rights + Common-Sense Safety', chip: 'Protect lawful ownership with common-sense safety checks', cat: 'guns', stanceKeys: ['gun'], keywords: ['background check','gun safety','second amendment','firearm','responsible','red flag','mental health','common sense','gun reform'] },
+      gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
 
       // ── Education ──
-      school_choice:      { label: '🎓 Education Choice', chip: 'Education Choice', cat: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','voucher','charter','education freedom','scholarship','homeschool','parental rights'] },
-      public_schools:     { label: '🍎 Public School Funding', chip: 'Public School Funding', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
+      school_choice:      { label: '🎓 School Choice', chip: 'Expand school choice and parental rights in education', cat: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','voucher','charter','education freedom','scholarship','homeschool','parental rights'] },
+      edu_balance:        { label: '⚖️ Strengthen Every School', chip: 'Strengthen public schools while expanding family options', cat: 'edu', stanceKeys: [], keywords: ['public school','school funding','school choice','teacher','education','charter','accountability','student','classroom','reform'] },
+      public_schools:     { label: '🍎 Invest in Public Schools', chip: 'Invest in public schools, teachers and student support', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
 
       // ── Healthcare ──
-      healthcare_market:  { label: '💊 Free-Market Healthcare', chip: 'Free-Market Reform', cat: 'health', lean: 'R', stanceKeys: ['healthcare'], keywords: ['market-based','market healthcare','aca repeal','obamacare','deregulation','health savings','price transparency','competition','private insurance','medicaid reform','healthcare cost'] },
-      healthcare:         { label: '🏥 Expand Healthcare Access', chip: 'Expand Access', cat: 'health', lean: 'D', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','medicaid expansion','aca','coverage','uninsured','hospital','medical','mental health','insurance','prescription','public health','overdose'] },
+      healthcare_market:  { label: '💊 Market-Based Healthcare', chip: 'Lower costs through competition and price transparency', cat: 'health', lean: 'R', stanceKeys: ['healthcare'], keywords: ['market-based','market healthcare','aca repeal','obamacare','deregulation','health savings','price transparency','competition','private insurance','medicaid reform','healthcare cost'] },
+      health_balance:     { label: '⚖️ Lower Costs, Keep Coverage', chip: 'Lower costs with a mix of private and public options', cat: 'health', stanceKeys: ['healthcare'], keywords: ['healthcare','health','cost','prescription','price transparency','coverage','insurance','medical','mental health','reform','affordable'] },
+      healthcare:         { label: '🏥 Expand Healthcare Access', chip: 'Expand healthcare access and coverage for everyone', cat: 'health', lean: 'D', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','medicaid expansion','aca','coverage','uninsured','hospital','medical','mental health','insurance','prescription','public health','overdose'] },
 
       // ── Economy & Jobs ──
-      econ_growth:        { label: '📈 Business & Growth', chip: 'Business & Growth', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['economy','economic growth','jobs','small business','business','deregulation','free market','entrepreneur','manufacturing','industry','pro-growth','inflation','trade','tariff'] },
-      econ_workers:       { label: '🛠 Workers & Wages', chip: 'Workers & Wages', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
+      econ_growth:        { label: '📈 Pro-Business Growth', chip: 'Grow the economy by supporting business and cutting red tape', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['economy','economic growth','jobs','small business','business','deregulation','free market','entrepreneur','manufacturing','industry','pro-growth','inflation','trade','tariff'] },
+      econ_balance:       { label: '⚖️ Balanced Prosperity', chip: 'Grow business while protecting workers and families', cat: 'econ', stanceKeys: [], keywords: ['economy','jobs','small business','workers','wage','cost of living','middle class','manufacturing','affordable','growth','opportunity'] },
+      econ_workers:       { label: '🛠 Workers & Wages', chip: 'Raise wages and strengthen protections for workers', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
 
       // ── Water & Environment ──
-      water:              { label: '💧 Water & Drought', chip: '💧 Water & Drought', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
-      climate_action:     { label: '🌱 Climate Action', chip: 'Climate Action', cat: 'enviro', lean: 'D', stanceKeys: [], keywords: ['climate','clean energy','renewable','renewables','emissions','carbon','greenhouse','solar','wind','pollution','environment','air quality','conservation','paris agreement','electric vehicle'] }
+      water:              { label: '💧 Water & Drought Security', chip: 'Protect water supplies and build drought resilience', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
+      enviro_balance:     { label: '⚖️ Practical Stewardship', chip: 'Practical conservation that balances jobs and the environment', cat: 'enviro', stanceKeys: [], keywords: ['conservation','environment','stewardship','clean air','clean water','recreation','balance','wildlife','land','responsible'] },
+      climate_action:     { label: '🌱 Climate Action & Clean Energy', chip: 'Act on climate and invest in clean energy', cat: 'enviro', lean: 'D', stanceKeys: [], keywords: ['climate','clean energy','renewable','renewables','emissions','carbon','greenhouse','solar','wind','pollution','environment','air quality','conservation','paris agreement','electric vehicle'] },
+      enviro_energy:      { label: '⚡ Energy Independence', chip: 'All-of-the-above energy for reliable, affordable power', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy','energy independence','nuclear','natural gas','oil','grid','reliable','affordable','all of the above','domestic energy','baseload'] }
     };
 
     // Ordered category list that drives the collapsible picker sections. Issues are
@@ -26331,21 +26394,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _alignChipHtml(key) {
       var d = ISSUE_MAP[key];
       if (!d) return '';
-      var leanAttr = d.lean ? ' data-lean="' + d.lean + '"' : '';
-      var leanBadge = d.lean ? '<span class="align-lean">' + d.lean + '</span>' : '';
-      return '<button type="button" class="align-chip" data-align-issue="' + key + '"' + leanAttr +
-        ' onclick="alignToggle(this)">' + d.chip + leanBadge + '</button>';
+      // No party (R/D) badge — the option reads as a policy position, and the
+      // checkbox box on the left makes the multi-select nature obvious. The lean,
+      // when present, is used silently by the scoring engine only.
+      return '<button type="button" class="align-chip align-opt" data-align-issue="' + key + '"' +
+        ' aria-pressed="false" onclick="alignToggle(this)">' +
+        '<span class="align-opt-box" aria-hidden="true"></span>' +
+        '<span class="align-opt-text">' + d.chip + '</span>' +
+      '</button>';
     }
 
     function _alignCatBodyHtml(catKey) {
+      // Every position in the topic is an independent checkbox — visitors can pick
+      // as many as they agree with (including a balanced middle option), instead of
+      // being forced into a single "this vs that" choice.
       var keys = _alignCatIssues(catKey);
-      // Two opposing, directional options render as a clear "this vs that" pair.
-      var pair = keys.length === 2 && ISSUE_MAP[keys[0]].lean && ISSUE_MAP[keys[1]].lean;
-      if (pair) {
-        return '<div class="align-group-row">' + _alignChipHtml(keys[0]) +
-          '<span class="align-vs">vs</span>' + _alignChipHtml(keys[1]) + '</div>';
-      }
-      return '<div class="align-group-row">' + keys.map(_alignChipHtml).join('') + '</div>';
+      return '<div class="align-opt-list">' + keys.map(_alignChipHtml).join('') + '</div>';
     }
 
     function _alignBuildPicker() {
@@ -26368,8 +26432,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _alignSyncAllChips() {
       document.querySelectorAll('.align-chip[data-align-issue]').forEach(function(chip) {
         var k = chip.getAttribute('data-align-issue');
-        if (_alignIssues.has(k)) chip.classList.add('active');
-        else chip.classList.remove('active');
+        var on = _alignIssues.has(k);
+        chip.classList.toggle('active', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
       var counts = {};
       _alignIssues.forEach(function(k) {
@@ -26426,17 +26491,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
     }
 
-    // Directional "pick a side" adjustment. A balanced issue (lean 'R' or 'D')
-    // pulls the per-issue match toward candidates whose party matches the chosen
-    // side and away from the opposite side, while the candidate's own record
-    // (already baked into `score`) still moves the result. Unknown/independent
-    // parties and non-directional issues are left untouched, so existing scoring
-    // behaviour is unchanged.
+    // Directional nudge for positions that carry an internal lean. It pulls the
+    // per-position match gently toward candidates whose record matches the position
+    // and away from the opposite, but the candidate's own record (already baked into
+    // `score`) stays the dominant factor — so the tool reads on policy substance, not
+    // party. The pull is deliberately light (record weighted 0.78) and balanced
+    // options carry no lean at all, so they score purely on the candidate's record.
     function _alignApplyLean(score, lean, d) {
       var party = (d && d.party ? String(d.party) : '').toUpperCase().charAt(0);
       if (party !== 'R' && party !== 'D') return score;
-      var target = (party === lean) ? 90 : 26;
-      return score * 0.62 + target * 0.38;
+      var target = (party === lean) ? 80 : 38;
+      return score * 0.78 + target * 0.22;
     }
 
     function _calcAlignmentScore(pid) {
