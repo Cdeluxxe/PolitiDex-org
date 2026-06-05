@@ -4846,6 +4846,42 @@
       .kr-align-inline-num { font-size: 1.6rem; }
     }
 
+    /* ── Prominent "Your Match" alignment bar on browse / database / team cards ──
+       Makes the personalized alignment % a first-class, scannable feature on every
+       card list — the same prominence it already has in Your Key Races — instead of
+       a small ring in the corner. Teal "your match" theme (distinct from the gold
+       Promise % and purple Truth Score), a plain-language "Your Match: NN%" label,
+       a colour-coded Strong / Partial / Weak badge and a mini progress bar so the
+       number's meaning reads instantly. The whole strip is tappable and opens the
+       issue-by-issue breakdown modal shared with Key Races. */
+    .align-card-bar {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.65rem; border-radius: 0.7rem; cursor: pointer; text-align: left;
+      background: linear-gradient(135deg, rgba(20,184,166,0.16), rgba(45,212,191,0.04));
+      border: 1px solid rgba(45,212,191,0.45);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .align-card-bar:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(20,184,166,0.22), rgba(45,212,191,0.06)); }
+    .align-card-bar:active { transform: scale(0.99); }
+    .align-card-num { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1.75rem; line-height: 0.9; flex-shrink: 0; }
+    .align-card-main { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 0.18rem; }
+    .align-card-titlerow { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .align-card-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; font-size: 0.74rem; }
+    .align-card-badge { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.54rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.06rem 0.42rem; border-radius: 999px; white-space: nowrap; line-height: 1.3; }
+    .align-card-mini { height: 5px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; }
+    .align-card-mini > div { height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+    .align-card-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; letter-spacing: 0.04em; color: #8ea2c0; text-transform: uppercase; line-height: 1.2; }
+    .align-card-sub b { color: #9fdbd0; font-weight: 700; }
+    .align-card-chev { flex-shrink: 0; color: #5eead4; font-size: 0.78rem; line-height: 1; width: 1.5rem; height: 1.5rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.3); }
+    .align-card-bar:hover .align-card-chev { background: rgba(45,212,191,0.2); }
+    /* Setup prompt variant shown when the visitor hasn't chosen any issues yet —
+       a slim, single-line invitation so it stays light when repeated across a list. */
+    .align-card-bar.setup { background: rgba(20,184,166,0.06); border: 1px dashed rgba(45,212,191,0.42); padding: 0.4rem 0.6rem; }
+    .align-card-bar.setup .align-card-title { color: #7ee7d8; }
+    @media (max-width: 380px) {
+      .align-card-num { font-size: 1.55rem; }
+    }
+
     /* Personalized-alignment quick-view modal (opened from the Align button) */
     .kraq-overlay { position: fixed; inset: 0; z-index: 130; background: rgba(2,6,18,0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
     .kraq-card { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: linear-gradient(180deg, rgba(17,24,46,0.98), rgba(10,15,30,0.98)); border: 1px solid rgba(45,212,191,0.32); border-radius: 1.1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(20,184,166,0.12); }
@@ -23289,7 +23325,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var isFav = _favoritePids.has(pid);
       var isLocal = _pdxIsLocalToUser(pid);
       var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
-      var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '';
+      var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      var alignBarRow = alignBar ? '<div style="margin-bottom:0.7rem;">' + alignBar + '</div>' : '';
 
       var photoUrl = BROWSE_PHOTOS[pid] || '';
       var photoHtml = photoUrl
@@ -23326,12 +23363,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '<div class="chub-score" style="color:' + scCol + ';font-size:2.2rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</div>' +
                 '<div class="font-condensed text-xs text-steel-400 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">Promise %</div>' +
               '</div>' +
-              alignHtml +
               '<div class="flex flex-wrap gap-1">' +
                 d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
               '</div>' +
             '</div>' +
             '<div style="margin-bottom:0.65rem;"><div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
+            alignBarRow +
             '<div class="flex items-center gap-2 flex-wrap">' +
               '<button class="' + addBtnClass + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + ' style="font-size:0.78rem;padding:0.55rem 1.15rem;">' + addBtnText + '</button>' +
               '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" style="font-size:0.75rem;padding:0.5rem 1rem;">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
@@ -23357,7 +23394,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var isFav = _favoritePids.has(pid);
       var isLocal = _pdxIsLocalToUser(pid);
       var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
-      var alignHtml = typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '';
+      var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      var alignBarRow = alignBar ? '<div style="margin:0.1rem 0 0.55rem;">' + alignBar + '</div>' : '';
 
       var photoUrl = BROWSE_PHOTOS[pid] || '';
       var photoHtml = photoUrl
@@ -23400,13 +23438,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '</div>' +
               // Accountability Score badge (purple) — sits beside the Promise Score for at-a-glance comparison
               '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + ((typeof window._acctCardBadge === 'function') ? window._acctCardBadge(pid) : '') + '</span>' +
-              alignHtml +
               '<div class="flex flex-wrap gap-1">' +
                 d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
               '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
+        // Personalized "Your Match" bar — a first-class, tappable read of how this
+        // officeholder fits the visitor's own issues, on par with the Promise Score.
+        alignBarRow +
         // Expandable Accountability analysis (condensed, lazy-loaded only when opened)
         '<button type="button" id="acctbtn-' + pid + '" onclick="event.stopPropagation();toggleCardAccountability(\'' + pid + '\')" style="width:100%;margin-top:0.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:0.5rem;padding:0.45rem 0.6rem;color:#c4b5fd;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(139,92,246,0.16)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.08)\'">' +
           '<span>🛡️</span><span class="acct-exp-label">View Accountability Analysis</span>' +
@@ -23440,6 +23480,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       var noRecord = (status === 'candidate' && (d.score === null || d.score === undefined))
         ? '<span class="chub-candidate-norecord">⏳ No voting record yet</span>' : '';
+
+      // Personalized match bar — only once the visitor has chosen issues, so the
+      // lighter candidate card stays minimal by default and never shows an empty
+      // prompt. Returns '' when there's no record to ground a score.
+      var alignBar = (typeof _alignCardBar === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0) ? _alignCardBar(pid) : '';
+      var alignBarRow = alignBar ? '<div style="margin-top:0.55rem;">' + alignBar + '</div>' : '';
 
       // Clear, always-present label so a candidate card can never be mistaken for a
       // sitting officeholder. Former officeholders get their own neutral label.
@@ -23476,6 +23522,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               noRecord +
               d.issues.slice(0, 2).map(function(i) { return '<span class="inline-block bg-navy-900/50 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
             '</div>' +
+            alignBarRow +
             // Buttons row (kept minimal)
             '<div class="grid grid-cols-2 gap-2 w-full mt-2">' +
               '<button onclick="showProfile(\'' + pid + '\')" class="chub-view-profile-btn">View Profile</button>' +
@@ -24428,7 +24475,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       const localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
       const myBadge = isMy ? '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">★ Saved</span>' : '';
       const potBadge = isPotential ? '<span class="potential-badge">🌟 Watching</span>' : '';
-      const alignRingHtml = (typeof _alignScoreHtml === 'function') ? _alignScoreHtml(pid, 'ring') : '';
+      const alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      const alignBarRow = alignBar ? '<div style="margin:0.1rem 0 0.65rem;">' + alignBar + '</div>' : '';
       const statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
       const unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       const isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
@@ -24441,7 +24489,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div class="chub-score" style="color:' + scCol + ';">' + scTxt + '</div>' +
               '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">Score</div>' +
             '</div>' +
-            alignRingHtml +
           '</div>' +
           '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
@@ -24455,6 +24502,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="flex flex-wrap gap-1 mb-2">' +
               d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
             '</div>' +
+            alignBarRow +
             '<div class="flex items-center gap-2">' +
               '<button class="chub-add-btn ' + (sel ? 'chub-added' : '') + '" onclick="chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
               '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-500 hover:text-steel-300 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;padding:0.3rem 0;">View Profile</button>' +
@@ -27372,6 +27420,48 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
     }
 
+    // Prominent, tappable "Your Match" bar used on the browse / database / candidate
+    // card lists. Unlike the small corner ring, this reads as a core feature: a big
+    // teal score, a plain-language "Your Match: NN%" label, a colour-coded
+    // Strong / Partial / Weak badge, a mini progress bar, and a clear note that the
+    // number is built from the visitor's own selected issues. Tapping opens the full
+    // issue-by-issue breakdown modal (shared with Your Key Races) for any politician.
+    // Returns:
+    //   • a "See Your Personal Match" prompt (→ issue picker) when no issues chosen,
+    //   • '' when issues are chosen but this person has no record to ground a score
+    //     (keeps recordless candidate cards clean),
+    //   • the full match bar otherwise.
+    function _alignCardBar(pid) {
+      var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
+            : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
+      if (!n) {
+        return '<button type="button" onclick="event.stopPropagation();if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="align-card-bar setup" aria-label="Set the issues you care about to see your personalized match">' +
+            '<span class="align-card-num" style="color:#5eead4;font-size:1.15rem;">🎯</span>' +
+            '<span class="align-card-main" style="gap:0;">' +
+              '<span class="align-card-title">See Your Personal Match</span>' +
+            '</span>' +
+            '<span class="align-card-chev">›</span>' +
+          '</button>';
+      }
+      var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (score === null || score === undefined) return '';
+      var col = _alignScoreColor(score);
+      var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+          '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
+          '<span class="align-card-main">' +
+            '<span class="align-card-titlerow">' +
+              '<span class="align-card-title" style="color:' + col + ';">🎯 Your Match</span>' +
+              '<span class="align-card-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
+            '</span>' +
+            '<span class="align-card-mini"><div style="width:' + score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
+            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
+          '</span>' +
+          '<span class="align-card-chev">▾</span>' +
+        '</button>';
+    }
+    window._alignCardBar = _alignCardBar;
+
     function _alignScoreHtml(pid, size, usePurpleTheme) {
       if (_alignIssues.size === 0) {
         if (size === 'ring') {
@@ -27390,23 +27480,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (score === null) return '';
       var col = usePurpleTheme ? '#c084fc' : _alignScoreColor(score);
       var cls = _alignScoreClass(score);
+      // Every scored output is now tappable and opens the shared issue-by-issue
+      // breakdown modal, so personalized alignment is an explorable feature on every
+      // card list — not just a static number.
+      var _openBd = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (size === 'small') {
-        return '<span class="align-score-badge" style="border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 ' + score + '% Aligned</span>';
-      }
-      
-      if (usePurpleTheme) {
-        return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;">' +
-          '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
-            '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
-            '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">Alignment %</div>' +
-          '</div>' +
-        '</div>';
+        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>';
       }
 
-      return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;">' +
+      if (usePurpleTheme) {
+        return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
+          '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
+            '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
+            '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">🎯 Your Match</div>' +
+          '</div>' +
+        '</button>';
+      }
+
+      return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
         '<div class="align-score-ring ' + cls + '" style="border-color:' + col + '99;color:' + col + ';background:' + col + '14;box-shadow:0 0 14px ' + col + '22;">' + score + '%</div>' +
-        '<div class="align-pct-label" style="color:' + col + '99;">🎯 Align</div>' +
-      '</div>';
+        '<div class="align-pct-label" style="color:' + col + '99;">🎯 Your Match</div>' +
+      '</button>';
     }
 
     window.alignToggle = function(btn) {
