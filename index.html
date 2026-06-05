@@ -7526,6 +7526,40 @@
       gap: 0.5rem;
       margin-bottom: 0.85rem;
     }
+    /* Labelled section divider that groups related topics in the picker. */
+    .align-group-divider {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #8b7fd0;
+      margin: 0.65rem 0 0.1rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(139,92,246,0.18);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .align-group-divider:first-child { margin-top: 0; }
+    /* Forward-looking hint: saving an Alignment Signature to a profile (future). */
+    .align-future-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.7rem;
+      border: 1px dashed rgba(139,92,246,0.4);
+      background: rgba(139,92,246,0.07);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      color: #b9aee8;
+    }
+    .align-future-note strong { color: #d6cbff; font-weight: 700; }
+    .align-future-ico { flex: 0 0 auto; font-size: 0.9rem; line-height: 1.2; }
     .align-cat {
       background: rgba(10,15,30,0.42);
       border: 1px solid rgba(139,92,246,0.16);
@@ -11318,6 +11352,12 @@
             </div>
 
             <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
+
+            <!-- Hint at upcoming personalization: saving an "Alignment Signature" to a profile -->
+            <div class="align-future-note">
+              <span class="align-future-ico">✨</span>
+              <span><strong>Coming soon:</strong> Save your picks as a personal <strong>Alignment Signature</strong> to your profile to unlock personalized politician matches across every device.</span>
+            </div>
           </div>
         </div>
 
@@ -11440,6 +11480,11 @@
             <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
           </div>
           <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
+          <!-- Hint at upcoming personalization: saving an "Alignment Signature" to a profile -->
+          <div class="align-future-note">
+            <span class="align-future-ico">✨</span>
+            <span><strong>Coming soon:</strong> Save these positions as your personal <strong>Alignment Signature</strong> to your profile — then see personalized politician matches and your top races the moment you sign in, on any device.</span>
+          </div>
         </div>
 
         <!-- Compare tip banner -->
@@ -26879,21 +26924,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       water:              { label: '💧 Water & Drought Security', chip: 'Protect water supplies and build drought resilience', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
       enviro_balance:     { label: '⚖️ Practical Stewardship', chip: 'Practical conservation that balances jobs and the environment', cat: 'enviro', stanceKeys: [], keywords: ['conservation','environment','stewardship','clean air','clean water','recreation','balance','wildlife','land','responsible'] },
       climate_action:     { label: '🌱 Climate Action & Clean Energy', chip: 'Act on climate and invest in clean energy', cat: 'enviro', lean: 'D', stanceKeys: [], keywords: ['climate','clean energy','renewable','renewables','emissions','carbon','greenhouse','solar','wind','pollution','environment','air quality','conservation','paris agreement','electric vehicle'] },
-      enviro_energy:      { label: '⚡ Energy Independence', chip: 'All-of-the-above energy for reliable, affordable power', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy','energy independence','nuclear','natural gas','oil','grid','reliable','affordable','all of the above','domestic energy','baseload'] }
+      enviro_energy:      { label: '⚡ Energy Independence', chip: 'All-of-the-above energy for reliable, affordable power', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy','energy independence','nuclear','natural gas','oil','grid','reliable','affordable','all of the above','domestic energy','baseload'] },
+
+      // ── Housing & Cost of Living ──
+      housing_build:      { label: '🏗 Build More Housing', chip: 'Cut red tape and zoning barriers so more homes get built', cat: 'housing', stanceKeys: [], keywords: ['housing','home building','zoning','permitting','supply','construction','development','affordable housing','housing cost','red tape','density'] },
+      cost_living:        { label: '🛒 Tackle the Cost of Living', chip: 'Bring down inflation, rent and everyday prices for families', cat: 'housing', stanceKeys: [], keywords: ['cost of living','inflation','affordable','rent','prices','grocery','gas prices','mortgage','family budget','wage','middle class','utilities'] },
+      housing_support:    { label: '🏘 Affordable Housing & Renters', chip: 'Expand affordable housing and protect renters', cat: 'housing', lean: 'D', stanceKeys: [], keywords: ['affordable housing','renter','rent','tenant','housing assistance','homeless','homelessness','public housing','housing voucher','eviction','low-income'] },
+
+      // ── Criminal Justice & Public Safety ──
+      back_police:        { label: '👮 Back Law Enforcement', chip: 'Support police and tough-on-crime public safety', cat: 'justice', lean: 'R', stanceKeys: [], keywords: ['police','law enforcement','public safety','crime','tough on crime','fund the police','sheriff','violent crime','fentanyl','cartel','border crime','safety'] },
+      justice_balance:    { label: '⚖️ Safe & Fair Justice', chip: 'Fund police and fix what is broken in the system', cat: 'justice', stanceKeys: [], keywords: ['public safety','police','criminal justice','reform','accountability','community policing','safer communities','due process','rehabilitation','fair','balanced'] },
+      justice_reform:     { label: '🤝 Criminal Justice Reform', chip: 'Reform sentencing and reduce mass incarceration', cat: 'justice', lean: 'D', stanceKeys: [], keywords: ['criminal justice reform','sentencing','incarceration','prison','first step act','bail reform','mass incarceration','reentry','rehabilitation','second chance','clemency','police reform'] },
+
+      // ── Abortion & Reproductive Rights ──
+      pro_life:           { label: '🕊 Pro-Life Protections', chip: 'Protect the unborn and limit abortion', cat: 'repro', lean: 'R', stanceKeys: [], keywords: ['pro-life','pro life','abortion','unborn','life','sanctity of life','heartbeat','dobbs','defund planned parenthood','adoption'] },
+      repro_balance:      { label: '⚖️ Limits With Exceptions', chip: 'Allow early-term access with limits and clear exceptions', cat: 'repro', stanceKeys: [], keywords: ['abortion','reproductive','exceptions','rape','incest','life of the mother','viability','state','moderate','common ground','contraception'] },
+      pro_choice:         { label: '✊ Protect Reproductive Rights', chip: 'Protect abortion access and reproductive freedom', cat: 'repro', lean: 'D', stanceKeys: [], keywords: ['reproductive rights','abortion rights','pro-choice','pro choice','roe','reproductive freedom','women\'s health','planned parenthood','bodily autonomy','contraception'] },
+
+      // ── Civil Rights & LGBTQ+ ──
+      religious_liberty:  { label: '⛪ Religious Liberty Focus', chip: 'Protect religious freedom and conscience rights', cat: 'rights', lean: 'R', stanceKeys: [], keywords: ['religious liberty','religious freedom','faith','conscience','traditional values','first amendment','parental rights','free exercise'] },
+      rights_balance:     { label: '⚖️ Equal Treatment for All', chip: 'Equal rights for everyone while respecting differing beliefs', cat: 'rights', stanceKeys: [], keywords: ['civil rights','equality','equal treatment','fairness','anti-discrimination','tolerance','respect','liberty','balanced','common ground'] },
+      lgbtq_rights:       { label: '🏳️‍🌈 Protect LGBTQ+ Rights', chip: 'Protect LGBTQ+ rights and anti-discrimination laws', cat: 'rights', lean: 'D', stanceKeys: [], keywords: ['lgbtq','lgbt','gay','transgender','marriage equality','respect for marriage','anti-discrimination','equality','civil rights','pride','equal protection'] },
+
+      // ── Foreign Policy & Defense ──
+      strong_defense:     { label: '🦅 Peace Through Strength', chip: 'Maintain the strongest military and stand firm abroad', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['national defense','military','defense spending','ndaa','peace through strength','national security','armed forces','deterrence','china','adversaries','strong military'] },
+      foreign_balance:    { label: '⚖️ Strategic Engagement', chip: 'Strong defense paired with diplomacy and smart alliances', cat: 'foreign', stanceKeys: [], keywords: ['foreign policy','diplomacy','alliances','nato','national security','strategic','allies','defense','engagement','statecraft','bipartisan'] },
+      restraint:          { label: '🕊 Diplomacy & Restraint', chip: 'Prioritize diplomacy and limit foreign military intervention', cat: 'foreign', stanceKeys: [], keywords: ['diplomacy','restraint','end endless wars','foreign aid','intervention','peace','de-escalation','troops home','war powers','negotiation'] },
+      america_first:      { label: '🇺🇸 America First', chip: 'Put U.S. interests first and avoid foreign entanglements', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','sovereignty','national interest','entanglement','ukraine aid','nation building','trade','tariff','border'] },
+
+      // ── Technology & Privacy ──
+      tech_innovation:    { label: '🚀 Innovation & Light Rules', chip: 'Let American tech and AI innovate with minimal red tape', cat: 'tech', lean: 'R', stanceKeys: [], keywords: ['technology','innovation','ai','artificial intelligence','deregulation','tech leadership','startup','crypto','light touch','competitiveness','semiconductor'] },
+      tech_balance:       { label: '⚖️ Smart Tech Guardrails', chip: 'Encourage innovation with sensible, modern guardrails', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['technology','ai','guardrails','regulation','innovation','safety','age verification','social media','consumer protection','balanced','modernization'] },
+      privacy_rights:     { label: '🔒 Privacy & Big-Tech Accountability', chip: 'Protect personal data and hold Big Tech accountable', cat: 'tech', stanceKeys: [], keywords: ['privacy','data privacy','surveillance','fisa','section 702','big tech','data','section 230','antitrust','consumer protection','encryption','warrant'] },
+
+      // ── Elections & Democracy ──
+      election_integrity: { label: '🗳 Election Integrity', chip: 'Secure elections with voter ID and audits', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['election integrity','voter id','election security','audit','clean elections','citizenship verification','ballot security','fraud','voter rolls'] },
+      democracy_balance:  { label: '⚖️ Secure & Accessible Voting', chip: 'Make voting both secure and easy for every eligible voter', cat: 'democracy', stanceKeys: ['termLimits','campaign'], keywords: ['voting','elections','secure','accessible','bipartisan','term limits','transparency','accountability','reform','campaign finance','redistricting'] },
+      voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] }
     };
 
     // Ordered category list that drives the collapsible picker sections. Issues are
     // slotted into a category via their `cat` key (above), so adding a new issue is
     // a one-line change here-or-there and both picker surfaces pick it up for free.
+    // `group` slots each topic under a labelled section divider in the picker so a
+    // long list of topics reads as a few digestible groups instead of one big wall.
     var ALIGN_CATEGORIES = [
-      { key: 'land',   icon: '🏔', label: 'Public Lands & Energy' },
-      { key: 'gov',    icon: '💰', label: 'Taxes & Government' },
-      { key: 'immig',  icon: '🛡', label: 'Immigration' },
-      { key: 'guns',   icon: '🔫', label: 'Gun Policy' },
-      { key: 'edu',    icon: '🎓', label: 'Education' },
-      { key: 'health', icon: '🏥', label: 'Healthcare' },
-      { key: 'econ',   icon: '📈', label: 'Economy & Jobs' },
-      { key: 'enviro', icon: '💧', label: 'Water & Environment' }
+      { key: 'gov',        group: 'Economy & Government',          icon: '💰', label: 'Taxes & Government' },
+      { key: 'econ',       group: 'Economy & Government',          icon: '📈', label: 'Economy & Jobs' },
+      { key: 'housing',    group: 'Economy & Government',          icon: '🏠', label: 'Housing & Cost of Living' },
+      { key: 'land',       group: 'Land, Energy & Environment',    icon: '🏔', label: 'Public Lands & Energy' },
+      { key: 'enviro',     group: 'Land, Energy & Environment',    icon: '💧', label: 'Water & Environment' },
+      { key: 'immig',      group: 'Security & Justice',            icon: '🛡', label: 'Immigration' },
+      { key: 'guns',       group: 'Security & Justice',            icon: '🔫', label: 'Gun Policy' },
+      { key: 'justice',    group: 'Security & Justice',            icon: '👮', label: 'Criminal Justice & Safety' },
+      { key: 'foreign',    group: 'Security & Justice',            icon: '🦅', label: 'Foreign Policy & Defense' },
+      { key: 'health',     group: 'Health, Education & Society',   icon: '🏥', label: 'Healthcare' },
+      { key: 'edu',        group: 'Health, Education & Society',   icon: '🎓', label: 'Education' },
+      { key: 'repro',      group: 'Health, Education & Society',   icon: '🕊', label: 'Abortion & Reproductive Rights' },
+      { key: 'rights',     group: 'Health, Education & Society',   icon: '🏳️‍🌈', label: 'Civil Rights & LGBTQ+' },
+      { key: 'tech',       group: 'Technology & Democracy',        icon: '🚀', label: 'Technology & Privacy' },
+      { key: 'democracy',  group: 'Technology & Democracy',        icon: '🗳', label: 'Elections & Democracy' }
     ];
 
     // ── Data-driven picker rendering ───────────────────────────
@@ -26926,8 +27016,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     function _alignBuildPicker() {
+      var lastGroup = null;
       return ALIGN_CATEGORIES.map(function(c) {
-        return '<div class="align-cat" data-cat="' + c.key + '">' +
+        var groupHtml = '';
+        if (c.group && c.group !== lastGroup) {
+          lastGroup = c.group;
+          groupHtml = '<div class="align-group-divider">' + c.group + '</div>';
+        }
+        return groupHtml +
+          '<div class="align-cat" data-cat="' + c.key + '">' +
           '<button type="button" class="align-cat-head" onclick="alignToggleCat(this)" aria-expanded="false">' +
             '<span class="align-cat-title"><span class="align-cat-ico">' + c.icon + '</span>' + c.label + '</span>' +
             '<span class="align-cat-meta">' +
