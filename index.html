@@ -7140,6 +7140,77 @@
       content: '✓ ';
       font-size: 0.65rem;
     }
+    /* Grouped, side-by-side issue picker — opposing options sit together so it's
+       clear the visitor is choosing a side, not just a topic. */
+    .align-groups {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.7rem;
+      margin-bottom: 0.85rem;
+    }
+    @media (min-width: 768px) {
+      .align-groups { grid-template-columns: 1fr 1fr; }
+    }
+    .align-group {
+      background: rgba(10,15,30,0.42);
+      border: 1px solid rgba(139,92,246,0.16);
+      border-radius: 0.85rem;
+      padding: 0.65rem 0.8rem 0.75rem;
+    }
+    .align-group-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #9d8fe0;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .align-group-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+    .align-group-row .align-chip {
+      flex: 1 1 0;
+      min-width: 0;
+      justify-content: center;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.15;
+    }
+    .align-vs {
+      align-self: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #5b6b8c;
+      text-transform: uppercase;
+      flex: 0 0 auto;
+    }
+    .align-lean {
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      padding: 0.04rem 0.32rem;
+      border-radius: 999px;
+      margin-left: 0.25rem;
+    }
+    .align-chip[data-lean="R"] .align-lean {
+      background: rgba(239,68,68,0.16);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.32);
+    }
+    .align-chip[data-lean="D"] .align-lean {
+      background: rgba(59,130,246,0.16);
+      color: #93c5fd;
+      border: 1px solid rgba(59,130,246,0.32);
+    }
     .align-score-badge {
       display: inline-flex;
       align-items: center;
@@ -10736,70 +10807,70 @@
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow: 0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-lg tracking-wider text-purple-300 uppercase leading-none m-0">My Key Alignments</h4>
-                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Select issues to customize alignment scores on your local representative cards</p>
+                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the issues you care about — and which side you lean — to personalize alignment scores on your representative cards</p>
               </div>
             </div>
             <div id="relevant-alignments-chevron" class="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/20 text-purple-300 border border-purple-500/20 transition-transform duration-300">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </div>
           </button>
-          
+
           <!-- Expandable Body -->
           <div id="relevant-alignments-body" class="p-4 border-t border-purple-500/20" style="display: none;">
             <div class="flex items-center justify-between gap-3 mb-4">
               <span class="font-condensed text-xs text-purple-400 font-bold uppercase tracking-wider">Toggle Custom Issues</span>
               <button onclick="relevantAlignClearAll()" class="font-condensed text-xs text-purple-300 hover:text-purple-200 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;cursor:pointer;">Clear All</button>
             </div>
-            
+
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
-              <!-- Issue Toggles -->
+              <!-- Issue Toggles — opposing options sit next to each other -->
               <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="border" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🛡 Immigration</span>
+                <input type="checkbox" data-relevant-issue="lands_preserve" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🏔 Preserve Lands</span>
               </label>
               <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="taxes" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">💰 Economy / Taxes</span>
+                <input type="checkbox" data-relevant-issue="lands_energy" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">⛏ Energy / Develop</span>
               </label>
               <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="publiclands" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🏔 Environment</span>
+                <input type="checkbox" data-relevant-issue="lower_taxes" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">💰 Lower Taxes</span>
               </label>
               <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="guns" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <input type="checkbox" data-relevant-issue="gov_services" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🏛 Public Services</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="border_security" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🛡 Border Security</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="immigration_reform" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🤝 Immig. Pathways</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="gun_rights" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
                 <span class="font-condensed text-xs text-steel-200 font-600">🔫 Gun Rights</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="gun_safety" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🦺 Gun Safety</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="school_choice" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🎓 School Choice</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="public_schools" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">🍎 Public Schools</span>
+              </label>
+              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
+                <input type="checkbox" data-relevant-issue="water" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
+                <span class="font-condensed text-xs text-steel-200 font-600">💧 Water &amp; Drought</span>
               </label>
               <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
                 <input type="checkbox" data-relevant-issue="healthcare" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
                 <span class="font-condensed text-xs text-steel-200 font-600">🏥 Healthcare</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="education" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">📚 Education</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="constitution" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">📜 Civil liberties</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="termlimits" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">⏳ Term Limits</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="veterans" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🎖 Veterans / Defense</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="tech" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🖥 Tech & Privacy</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="housing" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">🏠 Housing</span>
-              </label>
-              <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/20 hover:border-purple-500/40 cursor-pointer transition-all select-none relevant-align-label">
-                <input type="checkbox" data-relevant-issue="water" onchange="toggleRelevantCheckbox(this)" class="accent-purple-500" style="width: 1rem; height: 1rem;" />
-                <span class="font-condensed text-xs text-steel-200 font-600">💧 Water Rights</span>
               </label>
             </div>
             
@@ -10917,24 +10988,59 @@
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
-                <p class="font-condensed text-xs text-steel-400 mt-1">Select key issues to display personalized alignment scores on every politician card</p>
+                <p class="font-condensed text-xs text-steel-400 mt-1">Pick the issues you care about — and which side you lean. Every politician card updates with a personalized match.</p>
               </div>
             </div>
             <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
           </div>
-          <div class="flex flex-wrap gap-2 mb-3">
-            <button class="align-chip" data-align-issue="taxes" onclick="alignToggle(this)">💰 Taxes & Spending</button>
-            <button class="align-chip" data-align-issue="publiclands" onclick="alignToggle(this)">🏔 Public Lands</button>
-            <button class="align-chip" data-align-issue="guns" onclick="alignToggle(this)">🔫 Gun Rights</button>
-            <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare</button>
-            <button class="align-chip" data-align-issue="education" onclick="alignToggle(this)">📚 Education</button>
-            <button class="align-chip" data-align-issue="border" onclick="alignToggle(this)">🛡 Border Security</button>
-            <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water Rights</button>
-            <button class="align-chip" data-align-issue="constitution" onclick="alignToggle(this)">📜 Constitutional Freedoms</button>
-            <button class="align-chip" data-align-issue="termlimits" onclick="alignToggle(this)">⏳ Term Limits</button>
-            <button class="align-chip" data-align-issue="veterans" onclick="alignToggle(this)">🎖 Veterans</button>
-            <button class="align-chip" data-align-issue="tech" onclick="alignToggle(this)">🖥 Tech & Privacy</button>
-            <button class="align-chip" data-align-issue="housing" onclick="alignToggle(this)">🏠 Housing</button>
+          <div class="align-groups">
+            <div class="align-group">
+              <div class="align-group-label">🏔 Public Lands &amp; Energy</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="lands_preserve" data-lean="D" onclick="alignToggle(this)">Preserve Lands<span class="align-lean">D</span></button>
+                <span class="align-vs">vs</span>
+                <button class="align-chip" data-align-issue="lands_energy" data-lean="R" onclick="alignToggle(this)">Energy &amp; Develop<span class="align-lean">R</span></button>
+              </div>
+            </div>
+            <div class="align-group">
+              <div class="align-group-label">💰 Taxes &amp; Government</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="lower_taxes" data-lean="R" onclick="alignToggle(this)">Lower Taxes &amp; Small Gov<span class="align-lean">R</span></button>
+                <span class="align-vs">vs</span>
+                <button class="align-chip" data-align-issue="gov_services" data-lean="D" onclick="alignToggle(this)">Public Services &amp; Spending<span class="align-lean">D</span></button>
+              </div>
+            </div>
+            <div class="align-group">
+              <div class="align-group-label">🛡 Immigration</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="border_security" data-lean="R" onclick="alignToggle(this)">Strong Border Security<span class="align-lean">R</span></button>
+                <span class="align-vs">vs</span>
+                <button class="align-chip" data-align-issue="immigration_reform" data-lean="D" onclick="alignToggle(this)">Immigration Pathways<span class="align-lean">D</span></button>
+              </div>
+            </div>
+            <div class="align-group">
+              <div class="align-group-label">🔫 Gun Policy</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="gun_rights" data-lean="R" onclick="alignToggle(this)">Gun Rights<span class="align-lean">R</span></button>
+                <span class="align-vs">vs</span>
+                <button class="align-chip" data-align-issue="gun_safety" data-lean="D" onclick="alignToggle(this)">Gun Safety Laws<span class="align-lean">D</span></button>
+              </div>
+            </div>
+            <div class="align-group">
+              <div class="align-group-label">🎓 Education</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="school_choice" data-lean="R" onclick="alignToggle(this)">Education Choice<span class="align-lean">R</span></button>
+                <span class="align-vs">vs</span>
+                <button class="align-chip" data-align-issue="public_schools" data-lean="D" onclick="alignToggle(this)">Public School Funding<span class="align-lean">D</span></button>
+              </div>
+            </div>
+            <div class="align-group">
+              <div class="align-group-label">💧 Shared Utah Priorities</div>
+              <div class="align-group-row">
+                <button class="align-chip" data-align-issue="water" onclick="alignToggle(this)">💧 Water &amp; Drought</button>
+                <button class="align-chip" data-align-issue="healthcare" onclick="alignToggle(this)">🏥 Healthcare Access</button>
+              </div>
+            </div>
           </div>
           <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
         </div>
@@ -25908,19 +26014,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var ALIGN_KEY = 'politidex_align_issues';
     var _alignIssues = new Set();
 
+    // Each issue carries the keywords/stanceKeys the engine already understands.
+    // Directional issues add `lean: 'R' | 'D'` — a balanced "pick a side" option
+    // that nudges the match toward candidates on that side (see the directional
+    // block in the scoring functions). Issues with no lean stay non-directional
+    // and behave exactly as the original engine did. `group` clusters opposing
+    // options together in the picker UI.
     var ISSUE_MAP = {
-      taxes:        { label: '💰 Taxes & Spending', stanceKeys: ['debt','campaign'], keywords: ['tax','fiscal','budget','spending','deficit','debt','appropriation','income tax','revenue'] },
-      publiclands:  { label: '🏔 Public Lands', stanceKeys: ['dataCenters'], keywords: ['public land','lands','nepa','blm','forest','national park','recreation','wilderness'] },
-      guns:         { label: '🔫 Gun Rights', stanceKeys: ['gun'], keywords: ['gun','second amendment','2a','firearm','constitutional carry','nra'] },
-      healthcare:   { label: '🏥 Healthcare', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','aca','hospital','medical','mental health','insurance','prescription','public health'] },
-      education:    { label: '📚 Education', stanceKeys: [], keywords: ['education','school','teacher','university','college','usu','suu','higher ed','wpu','student','edu','school choice','education freedom','anti-crt'] },
-      border:       { label: '🛡 Border Security', stanceKeys: ['border'], keywords: ['border','immigration','wall','asylum','ice','immigrant','enforcement','immigration reform'] },
-      water:        { label: '💧 Water Rights', stanceKeys: [], keywords: ['water','water right','water policy','drought','conservation','bear river','lake powell','great salt lake'] },
-      constitution: { label: '📜 Constitutional Freedoms', stanceKeys: ['gun','termLimits'], keywords: ['constitution','civil libert','religious liberty','first amendment','federalism','originalism','free speech','freedom'] },
-      termlimits:   { label: '⏳ Term Limits', stanceKeys: ['termLimits'], keywords: ['term limit','convention of states'] },
-      veterans:     { label: '🎖 Veterans', stanceKeys: [], keywords: ['veteran','military','defense','dod','armed force','active duty','va ','va reform'] },
-      tech:         { label: '🖥 Tech & Privacy', stanceKeys: ['dataCenters'], keywords: ['tech','data','privacy','ai','internet','social media','broadband','cyber','data center','surveillance'] },
-      housing:      { label: '🏠 Housing', stanceKeys: [], keywords: ['housing','affordable','rent','zoning','homeless','shelter','development','growth'] }
+      // ── Public Lands & Energy ──
+      lands_preserve:     { label: '🏔 Preserve Public Lands', group: 'land', lean: 'D', stanceKeys: [], keywords: ['public land','public lands','land protection','land ownership','conservation','wilderness','national park','national monument','climate','air quality','recreation','great salt lake','blm','forest','environment'] },
+      lands_energy:       { label: '⛏ Energy & Land Development', group: 'land', lean: 'R', stanceKeys: ['dataCenters'], keywords: ['energy','oil','gas','drilling','mining','public land','state land','land rights','development','data center','grid','nuclear','fossil','extraction','growth','infrastructure'] },
+
+      // ── Taxes & Government ──
+      lower_taxes:        { label: '💰 Lower Taxes & Small Gov', group: 'gov', lean: 'R', stanceKeys: ['debt'], keywords: ['tax','tax cut','fiscal','fiscal conservat','fiscal responsibility','deficit','debt','spending cut','small government','balanced budget','appropriation','income tax'] },
+      gov_services:       { label: '🏛 Public Services & Investment', group: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','funding','social','community service','services','paid leave','minimum wage','affordable'] },
+
+      // ── Immigration ──
+      border_security:    { label: '🛡 Strong Border Security', group: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
+      immigration_reform: { label: '🤝 Immigration Pathways', group: 'immig', lean: 'D', stanceKeys: [], keywords: ['immigration reform','pathway','citizenship','dreamer','daca','asylum','refugee','immigrant','work visa'] },
+
+      // ── Gun Policy ──
+      gun_rights:         { label: '🔫 Gun Rights', group: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
+      gun_safety:         { label: '🦺 Gun Safety Laws', group: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
+
+      // ── Education ──
+      school_choice:      { label: '🎓 Education Choice', group: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','voucher','charter','education freedom','scholarship','homeschool','parental rights'] },
+      public_schools:     { label: '🍎 Public School Funding', group: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
+
+      // ── Shared Utah Priorities (non-directional) ──
+      water:              { label: '💧 Water & Drought', group: 'utah', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
+      healthcare:         { label: '🏥 Healthcare Access', group: 'utah', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','aca','hospital','medical','mental health','insurance','prescription','public health','overdose'] }
     };
 
     function _alignLoad() {
@@ -25928,13 +26051,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var saved = localStorage.getItem(ALIGN_KEY);
         if (saved) {
           var arr = JSON.parse(saved);
-          _alignIssues = new Set(Array.isArray(arr) ? arr : []);
+          // Keep only issues that still exist in ISSUE_MAP so a stale key from a
+          // previous issue set can't leave the UI in a "scored but empty" state.
+          var keep = (Array.isArray(arr) ? arr : []).filter(function(k) { return !!ISSUE_MAP[k]; });
+          _alignIssues = new Set(keep);
         }
       } catch(e) {}
     }
 
     function _alignSave() {
       try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
+    }
+
+    // Directional "pick a side" adjustment. A balanced issue (lean 'R' or 'D')
+    // pulls the per-issue match toward candidates whose party matches the chosen
+    // side and away from the opposite side, while the candidate's own record
+    // (already baked into `score`) still moves the result. Unknown/independent
+    // parties and non-directional issues are left untouched, so existing scoring
+    // behaviour is unchanged.
+    function _alignApplyLean(score, lean, d) {
+      var party = (d && d.party ? String(d.party) : '').toUpperCase().charAt(0);
+      if (party !== 'R' && party !== 'D') return score;
+      var target = (party === lean) ? 90 : 26;
+      return score * 0.62 + target * 0.38;
     }
 
     function _calcAlignmentScore(pid) {
@@ -26046,6 +26185,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         if (relevance > 0) {
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
+        }
+
+        if (issueDef.lean) {
+          issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
         }
 
         issueScore = Math.min(100, Math.max(0, issueScore));
@@ -26161,6 +26304,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         if (relevance > 0) {
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
+        }
+
+        if (issueDef.lean) {
+          issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
         }
 
         issueScore = Math.min(100, Math.max(0, issueScore));
@@ -26288,22 +26435,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           statusEl.style.color = '';
         } else {
           var labels = [];
-          _alignIssues.forEach(function(k) { 
-            var lbls = {
-              border: 'Immigration',
-              taxes: 'Economy / Taxes',
-              publiclands: 'Environment',
-              guns: 'Gun Rights',
-              healthcare: 'Healthcare',
-              education: 'Education',
-              constitution: 'Civil liberties',
-              termlimits: 'Term Limits',
-              veterans: 'Veterans / Defense',
-              tech: 'Tech & Privacy',
-              housing: 'Housing',
-              water: 'Water Rights'
-            };
-            if (lbls[k]) labels.push(lbls[k]);
+          _alignIssues.forEach(function(k) {
+            if (ISSUE_MAP[k]) labels.push(ISSUE_MAP[k].label);
           });
           statusEl.innerHTML = '<span style="color:#c084fc;font-weight:700;">' + n + ' active issue' + (n > 1 ? 's' : '') + '</span> — <span class="text-steel-400">' + labels.join(' · ') + '</span>';
         }
