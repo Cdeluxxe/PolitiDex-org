@@ -13090,16 +13090,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        ──────────────────────────────────────────────────────────────── -->
   <script>
     (function () {
-      // Hardcoded admin account(s) allowed to use the Bulk Import tool.
-      // Change this to your own admin email. Comparison is case-insensitive.
-      var ADMIN_EMAILS = ["your-email@gmail.com"];
+      // Hardcoded admin account allowed to use the Bulk Import tool.
+      // Change this to your own admin email.
+      var ADMIN_EMAILS = ["Cdeluxxe@gmail.com"];
 
       function isAdminUser(user) {
         if (!user || user.isAnonymous || !user.email) return false;
-        var email = String(user.email).trim().toLowerCase();
-        return ADMIN_EMAILS.some(function (a) {
-          return String(a).trim().toLowerCase() === email;
-        });
+        if (user.email === "Cdeluxxe@gmail.com") { return true; }
+        return false;
       }
 
       function applyAdminGate(user) {
