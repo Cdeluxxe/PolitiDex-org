@@ -24791,6 +24791,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         incumbentSummary: 'Utah’s 18th governor. Signs every state law and budget — known for rural development, water policy and mental-health initiatives.',
         addLabel: 'Add your Governor pick to My Team',
         candidates: ['cox', 'lyman'],
+        candidatesLabel: 'Challenged for This Seat · 2024',
         extraNote: 'Utah’s governorship is a four-year office, last contested in 2024 and next on the ballot in 2028. It’s shown for every Utah voter because the Governor signs every state law and budget — add the leader whose record you want to track.'
       },
       {
@@ -25001,16 +25002,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
-    function _krCandidateRow(race, pid, selectedPid) {
+    function _krCandidateRow(race, pid, selectedPid, candidateMode) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
       var isPick = selectedPid === pid;
       var isIncumbent = race.incumbentPid === pid ||
         (race.incumbentPids && race.incumbentPids.indexOf(pid) !== -1);
+      // "Challenger" only reads correctly when a sitting officeholder is actually on
+      // the ballot. For open seats and retiring-incumbent races there is no one to
+      // challenge, so the people running are simply "Candidate"s — keeping the label
+      // honest and consistent across every race type.
+      var isChallengerRace = candidateMode !== 'candidate';
       var roleTag = isIncumbent
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
-        : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Challenger</span>';
-      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : '2026 candidate');
+        : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">' + (isChallengerRace ? 'Challenger' : 'Candidate') + '</span>';
+      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : (isChallengerRace ? '2026 challenger' : '2026 candidate'));
       var btn = _krPickBtn(race, pid, isPick);
 
       // ── Score strip ──────────────────────────────────────────────────────
@@ -25179,9 +25185,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // The incumbent already appears (once) in the hero above, so we never list
       // them again here. That keeps the "who's running" list clean and secondary.
       var challengerPids = race.candidates.filter(function(pid) { return incList.indexOf(pid) === -1; });
-      var candHtml = challengerPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid); }).join('');
-
+      // A "running incumbent" is one who is actually defending the seat in 2026 —
+      // not a retiring officeholder and not an open seat. This drives whether the
+      // people running read as "Challengers" or simply "Candidates".
       var hasRunningIncumbent = incList.length && !/retir|open seat/i.test(race.incumbentNote || '');
+      var candidateMode = hasRunningIncumbent ? 'challenger' : 'candidate';
+      var candHtml = challengerPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid, candidateMode); }).join('');
+
       var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running to Replace Them · 2026' : '2026 Candidates');
 
       var noteHtml = race.extraNote
@@ -25221,7 +25231,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
         '</div>' +
         '<div style="padding:1.15rem 1.2rem 0.5rem;">' +
-          '<div class="kr-incumbent-label">' + (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') + '</div>' +
+          '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
           holderHtml +
         '</div>' +
         '<div style="padding:0.5rem 1.2rem 1.2rem;">' +
