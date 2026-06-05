@@ -3316,6 +3316,37 @@
       padding: 0.12rem 0.45rem;
       border-radius: 999px;
     }
+    /* Candidate label row — the lighter counterpart to the incumbent ribbon. Every
+       candidate card carries one of these so users instantly read "running for",
+       not "currently holding", the seat. Deliberately flatter than the gold/green
+       incumbent ribbon to keep the hierarchy obvious. */
+    .chub-candidate-tag-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+    }
+    .chub-candidate-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(59,130,246,0.13);
+      border: 1px solid rgba(96,165,250,0.4);
+      color: #93c5fd;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.6rem;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.58rem;
+      border-radius: 999px;
+    }
+    .chub-candidate-tag--former {
+      background: rgba(148,163,184,0.1);
+      border-color: rgba(148,163,184,0.35);
+      color: #cbd5e1;
+    }
     .chub-add-btn {
       display: inline-flex;
       align-items: center;
@@ -9031,6 +9062,58 @@
       transform: translateY(-3px) !important;
       border-color: rgba(96, 165, 250, 0.25) !important;
       box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    /* ── Incumbent vs Candidate hierarchy INSIDE the Database Expansion grid ──────
+       The base #myteam-browse-grid .chub-card rules above use !important for the
+       card chrome, so the unscoped .is-incumbent / .is-candidate styles can never
+       win here. These id-scoped !important rules restore (and amplify) that
+       hierarchy: incumbents become the premium "hero" card, candidates become a
+       lighter, flatter, clearly-secondary card. */
+
+    /* Current officeholders — premium weight: brighter background, green frame,
+       layered glow, and a gold→green accent bar across the top edge. */
+    #myteam-browse-grid .chub-card.is-incumbent {
+      background: linear-gradient(135deg, #16284a 0%, #0b1428 100%) !important;
+      border: 1.5px solid rgba(34, 197, 94, 0.55) !important;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.18), 0 14px 38px rgba(0, 0, 0, 0.55), 0 0 26px rgba(34, 197, 94, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+      padding-top: 1.55rem !important;
+    }
+    #myteam-browse-grid .chub-card.is-incumbent::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
+      height: 4px !important;
+      background: linear-gradient(90deg, #fbbf24 0%, #22c55e 52%, #4ade80 100%) !important;
+      opacity: 1 !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
+    }
+    #myteam-browse-grid .chub-card.is-incumbent:hover {
+      transform: translateY(-4px) !important;
+      border-color: rgba(74, 222, 128, 0.78) !important;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 18px 46px rgba(0, 0, 0, 0.6), 0 0 32px rgba(34, 197, 94, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    }
+
+    /* Candidates — deliberately the secondary tier: flat, low-contrast surface,
+       hairline neutral border, no glow, tighter padding, smaller name. */
+    #myteam-browse-grid .chub-card.is-candidate {
+      background: rgba(13, 20, 38, 0.5) !important;
+      border: 1px solid rgba(148, 163, 184, 0.16) !important;
+      border-radius: 0.9rem !important;
+      box-shadow: none !important;
+      padding: 0.95rem 1.05rem !important;
+    }
+    #myteam-browse-grid .chub-card.is-candidate:hover {
+      transform: translateY(-2px) !important;
+      border-color: rgba(96, 165, 250, 0.4) !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32) !important;
+    }
+    #myteam-browse-grid .chub-card.is-candidate .font-display {
+      font-size: 1.02rem !important;
     }
 
     /* Politician Photo Container & Spacing */
@@ -23309,10 +23392,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
       var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'candidate';
-      var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(status, { size: 'sm' }) : '';
       var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       var noRecord = (status === 'candidate' && (d.score === null || d.score === undefined))
         ? '<span class="chub-candidate-norecord">⏳ No voting record yet</span>' : '';
+
+      // Clear, always-present label so a candidate card can never be mistaken for a
+      // sitting officeholder. Former officeholders get their own neutral label.
+      var candLabel = (status === 'former')
+        ? '<span class="chub-candidate-tag chub-candidate-tag--former">⏳ Former Office</span>'
+        : '<span class="chub-candidate-tag">🗳️ 2026 Candidate</span>';
 
       var photoUrl = BROWSE_PHOTOS[pid] || '';
       var photoHtml = photoUrl
@@ -23321,15 +23409,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:0.85rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
 
       return '<div class="chub-card is-candidate" data-pid="' + pid + '">' +
+        // Clear candidate label row at the top — the lighter counterpart to the
+        // incumbent's "Currently In Office" ribbon.
+        '<div class="chub-candidate-tag-row">' +
+          candLabel +
+          unopposedBadge +
+          localBadge + teamBadge +
+        '</div>' +
         '<div class="flex flex-row items-start gap-3">' +
           '<div class="flex-shrink-0">' + photoHtml + '</div>' +
           '<div class="flex-1 min-w-0 flex flex-col gap-1">' +
-            // Name + status badge
+            // Name + favorite
             '<div class="flex items-center gap-1.5 flex-wrap">' +
               '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
-              statusBadge +
-              unopposedBadge +
-              localBadge + teamBadge +
               heartHtml +
             '</div>' +
             // Office + state (the seat they are running for)
@@ -23726,7 +23818,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             out += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
             out += '</button>';
             out += '<div class="browse-sub-body"><div class="p-2">';
-            out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+            out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
             _sortInOfficeFirst(distPids).forEach(function(pid) {
               out += _renderAllPoliticiansCard(pid);
             });
