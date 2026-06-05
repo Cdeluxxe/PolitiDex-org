@@ -7596,6 +7596,33 @@
     }
     .align-future-note strong { color: #d6cbff; font-weight: 700; }
     .align-future-ico { flex: 0 0 auto; font-size: 0.9rem; line-height: 1.2; }
+    /* Saved state — solid (not dashed) green border once the signature persists. */
+    .align-future-note.align-sig-saved {
+      border-style: solid;
+      border-color: rgba(74,222,128,0.4);
+      background: rgba(74,222,128,0.08);
+      color: #b7e8c6;
+    }
+    .align-future-note.align-sig-saved strong { color: #d6ffe2; }
+    /* Inline "Sign in" call-to-action inside the prompt. */
+    .align-sig-btn {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 0.4rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(167,139,250,0.55);
+      background: rgba(139,92,246,0.18);
+      color: #d6cbff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .align-sig-btn:hover { background: rgba(139,92,246,0.32); border-color: rgba(167,139,250,0.8); }
     .align-cat {
       background: rgba(10,15,30,0.42);
       border: 1px solid rgba(139,92,246,0.16);
@@ -11516,8 +11543,10 @@
             <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
           </div>
           <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
-          <!-- Hint at upcoming personalization: saving an "Alignment Signature" to a profile -->
-          <div class="align-future-note">
+          <!-- Alignment Signature save status. Populated by _alignUpdateSigninPrompt():
+               signed-in members see a "saved to your account" confirmation; signed-out
+               visitors see a prompt to sign in so their picks persist across devices. -->
+          <div id="align-signature-status" class="align-future-note">
             <span class="align-future-ico">✨</span>
             <span><strong>Coming soon:</strong> Save these positions as your personal <strong>Alignment Signature</strong> to your profile — then see personalized politician matches and your top races the moment you sign in, on any device.</span>
           </div>
@@ -27147,6 +27176,107 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     function _alignSave() {
       try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
+      // Mirror the selection to the signed-in member's profile so their Alignment
+      // Signature persists across sessions and devices (no-op when logged out).
+      _alignSaveToFirestore();
+    }
+
+    // ── Alignment Signature: per-user Firestore persistence ────────────
+    // Logged-in members get their issue/POV picks saved to their user document
+    // (users/{uid}.alignmentPreferences) so the tool — and every politician
+    // card's match % — reloads exactly as they left it on any device. Logged-out
+    // (or anonymous) visitors keep using localStorage only; nothing is written.
+    var ALIGN_FS_FIELD = 'alignmentPreferences';
+    var _alignFsSaveTimer = null;
+
+    function _alignCurrentUser() {
+      try {
+        if (typeof auth === 'undefined' || !auth) return null;
+        var u = auth.currentUser;
+        return (u && !u.isAnonymous) ? u : null;
+      } catch(e) { return null; }
+    }
+
+    // Debounced background write — coalesces rapid chip toggles into one network
+    // round-trip and never blocks the UI.
+    function _alignSaveToFirestore() {
+      var user = _alignCurrentUser();
+      if (!user) return;
+      if (_alignFsSaveTimer) clearTimeout(_alignFsSaveTimer);
+      _alignFsSaveTimer = setTimeout(function() {
+        _alignFsSaveTimer = null;
+        var current = _alignCurrentUser();
+        if (!current) return;
+        try {
+          var payload = {};
+          payload[ALIGN_FS_FIELD] = [..._alignIssues];
+          payload[ALIGN_FS_FIELD + '_updated'] = firebase.firestore.FieldValue.serverTimestamp();
+          db.collection('users').doc(current.uid).set(payload, { merge: true })
+            .catch(function(e) { console.warn('Alignment save to Firestore failed:', e); });
+        } catch(e) { console.warn('Alignment save to Firestore failed:', e); }
+      }, 600);
+    }
+
+    // Pull the signed-in member's saved signature and make it authoritative. If
+    // they have none yet, seed it from whatever they've already picked locally so
+    // selections made before signing in are not lost. Mutates _alignIssues in
+    // place so window._alignIssues (shared with the Key Races quick-adjust) stays
+    // pointed at the same live Set.
+    function _alignLoadFromFirestore(uid) {
+      if (!uid) return;
+      db.collection('users').doc(uid).get().then(function(doc) {
+        var saved = (doc.exists && doc.data()) ? doc.data()[ALIGN_FS_FIELD] : null;
+        if (Array.isArray(saved) && saved.length) {
+          var keep = saved.filter(function(k) { return !!ISSUE_MAP[k]; });
+          _alignIssues.clear();
+          keep.forEach(function(k) { _alignIssues.add(k); });
+          window._alignIssues = _alignIssues;
+          try { localStorage.setItem(ALIGN_KEY, JSON.stringify([..._alignIssues])); } catch(e) {}
+          _alignRefreshAll();
+        } else if (_alignIssues.size > 0) {
+          // Brand-new signature → persist the visitor's current local picks.
+          _alignSaveToFirestore();
+        }
+        _alignUpdateSigninPrompt();
+      }).catch(function(e) {
+        console.warn('Alignment load from Firestore failed:', e);
+        _alignUpdateSigninPrompt();
+      });
+    }
+    window._alignLoadFromFirestore = _alignLoadFromFirestore;
+
+    // Swap the save-status note between "sign in to save" and "saved to account".
+    function _alignUpdateSigninPrompt() {
+      var el = document.getElementById('align-signature-status');
+      if (!el) return;
+      if (_alignCurrentUser()) {
+        el.className = 'align-future-note align-sig-saved';
+        el.innerHTML = '<span class="align-future-ico">✅</span>' +
+          '<span>Your <strong>Alignment Signature</strong> is saved to your account — your picks follow you across devices and load automatically every time you sign in.</span>';
+      } else {
+        el.className = 'align-future-note align-sig-signin';
+        el.innerHTML = '<span class="align-future-ico">💾</span>' +
+          '<span><strong>Sign in to save your Alignment Signature.</strong> Your selected positions will follow you across devices and reload automatically next time.' +
+          '<button type="button" class="align-sig-btn" onclick="(window.openAuthModal||function(){})()">Sign in</button></span>';
+      }
+    }
+    window._alignUpdateSigninPrompt = _alignUpdateSigninPrompt;
+
+    // React to auth changes. Firebase supports multiple listeners, so adding our
+    // own leaves the existing login/sync flow untouched. The listener also fires
+    // immediately with the current state on registration, covering the case where
+    // auth resolved before this tool initialized.
+    function _alignBindAuth() {
+      try {
+        if (typeof auth === 'undefined' || !auth || !auth.onAuthStateChanged) return;
+        auth.onAuthStateChanged(function(user) {
+          if (user && !user.isAnonymous) {
+            _alignLoadFromFirestore(user.uid);
+          } else {
+            _alignUpdateSigninPrompt();
+          }
+        });
+      } catch(e) {}
     }
 
     // Directional nudge for positions that carry an internal lean. It pulls the
@@ -27683,10 +27813,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     function _alignInit() {
       _alignLoad();
+      // _alignLoad may replace the _alignIssues Set, so re-export the live
+      // reference (the Key Races quick-adjust reads window._alignIssues directly).
+      window._alignIssues = _alignIssues;
       _alignRenderPickers();
       _alignUpdateStatus();
       _alignSyncBrowseChips();
       syncRelevantAlignmentUI();
+      _alignUpdateSigninPrompt();
+      _alignBindAuth();
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _alignInit);
