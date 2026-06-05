@@ -4558,22 +4558,48 @@
        are the sitting officeholder(s). */
     .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
     .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
-    /* "When is this seat next decided" badge in each race header — lets a voter
-       tell at a glance whether the office is actually on their 2026 ballot.
-       is-now = on the 2026 ballot, is-open = open seat being filled in 2026,
-       is-future = a sitting seat NOT up in 2026 (shown for reference). */
-    .kr-ballot-badge { margin-left: auto; display: inline-flex; align-items: center; gap: 0.42rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.82rem; letter-spacing: 0.11em; text-transform: uppercase; padding: 0.42rem 0.95rem; border-radius: 999px; white-space: nowrap; line-height: 1; }
-    .kr-ballot-badge .kr-ballot-ico { font-size: 0.98rem; line-height: 1; }
-    /* On the 2026 ballot — the indicator that must be impossible to miss: a solid
-       bright fill with dark text and a soft, slow brightness pulse for attention. */
-    .kr-ballot-badge.is-now    { color: #06280f; background: linear-gradient(135deg,#86efac,#22c55e); border: 1px solid rgba(134,239,172,0.95); box-shadow: 0 0 0 1px rgba(34,197,94,0.35), 0 6px 22px rgba(34,197,94,0.42); animation: krBallotPulse 2.8s ease-in-out infinite; }
-    /* Open seat being filled in 2026 — equally on the ballot, gold accent. */
-    .kr-ballot-badge.is-open   { color: #2a1903; background: linear-gradient(135deg,#fde68a,#f59e0b); border: 1px solid rgba(253,230,138,0.95); box-shadow: 0 0 0 1px rgba(245,158,11,0.35), 0 6px 22px rgba(245,158,11,0.42); animation: krBallotPulse 2.8s ease-in-out infinite; }
-    /* A sitting seat NOT up in 2026 — deliberately quiet so it never competes with
-       the live-ballot badges, but still clearly legible. */
-    .kr-ballot-badge.is-future { color: #cfdbef; background: rgba(99,130,180,0.16); border: 1px solid rgba(129,160,210,0.55); }
+    /* ── "Up for Election" ballot-status banner ─────────────────────────────
+       A full-width strip directly under each race header that makes the single
+       most important fact — can I actually vote in this race in 2026? —
+       impossible to miss. Three states:
+         is-now    = on the 2026 ballot (bright green, glowing accent + pulse)
+         is-open   = open seat filled in 2026 (gold, glowing accent + pulse)
+         is-future = a sitting seat NOT up in 2026 (quiet steel, no glow)
+       Each banner carries a colored left accent bar, a filled icon badge, a bold
+       title, a plain-language sub-line, and a right-aligned action flag, so the
+       timing reads instantly without ever feeling loud. */
+    .kr-ballot-banner { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 1.2rem; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .kr-ballot-banner::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+    .kr-ballot-banner .kr-bb-badge { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; font-size: 1.02rem; line-height: 1; flex-shrink: 0; }
+    .kr-ballot-banner .kr-bb-text { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+    .kr-ballot-banner .kr-bb-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.94rem; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1; }
+    .kr-ballot-banner .kr-bb-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.68rem; letter-spacing: 0.015em; line-height: 1.25; }
+    .kr-ballot-banner .kr-bb-flag { margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 0.66rem; border-radius: 999px; white-space: nowrap; line-height: 1; }
+    /* On the 2026 ballot — the state that must be impossible to miss. */
+    .kr-ballot-banner.is-now { background: linear-gradient(100deg, rgba(34,197,94,0.20), rgba(34,197,94,0.05) 58%, transparent); }
+    .kr-ballot-banner.is-now::before { background: linear-gradient(#86efac,#22c55e); box-shadow: 0 0 14px rgba(34,197,94,0.75); }
+    .kr-ballot-banner.is-now .kr-bb-badge { background: linear-gradient(135deg,#86efac,#22c55e); color: #06280f; box-shadow: 0 4px 14px rgba(34,197,94,0.45); }
+    .kr-ballot-banner.is-now .kr-bb-title { color: #9af0b8; text-shadow: 0 0 16px rgba(34,197,94,0.4); }
+    .kr-ballot-banner.is-now .kr-bb-sub { color: #7fd6a0; }
+    .kr-ballot-banner.is-now .kr-bb-flag { color: #06280f; background: linear-gradient(135deg,#86efac,#22c55e); box-shadow: 0 4px 14px rgba(34,197,94,0.4); animation: krBallotPulse 2.8s ease-in-out infinite; }
+    /* Open seat filled in 2026 — equally on the ballot, gold accent. */
+    .kr-ballot-banner.is-open { background: linear-gradient(100deg, rgba(245,158,11,0.20), rgba(245,158,11,0.05) 58%, transparent); }
+    .kr-ballot-banner.is-open::before { background: linear-gradient(#fde68a,#f59e0b); box-shadow: 0 0 14px rgba(245,158,11,0.75); }
+    .kr-ballot-banner.is-open .kr-bb-badge { background: linear-gradient(135deg,#fde68a,#f59e0b); color: #2a1903; box-shadow: 0 4px 14px rgba(245,158,11,0.45); }
+    .kr-ballot-banner.is-open .kr-bb-title { color: #fcd34d; text-shadow: 0 0 16px rgba(245,158,11,0.4); }
+    .kr-ballot-banner.is-open .kr-bb-sub { color: #e3b765; }
+    .kr-ballot-banner.is-open .kr-bb-flag { color: #2a1903; background: linear-gradient(135deg,#fde68a,#f59e0b); box-shadow: 0 4px 14px rgba(245,158,11,0.4); animation: krBallotPulse 2.8s ease-in-out infinite; }
+    /* A sitting seat NOT up in 2026 — deliberately quiet so it never competes
+       with the live-ballot banners, but still clearly legible. */
+    .kr-ballot-banner.is-future { background: linear-gradient(100deg, rgba(99,130,180,0.14), transparent 60%); }
+    .kr-ballot-banner.is-future::before { background: rgba(129,160,210,0.6); }
+    .kr-ballot-banner.is-future .kr-bb-badge { background: rgba(99,130,180,0.22); color: #cfdbef; border: 1px solid rgba(129,160,210,0.45); }
+    .kr-ballot-banner.is-future .kr-bb-title { color: #c2d2ea; }
+    .kr-ballot-banner.is-future .kr-bb-sub { color: #8ba3c7; }
+    .kr-ballot-banner.is-future .kr-bb-flag { color: #cfdbef; background: rgba(99,130,180,0.22); border: 1px solid rgba(129,160,210,0.4); }
     @keyframes krBallotPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.13); } }
-    @media (prefers-reduced-motion: reduce) { .kr-ballot-badge { animation: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .kr-ballot-banner .kr-bb-flag { animation: none !important; } }
+    @media (max-width: 480px) { .kr-ballot-banner .kr-bb-flag { display: none; } }
     /* Emphasis variant of the incumbent status pill used when a seat is NOT on the
        2026 ballot, so "next election" years read as a clear, scannable timing flag
        rather than borrowing the gold of an active re-election pill. Bumped up so the
@@ -9378,6 +9404,54 @@
         min-height: 42px !important;
         font-size: 0.7rem !important;
       }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE POLISH PASS — targeted refinements to the most-used sections
+       (Key Races · My Voting Team · top navigation). Purely additive and
+       scoped to small screens; desktop layout, behaviour and markup are all
+       left untouched. Placed last so it reliably wins the cascade on phones.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* ── KEY RACES ─────────────────────────────────────────────────────
+         Trim the generous desktop padding so each race card is shorter and
+         the content gets more usable width, while every tap target grows. */
+      .kr-incumbent-panel { padding: 1rem 0.9rem 1.05rem; border-radius: 1rem; }
+      .kr-incumbent-panel + .kr-incumbent-panel { margin-top: 0.65rem; }
+      .kr-incumbent-name { font-size: 1.7rem; }
+      .kr-challenger-card { padding: 0.8rem 0.85rem 0.85rem 0.95rem; }
+      /* Compare / Spotlight / Profile / Align — comfortable, thumb-sized. */
+      .kr-action-row { gap: 0.45rem; margin-top: 0.65rem; }
+      .kr-action-btn { min-height: 44px; font-size: 0.7rem; }
+      /* The Promise % + Truth Score strip: keep both clearly legible with a
+         touch more breathing room and a consistent tap height. */
+      .kr-score-strip { gap: 0.5rem; }
+      .kr-score { min-height: 54px; }
+      /* Spotlight / inline-alignment rows get the same easy tap height. */
+      .kr-spot-preview, .kr-align-inline { min-height: 46px; }
+
+      /* ── MY VOTING TEAM ────────────────────────────────────────────────
+         Keep the empty slots from reading as tall dead space on phones, and
+         make the "Add to My Team" call-to-action an easier touch target. */
+      .myteam-slot { padding: 1.05rem 0.85rem 0.9rem; }
+      .myteam-slot-empty { min-height: 172px; padding: 1.1rem 0.85rem; }
+      .myteam-empty-cta { padding: 0.55rem 1.15rem; font-size: 0.72rem; }
+    }
+
+    @media (max-width: 480px) {
+      /* The "Up for Election" banner: a little more text room so the status
+         line never wraps awkwardly once the side flag is hidden. */
+      .kr-ballot-banner { padding: 0.6rem 0.95rem; gap: 0.6rem; }
+      .kr-ballot-banner .kr-bb-badge { width: 32px; height: 32px; }
+    }
+
+    @media (max-width: 360px) {
+      /* On the narrowest phones, keep the brand, the always-visible Join
+         button and the hamburger from crowding each other. */
+      nav .max-w-7xl.mx-auto { gap: 0.5rem !important; }
+      #nav-auth-desktop button { font-size: 9px !important; padding: 4.5px 8px !important; }
+      /* Hide only the small "FREE" chip so the core label still reads. */
+      #nav-auth-desktop button > span[style*="border-radius:4px"] { display: none !important; }
     }
   </style>
 
@@ -25226,24 +25300,54 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }
 
-    // Compact "when is this seat next decided" badge for the race header. Lets a
-    // voter tell at a glance whether the office is actually on their 2026 ballot:
-    //   • now    — on the 2026 ballot (green)
-    //   • open   — open seat being filled in 2026 (gold)
+    // Prominent full-width "Up for Election" banner for each race. It answers the
+    // single question a voter most needs — can I actually vote in this race in
+    // 2026? — in a strip that's impossible to miss but still reads as premium:
+    //   • now    — on the 2026 ballot (bright green, glowing accent + pulse)
+    //   • open   — open seat being filled in 2026 (gold, glowing accent + pulse)
     //   • future — a sitting seat NOT up in 2026, shown for reference with the real
-    //              year it is next contested (muted)
+    //              year it is next contested (quiet steel, no glow)
     // Most races are 2026 contests, so the default is "On the 2026 Ballot"; a race
     // carries an explicit `ballot` only when it is an exception (Governor, U.S.
     // Senate, a staggered state-senate seat whose term spans past 2026).
-    function _krBallotBadge(race) {
+    function _krBallotBanner(race) {
       var b = race.ballot;
       if (!b) {
         if (/open seat/i.test(race.incumbentNote || '')) b = { tone: 'open', label: 'Open Seat · 2026' };
         else b = { tone: 'now', label: 'Up for Election in 2026' };
       }
-      var ico = b.tone === 'future' ? '🗓️' : (b.tone === 'open' ? '🪑' : '🗳️');
-      var cls = b.tone === 'future' ? 'is-future' : (b.tone === 'open' ? 'is-open' : 'is-now');
-      return '<span class="kr-ballot-badge ' + cls + '"><span class="kr-ballot-ico">' + ico + '</span>' + b.label + '</span>';
+      var cfg;
+      if (b.tone === 'future') {
+        var yr = (String(b.label || '').match(/20\d\d/) || [])[0];
+        cfg = {
+          cls: 'is-future', ico: '🗓️',
+          title: 'Not on Your 2026 Ballot',
+          sub: yr ? 'No vote this year · next election ' + yr : (b.label || 'Shown for your reference'),
+          flag: yr ? 'Next ' + yr : 'Reference'
+        };
+      } else if (b.tone === 'open') {
+        cfg = {
+          cls: 'is-open', ico: '🪑',
+          title: 'Open Seat · On Your 2026 Ballot',
+          sub: 'No incumbent — this seat is decided in the 2026 election',
+          flag: '✓ Vote 2026'
+        };
+      } else {
+        cfg = {
+          cls: 'is-now', ico: '🗳️',
+          title: 'On Your 2026 Ballot',
+          sub: 'You can vote in this race in the 2026 election',
+          flag: '✓ Vote 2026'
+        };
+      }
+      return '<div class="kr-ballot-banner ' + cfg.cls + '">' +
+          '<span class="kr-bb-badge">' + cfg.ico + '</span>' +
+          '<span class="kr-bb-text">' +
+            '<span class="kr-bb-title">' + cfg.title + '</span>' +
+            '<span class="kr-bb-sub">' + cfg.sub + '</span>' +
+          '</span>' +
+          '<span class="kr-bb-flag">' + cfg.flag + '</span>' +
+        '</div>';
     }
 
     function _krRaceCard(race) {
@@ -25323,8 +25427,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
-          _krBallotBadge(race) +
         '</div>' +
+        _krBallotBanner(race) +
         '<div style="padding:1.15rem 1.2rem 0.5rem;">' +
           '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
           holderHtml +
