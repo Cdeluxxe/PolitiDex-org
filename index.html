@@ -11410,6 +11410,15 @@
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
           Grow our transparent, non-partisan database. Leverage AI to discover missing legislators and 2026 candidates, and verify their profiles with one-click imports.
         </p>
+        <!-- Refresh Stats: re-queries the live Firestore "politicians" collection on demand.
+             The numbers below already load automatically from the database on page load. -->
+        <div class="mt-5">
+          <button type="button" id="stats-refresh-btn" onclick="refreshDashboardStats()"
+            class="inline-flex items-center gap-2 bg-navy-800/80 hover:bg-navy-700/80 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 hover:text-gold-200 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2 rounded-full transition-all">
+            <span aria-hidden="true">🔄</span>
+            <span id="stats-refresh-label">Refresh Stats</span>
+          </button>
+        </div>
       </div>
 
       <!-- ── Stats Panel ───────────────────────────────────── -->
@@ -11952,6 +11961,67 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (overallBarEl) overallBarEl.style.width = Math.min(100, overallPct) + '%';
 
       ['federal', 'statewide', 'senate', 'house', 'local', 'cand'].forEach(setBar);
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    // Live dashboard stats — pulled directly from Firebase Firestore.
+    //
+    // HOW THE COUNTS WORK
+    // -------------------
+    // On page load every document in the Firestore "politicians" collection is
+    // fetched into the global PROFILES object (see the loader at the very top
+    // of this file: db.collection("politicians").get()). updateExpansionStats()
+    // above then derives every number on the dashboard from that live data set
+    // — none of the figures are hardcoded:
+    //   • Total Database Size    → total number of politician documents
+    //                              (Object.keys(PROFILES).length)
+    //   • Utah Database Coverage → documents with state "Utah"/"UT", scored
+    //                              against the target roster (e.g. 133 / 199)
+    //   • State Senate / House   → Utah documents whose office is a
+    //                              state-legislature seat (House shown out of 75)
+    //   • 2026 Candidates        → documents whose office/bio marks them as a
+    //                              2026 candidate
+    // Office strings in the database are descriptive (e.g. "State Representative
+    // (Dist. 60)", "Candidate for Congress"), so each category is matched with a
+    // small regular expression rather than an exact string compare. Adjust the
+    // regexes / target counts inside updateExpansionStats() to tune the buckets.
+    //
+    // refreshDashboardStats() re-queries Firestore on demand (the "Refresh
+    // Stats" button) so the numbers can be brought up to date without a full
+    // page reload.
+    // ──────────────────────────────────────────────────────────────
+    window.refreshDashboardStats = function() {
+      var btn = document.getElementById('stats-refresh-btn');
+      var label = document.getElementById('stats-refresh-label');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+      if (label) label.textContent = 'Refreshing…';
+
+      // Re-fetch the whole collection so totals reflect any additions, edits or
+      // removals made in the database since the page first loaded.
+      return db.collection("politicians").get().then(function(querySnapshot) {
+        var fresh = {};
+        querySnapshot.forEach(function(doc) { fresh[doc.id] = doc.data(); });
+
+        // Replace the contents of PROFILES *in place* (same object reference, so
+        // every closure that captured PROFILES keeps working) with the fresh
+        // snapshot — this also picks up deletions, keeping the counts accurate.
+        Object.keys(PROFILES).forEach(function(k) { delete PROFILES[k]; });
+        Object.keys(fresh).forEach(function(k) { PROFILES[k] = fresh[k]; });
+
+        if (typeof updateExpansionStats === 'function') updateExpansionStats();
+
+        if (typeof window._showToast === 'function') {
+          window._showToast('Stats refreshed from the live database — ' + querySnapshot.size + ' politicians tracked. 🇺🇸');
+        }
+      }).catch(function(error) {
+        console.error("❌ Could not refresh stats from Firestore:", error);
+        if (typeof window._showToast === 'function') {
+          window._showToast('Could not reach the database to refresh stats. Please try again.');
+        }
+      }).then(function() {
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        if (label) label.textContent = 'Refresh Stats';
+      });
     };
 
     window.triggerExpansionAISearch = function() {
