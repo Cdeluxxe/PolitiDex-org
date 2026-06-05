@@ -9405,6 +9405,54 @@
         font-size: 0.7rem !important;
       }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE POLISH PASS — targeted refinements to the most-used sections
+       (Key Races · My Voting Team · top navigation). Purely additive and
+       scoped to small screens; desktop layout, behaviour and markup are all
+       left untouched. Placed last so it reliably wins the cascade on phones.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* ── KEY RACES ─────────────────────────────────────────────────────
+         Trim the generous desktop padding so each race card is shorter and
+         the content gets more usable width, while every tap target grows. */
+      .kr-incumbent-panel { padding: 1rem 0.9rem 1.05rem; border-radius: 1rem; }
+      .kr-incumbent-panel + .kr-incumbent-panel { margin-top: 0.65rem; }
+      .kr-incumbent-name { font-size: 1.7rem; }
+      .kr-challenger-card { padding: 0.8rem 0.85rem 0.85rem 0.95rem; }
+      /* Compare / Spotlight / Profile / Align — comfortable, thumb-sized. */
+      .kr-action-row { gap: 0.45rem; margin-top: 0.65rem; }
+      .kr-action-btn { min-height: 44px; font-size: 0.7rem; }
+      /* The Promise % + Truth Score strip: keep both clearly legible with a
+         touch more breathing room and a consistent tap height. */
+      .kr-score-strip { gap: 0.5rem; }
+      .kr-score { min-height: 54px; }
+      /* Spotlight / inline-alignment rows get the same easy tap height. */
+      .kr-spot-preview, .kr-align-inline { min-height: 46px; }
+
+      /* ── MY VOTING TEAM ────────────────────────────────────────────────
+         Keep the empty slots from reading as tall dead space on phones, and
+         make the "Add to My Team" call-to-action an easier touch target. */
+      .myteam-slot { padding: 1.05rem 0.85rem 0.9rem; }
+      .myteam-slot-empty { min-height: 172px; padding: 1.1rem 0.85rem; }
+      .myteam-empty-cta { padding: 0.55rem 1.15rem; font-size: 0.72rem; }
+    }
+
+    @media (max-width: 480px) {
+      /* The "Up for Election" banner: a little more text room so the status
+         line never wraps awkwardly once the side flag is hidden. */
+      .kr-ballot-banner { padding: 0.6rem 0.95rem; gap: 0.6rem; }
+      .kr-ballot-banner .kr-bb-badge { width: 32px; height: 32px; }
+    }
+
+    @media (max-width: 360px) {
+      /* On the narrowest phones, keep the brand, the always-visible Join
+         button and the hamburger from crowding each other. */
+      nav .max-w-7xl.mx-auto { gap: 0.5rem !important; }
+      #nav-auth-desktop button { font-size: 9px !important; padding: 4.5px 8px !important; }
+      /* Hide only the small "FREE" chip so the core label still reads. */
+      #nav-auth-desktop button > span[style*="border-radius:4px"] { display: none !important; }
+    }
   </style>
 
       </head>
