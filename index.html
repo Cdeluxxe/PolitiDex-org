@@ -11387,6 +11387,12 @@
               </div>
             </div>
 
+            <!-- Personalized Alignment prompt / status — ties the visitor's saved
+                 Alignment Signature into team building. Rendered by
+                 _myteamRenderAlignPrompt(): a setup CTA when no issues are chosen,
+                 a compact "match is on" confirmation (with save state) once it is. -->
+            <div id="myteam-align-prompt" style="display:none;"></div>
+
             <!-- Ballot completion progress — bar + per-slot pips -->
             <div id="myteam-progress" class="myteam-progress">
               <div class="myteam-progress-track">
@@ -11781,7 +11787,7 @@
               <select id="myteam-browse-sort" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
                 <option value="score-desc">Score: High to Low</option>
                 <option value="score-asc">Score: Low to High</option>
-                <option value="align-desc">Alignment Match</option>
+                <option value="align-desc">🎯 Your Match: High to Low</option>
                 <option value="alpha">Alphabetical (A-Z)</option>
               </select>
 
@@ -23188,6 +23194,53 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return {};
     }
 
+    // Section-level "Personalized Alignment" prompt for the team builder. It gives
+    // the saved Alignment Signature a home inside My Voting Team:
+    //   • no issues chosen  → a prominent purple CTA inviting the visitor to set up
+    //     their signature and unlock a "Your Match %" on every candidate;
+    //   • issues chosen      → a compact confirmation that personalized match is on,
+    //     showing how many positions drive it, the save state (saved to account vs
+    //     sign-in-to-save), and a quick "Adjust Issues" link back to the picker.
+    // Pulls live from the same _alignIssues / Firebase-backed signature the rest of
+    // the tool uses, so it can never drift from the scores shown on the cards.
+    function _myteamRenderAlignPrompt() {
+      var el = document.getElementById('myteam-align-prompt');
+      if (!el) return;
+      var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
+            : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
+      var signedIn = false;
+      try { signedIn = !!(typeof auth !== 'undefined' && auth && auth.currentUser && !auth.currentUser.isAnonymous); } catch (e) {}
+
+      if (!n) {
+        el.style.display = '';
+        el.innerHTML =
+          '<div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.30) 0%, rgba(139,92,246,0.08) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:1rem;padding:0.9rem 1.1rem;margin-bottom:1.5rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(139,92,246,0.08);">' +
+            '<div style="width:42px;height:42px;border-radius:0.75rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;box-shadow:0 0 16px rgba(139,92,246,0.4);">🎯</div>' +
+            '<div style="flex:1;min-width:200px;">' +
+              '<div class="font-condensed" style="font-weight:700;letter-spacing:0.04em;color:#d8b4fe;font-size:0.95rem;text-transform:uppercase;">Unlock Personalized Team Building</div>' +
+              '<div class="font-condensed" style="color:#c4b5fd;font-size:0.82rem;line-height:1.42;margin-top:0.15rem;">Set up your <strong style="color:#e9d5ff;">Alignment Signature</strong> to see a <strong style="color:#e9d5ff;">Your Match&nbsp;%</strong> on every candidate — and build a ballot that truly reflects your values.</div>' +
+            '</div>' +
+            '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="font-condensed" style="white-space:nowrap;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.78rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.75rem;padding:0.6rem 1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,0.3);transition:transform 0.15s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 22px rgba(139,92,246,0.45)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 4px 16px rgba(139,92,246,0.3)\'">🎯 Set Up Match</button>' +
+          '</div>';
+        return;
+      }
+
+      el.style.display = '';
+      var saveNote = signedIn
+        ? '<span style="color:#86efac;">✅ Saved to your account</span>'
+        : '<span style="color:#fcd34d;">💾 <button type="button" onclick="(window.openAuthModal||function(){})()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fcd34d;text-decoration:underline;">Sign in to save across devices</button></span>';
+      el.innerHTML =
+        '<div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.20) 0%, rgba(139,92,246,0.05) 100%);border:1px solid rgba(139,92,246,0.32);border-radius:1rem;padding:0.7rem 1rem;margin-bottom:1.5rem;">' +
+          '<div style="width:34px;height:34px;border-radius:0.6rem;background:rgba(139,92,246,0.18);border:1px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🎯</div>' +
+          '<div style="flex:1;min-width:180px;">' +
+            '<div class="font-condensed" style="font-weight:700;letter-spacing:0.03em;color:#d8b4fe;font-size:0.86rem;">Personalized Match is on — every candidate shows <span style="color:#e9d5ff;">Your Match&nbsp;%</span></div>' +
+            '<div class="font-condensed" style="color:#9fb4d4;font-size:0.74rem;margin-top:0.12rem;">Based on your <strong style="color:#c4b5fd;">' + n + ' saved position' + (n > 1 ? 's' : '') + '</strong> · ' + saveNote + '</div>' +
+          '</div>' +
+          '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="font-condensed" style="white-space:nowrap;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.72rem;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);border-radius:0.6rem;padding:0.45rem 0.85rem;cursor:pointer;transition:background 0.2s ease;" onmouseover="this.style.background=\'rgba(139,92,246,0.22)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.12)\'">⚙ Adjust Issues</button>' +
+        '</div>';
+    }
+    window._myteamRenderAlignPrompt = _myteamRenderAlignPrompt;
+
     function _renderSlotCard(pos, pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
@@ -23265,6 +23318,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var compareTopBtn = document.getElementById('myteam-compare-top-btn');
       var compareCta = document.getElementById('myteam-compare-team-cta');
       var alignmentBar = document.getElementById('myteam-alignment-bar');
+
+      // Keep the section-level alignment prompt in sync every time the builder
+      // repaints (team change, alignment change, or location change all route here).
+      _myteamRenderAlignPrompt();
 
       var ballotSelections = _getTeamBallotSelections();
       var filledPids = [];
@@ -27590,6 +27647,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span><strong>Sign in to save your Alignment Signature.</strong> Your selected positions will follow you across devices and reload automatically next time.' +
           '<button type="button" class="align-sig-btn" onclick="(window.openAuthModal||function(){})()">Sign in</button></span>';
       }
+      // Keep the team-builder alignment prompt's save-state note (saved vs sign-in)
+      // in step with auth, since this runs on every sign-in / sign-out.
+      if (typeof window._myteamRenderAlignPrompt === 'function') window._myteamRenderAlignPrompt();
     }
     window._alignUpdateSigninPrompt = _alignUpdateSigninPrompt;
 
