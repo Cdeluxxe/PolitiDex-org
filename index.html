@@ -3592,6 +3592,22 @@
       box-shadow: 0 6px 20px rgba(245,158,11,0.22) !important;
       transform: translateY(-1px);
     }
+    .myteam-empty-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.92rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.1rem;
+    }
+    .myteam-empty-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(245,158,11,0.08));
+      border: 1.5px solid rgba(245,158,11,0.5);
+      color: rgba(245,158,11,0.98);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.45rem 1.05rem; border-radius: 999px; cursor: pointer;
+      transition: all 0.25s; box-shadow: 0 3px 12px rgba(245,158,11,0.12);
+    }
     .myteam-slot-photo {
       width: 76px; height: 76px;
       border-radius: 50%;
@@ -3625,6 +3641,12 @@
     .myteam-slot-info-row {
       display: flex; align-items: center; justify-content: center;
       gap: 0.5rem; margin-bottom: 0.4rem; flex-wrap: wrap;
+    }
+    .myteam-slot-score-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.54rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-top: 0.15rem; opacity: 0.9;
     }
     .myteam-slot-kept-broken {
       display: flex; gap: 0.45rem; align-items: center; justify-content: center;
@@ -3670,6 +3692,43 @@
     .myteam-summary-line.is-empty .myteam-summary-strong { color: #cbd5e1; }
     .myteam-summary-line.is-complete { color: #4ade80; border-left-color: rgba(74,222,128,0.7); background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.22); }
     .myteam-summary-line.is-complete .myteam-summary-strong { color: #86efac; }
+    /* Ballot completion progress — header bar + per-slot pips. */
+    .myteam-progress { margin: 0 0 1.5rem; }
+    .myteam-progress-track {
+      height: 9px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .myteam-progress-fill {
+      height: 100%; width: 0%; border-radius: 999px;
+      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 55%, #4ade80 100%);
+      background-size: 200% 100%;
+      box-shadow: 0 0 16px rgba(245,158,11,0.45);
+      transition: width 0.7s cubic-bezier(0.34,1.25,0.64,1);
+    }
+    .myteam-progress-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem 1rem; margin-top: 0.75rem; flex-wrap: wrap;
+    }
+    .myteam-progress-pips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .myteam-progress-pip {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 0.24rem 0.6rem; border-radius: 999px; border: 1px solid transparent;
+      white-space: nowrap; transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.25s;
+    }
+    .myteam-progress-pip:hover { transform: translateY(-1px); }
+    .myteam-progress-pip .pip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .myteam-progress-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; color: rgba(251,191,36,0.92);
+      white-space: nowrap;
+    }
+    @media (max-width: 639px) {
+      .myteam-progress-pip { font-size: 0.56rem; padding: 0.2rem 0.5rem; }
+      .myteam-progress-meta { gap: 0.6rem; }
+    }
     .myteam-compare-all-bar {
       background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(139,92,246,0.08) 100%);
       border: 1px solid rgba(59,130,246,0.25);
@@ -10689,6 +10748,17 @@
               <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
                 <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
+              </div>
+            </div>
+
+            <!-- Ballot completion progress — bar + per-slot pips -->
+            <div id="myteam-progress" class="myteam-progress">
+              <div class="myteam-progress-track">
+                <div id="myteam-progress-fill" class="myteam-progress-fill" style="width:0%;"></div>
+              </div>
+              <div class="myteam-progress-meta">
+                <div id="myteam-progress-pips" class="myteam-progress-pips"></div>
+                <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 ballot slots filled</div>
               </div>
             </div>
 
@@ -22413,7 +22483,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div style="display:flex;justify-content:center;align-items:center;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.35rem;">' + window._pdxStatusBadge(d, { size: 'sm' }) + (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d) ? window._pdxUnopposedBadge({ size: 'sm' }) : '') + '</div>' +
         (partyBadge ? '<div style="margin-bottom:0.45rem;">' + partyBadge + '</div>' : '<div style="margin-bottom:0.3rem;"></div>') +
         '<div class="myteam-slot-info-row">' +
-          '<div class="chub-score" style="color:' + scCol + ';font-size:2rem;text-shadow:0 0 18px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;">' + scTxt + '</div>' +
+          '<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">' +
+            '<div class="chub-score" style="color:' + scCol + ';font-size:2rem;text-shadow:0 0 18px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;">' + scTxt + '</div>' +
+            '<div class="myteam-slot-score-label" style="color:' + (sc !== null && sc !== undefined ? scCol + 'cc' : '#7d97bd') + ';">' + (sc !== null && sc !== undefined ? 'Promise Kept' : 'No Record Yet') + '</div>' +
+          '</div>' +
           (alignHtml ? '<span style="font-size:0.6rem;">' + alignHtml + '</span>' : '') +
         '</div>' +
         '<div style="width:88%;margin:0 auto 0.4rem;"><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
@@ -22432,12 +22505,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderSlotEmpty(pos) {
       return '<div class="myteam-slot-empty" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Choose your ' + pos.label + ' pick">' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
-        '<div class="myteam-empty-ring" style="width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.08));border:2.5px dashed ' + pos.color + '55;font-size:2rem;margin:0.4rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
-        '<div class="font-condensed text-base text-steel-300 tracking-wider font-700" style="margin-bottom:0.2rem;">' + pos.label + '</div>' +
-        '<div class="font-condensed" style="font-size:0.66rem;color:#7d97bd;margin-bottom:0.75rem;line-height:1.4;">Your seat is open — pick the candidate you’d vote for.</div>' +
-        '<div class="myteam-empty-cta" style="display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(245,158,11,0.08));border:1.5px solid rgba(245,158,11,0.5);color:rgba(245,158,11,0.98);font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.45rem 1rem;border-radius:999px;cursor:pointer;transition:all 0.25s;box-shadow:0 3px 12px rgba(245,158,11,0.12);">' +
+        '<div class="myteam-empty-ring" style="width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:2rem;margin:0.5rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
+        '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Open Seat</div>' +
+        '<div class="font-condensed" style="font-size:0.7rem;color:#8ba3c7;margin:0.15rem auto 0.85rem;line-height:1.45;max-width:15rem;">Pick your <strong style="color:#cbd5e1;font-weight:700;">' + pos.label + '</strong> candidate from <span style="color:#fbbf24;">Your Key Races</span> below.</div>' +
+        '<div class="myteam-empty-cta">' +
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
-          'Choose Candidate' +
+          'Pick a Candidate' +
         '</div>' +
       '</div>';
     }
@@ -22473,6 +22546,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
 
       if (slotsGrid) slotsGrid.innerHTML = slotsHtml;
+
+      // Header completion progress — fill bar + per-slot pips (filled vs open).
+      var progressFill = document.getElementById('myteam-progress-fill');
+      var progressPips = document.getElementById('myteam-progress-pips');
+      var progressLabel = document.getElementById('myteam-progress-label');
+      var _teamTotal = TEAM_POSITIONS.length;
+      if (progressFill) progressFill.style.width = Math.round(filledCount / _teamTotal * 100) + '%';
+      if (progressPips) {
+        progressPips.innerHTML = TEAM_POSITIONS.map(function(pos) {
+          var on = !!(ballotSelections[pos.key] && CMP_DATA[ballotSelections[pos.key]]);
+          var c = pos.color;
+          var style = on
+            ? 'background:' + c + '1f;border-color:' + c + '5c;color:' + c + ';'
+            : 'background:rgba(255,255,255,0.025);border-color:rgba(255,255,255,0.09);color:#6b7f9e;';
+          var dot = on
+            ? 'background:' + c + ';box-shadow:0 0 7px ' + c + ';'
+            : 'background:rgba(255,255,255,0.16);';
+          return '<span class="myteam-progress-pip" style="' + style + '" title="' + pos.label + (on ? ' — filled' : ' — open') + '">' +
+            '<span class="pip-dot" style="' + dot + '"></span>' + (on ? '✓ ' : '') + pos.label +
+          '</span>';
+        }).join('');
+      }
+      if (progressLabel) {
+        progressLabel.textContent = filledCount >= _teamTotal
+          ? '★ Ballot complete — all ' + _teamTotal + ' slots filled'
+          : filledCount + ' of ' + _teamTotal + ' ballot slots filled';
+        progressLabel.style.color = filledCount >= _teamTotal ? '#4ade80' : 'rgba(251,191,36,0.92)';
+      }
 
       if (filledCount > 0) {
         if (teamEmpty) teamEmpty.style.display = 'none';
