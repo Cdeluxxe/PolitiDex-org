@@ -26789,6 +26789,49 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     }
 
+    // Within a single office (e.g. "U.S. House"), split the politicians into
+    // clearly-labeled "Currently in Office" and "2026 Candidates" subsections so
+    // a voter can instantly tell who holds the seat from who is running for it.
+    // Former officeholders (rare here) land in a muted "Previously in Office"
+    // group. Reuses _renderBrowseTeamCard so every card keeps its working
+    // "Add to My Team", Compare and Profile buttons.
+    function _renderRelevantStatusSplit(pids) {
+      var inOffice = [], candidates = [], former = [];
+      (pids || []).forEach(function(pid) {
+        var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
+        if (st === 'candidate') candidates.push(pid);
+        else if (st === 'former') former.push(pid);
+        else inOffice.push(pid);
+      });
+
+      function subsection(label, ico, accent, list) {
+        if (!list.length) return '';
+        var s = '';
+        s += '<div class="relevant-status-divider" style="display:flex;align-items:center;gap:0.55rem;margin:0.15rem 0 0.7rem;">';
+        s += '<span style="display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.09em;text-transform:uppercase;color:' + accent + ';background:' + accent + '1f;border:1px solid ' + accent + '66;padding:0.18rem 0.62rem;border-radius:999px;white-space:nowrap;">' + ico + ' ' + label + ' <span style="opacity:0.75;">(' + list.length + ')</span></span>';
+        s += '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + accent + '50,transparent);"></span>';
+        s += '</div>';
+        s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" style="margin-bottom:1rem;">';
+        list.forEach(function(pid) { s += _renderBrowseTeamCard(pid); });
+        s += '</div>';
+        return s;
+      }
+
+      var out = '';
+      out += subsection('Currently in Office', '✅', '#22c55e', inOffice);
+      out += subsection('2026 Candidates', '🗳️', '#60a5fa', candidates);
+      out += subsection('Previously in Office', '⏳', '#94a3b8', former);
+
+      // Safety net: if status classification produced nothing (shouldn't happen),
+      // fall back to a flat in-office-first grid so cards never disappear.
+      if (!out) {
+        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+        _sortInOfficeFirst(pids || []).forEach(function(pid) { out += _renderBrowseTeamCard(pid); });
+        out += '</div>';
+      }
+      return out;
+    }
+
     // Renders the Federal → State → Local accordion tree for a set of office
     // groups (shared by both the focused ballot view and the legacy fallback).
     // ctx carries focus metadata + optional extra HTML appended inside a level
@@ -26821,11 +26864,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
         h += '</button>';
         h += '<div class="browse-type-body"><div class="browse-type-inner">';
-        h += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
-        _sortInOfficeFirst(officePids).forEach(function(pid) {
-          h += _renderBrowseTeamCard(pid);
-        });
-        h += '</div>';
+        h += _renderRelevantStatusSplit(officePids);
         h += '</div></div></div>';
         return h;
       }
@@ -26915,6 +26954,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       h += '</div></div></div>';
       return h;
     }
+
+    // Open the matching Relevant-to-Me office group (and its parent Federal/
+    // State/Local level) and scroll it into view. Powers the "Your 2026 Ballot"
+    // quick-jump chips so voters can navigate straight to any race.
+    window._relevantJump = function(levelKey, officeKey) {
+      try {
+        var lvl = document.getElementById('relevant-level-group-' + levelKey);
+        if (lvl && !lvl.classList.contains('expanded')) {
+          lvl.classList.add('expanded');
+          _browseGroupState['relevant-level-' + levelKey] = true;
+        }
+        var grp = document.getElementById('relevant-browse-group-' + officeKey);
+        if (grp && !grp.classList.contains('expanded')) {
+          grp.classList.add('expanded');
+          _browseGroupState['relevant-office-' + officeKey] = true;
+        }
+        var target = grp || lvl;
+        if (target && typeof target.scrollIntoView === 'function') {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } catch (e) {}
+    };
 
     window.renderRelevantToMe = function() {
       var relevantGrid = document.getElementById('relevant-browse-grid');
@@ -27043,7 +27104,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         levelExtras: explorer ? { state: explorer } : null
       };
 
-      relevantGrid.innerHTML = _renderRelevantTree(officeGroups, ctx);
+      // ── "Your 2026 Ballot" overview ────────────────────────────────────────
+      // A compact strip of the exact races this voter can weigh in on — their
+      // specific U.S. House / State Senate / State House districts plus the
+      // statewide seats — as quick-jump chips that scroll straight to each
+      // office group. Makes the personalized scope explicit instead of leaving
+      // the voter to infer it from a long list.
+      function _ballotChip(emoji, title, sub, levelKey, officeKey) {
+        var border = 'rgba(59,130,246,0.4)';
+        return '<button type="button" onclick="_relevantJump(\'' + levelKey + '\',\'' + officeKey + '\')" ' +
+          'style="text-align:left;display:flex;flex-direction:column;gap:0.12rem;background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(10,15,30,0.4));border:1px solid ' + border + ';border-radius:0.8rem;padding:0.6rem 0.8rem;cursor:pointer;transition:transform 0.15s,border-color 0.15s;min-height:44px;" ' +
+          'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.borderColor=\'rgba(96,165,250,0.85)\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'' + border + '\'">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.84rem;letter-spacing:0.03em;color:#fff;line-height:1.1;">' + emoji + ' ' + title + '</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;letter-spacing:0.04em;color:#9fb4d4;line-height:1.15;">' + sub + '</span>' +
+          '</button>';
+      }
+      var ballotChips = [];
+      if (officeGroups.representative) ballotChips.push(_ballotChip('🏛', 'U.S. House', houseDist ? 'District ' + houseDist : 'Your district', 'federal', 'representative'));
+      if (officeGroups.state_senator)  ballotChips.push(_ballotChip('🏛', 'State Senate', senateDist ? 'District ' + senateDist : 'Your district', 'state', 'state_senator'));
+      if (officeGroups.state_rep)      ballotChips.push(_ballotChip('🏛', 'State House', lowerDist ? 'District ' + lowerDist : 'Your district', 'state', 'state_rep'));
+      if (officeGroups.governor)       ballotChips.push(_ballotChip('🦅', 'Governor', 'Statewide · ' + stateName, 'state', 'governor'));
+      if (officeGroups.senator)        ballotChips.push(_ballotChip('🏛', 'U.S. Senate', 'Statewide · ' + stateName, 'federal', 'senator'));
+      if (officeGroups.local)          ballotChips.push(_ballotChip('🏙', 'Local', 'Your community', 'local', 'local'));
+
+      var overview = '';
+      if (ballotChips.length) {
+        overview += '<div class="relevant-ballot-overview" style="margin-bottom:1.1rem;padding:1rem 1.1rem;border-radius:1rem;background:linear-gradient(135deg,rgba(30,58,138,0.2),rgba(10,15,30,0.35));border:1px solid rgba(59,130,246,0.3);">';
+        overview += '<div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.75rem;flex-wrap:wrap;">';
+        overview += '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.06em;font-size:1.2rem;color:#fff;">🗳️ Your 2026 Ballot</span>';
+        overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + krData.label + ' — tap a race to jump to it</span>';
+        overview += '</div>';
+        overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
+        overview += '</div>';
+      }
+
+      relevantGrid.innerHTML = overview + _renderRelevantTree(officeGroups, ctx);
     };
 
     (function() {
