@@ -19022,87 +19022,64 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Mar 2026', headline:'Former Speaker Wilson\'s Budget Legacy Under Scrutiny', facts:'A legislative audit found that state spending grew 42% during Wilson\'s speakership (FY2019-FY2023), from $17.5B to $24.9B, outpacing inflation by a factor of 4. Wilson defended the growth as investment in infrastructure and education.', why:'The spending growth during his tenure contradicts the fiscal conservatism platform of his party and may influence future Utah budget debates.' },
           ],
         });
-        const items = spotlightData[id];
-        if (!items || !items.length) return '';
-        var topCount = items.length <= 2 ? items.length : (items.length <= 3 ? 2 : 3);
-        var topItems = items.slice(0, topCount);
-        var currentItems = items.slice(topCount);
+        // ── Utah Issues Spotlight — clean 3-card visual layout ──────────────
+        // Replaces the older accordion list. Three timely, high-impact Utah
+        // issues, each tied to a real official with working actions: open that
+        // official's profile, add them to the user's ballot team, or jump to the
+        // team builder / Voter Hub. The spotlightData object above is preserved
+        // because Key Races (_krBuildSpotlight) still reads window.SPOTLIGHT_DATA.
+        var pmSpotCards = [
+          { tc:'#f5c842', icon:'\u{1F3ED}', tag:'Energy · Growth',
+            title:'Data Centers vs. the Grid',
+            desc:'A wave of new AI data centers is straining Utah\'s power and water — and raising the question of who pays for it. Gov. Cox is steering the state\'s response.',
+            pid:'cox' },
+          { tc:'#4ade80', icon:'\u{1F3D4}️', tag:'Public Lands · Water',
+            title:'Public Lands Showdown',
+            desc:'From Bears Ears boundaries to a shrinking Great Salt Lake, the fight over Utah\'s land and water is on the 2026 ballot — and Rep. Maloy is at the center of it.',
+            pid:'maloy' },
+          { tc:'#60a5fa', icon:'\u{1F5F3}️', tag:'Your 2026 Ballot',
+            title:'Build Your Voting Team',
+            desc:'Governor, Congress, and the Legislature are all up this November. Line up your team now and walk into the booth knowing exactly who earned your vote.',
+            scroll:true }
+        ];
 
-        function renderSpotlightItem(item, idx, prefix, isTop, autoOpen) {
-          var slId = prefix + '-' + id + '-' + idx;
-          var openClass = autoOpen ? ' sl-open' : '';
-          var activeClass = autoOpen ? ' sl-active' : '';
-          var itemClass = isTop ? 'spotlight-top-item' : 'spotlight-item';
-          var dateColor = isTop ? '#f5c842' : '#7596c0';
-          var chevronColor = isTop ? '#f5c842' : '#7596c0';
-          return '<div class="' + itemClass + '">' +
-            '<button class="spotlight-toggle' + activeClass + '" onclick="(function(){ var d=document.getElementById(\'' + slId + '\'); var b=d.previousElementSibling; var isOpen=d.classList.contains(\'sl-open\'); d.classList.toggle(\'sl-open\',!isOpen); b.classList.toggle(\'sl-active\',!isOpen); })()">' +
-              '<div style="display:flex;align-items:flex-start;gap:0.6rem;text-align:left;">' +
-                (isTop ? '<span style="color:#f5c842;font-size:0.7rem;margin-top:0.1rem;flex-shrink:0;">★</span>' : '') +
-                '<div style="display:flex;flex-direction:column;gap:0.1rem;">' +
-                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:' + dateColor + ';white-space:nowrap;">' + item.date + '</span>' +
-                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:' + (isTop ? '700' : '600') + ';font-size:0.82rem;color:white;line-height:1.35;">' + item.headline + '</span>' +
-                '</div>' +
-              '</div>' +
-              '<svg class="sl-chevron" width="16" height="16" fill="none" stroke="' + chevronColor + '" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
-            '</button>' +
-            '<div class="spotlight-detail' + openClass + '" id="' + slId + '">' +
-              '<div style="padding:0 0.875rem 0.75rem 0.875rem;">' +
-                '<div style="background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:0.6rem;padding:0.75rem;">' +
-                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:0.35rem;">Key Facts & Sources</div>' +
-                  '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.5rem;">' + item.facts + '</p>' +
-                  '<div style="background:rgba(245,200,66,0.06);border-left:2px solid rgba(245,200,66,0.4);border-radius:0 0.4rem 0.4rem 0;padding:0.45rem 0.65rem;">' +
-                    '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#f5c842;margin-bottom:0.15rem;">Why This Matters</div>' +
-                    '<p style="font-size:0.75rem;color:rgba(245,200,66,0.85);line-height:1.5;margin:0;">' + item.why + '</p>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
+        function pmSpotScrollBtn(target, label, primary) {
+          return '<button type="button" class="ht-topic-btn' + (primary ? ' ht-topic-btn-primary' : '') + '" ' +
+            'onclick="closeModal();setTimeout(function(){var e=document.getElementById(\'' + target + '\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});},260);">' + label + '</button>';
+        }
+
+        function pmSpotCard(c) {
+          var actions;
+          if (c.scroll) {
+            actions = pmSpotScrollBtn('my-politicians', '⭐ Build My Team', true) +
+                      pmSpotScrollBtn('voter-hub', '\u{1F5F3}️ Voter Hub', false);
+          } else {
+            // Inside this same official's profile, a "View Profile" button would
+            // be a no-op, so swap it for a Voter Hub jump and keep two useful
+            // actions; otherwise open the featured official's profile directly.
+            var primaryBtn = (c.pid === id)
+              ? pmSpotScrollBtn('voter-hub', '\u{1F5F3}️ Voter Hub', true)
+              : '<button type="button" class="ht-topic-btn ht-topic-btn-primary" onclick="showProfile(\'' + c.pid + '\')">\u{1F464} View Profile</button>';
+            var addBtn = '<button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,\'' + c.pid + '\')">⭐ Add to My Team</button>';
+            actions = primaryBtn + addBtn;
+          }
+          return '<div class="ht-topic-card" style="--tc:' + c.tc + ';">' +
+            '<div class="ht-topic-head">' +
+              '<span class="ht-topic-icon">' + c.icon + '</span>' +
+              '<span class="ht-topic-tag">' + c.tag + '</span>' +
             '</div>' +
+            '<h3 class="ht-topic-title">' + c.title + '</h3>' +
+            '<p class="ht-topic-desc">' + c.desc + '</p>' +
+            '<div class="ht-topic-actions">' + actions + '</div>' +
           '</div>';
         }
 
-        var topRows = topItems.map(function(item, idx) {
-          return renderSpotlightItem(item, idx, 'slt', true, idx === 0);
-        }).join('');
-
-        var currentRows = currentItems.map(function(item, idx) {
-          return renderSpotlightItem(item, idx, 'slc', false, false);
-        }).join('');
-
-        var currentEventsSection = '';
-        if (currentItems.length > 0) {
-          var ceToggleId = 'sl-ce-' + id;
-          currentEventsSection =
-            '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.875rem;background:rgba(96,165,250,0.04);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.04);">' +
-              '<svg width="13" height="13" fill="none" stroke="#60a5fa" stroke-width="1.8" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>' +
-              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.75rem;letter-spacing:0.1em;color:#60a5fa;">CURRENT EVENTS</span>' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:0.1rem 0.4rem;border-radius:999px;">' + currentItems.length + ' more</span>' +
-            '</div>' +
-            '<button class="spotlight-show-more" onclick="(function(){ var w=document.getElementById(\'' + ceToggleId + '\'); var b=w.previousElementSibling; var isOpen=w.classList.contains(\'sl-section-open\'); w.classList.toggle(\'sl-section-open\',!isOpen); b.classList.toggle(\'sl-expanded\',!isOpen); b.querySelector(\'span\').textContent=isOpen?\'Show ' + currentItems.length + ' more stories\':\'Hide stories\'; })()">' +
-              '<span>Show ' + currentItems.length + ' more stories</span>' +
-              '<svg class="sl-chevron-more" width="14" height="14" fill="none" stroke="#60a5fa" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
-            '</button>' +
-            '<div class="spotlight-current-wrap" id="' + ceToggleId + '">' +
-              currentRows +
-            '</div>';
-        }
-
         return '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F526} In the Spotlight — Current Events & Controversies</div>' +
-          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;overflow:hidden;">' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.875rem;background:rgba(245,200,66,0.05);border-bottom:1px solid rgba(255,255,255,0.06);">' +
-              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#f5c842;">SPOTLIGHT REPORT</span>' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.25);color:#f5c842;padding:0.1rem 0.4rem;border-radius:999px;">' + items.length + ' stories</span>' +
-            '</div>' +
-            '<div style="display:flex;align-items:center;gap:0.45rem;padding:0.45rem 0.875rem;background:rgba(245,200,66,0.03);border-bottom:1px solid rgba(245,200,66,0.06);">' +
-              '<svg width="13" height="13" fill="#f5c842" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
-              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.1em;color:#f5c842;">TOP SPOTLIGHTS</span>' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.48rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:linear-gradient(135deg,rgba(245,200,66,0.18),rgba(220,38,38,0.12));border:1px solid rgba(245,200,66,0.3);color:#f5c842;padding:0.1rem 0.4rem;border-radius:999px;">HIGH IMPACT</span>' +
-            '</div>' +
-            topRows +
-            currentEventsSection +
+          '<div class="modal-section-title">\u{1F526} In the Spotlight — Utah Issues That Matter</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.85rem;">' +
+            pmSpotCards.map(pmSpotCard).join('') +
           '</div>' +
-          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Factual summaries from public sources. Tap each item to expand details.</p>' +
+          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.75rem 0 0;text-align:center;">The issues defining Utah\'s 2026 cycle — explore the officials shaping them and build your ballot.</p>' +
         '</div>';
       })()}
 
