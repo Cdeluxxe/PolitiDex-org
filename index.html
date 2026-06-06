@@ -26983,6 +26983,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var relevantLocText = document.getElementById('relevant-location-text');
       if (!relevantGrid) return;
 
+      // Until the visitor has actually chosen an area, never present a default
+      // district's ballot as if it were theirs. Show a prominent, ballot-focused
+      // prompt that lets them personalize the section in one tap.
+      if (!window._hasUserLocation) {
+        if (relevantCountBadge) relevantCountBadge.textContent = '0';
+        if (relevantLocText) relevantLocText.innerHTML = 'Choose your area to personalize this section to your exact ballot.';
+        relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function')
+          ? window._relevantLocationPrompt()
+          : '';
+        return;
+      }
+
       var krData = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
       // Drive the focused, exact-district ballot from the Key Races area selector
       // when that area genuinely matches the voter (they chose/inferred it), or
@@ -27078,15 +27090,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var total = Object.keys(picked).length;
       if (relevantCountBadge) relevantCountBadge.textContent = total;
 
-      // Header line: the active area + the voter's exact district numbers.
+      // Header line: the active area + the voter's exact district numbers, in the
+      // explicit "City, County — House District N · Senate District N · U.S. House UT-0N"
+      // format so the personalized scope is unmistakable.
       if (relevantLocText) {
+        var areaName = (krData.city && krData.county) ? (krData.city + ', ' + krData.county) : krData.label;
         var distBits = [];
-        if (houseDist)  distBits.push('U.S. House ' + houseDist);
-        if (senateDist) distBits.push('State Senate ' + senateDist);
-        if (lowerDist)  distBits.push('State House ' + lowerDist);
-        relevantLocText.innerHTML = '📍 Your ballot for <strong class="text-blue-300">' + krData.label + '</strong>' +
-          (distBits.length ? ' <span class="text-steel-400">· ' + distBits.join(' · ') + '</span>' : '') +
-          ' — change your area in <strong class="text-blue-300">Your Key Races</strong> above.';
+        if (lowerDist)  distBits.push('House District ' + lowerDist);
+        if (senateDist) distBits.push('Senate District ' + senateDist);
+        if (houseDist)  distBits.push('U.S. House ' + (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist));
+        relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
+          (distBits.length ? ' <span class="text-steel-300">— ' + distBits.join(' · ') + '</span>' : '') +
+          ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
       // The State level also hosts a collapsed "explore other districts" browser
@@ -27135,6 +27150,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + krData.label + ' — tap a race to jump to it</span>';
         overview += '</div>';
         overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
+        // Compact in-place area switcher so voters can re-point the whole ballot
+        // to another supported area without scrolling back up to "Your Key Races".
+        if (typeof window._relevantAreaSwitcher === 'function') {
+          overview += '<div style="margin-top:0.95rem;padding-top:0.85rem;border-top:1px solid rgba(59,130,246,0.18);">';
+          overview += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-bottom:0.45rem;">Not your area? Switch ballot</div>';
+          overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.45rem;">' + window._relevantAreaSwitcher(krData.locId) + '</div>';
+          overview += '</div>';
+        }
         overview += '</div>';
       }
 
@@ -28294,6 +28317,75 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // The "Relevant to Me" ballot below follows the same area selector, so it
       // must refresh whenever the voter changes their location here.
       if (window.renderRelevantToMe) window.renderRelevantToMe();
+    };
+
+    // ── "Relevant to Me" personalization helpers ───────────────────────────
+    // Establish a real saved voter location from one of the supported Utah areas,
+    // then refresh every location-aware view. Powers the quick-pick buttons shown
+    // when the visitor hasn't chosen an area yet, and the in-section area switcher,
+    // so the personalized ballot can be set without leaving the section.
+    window.relevantPickArea = function(locId) {
+      try {
+        var races = KEY_RACES_BY_LOCATION[locId];
+        var meta = _krLocationMeta(locId);
+        if (!races || !meta) return;
+        var houseDist = '';
+        races.forEach(function(r) {
+          if (r.raceKey === 'house') {
+            var m = String(r.district || '').match(/(\d+)\s*$/);
+            if (m) houseDist = m[1];
+          }
+        });
+        window._currentVoterLocation = { state: 'Utah', city: meta.city, county: meta.county, district: houseDist };
+        if (window.saveVoterLocation) window.saveVoterLocation();
+        try { localStorage.setItem(KR_LOCATION_KEY, locId); } catch (e) {}
+        if (window._triggerLocationReaction) window._triggerLocationReaction();
+        else if (window.renderRelevantToMe) window.renderRelevantToMe();
+        var sec = document.getElementById('relevant-section');
+        if (sec && sec.scrollIntoView) { try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+      } catch (e) {}
+    };
+
+    // Format a Utah congressional district number as the ballot-style "UT-0N".
+    window._relevantCD = function(n) {
+      var x = parseInt(n, 10);
+      if (isNaN(x)) return '';
+      return 'UT-' + (x < 10 ? '0' + x : '' + x);
+    };
+
+    // Row of the four supported Utah areas as quick-switch chips; the active area
+    // is highlighted with a check. Used both in the "choose your area" prompt and
+    // as an in-place switcher above the personalized ballot.
+    window._relevantAreaSwitcher = function(activeId, opts) {
+      opts = opts || {};
+      var big = opts.big === true;
+      return KEY_RACES_LOCATIONS.map(function(a) {
+        var on = a.id === activeId;
+        var pad = big ? '0.6rem 0.9rem' : '0.45rem 0.7rem';
+        var bg = on ? 'linear-gradient(135deg,rgba(59,130,246,0.35),rgba(37,99,235,0.18))' : 'rgba(10,15,30,0.4)';
+        var bd = on ? 'rgba(96,165,250,0.85)' : 'rgba(59,130,246,0.3)';
+        return '<button type="button" onclick="relevantPickArea(\'' + a.id + '\')" ' +
+          'style="display:flex;flex-direction:column;gap:0.1rem;text-align:left;background:' + bg + ';border:1px solid ' + bd + ';border-radius:0.7rem;padding:' + pad + ';cursor:pointer;min-height:44px;transition:transform 0.15s,border-color 0.15s;" ' +
+          'onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:' + (big ? '0.9rem' : '0.78rem') + ';letter-spacing:0.02em;color:' + (on ? '#fff' : '#cbd9ee') + ';line-height:1.1;">' + (on ? '✓ ' : '') + a.city + '</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.64rem;letter-spacing:0.03em;color:#9fb4d4;line-height:1.1;">' + a.county + '</span>' +
+          '</button>';
+      }).join('');
+    };
+
+    // Prominent personalization prompt shown in "Relevant to Me" when no area is
+    // chosen yet — turns the section into a clear call to pick an area rather than
+    // silently presenting a default district's ballot as the visitor's own.
+    window._relevantLocationPrompt = function() {
+      var h = '';
+      h += '<div style="padding:1.5rem;border-radius:1.25rem;background:linear-gradient(135deg,rgba(30,58,138,0.25),rgba(245,200,66,0.06));border:1px solid rgba(59,130,246,0.4);">';
+      h += '<div style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.5rem;color:#fff;margin-bottom:0.35rem;">📍 See Your Personal Ballot</div>';
+      h += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.95rem;color:#cbd9ee;line-height:1.5;margin:0 0 1.1rem;max-width:42rem;">Pick your area and this section becomes a focused ballot — your exact U.S. House, State Senate and State House districts, the people who hold those seats today, and the 2026 candidates running for them. No statewide directory to scroll through.</p>';
+      h += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.6rem;">Choose your Utah area</div>';
+      h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.6rem;margin-bottom:1rem;">' + window._relevantAreaSwitcher(null, { big: true }) + '</div>';
+      h += '<button type="button" onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md min-h-[44px]">📍 Enter a different location</button>';
+      h += '</div>';
+      return h;
     };
 
     var _keyRacesHint = {};
