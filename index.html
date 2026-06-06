@@ -24896,6 +24896,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
       var alignBarRow = alignBar ? '<div style="margin-bottom:0.7rem;">' + alignBar + '</div>' : '';
 
+      // Accountability of Truth Score chip — shown by default (computed eagerly) right
+      // beside the Promise % so it reads as a core, always-visible metric. Only for
+      // officeholders with a record; candidates have no record to ground a score yet.
+      var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
+        ? '<span style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
+
       var photoUrl = BROWSE_PHOTOS[pid] || '';
       var photoHtml = photoUrl
         ? '<div style="width:60px;height:60px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2.5px solid ' + (isMy ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.15)') + ';background:rgba(30,53,96,0.5);box-shadow:0 4px 16px rgba(0,0,0,0.35);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem\\\'>' + d.icon + '</div>\'"></div>'
@@ -24926,11 +24932,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-2">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
-            '<div class="flex items-center gap-3 mb-2.5">' +
+            '<div class="flex flex-wrap items-center gap-3 mb-2.5">' +
               '<div style="flex-shrink:0;text-align:center;background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:2.2rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</div>' +
                 '<div class="font-condensed text-xs text-steel-400 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">Promise %</div>' +
               '</div>' +
+              acctBadgeHtml +
               '<div class="flex flex-wrap gap-1">' +
                 d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
               '</div>' +
@@ -31671,23 +31678,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     };
 
     // ── Browse-card Accountability: compact purple badge + expandable condensed analysis ──
-    // Small purple chip shown beside the Promise Score on each card. Shows the
-    // stored Accountability Score, or a "Not Analyzed" pill that runs analysis on click.
+    // Small purple chip shown beside the Promise Score on each card. Computes the
+    // Accountability Score on demand so it's visible by default, and taps through to
+    // the full analysis. Falls back to a "Run Analysis" pill only if the engine isn't ready.
     window._acctCardBadge = function(id){
       var p = getProfile(id) || {};
       var a = p.accountability;
+      // Eagerly compute (and cache) the Accountability of Truth Score so the metric
+      // is visible by default on every card — on equal footing with the Promise %,
+      // never hidden behind a click. Falls back gracefully if the engine isn't ready.
+      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function'){
+        try { a = window._acctEnsureScore(id, p); } catch (e) { a = null; }
+      }
       if (a && typeof a.overallScore === 'number'){
         var s = a.overallScore;
         var lvl = a.color || acctLevelColor(s);
         // Polished purple chip — mirrors the Promise Score container's footprint so the
-        // two sit balanced side by side, with a clear purple identity and a tiny rating dot.
-        return '<div class="chub-acct-chip" title="Accountability Score: ' + s + '/100 (' + aesc(a.rating || acctRating(s)) + ')" style="background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1px solid rgba(167,139,250,0.55);border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px rgba(124,58,237,0.16),inset 0 1px 0 rgba(255,255,255,0.04);display:inline-flex;align-items:center;gap:0.4rem;">' +
-            '<span style="color:#a78bfa;font-size:1.7rem;text-shadow:0 0 12px rgba(167,139,250,0.5);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + s + '</span>' +
-            '<span class="font-condensed tracking-wider uppercase font-bold" style="display:inline-flex;flex-direction:column;color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.15;">' +
+        // two sit balanced side by side, with a clear purple identity and a tiny rating
+        // dot. The whole chip taps through to the full AI Accountability analysis.
+        return '<button type="button" class="chub-acct-chip" onclick="event.stopPropagation();if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + aesc(id) + '\')" title="Accountability of Truth Score: ' + s + '/100 (' + aesc(a.rating || acctRating(s)) + ') — tap for the full analysis" style="margin:0;font:inherit;cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1px solid rgba(167,139,250,0.55);border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px rgba(124,58,237,0.16),inset 0 1px 0 rgba(255,255,255,0.04);display:inline-flex;align-items:center;gap:0.4rem;transition:transform 0.15s,box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(124,58,237,0.26),inset 0 1px 0 rgba(255,255,255,0.05)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 16px rgba(124,58,237,0.16),inset 0 1px 0 rgba(255,255,255,0.04)\'">' +
+            '<span style="color:#a78bfa;font-size:1.7rem;text-shadow:0 0 12px rgba(167,139,250,0.5);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + s + '<span style="font-size:0.85rem;font-weight:800;vertical-align:top;">%</span></span>' +
+            '<span class="font-condensed tracking-wider uppercase font-bold" style="display:inline-flex;flex-direction:column;color:#c4b5fd;font-size:0.55rem;letter-spacing:0.05em;line-height:1.15;text-align:left;">' +
               '<span style="display:inline-flex;align-items:center;gap:0.2rem;"><span style="font-size:0.6rem;">🛡️</span>Account.</span>' +
               '<span style="display:inline-flex;align-items:center;gap:0.25rem;"><span style="width:5px;height:5px;border-radius:999px;background:' + lvl + ';box-shadow:0 0 5px ' + lvl + ';"></span>Score</span>' +
             '</span>' +
-          '</div>';
+          '</button>';
       }
       // Not analyzed — an intentional, inviting purple "Run Analysis" pill (not a broken-looking placeholder).
       return '<button type="button" onclick="event.stopPropagation();toggleCardAccountability(\'' + aesc(id) + '\')" title="Run accountability analysis" style="cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,0.22),rgba(139,92,246,0.08));border:1px solid rgba(167,139,250,0.5);border-radius:0.5rem;padding:0.3rem 0.65rem;display:inline-flex;align-items:center;gap:0.4rem;line-height:1.1;box-shadow:0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.04);transition:transform 0.15s,box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(124,58,237,0.24),inset 0 1px 0 rgba(255,255,255,0.05)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.04)\'">' +
