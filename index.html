@@ -12864,14 +12864,59 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ta.focus();
     };
 
+    // Normalize a person's name for duplicate detection: lowercases, strips
+    // punctuation, titles, and generational suffixes (Jr/Sr/III), maps common
+    // nicknames to their formal form (Mike→Michael, Bob→Robert, …), and drops
+    // middle names/initials so only first + last remain. This lets the importer
+    // recognize that "Mike Kennedy", "Michael J. Kennedy", and "Michael Kennedy Jr."
+    // are the same person. Returns a stable "first last" key.
+    var NAME_NICKNAMES = {
+      mike:'michael', mikey:'michael', mick:'michael',
+      bob:'robert', bobby:'robert', rob:'robert', robbie:'robert',
+      bill:'william', billy:'william', will:'william', willie:'william',
+      jim:'james', jimmy:'james', jamie:'james',
+      dick:'richard', rick:'richard', ricky:'richard', rich:'richard',
+      dave:'david', tom:'thomas', tommy:'thomas', tony:'anthony',
+      chris:'christopher', joe:'joseph', joey:'joseph',
+      dan:'daniel', danny:'daniel', ed:'edward', eddie:'edward', ted:'edward',
+      steve:'stephen', steven:'stephen', matt:'matthew',
+      nick:'nicholas', sam:'samuel', ben:'benjamin', benji:'benjamin',
+      andy:'andrew', drew:'andrew', greg:'gregory', jeff:'jeffrey', jeffery:'jeffrey',
+      ken:'kenneth', kenny:'kenneth', larry:'lawrence', ron:'ronald', ronnie:'ronald',
+      tim:'timothy', pat:'patrick', fred:'frederick', gabe:'gabriel',
+      alex:'alexander', nate:'nathaniel', nathan:'nathaniel',
+      charlie:'charles', chuck:'charles', hank:'henry', johnny:'john', jack:'john',
+      mitch:'mitchell', brad:'bradley', monty:'montgomery',
+      becky:'rebecca', liz:'elizabeth', beth:'elizabeth', betty:'elizabeth',
+      kathy:'katherine', kate:'katherine', katie:'katherine', cathy:'catherine',
+      maggie:'margaret', peggy:'margaret', sue:'susan', susie:'susan',
+      jen:'jennifer', jenny:'jennifer', abby:'abigail', kim:'kimberly',
+      deb:'deborah', debbie:'deborah', patty:'patricia', trish:'patricia',
+      sandy:'sandra', vicky:'victoria', cindy:'cynthia', jackie:'jacqueline'
+    };
+    function normalizePoliticianName(name) {
+      if (!name) return '';
+      var s = String(name).toLowerCase()
+        .replace(/[.,'`’]/g, ' ')                                   // drop punctuation/initials dots
+        .replace(/\b(jr|sr|ii|iii|iv|md|phd|esq|dr|mr|mrs|ms|rep|sen|gov)\b/g, ' ') // titles & suffixes
+        .replace(/\s+/g, ' ').trim();
+      var parts = s.split(' ').filter(Boolean);
+      if (!parts.length) return '';
+      parts[0] = NAME_NICKNAMES[parts[0]] || parts[0];              // canonicalize first name
+      var first = parts[0];
+      var last = parts.length > 1 ? parts[parts.length - 1] : '';   // drop middle names/initials
+      return (first + ' ' + last).trim();
+    }
+
     // True when a politician with this name already exists in the live database.
     function isSuggestionInDb(suggestion) {
       if (typeof PROFILES === 'undefined' || !suggestion || !suggestion.name) return false;
-      var target = suggestion.name.toLowerCase().trim();
+      var target = normalizePoliticianName(suggestion.name);
+      if (!target) return false;
       var keys = Object.keys(PROFILES);
       for (var i = 0; i < keys.length; i++) {
         var p = PROFILES[keys[i]];
-        if (p && p.name && p.name.toLowerCase().trim() === target) return true;
+        if (p && p.name && normalizePoliticianName(p.name) === target) return true;
       }
       return false;
     }
@@ -13096,7 +13141,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         Object.keys(PROFILES).forEach(function(k) {
           existingIds[k] = true;
           if (PROFILES[k] && PROFILES[k].name) {
-            existingNames[PROFILES[k].name.toLowerCase().trim()] = true;
+            existingNames[normalizePoliticianName(PROFILES[k].name)] = true;
           }
         });
       }
@@ -13111,7 +13156,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var pData = lookupSuggestionById(id);
         if (!pData) { skipped.push({ name: id, reason: 'data not found' }); return; }
 
-        var nameKey = (pData.name || '').toLowerCase().trim();
+        var nameKey = normalizePoliticianName(pData.name);
         var cleanId = (pData.name || id).toLowerCase().replace(/[^a-z0-9]+/g, '_') || id;
 
         if (seenInBatch[cleanId]) {
@@ -17960,31 +18005,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { bill:'Continuing Resolution (Gov\'t Funding)', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Voted for short-term funding to avoid shutdown despite pledging fiscal restraint — chose pragmatism over principle to protect Hill AFB operations.' },
           ],
           jpetro: [
-            { bill:'Your City FY2025 Budget ($128M)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Approved city budget with increased public safety and road maintenance funding — consistent with campaign infrastructure and safety pledges.' },
-            { bill:'Your City Crossing Development Approval', vote:'Signed', voteClass:'signed', alignment:'partial', matter:'Approved major commercial development with conditions — delivered growth but some residents felt public input process was insufficient despite campaign pledge.' },
-            { bill:'Police Department Staffing Expansion (Phase 1)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Authorized hiring of 6 additional Your City PD officers — Phase 1 of promised 12-officer expansion. Public safety donors and community groups aligned.' },
-            { bill:'East Your City Residential Zoning Amendment', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Approved rezoning of agricultural buffer land for residential development — contradicted campaign pledge to protect farmland buffer zones on Your City\'s eastern edge.' },
+            { bill:'Layton FY2025 Budget ($128M)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Approved city budget with increased public safety and road maintenance funding — consistent with campaign infrastructure and safety pledges.' },
+            { bill:'Layton Crossing Development Approval', vote:'Signed', voteClass:'signed', alignment:'partial', matter:'Approved major commercial development with conditions — delivered growth but some residents felt public input process was insufficient despite campaign pledge.' },
+            { bill:'Police Department Staffing Expansion (Phase 1)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Authorized hiring of 6 additional Layton PD officers — Phase 1 of promised 12-officer expansion. Public safety donors and community groups aligned.' },
+            { bill:'East Layton Residential Zoning Amendment', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Approved rezoning of agricultural buffer land for residential development — contradicted campaign pledge to protect farmland buffer zones on Layton\'s eastern edge.' },
             { bill:'Hill AFB Noise Impact Coordination MOU', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Formal memorandum of understanding with Hill AFB on F-35 noise impacts still in draft — meetings ongoing but no binding agreement reached despite campaign commitment.' },
           ],
           jstevenson: [
-            { bill:'Utah S.B. 110 (Water Conservation Amendments)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for water district metering and tiered pricing reforms — consistent with water conservation platform and Your County infrastructure priorities.' },
+            { bill:'Utah S.B. 110 (Water Conservation Amendments)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for water district metering and tiered pricing reforms — consistent with water conservation platform and Davis County infrastructure priorities.' },
             { bill:'Utah FY2024 State Budget ($28.8B)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Approved state budget growing 8.4% while CPI was ~2.2% — contradicted stated position that growth should not exceed inflation.' },
-            { bill:'Utah S.B. 211 (Your County Tech Development Zone)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Authored bill creating technology development zone in Your County — economic development donors ($220K) positioned to benefit from zone incentives.' },
-            { bill:'I-15 Your City/Clearfield Interchange Funding', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured UDOT appropriations for critical I-15 interchange improvements — directly benefits Your County commuters and transportation donors ($140K).' },
+            { bill:'Utah S.B. 211 (Davis County Tech Development Zone)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Authored bill creating technology development zone in Davis County — economic development donors ($220K) positioned to benefit from zone incentives.' },
+            { bill:'I-15 Layton/Clearfield Interchange Funding', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured UDOT appropriations for critical I-15 interchange improvements — directly benefits Davis County commuters and transportation donors ($140K).' },
             { bill:'UTA FrontRunner Extension Study', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised feasibility study for FrontRunner extension to West City at 2022 GOP meeting — no study commissioned or funded as of 2025.' },
           ],
           tlee: [
             { bill:'Utah H.B. 215 (Utah Fits All Scholarship Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for universal $8,000 ESA school choice program — consistent with education choice platform. Passed House 44-28.' },
             { bill:'Utah H.B. 54 (Income Tax Reduction)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported reducing Utah income tax from 4.65% to 4.55% — consistent with tax-cut priorities for District 16 families and businesses.' },
             { bill:'Utah H.B. 312 (Occupational Licensing Expansion)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed expanding licensing requirements for new professions — consistent with free-market, anti-regulation platform and small business donor base.' },
-            { bill:'District 16 Road Funding Bill', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised targeted road funding bill for Your City District 16 during 2022 campaign — no such bill introduced in 2023 or 2024 legislative sessions.' },
+            { bill:'District 16 Road Funding Bill', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised targeted road funding bill for Layton (District 16) during 2022 campaign — no such bill introduced in 2023 or 2024 legislative sessions.' },
             { bill:'Utah H.B. 182 (Small Business Permitting Reform)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Introduced bill streamlining license renewal for businesses under 10 employees — passed Commerce Committee 8-2. Pending full House vote.' },
           ],
           sadams: [
             { bill:'Utah H.B. 215 (Utah Fits All Scholarship Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Used Senate President authority to ensure floor consideration and passage 20-9 — instrumental in creating universal school choice for all Utah families.' },
             { bill:'Utah FY2024 State Budget ($28.8B)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Approved budget growing 8.4% vs ~2.2% CPI under his Senate leadership — contradicted stated fiscal restraint principles.' },
-            { bill:'I-15 Your County/Your Region Corridor Funding ($280M)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured $280M for I-15 corridor improvements in Your County and Your Region counties — directly benefits his Your City-area constituents and transportation donors.' },
-            { bill:'Utah Water Conservation Package (SB 110 + companion bills)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led passage of comprehensive water conservation legislation — critical for Great Salt Lake and Your County water sustainability.' },
+            { bill:'I-15 Davis/Weber County Corridor Funding ($280M)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured $280M for I-15 corridor improvements in Davis and Weber counties — directly benefits his Layton-area constituents and transportation donors.' },
+            { bill:'Utah Water Conservation Package (SB 110 + companion bills)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led passage of comprehensive water conservation legislation — critical for Great Salt Lake and Davis County water sustainability.' },
             { bill:'Legislative Term Limits Floor Vote', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Publicly expressed openness to term limits but no bill received a Senate floor vote under his presidency (2019-2025) — reform stalled in committee.' },
             { bill:'Great Salt Lake Water Compact Legislation', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Expressed support for comprehensive Great Salt Lake water legislation in March 2025 but no formal bill sponsored or introduced as of mid-2025.' },
           ],
@@ -18152,16 +18197,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Mar 2026', headline:'Moore Faces Primary Challenge Over Infrastructure Bill Vote', facts:'A primary challenger criticized Moore for voting against the Infrastructure Investment and Jobs Act while later championing its Utah projects. Moore defended the vote as principled opposition to overall spending. <a href="https://www.opensecrets.org" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">OpenSecrets</a>', why:'The contradiction between opposing a bill and then claiming credit for its local benefits is a common political vulnerability.' },
           ],
           jpetro: [
-            { date:'Apr 2026', headline:'Your City Development Boom Strains City Infrastructure', facts:'14 new residential developments approved under Petro\'s administration have added 3,200 housing units. Water and road infrastructure improvements lag behind growth, with some projects 18 months behind schedule.', why:'Rapid growth without matching infrastructure creates quality-of-life issues for existing residents and fiscal pressure on city budgets.' },
+            { date:'Apr 2026', headline:'Layton Development Boom Strains City Infrastructure', facts:'14 new residential developments approved under Petro\'s administration have added 3,200 housing units. Water and road infrastructure improvements lag behind growth, with some projects 18 months behind schedule.', why:'Rapid growth without matching infrastructure creates quality-of-life issues for existing residents and fiscal pressure on city budgets.' },
           ],
           jstevenson: [
-            { date:'Mar 2026', headline:'Stevenson\'s FrontRunner Extension Promise Remains Unfulfilled', facts:'The 2022 campaign promise for a feasibility study on FrontRunner extension to West City has not materialized. Stevenson\'s office cites competing legislative priorities and funding constraints.', why:'Transit infrastructure affects commute times, property values, and economic development across Your County.' },
+            { date:'Mar 2026', headline:'Stevenson\'s FrontRunner Extension Promise Remains Unfulfilled', facts:'The 2022 campaign promise for a feasibility study on FrontRunner extension to West City has not materialized. Stevenson\'s office cites competing legislative priorities and funding constraints.', why:'Transit infrastructure affects commute times, property values, and economic development across Davis County.' },
           ],
           tlee: [
             { date:'Apr 2026', headline:'Lee\'s School Choice Voucher Program Sees First-Year Results', facts:'The Utah Fits All Scholarship Act, which Lee championed, enrolled 8,200 students in its first year. Public school administrators report $32M in diverted funding. Early academic outcome data is not yet available.', why:'School choice outcomes in Utah will influence the national debate as more states consider similar universal voucher programs.' },
           ],
           sadams: [
-            { date:'May 2026', headline:'Adams Transitions from Senate Presidency to Private Sector', facts:'After stepping down as Senate President, Adams joined a Your City-based lobbying and consulting firm. He continues to influence Utah policy through relationships built during his 12-year Senate career.', why:'Former legislative leaders\' transition to lobbying raises questions about institutional influence and the revolving door in state government.' },
+            { date:'May 2026', headline:'Adams Transitions from Senate Presidency to Private Sector', facts:'After stepping down as Senate President, Adams joined a Salt Lake City-based lobbying and consulting firm. He continues to influence Utah policy through relationships built during his 12-year Senate career.', why:'Former legislative leaders\' transition to lobbying raises questions about institutional influence and the revolving door in state government.' },
           ],
           emendenhall: [
             { date:'May 2026', headline:'SLC Affordable Housing Bond Heads to November Ballot', facts:'The $100M general obligation bond for affordable housing will appear on the November 2026 ballot. If approved, it would fund 1,200 new affordable units over 5 years. Property tax impact estimated at $35/year for median homeowner.', why:'The bond represents the city\'s largest-ever investment in affordable housing and tests voter appetite for tax-funded housing solutions.' },
@@ -22005,6 +22050,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       name:'Mike Kennedy', office:'U.S. Representative', state:'Utah · District 3', party:'R',
       score:null, kept:0, broken:0, pending:9, icon:'🏛',
       issues:['Healthcare Reform','Constitutional Conservatism','Religious Liberty','Fiscal Reform'],
+      bio:'Mike Kennedy is the Republican U.S. Representative for Utah’s 3rd Congressional District (Utah County), first elected in 2024. A physician and attorney, he previously served in the Utah Legislature before his Congressional bid.',
       stances:{
         border:'Supports enforcement; no specific border legislation proposed',
         debt:'Pledged categorically to never vote for deficit spending',
@@ -22062,7 +22108,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     jpetro: {
-      name:'Joy Petro', office:'Mayor, Your City', state:'Your City, Utah', party:'R',
+      name:'Joy Petro', office:'Mayor, Layton City', state:'Layton, Utah', party:'R',
       score:null, kept:0, broken:0, pending:6, icon:'🏙',
       issues:['Local Development','Road Infrastructure','Public Safety','City Budget'],
       stances:{
@@ -22079,7 +22125,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     jstevenson: {
       name:'Jerry Stevenson', office:'Utah State Senator', state:'UT District 6', party:'R',
       score:62, kept:13, broken:7, pending:4, icon:'🏛',
-      issues:['Transportation','Water Policy','State Budget','Your County'],
+      issues:['Transportation','Water Policy','State Budget','Davis County'],
       stances:{
         border:'Supports state-level cooperation with federal enforcement',
         debt:'FY2024 budget exceeded stated inflation cap',
@@ -22176,13 +22222,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       bio:'Keith Grover is the Republican state senator for Utah Senate District 23, covering the Provo area. He is up for re-election in 2026.',
       stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'N/A — state-level office' }
     },
-    mkennedy: {
-      name:'Mike Kennedy', office:'U.S. Representative', state:'Utah · UT-3', party:'R',
-      score:null, kept:0, broken:0, pending:0, icon:'🏛',
-      issues:['Utah Congressional District 3','Utah County','Healthcare','Fiscal Conservatism'],
-      bio:'Mike Kennedy is the Republican U.S. Representative for Utah’s 3rd Congressional District (Utah County), first elected in 2024.',
-      stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'PolitiDex is compiling this official’s voting record.' }
-    },
     jsawyer: {
       name:'Jake Sawyer', office:'UT State Representative', state:'UT District 9', party:'R',
       score:null, kept:0, broken:0, pending:0, icon:'🏛',
@@ -22198,7 +22237,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       stances:{ border:'Supports state cooperation with federal enforcement', debt:'Supports balanced state budgeting', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Leading voice on workforce and higher-education funding', audit:'N/A — state-level office' }
     },
     sadams: {
-      name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Your County', party:'R',
+      name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Davis County', party:'R',
       score:65, kept:20, broken:10, pending:5, icon:'🏛',
       issues:['School Choice','Transportation','State Budget','Legislative Leadership'],
       stances:{
@@ -22349,7 +22388,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     mschultz: {
-      name:'Mike Schultz', office:'UT House Speaker', state:'Utah · Your Region', party:'R',
+      name:'Mike Schultz', office:'UT House Speaker', state:'Utah · Weber County', party:'R',
       score:63, kept:14, broken:6, pending:5, icon:'🏛',
       issues:['Legislative Leadership','State Budget','Education Funding','Water Policy'],
       stances:{
@@ -22680,13 +22719,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       stances:{ border:'Supports state enforcement', debt:'Supports fiscal conservatism', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Led insurance and healthcare legislation', audit:'N/A' }
     },
     dpetersen: {
-      name:'Dan Petersen', office:'Mayor, Ogden City', state:'Your Region', party:'R',
+      name:'Dan Petersen', office:'Mayor, Ogden City', state:'Weber County', party:'R',
       score:null, kept:0, broken:0, pending:5, icon:'🏙',
       issues:['Downtown Revitalization','Public Transit','Outdoor Recreation','City Budget'],
       stances:{ border:'N/A — local office', debt:'City budget reform and investment', gun:'N/A — local office', termLimits:'N/A — local office', campaign:'N/A — local office', dataCenters:'N/A', healthcare:'N/A — local office', audit:'N/A' }
     },
     sjohnson: {
-      name:'Scott Jenkins', office:'Your Region Commissioner', state:'Your Region', party:'R',
+      name:'Scott Jenkins', office:'Weber County Commissioner', state:'Weber County', party:'R',
       score:null, kept:0, broken:0, pending:4, icon:'🏙',
       issues:['Public Safety','Growth Management','Water Infrastructure','County Budget'],
       stances:{ border:'N/A — local office', debt:'County budget stewardship', gun:'N/A — local office', termLimits:'N/A — local office', campaign:'N/A — local office', dataCenters:'N/A', healthcare:'N/A — local office', audit:'N/A' }
@@ -22794,7 +22833,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       stances:{ border:'N/A — local office', debt:'City budget management', gun:'N/A — local office', termLimits:'N/A — local office', campaign:'N/A — local office', dataCenters:'N/A', healthcare:'N/A — local office', audit:'N/A' }
     },
     aowens: {
-      name:'Andy Billings', office:'UT State Senator', state:'UT District 17 (Your County/SLC)', party:'R',
+      name:'Andy Billings', office:'UT State Senator', state:'UT District 17 (Salt Lake County)', party:'R',
       score:61, kept:13, broken:6, pending:5, icon:'🏛',
       issues:['Tax Reform','Education','Transportation','Economic Development'],
       stances:{ border:'Supports state enforcement', debt:'Supports balanced budgets', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Focus on education and transportation', audit:'N/A' }
@@ -23372,9 +23411,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (noResults) noResults.style.display = anyVisible ? 'none' : 'block';
 
     const countyLabels = {
-      'all': 'All Counties', 'davis': 'Your County (Your City)',
+      'all': 'All Counties', 'davis': 'Davis County (Layton)',
       'slc': 'Salt Lake County / SLC', 'utah_co': 'Utah County',
-      'weber': 'Your Region', 'washington': 'Washington County (St. George)',
+      'weber': 'Weber County (Ogden)', 'washington': 'Washington County (St. George)',
       'cache': 'Cache County (Logan)', 'iron': 'Iron County (Cedar City)',
       'box_elder': 'Box Elder County', 'summit': 'Summit County (Park City)',
       'tooele': 'Tooele County', 'wasatch': 'Wasatch County (Heber)'
@@ -23575,7 +23614,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const whyMap = {
       'Donald Trump': 'Directly sets your income tax rates, controls tariff costs on everyday goods you buy, and shapes healthcare rules for your family.',
       'Tulsi Gabbard': 'Decides how far the government can go in monitoring your phone calls, emails, and online activity.',
-      'Pete Hegseth': 'Manages the defense budget funding Hill AFB — Your County’s largest employer and your neighbors\' paychecks.',
+      'Pete Hegseth': 'Manages the defense budget funding Hill AFB — Davis County’s largest employer and your neighbors\' paychecks.',
       'John Curtis': 'Votes on the federal taxes you pay every April, Utah water rights your community depends on, and broadband reaching rural areas.',
       'Mike Lee': 'Fights to protect your gun rights, religious freedom, and private property from federal overreach — 14 years of Senate influence.',
       'Burgess Owens': 'His school choice votes affect what your kids learn, which schools they can attend, and how much your district receives.',
@@ -27196,12 +27235,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         {
           raceKey: 'house', short: 'Congressional District 3',
           district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
-          color: '#60a5fa', incumbentPid: 'mkennedy',
+          color: '#60a5fa', incumbentPid: 'kennedy',
           incumbentNote: 'Incumbent — first elected in 2024',
           incumbentSince: 2025,
           incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
           addLabel: 'Add Congressional District 3 choice to My Team',
-          candidates: ['mkennedy'],
+          candidates: ['kennedy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
         }
       ],
