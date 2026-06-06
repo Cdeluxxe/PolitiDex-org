@@ -10668,7 +10668,7 @@
     <!-- Secondary Row (Share & Browse All) -->
     <div class="mt-5 w-full max-w-md sm:max-w-none mx-auto px-4 sm:px-0 flex flex-col sm:flex-row gap-4 justify-center">
       <!-- Browse All Politicians -->
-      <a href="#my-politicians" class="btn-tap inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-navy-800 to-navy-900 border-2 border-gold-400/40 hover:border-gold-400 text-gold-400 hover:text-gold-300 font-condensed font-700 text-sm tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg text-center" style="box-shadow:0 4px 20px rgba(245,200,66,0.12);">
+      <a href="#myteam-browse-panel" class="btn-tap inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-navy-800 to-navy-900 border-2 border-gold-400/40 hover:border-gold-400 text-gold-400 hover:text-gold-300 font-condensed font-700 text-sm tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg text-center" style="box-shadow:0 4px 20px rgba(245,200,66,0.12);">
         <svg style="width:1.2rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         Browse All Politicians
       </a>
@@ -10782,7 +10782,7 @@
           <p class="ht-topic-desc">A surge of new AI data centers is straining Utah's power supply and water — and raising questions about who pays for it. See where your candidates stand before you vote.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">⚡ View Candidates</a>
-            <a class="ht-topic-btn" href="#my-politicians">＋ Add to My Team</a>
+            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'cox')">＋ Add to My Team</button>
           </div>
         </div>
 
@@ -10795,7 +10795,7 @@
           <p class="ht-topic-desc">From federal land transfers to a shrinking Great Salt Lake, the fight over Utah's land and water is on the ballot. Know who's protecting it and who isn't.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">🏔️ View Candidates</a>
-            <a class="ht-topic-btn" href="#voter-academy">📖 Learn More</a>
+            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'maloy')">＋ Add to My Team</button>
           </div>
         </div>
 
@@ -11065,7 +11065,7 @@
           <p class="font-body text-steel-300 text-sm leading-relaxed">Your voice matters. Make it count. Register today in under 5 minutes.</p>
         </a>
 
-        <a href="#" onclick="if(navigator.share){navigator.share({title:’PolitiDex’,text:’Track politicians’ votes, wealth & donors — hold them accountable.’,url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);alert(‘Link copied!’)};return false;"
+        <a href="#" onclick="if(navigator.share){navigator.share({title:'PolitiDex',text:'Track political promises, wealth and donors — hold them accountable.',url:window.location.href}).catch(function(){})}else{navigator.clipboard.writeText(window.location.href);alert('PolitiDex link copied to clipboard!')}return false;"
            class="group bg-blue-700/20 hover:bg-blue-700/30 border border-blue-500/30 hover:border-blue-400/60 rounded-xl p-6 text-center transition-all" style="box-shadow:0 4px 16px rgba(0,0,0,0.2);">
           <div class="w-12 h-12 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center mx-auto mb-3 transition-transform duration-200 group-hover:scale-110">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="text-blue-400"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
