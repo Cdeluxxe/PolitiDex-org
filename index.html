@@ -1334,6 +1334,13 @@
       text-transform: uppercase;
       display: flex; align-items: center; gap: 0.45rem;
     }
+    /* Short descriptive line under a section title — sets context so each
+       profile section reads as a self-contained, professional block. */
+    .modal-section-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
+      color: #7596c0; line-height: 1.45; margin: -0.35rem 0 0.75rem;
+      letter-spacing: 0.01em;
+    }
 
     /* ── Verdict badges ────────────────────────────────── */
     .vbadge {
@@ -1517,6 +1524,30 @@
       border-radius: 999px; padding: 0.3rem 0.7rem;
     }
     @media (hover: hover) { .cmp-empty-cta:hover { background: rgba(139,92,246,0.24); } }
+    /* At-a-glance segmented alignment meter — proportion of match / partial /
+       mismatch across the visitor's shared issues. Reads instantly before any
+       row is examined. */
+    .cmp-meter {
+      display: flex; height: 9px; border-radius: 999px; overflow: hidden;
+      background: rgba(10,15,30,0.7); border: 1px solid rgba(255,255,255,0.06);
+      margin-top: 0.6rem;
+    }
+    .cmp-meter-seg { height: 100%; transition: width 1.1s cubic-bezier(0.4,0,0.2,1); }
+    .cmp-meter-seg.cmp-match    { background: #4ade80; }
+    .cmp-meter-seg.cmp-partial  { background: #f5c842; }
+    .cmp-meter-seg.cmp-mismatch { background: #f87171; }
+    /* Legend that names what each color means — the explicit color + label key. */
+    .cmp-legend { display: flex; flex-wrap: wrap; gap: 0.55rem 0.85rem; margin: 0.7rem 0 0.9rem; }
+    .cmp-legend-item {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.6rem; letter-spacing: 0.04em; color: #8aa3c4;
+    }
+    .cmp-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.12); }
+    .cmp-legend-dot.cmp-match    { background: #4ade80; }
+    .cmp-legend-dot.cmp-partial  { background: #f5c842; }
+    .cmp-legend-dot.cmp-mismatch { background: #f87171; }
+    .cmp-legend-item b { color: #cbd9ec; font-weight: 700; }
     .mandate-row { margin-bottom: 0.75rem; }
     .mandate-row:last-child { margin-bottom: 0; }
     .mandate-track { height: 7px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
@@ -17149,6 +17180,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>' +
       '</div>';
 
+    // Segmented meter + legend: the colored proportion of match / partial /
+    // mismatch is the fastest read in the whole section, and the legend spells
+    // out exactly what each color (and label) means.
+    var meterLegend = '';
+    if (documented.length) {
+      var pct = function(n) { return (n / documented.length * 100); };
+      var seg = function(n, kind) { return n ? '<div class="cmp-meter-seg ' + kind + '" style="width:' + pct(n) + '%;"></div>' : ''; };
+      meterLegend =
+        '<div class="cmp-meter">' +
+          seg(nMatch, 'cmp-match') + seg(nPartial, 'cmp-partial') + seg(nMismatch, 'cmp-mismatch') +
+        '</div>' +
+        '<div class="cmp-legend">' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-match"></span><b>Match</b>&nbsp;— you agree</span>' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-partial"></span><b>Partial</b>&nbsp;— mixed record</span>' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-mismatch"></span><b>Mismatch</b>&nbsp;— you differ</span>' +
+        '</div>';
+    }
+
     var rows = documented.map(function(r) {
       var m = _CMP_VERDICT_META[r.verdict];
       var icon = (r.def.label || '').split(' ')[0] || '🎯';
@@ -17198,7 +17247,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     return '<div class="modal-section">' +
       '<div class="modal-section-title">🤝 How You Compare</div>' +
+      '<p class="modal-section-sub">Your saved Alignment Tool picks, matched issue by issue against ' + first + '\'s documented positions.</p>' +
       summary +
+      meterLegend +
       rows +
       researchingBlock +
       '<p class="src-note">Your saved Alignment Tool positions matched against ' + name + '\'s documented stances. Sign in to save your picks across devices — the comparison updates as more positions are verified.</p>' +
@@ -17260,8 +17311,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
         var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos || 'mixed') : 'partial';
         var vm = _CMP_VERDICT_META[verdict] || _CMP_VERDICT_META.partial;
-        var youIM = (typeof _userIntensityMeta === 'function') ? _userIntensityMeta(intensity) : { label: _userStanceLabel(intensity) };
-        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' You: ' + youIM.label + ' · ' + vm.full + '</span>';
+        var youIM = (typeof _userIntensityMeta === 'function') ? _userIntensityMeta(intensity) : { label: _userStanceLabel(intensity), sub: _userStanceLabel(intensity) };
+        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' ' + vm.full + ' · ' + (youIM.sub || ('You: ' + youIM.label)) + '</span>';
       }
       return '<div class="stance-card ' + m.sc + '">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
@@ -17323,11 +17374,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
       : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.';
     return '<div class="modal-section">' +
-      '<div class="modal-section-title">🎯 Key Issue Stances</div>' +
-      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.7rem;flex-wrap:wrap;">' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Where they stand on the issues</span>' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.4rem;border-radius:999px;">' + stances.length + ' issues</span>' +
+      '<div class="modal-section-title" style="justify-content:space-between;">' +
+        '<span style="display:inline-flex;align-items:center;gap:0.45rem;">🎯 Key Issue Stances</span>' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + stances.length + ' issue' + (stances.length === 1 ? '' : 's') + '</span>' +
       '</div>' +
+      '<p class="modal-section-sub">Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.</p>' +
       (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
       body +
       '<p class="src-note">' + note + '</p>' +
