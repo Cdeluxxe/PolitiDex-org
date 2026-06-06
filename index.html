@@ -21545,6 +21545,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var textEl = document.getElementById('relevant-location-text');
     if (!textEl) return;
 
+    // When the focused, exact-district ballot applies (a matched Key Races area, or
+    // no saved location yet), let renderRelevantToMe own this line so the header and
+    // the grid stay in sync.
+    var _krLT = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+    if (_krLT && (!window._hasUserLocation || _krLT.matched)) {
+      return;
+    }
+
     if (!window._hasUserLocation) {
       textEl.innerHTML = 'Set Your Location to see your representatives';
       return;
@@ -26671,120 +26679,299 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       setBrowseScope('all');
     };
 
+    // Office-type card definitions (icon, color, label) for each Relevant accordion.
+    var _RELEVANT_OFFICE_DEFS = {
+      president:      { label: 'PRESIDENT / EXECUTIVE', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
+      cabinet:        { label: 'CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' },
+      senator:        { label: 'U.S. SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
+      representative: { label: 'U.S. HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
+      governor:       { label: 'GOVERNORS', icon: '🦅', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
+      state_senator:  { label: 'STATE SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
+      state_rep:      { label: 'STATE HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
+      local:          { label: 'LOCAL GOV', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
+      candidate:      { label: 'CANDIDATES / NOMINEES', icon: '🗳', bg: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(30,53,96,0.3))' },
+      other:          { label: 'OTHER REPRESENTATIVES', icon: '👤', bg: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(30,53,96,0.3))' }
+    };
+
+    // Top-level branches grouping office accordions into a Federal → State → Local tree.
+    var _RELEVANT_LEVEL_DEFS = [
+      { key: 'federal', label: 'FEDERAL LEVEL', icon: '🦅', offices: ['president', 'cabinet', 'senator', 'representative'] },
+      { key: 'state',   label: 'STATE LEVEL',   icon: '🏛', offices: ['governor', 'state_senator', 'state_rep'] },
+      { key: 'local',   label: 'LOCAL LEVEL',   icon: '🏙', offices: ['local'] },
+      { key: 'other',   label: 'CANDIDATES & OTHER', icon: '🗳', offices: ['candidate', 'other'] }
+    ];
+
+    // Short, per-office subtitle clarifying WHY a seat is on the voter's ballot
+    // (their exact district vs. a statewide seat shared by everyone in the state).
+    function _relevantOfficeSubtitle(groupKey, ctx) {
+      if (!ctx || !ctx.focused) return '';
+      switch (groupKey) {
+        case 'representative': return ctx.houseDist ? 'Your U.S. House district · ' + ctx.houseDist : '';
+        case 'state_senator':  return ctx.senateDist ? 'Your State Senate district · ' + ctx.senateDist : '';
+        case 'state_rep':      return ctx.lowerDist ? 'Your State House district · ' + ctx.lowerDist : '';
+        case 'senator':        return 'Statewide — represents every ' + (ctx.state || 'state') + ' voter';
+        case 'governor':       return 'Statewide — represents every ' + (ctx.state || 'state') + ' voter';
+        case 'president':
+        case 'cabinet':        return 'Federal — represents every American';
+        default: return '';
+      }
+    }
+
+    // Renders the Federal → State → Local accordion tree for a set of office
+    // groups (shared by both the focused ballot view and the legacy fallback).
+    // ctx carries focus metadata + optional extra HTML appended inside a level
+    // (used to tuck the "explore the full chamber" browser under STATE LEVEL).
+    function _renderRelevantTree(officeGroups, ctx) {
+      ctx = ctx || {};
+
+      function _renderOfficeAccordion(groupKey) {
+        var officePids = officeGroups[groupKey];
+        if (!officePids || officePids.length === 0) return '';
+        var tDef = _RELEVANT_OFFICE_DEFS[groupKey];
+        if (!tDef) return '';
+        var isOfficeOpen = _browseGroupState['relevant-office-' + groupKey] !== undefined
+          ? _browseGroupState['relevant-office-' + groupKey]
+          : (ctx.focused === true); // focused ballot opens its seats by default
+        var officeExpandedClass = isOfficeOpen ? ' expanded' : '';
+        var subtitle = _relevantOfficeSubtitle(groupKey, ctx);
+
+        var h = '';
+        h += '<div class="browse-type-group' + officeExpandedClass + '" id="relevant-browse-group-' + groupKey + '">';
+        h += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'relevant-browse-group-' + groupKey + '\', \'relevant-office-' + groupKey + '\')">';
+        h += '<div class="browse-type-title">';
+        h += '<div class="browse-type-icon" style="background:' + tDef.bg + ';">' + tDef.icon + '</div>';
+        h += '<div style="display:flex;flex-direction:column;min-width:0;">';
+        h += '<span class="browse-type-name">' + tDef.label + '</span>';
+        if (subtitle) h += '<span class="font-condensed" style="font-size:0.62rem;letter-spacing:0.04em;color:#7596c0;text-transform:none;line-height:1.2;margin-top:1px;">' + subtitle + '</span>';
+        h += '</div>';
+        h += '<span class="browse-type-count">' + officePids.length + '</span>';
+        h += '</div>';
+        h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
+        h += '</button>';
+        h += '<div class="browse-type-body"><div class="browse-type-inner">';
+        h += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+        _sortInOfficeFirst(officePids).forEach(function(pid) {
+          h += _renderBrowseTeamCard(pid);
+        });
+        h += '</div>';
+        h += '</div></div></div>';
+        return h;
+      }
+
+      var html = '';
+      _RELEVANT_LEVEL_DEFS.forEach(function(lvl) {
+        var inner = '';
+        var levelTotal = 0;
+        lvl.offices.forEach(function(ok) {
+          var pidsForOffice = officeGroups[ok];
+          if (pidsForOffice && pidsForOffice.length) {
+            levelTotal += pidsForOffice.length;
+            inner += _renderOfficeAccordion(ok);
+          }
+        });
+        // Append any extra content for this level (e.g. the chamber explorer),
+        // which can render even when the level has no focused seats.
+        var extra = (ctx.levelExtras && ctx.levelExtras[lvl.key]) || '';
+        if (!inner && !extra) return;
+
+        var isLevelOpen = _browseGroupState['relevant-level-' + lvl.key] !== undefined
+          ? _browseGroupState['relevant-level-' + lvl.key]
+          : (ctx.focused === true && (lvl.key === 'federal' || lvl.key === 'state'));
+        var levelExpandedClass = isLevelOpen ? ' expanded' : '';
+
+        html += '<div class="relevant-level relevant-level-' + lvl.key + levelExpandedClass + '" id="relevant-level-group-' + lvl.key + '">';
+        html += '<button class="relevant-level-header" onclick="toggleBrowseAccordion(\'relevant-level-group-' + lvl.key + '\', \'relevant-level-' + lvl.key + '\')">';
+        html += '<div class="relevant-level-icon">' + lvl.icon + '</div>';
+        html += '<span class="relevant-level-name">' + lvl.label + '</span>';
+        html += '<span class="relevant-level-count">' + levelTotal + ' ' + (levelTotal === 1 ? 'OFFICIAL' : 'OFFICIALS') + '</span>';
+        html += _chevronWrapped('relevant-level-chevron-wrap', 'relevant-level-chevron');
+        html += '</button>';
+        html += '<div class="relevant-level-body">' + inner + extra + '</div>';
+        html += '</div>';
+      });
+      return html;
+    }
+
+    // Parse a plain district number for a politician (state senate/house/U.S.
+    // House) from its resolved "District N (County)" label — used to match a
+    // representative to the voter's exact district.
+    function _relevantDistNum(pid) {
+      var label = _getPoliticianDistrictOrCounty(pid);
+      var m = label && label.match(/District\s+(\d+)/i);
+      return m ? parseInt(m[1], 10) : null;
+    }
+
+    // Collapsible "explore every district" browser for one state chamber. Keeps
+    // the full 29-seat Senate / 75-seat House navigable by reusing the shared
+    // range-grouped tree (Districts 1–15, 16–30, …) instead of one long scroll.
+    // Returns '' when there is nothing worth browsing. Renders ONE collapsed
+    // section holding both state chambers; the shared browse tree gives each its
+    // own correct district ranges and per-district county labels automatically.
+    function _relevantExploreSection(stateName, senateDistNum, lowerDistNum) {
+      var pids = Object.keys(CMP_DATA).filter(function(pid) {
+        var t = _classifyBrowseType(pid);
+        return (t === 'state_senator' || t === 'state_rep') && _getPoliticianState(pid) === stateName;
+      });
+      if (pids.length <= 1) return '';
+
+      var yourBits = [];
+      if (senateDistNum != null) yourBits.push('Senate ' + senateDistNum);
+      if (lowerDistNum != null) yourBits.push('House ' + lowerDistNum);
+      var yourLine = yourBits.length
+        ? 'Your seats (' + yourBits.join(' · ') + ') stay highlighted in your ballot above.'
+        : '';
+
+      var wrapKey = 'relexplore-wrap';
+      var isOpen = _browseGroupState[wrapKey] === true;
+      var openClass = isOpen ? ' expanded' : '';
+
+      var h = '';
+      h += '<div class="browse-type-group' + openClass + '" id="' + wrapKey + '-group" style="border-color:rgba(245,200,66,0.22);margin-top:0.6rem;">';
+      h += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'' + wrapKey + '-group\', \'' + wrapKey + '\')" style="background:rgba(245,200,66,0.05);">';
+      h += '<div class="browse-type-title">';
+      h += '<div class="browse-type-icon" style="background:linear-gradient(135deg, rgba(245,200,66,0.22), rgba(30,53,96,0.3));">🔎</div>';
+      h += '<div style="display:flex;flex-direction:column;min-width:0;">';
+      h += '<span class="browse-type-name" style="font-size:1.02rem;">Explore other ' + stateName + ' districts</span>';
+      h += '<span class="font-condensed" style="font-size:0.62rem;letter-spacing:0.04em;color:#9a8a4a;text-transform:none;line-height:1.2;margin-top:1px;">State Senate &amp; State House, grouped by district range. ' + yourLine + '</span>';
+      h += '</div>';
+      h += '<span class="browse-type-count">' + pids.length + '</span>';
+      h += '</div>';
+      h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
+      h += '</button>';
+      h += '<div class="browse-type-body"><div class="browse-type-inner">';
+      h += _renderGroupedBrowse(pids, 'relexplore-', { forceOpen: false, defaultOpen: false });
+      h += '</div></div></div>';
+      return h;
+    }
+
     window.renderRelevantToMe = function() {
       var relevantGrid = document.getElementById('relevant-browse-grid');
       var relevantCountBadge = document.getElementById('relevant-count-badge');
+      var relevantLocText = document.getElementById('relevant-location-text');
       if (!relevantGrid) return;
 
-      if (!window._hasUserLocation) {
-        if (relevantCountBadge) relevantCountBadge.textContent = '0';
-        relevantGrid.innerHTML = '<div class="mb-5 p-4 rounded-xl" style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(245,200,66,0.06));border:1px solid rgba(59,130,246,0.3);">' +
-          '<div class="font-display text-lg tracking-wider text-white mb-1">Set Your Location to see your representatives</div>' +
-          '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">This section shows only the politicians who actually represent you — based on your saved state, district, and county.</p>' +
-          '<button type="button" onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md min-h-[44px]">📍 Choose My Location</button>' +
-          '</div>';
+      var krData = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+      // Drive the focused, exact-district ballot from the Key Races area selector
+      // when that area genuinely matches the voter (they chose/inferred it), or
+      // when no location is set yet. Voters whose saved area isn't a supported
+      // Key Races location keep the generic, state-wide relevance path below.
+      var useFocused = !!krData && (!window._hasUserLocation || krData.matched);
+
+      if (!useFocused) {
+        // ── Fallback: generic, state-wide relevance for unsupported/out-of-state areas ──
+        if (!window._hasUserLocation) {
+          if (relevantCountBadge) relevantCountBadge.textContent = '0';
+          relevantGrid.innerHTML = '<div class="mb-5 p-4 rounded-xl" style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(245,200,66,0.06));border:1px solid rgba(59,130,246,0.3);">' +
+            '<div class="font-display text-lg tracking-wider text-white mb-1">Set Your Location to see your representatives</div>' +
+            '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">This section shows only the politicians who actually represent you — based on your saved state, district, and county.</p>' +
+            '<button type="button" onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md min-h-[44px]">📍 Choose My Location</button>' +
+            '</div>';
+          return;
+        }
+        var fpids = Object.keys(CMP_DATA).filter(_isRelevantToUser);
+        fpids.sort(function(a, b) { return (CMP_DATA[b].score ?? -1) - (CMP_DATA[a].score ?? -1); });
+        if (relevantCountBadge) relevantCountBadge.textContent = fpids.length;
+        if (fpids.length === 0) {
+          relevantGrid.innerHTML = '<div class="text-center text-steel-500 font-condensed py-6">No relevant politicians found for your location.</div>';
+          return;
+        }
+        var fGroups = {};
+        fpids.forEach(function(pid) {
+          var type = _classifyBrowseType(pid);
+          (fGroups[type] = fGroups[type] || []).push(pid);
+        });
+        relevantGrid.innerHTML = _renderRelevantTree(fGroups, { focused: false });
         return;
       }
 
-      var pids = Object.keys(CMP_DATA).filter(_isRelevantToUser);
-      pids.sort(function(a, b) { return (CMP_DATA[b].score ?? -1) - (CMP_DATA[a].score ?? -1); });
-
-      if (relevantCountBadge) relevantCountBadge.textContent = pids.length;
-
-      if (pids.length > 0) {
-        var officeGroups = {};
-        pids.forEach(function(pid) {
-          var type = _classifyBrowseType(pid);
-          if (!officeGroups[type]) officeGroups[type] = [];
-          officeGroups[type].push(pid);
-        });
-
-        // Office-type card definitions (icon, color, label) for each accordion.
-        var officeDefs = {
-          president:      { label: 'PRESIDENT / EXECUTIVE', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
-          cabinet:        { label: 'CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' },
-          senator:        { label: 'U.S. SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
-          representative: { label: 'U.S. HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
-          governor:       { label: 'GOVERNORS', icon: '🦅', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
-          state_senator:  { label: 'STATE SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
-          state_rep:      { label: 'STATE HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
-          local:          { label: 'LOCAL GOV', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
-          candidate:      { label: 'CANDIDATES / NOMINEES', icon: '🗳', bg: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(30,53,96,0.3))' },
-          other:          { label: 'OTHER REPRESENTATIVES', icon: '👤', bg: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(30,53,96,0.3))' }
-        };
-
-        // Top-level branches that group the office accordions into a clean,
-        // colorful Federal → State → Local tree.
-        var levelDefs = [
-          { key: 'federal', label: 'FEDERAL LEVEL', icon: '🦅', offices: ['president', 'cabinet', 'senator', 'representative'] },
-          { key: 'state',   label: 'STATE LEVEL',   icon: '🏛', offices: ['governor', 'state_senator', 'state_rep'] },
-          { key: 'local',   label: 'LOCAL LEVEL',   icon: '🏙', offices: ['local'] },
-          { key: 'other',   label: 'CANDIDATES & OTHER', icon: '🗳', offices: ['candidate', 'other'] }
-        ];
-
-        function _renderOfficeAccordion(groupKey) {
-          var officePids = officeGroups[groupKey];
-          if (!officePids || officePids.length === 0) return '';
-          var tDef = officeDefs[groupKey];
-          if (!tDef) return '';
-          var isOfficeOpen = _browseGroupState['relevant-office-' + groupKey] !== undefined
-            ? _browseGroupState['relevant-office-' + groupKey]
-            : false;
-          var officeExpandedClass = isOfficeOpen ? ' expanded' : '';
-
-          var h = '';
-          h += '<div class="browse-type-group' + officeExpandedClass + '" id="relevant-browse-group-' + groupKey + '">';
-          h += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'relevant-browse-group-' + groupKey + '\', \'relevant-office-' + groupKey + '\')">';
-          h += '<div class="browse-type-title">';
-          h += '<div class="browse-type-icon" style="background:' + tDef.bg + ';">' + tDef.icon + '</div>';
-          h += '<span class="browse-type-name">' + tDef.label + '</span>';
-          h += '<span class="browse-type-count">' + officePids.length + '</span>';
-          h += '</div>';
-          h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
-          h += '</button>';
-          h += '<div class="browse-type-body"><div class="browse-type-inner">';
-          h += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
-          _sortInOfficeFirst(officePids).forEach(function(pid) {
-            h += _renderBrowseTeamCard(pid);
-          });
-          h += '</div>';
-          h += '</div></div></div>';
-          return h;
-        }
-
-        var html = '';
-        levelDefs.forEach(function(lvl) {
-          var inner = '';
-          var levelTotal = 0;
-          lvl.offices.forEach(function(ok) {
-            var pidsForOffice = officeGroups[ok];
-            if (pidsForOffice && pidsForOffice.length) {
-              levelTotal += pidsForOffice.length;
-              inner += _renderOfficeAccordion(ok);
-            }
-          });
-          if (!inner) return;
-
-          var isLevelOpen = _browseGroupState['relevant-level-' + lvl.key] !== undefined
-            ? _browseGroupState['relevant-level-' + lvl.key]
-            : false;
-          var levelExpandedClass = isLevelOpen ? ' expanded' : '';
-
-          html += '<div class="relevant-level relevant-level-' + lvl.key + levelExpandedClass + '" id="relevant-level-group-' + lvl.key + '">';
-          html += '<button class="relevant-level-header" onclick="toggleBrowseAccordion(\'relevant-level-group-' + lvl.key + '\', \'relevant-level-' + lvl.key + '\')">';
-          html += '<div class="relevant-level-icon">' + lvl.icon + '</div>';
-          html += '<span class="relevant-level-name">' + lvl.label + '</span>';
-          html += '<span class="relevant-level-count">' + levelTotal + ' ' + (levelTotal === 1 ? 'OFFICIAL' : 'OFFICIALS') + '</span>';
-          html += _chevronWrapped('relevant-level-chevron-wrap', 'relevant-level-chevron');
-          html += '</button>';
-          html += '<div class="relevant-level-body">' + inner + '</div>';
-          html += '</div>';
-        });
-
-        relevantGrid.innerHTML = html;
-      } else {
-        relevantGrid.innerHTML = '<div class="text-center text-steel-500 font-condensed py-6">No relevant politicians found for your location.</div>';
+      // ── Focused, exact-district ballot (Key Races driven) ──────────────────
+      var stateName = 'Utah';
+      var picked = {}; // pid -> office groupKey (dedup)
+      function add(pid, groupKey) {
+        if (!pid || !CMP_DATA[pid]) return;
+        if (picked[pid]) return;
+        picked[pid] = groupKey;
       }
+
+      // Federal executives — relevant to every American.
+      Object.keys(CMP_DATA).forEach(function(pid) {
+        var t = _classifyBrowseType(pid);
+        if (t === 'president' || t === 'cabinet') add(pid, t);
+      });
+
+      // Statewide seats every voter in the state shares (U.S. Senate, Governor).
+      (krData.statewide.senate || []).forEach(function(pid) { add(pid, 'senator'); });
+      (krData.statewide.governor || []).forEach(function(pid) { add(pid, 'governor'); });
+
+      // The voter's exact district seats: curated candidate lists (authoritative)
+      // unioned with any matching record in the data set so a sitting incumbent
+      // is never missed.
+      var houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
+      var senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
+      var lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
+
+      function addCurated(raceKey, groupKey) {
+        var r = krData.byRace[raceKey];
+        if (r) r.pids.forEach(function(pid) { add(pid, groupKey); });
+      }
+      addCurated('house', 'representative');
+      addCurated('statesenate', 'state_senator');
+      addCurated('statehouse', 'state_rep');
+      addCurated('local', 'local');
+
+      // Dynamic safety net for U.S. House only: add any record matching the
+      // voter's exact congressional district so the sitting incumbent is included
+      // even when the curated list only names challengers. State-legislative seats
+      // rely on the curated lists alone (they already include the incumbent) to
+      // avoid surfacing district-map inconsistencies.
+      function addExactDistrict(chamberKey, distStr) {
+        if (distStr == null) return;
+        var dn = parseInt(distStr, 10);
+        if (isNaN(dn)) return;
+        Object.keys(CMP_DATA).forEach(function(pid) {
+          if (_classifyBrowseType(pid) !== chamberKey) return;
+          if (_getPoliticianState(pid) !== stateName) return;
+          if (_relevantDistNum(pid) === dn) add(pid, chamberKey);
+        });
+      }
+      addExactDistrict('representative', houseDist);
+
+      // Bucket the picked pids into their office groups.
+      var officeGroups = {};
+      Object.keys(picked).forEach(function(pid) {
+        var g = picked[pid];
+        (officeGroups[g] = officeGroups[g] || []).push(pid);
+      });
+      var total = Object.keys(picked).length;
+      if (relevantCountBadge) relevantCountBadge.textContent = total;
+
+      // Header line: the active area + the voter's exact district numbers.
+      if (relevantLocText) {
+        var distBits = [];
+        if (houseDist)  distBits.push('U.S. House ' + houseDist);
+        if (senateDist) distBits.push('State Senate ' + senateDist);
+        if (lowerDist)  distBits.push('State House ' + lowerDist);
+        relevantLocText.innerHTML = '📍 Your ballot for <strong class="text-blue-300">' + krData.label + '</strong>' +
+          (distBits.length ? ' <span class="text-steel-400">· ' + distBits.join(' · ') + '</span>' : '') +
+          ' — change your area in <strong class="text-blue-300">Your Key Races</strong> above.';
+      }
+
+      // The State level also hosts a collapsed "explore other districts" browser
+      // for the two big chambers, so voters can look beyond their own seat
+      // without scrolling a flat 50+ list.
+      var explorer = _relevantExploreSection(stateName,
+        senateDist ? parseInt(senateDist, 10) : null,
+        lowerDist ? parseInt(lowerDist, 10) : null);
+
+      var ctx = {
+        focused: true, state: stateName,
+        houseDist: houseDist ? ('District ' + houseDist) : '',
+        senateDist: senateDist ? ('District ' + senateDist) : '',
+        lowerDist: lowerDist ? ('District ' + lowerDist) : '',
+        levelExtras: explorer ? { state: explorer } : null
+      };
+
+      relevantGrid.innerHTML = _renderRelevantTree(officeGroups, ctx);
     };
 
     (function() {
@@ -27881,12 +28068,65 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } catch (e) { return null; }
     };
 
+    // Richer companion to keyRacesActiveDistricts(): exposes the exact districts
+    // AND the curated candidate/incumbent ids for the active area so the
+    // "Relevant to Me" section can show ONLY the politicians on this voter's
+    // ballot (their specific U.S. House, State Senate and State House seats),
+    // plus the statewide seats every voter in the state shares. Computed here in
+    // the Key Races module because this is where the authoritative data lives.
+    window.keyRacesRelevantData = function() {
+      try {
+        var locId = _krCurrentLocationId();
+        var races = KEY_RACES_BY_LOCATION[locId];
+        if (!races) return null;
+        var meta = _krLocationMeta(locId);
+
+        // "matched" = the active area genuinely corresponds to this voter: they
+        // explicitly chose it in the selector, or it was inferred from their saved
+        // location. When false, the area is only the default fallback, so callers
+        // (the Relevant section) can prefer broader state-wide relevance instead of
+        // showing a default county's exact districts to someone elsewhere.
+        var explicit = false;
+        try { explicit = !!(localStorage.getItem(KR_LOCATION_KEY) && KEY_RACES_BY_LOCATION[localStorage.getItem(KR_LOCATION_KEY)]); } catch (e) {}
+        var matched = explicit || (_krInferLocation() !== '');
+
+        // Collect every politician id tied to a race (incumbent + challengers).
+        var pidsOf = function(r) {
+          var a = [];
+          var push = function(p) { if (p && a.indexOf(p) === -1) a.push(p); };
+          push(r.incumbentPid);
+          (r.incumbentPids || []).forEach(push);
+          (r.candidates || []).forEach(push);
+          return a;
+        };
+        var distOf = function(r) {
+          var m = String(r.district || r.short || '').match(/(\d+)\s*$/);
+          return m ? m[1] : null;
+        };
+
+        var out = {
+          locId: locId, label: meta.label, city: meta.city, county: meta.county,
+          state: 'Utah', matched: matched, byRace: {}, statewide: {}
+        };
+        races.forEach(function(r) {
+          out.byRace[r.raceKey] = { district: distOf(r), pids: pidsOf(r) };
+        });
+        (KEY_RACES_STATEWIDE || []).forEach(function(r) {
+          out.statewide[r.raceKey] = pidsOf(r);
+        });
+        return out;
+      } catch (e) { return null; }
+    };
+
     window.keyRacesSetLocation = function(id) {
       if (!KEY_RACES_BY_LOCATION[id]) return;
       try { localStorage.setItem(KR_LOCATION_KEY, id); } catch (e) {}
       if (window.renderKeyRaces) window.renderKeyRaces();
       // Keep the top "Utah Voter Map" info bar in sync with the selected area.
       if (window.renderStateOverview) window.renderStateOverview();
+      // The "Relevant to Me" ballot below follows the same area selector, so it
+      // must refresh whenever the voter changes their location here.
+      if (window.renderRelevantToMe) window.renderRelevantToMe();
     };
 
     var _keyRacesHint = {};
@@ -28943,8 +29183,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Now that the Key Races district data is defined, repaint the top info bar
     // so it shows the active area's district numbers on first load too.
     try { if (window.renderStateOverview) window.renderStateOverview(); } catch (e) {}
+    // The "Relevant to Me" ballot reads the same district data, so repaint it now
+    // that keyRacesRelevantData() is available (it may have rendered the neutral
+    // prompt earlier, before this module loaded).
+    try { if (window.renderRelevantToMe) window.renderRelevantToMe(); } catch (e) {}
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() { if (window.renderKeyRaces) window.renderKeyRaces(); });
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.renderKeyRaces) window.renderKeyRaces();
+        if (window.renderRelevantToMe) window.renderRelevantToMe();
+      });
     }
     // Refresh the location-aware headline whenever the user sets/changes location.
     (function() {
