@@ -1356,6 +1356,32 @@
       font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; color: #9fb4d4;
     }
 
+    /* ── Deep profile: Key Issue Stances & People's Mandate ── */
+    .stance-card {
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.75rem; padding: 0.72rem 0.85rem; margin-bottom: 0.5rem;
+    }
+    .stance-card:last-child { margin-bottom: 0; }
+    @media (hover: hover) { .stance-card:hover { border-color: rgba(159,180,212,0.18); } }
+    .stance-badge {
+      display: inline-flex; align-items: center; gap: 0.22rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.16rem 0.45rem; border-radius: 999px; white-space: nowrap;
+    }
+    .stance-support  { background: rgba(74,222,128,0.14); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+    .stance-oppose   { background: rgba(248,113,113,0.14); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    .stance-mixed    { background: rgba(96,165,250,0.14); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+    .stance-tracking { background: rgba(159,180,212,0.12); color: #9fb4d4; border: 1px solid rgba(159,180,212,0.25); }
+    .mandate-row { margin-bottom: 0.75rem; }
+    .mandate-row:last-child { margin-bottom: 0; }
+    .mandate-track { height: 7px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
+    .mandate-fill  { height: 100%; border-radius: 999px; transition: width 1.1s cubic-bezier(0.4,0,0.2,1); }
+    .src-note {
+      font-size: 0.6rem; color: #4e72a0; line-height: 1.5; text-align: center;
+      margin: 0.55rem 0 0; letter-spacing: 0.02em;
+    }
+
     /* ── Score ring helper ─────────────────────────────── */
     .score-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
     .score-ring svg { transform: rotate(-90deg); }
@@ -15994,6 +16020,237 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
   // ════════════════════════════════════════════════════════════
+  // DEEP-PROFILE DATA & RENDERERS
+  // ────────────────────────────────────────────────────────────
+  // These power the richer "Full Profile" view: a politician's stated
+  // positions on the same issues used by the Alignment Tool, a People's
+  // Mandate scorecard built from the signals PolitiDex already tracks, and
+  // scannable voting highlights. Everything is data-driven and degrades
+  // gracefully, so profiles can be filled in gradually over time — add an
+  // entry to ISSUE_STANCE_DATA (or MANDATE_OVERRIDES) for a politician and
+  // the new sections light up automatically. Politicians with no curated
+  // data still render a useful, honest "still being documented" view.
+  // ════════════════════════════════════════════════════════════
+
+  // Curated issue stances. Each politician maps to a short list of positions.
+  //   pos: 'support' | 'oppose' | 'mixed' | 'tracking'
+  //   topic/icon: human label + emoji (mirrors the Alignment Tool's issues)
+  //   text: one-line plain-language stance · evidence/source are optional.
+  var ISSUE_STANCE_DATA = {
+    trump: [
+      { topic:'Border Security & Immigration', icon:'🛡', pos:'support', text:'Campaigns on completing border barriers and large-scale deportations; signed border-focused executive actions.', evidence:'Executive orders on border enforcement & Schedule F.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov'} },
+      { topic:'Taxes & Business', icon:'💰', pos:'support', text:'Signed the 2017 Tax Cuts and Jobs Act and backs extending the individual and pass-through cuts.', evidence:'Signed Tax Cuts and Jobs Act (2017).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Trade & American Jobs', icon:'🏭', pos:'support', text:'Favors tariffs on foreign goods to protect domestic manufacturing; raised China tariffs.', evidence:'Executive actions expanding tariffs on Chinese imports.' },
+      { topic:'Climate & Clean Energy', icon:'🌱', pos:'oppose', text:'Skeptical of climate mandates; withdrew the U.S. from the Paris Agreement and favors fossil-fuel deregulation.', evidence:'Executive Order withdrawing from the Paris Agreement.' },
+      { topic:'Defense & Foreign Policy', icon:'🦅', pos:'support', text:'Backs a strong military paired with an "America First" stance that questions open-ended foreign aid.' },
+    ],
+    cox: [
+      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', text:'Made Great Salt Lake and statewide water conservation a signature priority, with major state investment.', evidence:'$500M+ in conservation spending since 2022.' },
+      { topic:'Technology Guardrails', icon:'🚀', pos:'mixed', text:'Pioneered first-in-nation social-media age-verification and an AI governance sandbox — innovation with new rules.', evidence:'Signed H.B. 311 (age verification) and AI governance bills.', source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'School Choice', icon:'🎓', pos:'support', text:'Signed Utah\'s tax-reform and education-choice measures expanding family options.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'mixed', text:'Convened an Affordable Housing Task Force, but recommended zoning reforms have faced local resistance.' },
+    ],
+    lee: [
+      { topic:'Spending & Balanced Budget', icon:'💰', pos:'mixed', text:'Champions deep spending cuts and a balanced-budget amendment, though he has voted for some omnibus packages.', evidence:'Opposed clean debt-ceiling raise; voted Yea on a 2024 omnibus.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', text:'Strong civil-liberties record; led floor opposition to warrantless surveillance renewals.', evidence:'Voted Nay / filibustered FISA Section 702.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', text:'Prioritizes conscience and religious-freedom protections.', evidence:'Voted Nay on the Respect for Marriage Act.' },
+      { topic:'Local Land Control', icon:'🏔', pos:'support', text:'Backs transferring more federal land decisions toward states and counties.' },
+    ],
+    curtis: [
+      { topic:'Clean Energy', icon:'🌱', pos:'support', text:'Founded the Conservative Climate Caucus and pushes bipartisan clean-energy permitting reform.', evidence:'Introduced bipartisan permitting-reform legislation.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Energy Development', icon:'⛏', pos:'support', text:'Supports expanded domestic energy and resource production alongside emissions reduction.' },
+      { topic:'Infrastructure', icon:'🏗', pos:'support', text:'Backed the bipartisan infrastructure law, delivering rural broadband funding to Utah.', evidence:'Voted Yea on the Bipartisan Infrastructure Law.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'mixed', text:'Voted to reauthorize federal surveillance authority despite stated privacy concerns.', evidence:'Voted Yea on FISA Section 702 reauthorization.' },
+    ],
+    massie: [
+      { topic:'Gun Rights', icon:'🔫', pos:'support', text:'Second Amendment absolutist; opposes new gun-control measures.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', text:'Consistent opponent of warrantless surveillance and broad data collection.', evidence:'Voted Nay on FISA reauthorization.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Spending & Fiscal Restraint', icon:'💰', pos:'support', text:'Refuses to vote for large bills he hasn\'t read; pushes to audit the Fed.', evidence:'Voted Nay on omnibus packages; co-sponsors Audit the Fed.' },
+      { topic:'Federal Education Role', icon:'🎓', pos:'oppose', text:'Files a one-sentence bill each Congress to abolish the Department of Education.', evidence:'Introduced H.R. 899 across multiple Congresses.' },
+      { topic:'Defense Spending', icon:'🦅', pos:'oppose', text:'Opposes military spending increases and calls for a Pentagon audit instead.', evidence:'Voted Nay on the NDAA.' },
+    ],
+    owens: [
+      { topic:'Border Security', icon:'🛡', pos:'support', text:'Backs strict border enforcement and security infrastructure.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
+      { topic:'Parental Rights & Education', icon:'🎓', pos:'support', text:'Supports parental rights in education and school choice.', evidence:'Voted Yea on the Parents Bill of Rights Act.' },
+      { topic:'Defense', icon:'🦅', pos:'support', text:'Supports military spending; cites his veteran and intelligence-adjacent background.' },
+    ],
+    boebert: [
+      { topic:'Gun Rights', icon:'🔫', pos:'support', text:'Opposes gun-control measures as a Second Amendment absolutist.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
+      { topic:'Foreign Aid', icon:'🇺🇸', pos:'oppose', text:'Opposes foreign military aid under an "America First" framing.', evidence:'Voted Nay on the Ukraine supplemental.' },
+      { topic:'Spending', icon:'💰', pos:'support', text:'Rejects stopgap funding deals without deep spending cuts.', evidence:'Voted Nay on continuing resolutions.' },
+    ],
+    mtg: [
+      { topic:'Foreign Aid (Ukraine)', icon:'🇺🇸', pos:'oppose', text:'Opposes additional Ukraine aid — "not one more penny" — as a core promise.', evidence:'Voted Nay on the Ukraine supplemental.' },
+      { topic:'Spending', icon:'💰', pos:'support', text:'Demands deeper cuts and rejects bipartisan spending compromises.', evidence:'Voted Nay on the Fiscal Responsibility Act.' },
+      { topic:'Surveillance', icon:'🔒', pos:'support', text:'Opposes the surveillance state on civil-liberties grounds.', evidence:'Voted Nay on FISA reauthorization.' },
+    ],
+    maloy: [
+      { topic:'Energy & Resources', icon:'⛏', pos:'support', text:'Backs expanded energy and resource production for rural Utah.', evidence:'Voted Yea on the Lower Energy Costs Act (H.R. 1).' },
+      { topic:'Border Security', icon:'🛡', pos:'support', text:'Supports border security, a top issue for her district.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
+      { topic:'Federal Lands', icon:'🏔', pos:'support', text:'Pushes for more state and local say over federal land decisions.', evidence:'Voted Yea on federal-lands management reform.' },
+    ],
+  };
+
+  // Optional curated overrides for the People's Mandate scorecard (0–100).
+  // Leave a principle out to let it derive automatically from tracked data.
+  var MANDATE_OVERRIDES = {};
+
+  // Funding integrity signal (higher = more small-donor, less special-interest
+  // funded). Mirrors the "Follow the Money" integrity ratings. Used to seed the
+  // Transparency and Constituents-over-special-interests mandate principles.
+  var FINANCE_INTEGRITY = {
+    trump:32, cox:54, lee:48, curtis:68, massie:78, owens:58,
+    maloy:62, kennedy:55, bilzerian:35, gallrein:64
+  };
+
+  // Best-effort emoji for a free-text key issue, pulled from the Alignment
+  // Tool's ISSUE_MAP so derived stances share the same visual vocabulary.
+  function _deepProfileTopicIcon(text) {
+    try {
+      if (typeof ISSUE_MAP === 'undefined' || !text) return '🎯';
+      var low = String(text).toLowerCase();
+      for (var key in ISSUE_MAP) {
+        var def = ISSUE_MAP[key];
+        if (!def || !def.keywords) continue;
+        for (var i = 0; i < def.keywords.length; i++) {
+          if (low.indexOf(def.keywords[i].toLowerCase()) !== -1) {
+            return (def.label || '🎯').split(' ')[0];
+          }
+        }
+      }
+    } catch (e) {}
+    return '🎯';
+  }
+
+  // Key Issue Stances — clear, scannable positions on specific issues.
+  window._renderIssueStances = function(id, p) {
+    p = p || {};
+    var stances = ISSUE_STANCE_DATA[id];
+    var derived = false;
+    if (!stances || !stances.length) {
+      // Fall back to the politician's tracked key issues so the section is
+      // still informative, with positions flagged as not-yet-documented.
+      var ki = (p.keyIssues || []).slice(0, 6);
+      if (!ki.length) return '';
+      derived = true;
+      stances = ki.map(function(issue) {
+        return { topic: issue, icon: _deepProfileTopicIcon(issue), pos: 'tracking',
+          text: 'A detailed position is being researched and will be added as statements and votes are verified.' };
+      });
+    }
+    var posMeta = {
+      support:  { cls:'stance-support',  ico:'✓', label:'Supports' },
+      oppose:   { cls:'stance-oppose',   ico:'✗', label:'Opposes' },
+      mixed:    { cls:'stance-mixed',    ico:'~', label:'Mixed Record' },
+      tracking: { cls:'stance-tracking', ico:'…', label:'Researching' }
+    };
+    var cards = stances.map(function(s) {
+      var m = posMeta[s.pos] || posMeta.tracking;
+      var ev = s.evidence ? '<div style="font-size:0.7rem;color:#7596c0;line-height:1.5;margin-top:0.4rem;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">Record:</span> ' + s.evidence + '</div>' : '';
+      var src = s.source && s.source.url ? '<a href="' + s.source.url + '" target="_blank" rel="noopener" class="dd-source-chip" style="margin-top:0.45rem;">🔗 ' + s.source.label + '</a>' : '';
+      return '<div class="stance-card">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
+          '<div style="display:flex;align-items:center;gap:0.45rem;min-width:0;">' +
+            '<span style="font-size:1rem;line-height:1;flex-shrink:0;">' + (s.icon || '🎯') + '</span>' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;color:white;letter-spacing:0.01em;">' + s.topic + '</span>' +
+          '</div>' +
+          '<span class="stance-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+        '</div>' +
+        '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;">' + s.text + '</p>' +
+        ev +
+        (src ? '<div>' + src + '</div>' : '') +
+      '</div>';
+    }).join('');
+    var note = derived
+      ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
+      : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.';
+    return '<div class="modal-section">' +
+      '<div class="modal-section-title">🎯 Key Issue Stances</div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.7rem;">' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Where they stand on the issues</span>' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.4rem;border-radius:999px;">' + stances.length + ' issues</span>' +
+      '</div>' +
+      cards +
+      '<p class="src-note">' + note + '</p>' +
+    '</div>';
+  };
+
+  // The People's Mandate Alignment — a scorecard of core good-government
+  // principles, derived from the Promise %, Accountability score and funding
+  // signals PolitiDex already tracks (curated overrides supported).
+  window._renderMandateAlignment = function(id, p) {
+    p = p || {};
+    var ov = MANDATE_OVERRIDES[id] || {};
+    var acct = (p.accountability && typeof p.accountability.overallScore === 'number') ? p.accountability : null;
+    function acctCat(re) {
+      if (!acct || !acct.categories) return null;
+      for (var i = 0; i < acct.categories.length; i++) {
+        if (re.test(acct.categories[i].label || '')) return acct.categories[i].score;
+      }
+      return null;
+    }
+    var promiseScore = (typeof p.score === 'number') ? p.score : null;
+    var integ = (typeof FINANCE_INTEGRITY[id] === 'number') ? FINANCE_INTEGRITY[id] : null;
+    var pick = function() {
+      for (var i = 0; i < arguments.length; i++) {
+        var v = arguments[i];
+        if (typeof v === 'number' && !isNaN(v)) return Math.round(v);
+      }
+      return null;
+    };
+    var principles = [
+      { label:'Keeps Promises', icon:'🤝',
+        score: pick(ov.promises, promiseScore),
+        desc:'Share of tracked campaign promises kept versus broken (Promise %).' },
+      { label:'Accountability', icon:'🛡️',
+        score: pick(ov.accountability, acct ? acct.overallScore : null, acctCat(/account/i)),
+        desc:'Independent Accountability of Truth score for honesty and consistency.' },
+      { label:'Transparency', icon:'🔍',
+        score: pick(ov.transparency, acctCat(/transparen/i), integ),
+        desc:'Openness about finances, votes and decisions — and willingness to answer for them.' },
+      { label:'Constituents Over Special Interests', icon:'🏛️',
+        score: pick(ov.constituents, integ, acctCat(/integrity|independ|interest/i)),
+        desc:'How much funding and action favor everyday constituents over corporate and PAC money.' }
+    ];
+    var mcol = function(s) { return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171'; };
+    var rated = principles.filter(function(pr) { return pr.score !== null; });
+    var overall = rated.length ? Math.round(rated.reduce(function(a, pr) { return a + pr.score; }, 0) / rated.length) : null;
+    var rows = principles.map(function(pr) {
+      var has = pr.score !== null;
+      var col = has ? mcol(pr.score) : '#5b7196';
+      var valTxt = has ? pr.score + '<span style="font-size:0.65rem;color:#7596c0;">/100</span>' : '<span style="font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;">Monitoring</span>';
+      return '<div class="mandate-row">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.3rem;">' +
+          '<span style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;"><span style="font-size:0.85rem;">' + pr.icon + '</span>' + pr.label + '</span>' +
+          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;color:' + col + ';line-height:1;">' + valTxt + '</span>' +
+        '</div>' +
+        '<div class="mandate-track"><div class="mandate-fill" style="width:' + (has ? pr.score : 0) + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></div>' +
+        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.45;margin:0.28rem 0 0;">' + pr.desc + '</p>' +
+      '</div>';
+    }).join('');
+    var overallBlock = overall !== null
+      ? '<div style="display:flex;align-items:center;gap:0.85rem;margin-bottom:0.9rem;padding-bottom:0.85rem;border-bottom:1px solid rgba(192,21,42,0.18);">' +
+          '<div style="flex-shrink:0;width:58px;height:58px;border-radius:0.75rem;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(192,21,42,0.1);border:1px solid ' + mcol(overall) + '55;">' +
+            '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:' + mcol(overall) + ';line-height:1;">' + overall + '</span>' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Mandate</span>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.06em;color:white;line-height:1.1;">People\'s Mandate Alignment</div>' +
+            '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.5;margin:0.25rem 0 0;">How well this official upholds the principles voters expect: keeping their word, answering for their record, transparency, and putting constituents first.</p>' +
+          '</div>' +
+        '</div>'
+      : '<p style="font-size:0.74rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.85rem;">The People\'s Mandate scorecard rates how well this official upholds transparency, accountability, promise-keeping, and putting constituents over special interests. Ratings begin once they have a voting record or verified promises.</p>';
+    return '<div class="modal-section">' +
+      '<div class="modal-section-title">🏛️ The People\'s Mandate Alignment</div>' +
+      '<div style="background:linear-gradient(135deg,rgba(192,21,42,0.08),rgba(30,53,96,0.35));border:1px solid rgba(192,21,42,0.22);border-radius:0.9rem;padding:1rem;">' +
+        overallBlock +
+        rows +
+      '</div>' +
+      '<p class="src-note">An at-a-glance read built from PolitiDex\'s tracked Promise %, Accountability score, and campaign-finance signals. Estimates, not official ratings — they sharpen as more records are verified.</p>' +
+    '</div>';
+  };
+
+  // ════════════════════════════════════════════════════════════
   // MODAL RENDERER
   // ════════════════════════════════════════════════════════════
     // showProfile — public entry-point for all "View Profile" buttons
@@ -16229,6 +16486,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <p style="font-size:0.68rem;color:#7596c0;line-height:1.4;margin:0;">This score reflects how closely this politician aligns with your selected issues.</p>
         </div>`;
       })() : ''}
+
+      <!-- The People's Mandate Alignment -->
+      ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
+
+      <!-- Key Issue Stances -->
+      ${(typeof window._renderIssueStances === 'function') ? window._renderIssueStances(id, p) : ''}
 
       <!-- Deep Dive: Full Promise Breakdown -->
       ${(function(){
@@ -16552,8 +16815,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>' +
           '</div>';
         }).join('');
-        return '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F5F3}️ Key Voting Record</div>' +
+        // Voting Record Highlights — a scannable lead-in surfacing the few most
+        // significant votes plus an at-a-glance tally, above the full record.
+        const _vrTally = { kept:0, broken:0, partial:0 };
+        vr.forEach(function(v){ if (_vrTally[v.alignment] !== undefined) _vrTally[v.alignment]++; });
+        const _tallyChip = function(n, label, col){ return n ? '<div style="flex:1;text-align:center;background:' + col + '14;border:1px solid ' + col + '33;border-radius:0.6rem;padding:0.4rem 0.3rem;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.25rem;color:' + col + ';line-height:1;">' + n + '</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.15rem;">' + label + '</div></div>' : ''; };
+        const _vrHiCards = vr.slice(0, 3).map(function(v){
+          return '<div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.06);border-radius:0.65rem;padding:0.6rem 0.7rem;margin-bottom:0.45rem;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.78rem;color:white;line-height:1.35;min-width:0;">' + v.bill + '</span>' +
+              '<span class="vr-align-pill vr-align-' + v.alignment + '" style="flex-shrink:0;">' + (alignLabel[v.alignment]||v.alignment) + '</span>' +
+            '</div>' +
+            '<div style="margin-top:0.4rem;"><span class="vr-vote-pill vr-vote-' + v.voteClass + '">' + v.vote + '</span></div>' +
+          '</div>';
+        }).join('');
+        const _vrHighlightsSection = vr.length >= 2
+          ? '<div class="modal-section">' +
+              '<div class="modal-section-title">\u{1F5F3}️ Voting Record Highlights</div>' +
+              '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
+                _tallyChip(_vrTally.kept, 'Kept Word', '#4ade80') +
+                _tallyChip(_vrTally.partial, 'Partial', '#60a5fa') +
+                _tallyChip(_vrTally.broken, 'Broke Word', '#f87171') +
+              '</div>' +
+              _vrHiCards +
+              '<p class="src-note">A few of the most significant votes. See the full record below for every tracked vote and why it matters.</p>' +
+            '</div>'
+          : '';
+        return _vrHighlightsSection +
+          '<div class="modal-section">' +
+          '<div class="modal-section-title">\u{1F5F3}️ Full Voting Record</div>' +
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;overflow:hidden;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.875rem;background:rgba(96,165,250,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">' +
               '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#60a5fa;">LEGISLATIVE ACTIONS</span>' +
