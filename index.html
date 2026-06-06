@@ -16147,20 +16147,40 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // data still render a useful, honest "still being documented" view.
   // ════════════════════════════════════════════════════════════
 
-  // Curated issue stances. Each politician maps to a short list of positions.
-  //   pos: 'support' | 'oppose' | 'mixed' | 'tracking'  (display badge on the card)
-  //   topic/icon: human label + emoji (mirrors the Alignment Tool's issues)
-  //   text: one-line plain-language stance · evidence/source are optional.
+  // ── Curated issue-stance schema ──────────────────────────────────────
+  // Each politician id maps to a list of positions. Every position is one
+  // object with a small, stable set of fields — add or omit any optional field
+  // freely and the card still renders, so coverage can grow over time without
+  // ever breaking the structure. To document a new official, add their id with a
+  // list of positions in exactly this shape; nothing else needs to change.
   //
-  //   issueKey + issueStance: the LINKAGE to the Personalized Alignment Tool. The
-  //   issueKey points at the exact ISSUE_MAP position the politician holds a view
-  //   on, and issueStance ('support' | 'oppose' | 'mixed') is whether they back
-  //   THAT position. This is what powers the per-issue "You vs. them" comparison —
-  //   it is kept separate from the card's display `pos` because the card topic may
-  //   be framed differently from the Alignment position (e.g. "opposes foreign aid"
-  //   == supports the "America First" position). Add issueKey/issueStance to any
-  //   stance to make it comparable; leave them off and the card still renders, it
-  //   just isn't matched against a user's saved positions yet.
+  //   REQUIRED
+  //     topic   : the issue name, human-readable (mirrors the Alignment Tool).
+  //     pos     : 'support' | 'oppose' | 'mixed' | 'tracking' — the badge shown
+  //               on the card (how they come down on THIS topic, as framed).
+  //     text    : one clear, specific sentence stating their position.
+  //
+  //   OPTIONAL (each independently safe to leave off)
+  //     icon     : emoji for the card; falls back to 🎯.
+  //     detail   : a second sentence of context — the "why", the nuance, or the
+  //                scope of the position. Shown under `text` in a quieter style.
+  //     evidence : the concrete record behind the stance — a named vote, signed
+  //                bill, or sponsored measure. Rendered with a "Record:" label.
+  //     source   : { label, url } — a citation link (official site, Congress.gov,
+  //                le.utah.gov, etc.) surfaced as a chip.
+  //     issueKey + issueStance : the LINKAGE to the Personalized Alignment Tool.
+  //                issueKey points at the exact ISSUE_MAP position; issueStance
+  //                ('support' | 'oppose' | 'mixed') is whether they back THAT
+  //                position. This powers the per-issue "You vs. them" comparison
+  //                and is kept separate from `pos` because a card topic may be
+  //                framed differently from the Alignment position (e.g. "opposes
+  //                foreign aid" == supports the "America First" position). Add
+  //                these two to make a stance comparable; omit them and the card
+  //                still renders, it just isn't matched against a user's picks.
+  //
+  // Quality over quantity: a documented official should have a handful of
+  // specific, sourced positions rather than many vague ones. Utah officials in
+  // 2026 races are the current priority and the most fully populated below.
   var ISSUE_STANCE_DATA = {
     trump: [
       { topic:'Border Security & Immigration', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Campaigns on completing border barriers and large-scale deportations; signed border-focused executive actions.', evidence:'Executive orders on border enforcement & Schedule F.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov'} },
@@ -16170,22 +16190,72 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { topic:'Defense & Foreign Policy', icon:'🦅', pos:'support', issueKey:'america_first', issueStance:'support', text:'Backs a strong military paired with an "America First" stance that questions open-ended foreign aid.' },
     ],
     cox: [
-      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Made Great Salt Lake and statewide water conservation a signature priority, with major state investment.', evidence:'$500M+ in conservation spending since 2022.' },
-      { topic:'Technology Guardrails', icon:'🚀', pos:'mixed', issueKey:'tech_balance', issueStance:'support', text:'Pioneered first-in-nation social-media age-verification and an AI governance sandbox — innovation with new rules.', evidence:'Signed H.B. 311 (age verification) and AI governance bills.', source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
-      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'Signed Utah\'s tax-reform and education-choice measures expanding family options.' },
-      { topic:'Housing Affordability', icon:'🏗', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Convened an Affordable Housing Task Force, but recommended zoning reforms have faced local resistance.' },
+      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Has made saving the Great Salt Lake and statewide water conservation a defining priority of his governorship.',
+        detail:'Backed creating a dedicated Great Salt Lake Commissioner and directing hundreds of millions toward conservation, turf buyback, and water-rights changes that let saved water reach the lake.',
+        evidence:'Signed major 2022–2024 water-conservation packages; created the Great Salt Lake Commissioner office (2023).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'Signed Utah\'s landmark school-choice law creating the "Utah Fits All" scholarship for private and home education.',
+        detail:'H.B. 215 paired roughly $8,000 per-student scholarships with across-the-board teacher salary raises.',
+        evidence:'Signed H.B. 215 (2023).' },
+      { topic:'Technology Guardrails', icon:'🚀', pos:'mixed', issueKey:'tech_balance', issueStance:'support',
+        text:'Pushed first-in-the-nation rules requiring age verification and parental consent for minors on social media.',
+        detail:'Signed the 2023 Social Media Regulation Act, then signed a 2024 revision narrowing it after legal challenges while keeping the minor-protection goal.',
+        evidence:'Signed S.B. 152 / H.B. 311 (2023); revised via S.B. 194 (2024).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Signed consecutive cuts to Utah\'s flat income-tax rate while the state ran large budget surpluses.',
+        evidence:'Signed income-tax-rate cuts in 2022, 2023, and 2024 (4.95% → 4.55%).' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'mixed', issueKey:'housing_build', issueStance:'mixed',
+        text:'Set a public goal of 35,000 new starter homes and backs zoning and permitting reform to expand supply.',
+        detail:'His "Utah First Homes" push leans on local zoning changes that have met resistance from some city governments.' },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Supports strong limits on abortion and signed Utah\'s ban on licensing abortion clinics.',
+        detail:'Utah\'s broader near-total trigger ban remains tied up in court; the clinic-licensing law restricts where procedures can be performed.',
+        evidence:'Signed H.B. 467 (2023).' },
     ],
     lee: [
-      { topic:'Spending & Balanced Budget', icon:'💰', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Champions deep spending cuts and a balanced-budget amendment, though he has voted for some omnibus packages.', evidence:'Opposed clean debt-ceiling raise; voted Yea on a 2024 omnibus.' },
-      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Strong civil-liberties record; led floor opposition to warrantless surveillance renewals.', evidence:'Voted Nay / filibustered FISA Section 702.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support', text:'Prioritizes conscience and religious-freedom protections.', evidence:'Voted Nay on the Respect for Marriage Act.' },
-      { topic:'Local Land Control', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backs transferring more federal land decisions toward states and counties.' },
+      { topic:'Federal Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'Utah\'s most aggressive advocate for shifting federal land toward state and local control.',
+        detail:'Argues Washington controls roughly two-thirds of Utah; in 2025 he floated selling some federal land for housing before withdrawing the proposal amid bipartisan backlash.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support',
+        text:'A leading Senate opponent of warrantless surveillance and broad federal data collection.',
+        detail:'Repeatedly fought to attach a warrant requirement to FISA Section 702 rather than reauthorize it cleanly.',
+        evidence:'Voted against / filibustered FISA Section 702 reauthorization (2024).',
+        source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Spending & Balanced Budget', icon:'💰', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed',
+        text:'Champions a balanced-budget amendment and deep spending cuts, routinely voting against bipartisan budget deals.',
+        detail:'Often one of a handful of senators opposing omnibus and debt-ceiling packages he says lack real cuts.',
+        evidence:'Voted against the 2023 Fiscal Responsibility Act debt-ceiling deal.' },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support',
+        text:'Prioritizes conscience and religious-freedom protections in his legislation and votes.',
+        detail:'Voted against the Respect for Marriage Act, arguing its religious-liberty safeguards were insufficient.',
+        evidence:'Voted against the Respect for Marriage Act (2022).' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support',
+        text:'A Second Amendment absolutist who opposes new federal firearms restrictions.',
+        evidence:'Voted against the Bipartisan Safer Communities Act (2022).' },
+      { topic:'Taxes & Business', icon:'💵', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Backs permanently extending the 2017 Trump tax cuts and further income- and business-tax reductions.' },
     ],
     curtis: [
-      { topic:'Clean Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Founded the Conservative Climate Caucus and pushes bipartisan clean-energy permitting reform.', evidence:'Introduced bipartisan permitting-reform legislation.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Energy Development', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Supports expanded domestic energy and resource production alongside emissions reduction.' },
-      { topic:'Infrastructure', icon:'🏗', pos:'support', text:'Backed the bipartisan infrastructure law, delivering rural broadband funding to Utah.', evidence:'Voted Yea on the Bipartisan Infrastructure Law.' },
-      { topic:'Privacy & Surveillance', icon:'🔒', pos:'mixed', issueKey:'privacy_rights', issueStance:'mixed', text:'Voted to reauthorize federal surveillance authority despite stated privacy concerns.', evidence:'Voted Yea on FISA Section 702 reauthorization.' },
+      { topic:'Clean Energy & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Founded the Conservative Climate Caucus to give Republicans a constructive seat at the climate table.',
+        detail:'Pitches emissions reduction through innovation, nuclear, and natural gas rather than federal mandates — among the GOP\'s most vocal voices acknowledging human-caused climate change.',
+        evidence:'Founded the Conservative Climate Caucus (2021).',
+        source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Energy Independence', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support',
+        text:'Supports an "all of the above" expansion of domestic energy, including oil, gas, and nuclear.' },
+      { topic:'Infrastructure', icon:'🏗', pos:'support',
+        text:'Broke with many Republicans to back the bipartisan infrastructure law, citing rural broadband and roads for Utah.',
+        evidence:'Voted for the Bipartisan Infrastructure Law (2021).' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'mixed', issueKey:'privacy_rights', issueStance:'mixed',
+        text:'Voted to reauthorize federal surveillance authority despite stated privacy concerns.',
+        detail:'As a House member he supported FISA Section 702 reauthorization, drawing criticism from privacy advocates.',
+        evidence:'Voted for FISA Section 702 reauthorization (2024).' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Backs stronger border enforcement and supported the House Republican border-security package.',
+        evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
     ],
     massie: [
       { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Second Amendment absolutist; opposes new gun-control measures.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
@@ -16195,9 +16265,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { topic:'Defense Spending', icon:'🦅', pos:'oppose', issueKey:'strong_defense', issueStance:'oppose', text:'Opposes military spending increases and calls for a Pentagon audit instead.', evidence:'Voted Nay on the NDAA.' },
     ],
     owens: [
-      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Backs strict border enforcement and security infrastructure.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
-      { topic:'Parental Rights & Education', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'Supports parental rights in education and school choice.', evidence:'Voted Yea on the Parents Bill of Rights Act.' },
-      { topic:'Defense', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Supports military spending; cites his veteran and intelligence-adjacent background.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Backs strict border enforcement and supported the House Republican border-security package.',
+        evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
+      { topic:'Parental Rights & Education', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'As a House education subcommittee chair, champions school choice and parental rights.',
+        detail:'Chairs the Higher Education and Workforce Development Subcommittee and backed the Parents Bill of Rights.',
+        evidence:'Voted for the Parents Bill of Rights Act (2023).' },
+      { topic:'Defense', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support',
+        text:'Supports robust military funding and a strong national defense posture.',
+        evidence:'Voted for the annual National Defense Authorization Act.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support',
+        text:'Opposes new gun-control measures as a Second Amendment supporter.' },
+      { topic:'Taxes & Economy', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Backs extending the 2017 tax cuts and a pro-growth, low-tax economic agenda.' },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Holds a consistent pro-life voting record.' },
     ],
     boebert: [
       { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Opposes gun-control measures as a Second Amendment absolutist.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
@@ -16210,9 +16293,53 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { topic:'Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Opposes the surveillance state on civil-liberties grounds.', evidence:'Voted Nay on FISA reauthorization.' },
     ],
     maloy: [
-      { topic:'Energy & Resources', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Backs expanded energy and resource production for rural Utah.', evidence:'Voted Yea on the Lower Energy Costs Act (H.R. 1).' },
-      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports border security, a top issue for her district.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
-      { topic:'Federal Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Pushes for more state and local say over federal land decisions.', evidence:'Voted Yea on federal-lands management reform.' },
+      { topic:'Energy & Resources', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support',
+        text:'A natural-resources attorney who pushes expanded energy and resource production for rural Utah.',
+        evidence:'Voted for the Lower Energy Costs Act / H.R. 1 (2023).' },
+      { topic:'Federal Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'Pushes for more state and local say over federal land decisions.',
+        detail:'Serves on the House Natural Resources Committee, where she focuses on public-land and grazing issues central to her sprawling rural district.' },
+      { topic:'Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Brings a Western water-law background to Colorado River and Great Salt Lake policy.',
+        detail:'Worked on water and natural-resource law, including for a rural water conservancy district, before entering Congress.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Supports border security, a top issue across her district.',
+        evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
+      { topic:'Spending & Fiscal Restraint', icon:'💰', pos:'support', issueKey:'gov_balance', issueStance:'mixed',
+        text:'Identifies as a fiscal conservative focused on spending restraint and limited government.' },
+    ],
+    kennedy: [
+      { topic:'Healthcare Reform', icon:'💊', pos:'support', issueKey:'healthcare_market', issueStance:'support',
+        text:'A practicing physician who favors market-based, competition-driven healthcare over government-run coverage.',
+        detail:'Brings a family-medicine background and his record as a Utah state senator to debates over cost and price transparency.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Supports strict border enforcement and completing border-security infrastructure.' },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support',
+        text:'A constitutional conservative who prioritizes religious freedom and conscience protections.' },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'Backs school choice and parental rights in education.' },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Holds a strongly pro-life position consistent with his record in the Utah Legislature.',
+        detail:'Sponsored and supported pro-life and conscience measures as a Utah state senator before his election to Congress.' },
+      { topic:'Taxes & Spending', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Campaigns on limited government, lower taxes, and reining in federal spending.' },
+    ],
+    bmoore: [
+      { topic:'Fiscal Responsibility & Debt', icon:'💰', pos:'support', issueKey:'gov_balance', issueStance:'mixed',
+        text:'Has made the national debt a signature issue, co-sponsoring a bipartisan fiscal commission to confront it.',
+        detail:'Serves in House Republican leadership as Conference Vice Chair and sits on the tax-writing Ways and Means Committee.',
+        evidence:'Co-sponsored legislation to create a bipartisan debt commission.' },
+      { topic:'National Defense', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support',
+        text:'Strong supporter of defense funding, with Hill Air Force Base a major economic engine in his district.',
+        evidence:'Voted for the annual National Defense Authorization Act.' },
+      { topic:'Taxes & Growth', icon:'💵', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'From his Ways and Means seat, backs extending the 2017 tax cuts and pro-growth tax policy.' },
+      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Backs federal support for Great Salt Lake research and Western water infrastructure.',
+        detail:'Has worked on bipartisan saline-lake and water-monitoring efforts reflecting northern Utah\'s water concerns.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Supports stronger border enforcement and backed the House border-security package.',
+        evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
     ],
   };
 
@@ -16225,7 +16352,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // Transparency and Constituents-over-special-interests mandate principles.
   var FINANCE_INTEGRITY = {
     trump:32, cox:54, lee:48, curtis:68, massie:78, owens:58,
-    maloy:62, kennedy:55, bilzerian:35, gallrein:64
+    maloy:62, kennedy:55, bmoore:57, bilzerian:35, gallrein:64
   };
 
   // Best-effort emoji for a free-text key issue, pulled from the Alignment
@@ -16467,6 +16594,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     };
     var cards = stances.map(function(s) {
       var m = posMeta[s.pos] || posMeta.tracking;
+      // Optional second line of context — the "why" or scope behind the stance.
+      var det = s.detail ? '<p style="font-size:0.74rem;color:#7e98bc;line-height:1.6;margin:0.35rem 0 0;">' + s.detail + '</p>' : '';
       var ev = s.evidence ? '<div style="font-size:0.7rem;color:#7596c0;line-height:1.5;margin-top:0.4rem;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">Record:</span> ' + s.evidence + '</div>' : '';
       var src = s.source && s.source.url ? '<a href="' + s.source.url + '" target="_blank" rel="noopener" class="dd-source-chip" style="margin-top:0.45rem;">🔗 ' + s.source.label + '</a>' : '';
       // If the visitor selected the matching Alignment Tool position, tag the card
@@ -16488,6 +16617,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<span class="stance-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
         '</div>' +
         '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;">' + s.text + '</p>' +
+        det +
         ev +
         (src ? '<div>' + src + '</div>' : '') +
         youPill +
