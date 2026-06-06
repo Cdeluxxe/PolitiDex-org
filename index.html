@@ -8457,6 +8457,81 @@
     .ht-empty-steps b { color: #f5c842; font-weight: 700; margin-right: 0.3rem; }
     .ht-empty-steps .ht-step-arrow { color: rgba(255,255,255,0.15); }
 
+    /* ── Hot Topics: curated "This Cycle" spotlight topics ── */
+    .ht-topics-label {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      margin-bottom: 1.1rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: #f5c842;
+    }
+    .ht-topics-label::before, .ht-topics-label::after {
+      content: ''; height: 1px; flex: 1 1 auto; max-width: 4.5rem;
+      background: linear-gradient(90deg, transparent, rgba(245,200,66,0.5));
+    }
+    .ht-topics-label::after { background: linear-gradient(90deg, rgba(245,200,66,0.5), transparent); }
+    .ht-topics-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .ht-topic-card {
+      position: relative; display: flex; flex-direction: column;
+      background: linear-gradient(180deg, rgba(13,21,38,0.92), rgba(10,15,30,0.92));
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+      padding: 1.4rem 1.3rem 1.3rem; overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .ht-topic-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--tc, #c0152a), transparent 85%);
+    }
+    .ht-topic-card:hover {
+      transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--tc, #c0152a) 45%, transparent);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.45), 0 0 22px color-mix(in srgb, var(--tc, #c0152a) 14%, transparent);
+    }
+    .ht-topic-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
+    .ht-topic-icon {
+      width: 2.4rem; height: 2.4rem; flex-shrink: 0; border-radius: 0.65rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      background: color-mix(in srgb, var(--tc, #c0152a) 16%, transparent);
+      border: 1px solid color-mix(in srgb, var(--tc, #c0152a) 35%, transparent);
+    }
+    .ht-topic-tag {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--tc, #c0152a);
+    }
+    .ht-topic-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; line-height: 1.05;
+      letter-spacing: 0.04em; color: #fff; margin-bottom: 0.55rem;
+    }
+    .ht-topic-desc {
+      color: #9fb4d4; font-size: 0.84rem; line-height: 1.55;
+      margin-bottom: 1.1rem; flex-grow: 1;
+    }
+    .ht-topic-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+    .ht-topic-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #cbd9ec; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.6rem;
+      padding: 0.55rem 0.85rem; cursor: pointer; text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .ht-topic-btn:hover { color: #fff; border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.08); }
+    .ht-topic-btn-primary {
+      color: #fff; background: color-mix(in srgb, var(--tc, #c0152a) 22%, transparent);
+      border-color: color-mix(in srgb, var(--tc, #c0152a) 55%, transparent);
+    }
+    .ht-topic-btn-primary:hover {
+      background: color-mix(in srgb, var(--tc, #c0152a) 32%, transparent);
+      border-color: color-mix(in srgb, var(--tc, #c0152a) 75%, transparent);
+    }
+    @media (max-width: 860px) {
+      .ht-topics-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+    }
+
     /* ── Voter Education Hub ──────────────────────────── */
     .veh-card {
       background: rgba(13,21,38,0.9);
@@ -10607,6 +10682,51 @@
         </div>
         <h2 class="section-title font-display text-3xl sm:text-4xl md:text-5xl tracking-wider mb-2">SPOTLIGHT <span class="text-crimson-400">HOT TOPICS</span></h2>
         <p class="text-steel-300 font-body max-w-xl mx-auto text-sm leading-relaxed">Real claims submitted, debated, and voted on by the community — see what America is talking about right now.</p>
+      </div>
+
+      <!-- Curated spotlight topics — the issues defining Utah's 2026 cycle -->
+      <div class="ht-topics-label">This Cycle in Utah</div>
+      <div class="ht-topics-grid">
+
+        <div class="ht-topic-card" style="--tc:#f5c842;">
+          <div class="ht-topic-head">
+            <span class="ht-topic-icon">🏭</span>
+            <span class="ht-topic-tag">Energy · Growth</span>
+          </div>
+          <h3 class="ht-topic-title">Data Centers vs. the Grid</h3>
+          <p class="ht-topic-desc">A surge of new AI data centers is straining Utah's power supply and water — and raising questions about who pays for it. See where your candidates stand before you vote.</p>
+          <div class="ht-topic-actions">
+            <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">⚡ View Candidates</a>
+            <a class="ht-topic-btn" href="#my-politicians">＋ Add to My Team</a>
+          </div>
+        </div>
+
+        <div class="ht-topic-card" style="--tc:#4ade80;">
+          <div class="ht-topic-head">
+            <span class="ht-topic-icon">🏔️</span>
+            <span class="ht-topic-tag">Public Lands · Water</span>
+          </div>
+          <h3 class="ht-topic-title">Public Lands Showdown</h3>
+          <p class="ht-topic-desc">From federal land transfers to a shrinking Great Salt Lake, the fight over Utah's land and water is on the ballot. Know who's protecting it and who isn't.</p>
+          <div class="ht-topic-actions">
+            <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">🏔️ View Candidates</a>
+            <a class="ht-topic-btn" href="#voter-academy">📖 Learn More</a>
+          </div>
+        </div>
+
+        <div class="ht-topic-card" style="--tc:#60a5fa;">
+          <div class="ht-topic-head">
+            <span class="ht-topic-icon">🗳️</span>
+            <span class="ht-topic-tag">2026 Election</span>
+          </div>
+          <h3 class="ht-topic-title">Your 2026 Ballot</h3>
+          <p class="ht-topic-desc">Governor, Congress, and the Legislature are all up this November. Build your voting team now and walk into the booth knowing exactly who's earned your vote.</p>
+          <div class="ht-topic-actions">
+            <a class="ht-topic-btn ht-topic-btn-primary" href="#my-politicians">⭐ Build My Team</a>
+            <a class="ht-topic-btn" href="#election-countdown">📅 Key Dates</a>
+          </div>
+        </div>
+
       </div>
 
       <!-- Live community pulse -->
