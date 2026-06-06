@@ -8336,6 +8336,127 @@
       animation: pulse2 2s ease-in-out infinite;
     }
 
+    /* ── Hot Topics: live community pulse strip ──────────── */
+    .ht-stats {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 0.4rem 1.1rem; margin-bottom: 1.25rem; min-height: 1rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #5f7da6;
+    }
+    .ht-stats .ht-stat { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .ht-stats .ht-stat b { color: #fff; font-weight: 700; font-size: 0.92rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; }
+    .ht-stats .ht-stat-sep { color: rgba(255,255,255,0.12); }
+
+    /* ── Hot Topics: view filter tabs ────────────────────── */
+    .ht-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .ht-tab {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #7596c0; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 999px;
+      padding: 0.5rem 1.1rem; cursor: pointer; transition: all 0.22s ease;
+    }
+    .ht-tab:hover { color: #fff; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+    .ht-tab-active {
+      color: #fff; background: rgba(192,21,42,0.18);
+      border-color: rgba(192,21,42,0.5); box-shadow: 0 0 16px rgba(192,21,42,0.15);
+    }
+
+    /* ── Hot Topics: richer card internals ───────────────── */
+    .ht-card { display: flex; flex-direction: column; position: relative; min-height: 212px; }
+    .ht-card-hot { border-color: rgba(245,200,66,0.35); }
+    .ht-card-hot:hover { border-color: rgba(245,200,66,0.6); box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 22px rgba(245,200,66,0.12); }
+    .ht-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.7rem; }
+    .ht-card-idwrap { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .ht-rank {
+      font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; line-height: 1;
+      color: #f5c842; background: rgba(245,200,66,0.12);
+      border: 1px solid rgba(245,200,66,0.3); border-radius: 0.45rem;
+      padding: 0.2rem 0.4rem; flex-shrink: 0;
+    }
+    .ht-avatar {
+      width: 2rem; height: 2rem; border-radius: 0.5rem;
+      background: rgba(192,21,42,0.2); border: 1px solid rgba(192,21,42,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+    .ht-politician {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.06em;
+      color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ht-hot-flag {
+      position: absolute; top: -0.6rem; right: 0.85rem; z-index: 2;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #1a1208; background: linear-gradient(135deg, #f5c842, #f59e0b);
+      border-radius: 999px; padding: 0.15rem 0.55rem;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+    }
+    .ht-claim {
+      color: #9fb4d4; font-size: 0.82rem; line-height: 1.55; margin-bottom: 0.75rem;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden; flex-grow: 1;
+    }
+    .ht-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; min-width: 0; }
+    .ht-meta {
+      display: flex; align-items: center; gap: 0.3rem; min-width: 0;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+      letter-spacing: 0.04em; color: #5f7da6; white-space: nowrap; overflow: hidden;
+    }
+    .ht-meta .ht-by { color: #7596c0; overflow: hidden; text-overflow: ellipsis; }
+    .ht-meta .ht-dot { color: rgba(255,255,255,0.18); }
+    .ht-evidence {
+      display: inline-flex; align-items: center; gap: 0.25rem; flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #60a5fa;
+      border: 1px solid rgba(96,165,250,0.25); border-radius: 0.45rem;
+      padding: 0.2rem 0.45rem; text-decoration: none; transition: all 0.2s ease;
+    }
+    .ht-evidence:hover { color: #93c5fd; border-color: rgba(96,165,250,0.5); background: rgba(96,165,250,0.08); }
+    .ht-actions {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+      padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .ht-score { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; color: #7596c0; }
+    .ht-score-pos { color: #4ade80; }
+    .ht-score-neg { color: #f87171; }
+    .ht-vote-group { display: flex; align-items: center; gap: 0.4rem; }
+
+    /* ── Hot Topics: swipe hint ──────────────────────────── */
+    .ht-scroll-hint {
+      text-align: center; margin-top: 0.9rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: #3f5f8a;
+    }
+
+    /* ── Hot Topics: inviting empty state ────────────────── */
+    .ht-empty-card {
+      flex: 1 1 100%; width: 100%; text-align: center; padding: 2.75rem 1.5rem;
+      background: radial-gradient(circle at 50% 0%, rgba(192,21,42,0.12), transparent 70%), rgba(13,21,38,0.7);
+      border: 1px dashed rgba(192,21,42,0.35); border-radius: 1.25rem;
+    }
+    .ht-empty-icon { font-size: 2.6rem; margin-bottom: 0.5rem; }
+    .ht-empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.06em; color: #fff; margin-bottom: 0.5rem; }
+    .ht-empty-text { color: #9fb4d4; font-size: 0.9rem; line-height: 1.6; max-width: 30rem; margin: 0 auto 1.4rem; }
+    .ht-empty-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #fff; background: linear-gradient(135deg, #c0152a, #7c1020);
+      border: 1px solid rgba(245,200,66,0.3); border-radius: 0.85rem;
+      padding: 0.85rem 1.6rem; cursor: pointer; transition: all 0.22s ease;
+      box-shadow: 0 8px 24px rgba(192,21,42,0.3);
+    }
+    .ht-empty-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(192,21,42,0.4); }
+    .ht-empty-steps {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 0.5rem 0.9rem; margin-top: 1.6rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #5f7da6;
+    }
+    .ht-empty-steps b { color: #f5c842; font-weight: 700; margin-right: 0.3rem; }
+    .ht-empty-steps .ht-step-arrow { color: rgba(255,255,255,0.15); }
+
     /* ── Voter Education Hub ──────────────────────────── */
     .veh-card {
       background: rgba(13,21,38,0.9);
@@ -10479,14 +10600,25 @@
       <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-900/8 rounded-full blur-3xl"></div>
     </div>
     <div class="relative max-w-6xl mx-auto">
-      <div class="text-center mb-8">
+      <div class="text-center mb-6">
         <div class="inline-flex items-center gap-2 bg-crimson-600/12 border border-crimson-600/25 rounded-full px-4 py-1.5 mb-3">
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
           <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">Hot Topics · Live from the Community</span>
         </div>
         <h2 class="section-title font-display text-3xl sm:text-4xl md:text-5xl tracking-wider mb-2">SPOTLIGHT <span class="text-crimson-400">HOT TOPICS</span></h2>
-        <p class="text-steel-300 font-body max-w-xl mx-auto text-sm leading-relaxed">The latest claims submitted and voted on by the community — see what's trending right now.</p>
+        <p class="text-steel-300 font-body max-w-xl mx-auto text-sm leading-relaxed">Real claims submitted, debated, and voted on by the community — see what America is talking about right now.</p>
       </div>
+
+      <!-- Live community pulse -->
+      <div id="ht-stats" class="ht-stats" aria-live="polite"></div>
+
+      <!-- View filter tabs -->
+      <div class="ht-tabs" id="ht-tabs" role="tablist" aria-label="Sort hot topics">
+        <button type="button" class="ht-tab ht-tab-active" data-view="trending" role="tab" aria-selected="true">🔥 Trending</button>
+        <button type="button" class="ht-tab" data-view="newest" role="tab" aria-selected="false">🆕 Newest</button>
+        <button type="button" class="ht-tab" data-view="top" role="tab" aria-selected="false">👍 Top Voted</button>
+      </div>
+
       <div class="ht-carousel-wrap">
         <div class="ht-track" id="ht-track">
           <div class="ht-skeleton"></div>
@@ -10495,6 +10627,7 @@
           <div class="ht-skeleton"></div>
         </div>
       </div>
+      <div class="ht-scroll-hint" id="ht-scroll-hint" style="display:none;">← Swipe to explore more claims →</div>
     </div>
   </section>
 
@@ -31513,70 +31646,231 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return div.innerHTML;
     }
 
-    function _htRenderCard(doc) {
-      var d = doc.data();
-      var id = doc.id;
+    function _htGetDate(d) {
+      return d && d.createdAt && typeof d.createdAt.toDate === 'function' ? d.createdAt.toDate() : null;
+    }
+    function _htHoursAgo(date) {
+      if (!date) return 99999;
+      return (Date.now() - date.getTime()) / 3600000;
+    }
+    function _htTimeAgo(date) {
+      if (!date) return 'recently';
+      var s = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (s < 60) return 'just now';
+      var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+      var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+      var dd = Math.floor(h / 24); if (dd < 7) return dd + 'd ago';
+      var w = Math.floor(dd / 7); if (w < 5) return w + 'w ago';
+      var mo = Math.floor(dd / 30); if (mo < 12) return mo + 'mo ago';
+      return Math.floor(dd / 365) + 'y ago';
+    }
+    function _htNet(d) { return (d.likes || 0) - (d.dislikes || 0); }
+    function _htIsHot(d) { return _htNet(d) >= 5 || (d.likes || 0) >= 10; }
+    function _htTrendScore(d) {
+      var net = _htNet(d);
+      var eng = (d.likes || 0) + (d.dislikes || 0);
+      var recency = Math.max(0, 72 - _htHoursAgo(_htGetDate(d)));
+      return net * 4 + eng + recency;
+    }
+
+    var _htDocs = [];        // [{ id, d }]
+    var _htView = 'trending';
+
+    function _htFind(id) {
+      for (var i = 0; i < _htDocs.length; i++) { if (_htDocs[i].id === id) return _htDocs[i]; }
+      return null;
+    }
+
+    function _htSortedFor(view) {
+      var arr = _htDocs.slice();
+      if (view === 'newest') {
+        arr.sort(function(a, b) {
+          var da = _htGetDate(a.d), db2 = _htGetDate(b.d);
+          return (db2 ? db2.getTime() : 0) - (da ? da.getTime() : 0);
+        });
+      } else if (view === 'top') {
+        arr.sort(function(a, b) {
+          return _htNet(b.d) - _htNet(a.d) || (b.d.likes || 0) - (a.d.likes || 0);
+        });
+      } else {
+        arr.sort(function(a, b) { return _htTrendScore(b.d) - _htTrendScore(a.d); });
+      }
+      return arr;
+    }
+
+    function _htRenderCard(item, idx, view) {
+      var d = item.d;
+      var id = item.id;
       var verdictCls = _htVerdictClass(d.verdict);
       var verdictLabel = _htVerdictLabel(d.verdict);
       var likes = d.likes || 0;
       var dislikes = d.dislikes || 0;
+      var net = likes - dislikes;
       var politician = _htSanitize(d.politician || 'Unknown');
       var claimText = _htSanitize(d.claim || d.description || d.text || '');
+      var author = _htSanitize(d.displayName || 'Anonymous Patriot');
+      var when = _htTimeAgo(_htGetDate(d));
+      var hot = _htIsHot(d);
+      var showRank = (view === 'trending' || view === 'top') && idx < 3;
 
-      return '<div class="ht-card">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">' +
-          '<div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">' +
-            '<div style="width:2rem;height:2rem;border-radius:0.5rem;background:rgba(192,21,42,0.2);border:1px solid rgba(192,21,42,0.3);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;">🏛</div>' +
-            '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.06em;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + politician + '</span>' +
+      var scoreCls = net > 0 ? 'ht-score-pos' : (net < 0 ? 'ht-score-neg' : '');
+      var scoreTxt = (net > 0 ? '+' : '') + net;
+
+      // Evidence link — only render for plausible http(s) URLs.
+      var evidence = '';
+      var ev = (d.evidenceUrl || '').trim();
+      if (/^https?:\/\//i.test(ev)) {
+        evidence = '<a class="ht-evidence" href="' + _htSanitize(encodeURI(ev)) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" title="View the source evidence">🔗 Source</a>';
+      }
+
+      return '<div class="ht-card' + (hot ? ' ht-card-hot' : '') + '">' +
+          (hot ? '<span class="ht-hot-flag">🔥 Hot</span>' : '') +
+          '<div class="ht-card-top">' +
+            '<div class="ht-card-idwrap">' +
+              (showRank ? '<span class="ht-rank">#' + (idx + 1) + '</span>' : '') +
+              '<div class="ht-avatar">🏛</div>' +
+              '<span class="ht-politician">' + politician + '</span>' +
+            '</div>' +
+            '<span class="ht-card-verdict ' + verdictCls + '">' + verdictLabel + '</span>' +
           '</div>' +
-          '<span class="ht-card-verdict ' + verdictCls + '">' + verdictLabel + '</span>' +
-        '</div>' +
-        '<p style="color:#9fb4d4;font-size:0.82rem;line-height:1.55;margin-bottom:0.75rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">' + claimText + '</p>' +
-        '<div style="display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.05);">' +
-          '<button class="ht-vote-btn" onclick="htVote(\'' + id + '\',\'like\',this)" title="Helpful">👍 ' + likes + '</button>' +
-          '<button class="ht-vote-btn" onclick="htVote(\'' + id + '\',\'dislike\',this)" title="Not helpful">👎 ' + dislikes + '</button>' +
-        '</div>' +
-      '</div>';
+          '<p class="ht-claim">' + claimText + '</p>' +
+          '<div class="ht-card-foot">' +
+            '<span class="ht-meta"><span class="ht-by">by ' + author + '</span><span class="ht-dot">·</span><span>' + when + '</span></span>' +
+            evidence +
+          '</div>' +
+          '<div class="ht-actions">' +
+            '<span class="ht-score ' + scoreCls + '" id="ht-score-' + id + '">' + scoreTxt + '</span>' +
+            '<div class="ht-vote-group">' +
+              '<button class="ht-vote-btn" onclick="htVote(\'' + id + '\',\'like\',this)" title="Agree / helpful">👍 ' + likes + '</button>' +
+              '<button class="ht-vote-btn" onclick="htVote(\'' + id + '\',\'dislike\',this)" title="Disagree / not helpful">👎 ' + dislikes + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function _htEmptyHtml() {
+      return '<div class="ht-empty-card">' +
+          '<div class="ht-empty-icon">📣</div>' +
+          '<h3 class="ht-empty-title">Be the First Voice</h3>' +
+          '<p class="ht-empty-text">No claims are in the spotlight yet — this is where the community calls out promises kept and broken. Spot something? Submit the first claim and get the conversation started.</p>' +
+          '<button type="button" class="ht-empty-cta" onclick="(function(){var el=document.getElementById(\'submit\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}})()">＋ Submit the First Claim</button>' +
+          '<div class="ht-empty-steps">' +
+            '<span><b>1</b>Spot a promise</span>' +
+            '<span class="ht-step-arrow">→</span>' +
+            '<span><b>2</b>Add your evidence</span>' +
+            '<span class="ht-step-arrow">→</span>' +
+            '<span><b>3</b>The community votes</span>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function _htRenderStats() {
+      var el = document.getElementById('ht-stats');
+      if (!el) return;
+      if (!_htDocs.length) { el.innerHTML = ''; return; }
+      var votes = 0, pols = {};
+      _htDocs.forEach(function(it) {
+        votes += (it.d.likes || 0) + (it.d.dislikes || 0);
+        if (it.d.politician) pols[it.d.politician] = true;
+      });
+      var polCount = Object.keys(pols).length;
+      el.innerHTML =
+        '<span class="ht-stat">🔥 <b>' + _htDocs.length + '</b> claims in the spotlight</span>' +
+        '<span class="ht-stat-sep">|</span>' +
+        '<span class="ht-stat">🗳 <b>' + votes + '</b> community votes cast</span>' +
+        '<span class="ht-stat-sep">|</span>' +
+        '<span class="ht-stat">🏛 <b>' + polCount + '</b> politician' + (polCount === 1 ? '' : 's') + ' called out</span>';
+    }
+
+    function _htRenderView() {
+      var track = document.getElementById('ht-track');
+      var hint = document.getElementById('ht-scroll-hint');
+      if (!track) return;
+      if (!_htDocs.length) {
+        track.innerHTML = _htEmptyHtml();
+        if (hint) hint.style.display = 'none';
+        return;
+      }
+      var arr = _htSortedFor(_htView);
+      var html = '';
+      for (var i = 0; i < arr.length; i++) { html += _htRenderCard(arr[i], i, _htView); }
+      track.innerHTML = html;
+      if (hint) hint.style.display = arr.length > 2 ? 'block' : 'none';
+    }
+
+    function _htWireTabs() {
+      var tabs = document.querySelectorAll('#ht-tabs .ht-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', function() {
+          var view = this.getAttribute('data-view');
+          if (!view || view === _htView) return;
+          _htView = view;
+          for (var j = 0; j < tabs.length; j++) {
+            var active = tabs[j] === this;
+            tabs[j].classList.toggle('ht-tab-active', active);
+            tabs[j].setAttribute('aria-selected', active ? 'true' : 'false');
+          }
+          _htRenderView();
+        }.bind(tabs[i]));
+      }
     }
 
     function _htLoadClaims() {
       var track = document.getElementById('ht-track');
       if (!track) return;
+      _htWireTabs();
 
       db.collection('claims')
         .orderBy('createdAt', 'desc')
-        .limit(8)
+        .limit(30)
         .get()
         .then(function(snapshot) {
-          if (snapshot.empty) {
-            track.innerHTML = '<div class="ht-empty">No claims yet — be the first to submit one!</div>';
-            return;
-          }
-          var html = '';
-          snapshot.forEach(function(doc) {
-            html += _htRenderCard(doc);
-          });
-          track.innerHTML = html;
+          _htDocs = [];
+          snapshot.forEach(function(doc) { _htDocs.push({ id: doc.id, d: doc.data() }); });
+          _htRenderStats();
+          _htRenderView();
         })
         .catch(function(err) {
           console.warn('Hot Topics load error:', err);
-          track.innerHTML = '<div class="ht-empty">Unable to load hot topics right now.</div>';
+          track.innerHTML = '<div class="ht-empty">Unable to load hot topics right now — please refresh in a moment.</div>';
         });
+    }
+
+    function _htShowSignin() {
+      var t = document.getElementById('claim-signin-toast');
+      if (!t) return;
+      t.classList.add('visible');
+      setTimeout(function() { t.classList.remove('visible'); }, 5000);
     }
 
     window.htVote = function(claimId, voteType, btn) {
       var user = typeof auth !== 'undefined' ? auth.currentUser : null;
-      if (!user) return;
+      if (!user || user.isAnonymous) { _htShowSignin(); return; }
       var ref = db.collection('claims').doc(claimId);
       var field = voteType === 'like' ? 'likes' : 'dislikes';
       ref.update(
         Object.fromEntries ? Object.fromEntries([[field, firebase.firestore.FieldValue.increment(1)]]) :
         (function() { var o = {}; o[field] = firebase.firestore.FieldValue.increment(1); return o; })()
       ).then(function() {
+        var item = _htFind(claimId);
+        if (item) {
+          if (voteType === 'like') item.d.likes = (item.d.likes || 0) + 1;
+          else item.d.dislikes = (item.d.dislikes || 0) + 1;
+        }
         if (btn) {
+          var count = item ? (voteType === 'like' ? item.d.likes : item.d.dislikes) : '';
+          btn.textContent = (voteType === 'like' ? '👍 ' : '👎 ') + count;
           btn.classList.add(voteType === 'like' ? 'ht-voted-up' : 'ht-voted-down');
           btn.style.pointerEvents = 'none';
         }
+        var sc = document.getElementById('ht-score-' + claimId);
+        if (sc && item) {
+          var net = (item.d.likes || 0) - (item.d.dislikes || 0);
+          sc.textContent = (net > 0 ? '+' : '') + net;
+          sc.className = 'ht-score ' + (net > 0 ? 'ht-score-pos' : (net < 0 ? 'ht-score-neg' : '')) ;
+          sc.id = 'ht-score-' + claimId;
+        }
+        _htRenderStats();
       }).catch(function(e) { console.warn('HT vote failed:', e); });
     };
 
