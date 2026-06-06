@@ -1433,6 +1433,51 @@
     .cmp-col-h { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0; margin-bottom: 0.18rem; }
     .cmp-col-v { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem; color: #cbd9ec; line-height: 1.25; }
     .cmp-col-you .cmp-col-v { color: #c4b5fd; }
+    /* ── Scannable "You ↔ Them" per-issue row (clearer redesign) ──────── */
+    .cmp-vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 0.4rem; }
+    .cmp-side {
+      display: flex; flex-direction: column; gap: 0.32rem; min-width: 0;
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.6rem; padding: 0.5rem 0.55rem;
+    }
+    .cmp-side-you { background: rgba(139,92,246,0.07); border-color: rgba(139,92,246,0.22); }
+    .cmp-side-h {
+      display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cmp-side-you .cmp-side-h { color: #a78bfa; }
+    .cmp-chip {
+      display: inline-flex; align-items: center; gap: 0.28rem; align-self: flex-start;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem;
+      letter-spacing: 0.02em; padding: 0.2rem 0.5rem; border-radius: 0.5rem;
+      border: 1px solid; white-space: nowrap; line-height: 1.1;
+    }
+    .cmp-chip.lvl-strong   { background: rgba(124,58,237,0.18); color: #c4b5fd; border-color: rgba(124,58,237,0.45); }
+    .cmp-chip.lvl-moderate { background: rgba(139,92,246,0.12); color: #b9a4f5; border-color: rgba(139,92,246,0.3); }
+    .cmp-chip.lvl-opposed  { background: rgba(248,113,113,0.14); color: #f89b9b; border-color: rgba(248,113,113,0.35); }
+    .cmp-chip.pol-support  { background: rgba(74,222,128,0.14);  color: #4ade80; border-color: rgba(74,222,128,0.35); }
+    .cmp-chip.pol-oppose   { background: rgba(248,113,113,0.14); color: #f87171; border-color: rgba(248,113,113,0.35); }
+    .cmp-chip.pol-mixed    { background: rgba(96,165,250,0.14);  color: #60a5fa; border-color: rgba(96,165,250,0.35); }
+    .cmp-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; color: #8aa3c4; line-height: 1.2; }
+    /* Center connector that states the verdict at a glance: = / ≈ / ≠ */
+    .cmp-vs-link {
+      align-self: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 999px; font-size: 0.95rem; font-weight: 800;
+      font-family: 'Bebas Neue', sans-serif; border: 1px solid;
+    }
+    .cmp-vs-link.cmp-match    { background: rgba(74,222,128,0.16);  color: #4ade80; border-color: rgba(74,222,128,0.45); }
+    .cmp-vs-link.cmp-partial  { background: rgba(245,200,66,0.16);  color: #f5c842; border-color: rgba(245,200,66,0.45); }
+    .cmp-vs-link.cmp-mismatch { background: rgba(248,113,113,0.16); color: #f87171; border-color: rgba(248,113,113,0.45); }
+    .cmp-issue-note {
+      font-size: 0.7rem; color: #8aa3c4; line-height: 1.5; margin: 0.5rem 0 0;
+      padding-top: 0.45rem; border-top: 1px dashed rgba(159,180,212,0.14);
+    }
+    .cmp-issue-note b { color: #cbd9ec; font-weight: 700; }
+    @media (max-width: 420px) {
+      .cmp-vs { grid-template-columns: 1fr; }
+      .cmp-vs-link { width: 100%; height: 20px; border-radius: 0.5rem; font-size: 0.8rem; }
+    }
     .cmp-researching { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
     .cmp-research-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; color: #9fb4d4; background: rgba(159,180,212,0.1); border: 1px solid rgba(159,180,212,0.2); border-radius: 999px; padding: 0.12rem 0.5rem; }
     .cmp-empty { background: rgba(139,92,246,0.06); border: 1px dashed rgba(139,92,246,0.32); border-radius: 0.85rem; padding: 0.95rem 1rem; }
@@ -16239,9 +16284,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._issueVerdict = _issueVerdict;
 
   var _CMP_VERDICT_META = {
-    match:    { cls:'cmp-match',    ico:'✓', label:'Aligned'  },
-    partial:  { cls:'cmp-partial',  ico:'~', label:'Partial'  },
-    mismatch: { cls:'cmp-mismatch', ico:'✗', label:'Differs'  }
+    match:    { cls:'cmp-match',    ico:'✓', link:'=', label:'Match',    full:'Match'         },
+    partial:  { cls:'cmp-partial',  ico:'~', link:'≈', label:'Partial',  full:'Partial Match' },
+    mismatch: { cls:'cmp-mismatch', ico:'✗', link:'≠', label:'Mismatch', full:'Mismatch'      }
   };
   function _userStanceLabel(intensity) {
     if (intensity === 'strong')  return 'Strongly for';
@@ -16252,6 +16297,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (stance === 'support') return 'Supports';
     if (stance === 'oppose')  return 'Opposes';
     return 'Mixed record';
+  }
+  // The visitor's saved Alignment Tool intensity, surfaced as a clear badge:
+  // Strong / Moderate / Opposed — exactly the choices offered in the tool.
+  function _userIntensityMeta(intensity) {
+    if (intensity === 'strong')  return { cls:'lvl-strong',   icon:'💪', label:'Strong',   sub:'You strongly agree' };
+    if (intensity === 'opposed') return { cls:'lvl-opposed',  icon:'🚫', label:'Opposed',  sub:'You oppose this' };
+    return                              { cls:'lvl-moderate', icon:'👍', label:'Moderate', sub:'You agree' };
+  }
+  function _polStanceMeta(stance) {
+    if (stance === 'support') return { cls:'pol-support', icon:'✓', label:'Supports', sub:'Backs this position' };
+    if (stance === 'oppose')  return { cls:'pol-oppose',  icon:'✗', label:'Opposes',  sub:'Rejects this position' };
+    return                           { cls:'pol-mixed',   icon:'~', label:'Mixed',     sub:'Has a mixed record' };
   }
 
   // "How You Compare" — the per-issue linkage between a visitor's saved Alignment
@@ -16311,7 +16368,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<span class="cmp-count ' + kind + '">' + n + ' ' + label + '</span>';
     };
     var matchLine = documented.length
-      ? 'You line up with ' + first + ' on <b style="color:#4ade80;">' + nMatch + ' of ' + documented.length + '</b> documented issue' + (documented.length > 1 ? 's' : '') + '.'
+      ? 'You line up with ' + first + ' on <b style="color:#4ade80;">' + nMatch + ' of ' + documented.length + '</b> shared issue' + (documented.length > 1 ? 's' : '') + '.'
       : 'None of your selected issues have a documented position for ' + first + ' yet.';
 
     var summary =
@@ -16323,9 +16380,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div class="cmp-summary-head">You vs. ' + name + '</div>' +
           '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">' + matchLine + '</p>' +
           (documented.length ? '<div class="cmp-counts">' +
-            countChip(nMatch, 'cmp-match', 'aligned') +
+            countChip(nMatch, 'cmp-match', 'match' + (nMatch === 1 ? '' : 'es')) +
             countChip(nPartial, 'cmp-partial', 'partial') +
-            countChip(nMismatch, 'cmp-mismatch', 'differ') +
+            countChip(nMismatch, 'cmp-mismatch', 'mismatch' + (nMismatch === 1 ? '' : 'es')) +
           '</div>' : '') +
         '</div>' +
       '</div>';
@@ -16334,15 +16391,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var m = _CMP_VERDICT_META[r.verdict];
       var icon = (r.def.label || '').split(' ')[0] || '🎯';
       var labelText = (r.def.label || '').split(' ').slice(1).join(' ') || r.def.label;
+      var youM = _userIntensityMeta(r.intensity);
+      var polM = _polStanceMeta(r.pos.stance);
+      // The politician's own one-line stance, surfaced right in the comparison so
+      // the reader sees WHY it's a match without scrolling to Key Issue Stances.
+      var note = r.pos.text
+        ? '<p class="cmp-issue-note"><b>' + first + ':</b> ' + r.pos.text + '</p>'
+        : '';
       return '<div class="cmp-issue ' + m.cls + '">' +
         '<div class="cmp-issue-top">' +
           '<span class="cmp-issue-name">' + icon + ' ' + labelText + '</span>' +
-          '<span class="cmp-verdict ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+          '<span class="cmp-verdict ' + m.cls + '">' + m.ico + ' ' + m.full + '</span>' +
         '</div>' +
-        '<div class="cmp-issue-cols">' +
-          '<div class="cmp-col cmp-col-you"><span class="cmp-col-h">Your view</span><span class="cmp-col-v">' + _userStanceLabel(r.intensity) + '</span></div>' +
-          '<div class="cmp-col cmp-col-pol"><span class="cmp-col-h">' + first + '</span><span class="cmp-col-v">' + _polStanceLabel(r.pos.stance) + '</span></div>' +
+        '<div class="cmp-vs">' +
+          '<div class="cmp-side cmp-side-you">' +
+            '<span class="cmp-side-h">You picked</span>' +
+            '<span class="cmp-chip ' + youM.cls + '">' + youM.icon + ' ' + youM.label + '</span>' +
+            '<span class="cmp-sub">' + youM.sub + '</span>' +
+          '</div>' +
+          '<div class="cmp-vs-link ' + m.cls + '" title="' + m.full + '">' + m.link + '</div>' +
+          '<div class="cmp-side cmp-side-pol">' +
+            '<span class="cmp-side-h">' + first + '</span>' +
+            '<span class="cmp-chip ' + polM.cls + '">' + polM.icon + ' ' + polM.label + '</span>' +
+            '<span class="cmp-sub">' + polM.sub + '</span>' +
+          '</div>' +
         '</div>' +
+        note +
       '</div>';
     }).join('');
 
@@ -16402,7 +16476,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
         var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos || 'mixed') : 'partial';
         var vm = _CMP_VERDICT_META[verdict] || _CMP_VERDICT_META.partial;
-        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' You: ' + _userStanceLabel(intensity) + ' · ' + vm.label + '</span>';
+        var youIM = (typeof _userIntensityMeta === 'function') ? _userIntensityMeta(intensity) : { label: _userStanceLabel(intensity) };
+        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' You: ' + youIM.label + ' · ' + vm.full + '</span>';
       }
       return '<div class="stance-card">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
