@@ -26910,8 +26910,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ctx = ctx || {};
 
       function _renderOfficeAccordion(groupKey) {
-        var officePids = officeGroups[groupKey];
-        if (!officePids || officePids.length === 0) return '';
+        var officePids = officeGroups[groupKey] || [];
         var tDef = _RELEVANT_OFFICE_DEFS[groupKey];
         if (!tDef) return '';
         var isOfficeOpen = _browseGroupState['relevant-office-' + groupKey] !== undefined
@@ -26935,7 +26934,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += '</button>';
         h += '<div class="browse-type-body"><div class="browse-type-inner">';
         
-        if (groupKey === 'state_senator' || groupKey === 'state_rep') {
+        if (officePids.length === 0) {
+          h += '<div class="text-center py-6 px-4 bg-navy-950/20 border border-white/5 rounded-xl m-2">' +
+            '<p class="font-condensed text-xs text-steel-400 m-0">No politicians are currently listed in our database for this specific district/office.</p>' +
+            '</div>';
+        } else if (groupKey === 'state_senator' || groupKey === 'state_rep') {
           h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
         } else {
           h += _renderRelevantStatusSplit(officePids);
@@ -26954,6 +26957,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (pidsForOffice && pidsForOffice.length) {
             levelTotal += pidsForOffice.length;
             inner += _renderOfficeAccordion(ok);
+          } else {
+            // Include empty accordions only for district offices (representative, state_senator, state_rep)
+            // to show a clear and helpful empty message instead of just omitting them.
+            if (ok === 'representative' || ok === 'state_senator' || ok === 'state_rep') {
+              inner += _renderOfficeAccordion(ok);
+            }
           }
         });
         // Append any extra content for this level (e.g. the chamber explorer),
@@ -27124,7 +27133,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var senateDist = null;
       var lowerDist  = null;
 
-      if (krData && (stateName === 'Utah' || krData.matched)) {
+      // Only use the Key Races specific districts if they were explicitly chosen OR if the active area matches the user's city/county exactly
+      var explicit = false;
+      try { explicit = !!(localStorage.getItem(KR_LOCATION_KEY) && KEY_RACES_BY_LOCATION[localStorage.getItem(KR_LOCATION_KEY)]); } catch (e) {}
+      var matched = explicit || (_krInferLocation() !== '');
+      var isCityExact = krData && (userCounty.toLowerCase() === krData.city.toLowerCase() || (window._currentVoterLocation && window._currentVoterLocation.city && (window._currentVoterLocation.city.toLowerCase() === krData.city.toLowerCase())));
+      var useSpecificDistricts = krData && (explicit || (matched && isCityExact));
+
+      if (useSpecificDistricts) {
         houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
         senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
         lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
@@ -27260,29 +27276,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // Header line: show user’s specific districts
       if (relevantLocText) {
-        if (krData && (stateName === 'Utah' || krData.matched)) {
-          var areaName = (krData.city && krData.county) ? (krData.city + ', ' + krData.county) : krData.label;
-          var distBits = [];
-          if (lowerDist)  distBits.push('House District ' + lowerDist);
-          if (senateDist) distBits.push('Senate District ' + senateDist);
-          if (houseDist) {
-            var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
-            distBits.push('U.S. House ' + formattedHouse);
-          }
-          var distStr = distBits.join(' • ');
-          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
-            (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
-            ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
-        } else {
-          var loc = window._currentVoterLocation || {};
-          var areaName = (loc.city && loc.county) ? (loc.city + ', ' + loc.county) : (loc.county || loc.city || loc.state || 'your area');
-          var distBits = [];
-          if (loc.district) distBits.push('U.S. House District ' + loc.district);
-          var distStr = distBits.join(' • ');
-          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
-            (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
-            ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
+        var loc = window._currentVoterLocation || {};
+        var areaName = (loc.city && loc.county && loc.city !== loc.county) ? (loc.city + ', ' + loc.county) : (loc.county || loc.city || (krData ? krData.label : '') || loc.state || 'your area');
+        var distBits = [];
+        if (lowerDist)  distBits.push('House District ' + lowerDist);
+        if (senateDist) distBits.push('Senate District ' + senateDist);
+        if (houseDist) {
+          var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
+          distBits.push('U.S. House ' + formattedHouse);
         }
+        var distStr = distBits.join(' • ');
+        relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
+          (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
+          ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
       var ctx = {
@@ -28393,10 +28399,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var loc = window._currentVoterLocation || {};
       var county = ((window._vhCurrentCounty || loc.county || '') + '').toLowerCase();
       var city = ((loc.city || '') + '').toLowerCase();
-      if (county.indexOf('davis') !== -1 || city === 'layton') return 'davis';
-      if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'orem') return 'utah_co';
-      if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1) return 'washington';
-      if (county.indexOf('weber') !== -1 || city === 'ogden') return 'weber';
+      if (county.indexOf('davis') !== -1 || city === 'layton' || city === 'bountiful' || city === 'kaysville' || city === 'farmington' || city === 'clearfield' || city === 'centerville' || city === 'woods cross' || city === 'clinton' || city === 'syracuse' || city === 'west point') return 'davis';
+      if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'orem' || city === 'lehi' || city === 'american fork' || city === 'spanish fork' || city === 'springville' || city === 'pleasant grove' || city === 'saratoga springs' || city === 'payson') return 'utah_co';
+      if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1 || city === 'hurricane' || city === 'washington' || city === 'santa clara' || city === 'ivins') return 'washington';
+      if (county.indexOf('weber') !== -1 || city === 'ogden' || city === 'roy' || city === 'north ogden' || city === 'south ogden' || city === 'west haven') return 'weber';
       return '';
     }
 
