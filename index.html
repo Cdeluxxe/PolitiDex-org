@@ -10382,6 +10382,91 @@
       /* Hide only the small "FREE" chip so the core label still reads. */
       #nav-auth-desktop button > span[style*="border-radius:4px"] { display: none !important; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE UX REFINEMENT PASS — politician cards · All Politicians filter
+       bar · modals/profiles · buttons · Team Builder. Phone-only (≤768px),
+       appended last so it reliably wins the cascade. Adds no markup and no
+       JS; the dark patriotic styling is preserved throughout. Targets the
+       reported issues: long/skinny cards, hard-to-read text, small or badly
+       spaced buttons, an over-eager filter toolbar, and cramped modal /
+       Team Builder layouts on phones.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · POLITICIAN CARDS — full width, legible, never skinny ──────
+         Force a single roomy column and give the name room to wrap so even
+         long double-barrelled names read cleanly instead of clipping. */
+      .pm-sub-cards { grid-template-columns: 1fr !important; gap: 0.8rem !important; }
+      .pm-card-inner { padding: 1.05rem 1.1rem 1rem !important; gap: 0.8rem !important; }
+      .pm-card-photo { width: 50px !important; height: 50px !important; }
+      .pm-card-name {
+        font-size: 1.18rem !important;
+        line-height: 1.16 !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .pm-card-office { overflow-wrap: anywhere; }
+      /* Profile / Compare actions: full thumb-sized targets, even spacing. */
+      .pm-card-actions { gap: 0.55rem !important; padding-top: 0.9rem !important; }
+      .pm-btn-profile, .pm-btn-compare {
+        flex: 1 1 0 !important;
+        min-height: 48px !important;
+        font-size: 0.72rem !important;
+      }
+      /* Directory / leaderboard cards stay roomy and single column too. */
+      .dir-card { padding: 1.1rem !important; }
+
+      /* ── 2 · ALL POLITICIANS / PROMISE TRACKER FILTER BAR — not sticky ──
+         Keep the toolbar in normal document flow so it scrolls away with the
+         page instead of clinging to the top and covering results. Neutralise
+         the collapsed "stuck" variant entirely and lighten its visual weight
+         so it no longer reads as a heavy floating bar on phones. */
+      .browse-toolbar,
+      .browse-toolbar.is-stuck,
+      .browse-toolbar.is-stuck:not(.is-expanded),
+      .browse-toolbar.is-stuck.is-expanded {
+        position: static !important;
+        top: auto !important;
+        z-index: 1 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        box-shadow: 0 8px 26px rgba(0,0,0,0.42) !important;
+      }
+
+      /* ── 3 · MODALS & PROFILE VIEWS — no overflow, comfortable padding ──
+         Long links, sources and stance text wrap instead of forcing a
+         horizontal scroll, and media can never push past the panel edge. */
+      #modal-body { padding: 1rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important; }
+      #modal-body, #modal-body p, #modal-body a, #modal-body li, #modal-body td,
+      .modal-section, .modal-section-sub {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      #modal-body img, #modal-body table, #modal-body pre { max-width: 100% !important; }
+      .modal-section { margin-top: 1.1rem !important; padding-top: 1.1rem !important; }
+      .modal-section-title { font-size: 0.98rem !important; }
+
+      /* ── 4 · BUTTONS — consistent, thumb-friendly tap targets ──────────── */
+      .kr-action-btn, .myteam-add-btn, .myteam-remove-btn,
+      .chub-add-btn, .rh-reset-btn { min-height: 46px !important; }
+
+      /* ── 5 · TEAM BUILDER / MY POLITICIANS — cleaner, less cramped ─────── */
+      .myteam-slots-grid { gap: 0.7rem !important; }
+      .myteam-slot { padding: 1rem 0.85rem 0.9rem !important; }
+      .myteam-card { padding: 1.05rem !important; }
+      .myteam-add-btn { font-size: 0.78rem !important; padding: 0.65rem 1.1rem !important; }
+    }
+
+    @media (max-width: 400px) {
+      /* Narrowest phones: keep both card actions side-by-side (shorter cards)
+         while shrinking type just enough that the labels never wrap or clip. */
+      .pm-btn-profile, .pm-btn-compare {
+        font-size: 0.66rem !important;
+        padding-left: 0.3rem !important;
+        padding-right: 0.3rem !important;
+      }
+      .pm-card-name { font-size: 1.08rem !important; }
+    }
   </style>
 
       </head>
