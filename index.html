@@ -10137,6 +10137,7 @@
           <!-- Navigation order: Expand Database positioned immediately after All Politicians -->
           <!-- ADMIN-ONLY entry point — hidden by default, revealed by the admin gate script. -->
           <a href="#database-expansion" data-admin-only class="flex items-center gap-1.5 bg-crimson-600/30 hover:bg-crimson-600/50 border border-crimson-500/40 hover:border-crimson-400/70 text-crimson-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="display:none; white-space:nowrap;">🔄 Expand Database</a>
+          <a href="#politician-manager" data-admin-only class="flex items-center gap-1.5 bg-crimson-600/30 hover:bg-crimson-600/50 border border-crimson-500/40 hover:border-crimson-400/70 text-crimson-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="display:none; white-space:nowrap;">🛠 Manage Politicians</a>
         </div>
       </div>
 
@@ -10192,6 +10193,7 @@
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⚖️ Compare</a>
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
       <a href="#database-expansion" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🔄 Expand Database</a>
+      <a href="#politician-manager" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🛠 Manage Politicians</a>
       <!-- Secondary tools -->
       <a href="#voter-academy" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎓 Education</a>
       <a href="#agenda" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
@@ -12395,6 +12397,472 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
   </section>
 
+  <!-- ═══════════════════════ ADMIN: POLITICIAN MANAGER ═══════════════════════
+       Dedicated, admin-only tool to search, view, edit, and delete politician
+       records directly in the live Firestore "politicians" collection.
+
+       • Hidden by default (display:none). Revealed ONLY for the admin account by
+         the existing admin-gate script (it now toggles this section too).
+       • Intentionally separate from the Database Expansion / Bulk Import area so
+         day-to-day clean-up never goes through the import flow (which is what
+         tends to create duplicates).
+       • All reads come from the in-memory PROFILES mirror (loaded from Firestore
+         on page load); all writes go straight back to Firestore.
+       ───────────────────────────────────────────────────────────────────────── -->
+  <section id="politician-manager" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(24,8,14,0.92) 0%,rgba(5,8,20,0.95) 100%); scroll-margin-top:80px;">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- ── Header ────────────────────────────────────────── -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 bg-crimson-600/25 border border-crimson-500/50 rounded-full px-4 py-1.5 mb-4" style="box-shadow:0 0 18px rgba(220,38,38,0.35);">
+          <span aria-hidden="true">🔒</span>
+          <span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-200">ADMIN: Politician Manager</span>
+        </div>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">POLITICIAN <span class="text-crimson-400">MANAGER</span></h2>
+        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+          Search, review, edit, and clean up the live politician database. Changes here write directly to Firestore — use this to fix records and remove duplicates without re-importing.
+        </p>
+      </div>
+
+      <!-- ── Toolbar: search + filter + reload + counts ──────── -->
+      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
+            <input id="pm-search" type="text" placeholder="Search by name, office, or state…" oninput="window.pmRenderList && window.pmRenderList()" autocomplete="off"
+              class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="pm-filter" onchange="window.pmRenderList && window.pmRenderList()"
+              class="bg-navy-950 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+              <option value="all">All records</option>
+              <option value="full">Full profiles</option>
+              <option value="stub">Empty stubs</option>
+            </select>
+            <button type="button" onclick="window.pmReload && window.pmReload()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🔄</span><span id="pm-reload-label">Reload</span>
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center flex-wrap gap-x-5 gap-y-1 mt-3 text-xs font-condensed tracking-widest uppercase text-steel-400">
+          <span>Total: <span id="pm-count-total" class="text-white font-700">0</span></span>
+          <span>Full: <span id="pm-count-full" class="text-green-400 font-700">0</span></span>
+          <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
+        </div>
+      </div>
+
+      <!-- ── Two-column workspace: list (left) + editor (right) ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <!-- List -->
+        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-3 md:p-4" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <div id="pm-list" class="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+            <!-- politician rows injected here -->
+          </div>
+          <div id="pm-list-empty" class="hidden text-center text-steel-400 font-body text-sm py-10">No politicians match your search.</div>
+        </div>
+
+        <!-- Editor -->
+        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-4 md:p-5 lg:sticky lg:top-24" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <div id="pm-editor-empty" class="text-center text-steel-400 font-body text-sm py-16">
+            Select a politician from the list to view and edit their record.
+          </div>
+          <div id="pm-editor" class="hidden">
+            <!-- editor form injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ════════════════════════════════════════════════════════════
+    // ADMIN: POLITICIAN MANAGER CONTROLLER
+    //
+    // Reads from the global PROFILES object (the live mirror of the
+    // Firestore "politicians" collection loaded at page load) and writes
+    // changes straight back to Firestore. Kept independent of the bulk
+    // import flow so edits/deletes never go through the importer.
+    // ════════════════════════════════════════════════════════════
+    (function () {
+      var _pmSelectedId = null;
+
+      // Friendly labels for known stance keys; unknown keys fall back to a
+      // prettified version of the key itself.
+      var PM_STANCE_LABELS = {
+        border: 'Border Security',
+        debt: 'Debt & Fiscal Policy',
+        gun: 'Gun Rights & Safety',
+        termLimits: 'Term Limits',
+        campaign: 'Campaign Finance',
+        dataCenters: 'Data Centers',
+        healthcare: 'Healthcare',
+        audit: 'Fed Audit'
+      };
+
+      function _pmEsc(s) {
+        s = (s == null ? '' : String(s));
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+      function _pmEscAttr(s) {
+        return _pmEsc(s).replace(/"/g, '&quot;');
+      }
+      // ids are cleaned to [a-z0-9_] on import, but escape defensively so the
+      // generated onclick handlers can never break out of their quotes.
+      function _pmJs(s) {
+        return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      }
+      function _pmPretty(key) {
+        return String(key)
+          .replace(/([a-z])([A-Z])/g, '$1 $2')
+          .replace(/[_-]+/g, ' ')
+          .replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+
+      // A stance value is "placeholder" (i.e. not real content) when it's blank,
+      // says nothing, or is one of the generic seeds used by the importer.
+      function _pmIsPlaceholderStance(v) {
+        if (v == null) return true;
+        var t = String(v).trim().toLowerCase();
+        if (!t) return true;
+        if (t === 'no stated position') return true;
+        if (t.indexOf('stance on ') === 0) return true;
+        return false;
+      }
+
+      // A record is a "stub" when it has no real, human-entered content:
+      // no bio, no key issues, and no non-placeholder stances.
+      function _pmIsStub(p) {
+        if (!p) return true;
+        if (p.bio && String(p.bio).trim()) return false;
+        if (Array.isArray(p.keyIssues) && p.keyIssues.length) return false;
+        if (p.stances && typeof p.stances === 'object') {
+          for (var k in p.stances) {
+            if (Object.prototype.hasOwnProperty.call(p.stances, k) &&
+                !_pmIsPlaceholderStance(p.stances[k])) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      function _pmStatusBadge(p) {
+        if (_pmIsStub(p)) {
+          return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/40">Stub</span>';
+        }
+        return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-green-300 bg-green-500/10 border border-green-500/40">Full</span>';
+      }
+
+      function _pmAll() {
+        var out = [];
+        if (typeof PROFILES === 'object' && PROFILES) {
+          for (var id in PROFILES) {
+            if (Object.prototype.hasOwnProperty.call(PROFILES, id)) {
+              out.push({ id: id, p: PROFILES[id] || {} });
+            }
+          }
+        }
+        out.sort(function (a, b) {
+          var an = (a.p.name || a.id).toLowerCase();
+          var bn = (b.p.name || b.id).toLowerCase();
+          return an < bn ? -1 : (an > bn ? 1 : 0);
+        });
+        return out;
+      }
+
+      window.pmRenderList = function () {
+        var listEl = document.getElementById('pm-list');
+        var emptyEl = document.getElementById('pm-list-empty');
+        if (!listEl) return;
+
+        var all = _pmAll();
+        var fullCount = 0, stubCount = 0;
+        all.forEach(function (row) { _pmIsStub(row.p) ? stubCount++ : fullCount++; });
+
+        var totalEl = document.getElementById('pm-count-total');
+        var fEl = document.getElementById('pm-count-full');
+        var sEl = document.getElementById('pm-count-stub');
+        if (totalEl) totalEl.textContent = all.length;
+        if (fEl) fEl.textContent = fullCount;
+        if (sEl) sEl.textContent = stubCount;
+
+        var qEl = document.getElementById('pm-search');
+        var q = (qEl && qEl.value ? qEl.value : '').trim().toLowerCase();
+        var filterEl = document.getElementById('pm-filter');
+        var filter = filterEl ? filterEl.value : 'all';
+
+        var rows = all.filter(function (row) {
+          var p = row.p;
+          if (filter === 'full' && _pmIsStub(p)) return false;
+          if (filter === 'stub' && !_pmIsStub(p)) return false;
+          if (!q) return true;
+          var hay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), row.id].join(' ').toLowerCase();
+          return hay.indexOf(q) !== -1;
+        });
+
+        if (all.length === 0) {
+          listEl.innerHTML = '<div class="text-center text-steel-400 font-body text-sm py-10">Database not loaded yet. Click <strong>Reload</strong> to fetch politicians.</div>';
+          if (emptyEl) emptyEl.classList.add('hidden');
+          return;
+        }
+
+        if (rows.length === 0) {
+          listEl.innerHTML = '';
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          return;
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+
+        listEl.innerHTML = rows.map(function (row) {
+          var p = row.p;
+          var icon = p.icon || '🏛';
+          var sub = [p.office || '', p.state || ''].filter(Boolean).join(' · ') || '—';
+          var active = (row.id === _pmSelectedId)
+            ? ' ring-2 ring-crimson-400/70 border-crimson-400/50'
+            : '';
+          return '' +
+            '<button type="button" onclick="window.pmSelect(\'' + _pmJs(row.id) + '\')" ' +
+              'class="w-full text-left flex items-center gap-3 bg-navy-900/60 hover:bg-navy-700/70 border border-white/5 hover:border-crimson-400/40 rounded-xl px-3 py-2.5 transition-all' + active + '">' +
+              '<span class="text-xl flex-shrink-0" aria-hidden="true">' + _pmEsc(icon) + '</span>' +
+              '<span class="min-w-0 flex-1">' +
+                '<span class="block text-sm font-700 text-white truncate">' + _pmEsc(p.name || row.id) + '</span>' +
+                '<span class="block text-xs text-steel-400 truncate">' + _pmEsc(sub) + '</span>' +
+              '</span>' +
+              _pmStatusBadge(p) +
+            '</button>';
+        }).join('');
+      };
+
+      function _pmFieldText(label, fid, value, opts) {
+        opts = opts || {};
+        return '' +
+          '<div class="' + (opts.full ? 'sm:col-span-2' : '') + '">' +
+            '<label class="block font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-1.5" for="pm-f-' + fid + '">' + _pmEsc(label) + '</label>' +
+            '<input id="pm-f-' + fid + '" type="' + (opts.type || 'text') + '" value="' + _pmEscAttr(value == null ? '' : value) + '" ' +
+              (opts.placeholder ? 'placeholder="' + _pmEscAttr(opts.placeholder) + '" ' : '') +
+              'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white placeholder-steel-600 outline-none transition-colors font-body" />' +
+          '</div>';
+      }
+
+      function _pmFieldArea(label, fid, value, rows) {
+        return '' +
+          '<div class="sm:col-span-2">' +
+            '<label class="block font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-1.5" for="pm-f-' + fid + '">' + _pmEsc(label) + '</label>' +
+            '<textarea id="pm-f-' + fid + '" rows="' + (rows || 3) + '" ' +
+              'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white placeholder-steel-600 outline-none transition-colors font-body leading-relaxed">' + _pmEsc(value == null ? '' : value) + '</textarea>' +
+          '</div>';
+      }
+
+      window.pmSelect = function (id) {
+        _pmSelectedId = id;
+        var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
+        var editor = document.getElementById('pm-editor');
+        var emptyEl = document.getElementById('pm-editor-empty');
+        if (!editor) return;
+        if (!p) {
+          editor.classList.add('hidden');
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          return;
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+        editor.classList.remove('hidden');
+
+        var keyIssues = Array.isArray(p.keyIssues) ? p.keyIssues.join('\n') : '';
+
+        var stancesHtml = '';
+        if (p.stances && typeof p.stances === 'object') {
+          var keys = Object.keys(p.stances);
+          if (keys.length) {
+            stancesHtml = '<div class="sm:col-span-2 mt-1">' +
+              '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-2">Key Issues / Stances</div>' +
+              '<div class="space-y-2.5">' +
+              keys.map(function (k) {
+                var label = PM_STANCE_LABELS[k] || _pmPretty(k);
+                return '<div>' +
+                  '<label class="block text-[11px] text-steel-300 mb-1 font-body">' + _pmEsc(label) + '</label>' +
+                  '<textarea data-stance-key="' + _pmEscAttr(k) + '" rows="2" ' +
+                    'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white outline-none transition-colors font-body leading-relaxed">' + _pmEsc(p.stances[k] == null ? '' : p.stances[k]) + '</textarea>' +
+                  '</div>';
+              }).join('') +
+              '</div></div>';
+          }
+        }
+
+        editor.innerHTML = '' +
+          '<div class="flex items-start justify-between gap-3 mb-4">' +
+            '<div class="min-w-0">' +
+              '<div class="font-display text-2xl text-white truncate">' + _pmEsc(p.name || id) + '</div>' +
+              '<div class="text-[11px] font-mono text-steel-500 mt-1 break-all">ID: <span class="text-steel-300">' + _pmEsc(id) + '</span></div>' +
+            '</div>' +
+            _pmStatusBadge(p) +
+          '</div>' +
+          '<form onsubmit="return false;" class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+            _pmFieldText('Name', 'name', p.name) +
+            _pmFieldText('Office', 'office', p.office) +
+            _pmFieldText('District', 'district', p.district, { placeholder: 'e.g. District 3' }) +
+            _pmFieldText('Location / State', 'state', p.state) +
+            _pmFieldText('Party', 'party', p.party, { placeholder: 'R / D / I' }) +
+            _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
+            _pmFieldText('Icon (emoji)', 'icon', p.icon, { placeholder: '🏛' }) +
+            _pmFieldText('Photo URL', 'photo', p.photo, { placeholder: 'https://…' }) +
+            _pmFieldArea('Bio', 'bio', p.bio, 4) +
+            _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
+            stancesHtml +
+          '</form>' +
+          '<div id="pm-editor-feedback" class="hidden mt-3 text-sm font-body rounded-lg px-3 py-2 border"></div>' +
+          '<div class="flex flex-wrap gap-3 mt-5">' +
+            '<button type="button" onclick="window.pmSave(\'' + _pmJs(id) + '\')" ' +
+              'class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
+              '<span aria-hidden="true">💾</span> Save Changes</button>' +
+            '<button type="button" onclick="window.pmDelete(\'' + _pmJs(id) + '\')" ' +
+              'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-crimson-700 border border-crimson-500/50 hover:border-crimson-400 text-crimson-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
+              '<span aria-hidden="true">🗑</span> Delete</button>' +
+          '</div>';
+
+        // Refresh the list so the active row highlight follows the selection.
+        window.pmRenderList();
+      };
+
+      function _pmFeedback(msg, kind) {
+        var el = document.getElementById('pm-editor-feedback');
+        if (!el) return;
+        el.classList.remove('hidden');
+        if (kind === 'error') {
+          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-red-300 bg-red-950/40 border-red-500/40';
+        } else {
+          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-green-300 bg-green-950/40 border-green-500/40';
+        }
+        el.textContent = msg;
+      }
+
+      window.pmSave = function (id) {
+        if (typeof PROFILES !== 'object' || !PROFILES || !PROFILES[id]) {
+          _pmFeedback('Record not found — try Reload.', 'error');
+          return;
+        }
+        // Clone the existing document so unedited fields (kept/broken/pending,
+        // tier, etc.) are preserved exactly. We only overwrite what's editable.
+        var merged;
+        try { merged = JSON.parse(JSON.stringify(PROFILES[id])); }
+        catch (e) { merged = {}; }
+
+        function val(f) { var el = document.getElementById('pm-f-' + f); return el ? el.value : undefined; }
+
+        var name = (val('name') || '').trim();
+        if (!name) { _pmFeedback('Name cannot be empty.', 'error'); return; }
+
+        merged.name = name;
+        merged.office = (val('office') || '').trim();
+        merged.district = (val('district') || '').trim();
+        merged.state = (val('state') || '').trim();
+        merged.party = (val('party') || '').trim();
+        merged.icon = (val('icon') || '').trim() || '🏛';
+        merged.photo = (val('photo') || '').trim();
+        merged.bio = (val('bio') || '');
+
+        var scoreRaw = val('score');
+        if (scoreRaw === '' || scoreRaw == null) {
+          merged.score = null;
+        } else {
+          var sc = parseInt(scoreRaw, 10);
+          merged.score = isNaN(sc) ? null : sc;
+        }
+
+        var ki = (val('keyIssues') || '');
+        merged.keyIssues = ki.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+
+        var stanceInputs = document.querySelectorAll('#pm-editor [data-stance-key]');
+        if (stanceInputs.length) {
+          var st = (merged.stances && typeof merged.stances === 'object') ? merged.stances : {};
+          stanceInputs.forEach(function (inp) {
+            st[inp.getAttribute('data-stance-key')] = inp.value;
+          });
+          merged.stances = st;
+        }
+
+        _pmFeedback('Saving…', 'ok');
+        db.collection('politicians').doc(id).set(merged).then(function () {
+          PROFILES[id] = merged;
+          if (typeof CMP_DATA !== 'undefined') { CMP_DATA[id] = merged; }
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          window.pmRenderList();
+          _pmFeedback('Saved changes to "' + name + '".', 'ok');
+          if (typeof window._showToast === 'function') {
+            window._showToast('Saved ' + name + ' ✓');
+          }
+        }).catch(function (error) {
+          console.error('Politician Manager save failed:', error);
+          _pmFeedback('Save failed: ' + (error && error.message ? error.message : 'unknown error'), 'error');
+        });
+      };
+
+      window.pmDelete = function (id) {
+        var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : {};
+        var label = p.name || id;
+        if (!window.confirm('Delete "' + label + '" from the database?\n\nThis permanently removes the record from Firestore and cannot be undone.')) {
+          return;
+        }
+        db.collection('politicians').doc(id).delete().then(function () {
+          if (typeof PROFILES === 'object' && PROFILES) { delete PROFILES[id]; }
+          if (typeof CMP_DATA !== 'undefined') { delete CMP_DATA[id]; }
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          if (_pmSelectedId === id) {
+            _pmSelectedId = null;
+            var editor = document.getElementById('pm-editor');
+            var emptyEl = document.getElementById('pm-editor-empty');
+            if (editor) editor.classList.add('hidden');
+            if (emptyEl) emptyEl.classList.remove('hidden');
+          }
+          window.pmRenderList();
+          if (typeof window._showToast === 'function') {
+            window._showToast('Deleted ' + label);
+          }
+        }).catch(function (error) {
+          console.error('Politician Manager delete failed:', error);
+          window.alert('Delete failed: ' + (error && error.message ? error.message : 'unknown error'));
+        });
+      };
+
+      window.pmReload = function () {
+        var lbl = document.getElementById('pm-reload-label');
+        if (lbl) lbl.textContent = 'Loading…';
+        db.collection('politicians').get().then(function (qs) {
+          if (typeof PROFILES === 'object' && PROFILES) {
+            Object.keys(PROFILES).forEach(function (k) { delete PROFILES[k]; });
+            qs.forEach(function (doc) {
+              PROFILES[doc.id] = doc.data();
+              if (typeof CMP_DATA !== 'undefined') { CMP_DATA[doc.id] = doc.data(); }
+            });
+          }
+          window.pmRenderList();
+          if (_pmSelectedId && PROFILES[_pmSelectedId]) {
+            window.pmSelect(_pmSelectedId);
+          }
+          if (lbl) lbl.textContent = 'Reload';
+          if (typeof window._showToast === 'function') {
+            window._showToast('Reloaded ' + qs.size + ' politicians');
+          }
+        }).catch(function (error) {
+          console.error('Politician Manager reload failed:', error);
+          if (lbl) lbl.textContent = 'Reload';
+          if (typeof window._showToast === 'function') {
+            window._showToast('Reload failed');
+          }
+        });
+      };
+
+      // Render the list as soon as the controller loads (PROFILES may already be
+      // populated). The admin gate also calls pmRenderList() when it reveals the
+      // section, so the admin always sees a current list.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { window.pmRenderList(); });
+      } else {
+        window.pmRenderList();
+      }
+    })();
+  </script>
+
   <script>
     // ════════════════════════════════════════════════════════════
     // DATABASE EXPANSION CONTROLLER
@@ -13804,17 +14272,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       function applyAdminGate(user) {
         var allowed = isAdminUser(user);
-        var section = document.getElementById('database-expansion');
-        if (section) {
-          // Show only for the admin; stay hidden for everyone else
-          // (logged out, anonymous, or a different account).
-          section.style.display = allowed ? '' : 'none';
+        // Both admin-only sections are gated the same way: the Bulk Import /
+        // Database Expansion tool and the new Politician Manager.
+        var sectionIds = ['database-expansion', 'politician-manager'];
+        for (var s = 0; s < sectionIds.length; s++) {
+          var section = document.getElementById(sectionIds[s]);
+          if (section) {
+            // Show only for the admin; stay hidden for everyone else
+            // (logged out, anonymous, or a different account).
+            section.style.display = allowed ? '' : 'none';
+          }
         }
-        // The "Expand Database" nav links (desktop + mobile) are entry points
-        // to the tool, so gate them the same way.
+        // The admin nav links (desktop + mobile) are entry points to these
+        // tools, so gate them the same way.
         var links = document.querySelectorAll('[data-admin-only]');
         for (var i = 0; i < links.length; i++) {
           links[i].style.display = allowed ? '' : 'none';
+        }
+        // When the admin is allowed in, make sure the Politician Manager list
+        // reflects the latest loaded data.
+        if (allowed && typeof window.pmRenderList === 'function') {
+          window.pmRenderList();
         }
       }
 
