@@ -21631,13 +21631,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
-    var parts = [];
-    if (loc.city) parts.push(loc.city);
-    if (loc.county && loc.county !== loc.city) parts.push(loc.county);
-    if (loc.state) parts.push(loc.state);
-    var locStr = parts.length ? parts.join(', ') : 'your saved location';
-    var distStr = loc.district ? ' · District ' + loc.district : '';
-    textEl.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + locStr + '</strong>' + distStr + ' — your direct representatives.';
+    var userCounty = loc.county || loc.city || '';
+    var normalizedCounty = '';
+    if (userCounty) {
+      var ucLower = userCounty.toLowerCase();
+      if (ucLower.includes('davis') || ucLower.includes('layton')) normalizedCounty = 'Davis County';
+      else if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) normalizedCounty = 'Utah County';
+      else if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) normalizedCounty = 'Washington County';
+      else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
+      else normalizedCounty = userCounty;
+    }
+    var areaName = normalizedCounty || 'your area';
+    var stateDisplay = loc.state || 'Utah';
+    textEl.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>, ' + stateDisplay + ' – your direct representatives. ' +
+      '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
   };
 
   window._vhUpdateLocationText = function() {
@@ -27122,6 +27129,95 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var userCounty = (window._currentVoterLocation && (window._currentVoterLocation.county || window._currentVoterLocation.city || '')) || '';
       var userDistrict = (window._currentVoterLocation && window._currentVoterLocation.district) || '';
 
+      // Normalize county name
+      var normalizedCounty = '';
+      if (userCounty) {
+        var ucLower = userCounty.toLowerCase();
+        if (ucLower.includes('davis') || ucLower.includes('layton')) normalizedCounty = 'Davis County';
+        else if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) normalizedCounty = 'Utah County';
+        else if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) normalizedCounty = 'Washington County';
+        else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
+        else normalizedCounty = userCounty;
+      }
+
+      // Helper to check if a politician belongs to the selected county
+      function isPoliticianInSelectedCounty(pid) {
+        var d = CMP_DATA[pid];
+        if (!d) return false;
+        if (!normalizedCounty) return false;
+
+        var cLower = normalizedCounty.toLowerCase().replace(/\s*county\s*/g, '').trim(); // e.g. "davis", "utah", "washington", "weber"
+
+        // 1. Check if the county or city name appears in the politician's data
+        var haystack = (d.name + ' ' + (d.office || '') + ' ' + (d.state || '') + ' ' + (d.bio || '') + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+        if (haystack.includes(cLower)) return true;
+
+        if (cLower === 'davis') {
+          if (haystack.includes('layton') || haystack.includes('kaysville') || haystack.includes('clearfield') || haystack.includes('bountiful')) return true;
+        }
+        if (cLower === 'utah') {
+          if (haystack.includes('provo') || haystack.includes('orem') || haystack.includes('lehi') || haystack.includes('american fork')) return true;
+        }
+        if (cLower === 'washington') {
+          if (haystack.includes('st. george') || haystack.includes('st george')) return true;
+        }
+        if (cLower === 'weber') {
+          if (haystack.includes('ogden')) return true;
+        }
+
+        // 2. Check issues list
+        if (d.issues && d.issues.some(function(issue) {
+          var issLower = issue.toLowerCase();
+          if (issLower.includes(cLower)) return true;
+          if (cLower === 'davis' && (issLower.includes('layton') || issLower.includes('kaysville') || issLower.includes('clearfield') || issLower.includes('bountiful'))) return true;
+          if (cLower === 'utah' && (issLower.includes('provo') || issLower.includes('orem') || issLower.includes('lehi') || issLower.includes('american fork'))) return true;
+          if (cLower === 'washington' && (issLower.includes('st. george') || issLower.includes('st george'))) return true;
+          if (cLower === 'weber' && issLower.includes('ogden')) return true;
+          return false;
+        })) {
+          return true;
+        }
+
+        // 3. Check Utah Senate and House maps
+        var t = _classifyBrowseType(pid);
+        var pDist = _relevantDistNum(pid);
+        if (pDist !== null) {
+          if (t === 'state_senator') {
+            var info = _UTAH_SENATE_INFO[pid];
+            if (info && info.c && info.c.toLowerCase().includes(cLower)) return true;
+            var pCounty = _UTAH_SENATE_COUNTY[pDist];
+            if (pCounty && pCounty.toLowerCase().includes(cLower)) return true;
+          }
+          if (t === 'state_rep') {
+            var pCounty = _UTAH_HOUSE_COUNTY[pDist];
+            if (pCounty && pCounty.toLowerCase().includes(cLower)) return true;
+          }
+        }
+
+        // 4. Check key races mapping
+        var locIdMap = { 'Davis County': 'davis', 'Utah County': 'utah_co', 'Washington County': 'washington', 'Weber County': 'weber' };
+        var targetLocId = locIdMap[normalizedCounty];
+        if (targetLocId && KEY_RACES_BY_LOCATION[targetLocId]) {
+          var matchedInKeyRaces = false;
+          KEY_RACES_BY_LOCATION[targetLocId].forEach(function(r) {
+            if (r.incumbentPid === pid) matchedInKeyRaces = true;
+            if (r.incumbentPids && r.incumbentPids.indexOf(pid) !== -1) matchedInKeyRaces = true;
+            if (r.candidates && r.candidates.indexOf(pid) !== -1) matchedInKeyRaces = true;
+          });
+          if (matchedInKeyRaces) return true;
+        }
+
+        // 5. Congressional Districts
+        if (t === 'representative' && pDist !== null) {
+          if (pDist === 1 && (cLower === 'davis' || cLower === 'weber')) return true;
+          if (pDist === 2 && cLower === 'washington') return true;
+          if (pDist === 3 && cLower === 'utah') return true;
+          if (pDist === 4 && (cLower === 'utah' || cLower === 'salt lake')) return true;
+        }
+
+        return false;
+      }
+
       var picked = {}; // pid -> office groupKey (dedup)
       function add(pid, groupKey) {
         if (!pid || !CMP_DATA[pid]) return;
@@ -27173,95 +27269,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           return;
         }
 
-        // U.S. Representatives (U.S. House)
-        if (t === 'representative') {
-          var pDist = _relevantDistNum(pid);
-          if (houseDist) {
-            if (pDist !== null && String(pDist) === String(houseDist)) {
-              add(pid, t);
-            }
-          } else if (userCounty) {
-            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-              add(pid, t);
-            }
-          } else {
+        // Match based on county
+        if (t === 'representative' || t === 'state_senator' || t === 'state_rep' || t === 'local') {
+          if (isPoliticianInSelectedCounty(pid)) {
             add(pid, t);
           }
-          return;
-        }
-
-        // State Senators
-        if (t === 'state_senator') {
-          var pDist = _relevantDistNum(pid);
-          if (pDist !== null) {
-            if (senateDist && String(pDist) === String(senateDist)) {
-              add(pid, t);
-            } else if (!senateDist && userCounty) {
-              var pCounty = _UTAH_SENATE_COUNTY[pDist];
-              if (pCounty && pCounty.toLowerCase().indexOf(userCounty.toLowerCase()) !== -1) {
-                add(pid, t);
-              } else {
-                var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-                if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-                  add(pid, t);
-                }
-              }
-            } else if (!senateDist && !userCounty) {
-              add(pid, t);
-            }
-          } else if (userCounty) {
-            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-              add(pid, t);
-            }
-          } else {
-            add(pid, t);
-          }
-          return;
-        }
-
-        // State Representatives (State House)
-        if (t === 'state_rep') {
-          var pDist = _relevantDistNum(pid);
-          if (pDist !== null) {
-            if (lowerDist && String(pDist) === String(lowerDist)) {
-              add(pid, t);
-            } else if (!lowerDist && userCounty) {
-              var pCounty = _UTAH_HOUSE_COUNTY[pDist];
-              if (pCounty && pCounty.toLowerCase().indexOf(userCounty.toLowerCase()) !== -1) {
-                add(pid, t);
-              } else {
-                var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-                if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-                  add(pid, t);
-                }
-              }
-            } else if (!lowerDist && !userCounty) {
-              add(pid, t);
-            }
-          } else if (userCounty) {
-            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-              add(pid, t);
-            }
-          } else {
-            add(pid, t);
-          }
-          return;
-        }
-
-        // Local Officials / Mayors
-        if (t === 'local') {
-          if (userCounty) {
-            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
-              add(pid, t);
-            }
-          } else {
-            add(pid, t);
-          }
-          return;
         }
       });
 
@@ -27276,19 +27288,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // Header line: show user’s specific districts
       if (relevantLocText) {
-        var loc = window._currentVoterLocation || {};
-        var areaName = (loc.city && loc.county && loc.city !== loc.county) ? (loc.city + ', ' + loc.county) : (loc.county || loc.city || (krData ? krData.label : '') || loc.state || 'your area');
-        var distBits = [];
-        if (lowerDist)  distBits.push('House District ' + lowerDist);
-        if (senateDist) distBits.push('Senate District ' + senateDist);
-        if (houseDist) {
-          var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
-          distBits.push('U.S. House ' + formattedHouse);
-        }
-        var distStr = distBits.join(' • ');
-        relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
-          (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
-          ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
+        var areaName = normalizedCounty || 'your area';
+        var stateDisplay = stateName || 'Utah';
+        relevantLocText.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>, ' + stateDisplay + ' – your direct representatives. ' +
+          '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
       var ctx = {
@@ -27337,7 +27340,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       if (total === 0) {
-        var areaName = (window._currentVoterLocation && (window._currentVoterLocation.city || window._currentVoterLocation.county || window._currentVoterLocation.state)) || "this location";
+        var areaName = normalizedCounty || 'this location';
         var noResultsHtml = '<div class="text-center py-10 px-4 bg-navy-900/40 border border-white/5 rounded-2xl mt-4">' +
           '<div class="text-4xl mb-3">🔍</div>' +
           '<h4 class="font-display text-lg tracking-wider text-white uppercase">No politicians found for ' + areaName + '</h4>' +
