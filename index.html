@@ -1359,10 +1359,39 @@
     /* ── Deep profile: Key Issue Stances & People's Mandate ── */
     .stance-card {
       background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.06);
+      border-left-width: 3px; border-left-color: rgba(159,180,212,0.25);
       border-radius: 0.75rem; padding: 0.72rem 0.85rem; margin-bottom: 0.5rem;
     }
     .stance-card:last-child { margin-bottom: 0; }
     @media (hover: hover) { .stance-card:hover { border-color: rgba(159,180,212,0.18); } }
+    /* Left-edge accent stripe so each card's stance reads at a glance */
+    .stance-card.sc-support  { border-left-color: rgba(74,222,128,0.6); }
+    .stance-card.sc-oppose   { border-left-color: rgba(248,113,113,0.6); }
+    .stance-card.sc-mixed    { border-left-color: rgba(96,165,250,0.6); }
+    .stance-card.sc-tracking { border-left-color: rgba(159,180,212,0.4); }
+    /* Grouped category sections within Key Issue Stances */
+    .stance-cat { margin-bottom: 0.95rem; }
+    .stance-cat:last-child { margin-bottom: 0; }
+    .stance-cat-head {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0;
+      margin: 0 0 0.5rem; padding-bottom: 0.32rem; border-bottom: 1px solid rgba(159,180,212,0.12);
+    }
+    .stance-cat-head .stance-cat-ico { font-size: 0.85rem; }
+    .stance-cat-head .stance-cat-n {
+      margin-left: auto; font-size: 0.55rem; color: #4e72a0;
+      background: rgba(159,180,212,0.1); border-radius: 999px; padding: 0.05rem 0.4rem;
+    }
+    /* Stance distribution summary chips */
+    .stance-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.85rem; }
+    .stance-sum-chip {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.04em; padding: 0.14rem 0.55rem;
+      border-radius: 999px; border: 1px solid;
+    }
+    .stance-sum-chip.stance-you-sum { background: rgba(139,92,246,0.14); color: #c4b5fd; border-color: rgba(139,92,246,0.32); }
     .stance-badge {
       display: inline-flex; align-items: center; gap: 0.22rem;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
@@ -16341,6 +16370,204 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         text:'Supports stronger border enforcement and backed the House border-security package.',
         evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
     ],
+
+    // ── Utah State Legislature & 2026 races ───────────────────────────────
+    // Keyed by the name-slug ids the directory import produces
+    // (name.toLowerCase().replace(/[^a-z0-9]+/g,'_')), e.g. "Luz Escamilla" →
+    // "luz_escamilla". A name-based resolver (below) also matches these even if a
+    // record is stored under a different id, so the profile lights up regardless.
+    luz_escamilla: [
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Senate Minority Leader who has fought to expand and protect Medicaid coverage for low-income and working Utahns.',
+        detail:'A consistent backer of voter-approved full Medicaid expansion and of preserving coverage against legislative rollbacks.',
+        source:{label:'senate.utah.gov', url:'https://senate.utah.gov'} },
+      { topic:'Air Quality & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Longtime sponsor of clean-air and emissions legislation for the Wasatch Front.',
+        detail:'Represents Salt Lake City\'s west side, among the areas hit hardest by inversion air pollution.' },
+      { topic:'Immigrant & Hispanic Communities', icon:'🤝', pos:'support', issueKey:'immigration_reform', issueStance:'support',
+        text:'Champions Utah\'s immigrant families, backing in-state tuition and driver-privilege access for undocumented residents.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Opposed the 2023 private-school voucher law, arguing it diverts money from underfunded public schools.',
+        evidence:'Voted against H.B. 215 (2023).' },
+    ],
+    evan_vickers: [
+      { topic:'Prescription Drug Costs', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support',
+        text:'A pharmacist by trade who has worked to cap out-of-pocket insulin costs and regulate pharmacy benefit managers.',
+        detail:'Senate Majority Leader from Cedar City; brings decades behind the pharmacy counter to health-cost debates.' },
+      { topic:'Rural Utah & Resources', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support',
+        text:'Advocates for resource development, water infrastructure, and economic growth across rural southwestern Utah.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Backed the Legislature\'s repeated cuts to Utah\'s flat income-tax rate amid budget surpluses.' },
+      { topic:'Healthcare Reform', icon:'🏥', pos:'mixed', issueKey:'healthcare_market', issueStance:'support',
+        text:'Favors market-oriented, provider-friendly reforms while supporting targeted coverage fixes as a health professional.' },
+    ],
+    mike_schultz: [
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'As House leadership, a driving force behind Utah\'s "Utah Fits All" scholarship for private and home education.',
+        detail:'Speaker of the Utah House; paired the program with teacher pay raises to win passage.',
+        evidence:'Championed H.B. 215 (2023).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
+        text:'A homebuilder who pushes zoning and permitting reform plus first-home incentives to expand Utah\'s housing supply.' },
+      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Has prioritized Great Salt Lake recovery and statewide water conservation as a top legislative goal.' },
+      { topic:'Taxes & Spending', icon:'💵', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Backs continued income-tax cuts and a conservative, surplus-driven state budget.' },
+      { topic:'State Land Control', icon:'🤠', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'Supports shifting more federal-land management decisions to Utah and its counties.' },
+    ],
+    daniel_mccay: [
+      { topic:'Income & Business Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'A leading tax-cutter in the Senate who has sponsored repeated reductions to Utah\'s income-tax rate.',
+        detail:'Sits on revenue and taxation committees and has pushed to loosen the constitutional earmark dedicating income tax to education.',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Sponsored Utah\'s 2020 "trigger" law banning most abortions once Roe v. Wade was overturned.',
+        evidence:'Sponsored S.B. 174 (2020).' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support',
+        text:'A reliable Second Amendment vote who supports constitutional carry and opposes new firearm restrictions.' },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'Supports school-choice scholarships and expanded education options for families.' },
+    ],
+    todd_weiler: [
+      { topic:'Online Child Safety', icon:'🔒', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'Sponsored Utah\'s law requiring age verification on pornography websites and led the 2016 resolution declaring porn a public-health crisis.',
+        evidence:'Sponsored S.B. 287 (2023); S.C.R. 9 (2016).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Courts & Family Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support',
+        text:'An attorney active on judiciary, criminal-law, and family-law reform from the Senate Judiciary Committee.' },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Holds a pro-life voting record consistent with the Senate Republican majority.' },
+    ],
+    mike_mckell: [
+      { topic:'Social Media & Minors', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'Senate sponsor of Utah\'s first-in-the-nation Social Media Regulation Act requiring age verification and parental consent for minors.',
+        evidence:'Sponsored S.B. 152 (2023).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Courts & Civil Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support',
+        text:'An attorney-legislator who shapes judiciary, civil-liability, and consumer-protection law.' },
+      { topic:'Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Supports the Legislature\'s income-tax cuts and a limited-government fiscal approach.' },
+    ],
+    jennifer_plumb: [
+      { topic:'Overdose Prevention', icon:'🚑', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'A pediatrician who founded Utah Naloxone and drove the laws that put overdose-reversal medication into public hands.',
+        detail:'Her standing-order and access work is credited with reversing thousands of overdoses statewide.',
+        source:{label:'senate.utah.gov', url:'https://senate.utah.gov'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support',
+        text:'Champions safe firearm storage to cut youth suicide and accidental shootings.',
+        detail:'Frames gun safety as a public-health and child-safety issue rather than a ban on ownership.' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Backs expanding Medicaid and mental-health coverage as a physician in the Senate.' },
+    ],
+    kathleen_riebe: [
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'A classroom teacher and Senate Democrat who fights for public-school funding and higher teacher pay.',
+        detail:'Opposed the 2023 voucher law as a diversion of dollars from neighborhood schools.',
+        evidence:'Voted against H.B. 215 (2023).' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Supports expanding coverage and protecting Medicaid for Utah families.' },
+    ],
+    nate_blouin: [
+      { topic:'Clean Energy & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Works in renewable energy and is the Senate\'s most vocal advocate for clean power and emissions cuts.',
+        source:{label:'senate.utah.gov', url:'https://senate.utah.gov'} },
+      { topic:'Renters & Affordable Housing', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support',
+        text:'Pushes renter protections and affordable-housing investment amid rising Salt Lake County costs.' },
+      { topic:'Air Quality', icon:'💧', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Backs stronger action on Wasatch Front air pollution and Great Salt Lake dust.' },
+    ],
+    angela_romero: [
+      { topic:'Victim Advocacy & Justice', icon:'🤝', pos:'support', issueKey:'justice_reform', issueStance:'support',
+        text:'House Minority Leader who passed reforms to test Utah\'s backlog of untested rape kits.',
+        detail:'A longtime advocate for survivors of sexual violence and for criminal-justice reform.',
+        evidence:'Sponsored rape-kit testing reform (H.B. 200, 2017).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Reproductive Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support',
+        text:'Opposed Utah\'s near-total abortion ban and supports protecting reproductive access.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Defends public-education funding and opposed diverting money to private-school vouchers.' },
+    ],
+    sandra_hollins: [
+      { topic:'Civil Rights & Equity', icon:'⚖️', pos:'support', issueKey:'rights_balance', issueStance:'support',
+        text:'The first Black woman in the Utah Legislature; sponsored the amendment removing slavery-as-punishment language from the state constitution.',
+        evidence:'Sponsored Amendment C (2020).',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Homelessness', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support',
+        text:'A social worker who leads on homelessness services and affordable housing for west Salt Lake City.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Supports investing in public schools and social services over voucher programs.' },
+    ],
+    ray_ward: [
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'health_balance', issueStance:'support',
+        text:'A practicing family physician who has sponsored bills to widen health coverage and lower medical costs.',
+        detail:'Often the Republican most willing to expand access, drawing on patients he sees in his Bountiful practice.',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Public Health', icon:'💉', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Backs evidence-based public-health and vaccination policy from his seat as a doctor-legislator.' },
+      { topic:'Tax Fairness', icon:'💵', pos:'mixed', issueKey:'tax_middle_class', issueStance:'support',
+        text:'Has proposed restructuring taxes to ease the burden on middle- and lower-income households.' },
+    ],
+    steve_eliason: [
+      { topic:'Mental Health & Suicide Prevention', icon:'🧠', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Utah\'s leading legislator on suicide prevention, securing funding for the 988 crisis line and school mental-health support.',
+        detail:'Also advanced safe-firearm-storage incentives as a suicide-reduction measure.',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'justice_balance', issueStance:'support',
+        text:'Works on school safety and crisis-response policy alongside law enforcement.' },
+      { topic:'Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'A fiscal conservative who supports the state\'s income-tax reductions.' },
+    ],
+    candice_pierucci: [
+      { topic:'Online Child Safety', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'A leading conservative voice for protecting minors online through age verification and parental-consent rules.' },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'Backs school-choice scholarships and parental rights in curriculum decisions.' },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support',
+        text:'Holds a consistent pro-life voting record.' },
+    ],
+    phil_lyman: [
+      { topic:'Public Land Ownership', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'Utah\'s fiercest advocate for state and county control of federal land; led the 2014 Recapture Canyon ATV protest against BLM closures.',
+        detail:'A former San Juan County commissioner; the protest conviction was later pardoned. He frames federal land control as the state\'s central fight.' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support',
+        text:'Made election-process scrutiny a centerpiece of his insurgent 2024 gubernatorial run against Spencer Cox.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support',
+        text:'A constitutional conservative who opposes new firearm restrictions.' },
+      { topic:'Taxes & Limited Government', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Campaigns on lower taxes, limited government, and constitutional originalism.' },
+    ],
+    caroline_gleich: [
+      { topic:'Climate Action', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'A professional ski mountaineer and climate activist who centers emissions cuts and clean energy in her platform.' },
+      { topic:'Protect Public Lands', icon:'🏔', pos:'support', issueKey:'lands_preserve', issueStance:'support',
+        text:'Campaigns to protect Utah\'s public lands and wild places from development and privatization.' },
+      { topic:'Reproductive Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support',
+        text:'Supports protecting abortion access and reproductive freedom.' },
+      { topic:'Air Quality', icon:'💧', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Ties Wasatch Front air pollution and the shrinking Great Salt Lake to her climate agenda.' },
+    ],
+    brian_king: [
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'As former House Minority Leader, a leading opponent of private-school vouchers and a champion of public-education funding.',
+        evidence:'Opposed H.B. 215 (2023) school vouchers.' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Backs Medicaid expansion and broader health coverage; ran for governor in 2024 on the issue.' },
+      { topic:'Reproductive Rights', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support',
+        text:'Supports protecting abortion access against Utah\'s near-total ban.' },
+      { topic:'Social Safety Net', icon:'🏛', pos:'support', issueKey:'gov_services', issueStance:'support',
+        text:'Advocates investing in public services and a stronger safety net for working families.' },
+    ],
+    becky_edwards: [
+      { topic:'Family Tax Relief', icon:'💵', pos:'support', issueKey:'tax_middle_class', issueStance:'support',
+        text:'A moderate Republican focused on family-friendly tax credits and support for working parents.' },
+      { topic:'Climate Dialogue', icon:'🌱', pos:'mixed', issueKey:'enviro_balance', issueStance:'support',
+        text:'Broke with many in her party to call for serious, bipartisan action on air quality and climate.' },
+      { topic:'Affordable Housing', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
+        text:'Backs expanding housing supply to address Utah\'s affordability squeeze.' },
+      { topic:'Bipartisan Governance', icon:'🤝', pos:'support',
+        text:'Built her brand as a coalition-builder willing to work across the aisle.' },
+    ],
   };
 
   // Optional curated overrides for the People's Mandate scorecard (0–100).
@@ -16381,9 +16608,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // is the single source of truth: any stance carrying an `issueKey` becomes a
   // comparable position. Extend coverage by adding issueKey/issueStance to a
   // stance — no parallel data structure to keep in sync.
-  function _polPositionMap(id) {
+  // Aliases so a record stored under a short id still finds curated data keyed
+  // under another id (and vice-versa). Maps id → the ISSUE_STANCE_DATA key.
+  var STANCE_ALIASES = {
+    blake_moore:'bmoore', burgess_owens:'owens', mike_kennedy:'kennedy',
+    celeste_maloy:'maloy', spencer_cox:'cox', mike_lee:'lee', john_curtis:'curtis',
+    donald_trump:'trump'
+  };
+  // Slugify a name the same way the directory import builds its document ids.
+  function _stanceSlug(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+  // Resolve a politician's curated stance list robustly: try the id directly, an
+  // explicit alias, then a slug of their display name. This lets the curated data
+  // light up whether a record is stored under a short id ("owens") or the
+  // name-slug the importer generates ("burgess_owens").
+  function _resolveStanceList(id, p) {
+    if (typeof ISSUE_STANCE_DATA === 'undefined') return null;
+    if (id && ISSUE_STANCE_DATA[id]) return ISSUE_STANCE_DATA[id];
+    if (id && STANCE_ALIASES[id] && ISSUE_STANCE_DATA[STANCE_ALIASES[id]]) return ISSUE_STANCE_DATA[STANCE_ALIASES[id]];
+    var nameSlug = (p && p.name) ? _stanceSlug(p.name) : '';
+    if (nameSlug && ISSUE_STANCE_DATA[nameSlug]) return ISSUE_STANCE_DATA[nameSlug];
+    if (nameSlug && STANCE_ALIASES[nameSlug] && ISSUE_STANCE_DATA[STANCE_ALIASES[nameSlug]]) return ISSUE_STANCE_DATA[STANCE_ALIASES[nameSlug]];
+    return null;
+  }
+  window._resolveStanceList = _resolveStanceList;
+
+  function _polPositionMap(id, p) {
     var out = {};
-    var list = (typeof ISSUE_STANCE_DATA !== 'undefined') ? ISSUE_STANCE_DATA[id] : null;
+    var list = _resolveStanceList(id, p);
     if (!list) return out;
     list.forEach(function(s) {
       if (!s || !s.issueKey) return;
@@ -16463,7 +16716,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }
 
-    var polMap = _polPositionMap(id);
+    var polMap = _polPositionMap(id, p);
     var documented = [];
     var researching = [];
     _alignIssues.forEach(function(key) {
@@ -16573,7 +16826,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // Key Issue Stances — clear, scannable positions on specific issues.
   window._renderIssueStances = function(id, p) {
     p = p || {};
-    var stances = ISSUE_STANCE_DATA[id];
+    var stances = _resolveStanceList(id, p);
     var derived = false;
     if (!stances || !stances.length) {
       // Fall back to the politician's tracked key issues so the section is
@@ -16587,12 +16840,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     }
     var posMeta = {
-      support:  { cls:'stance-support',  ico:'✓', label:'Supports' },
-      oppose:   { cls:'stance-oppose',   ico:'✗', label:'Opposes' },
-      mixed:    { cls:'stance-mixed',    ico:'~', label:'Mixed Record' },
-      tracking: { cls:'stance-tracking', ico:'…', label:'Researching' }
+      support:  { cls:'stance-support',  sc:'sc-support',  ico:'✓', label:'Supports' },
+      oppose:   { cls:'stance-oppose',   sc:'sc-oppose',   ico:'✗', label:'Opposes' },
+      mixed:    { cls:'stance-mixed',    sc:'sc-mixed',    ico:'~', label:'Mixed Record' },
+      tracking: { cls:'stance-tracking', sc:'sc-tracking', ico:'…', label:'Researching' }
     };
-    var cards = stances.map(function(s) {
+
+    // Category metadata mirrors the Alignment Tool's groupings so stances slot
+    // under the same human-readable headers a visitor already knows.
+    var CAT_META = {
+      gov:{icon:'💰',label:'Taxes & Government'}, econ:{icon:'📈',label:'Economy & Jobs'},
+      housing:{icon:'🏠',label:'Housing & Cost of Living'}, land:{icon:'🏔',label:'Public Lands & Energy'},
+      enviro:{icon:'💧',label:'Water & Environment'}, immig:{icon:'🛡',label:'Immigration'},
+      guns:{icon:'🔫',label:'Gun Policy'}, justice:{icon:'👮',label:'Criminal Justice & Safety'},
+      foreign:{icon:'🦅',label:'Foreign Policy & Defense'}, health:{icon:'🏥',label:'Healthcare'},
+      edu:{icon:'🎓',label:'Education'}, repro:{icon:'🕊',label:'Abortion & Reproductive Rights'},
+      rights:{icon:'🏳️‍🌈',label:'Civil Rights & LGBTQ+'}, tech:{icon:'🚀',label:'Technology & Privacy'},
+      democracy:{icon:'🗳',label:'Elections & Democracy'}, other:{icon:'🎯',label:'Other Issues'}
+    };
+    var CAT_ORDER = ['gov','econ','housing','land','enviro','immig','guns','justice','foreign','health','edu','repro','rights','tech','democracy','other'];
+    function _stanceCat(s) {
+      if (s.cat && CAT_META[s.cat]) return s.cat;
+      if (s.issueKey && typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP[s.issueKey] && ISSUE_MAP[s.issueKey].cat) return ISSUE_MAP[s.issueKey].cat;
+      return 'other';
+    }
+
+    function renderCard(s) {
       var m = posMeta[s.pos] || posMeta.tracking;
       // Optional second line of context — the "why" or scope behind the stance.
       var det = s.detail ? '<p style="font-size:0.74rem;color:#7e98bc;line-height:1.6;margin:0.35rem 0 0;">' + s.detail + '</p>' : '';
@@ -16608,7 +16881,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var youIM = (typeof _userIntensityMeta === 'function') ? _userIntensityMeta(intensity) : { label: _userStanceLabel(intensity) };
         youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' You: ' + youIM.label + ' · ' + vm.full + '</span>';
       }
-      return '<div class="stance-card">' +
+      return '<div class="stance-card ' + m.sc + '">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
           '<div style="display:flex;align-items:center;gap:0.45rem;min-width:0;">' +
             '<span style="font-size:1rem;line-height:1;flex-shrink:0;">' + (s.icon || '🎯') + '</span>' +
@@ -16622,20 +16895,63 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         (src ? '<div>' + src + '</div>' : '') +
         youPill +
       '</div>';
-    }).join('');
+    }
+
+    // Distribution summary chips — show at a glance how the official's documented
+    // positions break down (and how many line up with the visitor's picks).
+    var nSup = 0, nOpp = 0, nMix = 0, nYouMatch = 0, nYouTotal = 0;
+    stances.forEach(function(s) {
+      if (s.pos === 'support') nSup++;
+      else if (s.pos === 'oppose') nOpp++;
+      else if (s.pos === 'mixed') nMix++;
+      if (!derived && s.issueKey && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.has(s.issueKey)) {
+        nYouTotal++;
+        var iv = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+        if ((typeof _issueVerdict === 'function' ? _issueVerdict(iv, s.issueStance || s.pos || 'mixed') : '') === 'match') nYouMatch++;
+      }
+    });
+    var sumChips = '';
+    if (!derived) {
+      if (nSup) sumChips += '<span class="stance-sum-chip stance-support">✓ ' + nSup + ' Support</span>';
+      if (nOpp) sumChips += '<span class="stance-sum-chip stance-oppose">✗ ' + nOpp + ' Oppose</span>';
+      if (nMix) sumChips += '<span class="stance-sum-chip stance-mixed">~ ' + nMix + ' Mixed</span>';
+      if (nYouTotal) sumChips += '<span class="stance-sum-chip stance-you-sum">🤝 You agree on ' + nYouMatch + '/' + nYouTotal + '</span>';
+    }
+
+    // Body: group documented stances under category headers; render the derived
+    // "researching" fallback as a simple flat list (no real categories to group).
+    var body;
+    if (derived) {
+      body = stances.map(renderCard).join('');
+    } else {
+      var groups = {};
+      stances.forEach(function(s) { var c = _stanceCat(s); (groups[c] = groups[c] || []).push(s); });
+      body = CAT_ORDER.filter(function(c) { return groups[c]; }).map(function(c) {
+        var meta = CAT_META[c] || CAT_META.other;
+        var list = groups[c];
+        return '<div class="stance-cat">' +
+          '<div class="stance-cat-head"><span class="stance-cat-ico">' + meta.icon + '</span>' + meta.label +
+            '<span class="stance-cat-n">' + list.length + '</span></div>' +
+          list.map(renderCard).join('') +
+        '</div>';
+      }).join('');
+    }
+
     var note = derived
       ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
       : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.';
     return '<div class="modal-section">' +
       '<div class="modal-section-title">🎯 Key Issue Stances</div>' +
-      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.7rem;">' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.7rem;flex-wrap:wrap;">' +
         '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">Where they stand on the issues</span>' +
         '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.4rem;border-radius:999px;">' + stances.length + ' issues</span>' +
       '</div>' +
-      cards +
+      (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
+      body +
       '<p class="src-note">' + note + '</p>' +
     '</div>';
   };
+
 
   // The People's Mandate Alignment — a scorecard of core good-government
   // principles, derived from the Promise %, Accountability score and funding
