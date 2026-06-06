@@ -27072,41 +27072,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       var krData = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
-      // Drive the focused, exact-district ballot from the Key Races area selector
-      // when that area genuinely matches the voter (they chose/inferred it), or
-      // when no location is set yet. Voters whose saved area isn't a supported
-      // Key Races location keep the generic, state-wide relevance path below.
-      var useFocused = !!krData && (!window._hasUserLocation || krData.matched);
+      var locId = localStorage.getItem(KR_LOCATION_KEY) || _krInferLocation();
 
-      if (!useFocused) {
-        // ── Fallback: generic, state-wide relevance for unsupported/out-of-state areas ──
-        if (!window._hasUserLocation) {
-          if (relevantCountBadge) relevantCountBadge.textContent = '0';
-          relevantGrid.innerHTML = '<div class="mb-5 p-4 rounded-xl" style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(245,200,66,0.06));border:1px solid rgba(59,130,246,0.3);">' +
-            '<div class="font-display text-lg tracking-wider text-white mb-1">Set Your Location to see your representatives</div>' +
-            '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">This section shows only the politicians who actually represent you — based on your saved state, district, and county.</p>' +
-            '<button type="button" onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md min-h-[44px]">📍 Choose My Location</button>' +
-            '</div>';
-          return;
-        }
-        var fpids = Object.keys(CMP_DATA).filter(_isRelevantToUser);
-        fpids.sort(function(a, b) { return (CMP_DATA[b].score ?? -1) - (CMP_DATA[a].score ?? -1); });
-        if (relevantCountBadge) relevantCountBadge.textContent = fpids.length;
-        if (fpids.length === 0) {
-          relevantGrid.innerHTML = '<div class="text-center text-steel-500 font-condensed py-6">No relevant politicians found for your location.</div>';
-          return;
-        }
-        var fGroups = {};
-        fpids.forEach(function(pid) {
-          var type = _classifyBrowseType(pid);
-          (fGroups[type] = fGroups[type] || []).push(pid);
-        });
-        relevantGrid.innerHTML = _renderRelevantTree(fGroups, { focused: false });
-        return;
+      // If locId is valid, retrieve krData for that locId to ensure we have the correct data:
+      if (locId && KEY_RACES_BY_LOCATION[locId]) {
+        krData = (function() {
+          try {
+            var races = KEY_RACES_BY_LOCATION[locId];
+            var meta = _krLocationMeta(locId);
+            var explicit = !!(localStorage.getItem(KR_LOCATION_KEY) && KEY_RACES_BY_LOCATION[localStorage.getItem(KR_LOCATION_KEY)]);
+            var matched = explicit || (_krInferLocation() !== '');
+            var pidsOf = function(r) {
+              var a = [];
+              var push = function(p) { if (p && a.indexOf(p) === -1) a.push(p); };
+              push(r.incumbentPid);
+              (r.incumbentPids || []).forEach(push);
+              (r.candidates || []).forEach(push);
+              return a;
+            };
+            var distOf = function(r) {
+              var m = String(r.district || r.short || '').match(/(\d+)\s*$/);
+              return m ? m[1] : null;
+            };
+            var out = {
+              locId: locId, label: meta.label, city: meta.city, county: meta.county,
+              state: 'Utah', matched: matched, byRace: {}, statewide: {}
+            };
+            races.forEach(function(r) {
+              out.byRace[r.raceKey] = { district: distOf(r), pids: pidsOf(r) };
+            });
+            (KEY_RACES_STATEWIDE || []).forEach(function(r) {
+              out.statewide[r.raceKey] = pidsOf(r);
+            });
+            return out;
+          } catch (e) { return null; }
+        })();
       }
 
-      // ── Focused, exact-district ballot (Key Races driven) ──────────────────
-      var stateName = 'Utah';
+      var stateName = (window._currentVoterLocation && window._currentVoterLocation.state) || 'Utah';
       var picked = {}; // pid -> office groupKey (dedup)
       function add(pid, groupKey) {
         if (!pid || !CMP_DATA[pid]) return;
@@ -27120,53 +27123,50 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (t === 'president' || t === 'cabinet') add(pid, t);
       });
 
-      // Statewide seats every voter in the state shares (U.S. Senate, Governor).
-      (krData.statewide.senate || []).forEach(function(pid) { add(pid, 'senator'); });
-      (krData.statewide.governor || []).forEach(function(pid) { add(pid, 'governor'); });
+      var houseDist  = null;
+      var senateDist = null;
+      var lowerDist  = null;
 
-      // The voter's exact district seats: curated candidate lists (authoritative)
-      // unioned with any matching record in the data set so a sitting incumbent
-      // is never missed.
-      var houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
-      var senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
-      var lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
+      if (krData && (stateName === 'Utah' || krData.matched)) {
+        // Statewide seats every voter in the state shares (U.S. Senate, Governor).
+        (krData.statewide.senate || []).forEach(function(pid) { add(pid, 'senator'); });
+        (krData.statewide.governor || []).forEach(function(pid) { add(pid, 'governor'); });
 
-      function addCurated(raceKey, groupKey) {
-        var r = krData.byRace[raceKey];
-        if (r) r.pids.forEach(function(pid) { add(pid, groupKey); });
+        houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
+        senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
+        lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
+
+        function addCurated(raceKey, groupKey) {
+          var r = krData.byRace[raceKey];
+          if (r) r.pids.forEach(function(pid) { add(pid, groupKey); });
+        }
+        addCurated('house', 'representative');
+        addCurated('statesenate', 'state_senator');
+        addCurated('statehouse', 'state_rep');
+        addCurated('local', 'local');
+
+        // Dynamically add matching local mayors based on the selected location to keep it personalized
+        if (krData.locId === 'davis') {
+          add('jpetro', 'local');
+        } else if (krData.locId === 'utah_co') {
+          add('mkaufusi', 'local');
+        } else if (krData.locId === 'washington') {
+          add('cdippre', 'local');
+        } else if (krData.locId === 'weber') {
+          add('dpetersen', 'local');
+        }
+      } else {
+        // For other states/locations, only show federal executives, and statewide if in Utah:
+        // Do NOT show other districts or other parts of the state.
+        if (stateName === 'Utah') {
+          (KEY_RACES_STATEWIDE || []).forEach(function(r) {
+            var groupKey = (r.raceKey === 'senate') ? 'senator' : r.raceKey;
+            (r.candidates || []).forEach(function(pid) { add(pid, groupKey); });
+            if (r.incumbentPid) add(r.incumbentPid, groupKey);
+            (r.incumbentPids || []).forEach(function(pid) { add(pid, groupKey); });
+          });
+        }
       }
-      addCurated('house', 'representative');
-      addCurated('statesenate', 'state_senator');
-      addCurated('statehouse', 'state_rep');
-      addCurated('local', 'local');
-
-      // Dynamically add matching local mayors based on the selected location to keep it personalized
-      if (krData.locId === 'davis') {
-        add('jpetro', 'local');
-      } else if (krData.locId === 'utah_co') {
-        add('mkaufusi', 'local');
-      } else if (krData.locId === 'washington') {
-        add('cdippre', 'local');
-      } else if (krData.locId === 'weber') {
-        add('dpetersen', 'local');
-      }
-
-      // Dynamic safety net for U.S. House only: add any record matching the
-      // voter's exact congressional district so the sitting incumbent is included
-      // even when the curated list only names challengers. State-legislative seats
-      // rely on the curated lists alone (they already include the incumbent) to
-      // avoid surfacing district-map inconsistencies.
-      function addExactDistrict(chamberKey, distStr) {
-        if (distStr == null) return;
-        var dn = parseInt(distStr, 10);
-        if (isNaN(dn)) return;
-        Object.keys(CMP_DATA).forEach(function(pid) {
-          if (_classifyBrowseType(pid) !== chamberKey) return;
-          if (_getPoliticianState(pid) !== stateName) return;
-          if (_relevantDistNum(pid) === dn) add(pid, chamberKey);
-        });
-      }
-      addExactDistrict('representative', houseDist);
 
       // Bucket the picked pids into their office groups.
       var officeGroups = {};
@@ -27177,26 +27177,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var total = Object.keys(picked).length;
       if (relevantCountBadge) relevantCountBadge.textContent = total;
 
-      // Header line: the active area + the voter's exact district numbers, in the
-      // explicit "City, County — House District N • Senate District N • U.S. House UT-0N"
-      // format so the personalized scope is unmistakable.
+      // Header line: show user’s specific districts
       if (relevantLocText) {
-        var areaName = (krData.city && krData.county) ? (krData.city + ', ' + krData.county) : krData.label;
-        var distBits = [];
-        if (lowerDist)  distBits.push('House District ' + lowerDist);
-        if (senateDist) distBits.push('Senate District ' + senateDist);
-        if (houseDist) {
-          var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
-          distBits.push('U.S. House ' + formattedHouse);
+        if (krData && (stateName === 'Utah' || krData.matched)) {
+          var areaName = (krData.city && krData.county) ? (krData.city + ', ' + krData.county) : krData.label;
+          var distBits = [];
+          if (lowerDist)  distBits.push('House District ' + lowerDist);
+          if (senateDist) distBits.push('Senate District ' + senateDist);
+          if (houseDist) {
+            var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
+            distBits.push('U.S. House ' + formattedHouse);
+          }
+          var distStr = distBits.join(' • ');
+          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
+            (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
+            ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
+        } else {
+          var loc = window._currentVoterLocation || {};
+          var areaName = (loc.city && loc.county) ? (loc.city + ', ' + loc.county) : (loc.county || loc.city || loc.state || 'your area');
+          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong> <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
         }
-        var distStr = distBits.join(' • ');
-        relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
-          (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
-          ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
-      // Do NOT show the full list of 58 State Senators or the full State House list.
-      // Omit the explorer extra browser under the state level completely.
       var ctx = {
         focused: true, state: stateName,
         houseDist: houseDist ? ('District ' + houseDist) : '',
@@ -27206,11 +27208,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
 
       // ── "Your 2026 Ballot" overview ────────────────────────────────────────
-      // A compact strip of the exact races this voter can weigh in on — their
-      // specific U.S. House / State Senate / State House districts plus the
-      // statewide seats — as quick-jump chips that scroll straight to each
-      // office group. Makes the personalized scope explicit instead of leaving
-      // the voter to infer it from a long list.
       function _ballotChip(emoji, title, sub, levelKey, officeKey) {
         var border = 'rgba(59,130,246,0.4)';
         return '<button type="button" onclick="_relevantJump(\'' + levelKey + '\',\'' + officeKey + '\')" ' +
@@ -27233,12 +27230,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         overview += '<div class="relevant-ballot-overview" style="margin-bottom:1.1rem;padding:1rem 1.1rem;border-radius:1rem;background:linear-gradient(135deg,rgba(30,58,138,0.2),rgba(10,15,30,0.35));border:1px solid rgba(59,130,246,0.3);">';
         overview += '<div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.75rem;flex-wrap:wrap;">';
         overview += '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.06em;font-size:1.2rem;color:#fff;">🗳️ Your 2026 Ballot</span>';
-        overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + krData.label + ' — tap a race to jump to it</span>';
+        overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + (krData ? krData.label : 'Personalized Ballot') + ' — tap a race to jump to it</span>';
         overview += '</div>';
         overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
         // Compact in-place area switcher so voters can re-point the whole ballot
         // to another supported area without scrolling back up to "Your Key Races".
-        if (typeof window._relevantAreaSwitcher === 'function') {
+        if (krData && typeof window._relevantAreaSwitcher === 'function') {
           overview += '<div style="margin-top:0.95rem;padding-top:0.85rem;border-top:1px solid rgba(59,130,246,0.18);">';
           overview += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-bottom:0.45rem;">Not your area? Switch ballot</div>';
           overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.45rem;">' + window._relevantAreaSwitcher(krData.locId) + '</div>';
