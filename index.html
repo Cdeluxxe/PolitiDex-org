@@ -26568,7 +26568,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       // Statewide offices for the user's state are always relevant.
-      if (polOffice.includes('senator') || polOffice.includes('governor') || polOffice.includes('auditor') || polOffice.includes('candidate')) {
+      var isStatewideSenator = polOffice.includes('senator') && !polOffice.includes('state');
+      if (isStatewideSenator || polOffice.includes('governor') || polOffice.includes('auditor') || (polOffice.includes('candidate') && !polOffice.includes('district') && !polOffice.includes('house') && !polOffice.includes('senate'))) {
         return true;
       }
 
@@ -26832,6 +26833,75 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return out;
     }
 
+    function _renderRelevantGroupedChamber(officePids, groupKey, prefix) {
+      prefix = prefix || 'rel-';
+      var stateName = 'Utah';
+      
+      var ranges = (groupKey === 'state_senator') ? _SENATE_RANGES : _DISTRICT_RANGES;
+      var distNumOf = function(pid) {
+        var label = _getPoliticianDistrictOrCounty(pid);
+        var m = label && label.match(/District\s+(\d+)/i);
+        return m ? parseInt(m[1], 10) : null;
+      };
+
+      var html = '';
+      
+      // Group by range
+      ranges.forEach(function(rng) {
+        var rangePids = officePids.filter(function(pid) {
+          var dn = distNumOf(pid);
+          return dn !== null && dn >= rng.min && dn <= rng.max;
+        });
+        
+        if (rangePids.length === 0) return;
+        
+        var rngKey = prefix + groupKey + '-rng-' + rng.min + '-' + rng.max;
+        var isRngOpen = _browseGroupState[rngKey] !== false; // expanded by default
+        var rngExpandedClass = isRngOpen ? ' expanded' : '';
+        var rngTitle = 'Districts ' + rng.min + '–' + rng.max + ' (' + rng.label + ')';
+
+        html += '<div class="browse-range-group border border-gold-400/15 rounded-lg overflow-hidden bg-navy-900/30 mb-2' + rngExpandedClass + '" id="' + rngKey + '-group">';
+        html += '<button class="w-full flex items-center justify-between px-3 py-2.5 bg-navy-800/50 hover:bg-navy-800/70 text-left border-none" onclick="toggleBrowseAccordion(\'' + rngKey + '-group\', \'' + rngKey + '\')" style="min-height: 42px;">';
+        html += '<div class="flex items-center gap-1.5">';
+        html += '<span class="text-[11px] text-gold-400">▦</span>';
+        html += '<span class="font-condensed font-700 text-xs text-gold-300 uppercase tracking-wide">' + rngTitle + '</span>';
+        html += '<span class="text-[10px] text-steel-400 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.5 ml-1">' + rangePids.length + '</span>';
+        html += '</div>';
+        html += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
+        html += '</button>';
+        html += '<div class="browse-sub-body"><div class="p-2 space-y-2">';
+        html += _renderRelevantStatusSplit(rangePids);
+        html += '</div></div></div>';
+      });
+
+      // Catch any politicians that didn't fit into the numeric ranges (e.g. statewide/no district)
+      var otherPids = officePids.filter(function(pid) {
+        var dn = distNumOf(pid);
+        return dn === null;
+      });
+      
+      if (otherPids.length > 0) {
+        var otherKey = prefix + groupKey + '-rng-other';
+        var isOtherOpen = _browseGroupState[otherKey] !== false;
+        var otherExpandedClass = isOtherOpen ? ' expanded' : '';
+        
+        html += '<div class="browse-range-group border border-white/5 rounded-lg overflow-hidden bg-navy-900/30 mb-2' + otherExpandedClass + '" id="' + otherKey + '-group">';
+        html += '<button class="w-full flex items-center justify-between px-3 py-2.5 bg-navy-800/50 hover:bg-navy-800/70 text-left border-none" onclick="toggleBrowseAccordion(\'' + otherKey + '-group\', \'' + otherKey + '\')" style="min-height: 42px;">';
+        html += '<div class="flex items-center gap-1.5">';
+        html += '<span class="text-[11px] text-steel-400">👤</span>';
+        html += '<span class="font-condensed font-700 text-xs text-steel-300 uppercase tracking-wide">Other Districts / Statewide</span>';
+        html += '<span class="text-[10px] text-steel-400 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.5 ml-1">' + otherPids.length + '</span>';
+        html += '</div>';
+        html += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
+        html += '</button>';
+        html += '<div class="browse-sub-body"><div class="p-2 space-y-2">';
+        html += _renderRelevantStatusSplit(otherPids);
+        html += '</div></div></div>';
+      }
+
+      return html;
+    }
+
     // Renders the Federal → State → Local accordion tree for a set of office
     // groups (shared by both the focused ballot view and the legacy fallback).
     // ctx carries focus metadata + optional extra HTML appended inside a level
@@ -26864,7 +26934,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
         h += '</button>';
         h += '<div class="browse-type-body"><div class="browse-type-inner">';
-        h += _renderRelevantStatusSplit(officePids);
+        
+        if (groupKey === 'state_senator' || groupKey === 'state_rep') {
+          h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
+        } else {
+          h += _renderRelevantStatusSplit(officePids);
+        }
+        
         h += '</div></div></div>';
         return h;
       }
@@ -27064,6 +27140,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       addCurated('statehouse', 'state_rep');
       addCurated('local', 'local');
 
+      // Dynamically add matching local mayors based on the selected location to keep it personalized
+      if (krData.locId === 'davis') {
+        add('jpetro', 'local');
+      } else if (krData.locId === 'utah_co') {
+        add('mkaufusi', 'local');
+      } else if (krData.locId === 'washington') {
+        add('cdippre', 'local');
+      } else if (krData.locId === 'weber') {
+        add('dpetersen', 'local');
+      }
+
       // Dynamic safety net for U.S. House only: add any record matching the
       // voter's exact congressional district so the sitting incumbent is included
       // even when the curated list only names challengers. State-legislative seats
@@ -27091,32 +27178,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (relevantCountBadge) relevantCountBadge.textContent = total;
 
       // Header line: the active area + the voter's exact district numbers, in the
-      // explicit "City, County — House District N · Senate District N · U.S. House UT-0N"
+      // explicit "City, County — House District N • Senate District N • U.S. House UT-0N"
       // format so the personalized scope is unmistakable.
       if (relevantLocText) {
         var areaName = (krData.city && krData.county) ? (krData.city + ', ' + krData.county) : krData.label;
         var distBits = [];
         if (lowerDist)  distBits.push('House District ' + lowerDist);
         if (senateDist) distBits.push('Senate District ' + senateDist);
-        if (houseDist)  distBits.push('U.S. House ' + (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist));
+        if (houseDist) {
+          var formattedHouse = (window._relevantCD ? (window._relevantCD(houseDist) || houseDist) : houseDist);
+          distBits.push('U.S. House ' + formattedHouse);
+        }
+        var distStr = distBits.join(' • ');
         relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
-          (distBits.length ? ' <span class="text-steel-300">— ' + distBits.join(' · ') + '</span>' : '') +
+          (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
           ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
-      // The State level also hosts a collapsed "explore other districts" browser
-      // for the two big chambers, so voters can look beyond their own seat
-      // without scrolling a flat 50+ list.
-      var explorer = _relevantExploreSection(stateName,
-        senateDist ? parseInt(senateDist, 10) : null,
-        lowerDist ? parseInt(lowerDist, 10) : null);
-
+      // Do NOT show the full list of 58 State Senators or the full State House list.
+      // Omit the explorer extra browser under the state level completely.
       var ctx = {
         focused: true, state: stateName,
         houseDist: houseDist ? ('District ' + houseDist) : '',
         senateDist: senateDist ? ('District ' + senateDist) : '',
         lowerDist: lowerDist ? ('District ' + lowerDist) : '',
-        levelExtras: explorer ? { state: explorer } : null
+        levelExtras: null
       };
 
       // ── "Your 2026 Ballot" overview ────────────────────────────────────────
