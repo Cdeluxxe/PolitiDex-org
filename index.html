@@ -1373,6 +1373,76 @@
     .stance-oppose   { background: rgba(248,113,113,0.14); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
     .stance-mixed    { background: rgba(96,165,250,0.14); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
     .stance-tracking { background: rgba(159,180,212,0.12); color: #9fb4d4; border: 1px solid rgba(159,180,212,0.25); }
+    /* Inline "your view" pill shown on a stance card when the visitor has the
+       matching Alignment Tool position selected — ties the card to their choices. */
+    .stance-you {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.12rem 0.45rem; border-radius: 999px; border: 1px solid; margin-top: 0.5rem;
+    }
+    .stance-you.cmp-match    { background: rgba(74,222,128,0.12);  color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .stance-you.cmp-partial  { background: rgba(245,200,66,0.12);  color: #f5c842; border-color: rgba(245,200,66,0.3); }
+    .stance-you.cmp-mismatch { background: rgba(248,113,113,0.12); color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+    /* ── Deep profile: "You vs. Politician" per-issue comparison ──────── */
+    .cmp-summary {
+      display: flex; align-items: center; gap: 0.85rem;
+      background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(30,53,96,0.35));
+      border: 1px solid rgba(139,92,246,0.25); border-radius: 0.9rem;
+      padding: 0.85rem 1rem; margin-bottom: 0.85rem;
+    }
+    .cmp-summary-score {
+      flex-shrink: 0; width: 60px; height: 60px; border-radius: 0.75rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(10,15,30,0.55); border: 1px solid rgba(255,255,255,0.07);
+    }
+    .cmp-summary-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; line-height: 1; }
+    .cmp-summary-lab { font-family: 'Barlow Condensed', sans-serif; font-size: 0.46rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin-top: 0.1rem; }
+    .cmp-summary-body { flex: 1; min-width: 0; }
+    .cmp-summary-head { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.05em; color: #fff; line-height: 1.15; }
+    .cmp-counts { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.4rem; }
+    .cmp-count {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem;
+      letter-spacing: 0.03em; padding: 0.1rem 0.45rem; border-radius: 999px; border: 1px solid;
+    }
+    .cmp-count.cmp-match    { background: rgba(74,222,128,0.12);  color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .cmp-count.cmp-partial  { background: rgba(245,200,66,0.12);  color: #f5c842; border-color: rgba(245,200,66,0.3); }
+    .cmp-count.cmp-mismatch { background: rgba(248,113,113,0.12); color: #f87171; border-color: rgba(248,113,113,0.3); }
+    .cmp-issue {
+      background: rgba(10,15,30,0.45); border: 1px solid rgba(255,255,255,0.07);
+      border-left-width: 3px; border-radius: 0.7rem; padding: 0.6rem 0.75rem; margin-bottom: 0.5rem;
+    }
+    .cmp-issue:last-of-type { margin-bottom: 0; }
+    .cmp-issue.cmp-match    { border-left-color: #4ade80; }
+    .cmp-issue.cmp-partial  { border-left-color: #f5c842; }
+    .cmp-issue.cmp-mismatch { border-left-color: #f87171; }
+    .cmp-issue-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .cmp-issue-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.83rem; color: #fff; letter-spacing: 0.01em; min-width: 0; }
+    .cmp-verdict {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.22rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem;
+      letter-spacing: 0.08em; text-transform: uppercase; padding: 0.14rem 0.5rem;
+      border-radius: 999px; border: 1px solid; white-space: nowrap;
+    }
+    .cmp-verdict.cmp-match    { background: rgba(74,222,128,0.14);  color: #4ade80; border-color: rgba(74,222,128,0.35); }
+    .cmp-verdict.cmp-partial  { background: rgba(245,200,66,0.14);  color: #f5c842; border-color: rgba(245,200,66,0.35); }
+    .cmp-verdict.cmp-mismatch { background: rgba(248,113,113,0.14); color: #f87171; border-color: rgba(248,113,113,0.35); }
+    .cmp-issue-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .cmp-col { background: rgba(10,15,30,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.55rem; padding: 0.42rem 0.55rem; min-width: 0; }
+    .cmp-col-h { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0; margin-bottom: 0.18rem; }
+    .cmp-col-v { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem; color: #cbd9ec; line-height: 1.25; }
+    .cmp-col-you .cmp-col-v { color: #c4b5fd; }
+    .cmp-researching { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+    .cmp-research-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; color: #9fb4d4; background: rgba(159,180,212,0.1); border: 1px solid rgba(159,180,212,0.2); border-radius: 999px; padding: 0.12rem 0.5rem; }
+    .cmp-empty { background: rgba(139,92,246,0.06); border: 1px dashed rgba(139,92,246,0.32); border-radius: 0.85rem; padding: 0.95rem 1rem; }
+    .cmp-empty-cta {
+      display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.6rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em;
+      color: #c4b5fd; background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 999px; padding: 0.3rem 0.7rem;
+    }
+    @media (hover: hover) { .cmp-empty-cta:hover { background: rgba(139,92,246,0.24); } }
     .mandate-row { margin-bottom: 0.75rem; }
     .mandate-row:last-child { margin-bottom: 0; }
     .mandate-track { height: 7px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
@@ -16033,61 +16103,71 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // ════════════════════════════════════════════════════════════
 
   // Curated issue stances. Each politician maps to a short list of positions.
-  //   pos: 'support' | 'oppose' | 'mixed' | 'tracking'
+  //   pos: 'support' | 'oppose' | 'mixed' | 'tracking'  (display badge on the card)
   //   topic/icon: human label + emoji (mirrors the Alignment Tool's issues)
   //   text: one-line plain-language stance · evidence/source are optional.
+  //
+  //   issueKey + issueStance: the LINKAGE to the Personalized Alignment Tool. The
+  //   issueKey points at the exact ISSUE_MAP position the politician holds a view
+  //   on, and issueStance ('support' | 'oppose' | 'mixed') is whether they back
+  //   THAT position. This is what powers the per-issue "You vs. them" comparison —
+  //   it is kept separate from the card's display `pos` because the card topic may
+  //   be framed differently from the Alignment position (e.g. "opposes foreign aid"
+  //   == supports the "America First" position). Add issueKey/issueStance to any
+  //   stance to make it comparable; leave them off and the card still renders, it
+  //   just isn't matched against a user's saved positions yet.
   var ISSUE_STANCE_DATA = {
     trump: [
-      { topic:'Border Security & Immigration', icon:'🛡', pos:'support', text:'Campaigns on completing border barriers and large-scale deportations; signed border-focused executive actions.', evidence:'Executive orders on border enforcement & Schedule F.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov'} },
-      { topic:'Taxes & Business', icon:'💰', pos:'support', text:'Signed the 2017 Tax Cuts and Jobs Act and backs extending the individual and pass-through cuts.', evidence:'Signed Tax Cuts and Jobs Act (2017).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Trade & American Jobs', icon:'🏭', pos:'support', text:'Favors tariffs on foreign goods to protect domestic manufacturing; raised China tariffs.', evidence:'Executive actions expanding tariffs on Chinese imports.' },
-      { topic:'Climate & Clean Energy', icon:'🌱', pos:'oppose', text:'Skeptical of climate mandates; withdrew the U.S. from the Paris Agreement and favors fossil-fuel deregulation.', evidence:'Executive Order withdrawing from the Paris Agreement.' },
-      { topic:'Defense & Foreign Policy', icon:'🦅', pos:'support', text:'Backs a strong military paired with an "America First" stance that questions open-ended foreign aid.' },
+      { topic:'Border Security & Immigration', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Campaigns on completing border barriers and large-scale deportations; signed border-focused executive actions.', evidence:'Executive orders on border enforcement & Schedule F.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov'} },
+      { topic:'Taxes & Business', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Signed the 2017 Tax Cuts and Jobs Act and backs extending the individual and pass-through cuts.', evidence:'Signed Tax Cuts and Jobs Act (2017).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Trade & American Jobs', icon:'🏭', pos:'support', issueKey:'econ_trade', issueStance:'support', text:'Favors tariffs on foreign goods to protect domestic manufacturing; raised China tariffs.', evidence:'Executive actions expanding tariffs on Chinese imports.' },
+      { topic:'Climate & Clean Energy', icon:'🌱', pos:'oppose', issueKey:'climate_action', issueStance:'oppose', text:'Skeptical of climate mandates; withdrew the U.S. from the Paris Agreement and favors fossil-fuel deregulation.', evidence:'Executive Order withdrawing from the Paris Agreement.' },
+      { topic:'Defense & Foreign Policy', icon:'🦅', pos:'support', issueKey:'america_first', issueStance:'support', text:'Backs a strong military paired with an "America First" stance that questions open-ended foreign aid.' },
     ],
     cox: [
-      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', text:'Made Great Salt Lake and statewide water conservation a signature priority, with major state investment.', evidence:'$500M+ in conservation spending since 2022.' },
-      { topic:'Technology Guardrails', icon:'🚀', pos:'mixed', text:'Pioneered first-in-nation social-media age-verification and an AI governance sandbox — innovation with new rules.', evidence:'Signed H.B. 311 (age verification) and AI governance bills.', source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
-      { topic:'School Choice', icon:'🎓', pos:'support', text:'Signed Utah\'s tax-reform and education-choice measures expanding family options.' },
-      { topic:'Housing Affordability', icon:'🏗', pos:'mixed', text:'Convened an Affordable Housing Task Force, but recommended zoning reforms have faced local resistance.' },
+      { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Made Great Salt Lake and statewide water conservation a signature priority, with major state investment.', evidence:'$500M+ in conservation spending since 2022.' },
+      { topic:'Technology Guardrails', icon:'🚀', pos:'mixed', issueKey:'tech_balance', issueStance:'support', text:'Pioneered first-in-nation social-media age-verification and an AI governance sandbox — innovation with new rules.', evidence:'Signed H.B. 311 (age verification) and AI governance bills.', source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'Signed Utah\'s tax-reform and education-choice measures expanding family options.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Convened an Affordable Housing Task Force, but recommended zoning reforms have faced local resistance.' },
     ],
     lee: [
-      { topic:'Spending & Balanced Budget', icon:'💰', pos:'mixed', text:'Champions deep spending cuts and a balanced-budget amendment, though he has voted for some omnibus packages.', evidence:'Opposed clean debt-ceiling raise; voted Yea on a 2024 omnibus.' },
-      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', text:'Strong civil-liberties record; led floor opposition to warrantless surveillance renewals.', evidence:'Voted Nay / filibustered FISA Section 702.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Religious Liberty', icon:'⛪', pos:'support', text:'Prioritizes conscience and religious-freedom protections.', evidence:'Voted Nay on the Respect for Marriage Act.' },
-      { topic:'Local Land Control', icon:'🏔', pos:'support', text:'Backs transferring more federal land decisions toward states and counties.' },
+      { topic:'Spending & Balanced Budget', icon:'💰', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Champions deep spending cuts and a balanced-budget amendment, though he has voted for some omnibus packages.', evidence:'Opposed clean debt-ceiling raise; voted Yea on a 2024 omnibus.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Strong civil-liberties record; led floor opposition to warrantless surveillance renewals.', evidence:'Voted Nay / filibustered FISA Section 702.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support', text:'Prioritizes conscience and religious-freedom protections.', evidence:'Voted Nay on the Respect for Marriage Act.' },
+      { topic:'Local Land Control', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backs transferring more federal land decisions toward states and counties.' },
     ],
     curtis: [
-      { topic:'Clean Energy', icon:'🌱', pos:'support', text:'Founded the Conservative Climate Caucus and pushes bipartisan clean-energy permitting reform.', evidence:'Introduced bipartisan permitting-reform legislation.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Energy Development', icon:'⛏', pos:'support', text:'Supports expanded domestic energy and resource production alongside emissions reduction.' },
+      { topic:'Clean Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Founded the Conservative Climate Caucus and pushes bipartisan clean-energy permitting reform.', evidence:'Introduced bipartisan permitting-reform legislation.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Energy Development', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Supports expanded domestic energy and resource production alongside emissions reduction.' },
       { topic:'Infrastructure', icon:'🏗', pos:'support', text:'Backed the bipartisan infrastructure law, delivering rural broadband funding to Utah.', evidence:'Voted Yea on the Bipartisan Infrastructure Law.' },
-      { topic:'Privacy & Surveillance', icon:'🔒', pos:'mixed', text:'Voted to reauthorize federal surveillance authority despite stated privacy concerns.', evidence:'Voted Yea on FISA Section 702 reauthorization.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'mixed', issueKey:'privacy_rights', issueStance:'mixed', text:'Voted to reauthorize federal surveillance authority despite stated privacy concerns.', evidence:'Voted Yea on FISA Section 702 reauthorization.' },
     ],
     massie: [
-      { topic:'Gun Rights', icon:'🔫', pos:'support', text:'Second Amendment absolutist; opposes new gun-control measures.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
-      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', text:'Consistent opponent of warrantless surveillance and broad data collection.', evidence:'Voted Nay on FISA reauthorization.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Spending & Fiscal Restraint', icon:'💰', pos:'support', text:'Refuses to vote for large bills he hasn\'t read; pushes to audit the Fed.', evidence:'Voted Nay on omnibus packages; co-sponsors Audit the Fed.' },
-      { topic:'Federal Education Role', icon:'🎓', pos:'oppose', text:'Files a one-sentence bill each Congress to abolish the Department of Education.', evidence:'Introduced H.R. 899 across multiple Congresses.' },
-      { topic:'Defense Spending', icon:'🦅', pos:'oppose', text:'Opposes military spending increases and calls for a Pentagon audit instead.', evidence:'Voted Nay on the NDAA.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Second Amendment absolutist; opposes new gun-control measures.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Consistent opponent of warrantless surveillance and broad data collection.', evidence:'Voted Nay on FISA reauthorization.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Spending & Fiscal Restraint', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Refuses to vote for large bills he hasn\'t read; pushes to audit the Fed.', evidence:'Voted Nay on omnibus packages; co-sponsors Audit the Fed.' },
+      { topic:'Federal Education Role', icon:'🎓', pos:'oppose', issueKey:'school_choice', issueStance:'support', text:'Files a one-sentence bill each Congress to abolish the Department of Education in favor of local control.', evidence:'Introduced H.R. 899 across multiple Congresses.' },
+      { topic:'Defense Spending', icon:'🦅', pos:'oppose', issueKey:'strong_defense', issueStance:'oppose', text:'Opposes military spending increases and calls for a Pentagon audit instead.', evidence:'Voted Nay on the NDAA.' },
     ],
     owens: [
-      { topic:'Border Security', icon:'🛡', pos:'support', text:'Backs strict border enforcement and security infrastructure.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
-      { topic:'Parental Rights & Education', icon:'🎓', pos:'support', text:'Supports parental rights in education and school choice.', evidence:'Voted Yea on the Parents Bill of Rights Act.' },
-      { topic:'Defense', icon:'🦅', pos:'support', text:'Supports military spending; cites his veteran and intelligence-adjacent background.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Backs strict border enforcement and security infrastructure.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
+      { topic:'Parental Rights & Education', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'Supports parental rights in education and school choice.', evidence:'Voted Yea on the Parents Bill of Rights Act.' },
+      { topic:'Defense', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Supports military spending; cites his veteran and intelligence-adjacent background.' },
     ],
     boebert: [
-      { topic:'Gun Rights', icon:'🔫', pos:'support', text:'Opposes gun-control measures as a Second Amendment absolutist.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
-      { topic:'Foreign Aid', icon:'🇺🇸', pos:'oppose', text:'Opposes foreign military aid under an "America First" framing.', evidence:'Voted Nay on the Ukraine supplemental.' },
-      { topic:'Spending', icon:'💰', pos:'support', text:'Rejects stopgap funding deals without deep spending cuts.', evidence:'Voted Nay on continuing resolutions.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Opposes gun-control measures as a Second Amendment absolutist.', evidence:'Voted Nay on the Bipartisan Safer Communities Act.' },
+      { topic:'Foreign Aid', icon:'🇺🇸', pos:'oppose', issueKey:'america_first', issueStance:'support', text:'Opposes foreign military aid under an "America First" framing.', evidence:'Voted Nay on the Ukraine supplemental.' },
+      { topic:'Spending', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Rejects stopgap funding deals without deep spending cuts.', evidence:'Voted Nay on continuing resolutions.' },
     ],
     mtg: [
-      { topic:'Foreign Aid (Ukraine)', icon:'🇺🇸', pos:'oppose', text:'Opposes additional Ukraine aid — "not one more penny" — as a core promise.', evidence:'Voted Nay on the Ukraine supplemental.' },
-      { topic:'Spending', icon:'💰', pos:'support', text:'Demands deeper cuts and rejects bipartisan spending compromises.', evidence:'Voted Nay on the Fiscal Responsibility Act.' },
-      { topic:'Surveillance', icon:'🔒', pos:'support', text:'Opposes the surveillance state on civil-liberties grounds.', evidence:'Voted Nay on FISA reauthorization.' },
+      { topic:'Foreign Aid (Ukraine)', icon:'🇺🇸', pos:'oppose', issueKey:'america_first', issueStance:'support', text:'Opposes additional Ukraine aid — "not one more penny" — as a core promise.', evidence:'Voted Nay on the Ukraine supplemental.' },
+      { topic:'Spending', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Demands deeper cuts and rejects bipartisan spending compromises.', evidence:'Voted Nay on the Fiscal Responsibility Act.' },
+      { topic:'Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Opposes the surveillance state on civil-liberties grounds.', evidence:'Voted Nay on FISA reauthorization.' },
     ],
     maloy: [
-      { topic:'Energy & Resources', icon:'⛏', pos:'support', text:'Backs expanded energy and resource production for rural Utah.', evidence:'Voted Yea on the Lower Energy Costs Act (H.R. 1).' },
-      { topic:'Border Security', icon:'🛡', pos:'support', text:'Supports border security, a top issue for her district.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
-      { topic:'Federal Lands', icon:'🏔', pos:'support', text:'Pushes for more state and local say over federal land decisions.', evidence:'Voted Yea on federal-lands management reform.' },
+      { topic:'Energy & Resources', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Backs expanded energy and resource production for rural Utah.', evidence:'Voted Yea on the Lower Energy Costs Act (H.R. 1).' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports border security, a top issue for her district.', evidence:'Voted Yea on the Secure the Border Act (H.R. 2).' },
+      { topic:'Federal Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Pushes for more state and local say over federal land decisions.', evidence:'Voted Yea on federal-lands management reform.' },
     ],
   };
 
@@ -16122,6 +16202,173 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     return '🎯';
   }
 
+  // ── Shared issue linkage (Alignment Tool ⇄ politician profiles) ──────
+  // Build a lookup of a politician's documented positions, keyed by the SAME
+  // ISSUE_MAP keys the Alignment Tool uses, so a visitor's saved positions can be
+  // matched against the politician one-to-one. The curated ISSUE_STANCE_DATA above
+  // is the single source of truth: any stance carrying an `issueKey` becomes a
+  // comparable position. Extend coverage by adding issueKey/issueStance to a
+  // stance — no parallel data structure to keep in sync.
+  function _polPositionMap(id) {
+    var out = {};
+    var list = (typeof ISSUE_STANCE_DATA !== 'undefined') ? ISSUE_STANCE_DATA[id] : null;
+    if (!list) return out;
+    list.forEach(function(s) {
+      if (!s || !s.issueKey) return;
+      out[s.issueKey] = {
+        stance: s.issueStance || s.pos || 'mixed',
+        topic: s.topic, text: s.text, icon: s.icon,
+        evidence: s.evidence, source: s.source
+      };
+    });
+    return out;
+  }
+  window._polPositionMap = _polPositionMap;
+
+  // Compare one of the visitor's selected positions to the politician's stance.
+  //   userIntensity : 'strong' | 'moderate' | 'opposed'  (how they feel about it)
+  //   polStance     : 'support' | 'oppose'  | 'mixed'     (does the politician hold it)
+  // Returns 'match' | 'partial' | 'mismatch'. A user who marked a position
+  // "Opposed" flips the read — agreeing with a politician who rejects it too.
+  function _issueVerdict(userIntensity, polStance) {
+    if (polStance === 'mixed') return 'partial';
+    var userAgrees = userIntensity !== 'opposed';
+    var polHolds = polStance === 'support';
+    return (userAgrees === polHolds) ? 'match' : 'mismatch';
+  }
+  window._issueVerdict = _issueVerdict;
+
+  var _CMP_VERDICT_META = {
+    match:    { cls:'cmp-match',    ico:'✓', label:'Aligned'  },
+    partial:  { cls:'cmp-partial',  ico:'~', label:'Partial'  },
+    mismatch: { cls:'cmp-mismatch', ico:'✗', label:'Differs'  }
+  };
+  function _userStanceLabel(intensity) {
+    if (intensity === 'strong')  return 'Strongly for';
+    if (intensity === 'opposed') return 'You oppose';
+    return 'You agree';
+  }
+  function _polStanceLabel(stance) {
+    if (stance === 'support') return 'Supports';
+    if (stance === 'oppose')  return 'Opposes';
+    return 'Mixed record';
+  }
+
+  // "How You Compare" — the per-issue linkage between a visitor's saved Alignment
+  // Tool positions and this politician's documented stances. Shown whenever the
+  // visitor has any positions selected (their saved Alignment Signature loads
+  // automatically when signed in). Each comparable issue gets a side-by-side read
+  // — your view vs. theirs — with a colored match / partial / differs indicator,
+  // so it's obvious at a glance where you line up and where you don't.
+  window._renderIssueComparison = function(id, p) {
+    p = p || {};
+    var hasTool = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0
+                   && typeof ISSUE_MAP !== 'undefined');
+    var name = (p.name || 'this official');
+    var first = String(name).split(' ')[0] || 'They';
+
+    // No positions chosen yet → a friendly prompt to use the Alignment Tool. This
+    // is what most clearly ties the two features together for new visitors.
+    if (!hasTool) {
+      return '<div class="modal-section">' +
+        '<div class="modal-section-title">🤝 How You Compare</div>' +
+        '<div class="cmp-empty">' +
+          '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">Pick the positions you care about in the <b style="color:#c4b5fd;">Personalized Alignment Tool</b> and this section shows, issue by issue, where you and ' + name + ' agree — and where you part ways.</p>' +
+          '<button type="button" class="cmp-empty-cta" onclick="closeModal();setTimeout(function(){var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Set your alignment</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var polMap = _polPositionMap(id);
+    var documented = [];
+    var researching = [];
+    _alignIssues.forEach(function(key) {
+      var def = ISSUE_MAP[key];
+      if (!def) return;
+      var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[key]) || 'moderate';
+      if (polMap[key]) documented.push({ key:key, def:def, intensity:intensity, pos:polMap[key] });
+      else researching.push({ key:key, def:def, intensity:intensity });
+    });
+
+    if (!documented.length && !researching.length) return '';
+
+    documented.forEach(function(r) { r.verdict = _issueVerdict(r.intensity, r.pos.stance); });
+    var order = { match:0, partial:1, mismatch:2 };
+    documented.sort(function(a, b) { return order[a.verdict] - order[b.verdict]; });
+
+    var nMatch    = documented.filter(function(r){ return r.verdict === 'match'; }).length;
+    var nPartial  = documented.filter(function(r){ return r.verdict === 'partial'; }).length;
+    var nMismatch = documented.filter(function(r){ return r.verdict === 'mismatch'; }).length;
+
+    // Headline % reuses the existing alignment engine so this read can never drift
+    // from the "Personalized Alignment" bar or the card scores.
+    var overall = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+    var col = (typeof _alignScoreColor === 'function') ? _alignScoreColor(overall)
+              : (overall >= 70 ? '#4ade80' : overall >= 50 ? '#f5c842' : '#f87171');
+
+    var countChip = function(n, kind, label) {
+      if (!n) return '';
+      return '<span class="cmp-count ' + kind + '">' + n + ' ' + label + '</span>';
+    };
+    var matchLine = documented.length
+      ? 'You line up with ' + first + ' on <b style="color:#4ade80;">' + nMatch + ' of ' + documented.length + '</b> documented issue' + (documented.length > 1 ? 's' : '') + '.'
+      : 'None of your selected issues have a documented position for ' + first + ' yet.';
+
+    var summary =
+      '<div class="cmp-summary">' +
+        (overall !== null
+          ? '<div class="cmp-summary-score"><span class="cmp-summary-num" style="color:' + col + ';">' + overall + '%</span><span class="cmp-summary-lab">Aligned</span></div>'
+          : '') +
+        '<div class="cmp-summary-body">' +
+          '<div class="cmp-summary-head">You vs. ' + name + '</div>' +
+          '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">' + matchLine + '</p>' +
+          (documented.length ? '<div class="cmp-counts">' +
+            countChip(nMatch, 'cmp-match', 'aligned') +
+            countChip(nPartial, 'cmp-partial', 'partial') +
+            countChip(nMismatch, 'cmp-mismatch', 'differ') +
+          '</div>' : '') +
+        '</div>' +
+      '</div>';
+
+    var rows = documented.map(function(r) {
+      var m = _CMP_VERDICT_META[r.verdict];
+      var icon = (r.def.label || '').split(' ')[0] || '🎯';
+      var labelText = (r.def.label || '').split(' ').slice(1).join(' ') || r.def.label;
+      return '<div class="cmp-issue ' + m.cls + '">' +
+        '<div class="cmp-issue-top">' +
+          '<span class="cmp-issue-name">' + icon + ' ' + labelText + '</span>' +
+          '<span class="cmp-verdict ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+        '</div>' +
+        '<div class="cmp-issue-cols">' +
+          '<div class="cmp-col cmp-col-you"><span class="cmp-col-h">Your view</span><span class="cmp-col-v">' + _userStanceLabel(r.intensity) + '</span></div>' +
+          '<div class="cmp-col cmp-col-pol"><span class="cmp-col-h">' + first + '</span><span class="cmp-col-v">' + _polStanceLabel(r.pos.stance) + '</span></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    // Selected issues we can't yet compare → listed compactly so it's clear the
+    // structure is ready and only the data is still being filled in.
+    var researchingBlock = '';
+    if (researching.length) {
+      var pills = researching.map(function(r) {
+        return '<span class="cmp-research-pill">' + r.def.label + '</span>';
+      }).join('');
+      researchingBlock =
+        '<div style="margin-top:0.7rem;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">' + researching.length + ' more of your issue' + (researching.length > 1 ? 's' : '') + ' — position being documented</div>' +
+          '<div class="cmp-researching">' + pills + '</div>' +
+        '</div>';
+    }
+
+    return '<div class="modal-section">' +
+      '<div class="modal-section-title">🤝 How You Compare</div>' +
+      summary +
+      rows +
+      researchingBlock +
+      '<p class="src-note">Your saved Alignment Tool positions matched against ' + name + '\'s documented stances. Sign in to save your picks across devices — the comparison updates as more positions are verified.</p>' +
+    '</div>';
+  };
+
   // Key Issue Stances — clear, scannable positions on specific issues.
   window._renderIssueStances = function(id, p) {
     p = p || {};
@@ -16148,6 +16395,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var m = posMeta[s.pos] || posMeta.tracking;
       var ev = s.evidence ? '<div style="font-size:0.7rem;color:#7596c0;line-height:1.5;margin-top:0.4rem;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">Record:</span> ' + s.evidence + '</div>' : '';
       var src = s.source && s.source.url ? '<a href="' + s.source.url + '" target="_blank" rel="noopener" class="dd-source-chip" style="margin-top:0.45rem;">🔗 ' + s.source.label + '</a>' : '';
+      // If the visitor selected the matching Alignment Tool position, tag the card
+      // with their own view + a colored match indicator — the at-a-glance linkage.
+      var youPill = '';
+      if (s.issueKey && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.has(s.issueKey)) {
+        var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+        var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos || 'mixed') : 'partial';
+        var vm = _CMP_VERDICT_META[verdict] || _CMP_VERDICT_META.partial;
+        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' You: ' + _userStanceLabel(intensity) + ' · ' + vm.label + '</span>';
+      }
       return '<div class="stance-card">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
           '<div style="display:flex;align-items:center;gap:0.45rem;min-width:0;">' +
@@ -16159,6 +16415,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;">' + s.text + '</p>' +
         ev +
         (src ? '<div>' + src + '</div>' : '') +
+        youPill +
       '</div>';
     }).join('');
     var note = derived
@@ -16489,6 +16746,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       <!-- The People's Mandate Alignment -->
       ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
+
+      <!-- How You Compare: per-issue linkage to the visitor's Alignment Tool picks -->
+      ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
 
       <!-- Key Issue Stances -->
       ${(typeof window._renderIssueStances === 'function') ? window._renderIssueStances(id, p) : ''}
