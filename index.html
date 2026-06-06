@@ -27110,6 +27110,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       var stateName = (window._currentVoterLocation && window._currentVoterLocation.state) || 'Utah';
+      var userCounty = (window._currentVoterLocation && (window._currentVoterLocation.county || window._currentVoterLocation.city || '')) || '';
+      var userDistrict = (window._currentVoterLocation && window._currentVoterLocation.district) || '';
+
       var picked = {}; // pid -> office groupKey (dedup)
       function add(pid, groupKey) {
         if (!pid || !CMP_DATA[pid]) return;
@@ -27117,56 +27120,134 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         picked[pid] = groupKey;
       }
 
-      // Federal executives — relevant to every American.
-      Object.keys(CMP_DATA).forEach(function(pid) {
-        var t = _classifyBrowseType(pid);
-        if (t === 'president' || t === 'cabinet') add(pid, t);
-      });
-
       var houseDist  = null;
       var senateDist = null;
       var lowerDist  = null;
 
       if (krData && (stateName === 'Utah' || krData.matched)) {
-        // Statewide seats every voter in the state shares (U.S. Senate, Governor).
-        (krData.statewide.senate || []).forEach(function(pid) { add(pid, 'senator'); });
-        (krData.statewide.governor || []).forEach(function(pid) { add(pid, 'governor'); });
-
         houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
         senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
         lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
-
-        function addCurated(raceKey, groupKey) {
-          var r = krData.byRace[raceKey];
-          if (r) r.pids.forEach(function(pid) { add(pid, groupKey); });
-        }
-        addCurated('house', 'representative');
-        addCurated('statesenate', 'state_senator');
-        addCurated('statehouse', 'state_rep');
-        addCurated('local', 'local');
-
-        // Dynamically add matching local mayors based on the selected location to keep it personalized
-        if (krData.locId === 'davis') {
-          add('jpetro', 'local');
-        } else if (krData.locId === 'utah_co') {
-          add('mkaufusi', 'local');
-        } else if (krData.locId === 'washington') {
-          add('cdippre', 'local');
-        } else if (krData.locId === 'weber') {
-          add('dpetersen', 'local');
-        }
-      } else {
-        // For other states/locations, only show federal executives, and statewide if in Utah:
-        // Do NOT show other districts or other parts of the state.
-        if (stateName === 'Utah') {
-          (KEY_RACES_STATEWIDE || []).forEach(function(r) {
-            var groupKey = (r.raceKey === 'senate') ? 'senator' : r.raceKey;
-            (r.candidates || []).forEach(function(pid) { add(pid, groupKey); });
-            if (r.incumbentPid) add(r.incumbentPid, groupKey);
-            (r.incumbentPids || []).forEach(function(pid) { add(pid, groupKey); });
-          });
-        }
       }
+
+      if (userDistrict) {
+        houseDist = userDistrict;
+      }
+
+      // Dynamic matching logic to connect location/districts to politicians
+      Object.keys(CMP_DATA).forEach(function(pid) {
+        var d = CMP_DATA[pid];
+        var t = _classifyBrowseType(pid);
+        var pState = _getPoliticianState(pid);
+
+        // Federal executives are always relevant
+        if (t === 'president' || t === 'cabinet') {
+          add(pid, t);
+          return;
+        }
+
+        // For other offices, state must match user's selected state
+        if (pState.toLowerCase() !== stateName.toLowerCase()) {
+          return;
+        }
+
+        // U.S. Senators and Governors are statewide offices
+        if (t === 'senator' || t === 'governor') {
+          add(pid, t);
+          return;
+        }
+
+        // U.S. Representatives (U.S. House)
+        if (t === 'representative') {
+          var pDist = _relevantDistNum(pid);
+          if (houseDist) {
+            if (pDist !== null && String(pDist) === String(houseDist)) {
+              add(pid, t);
+            }
+          } else if (userCounty) {
+            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+              add(pid, t);
+            }
+          } else {
+            add(pid, t);
+          }
+          return;
+        }
+
+        // State Senators
+        if (t === 'state_senator') {
+          var pDist = _relevantDistNum(pid);
+          if (pDist !== null) {
+            if (senateDist && String(pDist) === String(senateDist)) {
+              add(pid, t);
+            } else if (!senateDist && userCounty) {
+              var pCounty = _UTAH_SENATE_COUNTY[pDist];
+              if (pCounty && pCounty.toLowerCase().indexOf(userCounty.toLowerCase()) !== -1) {
+                add(pid, t);
+              } else {
+                var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+                if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+                  add(pid, t);
+                }
+              }
+            } else if (!senateDist && !userCounty) {
+              add(pid, t);
+            }
+          } else if (userCounty) {
+            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+              add(pid, t);
+            }
+          } else {
+            add(pid, t);
+          }
+          return;
+        }
+
+        // State Representatives (State House)
+        if (t === 'state_rep') {
+          var pDist = _relevantDistNum(pid);
+          if (pDist !== null) {
+            if (lowerDist && String(pDist) === String(lowerDist)) {
+              add(pid, t);
+            } else if (!lowerDist && userCounty) {
+              var pCounty = _UTAH_HOUSE_COUNTY[pDist];
+              if (pCounty && pCounty.toLowerCase().indexOf(userCounty.toLowerCase()) !== -1) {
+                add(pid, t);
+              } else {
+                var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+                if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+                  add(pid, t);
+                }
+              }
+            } else if (!lowerDist && !userCounty) {
+              add(pid, t);
+            }
+          } else if (userCounty) {
+            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+              add(pid, t);
+            }
+          } else {
+            add(pid, t);
+          }
+          return;
+        }
+
+        // Local Officials / Mayors
+        if (t === 'local') {
+          if (userCounty) {
+            var checkStr = (d.state + ' ' + d.office + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
+            if (checkStr.indexOf(userCounty.toLowerCase()) !== -1) {
+              add(pid, t);
+            }
+          } else {
+            add(pid, t);
+          }
+          return;
+        }
+      });
 
       // Bucket the picked pids into their office groups.
       var officeGroups = {};
@@ -27195,7 +27276,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         } else {
           var loc = window._currentVoterLocation || {};
           var areaName = (loc.city && loc.county) ? (loc.city + ', ' + loc.county) : (loc.county || loc.city || loc.state || 'your area');
-          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong> <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
+          var distBits = [];
+          if (loc.district) distBits.push('U.S. House District ' + loc.district);
+          var distStr = distBits.join(' • ');
+          relevantLocText.innerHTML = '📍 <strong class="text-blue-300">' + areaName + '</strong>' +
+            (distStr ? ' <span class="text-steel-300">— ' + distStr + '</span>' : '') +
+            ' <span class="text-steel-500">·</span> <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
         }
       }
 
@@ -27242,6 +27328,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           overview += '</div>';
         }
         overview += '</div>';
+      }
+
+      if (total === 0) {
+        var areaName = (window._currentVoterLocation && (window._currentVoterLocation.city || window._currentVoterLocation.county || window._currentVoterLocation.state)) || "this location";
+        var noResultsHtml = '<div class="text-center py-10 px-4 bg-navy-900/40 border border-white/5 rounded-2xl mt-4">' +
+          '<div class="text-4xl mb-3">🔍</div>' +
+          '<h4 class="font-display text-lg tracking-wider text-white uppercase">No politicians found for ' + areaName + '</h4>' +
+          '<p class="font-condensed text-xs text-steel-400 mt-1 max-w-md mx-auto">We couldn\'t find any matching politicians in our database for this specific area. Try changing your state, county, or district to find your representatives.</p>' +
+          '<button type="button" onclick="window.toggleChangeLocation()" class="mt-4 font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 min-h-[44px]">📍 Adjust Location</button>' +
+          '</div>';
+        relevantGrid.innerHTML = overview + noResultsHtml;
+        return;
       }
 
       relevantGrid.innerHTML = overview + _renderRelevantTree(officeGroups, ctx);
