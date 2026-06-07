@@ -13361,6 +13361,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <span aria-hidden="true">✕</span> Close
           </button>
         </div>
+        <div id="pm-coverage-toolbar" class="flex flex-wrap items-center gap-2 mb-4">
+          <button type="button" id="pm-standardize-btn" onclick="window.pmStandardizeDistricts && window.pmStandardizeDistricts()"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-sky-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">🧹</span> Standardize Districts
+          </button>
+          <span class="text-[11px] font-body text-steel-400 leading-snug">Cleans every Utah legislator's <code class="text-sky-300">district</code> field to one consistent format (e.g. “Dist. 6”, “D6”, “District 06” → “District 6”). Only the district field is touched.</span>
+        </div>
+        <div id="pm-standardize-result" class="hidden mb-4"></div>
         <div id="pm-coverage-body" class="space-y-5">
           <!-- coverage cards + tables injected here -->
         </div>
@@ -13895,12 +13903,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return null;
       }
 
+      // The one canonical, human-readable form every district value is cleaned
+      // into: "District 6" (no leading zeros, no abbreviations). The number is
+      // what coverage actually keys on; the "District " prefix keeps the field
+      // self-describing when an admin opens the record. Returns '' for a null
+      // number so callers never fabricate a district where none was found.
+      function _pmCanonicalDistrict(num) {
+        return (num == null) ? '' : ('District ' + num);
+      }
+
+      // Classify a single Utah district-chamber record's district situation,
+      // so coverage and the standardizer agree on what's clean, what's
+      // out-of-range, and what genuinely needs a human. Returns:
+      //   { num, canonical, status }  status ∈ 'ok' | 'out-of-range' | 'none'
+      function _pmDistrictStatus(p, chamber) {
+        var num = _pmDistrictNum(p);
+        if (num == null) return { num: null, canonical: '', status: 'none' };
+        if (chamber && chamber.total && (num < 1 || num > chamber.total)) {
+          return { num: num, canonical: _pmCanonicalDistrict(num), status: 'out-of-range' };
+        }
+        return { num: num, canonical: _pmCanonicalDistrict(num), status: 'ok' };
+      }
+
       // Build the Utah seat map: per chamber, which district numbers are filled
       // (and by which record ids), which records couldn't be matched to a
       // district, and which statewide offices are held.
       function _pmUtahCoverage() {
         var seats = {};
-        PM_UTAH_CHAMBERS.forEach(function (c) { seats[c.key] = { mapped: {}, unmapped: [] }; });
+        PM_UTAH_CHAMBERS.forEach(function (c) { seats[c.key] = { mapped: {}, unmapped: [], review: [] }; });
         var statewide = {};
         PM_UTAH_STATEWIDE.forEach(function (s) { statewide[s.key] = []; });
 
@@ -13911,9 +13941,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (seats[ch]) {
             var bucket = seats[ch];
             var chamber = PM_UTAH_CHAMBERS.filter(function (c) { return c.key === ch; })[0];
-            var d = (chamber && chamber.hasDistricts) ? _pmDistrictNum(row.p) : null;
-            if (d != null) { (bucket.mapped[d] = bucket.mapped[d] || []).push(row.id); }
-            else { bucket.unmapped.push(row.id); }
+            // No-district chamber (U.S. Senate): every matched record is a
+            // valid holder — nothing to parse or review.
+            if (!chamber || !chamber.hasDistricts) { bucket.unmapped.push(row.id); return; }
+            // District chamber: place records in a real seat only when the
+            // number is present AND in range. Anything else is surfaced for
+            // review instead of being silently dropped or lumped elsewhere.
+            var ds = _pmDistrictStatus(row.p, chamber);
+            if (ds.status === 'ok') {
+              (bucket.mapped[ds.num] = bucket.mapped[ds.num] || []).push(row.id);
+            } else {
+              bucket.review.push({
+                id: row.id,
+                name: row.p.name || row.id,
+                district: String(row.p.district == null ? '' : row.p.district),
+                num: ds.num,
+                reason: ds.status // 'none' | 'out-of-range'
+              });
+            }
           } else if (statewide[ch]) {
             statewide[ch].push(row.id);
           }
@@ -13980,7 +14025,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           filledSeats = Math.min(held, chamber.total);
         }
         var pct = chamber.total ? Math.round((filledSeats / chamber.total) * 100) : 0;
-        var unmapped = bucket.unmapped.length;
+        var review = chamber.hasDistricts ? bucket.review.length : 0;
 
         var html = '<div class="bg-navy-900/60 border border-white/10 rounded-xl p-4">' +
           '<div class="flex items-baseline justify-between gap-2 mb-1.5">' +
@@ -14015,9 +14060,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         } else {
           html += '<div class="mt-2.5 text-xs font-body text-green-300/90">✓ Both seats covered.</div>';
         }
-        if (unmapped) {
-          html += '<div class="mt-1.5 text-[11px] font-body text-steel-400">' + unmapped + ' record' + (unmapped === 1 ? '' : 's') +
-            ' in this chamber have no clear district number — open them to add one.</div>';
+        if (review) {
+          html += '<div class="mt-1.5 text-[11px] font-body text-amber-300/80">⚠️ ' + review + ' record' + (review === 1 ? '' : 's') +
+            ' need review — chamber matches but the district is missing or out of range. See “Needs Review” below.</div>';
         }
         html += '</div>';
         return html;
@@ -14073,6 +14118,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var seatSection = '<div>' +
           '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200 mb-2.5">🏛 Utah Seat Coverage</div>' +
           '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' + cards + '</div></div>';
+
+        // ── Needs Review / Unassigned ──
+        // Utah legislators whose chamber is clear but whose district can't be
+        // trusted (blank, unparseable, or out of range). Previously these
+        // vanished into a grey footnote or were mistaken for statewide records;
+        // now each is listed and one click opens it in the editor to fix.
+        var reviewRows = [];
+        PM_UTAH_CHAMBERS.forEach(function (c) {
+          if (!c.hasDistricts) return;
+          (cov.seats[c.key].review || []).forEach(function (r) {
+            reviewRows.push({ chamberLabel: c.label, total: c.total, r: r });
+          });
+        });
+        var reviewSection = '';
+        if (reviewRows.length) {
+          var reviewItems = reviewRows.map(function (x) {
+            var raw = x.r.district ? '“' + _pmEsc(x.r.district) + '”' : '(blank)';
+            var why = x.r.reason === 'out-of-range'
+              ? ('district ' + x.r.num + ' is outside 1–' + x.total)
+              : 'no district number found';
+            return '<button type="button" onclick="window.pmToggleCoverage(false); window.pmSelect(\'' + _pmJs(x.r.id) + '\')" ' +
+              'title="Open ' + _pmEscAttr(x.r.name) + ' to set a district" ' +
+              'class="flex items-center justify-between gap-3 w-full text-left px-3 py-2 rounded-lg bg-navy-950/70 border border-amber-500/30 hover:border-amber-400 hover:bg-amber-500/10 transition-all">' +
+              '<span class="min-w-0"><span class="font-body text-sm text-white truncate">' + _pmEsc(x.r.name) + '</span>' +
+                '<span class="block font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400">' + _pmEsc(x.chamberLabel) + ' · ' + why + '</span></span>' +
+              '<span class="flex-shrink-0 font-mono text-[11px] text-amber-200/90 bg-amber-950/40 border border-amber-500/20 rounded px-1.5 py-0.5">' + raw + '</span>' +
+            '</button>';
+          }).join('');
+          reviewSection = '<div>' +
+            '<div class="flex items-center justify-between gap-2 mb-2.5">' +
+              '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-200">⚠️ Needs Review / Unassigned</div>' +
+              '<span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-amber-300/80">' + reviewRows.length + ' record' + (reviewRows.length === 1 ? '' : 's') + '</span>' +
+            '</div>' +
+            '<div class="text-[11px] font-body text-steel-300 mb-2.5 max-w-3xl leading-relaxed">These Utah legislators map to a chamber but have no usable district. They are <strong>not</strong> counted as filled seats and are kept out of the statewide totals. Use “Standardize Districts” above to auto-clean the fixable ones, or click a record to set its district by hand.</div>' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">' + reviewItems + '</div></div>';
+        }
 
         // ── Utah statewide executive offices ──
         var swChips = PM_UTAH_STATEWIDE.map(function (s) {
@@ -14145,7 +14226,132 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>'
           : '';
 
-        body.innerHTML = headline + seatSection + swSection + dupCallout + breakdown;
+        body.innerHTML = headline + seatSection + reviewSection + swSection + dupCallout + breakdown;
+      };
+
+      // ── Standardize Districts ────────────────────────────────────
+      // One-click cleanup that rewrites every Utah legislator's `district`
+      // field into the single canonical "District N" form. It is deliberately
+      // conservative and reversible-by-hand:
+      //   • Only Utah records in a district-based chamber are considered.
+      //   • Only the `district` field is written (plus updatedAt). No other
+      //     field — name, office, promises, sources — is ever touched.
+      //   • Records whose number can't be parsed are LEFT ALONE (never given a
+      //     fabricated district); they stay in the "Needs Review" list for a
+      //     human to resolve.
+      //   • Records already in canonical form are skipped, so re-running is a
+      //     no-op.
+      // First click previews the exact from→to changes; the preview's confirm
+      // button commits them to Firestore in batched writes.
+      function _pmDistrictPlan() {
+        var plan = [];
+        _pmAll().forEach(function (row) {
+          if (!_pmIsUtah(row.p.state)) return;
+          var ch = _pmUtahChamber(row.p);
+          if (!ch) return;
+          var chamber = PM_UTAH_CHAMBERS.filter(function (c) { return c.key === ch; })[0];
+          if (!chamber || !chamber.hasDistricts) return;
+          var num = _pmDistrictNum(row.p);
+          if (num == null) return; // unparseable — leave for manual review
+          var canonical = _pmCanonicalDistrict(num);
+          var current = String(row.p.district == null ? '' : row.p.district);
+          if (current !== canonical) {
+            plan.push({ id: row.id, name: row.p.name || row.id, from: current, to: canonical });
+          }
+        });
+        return plan;
+      }
+
+      function _pmStdResultEl() { return document.getElementById('pm-standardize-result'); }
+
+      window.pmStandardizeDistricts = function (confirmed) {
+        var el = _pmStdResultEl();
+        if (!el) return;
+        var plan = _pmDistrictPlan();
+        el.classList.remove('hidden');
+
+        if (!plan.length) {
+          el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-green-200 bg-green-950/30 border-green-500/40';
+          el.innerHTML = '<span aria-hidden="true">✓</span> Every Utah legislator already has a standardized district — nothing to clean.';
+          return;
+        }
+
+        // ── Preview step ──
+        if (!confirmed) {
+          var rows = plan.slice(0, 60).map(function (x) {
+            var from = x.from ? '“' + _pmEsc(x.from) + '”' : '(blank)';
+            return '<tr class="border-t border-white/5">' +
+              '<td class="py-1 pr-3 text-steel-200">' + _pmEsc(x.name) + '</td>' +
+              '<td class="py-1 px-2 text-amber-200/90 font-mono text-[11px]">' + from + '</td>' +
+              '<td class="py-1 pl-2 text-green-200 font-mono text-[11px]">“' + _pmEsc(x.to) + '”</td>' +
+            '</tr>';
+          }).join('');
+          el.className = 'mb-4 rounded-xl px-4 py-3 border text-sky-100 bg-navy-900/70 border-sky-500/40';
+          el.innerHTML =
+            '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200 mb-2">' +
+              '🧹 ' + plan.length + ' district' + (plan.length === 1 ? '' : 's') + ' will be standardized</div>' +
+            '<div class="overflow-x-auto max-h-72 overflow-y-auto rounded-lg border border-white/5"><table class="w-full text-xs font-body border-collapse">' +
+              '<thead><tr class="text-steel-500 font-condensed text-[10px] tracking-widest uppercase sticky top-0 bg-navy-950">' +
+                '<th class="text-left font-700 py-1.5 pr-3">Record</th>' +
+                '<th class="text-left font-700 py-1.5 px-2">Current</th>' +
+                '<th class="text-left font-700 py-1.5 pl-2">Standardized</th>' +
+              '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+            (plan.length > 60 ? '<div class="text-[11px] text-steel-500 mt-1.5">…and ' + (plan.length - 60) + ' more</div>' : '') +
+            '<div class="flex flex-wrap gap-2 mt-3">' +
+              '<button type="button" onclick="window.pmStandardizeDistricts(true)" ' +
+                'class="inline-flex items-center gap-1.5 bg-sky-600 hover:bg-sky-500 text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-4 py-2 rounded-lg transition-all">' +
+                '<span aria-hidden="true">✓</span> Apply ' + plan.length + ' change' + (plan.length === 1 ? '' : 's') + '</button>' +
+              '<button type="button" onclick="window.pmStandardizeCancel()" ' +
+                'class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-4 py-2 rounded-lg transition-all">Cancel</button>' +
+            '</div>';
+          return;
+        }
+
+        // ── Commit step: batched Firestore writes, district field only ──
+        el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-sky-100 bg-navy-900/70 border-sky-500/40';
+        el.innerHTML = '<span aria-hidden="true">⏳</span> Standardizing ' + plan.length + ' district' + (plan.length === 1 ? '' : 's') + '…';
+
+        var chunks = [];
+        for (var i = 0; i < plan.length; i += 400) chunks.push(plan.slice(i, i + 400));
+        var stamp = new Date().toISOString();
+        var written = 0;
+
+        function commitChunk(idx) {
+          if (idx >= chunks.length) { finish(); return; }
+          var batch = db.batch();
+          chunks[idx].forEach(function (item) {
+            batch.update(db.collection('politicians').doc(item.id), { district: item.to, updatedAt: stamp });
+          });
+          batch.commit().then(function () {
+            chunks[idx].forEach(function (item) {
+              if (PROFILES[item.id]) { PROFILES[item.id].district = item.to; PROFILES[item.id].updatedAt = stamp; }
+              if (typeof CMP_DATA !== 'undefined' && CMP_DATA[item.id]) { CMP_DATA[item.id].district = item.to; }
+              written++;
+            });
+            commitChunk(idx + 1);
+          }).catch(function (error) {
+            console.error('Standardize Districts batch failed:', error);
+            el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-red-200 bg-red-950/40 border-red-500/40';
+            el.innerHTML = '<span aria-hidden="true">✕</span> Write failed after ' + written + ' update' + (written === 1 ? '' : 's') +
+              ': ' + _pmEsc(error && error.message ? error.message : 'unknown error') + '. Already-written changes are saved; you can safely re-run to finish the rest.';
+          });
+        }
+
+        function finish() {
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          window.pmRenderList(); // refreshes the coverage panel with new numbers
+          if (typeof window._showToast === 'function') { window._showToast('Standardized ' + written + ' district' + (written === 1 ? '' : 's') + ' ✓'); }
+          el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-green-200 bg-green-950/30 border-green-500/40';
+          el.innerHTML = '<span aria-hidden="true">✓</span> Standardized <strong>' + written + '</strong> district field' + (written === 1 ? '' : 's') +
+            '. Coverage numbers above now reflect the cleaned data.';
+        }
+
+        commitChunk(0);
+      };
+
+      window.pmStandardizeCancel = function () {
+        var el = _pmStdResultEl();
+        if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
       };
 
       // Toggle the coverage panel (optionally forced open/closed).
@@ -14162,6 +14368,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           else { btn.classList.remove('bg-sky-500/20', 'border-sky-400/70', 'text-sky-200'); btn.classList.add('bg-navy-900'); }
         }
         if (show) {
+          window.pmStandardizeCancel(); // clear any stale preview/result
           window.pmRenderCoverage();
           try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
         }
