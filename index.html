@@ -19425,7 +19425,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     fillmore:'lincoln_fillmore', harper:'wayne_harper', stevenson:'jerry_stevenson',
     millner:'ann_millner', sandall_s:'scott_sandall', sandall:'scott_sandall',
     grover:'keith_grover', teuscher:'jordan_teuscher', spackman_moss:'carol_spackman_moss',
-    cbramble:'curt_bramble', dipson:'don_ipson'
+    cbramble:'curt_bramble', dipson:'don_ipson',
+    // After duplicate cleanup, the richer McCay/McKell records are kept under
+    // their short ids; point them at the curated name-slug stance keys so their
+    // profiles still light up the curated positions.
+    dmccay:'daniel_mccay', mmckell:'mike_mckell'
   };
   // Slugify a name the same way the directory import builds its document ids.
   function _stanceSlug(s) {
