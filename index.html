@@ -26760,27 +26760,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (typeof filterDirectory === 'function') filterDirectory();
 
         db.collection('userTeams').doc(uid).get().then(function(teamDoc) {
+          // The authoritative voting team is the keyed `team_ballot` map saved
+          // under the user's account (one pid per ballot slot). Start from
+          // whatever was just loaded into localStorage so a stale or lossy
+          // reconstruction can never wipe out a good saved team on refresh.
+          var selections = {};
+          try { selections = JSON.parse(localStorage.getItem('politidex_my_team') || '{}') || {}; } catch(e) { selections = {}; }
+
+          // Legacy/back-compat: older accounts only stored a flat `userTeams.team`
+          // array of pids. Use it to BACK-FILL slots that are still empty — never
+          // to overwrite a slot the keyed map already filled.
           if (teamDoc.exists) {
             var teamData = teamDoc.data();
             if (teamData && Array.isArray(teamData.team)) {
-              console.log("Loaded team from userTeams:", teamData.team);
-              var selections = {};
+              console.log("Loaded team from userTeams (back-fill):", teamData.team);
               teamData.team.forEach(function(pid) {
+                _myPoliticians.add(pid);
                 var raceKey = null;
                 if (typeof window._findRaceKeyForPolitician === 'function') {
                   raceKey = window._findRaceKeyForPolitician(pid);
                 } else if (typeof _findRaceKeyForPolitician === 'function') {
                   raceKey = _findRaceKeyForPolitician(pid);
                 }
-                if (raceKey) {
+                if (raceKey && !selections[raceKey]) {
                   selections[raceKey] = pid;
                 }
-                _myPoliticians.add(pid);
               });
-              try { localStorage.setItem('politidex_my_team', JSON.stringify(selections)); } catch(e) {}
-              _mypolSave();
             }
           }
+
+          // Keep the broader "my politicians" set in sync with the slate so the
+          // ballot picks always show as part of the user's team.
+          Object.keys(selections).forEach(function(k) {
+            if (selections[k]) _myPoliticians.add(selections[k]);
+          });
+
+          try { localStorage.setItem('politidex_my_team', JSON.stringify(selections)); } catch(e) {}
+          _mypolSave();
           _mypolBuildGrid();
           _mypolUpdateCount();
           if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
