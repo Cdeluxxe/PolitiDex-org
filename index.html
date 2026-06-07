@@ -13421,6 +13421,145 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
       }
 
+      // ── Name intelligence: nicknames + fuzzy matching ───────────────
+      // Powers the smarter list search and the potential-duplicate flagging.
+      // Common given-name ↔ nickname pairs so a search for "Jen" finds
+      // "Jennifer" and duplicate detection treats "Mike"/"Michael" as the same
+      // person. Lowercase; expanded into a token→group lookup below. A single
+      // nickname can belong to several formal names (e.g. "al" → Albert/Alfred/
+      // Alexander), so each token carries the SET of names it could stand for.
+      var PM_NICKNAMES_RAW = {
+        jennifer: ['jen', 'jenny', 'jenn', 'jenna'], michael: ['mike', 'mikey', 'mick'],
+        william: ['will', 'bill', 'billy', 'willy', 'liam'], robert: ['rob', 'bob', 'bobby', 'robbie'],
+        richard: ['rich', 'rick', 'ricky', 'dick', 'richie'], elizabeth: ['liz', 'beth', 'betty', 'eliza', 'lizzie', 'libby'],
+        katherine: ['kate', 'katie', 'kathy', 'kat', 'katharine', 'catherine', 'cathy'], margaret: ['maggie', 'meg', 'peggy', 'marge', 'greta'],
+        james: ['jim', 'jimmy', 'jamie'], john: ['johnny', 'jack', 'jon'], joseph: ['joe', 'joey'],
+        charles: ['charlie', 'chuck', 'chas'], thomas: ['tom', 'tommy'], christopher: ['chris', 'topher'],
+        daniel: ['dan', 'danny'], matthew: ['matt', 'matty'], anthony: ['tony'], david: ['dave', 'davey'],
+        edward: ['ed', 'eddie', 'ted', 'teddy', 'ned'], nicholas: ['nick', 'nicky'], benjamin: ['ben', 'benny', 'benji'],
+        samuel: ['sam', 'sammy'], alexander: ['alex', 'al', 'xander', 'sandy'], andrew: ['andy', 'drew'],
+        patricia: ['pat', 'patty', 'tricia', 'trish'], patrick: ['pat', 'paddy', 'rick'],
+        deborah: ['deb', 'debbie', 'debra'], susan: ['sue', 'susie', 'suzy', 'suzanne'], barbara: ['barb', 'babs'],
+        jessica: ['jess', 'jessie'], rebecca: ['becca', 'becky', 'reba'], stephanie: ['steph', 'steffi'],
+        steven: ['steve', 'stevie'], stephen: ['steve', 'stevie'], ronald: ['ron', 'ronnie'], donald: ['don', 'donnie'],
+        gerald: ['gerry', 'jerry'], theodore: ['ted', 'teddy', 'theo'], timothy: ['tim', 'timmy'],
+        gregory: ['greg', 'gregg'], jonathan: ['jon', 'jonny', 'nathan'], nathaniel: ['nate', 'nathan'],
+        zachary: ['zach', 'zack'], vincent: ['vince', 'vinny'], lawrence: ['larry', 'lars'], raymond: ['ray'],
+        francis: ['frank', 'frankie', 'fran'], frances: ['fran', 'frankie'], frederick: ['fred', 'freddie', 'fritz'],
+        eleanor: ['ellie', 'nell', 'nora'], victoria: ['vicky', 'tori', 'vic'], cynthia: ['cindy', 'cyndi'],
+        kimberly: ['kim'], pamela: ['pam'], sandra: ['sandy'], abigail: ['abby', 'gail'], amanda: ['mandy'],
+        caroline: ['carol', 'carrie'], cassandra: ['cassie', 'cass'], gabriel: ['gabe'], isabella: ['bella', 'izzy'],
+        joshua: ['josh'], kenneth: ['ken', 'kenny'], philip: ['phil'], phillip: ['phil'], walter: ['walt'],
+        douglas: ['doug'], martin: ['marty'], albert: ['al', 'bert', 'albie'], alfred: ['al', 'fred', 'freddie'],
+        manuel: ['manny'], leonard: ['leo', 'len', 'lenny'], bradley: ['brad'], bernard: ['bernie', 'bern'],
+        clifford: ['cliff'], russell: ['russ', 'rusty'], terence: ['terry'], terrence: ['terry'], maxwell: ['max'],
+        peter: ['pete'], ralph: ['ralphie'], howard: ['howie'], dennis: ['denny'], harold: ['harry', 'hal'],
+        henry: ['hank', 'harry'], george: ['georgie'], lewis: ['lew'], louis: ['lou', 'louie'],
+        roger: ['rog'], antonio: ['tony'], salvatore: ['sal'], gerardo: ['gerry'], cornelius: ['neil', 'con'],
+        wesley: ['wes'], chester: ['chet'], augustus: ['gus'], reginald: ['reggie'], herbert: ['herb', 'bert'],
+        marion: ['mary'], rosemary: ['rose', 'rosie'], dorothy: ['dot', 'dottie'], virginia: ['ginny', 'ginger'],
+        florence: ['flo'], gloria: ['glory'], beatrice: ['bea'], priscilla: ['cilla'], penelope: ['penny'],
+        veronica: ['ronnie', 'vera'], theresa: ['terry', 'tess'], teresa: ['terry', 'tess'], josephine: ['jo', 'josie'],
+        clarence: ['clancy'], everett: ['rhett'], solomon: ['sol'], nathan: ['nate']
+      };
+      // token -> { groupName: 1, ... }. Each formal name is its own group; every
+      // nickname joins the groups of the formal names that list it.
+      var PM_NICK_GROUPS = (function () {
+        var m = {};
+        function add(tok, group) { (m[tok] = m[tok] || {})[group] = 1; }
+        for (var formal in PM_NICKNAMES_RAW) {
+          if (!Object.prototype.hasOwnProperty.call(PM_NICKNAMES_RAW, formal)) continue;
+          add(formal, formal);
+          PM_NICKNAMES_RAW[formal].forEach(function (nick) { add(nick, formal); });
+        }
+        return m;
+      })();
+      // True when two given-name tokens are the same name or known nicknames of
+      // each other (their nickname groups overlap).
+      function _pmTokenAlias(a, b) {
+        if (!a || !b) return false;
+        if (a === b) return true;
+        var ga = PM_NICK_GROUPS[a], gb = PM_NICK_GROUPS[b];
+        if (!ga || !gb) return false;
+        for (var k in ga) { if (gb[k]) return true; }
+        return false;
+      }
+      // Levenshtein edit distance — bounded use only (short name tokens), so the
+      // simple two-row implementation is plenty fast.
+      function _pmLev(a, b) {
+        a = String(a); b = String(b);
+        if (a === b) return 0;
+        var la = a.length, lb = b.length;
+        if (!la) return lb;
+        if (!lb) return la;
+        var prev = [], i, j;
+        for (j = 0; j <= lb; j++) prev[j] = j;
+        for (i = 1; i <= la; i++) {
+          var cur = [i];
+          for (j = 1; j <= lb; j++) {
+            var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+            cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+          }
+          prev = cur;
+        }
+        return prev[lb];
+      }
+      // Fuzzy single-token match: identical, nickname alias, prefix (≥3 chars,
+      // so "rich"→"richard", "jen"→"jennifer"), or within a small typo budget
+      // scaled to the shorter token.
+      function _pmTokenMatch(qt, nt) {
+        if (!qt || !nt) return false;
+        if (qt === nt) return true;
+        if (_pmTokenAlias(qt, nt)) return true;
+        if (qt.length >= 3 && nt.indexOf(qt) === 0) return true;
+        if (nt.length >= 3 && qt.indexOf(nt) === 0) return true;
+        var shorter = Math.min(qt.length, nt.length);
+        if (shorter >= 4 && _pmLev(qt, nt) <= (shorter >= 7 ? 2 : 1)) return true;
+        return false;
+      }
+      // Smarter list search: a query matches a record when the whole query is a
+      // substring of its full text (keeps phrase / office / state search), or
+      // when EVERY query token matches a name token (fuzzy/nickname-aware) or
+      // appears in the record's office/state/party/ID text.
+      function _pmListMatch(q, p, id) {
+        q = String(q == null ? '' : q).trim().toLowerCase();
+        if (!q) return true;
+        var fullHay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
+        if (fullHay.indexOf(q) !== -1) return true;
+        var nameTokens = _pmNormName(p.name).split(' ').filter(Boolean);
+        var metaHay = [(p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
+        var qTokens = q.replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+        if (!qTokens.length) return false;
+        return qTokens.every(function (qt) {
+          for (var i = 0; i < nameTokens.length; i++) {
+            if (_pmTokenMatch(qt, nameTokens[i])) return true;
+          }
+          return metaHay.indexOf(qt) !== -1;
+        });
+      }
+      // Decide whether two full names likely refer to the same person: the
+      // surnames must match (exact or near, allowing a typo) and the first names
+      // must match directly, via a known nickname, by initial, or by prefix.
+      // Tolerant of middle names/initials. Used for potential-duplicate flagging.
+      function _pmNamesSimilar(a, b) {
+        var ta = _pmNormName(a).split(' ').filter(Boolean);
+        var tb = _pmNormName(b).split(' ').filter(Boolean);
+        if (!ta.length || !tb.length) return false;
+        if (ta.join(' ') === tb.join(' ')) return true;
+        var firstA = ta[0], lastA = ta[ta.length - 1];
+        var firstB = tb[0], lastB = tb[tb.length - 1];
+        // Surnames must line up first (the strongest signal).
+        if (!_pmTokenMatch(lastA, lastB)) return false;
+        // Then the first names, via any reasonable equivalence.
+        if (firstA === firstB) return true;
+        if (_pmTokenAlias(firstA, firstB)) return true;
+        if (firstA.length === 1 || firstB.length === 1) return firstA.charAt(0) === firstB.charAt(0);
+        if (firstA.length >= 3 && firstB.indexOf(firstA) === 0) return true;
+        if (firstB.length >= 3 && firstA.indexOf(firstB) === 0) return true;
+        if (Math.min(firstA.length, firstB.length) >= 4 && _pmLev(firstA, firstB) <= 1) return true;
+        return false;
+      }
+
       function _pmEsc(s) {
         s = (s == null ? '' : String(s));
         return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -13516,24 +13655,79 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return out;
       }
 
-      // Group records by normalized name; any name shared by 2+ records is a
-      // "possible duplicate". Returns a map of id -> group key plus totals.
+      // Cluster records into possible-duplicate groups. Two records are linked
+      // when their names normalize identically (always a duplicate), OR their
+      // names are similar (nickname/typo-aware) AND they share the same office
+      // type and state — the classic "same person, slightly different record"
+      // case the importer tends to create. Returns { ids, members, count,
+      // groups } where ids maps a record id to its cluster key.
+      //
+      // Re-runs on every list render (each search keystroke), so the result is
+      // memoized against a cheap signature of the underlying name/office/state
+      // data and only recomputed when that data actually changes.
+      var _pmDupCache = null, _pmDupSig = '';
       function _pmDuplicateInfo() {
-        var byName = {};
-        _pmAll().forEach(function (row) {
-          var key = _pmNormName(row.p.name || row.id);
-          if (!key) return;
-          (byName[key] = byName[key] || []).push(row.id);
-        });
-        var ids = {}, groups = 0, members = {};
-        for (var k in byName) {
-          if (byName[k].length > 1) {
-            groups++;
-            members[k] = byName[k].slice();
-            byName[k].forEach(function (id) { ids[id] = k; });
+        var rows = _pmAll();
+        var n = rows.length;
+        var sigParts = [];
+        for (var s = 0; s < n; s++) {
+          var sp = rows[s].p;
+          sigParts.push(rows[s].id + '|' + (sp.name || '') + '|' + (sp.office || '') + '|' + (sp.state || ''));
+        }
+        var sig = n + '#' + sigParts.join('~');
+        if (_pmDupCache && _pmDupSig === sig) return _pmDupCache;
+
+        // Union-find over record indices.
+        var parent = [];
+        for (var i = 0; i < n; i++) parent[i] = i;
+        function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+        function union(a, b) { var ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+
+        // 1) Exact normalized-name matches always link (true duplicates).
+        var exact = {};
+        for (var i2 = 0; i2 < n; i2++) {
+          var key = _pmNormName(rows[i2].p.name || rows[i2].id);
+          if (!key) continue;
+          if (key in exact) union(exact[key], i2); else exact[key] = i2;
+        }
+        // 2) Potential duplicates: bucket by state so the similarity comparison
+        //    stays cheap, then link similar names that also share an office type.
+        //    Records with no state are skipped here (handled by step 1 only) to
+        //    avoid false positives across unrelated stub records.
+        var byState = {};
+        for (var i3 = 0; i3 < n; i3++) {
+          var st = _pmNormName(rows[i3].p.state);
+          if (!st) continue;
+          (byState[st] = byState[st] || []).push(i3);
+        }
+        for (var stKey in byState) {
+          var grp = byState[stKey];
+          for (var a = 0; a < grp.length; a++) {
+            for (var b = a + 1; b < grp.length; b++) {
+              var ia = grp[a], ib = grp[b];
+              if (find(ia) === find(ib)) continue;
+              if (_pmOfficeType(rows[ia].p) !== _pmOfficeType(rows[ib].p)) continue;
+              if (_pmNamesSimilar(rows[ia].p.name, rows[ib].p.name)) union(ia, ib);
+            }
           }
         }
-        return { ids: ids, members: members, count: Object.keys(ids).length, groups: groups };
+        // Collect clusters with 2+ members; key by the root index.
+        var clusters = {};
+        for (var i4 = 0; i4 < n; i4++) {
+          var r = find(i4);
+          (clusters[r] = clusters[r] || []).push(rows[i4].id);
+        }
+        var ids = {}, members = {}, groups = 0;
+        for (var rk in clusters) {
+          if (clusters[rk].length > 1) {
+            groups++;
+            members[rk] = clusters[rk].slice();
+            clusters[rk].forEach(function (id) { ids[id] = rk; });
+          }
+        }
+        _pmDupSig = sig;
+        _pmDupCache = { ids: ids, members: members, count: Object.keys(ids).length, groups: groups };
+        return _pmDupCache;
       }
 
       // Write a record to Firestore and keep the in-memory mirrors + directory
@@ -13611,9 +13805,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (fState !== 'all' && (p.state || '').trim() !== fState) return false;
           if (fOffice !== 'all' && _pmOfficeType(p) !== fOffice) return false;
           if (fParty !== 'all' && _pmPartyKey(p.party) !== fParty) return false;
-          if (!q) return true;
-          var hay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), row.id].join(' ').toLowerCase();
-          return hay.indexOf(q) !== -1;
+          return _pmListMatch(q, p, row.id);
         });
 
         // ── Sort the filtered rows (list starts name-sorted; re-sort on demand) ──
@@ -13908,23 +14100,70 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div></div>';
       }
 
-      // Amber banner listing other records that share this record's name.
-      function _pmDupBanner(id) {
-        if (!id) return '';
-        var info = _pmDuplicateInfo();
-        var key = info.ids[id];
-        if (!key) return '';
-        var others = (info.members[key] || []).filter(function (oid) { return oid !== id; });
-        if (!others.length) return '';
-        var links = others.map(function (oid) {
-          var nm = (PROFILES[oid] && PROFILES[oid].name) ? PROFILES[oid].name : oid;
-          return '<button type="button" onclick="window.pmSelect(\'' + _pmJs(oid) + '\')" ' +
-            'class="underline decoration-amber-400/50 hover:decoration-amber-300 text-amber-200 hover:text-white transition-colors">' + _pmEsc(nm) + '</button>';
-        }).join(', ');
-        return '<div class="mb-4 text-xs font-body rounded-lg px-3 py-2 border text-amber-200 bg-amber-950/40 border-amber-500/40">' +
-          '<span aria-hidden="true">⚠️</span> Possible duplicate of: ' + links +
-          ' — review and delete whichever record is redundant.</div>';
+      // Find existing records that are potential duplicates of the values
+      // currently in the editor (live name/office/state, not the saved record).
+      // Exact-name matches always count; similar names count when they also
+      // share office type and state — and, when the relevant editor field is
+      // still blank, that field is treated as "unknown" rather than a mismatch
+      // so same-name records still surface. `excludeId` drops the open record.
+      function _pmFindPotentialDupes(name, office, state, excludeId) {
+        var qNorm = _pmNormName(name);
+        if (!qNorm) return [];
+        var qOffice = _pmOfficeType({ office: office || '' });
+        var qState = _pmNormName(state);
+        var out = [];
+        _pmAll().forEach(function (row) {
+          if (excludeId && row.id === excludeId) return;
+          var p = row.p;
+          var nNorm = _pmNormName(p.name);
+          if (!nNorm) return;
+          var exact = nNorm === qNorm;
+          var match = exact;
+          if (!match && _pmNamesSimilar(name, p.name)) {
+            var sameState = !qState || !_pmNormName(p.state) || _pmNormName(p.state) === qState;
+            var sameOffice = !office || _pmOfficeType(p) === qOffice;
+            match = sameState && sameOffice;
+          }
+          if (match) out.push({ id: row.id, name: p.name || row.id, office: p.office || '', state: p.state || '', exact: exact });
+        });
+        out.sort(function (a, b) { return (b.exact ? 1 : 0) - (a.exact ? 1 : 0); });
+        return out;
       }
+
+      // Re-render the live potential-duplicate banner from the editor's current
+      // field values. Called on render and whenever name/office/state change, so
+      // the warning appears (and clears) as the admin types — for both new and
+      // existing records. Non-blocking by design: it informs, never prevents.
+      function _pmLiveDupCheck() {
+        var box = document.getElementById('pm-live-dup');
+        if (!box) return;
+        function fv(f) { var el = document.getElementById('pm-f-' + f); return el ? el.value : ''; }
+        var name = (fv('name') || '').trim();
+        if (!name) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+        var matches = _pmFindPotentialDupes(name, (fv('office') || '').trim(), (fv('state') || '').trim(), _pmSelectedId);
+        if (!matches.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+        var links = matches.slice(0, 6).map(function (m) {
+          var sub = [m.office, m.state].filter(Boolean).join(' · ');
+          var label = _pmEsc(m.name) + (sub ? ' <span class="text-amber-300/70">(' + _pmEsc(sub) + ')</span>' : '');
+          return '<button type="button" onclick="window.pmSelect(\'' + _pmJs(m.id) + '\')" ' +
+            'title="Open this record" ' +
+            'class="inline-block underline decoration-amber-400/50 hover:decoration-amber-300 text-amber-100 hover:text-white transition-colors">' + label + '</button>';
+        }).join('<span class="text-amber-500/50"> · </span>');
+        var more = matches.length > 6 ? ' <span class="text-amber-300/70">+' + (matches.length - 6) + ' more</span>' : '';
+        var n = matches.length;
+        box.innerHTML =
+          '<div class="flex items-start gap-2">' +
+            '<span class="text-base leading-none mt-0.5" aria-hidden="true">⚠️</span>' +
+            '<div>' +
+              '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-200 mb-1">' +
+                'Possible duplicate' + (n === 1 ? '' : 's') + ' detected (' + n + ')</div>' +
+              '<div class="text-amber-100/90">This may already be in the database: ' + links + more + '.</div>' +
+              '<div class="text-amber-300/70 mt-1 text-[11px]">Open a match to update it instead, or continue if this is a different person.</div>' +
+            '</div>' +
+          '</div>';
+        box.className = 'mb-4 text-xs font-body rounded-lg px-3 py-2.5 border text-amber-100 bg-amber-950/40 border-amber-500/40';
+      }
+      window._pmLiveDupCheck = _pmLiveDupCheck;
 
       // Renders the editor form for either an existing record (isNew=false) or a
       // blank new record (isNew=true). pmSelect / pmCreateNew set the mode.
@@ -14029,7 +14268,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         editor.innerHTML = '' +
           header +
-          (isNew ? '' : _pmDupBanner(id)) +
+          '<div id="pm-live-dup" class="hidden"></div>' +
           '<form onsubmit="return false;">' +
             _pmGroup('Basic Info', basic) +
             _pmGroup('Biography & Quote', bio) +
@@ -14046,6 +14285,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Fresh render = clean slate; (re)bind the dirty + shortcut watchers.
         _pmSetDirty(false);
         _pmBindEditorWatchers();
+        _pmLiveDupCheck();
       }
 
       // ── Unsaved-changes + keyboard helpers ───────────────────────
@@ -14070,6 +14310,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var mark = function () { if (!_pmDirty) _pmSetDirty(true); };
         editor.addEventListener('input', mark);
         editor.addEventListener('change', mark);
+        // Live duplicate re-check when the identifying fields change.
+        editor.addEventListener('input', function (e) {
+          var t = e.target;
+          if (t && (t.id === 'pm-f-name' || t.id === 'pm-f-office' || t.id === 'pm-f-state')) {
+            _pmLiveDupCheck();
+          }
+        });
         editor.addEventListener('keydown', function (e) {
           if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
             e.preventDefault();
