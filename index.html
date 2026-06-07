@@ -496,6 +496,41 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
       border-color: rgba(245,158,11,0.2);
     }
+
+    /* ── Admin Politician Manager: editor form — dark-theme contrast fix ──
+       The editor form on the right is injected dynamically and relies on the
+       undefined `navy-950` shade plus utility classes that don't reliably
+       resolve for the controls, leaving dark default text on the dark panel
+       (only readable when highlighted). Force a solid dark field background,
+       white text, a visible placeholder, readable option rows, and a brighter
+       label color so every field is legible. Matches the patriotic focus ring
+       used elsewhere; layout and behavior are untouched. */
+    #pm-editor input,
+    #pm-editor textarea,
+    #pm-editor select {
+      background-color: #0a0f1e !important;
+      color: #ffffff !important;
+      border-color: rgba(255,255,255,0.14) !important;
+    }
+    #pm-editor input::placeholder,
+    #pm-editor textarea::placeholder {
+      color: #7596c0 !important;
+      opacity: 1;
+    }
+    #pm-editor select option {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
+    }
+    #pm-editor label {
+      color: #cdd9ec !important;
+    }
+    #pm-editor input:focus,
+    #pm-editor textarea:focus,
+    #pm-editor select:focus {
+      outline: none !important;
+      border-color: rgba(240,33,60,0.7) !important;
+      box-shadow: 0 0 0 3px rgba(192,21,42,0.15) !important;
+    }
     
     /* ── Sticky Filter Collapsing/Minimizing ─────────────────────────── */
     .browse-toolbar.is-stuck:not(.is-expanded) {
