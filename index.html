@@ -10467,6 +10467,92 @@
       }
       .pm-card-name { font-size: 1.08rem !important; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       TEAM BUILDER / MY POLITICIANS — ACTION-ROW & CARD POLISH
+       Unifies the per-card action buttons (Add to My Team · Compare ·
+       Profile) into one balanced layout: a single full-width primary CTA
+       above two equal secondary controls, all sharing one height, radius
+       and type scale. Replaces the old row where each button carried a
+       different inline size and they never lined up. Dark patriotic palette
+       preserved; placed last so it reliably wins the cascade.
+       ════════════════════════════════════════════════════════════════════ */
+    .mypol-card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.15rem;
+    }
+    .mypol-card-actions-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    /* Primary — Add to My Team — the clear, full-width call to action. */
+    .mypol-card-actions .mypol-act-add {
+      width: 100%;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 1rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      border-radius: 0.65rem;
+    }
+    /* Secondary — Compare & Profile — equal width, equal height, calm weight. */
+    .mypol-card-actions .mypol-act-compare,
+    .mypol-card-actions .mypol-act-profile {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      width: 100%;
+      min-height: 38px;
+      padding: 0 0.6rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .mypol-card-actions .mypol-act-compare {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(96,165,250,0.3);
+      color: #93c5fd;
+    }
+    .mypol-card-actions .mypol-act-compare:hover {
+      background: rgba(59,130,246,0.2);
+      border-color: rgba(96,165,250,0.55);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(59,130,246,0.18);
+    }
+    .mypol-card-actions .mypol-act-compare.added {
+      background: rgba(59,130,246,0.28);
+      border-color: rgba(96,165,250,0.65);
+      color: #fff;
+    }
+    .mypol-card-actions .mypol-act-profile {
+      background: rgba(30,53,96,0.4);
+      border: 1px solid rgba(117,150,192,0.22);
+      color: #9fb4d4;
+    }
+    .mypol-card-actions .mypol-act-profile:hover {
+      background: rgba(30,53,96,0.62);
+      border-color: rgba(117,150,192,0.45);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    }
+    /* Phones: a touch more height for comfortable thumb targets. */
+    @media (max-width: 640px) {
+      .mypol-card-actions .mypol-act-add { min-height: 46px; }
+      .mypol-card-actions .mypol-act-compare,
+      .mypol-card-actions .mypol-act-profile { min-height: 44px; font-size: 0.72rem; }
+    }
   </style>
 
       </head>
@@ -12066,7 +12152,7 @@
               </div>
               <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
-                <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/50 hover:text-red-400 tracking-wider uppercase transition-colors cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-red-500/8" style="background:none;border:none;">Clear All</button>
+                <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
               </div>
             </div>
 
@@ -26123,10 +26209,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>' +
             '<div style="margin-bottom:0.65rem;"><div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
             alignBarRow +
-            '<div class="flex items-center gap-2 flex-wrap">' +
-              '<button class="' + addBtnClass + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + ' style="font-size:0.78rem;padding:0.55rem 1.15rem;">' + addBtnText + '</button>' +
-              '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" style="font-size:0.75rem;padding:0.5rem 1rem;">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-400 hover:text-steel-200 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.1);padding:0.45rem 0.75rem;border-radius:0.45rem;font-size:0.68rem;">Profile</button>' +
+            '<div class="mypol-card-actions">' +
+              '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
+              '<div class="mypol-card-actions-secondary">' +
+                '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
+                '<button onclick="showProfile(\'' + pid + '\')" class="mypol-act-profile">Profile</button>' +
+              '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
