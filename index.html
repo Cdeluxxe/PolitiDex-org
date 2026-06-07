@@ -12916,35 +12916,78 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
         <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">POLITICIAN <span class="text-crimson-400">MANAGER</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Search, review, edit, and clean up the live politician database. Changes here write directly to Firestore — use this to fix records and remove duplicates without re-importing.
+          Search, filter, create, edit, and clean up the live politician database. Group fields by section, flag duplicates, promote stubs to full profiles, and add new records — all writing directly to Firestore, no re-import required.
         </p>
       </div>
 
-      <!-- ── Toolbar: search + filter + reload + counts ──────── -->
+      <!-- ── Toolbar: actions + search + filters + counts ──────── -->
       <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <!-- Row 1: search + primary actions -->
         <div class="flex flex-col md:flex-row md:items-center gap-3">
           <div class="relative flex-1">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
-            <input id="pm-search" type="text" placeholder="Search by name, office, or state…" oninput="window.pmRenderList && window.pmRenderList()" autocomplete="off"
+            <input id="pm-search" type="text" placeholder="Search by name, office, state, party, or ID…" oninput="window.pmRenderList && window.pmRenderList()" autocomplete="off"
               class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
           </div>
-          <div class="flex items-center gap-2">
-            <select id="pm-filter" onchange="window.pmRenderList && window.pmRenderList()"
-              class="bg-navy-950 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-              <option value="all">All records</option>
-              <option value="full">Full profiles</option>
-              <option value="stub">Empty stubs</option>
-            </select>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="window.pmCreateNew && window.pmCreateNew()"
+              class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(22,163,74,0.35);">
+              <span aria-hidden="true">➕</span> New Politician
+            </button>
+            <button type="button" id="pm-dupes-btn" onclick="window.pmToggleDupes && window.pmToggleDupes()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🔎</span> <span id="pm-dupes-label">Find Duplicates</span>
+            </button>
             <button type="button" onclick="window.pmReload && window.pmReload()"
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
               <span aria-hidden="true">🔄</span><span id="pm-reload-label">Reload</span>
             </button>
           </div>
         </div>
+        <!-- Row 2: filters -->
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mt-3">
+          <select id="pm-filter-status" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All records</option>
+            <option value="full">Full profiles</option>
+            <option value="stub">Stubs only</option>
+          </select>
+          <select id="pm-filter-state" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All states</option>
+          </select>
+          <select id="pm-filter-office" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All office types</option>
+            <option value="senate">U.S. Senate</option>
+            <option value="house">U.S. House</option>
+            <option value="governor">Governor</option>
+            <option value="executive">Executive</option>
+            <option value="state">State Legislature</option>
+            <option value="local">Local / Mayor</option>
+            <option value="candidate">Candidate</option>
+            <option value="other">Other</option>
+          </select>
+          <select id="pm-filter-party" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All parties</option>
+            <option value="rep">Republican</option>
+            <option value="dem">Democrat</option>
+            <option value="ind">Independent</option>
+            <option value="other">Other / Unlisted</option>
+          </select>
+          <button type="button" onclick="window.pmClearFilters && window.pmClearFilters()"
+            class="inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Clear filters
+          </button>
+        </div>
+        <!-- Counts -->
         <div class="flex items-center flex-wrap gap-x-5 gap-y-1 mt-3 text-xs font-condensed tracking-widest uppercase text-steel-400">
+          <span>Showing: <span id="pm-count-shown" class="text-white font-700">0</span></span>
           <span>Total: <span id="pm-count-total" class="text-white font-700">0</span></span>
           <span>Full: <span id="pm-count-full" class="text-green-400 font-700">0</span></span>
           <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
+          <span>Possible dupes: <span id="pm-count-dupe" class="text-amber-300 font-700">0</span></span>
         </div>
       </div>
 
@@ -12982,6 +13025,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // ════════════════════════════════════════════════════════════
     (function () {
       var _pmSelectedId = null;
+      var _pmMode = 'view';     // 'view' | 'edit' | 'create'
+      var _pmDupOnly = false;   // "Find Duplicates" view toggle
 
       // Friendly labels for known stance keys; unknown keys fall back to a
       // prettified version of the key itself.
@@ -12995,6 +13040,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         healthcare: 'Healthcare',
         audit: 'Fed Audit'
       };
+
+      // Constrained dropdown choices used by the editor.
+      var PM_TIERS = [['gold', '🥇 Gold (headline)'], ['silver', '🥈 Silver'], ['gray', '⚪ Gray (standard)']];
+      var PM_PARTIES = [['Republican', 'Republican'], ['Democrat', 'Democrat'], ['Independent', 'Independent'], ['Libertarian', 'Libertarian'], ['Nonpartisan', 'Nonpartisan']];
+
+      // Office-type buckets — mirrors the classifier in _populateDirData so the
+      // manager's "Office Type" filter lines up with the public directory.
+      var PM_OFFICE_LABELS = {
+        senate: 'U.S. Senate', house: 'U.S. House', governor: 'Governor',
+        executive: 'Executive', state: 'State Legislature', local: 'Local / Mayor',
+        candidate: 'Candidate', other: 'Other'
+      };
+      function _pmOfficeType(p) {
+        var o = ((p && p.office) || '').replace(/^[^A-Za-z0-9]+/, '');
+        if (/U\.S\.\s*Senator|^Senator/i.test(o)) return 'senate';
+        if (/U\.S\.\s*Representative/i.test(o)) return 'house';
+        if (/Governor/i.test(o)) return 'governor';
+        if (/President|Secretary|Director/i.test(o)) return 'executive';
+        if (/State\s*(Senator|Rep)|Speaker|Senate\s*President/i.test(o)) return 'state';
+        if (/Mayor/i.test(o)) return 'local';
+        if (/Candidate/i.test(o)) return 'candidate';
+        return 'other';
+      }
+      // Collapse any party label/abbreviation to a stable filter key.
+      function _pmPartyKey(v) {
+        v = String(v == null ? '' : v).trim().toLowerCase();
+        if (!v) return 'other';
+        var c = v.charAt(0);
+        if (c === 'r') return 'rep';
+        if (c === 'd') return 'dem';
+        if (c === 'i') return 'ind';
+        return 'other';
+      }
+      // Normalize a name for duplicate matching (case/punctuation-insensitive).
+      function _pmNormName(s) {
+        return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      }
 
       function _pmEsc(s) {
         s = (s == null ? '' : String(s));
@@ -13027,9 +13109,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       // A record is a "stub" when it has no real, human-entered content:
-      // no bio, no key issues, and no non-placeholder stances.
+      // no bio, no key issues, and no non-placeholder stances. An explicit
+      // admin override (profileStatus = 'full' | 'stub') always wins, so an
+      // admin can force a record's classification from the quick actions.
       function _pmIsStub(p) {
         if (!p) return true;
+        if (p.profileStatus === 'stub') return true;
+        if (p.profileStatus === 'full') return false;
         if (p.bio && String(p.bio).trim()) return false;
         if (Array.isArray(p.keyIssues) && p.keyIssues.length) return false;
         if (p.stances && typeof p.stances === 'object') {
@@ -13043,11 +13129,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return true;
       }
 
+      // True when an admin has pinned the FULL/STUB classification by hand.
+      function _pmStatusOverridden(p) {
+        return !!(p && (p.profileStatus === 'full' || p.profileStatus === 'stub'));
+      }
+
       function _pmStatusBadge(p) {
+        var dot = _pmStatusOverridden(p)
+          ? '<span title="Status set manually by an admin" aria-hidden="true" class="ml-1 opacity-80">📌</span>'
+          : '';
         if (_pmIsStub(p)) {
-          return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/40">Stub</span>';
+          return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-amber-300 bg-amber-500/10 border border-amber-500/40">Stub' + dot + '</span>';
         }
-        return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-green-300 bg-green-500/10 border border-green-500/40">Full</span>';
+        return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-green-300 bg-green-500/10 border border-green-500/40">Full' + dot + '</span>';
+      }
+
+      // Small colored party chip for the list rows.
+      function _pmPartyBadge(party) {
+        var key = _pmPartyKey(party);
+        if (!party || !String(party).trim()) return '';
+        var cls = 'text-steel-300 bg-white/5 border-white/15';
+        if (key === 'rep') cls = 'text-red-300 bg-red-500/10 border-red-500/30';
+        else if (key === 'dem') cls = 'text-blue-300 bg-blue-500/10 border-blue-500/30';
+        else if (key === 'ind') cls = 'text-purple-300 bg-purple-500/10 border-purple-500/30';
+        var abbr = String(party).trim().charAt(0).toUpperCase();
+        return '<span title="' + _pmEscAttr(party) + '" class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase w-5 h-5 inline-flex items-center justify-center rounded-full border ' + cls + '">' + _pmEsc(abbr) + '</span>';
       }
 
       function _pmAll() {
@@ -13067,6 +13173,65 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return out;
       }
 
+      // Group records by normalized name; any name shared by 2+ records is a
+      // "possible duplicate". Returns a map of id -> group key plus totals.
+      function _pmDuplicateInfo() {
+        var byName = {};
+        _pmAll().forEach(function (row) {
+          var key = _pmNormName(row.p.name || row.id);
+          if (!key) return;
+          (byName[key] = byName[key] || []).push(row.id);
+        });
+        var ids = {}, groups = 0, members = {};
+        for (var k in byName) {
+          if (byName[k].length > 1) {
+            groups++;
+            members[k] = byName[k].slice();
+            byName[k].forEach(function (id) { ids[id] = k; });
+          }
+        }
+        return { ids: ids, members: members, count: Object.keys(ids).length, groups: groups };
+      }
+
+      // Write a record to Firestore and keep the in-memory mirrors + directory
+      // in sync. Shared by save, create, and the quick-action buttons.
+      function _pmPersist(id, merged, okMsg, after) {
+        return db.collection('politicians').doc(id).set(merged).then(function () {
+          PROFILES[id] = merged;
+          if (typeof CMP_DATA !== 'undefined') { CMP_DATA[id] = merged; }
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          window.pmRenderList();
+          if (okMsg && typeof window._showToast === 'function') { window._showToast(okMsg); }
+          if (typeof after === 'function') { after(); }
+        }).catch(function (error) {
+          console.error('Politician Manager write failed:', error);
+          _pmFeedback('Save failed: ' + (error && error.message ? error.message : 'unknown error'), 'error');
+        });
+      }
+
+      // Rebuild the State filter <option>s from whatever states are present,
+      // preserving the current selection. Skips work when nothing changed.
+      function _pmSyncStateFilter(all) {
+        var sel = document.getElementById('pm-filter-state');
+        if (!sel) return;
+        var states = {};
+        all.forEach(function (r) { var s = (r.p.state || '').trim(); if (s) states[s] = 1; });
+        var sorted = Object.keys(states).sort();
+        var sig = sorted.join('|');
+        if (sel.getAttribute('data-sig') === sig) return;
+        sel.setAttribute('data-sig', sig);
+        var cur = sel.value || 'all';
+        sel.innerHTML = '<option value="all">All states</option>' + sorted.map(function (s) {
+          return '<option value="' + _pmEscAttr(s) + '">' + _pmEsc(s) + '</option>';
+        }).join('');
+        sel.value = (cur === 'all' || states[cur]) ? cur : 'all';
+      }
+
+      function _pmFilterVal(id, fallback) {
+        var el = document.getElementById(id);
+        return el ? el.value : fallback;
+      }
+
       window.pmRenderList = function () {
         var listEl = document.getElementById('pm-list');
         var emptyEl = document.getElementById('pm-list-empty');
@@ -13075,27 +13240,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var all = _pmAll();
         var fullCount = 0, stubCount = 0;
         all.forEach(function (row) { _pmIsStub(row.p) ? stubCount++ : fullCount++; });
+        var dup = _pmDuplicateInfo();
 
         var totalEl = document.getElementById('pm-count-total');
         var fEl = document.getElementById('pm-count-full');
         var sEl = document.getElementById('pm-count-stub');
+        var dEl = document.getElementById('pm-count-dupe');
         if (totalEl) totalEl.textContent = all.length;
         if (fEl) fEl.textContent = fullCount;
         if (sEl) sEl.textContent = stubCount;
+        if (dEl) dEl.textContent = dup.count;
+
+        _pmSyncStateFilter(all);
 
         var qEl = document.getElementById('pm-search');
         var q = (qEl && qEl.value ? qEl.value : '').trim().toLowerCase();
-        var filterEl = document.getElementById('pm-filter');
-        var filter = filterEl ? filterEl.value : 'all';
+        var fStatus = _pmFilterVal('pm-filter-status', 'all');
+        var fState = _pmFilterVal('pm-filter-state', 'all');
+        var fOffice = _pmFilterVal('pm-filter-office', 'all');
+        var fParty = _pmFilterVal('pm-filter-party', 'all');
 
         var rows = all.filter(function (row) {
           var p = row.p;
-          if (filter === 'full' && _pmIsStub(p)) return false;
-          if (filter === 'stub' && !_pmIsStub(p)) return false;
+          if (_pmDupOnly && !dup.ids[row.id]) return false;
+          if (fStatus === 'full' && _pmIsStub(p)) return false;
+          if (fStatus === 'stub' && !_pmIsStub(p)) return false;
+          if (fState !== 'all' && (p.state || '').trim() !== fState) return false;
+          if (fOffice !== 'all' && _pmOfficeType(p) !== fOffice) return false;
+          if (fParty !== 'all' && _pmPartyKey(p.party) !== fParty) return false;
           if (!q) return true;
-          var hay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), row.id].join(' ').toLowerCase();
+          var hay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), row.id].join(' ').toLowerCase();
           return hay.indexOf(q) !== -1;
         });
+
+        var shownEl = document.getElementById('pm-count-shown');
+        if (shownEl) shownEl.textContent = rows.length;
 
         if (all.length === 0) {
           listEl.innerHTML = '<div class="text-center text-steel-400 font-body text-sm py-10">Database not loaded yet. Click <strong>Reload</strong> to fetch politicians.</div>';
@@ -13105,7 +13284,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         if (rows.length === 0) {
           listEl.innerHTML = '';
-          if (emptyEl) emptyEl.classList.remove('hidden');
+          if (emptyEl) {
+            emptyEl.textContent = _pmDupOnly
+              ? 'No possible duplicates found. 🎉'
+              : 'No politicians match your search and filters.';
+            emptyEl.classList.remove('hidden');
+          }
           return;
         }
         if (emptyEl) emptyEl.classList.add('hidden');
@@ -13114,8 +13298,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var p = row.p;
           var icon = p.icon || '🏛';
           var sub = [p.office || '', p.state || ''].filter(Boolean).join(' · ') || '—';
+          var isDup = !!dup.ids[row.id];
           var active = (row.id === _pmSelectedId)
             ? ' ring-2 ring-crimson-400/70 border-crimson-400/50'
+            : (isDup ? ' border-amber-500/40' : '');
+          var dupFlag = isDup
+            ? '<span title="Possible duplicate — shares a name with another record" class="flex-shrink-0 text-amber-300" aria-hidden="true">⚠️</span>'
             : '';
           return '' +
             '<button type="button" onclick="window.pmSelect(\'' + _pmJs(row.id) + '\')" ' +
@@ -13125,19 +13313,95 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '<span class="block text-sm font-700 text-white truncate">' + _pmEsc(p.name || row.id) + '</span>' +
                 '<span class="block text-xs text-steel-400 truncate">' + _pmEsc(sub) + '</span>' +
               '</span>' +
+              dupFlag +
+              _pmPartyBadge(p.party) +
               _pmStatusBadge(p) +
             '</button>';
         }).join('');
       };
 
+      // Find-Duplicates toggle: flips the list into a duplicates-only view and
+      // reflects the active state on the toolbar button.
+      window.pmToggleDupes = function () {
+        _pmDupOnly = !_pmDupOnly;
+        var btn = document.getElementById('pm-dupes-btn');
+        var lbl = document.getElementById('pm-dupes-label');
+        if (lbl) lbl.textContent = _pmDupOnly ? 'Show all' : 'Find Duplicates';
+        if (btn) {
+          if (_pmDupOnly) {
+            btn.classList.add('bg-amber-500/20', 'border-amber-400/70', 'text-amber-200');
+            btn.classList.remove('bg-navy-900');
+          } else {
+            btn.classList.remove('bg-amber-500/20', 'border-amber-400/70', 'text-amber-200');
+            btn.classList.add('bg-navy-900');
+          }
+        }
+        window.pmRenderList();
+      };
+
+      // Reset every search box and filter to its default.
+      window.pmClearFilters = function () {
+        var ids = ['pm-search', 'pm-filter-status', 'pm-filter-state', 'pm-filter-office', 'pm-filter-party'];
+        ids.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName === 'SELECT') el.value = 'all';
+          else el.value = '';
+        });
+        if (_pmDupOnly) window.pmToggleDupes();
+        else window.pmRenderList();
+      };
+
       function _pmFieldText(label, fid, value, opts) {
         opts = opts || {};
+        var listId = '', listHtml = '';
+        if (opts.datalist && opts.datalist.length) {
+          listId = 'pm-dl-' + fid;
+          listHtml = '<datalist id="' + listId + '">' + opts.datalist.map(function (v) {
+            return '<option value="' + _pmEscAttr(v) + '"></option>';
+          }).join('') + '</datalist>';
+        }
         return '' +
           '<div class="' + (opts.full ? 'sm:col-span-2' : '') + '">' +
             '<label class="block font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-1.5" for="pm-f-' + fid + '">' + _pmEsc(label) + '</label>' +
             '<input id="pm-f-' + fid + '" type="' + (opts.type || 'text') + '" value="' + _pmEscAttr(value == null ? '' : value) + '" ' +
+              (listId ? 'list="' + listId + '" ' : '') +
               (opts.placeholder ? 'placeholder="' + _pmEscAttr(opts.placeholder) + '" ' : '') +
               'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white placeholder-steel-600 outline-none transition-colors font-body" />' +
+            listHtml +
+          '</div>';
+      }
+
+      // <select> field. `options` is an array of [value, label]. The current
+      // value is always present as an option so saving can never drop an
+      // unexpected value that isn't in the predefined list.
+      function _pmFieldSelect(label, fid, value, options, opts) {
+        opts = opts || {};
+        value = (value == null ? '' : String(value));
+        var list = options.slice();
+        if (value && !list.some(function (o) { return String(o[0]) === value; })) {
+          list.unshift([value, value]);
+        }
+        if (opts.allowBlank) list.unshift(['', '— none —']);
+        var body = list.map(function (o) {
+          return '<option value="' + _pmEscAttr(o[0]) + '"' + (String(o[0]) === value ? ' selected' : '') + '>' + _pmEsc(o[1]) + '</option>';
+        }).join('');
+        return '' +
+          '<div class="' + (opts.full ? 'sm:col-span-2' : '') + '">' +
+            '<label class="block font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-1.5" for="pm-f-' + fid + '">' + _pmEsc(label) + '</label>' +
+            '<select id="pm-f-' + fid + '" class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white outline-none transition-colors font-body">' + body + '</select>' +
+          '</div>';
+      }
+
+      // A titled group of fields, with a divider, used to organize the editor.
+      function _pmGroup(title, bodyHtml) {
+        return '' +
+          '<div class="mb-5">' +
+            '<div class="flex items-center gap-2 mb-3">' +
+              '<span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-300">' + _pmEsc(title) + '</span>' +
+              '<span class="flex-1 h-px bg-white/10"></span>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' + bodyHtml + '</div>' +
           '</div>';
       }
 
@@ -13226,7 +13490,171 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
       };
 
+      // ── Editor helpers ───────────────────────────────────────────
+      function _pmFmtDate(v) {
+        if (!v) return '';
+        try {
+          if (typeof v === 'object' && typeof v.toDate === 'function') v = v.toDate();
+          var d = new Date(v);
+          if (isNaN(d.getTime())) return '';
+          return d.toLocaleString();
+        } catch (e) { return ''; }
+      }
+      function _pmStates() {
+        var states = {};
+        _pmAll().forEach(function (r) { var s = (r.p.state || '').trim(); if (s) states[s] = 1; });
+        return Object.keys(states).sort();
+      }
+      function _pmSlug(s) {
+        return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      }
+      function _pmUniqueId(base) {
+        var id = base, n = 2;
+        while (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) { id = base + '_' + n; n++; }
+        return id;
+      }
+
+      // Per-issue stance editors, only shown when a record already carries
+      // stance keys (the public profile schema seeds these).
+      function _pmStanceFields(p) {
+        if (!p.stances || typeof p.stances !== 'object') return '';
+        var keys = Object.keys(p.stances);
+        if (!keys.length) return '';
+        return '<div class="sm:col-span-2 mt-1">' +
+          '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-2">Issue Stances</div>' +
+          '<div class="space-y-2.5">' +
+          keys.map(function (k) {
+            var label = PM_STANCE_LABELS[k] || _pmPretty(k);
+            return '<div>' +
+              '<label class="block text-[11px] text-steel-300 mb-1 font-body">' + _pmEsc(label) + '</label>' +
+              '<textarea data-stance-key="' + _pmEscAttr(k) + '" rows="2" ' +
+                'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white outline-none transition-colors font-body leading-relaxed">' + _pmEsc(p.stances[k] == null ? '' : p.stances[k]) + '</textarea>' +
+              '</div>';
+          }).join('') +
+          '</div></div>';
+      }
+
+      // Amber banner listing other records that share this record's name.
+      function _pmDupBanner(id) {
+        if (!id) return '';
+        var info = _pmDuplicateInfo();
+        var key = info.ids[id];
+        if (!key) return '';
+        var others = (info.members[key] || []).filter(function (oid) { return oid !== id; });
+        if (!others.length) return '';
+        var links = others.map(function (oid) {
+          var nm = (PROFILES[oid] && PROFILES[oid].name) ? PROFILES[oid].name : oid;
+          return '<button type="button" onclick="window.pmSelect(\'' + _pmJs(oid) + '\')" ' +
+            'class="underline decoration-amber-400/50 hover:decoration-amber-300 text-amber-200 hover:text-white transition-colors">' + _pmEsc(nm) + '</button>';
+        }).join(', ');
+        return '<div class="mb-4 text-xs font-body rounded-lg px-3 py-2 border text-amber-200 bg-amber-950/40 border-amber-500/40">' +
+          '<span aria-hidden="true">⚠️</span> Possible duplicate of: ' + links +
+          ' — review and delete whichever record is redundant.</div>';
+      }
+
+      // Renders the editor form for either an existing record (isNew=false) or a
+      // blank new record (isNew=true). pmSelect / pmCreateNew set the mode.
+      function _pmRenderEditor(id, p, isNew) {
+        p = p || {};
+        var editor = document.getElementById('pm-editor');
+        if (!editor) return;
+
+        var keyIssues = Array.isArray(p.keyIssues) ? p.keyIssues.join('\n') : '';
+        var acctScore = (p.accountability && typeof p.accountability.overallScore === 'number')
+          ? p.accountability.overallScore : '';
+        var lastUpdated = _pmFmtDate(p.updatedAt);
+        var stateList = _pmStates();
+
+        // ── Header ──
+        var titleText = isNew ? 'New Politician' : (p.name || id || 'Untitled');
+        var meta = isNew
+          ? '<div class="text-[11px] font-body text-steel-400 mt-1">Fill in the fields below, then click <strong>Create</strong>. The record is written straight to Firestore.</div>'
+          : '<div class="text-[11px] font-mono text-steel-500 mt-1 break-all">ID: <span class="text-steel-300">' + _pmEsc(id) + '</span></div>' +
+            (lastUpdated ? '<div class="text-[11px] font-body text-steel-500 mt-0.5">🕑 Last updated: <span class="text-steel-300">' + _pmEsc(lastUpdated) + '</span></div>' : '');
+        var overrideNote = (!isNew && _pmStatusOverridden(p))
+          ? '<div class="text-[11px] font-body text-amber-300/90 mt-1">📌 Status pinned to <strong>' + _pmEsc(p.profileStatus.toUpperCase()) + '</strong> by an admin · ' +
+            '<button type="button" onclick="window.pmSetStatus(\'' + _pmJs(id) + '\',\'auto\')" class="underline hover:text-white">reset to auto</button></div>'
+          : '';
+
+        var header = '<div class="flex items-start justify-between gap-3 mb-4">' +
+            '<div class="min-w-0">' +
+              '<div class="font-display text-2xl text-white truncate">' + _pmEsc(titleText) + '</div>' +
+              meta + overrideNote +
+            '</div>' +
+            (isNew ? '' : _pmStatusBadge(p)) +
+          '</div>';
+
+        // ── Basic Info group (ID field only in create mode) ──
+        var basic =
+          (isNew ? _pmFieldText('Record ID', 'id', '', { placeholder: 'auto-generated from name' }) : '') +
+          _pmFieldText('Name', 'name', p.name) +
+          _pmFieldText('Office', 'office', p.office, { placeholder: 'e.g. U.S. Senator, State Representative (Dist. 12)' }) +
+          _pmFieldText('District', 'district', p.district, { placeholder: 'e.g. District 3' }) +
+          _pmFieldText('Location / State', 'state', p.state, { datalist: stateList, placeholder: 'e.g. Utah' }) +
+          _pmFieldSelect('Party', 'party', p.party, PM_PARTIES, { allowBlank: true }) +
+          _pmFieldSelect('Tier (directory prominence)', 'tier', p.tier || 'gray', PM_TIERS) +
+          _pmFieldText('Icon (emoji)', 'icon', p.icon, { placeholder: '🏛' }) +
+          _pmFieldText('Photo URL', 'photo', p.photo, { placeholder: 'https://…', full: true });
+
+        var bio =
+          _pmFieldArea('Bio', 'bio', p.bio, 4) +
+          _pmFieldArea('Signature Quote', 'quote', p.quote, 2);
+
+        var scores =
+          _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
+          _pmFieldText('Accountability Score', 'acctScore', acctScore, { type: 'number', placeholder: '0–100' });
+
+        var issues =
+          _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
+          _pmStanceFields(p);
+
+        // ── Action buttons ──
+        var actions;
+        if (isNew) {
+          actions = '<div class="flex flex-wrap gap-3 mt-5">' +
+              '<button type="button" onclick="window.pmCreate()" ' +
+                'class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
+                '<span aria-hidden="true">➕</span> Create Politician</button>' +
+              '<button type="button" onclick="window.pmCancelEdit()" ' +
+                'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
+                'Cancel</button>' +
+            '</div>';
+        } else {
+          var stub = _pmIsStub(p);
+          var statusBtn = stub
+            ? '<button type="button" onclick="window.pmSetStatus(\'' + _pmJs(id) + '\',\'full\')" ' +
+                'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-green-700 border border-green-500/50 hover:border-green-400 text-green-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">' +
+                '<span aria-hidden="true">⬆️</span> Promote to Full</button>'
+            : '<button type="button" onclick="window.pmSetStatus(\'' + _pmJs(id) + '\',\'stub\')" ' +
+                'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-amber-700 border border-amber-500/50 hover:border-amber-400 text-amber-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">' +
+                '<span aria-hidden="true">⬇️</span> Mark as Stub</button>';
+          actions = '<div class="flex flex-wrap gap-3 mt-5">' +
+              '<button type="button" onclick="window.pmSave(\'' + _pmJs(id) + '\')" ' +
+                'class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
+                '<span aria-hidden="true">💾</span> Save Changes</button>' +
+              statusBtn +
+              '<button type="button" onclick="window.pmDelete(\'' + _pmJs(id) + '\')" ' +
+                'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-crimson-700 border border-crimson-500/50 hover:border-crimson-400 text-crimson-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">' +
+                '<span aria-hidden="true">🗑</span> Delete Record</button>' +
+            '</div>';
+        }
+
+        editor.innerHTML = '' +
+          header +
+          (isNew ? '' : _pmDupBanner(id)) +
+          '<form onsubmit="return false;">' +
+            _pmGroup('Basic Info', basic) +
+            _pmGroup('Biography & Quote', bio) +
+            _pmGroup('Scores', scores) +
+            _pmGroup('Key Issues & Stances', issues) +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' + _pmPromisesSection(p.promises) + '</div>' +
+          '</form>' +
+          '<div id="pm-editor-feedback" class="hidden mt-3 text-sm font-body rounded-lg px-3 py-2 border"></div>' +
+          actions;
+      }
+
       window.pmSelect = function (id) {
+        _pmMode = 'edit';
         _pmSelectedId = id;
         var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
         var editor = document.getElementById('pm-editor');
@@ -13239,105 +13667,75 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         if (emptyEl) emptyEl.classList.add('hidden');
         editor.classList.remove('hidden');
-
-        var keyIssues = Array.isArray(p.keyIssues) ? p.keyIssues.join('\n') : '';
-        var acctScore = (p.accountability && typeof p.accountability.overallScore === 'number')
-          ? p.accountability.overallScore : '';
-        var promisesHtml = _pmPromisesSection(p.promises);
-
-        var stancesHtml = '';
-        if (p.stances && typeof p.stances === 'object') {
-          var keys = Object.keys(p.stances);
-          if (keys.length) {
-            stancesHtml = '<div class="sm:col-span-2 mt-1">' +
-              '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400 mb-2">Key Issues / Stances</div>' +
-              '<div class="space-y-2.5">' +
-              keys.map(function (k) {
-                var label = PM_STANCE_LABELS[k] || _pmPretty(k);
-                return '<div>' +
-                  '<label class="block text-[11px] text-steel-300 mb-1 font-body">' + _pmEsc(label) + '</label>' +
-                  '<textarea data-stance-key="' + _pmEscAttr(k) + '" rows="2" ' +
-                    'class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-2 text-sm text-white outline-none transition-colors font-body leading-relaxed">' + _pmEsc(p.stances[k] == null ? '' : p.stances[k]) + '</textarea>' +
-                  '</div>';
-              }).join('') +
-              '</div></div>';
-          }
-        }
-
-        editor.innerHTML = '' +
-          '<div class="flex items-start justify-between gap-3 mb-4">' +
-            '<div class="min-w-0">' +
-              '<div class="font-display text-2xl text-white truncate">' + _pmEsc(p.name || id) + '</div>' +
-              '<div class="text-[11px] font-mono text-steel-500 mt-1 break-all">ID: <span class="text-steel-300">' + _pmEsc(id) + '</span></div>' +
-            '</div>' +
-            _pmStatusBadge(p) +
-          '</div>' +
-          '<form onsubmit="return false;" class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
-            _pmFieldText('Name', 'name', p.name) +
-            _pmFieldText('Office', 'office', p.office) +
-            _pmFieldText('District', 'district', p.district, { placeholder: 'e.g. District 3' }) +
-            _pmFieldText('Location / State', 'state', p.state) +
-            _pmFieldText('Party', 'party', p.party, { placeholder: 'R / D / I' }) +
-            _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
-            _pmFieldText('Accountability Score', 'acctScore', acctScore, { type: 'number', placeholder: '0–100' }) +
-            _pmFieldText('Icon (emoji)', 'icon', p.icon, { placeholder: '🏛' }) +
-            _pmFieldText('Photo URL', 'photo', p.photo, { placeholder: 'https://…' }) +
-            _pmFieldArea('Bio', 'bio', p.bio, 4) +
-            _pmFieldArea('Signature Quote', 'quote', p.quote, 2) +
-            _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
-            stancesHtml +
-            promisesHtml +
-          '</form>' +
-          '<div id="pm-editor-feedback" class="hidden mt-3 text-sm font-body rounded-lg px-3 py-2 border"></div>' +
-          '<div class="flex flex-wrap gap-3 mt-5">' +
-            '<button type="button" onclick="window.pmSave(\'' + _pmJs(id) + '\')" ' +
-              'class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
-              '<span aria-hidden="true">💾</span> Save Changes</button>' +
-            '<button type="button" onclick="window.pmDelete(\'' + _pmJs(id) + '\')" ' +
-              'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-crimson-700 border border-crimson-500/50 hover:border-crimson-400 text-crimson-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all">' +
-              '<span aria-hidden="true">🗑</span> Delete</button>' +
-          '</div>';
-
+        _pmRenderEditor(id, p, false);
         // Refresh the list so the active row highlight follows the selection.
         window.pmRenderList();
       };
 
-      function _pmFeedback(msg, kind) {
-        var el = document.getElementById('pm-editor-feedback');
-        if (!el) return;
-        el.classList.remove('hidden');
-        if (kind === 'error') {
-          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-red-300 bg-red-950/40 border-red-500/40';
+      // Open a blank editor for a brand-new record.
+      window.pmCreateNew = function () {
+        _pmMode = 'create';
+        _pmSelectedId = null;
+        var editor = document.getElementById('pm-editor');
+        var emptyEl = document.getElementById('pm-editor-empty');
+        if (!editor) return;
+        if (emptyEl) emptyEl.classList.add('hidden');
+        editor.classList.remove('hidden');
+        _pmRenderEditor(null, { icon: '🏛', tier: 'gray' }, true);
+        window.pmRenderList();
+        var nameEl = document.getElementById('pm-f-name');
+        if (nameEl) nameEl.focus();
+        try { editor.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+      };
+
+      // Leave create mode without saving — return to the previous selection.
+      window.pmCancelEdit = function () {
+        _pmMode = 'view';
+        if (_pmSelectedId && PROFILES[_pmSelectedId]) {
+          window.pmSelect(_pmSelectedId);
         } else {
-          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-green-300 bg-green-950/40 border-green-500/40';
+          _pmSelectedId = null;
+          var editor = document.getElementById('pm-editor');
+          var emptyEl = document.getElementById('pm-editor-empty');
+          if (editor) editor.classList.add('hidden');
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          window.pmRenderList();
         }
-        el.textContent = msg;
-      }
+      };
 
-      window.pmSave = function (id) {
-        if (typeof PROFILES !== 'object' || !PROFILES || !PROFILES[id]) {
-          _pmFeedback('Record not found — try Reload.', 'error');
-          return;
-        }
-        // Clone the existing document so unedited fields (kept/broken/pending,
-        // tier, etc.) are preserved exactly. We only overwrite what's editable.
+      // Quick action: pin or release a record's FULL/STUB classification.
+      window.pmSetStatus = function (id, status) {
+        var src = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
+        if (!src) { _pmFeedback('Record not found — try Reload.', 'error'); return; }
         var merged;
-        try { merged = JSON.parse(JSON.stringify(PROFILES[id])); }
-        catch (e) { merged = {}; }
+        try { merged = JSON.parse(JSON.stringify(src)); } catch (e) { merged = {}; }
+        if (status === 'auto') { delete merged.profileStatus; }
+        else { merged.profileStatus = status; }
+        merged.updatedAt = new Date().toISOString();
+        var msg = status === 'full' ? 'Marked as Full ✓' : (status === 'stub' ? 'Marked as Stub ✓' : 'Status reset to auto ✓');
+        _pmPersist(id, merged, msg, function () { if (_pmSelectedId === id) window.pmSelect(id); });
+      };
 
+      // Reads every editable field into `merged`. Returns the populated object,
+      // or null (after showing an error) when validation fails. Shared by save
+      // and create so both stay perfectly in sync.
+      function _pmCollectForm(merged) {
+        merged = merged || {};
         function val(f) { var el = document.getElementById('pm-f-' + f); return el ? el.value : undefined; }
 
         var name = (val('name') || '').trim();
-        if (!name) { _pmFeedback('Name cannot be empty.', 'error'); return; }
+        if (!name) { _pmFeedback('Name cannot be empty.', 'error'); return null; }
 
         merged.name = name;
         merged.office = (val('office') || '').trim();
         merged.district = (val('district') || '').trim();
         merged.state = (val('state') || '').trim();
         merged.party = (val('party') || '').trim();
+        merged.tier = (val('tier') || '').trim() || 'gray';
         merged.icon = (val('icon') || '').trim() || '🏛';
         merged.photo = (val('photo') || '').trim();
         merged.bio = (val('bio') || '');
+        merged.quote = (val('quote') || '').trim();
 
         var scoreRaw = val('score');
         if (scoreRaw === '' || scoreRaw == null) {
@@ -13358,8 +13756,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           });
           merged.stances = st;
         }
-
-        merged.quote = (val('quote') || '').trim();
 
         // Accountability: edit only the headline score; preserve any
         // categories/detail already on the record. Blank clears the score.
@@ -13406,19 +13802,64 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         merged.broken = newPromises.filter(function (r) { return r.verdict === 'broken'; }).length;
         merged.pending = newPromises.filter(function (r) { return r.verdict === 'pending'; }).length;
 
+        return merged;
+      }
+
+      // Create a brand-new Firestore record from the create-mode editor.
+      window.pmCreate = function () {
+        var merged = _pmCollectForm({});
+        if (!merged) return;
+
+        var idEl = document.getElementById('pm-f-id');
+        var base = _pmSlug(idEl ? idEl.value : '') || _pmSlug(merged.name);
+        if (!base) { _pmFeedback('Enter a name (or an ID) for the new record.', 'error'); return; }
+        var id = _pmUniqueId(base);
+
+        var now = new Date().toISOString();
+        merged.createdAt = now;
+        merged.updatedAt = now;
+
+        _pmFeedback('Creating…', 'ok');
+        _pmPersist(id, merged, 'Created ' + merged.name + ' ✓', function () {
+          _pmMode = 'edit';
+          window.pmSelect(id);
+          _pmFeedback('Created new record "' + merged.name + '" (ID: ' + id + ').', 'ok');
+        });
+      };
+
+
+      function _pmFeedback(msg, kind) {
+        var el = document.getElementById('pm-editor-feedback');
+        if (!el) return;
+        el.classList.remove('hidden');
+        if (kind === 'error') {
+          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-red-300 bg-red-950/40 border-red-500/40';
+        } else {
+          el.className = 'mt-3 text-sm font-body rounded-lg px-3 py-2 border text-green-300 bg-green-950/40 border-green-500/40';
+        }
+        el.textContent = msg;
+      }
+
+      window.pmSave = function (id) {
+        if (typeof PROFILES !== 'object' || !PROFILES || !PROFILES[id]) {
+          _pmFeedback('Record not found — try Reload.', 'error');
+          return;
+        }
+        // Clone the existing document so unedited fields (sources, sections,
+        // election dates, etc.) are preserved exactly — _pmCollectForm only
+        // overwrites the editable fields.
+        var merged;
+        try { merged = JSON.parse(JSON.stringify(PROFILES[id])); }
+        catch (e) { merged = {}; }
+
+        merged = _pmCollectForm(merged);
+        if (!merged) return;
+        merged.updatedAt = new Date().toISOString();
+
         _pmFeedback('Saving…', 'ok');
-        db.collection('politicians').doc(id).set(merged).then(function () {
-          PROFILES[id] = merged;
-          if (typeof CMP_DATA !== 'undefined') { CMP_DATA[id] = merged; }
-          if (typeof _populateDirData === 'function') { _populateDirData(); }
-          window.pmRenderList();
-          _pmFeedback('Saved changes to "' + name + '".', 'ok');
-          if (typeof window._showToast === 'function') {
-            window._showToast('Saved ' + name + ' ✓');
-          }
-        }).catch(function (error) {
-          console.error('Politician Manager save failed:', error);
-          _pmFeedback('Save failed: ' + (error && error.message ? error.message : 'unknown error'), 'error');
+        _pmPersist(id, merged, 'Saved ' + merged.name + ' ✓', function () {
+          if (_pmSelectedId === id) window.pmSelect(id);
+          _pmFeedback('Saved changes to "' + merged.name + '".', 'ok');
         });
       };
 
@@ -13434,6 +13875,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (typeof _populateDirData === 'function') { _populateDirData(); }
           if (_pmSelectedId === id) {
             _pmSelectedId = null;
+            _pmMode = 'view';
             var editor = document.getElementById('pm-editor');
             var emptyEl = document.getElementById('pm-editor-empty');
             if (editor) editor.classList.add('hidden');
