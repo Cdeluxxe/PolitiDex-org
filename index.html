@@ -26767,6 +26767,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var selections = {};
           try { selections = JSON.parse(localStorage.getItem('politidex_my_team') || '{}') || {}; } catch(e) { selections = {}; }
 
+          // Helper: pull a politician's race slot key, tolerating either the
+          // window-scoped or closure-scoped resolver.
+          function _raceKeyFor(pid) {
+            if (typeof window._findRaceKeyForPolitician === 'function') return window._findRaceKeyForPolitician(pid);
+            if (typeof _findRaceKeyForPolitician === 'function') return _findRaceKeyForPolitician(pid);
+            return null;
+          }
+
           // Legacy/back-compat: older accounts only stored a flat `userTeams.team`
           // array of pids. Use it to BACK-FILL slots that are still empty — never
           // to overwrite a slot the keyed map already filled.
@@ -26776,12 +26784,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               console.log("Loaded team from userTeams (back-fill):", teamData.team);
               teamData.team.forEach(function(pid) {
                 _myPoliticians.add(pid);
-                var raceKey = null;
-                if (typeof window._findRaceKeyForPolitician === 'function') {
-                  raceKey = window._findRaceKeyForPolitician(pid);
-                } else if (typeof _findRaceKeyForPolitician === 'function') {
-                  raceKey = _findRaceKeyForPolitician(pid);
-                }
+                var raceKey = _raceKeyFor(pid);
                 if (raceKey && !selections[raceKey]) {
                   selections[raceKey] = pid;
                 }
@@ -26789,17 +26792,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             }
           }
 
-          // Keep the broader "my politicians" set in sync with the slate so the
-          // ballot picks always show as part of the user's team.
-          Object.keys(selections).forEach(function(k) {
-            if (selections[k]) _myPoliticians.add(selections[k]);
-          });
+          // Finalize the loaded slate: keep "my politicians" in sync, persist
+          // locally and re-render. Shared by both the new-structure and the
+          // legacy-only code paths below.
+          function _finalizeTeam() {
+            Object.keys(selections).forEach(function(k) {
+              if (selections[k]) _myPoliticians.add(selections[k]);
+            });
+            try { localStorage.setItem('politidex_my_team', JSON.stringify(selections)); } catch(e) {}
+            _mypolSave();
+            _mypolBuildGrid();
+            _mypolUpdateCount();
+            if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+          }
 
-          try { localStorage.setItem('politidex_my_team', JSON.stringify(selections)); } catch(e) {}
-          _mypolSave();
-          _mypolBuildGrid();
-          _mypolUpdateCount();
-          if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
+          // Preferred source: the new multi-team subcollection. Read the main
+          // team document and use its keyed `slots` map (falling back to its
+          // flat `members` list) to fill any slots not already set. This is the
+          // forward-looking structure that also supports naming + future sharing.
+          var mainId = (teamDoc.exists && teamDoc.data() && teamDoc.data().mainTeamId) || window.PDX_DEFAULT_TEAM_ID || 'main';
+          db.collection('userTeams').doc(uid).collection('teams').doc(mainId).get()
+            .then(function(mainDoc) {
+              if (mainDoc.exists) {
+                var t = mainDoc.data() || {};
+                if (t.slots && typeof t.slots === 'object') {
+                  Object.keys(t.slots).forEach(function(rk) {
+                    if (t.slots[rk] && !selections[rk]) selections[rk] = t.slots[rk];
+                  });
+                } else if (Array.isArray(t.members)) {
+                  t.members.forEach(function(pid) {
+                    _myPoliticians.add(pid);
+                    var rk = _raceKeyFor(pid);
+                    if (rk && !selections[rk]) selections[rk] = pid;
+                  });
+                }
+              }
+              _finalizeTeam();
+            })
+            .catch(function() { _finalizeTeam(); });
         }).catch(function(err) {
           console.warn("Failed to load userTeams:", err);
           _mypolBuildGrid();
@@ -29747,6 +29777,69 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return {};
     }
 
+    // ── Saved-team data model ────────────────────────────────────────────
+    // Teams now live as individual documents in a per-user subcollection:
+    //
+    //   userTeams/{uid}/teams/{teamId}
+    //
+    // Each team document is self-describing so we can support multiple saved
+    // teams, a designated main team, optional names, and (later) sharing —
+    // without another migration. The parent userTeams/{uid} doc keeps a
+    // `mainTeamId` pointer plus the legacy flat `team` array so older code
+    // paths and accounts keep working untouched.
+    var TEAM_SCHEMA_VERSION = 2;
+    var DEFAULT_TEAM_ID = 'main';
+    // Expose so the load path (in a separate IIFE) can agree on the same ids.
+    window.PDX_TEAM_SCHEMA_VERSION = TEAM_SCHEMA_VERSION;
+    window.PDX_DEFAULT_TEAM_ID = DEFAULT_TEAM_ID;
+
+    // Build the rich, future-proof team record. `slots` is the authoritative
+    // keyed ballot map ({ raceKey: pid }); `members` is a convenience flat list.
+    function _buildTeamRecord(user, selections, extra) {
+      var members = [];
+      for (var k in selections) { if (selections[k]) members.push(selections[k]); }
+      var rec = {
+        schemaVersion: TEAM_SCHEMA_VERSION,
+        // Naming UI isn't enabled yet, but the field exists so a team can be
+        // named later with zero data changes. Preserve any name already set.
+        name: (extra && extra.name) || 'My Team',
+        slots: selections,            // keyed ballot map (one pid per race)
+        members: members,             // flat pid list (convenience / legacy)
+        isMain: true,                 // this is the user's default/main team
+        // Private by default — only the owner reads it. Future sharing flips
+        // this to 'unlisted' or 'public' and populates shareId, no schema change.
+        visibility: 'private',
+        shareId: null,                // reserved for a future shareable-link token
+        ownerUid: user.uid,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      return rec;
+    }
+
+    // Persist the main team into the new subcollection structure. Done as an
+    // additive write alongside the legacy save so nothing existing breaks.
+    function _persistMainTeam(user, selections) {
+      var teamRef = db.collection('userTeams').doc(user.uid)
+                      .collection('teams').doc(DEFAULT_TEAM_ID);
+      teamRef.get().then(function(snap) {
+        var existing = snap.exists ? (snap.data() || {}) : {};
+        var rec = _buildTeamRecord(user, selections, { name: existing.name });
+        // Only stamp createdAt the first time the team document is written.
+        if (!snap.exists || !existing.createdAt) {
+          rec.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+        teamRef.set(rec, { merge: true }).catch(function(e) {
+          console.warn("Firestore save to userTeams/teams failed:", e);
+        });
+        // Pointer to the main team on the parent doc.
+        db.collection('userTeams').doc(user.uid).set({
+          mainTeamId: DEFAULT_TEAM_ID
+        }, { merge: true }).catch(function(){});
+      }).catch(function(e) {
+        console.warn("Could not read existing team for save:", e);
+      });
+    }
+
     function _ballotSave(selections) {
       try { localStorage.setItem(BALLOT_KEY, JSON.stringify(selections)); } catch(e) {}
       var user = typeof auth !== 'undefined' ? auth.currentUser : null;
@@ -29755,12 +29848,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         for (var k in selections) {
           if (selections[k]) teamArray.push(selections[k]);
         }
+        // Legacy write — kept so existing readers and older accounts still work.
         db.collection('userTeams').doc(user.uid).set({
           team: teamArray,
+          schemaVersion: TEAM_SCHEMA_VERSION,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function(e) {
+        }, { merge: true }).catch(function(e) {
           console.warn("Firestore save to userTeams failed:", e);
         });
+
+        // New write — multi-team-ready subcollection record.
+        _persistMainTeam(user, selections);
 
         if (!user.isAnonymous) {
           db.collection('users').doc(user.uid).set({
