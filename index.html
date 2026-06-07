@@ -13368,7 +13368,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </button>
           <span class="text-[11px] font-body text-steel-400 leading-snug">Cleans every Utah legislator's <code class="text-sky-300">district</code> field to one consistent format (e.g. “Dist. 6”, “D6”, “District 06” → “District 6”). Only the district field is touched.</span>
         </div>
+        <div id="pm-coverage-toolbar-2" class="flex flex-wrap items-center gap-2 mb-4">
+          <button type="button" id="pm-suggest-btn" onclick="window.pmSuggestDistricts && window.pmSuggestDistricts()"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-green-500/15 border border-green-500/40 hover:border-green-400 text-green-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">🪄</span> Auto-suggest districts for all unassigned Utah politicians
+          </button>
+          <span class="text-[11px] font-body text-steel-400 leading-snug">Infers a likely district for every record in <span class="text-amber-300">Needs Review</span> from name twins, non-standard numbers, and nearby location patterns — each graded by confidence. Review, correct, and approve in bulk; <strong class="text-steel-300">nothing is saved without your click</strong>.</span>
+        </div>
         <div id="pm-standardize-result" class="hidden mb-4"></div>
+        <div id="pm-suggest-result" class="hidden mb-4"></div>
         <div id="pm-coverage-body" class="space-y-5">
           <!-- coverage cards + tables injected here -->
         </div>
@@ -14147,11 +14155,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</button>';
           }).join('');
           reviewSection = '<div>' +
-            '<div class="flex items-center justify-between gap-2 mb-2.5">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">' +
               '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-200">⚠️ Needs Review / Unassigned</div>' +
-              '<span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-amber-300/80">' + reviewRows.length + ' record' + (reviewRows.length === 1 ? '' : 's') + '</span>' +
+              '<div class="flex items-center gap-2">' +
+                '<button type="button" onclick="window.pmSuggestDistricts && window.pmSuggestDistricts()" ' +
+                  'class="inline-flex items-center gap-1.5 bg-green-600/80 hover:bg-green-500 text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-2.5 py-1.5 rounded-md transition-all">🪄 Auto-suggest all ' + reviewRows.length + '</button>' +
+                '<span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-amber-300/80">' + reviewRows.length + ' record' + (reviewRows.length === 1 ? '' : 's') + '</span>' +
+              '</div>' +
             '</div>' +
-            '<div class="text-[11px] font-body text-steel-300 mb-2.5 max-w-3xl leading-relaxed">These Utah legislators map to a chamber but have no usable district. They are <strong>not</strong> counted as filled seats and are kept out of the statewide totals. Use “Standardize Districts” above to auto-clean the fixable ones, or click a record to set its district by hand.</div>' +
+            '<div class="text-[11px] font-body text-steel-300 mb-2.5 max-w-3xl leading-relaxed">These Utah legislators map to a chamber but have no usable district. They are <strong>not</strong> counted as filled seats and are kept out of the statewide totals. Click <span class="text-green-300 font-semibold">🪄 Auto-suggest</span> to have the tool infer likely districts (with confidence levels) and approve them in bulk, use “Standardize Districts” to auto-clean the fixable ones, or click a record to set its district by hand.</div>' +
             '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">' + reviewItems + '</div></div>';
         }
 
@@ -14267,6 +14279,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       window.pmStandardizeDistricts = function (confirmed) {
         var el = _pmStdResultEl();
         if (!el) return;
+        if (!confirmed && typeof window.pmSuggestCancel === 'function') { window.pmSuggestCancel(); } // keep one preview open at a time
         var plan = _pmDistrictPlan();
         el.classList.remove('hidden');
 
@@ -14354,6 +14367,486 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
       };
 
+      // ── District Suggestion & Quick Fix ──────────────────────────
+      // The standardizer above can only clean districts that are already
+      // *present* in some shorthand. It deliberately leaves alone every record
+      // where no district number exists or the number is out of range — and on
+      // the Utah data that "Needs Review / Unassigned" pile runs well past a
+      // hundred records. Assigning each by hand is the slow part.
+      //
+      // This system closes that gap. For each review record it INFERS a likely
+      // district from data the app already holds — never an outside source —
+      // and presents it with a confidence level and a plain reason. The admin
+      // can one-click approve the safe ones, multi-select a batch, correct any
+      // guess inline, or auto-suggest for the whole group at once. Nothing is
+      // written without an explicit click, and every approval stamps the record
+      // with how it was decided so auto-suggested and hand-corrected values stay
+      // distinguishable from manually entered ones.
+
+      // Words that are chamber/boilerplate noise rather than a location hint.
+      var PM_LOC_STOP = {
+        district: 1, dist: 1, districts: 1, county: 1, counties: 1, utah: 1,
+        state: 1, house: 1, senate: 1, representative: 1, senator: 1, rep: 1,
+        sen: 1, congressional: 1, congress: 1, congressman: 1, congresswoman: 1,
+        the: 1, of: 1, and: 1, for: 1, seat: 1, position: 1, legislative: 1,
+        assembly: 1, assemblyman: 1, assemblywoman: 1, member: 1
+      };
+
+      // Reduce a record's district/office text to distinct lowercase location
+      // word tokens (e.g. "District 10 (Salt Lake County)" → ["salt","lake"]),
+      // dropping chamber boilerplate and any digits. These are the place-name
+      // fingerprints used to learn and match district locations.
+      function _pmLocTokens(p) {
+        var s = String((p && p.district) || '') + ' ' + String((p && p.office) || '');
+        var toks = s.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/);
+        var seen = {}, list = [];
+        toks.forEach(function (t) {
+          if (t.length < 3 || PM_LOC_STOP[t] || seen[t]) return;
+          seen[t] = 1; list.push(t);
+        });
+        return list;
+      }
+
+      var PM_ORDINAL_WORDS = {
+        first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seventh: 7,
+        eighth: 8, ninth: 9, tenth: 10, eleventh: 11, twelfth: 12, thirteenth: 13,
+        fourteenth: 14, fifteenth: 15, sixteenth: 16, seventeenth: 17,
+        eighteenth: 18, nineteenth: 19, twentieth: 20, 'twenty-first': 21,
+        'twenty-second': 22, 'twenty-third': 23, 'twenty-fourth': 24,
+        'twenty-fifth': 25, 'twenty-sixth': 26, 'twenty-seventh': 27,
+        'twenty-eighth': 28, 'twenty-ninth': 29
+      };
+
+      // Parse a roman numeral, returning 0 unless the string is BOTH composed
+      // only of i/v/x/l AND well-formed (so "vv", "iiii", "lll", "ill" are
+      // rejected rather than silently yielding a bogus number). Validity is
+      // checked by re-encoding the value and requiring an exact round-trip.
+      function _pmRoman(s) {
+        var map = { i: 1, v: 5, x: 10, l: 50 }, total = 0, prev = 0;
+        for (var i = s.length - 1; i >= 0; i--) {
+          var c = map[s.charAt(i)];
+          if (!c) return 0;
+          if (c < prev) total -= c; else { total += c; prev = c; }
+        }
+        if (total < 1 || total > 89) return 0;
+        var vals = [[50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']];
+        var out = '', r = total;
+        vals.forEach(function (pair) { while (r >= pair[0]) { out += pair[1]; r -= pair[0]; } });
+        return (out === s) ? total : 0;
+      }
+
+      // Recover a district number the *strict* parser intentionally ignores, so
+      // we never silently change how coverage reads but can still rescue obvious
+      // cases. Both branches are ANCHORED to a "district" keyword: an ordinal or
+      // roman numeral only counts when it is actually qualifying a district, so
+      // ordinary free text ("first elected", "second term", "third party") and
+      // incidental numbers (suite/room/age) can never be mistaken for one.
+      // Returns { num, kind } with kind 'ordinal' | 'roman'.
+      function _pmLooseDistrictNum(p) {
+        var hay = (String((p && p.district) || '') + ' ' + String((p && p.office) || '')).toLowerCase();
+        // Spelled-out ordinal sitting next to "district" (either order). Longest
+        // words first so a compound ordinal ("twenty-first") wins over its
+        // suffix ("first").
+        var words = Object.keys(PM_ORDINAL_WORDS).sort(function (a, b) { return b.length - a.length; });
+        var qual = '(?:house|senate|legislative|congressional)\\s+';
+        for (var i = 0; i < words.length; i++) {
+          var w = words[i].replace(/-/g, '\\-');
+          var re = new RegExp(
+            '\\b' + w + '\\b[\\s,]*(?:' + qual + ')?district\\b' +      // "twenty-first (house) district"
+            '|\\bdistrict\\b[\\s,]*(?:the\\s+)?' + w + '\\b');           // "district, the twenty-first"
+          if (re.test(hay)) return { num: PM_ORDINAL_WORDS[words[i]], kind: 'ordinal' };
+        }
+        // Roman numeral directly after a "district"/"dist." keyword.
+        var rm = hay.match(/\bdist(?:rict)?\.?\s+([ivxl]{1,6})\b/);
+        if (rm) { var rv = _pmRoman(rm[1]); if (rv > 0) return { num: rv, kind: 'roman' }; }
+        return null;
+      }
+
+      // Learn, from the records that ARE cleanly assigned, what each chamber's
+      // districts look like: which names already hold a seat, and which place
+      // tokens co-occur with which district numbers. This is the "existing
+      // patterns in the database" the suggestions lean on.
+      function _pmSuggestIndex() {
+        var byChamber = {};
+        PM_UTAH_CHAMBERS.forEach(function (c) {
+          if (c.hasDistricts) byChamber[c.key] = { names: {}, locs: {} };
+        });
+        _pmAll().forEach(function (row) {
+          if (!_pmIsUtah(row.p.state)) return;
+          var ch = _pmUtahChamber(row.p);
+          if (!ch || !byChamber[ch]) return;
+          var chamber = PM_UTAH_CHAMBERS.filter(function (c) { return c.key === ch; })[0];
+          var ds = _pmDistrictStatus(row.p, chamber);
+          if (ds.status !== 'ok') return; // only learn from clean, in-range data
+          var idx = byChamber[ch], num = ds.num;
+          var nm = _pmNormName(row.p.name || '');
+          if (nm) { (idx.names[nm] = idx.names[nm] || {})[num] = (idx.names[nm][num] || 0) + 1; }
+          _pmLocTokens(row.p).forEach(function (t) {
+            (idx.locs[t] = idx.locs[t] || {})[num] = (idx.locs[t][num] || 0) + 1;
+          });
+        });
+        return byChamber;
+      }
+
+      // Best-guess a district for one review record, or null if nothing is even
+      // plausible. Tries signals in descending trust and returns the first hit:
+      //   { num, canonical, confidence:'high'|'medium'|'low', reason, flag }
+      // `num` is null when we can describe the problem but can't responsibly
+      // propose a value (e.g. an out-of-range typo) — those still surface, just
+      // not as one-click-approvable.
+      function _pmSuggestDistrict(row, chamber, idx) {
+        var p = row.p, total = chamber.total;
+        var chIdx = idx[chamber.key] || { names: {}, locs: {} };
+        var inRange = function (n) { return n >= 1 && n <= total; };
+
+        // 1) Name twin: another already-assigned profile with the same name in
+        //    this chamber. The classic split/duplicate record — very strong.
+        var nm = _pmNormName(p.name || '');
+        if (nm && chIdx.names[nm]) {
+          var twinNums = Object.keys(chIdx.names[nm]).map(Number).filter(inRange);
+          if (twinNums.length === 1) {
+            return { num: twinNums[0], canonical: _pmCanonicalDistrict(twinNums[0]), confidence: 'high',
+              reason: 'Another profile named “' + (p.name || '') + '” is already assigned to District ' + twinNums[0] + ' in this chamber.' };
+          }
+        }
+
+        // 2) A real district number that was just written in a non-standard way
+        //    (spelled-out ordinal or roman numeral), anchored to a "district"
+        //    keyword so it is unambiguous.
+        var loose = _pmLooseDistrictNum(p);
+        if (loose && inRange(loose.num)) {
+          return { num: loose.num, canonical: _pmCanonicalDistrict(loose.num), confidence: 'high',
+            reason: 'The record spells its district out (' + loose.kind + ') as ' + loose.num + '; it just was not in numeric form.' };
+        }
+
+        // 3) Location hint → district, learned from neighbouring records.
+        var tokens = _pmLocTokens(p), tally = {}, any = false;
+        tokens.forEach(function (t) {
+          var seen = chIdx.locs[t]; if (!seen) return;
+          for (var n in seen) {
+            if (Object.prototype.hasOwnProperty.call(seen, n) && inRange(Number(n))) {
+              tally[n] = (tally[n] || 0) + seen[n]; any = true;
+            }
+          }
+        });
+        if (any) {
+          var cands = Object.keys(tally).sort(function (a, b) { return tally[b] - tally[a]; });
+          if (cands.length === 1) {
+            var only = Number(cands[0]);
+            return { num: only, canonical: _pmCanonicalDistrict(only), confidence: 'medium',
+              reason: 'The location text (' + tokens.join(', ') + ') matches District ' + only + ' elsewhere in the database.' };
+          }
+          var top = Number(cands[0]);
+          if (tally[cands[0]] > (tally[cands[1]] || 0)) {
+            return { num: top, canonical: _pmCanonicalDistrict(top), confidence: 'low',
+              reason: 'Location text matches several districts; District ' + top + ' is the most common nearby (' + tally[cands[0]] + ' records). Please verify before approving.' };
+          }
+        }
+
+        // 4) An out-of-range number is present: describe it, but never propose it.
+        var raw = _pmDistrictNum(p);
+        if (raw != null) {
+          return { num: null, canonical: '', confidence: 'low',
+            reason: 'Found District ' + raw + ', outside this chamber’s 1–' + total + ' range — likely a typo. Set the correct district by hand.' };
+        }
+        return null;
+      }
+
+      // Collect every Utah review record across the district chambers, paired
+      // with its chamber, exactly as the coverage panel buckets them.
+      function _pmReviewRecords() {
+        var cov = _pmUtahCoverage(), out = [];
+        PM_UTAH_CHAMBERS.forEach(function (c) {
+          if (!c.hasDistricts) return;
+          (cov.seats[c.key].review || []).forEach(function (r) {
+            if (PROFILES[r.id]) out.push({ id: r.id, p: PROFILES[r.id], chamber: c, raw: r.district, reason: r.reason });
+          });
+        });
+        return out;
+      }
+
+      // Live working set for the suggestion panel: id → { row data, suggestion,
+      // overrideNum (admin's correction), checked }. Rebuilt each time the panel
+      // is generated; mutated in place as the admin checks/corrects rows.
+      var _pmSuggestState = null;
+
+      var PM_CONF_STYLE = {
+        high:   { cls: 'text-green-200 bg-green-500/10 border-green-500/40', label: 'High confidence' },
+        medium: { cls: 'text-sky-200 bg-sky-500/10 border-sky-500/40',     label: 'Medium confidence' },
+        low:    { cls: 'text-amber-200 bg-amber-500/10 border-amber-500/40', label: 'Low — verify' }
+      };
+
+      function _pmSuggestResultEl() { return document.getElementById('pm-suggest-result'); }
+
+      // Effective number an approval would write for a row: the admin's manual
+      // correction wins over the machine suggestion.
+      function _pmSuggestEffectiveNum(st) {
+        if (st.overrideNum != null) return st.overrideNum;
+        return st.suggestion ? st.suggestion.num : null;
+      }
+
+      // Build (or rebuild) the suggestion working set and render the panel.
+      window.pmSuggestDistricts = function () {
+        var el = _pmSuggestResultEl();
+        if (!el) return;
+        window.pmStandardizeCancel(); // avoid two open previews fighting for space
+        el.classList.remove('hidden');
+
+        var records = _pmReviewRecords();
+        if (!records.length) {
+          el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-green-200 bg-green-950/30 border-green-500/40';
+          el.innerHTML = '<span aria-hidden="true">✓</span> No Utah legislators are awaiting a district — the review pile is empty.';
+          _pmSuggestState = null;
+          return;
+        }
+
+        var idx = _pmSuggestIndex();
+        _pmSuggestState = {};
+        records.forEach(function (rec) {
+          _pmSuggestState[rec.id] = {
+            id: rec.id,
+            name: rec.p.name || rec.id,
+            chamber: rec.chamber,
+            raw: rec.raw,
+            suggestion: _pmSuggestDistrict(rec, rec.chamber, idx),
+            overrideNum: null,
+            checked: false
+          };
+        });
+        _pmRenderSuggestPanel();
+      };
+
+      // Render the interactive review table from _pmSuggestState.
+      function _pmRenderSuggestPanel() {
+        var el = _pmSuggestResultEl();
+        if (!el || !_pmSuggestState) return;
+        var ids = Object.keys(_pmSuggestState);
+        var states = ids.map(function (id) { return _pmSuggestState[id]; });
+
+        // Order: actionable suggestions first (high → medium → low), then the
+        // ones that need a human, so the bulk-approvable rows sit up top.
+        var rank = { high: 0, medium: 1, low: 2 };
+        states.sort(function (a, b) {
+          var ah = _pmSuggestEffectiveNum(a) != null, bh = _pmSuggestEffectiveNum(b) != null;
+          if (ah !== bh) return ah ? -1 : 1;
+          var ac = a.suggestion ? rank[a.suggestion.confidence] : 9;
+          var bc = b.suggestion ? rank[b.suggestion.confidence] : 9;
+          if (ac !== bc) return ac - bc;
+          return a.name < b.name ? -1 : 1;
+        });
+
+        var highReady = states.filter(function (s) { return s.suggestion && s.suggestion.confidence === 'high' && _pmSuggestEffectiveNum(s) != null; }).length;
+        var anyReady = states.filter(function (s) { return _pmSuggestEffectiveNum(s) != null; }).length;
+        var checkedReady = states.filter(function (s) { return s.checked && _pmSuggestEffectiveNum(s) != null; }).length;
+        var noPick = states.length - anyReady;
+
+        var rows = states.map(function (s) {
+          var conf = s.suggestion ? s.suggestion.confidence : 'low';
+          var style = PM_CONF_STYLE[conf] || PM_CONF_STYLE.low;
+          var eff = _pmSuggestEffectiveNum(s);
+          var corrected = s.overrideNum != null && (!s.suggestion || s.overrideNum !== s.suggestion.num);
+          var rawTxt = s.raw ? '“' + _pmEsc(s.raw) + '”' : '(blank)';
+          var reason = s.suggestion ? s.suggestion.reason : 'No matching name, number, or location pattern in the database — set this one by hand.';
+          var jid = _pmJs(s.id);
+
+          var suggestCell = eff != null
+            ? '<span class="font-mono text-[11px] text-green-200 bg-green-950/40 border border-green-500/30 rounded px-1.5 py-0.5">District ' + eff + '</span>' +
+              (corrected ? ' <span class="font-condensed text-[9px] font-700 tracking-widest uppercase text-sky-300">corrected</span>' : '')
+            : '<span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-amber-300/80">needs manual</span>';
+
+          var approveBtn = eff != null
+            ? '<button type="button" onclick="window.pmSuggestApprove(\'' + jid + '\')" ' +
+                'class="inline-flex items-center gap-1 bg-green-600/80 hover:bg-green-500 text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-2.5 py-1.5 rounded-md transition-all">✓ Approve</button>'
+            : '<button type="button" onclick="window.pmToggleCoverage(false); window.pmSelect(\'' + jid + '\')" ' +
+                'class="inline-flex items-center gap-1 bg-navy-800 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-2.5 py-1.5 rounded-md transition-all">Open</button>';
+
+          return '<tr class="border-t border-white/5 align-top">' +
+            '<td class="py-2 pr-2">' +
+              (eff != null
+                ? '<input type="checkbox" ' + (s.checked ? 'checked ' : '') + 'onchange="window.pmSuggestCheck(\'' + jid + '\', this.checked)" ' +
+                  'class="w-4 h-4 accent-green-500 cursor-pointer" aria-label="Select ' + _pmEscAttr(s.name) + '">'
+                : '') +
+            '</td>' +
+            '<td class="py-2 pr-3"><div class="font-body text-sm text-white">' + _pmEsc(s.name) + '</div>' +
+              '<div class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400">' + _pmEsc(s.chamber.label) + '</div></td>' +
+            '<td class="py-2 px-2"><span class="font-mono text-[11px] text-amber-200/90 bg-amber-950/30 border border-amber-500/20 rounded px-1.5 py-0.5">' + rawTxt + '</span></td>' +
+            '<td class="py-2 px-2 whitespace-nowrap">' + suggestCell + '</td>' +
+            '<td class="py-2 px-2"><span class="inline-flex items-center font-condensed text-[9px] font-700 tracking-widest uppercase px-2 py-0.5 rounded-full border ' + style.cls + '">' + style.label + '</span></td>' +
+            '<td class="py-2 px-2 text-[11px] font-body text-steel-300 max-w-xs leading-snug">' + _pmEsc(reason) + '</td>' +
+            '<td class="py-2 px-2 whitespace-nowrap">' +
+              '<input type="number" min="1" max="' + s.chamber.total + '" value="' + (s.overrideNum != null ? s.overrideNum : '') + '" ' +
+                'placeholder="#" onchange="window.pmSuggestCorrect(\'' + jid + '\', this.value)" ' +
+                'class="w-14 bg-navy-950 border border-white/15 focus:border-sky-400 rounded px-1.5 py-1 text-white font-mono text-[11px] text-center" ' +
+                'title="Type the correct district number to override the suggestion">' +
+            '</td>' +
+            '<td class="py-2 pl-2 text-right">' + approveBtn + '</td>' +
+          '</tr>';
+        }).join('');
+
+        var header =
+          '<div class="flex flex-wrap items-center justify-between gap-2 mb-3">' +
+            '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200">' +
+              '🪄 District suggestions · ' + states.length + ' record' + (states.length === 1 ? '' : 's') + '</div>' +
+            '<div class="flex flex-wrap gap-2">' +
+              '<button type="button" onclick="window.pmSuggestApproveBulk(\'high\')" ' + (highReady ? '' : 'disabled ') +
+                'class="inline-flex items-center gap-1.5 ' + (highReady ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-navy-900 text-steel-500 cursor-not-allowed border border-white/10') + ' font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">' +
+                '✓ Approve all high-confidence (' + highReady + ')</button>' +
+              '<button type="button" onclick="window.pmSuggestApproveBulk(\'selected\')" ' + (checkedReady ? '' : 'disabled ') +
+                'class="inline-flex items-center gap-1.5 ' + (checkedReady ? 'bg-sky-600 hover:bg-sky-500 text-white' : 'bg-navy-900 text-steel-500 cursor-not-allowed border border-white/10') + ' font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">' +
+                '✓ Approve selected (' + checkedReady + ')</button>' +
+              '<button type="button" onclick="window.pmSuggestCancel()" ' +
+                'class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">Close</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="text-[11px] font-body text-steel-300 mb-3 max-w-3xl leading-relaxed">Each guess is inferred from data already in the database — a matching name twin, a number written in non-standard form, or the location pattern of nearby districts — and is graded by confidence. <strong>Nothing is saved until you approve it.</strong> Type a number to correct any row before approving. Approved records are stamped with the suggestion source for auditing.' +
+            (noPick ? ' <span class="text-amber-300/90">' + noPick + ' record' + (noPick === 1 ? '' : 's') + ' had no confident match and must be opened individually.</span>' : '') +
+          '</div>';
+
+        el.className = 'mb-4 rounded-xl px-4 py-3 border text-sky-100 bg-navy-900/70 border-sky-500/40';
+        el.innerHTML = header +
+          '<div class="overflow-x-auto max-h-[28rem] overflow-y-auto rounded-lg border border-white/5">' +
+            '<table class="w-full text-xs font-body border-collapse">' +
+              '<thead><tr class="text-steel-500 font-condensed text-[10px] tracking-widest uppercase sticky top-0 bg-navy-950 z-10">' +
+                '<th class="py-2 pr-2"></th>' +
+                '<th class="text-left font-700 py-2 pr-3">Politician</th>' +
+                '<th class="text-left font-700 py-2 px-2">Current</th>' +
+                '<th class="text-left font-700 py-2 px-2">Suggested</th>' +
+                '<th class="text-left font-700 py-2 px-2">Confidence</th>' +
+                '<th class="text-left font-700 py-2 px-2">Why</th>' +
+                '<th class="text-left font-700 py-2 px-2">Fix #</th>' +
+                '<th class="text-right font-700 py-2 pl-2">Action</th>' +
+              '</tr></thead><tbody>' + rows + '</tbody></table>' +
+          '</div>';
+      }
+
+      window.pmSuggestCheck = function (id, on) {
+        if (_pmSuggestState && _pmSuggestState[id]) { _pmSuggestState[id].checked = !!on; _pmRenderSuggestPanel(); }
+      };
+
+      // Apply an admin correction: clamp to the chamber range, blank clears it
+      // back to the machine suggestion.
+      window.pmSuggestCorrect = function (id, val) {
+        if (!_pmSuggestState || !_pmSuggestState[id]) return;
+        var st = _pmSuggestState[id];
+        var s = String(val == null ? '' : val).trim();
+        if (!s) { st.overrideNum = null; }
+        else {
+          var n = parseInt(s, 10);
+          if (!isNaN(n) && n >= 1 && n <= st.chamber.total) { st.overrideNum = n; st.checked = true; }
+        }
+        _pmRenderSuggestPanel();
+      };
+
+      window.pmSuggestCancel = function () {
+        var el = _pmSuggestResultEl();
+        if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
+        _pmSuggestState = null;
+      };
+
+      // Approve one row.
+      window.pmSuggestApprove = function (id) {
+        if (!_pmSuggestState || !_pmSuggestState[id]) return;
+        _pmSuggestCommit([_pmSuggestState[id]]);
+      };
+
+      // Approve a batch: 'high' = every high-confidence row with a value;
+      // 'selected' = every checked row with a value.
+      window.pmSuggestApproveBulk = function (which) {
+        if (!_pmSuggestState) return;
+        var picks = Object.keys(_pmSuggestState).map(function (id) { return _pmSuggestState[id]; })
+          .filter(function (s) {
+            if (_pmSuggestEffectiveNum(s) == null) return false;
+            if (which === 'high') return s.suggestion && s.suggestion.confidence === 'high';
+            return s.checked;
+          });
+        if (!picks.length) return;
+        _pmSuggestCommit(picks);
+      };
+
+      // Commit approvals to Firestore. Only the district field plus an audit
+      // trail are written (batched) — name, office, promises, everything else is
+      // left untouched, exactly like the standardizer. Records keep a record of
+      // what was suggested, how confident the system was, and whether the admin
+      // corrected it, so auto-suggested values never masquerade as hand-entered.
+      function _pmSuggestCommit(picks) {
+        var el = _pmSuggestResultEl();
+        if (!el) return;
+        var items = picks.map(function (s) {
+          var num = _pmSuggestEffectiveNum(s);
+          var corrected = s.overrideNum != null && (!s.suggestion || s.overrideNum !== s.suggestion.num);
+          return {
+            id: s.id, num: num, corrected: corrected,
+            confidence: s.suggestion ? s.suggestion.confidence : 'manual',
+            reason: s.suggestion ? s.suggestion.reason : 'Set during suggestion review.',
+            suggested: s.suggestion ? s.suggestion.num : null
+          };
+        }).filter(function (it) { return it.num != null; });
+        if (!items.length) return;
+
+        el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-sky-100 bg-navy-900/70 border-sky-500/40';
+        el.innerHTML = '<span aria-hidden="true">⏳</span> Saving ' + items.length + ' district assignment' + (items.length === 1 ? '' : 's') + '…';
+
+        var stamp = new Date().toISOString();
+        var chunks = [];
+        for (var i = 0; i < items.length; i += 400) chunks.push(items.slice(i, i + 400));
+        var written = 0;
+
+        function commitChunk(idx) {
+          if (idx >= chunks.length) { finish(); return; }
+          var batch = db.batch();
+          chunks[idx].forEach(function (it) {
+            batch.update(db.collection('politicians').doc(it.id), {
+              district: 'District ' + it.num,
+              districtSource: it.corrected ? 'suggestion-corrected' : 'suggestion-approved',
+              districtSuggested: it.suggested == null ? '' : ('District ' + it.suggested),
+              districtConfidence: it.confidence,
+              districtReason: it.reason,
+              districtAssignedAt: stamp,
+              updatedAt: stamp
+            });
+          });
+          batch.commit().then(function () {
+            chunks[idx].forEach(function (it) {
+              var patch = {
+                district: 'District ' + it.num,
+                districtSource: it.corrected ? 'suggestion-corrected' : 'suggestion-approved',
+                districtSuggested: it.suggested == null ? '' : ('District ' + it.suggested),
+                districtConfidence: it.confidence, districtReason: it.reason,
+                districtAssignedAt: stamp, updatedAt: stamp
+              };
+              if (PROFILES[it.id]) { for (var k in patch) PROFILES[it.id][k] = patch[k]; }
+              if (typeof CMP_DATA !== 'undefined' && CMP_DATA[it.id]) { CMP_DATA[it.id].district = patch.district; }
+              if (_pmSuggestState && _pmSuggestState[it.id]) delete _pmSuggestState[it.id];
+              written++;
+            });
+            commitChunk(idx + 1);
+          }).catch(function (error) {
+            console.error('District suggestion batch failed:', error);
+            el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-red-200 bg-red-950/40 border-red-500/40';
+            el.innerHTML = '<span aria-hidden="true">✕</span> Save failed after ' + written + ' assignment' + (written === 1 ? '' : 's') +
+              ': ' + _pmEsc(error && error.message ? error.message : 'unknown error') + '. Saved changes are kept; re-run to finish the rest.';
+          });
+        }
+
+        function finish() {
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          window.pmRenderList();
+          window.pmRenderCoverage();
+          if (typeof window._showToast === 'function') { window._showToast('Assigned ' + written + ' district' + (written === 1 ? '' : 's') + ' ✓'); }
+          // Re-render the panel over whatever still needs review.
+          if (_pmSuggestState && Object.keys(_pmSuggestState).length) {
+            _pmRenderSuggestPanel();
+          } else {
+            el.className = 'mb-4 text-sm font-body rounded-xl px-4 py-3 border text-green-200 bg-green-950/30 border-green-500/40';
+            el.innerHTML = '<span aria-hidden="true">✓</span> Assigned <strong>' + written + '</strong> district' + (written === 1 ? '' : 's') +
+              ' from suggestions. Every approved record is stamped with its source and confidence. The review pile is now clear.';
+            _pmSuggestState = null;
+          }
+        }
+
+        commitChunk(0);
+      }
+
       // Toggle the coverage panel (optionally forced open/closed).
       window.pmToggleCoverage = function (force) {
         var panel = document.getElementById('pm-coverage-panel');
@@ -14369,6 +14862,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         if (show) {
           window.pmStandardizeCancel(); // clear any stale preview/result
+          window.pmSuggestCancel();     // and any stale suggestion table
           window.pmRenderCoverage();
           try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
         }
