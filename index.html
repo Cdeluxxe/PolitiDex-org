@@ -3830,46 +3830,52 @@
     @keyframes myteam-add-ripple { 0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 100%{box-shadow:0 0 0 18px rgba(74,222,128,0)} }
     @keyframes myteam-checkmark { 0%{transform:scale(0) rotate(-45deg);opacity:0} 50%{transform:scale(1.3) rotate(0deg);opacity:1} 100%{transform:scale(1) rotate(0deg);opacity:1} }
     .myteam-add-btn.just-added { animation: myteam-add-success 0.5s cubic-bezier(0.34,1.56,0.64,1), myteam-add-ripple 0.6s ease-out; }
+    /* Each filled slot is tinted with its own office color (--slot-color), so the
+       six ballot positions read as visually distinct at a glance. Falls back to
+       amber for any card that doesn't set the variable. */
     .myteam-slot {
-      background: linear-gradient(145deg, rgba(245,158,11,0.06) 0%, rgba(10,15,30,0.98) 40%, rgba(30,58,138,0.15) 100%);
-      border: 2px solid rgba(245,158,11,0.3);
+      --slot-color: #f59e0b;
+      background:
+        linear-gradient(160deg, color-mix(in srgb, var(--slot-color) 11%, transparent) 0%, rgba(10,15,30,0.97) 46%, rgba(13,21,38,0.97) 100%);
+      border: 1.5px solid color-mix(in srgb, var(--slot-color) 40%, transparent);
       border-radius: 1.25rem;
-      padding: 1.25rem 1rem 1rem;
+      padding: 1.35rem 1rem 1.15rem;
       text-align: center;
-      transition: all 0.35s cubic-bezier(0.34,1.4,0.64,1);
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1), border-color 0.3s, box-shadow 0.3s;
       position: relative;
       overflow: hidden;
       animation: myteam-card-in 0.45s ease both;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 32px rgba(245,158,11,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+      box-shadow: 0 10px 34px rgba(0,0,0,0.42), 0 0 22px color-mix(in srgb, var(--slot-color) 12%, transparent), inset 0 1px 0 rgba(255,255,255,0.05);
       cursor: pointer;
     }
     .myteam-slot::before {
       content: '';
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, transparent 20%, rgba(245,158,11,0.08) 50%, transparent 80%);
+      background: linear-gradient(135deg, transparent 20%, color-mix(in srgb, var(--slot-color) 14%, transparent) 50%, transparent 80%);
       background-size: 200% 200%;
       opacity: 0; transition: opacity 0.35s; pointer-events: none;
     }
     .myteam-slot::after {
       content: '';
       position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(245,158,11,0.5), transparent);
-      opacity: 0.6;
+      background: linear-gradient(90deg, transparent, var(--slot-color), transparent);
+      opacity: 0.75;
     }
     .myteam-slot:hover {
-      border-color: rgba(245,158,11,0.6);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 48px rgba(245,158,11,0.18), inset 0 1px 0 rgba(255,255,255,0.06);
-      transform: translateY(-6px) scale(1.02);
+      border-color: color-mix(in srgb, var(--slot-color) 66%, transparent);
+      box-shadow: 0 18px 52px rgba(0,0,0,0.55), 0 0 42px color-mix(in srgb, var(--slot-color) 22%, transparent), inset 0 1px 0 rgba(255,255,255,0.07);
+      transform: translateY(-5px) scale(1.015);
     }
     .myteam-slot:hover::before { opacity: 1; animation: shimmer 2s linear infinite; }
     .myteam-slot-empty {
-      background: linear-gradient(145deg, rgba(30,53,96,0.1) 0%, rgba(10,15,30,0.5) 100%);
-      border: 2.5px dashed rgba(255,255,255,0.1);
+      --slot-color: #f59e0b;
+      background: linear-gradient(160deg, color-mix(in srgb, var(--slot-color) 5%, transparent) 0%, rgba(10,15,30,0.55) 100%);
+      border: 2px dashed color-mix(in srgb, var(--slot-color) 28%, rgba(255,255,255,0.08));
       border-radius: 1.25rem;
-      padding: 1.25rem 1rem;
+      padding: 1.35rem 1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.34,1.4,0.64,1);
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1), border-color 0.3s, background 0.3s, box-shadow 0.3s;
       min-height: 220px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       position: relative;
@@ -3879,28 +3885,28 @@
       content: '';
       position: absolute;
       inset: 6px;
-      border: 1px dashed rgba(245,158,11,0.05);
+      border: 1px dashed color-mix(in srgb, var(--slot-color) 10%, transparent);
       border-radius: 1rem;
       pointer-events: none;
       transition: border-color 0.3s;
     }
     .myteam-slot-empty:hover {
-      border-color: rgba(245,158,11,0.55);
-      background: linear-gradient(145deg, rgba(245,158,11,0.06) 0%, rgba(10,15,30,0.7) 100%);
+      border-color: color-mix(in srgb, var(--slot-color) 60%, transparent);
+      background: linear-gradient(160deg, color-mix(in srgb, var(--slot-color) 9%, transparent) 0%, rgba(10,15,30,0.72) 100%);
       transform: translateY(-5px);
-      box-shadow: 0 14px 40px rgba(0,0,0,0.35), 0 0 28px rgba(245,158,11,0.1);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35), 0 0 28px color-mix(in srgb, var(--slot-color) 12%, transparent);
     }
     .myteam-slot-empty:hover::after {
-      border-color: rgba(245,158,11,0.2);
+      border-color: color-mix(in srgb, var(--slot-color) 22%, transparent);
     }
     .myteam-slot-empty:hover .myteam-empty-ring {
       transform: scale(1.06);
-      border-color: rgba(245,158,11,0.6);
-      box-shadow: 0 0 22px rgba(245,158,11,0.18);
+      border-color: color-mix(in srgb, var(--slot-color) 60%, transparent);
+      box-shadow: 0 0 22px color-mix(in srgb, var(--slot-color) 18%, transparent);
     }
     .myteam-slot-empty:hover .myteam-empty-cta {
-      background: linear-gradient(135deg, rgba(245,158,11,0.34), rgba(245,158,11,0.14)) !important;
-      box-shadow: 0 6px 20px rgba(245,158,11,0.22) !important;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--slot-color) 34%, transparent), color-mix(in srgb, var(--slot-color) 14%, transparent)) !important;
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--slot-color) 22%, transparent) !important;
       transform: translateY(-1px);
     }
     .myteam-empty-tag {
@@ -3911,13 +3917,13 @@
     }
     .myteam-empty-cta {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(245,158,11,0.08));
-      border: 1.5px solid rgba(245,158,11,0.5);
-      color: rgba(245,158,11,0.98);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--slot-color) 22%, transparent), color-mix(in srgb, var(--slot-color) 8%, transparent));
+      border: 1.5px solid color-mix(in srgb, var(--slot-color) 50%, transparent);
+      color: var(--slot-color);
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
       padding: 0.45rem 1.05rem; border-radius: 999px; cursor: pointer;
-      transition: all 0.25s; box-shadow: 0 3px 12px rgba(245,158,11,0.12);
+      transition: all 0.25s; box-shadow: 0 3px 12px color-mix(in srgb, var(--slot-color) 12%, transparent);
     }
     .myteam-slot-photo {
       width: 76px; height: 76px;
@@ -9478,33 +9484,13 @@
     }
 
     /* ── My Team Ballot Slots Polish ────────────────────────────────────── */
+    /* Per-office colors come from the --slot-color variable on the canonical
+       .myteam-slot / .myteam-slot-empty rules above. This block only keeps the
+       shared layout tweaks, so each office tint is never flattened to one color. */
     .myteam-slots-grid {
       gap: 1.15rem !important;
     }
-    
-    .myteam-slot {
-      background: linear-gradient(145deg, rgba(74, 222, 128, 0.08) 0%, rgba(13, 21, 38, 0.98) 45%, rgba(17, 29, 54, 0.95) 100%) !important;
-      border: 2px solid rgba(74, 222, 128, 0.35) !important;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(74, 222, 128, 0.06), inset 0 1px 1px rgba(255,255,255,0.06) !important;
-      backdrop-filter: blur(8px);
-    }
-    .myteam-slot:hover {
-      border-color: rgba(74, 222, 128, 0.6) !important;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 36px rgba(74, 222, 128, 0.18), inset 0 1px 1px rgba(255,255,255,0.1) !important;
-      transform: translateY(-6px) scale(1.02) !important;
-    }
-    
-    .myteam-slot-empty {
-      border: 2px dashed rgba(255, 255, 255, 0.15) !important;
-      background: linear-gradient(145deg, rgba(30, 53, 96, 0.12) 0%, rgba(10, 15, 30, 0.6) 100%) !important;
-      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-    }
-    .myteam-slot-empty:hover {
-      border-color: rgba(245, 158, 11, 0.6) !important;
-      background: linear-gradient(145deg, rgba(245, 158, 11, 0.08) 0%, rgba(13, 21, 38, 0.8) 100%) !important;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.12) !important;
-      transform: translateY(-4px) !important;
-    }
+    .myteam-slot, .myteam-slot-empty { backdrop-filter: blur(8px); }
 
     /* ── Beautiful Rarity Cards & Hover Glows ────────────────────────────── */
     .card-holo {
@@ -27220,7 +27206,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
       }
 
-      return '<div class="myteam-slot" style="animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
+      return '<div class="myteam-slot" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
         '<button class="myteam-slot-clear-btn" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
         photoHtml +
@@ -27249,7 +27235,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     function _renderSlotEmpty(pos) {
-      return '<div class="myteam-slot-empty" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Choose your ' + pos.label + ' pick">' +
+      return '<div class="myteam-slot-empty" style="--slot-color:' + pos.color + ';" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Choose your ' + pos.label + ' pick">' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div class="myteam-empty-ring" style="width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:2rem;margin:0.5rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
         '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Open Seat</div>' +
@@ -27387,13 +27373,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         summaryLine.classList.remove('is-empty', 'is-complete');
         if (filledCount === 0) {
           summaryLine.classList.add('is-empty');
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Your team is empty — start adding your picks from <strong class="myteam-summary-strong">Your Key Races</strong> below.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Your ballot is empty — tap any <strong class="myteam-summary-strong">open slot</strong> below to add that office\'s pick, or browse <strong class="myteam-summary-strong">Your Key Races</strong>.</span>';
         } else if (filledCount >= _tot) {
           summaryLine.classList.add('is-complete');
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your team is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> ballot slots are filled.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your ballot is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> slots are filled. Compare your team or share your slate below.</span>';
         } else {
           var _open = _tot - filledCount;
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span>Your team currently has <strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> politician' + (filledCount === 1 ? '' : 's') + ' — ' + _open + ' slot' + (_open === 1 ? '' : 's') + ' still open.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span><strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> slots filled — <strong class="myteam-summary-strong">' + _open + '</strong> still open. Tap an open slot below to keep building.</span>';
         }
       }
 
