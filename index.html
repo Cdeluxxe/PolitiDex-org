@@ -12995,6 +12995,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(22,163,74,0.35);">
               <span aria-hidden="true">➕</span> New Politician
             </button>
+            <button type="button" id="pm-quick-btn" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd()"
+              class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
+              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
+            </button>
             <button type="button" id="pm-dupes-btn" onclick="window.pmToggleDupes && window.pmToggleDupes()"
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
               <span aria-hidden="true">🔎</span> <span id="pm-dupes-label">Find Duplicates</span>
@@ -13057,6 +13061,60 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
           <span>Possible dupes: <span id="pm-count-dupe" class="text-amber-300 font-700">0</span></span>
         </div>
+      </div>
+
+      <!-- ── Quick Add / Paste JSON (bulk create + update) ─────────
+           Hidden by default; toggled by the toolbar's "Quick Add" button.
+           Lets an admin paste one record or many at once instead of filling
+           the single-politician form. Matching + writes live in the controller
+           script below (window.pmQuickProcess). -->
+      <div id="pm-quick-panel" class="hidden bg-navy-800/80 border border-crimson-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-200 flex items-center gap-2">
+              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              Paste a single politician object or an <strong>array of many</strong>. Each record is matched to an existing
+              profile by <strong>id</strong> first, then by <strong>name</strong> — matches are <strong>updated</strong> (your
+              fields merged in), everything else is <strong>created</strong>. All changes are written to Firestore in one batch.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+
+        <details class="mb-3 text-xs font-body text-steel-400">
+          <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
+          <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
+            <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
+            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability</code>.</div>
+            <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
+          </div>
+        </details>
+
+        <textarea id="pm-quick-input" rows="10" spellcheck="false"
+          placeholder='[{ "name": "Jane Q. Public", "office": "U.S. Senator", "state": "Utah", "party": "Republican", "bio": "…", "keyIssues": ["Term limits", "Border security"] }]'
+          class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2.5 text-sm text-white placeholder-steel-600 outline-none transition-colors font-mono leading-relaxed resize-y"></textarea>
+
+        <div class="flex flex-wrap items-center gap-2 mt-3">
+          <button type="button" onclick="window.pmQuickProcess && window.pmQuickProcess()"
+            class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
+            <span aria-hidden="true">⚡</span> Process JSON
+          </button>
+          <button type="button" onclick="window.pmQuickExample && window.pmQuickExample()"
+            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
+            <span aria-hidden="true">📋</span> Load example
+          </button>
+          <button type="button" onclick="window.pmQuickClear && window.pmQuickClear()"
+            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
+            <span aria-hidden="true">✕</span> Clear
+          </button>
+        </div>
+
+        <div id="pm-quick-feedback" class="hidden mt-4 text-sm font-body rounded-lg px-3 py-2 border"></div>
       </div>
 
       <!-- ── Two-column workspace: list (left) + editor (right) ── -->
@@ -13991,6 +14049,284 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _pmShow(id);
           _pmFeedback('Created new record "' + merged.name + '" (ID: ' + id + ').', 'ok');
         });
+      };
+
+
+      // ════════════════════════════════════════════════════════════
+      // QUICK ADD / PASTE JSON — bulk create + update from pasted JSON
+      //
+      // Accepts a single record object, an array of records, or an
+      // { id: record } map. Each record is matched to an existing profile
+      // by explicit id, then by normalized name; matches are merged and
+      // updated, the rest are created. All writes go out in a single
+      // Firestore batch, then the in-memory mirrors + public directory
+      // refresh once. Lives alongside (not replacing) the single-record form.
+      // ════════════════════════════════════════════════════════════
+
+      // Toggle the panel. Pass false to force-close, true/undefined to open.
+      window.pmToggleQuickAdd = function (force) {
+        var panel = document.getElementById('pm-quick-panel');
+        if (!panel) return;
+        var open = (force === undefined) ? panel.classList.contains('hidden') : !!force;
+        panel.classList.toggle('hidden', !open);
+        if (open) {
+          var ta = document.getElementById('pm-quick-input');
+          if (ta) ta.focus();
+          try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+        }
+      };
+
+      // Build a { normalizedName: id } index of existing records so a pasted
+      // record without an explicit id can still update the right profile.
+      function _pmNameIndex() {
+        var idx = {};
+        _pmAll().forEach(function (r) {
+          var key = _pmNormName(r.p && r.p.name);
+          if (key && !(key in idx)) idx[key] = r.id; // first match wins
+        });
+        return idx;
+      }
+
+      // Merge one pasted record onto an existing doc (or {} for a new record),
+      // returning a clean, writable document. Nested stances/accountability are
+      // merged; everything else overwrites. `id` is routing-only and skipped.
+      function _pmNormalizeRecord(raw, existing) {
+        var doc;
+        try { doc = existing ? JSON.parse(JSON.stringify(existing)) : {}; }
+        catch (e) { doc = {}; }
+
+        for (var k in raw) {
+          if (!Object.prototype.hasOwnProperty.call(raw, k)) continue;
+          if (k === 'id') continue;
+          var v = raw[k];
+          if (v === undefined) continue;
+          if ((k === 'stances' || k === 'accountability') && v && typeof v === 'object' && !Array.isArray(v)) {
+            var base = (doc[k] && typeof doc[k] === 'object' && !Array.isArray(doc[k])) ? doc[k] : {};
+            for (var sk in v) { if (Object.prototype.hasOwnProperty.call(v, sk)) base[sk] = v[sk]; }
+            doc[k] = base;
+          } else {
+            doc[k] = v;
+          }
+        }
+
+        // Light normalization so quick-added records match the editor's schema.
+        if (doc.name != null) doc.name = String(doc.name).trim();
+        if (doc.tier == null || doc.tier === '') doc.tier = 'gray';
+        if (doc.icon == null || doc.icon === '') doc.icon = '🏛';
+        if (typeof doc.keyIssues === 'string') {
+          doc.keyIssues = doc.keyIssues.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+        }
+        // Recompute promise tallies when promises are supplied as an array.
+        if (Array.isArray(doc.promises)) {
+          doc.kept = doc.promises.filter(function (r) { return r && r.verdict === 'kept'; }).length;
+          doc.broken = doc.promises.filter(function (r) { return r && r.verdict === 'broken'; }).length;
+          doc.pending = doc.promises.filter(function (r) { return r && r.verdict === 'pending'; }).length;
+        }
+        return doc;
+      }
+
+      // Parse the textarea, plan a create/update for each record, then commit
+      // them all in one Firestore batch and report what happened.
+      window.pmQuickProcess = function () {
+        var ta = document.getElementById('pm-quick-input');
+        var raw = ta ? ta.value.trim() : '';
+        if (!raw) { _pmQuickFeedback('Paste some JSON first.', 'error'); return; }
+
+        var parsed;
+        try { parsed = JSON.parse(raw); }
+        catch (e) { _pmQuickFeedback('Invalid JSON — ' + (e && e.message ? e.message : 'could not parse') + '.', 'error'); return; }
+
+        // Accept a single record, an array of records, or an { id: record } map.
+        var records = [];
+        if (Array.isArray(parsed)) {
+          records = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          if (parsed.name || parsed.office || parsed.id) {
+            records = [parsed];
+          } else {
+            records = Object.keys(parsed).map(function (key) {
+              var rec = parsed[key];
+              if (rec && typeof rec === 'object' && rec.id == null) rec.id = key;
+              return rec;
+            });
+          }
+        }
+        records = records.filter(function (r) { return r && typeof r === 'object' && !Array.isArray(r); });
+
+        if (!records.length) { _pmQuickFeedback('No politician records found in that JSON.', 'error'); return; }
+        if (typeof db === 'undefined' || !db || typeof db.batch !== 'function') {
+          _pmQuickFeedback('Database not ready — click Reload and try again.', 'error');
+          return;
+        }
+
+        var nameIdx = _pmNameIndex();
+        var now = new Date().toISOString();
+        var byId = {};   // id -> { id, doc, action, label }
+        var order = [];  // first-seen id order, for stable reporting
+        var failed = []; // { label, reason }
+
+        records.forEach(function (rec, i) {
+          var label = (rec && (rec.name || rec.id)) ? String(rec.name || rec.id) : ('record #' + (i + 1));
+          var name = (rec && rec.name != null) ? String(rec.name).trim() : '';
+          var explicitId = (rec && rec.id != null) ? _pmSlug(rec.id) : '';
+          if (!name && !explicitId) { failed.push({ label: label, reason: 'missing both name and id' }); return; }
+
+          // Resolve a target id + action against existing data AND records
+          // already staged in this same paste, so repeats merge instead of
+          // colliding (Firestore forbids writing one doc twice per batch).
+          var targetId, action, existing;
+          if (explicitId && (byId[explicitId] || PROFILES[explicitId])) {
+            targetId = explicitId;
+            action = byId[explicitId] ? byId[explicitId].action : 'update';
+            existing = byId[explicitId] ? byId[explicitId].doc : PROFILES[explicitId];
+          } else if (name && nameIdx[_pmNormName(name)]) {
+            targetId = nameIdx[_pmNormName(name)];
+            action = byId[targetId] ? byId[targetId].action : 'update';
+            existing = byId[targetId] ? byId[targetId].doc : PROFILES[targetId];
+          } else {
+            var base = explicitId || _pmSlug(name);
+            if (!base) { failed.push({ label: label, reason: 'could not derive an id' }); return; }
+            targetId = base;
+            var n = 2;
+            while (byId[targetId] || PROFILES[targetId]) { targetId = base + '_' + n; n++; }
+            action = 'create';
+            existing = null;
+          }
+
+          var doc = _pmNormalizeRecord(rec, existing);
+          if (!doc.name) { failed.push({ label: label, reason: 'record has no name' }); return; }
+          if (action === 'create' && !doc.createdAt) doc.createdAt = now;
+          doc.updatedAt = now;
+
+          if (!byId[targetId]) order.push(targetId);
+          byId[targetId] = { id: targetId, doc: doc, action: action, label: doc.name };
+          // Register the name so a later paste row updates this same record.
+          var nk = _pmNormName(doc.name);
+          if (nk && !(nk in nameIdx)) nameIdx[nk] = targetId;
+        });
+
+        var planned = order.map(function (id) { return byId[id]; });
+        if (!planned.length) { _pmQuickRenderResult(0, 0, failed, null); return; }
+
+        _pmQuickFeedback('Writing ' + planned.length + ' record' + (planned.length === 1 ? '' : 's') + '…', 'ok');
+
+        var batch = db.batch();
+        planned.forEach(function (item) {
+          batch.set(db.collection('politicians').doc(item.id), item.doc);
+        });
+
+        batch.commit().then(function () {
+          planned.forEach(function (item) {
+            PROFILES[item.id] = item.doc;
+            if (typeof CMP_DATA !== 'undefined') { CMP_DATA[item.id] = item.doc; }
+          });
+          if (typeof _populateDirData === 'function') { _populateDirData(); }
+          window.pmRenderList();
+
+          var created = planned.filter(function (x) { return x.action === 'create'; }).length;
+          var updated = planned.length - created;
+          _pmQuickRenderResult(created, updated, failed, planned);
+
+          if (typeof window._showToast === 'function') {
+            window._showToast('Quick Add: ' + created + ' created, ' + updated + ' updated ✓');
+          }
+        }).catch(function (error) {
+          console.error('Politician Manager quick-add failed:', error);
+          _pmQuickFeedback('Batch write failed: ' + (error && error.message ? error.message : 'unknown error') + '. No records were saved.', 'error');
+        });
+      };
+
+      // Simple one-line status message in the quick-add panel.
+      function _pmQuickFeedback(msg, kind) {
+        var el = document.getElementById('pm-quick-feedback');
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.className = 'mt-4 text-sm font-body rounded-lg px-3 py-2 border ' + (kind === 'error'
+          ? 'text-red-300 bg-red-950/40 border-red-500/40'
+          : 'text-green-300 bg-green-950/40 border-green-500/40');
+        el.textContent = msg;
+      }
+
+      // Rich result panel: headline counts, a clickable per-record breakdown
+      // (jump straight into the editor to fine-tune), and any skipped records.
+      function _pmQuickRenderResult(created, updated, failed, planned) {
+        var el = document.getElementById('pm-quick-feedback');
+        if (!el) return;
+        el.classList.remove('hidden');
+        var anyFail = failed && failed.length;
+        el.className = 'mt-4 text-sm font-body rounded-lg px-3 py-3 border ' + (anyFail
+          ? 'text-amber-100 bg-amber-950/40 border-amber-500/40'
+          : 'text-green-200 bg-green-950/40 border-green-500/40');
+
+        var html = '<div class="flex flex-wrap items-center gap-x-4 gap-y-1 font-condensed text-xs font-700 tracking-widest uppercase mb-1">' +
+          '<span class="text-green-300">✓ ' + created + ' created</span>' +
+          '<span class="text-gold-300">✎ ' + updated + ' updated</span>' +
+          (anyFail ? '<span class="text-red-300">✕ ' + failed.length + ' skipped</span>' : '') +
+          '</div>';
+
+        if (planned && planned.length) {
+          var rows = planned.slice(0, 40).map(function (x) {
+            var tag = x.action === 'create'
+              ? '<span class="text-green-400 font-condensed text-[10px] font-700 tracking-widest uppercase">＋ created</span>'
+              : '<span class="text-gold-300 font-condensed text-[10px] font-700 tracking-widest uppercase">↻ updated</span>';
+            return '<li class="flex items-center gap-2">' +
+              '<button type="button" onclick="window.pmSelect(\'' + _pmJs(x.id) + '\')" class="underline decoration-white/20 hover:decoration-white text-steel-200 hover:text-white transition-colors truncate">' + _pmEsc(x.label) + '</button> ' + tag +
+              '</li>';
+          }).join('');
+          html += '<ul class="mt-1.5 space-y-0.5 text-xs text-steel-300 max-h-44 overflow-y-auto pr-1">' + rows +
+            (planned.length > 40 ? '<li class="text-steel-500">…and ' + (planned.length - 40) + ' more</li>' : '') + '</ul>';
+        }
+
+        if (anyFail) {
+          var frows = failed.slice(0, 25).map(function (f) {
+            return '<li><span class="text-red-300">✕</span> ' + _pmEsc(f.label) + ' — <span class="text-red-200/80">' + _pmEsc(f.reason) + '</span></li>';
+          }).join('');
+          html += '<div class="mt-2 pt-2 border-t border-white/10">' +
+            '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-red-300 mb-1">Skipped</div>' +
+            '<ul class="space-y-0.5 text-xs">' + frows +
+            (failed.length > 25 ? '<li class="text-steel-500">…and ' + (failed.length - 25) + ' more</li>' : '') + '</ul></div>';
+        }
+
+        el.innerHTML = html;
+      }
+
+      // Clear the textarea and any result message.
+      window.pmQuickClear = function () {
+        var ta = document.getElementById('pm-quick-input');
+        if (ta) { ta.value = ''; ta.focus(); }
+        var el = document.getElementById('pm-quick-feedback');
+        if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
+      };
+
+      // Drop a ready-to-edit example into the textarea (one new + fields that
+      // demonstrate merging) so admins can see the expected shape instantly.
+      window.pmQuickExample = function () {
+        var ta = document.getElementById('pm-quick-input');
+        if (!ta) return;
+        var example = [
+          {
+            name: 'Jane Q. Public',
+            office: 'U.S. Senator',
+            state: 'Utah',
+            party: 'Republican',
+            tier: 'silver',
+            bio: 'Two-term senator focused on fiscal policy and term limits.',
+            keyIssues: ['Balanced budget', 'Term limits', 'Border security'],
+            stances: { debt: 'Co-sponsored a balanced-budget amendment.', termLimits: 'Supports a 12-year cap for Congress.' },
+            score: 72
+          },
+          {
+            name: 'John A. Doe',
+            office: 'State Representative (Dist. 12)',
+            state: 'Utah',
+            party: 'Democrat',
+            bio: 'First-term state representative.',
+            keyIssues: ['Education funding', 'Healthcare access']
+          }
+        ];
+        ta.value = JSON.stringify(example, null, 2);
+        ta.focus();
+        _pmQuickFeedback('Example loaded — edit it, or click Process JSON to import.', 'ok');
       };
 
 
