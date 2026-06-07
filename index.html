@@ -13470,6 +13470,39 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
       }
 
+      // Canonicalize a state/location to a stable key so the SAME place written
+      // different ways ("Utah" vs "UT" vs "utah, usa") collapses to one value.
+      // Used by duplicate clustering + the live editor check so records that
+      // only differ in how their state was typed still cluster together. Falls
+      // back to the normalized free-text when the value isn't a known state.
+      var PM_STATE_ABBR = {
+        alabama: 'al', alaska: 'ak', arizona: 'az', arkansas: 'ar', california: 'ca',
+        colorado: 'co', connecticut: 'ct', delaware: 'de', florida: 'fl', georgia: 'ga',
+        hawaii: 'hi', idaho: 'id', illinois: 'il', indiana: 'in', iowa: 'ia',
+        kansas: 'ks', kentucky: 'ky', louisiana: 'la', maine: 'me', maryland: 'md',
+        massachusetts: 'ma', michigan: 'mi', minnesota: 'mn', mississippi: 'ms', missouri: 'mo',
+        montana: 'mt', nebraska: 'ne', nevada: 'nv', 'new hampshire': 'nh', 'new jersey': 'nj',
+        'new mexico': 'nm', 'new york': 'ny', 'north carolina': 'nc', 'north dakota': 'nd', ohio: 'oh',
+        oklahoma: 'ok', oregon: 'or', pennsylvania: 'pa', 'rhode island': 'ri', 'south carolina': 'sc',
+        'south dakota': 'sd', tennessee: 'tn', texas: 'tx', utah: 'ut', vermont: 'vt',
+        virginia: 'va', washington: 'wa', 'west virginia': 'wv', wisconsin: 'wi', wyoming: 'wy',
+        'district of columbia': 'dc', 'washington dc': 'dc', 'washington d c': 'dc'
+      };
+      var PM_STATE_ABBR_SET = (function () {
+        var s = {};
+        for (var k in PM_STATE_ABBR) { if (Object.prototype.hasOwnProperty.call(PM_STATE_ABBR, k)) s[PM_STATE_ABBR[k]] = 1; }
+        return s;
+      })();
+      function _pmCanonState(s) {
+        var norm = _pmNormName(s);
+        if (!norm) return '';
+        // Drop a trailing country tag like "utah usa" -> "utah".
+        norm = norm.replace(/\s+(usa|us|united states|u s a|u s)$/,'').trim();
+        if (Object.prototype.hasOwnProperty.call(PM_STATE_ABBR, norm)) return PM_STATE_ABBR[norm];
+        if (PM_STATE_ABBR_SET[norm]) return norm; // already a 2-letter code
+        return norm; // unknown place — fall back to its normalized text
+      }
+
       // ── Name intelligence: nicknames + fuzzy matching ───────────────
       // Powers the smarter list search and the potential-duplicate flagging.
       // Common given-name ↔ nickname pairs so a search for "Jen" finds
@@ -13573,17 +13606,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       function _pmListMatch(q, p, id) {
         q = String(q == null ? '' : q).trim().toLowerCase();
         if (!q) return true;
-        var fullHay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
+        // Add the canonical state code so a search for the full name finds
+        // records that store the abbreviation (and vice versa): "utah" ↔ "ut".
+        var stateCanon = _pmCanonState(p.state);
+        var fullHay = [(p.name || ''), (p.office || ''), (p.state || ''), stateCanon, (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
         if (fullHay.indexOf(q) !== -1) return true;
         var nameTokens = _pmNormName(p.name).split(' ').filter(Boolean);
-        var metaHay = [(p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
+        var metaHay = [(p.office || ''), (p.state || ''), stateCanon, (p.district || ''), (p.party || ''), id].join(' ').toLowerCase();
         var qTokens = q.replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
         if (!qTokens.length) return false;
         return qTokens.every(function (qt) {
           for (var i = 0; i < nameTokens.length; i++) {
             if (_pmTokenMatch(qt, nameTokens[i])) return true;
           }
-          return metaHay.indexOf(qt) !== -1;
+          if (metaHay.indexOf(qt) !== -1) return true;
+          if (stateCanon && _pmCanonState(qt) === stateCanon) return true;
+          return false;
         });
       }
       // Decide whether two full names likely refer to the same person: the
@@ -13745,7 +13783,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    avoid false positives across unrelated stub records.
         var byState = {};
         for (var i3 = 0; i3 < n; i3++) {
-          var st = _pmNormName(rows[i3].p.state);
+          var st = _pmCanonState(rows[i3].p.state);
           if (!st) continue;
           (byState[st] = byState[st] || []).push(i3);
         }
@@ -15220,7 +15258,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var qNorm = _pmNormName(name);
         if (!qNorm) return [];
         var qOffice = _pmOfficeType({ office: office || '' });
-        var qState = _pmNormName(state);
+        var qState = _pmCanonState(state);
         var out = [];
         _pmAll().forEach(function (row) {
           if (excludeId && row.id === excludeId) return;
@@ -15230,7 +15268,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var exact = nNorm === qNorm;
           var match = exact;
           if (!match && _pmNamesSimilar(name, p.name)) {
-            var sameState = !qState || !_pmNormName(p.state) || _pmNormName(p.state) === qState;
+            var pState = _pmCanonState(p.state);
+            var sameState = !qState || !pState || pState === qState;
             var sameOffice = !office || _pmOfficeType(p) === qOffice;
             match = sameState && sameOffice;
           }
@@ -15274,6 +15313,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         box.className = 'mb-4 text-xs font-body rounded-lg px-3 py-2.5 border text-amber-100 bg-amber-950/40 border-amber-500/40';
       }
       window._pmLiveDupCheck = _pmLiveDupCheck;
+
+      // Soft, non-blocking gate used right before a create/save is committed.
+      // If the record clashes with existing ones it lays out the matches and
+      // asks the admin to confirm — Cancel returns them to the editor (where the
+      // ⚠️ banner links straight to each match so they can update it instead),
+      // OK lets the write proceed. Returns true when it's safe to continue
+      // (no clash, or the admin chose to proceed anyway).
+      function _pmConfirmIfDuplicate(name, office, state, excludeId, verb) {
+        var matches = _pmFindPotentialDupes(name, office, state, excludeId);
+        if (!matches.length) return true;
+        var anyExact = matches.some(function (m) { return m.exact; });
+        var lines = matches.slice(0, 8).map(function (m) {
+          var sub = [m.office, m.state].filter(Boolean).join(' · ');
+          return '  • ' + (m.name || m.id) + (sub ? '  (' + sub + ')' : '') + (m.exact ? '   [same name]' : '');
+        });
+        var more = matches.length > 8 ? '\n  …and ' + (matches.length - 8) + ' more' : '';
+        var n = matches.length;
+        var msg =
+          '⚠️ ' + n + ' possible duplicate' + (n === 1 ? '' : 's') + ' already in the database:\n\n' +
+          lines.join('\n') + more + '\n\n' +
+          (anyExact
+            ? 'One or more share this exact name.'
+            : 'These share a similar name, the same office type, and the same state.') + '\n\n' +
+          'Click Cancel to go back and open an existing record to update it instead,\n' +
+          'or OK to ' + verb + ' this as a separate new record anyway.';
+        return window.confirm(msg);
+      }
+      window._pmConfirmIfDuplicate = _pmConfirmIfDuplicate;
 
       // Renders the editor form for either an existing record (isNew=false) or a
       // blank new record (isNew=true). pmSelect / pmCreateNew set the mode.
@@ -15621,6 +15688,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (!base) { _pmFeedback('Enter a name (or an ID) for the new record.', 'error'); return; }
         var id = _pmUniqueId(base);
 
+        // Non-blocking duplicate checkpoint: warn (and let the admin bail out to
+        // review) when this new record looks like one that already exists.
+        if (!_pmConfirmIfDuplicate(merged.name, merged.office, merged.state, null, 'create')) {
+          _pmFeedback('Create cancelled — review the highlighted possible duplicate(s) above, or continue if this is a different person.', 'error');
+          return;
+        }
+
         var now = new Date().toISOString();
         merged.createdAt = now;
         merged.updatedAt = now;
@@ -15938,6 +16012,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         merged = _pmCollectForm(merged);
         if (!merged) return;
+
+        // If the edited name/office/state now clash with a DIFFERENT record,
+        // surface it before saving (non-blocking — the admin can proceed).
+        if (!_pmConfirmIfDuplicate(merged.name, merged.office, merged.state, id, 'save')) {
+          _pmFeedback('Save cancelled — review the highlighted possible duplicate(s) above, or continue if this is a different person.', 'error');
+          return;
+        }
+
         merged.updatedAt = new Date().toISOString();
 
         _pmFeedback('Saving…', 'ok');
