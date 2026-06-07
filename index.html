@@ -13150,6 +13150,82 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>';
       }
 
+      // ── Tracked-promises editor ──────────────────────────────────
+      // Each promise is { title, detail, verdict } (extra keys like
+      // `sources` are preserved on save via the row's original index).
+      var PM_VERDICTS = [['kept', '✅ Kept'], ['broken', '❌ Broken'], ['pending', '⏳ Pending']];
+
+      function _pmVerdictSelect(selected) {
+        var sel = (selected === 'kept' || selected === 'broken') ? selected : 'pending';
+        return '<select data-pf="verdict" ' +
+          'class="w-full bg-navy-900 border border-white/10 focus:border-crimson-400/70 rounded-lg px-2 py-1.5 text-xs text-white outline-none transition-colors font-condensed tracking-wide">' +
+          PM_VERDICTS.map(function (o) {
+            return '<option value="' + o[0] + '"' + (o[0] === sel ? ' selected' : '') + '>' + o[1] + '</option>';
+          }).join('') +
+          '</select>';
+      }
+
+      // idx = original index in the record's promises array (so we can keep
+      // unseen fields like `sources`); pass null for a freshly-added row.
+      function _pmPromiseRow(pr, idx) {
+        pr = pr || {};
+        return '<div data-promise-row' + (idx == null ? '' : ' data-promise-idx="' + idx + '"') +
+          ' class="bg-navy-950/60 border border-white/10 rounded-lg p-3">' +
+          '<div class="flex items-start gap-2">' +
+            '<div class="flex-1 min-w-0 space-y-2">' +
+              '<input data-pf="title" type="text" value="' + _pmEscAttr(pr.title == null ? '' : pr.title) + '" ' +
+                'placeholder="Promise title" ' +
+                'class="w-full bg-navy-900 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-1.5 text-sm text-white placeholder-steel-600 outline-none transition-colors font-body" />' +
+              '<textarea data-pf="detail" rows="2" placeholder="What happened, with evidence…" ' +
+                'class="w-full bg-navy-900 border border-white/10 focus:border-crimson-400/70 rounded-lg px-3 py-1.5 text-sm text-white placeholder-steel-600 outline-none transition-colors font-body leading-relaxed">' + _pmEsc(pr.detail == null ? '' : pr.detail) + '</textarea>' +
+            '</div>' +
+            '<div class="flex flex-col items-stretch gap-2 flex-shrink-0" style="width:120px;">' +
+              _pmVerdictSelect(pr.verdict) +
+              '<button type="button" onclick="window.pmRemovePromise(this)" ' +
+                'class="inline-flex items-center justify-center gap-1 bg-navy-900 hover:bg-crimson-700/70 border border-crimson-500/40 hover:border-crimson-400 text-crimson-300 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1.5 rounded-lg transition-all">🗑 Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function _pmPromisesSection(promises) {
+        var list = Array.isArray(promises) ? promises : [];
+        var rows = list.map(function (pr, i) { return _pmPromiseRow(pr, i); }).join('');
+        return '<div class="sm:col-span-2 mt-1 pt-3 border-t border-white/10">' +
+          '<div class="flex items-center justify-between gap-2 mb-2">' +
+            '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-400">Tracked Promises ' +
+              '<span class="text-steel-500 normal-case tracking-normal">— verdicts feed the kept / broken / pending stats</span></div>' +
+            '<button type="button" onclick="window.pmAddPromise()" ' +
+              'class="flex-shrink-0 inline-flex items-center gap-1 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-[10px] font-700 tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all">➕ Add</button>' +
+          '</div>' +
+          '<div id="pm-promises" class="space-y-3">' + rows + '</div>' +
+          '<div id="pm-promises-empty" class="' + (rows ? 'hidden ' : '') + 'text-steel-500 text-xs font-body italic py-2">No promises tracked yet. Use “Add” to start the record.</div>' +
+        '</div>';
+      }
+
+      window.pmAddPromise = function () {
+        var cont = document.getElementById('pm-promises');
+        if (!cont) return;
+        var wrap = document.createElement('div');
+        wrap.innerHTML = _pmPromiseRow({ verdict: 'pending' }, null);
+        var node = wrap.firstChild;
+        cont.appendChild(node);
+        var emptyEl = document.getElementById('pm-promises-empty');
+        if (emptyEl) emptyEl.classList.add('hidden');
+        var titleInput = node.querySelector('[data-pf="title"]');
+        if (titleInput) titleInput.focus();
+      };
+
+      window.pmRemovePromise = function (btn) {
+        var row = btn && btn.closest ? btn.closest('[data-promise-row]') : null;
+        if (row && row.parentNode) row.parentNode.removeChild(row);
+        var cont = document.getElementById('pm-promises');
+        var emptyEl = document.getElementById('pm-promises-empty');
+        if (cont && emptyEl && !cont.querySelector('[data-promise-row]')) {
+          emptyEl.classList.remove('hidden');
+        }
+      };
+
       window.pmSelect = function (id) {
         _pmSelectedId = id;
         var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
@@ -13165,6 +13241,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         editor.classList.remove('hidden');
 
         var keyIssues = Array.isArray(p.keyIssues) ? p.keyIssues.join('\n') : '';
+        var acctScore = (p.accountability && typeof p.accountability.overallScore === 'number')
+          ? p.accountability.overallScore : '';
+        var promisesHtml = _pmPromisesSection(p.promises);
 
         var stancesHtml = '';
         if (p.stances && typeof p.stances === 'object') {
@@ -13200,11 +13279,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             _pmFieldText('Location / State', 'state', p.state) +
             _pmFieldText('Party', 'party', p.party, { placeholder: 'R / D / I' }) +
             _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
+            _pmFieldText('Accountability Score', 'acctScore', acctScore, { type: 'number', placeholder: '0–100' }) +
             _pmFieldText('Icon (emoji)', 'icon', p.icon, { placeholder: '🏛' }) +
             _pmFieldText('Photo URL', 'photo', p.photo, { placeholder: 'https://…' }) +
             _pmFieldArea('Bio', 'bio', p.bio, 4) +
+            _pmFieldArea('Signature Quote', 'quote', p.quote, 2) +
             _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
             stancesHtml +
+            promisesHtml +
           '</form>' +
           '<div id="pm-editor-feedback" class="hidden mt-3 text-sm font-body rounded-lg px-3 py-2 border"></div>' +
           '<div class="flex flex-wrap gap-3 mt-5">' +
@@ -13276,6 +13358,53 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           });
           merged.stances = st;
         }
+
+        merged.quote = (val('quote') || '').trim();
+
+        // Accountability: edit only the headline score; preserve any
+        // categories/detail already on the record. Blank clears the score.
+        var acctRaw = val('acctScore');
+        if (acctRaw === '' || acctRaw == null) {
+          if (merged.accountability && typeof merged.accountability === 'object') {
+            delete merged.accountability.overallScore;
+          }
+        } else {
+          var av = parseInt(acctRaw, 10);
+          if (!isNaN(av)) {
+            var acctObj = (merged.accountability && typeof merged.accountability === 'object') ? merged.accountability : {};
+            acctObj.overallScore = Math.max(0, Math.min(100, av));
+            merged.accountability = acctObj;
+          }
+        }
+
+        // Tracked promises: rebuild the array from the editor rows, keeping any
+        // hidden fields (e.g. `sources`) via each row's original index. Fully
+        // empty rows are dropped, then kept/broken/pending counts are recomputed.
+        var origPromises = Array.isArray(merged.promises) ? merged.promises : [];
+        var promiseRowEls = document.querySelectorAll('#pm-promises [data-promise-row]');
+        var newPromises = [];
+        promiseRowEls.forEach(function (rowEl) {
+          var tEl = rowEl.querySelector('[data-pf="title"]');
+          var dEl = rowEl.querySelector('[data-pf="detail"]');
+          var vEl = rowEl.querySelector('[data-pf="verdict"]');
+          var title = tEl ? tEl.value.trim() : '';
+          var detail = dEl ? dEl.value.trim() : '';
+          if (!title && !detail) return;
+          var verdict = (vEl && (vEl.value === 'kept' || vEl.value === 'broken')) ? vEl.value : 'pending';
+          var idxAttr = rowEl.getAttribute('data-promise-idx');
+          var base = {};
+          if (idxAttr !== null && idxAttr !== '' && origPromises[+idxAttr] && typeof origPromises[+idxAttr] === 'object') {
+            try { base = JSON.parse(JSON.stringify(origPromises[+idxAttr])); } catch (e) { base = {}; }
+          }
+          base.title = title;
+          base.detail = detail;
+          base.verdict = verdict;
+          newPromises.push(base);
+        });
+        merged.promises = newPromises;
+        merged.kept = newPromises.filter(function (r) { return r.verdict === 'kept'; }).length;
+        merged.broken = newPromises.filter(function (r) { return r.verdict === 'broken'; }).length;
+        merged.pending = newPromises.filter(function (r) { return r.verdict === 'pending'; }).length;
 
         _pmFeedback('Saving…', 'ok');
         db.collection('politicians').doc(id).set(merged).then(function () {
