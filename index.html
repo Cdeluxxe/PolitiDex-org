@@ -531,7 +531,50 @@
       border-color: rgba(240,33,60,0.7) !important;
       box-shadow: 0 0 0 3px rgba(192,21,42,0.15) !important;
     }
-    
+
+    /* ── Admin Politician Manager: toolbar + Quick Add panel — contrast fix ──
+       The toolbar search/filters and the Quick Add / Paste JSON textarea use the
+       same undefined `navy-950` shade (and `text-steel-200`, also undefined), so
+       fields fell back to dark/transparent backgrounds with hard-to-read text —
+       worst of all the large JSON textarea. Force a solid dark field, white text,
+       a visible placeholder, readable option rows, and the patriotic focus ring,
+       matching the editor-form fix above. Layout and behavior are untouched. */
+    #pm-search,
+    #pm-filter-status,
+    #pm-filter-state,
+    #pm-filter-office,
+    #pm-filter-party,
+    #pm-filter-sort,
+    #pm-quick-input {
+      background-color: #0a0f1e !important;
+      color: #ffffff !important;
+      border-color: rgba(255,255,255,0.14) !important;
+    }
+    #pm-search::placeholder,
+    #pm-quick-input::placeholder {
+      color: #7596c0 !important;
+      opacity: 1;
+    }
+    #pm-filter-status option,
+    #pm-filter-state option,
+    #pm-filter-office option,
+    #pm-filter-party option,
+    #pm-filter-sort option {
+      background-color: #0d1526 !important;
+      color: #ffffff !important;
+    }
+    #pm-search:focus,
+    #pm-filter-status:focus,
+    #pm-filter-state:focus,
+    #pm-filter-office:focus,
+    #pm-filter-party:focus,
+    #pm-filter-sort:focus,
+    #pm-quick-input:focus {
+      outline: none !important;
+      border-color: rgba(240,33,60,0.7) !important;
+      box-shadow: 0 0 0 3px rgba(192,21,42,0.15) !important;
+    }
+
     /* ── Sticky Filter Collapsing/Minimizing ─────────────────────────── */
     .browse-toolbar.is-stuck:not(.is-expanded) {
       padding: 0.5rem 1rem !important;
