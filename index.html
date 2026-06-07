@@ -3950,6 +3950,23 @@
       padding: 0.25rem 0.75rem; border-radius: 999px;
       display: inline-block; margin-bottom: 0.6rem;
     }
+    /* Government-tier eyebrow (Federal / State / Local) — gives the six slots a
+       clear at-a-glance grouping above the specific office pill, since several
+       offices otherwise share the same icon. Tinted with the slot's own color. */
+    .myteam-slot-tier {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.5rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      opacity: 0.92; margin-bottom: 0.4rem;
+    }
+    .myteam-slot-tier::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: currentColor; box-shadow: 0 0 6px currentColor; flex-shrink: 0;
+    }
+    @media (max-width: 639px) {
+      .myteam-slot-tier { font-size: 0.48rem; letter-spacing: 0.16em; margin-bottom: 0.3rem; }
+    }
     .myteam-slot .chub-score {
       font-size: 2rem !important;
       text-shadow: 0 0 18px currentColor;
@@ -27384,6 +27401,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
     window._myteamRenderAlignPrompt = _myteamRenderAlignPrompt;
 
+    // Maps a ballot slot key to its level of government, so each slot can show a
+    // clear Federal / State / Local eyebrow above the specific office. Keeps the
+    // grouping logic in one place across every ballot configuration.
+    function _slotTier(key) {
+      if (key === 'president' || key === 'senate' || key === 'house' ||
+          key === 'defense' || key === 'intel') return 'Federal';
+      if (key === 'local') return 'Local';
+      return 'State';
+    }
+    window._slotTier = _slotTier;
+
     function _renderSlotCard(pos, pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
@@ -27413,6 +27441,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       return '<div class="myteam-slot" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
         '<button class="myteam-slot-clear-btn" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
+        '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
         photoHtml +
         '<div class="font-display text-xl tracking-wider text-white leading-tight" style="margin-bottom:0.2rem;text-shadow:0 1px 8px rgba(0,0,0,0.3);">' + d.name + '</div>' +
@@ -27441,10 +27470,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     function _renderSlotEmpty(pos) {
       return '<div class="myteam-slot-empty" style="--slot-color:' + pos.color + ';" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Choose your ' + pos.label + ' pick">' +
+        '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div class="myteam-empty-ring" style="width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:2rem;margin:0.5rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
         '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Open Seat</div>' +
-        '<div class="font-condensed" style="font-size:0.7rem;color:#8ba3c7;margin:0.15rem auto 0.85rem;line-height:1.45;max-width:15rem;">Pick your <strong style="color:#cbd5e1;font-weight:700;">' + pos.label + '</strong> candidate from <span style="color:#fbbf24;">Your Key Races</span> below.</div>' +
+        '<div class="font-condensed" style="font-size:0.7rem;color:#8ba3c7;margin:0.15rem auto 0.85rem;line-height:1.45;max-width:15rem;">Add your <strong style="color:#cbd5e1;font-weight:700;">' + pos.label + '</strong> pick to claim this seat — your team saves automatically.</div>' +
         '<div class="myteam-empty-cta">' +
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
           'Pick a Candidate' +
@@ -27578,7 +27608,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         summaryLine.classList.remove('is-empty', 'is-complete');
         if (filledCount === 0) {
           summaryLine.classList.add('is-empty');
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Your ballot is empty — tap any <strong class="myteam-summary-strong">open slot</strong> below to add that office\'s pick, or browse <strong class="myteam-summary-strong">Your Key Races</strong>.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Build your <strong class="myteam-summary-strong">' + _tot + '-office ballot</strong> — tap any <strong class="myteam-summary-strong">Open Seat</strong> below to add your pick. Every choice saves automatically as you go.</span>';
         } else if (filledCount >= _tot) {
           summaryLine.classList.add('is-complete');
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your ballot is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> slots are filled. Compare your team or share your slate below.</span>';
