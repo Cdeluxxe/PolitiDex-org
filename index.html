@@ -10613,6 +10613,135 @@
       #modal-panel .flex.gap-3.px-5 > button,
       #modal-panel .flex.gap-3.px-5 > a { font-size: 0.7rem !important; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — PASS 3 (≤768px, with ≤480 / ≤400 refinements)
+       A final, phone-only pass that targets the spots still reading as
+       cramped or fiddly on a real handset: All Politicians cards whose names
+       had been shrunk so small they were hard to read, a filter toolbar whose
+       four selects wrapped into an uneven jumble, small secondary buttons,
+       and a few tight My Voting Team / modal details. Additive only — no
+       markup or JS changes — and appended last so it reliably wins the
+       cascade. The dark patriotic palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · ALL POLITICIANS CARDS — readable names, roomier cards ───────
+         Earlier rules shrank the browse-card name to 0.95rem, which on a
+         phone (where these cards are full-width) read as too small. Restore a
+         confident, legible name that wraps cleanly, and give the card a touch
+         more breathing room than the previous 0.8rem squeeze. */
+      #myteam-browse-grid .chub-card,
+      #relevant-browse-grid .chub-card {
+        padding: 1rem 0.95rem !important;
+        border-radius: 0.9rem !important;
+      }
+      #myteam-browse-grid .chub-card .font-display,
+      #relevant-browse-grid .chub-card .font-display {
+        font-size: 1.15rem !important;
+        line-height: 1.18 !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      /* Office · state line: a hair larger and allowed to wrap instead of
+         being clipped on one tight line. */
+      #myteam-browse-grid .chub-card p.font-condensed,
+      #relevant-browse-grid .chub-card p.font-condensed {
+        font-size: 0.8rem !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+      }
+      /* Issue tags: nudged up from 0.55rem so they're actually readable. */
+      #myteam-browse-grid .chub-card .inline-block,
+      #relevant-browse-grid .chub-card .inline-block {
+        font-size: 0.62rem !important;
+        padding: 0.2rem 0.55rem !important;
+      }
+      /* Per-card secondary actions (Compare, accountability toggle, profile)
+         become comfortable thumb targets. */
+      #myteam-browse-grid .chub-add-btn,
+      #relevant-browse-grid .chub-add-btn,
+      .chub-add-btn { min-height: 46px !important; font-size: 0.74rem !important; }
+      #myteam-browse-grid .chub-card [id^="acctbtn-"],
+      #relevant-browse-grid .chub-card [id^="acctbtn-"] {
+        min-height: 44px !important; font-size: 0.7rem !important;
+      }
+
+      /* ── 2 · FILTER TOOLBAR — tidy, predictable layout on phones ─────────
+         The search field claims a full row; the four selects fall into a neat
+         two-up grid (instead of wrapping unevenly), and Reset spans the width
+         so nothing is half-hanging off a row. 16px control text also stops
+         iOS from auto-zooming when a field is focused. */
+      .browse-toolbar-inner { gap: 0.6rem !important; }
+      .browse-toolbar-inner > .flex-1 { flex: 1 1 100% !important; }
+      .browse-toolbar-inner > .flex.flex-wrap {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+      }
+      .browse-toolbar-inner > .flex.flex-wrap > select {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 16px !important;
+      }
+      .browse-toolbar-inner > .flex.flex-wrap > button {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+      }
+      #myteam-browse-search { font-size: 16px !important; }
+      /* The found-count + scope toggles read better stacked than squeezed
+         onto one line beside the count. */
+      .browse-toolbar > .flex.items-center.justify-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.55rem !important;
+      }
+      .browse-toolbar > .flex.items-center.justify-between > .flex.gap-2 {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+      }
+      .browse-toolbar .scope-btn { width: 100% !important; min-height: 44px !important; }
+
+      /* ── 3 · BUTTONS — round out the remaining small secondary controls ── */
+      .bp-compare-btn,
+      .myteam-slot-compare-btn,
+      .mandate-bottom-cta,
+      .cmp-empty-cta { min-height: 44px !important; }
+      .bp-compare-btn { font-size: 0.7rem !important; padding: 0.55rem 0.85rem !important; }
+
+      /* ── 4 · MY VOTING TEAM — between phone & tablet, keep it single-column
+         so each slot has real width instead of two skinny halves. */
+      .myteam-slots-grid { grid-template-columns: 1fr !important; gap: 0.7rem !important; }
+      #myteam-browse-panel .grid { grid-template-columns: 1fr !important; }
+      .myteam-compare-all-bar { flex-wrap: wrap !important; gap: 0.6rem !important; }
+
+      /* ── 5 · READABILITY — a little more vertical rhythm between sections
+         and their lead paragraphs on small screens. */
+      .section-title { line-height: 1.05 !important; }
+      #myteam-browse-grid, #relevant-browse-grid { gap: 0.65rem !important; }
+    }
+
+    @media (max-width: 480px) {
+      /* Filter selects: stack to one clean column on small phones so each
+         label is fully visible. */
+      .browse-toolbar-inner > .flex.flex-wrap {
+        grid-template-columns: 1fr !important;
+      }
+      /* Browse cards: keep the name strong but ensure it never overruns. */
+      #myteam-browse-grid .chub-card .font-display,
+      #relevant-browse-grid .chub-card .font-display { font-size: 1.1rem !important; }
+    }
+
+    @media (max-width: 400px) {
+      /* Narrowest phones: trim card padding just slightly and keep the score
+         badge from crowding the issue tags. */
+      #myteam-browse-grid .chub-card,
+      #relevant-browse-grid .chub-card { padding: 0.9rem 0.8rem !important; }
+      .browse-toolbar > .flex.items-center.justify-between > .flex.gap-2 {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 
       </head>
