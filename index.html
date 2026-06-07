@@ -13193,7 +13193,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
         <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">POLITICIAN <span class="text-crimson-400">MANAGER</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Search, filter, create, edit, and clean up the live politician database. Group fields by section, flag duplicates, promote stubs to full profiles, and add new records — all writing directly to Firestore, no re-import required.
+          Search, filter, create, edit, and clean up the live politician database. Track <strong>database coverage</strong> to spot missing Utah seats and offices, flag duplicates, promote stubs to full profiles, and add new records — all writing directly to Firestore, no re-import required.
         </p>
       </div>
 
@@ -13218,6 +13218,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <button type="button" id="pm-dupes-btn" onclick="window.pmToggleDupes && window.pmToggleDupes()"
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
               <span aria-hidden="true">🔎</span> <span id="pm-dupes-label">Find Duplicates</span>
+            </button>
+            <button type="button" id="pm-coverage-btn" onclick="window.pmToggleCoverage && window.pmToggleCoverage()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-sky-500/30 hover:border-sky-400/60 text-sky-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">📊</span> <span id="pm-coverage-label">Database Coverage</span>
             </button>
             <button type="button" onclick="window.pmReload && window.pmReload()"
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
@@ -13276,6 +13280,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <span>Full: <span id="pm-count-full" class="text-green-400 font-700">0</span></span>
           <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
           <span>Possible dupes: <span id="pm-count-dupe" class="text-amber-300 font-700">0</span></span>
+          <span>Utah seats: <span id="pm-count-utah-seats" class="text-sky-300 font-700">0/0</span></span>
         </div>
       </div>
 
@@ -13331,6 +13336,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
 
         <div id="pm-quick-feedback" class="hidden mt-4 text-sm font-body rounded-lg px-3 py-2 border"></div>
+      </div>
+
+      <!-- ── Database Coverage / Missing Politicians ───────────────
+           Hidden by default; toggled by the toolbar's "Database Coverage"
+           button. Surfaces gaps the editor can't: which Utah legislative
+           seats and statewide offices still have no profile, plus broader
+           by-state / by-office coverage. Rendered by window.pmRenderCoverage
+           in the controller below. -->
+      <div id="pm-coverage-panel" class="hidden bg-navy-800/80 border border-sky-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-sky-200 flex items-center gap-2">
+              <span aria-hidden="true">📊</span> Database Coverage &amp; Missing Politicians
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              A live map of what's in the database versus what should exist. Utah's legislative
+              seats and statewide offices are tracked seat-by-seat — click any
+              <span class="text-sky-300 font-semibold">missing seat</span> to start a pre-filled new record.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleCoverage && window.pmToggleCoverage(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+        <div id="pm-coverage-body" class="space-y-5">
+          <!-- coverage cards + tables injected here -->
+        </div>
       </div>
 
       <!-- ── Two-column workspace: list (left) + editor (right) ── -->
@@ -13769,6 +13802,340 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return el ? el.value : fallback;
       }
 
+      // ════════════════════════════════════════════════════════════
+      // DATABASE COVERAGE / MISSING POLITICIANS
+      //
+      // Answers "what's missing?" rather than "what's here?". Utah is the
+      // priority: its legislative chambers and statewide offices are tracked
+      // seat-by-seat against the known number of seats, so the admin can see
+      // exactly which districts still have no profile and start a pre-filled
+      // record in one click. A broader by-state / by-office breakdown surfaces
+      // weaker-coverage areas elsewhere.
+      // ════════════════════════════════════════════════════════════
+
+      // Known Utah seat counts (2022 redistricting): 75 House districts,
+      // 29 Senate districts, 4 U.S. House districts, 2 U.S. Senate seats.
+      var PM_UTAH_CHAMBERS = [
+        { key: 'state-house',  label: 'Utah State House',     total: 75, hasDistricts: true },
+        { key: 'state-senate', label: 'Utah State Senate',    total: 29, hasDistricts: true },
+        { key: 'us-house',     label: 'U.S. House — Utah',    total: 4,  hasDistricts: true },
+        { key: 'us-senate',    label: 'U.S. Senate — Utah',   total: 2,  hasDistricts: false }
+      ];
+      // Statewide constitutional / executive offices (one holder each).
+      var PM_UTAH_STATEWIDE = [
+        { key: 'governor',         label: 'Governor' },
+        { key: 'lt-governor',      label: 'Lieutenant Governor' },
+        { key: 'attorney-general', label: 'Attorney General' },
+        { key: 'state-auditor',    label: 'State Auditor' },
+        { key: 'state-treasurer',  label: 'State Treasurer' }
+      ];
+      var PM_UTAH_SEAT_TOTAL = PM_UTAH_CHAMBERS.reduce(function (s, c) { return s + c.total; }, 0);
+
+      // Classify a Utah record into one of the tracked chambers / statewide
+      // offices (returns null for anything that doesn't map). Order matters:
+      // the most specific U.S. patterns are tested before the state ones.
+      function _pmUtahChamber(p) {
+        var o = String((p && p.office) || '');
+        if (/\bU\.?\s*S\.?\s*Senator|United\s+States\s+Senator/i.test(o)) return 'us-senate';
+        if (/\bU\.?\s*S\.?\s*(Rep|Congress)|United\s+States\s+Rep|Congress(?:man|woman|member)/i.test(o)) return 'us-house';
+        if (/Lieutenant\s+Governor|Lt\.?\s*Governor/i.test(o)) return 'lt-governor';
+        if (/Attorney\s+General/i.test(o)) return 'attorney-general';
+        if (/State\s+Auditor/i.test(o)) return 'state-auditor';
+        if (/(State\s+)?Treasurer/i.test(o)) return 'state-treasurer';
+        if (/Governor/i.test(o)) return 'governor';
+        if (/State\s*Sen|Senate\s*(President|Minority|Majority)/i.test(o)) return 'state-senate';
+        if (/State\s*Rep|House\s*(Speaker|Minority|Majority)|Speaker\s+of\s+the\s+House/i.test(o)) return 'state-house';
+        return null;
+      }
+
+      // Pull a district number out of a record's district/office text.
+      function _pmDistrictNum(p) {
+        var hay = String((p && p.district) || '') + ' ' + String((p && p.office) || '');
+        var m = hay.match(/dist(?:rict)?\.?\s*#?\s*(\d{1,3})/i);
+        if (m) return parseInt(m[1], 10);
+        m = hay.match(/\b(\d{1,3})(?:st|nd|rd|th)?\b/);
+        return m ? parseInt(m[1], 10) : null;
+      }
+
+      // Build the Utah seat map: per chamber, which district numbers are filled
+      // (and by which record ids), which records couldn't be matched to a
+      // district, and which statewide offices are held.
+      function _pmUtahCoverage() {
+        var seats = {};
+        PM_UTAH_CHAMBERS.forEach(function (c) { seats[c.key] = { mapped: {}, unmapped: [] }; });
+        var statewide = {};
+        PM_UTAH_STATEWIDE.forEach(function (s) { statewide[s.key] = []; });
+
+        _pmAll().forEach(function (row) {
+          if (_pmNormName(row.p.state) !== 'utah') return;
+          var ch = _pmUtahChamber(row.p);
+          if (!ch) return;
+          if (seats[ch]) {
+            var bucket = seats[ch];
+            var chamber = PM_UTAH_CHAMBERS.filter(function (c) { return c.key === ch; })[0];
+            var d = (chamber && chamber.hasDistricts) ? _pmDistrictNum(row.p) : null;
+            if (d != null) { (bucket.mapped[d] = bucket.mapped[d] || []).push(row.id); }
+            else { bucket.unmapped.push(row.id); }
+          } else if (statewide[ch]) {
+            statewide[ch].push(row.id);
+          }
+        });
+        return { seats: seats, statewide: statewide };
+      }
+
+      // Office string + district label for a missing seat, used to pre-fill a
+      // brand-new record when the admin clicks a missing-seat chip.
+      function _pmSeatPrefill(key, num) {
+        var pre = { state: 'Utah', icon: '🏛', tier: 'gray' };
+        if (key === 'state-house')      { pre.office = 'State Representative (Dist. ' + num + ')'; pre.district = 'District ' + num; }
+        else if (key === 'state-senate'){ pre.office = 'State Senator (Dist. ' + num + ')';       pre.district = 'District ' + num; }
+        else if (key === 'us-house')    { pre.office = 'U.S. Representative (Dist. ' + num + ')';  pre.district = 'District ' + num; }
+        else if (key === 'us-senate')   { pre.office = 'U.S. Senator'; }
+        else {
+          var sw = PM_UTAH_STATEWIDE.filter(function (s) { return s.key === key; })[0];
+          pre.office = sw ? sw.label : '';
+        }
+        return pre;
+      }
+      // Open a pre-filled New Politician editor for a specific empty seat.
+      window.pmCreateNewSeat = function (key, num) {
+        window.pmCreateNew(_pmSeatPrefill(key, num));
+      };
+
+      // Aggregate coverage by state and by office type — the broad view that
+      // exposes thin coverage outside the Utah seat map.
+      function _pmCoverageBreakdown() {
+        var byState = {}, byOffice = {};
+        _pmAll().forEach(function (row) {
+          var p = row.p, stub = _pmIsStub(p);
+          var st = (p.state || '').trim() || '— No state —';
+          var s = byState[st] = byState[st] || { total: 0, full: 0, stub: 0 };
+          s.total++; stub ? s.stub++ : s.full++;
+          var ot = _pmOfficeType(p);
+          var o = byOffice[ot] = byOffice[ot] || { total: 0, full: 0, stub: 0 };
+          o.total++; stub ? o.stub++ : o.full++;
+        });
+        return { byState: byState, byOffice: byOffice };
+      }
+
+      // Small colored progress bar (green ≥80%, amber ≥40%, crimson below).
+      function _pmCovBar(pct) {
+        var color = pct >= 80 ? 'bg-green-500' : (pct >= 40 ? 'bg-amber-500' : 'bg-crimson-500');
+        return '<div class="h-2 rounded-full bg-navy-950 overflow-hidden border border-white/5">' +
+          '<div class="h-full rounded-full ' + color + '" style="width:' + Math.max(2, Math.min(100, pct)) + '%"></div></div>';
+      }
+
+      // Render one Utah chamber card: filled/total, a progress bar, and (for
+      // district chambers) a wrapped grid of clickable missing-seat chips.
+      function _pmCovChamberCard(chamber, bucket, dupGroups) {
+        var filledSeats, missing = [], multi = 0;
+        if (chamber.hasDistricts) {
+          for (var d = 1; d <= chamber.total; d++) {
+            var recs = bucket.mapped[d];
+            if (recs && recs.length) { if (recs.length > 1) multi++; }
+            else missing.push(d);
+          }
+          filledSeats = chamber.total - missing.length;
+        } else {
+          // No-district chamber (U.S. Senate): count distinct records, capped.
+          var held = bucket.unmapped.length + Object.keys(bucket.mapped).length;
+          filledSeats = Math.min(held, chamber.total);
+        }
+        var pct = chamber.total ? Math.round((filledSeats / chamber.total) * 100) : 0;
+        var unmapped = bucket.unmapped.length;
+
+        var html = '<div class="bg-navy-900/60 border border-white/10 rounded-xl p-4">' +
+          '<div class="flex items-baseline justify-between gap-2 mb-1.5">' +
+            '<div class="font-condensed text-sm font-700 tracking-wide text-white">' + _pmEsc(chamber.label) + '</div>' +
+            '<div class="font-condensed text-xs font-700 tracking-widest uppercase ' + (pct >= 80 ? 'text-green-300' : (pct >= 40 ? 'text-amber-300' : 'text-crimson-300')) + '">' +
+              filledSeats + ' / ' + chamber.total + ' <span class="text-steel-500">(' + pct + '%)</span></div>' +
+          '</div>' +
+          _pmCovBar(pct);
+
+        if (chamber.hasDistricts) {
+          if (missing.length) {
+            var chips = missing.map(function (n) {
+              return '<button type="button" onclick="window.pmCreateNewSeat(\'' + chamber.key + '\',' + n + ')" ' +
+                'title="No profile for District ' + n + ' — click to add one" ' +
+                'class="inline-flex items-center justify-center min-w-[2.1rem] px-1.5 py-1 rounded-md bg-navy-950 border border-sky-500/30 hover:border-sky-400 hover:bg-sky-500/15 text-sky-300 hover:text-white font-mono text-xs transition-all">' + n + '</button>';
+            }).join('');
+            html += '<div class="mt-2.5">' +
+              '<div class="font-condensed text-[10px] font-700 tracking-widest uppercase text-sky-300/80 mb-1.5">' +
+                missing.length + ' missing district' + (missing.length === 1 ? '' : 's') + ' · click to add</div>' +
+              '<div class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">' + chips + '</div>' +
+            '</div>';
+          } else {
+            html += '<div class="mt-2.5 text-xs font-body text-green-300/90">✓ Every district has at least one profile.</div>';
+          }
+          if (multi) {
+            html += '<div class="mt-2 text-[11px] font-body text-amber-300/80">⚠️ ' + multi + ' district' + (multi === 1 ? '' : 's') + ' with more than one record — possible duplicates.</div>';
+          }
+        } else if (filledSeats < chamber.total) {
+          html += '<div class="mt-2.5 text-xs font-body text-sky-300/90">' +
+            (chamber.total - filledSeats) + ' seat' + ((chamber.total - filledSeats) === 1 ? '' : 's') + ' unfilled — ' +
+            '<button type="button" onclick="window.pmCreateNewSeat(\'' + chamber.key + '\',0)" class="underline decoration-sky-400/50 hover:decoration-sky-300 hover:text-white">add a U.S. Senator</button></div>';
+        } else {
+          html += '<div class="mt-2.5 text-xs font-body text-green-300/90">✓ Both seats covered.</div>';
+        }
+        if (unmapped) {
+          html += '<div class="mt-1.5 text-[11px] font-body text-steel-400">' + unmapped + ' record' + (unmapped === 1 ? '' : 's') +
+            ' in this chamber have no clear district number — open them to add one.</div>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      // Render the full coverage panel body AND keep the toolbar "Utah seats"
+      // chip current. Cheap enough to run on every list render; the heavy DOM
+      // build is skipped while the panel is closed.
+      window.pmRenderCoverage = function () {
+        var cov = _pmUtahCoverage();
+
+        // Toolbar chip: total Utah seats filled across the four chambers.
+        var filledTotal = 0;
+        PM_UTAH_CHAMBERS.forEach(function (c) {
+          var b = cov.seats[c.key];
+          if (c.hasDistricts) {
+            var f = 0;
+            for (var d = 1; d <= c.total; d++) { if (b.mapped[d] && b.mapped[d].length) f++; }
+            filledTotal += f;
+          } else {
+            filledTotal += Math.min(b.unmapped.length + Object.keys(b.mapped).length, c.total);
+          }
+        });
+        var chip = document.getElementById('pm-count-utah-seats');
+        if (chip) chip.textContent = filledTotal + '/' + PM_UTAH_SEAT_TOTAL;
+
+        var panel = document.getElementById('pm-coverage-panel');
+        var body = document.getElementById('pm-coverage-body');
+        if (!body || !panel || panel.classList.contains('hidden')) return;
+
+        var dup = _pmDuplicateInfo();
+
+        // ── Headline: overall database totals ──
+        var all = _pmAll();
+        var fullN = 0; all.forEach(function (r) { _pmIsStub(r.p) ? 0 : fullN++; });
+        var stubN = all.length - fullN;
+        var utahN = all.filter(function (r) { return _pmNormName(r.p.state) === 'utah'; }).length;
+        var headline = '<div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">' +
+          [['Total profiles', all.length, 'text-white'],
+           ['Full', fullN, 'text-green-300'],
+           ['Stubs', stubN, 'text-amber-300'],
+           ['Utah profiles', utahN, 'text-sky-300'],
+           ['Possible dupes', dup.count, 'text-amber-300']].map(function (c) {
+            return '<div class="bg-navy-900/60 border border-white/10 rounded-xl px-3 py-2.5 text-center">' +
+              '<div class="font-display text-2xl ' + c[2] + '">' + c[1] + '</div>' +
+              '<div class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400 mt-0.5">' + c[0] + '</div></div>';
+          }).join('') + '</div>';
+
+        // ── Utah legislative + congressional seat cards ──
+        var cards = PM_UTAH_CHAMBERS.map(function (c) {
+          return _pmCovChamberCard(c, cov.seats[c.key], dup.groups);
+        }).join('');
+        var seatSection = '<div>' +
+          '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200 mb-2.5">🏛 Utah Seat Coverage</div>' +
+          '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' + cards + '</div></div>';
+
+        // ── Utah statewide executive offices ──
+        var swChips = PM_UTAH_STATEWIDE.map(function (s) {
+          var held = cov.statewide[s.key].length;
+          if (held) {
+            return '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/40 text-green-200 font-condensed text-xs font-700 tracking-wide">' +
+              '<span aria-hidden="true">✓</span> ' + _pmEsc(s.label) + '</span>';
+          }
+          return '<button type="button" onclick="window.pmCreateNewSeat(\'' + s.key + '\',0)" ' +
+            'title="No profile for ' + _pmEscAttr(s.label) + ' — click to add one" ' +
+            'class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-950 border border-sky-500/30 hover:border-sky-400 hover:bg-sky-500/15 text-sky-300 hover:text-white font-condensed text-xs font-700 tracking-wide transition-all">' +
+            '<span aria-hidden="true">＋</span> ' + _pmEsc(s.label) + '</button>';
+        }).join('');
+        var swSection = '<div>' +
+          '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200 mb-2.5">🏷 Utah Statewide Offices</div>' +
+          '<div class="flex flex-wrap gap-2">' + swChips + '</div></div>';
+
+        // ── Broad breakdown: by state + by office type ──
+        var bd = _pmCoverageBreakdown();
+        var stateRows = Object.keys(bd.byState).map(function (k) { return [k, bd.byState[k]]; });
+        // Pin Utah first, then sort the rest by total descending.
+        stateRows.sort(function (a, b) {
+          var au = _pmNormName(a[0]) === 'utah', bu = _pmNormName(b[0]) === 'utah';
+          if (au !== bu) return au ? -1 : 1;
+          return b[1].total - a[1].total;
+        });
+        function _covTable(title, rows, isState) {
+          var body = rows.slice(0, 14).map(function (r) {
+            var label = isState ? r[0] : (PM_OFFICE_LABELS[r[0]] || _pmPretty(r[0]));
+            var v = r[1];
+            var pct = v.total ? Math.round((v.full / v.total) * 100) : 0;
+            var hl = isState && _pmNormName(r[0]) === 'utah';
+            return '<tr class="' + (hl ? 'bg-sky-500/10' : '') + '">' +
+              '<td class="py-1.5 pr-3 ' + (hl ? 'text-sky-200 font-700' : 'text-steel-200') + '">' + _pmEsc(label) + (hl ? ' ⭐' : '') + '</td>' +
+              '<td class="py-1.5 px-2 text-right text-white font-700">' + v.total + '</td>' +
+              '<td class="py-1.5 px-2 text-right text-green-300">' + v.full + '</td>' +
+              '<td class="py-1.5 px-2 text-right text-amber-300">' + v.stub + '</td>' +
+              '<td class="py-1.5 pl-2 w-24"><div class="flex items-center gap-1.5"><div class="flex-1">' + _pmCovBar(pct) + '</div><span class="text-[10px] text-steel-400 w-7 text-right">' + pct + '%</span></div></td>' +
+            '</tr>';
+          }).join('');
+          return '<div class="bg-navy-900/40 border border-white/10 rounded-xl p-3 overflow-x-auto">' +
+            '<div class="font-condensed text-[11px] font-700 tracking-widest uppercase text-steel-300 mb-1.5">' + title + '</div>' +
+            '<table class="w-full text-xs font-body border-collapse">' +
+              '<thead><tr class="text-steel-500 font-condensed text-[10px] tracking-widest uppercase">' +
+                '<th class="text-left font-700 pb-1">' + (isState ? 'State' : 'Office Type') + '</th>' +
+                '<th class="text-right font-700 pb-1 px-2">All</th>' +
+                '<th class="text-right font-700 pb-1 px-2">Full</th>' +
+                '<th class="text-right font-700 pb-1 px-2">Stub</th>' +
+                '<th class="text-left font-700 pb-1 pl-2">% Full</th>' +
+              '</tr></thead><tbody>' + body + '</tbody></table>' +
+            (rows.length > 14 ? '<div class="text-[11px] text-steel-500 mt-1.5">…and ' + (rows.length - 14) + ' more</div>' : '') +
+          '</div>';
+        }
+        var officeRows = Object.keys(bd.byOffice).map(function (k) { return [k, bd.byOffice[k]]; });
+        officeRows.sort(function (a, b) { return b[1].total - a[1].total; });
+        var breakdown = '<div>' +
+          '<div class="font-condensed text-xs font-700 tracking-widest uppercase text-sky-200 mb-2.5">🌎 Coverage Breakdown</div>' +
+          '<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">' +
+            _covTable('By State (Utah pinned)', stateRows, true) +
+            _covTable('By Office Type', officeRows, false) +
+          '</div></div>';
+
+        var dupCallout = dup.count
+          ? '<div class="bg-amber-950/30 border border-amber-500/30 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">' +
+              '<div class="text-amber-100 font-body text-sm"><span aria-hidden="true">⚠️</span> <strong>' + dup.count + '</strong> record' + (dup.count === 1 ? '' : 's') +
+                ' across <strong>' + dup.groups + '</strong> group' + (dup.groups === 1 ? '' : 's') + ' look like possible duplicates.</div>' +
+              '<button type="button" onclick="window.pmToggleCoverage(false); window.pmReviewDupes && window.pmReviewDupes();" ' +
+                'class="inline-flex items-center gap-1.5 bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/50 text-amber-100 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all">' +
+                '🔎 Review duplicates</button>' +
+            '</div>'
+          : '';
+
+        body.innerHTML = headline + seatSection + swSection + dupCallout + breakdown;
+      };
+
+      // Toggle the coverage panel (optionally forced open/closed).
+      window.pmToggleCoverage = function (force) {
+        var panel = document.getElementById('pm-coverage-panel');
+        if (!panel) return;
+        var show = (typeof force === 'boolean') ? force : panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !show);
+        var btn = document.getElementById('pm-coverage-btn');
+        var lbl = document.getElementById('pm-coverage-label');
+        if (lbl) lbl.textContent = show ? 'Hide Coverage' : 'Database Coverage';
+        if (btn) {
+          if (show) { btn.classList.add('bg-sky-500/20', 'border-sky-400/70', 'text-sky-200'); btn.classList.remove('bg-navy-900'); }
+          else { btn.classList.remove('bg-sky-500/20', 'border-sky-400/70', 'text-sky-200'); btn.classList.add('bg-navy-900'); }
+        }
+        if (show) {
+          window.pmRenderCoverage();
+          try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+        }
+      };
+
+      // Open the duplicates-only list view (used by the coverage callout).
+      window.pmReviewDupes = function () {
+        if (!_pmDupOnly) window.pmToggleDupes();
+        var sec = document.getElementById('politician-manager');
+        if (sec) { try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+      };
+
       window.pmRenderList = function () {
         var listEl = document.getElementById('pm-list');
         var emptyEl = document.getElementById('pm-list-empty');
@@ -13787,6 +14154,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (fEl) fEl.textContent = fullCount;
         if (sEl) sEl.textContent = stubCount;
         if (dEl) dEl.textContent = dup.count;
+
+        // Keep the Utah-seats chip current and refresh the coverage panel if
+        // it's open (cheap; the heavy DOM build is skipped while it's closed).
+        if (window.pmRenderCoverage) window.pmRenderCoverage();
 
         _pmSyncStateFilter(all);
 
@@ -14355,8 +14726,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _pmShow(id);
       };
 
-      // Open a blank editor for a brand-new record.
-      window.pmCreateNew = function () {
+      // Open a blank editor for a brand-new record. An optional `prefill`
+      // object (e.g. from a missing-seat chip in the coverage panel) seeds the
+      // record so its office / district / state are filled in advance — the
+      // live duplicate check still runs, so a clash surfaces immediately.
+      window.pmCreateNew = function (prefill) {
         if (!_pmGuardDiscard()) return;
         _pmMode = 'create';
         _pmSelectedId = null;
@@ -14365,7 +14739,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (!editor) return;
         if (emptyEl) emptyEl.classList.add('hidden');
         editor.classList.remove('hidden');
-        _pmRenderEditor(null, { icon: '🏛', tier: 'gray' }, true);
+        var base = { icon: '🏛', tier: 'gray' };
+        if (prefill && typeof prefill === 'object') {
+          for (var k in prefill) {
+            if (Object.prototype.hasOwnProperty.call(prefill, k) && prefill[k] != null && prefill[k] !== '') base[k] = prefill[k];
+          }
+        }
+        _pmRenderEditor(null, base, true);
         window.pmRenderList();
         var nameEl = document.getElementById('pm-f-name');
         if (nameEl) nameEl.focus();
