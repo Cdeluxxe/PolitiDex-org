@@ -12826,6 +12826,7 @@
               <select id="expansion-level" class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3.5 text-sm font-semibold text-white focus:border-gold-400 focus:outline-none focus:ring-0 transition-colors" style="background-color:#0a0f1e;color:#ffffff;">
                 <option value="utah-leg" selected style="background-color:#0a0f1e;color:#ffffff;">🇺🇸 Utah State Legislature</option>
                 <option value="utah-cand-2026" style="background-color:#0a0f1e;color:#ffffff;">🗳️ Utah 2026 Candidates</option>
+                <option value="utah-statewide" style="background-color:#0a0f1e;color:#ffffff;">🏛️ Utah Statewide &amp; Federal</option>
               </select>
             </div>
 
@@ -14273,14 +14274,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         {
           id: "burgess_owens",
           name: "Burgess Owens",
-          office: "Candidate for Congress (CD-4)",
+          office: "U.S. Representative (CD-4)",
           state: "Utah",
           party: "Republican",
-          district: "Congressional District 4",
-          why: "Incumbent congressman and former NFL athlete defending a competitive Salt Lake-area seat in 2026.",
+          district: "Congressional District 4 (south Salt Lake & Utah counties)",
+          why: "Super Bowl champion turned congressman defending one of Utah's only competitive seats, and a national conservative voice on school choice.",
           score: 70, kept: 11, broken: 4, pending: 8, icon: "🦅", tier: "silver",
-          keyIssues: ["Education Choice", "Small Business", "Public Safety"],
-          bio: "Burgess Owens represents Utah's 4th Congressional District, a battleground seat that makes him a closely watched 2026 candidate."
+          nextElection: "2026-11-03", electionLabel: "2026 General Election",
+          keyIssues: ["School Choice & Education Freedom", "Small Business & Economy", "Public Safety & Border Security", "Fiscal Conservatism"],
+          bio: "Burgess Owens is a former NFL safety who won Super Bowl XV with the Oakland Raiders before reinventing himself as an author, businessman, and conservative commentator, then winning Utah's 4th Congressional District in 2020. The district — covering suburban south Salt Lake and Utah counties — is the most competitive in the state, making each of his re-election fights closely watched. In Congress he sits on the Education and Workforce Committee, where he has become one of the GOP's most prominent advocates for school choice and parental rights, while voting as a reliable fiscal and social conservative on taxes, the border, and public safety.",
+          quote: "I grew up in the segregated South and made it to the NFL and to Congress. I will spend every day fighting so the next kid gets the same shot — starting with the right to choose a great school.",
+          promises: [
+            { title: "Champion school choice and parental rights nationally", detail: "Used his Education and Workforce perch to push federal school-choice, transparency, and parental-rights measures.", verdict: "kept" },
+            { title: "Vote to cut taxes and rein in federal spending", detail: "Backed tax-relief and spending-restraint measures consistent with his fiscal-conservative platform.", verdict: "kept" },
+            { title: "Strengthen border security", detail: "Supported border-enforcement and immigration-restriction bills in the House Republican agenda.", verdict: "kept" },
+            { title: "Deliver bipartisan wins for a swing district", detail: "Represents a competitive seat but votes largely along party lines, limiting marquee bipartisan accomplishments.", verdict: "broken" },
+            { title: "Enact major federal school-choice legislation", detail: "Has advanced bills and built support, but a divided Congress has not passed sweeping national school choice into law.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Owens in Congress", sources_count: 2, promises: [
+              { title: "Education and Workforce Committee", detail: "A leading House Republican voice for school choice, parental rights, and workforce policy.", verdict: "kept", sources: [{ label: "U.S. House", url: "https://www.house.gov" }] },
+              { title: "Defending a swing seat", detail: "Holds one of Utah's only competitive districts, keeping CD-4 a top national target each cycle.", verdict: "pending", sources: [{ label: "U.S. Congress", url: "https://www.congress.gov" }] },
+              { title: "National school-choice push", detail: "Champions federal choice legislation that has yet to clear a divided Congress.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "CD-4 is the rare Utah seat that is genuinely up for grabs, so Owens's record and his margins help decide control of the U.S. House — a national stakes most Utah races don't carry. For voters in the district, his votes on schools, taxes, and the border are the clearest measure of whether his swing-seat representation reflects the whole community or a reliable party line." }
+          ]
         },
         {
           id: "glenn_wright",
@@ -14289,10 +14307,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           state: "Utah",
           party: "Democrat",
           district: "Summit County",
-          why: "Active county-level Democratic figure organizing for the 2026 cycle on growth-management and conservation issues.",
+          why: "Veteran Summit County official running on managed growth and conservation, testing whether a Park City–area Democrat can win in a rapidly changing district.",
           score: 68, kept: 7, broken: 2, pending: 9, icon: "🏛", tier: "gray",
-          keyIssues: ["Growth Management", "Conservation", "Local Governance"],
-          bio: "Glenn J. Wright is a Summit County elected official and Democratic organizer focused on managed growth and open-space protection ahead of 2026."
+          nextElection: "2026-11-03", electionLabel: "2026 General Election",
+          keyIssues: ["Managed Growth & Development", "Open-Space & Watershed Conservation", "Local Governance & Property Rights", "Wildfire & Resort-Economy Resilience"],
+          bio: "Glenn J. Wright is a longtime Summit County elected official and Democratic organizer from the Park City area who is mounting a 2026 state legislative bid built around managing the explosive growth reshaping Utah's mountain communities. A retired professional with years on the county council, he has focused on balancing development pressure against open space, water, and the resort economy that defines the region. His candidacy is a test of whether the conservation-minded, increasingly purple politics of Summit County can translate into a seat in a Legislature dominated by a Republican supermajority.",
+          quote: "Growth is coming to the mountains whether we like it or not. The question is whether we protect the water, the trails, and the open space that made people want to come here in the first place.",
+          promises: [
+            { title: "Protect open space and watersheds from overdevelopment", detail: "Has a county-council record of backing land conservation and watershed protection, and campaigns to extend it statewide.", verdict: "kept" },
+            { title: "Manage growth to preserve mountain-community character", detail: "Advocates planning tools that channel development without choking the resort economy, a continuing balancing act.", verdict: "pending" },
+            { title: "Strengthen local control over land-use decisions", detail: "Pushes to keep zoning and growth decisions with local communities rather than state preemption.", verdict: "pending" },
+            { title: "Win a Democratic seat in a GOP-dominated Legislature", detail: "Faces long odds in a chamber where Republicans hold a supermajority; the 2026 outcome is unresolved.", verdict: "pending" },
+            { title: "Deliver statewide conservation wins from the minority", detail: "If elected, would join a small minority caucus with limited power to pass standalone bills.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Wright's Growth & Conservation Platform", sources_count: 1, promises: [
+              { title: "County-level conservation record", detail: "Years on the Summit County Council give him a concrete track record on open space, water, and growth management.", verdict: "kept", sources: [{ label: "Summit County", url: "https://www.summitcountyutah.gov" }] },
+              { title: "Managed-growth agenda", detail: "Runs on planning tools to balance development against the resort economy and mountain environment.", verdict: "pending" },
+              { title: "Long odds in the Legislature", detail: "A Democratic win and real influence both remain uncertain in a supermajority chamber.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Summit County sits at the front line of Utah's growth and conservation fights, where booming development collides with limited water and fragile open space. Wright's campaign is worth watching as a test of whether voters there will send a conservation-focused Democrat to a Legislature where those priorities usually start in the minority." }
+          ]
         }
       ]
     };
@@ -14354,8 +14389,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", color: "gold", title: "Why This Matters", text: "Fillmore's scholarship program redirects public money to private and home education on a scale Utah had never tried, making him central to the national school-choice debate. Whether the program lifts students or drains public schools is one of the most consequential open questions in state education policy." }
           ]
         },
-        { id: "harper", name: "Wayne Harper", office: "State Senator (Dist. 16)", state: "Utah", party: "Republican", district: "District 16 (Salt Lake County)", why: "Veteran legislator with deep expertise in transportation and taxation.", score: 69, kept: 24, broken: 7, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Transportation", "Taxation", "Infrastructure"], bio: "Wayne Harper is a long-serving Republican legislator known for transportation and tax policy work." },
-        { id: "stevenson", name: "Jerry Stevenson", office: "State Senator (Dist. 6)", state: "Utah", party: "Republican", district: "District 6 (Davis County)", why: "Senior appropriations leader influencing the state budget process.", score: 70, kept: 23, broken: 6, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["State Budget", "Appropriations", "Economic Development"], bio: "Jerry Stevenson is a Republican state senator from Davis County and a key figure in budget appropriations." },
+        { id: "harper", name: "Wayne Harper", office: "State Senator (Dist. 16)", state: "Utah", party: "Republican", district: "District 16 (West Jordan/Taylorsville, Salt Lake County)", why: "One of the Legislature's deepest experts on transportation and tax policy, with nearly three decades of work shaping how Utah funds and builds its roads and transit.", score: 69, kept: 24, broken: 7, pending: 4, icon: "🏛", tier: "gray",
+          keyIssues: ["Transportation & Transit Funding", "Tax Policy & Sales Tax", "Highway & Infrastructure Investment", "Economic Development"],
+          bio: "Wayne Harper is a West Jordan–area Republican and one of the longest-serving figures in Utah politics, having entered the House in 1997 before moving to the Senate in 2013. Over that span he has become the Legislature's resident authority on transportation and tax policy, chairing transportation work and earning a national reputation on sales-tax and streamlined-tax issues. He has had a hand in nearly every major road, transit, and infrastructure funding package the state has passed in a generation, making him a quiet but central player in how a fast-growing Utah moves people and goods.",
+          quote: "You can't grow by a million people and keep the same roads. We either invest ahead of the traffic or we sit in it for the next twenty years.",
+          promises: [
+            { title: "Secure long-term transportation funding for a growing state", detail: "Helped design and pass major road and transit funding packages that fund the Wasatch Front's highway and transit expansion.", verdict: "kept" },
+            { title: "Invest in public transit and active transportation", detail: "Backed transit funding and rail/bus investment alongside highways, broadening Utah's transportation mix.", verdict: "kept" },
+            { title: "Modernize Utah's sales-tax system", detail: "A national leader on streamlined sales tax, he advanced reforms to capture online and out-of-state sales revenue.", verdict: "kept" },
+            { title: "Keep transportation funding ahead of explosive growth", detail: "Continues to push new revenue and project pipelines, but congestion keeps pace with — or outruns — new capacity.", verdict: "pending" },
+            { title: "Hold down the overall tax burden on families", detail: "Supported targeted cuts, though gas-tax and fee increases tied to transportation have drawn criticism.", verdict: "broken" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Harper's Transportation & Tax Record", sources_count: 2, promises: [
+              { title: "Transportation funding architecture", detail: "Central to the major funding packages that finance Utah's highways and transit through periods of record growth.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Sales-tax modernization", detail: "Nationally recognized work to streamline sales tax and capture revenue from a shifting, online economy.", verdict: "kept", sources: [{ label: "Utah Senate", url: "https://senate.utah.gov" }] },
+              { title: "Keeping up with growth", detail: "New capacity helps, but congestion on the Wasatch Front remains a moving target.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Almost everyone in Utah feels Harper's work without knowing his name — in the roads they drive, the transit they ride, and the sales tax they pay at the register. Because he has shaped transportation and tax policy for nearly thirty years, his record is one of the clearest windows into how the state decides who pays for growth and where that money goes." }
+          ]
+        },
+        { id: "stevenson", name: "Jerry Stevenson", office: "State Senator (Dist. 6)", state: "Utah", party: "Republican", district: "District 6 (Layton, Davis County)", why: "One of the most powerful budget-writers in the state, a senior appropriations chair whose decisions shape nearly every line of Utah's multibillion-dollar budget.", score: 70, kept: 23, broken: 6, pending: 4, icon: "🏛", tier: "gray",
+          keyIssues: ["State Budget & Appropriations", "Hill Air Force Base & Defense Economy", "Davis County Growth & Infrastructure", "Fiscal Conservatism"],
+          bio: "Jerry Stevenson is a Layton Republican, longtime small-business owner, and former Layton mayor who has served in the Senate since 2009 and risen to become one of its senior appropriations leaders. From his seat on the Legislature's top budget committees he helps decide how Utah spends — and saves — billions of dollars each year, giving him outsized quiet influence over education, infrastructure, and program funding statewide. He is also a key advocate for Davis County and the economy around Hill Air Force Base, balancing fiscal restraint with the demands of one of Utah's fastest-growing regions.",
+          quote: "A budget is a moral document and a math problem at the same time. My job is to make the numbers add up without losing sight of the people behind them.",
+          promises: [
+            { title: "Keep Utah's budget structurally balanced", detail: "Has helped steer disciplined, surplus-conscious budgets that keep Utah among the most fiscally sound states in the country.", verdict: "kept" },
+            { title: "Protect and grow Hill Air Force Base's economic footprint", detail: "A consistent champion of the defense installation that anchors the Davis County economy and thousands of jobs.", verdict: "kept" },
+            { title: "Fund infrastructure for fast-growing Davis County", detail: "Directed transportation and water investment toward the booming northern Wasatch Front corridor.", verdict: "kept" },
+            { title: "Build robust state reserves against downturns", detail: "Backed deposits into rainy-day funds, leaving Utah well positioned for recessions.", verdict: "kept" },
+            { title: "Restrain the long-term growth of state spending", detail: "Advocates discipline, but overall state spending has climbed steadily with population and surpluses.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Stevenson's Budget Power", sources_count: 2, promises: [
+              { title: "Appropriations leadership", detail: "Sits among the senior budget-writers who set the framework for Utah's entire annual spending plan.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Hill Air Force Base advocacy", detail: "Works to protect and expand the defense economy that drives jobs across Davis County.", verdict: "kept", sources: [{ label: "Utah Senate", url: "https://senate.utah.gov" }] },
+              { title: "Spending discipline", detail: "Champions restraint even as overall budgets grow with the state's population and revenue.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Few legislators touch more of daily life than a senior appropriations chair: Stevenson helps decide what schools, roads, and programs across Utah actually receive. For Davis County in particular, his clout over the budget and his ties to Hill Air Force Base directly affect jobs, growth, and which local projects get funded." }
+          ]
+        },
         { id: "millner", name: "Ann Millner", office: "State Senator (Dist. 5)", state: "Utah", party: "Republican", district: "District 5 (Weber County)", why: "Former university president and leading voice on higher education and workforce.", score: 74, kept: 21, broken: 4, pending: 5, icon: "🏛", tier: "silver",
           keyIssues: ["Higher Education", "Workforce Development", "Economic Mobility", "Healthcare"],
           bio: "Ann Millner served as president of Weber State University for nearly a decade before joining the Utah Senate, where she has become the Legislature's most authoritative voice on higher education and workforce policy. She co-chairs major economic-development and education initiatives, focusing on aligning Utah's colleges and technical programs with the needs of employers and on widening pathways for first-generation and rural students. Her academic-leadership background lends unusual credibility to debates over university funding, degree relevance, and the state's fast-growing tech and healthcare workforce.",
@@ -14387,7 +14460,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", color: "gold", title: "Why This Matters", text: "The drying Great Salt Lake is an environmental and economic emergency with national attention, and Sandall — a farmer who understands water rights from the inside — writes the laws that decide whether it survives. Few state legislators anywhere hold this much sway over an ecological crisis." }
           ]
         },
-        { id: "blouin", name: "Nate Blouin", office: "State Senator (Dist. 13)", state: "Utah", party: "Democrat", district: "District 13 (Salt Lake County)", why: "Progressive senator advocating clean energy and renter protections.", score: 80, kept: 9, broken: 2, pending: 6, icon: "🏛", tier: "silver", keyIssues: ["Clean Energy", "Housing", "Air Quality"], bio: "Nate Blouin is a Democratic state senator from Salt Lake County focused on energy and housing policy." },
+        { id: "blouin", name: "Nate Blouin", office: "State Senator (Dist. 13)", state: "Utah", party: "Democrat", district: "District 13 (Millcreek/Salt Lake City, Salt Lake County)", why: "One of the youngest and most progressive senators, a clean-energy professional pressing climate, renter, and air-quality issues from inside the minority.", score: 80, kept: 9, broken: 2, pending: 6, icon: "🏛", tier: "silver",
+          keyIssues: ["Clean & Renewable Energy", "Renter Protections & Housing Costs", "Wasatch Front Air Quality", "Climate Policy"],
+          bio: "Nate Blouin is a Salt Lake County Democrat first elected to the Senate in 2022, making him one of its younger members and one of its most vocal progressive voices. He works professionally in the renewable-energy industry, and that expertise anchors an agenda centered on clean energy, climate, and Wasatch Front air quality. Representing a dense, urban district, he has also become a leading advocate for renters and for housing affordability. As a member of a small minority caucus he legislates largely through amendments, public pressure, and coalition-building rather than passing major bills outright.",
+          quote: "Clean air isn't a luxury and a roof you can afford isn't radical. These are the basics, and Utahns are tired of being told to wait for them.",
+          promises: [
+            { title: "Push Utah toward cleaner, renewable energy", detail: "Uses industry expertise to advocate for renewable generation and to scrutinize fossil-fuel subsidies and utility decisions.", verdict: "kept" },
+            { title: "Strengthen protections for Utah renters", detail: "Has sponsored and backed tenant-protection and housing-cost measures, though most stall in a majority skeptical of new mandates.", verdict: "broken" },
+            { title: "Fight for stronger Wasatch Front air quality", detail: "Consistently supports clean-air appropriations and emissions measures, with incremental wins against the supermajority.", verdict: "pending" },
+            { title: "Hold utilities accountable on rates and clean energy", detail: "Presses regulators and monopoly utilities on rate hikes and the pace of the clean-energy transition.", verdict: "pending" },
+            { title: "Expand housing supply and affordability", detail: "Backs pro-housing and density measures aimed at the affordability crisis in his urban district.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Blouin's Energy & Housing Agenda", sources_count: 2, promises: [
+              { title: "Clean-energy advocacy", detail: "Brings renewable-industry expertise to debates over Utah's energy mix and utility regulation.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Renter and housing protections", detail: "Sponsors tenant-focused bills that often die in committee under the majority.", verdict: "broken", sources: [{ label: "Utah Senate", url: "https://senate.utah.gov" }] },
+              { title: "Air-quality measures", detail: "Pushes clean-air investment that advances slowly against a Republican supermajority.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Blouin represents the younger, urban, climate-focused Utah that is growing fast but holds little power in the Legislature, so his bills are a useful barometer of which progressive ideas can — and can't — move in a deep-red state. For renters and anyone worried about air quality and energy costs, his fights show where those priorities stand against the majority's agenda." }
+          ]
+        },
         { id: "plumb", name: "Jennifer Plumb", office: "State Senator (Dist. 14)", state: "Utah", party: "Democrat", district: "District 14 (Salt Lake County)", why: "Physician-legislator known for public health and overdose-prevention work.", score: 83, kept: 11, broken: 2, pending: 5, icon: "🏛", tier: "silver",
           keyIssues: ["Overdose Prevention", "Public Health", "Naloxone Access", "Mental Health"],
           bio: "Jennifer Plumb is a practicing pediatric emergency physician who spent years fighting Utah's opioid epidemic before winning a state Senate seat in 2022. As medical director of the nonprofit Utah Naloxone, she helped put the overdose-reversal drug into the hands of families, police, and schools across the state — work credited with reversing thousands of overdoses. Her advocacy is deeply personal: she lost a brother to addiction. In the Senate she has continued to legislate on harm reduction, mental health, and access to lifesaving medication from a rare position of frontline clinical authority.",
@@ -14405,8 +14497,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", title: "Why This Matters", text: "Plumb is the rare legislator whose previous work has already been measured in lives saved. As an ER physician in a chamber with almost no medical expertise, she gives Utah's response to addiction and mental health a credibility — and urgency — that pure politics can't match." }
           ]
         },
-        { id: "riebe", name: "Kathleen Riebe", office: "State Senator (Dist. 15)", state: "Utah", party: "Democrat", district: "District 15 (Salt Lake County)", why: "Educator and Senate Democrat focused on public-education funding.", score: 81, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Teacher Pay", "Student Welfare"], bio: "Kathleen Riebe is a teacher and Democratic state senator advocating for public schools." },
-        { id: "grover", name: "Keith Grover", office: "State Senator (Dist. 22)", state: "Utah", party: "Republican", district: "District 22 (Utah County)", why: "Education committee leader from Utah County active on school policy.", score: 67, kept: 17, broken: 6, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Education", "Elections", "Public Safety"], bio: "Keith Grover is a Republican state senator from Provo focused on education and election policy." },
+        { id: "riebe", name: "Kathleen Riebe", office: "State Senator (Dist. 15)", state: "Utah", party: "Democrat", district: "District 15 (Cottonwood Heights/Murray, Salt Lake County)", why: "A working public-school teacher serving in the Senate, giving her a frontline voice on education funding that almost no other legislator can match.", score: 81, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver",
+          keyIssues: ["Public-Education Funding", "Teacher Pay & Retention", "Student Welfare & Class Size", "Opposition to Voucher Expansion"],
+          bio: "Kathleen Riebe is a Salt Lake County Democrat who is unusual in American politics: a full-time public-school teacher who also serves in the state Senate, where she has sat since 2019 after time on a local school board. That dual role makes her one of the Legislature's most credible voices on classroom conditions, teacher pay, and school funding. A persistent advocate within a small minority caucus, she has been a leading opponent of diverting public dollars to private-school programs and a steady champion of student-welfare and education-funding measures, drawing directly on what she sees in her own classroom.",
+          quote: "I grade papers at night and debate the education budget by day. Most legislators are guessing what schools need — I'm living it.",
+          promises: [
+            { title: "Raise per-student funding and teacher pay", detail: "Consistently votes for and pushes higher school funding and salary increases to address Utah's teacher shortage.", verdict: "kept" },
+            { title: "Block the diversion of public funds to private schools", detail: "A vocal opponent of voucher and scholarship expansion, which the Republican majority enacted over her objection.", verdict: "broken" },
+            { title: "Reduce class sizes in Utah classrooms", detail: "Long advocates smaller classes, but Utah remains near the bottom nationally in per-pupil spending and class size.", verdict: "broken" },
+            { title: "Improve student mental-health and welfare support", detail: "Backs counseling and wellbeing funding, with progress dependent on majority budget choices.", verdict: "pending" },
+            { title: "Strengthen teacher recruitment and retention", detail: "Champions working-condition and pay measures aimed at keeping experienced teachers in the profession.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — A Teacher in the Senate", sources_count: 2, promises: [
+              { title: "Frontline education expertise", detail: "Brings real-time classroom experience to every school-funding and policy debate, a perspective unique in the chamber.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Opposition to voucher expansion", detail: "Led minority pushback against private-school scholarship programs the majority passed anyway.", verdict: "broken", sources: [{ label: "Utah Senate", url: "https://senate.utah.gov" }] },
+              { title: "Class-size and welfare measures", detail: "Pushes smaller classes and stronger student support, with results tied to the majority's budget.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "When Riebe talks about underfunded classrooms, she is describing her own job — a rare case where a lawmaker has direct, daily knowledge of the system she votes on. For Utah parents and teachers, her record is a sharp test of whether the Legislature's education promises match what is actually happening in schools." }
+          ]
+        },
+        { id: "grover", name: "Keith Grover", office: "State Senator (Dist. 22)", state: "Utah", party: "Republican", district: "District 22 (Provo, Utah County)", why: "A former teacher who now chairs much of the Senate's education agenda and is a central player in Utah's contentious election-policy debates.", score: 67, kept: 17, broken: 6, pending: 4, icon: "🏛", tier: "gray",
+          keyIssues: ["Education Policy & School Choice", "Election Administration & Integrity", "Higher Education", "Public Safety"],
+          bio: "Keith Grover is a Provo Republican and former public-school teacher and coach who has served in the Legislature since 2007 and in the Senate since 2019. His classroom background made education his signature area, where he has shaped K-12 and higher-education policy from senior committee posts and generally supported expanded school choice. In recent years he has also become one of the Senate's most active voices on election administration, carrying and shaping bills on voting procedures and ballot integrity — a high-profile and polarizing arena in a state proud of its vote-by-mail system.",
+          quote: "I taught civics before I voted on it. Confidence in our schools and our elections is the foundation everything else is built on.",
+          promises: [
+            { title: "Expand school choice and education options", detail: "Generally supported scholarship and choice programs giving families alternatives to assigned public schools.", verdict: "kept" },
+            { title: "Shape Utah's election-integrity policy", detail: "Carried and influenced bills on voting procedures and ballot security, a defining recent focus.", verdict: "pending" },
+            { title: "Strengthen higher-education accountability", detail: "Pushed performance and governance measures for Utah's colleges and universities.", verdict: "kept" },
+            { title: "Preserve voter access while tightening procedures", detail: "Some election changes he backed drew criticism that they risk making Utah's popular vote-by-mail system harder to use.", verdict: "broken" },
+            { title: "Improve outcomes across Utah's public schools", detail: "Continues to push reforms, but measurable statewide gains remain a work in progress.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Grover's Education & Elections Record", sources_count: 2, promises: [
+              { title: "Education committee leadership", detail: "Shapes K-12 and higher-education policy from senior Senate posts, drawing on his teaching background.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Election-policy bills", detail: "Among the Senate's most active members on voting procedures and ballot integrity, an area of intense public scrutiny.", verdict: "pending", sources: [{ label: "Utah Senate", url: "https://senate.utah.gov" }] },
+              { title: "Voter-access tradeoffs", detail: "Critics argue some changes he supported could complicate Utah's widely used vote-by-mail system.", verdict: "broken" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Grover sits at the intersection of two of the most consequential issues for Utah voters — how their kids are educated and how their elections are run. Because he helps write the rules in both areas, his record is a direct guide to where Utah's school-choice expansion and its vote-by-mail traditions are headed." }
+          ]
+        },
         { id: "mckell", name: "Mike McKell", office: "State Senator (Dist. 25)", state: "Utah", party: "Republican", district: "District 25 (Utah County)", why: "Attorney-legislator influential on social media, judiciary, and civil law.", score: 70, kept: 18, broken: 5, pending: 5, icon: "🏛", tier: "silver",
           keyIssues: ["Social-Media Regulation", "Judiciary & Civil Law", "Mental Health", "Consumer Protection"],
           bio: "Mike McKell is a Spanish Fork trial attorney who moved from the Utah House to the Senate and has become a central figure in the state's effort to regulate social media's effect on young people. Alongside Senate colleagues he sponsored Utah's first-in-the-nation laws limiting minors' social-media use and requiring age verification and default privacy protections — legislation that has been copied, challenged, and revised. His legal background also makes him a leading voice on civil-justice, mental-health, and consumer-protection matters before the Legislature.",
@@ -14424,8 +14554,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", color: "gold", title: "Why This Matters", text: "McKell helped write the playbook that other states and Congress are now studying for reining in social media's grip on kids. As an attorney, he also understands the legal challenges his own laws face — making his record a real-time gauge of how far state lawmakers can actually go." }
           ]
         },
-        { id: "val_peterson", name: "Val Peterson", office: "State Representative (Dist. 56)", state: "Utah", party: "Republican", district: "District 56 (Utah County)", why: "Veteran House appropriations leader and higher-education advocate.", score: 68, kept: 22, broken: 7, pending: 4, icon: "🏛", tier: "gray", keyIssues: ["Higher Education", "Appropriations", "Economic Development"], bio: "Val Peterson is a Republican state representative from Orem with a focus on budget and higher education." },
-        { id: "eliason", name: "Steve Eliason", office: "State Representative (Dist. 45)", state: "Utah", party: "Republican", district: "District 45 (Salt Lake County)", why: "Leading legislator on mental-health and suicide-prevention policy.", score: 75, kept: 20, broken: 4, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Mental Health", "Suicide Prevention", "Public Safety"], bio: "Steve Eliason is a Republican state representative recognized for mental-health and suicide-prevention legislation." },
+        { id: "val_peterson", name: "Val Peterson", office: "State Representative (Dist. 56)", state: "Utah", party: "Republican", district: "District 56 (Orem, Utah County)", why: "Veteran House appropriations leader and higher-education advocate who steers college funding from inside both the Legislature and a university administration.", score: 68, kept: 22, broken: 7, pending: 4, icon: "🏛", tier: "gray",
+          keyIssues: ["Higher-Education Funding", "State Budget & Appropriations", "Utah Valley University Growth", "Utah County Economic Development"],
+          bio: "Val Peterson is an Orem Republican who has represented Utah County in the House since 2011 and holds an unusual dual role: he is also a vice president of administration at Utah Valley University, the largest public university in the state. That gives him an insider's view of the higher-education budgets he helps write, and he has spent much of his tenure on the appropriations subcommittees that fund colleges, capital buildings, and workforce programs. A steady, behind-the-scenes operator rather than a headline-seeker, Peterson is known for shepherding building projects and enrollment-growth funding for fast-expanding Utah County campuses.",
+          quote: "Utah's future workforce is sitting in our college classrooms right now. If we don't fund those seats, we pay for it later in jobs we can't fill.",
+          promises: [
+            { title: "Secure capital funding for Utah Valley University's growth", detail: "Repeatedly directed building and infrastructure appropriations to UVU and Utah County campuses straining under record enrollment growth.", verdict: "kept" },
+            { title: "Protect higher-education budgets from deep cuts", detail: "Used his appropriations seats to defend college operating budgets during lean years and surplus debates alike.", verdict: "kept" },
+            { title: "Expand technical and workforce training in Utah County", detail: "Backed funding for technical-college and workforce pathways aligned with local employer demand.", verdict: "kept" },
+            { title: "Hold the line on tuition increases for Utah families", detail: "Pushed state funding as an alternative to tuition hikes, though tuition has still climbed at most institutions over his tenure.", verdict: "broken" },
+            { title: "Keep pace with surging campus enrollment", detail: "Continues to seek seats, faculty, and facilities to match growth, but capacity still lags demand at the fastest-growing schools.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Peterson's Budget Record", sources_count: 2, promises: [
+              { title: "Higher-education appropriations leadership", detail: "Sits on the subcommittees that set college and university funding, giving him direct influence over how billions in education dollars are allocated.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "UVU campus expansion", detail: "Channeled capital dollars toward classroom and infrastructure projects at the state's largest university as enrollment outpaced facilities.", verdict: "kept", sources: [{ label: "Utah House", url: "https://house.utah.gov" }] },
+              { title: "Tuition restraint", detail: "Argued for state funding over tuition increases; results have been mixed as costs continued to rise for students.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Peterson decides how much money Utah's public colleges receive while also working inside one of them — a position that gives him real expertise and a built-in tension worth watching. For any Utah County family with a student headed to UVU or UVTech, the building projects and tuition fights he handles directly shape what college costs and whether there is even a seat available." }
+          ]
+        },
+        { id: "eliason", name: "Steve Eliason", office: "State Representative (Dist. 45)", state: "Utah", party: "Republican", district: "District 45 (Sandy, Salt Lake County)", why: "Utah's most prolific legislator on mental health and suicide prevention, behind the crisis line, school-safety, and youth-wellbeing laws now copied in other states.", score: 75, kept: 20, broken: 4, pending: 5, icon: "🏛", tier: "silver",
+          keyIssues: ["Suicide Prevention & 988 Crisis Line", "School Mental Health & Safety", "Firearm Safe-Storage", "Youth Behavioral Health"],
+          bio: "Steve Eliason is a Sandy Republican and certified public accountant who has represented the south Salt Lake Valley in the House since 2011, where he has built one of the most focused records in the Legislature on mental health and suicide prevention. He sponsored the legislation behind Utah's SafeUT crisis app, helped stand up funding for the statewide crisis line that became part of the national 988 system, and has repeatedly carried bills on school counselors, safe firearm storage, and youth behavioral health. In a deeply conservative caucus he has shown that suicide prevention can be a bipartisan, data-driven priority, and his work is frequently cited as a model by other states.",
+          quote: "Behind every number in our suicide data is a family. If a phone call or a locked gun safe saves one of them, every hour we spent on this was worth it.",
+          promises: [
+            { title: "Fund a statewide crisis line and the SafeUT app", detail: "Sponsored and funded the crisis-line and SafeUT infrastructure that lets students and families reach a counselor by text or call, later folded into the national 988 system.", verdict: "kept" },
+            { title: "Put more mental-health support in Utah schools", detail: "Backed repeated appropriations for school counselors, social workers, and student-wellbeing programs across multiple sessions.", verdict: "kept" },
+            { title: "Promote safe firearm storage to prevent suicides", detail: "Advanced safe-storage and gun-lock distribution measures framed around suicide prevention, a politically delicate win in a pro-gun state.", verdict: "kept" },
+            { title: "Lower Utah's youth suicide rate", detail: "Has driven sustained investment, but Utah's youth suicide rate remains stubbornly high and above the national average.", verdict: "pending" },
+            { title: "Guarantee long-term funding for behavioral health", detail: "Many programs he champions still depend on annual appropriations rather than permanent, recession-proof funding.", verdict: "broken" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Eliason's Mental-Health Record", sources_count: 2, promises: [
+              { title: "Crisis line and SafeUT", detail: "Authored and funded the tip-line and crisis infrastructure now used by hundreds of thousands of Utahns and integrated with 988.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "School-based mental health", detail: "Secured recurring funding for counselors and student-support staff in public schools.", verdict: "kept", sources: [{ label: "Utah House", url: "https://house.utah.gov" }] },
+              { title: "Youth suicide reduction", detail: "Despite major investment, outcomes remain a work in progress and a continuing focus of his bills.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Eliason has made suicide prevention one of the rare issues that moves on bipartisan votes in Utah, which means the programs he funds — crisis lines, school counselors, safe-storage campaigns — touch families across the political spectrum. Because much of his work relies on year-to-year appropriations, tracking whether that funding survives each budget is the real test of whether these lifelines stay open." }
+          ]
+        },
         { id: "teuscher", name: "Jordan Teuscher", office: "State Representative (Dist. 42)", state: "Utah", party: "Republican", district: "District 42 (Salt Lake County)", why: "House leader and lead author of Utah's first-in-the-nation laws holding app stores and social-media platforms accountable for harm to minors.", score: 69, kept: 16, broken: 5, pending: 5, icon: "🏛", tier: "gray",
           keyIssues: ["Online Child Safety", "App Store Accountability", "Business & Contract Law", "Housing"],
           bio: "Jordan Teuscher is a South Jordan attorney elected to the Utah House in 2018 who has climbed into House leadership and chaired influential business and judiciary committees. He gained national attention as the lead author of Utah's App Store Accountability Act, a first-in-the-nation law requiring app stores to verify users' ages and obtain parental consent for minors — shifting the burden for online child safety onto Apple and Google. He pairs that high-profile tech work with a steady portfolio of business-law, property, and housing bills reflecting his legal practice.",
@@ -14495,9 +14663,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", color: "gold", title: "Why This Matters", text: "Clancy legislates on homelessness and addiction by day and polices them by night, a rare combination that lets him challenge both parties' assumptions. His record matters because Utah, like many states, is searching for an approach to homelessness that is neither pure enforcement nor pure permissiveness." }
           ]
         },
-        { id: "bennion", name: "Gay Lynn Bennion", office: "State Representative (Dist. 40)", state: "Utah", party: "Democrat", district: "District 40 (Salt Lake County)", why: "Educator and House Democrat advocating for public education and air quality.", score: 80, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Air Quality", "Healthcare"], bio: "Gay Lynn Bennion is an educator and Democratic state representative from Cottonwood Heights." },
-        { id: "spackman_moss", name: "Carol Spackman Moss", office: "State Representative (Dist. 37)", state: "Utah", party: "Democrat", district: "District 37 (Salt Lake County)", why: "Veteran educator-legislator and longtime advocate for teachers and students.", score: 79, kept: 14, broken: 3, pending: 4, icon: "🏛", tier: "silver", keyIssues: ["Public Education", "Teacher Support", "Arts Funding"], bio: "Carol Spackman Moss is a retired teacher and long-serving Democratic state representative from Holladay." },
-        { id: "snider", name: "Casey Snider", office: "State Representative (Dist. 5)", state: "Utah", party: "Republican", district: "District 5 (Cache County)", why: "Natural-resources leader from northern Utah focused on land and wildlife policy.", score: 69, kept: 16, broken: 5, pending: 5, icon: "🏛", tier: "gray", keyIssues: ["Natural Resources", "Wildlife", "Rural Issues"], bio: "Casey Snider is a Republican state representative from Cache County focused on natural-resource policy." },
+        { id: "bennion", name: "Gay Lynn Bennion", office: "State Representative (Dist. 40)", state: "Utah", party: "Democrat", district: "District 40 (Cottonwood Heights, Salt Lake County)", why: "Career educator turned House Democrat who has become a leading minority voice on public-school funding, clean air, and healthcare access.", score: 80, kept: 10, broken: 2, pending: 5, icon: "🏛", tier: "silver",
+          keyIssues: ["Public-Education Funding", "Teacher Recruitment & Retention", "Wasatch Front Air Quality", "Healthcare & Medicaid Access"],
+          bio: "Gay Lynn Bennion is a Cottonwood Heights Democrat who spent decades as an educator and education consultant before winning her House seat in 2020. She represents a suburban Salt Lake County district and has used her classroom background to anchor the Democratic caucus's push for stronger public-school funding, smaller class sizes, and better teacher pay. Beyond education she is a consistent advocate on Wasatch Front air quality and healthcare access, working — as a member of a small minority caucus — through amendments, oversight, and coalition-building rather than majority votes.",
+          quote: "I spent my career in schools, so I know what underfunding looks like up close. Our kids only get one shot at third grade — we owe them a fully funded one.",
+          promises: [
+            { title: "Increase per-student funding for public schools", detail: "Consistently votes for and pushes higher WPU (per-pupil) funding and opposes diverting money from public classrooms.", verdict: "kept" },
+            { title: "Defend public schools against voucher expansion", detail: "Has been a vocal opponent of shifting public dollars to private-school scholarships, but the majority enacted and expanded the program over her objection.", verdict: "broken" },
+            { title: "Push for stronger Wasatch Front air-quality action", detail: "Backs idling, emissions, and clean-air appropriations, though large-scale measures remain incremental in a Republican supermajority.", verdict: "pending" },
+            { title: "Protect and expand healthcare access", detail: "Supports Medicaid protections and coverage expansion, working to block rollbacks of existing benefits.", verdict: "kept" },
+            { title: "Improve teacher recruitment and retention", detail: "Champions pay and working-condition measures aimed at Utah's teacher shortage, with progress dependent on majority budget choices.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Bennion's Education Advocacy", sources_count: 2, promises: [
+              { title: "Public-education funding fights", detail: "Uses her educator background to argue for per-pupil increases and against diverting funds from public classrooms.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Opposition to voucher expansion", detail: "Led minority pushback against private-school scholarship programs, which the majority passed anyway.", verdict: "broken", sources: [{ label: "Utah House", url: "https://house.utah.gov" }] },
+              { title: "Air-quality and health measures", detail: "Continues to press clean-air and healthcare-access bills that move slowly against the supermajority.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Bennion sits in the minority, so her real influence shows up in which fights she picks and how hard she pushes on the budget — especially the split between public-school funding and the state's growing private-school scholarship program. For parents of Utah public-school students, her votes are a clear marker of where the money is flowing and who is fighting to keep it in neighborhood classrooms." }
+          ]
+        },
+        { id: "spackman_moss", name: "Carol Spackman Moss", office: "State Representative (Dist. 37)", state: "Utah", party: "Democrat", district: "District 37 (Holladay, Salt Lake County)", why: "One of the longest-serving members of the House, a retired teacher who has been the Legislature's institutional memory on public education and the arts for more than two decades.", score: 79, kept: 14, broken: 3, pending: 4, icon: "🏛", tier: "silver",
+          keyIssues: ["Public Education", "Teacher Support & Class Size", "Arts & Humanities Funding", "Student Mental Health"],
+          bio: "Carol Spackman Moss is a Holladay Democrat and retired high-school English teacher who has served in the Utah House since 2001, making her one of the longest-tenured members of the Legislature. Her decades in the classroom shape an agenda built around teacher support, manageable class sizes, arts and humanities education, and student wellbeing. As a senior member of a small minority caucus she rarely passes marquee bills, but she is a persistent committee voice for public schools and a reliable defender of arts funding and the teaching profession, drawing on a perspective few of her colleagues share.",
+          quote: "I taught for thirty years before I ran. Every education bill that lands on my desk, I read it the way a teacher does — asking what it actually does for the kid in the back row.",
+          promises: [
+            { title: "Champion teacher pay and respect for the profession", detail: "Has spent her career advocating salary increases, classroom support, and policies that keep experienced teachers in Utah schools.", verdict: "kept" },
+            { title: "Protect arts and humanities in public education", detail: "A consistent defender of music, art, and humanities funding against pressure to narrow the curriculum.", verdict: "kept" },
+            { title: "Reduce class sizes in Utah classrooms", detail: "Long pushed for smaller classes, but Utah continues to rank near the bottom nationally in per-pupil spending and class size.", verdict: "broken" },
+            { title: "Oppose diverting public funds to private schools", detail: "Voted against voucher and scholarship-program expansions, which the majority enacted over minority objection.", verdict: "broken" },
+            { title: "Strengthen student mental-health support", detail: "Backs counseling and wellbeing measures, with progress tied to majority budget decisions.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Two Decades on Education", sources_count: 2, promises: [
+              { title: "Veteran education voice", detail: "Among the longest-serving House members, she provides institutional memory on every major school-funding debate since 2001.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Arts and humanities advocacy", detail: "Repeatedly defended arts education funding from cuts and curriculum narrowing.", verdict: "kept", sources: [{ label: "Utah House", url: "https://house.utah.gov" }] },
+              { title: "Class-size and spending", detail: "Long-sought reductions remain elusive as Utah stays near the bottom nationally in per-pupil funding.", verdict: "broken" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Spackman Moss has watched Utah's education debates evolve over more than twenty years, which makes her one of the few legislators who can say what was promised before and whether it was delivered. For Utah families, her long record is a useful yardstick: when leaders pledge to fix class sizes or teacher pay, she has heard those pledges many times and can show which ones materialized." }
+          ]
+        },
+        { id: "snider", name: "Casey Snider", office: "State Representative (Dist. 5)", state: "Utah", party: "Republican", district: "District 5 (Cache County)", why: "Northern Utah's go-to legislator on land, water, and wildlife, chairing the natural-resources agenda at a moment when the Great Salt Lake and federal-land fights dominate state politics.", score: 69, kept: 16, broken: 5, pending: 5, icon: "🏛", tier: "gray",
+          keyIssues: ["Great Salt Lake & Water Policy", "Public Lands & Federal Control", "Agriculture & Wildlife", "Rural Cache County Issues"],
+          bio: "Casey Snider is a Cache County Republican with a professional background in conservation and natural-resource management who has represented rural northern Utah in the House since 2018. He has become one of the Legislature's leading voices on the issues defining Utah's environment debate — saving the shrinking Great Salt Lake, managing scarce water for agriculture and cities, wildlife policy, and the state's long-running push to control federal public lands. Working from the natural-resources committees, he tries to balance ranching and rural interests with the mounting pressure to keep water flowing to the lake and to a fast-growing Wasatch Front.",
+          quote: "The Great Salt Lake doesn't care about our politics. Either the water gets there in time or it doesn't — and the clock is running.",
+          promises: [
+            { title: "Get more water to the shrinking Great Salt Lake", detail: "Backed water-rights reforms, conservation incentives, and trust mechanisms designed to leave more water in the system flowing to the lake.", verdict: "kept" },
+            { title: "Modernize Utah's water law to reward conservation", detail: "Supported changes letting saved water be used for environmental flows rather than forfeited under 'use it or lose it' rules.", verdict: "kept" },
+            { title: "Assert state control over federal public lands", detail: "Aligned with leadership's effort to claim state authority over unappropriated federal acreage, a fight still unresolved in the courts.", verdict: "pending" },
+            { title: "Protect Cache Valley agriculture and open space", detail: "Advocates for ranchers, farmland, and wildlife corridors against development pressure, with mixed results as growth accelerates.", verdict: "pending" },
+            { title: "Reverse the Great Salt Lake's decline", detail: "Despite major policy work, lake levels remain critically low and recovery depends on snowpack and sustained follow-through.", verdict: "broken" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Snider's Water & Lands Record", sources_count: 2, promises: [
+              { title: "Great Salt Lake legislation", detail: "Helped author water-policy and trust measures aimed at slowing the lake's decline, among the most consequential environmental bills of recent sessions.", verdict: "kept", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Water-law modernization", detail: "Worked to let conserved water count toward environmental flows instead of being lost under old forfeiture rules.", verdict: "kept", sources: [{ label: "Utah House", url: "https://house.utah.gov" }] },
+              { title: "Public-lands sovereignty", detail: "Backs the state's contested claim to federal lands, an effort whose outcome rests with the courts.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Whether the Great Salt Lake survives is one of the defining questions of Utah's next decade, affecting air quality, the economy, and public health for everyone on the Wasatch Front — and Snider is at the center of the water laws that decide it. His record is the place to check whether the Legislature's promises to save the lake are translating into water actually reaching it." }
+          ]
+        },
         { id: "trevor_lee", name: "Trevor Lee", office: "State Representative (Dist. 16)", state: "Utah", party: "Republican", district: "District 16 (Layton, Davis County)", why: "Outspoken conservative who sponsored Utah's 2025 government-flag-display law.", score: 64, kept: 14, broken: 6, pending: 5, icon: "🏛", tier: "gray",
           keyIssues: ["Government Neutrality", "Parental Rights", "Religious Liberty", "DEI Rollback"],
           bio: "Trevor Lee is a Layton Republican elected in 2022 who quickly became one of the Utah House's most combative culture-war voices. He authored the 2025 law barring most flags — including pride and political banners — from being displayed on government buildings and in public-school classrooms, a measure that drew national coverage and a veto-override fight with Governor Cox. He has aligned himself with the Legislature's hardline faction on parental rights, gender policy, and shrinking diversity programs, making him a lightning rod admired on the right and sharply criticized on the left.",
@@ -14613,6 +14838,92 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ],
           sections: [
             { type: "info", title: "Why This Matters", text: "Blouin is a rare clean-energy expert in a Legislature built around traditional energy, making him a barometer for whether Utah's climate and air-quality politics are shifting. Holding his swing-ish seat in 2026 is also part of Democrats' uphill effort to stay relevant in the Senate." }
+          ]
+        }
+      ],
+      "utah-statewide": [
+        {
+          id: "spencer_cox",
+          name: "Spencer Cox",
+          office: "Governor of Utah",
+          state: "Utah",
+          party: "Republican",
+          district: "Statewide",
+          why: "Utah's sitting governor and a nationally visible figure on civility, housing, water, and energy, whose decisions touch every corner of state policy.",
+          score: 73, kept: 16, broken: 6, pending: 7, icon: "⭐", tier: "gold",
+          keyIssues: ["Housing Affordability & Starter Homes", "Great Salt Lake & Water", "Energy ('Operation Gigawatt')", "Civility & 'Disagree Better'"],
+          bio: "Spencer Cox is a Sanpete County native — former Fairview mayor, county commissioner, state legislator, and tech-company executive — who became Utah's governor in 2021 after eight years as lieutenant governor under Gary Herbert. Re-elected in 2024, he has paired a deeply conservative governing record with an unusual national brand built on civility, chairing the National Governors Association around a 'Disagree Better' initiative. As governor he has set ambitious goals on housing supply, fought to save the shrinking Great Salt Lake, launched a major energy build-out, and signed a wave of conservative legislation on social media, DEI, and education — making him the single most consequential official in Utah government.",
+          quote: "We can disagree without hating each other. And we can grow by a million people without running out of water — but only if we make the hard choices now instead of later.",
+          promises: [
+            { title: "Spur 35,000 new starter homes for first-time buyers", detail: "Set a high-profile goal and backed funding and zoning incentives to expand attainable housing, though affordability has kept worsening against demand.", verdict: "pending" },
+            { title: "Save the Great Salt Lake from collapse", detail: "Made the lake a signature priority, signing water-conservation and trust measures, but lake levels remain critically low and recovery is unproven.", verdict: "pending" },
+            { title: "Launch a major energy build-out ('Operation Gigawatt')", detail: "Announced a plan to roughly double Utah's power capacity over a decade to meet growth and data-center demand.", verdict: "pending" },
+            { title: "Champion civility and 'Disagree Better'", detail: "Led a national civility campaign as NGA chair and made it a defining personal theme.", verdict: "kept" },
+            { title: "Sign conservative priorities on social media, DEI, and schools", detail: "Approved laws restricting minors' social-media use, curbing DEI programs in government and universities, and expanding school choice.", verdict: "kept" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Cox's Governing Record", sources_count: 2, promises: [
+              { title: "Housing and growth agenda", detail: "Tied his governorship to expanding starter-home supply as Utah's population and prices surge.", verdict: "pending", sources: [{ label: "Utah Governor", url: "https://governor.utah.gov" }] },
+              { title: "Water and the Great Salt Lake", detail: "Signed landmark conservation measures, but the lake's survival still hangs on snowpack and follow-through.", verdict: "pending", sources: [{ label: "Utah Legislature", url: "https://le.utah.gov" }] },
+              { title: "Civility brand vs. conservative record", detail: "Pairs a national 'Disagree Better' message with hard-line bills on DEI and social media, a tension critics highlight.", verdict: "kept" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "As governor, Cox signs or vetoes everything the Legislature passes and sets the agenda on the issues that define Utah's future — whether families can afford a home, whether the Great Salt Lake survives, and whether the lights stay on through record growth. His national civility brand also makes him a figure whose words and record voters can hold up against each other." }
+          ]
+        },
+        {
+          id: "mike_lee",
+          name: "Mike Lee",
+          office: "U.S. Senator",
+          state: "Utah",
+          party: "Republican",
+          district: "Statewide (U.S. Senate)",
+          why: "Utah's senior U.S. senator and one of the Senate's most influential constitutional conservatives, a leading voice on public lands, spending, and executive power.",
+          score: 68, kept: 19, broken: 8, pending: 6, icon: "🦅", tier: "silver",
+          keyIssues: ["Federal Public Lands & State Control", "Constitutional Originalism & Separation of Powers", "Federal Spending & Debt", "Big Tech & Antitrust"],
+          bio: "Mike Lee is Utah's senior U.S. senator, a constitutional lawyer and son of a former U.S. solicitor general who won his seat in the 2010 Tea Party wave and has since become one of the Senate's most prominent originalist voices. He is the chamber's loudest advocate for transferring federally controlled Western lands to state hands, a fierce critic of deficit spending and executive overreach, and an aggressive player on Big Tech and antitrust from his Judiciary perch. Known for a highly active social-media presence and close alignment with the party's populist-conservative wing, he wields outsized influence over judicial nominations, energy, and public-lands policy. He is not on the ballot until 2028.",
+          quote: "The Constitution doesn't bend to convenience. Washington has spent decades centralizing power and debt — my job is to push both back toward the states and the people.",
+          promises: [
+            { title: "Fight to return federal lands to Western states", detail: "Utah's leading champion of transferring federally managed public lands to the state, a long-running cause that remains unrealized in law.", verdict: "pending" },
+            { title: "Rein in federal spending and the national debt", detail: "A consistent vote against large spending packages and debt increases, though the debt has continued to climb regardless.", verdict: "broken" },
+            { title: "Confirm originalist judges to the federal bench", detail: "Played an influential role in advancing and confirming conservative judicial nominees.", verdict: "kept" },
+            { title: "Take on Big Tech through antitrust and speech bills", detail: "Used his Judiciary seat to push antitrust scrutiny and platform-accountability measures.", verdict: "pending" },
+            { title: "Defend separation of powers against executive overreach", detail: "Repeatedly challenged expansions of executive and administrative power across administrations of both parties.", verdict: "kept" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Lee in the Senate", sources_count: 2, promises: [
+              { title: "Public-lands crusade", detail: "The Senate's foremost advocate for state control of federal lands, central to Utah's sovereignty push.", verdict: "pending", sources: [{ label: "U.S. Senate", url: "https://www.lee.senate.gov" }] },
+              { title: "Fiscal and constitutional record", detail: "Votes consistently against deficit spending and for originalist judges, shaping the federal courts.", verdict: "kept", sources: [{ label: "U.S. Congress", url: "https://www.congress.gov" }] },
+              { title: "Debt reality", detail: "Despite his votes, the national debt has kept rising under both parties.", verdict: "broken" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Lee is one of two voices Utah has in the U.S. Senate, and his influence over public lands, judicial confirmations, and federal spending reaches far beyond the state. For Utahns who care about who controls the millions of federal acres inside their borders, his decades-long campaign — and whether it ever becomes law — is the issue to watch." }
+          ]
+        },
+        {
+          id: "john_curtis",
+          name: "John Curtis",
+          office: "U.S. Senator",
+          state: "Utah",
+          party: "Republican",
+          district: "Statewide (U.S. Senate)",
+          why: "Utah's newest U.S. senator, a pragmatic conservative who built a national profile founding the Conservative Climate Caucus and now holds Mitt Romney's former seat.",
+          score: 72, kept: 13, broken: 4, pending: 8, icon: "🦅", tier: "silver",
+          keyIssues: ["Conservative Energy & Climate Policy", "Public Lands & Western Issues", "Fiscal Responsibility", "Pragmatic Bipartisan Dealmaking"],
+          bio: "John Curtis is Utah's junior U.S. senator, sworn in during January 2025 after winning the seat vacated by Mitt Romney. A former Provo mayor and businessman who once switched parties before being elected to the U.S. House in 2017, he represented Utah's 3rd District for nearly eight years. There he founded the Conservative Climate Caucus, carving out a distinctive lane as a Republican willing to engage on emissions and clean energy while opposing heavy-handed mandates. Pragmatic and business-minded, he is seen as an heir to Utah's tradition of solutions-oriented conservatism and a senator more open to bipartisan dealmaking than many in his party.",
+          quote: "Conservatives shouldn't cede the climate conversation. We can lead on clean energy with innovation and markets instead of mandates — and create Western jobs doing it.",
+          promises: [
+            { title: "Lead a conservative approach to energy and climate", detail: "Founded and grew the Conservative Climate Caucus, pushing innovation- and market-based responses rather than regulation.", verdict: "kept" },
+            { title: "Defend Utah's public-lands and Western interests", detail: "Advocates for state and local voice in federal-land decisions and Western energy and water issues.", verdict: "pending" },
+            { title: "Work across the aisle on practical legislation", detail: "Built a House record of bipartisan bills and pledges to keep that approach in the Senate, where results are still emerging.", verdict: "pending" },
+            { title: "Support American energy production and independence", detail: "Backs expanded domestic energy — including oil, gas, and clean sources — as both economic and security policy.", verdict: "kept" },
+            { title: "Promote fiscal restraint in Washington", detail: "Campaigns on spending discipline, a pledge tested against the realities of a closely divided Senate.", verdict: "pending" }
+          ],
+          sections: [
+            { type: "deepdive", title: "Deep Dive — Curtis from Provo to the Senate", sources_count: 2, promises: [
+              { title: "Conservative Climate Caucus", detail: "Created a Republican space to engage on clean energy and emissions without embracing mandates, a signature achievement.", verdict: "kept", sources: [{ label: "U.S. Senate", url: "https://www.curtis.senate.gov" }] },
+              { title: "Bipartisan track record", detail: "Brings a House reputation for practical, cross-aisle legislating into a divided Senate.", verdict: "pending", sources: [{ label: "U.S. Congress", url: "https://www.congress.gov" }] },
+              { title: "Western energy and lands", detail: "Positions himself as a voice for Utah's energy economy and public-lands stakeholders.", verdict: "pending" }
+            ]},
+            { type: "info", color: "gold", title: "Why This Matters", text: "Curtis fills the seat once held by Mitt Romney and represents a more pragmatic, dealmaking strand of Utah conservatism, so his choices help define how far that tradition survives in today's Republican Party. His distinctive position on energy and climate also makes him a senator to watch on issues where Utah's economy and environment directly collide." }
           ]
         }
       ]
