@@ -13831,30 +13831,68 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ];
       var PM_UTAH_SEAT_TOTAL = PM_UTAH_CHAMBERS.reduce(function (s, c) { return s + c.total; }, 0);
 
+      // True for any record whose state reads as Utah, tolerating the "UT"
+      // abbreviation (and stray punctuation/case) the live data mixes in.
+      function _pmIsUtah(s) {
+        var n = _pmNormName(s);
+        return n === 'utah' || n === 'ut';
+      }
+
       // Classify a Utah record into one of the tracked chambers / statewide
       // offices (returns null for anything that doesn't map). Order matters:
       // the most specific U.S. patterns are tested before the state ones.
+      // Both the office string and the district label are considered, since
+      // the live data sometimes carries the chamber hint in only one of them
+      // (e.g. office "Representative" + district "Utah House District 12").
       function _pmUtahChamber(p) {
         var o = String((p && p.office) || '');
-        if (/\bU\.?\s*S\.?\s*Senator|United\s+States\s+Senator/i.test(o)) return 'us-senate';
-        if (/\bU\.?\s*S\.?\s*(Rep|Congress)|United\s+States\s+Rep|Congress(?:man|woman|member)/i.test(o)) return 'us-house';
+        var t = o + '  ' + String((p && p.district) || '');
+        // Federal offices first — never let "U.S. Representative" read as a
+        // state seat.
+        if (/\bU\.?\s*S\.?\s*Senator|United\s+States\s+Senator|\bU\.?\s*S\.?\s*Senate\b/i.test(t)) return 'us-senate';
+        if (/\bU\.?\s*S\.?\s*(Rep|Congress)|United\s+States\s+Rep|Congress(?:man|woman|member|ional)|\bCD[-\s.#]?\d/i.test(t)) return 'us-house';
         if (/Lieutenant\s+Governor|Lt\.?\s*Governor/i.test(o)) return 'lt-governor';
         if (/Attorney\s+General/i.test(o)) return 'attorney-general';
         if (/State\s+Auditor/i.test(o)) return 'state-auditor';
         if (/(State\s+)?Treasurer/i.test(o)) return 'state-treasurer';
         if (/Governor/i.test(o)) return 'governor';
-        if (/State\s*Sen|Senate\s*(President|Minority|Majority)/i.test(o)) return 'state-senate';
-        if (/State\s*Rep|House\s*(Speaker|Minority|Majority)|Speaker\s+of\s+the\s+House/i.test(o)) return 'state-house';
+        if (/State\s*Sen|Senate\s*(President|Minority|Majority)|Utah\s+(State\s+)?Senate|Senate\s*Dist|\bSD[-\s.#]?\d/i.test(t)) return 'state-senate';
+        if (/State\s*(Rep|House)|House\s*(Speaker|Minority|Majority)|Speaker\s+of\s+the\s+House|Utah\s+(State\s+)?House|House\s+of\s+Rep|House\s*Dist|\bHD[-\s.#]?\d|Assembly(?:man|woman|member)?|\bRepresentative\b/i.test(t)) return 'state-house';
         return null;
       }
 
-      // Pull a district number out of a record's district/office text.
+      // Pull a district number out of a record's district/office text. The
+      // live data is messy, so this tries a sequence of patterns from most
+      // specific to least, accepting every common shorthand:
+      //   "District 6", "Dist. 6", "Dist 6", "District 06", "#6",
+      //   "HD 6" / "SD 12" / "CD-4" / "LD 6" (chamber-prefixed),
+      //   "D6" / "D-6" / "D. 6", "6th", and a bare "6".
+      // A trailing word boundary after the captured digits keeps it from
+      // grabbing the first three digits of a year (e.g. "elected 2024").
       function _pmDistrictNum(p) {
-        var hay = String((p && p.district) || '') + ' ' + String((p && p.office) || '');
-        var m = hay.match(/dist(?:rict)?\.?\s*#?\s*(\d{1,3})/i);
+        var dist = String((p && p.district) || '');
+        var off  = String((p && p.office) || '');
+        // District field first so its number wins over any stray number in
+        // the office string.
+        var hay = dist + '  ' + off;
+        var m;
+        // "District 6" / "Dist. 6" / "Dist 6" / "District 06" / "#6"
+        m = hay.match(/(?:dist(?:rict)?s?\.?|#)\s*#?\s*0*(\d{1,3})\b/i);
         if (m) return parseInt(m[1], 10);
-        m = hay.match(/\b(\d{1,3})(?:st|nd|rd|th)?\b/);
-        return m ? parseInt(m[1], 10) : null;
+        // Chamber-prefixed initials: HD/SD/CD/LD with optional separators.
+        m = hay.match(/\b[HSCL]\.?\s*D\.?\s*[-#]?\s*0*(\d{1,3})\b/i);
+        if (m) return parseInt(m[1], 10);
+        // Lone "D6" / "D-6" / "D. 6".
+        m = hay.match(/\bD\.?\s*-?\s*0*(\d{1,3})\b/i);
+        if (m) return parseInt(m[1], 10);
+        // Ordinal "6th".
+        m = hay.match(/\b0*(\d{1,3})(?:st|nd|rd|th)\b/i);
+        if (m) return parseInt(m[1], 10);
+        // Bare standalone number — only trusted from the dedicated district
+        // field, where an unlabeled number almost always IS the district.
+        m = dist.match(/\b0*(\d{1,3})\b/);
+        if (m && parseInt(m[1], 10) > 0) return parseInt(m[1], 10);
+        return null;
       }
 
       // Build the Utah seat map: per chamber, which district numbers are filled
@@ -13867,7 +13905,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         PM_UTAH_STATEWIDE.forEach(function (s) { statewide[s.key] = []; });
 
         _pmAll().forEach(function (row) {
-          if (_pmNormName(row.p.state) !== 'utah') return;
+          if (!_pmIsUtah(row.p.state)) return;
           var ch = _pmUtahChamber(row.p);
           if (!ch) return;
           if (seats[ch]) {
@@ -14016,7 +14054,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var all = _pmAll();
         var fullN = 0; all.forEach(function (r) { _pmIsStub(r.p) ? 0 : fullN++; });
         var stubN = all.length - fullN;
-        var utahN = all.filter(function (r) { return _pmNormName(r.p.state) === 'utah'; }).length;
+        var utahN = all.filter(function (r) { return _pmIsUtah(r.p.state); }).length;
         var headline = '<div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">' +
           [['Total profiles', all.length, 'text-white'],
            ['Full', fullN, 'text-green-300'],
