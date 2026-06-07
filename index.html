@@ -13037,6 +13037,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <option value="ind">Independent</option>
             <option value="other">Other / Unlisted</option>
           </select>
+          <select id="pm-filter-sort" onchange="window.pmRenderList && window.pmRenderList()" title="Sort the list"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="name">Sort: Name A–Z</option>
+            <option value="state">Sort: State</option>
+            <option value="status">Sort: Stubs first</option>
+            <option value="updated">Sort: Recently updated</option>
+          </select>
           <button type="button" onclick="window.pmClearFilters && window.pmClearFilters()"
             class="inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
             <span aria-hidden="true">✕</span> Clear filters
@@ -13088,6 +13095,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var _pmSelectedId = null;
       var _pmMode = 'view';     // 'view' | 'edit' | 'create'
       var _pmDupOnly = false;   // "Find Duplicates" view toggle
+      var _pmDirty = false;     // unsaved edits in the open editor?
 
       // Friendly labels for known stance keys; unknown keys fall back to a
       // prettified version of the key itself.
@@ -13334,6 +13342,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           return hay.indexOf(q) !== -1;
         });
 
+        // ── Sort the filtered rows (list starts name-sorted; re-sort on demand) ──
+        var fSort = _pmFilterVal('pm-filter-sort', 'name');
+        if (fSort && fSort !== 'name') {
+          rows.sort(function (a, b) {
+            if (fSort === 'state') {
+              var as = (a.p.state || '~').toLowerCase(), bs = (b.p.state || '~').toLowerCase();
+              if (as !== bs) return as < bs ? -1 : 1;
+            } else if (fSort === 'status') {
+              var astub = _pmIsStub(a.p) ? 0 : 1, bstub = _pmIsStub(b.p) ? 0 : 1;
+              if (astub !== bstub) return astub - bstub;
+            } else if (fSort === 'updated') {
+              var at = _pmUpdatedMs(a.p), bt = _pmUpdatedMs(b.p);
+              if (at !== bt) return bt - at; // most recent first
+            }
+            var an = (a.p.name || a.id).toLowerCase(), bn = (b.p.name || b.id).toLowerCase();
+            return an < bn ? -1 : (an > bn ? 1 : 0);
+          });
+        }
+
         var shownEl = document.getElementById('pm-count-shown');
         if (shownEl) shownEl.textContent = rows.length;
 
@@ -13409,6 +13436,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (el.tagName === 'SELECT') el.value = 'all';
           else el.value = '';
         });
+        var sortEl = document.getElementById('pm-filter-sort');
+        if (sortEl) sortEl.value = 'name';
         if (_pmDupOnly) window.pmToggleDupes();
         else window.pmRenderList();
       };
@@ -13561,6 +13590,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           return d.toLocaleString();
         } catch (e) { return ''; }
       }
+      // Best-effort millisecond timestamp for sorting by "recently updated".
+      function _pmUpdatedMs(p) {
+        var v = p && (p.updatedAt || p.createdAt);
+        if (!v) return 0;
+        try {
+          if (typeof v === 'object' && typeof v.toDate === 'function') v = v.toDate();
+          var t = new Date(v).getTime();
+          return isNaN(t) ? 0 : t;
+        } catch (e) { return 0; }
+      }
       function _pmStates() {
         var states = {};
         _pmAll().forEach(function (r) { var s = (r.p.state || '').trim(); if (s) states[s] = 1; });
@@ -13642,7 +13681,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div class="font-display text-2xl text-white truncate">' + _pmEsc(titleText) + '</div>' +
               meta + overrideNote +
             '</div>' +
-            (isNew ? '' : _pmStatusBadge(p)) +
+            '<div class="flex flex-col items-end gap-1.5 flex-shrink-0">' +
+              (isNew ? '' : _pmStatusBadge(p)) +
+              '<span id="pm-dirty-flag" class="hidden font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-0.5 rounded-full text-amber-200 bg-amber-500/15 border border-amber-500/40">● Unsaved</span>' +
+            '</div>' +
           '</div>';
 
         // ── Basic Info group (ID field only in create mode) ──
@@ -13661,13 +13703,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _pmFieldArea('Bio', 'bio', p.bio, 4) +
           _pmFieldArea('Signature Quote', 'quote', p.quote, 2);
 
-        var scores =
-          _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
-          _pmFieldText('Accountability Score', 'acctScore', acctScore, { type: 'number', placeholder: '0–100' });
-
         var issues =
           _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
           _pmStanceFields(p);
+
+        // Promises group leads with the headline Promise Score, then the
+        // editable tracked-promise rows (which recompute kept/broken/pending).
+        var promises =
+          _pmFieldText('Promise Score', 'score', (p.score == null ? '' : p.score), { type: 'number', placeholder: '0–100' }) +
+          _pmPromisesSection(p.promises);
+
+        // Accountability gets its own group: the headline score plus an
+        // optional free-form summary (preserved alongside any other
+        // accountability data already on the record).
+        var acctSummary = (p.accountability && typeof p.accountability.summary === 'string')
+          ? p.accountability.summary : '';
+        var accountability =
+          _pmFieldText('Accountability Score', 'acctScore', acctScore, { type: 'number', placeholder: '0–100' }) +
+          _pmFieldArea('Accountability Summary (optional)', 'acctSummary', acctSummary, 3);
 
         // ── Action buttons ──
         var actions;
@@ -13706,15 +13759,57 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<form onsubmit="return false;">' +
             _pmGroup('Basic Info', basic) +
             _pmGroup('Biography & Quote', bio) +
-            _pmGroup('Scores', scores) +
             _pmGroup('Key Issues & Stances', issues) +
-            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' + _pmPromisesSection(p.promises) + '</div>' +
+            _pmGroup('Promises', promises) +
+            _pmGroup('Accountability', accountability) +
           '</form>' +
           '<div id="pm-editor-feedback" class="hidden mt-3 text-sm font-body rounded-lg px-3 py-2 border"></div>' +
-          actions;
+          actions +
+          '<div class="mt-3 text-[11px] font-body text-steel-500">Tip: <kbd class="px-1 py-0.5 rounded bg-navy-950 border border-white/10 text-steel-300">Ctrl/⌘+S</kbd> ' +
+            (isNew ? 'creates' : 'saves') + ' · <kbd class="px-1 py-0.5 rounded bg-navy-950 border border-white/10 text-steel-300">Esc</kbd> ' +
+            (isNew ? 'cancels' : 'closes') + '</div>';
+
+        // Fresh render = clean slate; (re)bind the dirty + shortcut watchers.
+        _pmSetDirty(false);
+        _pmBindEditorWatchers();
       }
 
-      window.pmSelect = function (id) {
+      // ── Unsaved-changes + keyboard helpers ───────────────────────
+      // Toggle the dirty flag and its header indicator together.
+      function _pmSetDirty(v) {
+        _pmDirty = !!v;
+        var flag = document.getElementById('pm-dirty-flag');
+        if (flag) flag.classList.toggle('hidden', !_pmDirty);
+      }
+      // Returns true when it's safe to throw away the open editor (nothing
+      // unsaved, or the admin confirmed the discard).
+      function _pmGuardDiscard() {
+        if (!_pmDirty) return true;
+        return window.confirm('You have unsaved changes in the editor that will be lost.\n\nDiscard them and continue?');
+      }
+      // Bind, once per render, the input watcher (marks the form dirty) and the
+      // editor-scoped keyboard shortcuts (Ctrl/⌘+S to save·create, Esc to close).
+      function _pmBindEditorWatchers() {
+        var editor = document.getElementById('pm-editor');
+        if (!editor || editor._pmWatched) return;
+        editor._pmWatched = true;
+        var mark = function () { if (!_pmDirty) _pmSetDirty(true); };
+        editor.addEventListener('input', mark);
+        editor.addEventListener('change', mark);
+        editor.addEventListener('keydown', function (e) {
+          if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            if (_pmMode === 'create') { window.pmCreate(); }
+            else if (_pmSelectedId) { window.pmSave(_pmSelectedId); }
+          } else if (e.key === 'Escape') {
+            if (_pmMode === 'create') { e.preventDefault(); window.pmCancelEdit(); }
+          }
+        });
+      }
+
+      // Internal: render a record into the editor (no discard guard — callers
+      // that may clobber unsaved edits go through window.pmSelect instead).
+      function _pmShow(id) {
         _pmMode = 'edit';
         _pmSelectedId = id;
         var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
@@ -13731,10 +13826,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _pmRenderEditor(id, p, false);
         // Refresh the list so the active row highlight follows the selection.
         window.pmRenderList();
+      }
+
+      window.pmSelect = function (id) {
+        // Selecting a different record discards the open editor — guard it.
+        if (id !== _pmSelectedId && !_pmGuardDiscard()) return;
+        _pmShow(id);
       };
 
       // Open a blank editor for a brand-new record.
       window.pmCreateNew = function () {
+        if (!_pmGuardDiscard()) return;
         _pmMode = 'create';
         _pmSelectedId = null;
         var editor = document.getElementById('pm-editor');
@@ -13751,9 +13853,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // Leave create mode without saving — return to the previous selection.
       window.pmCancelEdit = function () {
+        if (!_pmGuardDiscard()) return;
+        _pmSetDirty(false);
         _pmMode = 'view';
         if (_pmSelectedId && PROFILES[_pmSelectedId]) {
-          window.pmSelect(_pmSelectedId);
+          _pmShow(_pmSelectedId);
         } else {
           _pmSelectedId = null;
           var editor = document.getElementById('pm-editor');
@@ -13774,7 +13878,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else { merged.profileStatus = status; }
         merged.updatedAt = new Date().toISOString();
         var msg = status === 'full' ? 'Marked as Full ✓' : (status === 'stub' ? 'Marked as Stub ✓' : 'Status reset to auto ✓');
-        _pmPersist(id, merged, msg, function () { if (_pmSelectedId === id) window.pmSelect(id); });
+        _pmPersist(id, merged, msg, function () { if (_pmSelectedId === id) _pmShow(id); });
       };
 
       // Reads every editable field into `merged`. Returns the populated object,
@@ -13818,21 +13922,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           merged.stances = st;
         }
 
-        // Accountability: edit only the headline score; preserve any
-        // categories/detail already on the record. Blank clears the score.
+        // Accountability: edit the headline score and an optional summary while
+        // preserving any other accountability data (categories, detail, etc.).
+        // Blank fields clear just that value; an empty object is removed.
+        var acctObj = (merged.accountability && typeof merged.accountability === 'object') ? merged.accountability : {};
         var acctRaw = val('acctScore');
         if (acctRaw === '' || acctRaw == null) {
-          if (merged.accountability && typeof merged.accountability === 'object') {
-            delete merged.accountability.overallScore;
-          }
+          delete acctObj.overallScore;
         } else {
           var av = parseInt(acctRaw, 10);
-          if (!isNaN(av)) {
-            var acctObj = (merged.accountability && typeof merged.accountability === 'object') ? merged.accountability : {};
-            acctObj.overallScore = Math.max(0, Math.min(100, av));
-            merged.accountability = acctObj;
-          }
+          if (!isNaN(av)) { acctObj.overallScore = Math.max(0, Math.min(100, av)); }
         }
+        var acctSummary = (val('acctSummary') || '').trim();
+        if (acctSummary) { acctObj.summary = acctSummary; }
+        else { delete acctObj.summary; }
+        if (Object.keys(acctObj).length) { merged.accountability = acctObj; }
+        else { delete merged.accountability; }
 
         // Tracked promises: rebuild the array from the editor rows, keeping any
         // hidden fields (e.g. `sources`) via each row's original index. Fully
@@ -13883,7 +13988,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _pmFeedback('Creating…', 'ok');
         _pmPersist(id, merged, 'Created ' + merged.name + ' ✓', function () {
           _pmMode = 'edit';
-          window.pmSelect(id);
+          _pmShow(id);
           _pmFeedback('Created new record "' + merged.name + '" (ID: ' + id + ').', 'ok');
         });
       };
@@ -13919,22 +14024,50 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         _pmFeedback('Saving…', 'ok');
         _pmPersist(id, merged, 'Saved ' + merged.name + ' ✓', function () {
-          if (_pmSelectedId === id) window.pmSelect(id);
+          if (_pmSelectedId === id) _pmShow(id);
           _pmFeedback('Saved changes to "' + merged.name + '".', 'ok');
         });
       };
 
+      // Two-step, theme-consistent delete: the bare button arms a crimson
+      // confirmation panel in the editor; the actual Firestore delete only
+      // runs from pmDeleteConfirmed. No native browser dialog.
       window.pmDelete = function (id) {
         var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : {};
         var label = p.name || id;
-        if (!window.confirm('Delete "' + label + '" from the database?\n\nThis permanently removes the record from Firestore and cannot be undone.')) {
-          return;
-        }
+        var fb = document.getElementById('pm-editor-feedback');
+        if (!fb) return;
+        fb.classList.remove('hidden');
+        fb.className = 'mt-3 text-sm font-body rounded-lg px-3 py-3 border text-crimson-100 bg-crimson-950/50 border-crimson-500/50';
+        fb.innerHTML =
+          '<div class="flex flex-col gap-2.5">' +
+            '<div><span aria-hidden="true">⚠️</span> Permanently delete <strong>' + _pmEsc(label) + '</strong> from the database? This cannot be undone.</div>' +
+            '<div class="flex flex-wrap gap-2">' +
+              '<button type="button" onclick="window.pmDeleteConfirmed(\'' + _pmJs(id) + '\')" ' +
+                'class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2 rounded-lg transition-all">' +
+                '<span aria-hidden="true">🗑</span> Yes, delete permanently</button>' +
+              '<button type="button" onclick="window.pmDeleteCancel()" ' +
+                'class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2 rounded-lg transition-all">' +
+                'Cancel</button>' +
+            '</div>' +
+          '</div>';
+        try { fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+      };
+
+      window.pmDeleteCancel = function () {
+        var fb = document.getElementById('pm-editor-feedback');
+        if (fb) { fb.classList.add('hidden'); fb.innerHTML = ''; }
+      };
+
+      window.pmDeleteConfirmed = function (id) {
+        var p = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : {};
+        var label = p.name || id;
         db.collection('politicians').doc(id).delete().then(function () {
           if (typeof PROFILES === 'object' && PROFILES) { delete PROFILES[id]; }
           if (typeof CMP_DATA !== 'undefined') { delete CMP_DATA[id]; }
           if (typeof _populateDirData === 'function') { _populateDirData(); }
           if (_pmSelectedId === id) {
+            _pmSetDirty(false);
             _pmSelectedId = null;
             _pmMode = 'view';
             var editor = document.getElementById('pm-editor');
@@ -13953,6 +14086,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
 
       window.pmReload = function () {
+        if (!_pmGuardDiscard()) return;
+        _pmSetDirty(false);
         var lbl = document.getElementById('pm-reload-label');
         if (lbl) lbl.textContent = 'Loading…';
         db.collection('politicians').get().then(function (qs) {
@@ -13965,7 +14100,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           }
           window.pmRenderList();
           if (_pmSelectedId && PROFILES[_pmSelectedId]) {
-            window.pmSelect(_pmSelectedId);
+            _pmShow(_pmSelectedId);
           }
           if (lbl) lbl.textContent = 'Reload';
           if (typeof window._showToast === 'function') {
