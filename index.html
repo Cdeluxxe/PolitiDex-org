@@ -10539,6 +10539,63 @@
       .mypol-card-actions .mypol-act-compare,
       .mypol-card-actions .mypol-act-profile { min-height: 44px; font-size: 0.72rem; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — final pass (≤768px)
+       Targets the rough spots still reported on phones: body copy that read
+       too tightly, stacked politician cards that felt crowded, filter fields
+       that triggered iOS's jarring auto-zoom, a small modal close button with
+       a four-button action row crammed onto one line, and a tight My Voting
+       Team summary. Purely additive, phone-scoped, and appended last so it
+       reliably wins the cascade. The dark patriotic styling is untouched.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · READABILITY — comfortable leading for body copy on phones ──── */
+      #our-mission p, #voter-academy p, #trending-reforms p,
+      #modal-body p, .modal-section p, .modal-section li {
+        line-height: 1.62 !important;
+      }
+
+      /* ── 2 · POLITICIAN CARDS — a little more air between stacked cards ─── */
+      #profiles .grid { gap: 0.7rem !important; }
+      .dir-card { margin-bottom: 0 !important; }
+
+      /* ── 3 · ALL POLITICIANS FILTER BAR — tidy padding, and 16px control
+         text so focusing a field never triggers iOS's jarring auto-zoom. ── */
+      .browse-toolbar { padding: 0.85rem 0.9rem !important; }
+      .browse-search-input,
+      .browse-filter-select,
+      #myteam-browse-search, #myteam-browse-office, #myteam-browse-state,
+      #myteam-browse-score, #myteam-browse-sort {
+        font-size: 16px !important;
+      }
+
+      /* ── 4 · MODAL — square, finger-sized close button, and a footer action
+         row that wraps instead of squashing four controls onto one line. ── */
+      #modal-top-bar { padding: 0.8rem 0.95rem !important; }
+      #modal-top-bar > button { width: 44px !important; height: 44px !important; }
+      #modal-panel .flex.gap-2.px-5 {
+        flex-wrap: wrap !important;
+        row-gap: 0.5rem !important;
+      }
+      #modal-like-btn, #modal-dislike-btn {
+        flex: 1 1 auto !important;
+        justify-content: center !important;
+      }
+      #modal-favorite-btn { flex: 1 1 100% !important; justify-content: center !important; }
+      #modal-comment-btn { flex: 1 1 100% !important; }
+
+      /* ── 5 · MY VOTING TEAM — summary box breathes; stat tiles less tight ── */
+      .myteam-summary-box { padding: 1.1rem 1rem 1.2rem !important; }
+      .myteam-summary-grid { gap: 0.6rem !important; }
+      .myteam-summary-header { gap: 0.6rem !important; margin-bottom: 0.85rem !important; }
+    }
+
+    /* Narrowest phones: keep the modal's primary footer actions legible. */
+    @media (max-width: 420px) {
+      #modal-panel .flex.gap-3.px-5 > button,
+      #modal-panel .flex.gap-3.px-5 > a { font-size: 0.7rem !important; }
+    }
   </style>
 
       </head>
