@@ -27952,6 +27952,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var origSt = window._originalStates && window._originalStates[pid];
       var st = (d.state || '').trim();
 
+      // Scrub generic "(Your City/County/Region/District/Area…)" placeholder text
+      // that imported profile data can ship with, so it never reaches a label.
+      // Generalises the old "(Your County)" cleanup to every placeholder phrase.
+      var _stripPlaceholderLoc = function(s) {
+        return (s || '')
+          .replace(/\(?\s*your\s+(city|county|region|district|area|town|state|constituency|municipality|ward|borough|precinct|neighbou?rhood)\s*\)?/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .replace(/\s*[,·\-–—]\s*$/, '')
+          .replace(/^\s*[,·\-–—]\s*/, '')
+          .trim();
+      };
+      st = _stripPlaceholderLoc(st);
+      if (origSt) origSt = _stripPlaceholderLoc(origSt);
+
       // Pull a plain district number out of either the live or original state
       // string ("UT-5", "District 5", "District 5 (Your County)", etc.).
       var distNum = null;
