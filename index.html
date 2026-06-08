@@ -10274,6 +10274,83 @@
       #relevant-browse-grid .relevant-level-chevron { width: 0.95rem; height: 0.95rem; }
     }
 
+    /* ── RELEVANT TO ME — office position headers ────────────────────────────
+       The group bars for each office (U.S. Senate, U.S. House, Governor, State
+       Senate, State House, Local Office …). Previously every one of these used
+       the same dark gradient + white label and only a faintly-tinted icon tile,
+       so they blurred together and voters lost track of which office they were
+       scrolling through. Each group now carries its own accent color across a
+       bold left spine, a tinted header, a glowing icon, and a matching count
+       pill — so the current office is unmistakable at a glance. Driven by a
+       single --office-rgb custom property per group to keep it DRY, and scoped
+       strictly to #relevant-browse-grid so My Team / Promise Tracker maps are
+       untouched. The dark patriotic palette is preserved. */
+    #relevant-browse-grid .browse-type-group {
+      --office-rgb: 59,130,246; /* sensible default; overridden per office below */
+      margin-bottom: 1.1rem !important;
+      border-top: 1.5px solid rgba(255,255,255,0.12) !important;
+      border-right: 1.5px solid rgba(255,255,255,0.12) !important;
+      border-bottom: 1.5px solid rgba(255,255,255,0.12) !important;
+      border-left: 6px solid rgb(var(--office-rgb)) !important;
+      box-shadow: 0 5px 22px rgba(0,0,0,0.35), -6px 0 18px rgba(var(--office-rgb),0.15) !important;
+    }
+    #relevant-browse-grid .browse-type-group.expanded {
+      border-top-color: rgba(var(--office-rgb),0.45) !important;
+      border-right-color: rgba(var(--office-rgb),0.45) !important;
+      border-bottom-color: rgba(var(--office-rgb),0.45) !important;
+      box-shadow: 0 7px 30px rgba(0,0,0,0.4), -6px 0 22px rgba(var(--office-rgb),0.22), 0 0 18px rgba(var(--office-rgb),0.1) !important;
+    }
+    #relevant-browse-grid .browse-type-header {
+      background: linear-gradient(135deg, rgba(var(--office-rgb),0.34) 0%, rgba(17,29,54,0.9) 55%, rgba(13,21,38,0.94) 100%) !important;
+      padding-top: 0.95rem !important;
+      padding-bottom: 0.95rem !important;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.06) !important;
+    }
+    @media (hover: hover) {
+      #relevant-browse-grid .browse-type-header:hover {
+        background: linear-gradient(135deg, rgba(var(--office-rgb),0.46) 0%, rgba(17,29,54,0.95) 55%, rgba(13,21,38,0.96) 100%) !important;
+      }
+    }
+    #relevant-browse-grid .browse-type-icon {
+      background: rgba(var(--office-rgb),0.3) !important;
+      border: 1.5px solid rgba(var(--office-rgb),0.6) !important;
+      box-shadow: 0 0 0 1px rgba(var(--office-rgb),0.4), 0 2px 12px rgba(var(--office-rgb),0.2) !important;
+    }
+    #relevant-browse-grid .browse-type-name {
+      font-size: 1.42rem !important;
+      letter-spacing: 0.13em !important;
+      color: #ffffff !important;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.55) !important;
+    }
+    #relevant-browse-grid .browse-type-count {
+      color: #ffffff !important;
+      background: rgba(var(--office-rgb),0.3) !important;
+      border: 1px solid rgba(var(--office-rgb),0.6) !important;
+      font-weight: 700 !important;
+    }
+    #relevant-browse-grid .browse-type-group.expanded .browse-type-chevron-wrap {
+      background: rgba(var(--office-rgb),0.2) !important;
+      border-color: rgba(var(--office-rgb),0.45) !important;
+    }
+    #relevant-browse-grid .browse-type-group.expanded .browse-type-chevron { color: #ffffff !important; }
+
+    /* Per-office accent colors — each office is instantly distinguishable. */
+    #relevant-browse-grid #relevant-browse-group-senator        { --office-rgb: 59,130,246; }  /* U.S. Senate  — blue   */
+    #relevant-browse-grid #relevant-browse-group-representative { --office-rgb: 34,197,94; }   /* U.S. House   — green  */
+    #relevant-browse-grid #relevant-browse-group-governor       { --office-rgb: 168,85,247; }  /* Governor     — purple */
+    #relevant-browse-grid #relevant-browse-group-state_senator  { --office-rgb: 245,158,11; }  /* State Senate — amber  */
+    #relevant-browse-grid #relevant-browse-group-state_rep      { --office-rgb: 236,72,153; }  /* State House  — pink   */
+    #relevant-browse-grid #relevant-browse-group-local          { --office-rgb: 20,184,166; }  /* Local Office — teal   */
+    #relevant-browse-grid #relevant-browse-group-president      { --office-rgb: 192,21,42; }   /* President    — crimson*/
+    #relevant-browse-grid #relevant-browse-group-cabinet        { --office-rgb: 139,92,246; }  /* Cabinet      — violet */
+    #relevant-browse-grid #relevant-browse-group-candidate      { --office-rgb: 251,191,36; }  /* Candidates   — gold   */
+    #relevant-browse-grid #relevant-browse-group-other          { --office-rgb: 100,116,139; } /* Other        — steel  */
+
+    @media (max-width: 640px) {
+      #relevant-browse-grid .browse-type-group { margin-bottom: 0.85rem !important; border-left-width: 5px !important; }
+      #relevant-browse-grid .browse-type-name { font-size: 1.18rem !important; letter-spacing: 0.08em !important; }
+    }
+
     /* ════════════════════════════════════════════════════════════════════
        MOBILE RESPONSIVENESS POLISH — filter toolbar + politician card width
        Scoped strictly to the politician browsing / filter areas. Adds no new
