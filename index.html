@@ -11861,6 +11861,166 @@
     </div>
   </section>
 
+  <!-- ═══════════════════════════ TRENDING REFORMS CAROUSEL ══════ -->
+  <section id="trending-reforms" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
+    <div class="text-center mb-8 animate-on-scroll">
+      <div class="inline-flex items-center gap-2 bg-crimson-600/12 border border-crimson-600/25 rounded-full px-4 py-1.5 mb-3">
+        <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
+        <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">Trending Now · Community Powered</span>
+      </div>
+      <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-3">TRENDING PEOPLE'S <span class="text-crimson-400">MANDATE</span></h2>
+      <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+        <strong class="text-white">Help Shape the Future</strong> — These are the reforms gaining the most momentum right now. Vote, support, or propose your own.
+      </p>
+    </div>
+
+    <div class="tr-carousel-wrap animate-on-scroll" style="transition-delay:0.06s;" id="tr-carousel">
+      <!-- Nav arrows -->
+      <button class="tr-nav-btn tr-nav-prev" onclick="trCarouselNav(-1)" aria-label="Previous reform">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button class="tr-nav-btn tr-nav-next" onclick="trCarouselNav(1)" aria-label="Next reform">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <!-- Slides track -->
+      <div class="tr-track" id="tr-track">
+
+        <!-- Slide 1: Ban Congressional Stock Trading -->
+        <div class="tr-slide" data-agenda-id="agenda-stocks">
+          <div class="tr-slide-inner">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tr-rank-badge">📈 #1 Trending</span>
+                <span class="tr-urgency tr-urgency-high">High Demand 🔥</span>
+              </div>
+              <h3 class="tr-title">BAN CONGRESSIONAL STOCK TRADING</h3>
+              <p class="tr-desc">End insider trading by the people who write the rules — mandatory blind trusts and full transparency for all members of Congress.</p>
+              <div class="tr-btns mt-3">
+                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
+                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
+              </div>
+            </div>
+            <div class="tr-stat-box hidden md:flex">
+              <span class="tr-vote-count">0</span>
+              <span class="tr-vote-label">Votes For</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Term Limits for Congress -->
+        <div class="tr-slide" data-agenda-id="agenda-termlimits">
+          <div class="tr-slide-inner">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tr-rank-badge">⏳ #2 Trending</span>
+                <span class="tr-urgency tr-urgency-critical">Critical Priority 🚨</span>
+              </div>
+              <h3 class="tr-title">TERM LIMITS FOR CONGRESS</h3>
+              <p class="tr-desc">3 terms max for House, 2 for Senate — end the career politician class that both parties have protected for decades.</p>
+              <div class="tr-btns mt-3">
+                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
+                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
+              </div>
+            </div>
+            <div class="tr-stat-box hidden md:flex">
+              <span class="tr-vote-count">0</span>
+              <span class="tr-vote-label">Votes For</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Campaign Finance Reform -->
+        <div class="tr-slide" data-agenda-id="agenda-campaign">
+          <div class="tr-slide-inner">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tr-rank-badge">💸 #3 Trending</span>
+                <span class="tr-urgency tr-urgency-high">High Demand 🔥</span>
+              </div>
+              <h3 class="tr-title">CAMPAIGN FINANCE REFORM</h3>
+              <p class="tr-desc">Hard donation caps, full PAC transparency, end dark money — politicians should answer to voters, not whoever writes the biggest check.</p>
+              <div class="tr-btns mt-3">
+                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
+                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
+              </div>
+            </div>
+            <div class="tr-stat-box hidden md:flex">
+              <span class="tr-vote-count">0</span>
+              <span class="tr-vote-label">Votes For</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Balanced Budget Amendment -->
+        <div class="tr-slide" data-agenda-id="agenda-budget">
+          <div class="tr-slide-inner">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tr-rank-badge">📊 #4 Trending</span>
+                <span class="tr-urgency tr-urgency-growing">Growing Movement 🌱</span>
+              </div>
+              <h3 class="tr-title">BALANCED BUDGET AMENDMENT</h3>
+              <p class="tr-desc">Force Congress to balance the federal budget annually — no more kicking the $35 trillion national debt down the road to our kids.</p>
+              <div class="tr-btns mt-3">
+                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
+                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
+              </div>
+            </div>
+            <div class="tr-stat-box hidden md:flex">
+              <span class="tr-vote-count">0</span>
+              <span class="tr-vote-label">Votes For</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Ranked Choice Voting -->
+        <div class="tr-slide" data-agenda-id="agenda-rcv">
+          <div class="tr-slide-inner">
+            <div>
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="tr-rank-badge">🗳️ #5 Trending</span>
+                <span class="tr-urgency tr-urgency-rising">Rising Support 📈</span>
+              </div>
+              <h3 class="tr-title">RANKED CHOICE VOTING NATIONWIDE</h3>
+              <p class="tr-desc">Let voters rank candidates by preference — break the two-party stranglehold and give every voice a real shot at representation.</p>
+              <div class="tr-btns mt-3">
+                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
+                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
+              </div>
+            </div>
+            <div class="tr-stat-box hidden md:flex">
+              <span class="tr-vote-count">0</span>
+              <span class="tr-vote-label">Votes For</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tr-track -->
+
+      <!-- Propose new reform -->
+      <div class="tr-propose-wrap">
+        <button class="tr-propose-btn" onclick="openAgendaSubmit()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Propose a New Reform
+        </button>
+      </div>
+
+      <!-- Dot indicators -->
+      <div class="tr-dots" id="tr-dots">
+        <button class="tr-dot active" onclick="trGoToSlide(0)" aria-label="Slide 1"></button>
+        <button class="tr-dot" onclick="trGoToSlide(1)" aria-label="Slide 2"></button>
+        <button class="tr-dot" onclick="trGoToSlide(2)" aria-label="Slide 3"></button>
+        <button class="tr-dot" onclick="trGoToSlide(3)" aria-label="Slide 4"></button>
+        <button class="tr-dot" onclick="trGoToSlide(4)" aria-label="Slide 5"></button>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="tr-progress-bar" id="tr-progress" style="width:0%"></div>
+    </div>
+  </section>
+  <!-- /TRENDING REFORMS CAROUSEL -->
+
 
   <!-- ═══════════════════════════ COMPARE POLITICIANS HUB ══════ -->
   <section id="compare-hub" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
@@ -20625,167 +20785,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     </div>
   </section>
-
-  <!-- ═══════════════════════════ TRENDING REFORMS CAROUSEL ══════ -->
-  <section id="trending-reforms" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-    <div class="text-center mb-8 animate-on-scroll">
-      <div class="inline-flex items-center gap-2 bg-crimson-600/12 border border-crimson-600/25 rounded-full px-4 py-1.5 mb-3">
-        <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
-        <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">Trending Now · Community Powered</span>
-      </div>
-      <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-3">TRENDING PEOPLE'S <span class="text-crimson-400">MANDATE</span></h2>
-      <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-        <strong class="text-white">Help Shape the Future</strong> — These are the reforms gaining the most momentum right now. Vote, support, or propose your own.
-      </p>
-    </div>
-
-    <div class="tr-carousel-wrap animate-on-scroll" style="transition-delay:0.06s;" id="tr-carousel">
-      <!-- Nav arrows -->
-      <button class="tr-nav-btn tr-nav-prev" onclick="trCarouselNav(-1)" aria-label="Previous reform">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <button class="tr-nav-btn tr-nav-next" onclick="trCarouselNav(1)" aria-label="Next reform">
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-      </button>
-
-      <!-- Slides track -->
-      <div class="tr-track" id="tr-track">
-
-        <!-- Slide 1: Ban Congressional Stock Trading -->
-        <div class="tr-slide" data-agenda-id="agenda-stocks">
-          <div class="tr-slide-inner">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span class="tr-rank-badge">📈 #1 Trending</span>
-                <span class="tr-urgency tr-urgency-high">High Demand 🔥</span>
-              </div>
-              <h3 class="tr-title">BAN CONGRESSIONAL STOCK TRADING</h3>
-              <p class="tr-desc">End insider trading by the people who write the rules — mandatory blind trusts and full transparency for all members of Congress.</p>
-              <div class="tr-btns mt-3">
-                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
-                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
-              </div>
-            </div>
-            <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 2: Term Limits for Congress -->
-        <div class="tr-slide" data-agenda-id="agenda-termlimits">
-          <div class="tr-slide-inner">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span class="tr-rank-badge">⏳ #2 Trending</span>
-                <span class="tr-urgency tr-urgency-critical">Critical Priority 🚨</span>
-              </div>
-              <h3 class="tr-title">TERM LIMITS FOR CONGRESS</h3>
-              <p class="tr-desc">3 terms max for House, 2 for Senate — end the career politician class that both parties have protected for decades.</p>
-              <div class="tr-btns mt-3">
-                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
-                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
-              </div>
-            </div>
-            <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 3: Campaign Finance Reform -->
-        <div class="tr-slide" data-agenda-id="agenda-campaign">
-          <div class="tr-slide-inner">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span class="tr-rank-badge">💸 #3 Trending</span>
-                <span class="tr-urgency tr-urgency-high">High Demand 🔥</span>
-              </div>
-              <h3 class="tr-title">CAMPAIGN FINANCE REFORM</h3>
-              <p class="tr-desc">Hard donation caps, full PAC transparency, end dark money — politicians should answer to voters, not whoever writes the biggest check.</p>
-              <div class="tr-btns mt-3">
-                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
-                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
-              </div>
-            </div>
-            <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 4: Balanced Budget Amendment -->
-        <div class="tr-slide" data-agenda-id="agenda-budget">
-          <div class="tr-slide-inner">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span class="tr-rank-badge">📊 #4 Trending</span>
-                <span class="tr-urgency tr-urgency-growing">Growing Movement 🌱</span>
-              </div>
-              <h3 class="tr-title">BALANCED BUDGET AMENDMENT</h3>
-              <p class="tr-desc">Force Congress to balance the federal budget annually — no more kicking the $35 trillion national debt down the road to our kids.</p>
-              <div class="tr-btns mt-3">
-                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
-                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
-              </div>
-            </div>
-            <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 5: Ranked Choice Voting -->
-        <div class="tr-slide" data-agenda-id="agenda-rcv">
-          <div class="tr-slide-inner">
-            <div>
-              <div class="flex items-center gap-2 mb-2 flex-wrap">
-                <span class="tr-rank-badge">🗳️ #5 Trending</span>
-                <span class="tr-urgency tr-urgency-rising">Rising Support 📈</span>
-              </div>
-              <h3 class="tr-title">RANKED CHOICE VOTING NATIONWIDE</h3>
-              <p class="tr-desc">Let voters rank candidates by preference — break the two-party stranglehold and give every voice a real shot at representation.</p>
-              <div class="tr-btns mt-3">
-                <a href="#agenda" class="tr-btn-learn">📜 Learn More</a>
-                <button onclick="openAgendaSubmit()" class="tr-btn-support">✊ Support This Reform</button>
-              </div>
-            </div>
-            <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /tr-track -->
-
-      <!-- Propose new reform -->
-      <div class="tr-propose-wrap">
-        <button class="tr-propose-btn" onclick="openAgendaSubmit()">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          Propose a New Reform
-        </button>
-      </div>
-
-      <!-- Dot indicators -->
-      <div class="tr-dots" id="tr-dots">
-        <button class="tr-dot active" onclick="trGoToSlide(0)" aria-label="Slide 1"></button>
-        <button class="tr-dot" onclick="trGoToSlide(1)" aria-label="Slide 2"></button>
-        <button class="tr-dot" onclick="trGoToSlide(2)" aria-label="Slide 3"></button>
-        <button class="tr-dot" onclick="trGoToSlide(3)" aria-label="Slide 4"></button>
-        <button class="tr-dot" onclick="trGoToSlide(4)" aria-label="Slide 5"></button>
-      </div>
-
-      <!-- Progress bar -->
-      <div class="tr-progress-bar" id="tr-progress" style="width:0%"></div>
-    </div>
-  </section>
-  <!-- /TRENDING REFORMS CAROUSEL -->
-
 
   <!-- ═══════════════════════════════ SUBMIT CTA ═══════════ -->
   <section id="submit" class="py-16 md:py-24 px-4">
