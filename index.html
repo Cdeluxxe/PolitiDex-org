@@ -3785,6 +3785,131 @@
     .pdx-statpill-broken { color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
     .pdx-statpill-pending { color: #fbbf24; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); }
     .pdx-statpill-none { color: #8aa3c4; background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.22); font-weight: 600; }
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       UNIFIED COMPACT POLITICIAN CARD (.pdx-snap)
+       One clean, professional snapshot layout shared by every listing on the
+       site — All Politicians, Relevant to Me, Search, Compare, Favorites, My
+       Politicians and Watching. Rendered INSIDE the existing .chub-card shell so
+       all card behaviours (hover, compare-select, alignment, accountability)
+       keep working, while the internal hierarchy is now identical everywhere.
+       ───────────────────────────────────────────────────────────────────────── */
+    .pdx-snap-head { display: flex; align-items: flex-start; gap: 0.8rem; }
+    .pdx-photo {
+      position: relative;
+      width: 58px; height: 58px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(148,163,184,0.3);
+      background: linear-gradient(135deg, rgba(30,53,96,0.7), rgba(10,15,30,0.88));
+      box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .pdx-photo.pdx-photo--office { border-color: rgba(34,197,94,0.55); }
+    .pdx-photo.pdx-photo--candidate { border-color: rgba(96,165,250,0.45); }
+    .pdx-photo.pdx-photo--former { border-color: rgba(148,163,184,0.3); }
+    .pdx-photo .pdx-sil {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #5b7196;
+    }
+    .pdx-photo .pdx-sil svg { width: 56%; height: 56%; opacity: 0.85; }
+    .pdx-photo-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+      z-index: 1;
+    }
+    .pdx-snap-id { flex: 1; min-width: 0; }
+    .pdx-snap-nameline { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .pdx-snap-name {
+      font-size: 1.18rem;
+      letter-spacing: 0.025em;
+      color: #ffffff;
+      line-height: 1.1;
+      cursor: pointer;
+    }
+    .pdx-snap-office {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #9fb4d4;
+      letter-spacing: 0.012em;
+      line-height: 1.32;
+      margin-top: 0.16rem;
+    }
+    .pdx-snap-badges { display: flex; align-items: center; gap: 0.34rem; flex-wrap: wrap; margin-top: 0.42rem; }
+    .pdx-snap-score {
+      flex-shrink: 0;
+      text-align: center;
+      min-width: 62px;
+      align-self: flex-start;
+      background: rgba(8,13,27,0.62);
+      border: 1px solid rgba(148,163,184,0.28);
+      border-radius: 0.7rem;
+      padding: 0.34rem 0.52rem 0.4rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .pdx-snap-score-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.78rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+    .pdx-snap-score-lbl {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #7596c0;
+      margin-top: 0.18rem;
+    }
+    .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
+    .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.55rem; }
+    .pdx-snap-issue {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.57rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #8aa3c4;
+      background: rgba(15,28,52,0.7);
+      border: 1px solid rgba(148,163,184,0.14);
+      border-radius: 999px;
+      padding: 0.14rem 0.52rem;
+    }
+    .pdx-snap-issue:first-child { color: #cbd9ec; border-color: rgba(148,163,184,0.28); }
+    .pdx-snap-highlight {
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      margin-top: 0.6rem;
+      padding: 0.5rem 0.65rem;
+      background: rgba(245,200,66,0.06);
+      border: 1px solid rgba(245,200,66,0.18);
+      border-radius: 0.55rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem;
+      line-height: 1.4;
+      color: #d9c89a;
+    }
+    .pdx-snap-highlight .pdx-snap-highlight-ico { flex-shrink: 0; color: #f5c842; }
+    .pdx-snap-extra { margin-top: 0.65rem; }
+    .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
+    .pdx-snap-actions > * { flex: 0 0 auto; }
+    .pdx-snap-divider { height: 1px; background: rgba(148,163,184,0.12); margin: 0.8rem 0 0; }
+    /* Compact icon button used for heart / star controls in the name row */
+    .pdx-snap-ctrl {
+      background: none; border: none; cursor: pointer;
+      font-size: 1rem; line-height: 1;
+      padding: 0 0.1rem;
+      transition: transform 0.18s ease;
+    }
+    .pdx-snap-ctrl:hover { transform: scale(1.18); }
+    @media (max-width: 640px) {
+      .pdx-snap-name { font-size: 1.24rem; }
+      .pdx-snap-office { font-size: 0.84rem; }
+    }
+
     .chub-add-btn {
       display: inline-flex;
       align-items: center;
@@ -30703,46 +30828,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _favoritesRenderCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      const sc = d.score;
-      const scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      const scCol = _chubScoreColor(sc);
-      const sel = _cmpSelected.has(pid);
-      const isFav = _favoritePids.has(pid);
-
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div style="width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(244,63,94,0.35);background:rgba(30,53,96,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.3);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.3rem\\\'>' + d.icon + '</div>\'"></div>'
-        : '<div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));border:2px solid rgba(244,63,94,0.35);font-size:1.3rem;flex-shrink:0;">' + d.icon + '</div>';
-
-      return '<div class="chub-card favorite-card" data-pid="' + pid + '">' +
-        '<div class="flex items-start gap-3">' +
-          photoHtml +
-          '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
-              '<span class="font-display text-base tracking-wider text-white leading-tight">' + d.name + '</span>' +
-              '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.3);color:#fb7185;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">❤️ Favorite</span>' +
-              '<button class="potential-star-btn potential-saved" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="Remove from Favorites" style="font-size:1.1rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">❤️</button>' +
-            '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
-            '<div class="flex flex-wrap items-center gap-3 mb-2">' +
-              '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">Promise Score</div>' +
-              '</div>' +
-              ((sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function') ? '<span style="display:inline-flex;flex-shrink:0;">' + window._acctCardBadge(pid) + '</span>' : '') +
-              (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
-              '<div class="flex flex-wrap gap-1">' +
-                d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
-              '</div>' +
-            '</div>' +
-            '<div class="flex items-center gap-2">' +
-              '<button class="chub-add-btn ' + (sel ? 'chub-added' : '') + '" onclick="chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-500 hover:text-steel-300 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;padding:0.3rem 0;">View Profile</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      const alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      const favBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.3);color:#fb7185;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">❤️ Favorite</span>';
+      return window._pdxCardShell(pid, {
+        cardClass: 'favorite-card',
+        controls: _pdxHeartCtrl(pid),
+        badges: favBadge + _pdxLocalBadge(pid),
+        extra: alignBar,
+        actions: _pdxCompareActions(pid)
+      });
     }
 
     function _favoritesBuildGrid() {
@@ -31385,6 +31479,148 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return (d.icon ? d.icon + ' ' : '') + parts.join(' • ');
     };
 
+    // ════════════════════════════════════════════════════════════════════════
+    // UNIFIED COMPACT CARD BUILDER
+    // One canonical snapshot — photo, name, "Office • District • State", a
+    // prominent color-coded Promise Score, kept/broken/pending pills, a clear
+    // quick-status badge and an optional signature highlight. Every grid listing
+    // (All Politicians, Relevant to Me, Search, Compare, Favorites, My
+    // Politicians, Watching) renders this exact inner markup, so the site reads
+    // consistently. Section-specific badges, controls, extra slots (alignment /
+    // accountability) and action buttons are supplied via opts. Rendered inside
+    // the existing .chub-card shell so every card behaviour keeps working.
+    // ════════════════════════════════════════════════════════════════════════
+    function _pdxSilhouette() {
+      return '<span class="pdx-sil"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12.4c2.72 0 4.9-2.2 4.9-4.9S14.72 2.6 12 2.6 7.1 4.8 7.1 7.5 9.28 12.4 12 12.4zm0 2.3c-3.3 0-9.8 1.66-9.8 4.96V21.4h19.6v-1.74c0-3.3-6.5-4.96-9.8-4.96z"/></svg></span>';
+    }
+    function _pdxCardPhoto(pid, d, status) {
+      // Prefer the photo stored on the (Firestore-merged) profile so edited
+      // headshots show immediately; fall back to the static BROWSE_PHOTOS map.
+      var url = (d && d.photo) ? d.photo : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) ? BROWSE_PHOTOS[pid] : '');
+      var cls = status === 'office' ? 'pdx-photo--office' : status === 'candidate' ? 'pdx-photo--candidate' : 'pdx-photo--former';
+      var img = url ? '<img class="pdx-photo-img" src="' + url + '" alt="' + (d.name || '') + '" loading="lazy" onerror="this.style.display=\'none\'">' : '';
+      return '<div class="pdx-photo ' + cls + '">' + _pdxSilhouette() + img + '</div>';
+    }
+    // Clean "Office • District • State" line WITHOUT the leading office emoji, so
+    // the photo carries the visual weight and the line stays typographic.
+    function _pdxCleanOfficeLine(d) {
+      if (!d) return '';
+      var office = d.office || '';
+      var parts = [];
+      if (office) parts.push(office);
+      if (d.district) {
+        var dist = String(d.district).split('(')[0].trim();
+        var ol = office.toLowerCase();
+        if (dist && ol.indexOf(dist.toLowerCase()) === -1 && ol.indexOf('dist') === -1) parts.push(dist);
+      }
+      if (d.state && String(d.state).trim().toLowerCase() !== 'national') parts.push(d.state);
+      return parts.join(' • ');
+    }
+    // Small name-row control buttons (favorite / save / watch). All stop the
+    // card's click-through so they never accidentally open the profile.
+    function _pdxHeartCtrl(pid) {
+      var isFav = (typeof _favoritePids !== 'undefined') && _favoritePids.has(pid);
+      return '<button class="pdx-snap-ctrl" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '">' + (isFav ? '❤️' : '🤍') + '</button>';
+    }
+    function _pdxStarCtrl(pid) {
+      var isMy = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid);
+      return '<button class="mypol-star ' + (isMy ? 'mypol-saved' : '') + '" onclick="event.stopPropagation();mypolToggle(\'' + pid + '\')" title="' + (isMy ? 'Remove from My Politicians' : 'Add to My Politicians') + '">★</button>';
+    }
+    function _pdxWatchCtrl(pid) {
+      var isP = (typeof _potentialPoliticians !== 'undefined') && _potentialPoliticians.has(pid);
+      return '<button class="potential-star-btn ' + (isP ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isP ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>';
+    }
+    // Section badges shared across listings.
+    function _pdxLocalBadge(pid) {
+      return (typeof _pdxIsLocalToUser === 'function' && _pdxIsLocalToUser(pid)) ? '<span class="chub-your-badge">📍 Local</span>' : '';
+    }
+    function _pdxTeamBadge(pid) {
+      return ((typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid)) ? '<span class="chub-team-badge">✓ On Team</span>' : '';
+    }
+    // Standard "Compare + View Profile" action row used by most listings.
+    function _pdxCompareActions(pid) {
+      var sel = (typeof _cmpSelected !== 'undefined') && _cmpSelected.has(pid);
+      return '<button class="chub-add-btn' + (sel ? ' chub-added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
+        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-400 hover:text-steel-200 tracking-wider uppercase" style="background:none;border:none;padding:0.3rem 0;cursor:pointer;">View Profile</button>';
+    }
+
+    window._pdxCardInner = function(pid, opts) {
+      opts = opts || {};
+      var d = CMP_DATA[pid];
+      if (!d) return '';
+      var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var sc = d.score;
+      var hasScore = (sc !== null && sc !== undefined);
+      var scCol = _chubScoreColor(sc);
+
+      var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(status, { size: 'sm' }) : '';
+      var unopposed = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
+      var party = (typeof window._pdxPartyChip === 'function') ? window._pdxPartyChip(d.party) : '';
+
+      // Prominent, color-coded score rail — shown only where a record grounds it,
+      // so candidates never display a hollow number.
+      var scoreBlock = hasScore
+        ? '<div class="pdx-snap-score" style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
+            '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
+            '<div class="pdx-snap-score-lbl">' + (opts.scoreLabel || 'Promise') + '</div>' +
+          '</div>'
+        : '';
+
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending) : '';
+      var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
+        ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
+      var metrics = (pills || acct) ? '<div class="pdx-snap-metrics">' + pills + acct + '</div>' : '';
+
+      var issues = '';
+      if (opts.issues !== false && d.issues && d.issues.length) {
+        var nIssues = opts.maxIssues || 3;
+        issues = '<div class="pdx-snap-issues">' +
+          d.issues.slice(0, nIssues).map(function(i) { return '<span class="pdx-snap-issue">' + i + '</span>'; }).join('') +
+          '</div>';
+      }
+
+      // Signature highlight: explicit opts.highlight string, or derived from the
+      // record's "why this matters" blurb. opts.highlight === false suppresses it.
+      var highlight = '';
+      if (opts.highlight !== false) {
+        var hl = (typeof opts.highlight === 'string') ? opts.highlight : (d.why || '');
+        if (hl) {
+          if (hl.length > 150) hl = hl.slice(0, 147).replace(/\s+\S*$/, '') + '…';
+          highlight = '<div class="pdx-snap-highlight"><span class="pdx-snap-highlight-ico">★</span><span>' + hl + '</span></div>';
+        }
+      }
+
+      return '<div class="pdx-snap-head">' +
+          _pdxCardPhoto(pid, d, status) +
+          '<div class="pdx-snap-id">' +
+            '<div class="pdx-snap-nameline">' +
+              '<span class="pdx-snap-name font-display" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">' + d.name + '</span>' +
+              (opts.controls || '') +
+            '</div>' +
+            '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d) + '</div>' +
+            '<div class="pdx-snap-badges">' + statusBadge + unopposed + party + (opts.badges || '') + '</div>' +
+          '</div>' +
+          scoreBlock +
+        '</div>' +
+        metrics +
+        issues +
+        highlight +
+        (opts.extra ? '<div class="pdx-snap-extra">' + opts.extra + '</div>' : '') +
+        (opts.actions ? '<div class="pdx-snap-actions">' + opts.actions + '</div>' : '');
+    };
+
+    // Wrap the unified inner card in the .chub-card shell with click-to-profile.
+    window._pdxCardShell = function(pid, opts) {
+      opts = opts || {};
+      var inner = window._pdxCardInner(pid, opts);
+      if (!inner) return '';
+      var cls = 'chub-card pdx-card' + (opts.cardClass ? ' ' + opts.cardClass : '');
+      var style = 'cursor:pointer;' + (opts.cardStyle || '');
+      var idAttr = opts.cardId ? ' id="' + opts.cardId + '"' : '';
+      return '<div class="' + cls + '" data-pid="' + pid + '"' + idAttr +
+        ' style="' + style + '" onclick="showProfile(\'' + pid + '\')">' + inner + '</div>';
+    };
+
 
     function _mypolRenderPrimaryCard(pid) {
       const d = CMP_DATA[pid];
@@ -31440,57 +31676,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _mypolRenderCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      const sc = d.score;
-      const scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      const scCol = _chubScoreColor(sc);
       const sel = _cmpSelected.has(pid);
       const isMy = _myPoliticians.has(pid);
       const isPotential = _potentialPoliticians.has(pid);
-      const isFav = _favoritePids.has(pid);
-      const isLocal = _pdxIsLocalToUser(pid);
-      const localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
       const savedBadge = isMy ? '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">★ Saved</span>' : '';
       const potentialBadge = isPotential ? '<span class="potential-badge">🌟 Watching</span>' : '';
-
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div style="width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.12);background:rgba(30,53,96,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.3);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.3rem\\\'>' + d.icon + '</div>\'"></div>'
-        : '<div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));border:2px solid rgba(255,255,255,0.12);font-size:1.3rem;flex-shrink:0;">' + d.icon + '</div>';
-      const heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:1.1rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
-      var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
-        ? '<span style="display:inline-flex;flex-shrink:0;">' + window._acctCardBadge(pid) + '</span>' : '';
-
-      return '<div class="chub-card ' + (sel ? 'chub-selected' : '') + '" data-pid="' + pid + '">' +
-        '<div class="flex items-start gap-3">' +
-          photoHtml +
-          '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
-              '<span class="font-display text-base tracking-wider text-white leading-tight">' + d.name + '</span>' +
-              localBadge + savedBadge + potentialBadge +
-              '<button class="mypol-star ' + (isMy ? 'mypol-saved' : '') + '" onclick="event.stopPropagation();mypolToggle(\'' + pid + '\')" title="' + (isMy ? 'Remove from My Politicians' : 'Add to My Politicians') + '">★</button>' +
-              '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
-              heartHtml +
-            '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
-            '<div class="flex flex-wrap items-center gap-3 mb-2">' +
-              '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">Promise Score</div>' +
-              '</div>' +
-              acctBadgeHtml +
-              (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
-              '<div class="flex flex-wrap gap-1">' +
-                d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
-              '</div>' +
-            '</div>' +
-            '<div class="flex items-center gap-2">' +
-              '<button class="chub-add-btn ' + (sel ? 'chub-added' : '') + '" onclick="chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-500 hover:text-steel-300 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;padding:0.3rem 0;">View Profile</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      const alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      return window._pdxCardShell(pid, {
+        cardClass: sel ? 'chub-selected' : '',
+        controls: _pdxStarCtrl(pid) + _pdxWatchCtrl(pid) + _pdxHeartCtrl(pid),
+        badges: _pdxLocalBadge(pid) + savedBadge + potentialBadge,
+        extra: alignBar,
+        actions: _pdxCompareActions(pid)
+      });
     }
 
     if (!window.TEAM_POSITIONS) {
@@ -31928,78 +32126,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderBrowseTeamCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = d.score;
-      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      var scCol = _chubScoreColor(sc);
-      var barClass = (sc !== null && sc !== undefined) ? (sc >= 70 ? 'bar-high' : sc >= 40 ? 'bar-mid' : 'bar-low') : 'bar-na';
       var sel = _cmpSelected.has(pid);
       var isMy = _myPoliticians.has(pid);
-      var isPotential = _potentialPoliticians.has(pid);
-      var isFav = _favoritePids.has(pid);
-      var isLocal = _pdxIsLocalToUser(pid);
-      var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
-      var alignBarRow = alignBar ? '<div style="margin-bottom:0.7rem;">' + alignBar + '</div>' : '';
-
-      // Accountability of Truth Score chip — shown by default (computed eagerly) right
-      // beside the Promise % so it reads as a core, always-visible metric. Only for
-      // officeholders with a record; candidates have no record to ground a score yet.
-      var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
-        ? '<span style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
-
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div style="width:60px;height:60px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2.5px solid ' + (isMy ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.15)') + ';background:rgba(30,53,96,0.5);box-shadow:0 4px 16px rgba(0,0,0,0.35);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem\\\'>' + d.icon + '</div>\'"></div>'
-        : '<div style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));border:2.5px solid ' + (isMy ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.15)') + ';font-size:1.5rem;flex-shrink:0;">' + d.icon + '</div>';
-      var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:1rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
 
       var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
       var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
       var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
 
-      var teamBadge = isMy ? '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);color:#4ade80;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">✓ On Team</span>' : '';
-
       var isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
-      var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
-      var cardStyle = isInOffice
-        ? 'border-color:rgba(34,197,94,0.6);box-shadow:0 0 0 1px rgba(34,197,94,0.25),0 0 22px rgba(34,197,94,0.2);'
-        : (isMy ? 'border-color:rgba(74,222,128,0.25);' : '');
 
-      return '<div class="chub-card" data-pid="' + pid + '" style="' + cardStyle + '">' +
-        '<div class="flex items-start gap-3.5">' +
-          photoHtml +
-          '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
-              '<span class="font-display text-base tracking-wider text-white leading-tight">' + d.name + '</span>' +
-              window._pdxStatusBadge(d, { size: 'sm' }) +
-              unopposedBadge +
-              localBadge + teamBadge +
-              heartHtml +
-            '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            '<div class="flex flex-wrap items-center gap-3 mb-2.5">' +
-              '<div style="flex-shrink:0;text-align:center;background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:2.2rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-400 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">Promise %</div>' +
-              '</div>' +
-              acctBadgeHtml +
-              '<div class="flex flex-wrap gap-1">' +
-                d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
-              '</div>' +
-            '</div>' +
-            '<div style="margin-bottom:0.65rem;"><div style="height:3px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
-            (typeof window._ftStrip === 'function' ? window._ftStrip(d.kept, d.broken, d.pending) : '') +
-            alignBarRow +
-            '<div class="mypol-card-actions">' +
-              '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
-              '<div class="mypol-card-actions-secondary">' +
-                '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
-                '<button onclick="showProfile(\'' + pid + '\')" class="mypol-act-profile">Profile</button>' +
-              '</div>' +
-            '</div>' +
+      var actions =
+        '<div class="mypol-card-actions" style="width:100%;">' +
+          '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
+          '<div class="mypol-card-actions-secondary">' +
+            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
+            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile">Profile</button>' +
           '</div>' +
-        '</div>' +
-      '</div>';
+        '</div>';
+
+      return window._pdxCardShell(pid, {
+        cardClass: isInOffice ? 'is-incumbent' : '',
+        cardStyle: (!isInOffice && isMy) ? 'border-color:rgba(74,222,128,0.25);' : '',
+        controls: _pdxHeartCtrl(pid),
+        badges: _pdxLocalBadge(pid) + _pdxTeamBadge(pid),
+        extra: alignBar,
+        actions: actions
+      });
     }
 
     function _renderAllPoliticiansCard(pid) {
@@ -32009,86 +32162,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // lighter card so the sitting officeholder stays the visual hero of the race.
       var _status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       if (_status !== 'office') return _renderCandidateBrowseCard(pid);
-      var sc = d.score;
-      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      var scCol = _chubScoreColor(sc);
       var sel = _cmpSelected.has(pid);
-      var isMy = _myPoliticians.has(pid);
-      var isFav = _favoritePids.has(pid);
-      var isLocal = _pdxIsLocalToUser(pid);
-      var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
+
+      // Personalized "Your Match" bar + the lazy Accountability analysis expander
+      // ride in the extra slot, below the unified snapshot.
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
-      var alignBarRow = alignBar ? '<div style="margin:0.1rem 0 0.55rem;">' + alignBar + '</div>' : '';
-
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div class="chub-photo-wrapper"><img src="' + photoUrl + '" alt="' + d.name + '" class="chub-photo-img" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div class=\\\'chub-photo-placeholder\\\' style=\\\'font-size:1.5rem\\\'><span class=\\\'chub-photo-placeholder-icon\\\'>' + d.icon + '</span></div>\'"></div>'
-        : '<div class="chub-photo-wrapper"><div class="chub-photo-placeholder" style="font-size:1.5rem;"><span class="chub-photo-placeholder-icon">' + d.icon + '</span></div></div>';
-      var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:0.9rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
-
-      var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
-
-      var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
-
-      return '<div class="chub-card is-incumbent" data-pid="' + pid + '">' +
-        // Premium "currently in office" ribbon — the strong signal that this card
-        // is the sitting officeholder, not a challenger.
-        '<div class="chub-incumbent-ribbon-row">' +
-          '<span class="chub-incumbent-ribbon">✅ Currently In Office</span>' +
-          unopposedBadge +
-          localBadge + teamBadge +
-          (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') +
-        '</div>' +
-        // Compact horizontal layout container
-        '<div class="flex flex-row items-start gap-4 mb-4">' +
-          // Left side: circular photo
-          '<div class="flex-shrink-0">' +
-            photoHtml +
-          '</div>' +
-          // Right side: name, office, score, tags
-          '<div class="flex-1 min-w-0 flex flex-col gap-1.5">' +
-            // Name line
-            '<div class="flex items-center gap-2 flex-wrap">' +
-              '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
-              heartHtml +
-            '</div>' +
-            // Office + district + state — one consistent line across the whole site
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium leading-none" style="margin: 0.1rem 0;">' + window._pdxOfficeLine(d) + '</p>' +
-            // Party — shown subtly, on its own line so the name/office hierarchy stays clean
-            (window._pdxPartyChip(d.party) ? '<div style="margin:0.15rem 0 0.05rem;">' + window._pdxPartyChip(d.party) + '</div>' : '') +
-            // Score badges & Issue tags in a nice horizontal block
-            '<div class="flex flex-wrap items-center gap-3 mt-1">' +
-              '<div class="chub-score-container" style="background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-flex;align-items:center;gap:0.35rem;">' +
-                '<span class="chub-score" style="color:' + scCol + ';font-size:1.7rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</span>' +
-                '<span class="font-condensed text-[10px] text-steel-400 tracking-wider uppercase font-bold" style="font-size:0.55rem;letter-spacing:0.05em;line-height:1.1;">Promise<br>Score</span>' +
-              '</div>' +
-              // Accountability Score badge (purple) — sits beside the Promise Score for at-a-glance comparison
-              '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + ((typeof window._acctCardBadge === 'function') ? window._acctCardBadge(pid) : '') + '</span>' +
-              '<div class="flex flex-wrap gap-1">' +
-                d.issues.slice(0, 3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        // Follow-Through strip — at-a-glance kept vs broken read, directly on
-        // the card so integrity is visible without opening the profile.
-        (typeof window._ftStrip === 'function' ? window._ftStrip(d.kept, d.broken, d.pending) : '') +
-        // Personalized "Your Match" bar — a first-class, tappable read of how this
-        // officeholder fits the visitor's own issues, on par with the Promise Score.
-        alignBarRow +
-        // Expandable Accountability analysis (condensed, lazy-loaded only when opened)
-        '<button type="button" id="acctbtn-' + pid + '" onclick="event.stopPropagation();toggleCardAccountability(\'' + pid + '\')" style="width:100%;margin-top:0.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:0.5rem;padding:0.45rem 0.6rem;color:#c4b5fd;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(139,92,246,0.16)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.08)\'">' +
+      var acctExpander =
+        '<button type="button" id="acctbtn-' + pid + '" onclick="event.stopPropagation();toggleCardAccountability(\'' + pid + '\')" style="width:100%;margin-top:0.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:0.5rem;padding:0.45rem 0.6rem;color:#c4b5fd;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(139,92,246,0.16)\'" onmouseout="this.style.background=\'rgba(139,92,246,0.08)\'">' +
           '<span>🛡️</span><span class="acct-exp-label">View Accountability Analysis</span>' +
           '<span id="acctchev-' + pid + '" style="display:inline-block;transition:transform 0.25s;font-size:0.55rem;">▼</span>' +
         '</button>' +
-        '<div id="acctexp-' + pid + '" data-open="0" data-loaded="0" style="max-height:0;opacity:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;"></div>' +
-        // Divider & Buttons row
-        '<div class="chub-card-divider"></div>' +
-        '<div class="grid grid-cols-2 gap-3 w-full">' +
-          '<button onclick="showProfile(\'' + pid + '\')" class="chub-view-profile-btn">VIEW FULL PROFILE</button>' +
-          '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '">' + (sel ? '✓ COMPARING' : '+ COMPARE') + '</button>' +
-        '</div>' +
-      '</div>';
+        '<div id="acctexp-' + pid + '" data-open="0" data-loaded="0" style="max-height:0;opacity:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;"></div>';
+      var extra = (alignBar ? '<div style="margin-bottom:0.1rem;">' + alignBar + '</div>' : '') + acctExpander;
+
+      var actions =
+        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="chub-view-profile-btn" style="flex:1;">VIEW FULL PROFILE</button>' +
+        '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '" style="flex:1;">' + (sel ? '✓ COMPARING' : '+ COMPARE') + '</button>';
+
+      var badges = (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') + _pdxLocalBadge(pid) + _pdxTeamBadge(pid);
+
+      return window._pdxCardShell(pid, {
+        cardClass: 'is-incumbent',
+        controls: _pdxHeartCtrl(pid),
+        badges: badges,
+        extra: extra,
+        actions: actions
+      });
     }
 
     // Simpler, lighter card for candidates / challengers (and former officeholders).
@@ -32100,67 +32199,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = CMP_DATA[pid];
       if (!d) return '';
       var sel = _cmpSelected.has(pid);
-      var isMy = _myPoliticians.has(pid);
-      var isFav = _favoritePids.has(pid);
-      var isLocal = _pdxIsLocalToUser(pid);
-      var localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
-      var teamBadge = isMy ? '<span class="chub-team-badge">✓ On Team</span>' : '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'candidate';
-      var unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
-      var noRecord = (status === 'candidate' && (d.score === null || d.score === undefined))
-        ? '<span class="chub-candidate-norecord">⏳ No voting record yet</span>' : '';
 
       // Personalized match bar — only once the visitor has chosen issues, so the
-      // lighter candidate card stays minimal by default and never shows an empty
-      // prompt. Returns '' when there's no record to ground a score.
+      // lighter candidate card stays minimal by default and never shows an empty prompt.
       var alignBar = (typeof _alignCardBar === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0) ? _alignCardBar(pid) : '';
-      var alignBarRow = alignBar ? '<div style="margin-top:0.55rem;">' + alignBar + '</div>' : '';
 
-      // Clear, always-present label so a candidate card can never be mistaken for a
-      // sitting officeholder. Former officeholders get their own neutral label.
-      var candLabel = (status === 'former')
-        ? '<span class="chub-candidate-tag chub-candidate-tag--former">⏳ Former Office</span>'
-        : '<span class="chub-candidate-tag">🗳️ 2026 Candidate</span>';
+      var badges = (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') + _pdxLocalBadge(pid) + _pdxTeamBadge(pid);
 
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div style="width:46px;height:46px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(148,163,184,0.3);background:rgba(30,53,96,0.4);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem\\\'>' + d.icon + '</div>\'"></div>'
-        : '<div style="width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.6),rgba(10,15,30,0.7));border:1.5px solid rgba(148,163,184,0.3);font-size:1.2rem;flex-shrink:0;">' + d.icon + '</div>';
-      var heartHtml = '<button class="heart-btn-circle" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="' + (isFav ? 'Remove from Favorites' : 'Add to Favorites') + '" style="font-size:0.85rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">' + (isFav ? '❤️' : '🤍') + '</button>';
+      var actions =
+        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="chub-view-profile-btn" style="flex:1;">View Profile</button>' +
+        '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '" style="flex:1;">' + (sel ? '✓ Comparing' : '+ Compare') + '</button>';
 
-      return '<div class="chub-card is-candidate" data-pid="' + pid + '">' +
-        // Clear candidate label row at the top — the lighter counterpart to the
-        // incumbent's "Currently In Office" ribbon.
-        '<div class="chub-candidate-tag-row">' +
-          candLabel +
-          unopposedBadge +
-          localBadge + teamBadge +
-          (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') +
-        '</div>' +
-        '<div class="flex flex-row items-start gap-3">' +
-          '<div class="flex-shrink-0">' + photoHtml + '</div>' +
-          '<div class="flex-1 min-w-0 flex flex-col gap-1">' +
-            // Name + favorite
-            '<div class="flex items-center gap-1.5 flex-wrap">' +
-              '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
-              heartHtml +
-            '</div>' +
-            // Office + district + state (the seat they are running for)
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium" style="margin:0.05rem 0;">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            // Lightweight meta: no-record note + a couple of issue tags
-            '<div class="flex items-center gap-2 flex-wrap mt-0.5">' +
-              noRecord +
-              d.issues.slice(0, 2).map(function(i) { return '<span class="inline-block bg-navy-900/50 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;text-transform:uppercase;">' + i + '</span>'; }).join('') +
-            '</div>' +
-            alignBarRow +
-            // Buttons row (kept minimal)
-            '<div class="grid grid-cols-2 gap-2 w-full mt-2">' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="chub-view-profile-btn">View Profile</button>' +
-              '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '">' + (sel ? '✓ Comparing' : '+ Compare') + '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      return window._pdxCardShell(pid, {
+        cardClass: 'is-candidate',
+        controls: _pdxHeartCtrl(pid),
+        badges: badges,
+        maxIssues: 2,
+        highlight: false,
+        acct: false,
+        extra: alignBar,
+        actions: actions
+      });
     }
 
     var _browseScope = 'all';
@@ -32542,6 +32602,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           html += _chevronWrapped('w-6 h-6 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-3 h-3 text-steel-400 transition-transform duration-300');
           html += '</button>';
           html += '<div class="browse-sub-body"><div class="p-3 space-y-3">';
+
+          // Statewide-elected offices (U.S. Senate, President, Cabinet/Appointed)
+          // have no districts to break out, so they render their cards directly
+          // under the state instead of nesting inside a redundant "Statewide"
+          // accordion. This removes the broad STATEWIDE grouping the rest of the
+          // tree was reorganized away from — every other office type still groups
+          // by its real district / county / office below.
+          var _flatTypes = { senator: 1, president: 1, cabinet: 1 };
+          if (_flatTypes[groupKey]) {
+            var _flatPids = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function')
+              ? statePids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
+              : _sortInOfficeFirst(statePids);
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
+            _flatPids.forEach(function(pid) { html += _renderAllPoliticiansCard(pid); });
+            html += '</div>';
+            html += '</div></div></div>';
+            return;
+          }
 
           var districtGroups = {};
           statePids.forEach(function(pid) {
@@ -33820,52 +33898,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _chubRenderCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      const sc = d.score;
-      const scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      const scCol = _chubScoreColor(sc);
       const sel = _cmpSelected.has(pid);
       const isMy = _myPoliticians.has(pid);
       const isPotential = _potentialPoliticians.has(pid);
-      const isLocal = _pdxIsLocalToUser(pid);
-      const localBadge = isLocal ? '<span class="chub-your-badge">📍 Local</span>' : '';
+      const isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
+
       const myBadge = isMy ? '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">★ Saved</span>' : '';
       const potBadge = isPotential ? '<span class="potential-badge">🌟 Watching</span>' : '';
       const alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
-      const alignBarRow = alignBar ? '<div style="margin:0.1rem 0 0.65rem;">' + alignBar + '</div>' : '';
-      const statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
-      const unopposedBadge = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
-      const isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
-      const inOfficeStyle = isInOffice ? ' style="border-color:rgba(34,197,94,0.6);box-shadow:0 0 0 1px rgba(34,197,94,0.22),0 0 20px rgba(34,197,94,0.18);"' : '';
 
-      return '<div class="chub-card ' + (sel ? 'chub-selected' : '') + '" data-pid="' + pid + '" id="chub-card-' + pid + '"' + inOfficeStyle + '>' +
-        '<div class="flex items-start gap-3">' +
-          '<div style="display:flex;gap:0.5rem;flex-shrink:0;align-items:flex-start;">' +
-            '<div>' +
-              '<div class="chub-score" style="color:' + scCol + ';">' + scTxt + '</div>' +
-              '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">Score</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
-              '<span class="font-display text-base tracking-wider text-white leading-tight">' + d.name + '</span>' +
-              statusBadge + unopposedBadge +
-              localBadge + myBadge + potBadge +
-              '<button class="mypol-star ' + (isMy ? 'mypol-saved' : '') + '" onclick="event.stopPropagation();mypolToggle(\'' + pid + '\')" title="' + (isMy ? 'Remove from My Politicians' : 'Add to My Politicians') + '">★</button>' +
-              '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
-            '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
-            '<div class="flex flex-wrap gap-1 mb-2">' +
-              d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
-            '</div>' +
-            alignBarRow +
-            '<div class="flex items-center gap-2">' +
-              '<button class="chub-add-btn ' + (sel ? 'chub-added' : '') + '" onclick="chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-500 hover:text-steel-300 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;padding:0.3rem 0;">View Profile</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      return window._pdxCardShell(pid, {
+        cardId: 'chub-card-' + pid,
+        cardClass: (isInOffice ? 'is-incumbent' : '') + (sel ? ' chub-selected' : ''),
+        controls: _pdxStarCtrl(pid) + _pdxWatchCtrl(pid),
+        badges: _pdxLocalBadge(pid) + myBadge + potBadge,
+        extra: alignBar,
+        actions: _pdxCompareActions(pid)
+      });
     }
 
     function chubBuildAll(filteredPids) {
@@ -34111,45 +34160,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _potentialRenderCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = d.score;
-      var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
-      var scCol = _chubScoreColor(sc);
-      var sel = _cmpSelected.has(pid);
-      var isPotential = _potentialPoliticians.has(pid);
-
-      var photoUrl = BROWSE_PHOTOS[pid] || '';
-      var photoHtml = photoUrl
-        ? '<div style="width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(251,146,60,0.35);background:rgba(30,53,96,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.3);"><img src="' + photoUrl + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.3rem\\\'>' + d.icon + '</div>\'"></div>'
-        : '<div style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));border:2px solid rgba(251,146,60,0.35);font-size:1.3rem;flex-shrink:0;">' + d.icon + '</div>';
-
-      return '<div class="chub-card potential-card" data-pid="' + pid + '">' +
-        '<div class="flex items-start gap-3">' +
-          photoHtml +
-          '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 flex-wrap mb-0.5">' +
-              '<span class="font-display text-base tracking-wider text-white leading-tight">' + d.name + '</span>' +
-              '<span class="potential-badge">🌟 Watching</span>' +
-              '<button class="potential-star-btn potential-saved" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="Remove from potential candidates">🌟</button>' +
-            '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
-            '<div class="flex items-center gap-3 mb-2">' +
-              '<div style="flex-shrink:0;">' +
-                '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
-                '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">Promise Score</div>' +
-              '</div>' +
-              (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
-              '<div class="flex flex-wrap gap-1">' +
-                d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
-              '</div>' +
-            '</div>' +
-            '<div class="flex items-center gap-2">' +
-              '<button class="chub-add-btn ' + (sel ? 'chub-added' : '') + '" onclick="chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
-              '<button onclick="showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-500 hover:text-steel-300 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:none;padding:0.3rem 0;">View Profile</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
+      return window._pdxCardShell(pid, {
+        cardClass: 'potential-card',
+        controls: _pdxWatchCtrl(pid),
+        badges: '<span class="potential-badge">🌟 Watching</span>' + _pdxLocalBadge(pid),
+        extra: alignBar,
+        actions: _pdxCompareActions(pid)
+      });
     }
 
     function _potentialBuildGrid() {
@@ -34512,6 +34530,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     function _getPhotoUrl(pid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (d && d.photo) return d.photo;
       if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) return BROWSE_PHOTOS[pid];
       return '';
     }
