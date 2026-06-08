@@ -1402,15 +1402,22 @@
 
     /* ── Modal section dividers ────────────────────────── */
     .modal-section {
-      border-top: 1px solid rgba(255,255,255,0.07);
-      margin-top: 1.4rem; padding-top: 1.4rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 1.65rem; padding-top: 1.65rem;
     }
     .modal-section-title {
       font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 0.1em; font-size: 1.05rem;
-      color: #9fb4d4; margin-bottom: 0.7rem;
+      letter-spacing: 0.11em; font-size: 1.12rem;
+      color: #cbd9ec; margin-bottom: 0.8rem;
       text-transform: uppercase;
-      display: flex; align-items: center; gap: 0.45rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    /* Leading accent rule gives every section a consistent, ledger-like
+       anchor on the left — strengthens the scan hierarchy without clutter. */
+    .modal-section-title::before {
+      content: ""; flex-shrink: 0;
+      width: 3px; height: 0.95em; border-radius: 2px;
+      background: currentColor; opacity: 0.85;
     }
     /* Short descriptive line under a section title — sets context so each
        profile section reads as a self-contained, professional block. */
@@ -1435,10 +1442,91 @@
     /* ── Key issue pills ───────────────────────────────── */
     .issue-pill {
       display: inline-flex; align-items: center; gap: 0.3rem;
-      background: rgba(30,53,96,0.6); border: 1px solid rgba(159,180,212,0.18);
-      border-radius: 0.45rem; padding: 0.28rem 0.6rem;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; color: #9fb4d4;
+      background: rgba(30,53,96,0.45); border: 1px solid rgba(159,180,212,0.2);
+      border-radius: 0.5rem; padding: 0.36rem 0.72rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.74rem; letter-spacing: 0.05em; color: #b9cae3;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    @media (hover: hover) { .issue-pill:hover { border-color: rgba(159,180,212,0.42); background: rgba(30,53,96,0.66); } }
+
+    /* ── Detailed profile: hero / letterhead header ────── */
+    .profile-hero {
+      display: flex; align-items: flex-start; gap: 1.15rem;
+      margin-bottom: 1.4rem;
+    }
+    .profile-hero-photo {
+      width: 132px; height: 158px; flex-shrink: 0;
+      border-radius: 0.9rem; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.04);
+      background: linear-gradient(150deg, rgba(30,53,96,0.7), rgba(10,15,30,0.85));
+    }
+    .profile-hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .profile-hero-photo .ph-fallback {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%; font-size: 3.4rem;
+    }
+    .profile-hero-id { flex: 1; min-width: 0; padding-top: 0.1rem; }
+    .profile-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #7596c0; margin-bottom: 0.38rem;
+    }
+    .profile-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.75rem, 6.5vw, 2.55rem); letter-spacing: 0.04em;
+      color: #fff; line-height: 0.98; margin: 0 0 0.45rem;
+    }
+    .profile-office {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.92rem; letter-spacing: 0.03em; color: #b9cae3;
+      line-height: 1.3; margin-bottom: 0.6rem;
+    }
+    .profile-office .po-sep { color: #41597d; margin: 0 0.42rem; }
+    .profile-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    .profile-party {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #6f88ac; display: inline-flex; align-items: center; gap: 0.34rem;
+    }
+    .profile-party::before {
+      content: ""; width: 0.42rem; height: 0.42rem; border-radius: 50%;
+      background: currentColor; opacity: 0.8;
+    }
+    .profile-status-monitoring {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.16rem 0.5rem;
+      background: rgba(159,180,212,0.12); border: 1px solid rgba(159,180,212,0.35); color: #9fb4d4;
+    }
+    .profile-hero-score { flex-shrink: 0; }
+    @media (max-width: 480px) {
+      .profile-hero { gap: 0.9rem; }
+      .profile-hero-photo { width: 96px; height: 118px; border-radius: 0.7rem; }
+      .profile-hero-score { display: none; }
+    }
+
+    /* ── Detailed profile: signature quote ─────────────── */
+    .profile-quote {
+      position: relative;
+      background: linear-gradient(135deg, rgba(30,53,96,0.42), rgba(10,15,30,0.25));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-left: 3px solid #c0152a;
+      border-radius: 0 0.7rem 0.7rem 0;
+      padding: 0.95rem 1.15rem 0.95rem 2.5rem;
+      margin: 0;
+    }
+    .profile-quote::before {
+      content: "\201C";
+      position: absolute; left: 0.65rem; top: 0.2rem;
+      font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem;
+      color: rgba(192,21,42,0.55); line-height: 1;
+    }
+    .profile-quote p {
+      font-family: 'Barlow', sans-serif; font-style: italic;
+      font-size: 0.9rem; color: #cbd9ec; line-height: 1.55; margin: 0;
     }
 
     /* ── Deep profile: Key Issue Stances & People's Mandate ── */
@@ -23953,17 +24041,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Assemble full modal content
     document.getElementById('modal-content').innerHTML = `
 
-      <!-- Hero header -->
-      <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.25rem;">
-        ${scoreRing}
-        <div style="width:150px;height:150px;border-radius:1rem;overflow:hidden;flex-shrink:0;border:3px solid rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07), 0 0 20px rgba(192,21,42,0.1);">
-          ${p.photo ? `<img src="${p.photo}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:3.5rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));\'>${p.icon}</div>'">` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:3.5rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));">${p.icon}</div>`}
+      <!-- Hero header — clean letterhead: photo, identity, status, score -->
+      <div class="profile-hero">
+        <div class="profile-hero-photo">
+          ${p.photo ? `<img src="${p.photo}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`}
         </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;">${p.office}</div>
-          <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,6vw,2.4rem);letter-spacing:0.06em;color:white;line-height:1;margin-bottom:0.25rem;">${p.name}</h2>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;">${p.state}${p.party ? ' <span style="color:#5b7196;font-size:0.62rem;letter-spacing:0.08em;opacity:0.75;">· ' + p.party + '</span>' : ''}</div>
+        <div class="profile-hero-id">
+          <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
+          <h2 class="profile-name">${p.name}</h2>
+          <div class="profile-office">${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? parts.join('<span class="po-sep">·</span>') : (p.office||''); })()}</div>
+          <div class="profile-meta">
+            ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
+            ${scoreNum === null ? '<span class="profile-status-monitoring">◷ No voting record yet</span>' : ''}
+            ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
+          </div>
         </div>
+        <div class="profile-hero-score">${scoreRing}</div>
       </div>
 
       <!-- Election Status Banner -->
@@ -24014,6 +24107,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${scoreNum}%;background:${barColor};border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
         </div>
+      </div>` : ''}
+
+      <!-- Biography & signature quote — who they are, read early so the
+           profile opens like an honest dossier: identity → record → person. -->
+      ${(p.bio || p.quote) ? `<div class="modal-section">
+        <div class="modal-section-title">📋 Biography</div>
+        ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
+        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p></blockquote>` : ''}
       </div>` : ''}
 
       <!-- Personalized Alignment Score — a first-class "Your Match" read on every
@@ -24135,21 +24236,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>` ;
       })()}
 
-      <!-- Quote -->
-      ${p.quote ? `<div style="background:rgba(30,53,96,0.4);border-left:3px solid #c0152a;border-radius:0 0.5rem 0.5rem 0;padding:0.75rem 1rem;margin-bottom:1.25rem;">
-        <p style="font-family:'Barlow',sans-serif;font-style:italic;font-size:0.85rem;color:#9fb4d4;line-height:1.5;margin:0;">${p.quote}</p>
-      </div>` : ''}
-
-      <!-- Bio -->
-      <div class="modal-section" style="margin-top:0;padding-top:0;border-top:none;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:1.25rem;margin-bottom:0;">
-        <div class="modal-section-title">📋 Background</div>
-        <p style="font-size:0.85rem;color:#9fb4d4;line-height:1.7;margin:0;">${p.bio}</p>
-      </div>
+      <!-- Quote & Biography now render together near the top of the profile -->
 
       <!-- Key Issues -->
       <div class="modal-section">
         <div class="modal-section-title">🎯 Key Issues</div>
-        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">${issuePills}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
       </div>
 
       <!-- Promise breakdown table -->
