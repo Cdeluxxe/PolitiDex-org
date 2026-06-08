@@ -3805,9 +3805,9 @@
       background: linear-gradient(135deg, rgba(30,53,96,0.7), rgba(10,15,30,0.88));
       box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    .pdx-photo.pdx-photo--office { border-color: rgba(34,197,94,0.55); }
-    .pdx-photo.pdx-photo--candidate { border-color: rgba(96,165,250,0.45); }
-    .pdx-photo.pdx-photo--former { border-color: rgba(148,163,184,0.3); }
+    .pdx-photo.pdx-photo--office { border-color: rgba(34,197,94,0.6); box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 3px rgba(34,197,94,0.1); }
+    .pdx-photo.pdx-photo--candidate { border-color: rgba(96,165,250,0.5); box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 3px rgba(96,165,250,0.1); }
+    .pdx-photo.pdx-photo--former { border-color: rgba(148,163,184,0.32); box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 3px rgba(148,163,184,0.07); }
     .pdx-photo .pdx-sil {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -3844,11 +3844,11 @@
       text-align: center;
       min-width: 62px;
       align-self: flex-start;
-      background: rgba(8,13,27,0.62);
+      background: linear-gradient(160deg, rgba(18,28,50,0.7), rgba(8,13,27,0.72));
       border: 1px solid rgba(148,163,184,0.28);
       border-radius: 0.7rem;
       padding: 0.34rem 0.52rem 0.4rem;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.25);
     }
     .pdx-snap-score-num {
       font-family: 'Bebas Neue', sans-serif;
@@ -31502,16 +31502,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<div class="pdx-photo ' + cls + '">' + _pdxSilhouette() + img + '</div>';
     }
     // Clean "Office • District • State" line WITHOUT the leading office emoji, so
-    // the photo carries the visual weight and the line stays typographic.
-    function _pdxCleanOfficeLine(d) {
+    // the photo carries the visual weight and the line stays typographic. When the
+    // record has no district of its own, the resolved district/county (UT-02,
+    // Davis County, …) is passed in so every card shows its seat clearly.
+    function _pdxCleanOfficeLine(d, resolvedDist) {
       if (!d) return '';
       var office = d.office || '';
       var parts = [];
       if (office) parts.push(office);
-      if (d.district) {
-        var dist = String(d.district).split('(')[0].trim();
+      var dist = d.district ? String(d.district) : (resolvedDist || '');
+      if (dist) {
+        dist = dist.split('(')[0].trim();   // short label; drop any "(County)" tail
         var ol = office.toLowerCase();
-        if (dist && ol.indexOf(dist.toLowerCase()) === -1 && ol.indexOf('dist') === -1) parts.push(dist);
+        var dl = dist.toLowerCase();
+        // Skip when the office title already names the same district, so the line
+        // never reads "House District 56 • District 56".
+        var redundant = ol.indexOf(dl) !== -1 || (dl.indexOf('district') === 0 && ol.indexOf('district') !== -1);
+        if (dist && !redundant) parts.push(dist);
       }
       if (d.state && String(d.state).trim().toLowerCase() !== 'national') parts.push(d.state);
       return parts.join(' • ');
@@ -31552,6 +31559,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var sc = d.score;
       var hasScore = (sc !== null && sc !== undefined);
       var scCol = _chubScoreColor(sc);
+
+      // Resolve this politician's real district / county so the office line can
+      // state the seat clearly even where the card sits outside the browse tree
+      // (search, favorites, compare). The 'Statewide' sentinel is suppressed.
+      var resolvedDist = '';
+      if (!d.district && typeof window._getPoliticianDistrictOrCounty === 'function') {
+        var _rd = window._getPoliticianDistrictOrCounty(pid);
+        if (_rd && _rd !== 'Statewide' && _rd !== 'Statewide Office') resolvedDist = _rd;
+      }
 
       var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(status, { size: 'sm' }) : '';
       var unopposed = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
@@ -31597,7 +31613,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="pdx-snap-name font-display" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">' + d.name + '</span>' +
               (opts.controls || '') +
             '</div>' +
-            '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d) + '</div>' +
+            '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d, resolvedDist) + '</div>' +
             '<div class="pdx-snap-badges">' + statusBadge + unopposed + party + (opts.badges || '') + '</div>' +
           '</div>' +
           scoreBlock +
@@ -32511,14 +32527,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return 'Statewide';
       }
       
-      // Additional fallback for known bare districts or codes:
+      // Additional fallback for known bare districts or codes. Every tracked
+      // officeholder / candidate resolves to a real congressional or legislative
+      // district (or a county) so none drop into a generic "Statewide" bucket.
+      // Utah U.S. House seats read as their UT-0N congressional district.
       if (pid === 'bmoore') return 'District 1 (UT-01)';
       if (pid === 'maloy') return 'District 2 (UT-02)';
       if (pid === 'kennedy') return 'District 3 (UT-03)';
       if (pid === 'owens') return 'District 4 (UT-04)';
-      
+      if (pid === 'cstewart') return 'District 2 (UT-02)';   // former UT-02 representative
+      if (pid === 'boebert') return 'District 4';            // CO-04
+      if (pid === 'mtg') return 'District 14';               // GA-14
+      if (pid === 'gaetz') return 'District 1';              // FL-01 (former)
+      if (pid === 'rfine') return 'District 33';             // Florida state-house seat
+      if (pid === 'jpetro') return 'Davis County';           // Mayor of Layton (Davis County)
+
+      // Internal sentinel for any record that still can't be resolved to a real
+      // district/office. It is deliberately NEVER rendered as its own "STATEWIDE"
+      // accordion — the browse tree (see _renderGroupedBrowse) lays these cards
+      // out flat under their state heading instead, so the broad, mixed-up
+      // "STATEWIDE" section the tree was reorganized away from cannot reappear.
       return 'Statewide';
     }
+    // Exposed so the unified compact card can show each politician's resolved
+    // district / county on its office line, consistently across every listing.
+    window._getPoliticianDistrictOrCounty = _getPoliticianDistrictOrCounty;
 
     // Sort a list of politician ids so that those currently holding office
     // ('office') always appear first, ahead of candidates/challengers and
@@ -32628,10 +32661,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             districtGroups[dist].push(pid);
           });
 
+          // Any card that could not be resolved to a real district / county would
+          // otherwise pool into a broad "Statewide" accordion — exactly the mixed
+          // grouping this tree was reorganized away from. Pull those out and lay
+          // them flat under the state heading (no accordion, no "STATEWIDE" label)
+          // so the generic statewide section never reappears.
+          var _statewidePids = districtGroups['Statewide'] || null;
+          delete districtGroups['Statewide'];
+
           var districts = Object.keys(districtGroups);
           districts.sort(function(a, b) {
-            if (a === 'Statewide') return -1;
-            if (b === 'Statewide') return 1;
             if (a === 'Federal') return -1;
             if (b === 'Federal') return 1;
             return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
@@ -32727,6 +32766,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               return !_activeRanges.some(function(rng) { return n >= rng.min && n <= rng.max; });
             }).sort(function(a, b) { return distNumOf(a) - distNumOf(b); })
               .forEach(function(dist) { html += renderDistAccordion(dist); });
+          }
+
+          // Flat lay-out for any cards that had no resolvable district/county, so
+          // they read clearly under their state without a generic STATEWIDE box.
+          if (_statewidePids && _statewidePids.length) {
+            var _swSorted = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function')
+              ? _statewidePids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
+              : _sortInOfficeFirst(_statewidePids);
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
+            _swSorted.forEach(function(pid) { html += _renderAllPoliticiansCard(pid); });
+            html += '</div>';
           }
 
           html += '</div></div></div>';
@@ -33227,7 +33277,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         html += '<button class="w-full flex items-center justify-between px-3 py-2.5 bg-navy-800/50 hover:bg-navy-800/70 text-left border-none" onclick="toggleBrowseAccordion(\'' + otherKey + '-group\', \'' + otherKey + '\')" style="min-height: 42px;">';
         html += '<div class="flex items-center gap-1.5">';
         html += '<span class="text-[11px] text-steel-400">👤</span>';
-        html += '<span class="font-condensed font-700 text-xs text-steel-300 uppercase tracking-wide">Other Districts / Statewide</span>';
+        html += '<span class="font-condensed font-700 text-xs text-steel-300 uppercase tracking-wide">Other Districts</span>';
         html += '<span class="text-[10px] text-steel-400 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.5 ml-1">' + otherPids.length + '</span>';
         html += '</div>';
         html += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
