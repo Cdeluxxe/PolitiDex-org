@@ -32826,11 +32826,64 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
       }
 
-      // Last-resort guarantee: if nothing at all was picked yet the voter's state
-      // does have politicians in our data, surface every in-state figure rather
-      // than the empty "no politicians found" card. Classification or data quirks
-      // should never leave a voter with representation in the data looking at a
-      // blank section.
+      // ── Guaranteed Utah slate — the section must never come up empty ─────────
+      // Every fallback tier above ultimately keys off the politician's `state`
+      // field (through _getPoliticianState) or off an area being an exact "matched"
+      // ballot. Both are fragile: the `state` field is mutable (Firestore can
+      // overwrite a clean "Utah" with a bare office/district string such as
+      // "House District 9"), and a vague "Utah / your area" selection is never a
+      // "matched" area — so its curated district rosters are skipped and the
+      // district reps fall through to a predicate that can quietly exclude them.
+      // When those conditions line up, the tiers drop the same people at once and
+      // the section renders empty. To make zero results effectively impossible for
+      // a Utah voter, build the slate straight from the curated Key Races rosters,
+      // which reference politicians BY ID and therefore do not depend on any
+      // state-field formatting. For a vague selection this guarantees a solid slate
+      // (statewide offices PLUS the major district reps); a precisely matched area
+      // keeps its exact ballot and only borrows this as an empty-guard.
+      var RACEKEY_TO_OFFICE_ALL = {
+        house: 'representative', statesenate: 'state_senator',
+        statehouse: 'state_rep', governor: 'governor', senate: 'senator'
+      };
+      function _addCuratedUtahSlate() {
+        var addRace = function(r, defGk) {
+          var gk = RACEKEY_TO_OFFICE_ALL[r.raceKey] || defGk;
+          add(r.incumbentPid, gk);
+          (r.incumbentPids || []).forEach(function(p) { add(p, gk); });
+          (r.candidates || []).forEach(function(p) { add(p, gk); });
+        };
+        // Statewide offices every Utah voter shares (Governor, U.S. Senate).
+        (KEY_RACES_STATEWIDE || []).forEach(function(r) { addRace(r, 'governor'); });
+        // Major district reps across the supported Utah areas (U.S. House, State
+        // Senate, State House) so the slate is substantive — not just two names.
+        Object.keys(KEY_RACES_BY_LOCATION || {}).forEach(function(loc) {
+          (KEY_RACES_BY_LOCATION[loc] || []).forEach(function(r) { addRace(r, 'representative'); });
+        });
+        // Sweep in any remaining Utah office-holders/candidates the curated rosters
+        // don't name explicitly (e.g. the other Utah U.S. House members). Restricted
+        // to ballot offices so the slate stays a focused ballot, not the whole
+        // statewide directory of mayors and county seats.
+        var BALLOT_TYPES = { senator: 1, governor: 1, representative: 1, state_senator: 1, state_rep: 1 };
+        Object.keys(CMP_DATA).forEach(function(pid) {
+          var t = _classifyBrowseType(pid);
+          if (BALLOT_TYPES[t] && _getPoliticianState(pid).toLowerCase() === 'utah') add(pid, t);
+        });
+      }
+
+      // Apply the curated slate whenever the voter's resolved state is Utah and we
+      // are NOT holding their precise matched ballot (i.e. a vague state-level pick
+      // such as "Utah / your area"), or whenever nothing at all has been picked yet.
+      // This is what turns a blank "your area, Utah" section into a solid, always-
+      // populated slate while leaving a matched area's exact ballot untouched.
+      if (isUtah && (!krMatched || Object.keys(picked).length === 0)) {
+        _addCuratedUtahSlate();
+      }
+
+      // Final non-Utah safety net: if the section is still empty but the voter's
+      // state does have politicians in our data, surface every in-state figure
+      // rather than the empty "no politicians found" card. Classification or data
+      // quirks should never leave a voter with representation looking at a blank
+      // section.
       if (Object.keys(picked).length === 0) {
         Object.keys(CMP_DATA).forEach(function(pid) {
           if (_getPoliticianState(pid).toLowerCase() === stateName.toLowerCase()) {
