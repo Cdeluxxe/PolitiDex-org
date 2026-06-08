@@ -11004,6 +11004,12 @@
       </p>
     </div>
 
+    <!-- Values-over-party creed line — sets the core premise before the description -->
+    <p class="font-condensed text-sm sm:text-base md:text-lg tracking-[0.12em] uppercase text-steel-300 mb-8 max-w-3xl mx-auto px-4 leading-relaxed">
+      We don't rank politicians by <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. We rank them by
+      <span class="text-white font-bold">integrity</span>, <span class="text-white font-bold">follow-through</span>, and how well they match <span class="text-gold-300 font-bold">your values</span>.
+    </p>
+
     <!-- Empowering Description -->
     <p class="hero-body max-w-3xl text-steel-100 text-lg sm:text-xl md:text-2xl leading-relaxed mb-12 font-body px-6 mx-auto filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
       Tired of empty promises, backroom deals, and political theater? Welcome to <strong class="text-white font-extrabold">PolitiDex</strong>—the accountability platform for voters who demand the truth. Build your custom ballot, track every promise in real time, and add to the <strong class="text-gold-300">Public Voice</strong> that politicians can't ignore. Your vote matters. Make it count.
@@ -12450,6 +12456,7 @@
                   <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
                   <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Fill 6 key ballot slots — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office</p>
                   <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
+                  <p class="font-condensed text-xs sm:text-sm text-purple-200/90 tracking-wide mt-2 flex items-start gap-1.5"><span aria-hidden="true">🎯</span><span>Build it on <strong class="text-white">record and values</strong> — who keeps their promises and matches what you believe — not the letter after their name.</span></p>
                 </div>
               </div>
               <div class="flex gap-2 items-center flex-wrap">
@@ -24635,7 +24642,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <p class="font-condensed text-xs tracking-[0.25em] uppercase text-gold-300 mb-1.5">Welcome to</p>
         <h2 class="font-display text-3xl sm:text-4xl tracking-wide text-white">PolitiDex</h2>
         <p class="text-steel-300 text-sm sm:text-base font-body mt-3 leading-relaxed max-w-md mx-auto">
-          A free, nonpartisan way to see what politicians <strong class="text-white">actually do</strong> — not just what they say. Track real, sourced promises, build the ballot that fits <em>your</em> values, and add your voice to what voters demand.
+          A free, nonpartisan way to see what politicians <strong class="text-white">actually do</strong> — not just what they say. PolitiDex helps you look past left vs. right and judge the people on your ballot by <strong class="text-white">integrity</strong>, <strong class="text-white">follow-through</strong>, and how well they match <em>your</em> values.
+        </p>
+      </div>
+
+      <!-- Beyond left-vs-right framing — the core premise, stated plainly -->
+      <div class="rounded-xl px-4 py-3 mb-6 text-center" style="background:linear-gradient(135deg, rgba(76,29,149,0.30) 0%, rgba(15,23,42,0.55) 100%); border:1px solid rgba(139,92,246,0.35);">
+        <p class="font-condensed text-xs sm:text-sm text-purple-100 tracking-wide leading-relaxed">
+          Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/70">party</span>. Judge them by their <strong class="text-white">record</strong> and <strong class="text-purple-200">your values</strong>. Every politician earns a clear Accountability Score, a Promise % from sourced records, and a personal match to you.
         </p>
       </div>
 
@@ -30556,7 +30570,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var matchBand = typeof _slotMatchBand === 'function' ? _slotMatchBand(pid) : '';
       var partyLabel = d.party ? (d.party === 'R' ? 'Republican' : d.party === 'D' ? 'Democrat' : d.party === 'I' ? 'Independent' : (d.party === 'F' || d.party === 'Forward') ? 'Forward Party' : '') : '';
       var partyColor = d.party === 'R' ? '#f87171' : d.party === 'D' ? '#60a5fa' : (d.party === 'F' || d.party === 'Forward') ? '#22d3ee' : '#a78bfa';
-      var partyBadge = partyLabel ? '<span class="font-condensed" style="font-size:0.58rem;letter-spacing:0.06em;color:' + partyColor + ';background:' + partyColor + '15;border:1px solid ' + partyColor + '30;padding:0.1rem 0.4rem;border-radius:999px;font-weight:600;">' + partyLabel + '</span>' : '';
+      var partyBadge = partyLabel ? '<span class="font-condensed" style="font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:' + partyColor + 'cc;background:' + partyColor + '10;border:1px solid ' + partyColor + '24;padding:0.08rem 0.4rem;border-radius:999px;font-weight:500;opacity:0.8;">' + partyLabel + '</span>' : '';
 
       var keptCount = d.kept || 0;
       var brokenCount = d.broken || 0;
@@ -33817,7 +33831,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // card with a missing affiliation slot. Keeps every card looking complete and
       // honest without inventing a party label.
       if (!m) m = { label: 'Party TBD', color: '#94a3b8' };
-      return '<span class="font-condensed" style="font-size:0.56rem;letter-spacing:0.06em;color:' + m.color + ';background:' + m.color + '18;border:1px solid ' + m.color + '38;padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">' + m.label + '</span>';
+      return '<span class="font-condensed" style="font-size:0.54rem;letter-spacing:0.06em;color:' + m.color + 'cc;background:' + m.color + '12;border:1px solid ' + m.color + '2e;padding:0.08rem 0.42rem;border-radius:999px;font-weight:500;opacity:0.82;">' + m.label + '</span>';
     }
     function _krPhoto(pid, d, color) {
       var url = (typeof _getPhotoUrl === 'function') ? _getPhotoUrl(pid) : '';
@@ -37075,7 +37089,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         sel: '#my-politicians',
         emoji: '👥',
         title: 'Build Your Voting Team',
-        body: 'These are your ballot slots — one pick per race. Tap a slot to add a politician you trust, and PolitiDex builds your personal voting team. Sign in and it saves to your account, so your slate is ready every time you come back.'
+        body: 'These are your ballot slots — one pick per race. Choose the people you trust on record and values, not party, and PolitiDex builds your personal voting team. Sign in and it saves to your account, so your slate is ready every time you come back.'
       },
       {
         sel: '#relevant-section',
