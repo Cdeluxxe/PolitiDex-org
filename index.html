@@ -12848,6 +12848,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-sky-500/30 hover:border-sky-400/60 text-sky-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
               <span aria-hidden="true">📊</span> <span id="pm-coverage-label">Database Coverage</span>
             </button>
+            <button type="button" id="pm-quality-btn" onclick="window.pmToggleQuality && window.pmToggleQuality()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-purple-500/30 hover:border-purple-400/60 text-purple-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🩺</span> <span id="pm-quality-label">Quality &amp; Weak Spots</span>
+            </button>
             <button type="button" onclick="window.pmReload && window.pmReload()"
               class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
               <span aria-hidden="true">🔄</span><span id="pm-reload-label">Reload</span>
@@ -13005,6 +13009,91 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div id="pm-coverage-body" class="space-y-5">
           <!-- coverage cards + tables injected here -->
         </div>
+      </div>
+
+      <!-- ── Profile Quality & Weak Spot Finder ────────────────────
+           Hidden by default; toggled by the toolbar's "Quality & Weak Spots"
+           button. Scores every profile 0–100% on completeness, flags the
+           specific things each weak profile is missing, and lists everyone
+           worst-first so work can be aimed where it matters. Records can be
+           marked Reviewed / Verified to drop them off the weak list. Rendered
+           by window.pmRenderQuality in the controller below. -->
+      <div id="pm-quality-panel" class="hidden bg-navy-800/80 border border-purple-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-200 flex items-center gap-2">
+              <span aria-hidden="true">🩺</span> Profile Quality &amp; Weak Spot Finder
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              Every profile is scored <strong>0–100%</strong> on completeness and flagged for exactly what it's missing — short bios,
+              untracked promises, missing district/office, placeholder text, and more. The list runs <span class="text-purple-300 font-semibold">weakest&nbsp;first</span>
+              so you (or an agent) can fix the profiles that need it most. Mark a profile <span class="text-sky-300 font-semibold">Reviewed</span> or
+              <span class="text-green-300 font-semibold">Verified</span> to drop it off the weak list.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleQuality && window.pmToggleQuality(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+
+        <!-- Summary stats -->
+        <div id="pm-quality-stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4"></div>
+
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
+          <div class="relative flex-1 min-w-[180px]">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
+            <input id="pm-q-search" type="text" placeholder="Search name, office, state…" oninput="window.pmRenderQuality && window.pmRenderQuality()" autocomplete="off"
+              class="w-full bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
+          </div>
+          <select id="pm-q-state" onchange="window.pmRenderQuality && window.pmRenderQuality()"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All states</option>
+          </select>
+          <select id="pm-q-office" onchange="window.pmRenderQuality && window.pmRenderQuality()"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All office types</option>
+            <option value="senate">U.S. Senate</option>
+            <option value="house">U.S. House</option>
+            <option value="governor">Governor</option>
+            <option value="executive">Executive</option>
+            <option value="state">State Legislature</option>
+            <option value="local">Local / Mayor</option>
+            <option value="candidate">Candidate</option>
+            <option value="other">Other</option>
+          </select>
+          <select id="pm-q-sev" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Filter by worst missing-data severity"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">Any severity</option>
+            <option value="critical">🔴 Critical only</option>
+            <option value="high">🟠 High &amp; up</option>
+            <option value="medium">🟡 Medium &amp; up</option>
+            <option value="weak">⚠ Needs work (under 70%)</option>
+          </select>
+          <select id="pm-q-sort" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Sort the list"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="weakest">Sort: Weakest first</option>
+            <option value="strongest">Sort: Strongest first</option>
+            <option value="updated">Sort: Recently updated</option>
+            <option value="name">Sort: Name A–Z</option>
+          </select>
+          <label class="inline-flex items-center gap-2 text-xs font-condensed tracking-widest uppercase text-steel-300 cursor-pointer select-none px-2 py-2">
+            <input id="pm-q-hidereviewed" type="checkbox" checked onchange="window.pmRenderQuality && window.pmRenderQuality()"
+              class="w-4 h-4 rounded border-white/20 bg-navy-950 accent-purple-500" />
+            Hide reviewed
+          </label>
+          <button type="button" onclick="window.pmQualityCopy && window.pmQualityCopy()" title="Copy an agent-friendly worklist of the shown profiles"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-purple-500/15 border border-purple-500/40 hover:border-purple-400 text-purple-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">📋</span> Copy worklist
+          </button>
+        </div>
+
+        <div id="pm-quality-note" class="text-[11px] font-body text-steel-400 mb-3"></div>
+        <div id="pm-quality-body" class="space-y-2 max-h-[640px] overflow-y-auto pr-1">
+          <!-- quality rows injected here -->
+        </div>
+        <div id="pm-quality-empty" class="hidden text-center text-steel-400 font-body text-sm py-10"></div>
       </div>
 
       <!-- ── Two-column workspace: list (left) + editor (right) ── -->
@@ -14663,6 +14752,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Keep the Utah-seats chip current and refresh the coverage panel if
         // it's open (cheap; the heavy DOM build is skipped while it's closed).
         if (window.pmRenderCoverage) window.pmRenderCoverage();
+        // Same for the Quality & Weak Spot panel — it self-skips while hidden.
+        if (window.pmRenderQuality) window.pmRenderQuality();
 
         _pmSyncStateFilter(all);
 
@@ -14746,6 +14837,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               dupFlag +
               _pmPartyBadge(p.party) +
               _pmStatusBadge(p) +
+              _pmQReviewBadge(p) +
             '</button>';
         }).join('');
       };
@@ -15841,6 +15933,453 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             window._showToast('Reload failed');
           }
         });
+      };
+
+      // ════════════════════════════════════════════════════════════
+      // PROFILE QUALITY & WEAK SPOT FINDER
+      //
+      // Scores every profile 0–100% on completeness, flags exactly what each
+      // weak profile is missing, and lists everyone worst-first so work can be
+      // aimed where it matters most. Reads the live PROFILES mirror; the only
+      // thing it writes is an optional `reviewStatus` ('reviewed' | 'verified')
+      // via the shared _pmPersist path, so a cleaned-up profile can be dropped
+      // off the weak list. Fully self-contained — reuses the manager's existing
+      // helpers (_pmAll, _pmOfficeType, _pmIsPlaceholderStance, _pmPersist, …)
+      // and never touches the editor or import flows.
+      // ════════════════════════════════════════════════════════════
+
+      // Boilerplate / unfinished-content markers that shouldn't survive in a
+      // real bio. Case-insensitive; a hit flags the profile and caps its bio score.
+      var PM_Q_PLACEHOLDER_RE = /lorem ipsum|placeholder|\btbd\b|\btodo\b|coming soon|to be (added|written|determined|filled|completed)|fill in|sample text|example text|\bxxx+\b|\bn\/a\b|no stated position|stance on /i;
+
+      // Severity ranking so a profile's worst flag can drive sorting + filtering.
+      var PM_Q_SEV_RANK = { critical: 3, high: 2, medium: 1, low: 0 };
+      function _pmQWorstSeverity(flags) {
+        var worst = -1;
+        for (var i = 0; i < flags.length; i++) {
+          var r = PM_Q_SEV_RANK[flags[i].severity];
+          if (r != null && r > worst) worst = r;
+        }
+        return worst; // -1 = no flags
+      }
+
+      // Non-placeholder stance count (mirrors the public/admin stance rules).
+      function _pmQStanceCount(p) {
+        var n = 0;
+        if (p && p.stances && typeof p.stances === 'object') {
+          for (var k in p.stances) {
+            if (Object.prototype.hasOwnProperty.call(p.stances, k) &&
+                !_pmIsPlaceholderStance(p.stances[k])) { n++; }
+          }
+        }
+        return n;
+      }
+      function _pmQIssues(p) {
+        var raw = (p && (p.keyIssues || p.issues)) || [];
+        if (!Array.isArray(raw)) return [];
+        return raw.filter(function (s) { return s != null && String(s).trim(); });
+      }
+      function _pmQPromises(p) {
+        if (!p || !Array.isArray(p.promises)) return [];
+        return p.promises.filter(function (r) {
+          return r && ((r.title && String(r.title).trim()) || (r.detail && String(r.detail).trim()));
+        });
+      }
+
+      // ── The scorer ──────────────────────────────────────────────
+      // Weighted completeness out of 100, plus the list of specific weak spots.
+      // Weights: bio 20 · promises 20 · issues/positions 15 · office+district 15
+      // · accountability/score 10 · photo 5 · verified/deep-dive 15.
+      // Each weak spot carries a severity (critical|high|medium|low) and a short
+      // agent-friendly "fix" describing exactly what to do.
+      function _pmQualityAssess(p) {
+        p = p || {};
+        var flags = [];
+        function flag(key, label, severity, fix) { flags.push({ key: key, label: label, severity: severity, fix: fix }); }
+
+        // Bio (0–20) — present + length, capped when placeholder text is found.
+        var bio = (p.bio == null ? '' : String(p.bio)).trim();
+        var bioLen = bio.length;
+        var bioPts;
+        if (!bioLen) { bioPts = 0; flag('bio', 'Missing bio', 'high', 'Write a 2–4 sentence biography.'); }
+        else if (bioLen < 120) { bioPts = 7; flag('bio', 'Very short bio (' + bioLen + ' chars)', 'medium', 'Expand the bio to at least a full paragraph (120+ chars).'); }
+        else if (bioLen < 280) { bioPts = 14; }
+        else { bioPts = 20; }
+        if (bioLen && PM_Q_PLACEHOLDER_RE.test(bio)) {
+          flag('placeholder', 'Placeholder / boilerplate text present', 'medium', 'Replace leftover placeholder or seed text with real content.');
+          bioPts = Math.min(bioPts, 7);
+        }
+
+        // Promises tracked, with verdicts (0–20).
+        var promises = _pmQPromises(p);
+        var verdicted = promises.filter(function (r) { return r.verdict === 'kept' || r.verdict === 'broken' || r.verdict === 'pending'; });
+        var promPts;
+        if (!promises.length) { promPts = 0; flag('promises', '0 promises tracked', 'high', 'Add tracked promises with kept / broken / pending verdicts.'); }
+        else if (promises.length < 3) { promPts = 12; flag('promises', 'Only ' + promises.length + ' promise' + (promises.length === 1 ? '' : 's') + ' tracked', 'low', 'Track at least 3 promises to build a meaningful record.'); }
+        else { promPts = 20; }
+        if (promises.length && !verdicted.length) { flag('verdicts', 'Tracked promises have no verdicts', 'medium', 'Assign a kept / broken / pending verdict to each promise.'); promPts = Math.min(promPts, 10); }
+
+        // Key issues / positions (0–15).
+        var issues = _pmQIssues(p);
+        var stanceN = _pmQStanceCount(p);
+        var issueTotal = issues.length + stanceN;
+        var issuePts;
+        if (issueTotal === 0) { issuePts = 0; flag('issues', 'No key issues or positions listed', 'medium', 'List the key issues and at least a couple of policy stances.'); }
+        else if (issueTotal < 3) { issuePts = 8; }
+        else { issuePts = 15; }
+
+        // Valid office + district (0–15). District is only expected for districted
+        // seats (U.S. House, state legislature) — statewide offices aren't penalized.
+        var office = (p.office == null ? '' : String(p.office)).trim();
+        var district = (p.district == null ? '' : String(p.district)).trim();
+        var offType = _pmOfficeType(p);
+        var officePts = office ? 8 : 0;
+        if (!office) flag('office', 'Missing office / title', 'high', 'Set the office or title held (e.g. "U.S. Representative").');
+        var needsDistrict = (offType === 'house' || offType === 'state');
+        var districtPts;
+        if (district) { districtPts = 7; }
+        else if (needsDistrict) { districtPts = 0; flag('district', 'Missing district', 'medium', 'Add the district number for this seat.'); }
+        else { districtPts = 7; }
+
+        // Accountability / promise % score (0–10).
+        var scoreNum = (p.score == null || p.score === '') ? NaN : parseInt(p.score, 10);
+        var hasScore = !isNaN(scoreNum);
+        var hasAcct = !!(p.accountability && typeof p.accountability.overallScore === 'number');
+        var scorePts = (hasScore || hasAcct) ? 10 : 0;
+        if (!hasScore && !hasAcct) flag('score', 'No accountability / promise score', 'low', 'Set a Promise Score or Accountability Score (0–100).');
+
+        // Photo (0–5).
+        var photo = (p.photo == null ? '' : String(p.photo)).trim();
+        var photoPts = photo ? 5 : 0;
+        if (!photo) flag('photo', 'No photo', 'low', 'Add a photo URL.');
+
+        // Verified / deep-dive sections (0–15): the richer content beyond basics —
+        // a signature quote, an accountability summary, promise detail/sources,
+        // extended `sections`, or an explicit verified mark. Up to 3 count, ×5 each.
+        var deep = 0;
+        if ((p.quote == null ? '' : String(p.quote)).trim()) deep++;
+        if (p.accountability && typeof p.accountability.summary === 'string' && p.accountability.summary.trim()) deep++;
+        if (promises.some(function (r) { return (r.detail && String(r.detail).trim()) || (Array.isArray(r.sources) && r.sources.length); })) deep++;
+        if (p.sections && typeof p.sections === 'object' && Object.keys(p.sections).length) deep++;
+        if (p.verified === true || p.reviewStatus === 'verified') deep++;
+        var deepPts = Math.min(deep, 3) * 5;
+        if (deep === 0) flag('deepdive', 'No verified / deep-dive content', 'low', 'Add a signature quote, accountability summary, or detailed promises.');
+
+        var score = bioPts + promPts + issuePts + officePts + districtPts + scorePts + photoPts + deepPts;
+        score = Math.max(0, Math.min(100, Math.round(score)));
+
+        // Very low completeness is itself a critical, top-priority flag.
+        if (score < 35) flag('low', 'Very low completeness (' + score + '%)', 'critical', 'Needs substantial work across several areas — prioritize.');
+
+        return {
+          score: score,
+          flags: flags,
+          severity: _pmQWorstSeverity(flags),
+          breakdown: { bio: bioPts, promises: promPts, issues: issuePts, office: officePts, district: districtPts, score: scorePts, photo: photoPts, deep: deepPts }
+        };
+      }
+      // Expose for any external/agent tooling that wants the raw assessment.
+      window.pmQualityAssess = function (p) { return _pmQualityAssess(p); };
+
+      // ── Presentation helpers ────────────────────────────────────
+      function _pmQScoreColor(s) {
+        if (s >= 80) return { text: 'text-green-300', bar: 'bg-green-500', ring: 'border-green-500/50' };
+        if (s >= 60) return { text: 'text-gold-300', bar: 'bg-gold-500', ring: 'border-gold-500/50' };
+        if (s >= 40) return { text: 'text-amber-300', bar: 'bg-amber-500', ring: 'border-amber-500/50' };
+        return { text: 'text-crimson-300', bar: 'bg-crimson-500', ring: 'border-crimson-500/50' };
+      }
+      function _pmQSevChip(sev) {
+        var map = {
+          critical: 'text-crimson-200 bg-crimson-500/15 border-crimson-500/50',
+          high: 'text-orange-200 bg-orange-500/15 border-orange-500/45',
+          medium: 'text-gold-200 bg-gold-500/15 border-gold-500/45',
+          low: 'text-steel-300 bg-white/5 border-white/15'
+        };
+        return map[sev] || map.low;
+      }
+      function _pmQReviewBadge(p) {
+        if (p && p.reviewStatus === 'verified') {
+          return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-green-200 bg-green-500/15 border border-green-500/50">✓ Verified</span>';
+        }
+        if (p && p.reviewStatus === 'reviewed') {
+          return '<span class="flex-shrink-0 font-condensed text-[10px] font-700 tracking-widest uppercase px-2 py-1 rounded-full text-sky-200 bg-sky-500/15 border border-sky-500/50">Reviewed</span>';
+        }
+        return '';
+      }
+      function _pmQStat(label, value, cls) {
+        return '<div class="bg-navy-950/70 border border-white/10 rounded-xl px-3 py-2.5 text-center">' +
+            '<div class="font-display text-2xl ' + (cls || 'text-white') + '">' + value + '</div>' +
+            '<div class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400 mt-0.5">' + _pmEsc(label) + '</div>' +
+          '</div>';
+      }
+
+      // Keep the quality panel's state dropdown in sync with the data.
+      function _pmQSyncStateFilter(all) {
+        var sel = document.getElementById('pm-q-state');
+        if (!sel) return;
+        var states = {};
+        all.forEach(function (r) { var s = (r.p.state || '').trim(); if (s) states[s] = 1; });
+        var sorted = Object.keys(states).sort();
+        var sig = sorted.join('|');
+        if (sel.getAttribute('data-sig') === sig) return;
+        sel.setAttribute('data-sig', sig);
+        var cur = sel.value || 'all';
+        sel.innerHTML = '<option value="all">All states</option>' + sorted.map(function (s) {
+          return '<option value="' + _pmEscAttr(s) + '">' + _pmEsc(s) + '</option>';
+        }).join('');
+        sel.value = (cur === 'all' || states[cur]) ? cur : 'all';
+      }
+
+      // Build the full assessed roster once per render (cheap; pure reads).
+      function _pmQAssessAll() {
+        return _pmAll().map(function (row) {
+          var a = _pmQualityAssess(row.p);
+          return { id: row.id, p: row.p, a: a };
+        });
+      }
+
+      // Shared filter predicate for the panel + the worklist export, so what you
+      // see and what you copy always agree.
+      function _pmQReadFilters() {
+        var qEl = document.getElementById('pm-q-search');
+        var hrEl = document.getElementById('pm-q-hidereviewed');
+        return {
+          q: (qEl && qEl.value ? qEl.value : '').trim().toLowerCase(),
+          state: _pmFilterVal('pm-q-state', 'all'),
+          office: _pmFilterVal('pm-q-office', 'all'),
+          sev: _pmFilterVal('pm-q-sev', 'all'),
+          sort: _pmFilterVal('pm-q-sort', 'weakest'),
+          hideReviewed: hrEl ? hrEl.checked : true
+        };
+      }
+      function _pmQMatches(x, f) {
+        var p = x.p;
+        if (f.hideReviewed && (p.reviewStatus === 'reviewed' || p.reviewStatus === 'verified')) return false;
+        if (f.state !== 'all' && (p.state || '').trim() !== f.state) return false;
+        if (f.office !== 'all' && _pmOfficeType(p) !== f.office) return false;
+        if (f.sev === 'critical' && x.a.severity !== PM_Q_SEV_RANK.critical) return false;
+        if (f.sev === 'high' && x.a.severity < PM_Q_SEV_RANK.high) return false;
+        if (f.sev === 'medium' && x.a.severity < PM_Q_SEV_RANK.medium) return false;
+        if (f.sev === 'weak' && x.a.score >= 70) return false;
+        if (f.q) {
+          var hay = [(p.name || ''), (p.office || ''), (p.state || ''), (p.district || ''), (p.party || ''), x.id].join(' ').toLowerCase();
+          if (hay.indexOf(f.q) === -1) return false;
+        }
+        return true;
+      }
+      function _pmQWeakestSort(a, b) {
+        if (a.a.score !== b.a.score) return a.a.score - b.a.score;
+        if (a.a.severity !== b.a.severity) return b.a.severity - a.a.severity;
+        var an = (a.p.name || a.id).toLowerCase(), bn = (b.p.name || b.id).toLowerCase();
+        return an < bn ? -1 : (an > bn ? 1 : 0);
+      }
+
+      var PM_Q_RENDER_CAP = 250; // keep the DOM light on very large databases
+
+      window.pmRenderQuality = function () {
+        var panel = document.getElementById('pm-quality-panel');
+        // Only do the heavy DOM build while the panel is actually open.
+        if (!panel || panel.classList.contains('hidden')) return;
+        var body = document.getElementById('pm-quality-body');
+        var emptyEl = document.getElementById('pm-quality-empty');
+        var statsEl = document.getElementById('pm-quality-stats');
+        var noteEl = document.getElementById('pm-quality-note');
+        if (!body) return;
+
+        var assessed = _pmQAssessAll();
+        _pmQSyncStateFilter(assessed);
+
+        // Summary stats over the whole database (pre-filter).
+        if (statsEl) {
+          var total = assessed.length;
+          var sum = 0, weak = 0, critical = 0, reviewed = 0, verified = 0;
+          assessed.forEach(function (x) {
+            sum += x.a.score;
+            if (x.a.score < 70) weak++;
+            if (x.a.severity === PM_Q_SEV_RANK.critical) critical++;
+            if (x.p.reviewStatus === 'reviewed') reviewed++;
+            if (x.p.reviewStatus === 'verified') verified++;
+          });
+          var avg = total ? Math.round(sum / total) : 0;
+          statsEl.innerHTML =
+            _pmQStat('Profiles', total, 'text-white') +
+            _pmQStat('Avg score', avg + '%', _pmQScoreColor(avg).text) +
+            _pmQStat('Needs work', weak, weak ? 'text-amber-300' : 'text-green-300') +
+            _pmQStat('Critical', critical, critical ? 'text-crimson-300' : 'text-green-300') +
+            _pmQStat('Reviewed', reviewed, 'text-sky-300') +
+            _pmQStat('Verified', verified, 'text-green-300');
+        }
+
+        var f = _pmQReadFilters();
+        var rows = assessed.filter(function (x) { return _pmQMatches(x, f); });
+
+        rows.sort(function (a, b) {
+          if (f.sort === 'strongest') { if (a.a.score !== b.a.score) return b.a.score - a.a.score; }
+          else if (f.sort === 'updated') { var at = _pmUpdatedMs(a.p), bt = _pmUpdatedMs(b.p); if (at !== bt) return bt - at; }
+          else if (f.sort === 'name') { /* fall through to name tiebreak */ }
+          else { return _pmQWeakestSort(a, b); } // weakest first (default)
+          var an = (a.p.name || a.id).toLowerCase(), bn = (b.p.name || b.id).toLowerCase();
+          return an < bn ? -1 : (an > bn ? 1 : 0);
+        });
+
+        var shown = rows.length;
+        var capped = shown > PM_Q_RENDER_CAP;
+        var visible = capped ? rows.slice(0, PM_Q_RENDER_CAP) : rows;
+
+        if (noteEl) {
+          noteEl.innerHTML = capped
+            ? 'Showing the <strong>' + PM_Q_RENDER_CAP + '</strong> highest-priority of <strong>' + shown + '</strong> matching profiles — narrow the filters or mark some Reviewed to see the rest. <span class="text-purple-300">“Copy worklist” still exports all ' + shown + '.</span>'
+            : 'Showing <strong>' + shown + '</strong> matching profile' + (shown === 1 ? '' : 's') + '.';
+        }
+
+        if (!assessed.length) {
+          body.innerHTML = '<div class="text-center text-steel-400 font-body text-sm py-10">Database not loaded yet. Click <strong>Reload</strong> to fetch politicians.</div>';
+          if (emptyEl) emptyEl.classList.add('hidden');
+          return;
+        }
+        if (!shown) {
+          body.innerHTML = '';
+          if (emptyEl) { emptyEl.textContent = 'No profiles match these filters. 🎉 Try clearing the severity filter or un-checking “Hide reviewed”.'; emptyEl.classList.remove('hidden'); }
+          return;
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+
+        body.innerHTML = visible.map(function (x) {
+          var p = x.p, id = x.id, a = x.a;
+          var jid = _pmJs(id);
+          var col = _pmQScoreColor(a.score);
+          var icon = p.icon || '🏛';
+          var sub = [p.office || '', p.district || '', p.state || ''].filter(Boolean).join(' · ') || '—';
+
+          var flagsHtml = a.flags.length
+            ? a.flags.map(function (ff) {
+                return '<span title="' + _pmEscAttr(ff.fix) + '" class="inline-flex items-center font-condensed text-[10px] font-700 tracking-wide uppercase px-2 py-0.5 rounded-full border ' + _pmQSevChip(ff.severity) + '">' + _pmEsc(ff.label) + '</span>';
+              }).join(' ')
+            : '<span class="inline-flex items-center font-condensed text-[10px] font-700 tracking-wide uppercase px-2 py-0.5 rounded-full text-green-200 bg-green-500/15 border border-green-500/50">✓ No weak spots</span>';
+
+          // Agent-friendly "what to fix" line.
+          var needsHtml = a.flags.length
+            ? '<div class="mt-2 text-[12px] font-body text-steel-300 leading-relaxed"><span class="font-700 text-purple-300">Needs:</span> ' +
+                _pmEsc(a.flags.map(function (ff) { return ff.fix; }).join(' ')) + '</div>'
+            : '';
+
+          var reviewBadge = _pmQReviewBadge(p);
+
+          return '' +
+            '<div class="bg-navy-900/60 border border-white/5 rounded-xl px-3 py-3">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="flex flex-col items-center justify-center w-14 flex-shrink-0">' +
+                  '<div class="font-display text-xl ' + col.text + ' leading-none">' + a.score + '<span class="text-[11px]">%</span></div>' +
+                  '<div class="w-12 h-1.5 rounded-full bg-white/10 mt-1 overflow-hidden"><div class="h-full ' + col.bar + '" style="width:' + a.score + '%"></div></div>' +
+                '</div>' +
+                '<span class="text-xl flex-shrink-0" aria-hidden="true">' + _pmEsc(icon) + '</span>' +
+                '<div class="min-w-0 flex-1">' +
+                  '<div class="flex items-center gap-2 flex-wrap">' +
+                    '<span class="text-sm font-700 text-white truncate">' + _pmEsc(p.name || id) + '</span>' +
+                    _pmPartyBadge(p.party) +
+                    reviewBadge +
+                  '</div>' +
+                  '<div class="text-xs text-steel-400 truncate">' + _pmEsc(sub) + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="flex flex-wrap gap-1.5 mt-2.5">' + flagsHtml + '</div>' +
+              needsHtml +
+              '<div class="flex flex-wrap items-center gap-2 mt-3">' +
+                '<button type="button" onclick="window.pmQualityOpen(\'' + jid + '\')" ' +
+                  'class="inline-flex items-center gap-1.5 bg-navy-800 hover:bg-purple-500/20 border border-purple-500/40 hover:border-purple-400 text-purple-200 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all"><span aria-hidden="true">✏️</span> Open editor</button>' +
+                (p.reviewStatus === 'reviewed' ? '' :
+                  '<button type="button" onclick="window.pmSetReview(\'' + jid + '\',\'reviewed\')" ' +
+                  'class="inline-flex items-center gap-1.5 bg-navy-800 hover:bg-sky-500/20 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all"><span aria-hidden="true">👁</span> Mark Reviewed</button>') +
+                (p.reviewStatus === 'verified' ? '' :
+                  '<button type="button" onclick="window.pmSetReview(\'' + jid + '\',\'verified\')" ' +
+                  'class="inline-flex items-center gap-1.5 bg-navy-800 hover:bg-green-500/20 border border-green-500/40 hover:border-green-400 text-green-200 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all"><span aria-hidden="true">✓</span> Mark Verified</button>') +
+                (p.reviewStatus ?
+                  '<button type="button" onclick="window.pmSetReview(\'' + jid + '\',\'none\')" ' +
+                  'class="inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[10px] font-700 tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-colors"><span aria-hidden="true">✕</span> Clear status</button>' : '') +
+              '</div>' +
+            '</div>';
+        }).join('');
+      };
+
+      // Open a record in the main editor from the quality panel: select it and
+      // bring the editor into view (the panel can stay open above the workspace).
+      window.pmQualityOpen = function (id) {
+        if (typeof window.pmSelect === 'function') window.pmSelect(id);
+        var editor = document.getElementById('pm-editor');
+        if (editor) { try { editor.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+      };
+
+      // Set / clear a profile's review status. Written through the shared persist
+      // path so the in-memory mirror, directory, and list all stay in sync.
+      window.pmSetReview = function (id, status) {
+        var src = (typeof PROFILES === 'object' && PROFILES && PROFILES[id]) ? PROFILES[id] : null;
+        if (!src) { if (typeof window._showToast === 'function') window._showToast('Record not found — try Reload'); return; }
+        var merged;
+        try { merged = JSON.parse(JSON.stringify(src)); } catch (e) { merged = {}; }
+        if (!status || status === 'none') { delete merged.reviewStatus; }
+        else { merged.reviewStatus = status; }
+        merged.updatedAt = new Date().toISOString();
+        var msg = status === 'verified' ? 'Marked Verified ✓' : (status === 'reviewed' ? 'Marked Reviewed ✓' : 'Review status cleared');
+        // _pmPersist re-renders the list (which re-renders this panel); the
+        // explicit call here covers the panel even if it ever renders alone.
+        _pmPersist(id, merged, msg, function () { window.pmRenderQuality(); });
+      };
+
+      // Copy an agent-friendly plain-text worklist of every CURRENTLY-FILTERED
+      // profile (not just the on-screen cap) so it can be handed off.
+      window.pmQualityCopy = function () {
+        var assessed = _pmQAssessAll();
+        var f = _pmQReadFilters();
+        var rows = assessed.filter(function (x) { return _pmQMatches(x, f); }).sort(_pmQWeakestSort);
+
+        if (!rows.length) { if (typeof window._showToast === 'function') window._showToast('No profiles to copy'); return; }
+
+        var lines = ['PolitiDex — Profile worklist (weakest first) — ' + rows.length + ' profile' + (rows.length === 1 ? '' : 's'), ''];
+        rows.forEach(function (x, i) {
+          var p = x.p;
+          var where = [p.office || '', p.district || '', p.state || ''].filter(Boolean).join(' · ') || '—';
+          lines.push((i + 1) + '. ' + (p.name || x.id) + '  [' + x.a.score + '%]  (id: ' + x.id + ')');
+          lines.push('   ' + where + (p.reviewStatus ? '  · status: ' + p.reviewStatus : ''));
+          if (x.a.flags.length) {
+            x.a.flags.forEach(function (ff) { lines.push('   - [' + ff.severity + '] ' + ff.label + ' → ' + ff.fix); });
+          } else {
+            lines.push('   - No weak spots detected.');
+          }
+          lines.push('');
+        });
+        var text = lines.join('\n');
+
+        function done() { if (typeof window._showToast === 'function') window._showToast('Copied worklist for ' + rows.length + ' profile' + (rows.length === 1 ? '' : 's')); }
+        function fallback() {
+          try {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta); done();
+          } catch (e) { if (typeof window._showToast === 'function') window._showToast('Copy failed — see console'); try { console.log(text); } catch (e2) {} }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(fallback);
+        } else { fallback(); }
+      };
+
+      // Toggle the quality panel; mirrors the coverage toggle's button styling.
+      window.pmToggleQuality = function (force) {
+        var panel = document.getElementById('pm-quality-panel');
+        if (!panel) return;
+        var show = (typeof force === 'boolean') ? force : panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !show);
+        var btn = document.getElementById('pm-quality-btn');
+        var lbl = document.getElementById('pm-quality-label');
+        if (lbl) lbl.textContent = show ? 'Hide Quality' : 'Quality & Weak Spots';
+        if (btn) {
+          if (show) { btn.classList.add('bg-purple-500/20', 'border-purple-400/70', 'text-purple-200'); btn.classList.remove('bg-navy-900'); }
+          else { btn.classList.remove('bg-purple-500/20', 'border-purple-400/70', 'text-purple-200'); btn.classList.add('bg-navy-900'); }
+        }
+        if (show) {
+          window.pmRenderQuality();
+          try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+        }
       };
 
       // Render the list as soon as the controller loads (PROFILES may already be
