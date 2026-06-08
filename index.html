@@ -26887,6 +26887,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var state = stateSel.value;
     window._currentVoterLocation.state = state;
 
+    // The modal is now the source of truth for the voter's location, so drop any
+    // earlier explicit "Key Races" area pick. That stale pick would otherwise keep
+    // pinning the "Relevant to Me" ballot to the old area and stop it from updating
+    // when the voter changes their state/county/district here. Clearing it lets the
+    // area re-infer from the new location.
+    try { localStorage.removeItem('politidex_keyraces_location'); } catch(e) {}
+
     if (!state) {
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
       window._hasUserLocation = false;
@@ -26915,6 +26922,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (!distSel) return;
     var num = (distSel.value || '').replace(/[^0-9]/g, '');
     window._currentVoterLocation.district = num;
+    // Modal location wins over any earlier explicit Key Races pick (see above).
+    try { localStorage.removeItem('politidex_keyraces_location'); } catch(e) {}
     window.saveVoterLocation();
 
     window._triggerLocationReaction();
@@ -26927,6 +26936,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Store both city and county as the free-text value for 100% dynamic national use
     window._currentVoterLocation.city = val;
     window._currentVoterLocation.county = val;
+    // Modal location wins over any earlier explicit Key Races pick (see above).
+    try { localStorage.removeItem('politidex_keyraces_location'); } catch(e) {}
     window.saveVoterLocation();
 
     window._triggerLocationReaction();
@@ -32684,14 +32695,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var senateDist = null;
       var lowerDist  = null;
 
-      // Only use the Key Races specific districts if they were explicitly chosen OR if the active area matches the user's city/county exactly
-      var explicit = false;
-      try { explicit = !!(localStorage.getItem(KR_LOCATION_KEY) && KEY_RACES_BY_LOCATION[localStorage.getItem(KR_LOCATION_KEY)]); } catch (e) {}
-      var matched = explicit || (_krInferLocation() !== '');
-      var isCityExact = krData && (userCounty.toLowerCase() === krData.city.toLowerCase() || (window._currentVoterLocation && window._currentVoterLocation.city && (window._currentVoterLocation.city.toLowerCase() === krData.city.toLowerCase())));
-      var useSpecificDistricts = krData && (explicit || (matched && isCityExact));
+      // Decide whether we hold an AUTHORITATIVE, exact-district ballot for this
+      // specific voter. That is true only when the active Key Races area genuinely
+      // belongs to them — they explicitly picked it, or it was inferred from their
+      // saved city/county (krData.matched) — AND their state is Utah (the only
+      // state with curated district rosters). When this is false the active area is
+      // merely the default fallback, so its districts/candidates must never be
+      // presented as the voter's own.
+      var isUtah = (stateName || '').toLowerCase() === 'utah';
+      var krMatched = !!(krData && isUtah && krData.matched);
 
-      if (useSpecificDistricts) {
+      if (krMatched) {
         houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
         senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
         lowerDist  = krData.byRace.statehouse  ? krData.byRace.statehouse.district  : null;
@@ -32724,21 +32738,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           return;
         }
 
-        // Match based on county
-        if (t === 'representative' || t === 'state_senator' || t === 'state_rep' || t === 'local') {
+        // District offices (U.S. House, State Senate, State House): when we hold the
+        // voter's authoritative ballot (a matched Key Races area), the exact
+        // incumbents and candidates are merged from that curated roster below —
+        // running the fuzzy county scan here as well would wrongly pull in every
+        // neighboring district's officials (e.g. selecting Utah County matched
+        // "Utah" inside every Utah office string and surfaced the whole state). So
+        // only fall back to the broad county heuristic for these offices when no
+        // authoritative roster applies to the voter's area.
+        if (t === 'representative' || t === 'state_senator' || t === 'state_rep') {
+          if (!krMatched && isPoliticianInSelectedCounty(pid)) {
+            add(pid, t);
+          }
+        } else if (t === 'local') {
+          // Local offices are never part of the curated district roster, so they
+          // always rely on the county heuristic.
           if (isPoliticianInSelectedCounty(pid)) {
             add(pid, t);
           }
         }
       });
 
-      // Ensure the voter's actual races show their FULL field — including open
-      // seats and still-thin challenger profiles — by merging the curated Key
-      // Races roster for this area straight into the office groups. The county
-      // heuristics above can miss a sparse new-candidate profile; this guarantees
-      // every incumbent and candidate in the voter's races appears, deduped by
-      // add(). Mapped from each race's key to its office bucket.
-      if (krData) {
+      // Merge the curated Key Races roster so the voter's actual races always show
+      // their FULL field — incumbents, open seats, and still-thin challenger
+      // profiles the county heuristics can miss. District races (U.S. House, State
+      // Senate, State House) are merged ONLY for a matched area; otherwise we would
+      // inject the default fallback area's candidates into someone else's ballot.
+      // Statewide races (Governor, U.S. Senate) represent every voter in the state,
+      // so they merge for any Utah voter — matched or not — guaranteeing every
+      // statewide challenger appears. All merges are deduped by add().
+      if (krData && (krMatched || isUtah)) {
         var RACEKEY_TO_OFFICE = {
           house: 'representative', statesenate: 'state_senator',
           statehouse: 'state_rep', governor: 'governor',
@@ -32749,12 +32778,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (!gk || !pids) return;
           pids.forEach(function(pid) { add(pid, gk); });
         };
-        Object.keys(krData.byRace || {}).forEach(function(rk) {
-          _mergeRacePids(rk, (krData.byRace[rk] || {}).pids);
-        });
-        Object.keys(krData.statewide || {}).forEach(function(rk) {
-          _mergeRacePids(rk, krData.statewide[rk]);
-        });
+        if (krMatched) {
+          Object.keys(krData.byRace || {}).forEach(function(rk) {
+            _mergeRacePids(rk, (krData.byRace[rk] || {}).pids);
+          });
+        }
+        if (isUtah) {
+          Object.keys(krData.statewide || {}).forEach(function(rk) {
+            _mergeRacePids(rk, krData.statewide[rk]);
+          });
+        }
       }
 
       // Bucket the picked pids into their office groups.
