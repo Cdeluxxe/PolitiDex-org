@@ -8071,6 +8071,75 @@
       0%, 100% { opacity: 0.4; }
       50% { opacity: 0.9; }
     }
+
+    /* ── Collapsible Alignment Tool ──────────────────────────────
+       The panel ships compact: a clean feature card with a status line and a
+       single prominent CTA. Clicking the header (or the CTA) expands it to the
+       full picker. The body animates open via grid-template-rows so it eases to
+       its true content height on any screen, with no magic max-height numbers. */
+    .align-head-main { border-radius: 0.7rem; transition: opacity 0.18s; }
+    .align-head-main:hover { opacity: 0.92; }
+    .align-head-main:focus-visible { outline: 2px solid rgba(168,85,247,0.65); outline-offset: 4px; }
+    .align-head-chev {
+      margin-left: auto; align-self: center; flex: none;
+      font-size: 1.45rem; line-height: 1; color: #c4b5fd;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .align-panel.align-expanded .align-head-chev { transform: rotate(180deg); }
+
+    /* Compact CTA card — visible only while collapsed */
+    .align-compact {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.85rem; flex-wrap: wrap;
+      background: linear-gradient(135deg, rgba(139,92,246,0.13), rgba(10,15,30,0.45));
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1.05rem;
+    }
+    .align-compact-status {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #b9aef0;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .align-compact-status::before { content: '🧭'; font-size: 1rem; }
+    .align-compact-status b { color: #e6ddff; font-weight: 800; }
+    .align-compact-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      border: 1px solid rgba(168,85,247,0.6);
+      border-radius: 999px; padding: 0.6rem 1.25rem; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(139,92,246,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .align-compact-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(139,92,246,0.5); }
+    .align-compact-btn:active { transform: translateY(0); }
+    .align-compact-btn-arrow { transition: transform 0.18s ease; }
+    .align-compact-btn:hover .align-compact-btn-arrow { transform: translateX(3px); }
+
+    /* Expandable body — grid trick animates to natural content height */
+    .align-expandable {
+      display: grid; grid-template-rows: 1fr; opacity: 1; margin-top: 0;
+      transition: grid-template-rows 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease;
+    }
+    .align-expandable-inner { overflow: hidden; min-height: 0; }
+    .align-panel.align-collapsed .align-expandable { grid-template-rows: 0fr; opacity: 0; }
+    .align-panel.align-collapsed .align-clear-btn { display: none; }
+    .align-panel.align-expanded .align-compact { display: none; }
+
+    .align-collapse-link {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #9d8fe0;
+      background: rgba(30,53,96,0.42); border: 1px solid rgba(139,92,246,0.24);
+      border-radius: 999px; padding: 0.36rem 0.85rem; cursor: pointer; transition: all 0.16s;
+    }
+    .align-collapse-link:hover { color: #c4b5fd; border-color: rgba(168,85,247,0.5); background: rgba(139,92,246,0.14); transform: translateY(-1px); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .align-expandable, .align-head-chev, .align-compact-btn { transition: none; }
+    }
     .align-chip {
       display: inline-flex;
       align-items: center;
@@ -12465,53 +12534,72 @@
           <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
         </div>
 
-        <!-- 🎯 Alignment Score Tool Panel -->
-        <div id="alignment-panel" class="align-panel mb-6 animate-on-scroll" style="transition-delay:0.03s;">
-          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
-              <div>
+        <!-- 🎯 Alignment Score Tool Panel — compact feature card by default, expands to the full picker on demand -->
+        <div id="alignment-panel" class="align-panel align-collapsed mb-6 animate-on-scroll" style="transition-delay:0.03s;">
+          <div class="align-head-row flex items-start justify-between gap-3 mb-4 flex-wrap">
+            <div class="align-head-main flex items-start gap-3 cursor-pointer flex-1 min-w-0" role="button" tabindex="0" aria-expanded="false" aria-controls="align-expandable" onclick="alignTogglePanel()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();alignTogglePanel();}">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md flex-none" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
+              <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                   <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
                   <span class="font-condensed text-[0.6rem] font-700 tracking-[0.12em] uppercase text-purple-200 bg-purple-500/15 border border-purple-400/40 rounded-full px-2.5 py-1 leading-none">See past party</span>
                 </div>
                 <p class="font-condensed text-xs text-steel-400 mt-1.5">The honest alternative to voting by party. Check the positions you actually believe in, and every politician gets a <strong class="text-purple-300">Your Match&nbsp;%</strong> — a sourced read of how their record fits <em class="text-steel-200">your</em> values, not their label.</p>
               </div>
+              <span class="align-head-chev" aria-hidden="true">⌄</span>
             </div>
-            <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
-          </div>
-          <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
-               their strength mix, and the areas they have / haven't weighed in on.
-               Rendered by _alignRenderProfile(); every chip jumps into the picker. -->
-          <div id="align-profile-summary" class="align-profile"></div>
-
-          <!-- Quick search across every issue in every category -->
-          <div class="align-search-wrap">
-            <span class="align-search-ico">🔍</span>
-            <input type="text" id="align-search-main" placeholder="Search issues — e.g. taxes, climate, guns, housing…" oninput="alignSearch(this,'align-cats-main')" aria-label="Search alignment issues" autocomplete="off" />
-            <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-main');i.value='';alignSearch(i,'align-cats-main');i.focus();">✕</button>
+            <button onclick="alignClearAll()" class="align-clear-btn font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
           </div>
 
-          <!-- Accordion controls: live count of chosen positions + open/close every topic at once -->
-          <div class="align-toolbar">
-            <span class="align-sel-count" id="align-sel-count-main" data-n="0">No positions selected yet</span>
-            <div class="align-toolbar-actions">
-              <button type="button" class="align-tool-btn" onclick="alignExpandAll('align-cats-main')">⊕ Expand all</button>
-              <button type="button" class="align-tool-btn" onclick="alignCollapseAll('align-cats-main')">⊖ Collapse all</button>
+          <!-- Compact (collapsed) call-to-action: status + a prominent button that opens the full tool -->
+          <div class="align-compact" id="align-compact">
+            <span class="align-compact-status" id="align-compact-status">No positions selected yet</span>
+            <button type="button" class="align-compact-btn" onclick="alignTogglePanel(true)">
+              <span id="align-compact-btn-label">Start Matching Politicians</span>
+              <span class="align-compact-btn-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <!-- Expandable body: the full picker. Animates open via grid-template-rows. -->
+          <div id="align-expandable" class="align-expandable">
+            <div class="align-expandable-inner">
+              <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
+                   their strength mix, and the areas they have / haven't weighed in on.
+                   Rendered by _alignRenderProfile(); every chip jumps into the picker. -->
+              <div id="align-profile-summary" class="align-profile"></div>
+
+              <!-- Quick search across every issue in every category -->
+              <div class="align-search-wrap">
+                <span class="align-search-ico">🔍</span>
+                <input type="text" id="align-search-main" placeholder="Search issues — e.g. taxes, climate, guns, housing…" oninput="alignSearch(this,'align-cats-main')" aria-label="Search alignment issues" autocomplete="off" />
+                <button type="button" class="align-search-clear" aria-label="Clear search" onclick="var i=document.getElementById('align-search-main');i.value='';alignSearch(i,'align-cats-main');i.focus();">✕</button>
+              </div>
+
+              <!-- Accordion controls: live count of chosen positions + open/close every topic at once -->
+              <div class="align-toolbar">
+                <span class="align-sel-count" id="align-sel-count-main" data-n="0">No positions selected yet</span>
+                <div class="align-toolbar-actions">
+                  <button type="button" class="align-tool-btn" onclick="alignExpandAll('align-cats-main')">⊕ Expand all</button>
+                  <button type="button" class="align-tool-btn" onclick="alignCollapseAll('align-cats-main')">⊖ Collapse all</button>
+                </div>
+              </div>
+
+              <div class="align-cats" id="align-cats-main">
+                <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
+              </div>
+              <div id="align-cats-main-empty" class="align-search-empty">No issues match your search.</div>
+              <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
+              <!-- Alignment Signature save status. Populated by _alignUpdateSigninPrompt():
+                   signed-in members see a "saved to your account" confirmation; signed-out
+                   visitors see a prompt to sign in so their picks persist across devices. -->
+              <div id="align-signature-status" class="align-future-note">
+                <span class="align-future-ico">💾</span>
+                <span>Save these positions as your personal <strong>Alignment Signature</strong> — sign in and your picks follow you across devices, so your personalized matches and top races load automatically every time.</span>
+              </div>
+
+              <!-- Collapse back to the compact card -->
+              <button type="button" class="align-collapse-link" onclick="alignTogglePanel(false)"><span aria-hidden="true">⌃</span> Collapse tool</button>
             </div>
-          </div>
-
-          <div class="align-cats" id="align-cats-main">
-            <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
-          </div>
-          <div id="align-cats-main-empty" class="align-search-empty">No issues match your search.</div>
-          <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
-          <!-- Alignment Signature save status. Populated by _alignUpdateSigninPrompt():
-               signed-in members see a "saved to your account" confirmation; signed-out
-               visitors see a prompt to sign in so their picks persist across devices. -->
-          <div id="align-signature-status" class="align-future-note">
-            <span class="align-future-ico">💾</span>
-            <span>Save these positions as your personal <strong>Alignment Signature</strong> — sign in and your picks follow you across devices, so your personalized matches and top races load automatically every time.</span>
           </div>
         </div>
 
@@ -23597,7 +23685,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="modal-section-title">🤝 How You Compare</div>' +
         '<div class="cmp-empty">' +
           '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">Pick the positions you care about in the <b style="color:#c4b5fd;">Personalized Alignment Tool</b> and this section shows, issue by issue, where you and ' + name + ' agree — and where you part ways.</p>' +
-          '<button type="button" class="cmp-empty-cta" onclick="closeModal();setTimeout(function(){var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Set your alignment</button>' +
+          '<button type="button" class="cmp-empty-cta" onclick="closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Set your alignment</button>' +
         '</div>' +
       '</div>';
     }
@@ -29627,6 +29715,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var targetId = which === 'alignment' ? 'alignment-panel' : 'relevant-section';
     var el = document.getElementById(targetId);
     if (el) {
+      if (which === 'alignment' && window.alignTogglePanel) window.alignTogglePanel(true);
       el.scrollIntoView({ behavior: 'smooth', block: which === 'alignment' ? 'center' : 'start' });
     }
   }
@@ -35593,6 +35682,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krAlignGuideToPicker() {
       var panel = document.getElementById('relevant-alignments-panel') || document.getElementById('alignment-panel');
       if (!panel) return;
+      if (panel.id === 'alignment-panel' && window.alignTogglePanel) window.alignTogglePanel(true);
       try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
       var body = document.getElementById('relevant-alignments-body');
       if (body && body.style.display === 'none' && typeof window.toggleRelevantAlignments === 'function') {
@@ -36792,7 +36882,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (n > 0) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
         }
       });
+      // Keep the compact (collapsed) card's status line and CTA in sync with picks.
+      var cs = document.getElementById('align-compact-status');
+      if (cs) {
+        cs.innerHTML = (n === 0)
+          ? 'No positions selected yet'
+          : "You've aligned on <b>" + n + "</b> issue" + (n > 1 ? 's' : '');
+      }
+      var cbl = document.getElementById('align-compact-btn-label');
+      if (cbl) cbl.textContent = (n === 0) ? 'Start Matching Politicians' : 'Adjust My Alignment';
     }
+
+    // Personalized Alignment Tool: a compact-by-default feature card that expands
+    // to the full picker on demand. Pass true/false to force a state, or call with
+    // no argument to flip it. Toggling only swaps CSS classes — every picker, the
+    // search, and the match maths keep working untouched in the DOM.
+    window.alignTogglePanel = function(forceState) {
+      var panel = document.getElementById('alignment-panel');
+      if (!panel) return;
+      var willOpen = (forceState === true) ? true
+                   : (forceState === false) ? false
+                   : panel.classList.contains('align-collapsed');
+      panel.classList.toggle('align-collapsed', !willOpen);
+      panel.classList.toggle('align-expanded', willOpen);
+      var head = panel.querySelector('.align-head-main');
+      if (head) head.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    };
 
     function _alignRenderPickers() {
       var html = _alignBuildPicker();
@@ -37547,7 +37662,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span>🎯</span> Set Align' +
               '</button>';
           }
-          return '<button onclick="event.stopPropagation();var p=document.getElementById(\'alignment-panel\');if(p)p.scrollIntoView({behavior:\'smooth\',block:\'center\'});" class="font-condensed text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-900/10 border border-purple-500/20 rounded-lg px-2.5 py-1.5 transition-all flex items-center gap-1 uppercase tracking-wider" style="background:rgba(139,92,246,0.05);min-height:30px;">' +
+          return '<button onclick="event.stopPropagation();if(window.alignTogglePanel)window.alignTogglePanel(true);var p=document.getElementById(\'alignment-panel\');if(p)p.scrollIntoView({behavior:\'smooth\',block:\'center\'});" class="font-condensed text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-900/10 border border-purple-500/20 rounded-lg px-2.5 py-1.5 transition-all flex items-center gap-1 uppercase tracking-wider" style="background:rgba(139,92,246,0.05);min-height:30px;">' +
             '<span>🎯</span> Align' +
             '</button>';
         }
@@ -37874,6 +37989,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window.alignJumpToCategory = function(catKey) {
       var panel = document.getElementById('alignment-panel');
       var cats = document.getElementById('align-cats-main');
+      // Make sure the tool is open before we try to scroll a category into view.
+      if (window.alignTogglePanel) window.alignTogglePanel(true);
       // Clear any active search so the target category is guaranteed visible.
       var search = document.getElementById('align-search-main');
       if (search && search.value) { search.value = ''; alignSearch(search, 'align-cats-main'); }
@@ -37882,12 +37999,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         cat.classList.add('open');
         var head = cat.querySelector('.align-cat-head');
         if (head) head.setAttribute('aria-expanded', 'true');
-        cat.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        cat.style.transition = 'box-shadow 0.4s';
-        cat.style.boxShadow = '0 0 0 2px rgba(168,85,247,0.5)';
-        setTimeout(function() { cat.style.boxShadow = ''; }, 900);
+        // Let the expand animation settle so the scroll lands on the right spot.
+        setTimeout(function() {
+          cat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          cat.style.transition = 'box-shadow 0.4s';
+          cat.style.boxShadow = '0 0 0 2px rgba(168,85,247,0.5)';
+          setTimeout(function() { cat.style.boxShadow = ''; }, 900);
+        }, 460);
       } else if (panel) {
-        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 460);
       }
     };
 
@@ -38496,6 +38616,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var step = steps[i];
       var el = document.querySelector(step.sel);
       clearHighlight();
+
+      // The alignment tool ships collapsed; open it so its tour step shows the real tool.
+      if (step.sel === '#alignment-panel' && window.alignTogglePanel) window.alignTogglePanel(true);
 
       if (el) {
         var y = window.pageYOffset + el.getBoundingClientRect().top - 90;
