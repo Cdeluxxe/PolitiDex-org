@@ -10214,11 +10214,11 @@
     }
     #relevant-browse-grid .relevant-level-name {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 0.13em;
+      font-size: 1.6rem;
+      letter-spacing: 0.14em;
       color: #fff;
       line-height: 1;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 10px rgba(0,0,0,0.5);
     }
     #relevant-browse-grid .relevant-level-count {
       font-family: 'Barlow Condensed', sans-serif;
@@ -10287,7 +10287,7 @@
        untouched. The dark patriotic palette is preserved. */
     #relevant-browse-grid .browse-type-group {
       --office-rgb: 59,130,246; /* sensible default; overridden per office below */
-      margin-bottom: 1.1rem !important;
+      margin-bottom: 1.4rem !important;
       border-top: 1.5px solid rgba(255,255,255,0.12) !important;
       border-right: 1.5px solid rgba(255,255,255,0.12) !important;
       border-bottom: 1.5px solid rgba(255,255,255,0.12) !important;
@@ -10301,10 +10301,20 @@
       box-shadow: 0 7px 30px rgba(0,0,0,0.4), -6px 0 22px rgba(var(--office-rgb),0.22), 0 0 18px rgba(var(--office-rgb),0.1) !important;
     }
     #relevant-browse-grid .browse-type-header {
+      position: relative;
       background: linear-gradient(135deg, rgba(var(--office-rgb),0.34) 0%, rgba(17,29,54,0.9) 55%, rgba(13,21,38,0.94) 100%) !important;
       padding-top: 0.95rem !important;
       padding-bottom: 0.95rem !important;
       box-shadow: inset 0 -1px 0 rgba(255,255,255,0.06) !important;
+    }
+    /* A bold colored rule across the top of every office header makes each race
+       a clear, unmistakable break as the voter scrolls between offices. */
+    #relevant-browse-grid .browse-type-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgb(var(--office-rgb)) 0%, rgba(var(--office-rgb),0.45) 55%, transparent 100%);
     }
     @media (hover: hover) {
       #relevant-browse-grid .browse-type-header:hover {
@@ -11650,16 +11660,23 @@
       <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.1s;">
         <!-- Hidden state overview so JS updates safely -->
         <div id="state-overview-relevant" style="display:none;"></div>
-        <!-- Relevant to Me Section Header -->
-        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(245,200,66,0.05) 100%); border:2px solid rgba(59,130,246,0.25); border-radius:1.25rem; padding:1.25rem 1.5rem;">
-          <div class="flex items-center justify-between gap-4 flex-wrap">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">📍</div>
-              <div>
-                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
-                <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
-              </div>
+        <!-- Relevant to Me Section Header — framed as building YOUR team by values & follow-through -->
+        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.18) 0%, rgba(10,15,30,0.5) 55%, rgba(245,200,66,0.06) 100%); border:2px solid rgba(59,130,246,0.28); border-radius:1.25rem; padding:1.35rem 1.5rem; box-shadow:0 8px 34px rgba(0,0,0,0.3), 0 0 26px rgba(59,130,246,0.06);">
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">🧭</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">Build Your Team · Your Ballot</div>
+              <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
+              <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
             </div>
+          </div>
+          <!-- Welcoming "how it works" framing: one seat at a time, judged on values & follow-through -->
+          <p class="font-condensed text-sm text-steel-300 tracking-wide mt-4 mb-3" style="line-height:1.55;max-width:48rem;">Each office below is one seat on <strong class="text-white">your team</strong>. Open a race to see who holds it and who's running, then pick the person who truly shares your values — and <strong class="text-gold-300">actually follows through</strong> — not just whoever fills the chair. No rush: take it one race at a time.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#bcd3f5;background:rgba(59,130,246,0.1);border:1px solid rgba(96,165,250,0.28);">🏛️ One pick per office</span>
+            <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#a7f3d0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);">✅ Judged on record &amp; values</span>
+            <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#f5d98a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.32);">🤝 Rewards follow-through</span>
+            <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#cbd5e1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">👇 One race at a time</span>
           </div>
         </div>
 
@@ -32258,7 +32275,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += '<span class="browse-type-name">' + tDef.label + '</span>';
         if (subtitle) h += '<span class="font-condensed" style="font-size:0.62rem;letter-spacing:0.04em;color:#7596c0;text-transform:none;line-height:1.2;margin-top:1px;">' + subtitle + '</span>';
         h += '</div>';
-        h += '<span class="browse-type-count">' + officePids.length + '</span>';
+        h += '<span class="browse-type-count">' + officePids.length + (officePids.length === 1 ? ' option' : ' options') + '</span>';
         h += '</div>';
         h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
         h += '</button>';
