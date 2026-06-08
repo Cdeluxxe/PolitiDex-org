@@ -11464,6 +11464,51 @@
         <div id="state-overview-voterhub"></div>
       </div>
 
+      <!-- ── KNOW YOUR OFFICES — plain-English guide to every seat on your ballot ── -->
+      <!-- Moved up from the Educational Library so it sits right where voters see
+           their ballot and are about to fill their six team slots: knowing what
+           each office actually does is exactly what they need at this moment. -->
+      <div class="mb-10 animate-on-scroll" style="transition-delay:0.07s;">
+        <style>
+          #voter-hub .ko-wrap{border-radius:1.25rem;border:2px solid rgba(245,200,66,0.22);border-left:3px solid #fad96a;background:linear-gradient(135deg,rgba(13,21,38,0.96) 0%,rgba(17,29,54,0.92) 55%,rgba(22,39,74,0.9) 100%);padding:1.4rem 1.5rem;box-shadow:0 12px 44px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);}
+          #voter-hub .ko-head{display:flex;align-items:center;gap:0.85rem;margin-bottom:0.95rem;}
+          #voter-hub .ko-head-ico{flex-shrink:0;font-size:1.5rem;width:3rem;height:3rem;display:flex;align-items:center;justify-content:center;border-radius:0.9rem;background:linear-gradient(135deg,rgba(245,200,66,0.22),rgba(192,21,42,0.18));border:1px solid rgba(255,255,255,0.12);box-shadow:0 0 22px rgba(245,200,66,0.12);}
+          #voter-hub .ko-head h3{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:0.05em;color:#fff;margin:0;line-height:1;}
+          #voter-hub .ko-head p{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin:0.2rem 0 0;}
+          #voter-hub .ko-lead{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.6;color:#cbd5e1;margin:0 0 1.1rem;}
+          #voter-hub .ko-lead strong{color:#fff;}
+          #voter-hub .ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.7rem;}
+          #voter-hub .ko-btn{display:flex;align-items:center;gap:0.7rem;text-align:left;width:100%;cursor:pointer;
+            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--ko-color,#60a5fa);border-radius:0.7rem;padding:0.75rem 0.9rem;transition:all 0.2s ease;}
+          #voter-hub .ko-btn:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.35);}
+          #voter-hub .ko-ico{flex-shrink:0;width:2.3rem;height:2.3rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
+          #voter-hub .ko-txt{min-width:0;flex:1;}
+          #voter-hub .ko-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.96rem;color:#fff;line-height:1.1;}
+          #voter-hub .ko-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
+          #voter-hub .ko-arrow{flex-shrink:0;color:#fad96a;font-size:1rem;opacity:0.7;transition:transform 0.2s ease,opacity 0.2s ease;}
+          #voter-hub .ko-btn:hover .ko-arrow{transform:translateX(3px);opacity:1;}
+        </style>
+        <div class="ko-wrap">
+          <div class="ko-head">
+            <div class="ko-head-ico">🏛️</div>
+            <div>
+              <h3>Know Your Offices</h3>
+              <p>What every seat on your ballot actually does</p>
+            </div>
+          </div>
+          <p class="ko-lead">Before you fill your team, know what you're voting for. Your ballot isn't just names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Power Map.</p>
+          <div class="ko-grid">
+            <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#818cf8;" onclick="openOfficeModal('us-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. Senator</span><span class="ko-meta">Federal · 6-yr term</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#60a5fa;" onclick="openOfficeModal('us-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. House Rep</span><span class="ko-meta">Federal · 2-yr term</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#34d399;" onclick="openOfficeModal('governor')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">Governor</span><span class="ko-meta">State · ~4-yr term</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#a78bfa;" onclick="openOfficeModal('state-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State Senator</span><span class="ko-meta">State · upper chamber</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#2dd4bf;" onclick="openOfficeModal('state-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State House Rep</span><span class="ko-meta">State · lower chamber</span></span><span class="ko-arrow">→</span></button>
+            <button type="button" class="ko-btn" style="--ko-color:#fbbf24;" onclick="openOfficeModal('local')"><span class="ko-ico">🏙</span><span class="ko-txt"><span class="ko-name">Local Offices</span><span class="ko-meta">City · County · School Bd</span></span><span class="ko-arrow">→</span></button>
+          </div>
+        </div>
+      </div>
+
       <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
       <div id="my-politicians" class="mb-10 animate-on-scroll" style="transition-delay:0.08s; scroll-margin-top: 80px;">
         <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
@@ -20374,43 +20419,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </div></div>
         </details>
 
-      </div>
-
-      <!-- ── Know Your Offices: quick links to the Voter Map explainers ── -->
-      <div class="va-track animate-on-scroll" style="--va-color:#fad96a;">
-        <div class="va-track-no" style="background:#fad96a;">★</div>
-        <div class="va-track-txt">
-          <h3>Know Your Offices</h3>
-          <p>What every seat on your ballot actually does</p>
-        </div>
-        <div class="va-track-line"></div>
-      </div>
-      <div class="ko-wrap animate-on-scroll" style="transition-delay:0.05s;">
-        <style>
-          #voter-academy .ko-wrap{border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-left:3px solid #fad96a;background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));padding:1.4rem;}
-          #voter-academy .ko-lead{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.6;color:#cbd5e1;margin:0 0 1.1rem;}
-          #voter-academy .ko-lead strong{color:#fff;}
-          #voter-academy .ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.7rem;}
-          #voter-academy .ko-btn{display:flex;align-items:center;gap:0.7rem;text-align:left;width:100%;cursor:pointer;
-            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--ko-color,#60a5fa);border-radius:0.7rem;padding:0.75rem 0.9rem;transition:all 0.2s ease;}
-          #voter-academy .ko-btn:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.35);}
-          #voter-academy .ko-ico{flex-shrink:0;width:2.3rem;height:2.3rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
-          #voter-academy .ko-txt{min-width:0;flex:1;}
-          #voter-academy .ko-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.96rem;color:#fff;line-height:1.1;}
-          #voter-academy .ko-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
-          #voter-academy .ko-arrow{flex-shrink:0;color:#fad96a;font-size:1rem;opacity:0.7;transition:transform 0.2s ease,opacity 0.2s ease;}
-          #voter-academy .ko-btn:hover .ko-arrow{transform:translateX(3px);opacity:1;}
-        </style>
-        <p class="ko-lead">Your ballot is more than names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Voter Map.</p>
-        <div class="ko-grid">
-          <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#818cf8;" onclick="openOfficeModal('us-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. Senator</span><span class="ko-meta">Federal · 6-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#60a5fa;" onclick="openOfficeModal('us-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. House Rep</span><span class="ko-meta">Federal · 2-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#34d399;" onclick="openOfficeModal('governor')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">Governor</span><span class="ko-meta">State · ~4-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#a78bfa;" onclick="openOfficeModal('state-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State Senator</span><span class="ko-meta">State · upper chamber</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#2dd4bf;" onclick="openOfficeModal('state-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State House Rep</span><span class="ko-meta">State · lower chamber</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#fbbf24;" onclick="openOfficeModal('local')"><span class="ko-ico">🏙</span><span class="ko-txt"><span class="ko-name">Local Offices</span><span class="ko-meta">City · County · School Bd</span></span><span class="ko-arrow">→</span></button>
-        </div>
       </div>
 
       <!-- Closing CTA -->
