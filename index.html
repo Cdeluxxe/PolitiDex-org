@@ -11675,595 +11675,77 @@
   <!-- /TRENDING REFORMS CAROUSEL -->
 
 
-  <!-- ═══════════════════════ VOTER ACADEMY · EDUCATION HUB ════════ -->
-  <section id="voter-academy" class="relative py-16 md:py-24 px-4 overflow-hidden" style="background:linear-gradient(180deg,#0a0f1e 0%,#0c1428 35%,#0e1a33 50%,#0c1428 65%,#0a0f1e 100%);">
+  <!-- ═══════════════════════ START HERE · NEW VOTER WELCOME ════════ -->
+  <section id="start-here" class="relative py-16 md:py-20 px-4 overflow-hidden" style="background:linear-gradient(180deg,#0a0f1e 0%,#0c1428 50%,#0a0f1e 100%);">
     <style>
-      #voter-academy .va-eyebrow{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(90deg,rgba(192,21,42,0.15),rgba(59,130,246,0.15));border:1px solid rgba(245,200,66,0.25);border-radius:9999px;padding:0.55rem 1.4rem;margin-bottom:1rem;box-shadow:0 0 24px rgba(59,130,246,0.08);}
-      #voter-academy .va-eyebrow span{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.22em;text-transform:uppercase;color:#fad96a;font-weight:700;}
-      #voter-academy .va-tagline{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.05rem,2.5vw,1.45rem);letter-spacing:0.04em;color:#cbd5e1;font-weight:600;max-width:44rem;margin:0 auto;}
-      #voter-academy .va-accordion{display:flex;flex-direction:column;gap:1rem;margin-top:2.5rem;}
-      #voter-academy .va-item{position:relative;border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-left:3px solid var(--va-color,#60a5fa);background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));overflow:hidden;transition:border-color .25s ease,box-shadow .25s ease;}
-      #voter-academy .va-item:hover{border-color:rgba(255,255,255,0.16);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 30px var(--va-glow,rgba(96,165,250,0.08));}
-      #voter-academy .va-item[open]{box-shadow:0 16px 50px rgba(0,0,0,0.45),0 0 36px var(--va-glow,rgba(96,165,250,0.12));}
-      #voter-academy summary.va-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:1rem;padding:1.25rem 1.4rem;user-select:none;}
-      #voter-academy summary.va-summary::-webkit-details-marker{display:none;}
-      #voter-academy .va-icon{flex-shrink:0;width:3rem;height:3rem;border-radius:0.75rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--va-soft,rgba(96,165,250,0.12));border:1px solid var(--va-glow,rgba(96,165,250,0.25));}
-      #voter-academy .va-heads{flex:1;min-width:0;}
-      #voter-academy .va-heads h3{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:0.04em;color:#fff;line-height:1.05;margin:0;}
-      #voter-academy .va-heads p{font-family:'Barlow',sans-serif;font-size:0.82rem;color:#94a3b8;margin:0.2rem 0 0;line-height:1.4;}
-      #voter-academy .va-plus{flex-shrink:0;width:1.9rem;height:1.9rem;border-radius:9999px;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:1.2rem;line-height:1;transition:transform .3s ease,background .3s ease,color .3s ease;}
-      #voter-academy .va-item[open] .va-plus{transform:rotate(45deg);background:var(--va-color,#60a5fa);color:#0a0f1e;border-color:transparent;}
-      #voter-academy .va-body{padding:0 1.4rem 1.5rem;}
-      #voter-academy .va-body-inner{border-top:1px solid rgba(255,255,255,0.07);padding-top:1.25rem;}
-      #voter-academy .va-body p{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.65;color:#cbd5e1;margin:0 0 1rem;}
-      #voter-academy .va-body p:last-child{margin-bottom:0;}
-      #voter-academy .va-body strong{color:#fff;}
-      #voter-academy .va-subgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.85rem;margin:0.25rem 0 1.1rem;}
-      #voter-academy .va-sub{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:0.7rem;padding:1rem;}
-      #voter-academy .va-sub h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-size:0.92rem;margin:0 0 0.4rem;color:#fff;display:flex;align-items:center;gap:0.45rem;}
-      #voter-academy .va-sub p{font-size:0.85rem;line-height:1.55;margin:0;color:#9fb4d4;}
-      #voter-academy .va-steps{list-style:none;counter-reset:va-step;padding:0;margin:0 0 1.1rem;display:flex;flex-direction:column;gap:0.7rem;}
-      #voter-academy .va-steps li{counter-increment:va-step;position:relative;padding:0.85rem 1rem 0.85rem 3.3rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:0.6rem;font-family:'Barlow',sans-serif;font-size:0.9rem;line-height:1.55;color:#cbd5e1;}
-      #voter-academy .va-steps li::before{content:counter(va-step);position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);width:1.8rem;height:1.8rem;border-radius:9999px;background:var(--va-color,#60a5fa);color:#0a0f1e;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;display:flex;align-items:center;justify-content:center;}
-      #voter-academy .va-steps li strong{color:#fff;}
-      #voter-academy .va-callout{display:flex;gap:0.7rem;align-items:flex-start;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.22);border-radius:0.7rem;padding:0.9rem 1rem;font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.55;color:#e9d8a6;}
-      #voter-academy .va-callout .va-co-ico{font-size:1.1rem;line-height:1.3;flex-shrink:0;}
-      #voter-academy .va-callout strong{color:#fad96a;}
-      #voter-academy .va-links{display:flex;flex-wrap:wrap;gap:0.55rem;margin-top:1.1rem;}
-      #voter-academy .va-links a{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.45rem 0.85rem;border-radius:0.55rem;text-decoration:none;background:var(--va-soft,rgba(96,165,250,0.08));border:1px solid var(--va-glow,rgba(96,165,250,0.3));color:var(--va-color,#60a5fa);transition:transform .15s ease,filter .15s ease;}
-      #voter-academy .va-links a:hover{transform:translateY(-1px);filter:brightness(1.2);}
-      #voter-academy .va-foot{margin-top:2.5rem;text-align:center;}
-      /* ── Academy meta bar (lesson stats) ─────────────────── */
-      #voter-academy .va-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.55rem;margin:1.6rem auto 0;max-width:48rem;}
-      #voter-academy .va-chip{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9999px;padding:0.4rem 0.85rem;}
-      #voter-academy .va-chip b{color:#fad96a;font-weight:800;}
-      /* ── Live curriculum progress ────────────────────────── */
-      #voter-academy .va-progress-wrap{max-width:34rem;margin:1.5rem auto 0;}
-      #voter-academy .va-progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;}
-      #voter-academy .va-progress-head span{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:#94a3b8;font-weight:700;}
-      #voter-academy .va-progress-head b{color:#fff;}
-      #voter-academy .va-progress-track{height:8px;border-radius:9999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);overflow:hidden;}
-      #voter-academy .va-progress-fill{height:100%;width:0;border-radius:9999px;background:linear-gradient(90deg,#c0152a,#fff,#3b82f6);transition:width .4s ease;box-shadow:0 0 12px rgba(245,200,66,0.25);}
-      /* ── Expand / collapse controls ──────────────────────── */
-      #voter-academy .va-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:0.6rem;margin:1.3rem auto 0;}
-      #voter-academy .va-ctrl-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:0.55rem;padding:0.5rem 1.05rem;cursor:pointer;transition:all .2s ease;}
-      #voter-academy .va-ctrl-btn:hover{color:#fff;border-color:rgba(245,200,66,0.4);background:rgba(245,200,66,0.06);transform:translateY(-1px);}
-      /* ── Curriculum track dividers ───────────────────────── */
-      #voter-academy .va-track{display:flex;align-items:center;gap:0.85rem;margin:2.5rem 0 0.9rem;}
-      #voter-academy .va-track:first-of-type{margin-top:0.5rem;}
-      #voter-academy .va-track-no{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.05em;color:#0a0f1e;background:var(--va-color,#fad96a);width:2.1rem;height:2.1rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;}
-      #voter-academy .va-track-txt{min-width:0;}
-      #voter-academy .va-track h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.07em;color:#fff;margin:0;line-height:1;}
-      #voter-academy .va-track p{font-family:'Barlow',sans-serif;font-size:0.78rem;color:#8aa0c0;margin:0.18rem 0 0;}
-      #voter-academy .va-track-line{flex:1;height:1px;background:linear-gradient(90deg,var(--va-color,rgba(255,255,255,0.4)),transparent);opacity:0.55;}
-      /* ── Lesson number + category tag + read time ────────── */
-      #voter-academy .va-num{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.04em;color:var(--va-color,#60a5fa);border:1px solid var(--va-glow,rgba(96,165,250,0.3));background:rgba(255,255,255,0.02);border-radius:0.5rem;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;}
-      #voter-academy .va-tagrow{display:flex;align-items:center;flex-wrap:wrap;gap:0.45rem;margin-bottom:0.3rem;}
-      #voter-academy .va-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--va-color,#60a5fa);background:var(--va-soft,rgba(96,165,250,0.1));border:1px solid var(--va-glow,rgba(96,165,250,0.25));border-radius:9999px;padding:0.12rem 0.55rem;}
-      #voter-academy .va-time{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;font-weight:700;white-space:nowrap;}
-      /* ── Blue "takeaway" callout variant ─────────────────── */
-      #voter-academy .va-takeaway{display:flex;gap:0.7rem;align-items:flex-start;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.22);border-radius:0.7rem;padding:0.9rem 1rem;font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.55;color:#bcd2f5;margin-top:1.1rem;}
-      #voter-academy .va-takeaway .va-co-ico{font-size:1.1rem;line-height:1.3;flex-shrink:0;}
-      #voter-academy .va-takeaway strong{color:#93c5fd;}
-      /* ── Red-flag list ───────────────────────────────────── */
-      #voter-academy .va-flags{list-style:none;padding:0;margin:0 0 0.4rem;display:flex;flex-direction:column;gap:0.6rem;}
-      #voter-academy .va-flags li{position:relative;padding:0.78rem 1rem 0.78rem 2.6rem;background:rgba(240,33,60,0.05);border:1px solid rgba(240,33,60,0.18);border-radius:0.6rem;font-family:'Barlow',sans-serif;font-size:0.88rem;line-height:1.55;color:#cbd5e1;}
-      #voter-academy .va-flags li::before{content:"\1F6A9";position:absolute;left:0.85rem;top:0.72rem;font-size:0.95rem;}
-      #voter-academy .va-flags li strong{color:#fff;}
-      @media (max-width:640px){
-        #voter-academy summary.va-summary{padding:1rem;gap:0.6rem;}
-        #voter-academy .va-icon{width:2.5rem;height:2.5rem;font-size:1.25rem;}
-        #voter-academy .va-num{width:1.8rem;height:1.8rem;font-size:0.82rem;}
-        #voter-academy .va-heads h3{font-size:1.2rem;}
-        #voter-academy .va-body{padding:0 1rem 1.25rem;}
-        #voter-academy .va-track h3{font-size:1.12rem;}
-      }
+      #start-here .sh-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(90deg,rgba(192,21,42,0.15),rgba(59,130,246,0.15));border:1px solid rgba(245,200,66,0.3);border-radius:9999px;padding:0.5rem 1.3rem;margin-bottom:1.1rem;}
+      #start-here .sh-eyebrow span{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.2em;text-transform:uppercase;color:#fad96a;font-weight:700;}
+      #start-here .sh-lead{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.05rem,2.4vw,1.4rem);letter-spacing:0.02em;color:#cbd5e1;font-weight:600;max-width:46rem;margin:0 auto;line-height:1.5;}
+      #start-here .sh-lead strong{color:#fff;}
+      #start-here .sh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:2.5rem;}
+      #start-here .sh-card{position:relative;border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-top:3px solid var(--sh-color,#60a5fa);background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));padding:1.4rem;text-align:left;}
+      #start-here .sh-card .sh-ico{font-size:1.7rem;line-height:1;margin-bottom:0.7rem;display:block;}
+      #start-here .sh-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.04em;color:#fff;margin:0 0 0.4rem;line-height:1.05;}
+      #start-here .sh-card p{font-family:'Barlow',sans-serif;font-size:0.9rem;line-height:1.55;color:#9fb4d4;margin:0;}
+      #start-here .sh-card p strong{color:#e2e8f0;}
+      #start-here .sh-steps{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0.6rem;margin-top:2rem;}
+      #start-here .sh-step{display:inline-flex;align-items:center;gap:0.55rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:9999px;padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;letter-spacing:0.02em;color:#cbd5e1;}
+      #start-here .sh-step b{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:9999px;background:#fad96a;color:#0a0f1e;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;}
+      #start-here .sh-arrow{color:#5b7299;font-size:0.9rem;}
+      @media (max-width:640px){#start-here .sh-step{font-size:0.8rem;}#start-here .sh-arrow{display:none;}}
     </style>
-
     <div class="absolute inset-0 pointer-events-none">
       <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
-      <div class="absolute top-1/4 left-1/5 w-80 h-80 bg-blue-900/10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-1/4 right-1/5 w-72 h-72 bg-crimson-600/8 rounded-full blur-3xl"></div>
-      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-gold-400/5 rounded-full blur-3xl" style="transform:translate(-50%,-50%)"></div>
-      <div class="absolute inset-0 opacity-3" style="background-image:radial-gradient(circle,rgba(255,255,255,0.07) 1px,transparent 1px);background-size:42px 42px;"></div>
+      <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-900/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/5 w-64 h-64 bg-crimson-600/8 rounded-full blur-3xl"></div>
     </div>
+    <div class="relative max-w-5xl mx-auto z-10 text-center">
+      <div class="sh-eyebrow"><span>👋 New here? Start in 2 minutes</span></div>
+      <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD A TEAM THAT <span class="text-crimson-400">EARNS</span> YOUR VOTE</h2>
+      <p class="sh-lead">PolitiDex is your accountability scorecard for politics. Instead of voting by party, you build a personal <strong>voting team</strong> from the people who actually share your values &mdash; and who have the receipts to prove they follow through.</p>
 
-    <div class="relative max-w-5xl mx-auto z-10">
-      <!-- Section Header -->
-      <div class="text-center mb-2 animate-on-scroll">
-        <div class="va-eyebrow"><span>🎓 Voter Academy</span></div>
-        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">VOTER EDUCATION <span class="text-crimson-400">HUB</span></h2>
-        <p class="va-tagline">Learn how the system really works — <span style="color:#fff;">empower your vote.</span></p>
-        <div class="w-32 h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700 mx-auto rounded-full mt-6"></div>
-
-        <!-- Academy stat chips -->
-        <div class="va-meta">
-          <span class="va-chip">📚 <b>10</b>&nbsp;Lessons</span>
-          <span class="va-chip">🗂️ <b>4</b>&nbsp;Tracks</span>
-          <span class="va-chip">⏱️ ~3 min&nbsp;each</span>
-          <span class="va-chip">🧭 Self-paced</span>
-          <span class="va-chip">🆓 Free forever</span>
+      <div class="sh-grid animate-on-scroll">
+        <div class="sh-card" style="--sh-color:#60a5fa;">
+          <span class="sh-ico">🏛️</span>
+          <h3>One Place for Every Politician</h3>
+          <p>Look up anyone on your ballot and see their record, promises, and money trail &mdash; <strong>all in plain English</strong>.</p>
         </div>
-
-        <!-- Live progress through the curriculum -->
-        <div class="va-progress-wrap">
-          <div class="va-progress-head">
-            <span>Your Progress</span>
-            <span><b id="va-progress-count">0 / 10</b> lessons opened</span>
-          </div>
-          <div class="va-progress-track"><div class="va-progress-fill" id="va-progress-fill"></div></div>
+        <div class="sh-card" style="--sh-color:#f5c842;">
+          <span class="sh-ico">🧾</span>
+          <h3>Judged by Record, Not Party</h3>
+          <p>We score politicians on <strong>integrity and follow-through</strong> &mdash; what they actually did, not the letter after their name.</p>
         </div>
-
-        <!-- Expand / collapse controls -->
-        <div class="va-controls">
-          <button type="button" class="va-ctrl-btn" onclick="vaToggleAll(true)">▾ Expand All Lessons</button>
-          <button type="button" class="va-ctrl-btn" onclick="vaToggleAll(false)">▴ Collapse All</button>
+        <div class="sh-card" style="--sh-color:#4ade80;">
+          <span class="sh-ico">⭐</span>
+          <h3>You Build the Team</h3>
+          <p>Fill each seat on your ballot with the person who earns it and assemble a <strong>voting team that matches your values</strong>.</p>
         </div>
       </div>
 
-      <!-- Interactive accordions -->
-      <div class="va-accordion animate-on-scroll" style="transition-delay:0.06s;">
-
-        <!-- ━━━━━━ TRACK I ━━━━━━ -->
-        <div class="va-track" style="--va-color:#60a5fa;">
-          <div class="va-track-no">I</div>
-          <div class="va-track-txt">
-            <h3>Foundations — How Power Is Built</h3>
-            <p>Start here: the machinery of American government, top to bottom.</p>
-          </div>
-          <div class="va-track-line"></div>
-        </div>
-
-        <!-- 1 · How the U.S. Government Works -->
-        <details class="va-item" style="--va-color:#60a5fa;--va-soft:rgba(96,165,250,0.12);--va-glow:rgba(96,165,250,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">01</div>
-            <div class="va-icon">🏛️</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>How the U.S. Government Works</h3>
-              <p>Three branches, one system of checks &amp; balances.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>The Founders deliberately split power so no single person or group could control everything. Government is divided into <strong>three branches</strong>, and each one can check the other two.</p>
-            <div class="va-subgrid">
-              <div class="va-sub">
-                <h4>⚖️ Legislative</h4>
-                <p><strong>Makes the laws.</strong> Congress = the House + the Senate. It writes and passes bills, controls federal spending (the "power of the purse"), declares war, and confirms or rejects key appointments.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🏛️ Executive</h4>
-                <p><strong>Enforces the laws.</strong> The President, Vice President, Cabinet, and federal agencies. Signs or vetoes bills, runs the military, conducts foreign policy, and nominates judges &amp; officials.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🧑‍⚖️ Judicial</h4>
-                <p><strong>Interprets the laws.</strong> The Supreme Court and lower federal courts. Decides whether laws are constitutional, settles disputes, and sets binding precedent for the future.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🗺️ Federalism</h4>
-                <p><strong>Power is split again.</strong> The federal government handles national matters; states keep everything not handed to D.C. — which is why the same issue can be legal in one state and banned in another.</p>
-              </div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">🔄</span><span><strong>Checks &amp; balances in action:</strong> Congress passes a law → the President can veto it → Congress can override that veto with a 2/3 vote → and the courts can still strike the law down if it violates the Constitution.</span></div>
-            <div class="va-links">
-              <a href="https://www.usa.gov/branches-of-government" target="_blank" rel="noopener noreferrer">🏛️ USA.gov: Branches</a>
-              <a href="https://www.archives.gov/founding-docs" target="_blank" rel="noopener noreferrer">📜 Founding Documents</a>
-            </div>
-            <div class="va-takeaway"><span class="va-co-ico">🎯</span><span><strong>Why this matters to you:</strong> When a candidate promises something, ask first — <em>does that office even have the power to do it?</em> Half of all campaign promises die on that question alone.</span></div>
-          </div></div>
-        </details>
-
-        <!-- 2 · What Each Office Actually Controls -->
-        <details class="va-item" style="--va-color:#f5c842;--va-soft:rgba(245,200,66,0.12);--va-glow:rgba(245,200,66,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">02</div>
-            <div class="va-icon">🪪</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>What Each Office Actually Controls</h3>
-              <p>Who has real power over what — from D.C. to your county.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Knowing what a position can and <strong>can't</strong> do is how you hold the right person accountable — and how you spot a promise that office has no power to keep.</p>
-            <div class="va-subgrid">
-              <div class="va-sub">
-                <h4>👤 President</h4>
-                <p>Enforces federal law, sets foreign policy &amp; treaties, commands the military, vetoes bills, and nominates judges. <strong>Cannot</strong> pass laws or set the budget alone.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🏛️ U.S. Senate</h4>
-                <p>100 members (2 per state, 6-year terms). Confirms judges &amp; Cabinet, ratifies treaties, and holds impeachment trials. Every state gets an equal voice.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🗳️ U.S. House</h4>
-                <p>435 members (by population, 2-year terms). Originates spending &amp; tax bills, represents local districts, and starts the impeachment process.</p>
-              </div>
-              <div class="va-sub">
-                <h4>📨 Your Representative</h4>
-                <p>Your direct line into federal lawmaking — the federal official closest to your community's day-to-day needs.</p>
-              </div>
-              <div class="va-sub">
-                <h4>🏔 Governor</h4>
-                <p>The state's chief executive. Signs or vetoes state laws, proposes the state budget, commands the National Guard, and runs state agencies (DMV, schools, roads).</p>
-              </div>
-              <div class="va-sub">
-                <h4>🏙️ Mayor &amp; City Council</h4>
-                <p>Local power: police, zoning, parks, local roads, and city budgets — the decisions you feel most directly.</p>
-              </div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">📍</span><span><strong>Reality check:</strong> Many things that shape daily life — schools, policing, zoning, local roads — are decided at the <strong>state and local</strong> level, not in Washington.</span></div>
-            <div class="va-links">
-              <a href="https://www.usa.gov/elected-officials" target="_blank" rel="noopener noreferrer">🔎 Find Your Officials</a>
-              <a href="#voter-hub">🗺️ Open Your Power Map</a>
-            </div>
-            <div class="va-takeaway"><span class="va-co-ico">🎯</span><span><strong>Aim your energy:</strong> Frustrated about potholes or school policy? That's a city-council or governor fight — not a presidential one. Hold the <em>right</em> office accountable.</span></div>
-          </div></div>
-        </details>
-
-        <!-- 3 · How a Bill Becomes Law -->
-        <details class="va-item" style="--va-color:#4ade80;--va-soft:rgba(74,222,128,0.12);--va-glow:rgba(74,222,128,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">03</div>
-            <div class="va-icon">📜</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>How a Bill Becomes Law</h3>
-              <p>From a single idea to the law of the land — step by step.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Most bills never make it. Here's the full gauntlet a proposal has to survive to become law:</p>
-            <ol class="va-steps">
-              <li><strong>Introduction.</strong> A member of Congress drafts a bill and introduces it in the House or the Senate.</li>
-              <li><strong>Committee review.</strong> A specialized committee studies it, holds hearings, amends it — or quietly lets it die.</li>
-              <li><strong>Floor debate &amp; vote.</strong> The full chamber debates, amends, and votes. It needs a majority to move forward.</li>
-              <li><strong>The other chamber.</strong> The second chamber repeats the whole process. Both must pass <strong>identical</strong> text (differences are settled in a conference committee).</li>
-              <li><strong>The President's desk.</strong> Sign it → it's law. Veto it → it goes back. Ignore it 10 days while Congress is in session → it becomes law anyway.</li>
-              <li><strong>Override (if vetoed).</strong> Congress can still pass it over a veto with a 2/3 vote in <strong>both</strong> chambers.</li>
-              <li><strong>Law &amp; the courts.</strong> Agencies enforce it — and courts can later rule it unconstitutional.</li>
-            </ol>
-            <div class="va-callout"><span class="va-co-ico">💡</span><span><strong>Why it matters:</strong> A politician "introducing" or "fighting for" a bill is <strong>not</strong> the same as that bill becoming law. Watch where it actually died.</span></div>
-            <div class="va-links">
-              <a href="https://www.congress.gov/legislative-process" target="_blank" rel="noopener noreferrer">📜 Congress.gov: The Process</a>
-              <a href="https://www.congress.gov/" target="_blank" rel="noopener noreferrer">🔎 Track Live Bills</a>
-            </div>
-            <div class="va-takeaway"><span class="va-co-ico">📑</span><span><strong>Next up:</strong> Knowing the <em>process</em> is step one — Lesson 04 shows you how to crack open the bill's actual text and find what it really does.</span></div>
-          </div></div>
-        </details>
-
-        <!-- ━━━━━━ TRACK II ━━━━━━ -->
-        <div class="va-track" style="--va-color:#fb923c;">
-          <div class="va-track-no">II</div>
-          <div class="va-track-txt">
-            <h3>Decode the Documents — Read Past the Headlines</h3>
-            <p>The skills to read a bill, a promise, and a news story for what they really say.</p>
-          </div>
-          <div class="va-track-line"></div>
-        </div>
-
-        <!-- 4 · How to Read a Bill (NEW) -->
-        <details class="va-item" style="--va-color:#22d3ee;--va-soft:rgba(34,211,238,0.12);--va-glow:rgba(34,211,238,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">04</div>
-            <div class="va-icon">📑</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
-              <h3>How to Read a Bill</h3>
-              <p>Crack open the actual text and find what it really does.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>A bill's real meaning lives in its <strong>text</strong>, not its title. A law named the "Freedom &amp; Prosperity Act" might do neither. Here's how to read one like a staffer instead of a headline.</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>🔖 Bill Number</h4><p>Like <strong>H.R. 1</strong> (House) or <strong>S. 1</strong> (Senate) — the tracking number you'll use to follow it anywhere.</p></div>
-              <div class="va-sub"><h4>✍️ Sponsors &amp; Cosponsors</h4><p>Who introduced it and who signed on. Whose names are attached tells you whose priorities it serves.</p></div>
-              <div class="va-sub"><h4>📃 Findings &amp; Purpose</h4><p>The "why" section up top — and where spin hides. Read the stated goals skeptically.</p></div>
-              <div class="va-sub"><h4>🧩 The Operative Sections</h4><p>The real rules. <strong>"Shall"</strong> means mandatory; <strong>"may"</strong> means optional. Tiny words, huge difference.</p></div>
-              <div class="va-sub"><h4>💵 Appropriations</h4><p>How much money, to whom, for how long. Follow the dollars to find the real intent.</p></div>
-              <div class="va-sub"><h4>📅 Effective &amp; Sunset Dates</h4><p>When it kicks in — and whether it quietly expires later.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">🪤</span><span><strong>Watch for riders &amp; "poison pills":</strong> unrelated provisions slipped into a must-pass bill so they ride through without a vote of their own.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">📊</span><span><strong>Pro move:</strong> never trust the summary alone — read the <strong>CBO score</strong> for the true cost, then skim the sections that actually change the law.</span></div>
-            <div class="va-links">
-              <a href="https://www.congress.gov/" target="_blank" rel="noopener noreferrer">📑 Read Bill Text</a>
-              <a href="https://www.congress.gov/help/legislative-glossary" target="_blank" rel="noopener noreferrer">📖 Legislative Glossary</a>
-              <a href="https://www.cbo.gov/" target="_blank" rel="noopener noreferrer">💵 CBO Cost Estimates</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- 5 · Reading Promises vs Reality -->
-        <details class="va-item" style="--va-color:#fb923c;--va-soft:rgba(251,146,60,0.12);--va-glow:rgba(251,146,60,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">05</div>
-            <div class="va-icon">🎭</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Decode</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>Reading Promises vs Reality</h3>
-              <p>Cut through the talking points and spot the spin.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Politicians are trained to sound good. These habits help you separate what was actually <strong>done</strong> from what was merely <strong>said</strong>.</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>🎯 Watch the verb</h4><p>"Fought for," "supported," "called for" ≠ "passed," "signed," "delivered." Vague verbs hide inaction.</p></div>
-              <div class="va-sub"><h4>🗳️ Vote, not the speech</h4><p>A floor speech is free. Look at the recorded vote and the final outcome instead.</p></div>
-              <div class="va-sub"><h4>📅 Follow the timeline</h4><p>Did the result happen <em>because</em> of them — or was it already in motion before they arrived?</p></div>
-              <div class="va-sub"><h4>🔢 Find the number</h4><p>"Massive investment" is spin. "$2.1B over 5 years" is a fact you can verify.</p></div>
-              <div class="va-sub"><h4>🔗 Find the source</h4><p>Real claims link to bills, budgets, or records. No source = treat it as opinion.</p></div>
-              <div class="va-sub"><h4>🥊 Beware the strawman</h4><p>If they only attack "the other side," they may be dodging their own record.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">✅</span><span><strong>Put it to work:</strong> PolitiDex tracks every claim with a transparent <strong>Promise %</strong> score and the receipts behind it — check it yourself instead of taking anyone's word.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">🧾</span><span><strong>One-line test:</strong> "Did they vote for it, fund it, and sign it?" If you can't answer all three, the promise isn't kept — it's just a soundbite.</span></div>
-            <div class="va-links">
-              <a href="#voter-hub">📊 Open the Promise Tracker</a>
-              <a href="https://www.politifact.com/" target="_blank" rel="noopener noreferrer">🔎 PolitiFact</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- 6 · Understanding Media Spin (NEW) -->
-        <details class="va-item" style="--va-color:#f472b6;--va-soft:rgba(244,114,182,0.12);--va-glow:rgba(244,114,182,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">06</div>
-            <div class="va-icon">📺</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
-              <h3>Understanding Media Spin</h3>
-              <p>Every story is framed by someone — learn to see the frame.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>News isn't just facts — it's facts <strong>chosen, ordered, and packaged</strong>. Spin isn't always lying; it's steering what you notice. Learn these moves and you can read any outlet, left or right.</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>🪧 Framing</h4><p>Which detail leads? What's buried in paragraph 12? The <em>order</em> of a story is an argument.</p></div>
-              <div class="va-sub"><h4>🔥 Loaded language</h4><p>"Slammed," "blasted," "regime." Emotion-words do persuasion the facts can't.</p></div>
-              <div class="va-sub"><h4>📉 Cherry-picked stats</h4><p>A true number with no baseline or context can be twisted to prove almost anything.</p></div>
-              <div class="va-sub"><h4>📰 Headline ≠ story</h4><p>Headlines are built to be shared; the body often quietly walks them back.</p></div>
-              <div class="va-sub"><h4>🕶️ Anonymous sources</h4><p>"Sources say" can be real — or convenient. Ask who benefits from the leak.</p></div>
-              <div class="va-sub"><h4>⚖️ False balance</h4><p>Giving "both sides" equal weight when the evidence isn't equal is its own bias.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">🧭</span><span><strong>Outrage is the business model:</strong> content engineered to make you angry keeps you scrolling. Pause before you share.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">🔗</span><span><strong>The fix:</strong> trace it to the <strong>primary source</strong> — the actual bill, study, or transcript — and read across several outlets before you decide.</span></div>
-            <div class="va-links">
-              <a href="https://www.allsides.com/unbiased-balanced-news" target="_blank" rel="noopener noreferrer">⚖️ AllSides Bias Ratings</a>
-              <a href="https://www.factcheck.org/" target="_blank" rel="noopener noreferrer">✅ FactCheck.org</a>
-              <a href="https://mediabiasfactcheck.com/" target="_blank" rel="noopener noreferrer">📰 Media Bias Check</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- ━━━━━━ TRACK III ━━━━━━ -->
-        <div class="va-track" style="--va-color:#a78bfa;">
-          <div class="va-track-no">III</div>
-          <div class="va-track-txt">
-            <h3>Follow the Money — Who Really Pays</h3>
-            <p>How campaigns are funded, and the warning signs that money is buying a vote.</p>
-          </div>
-          <div class="va-track-line"></div>
-        </div>
-
-        <!-- 7 · Campaign Finance & Wealth Transparency -->
-        <details class="va-item" style="--va-color:#a78bfa;--va-soft:rgba(167,139,250,0.13);--va-glow:rgba(167,139,250,0.32);">
-          <summary class="va-summary">
-            <div class="va-num">07</div>
-            <div class="va-icon">💰</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Follow the Money</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>Campaign Finance &amp; Wealth Transparency</h3>
-              <p>Follow the money behind the message.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Campaigns run on money, and who funds a politician can shape who they answer to. Transparency is how voters see those ties. Know the key terms:</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>🏦 PAC</h4><p>A Political Action Committee — raises money to support candidates within legal donation limits.</p></div>
-              <div class="va-sub"><h4>🚀 Super PAC</h4><p>Can raise and spend <strong>unlimited</strong> sums independently, but can't donate directly to a candidate.</p></div>
-              <div class="va-sub"><h4>🌑 Dark Money</h4><p>Funds from groups that don't have to disclose who their donors are.</p></div>
-              <div class="va-sub"><h4>🎁 Bundling</h4><p>One person gathering many separate donations to amplify their influence.</p></div>
-              <div class="va-sub"><h4>🤵 Lobbying</h4><p>Paid efforts to influence how legislators write and vote on laws.</p></div>
-              <div class="va-sub"><h4>📋 Disclosure</h4><p>Public FEC reports showing who gave, how much, and when.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">🔎</span><span><strong>Why wealth matters:</strong> Financial disclosures and net-worth tracking can reveal conflicts of interest — like voting on industries a lawmaker is personally invested in.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">💡</span><span><strong>Follow the chain:</strong> donor → committee → vote. When all three line up against the public interest, you've found a story worth telling.</span></div>
-            <div class="va-links">
-              <a href="#follow-the-money">💰 Follow the Money</a>
-              <a href="#wealth-leaderboard">📈 Wealth Leaderboard</a>
-              <a href="https://www.opensecrets.org/" target="_blank" rel="noopener noreferrer">🔗 OpenSecrets</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- 8 · Red Flags in Campaign Finance (NEW) -->
-        <details class="va-item" style="--va-color:#f0213c;--va-soft:rgba(240,33,60,0.12);--va-glow:rgba(240,33,60,0.32);">
-          <summary class="va-summary">
-            <div class="va-num">08</div>
-            <div class="va-icon">🚩</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
-              <h3>Red Flags in Campaign Finance</h3>
-              <p>Spot the warning signs of money buying influence.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Money in politics is legal — but certain patterns are smoke that often signals fire. None of these <em>prove</em> corruption on their own. Together, they're worth a very hard look.</p>
-            <ul class="va-flags">
-              <li><strong>A donation right before a vote.</strong> A big check from an industry just days before a lawmaker votes on its bill.</li>
-              <li><strong>Votes that match the donor, not the district.</strong> A position that helps funders but few actual constituents.</li>
-              <li><strong>The revolving door.</strong> A politician or their staff who leaves office to lobby the very agency they once oversaw.</li>
-              <li><strong>Last-minute dark money.</strong> Untraceable ad spending that floods in during the final weeks of a race.</li>
-              <li><strong>Leadership-PAC luxury spending.</strong> "Campaign" funds spent on resorts, fine dining, and travel.</li>
-              <li><strong>One mega-donor, many committees.</strong> Maxing out to a candidate, their PAC, <em>and</em> a Super PAC to multiply influence.</li>
-            </ul>
-            <div class="va-callout"><span class="va-co-ico">🔎</span><span><strong>Correlation isn't proof — it's a question.</strong> Cross-check the donation date against the vote date, then ask why the timing lines up.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">🕵️</span><span><strong>Do it yourself:</strong> pull a politician's top donors on OpenSecrets, then compare them to their committee assignments. The overlap is where to dig.</span></div>
-            <div class="va-links">
-              <a href="#follow-the-money">💰 Follow the Money</a>
-              <a href="https://www.opensecrets.org/" target="_blank" rel="noopener noreferrer">🔗 OpenSecrets</a>
-              <a href="https://www.fec.gov/data/" target="_blank" rel="noopener noreferrer">📋 FEC Filings</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- ━━━━━━ TRACK IV ━━━━━━ -->
-        <div class="va-track" style="--va-color:#f0213c;">
-          <div class="va-track-no">IV</div>
-          <div class="va-track-txt">
-            <h3>Know Your Rights — Your Power at the Ballot</h3>
-            <p>The freedoms the republic guarantees you, and how to defend your vote.</p>
-          </div>
-          <div class="va-track-line"></div>
-        </div>
-
-        <!-- 9 · The Constitution & Your Rights -->
-        <details class="va-item" style="--va-color:#f0213c;--va-soft:rgba(240,33,60,0.12);--va-glow:rgba(240,33,60,0.32);">
-          <summary class="va-summary">
-            <div class="va-num">09</div>
-            <div class="va-icon">🦅</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">Your Rights</span><span class="va-time">⏱️ 3 min read</span></div>
-              <h3>The Constitution &amp; Your Rights</h3>
-              <p>The rulebook of the republic — and the rights it guarantees you.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Ratified in <strong>1788</strong>, the Constitution is the supreme law of the land. It builds the three branches, divides power between the federal government and the states, and — through the <strong>Bill of Rights</strong> (the first 10 amendments) — guarantees individual freedoms. There are <strong>27 amendments</strong> in all.</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>🗣️ 1st Amendment</h4><p>Freedom of speech, religion, press, assembly, and the right to petition the government.</p></div>
-              <div class="va-sub"><h4>🔫 2nd Amendment</h4><p>The right to keep and bear arms.</p></div>
-              <div class="va-sub"><h4>🔍 4th Amendment</h4><p>Protection from unreasonable searches and seizures.</p></div>
-              <div class="va-sub"><h4>⚖️ 5th Amendment</h4><p>Due process, no self-incrimination, and protection from double jeopardy.</p></div>
-              <div class="va-sub"><h4>🤝 14th Amendment</h4><p>Equal protection and due process under the law for all citizens.</p></div>
-              <div class="va-sub"><h4>🗳️ 15th · 19th · 26th</h4><p>Voting rights protected regardless of race, sex, and for everyone 18 and older.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">🛡️</span><span><strong>Hard to change by design:</strong> Amending the Constitution takes 2/3 of Congress <em>and</em> 3/4 of the states — so your rights can't be erased on a whim.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">📜</span><span><strong>Keep it close:</strong> the whole document is a short read. Knowing what it actually says is the surest defense against anyone who tells you it says otherwise.</span></div>
-            <div class="va-links">
-              <a href="https://www.archives.gov/founding-docs/constitution-transcript" target="_blank" rel="noopener noreferrer">🦅 Read the Constitution</a>
-              <a href="https://www.archives.gov/founding-docs/bill-of-rights-transcript" target="_blank" rel="noopener noreferrer">📜 Bill of Rights</a>
-            </div>
-          </div></div>
-        </details>
-
-        <!-- 10 · Your Rights as a Voter (NEW) -->
-        <details class="va-item" style="--va-color:#f5c842;--va-soft:rgba(245,200,66,0.12);--va-glow:rgba(245,200,66,0.3);">
-          <summary class="va-summary">
-            <div class="va-num">10</div>
-            <div class="va-icon">🗳️</div>
-            <div class="va-heads">
-              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
-              <h3>Your Rights as a Voter</h3>
-              <p>Know exactly what you're entitled to at the ballot box.</p>
-            </div>
-            <div class="va-plus">+</div>
-          </summary>
-          <div class="va-body"><div class="va-body-inner">
-            <p>Your right to vote is protected by law — but the rules vary by state, and knowing them is how you make sure your vote actually <strong>counts</strong>.</p>
-            <div class="va-subgrid">
-              <div class="va-sub"><h4>✅ Right to register</h4><p>Every eligible citizen can register. Many states now offer online or same-day registration.</p></div>
-              <div class="va-sub"><h4>🪪 ID rules vary</h4><p>Some states require photo ID, others don't. Check your state's rule <em>before</em> election day.</p></div>
-              <div class="va-sub"><h4>🗳️ Provisional ballot</h4><p>If your eligibility is questioned, you can still cast a provisional ballot that's verified later.</p></div>
-              <div class="va-sub"><h4>⏰ Time off to vote</h4><p>Many states legally require employers to give you paid or unpaid time off to vote.</p></div>
-              <div class="va-sub"><h4>🤝 Right to assistance</h4><p>Voters with disabilities or language needs can get help; accessible and curbside voting exist.</p></div>
-              <div class="va-sub"><h4>🚫 Freedom from intimidation</h4><p>No one may threaten, harass, or block you from voting. Voter intimidation is a federal crime.</p></div>
-            </div>
-            <div class="va-callout"><span class="va-co-ico">⚠️</span><span><strong>Turned away or name missing?</strong> Ask for a <strong>provisional ballot</strong> — never just leave. Then call the nonpartisan Election Protection hotline at <strong>866-OUR-VOTE</strong>.</span></div>
-            <div class="va-takeaway"><span class="va-co-ico">📅</span><span><strong>Deadlines win elections:</strong> registration cutoffs, mail-ballot request dates, and drop-off times all vary. Confirm yours early — don't get caught out.</span></div>
-            <div class="va-links">
-              <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer">✅ Am I Registered?</a>
-              <a href="https://www.vote.org/polling-place-locator/" target="_blank" rel="noopener noreferrer">📍 Find Polling Place</a>
-              <a href="https://www.usa.gov/voter-rights" target="_blank" rel="noopener noreferrer">🗳️ Know Your Rights</a>
-            </div>
-          </div></div>
-        </details>
-
+      <div class="sh-steps animate-on-scroll">
+        <span class="sh-step"><b>1</b> Set your location</span>
+        <span class="sh-arrow">→</span>
+        <span class="sh-step"><b>2</b> Pick the values you care about</span>
+        <span class="sh-arrow">→</span>
+        <span class="sh-step"><b>3</b> Build your voting team</span>
       </div>
 
-      <!-- ── Know Your Offices: quick links to the Voter Map explainers ── -->
-      <div class="va-track animate-on-scroll" style="--va-color:#fad96a;">
-        <div class="va-track-no" style="background:#fad96a;">★</div>
-        <div class="va-track-txt">
-          <h3>Know Your Offices</h3>
-          <p>What every seat on your ballot actually does</p>
-        </div>
-        <div class="va-track-line"></div>
-      </div>
-      <div class="ko-wrap animate-on-scroll" style="transition-delay:0.05s;">
-        <style>
-          #voter-academy .ko-wrap{border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-left:3px solid #fad96a;background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));padding:1.4rem;}
-          #voter-academy .ko-lead{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.6;color:#cbd5e1;margin:0 0 1.1rem;}
-          #voter-academy .ko-lead strong{color:#fff;}
-          #voter-academy .ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.7rem;}
-          #voter-academy .ko-btn{display:flex;align-items:center;gap:0.7rem;text-align:left;width:100%;cursor:pointer;
-            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--ko-color,#60a5fa);border-radius:0.7rem;padding:0.75rem 0.9rem;transition:all 0.2s ease;}
-          #voter-academy .ko-btn:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.35);}
-          #voter-academy .ko-ico{flex-shrink:0;width:2.3rem;height:2.3rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
-          #voter-academy .ko-txt{min-width:0;flex:1;}
-          #voter-academy .ko-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.96rem;color:#fff;line-height:1.1;}
-          #voter-academy .ko-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
-          #voter-academy .ko-arrow{flex-shrink:0;color:#fad96a;font-size:1rem;opacity:0.7;transition:transform 0.2s ease,opacity 0.2s ease;}
-          #voter-academy .ko-btn:hover .ko-arrow{transform:translateX(3px);opacity:1;}
-        </style>
-        <p class="ko-lead">Your ballot is more than names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Voter Map.</p>
-        <div class="ko-grid">
-          <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#818cf8;" onclick="openOfficeModal('us-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. Senator</span><span class="ko-meta">Federal · 6-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#60a5fa;" onclick="openOfficeModal('us-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. House Rep</span><span class="ko-meta">Federal · 2-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#34d399;" onclick="openOfficeModal('governor')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">Governor</span><span class="ko-meta">State · ~4-yr term</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#a78bfa;" onclick="openOfficeModal('state-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State Senator</span><span class="ko-meta">State · upper chamber</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#2dd4bf;" onclick="openOfficeModal('state-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State House Rep</span><span class="ko-meta">State · lower chamber</span></span><span class="ko-arrow">→</span></button>
-          <button type="button" class="ko-btn" style="--ko-color:#fbbf24;" onclick="openOfficeModal('local')"><span class="ko-ico">🏙</span><span class="ko-txt"><span class="ko-name">Local Offices</span><span class="ko-meta">City · County · School Bd</span></span><span class="ko-arrow">→</span></button>
-        </div>
+      <div class="flex flex-wrap justify-center gap-3.5 mt-9 animate-on-scroll">
+        <a href="#my-politicians" class="btn-tap bg-gradient-to-r from-gold-500 via-yellow-500 to-gold-400 hover:from-gold-400 hover:via-yellow-400 hover:to-gold-300 text-navy-900 font-condensed font-900 text-base tracking-widest uppercase px-9 py-4 rounded-2xl shadow-[0_0_35px_rgba(245,200,66,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center justify-center gap-2" style="text-decoration:none;">⚡ Build Your Voting Team</a>
+        <button onclick="pdxOpenWelcome()" class="btn-tap bg-blue-900/40 hover:bg-blue-800/60 border-2 border-blue-400/50 hover:border-blue-400/80 text-blue-200 hover:text-white font-condensed font-700 text-base tracking-widest uppercase px-7 py-4 rounded-2xl transition-all duration-300 inline-flex items-center justify-center gap-2" style="backdrop-filter:blur(6px);">🚀 Take the 2-Min Tour</button>
       </div>
 
-      <!-- Closing CTA -->
-      <div class="va-foot animate-on-scroll" style="transition-delay:0.12s;">
-        <div class="inline-block bg-navy-800/60 border border-gold-400/20 rounded-2xl px-8 py-6" style="box-shadow:0 12px 40px rgba(0,0,0,0.35),0 0 30px rgba(245,200,66,0.04);">
-          <p class="font-display text-xl md:text-2xl tracking-wider text-white mb-2">AN INFORMED VOTER IS AN <span class="text-gold-400">UNSTOPPABLE</span> ONE</p>
-          <p class="font-condensed text-sm tracking-widest uppercase text-steel-400 mb-3">Now take what you've learned and put it to work</p>
-          <div class="flex items-center justify-center gap-4 flex-wrap">
-            <a href="#voter-hub" class="inline-flex items-center gap-2 bg-crimson-600/25 hover:bg-crimson-600/40 border border-crimson-500/40 hover:border-crimson-400/60 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-crimson-300 hover:text-white transition-all" style="text-decoration:none;">🗳️ See Your Reps</a>
-            <a href="#my-politicians" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Build Your Team</a>
-          </div>
-        </div>
+      <!-- Pointer to the full Educational Library (moved further down the page) -->
+      <div class="mt-8 animate-on-scroll">
+        <a href="#voter-academy" class="inline-flex items-center gap-2.5 bg-navy-800/60 hover:bg-navy-800/90 border border-gold-400/25 hover:border-gold-400/50 rounded-xl px-6 py-3.5 font-condensed text-sm tracking-widest uppercase text-gold-300 hover:text-white transition-all" style="text-decoration:none;">
+          🎓 Want the deep dive? Explore the full Education Library
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+        </a>
+        <p class="font-condensed text-xs tracking-widest uppercase text-steel-500 mt-2.5">10 quick lessons · how government works · how to read a politician · free forever</p>
       </div>
     </div>
-
-    <script>
-    (function(){
-      var sec=document.getElementById('voter-academy');
-      if(!sec) return;
-      var items=sec.querySelectorAll('details.va-item');
-      var total=items.length;
-      var fill=document.getElementById('va-progress-fill');
-      var count=document.getElementById('va-progress-count');
-      function update(){
-        var open=0;
-        items.forEach(function(d){ if(d.open) open++; });
-        if(fill) fill.style.width=(total?Math.round(open/total*100):0)+'%';
-        if(count) count.textContent=open+' / '+total;
-      }
-      items.forEach(function(d){ d.addEventListener('toggle',update); });
-      window.vaToggleAll=function(open){
-        items.forEach(function(d){ d.open=!!open; });
-        update();
-      };
-      update();
-    })();
-    </script>
   </section>
-  <!-- /VOTER ACADEMY -->
+  <!-- /START HERE -->
 
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
@@ -12274,11 +11756,11 @@
       <div class="text-center mb-10 animate-on-scroll">
         <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
-          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ Voter Empowerment Hub</span>
+          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ The Main Event · Build Your Team</span>
         </div>
-        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">YOUR VOTING <span class="text-crimson-400">HUB</span></h2>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Your centralized command center for personalizing your ballot, tracking representatives, and building the ultimate voting team.
+          This is the heart of PolitiDex. Fill every seat on your ballot with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> &mdash; not just whoever has the right letter next to their name. Set your location, then start picking the people who earn your vote.
         </p>
       </div>
 
@@ -20593,6 +20075,597 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   })();
   </script>
+
+  <!-- ═══════════════════════ VOTER ACADEMY · EDUCATION HUB ════════ -->
+  <section id="voter-academy" class="relative py-16 md:py-24 px-4 overflow-hidden" style="background:linear-gradient(180deg,#0a0f1e 0%,#0c1428 35%,#0e1a33 50%,#0c1428 65%,#0a0f1e 100%);">
+    <style>
+      #voter-academy .va-eyebrow{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(90deg,rgba(192,21,42,0.15),rgba(59,130,246,0.15));border:1px solid rgba(245,200,66,0.25);border-radius:9999px;padding:0.55rem 1.4rem;margin-bottom:1rem;box-shadow:0 0 24px rgba(59,130,246,0.08);}
+      #voter-academy .va-eyebrow span{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.22em;text-transform:uppercase;color:#fad96a;font-weight:700;}
+      #voter-academy .va-tagline{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.05rem,2.5vw,1.45rem);letter-spacing:0.04em;color:#cbd5e1;font-weight:600;max-width:44rem;margin:0 auto;}
+      #voter-academy .va-accordion{display:flex;flex-direction:column;gap:1rem;margin-top:2.5rem;}
+      #voter-academy .va-item{position:relative;border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-left:3px solid var(--va-color,#60a5fa);background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));overflow:hidden;transition:border-color .25s ease,box-shadow .25s ease;}
+      #voter-academy .va-item:hover{border-color:rgba(255,255,255,0.16);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 30px var(--va-glow,rgba(96,165,250,0.08));}
+      #voter-academy .va-item[open]{box-shadow:0 16px 50px rgba(0,0,0,0.45),0 0 36px var(--va-glow,rgba(96,165,250,0.12));}
+      #voter-academy summary.va-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:1rem;padding:1.25rem 1.4rem;user-select:none;}
+      #voter-academy summary.va-summary::-webkit-details-marker{display:none;}
+      #voter-academy .va-icon{flex-shrink:0;width:3rem;height:3rem;border-radius:0.75rem;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--va-soft,rgba(96,165,250,0.12));border:1px solid var(--va-glow,rgba(96,165,250,0.25));}
+      #voter-academy .va-heads{flex:1;min-width:0;}
+      #voter-academy .va-heads h3{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:0.04em;color:#fff;line-height:1.05;margin:0;}
+      #voter-academy .va-heads p{font-family:'Barlow',sans-serif;font-size:0.82rem;color:#94a3b8;margin:0.2rem 0 0;line-height:1.4;}
+      #voter-academy .va-plus{flex-shrink:0;width:1.9rem;height:1.9rem;border-radius:9999px;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:1.2rem;line-height:1;transition:transform .3s ease,background .3s ease,color .3s ease;}
+      #voter-academy .va-item[open] .va-plus{transform:rotate(45deg);background:var(--va-color,#60a5fa);color:#0a0f1e;border-color:transparent;}
+      #voter-academy .va-body{padding:0 1.4rem 1.5rem;}
+      #voter-academy .va-body-inner{border-top:1px solid rgba(255,255,255,0.07);padding-top:1.25rem;}
+      #voter-academy .va-body p{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.65;color:#cbd5e1;margin:0 0 1rem;}
+      #voter-academy .va-body p:last-child{margin-bottom:0;}
+      #voter-academy .va-body strong{color:#fff;}
+      #voter-academy .va-subgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.85rem;margin:0.25rem 0 1.1rem;}
+      #voter-academy .va-sub{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:0.7rem;padding:1rem;}
+      #voter-academy .va-sub h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-size:0.92rem;margin:0 0 0.4rem;color:#fff;display:flex;align-items:center;gap:0.45rem;}
+      #voter-academy .va-sub p{font-size:0.85rem;line-height:1.55;margin:0;color:#9fb4d4;}
+      #voter-academy .va-steps{list-style:none;counter-reset:va-step;padding:0;margin:0 0 1.1rem;display:flex;flex-direction:column;gap:0.7rem;}
+      #voter-academy .va-steps li{counter-increment:va-step;position:relative;padding:0.85rem 1rem 0.85rem 3.3rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:0.6rem;font-family:'Barlow',sans-serif;font-size:0.9rem;line-height:1.55;color:#cbd5e1;}
+      #voter-academy .va-steps li::before{content:counter(va-step);position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);width:1.8rem;height:1.8rem;border-radius:9999px;background:var(--va-color,#60a5fa);color:#0a0f1e;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;display:flex;align-items:center;justify-content:center;}
+      #voter-academy .va-steps li strong{color:#fff;}
+      #voter-academy .va-callout{display:flex;gap:0.7rem;align-items:flex-start;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.22);border-radius:0.7rem;padding:0.9rem 1rem;font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.55;color:#e9d8a6;}
+      #voter-academy .va-callout .va-co-ico{font-size:1.1rem;line-height:1.3;flex-shrink:0;}
+      #voter-academy .va-callout strong{color:#fad96a;}
+      #voter-academy .va-links{display:flex;flex-wrap:wrap;gap:0.55rem;margin-top:1.1rem;}
+      #voter-academy .va-links a{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.45rem 0.85rem;border-radius:0.55rem;text-decoration:none;background:var(--va-soft,rgba(96,165,250,0.08));border:1px solid var(--va-glow,rgba(96,165,250,0.3));color:var(--va-color,#60a5fa);transition:transform .15s ease,filter .15s ease;}
+      #voter-academy .va-links a:hover{transform:translateY(-1px);filter:brightness(1.2);}
+      #voter-academy .va-foot{margin-top:2.5rem;text-align:center;}
+      /* ── Academy meta bar (lesson stats) ─────────────────── */
+      #voter-academy .va-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.55rem;margin:1.6rem auto 0;max-width:48rem;}
+      #voter-academy .va-chip{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9999px;padding:0.4rem 0.85rem;}
+      #voter-academy .va-chip b{color:#fad96a;font-weight:800;}
+      /* ── Live curriculum progress ────────────────────────── */
+      #voter-academy .va-progress-wrap{max-width:34rem;margin:1.5rem auto 0;}
+      #voter-academy .va-progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;}
+      #voter-academy .va-progress-head span{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:#94a3b8;font-weight:700;}
+      #voter-academy .va-progress-head b{color:#fff;}
+      #voter-academy .va-progress-track{height:8px;border-radius:9999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);overflow:hidden;}
+      #voter-academy .va-progress-fill{height:100%;width:0;border-radius:9999px;background:linear-gradient(90deg,#c0152a,#fff,#3b82f6);transition:width .4s ease;box-shadow:0 0 12px rgba(245,200,66,0.25);}
+      /* ── Expand / collapse controls ──────────────────────── */
+      #voter-academy .va-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:0.6rem;margin:1.3rem auto 0;}
+      #voter-academy .va-ctrl-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:0.55rem;padding:0.5rem 1.05rem;cursor:pointer;transition:all .2s ease;}
+      #voter-academy .va-ctrl-btn:hover{color:#fff;border-color:rgba(245,200,66,0.4);background:rgba(245,200,66,0.06);transform:translateY(-1px);}
+      /* ── Curriculum track dividers ───────────────────────── */
+      #voter-academy .va-track{display:flex;align-items:center;gap:0.85rem;margin:2.5rem 0 0.9rem;}
+      #voter-academy .va-track:first-of-type{margin-top:0.5rem;}
+      #voter-academy .va-track-no{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.05em;color:#0a0f1e;background:var(--va-color,#fad96a);width:2.1rem;height:2.1rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;}
+      #voter-academy .va-track-txt{min-width:0;}
+      #voter-academy .va-track h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.07em;color:#fff;margin:0;line-height:1;}
+      #voter-academy .va-track p{font-family:'Barlow',sans-serif;font-size:0.78rem;color:#8aa0c0;margin:0.18rem 0 0;}
+      #voter-academy .va-track-line{flex:1;height:1px;background:linear-gradient(90deg,var(--va-color,rgba(255,255,255,0.4)),transparent);opacity:0.55;}
+      /* ── Lesson number + category tag + read time ────────── */
+      #voter-academy .va-num{flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.04em;color:var(--va-color,#60a5fa);border:1px solid var(--va-glow,rgba(96,165,250,0.3));background:rgba(255,255,255,0.02);border-radius:0.5rem;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;}
+      #voter-academy .va-tagrow{display:flex;align-items:center;flex-wrap:wrap;gap:0.45rem;margin-bottom:0.3rem;}
+      #voter-academy .va-tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--va-color,#60a5fa);background:var(--va-soft,rgba(96,165,250,0.1));border:1px solid var(--va-glow,rgba(96,165,250,0.25));border-radius:9999px;padding:0.12rem 0.55rem;}
+      #voter-academy .va-time{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;font-weight:700;white-space:nowrap;}
+      /* ── Blue "takeaway" callout variant ─────────────────── */
+      #voter-academy .va-takeaway{display:flex;gap:0.7rem;align-items:flex-start;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.22);border-radius:0.7rem;padding:0.9rem 1rem;font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.55;color:#bcd2f5;margin-top:1.1rem;}
+      #voter-academy .va-takeaway .va-co-ico{font-size:1.1rem;line-height:1.3;flex-shrink:0;}
+      #voter-academy .va-takeaway strong{color:#93c5fd;}
+      /* ── Red-flag list ───────────────────────────────────── */
+      #voter-academy .va-flags{list-style:none;padding:0;margin:0 0 0.4rem;display:flex;flex-direction:column;gap:0.6rem;}
+      #voter-academy .va-flags li{position:relative;padding:0.78rem 1rem 0.78rem 2.6rem;background:rgba(240,33,60,0.05);border:1px solid rgba(240,33,60,0.18);border-radius:0.6rem;font-family:'Barlow',sans-serif;font-size:0.88rem;line-height:1.55;color:#cbd5e1;}
+      #voter-academy .va-flags li::before{content:"\1F6A9";position:absolute;left:0.85rem;top:0.72rem;font-size:0.95rem;}
+      #voter-academy .va-flags li strong{color:#fff;}
+      @media (max-width:640px){
+        #voter-academy summary.va-summary{padding:1rem;gap:0.6rem;}
+        #voter-academy .va-icon{width:2.5rem;height:2.5rem;font-size:1.25rem;}
+        #voter-academy .va-num{width:1.8rem;height:1.8rem;font-size:0.82rem;}
+        #voter-academy .va-heads h3{font-size:1.2rem;}
+        #voter-academy .va-body{padding:0 1rem 1.25rem;}
+        #voter-academy .va-track h3{font-size:1.12rem;}
+      }
+    </style>
+
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
+      <div class="absolute top-1/4 left-1/5 w-80 h-80 bg-blue-900/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/5 w-72 h-72 bg-crimson-600/8 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-gold-400/5 rounded-full blur-3xl" style="transform:translate(-50%,-50%)"></div>
+      <div class="absolute inset-0 opacity-3" style="background-image:radial-gradient(circle,rgba(255,255,255,0.07) 1px,transparent 1px);background-size:42px 42px;"></div>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto z-10">
+      <!-- Section Header -->
+      <div class="text-center mb-2 animate-on-scroll">
+        <div class="va-eyebrow"><span>🎓 Voter Academy · The Deep Dive</span></div>
+        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">EDUCATIONAL <span class="text-crimson-400">LIBRARY</span></h2>
+        <p class="va-tagline">The full deep dive: learn how the system really works — <span style="color:#fff;">then go build your team.</span></p>
+        <div class="mt-4"><a href="#my-politicians" class="inline-flex items-center gap-2 font-condensed text-xs tracking-widest uppercase text-amber-300 hover:text-white transition-colors" style="text-decoration:none;">← Back to building your Voting Team</a></div>
+        <div class="w-32 h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700 mx-auto rounded-full mt-6"></div>
+
+        <!-- Academy stat chips -->
+        <div class="va-meta">
+          <span class="va-chip">📚 <b>10</b>&nbsp;Lessons</span>
+          <span class="va-chip">🗂️ <b>4</b>&nbsp;Tracks</span>
+          <span class="va-chip">⏱️ ~3 min&nbsp;each</span>
+          <span class="va-chip">🧭 Self-paced</span>
+          <span class="va-chip">🆓 Free forever</span>
+        </div>
+
+        <!-- Live progress through the curriculum -->
+        <div class="va-progress-wrap">
+          <div class="va-progress-head">
+            <span>Your Progress</span>
+            <span><b id="va-progress-count">0 / 10</b> lessons opened</span>
+          </div>
+          <div class="va-progress-track"><div class="va-progress-fill" id="va-progress-fill"></div></div>
+        </div>
+
+        <!-- Expand / collapse controls -->
+        <div class="va-controls">
+          <button type="button" class="va-ctrl-btn" onclick="vaToggleAll(true)">▾ Expand All Lessons</button>
+          <button type="button" class="va-ctrl-btn" onclick="vaToggleAll(false)">▴ Collapse All</button>
+        </div>
+      </div>
+
+      <!-- Interactive accordions -->
+      <div class="va-accordion animate-on-scroll" style="transition-delay:0.06s;">
+
+        <!-- ━━━━━━ TRACK I ━━━━━━ -->
+        <div class="va-track" style="--va-color:#60a5fa;">
+          <div class="va-track-no">I</div>
+          <div class="va-track-txt">
+            <h3>Foundations — How Power Is Built</h3>
+            <p>Start here: the machinery of American government, top to bottom.</p>
+          </div>
+          <div class="va-track-line"></div>
+        </div>
+
+        <!-- 1 · How the U.S. Government Works -->
+        <details class="va-item" style="--va-color:#60a5fa;--va-soft:rgba(96,165,250,0.12);--va-glow:rgba(96,165,250,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">01</div>
+            <div class="va-icon">🏛️</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>How the U.S. Government Works</h3>
+              <p>Three branches, one system of checks &amp; balances.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>The Founders deliberately split power so no single person or group could control everything. Government is divided into <strong>three branches</strong>, and each one can check the other two.</p>
+            <div class="va-subgrid">
+              <div class="va-sub">
+                <h4>⚖️ Legislative</h4>
+                <p><strong>Makes the laws.</strong> Congress = the House + the Senate. It writes and passes bills, controls federal spending (the "power of the purse"), declares war, and confirms or rejects key appointments.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🏛️ Executive</h4>
+                <p><strong>Enforces the laws.</strong> The President, Vice President, Cabinet, and federal agencies. Signs or vetoes bills, runs the military, conducts foreign policy, and nominates judges &amp; officials.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🧑‍⚖️ Judicial</h4>
+                <p><strong>Interprets the laws.</strong> The Supreme Court and lower federal courts. Decides whether laws are constitutional, settles disputes, and sets binding precedent for the future.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🗺️ Federalism</h4>
+                <p><strong>Power is split again.</strong> The federal government handles national matters; states keep everything not handed to D.C. — which is why the same issue can be legal in one state and banned in another.</p>
+              </div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">🔄</span><span><strong>Checks &amp; balances in action:</strong> Congress passes a law → the President can veto it → Congress can override that veto with a 2/3 vote → and the courts can still strike the law down if it violates the Constitution.</span></div>
+            <div class="va-links">
+              <a href="https://www.usa.gov/branches-of-government" target="_blank" rel="noopener noreferrer">🏛️ USA.gov: Branches</a>
+              <a href="https://www.archives.gov/founding-docs" target="_blank" rel="noopener noreferrer">📜 Founding Documents</a>
+            </div>
+            <div class="va-takeaway"><span class="va-co-ico">🎯</span><span><strong>Why this matters to you:</strong> When a candidate promises something, ask first — <em>does that office even have the power to do it?</em> Half of all campaign promises die on that question alone.</span></div>
+          </div></div>
+        </details>
+
+        <!-- 2 · What Each Office Actually Controls -->
+        <details class="va-item" style="--va-color:#f5c842;--va-soft:rgba(245,200,66,0.12);--va-glow:rgba(245,200,66,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">02</div>
+            <div class="va-icon">🪪</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>What Each Office Actually Controls</h3>
+              <p>Who has real power over what — from D.C. to your county.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Knowing what a position can and <strong>can't</strong> do is how you hold the right person accountable — and how you spot a promise that office has no power to keep.</p>
+            <div class="va-subgrid">
+              <div class="va-sub">
+                <h4>👤 President</h4>
+                <p>Enforces federal law, sets foreign policy &amp; treaties, commands the military, vetoes bills, and nominates judges. <strong>Cannot</strong> pass laws or set the budget alone.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🏛️ U.S. Senate</h4>
+                <p>100 members (2 per state, 6-year terms). Confirms judges &amp; Cabinet, ratifies treaties, and holds impeachment trials. Every state gets an equal voice.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🗳️ U.S. House</h4>
+                <p>435 members (by population, 2-year terms). Originates spending &amp; tax bills, represents local districts, and starts the impeachment process.</p>
+              </div>
+              <div class="va-sub">
+                <h4>📨 Your Representative</h4>
+                <p>Your direct line into federal lawmaking — the federal official closest to your community's day-to-day needs.</p>
+              </div>
+              <div class="va-sub">
+                <h4>🏔 Governor</h4>
+                <p>The state's chief executive. Signs or vetoes state laws, proposes the state budget, commands the National Guard, and runs state agencies (DMV, schools, roads).</p>
+              </div>
+              <div class="va-sub">
+                <h4>🏙️ Mayor &amp; City Council</h4>
+                <p>Local power: police, zoning, parks, local roads, and city budgets — the decisions you feel most directly.</p>
+              </div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">📍</span><span><strong>Reality check:</strong> Many things that shape daily life — schools, policing, zoning, local roads — are decided at the <strong>state and local</strong> level, not in Washington.</span></div>
+            <div class="va-links">
+              <a href="https://www.usa.gov/elected-officials" target="_blank" rel="noopener noreferrer">🔎 Find Your Officials</a>
+              <a href="#voter-hub">🗺️ Open Your Power Map</a>
+            </div>
+            <div class="va-takeaway"><span class="va-co-ico">🎯</span><span><strong>Aim your energy:</strong> Frustrated about potholes or school policy? That's a city-council or governor fight — not a presidential one. Hold the <em>right</em> office accountable.</span></div>
+          </div></div>
+        </details>
+
+        <!-- 3 · How a Bill Becomes Law -->
+        <details class="va-item" style="--va-color:#4ade80;--va-soft:rgba(74,222,128,0.12);--va-glow:rgba(74,222,128,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">03</div>
+            <div class="va-icon">📜</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Foundations</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>How a Bill Becomes Law</h3>
+              <p>From a single idea to the law of the land — step by step.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Most bills never make it. Here's the full gauntlet a proposal has to survive to become law:</p>
+            <ol class="va-steps">
+              <li><strong>Introduction.</strong> A member of Congress drafts a bill and introduces it in the House or the Senate.</li>
+              <li><strong>Committee review.</strong> A specialized committee studies it, holds hearings, amends it — or quietly lets it die.</li>
+              <li><strong>Floor debate &amp; vote.</strong> The full chamber debates, amends, and votes. It needs a majority to move forward.</li>
+              <li><strong>The other chamber.</strong> The second chamber repeats the whole process. Both must pass <strong>identical</strong> text (differences are settled in a conference committee).</li>
+              <li><strong>The President's desk.</strong> Sign it → it's law. Veto it → it goes back. Ignore it 10 days while Congress is in session → it becomes law anyway.</li>
+              <li><strong>Override (if vetoed).</strong> Congress can still pass it over a veto with a 2/3 vote in <strong>both</strong> chambers.</li>
+              <li><strong>Law &amp; the courts.</strong> Agencies enforce it — and courts can later rule it unconstitutional.</li>
+            </ol>
+            <div class="va-callout"><span class="va-co-ico">💡</span><span><strong>Why it matters:</strong> A politician "introducing" or "fighting for" a bill is <strong>not</strong> the same as that bill becoming law. Watch where it actually died.</span></div>
+            <div class="va-links">
+              <a href="https://www.congress.gov/legislative-process" target="_blank" rel="noopener noreferrer">📜 Congress.gov: The Process</a>
+              <a href="https://www.congress.gov/" target="_blank" rel="noopener noreferrer">🔎 Track Live Bills</a>
+            </div>
+            <div class="va-takeaway"><span class="va-co-ico">📑</span><span><strong>Next up:</strong> Knowing the <em>process</em> is step one — Lesson 04 shows you how to crack open the bill's actual text and find what it really does.</span></div>
+          </div></div>
+        </details>
+
+        <!-- ━━━━━━ TRACK II ━━━━━━ -->
+        <div class="va-track" style="--va-color:#fb923c;">
+          <div class="va-track-no">II</div>
+          <div class="va-track-txt">
+            <h3>Decode the Documents — Read Past the Headlines</h3>
+            <p>The skills to read a bill, a promise, and a news story for what they really say.</p>
+          </div>
+          <div class="va-track-line"></div>
+        </div>
+
+        <!-- 4 · How to Read a Bill (NEW) -->
+        <details class="va-item" style="--va-color:#22d3ee;--va-soft:rgba(34,211,238,0.12);--va-glow:rgba(34,211,238,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">04</div>
+            <div class="va-icon">📑</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
+              <h3>How to Read a Bill</h3>
+              <p>Crack open the actual text and find what it really does.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>A bill's real meaning lives in its <strong>text</strong>, not its title. A law named the "Freedom &amp; Prosperity Act" might do neither. Here's how to read one like a staffer instead of a headline.</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>🔖 Bill Number</h4><p>Like <strong>H.R. 1</strong> (House) or <strong>S. 1</strong> (Senate) — the tracking number you'll use to follow it anywhere.</p></div>
+              <div class="va-sub"><h4>✍️ Sponsors &amp; Cosponsors</h4><p>Who introduced it and who signed on. Whose names are attached tells you whose priorities it serves.</p></div>
+              <div class="va-sub"><h4>📃 Findings &amp; Purpose</h4><p>The "why" section up top — and where spin hides. Read the stated goals skeptically.</p></div>
+              <div class="va-sub"><h4>🧩 The Operative Sections</h4><p>The real rules. <strong>"Shall"</strong> means mandatory; <strong>"may"</strong> means optional. Tiny words, huge difference.</p></div>
+              <div class="va-sub"><h4>💵 Appropriations</h4><p>How much money, to whom, for how long. Follow the dollars to find the real intent.</p></div>
+              <div class="va-sub"><h4>📅 Effective &amp; Sunset Dates</h4><p>When it kicks in — and whether it quietly expires later.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">🪤</span><span><strong>Watch for riders &amp; "poison pills":</strong> unrelated provisions slipped into a must-pass bill so they ride through without a vote of their own.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">📊</span><span><strong>Pro move:</strong> never trust the summary alone — read the <strong>CBO score</strong> for the true cost, then skim the sections that actually change the law.</span></div>
+            <div class="va-links">
+              <a href="https://www.congress.gov/" target="_blank" rel="noopener noreferrer">📑 Read Bill Text</a>
+              <a href="https://www.congress.gov/help/legislative-glossary" target="_blank" rel="noopener noreferrer">📖 Legislative Glossary</a>
+              <a href="https://www.cbo.gov/" target="_blank" rel="noopener noreferrer">💵 CBO Cost Estimates</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- 5 · Reading Promises vs Reality -->
+        <details class="va-item" style="--va-color:#fb923c;--va-soft:rgba(251,146,60,0.12);--va-glow:rgba(251,146,60,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">05</div>
+            <div class="va-icon">🎭</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Decode</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>Reading Promises vs Reality</h3>
+              <p>Cut through the talking points and spot the spin.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Politicians are trained to sound good. These habits help you separate what was actually <strong>done</strong> from what was merely <strong>said</strong>.</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>🎯 Watch the verb</h4><p>"Fought for," "supported," "called for" ≠ "passed," "signed," "delivered." Vague verbs hide inaction.</p></div>
+              <div class="va-sub"><h4>🗳️ Vote, not the speech</h4><p>A floor speech is free. Look at the recorded vote and the final outcome instead.</p></div>
+              <div class="va-sub"><h4>📅 Follow the timeline</h4><p>Did the result happen <em>because</em> of them — or was it already in motion before they arrived?</p></div>
+              <div class="va-sub"><h4>🔢 Find the number</h4><p>"Massive investment" is spin. "$2.1B over 5 years" is a fact you can verify.</p></div>
+              <div class="va-sub"><h4>🔗 Find the source</h4><p>Real claims link to bills, budgets, or records. No source = treat it as opinion.</p></div>
+              <div class="va-sub"><h4>🥊 Beware the strawman</h4><p>If they only attack "the other side," they may be dodging their own record.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">✅</span><span><strong>Put it to work:</strong> PolitiDex tracks every claim with a transparent <strong>Promise %</strong> score and the receipts behind it — check it yourself instead of taking anyone's word.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">🧾</span><span><strong>One-line test:</strong> "Did they vote for it, fund it, and sign it?" If you can't answer all three, the promise isn't kept — it's just a soundbite.</span></div>
+            <div class="va-links">
+              <a href="#voter-hub">📊 Open the Promise Tracker</a>
+              <a href="https://www.politifact.com/" target="_blank" rel="noopener noreferrer">🔎 PolitiFact</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- 6 · Understanding Media Spin (NEW) -->
+        <details class="va-item" style="--va-color:#f472b6;--va-soft:rgba(244,114,182,0.12);--va-glow:rgba(244,114,182,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">06</div>
+            <div class="va-icon">📺</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
+              <h3>Understanding Media Spin</h3>
+              <p>Every story is framed by someone — learn to see the frame.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>News isn't just facts — it's facts <strong>chosen, ordered, and packaged</strong>. Spin isn't always lying; it's steering what you notice. Learn these moves and you can read any outlet, left or right.</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>🪧 Framing</h4><p>Which detail leads? What's buried in paragraph 12? The <em>order</em> of a story is an argument.</p></div>
+              <div class="va-sub"><h4>🔥 Loaded language</h4><p>"Slammed," "blasted," "regime." Emotion-words do persuasion the facts can't.</p></div>
+              <div class="va-sub"><h4>📉 Cherry-picked stats</h4><p>A true number with no baseline or context can be twisted to prove almost anything.</p></div>
+              <div class="va-sub"><h4>📰 Headline ≠ story</h4><p>Headlines are built to be shared; the body often quietly walks them back.</p></div>
+              <div class="va-sub"><h4>🕶️ Anonymous sources</h4><p>"Sources say" can be real — or convenient. Ask who benefits from the leak.</p></div>
+              <div class="va-sub"><h4>⚖️ False balance</h4><p>Giving "both sides" equal weight when the evidence isn't equal is its own bias.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">🧭</span><span><strong>Outrage is the business model:</strong> content engineered to make you angry keeps you scrolling. Pause before you share.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">🔗</span><span><strong>The fix:</strong> trace it to the <strong>primary source</strong> — the actual bill, study, or transcript — and read across several outlets before you decide.</span></div>
+            <div class="va-links">
+              <a href="https://www.allsides.com/unbiased-balanced-news" target="_blank" rel="noopener noreferrer">⚖️ AllSides Bias Ratings</a>
+              <a href="https://www.factcheck.org/" target="_blank" rel="noopener noreferrer">✅ FactCheck.org</a>
+              <a href="https://mediabiasfactcheck.com/" target="_blank" rel="noopener noreferrer">📰 Media Bias Check</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- ━━━━━━ TRACK III ━━━━━━ -->
+        <div class="va-track" style="--va-color:#a78bfa;">
+          <div class="va-track-no">III</div>
+          <div class="va-track-txt">
+            <h3>Follow the Money — Who Really Pays</h3>
+            <p>How campaigns are funded, and the warning signs that money is buying a vote.</p>
+          </div>
+          <div class="va-track-line"></div>
+        </div>
+
+        <!-- 7 · Campaign Finance & Wealth Transparency -->
+        <details class="va-item" style="--va-color:#a78bfa;--va-soft:rgba(167,139,250,0.13);--va-glow:rgba(167,139,250,0.32);">
+          <summary class="va-summary">
+            <div class="va-num">07</div>
+            <div class="va-icon">💰</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Follow the Money</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>Campaign Finance &amp; Wealth Transparency</h3>
+              <p>Follow the money behind the message.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Campaigns run on money, and who funds a politician can shape who they answer to. Transparency is how voters see those ties. Know the key terms:</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>🏦 PAC</h4><p>A Political Action Committee — raises money to support candidates within legal donation limits.</p></div>
+              <div class="va-sub"><h4>🚀 Super PAC</h4><p>Can raise and spend <strong>unlimited</strong> sums independently, but can't donate directly to a candidate.</p></div>
+              <div class="va-sub"><h4>🌑 Dark Money</h4><p>Funds from groups that don't have to disclose who their donors are.</p></div>
+              <div class="va-sub"><h4>🎁 Bundling</h4><p>One person gathering many separate donations to amplify their influence.</p></div>
+              <div class="va-sub"><h4>🤵 Lobbying</h4><p>Paid efforts to influence how legislators write and vote on laws.</p></div>
+              <div class="va-sub"><h4>📋 Disclosure</h4><p>Public FEC reports showing who gave, how much, and when.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">🔎</span><span><strong>Why wealth matters:</strong> Financial disclosures and net-worth tracking can reveal conflicts of interest — like voting on industries a lawmaker is personally invested in.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">💡</span><span><strong>Follow the chain:</strong> donor → committee → vote. When all three line up against the public interest, you've found a story worth telling.</span></div>
+            <div class="va-links">
+              <a href="#follow-the-money">💰 Follow the Money</a>
+              <a href="#wealth-leaderboard">📈 Wealth Leaderboard</a>
+              <a href="https://www.opensecrets.org/" target="_blank" rel="noopener noreferrer">🔗 OpenSecrets</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- 8 · Red Flags in Campaign Finance (NEW) -->
+        <details class="va-item" style="--va-color:#f0213c;--va-soft:rgba(240,33,60,0.12);--va-glow:rgba(240,33,60,0.32);">
+          <summary class="va-summary">
+            <div class="va-num">08</div>
+            <div class="va-icon">🚩</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
+              <h3>Red Flags in Campaign Finance</h3>
+              <p>Spot the warning signs of money buying influence.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Money in politics is legal — but certain patterns are smoke that often signals fire. None of these <em>prove</em> corruption on their own. Together, they're worth a very hard look.</p>
+            <ul class="va-flags">
+              <li><strong>A donation right before a vote.</strong> A big check from an industry just days before a lawmaker votes on its bill.</li>
+              <li><strong>Votes that match the donor, not the district.</strong> A position that helps funders but few actual constituents.</li>
+              <li><strong>The revolving door.</strong> A politician or their staff who leaves office to lobby the very agency they once oversaw.</li>
+              <li><strong>Last-minute dark money.</strong> Untraceable ad spending that floods in during the final weeks of a race.</li>
+              <li><strong>Leadership-PAC luxury spending.</strong> "Campaign" funds spent on resorts, fine dining, and travel.</li>
+              <li><strong>One mega-donor, many committees.</strong> Maxing out to a candidate, their PAC, <em>and</em> a Super PAC to multiply influence.</li>
+            </ul>
+            <div class="va-callout"><span class="va-co-ico">🔎</span><span><strong>Correlation isn't proof — it's a question.</strong> Cross-check the donation date against the vote date, then ask why the timing lines up.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">🕵️</span><span><strong>Do it yourself:</strong> pull a politician's top donors on OpenSecrets, then compare them to their committee assignments. The overlap is where to dig.</span></div>
+            <div class="va-links">
+              <a href="#follow-the-money">💰 Follow the Money</a>
+              <a href="https://www.opensecrets.org/" target="_blank" rel="noopener noreferrer">🔗 OpenSecrets</a>
+              <a href="https://www.fec.gov/data/" target="_blank" rel="noopener noreferrer">📋 FEC Filings</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- ━━━━━━ TRACK IV ━━━━━━ -->
+        <div class="va-track" style="--va-color:#f0213c;">
+          <div class="va-track-no">IV</div>
+          <div class="va-track-txt">
+            <h3>Know Your Rights — Your Power at the Ballot</h3>
+            <p>The freedoms the republic guarantees you, and how to defend your vote.</p>
+          </div>
+          <div class="va-track-line"></div>
+        </div>
+
+        <!-- 9 · The Constitution & Your Rights -->
+        <details class="va-item" style="--va-color:#f0213c;--va-soft:rgba(240,33,60,0.12);--va-glow:rgba(240,33,60,0.32);">
+          <summary class="va-summary">
+            <div class="va-num">09</div>
+            <div class="va-icon">🦅</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">Your Rights</span><span class="va-time">⏱️ 3 min read</span></div>
+              <h3>The Constitution &amp; Your Rights</h3>
+              <p>The rulebook of the republic — and the rights it guarantees you.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Ratified in <strong>1788</strong>, the Constitution is the supreme law of the land. It builds the three branches, divides power between the federal government and the states, and — through the <strong>Bill of Rights</strong> (the first 10 amendments) — guarantees individual freedoms. There are <strong>27 amendments</strong> in all.</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>🗣️ 1st Amendment</h4><p>Freedom of speech, religion, press, assembly, and the right to petition the government.</p></div>
+              <div class="va-sub"><h4>🔫 2nd Amendment</h4><p>The right to keep and bear arms.</p></div>
+              <div class="va-sub"><h4>🔍 4th Amendment</h4><p>Protection from unreasonable searches and seizures.</p></div>
+              <div class="va-sub"><h4>⚖️ 5th Amendment</h4><p>Due process, no self-incrimination, and protection from double jeopardy.</p></div>
+              <div class="va-sub"><h4>🤝 14th Amendment</h4><p>Equal protection and due process under the law for all citizens.</p></div>
+              <div class="va-sub"><h4>🗳️ 15th · 19th · 26th</h4><p>Voting rights protected regardless of race, sex, and for everyone 18 and older.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">🛡️</span><span><strong>Hard to change by design:</strong> Amending the Constitution takes 2/3 of Congress <em>and</em> 3/4 of the states — so your rights can't be erased on a whim.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">📜</span><span><strong>Keep it close:</strong> the whole document is a short read. Knowing what it actually says is the surest defense against anyone who tells you it says otherwise.</span></div>
+            <div class="va-links">
+              <a href="https://www.archives.gov/founding-docs/constitution-transcript" target="_blank" rel="noopener noreferrer">🦅 Read the Constitution</a>
+              <a href="https://www.archives.gov/founding-docs/bill-of-rights-transcript" target="_blank" rel="noopener noreferrer">📜 Bill of Rights</a>
+            </div>
+          </div></div>
+        </details>
+
+        <!-- 10 · Your Rights as a Voter (NEW) -->
+        <details class="va-item" style="--va-color:#f5c842;--va-soft:rgba(245,200,66,0.12);--va-glow:rgba(245,200,66,0.3);">
+          <summary class="va-summary">
+            <div class="va-num">10</div>
+            <div class="va-icon">🗳️</div>
+            <div class="va-heads">
+              <div class="va-tagrow"><span class="va-tag">New Lesson</span><span class="va-time">⏱️ 4 min read</span></div>
+              <h3>Your Rights as a Voter</h3>
+              <p>Know exactly what you're entitled to at the ballot box.</p>
+            </div>
+            <div class="va-plus">+</div>
+          </summary>
+          <div class="va-body"><div class="va-body-inner">
+            <p>Your right to vote is protected by law — but the rules vary by state, and knowing them is how you make sure your vote actually <strong>counts</strong>.</p>
+            <div class="va-subgrid">
+              <div class="va-sub"><h4>✅ Right to register</h4><p>Every eligible citizen can register. Many states now offer online or same-day registration.</p></div>
+              <div class="va-sub"><h4>🪪 ID rules vary</h4><p>Some states require photo ID, others don't. Check your state's rule <em>before</em> election day.</p></div>
+              <div class="va-sub"><h4>🗳️ Provisional ballot</h4><p>If your eligibility is questioned, you can still cast a provisional ballot that's verified later.</p></div>
+              <div class="va-sub"><h4>⏰ Time off to vote</h4><p>Many states legally require employers to give you paid or unpaid time off to vote.</p></div>
+              <div class="va-sub"><h4>🤝 Right to assistance</h4><p>Voters with disabilities or language needs can get help; accessible and curbside voting exist.</p></div>
+              <div class="va-sub"><h4>🚫 Freedom from intimidation</h4><p>No one may threaten, harass, or block you from voting. Voter intimidation is a federal crime.</p></div>
+            </div>
+            <div class="va-callout"><span class="va-co-ico">⚠️</span><span><strong>Turned away or name missing?</strong> Ask for a <strong>provisional ballot</strong> — never just leave. Then call the nonpartisan Election Protection hotline at <strong>866-OUR-VOTE</strong>.</span></div>
+            <div class="va-takeaway"><span class="va-co-ico">📅</span><span><strong>Deadlines win elections:</strong> registration cutoffs, mail-ballot request dates, and drop-off times all vary. Confirm yours early — don't get caught out.</span></div>
+            <div class="va-links">
+              <a href="https://www.vote.org/am-i-registered-to-vote/" target="_blank" rel="noopener noreferrer">✅ Am I Registered?</a>
+              <a href="https://www.vote.org/polling-place-locator/" target="_blank" rel="noopener noreferrer">📍 Find Polling Place</a>
+              <a href="https://www.usa.gov/voter-rights" target="_blank" rel="noopener noreferrer">🗳️ Know Your Rights</a>
+            </div>
+          </div></div>
+        </details>
+
+      </div>
+
+      <!-- ── Know Your Offices: quick links to the Voter Map explainers ── -->
+      <div class="va-track animate-on-scroll" style="--va-color:#fad96a;">
+        <div class="va-track-no" style="background:#fad96a;">★</div>
+        <div class="va-track-txt">
+          <h3>Know Your Offices</h3>
+          <p>What every seat on your ballot actually does</p>
+        </div>
+        <div class="va-track-line"></div>
+      </div>
+      <div class="ko-wrap animate-on-scroll" style="transition-delay:0.05s;">
+        <style>
+          #voter-academy .ko-wrap{border-radius:1rem;border:1px solid rgba(255,255,255,0.08);border-left:3px solid #fad96a;background:linear-gradient(160deg,rgba(13,21,38,0.92),rgba(10,15,30,0.92));padding:1.4rem;}
+          #voter-academy .ko-lead{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.6;color:#cbd5e1;margin:0 0 1.1rem;}
+          #voter-academy .ko-lead strong{color:#fff;}
+          #voter-academy .ko-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.7rem;}
+          #voter-academy .ko-btn{display:flex;align-items:center;gap:0.7rem;text-align:left;width:100%;cursor:pointer;
+            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--ko-color,#60a5fa);border-radius:0.7rem;padding:0.75rem 0.9rem;transition:all 0.2s ease;}
+          #voter-academy .ko-btn:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.35);}
+          #voter-academy .ko-ico{flex-shrink:0;width:2.3rem;height:2.3rem;border-radius:0.55rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
+          #voter-academy .ko-txt{min-width:0;flex:1;}
+          #voter-academy .ko-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.96rem;color:#fff;line-height:1.1;}
+          #voter-academy .ko-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
+          #voter-academy .ko-arrow{flex-shrink:0;color:#fad96a;font-size:1rem;opacity:0.7;transition:transform 0.2s ease,opacity 0.2s ease;}
+          #voter-academy .ko-btn:hover .ko-arrow{transform:translateX(3px);opacity:1;}
+        </style>
+        <p class="ko-lead">Your ballot is more than names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Voter Map.</p>
+        <div class="ko-grid">
+          <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#818cf8;" onclick="openOfficeModal('us-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. Senator</span><span class="ko-meta">Federal · 6-yr term</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#60a5fa;" onclick="openOfficeModal('us-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. House Rep</span><span class="ko-meta">Federal · 2-yr term</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#34d399;" onclick="openOfficeModal('governor')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">Governor</span><span class="ko-meta">State · ~4-yr term</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#a78bfa;" onclick="openOfficeModal('state-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State Senator</span><span class="ko-meta">State · upper chamber</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#2dd4bf;" onclick="openOfficeModal('state-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State House Rep</span><span class="ko-meta">State · lower chamber</span></span><span class="ko-arrow">→</span></button>
+          <button type="button" class="ko-btn" style="--ko-color:#fbbf24;" onclick="openOfficeModal('local')"><span class="ko-ico">🏙</span><span class="ko-txt"><span class="ko-name">Local Offices</span><span class="ko-meta">City · County · School Bd</span></span><span class="ko-arrow">→</span></button>
+        </div>
+      </div>
+
+      <!-- Closing CTA -->
+      <div class="va-foot animate-on-scroll" style="transition-delay:0.12s;">
+        <div class="inline-block bg-navy-800/60 border border-gold-400/20 rounded-2xl px-8 py-6" style="box-shadow:0 12px 40px rgba(0,0,0,0.35),0 0 30px rgba(245,200,66,0.04);">
+          <p class="font-display text-xl md:text-2xl tracking-wider text-white mb-2">AN INFORMED VOTER IS AN <span class="text-gold-400">UNSTOPPABLE</span> ONE</p>
+          <p class="font-condensed text-sm tracking-widest uppercase text-steel-400 mb-3">Now take what you've learned and put it to work</p>
+          <div class="flex items-center justify-center gap-4 flex-wrap">
+            <a href="#voter-hub" class="inline-flex items-center gap-2 bg-crimson-600/25 hover:bg-crimson-600/40 border border-crimson-500/40 hover:border-crimson-400/60 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-crimson-300 hover:text-white transition-all" style="text-decoration:none;">🗳️ See Your Reps</a>
+            <a href="#my-politicians" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Build Your Team</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      var sec=document.getElementById('voter-academy');
+      if(!sec) return;
+      var items=sec.querySelectorAll('details.va-item');
+      var total=items.length;
+      var fill=document.getElementById('va-progress-fill');
+      var count=document.getElementById('va-progress-count');
+      function update(){
+        var open=0;
+        items.forEach(function(d){ if(d.open) open++; });
+        if(fill) fill.style.width=(total?Math.round(open/total*100):0)+'%';
+        if(count) count.textContent=open+' / '+total;
+      }
+      items.forEach(function(d){ d.addEventListener('toggle',update); });
+      window.vaToggleAll=function(open){
+        items.forEach(function(d){ d.open=!!open; });
+        update();
+      };
+      update();
+    })();
+    </script>
+  </section>
+  <!-- /VOTER ACADEMY -->
 
   <!-- ═══════════════════════════════ HOW IT WORKS ═════════ -->
   <section class="section-py py-16 md:py-24 px-4 max-w-6xl mx-auto">
