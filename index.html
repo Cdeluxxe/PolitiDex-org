@@ -10361,6 +10361,107 @@
       #relevant-browse-grid .browse-type-name { font-size: 1.18rem !important; letter-spacing: 0.08em !important; }
     }
 
+    /* ── RELEVANT TO ME — extra header prominence + values-first messaging ────
+       Builds on the office-header styles above to make each race an even
+       louder, scroll-proof break, and adds the supporting classes used by the
+       "judge the person, not the party" banner, the per-office scope pill and
+       the open-seat note. Scoped strictly to #relevant-browse-grid; the dark
+       patriotic palette is preserved. */
+
+    /* Stronger separation + a thick, glowing colored cap so the office you are
+       scrolling through is unmistakable even when its candidate list is long. */
+    #relevant-browse-grid .browse-type-group {
+      margin-bottom: 1.9rem !important;
+      border-left-width: 7px !important;
+    }
+    #relevant-browse-grid .browse-type-header {
+      padding-top: 1.1rem !important;
+      padding-bottom: 1.1rem !important;
+    }
+    #relevant-browse-grid .browse-type-header::before {
+      height: 5px !important;
+      background: rgb(var(--office-rgb)) !important;
+      box-shadow: 0 0 14px rgba(var(--office-rgb),0.55) !important;
+    }
+    #relevant-browse-grid .browse-type-name {
+      font-size: 1.56rem !important;
+      letter-spacing: 0.15em !important;
+      font-weight: 800 !important;
+    }
+    /* A bright color-true pill under the office name that calls out the exact
+       scope (your district / statewide) so voters always know which seat they
+       are weighing. Replaces the faint grey subtitle. */
+    #relevant-browse-grid .browse-type-scope {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.68rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #ffffff;
+      background: rgba(var(--office-rgb),0.24);
+      border: 1px solid rgba(var(--office-rgb),0.6);
+      border-radius: 999px;
+      padding: 0.13rem 0.6rem;
+      line-height: 1.25;
+      max-width: 100%;
+    }
+
+    /* District range sub-headers (State Senate / State House "Districts 1–15")
+       read larger and clearer so nested district sections separate at a glance. */
+    #relevant-browse-grid .browse-range-group > button { min-height: 48px !important; padding: 0.65rem 0.95rem !important; }
+    #relevant-browse-grid .browse-range-group > button span.font-condensed { font-size: 0.82rem !important; letter-spacing: 0.08em !important; }
+
+    /* "Judge the person, not the party" — the values-first explainer that frames
+       the whole section, on a gold-accented patriotic navy field. */
+    #relevant-browse-grid .relevant-values-banner {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+      margin-bottom: 1.3rem;
+      padding: 1rem 1.15rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.13) 0%, rgba(10,15,30,0.5) 58%, rgba(192,21,42,0.13) 100%);
+      border: 1px solid rgba(245,200,66,0.32);
+      border-left: 5px solid #f5c842;
+      box-shadow: 0 6px 26px rgba(0,0,0,0.32);
+    }
+    #relevant-browse-grid .relevant-values-banner .rvb-ico {
+      font-size: 1.6rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem;
+    }
+    #relevant-browse-grid .relevant-values-banner .rvb-title {
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em;
+      font-size: 1.18rem; color: #fff; line-height: 1.1;
+    }
+    #relevant-browse-grid .relevant-values-banner .rvb-text {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem;
+      letter-spacing: 0.01em; color: #dbe6f5; line-height: 1.5; margin: 0.32rem 0 0;
+    }
+    #relevant-browse-grid .relevant-values-banner .rvb-text strong { color: #f5d98a; }
+    #relevant-browse-grid .relevant-values-banner .rvb-text strong.rvb-you { color: #ffffff; }
+
+    /* Open-seat note shown above an uncontested-incumbent-free candidate field,
+       reminding voters this race has no incumbent and to weigh the whole field. */
+    #relevant-browse-grid .relevant-open-note {
+      display: flex; gap: 0.5rem; align-items: flex-start;
+      margin: 0 0 0.85rem;
+      padding: 0.6rem 0.82rem;
+      border-radius: 0.7rem;
+      background: rgba(245,200,66,0.08);
+      border: 1px solid rgba(245,200,66,0.28);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.01em; color: #f5d98a; line-height: 1.45;
+    }
+    @media (max-width: 640px) {
+      #relevant-browse-grid .browse-type-name { font-size: 1.22rem !important; }
+      #relevant-browse-grid .relevant-values-banner { padding: 0.85rem 0.9rem; gap: 0.65rem; }
+      #relevant-browse-grid .relevant-values-banner .rvb-title { font-size: 1.05rem; }
+      #relevant-browse-grid .relevant-values-banner .rvb-text { font-size: 0.82rem; }
+    }
+
     /* ════════════════════════════════════════════════════════════════════
        MOBILE RESPONSIVENESS POLISH — filter toolbar + politician card width
        Scoped strictly to the politician browsing / filter areas. Adds no new
@@ -32151,22 +32252,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else inOffice.push(pid);
       });
 
-      function subsection(label, ico, accent, list) {
+      function subsection(label, ico, accent, list, note) {
         if (!list.length) return '';
         var s = '';
         s += '<div class="relevant-status-divider" style="display:flex;align-items:center;gap:0.55rem;margin:0.15rem 0 0.7rem;">';
         s += '<span style="display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.09em;text-transform:uppercase;color:' + accent + ';background:' + accent + '1f;border:1px solid ' + accent + '66;padding:0.18rem 0.62rem;border-radius:999px;white-space:nowrap;">' + ico + ' ' + label + ' <span style="opacity:0.75;">(' + list.length + ')</span></span>';
         s += '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + accent + '50,transparent);"></span>';
         s += '</div>';
+        if (note) s += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
         s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" style="margin-bottom:1rem;">';
         list.forEach(function(pid) { s += _renderBrowseTeamCard(pid); });
         s += '</div>';
         return s;
       }
 
+      // An open seat has candidates running but no sitting incumbent. We surface
+      // the whole field with a clear "no incumbent" frame so voters compare
+      // everyone — even brand-new candidates whose profiles are still thin.
+      var isOpenSeat = candidates.length > 0 && inOffice.length === 0;
+      var candLabel = isOpenSeat ? 'Open Seat · The Field' : '2026 Candidates';
+      var candNote = '';
+      if (isOpenSeat && candidates.length > 1) {
+        candNote = 'No incumbent holds this seat — compare the full field below and back the person whose values and follow-through you trust, party label aside. Some are new candidates, so their profiles may still be thin.';
+      } else if (isOpenSeat) {
+        candNote = 'No incumbent holds this seat — weigh this candidate on values and follow-through. The profile may still be thin this early in the race.';
+      } else if (candidates.length > 1) {
+        candNote = 'More than one name is on this ballot — compare them on values and follow-through, not just party.';
+      }
+
       var out = '';
       out += subsection('Currently in Office', '✅', '#22c55e', inOffice);
-      out += subsection('2026 Candidates', '🗳️', '#60a5fa', candidates);
+      out += subsection(candLabel, '🗳️', '#60a5fa', candidates, candNote);
       out += subsection('Previously in Office', '⏳', '#94a3b8', former);
 
       // Safety net: if status classification produced nothing (shouldn't happen),
@@ -32272,7 +32388,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += '<div class="browse-type-icon" style="background:' + tDef.bg + ';">' + tDef.icon + '</div>';
         h += '<div style="display:flex;flex-direction:column;min-width:0;">';
         h += '<span class="browse-type-name">' + tDef.label + '</span>';
-        if (subtitle) h += '<span class="font-condensed" style="font-size:0.62rem;letter-spacing:0.04em;color:#7596c0;text-transform:none;line-height:1.2;margin-top:1px;">' + subtitle + '</span>';
+        if (subtitle) h += '<span class="browse-type-scope">📍 ' + subtitle + '</span>';
         h += '</div>';
         h += '<span class="browse-type-count">' + officePids.length + (officePids.length === 1 ? ' option' : ' options') + '</span>';
         h += '</div>';
@@ -32616,6 +32732,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
       });
 
+      // Ensure the voter's actual races show their FULL field — including open
+      // seats and still-thin challenger profiles — by merging the curated Key
+      // Races roster for this area straight into the office groups. The county
+      // heuristics above can miss a sparse new-candidate profile; this guarantees
+      // every incumbent and candidate in the voter's races appears, deduped by
+      // add(). Mapped from each race's key to its office bucket.
+      if (krData) {
+        var RACEKEY_TO_OFFICE = {
+          house: 'representative', statesenate: 'state_senator',
+          statehouse: 'state_rep', governor: 'governor',
+          senate: 'senator', president: 'president'
+        };
+        var _mergeRacePids = function(raceKey, pids) {
+          var gk = RACEKEY_TO_OFFICE[raceKey];
+          if (!gk || !pids) return;
+          pids.forEach(function(pid) { add(pid, gk); });
+        };
+        Object.keys(krData.byRace || {}).forEach(function(rk) {
+          _mergeRacePids(rk, (krData.byRace[rk] || {}).pids);
+        });
+        Object.keys(krData.statewide || {}).forEach(function(rk) {
+          _mergeRacePids(rk, krData.statewide[rk]);
+        });
+      }
+
       // Bucket the picked pids into their office groups.
       var officeGroups = {};
       Object.keys(picked).forEach(function(pid) {
@@ -32678,6 +32819,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         overview += '</div>';
       }
 
+      // Values-first frame for the whole section: this is about the person, not
+      // the party — their values, their follow-through, and how they align with
+      // you. Shown above the ballot so the lens is set before the first race.
+      var valuesBanner =
+        '<div class="relevant-values-banner">' +
+          '<div class="rvb-ico">⚖️</div>' +
+          '<div style="min-width:0;">' +
+            '<div class="rvb-title">Judge the Person, Not the Party</div>' +
+            '<p class="rvb-text">Every race below is about <strong class="rvb-you">your</strong> ballot. Weigh each candidate on their <strong>values</strong>, their <strong>follow-through</strong> on past promises, and how closely they align with <strong class="rvb-you">you</strong> — not just the letter after their name. Open seats list the whole field so you can compare everyone running.</p>' +
+          '</div>' +
+        '</div>';
+
       if (total === 0) {
         var areaName = normalizedCounty || 'this location';
         var noResultsHtml = '<div class="text-center py-10 px-4 bg-navy-900/40 border border-white/5 rounded-2xl mt-4">' +
@@ -32686,11 +32839,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<p class="font-condensed text-xs text-steel-400 mt-1 max-w-md mx-auto">We couldn\'t find any matching politicians in our database for this specific area. Try changing your state, county, or district to find your representatives.</p>' +
           '<button type="button" onclick="window.toggleChangeLocation()" class="mt-4 font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 min-h-[44px]">📍 Adjust Location</button>' +
           '</div>';
-        relevantGrid.innerHTML = overview + noResultsHtml;
+        relevantGrid.innerHTML = valuesBanner + overview + noResultsHtml;
         return;
       }
 
-      relevantGrid.innerHTML = overview + _renderRelevantTree(officeGroups, ctx);
+      relevantGrid.innerHTML = valuesBanner + overview + _renderRelevantTree(officeGroups, ctx);
     };
 
     (function() {
