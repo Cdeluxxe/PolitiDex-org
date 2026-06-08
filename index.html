@@ -11041,6 +11041,32 @@
       </button>
     </div>
 
+    <!-- ── Beyond-Party Alignment Banner ──────────────────────────────
+         Positions the Alignment Match % as PolitiDex's answer to party-line
+         voting: judge a politician by how their record matches your values,
+         not by the letter after their name. Purple "match" accent inside the
+         patriotic gold frame keeps it on-brand while standing apart from the
+         red/gold CTAs above. Taps straight into the live Alignment Tool. -->
+    <div class="mt-10 w-full max-w-2xl mx-auto px-2 sm:px-0 animate-fadeUp">
+      <div class="relative overflow-hidden rounded-3xl border-2 border-gold-400/45 px-6 py-6 sm:px-8 backdrop-blur-lg" style="background:linear-gradient(135deg, rgba(76,29,149,0.42) 0%, rgba(10,15,30,0.6) 55%, rgba(192,21,42,0.18) 100%); box-shadow:0 0 38px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.05);">
+        <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none" style="background:rgba(139,92,246,0.35);"></div>
+        <div class="relative flex flex-col items-center text-center gap-3">
+          <span class="font-condensed text-xs sm:text-sm tracking-[0.25em] uppercase text-purple-300 font-700 flex items-center gap-2">🎯 The PolitiDex Alignment Match</span>
+          <p class="font-display text-2xl sm:text-3xl md:text-4xl tracking-wide text-white leading-tight uppercase">
+            Don't judge them by their <span class="text-steel-400 line-through decoration-crimson-500/80">party</span>.<br class="hidden sm:block" />
+            Judge them by <span class="bg-gradient-to-r from-purple-300 to-purple-400 bg-clip-text text-transparent">your values</span>.
+          </p>
+          <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
+            Pick the positions you actually believe in, and PolitiDex gives every politician a personal <strong class="text-purple-200">Your Match&nbsp;%</strong> — a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue.
+          </p>
+          <button type="button" onclick="if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-sm sm:text-base tracking-widest uppercase px-9 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 30px rgba(139,92,246,0.45), inset 0 2px 0 rgba(255,255,255,0.25);">
+            🎯 Find Your Matches
+          </button>
+          <p class="font-condensed text-[0.65rem] sm:text-xs tracking-[0.18em] uppercase text-steel-500">Free · Nonpartisan · Takes about a minute</p>
+        </div>
+      </div>
+    </div>
+
     <!-- People's Mandate Teaser -->
     <div class="mt-8 sm:mt-10 w-full max-w-lg mx-auto px-2 sm:px-0">
       <div class="bg-navy-800/60 border border-white/8 rounded-xl overflow-hidden" style="box-shadow:0 8px 32px rgba(0,0,0,0.3);">
@@ -12610,10 +12636,10 @@
 
             <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
 
-            <!-- Hint at upcoming personalization: saving an "Alignment Signature" to a profile -->
+            <!-- Saving an "Alignment Signature" to a profile keeps picks across devices -->
             <div class="align-future-note">
-              <span class="align-future-ico">✨</span>
-              <span><strong>Coming soon:</strong> Save your picks as a personal <strong>Alignment Signature</strong> to your profile to unlock personalized politician matches across every device.</span>
+              <span class="align-future-ico">💾</span>
+              <span>Sign in to save your picks as a personal <strong>Alignment Signature</strong> — your personalized politician matches then follow you across every device.</span>
             </div>
           </div>
         </div>
@@ -12727,8 +12753,11 @@
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow:0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
-                <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
-                <p class="font-condensed text-xs text-steel-400 mt-1">Check the positions you agree with on each issue — pick as many as you like. Every politician card updates with a personalized match.</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-display text-xl tracking-wider text-purple-300 uppercase leading-none">Personalized Alignment Tool</h4>
+                  <span class="font-condensed text-[0.6rem] font-700 tracking-[0.12em] uppercase text-purple-200 bg-purple-500/15 border border-purple-400/40 rounded-full px-2.5 py-1 leading-none">See past party</span>
+                </div>
+                <p class="font-condensed text-xs text-steel-400 mt-1.5">The honest alternative to voting by party. Check the positions you actually believe in, and every politician gets a <strong class="text-purple-300">Your Match&nbsp;%</strong> — a sourced read of how their record fits <em class="text-steel-200">your</em> values, not their label.</p>
               </div>
             </div>
             <button onclick="alignClearAll()" class="font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
@@ -12763,8 +12792,8 @@
                signed-in members see a "saved to your account" confirmation; signed-out
                visitors see a prompt to sign in so their picks persist across devices. -->
           <div id="align-signature-status" class="align-future-note">
-            <span class="align-future-ico">✨</span>
-            <span><strong>Coming soon:</strong> Save these positions as your personal <strong>Alignment Signature</strong> to your profile — then see personalized politician matches and your top races the moment you sign in, on any device.</span>
+            <span class="align-future-ico">💾</span>
+            <span>Save these positions as your personal <strong>Alignment Signature</strong> — sign in and your picks follow you across devices, so your personalized matches and top races load automatically every time.</span>
           </div>
         </div>
 
@@ -23106,21 +23135,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
       </div>` : ''}
 
-      <!-- Personalized Alignment Score -->
-      ${(typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0) ? (() => {
-        const alignScore = _calcAlignmentScore(id);
-        if (alignScore === null) return '';
-        const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
-        return `<div id="modal-personalized-alignment" style="margin-bottom:1.25rem;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:0.75rem;padding:0.75rem 1rem;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.35rem;">
-            <span>Personalized Alignment</span><span style="color:${aCol};font-weight:700;">${alignScore}% Aligned</span>
-          </div>
-          <div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;margin-bottom:0.4rem;">
-            <div style="height:100%;width:${alignScore}%;background:linear-gradient(90deg, ${aCol}88, ${aCol});border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
-          </div>
-          <p style="font-size:0.68rem;color:#7596c0;line-height:1.4;margin:0;">This score reflects how closely this politician aligns with your selected issues.</p>
-        </div>`;
-      })() : ''}
+      <!-- Personalized Alignment Score — a first-class "Your Match" read on every
+           profile. When the visitor has set up alignment it shows their match vs.
+           THIS politician (values, not party); when they haven't, a compact CTA
+           invites them to set it up so the feature is discoverable on every profile. -->
+      ${(() => {
+        const hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+        const firstName = ((p && p.name) ? String(p.name).split(' ')[0] : 'them');
+        if (hasIssues && typeof _calcAlignmentScore === 'function') {
+          const alignScore = _calcAlignmentScore(id);
+          if (alignScore === null) return '';
+          const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
+          const verdict = alignScore >= 70 ? 'Strong match' : alignScore >= 50 ? 'Partial match' : 'Weak match';
+          return `<div id="modal-personalized-alignment" role="button" tabindex="0" onclick="if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView('${id}');" style="cursor:pointer;margin-bottom:1.25rem;background:linear-gradient(135deg, rgba(139,92,246,0.14) 0%, rgba(10,15,30,0.4) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:0.85rem;padding:0.85rem 1rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 20px rgba(139,92,246,0.1);">
+            <div style="display:flex;align-items:center;gap:0.85rem;">
+              <div style="flex-shrink:0;text-align:center;min-width:62px;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-weight:900;line-height:1;font-size:2.4rem;color:${aCol};text-shadow:0 0 14px ${aCol}55;">${alignScore}<span style="font-size:1.1rem;">%</span></div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;margin-top:0.1rem;">🎯 Your Match</div>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.35rem;">
+                  <span>Your values vs. ${firstName}</span><span style="color:${aCol};font-weight:700;">${verdict}</span>
+                </div>
+                <div style="height:7px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;margin-bottom:0.45rem;">
+                  <div style="height:100%;width:${alignScore}%;background:linear-gradient(90deg, ${aCol}88, ${aCol});border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
+                </div>
+                <p style="font-size:0.68rem;color:#9fb4d4;line-height:1.4;margin:0;">How ${firstName}'s record fits <strong style="color:#c4b5fd;">your</strong> positions — regardless of party. <span style="color:#a78bfa;">Tap for the issue-by-issue breakdown ▾</span></p>
+              </div>
+            </div>
+          </div>`;
+        }
+        // Not set up yet → invite the visitor to unlock their match on this person.
+        return `<div id="modal-personalized-alignment-setup" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.05) 100%);border:1px dashed rgba(139,92,246,0.5);border-radius:0.85rem;padding:0.85rem 1rem;">
+            <div style="width:38px;height:38px;border-radius:0.65rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;box-shadow:0 0 14px rgba(139,92,246,0.4);">🎯</div>
+            <div style="flex:1;min-width:170px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.03em;color:#d8b4fe;font-size:0.9rem;text-transform:uppercase;">See your match with ${firstName}</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;color:#b9a8e6;font-size:0.76rem;line-height:1.4;margin-top:0.1rem;">Set the issues you care about and judge ${firstName} by your values — not their party.</div>
+            </div>
+            <button type="button" onclick="closeModal();setTimeout(function(){if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var el=document.getElementById('alignment-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}},320);" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.76rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.7rem;padding:0.55rem 1rem;cursor:pointer;box-shadow:0 4px 14px rgba(139,92,246,0.3);">🎯 Set Up Match</button>
+          </div>`;
+      })()}
 
       <!-- The People's Mandate Alignment -->
       ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
@@ -30427,8 +30481,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.30) 0%, rgba(139,92,246,0.08) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:1rem;padding:0.9rem 1.1rem;margin-bottom:1.5rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(139,92,246,0.08);">' +
             '<div style="width:42px;height:42px;border-radius:0.75rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;box-shadow:0 0 16px rgba(139,92,246,0.4);">🎯</div>' +
             '<div style="flex:1;min-width:200px;">' +
-              '<div class="font-condensed" style="font-weight:700;letter-spacing:0.04em;color:#d8b4fe;font-size:0.95rem;text-transform:uppercase;">Unlock Personalized Team Building</div>' +
-              '<div class="font-condensed" style="color:#c4b5fd;font-size:0.82rem;line-height:1.42;margin-top:0.15rem;">Set up your <strong style="color:#e9d5ff;">Alignment Signature</strong> to see a <strong style="color:#e9d5ff;">Your Match&nbsp;%</strong> on every candidate — and build a ballot that truly reflects your values.</div>' +
+              '<div class="font-condensed" style="font-weight:700;letter-spacing:0.04em;color:#d8b4fe;font-size:0.95rem;text-transform:uppercase;">Build your team by values, not party</div>' +
+              '<div class="font-condensed" style="color:#c4b5fd;font-size:0.82rem;line-height:1.42;margin-top:0.15rem;">Set up your <strong style="color:#e9d5ff;">Alignment Signature</strong> to see a <strong style="color:#e9d5ff;">Your Match&nbsp;%</strong> on every candidate — and fill your ballot based on who actually fits your values, regardless of party.</div>' +
             '</div>' +
             '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="font-condensed" style="white-space:nowrap;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.78rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.75rem;padding:0.6rem 1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,0.3);transition:transform 0.15s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 22px rgba(139,92,246,0.45)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 4px 16px rgba(139,92,246,0.3)\'">🎯 Set Up Match</button>' +
           '</div>';
@@ -36082,10 +36136,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
             : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
       if (!n) {
-        return '<button type="button" onclick="event.stopPropagation();if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="align-card-bar setup" aria-label="Set the issues you care about to see your personalized match">' +
+        return '<button type="button" onclick="event.stopPropagation();if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="align-card-bar setup" aria-label="Set the issues you care about to see your personalized match — judge them by your values, not their party">' +
             '<span class="align-card-num" style="color:#5eead4;font-size:1.15rem;">🎯</span>' +
-            '<span class="align-card-main" style="gap:0;">' +
+            '<span class="align-card-main" style="gap:0.1rem;">' +
               '<span class="align-card-title">See Your Personal Match</span>' +
+              '<span class="align-card-sub">Judge them by your values, not their party</span>' +
             '</span>' +
             '<span class="align-card-chev">›</span>' +
           '</button>';
