@@ -12422,7 +12422,7 @@
                 <option value="president">President</option>
                 <option value="senator">U.S. Senator</option>
                 <option value="representative">U.S. Representative</option>
-                <option value="governor">Governor</option>
+                <option value="governor">Statewide Exec</option>
                 <option value="state">State Leg</option>
                 <option value="local">Local / Mayor</option>
                 <option value="candidate">Candidate</option>
@@ -30074,10 +30074,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // Iterates PROFILES and creates Power Map cards for profiles without hardcoded cards
   (function pmInjectDynamicCards(){
     var META={
-      dhenderson:['pm-tier-state','STATEWIDE LEADERSHIP','all_ut','statewide'],
-      sreyes:['pm-tier-state','STATEWIDE LEADERSHIP','all_ut','statewide'],
-      ddamschen:['pm-tier-state','STATEWIDE LEADERSHIP','all_ut','statewide'],
-      jdougall:['pm-tier-state','STATEWIDE LEADERSHIP','all_ut','statewide'],
+      dhenderson:['pm-tier-state','STATEWIDE EXECUTIVE OFFICES','all_ut','statewide'],
+      sreyes:['pm-tier-state','STATEWIDE EXECUTIVE OFFICES','all_ut','statewide'],
+      ddamschen:['pm-tier-state','STATEWIDE EXECUTIVE OFFICES','all_ut','statewide'],
+      jdougall:['pm-tier-state','STATEWIDE EXECUTIVE OFFICES','all_ut','statewide'],
       dmccay:['pm-tier-state','STATE SENATE','slc','district4'],
       kgrover:['pm-tier-state','STATE SENATE','utah_co','district3'],
       lfillmore:['pm-tier-state','STATE SENATE','davis','district1'],
@@ -32169,12 +32169,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     var _BROWSE_TYPE_ORDER = [
       { key: 'president', label: 'President / Executive', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
-      { key: 'senator', label: 'U.S. Senators', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
-      { key: 'representative', label: 'U.S. Representatives', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
-      { key: 'governor', label: 'Governors', icon: '🦅', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
-      { key: 'state_senator', label: 'State Senators', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
-      { key: 'state_rep', label: 'State Representatives', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
-      { key: 'local', label: 'Local / Mayors', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
+      { key: 'senator', label: 'U.S. Senate', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
+      { key: 'governor', label: 'Statewide Executive Offices', icon: '⭐', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
+      { key: 'representative', label: 'U.S. House', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
+      { key: 'state_senator', label: 'Utah State Senate', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
+      { key: 'state_rep', label: 'Utah State House', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
+      { key: 'local', label: 'Local Offices', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
       { key: 'cabinet', label: 'Cabinet / Appointed', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' }
     ];
 
@@ -32203,13 +32203,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           (o.includes('representative') && !o.includes('state') && !o.includes('ut ')))
         return 'representative';
 
-      // Governor — incumbents and candidates ("Governor Candidate", "Candidate for
-      // Governor / State Rep"). Checked before state chambers so a sitting state rep
-      // running for Governor classifies by the seat they are seeking.
-      if (o.includes('governor')) return 'governor';
+      // Statewide executive / constitutional offices — Governor, Lt. Governor,
+      // Attorney General, State Treasurer and State Auditor are all elected by the
+      // whole state, so they share one "Statewide Executive Offices" section (the
+      // 'governor' bucket) instead of being scattered across Governors / State
+      // Representatives / Other. County treasurers and auditors are local seats and
+      // are deliberately excluded. Checked before the state chambers so a sitting
+      // legislator running for one of these seats classifies by the seat sought.
+      if (o.includes('governor') || o.includes('attorney general') ||
+          ((o.includes('treasurer') || o.includes('auditor')) && o.indexOf('county') === -1))
+        return 'governor';
 
       if (o.includes('state sen') || o.includes('senate president') || o.includes('utah senate') || o.includes('ut state sen') || o.includes('state senate')) return 'state_senator';
-      if (o.includes('state rep') || o.includes('house speaker') || o.includes('ut house') || o.includes('ut state rep') || o.includes('house minority') || o.includes('state auditor') || o.includes('state house') || o.includes('state assembly') || o.includes('state legislature')) return 'state_rep';
+      if (o.includes('state rep') || o.includes('house speaker') || o.includes('ut house') || o.includes('ut state rep') || o.includes('house minority') || o.includes('state house') || o.includes('state assembly') || o.includes('state legislature')) return 'state_rep';
       // Bare-chamber legislative offices (e.g. "House District 56", "Candidate for
       // Senate District 12") — including candidates — land in the right state
       // chamber instead of the vague "Other" bucket. Federal seats are excluded
@@ -32359,6 +32365,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = CMP_DATA[pid];
       if (!d) return 'Statewide';
 
+      // Statewide executive officers each get their own clearly-labeled node
+      // (Governor, Lt. Governor, Attorney General, State Treasurer, State Auditor)
+      // inside the "Statewide Executive Offices" section, rather than collapsing
+      // into one anonymous "Statewide" bucket.
+      if (_classifyBrowseType(pid) === 'governor') {
+        var _ol = (d.office || '').toLowerCase();
+        if (_ol.indexOf('lieutenant') !== -1 || _ol.indexOf('lt. gov') !== -1 || _ol.indexOf('lt gov') !== -1) return 'Lt. Governor';
+        if (_ol.indexOf('attorney general') !== -1) return 'Attorney General';
+        if (_ol.indexOf('treasurer') !== -1) return 'State Treasurer';
+        if (_ol.indexOf('auditor') !== -1) return 'State Auditor';
+        if (_ol.indexOf('governor') !== -1) return 'Governor';
+        return 'Statewide Office';
+      }
+
       var _isUtahSenator = (_classifyBrowseType(pid) === 'state_senator' && _getPoliticianState(pid) === 'Utah');
       // Utah State Senators resolve to a clean, unique district + county from the
       // authoritative map first (fixes the old "Statewide"/"(Your County)"/duplicate labels).
@@ -32414,6 +32434,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (_isUtahSenator && _UTAH_SENATE_COUNTY[distNum]) {
           return 'District ' + distNum + ' (' + _UTAH_SENATE_COUNTY[distNum] + ')';
         }
+        // Utah U.S. House seats read as their congressional district so the four
+        // districts (UT-01…UT-04) are immediately distinguishable.
+        if (_classifyBrowseType(pid) === 'representative' && _getPoliticianState(pid) === 'Utah') {
+          return 'District ' + distNum + ' (UT-' + (distNum < 10 ? '0' + distNum : distNum) + ')';
+        }
         return 'District ' + distNum;
       }
 
@@ -32427,10 +32452,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       
       // Additional fallback for known bare districts or codes:
-      if (pid === 'bmoore') return 'District 1';
-      if (pid === 'maloy') return 'District 2';
-      if (pid === 'kennedy') return 'District 3';
-      if (pid === 'owens') return 'District 4';
+      if (pid === 'bmoore') return 'District 1 (UT-01)';
+      if (pid === 'maloy') return 'District 2 (UT-02)';
+      if (pid === 'kennedy') return 'District 3 (UT-03)';
+      if (pid === 'owens') return 'District 4 (UT-04)';
       
       return 'Statewide';
     }
@@ -32872,7 +32897,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var chips = [];
         var filterLabels = {
           'president': 'President / Executive', 'senator': 'U.S. Senator', 'representative': 'U.S. Representative',
-          'governor': 'Governor', 'state': 'State Legislator', 'local': 'Local / Mayor',
+          'governor': 'Statewide Exec', 'state': 'State Legislator', 'local': 'Local / Mayor',
           'candidate': 'Candidate / Nominee', 'cabinet': 'Cabinet / Appointed'
         };
         var scoreLabels = { 'high': 'High (70%+)', 'mid': 'Medium (40-69%)', 'low': 'Low (<40%)' };
@@ -32978,7 +33003,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       cabinet:        { label: 'CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' },
       senator:        { label: 'U.S. SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
       representative: { label: 'U.S. HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
-      governor:       { label: 'GOVERNORS', icon: '🦅', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
+      governor:       { label: 'STATEWIDE EXECUTIVE OFFICES', icon: '⭐', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
       state_senator:  { label: 'STATE SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(30,53,96,0.3))' },
       state_rep:      { label: 'STATE HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(30,53,96,0.3))' },
       local:          { label: 'LOCAL GOV', icon: '🏙', bg: 'linear-gradient(135deg, rgba(20,184,166,0.15), rgba(30,53,96,0.3))' },
@@ -33693,7 +33718,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (officeGroups.representative) ballotChips.push(_ballotChip('🏛', 'U.S. House', houseDist ? 'District ' + houseDist : 'Your district', 'federal', 'representative'));
       if (officeGroups.state_senator)  ballotChips.push(_ballotChip('🏛', 'State Senate', senateDist ? 'District ' + senateDist : 'Your district', 'state', 'state_senator'));
       if (officeGroups.state_rep)      ballotChips.push(_ballotChip('🏛', 'State House', lowerDist ? 'District ' + lowerDist : 'Your district', 'state', 'state_rep'));
-      if (officeGroups.governor)       ballotChips.push(_ballotChip('🦅', 'Governor', 'Statewide · ' + stateName, 'state', 'governor'));
+      if (officeGroups.governor)       ballotChips.push(_ballotChip('⭐', 'Statewide Exec', 'Statewide · ' + stateName, 'state', 'governor'));
       if (officeGroups.senator)        ballotChips.push(_ballotChip('🏛', 'U.S. Senate', 'Statewide · ' + stateName, 'federal', 'senator'));
       if (officeGroups.local)          ballotChips.push(_ballotChip('🏙', 'Local', 'Your community', 'local', 'local'));
 
@@ -33764,7 +33789,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         case 'president': return o.includes('president');
         case 'senator': return o.includes('senator') && !o.includes('state');
         case 'representative': return o.includes('representative') && !o.includes('state');
-        case 'governor': return o.includes('governor');
+        case 'governor': return o.includes('governor') || o.includes('attorney general') ||
+          ((o.includes('treasurer') || o.includes('auditor')) && !o.includes('county'));
         case 'state': return o.includes('state sen') || o.includes('state rep') || o.includes('senate president') || o.includes('house speaker') || o.includes('house minority');
         case 'local': return o.includes('mayor');
         case 'candidate': return o.includes('candidate') || o.includes('nominee');
