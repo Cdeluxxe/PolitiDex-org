@@ -10844,10 +10844,13 @@
           <div class="w-8 h-8 rounded-lg bg-crimson-600 flex items-center justify-center text-sm shadow-lg shadow-crimson-600/20 transition-transform duration-200 group-hover:scale-110">🏠</div>
           <span class="font-display text-xl tracking-wider text-white">POLITI<span class="text-crimson-400">DEX</span></span>
         </a>
+        <!-- Order follows the page flow: Voter Hub → Build Your Team → Compare →
+             Spotlight (Hot Topics) → All Politicians. -->
         <div class="hidden lg:flex items-center gap-2.5 lg:gap-4 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300">
           <a href="#voter-hub" class="nav-link clr-voter transition-all duration-200 hover:scale-105 py-1">🗳️ Voter Hub</a>
           <a href="#my-politicians" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Team</a>
           <a href="#my-politicians" class="flex items-center gap-1.5 bg-blue-900/60 hover:bg-blue-800/80 border border-blue-500/40 hover:border-blue-400/70 text-blue-300 hover:text-blue-200 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">⚖️ Compare</a>
+          <a href="#hot-topics" class="nav-link transition-all duration-200 hover:scale-105 py-1 text-orange-300 hover:text-orange-200">🔥 Spotlight</a>
           <a href="#myteam-browse-panel" class="flex items-center gap-1.5 bg-blue-900/50 hover:bg-blue-800/70 border border-gold-400/30 hover:border-gold-400/60 text-gold-400 hover:text-gold-300 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-1.5 rounded-lg transition-all" style="white-space:nowrap;">🏛 All Politicians</a>
           <!-- Navigation order: Expand Database positioned immediately after All Politicians -->
           <!-- ADMIN-ONLY entry point — hidden by default, revealed by the admin gate script. -->
@@ -10863,11 +10866,13 @@
            desktop windows. Gaps + per-button padding are kept tight so the whole
            row stays compact. -->
       <div class="flex items-center gap-1.5 lg:gap-2.5 min-w-0">
+        <!-- Continues the page flow past All Politicians: Mandate → Wealth →
+             Money → Education → Submit. -->
         <div class="hidden lg:flex items-center gap-1.5 lg:gap-2 font-condensed font-600 text-xs lg:text-sm tracking-widest uppercase text-steel-300 min-w-0">
-          <a href="#voter-academy" class="nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200">🎓 Education</a>
           <a href="#agenda" class="nav-mandate-btn transition-all duration-200 hover:scale-110" style="padding:4px 9px;">✊ Mandate</a>
           <a href="#wealth-leaderboard" class="nav-cash-btn transition-all duration-200 hover:scale-105" style="padding:4px 8px;">📈 Wealth</a>
           <a href="#follow-the-money" class="nav-cash-btn transition-all duration-200 hover:scale-105" style="padding:4px 8px;">💰 Money</a>
+          <a href="#voter-academy" class="nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200">🎓 Education</a>
           <a href="#submit" class="nav-link hover:text-white transition-all duration-200 hover:scale-105 py-1">Submit</a>
         </div>
 
@@ -10902,18 +10907,19 @@
           <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
         </button>
       </div>
-      <!-- Core voter tools -->
+      <!-- Core voter tools — same page-flow order as the desktop bar -->
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗳️ Voter Hub</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Team</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⚖️ Compare</a>
+      <a href="#hot-topics" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-orange-300 hover:text-orange-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔥 Spotlight</a>
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
       <a href="#database-expansion" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🔄 Expand Database</a>
       <a href="#politician-manager" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🛠 Manage Politicians</a>
-      <!-- Secondary tools -->
-      <a href="#voter-academy" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎓 Education</a>
+      <!-- Deeper sections + learn -->
       <a href="#agenda" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
       <a href="#wealth-leaderboard" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-wealth flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">📈 Wealth Leaderboard</a>
       <a href="#follow-the-money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
+      <a href="#voter-academy" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎓 Education</a>
       <a href="#submit" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-white active:text-crimson-400 flex items-center py-3.5 transition-colors">Submit</a>
     </div>
   </nav>
@@ -11074,35 +11080,61 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════ STATS BANNER ══════ -->
-  <div class="bg-navy-800/80 border-y border-white/5 py-4 overflow-hidden">
-    <div class="flex gap-8 animate-marquee whitespace-nowrap px-4" style="animation: marquee 20s linear infinite;">
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">🗳️ 26 Politicians Tracked</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">📋 903 Promises Logged</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">✅ 401 Kept</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">❌ 289 Broken</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">⏳ 213 Pending</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-gold-400">🏆 Top Performer: John Curtis — 78%</span>
-      <span class="text-white/20">|</span>
-      <!-- repeat -->
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">🗳️ 26 Politicians Tracked</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">📋 903 Promises Logged</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">✅ 401 Kept</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">❌ 289 Broken</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-steel-400">⏳ 213 Pending</span>
-      <span class="text-white/20">|</span>
-      <span class="font-condensed text-sm tracking-widest uppercase text-gold-400">🏆 Top Performer: John Curtis — 78%</span>
+  <!-- ══════════════════ LIVE PULSE BAR (dynamic stats + quick jumps) ══════
+       Replaces the old static marquee. Each chip is a clickable jump point to a
+       key section (top performer, trending reform, hot mandate, your team,
+       spotlight, money trail). A small script rotates a "featured" glow across
+       chips so the bar feels live, and smooth-scrolls to the target on click. -->
+  <div id="pulse-bar" class="border-y border-white/5" role="navigation" aria-label="Live highlights and quick jumps">
+    <style>
+      #pulse-bar{background:linear-gradient(90deg,rgba(13,21,38,0.96),rgba(18,28,52,0.92),rgba(13,21,38,0.96));position:relative;}
+      #pulse-bar::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(192,21,42,0.6),rgba(245,200,66,0.5),rgba(59,130,246,0.6),transparent);}
+      #pulse-bar .pulse-inner{display:flex;align-items:center;gap:0.6rem;max-width:80rem;margin:0 auto;padding:0.6rem 1rem;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+      #pulse-bar .pulse-inner::-webkit-scrollbar{display:none;}
+      #pulse-bar .pulse-live{display:inline-flex;align-items:center;gap:0.45rem;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;color:#fca5a5;padding-right:0.65rem;margin-right:0.15rem;border-right:1px solid rgba(255,255,255,0.1);}
+      #pulse-bar .pulse-dot{width:8px;height:8px;border-radius:9999px;background:#ef4444;animation:pulseDot 1.8s infinite;}
+      @keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.6);}70%{box-shadow:0 0 0 7px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}
+      #pulse-bar .pulse-chip{display:inline-flex;align-items:center;gap:0.55rem;flex-shrink:0;text-decoration:none;border-radius:9999px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);padding:0.42rem 0.9rem;transition:transform 0.25s ease,border-color 0.25s ease,background 0.25s ease,box-shadow 0.25s ease;cursor:pointer;}
+      #pulse-bar .pulse-chip:hover{transform:translateY(-1px);border-color:var(--c,#60a5fa);background:rgba(255,255,255,0.07);box-shadow:0 5px 16px rgba(0,0,0,0.32);}
+      #pulse-bar .pulse-chip .pc-ico{font-size:1.05rem;line-height:1;}
+      #pulse-bar .pulse-chip .pc-text{display:flex;flex-direction:column;line-height:1.15;}
+      #pulse-bar .pulse-chip .pc-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:#7b8db0;white-space:nowrap;}
+      #pulse-bar .pulse-chip .pc-value{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.84rem;letter-spacing:0.02em;color:#fff;white-space:nowrap;}
+      #pulse-bar .pulse-chip.pc-featured{border-color:var(--c,#f5c842);background:linear-gradient(135deg,color-mix(in srgb,var(--c,#f5c842) 18%,transparent),rgba(255,255,255,0.04));box-shadow:0 0 18px color-mix(in srgb,var(--c,#f5c842) 30%,transparent);}
+      @media (max-width:640px){#pulse-bar .pulse-live span.pl-text{display:none;}#pulse-bar .pulse-inner{padding:0.55rem 0.85rem;}}
+      @media (prefers-reduced-motion:reduce){#pulse-bar .pulse-dot{animation:none;}#pulse-bar .pulse-chip,#pulse-bar .pulse-chip.pc-featured{transition:none;}}
+    </style>
+    <div class="pulse-inner">
+      <span class="pulse-live"><span class="pulse-dot"></span><span class="pl-text">Live Now</span></span>
+      <a href="#myteam-browse-panel" class="pulse-chip" style="--c:#f5c842;"><span class="pc-ico">🏆</span><span class="pc-text"><span class="pc-label">Top Performer This Week</span><span class="pc-value">John Curtis · 78%</span></span></a>
+      <a href="#trending-reforms" class="pulse-chip" style="--c:#4ade80;"><span class="pc-ico">📈</span><span class="pc-text"><span class="pc-label">Most Demanded Reform</span><span class="pc-value">Ban Congressional Stock Trading</span></span></a>
+      <a href="#agenda" class="pulse-chip" style="--c:#f87171;"><span class="pc-ico">✊</span><span class="pc-text"><span class="pc-label">Hot Mandate</span><span class="pc-value">Term Limits for Congress</span></span></a>
+      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Build Your Team</span><span class="pc-value">6 Open Ballot Slots</span></span></a>
+      <a href="#hot-topics" class="pulse-chip" style="--c:#60a5fa;"><span class="pc-ico">🔥</span><span class="pc-text"><span class="pc-label">In the Spotlight</span><span class="pc-value">Today's Hot Topics</span></span></a>
+      <a href="#follow-the-money" class="pulse-chip" style="--c:#34d399;"><span class="pc-ico">💰</span><span class="pc-text"><span class="pc-label">Follow the Money</span><span class="pc-value">Top Donors Exposed</span></span></a>
     </div>
   </div>
+  <script>
+    (function(){
+      var bar=document.getElementById('pulse-bar');if(!bar)return;
+      var chips=Array.prototype.slice.call(bar.querySelectorAll('.pulse-chip'));
+      if(!chips.length)return;
+      // Smooth-scroll to the target section on click (matches the rest of the page).
+      chips.forEach(function(chip){
+        chip.addEventListener('click',function(e){
+          var id=(chip.getAttribute('href')||'').replace('#','');
+          var target=id&&document.getElementById(id);
+          if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+        });
+      });
+      // Rotate a "featured" glow across the chips so the bar feels alive.
+      var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce){chips[0].classList.add('pc-featured');return;}
+      var i=0;
+      function tick(){chips.forEach(function(c){c.classList.remove('pc-featured');});chips[i].classList.add('pc-featured');i=(i+1)%chips.length;}
+      tick();setInterval(tick,3500);
+    })();
+  </script>
 
   <!-- ═══════════════════════ START HERE · NEW VOTER WELCOME ════════ -->
   <section id="start-here" class="relative py-16 md:py-20 px-4 overflow-hidden" style="background:linear-gradient(180deg,#0a0f1e 0%,#0c1428 50%,#0a0f1e 100%);">
