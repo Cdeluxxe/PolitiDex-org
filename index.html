@@ -32738,19 +32738,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           return;
         }
 
-        // District offices (U.S. House, State Senate, State House): when we hold the
-        // voter's authoritative ballot (a matched Key Races area), the exact
-        // incumbents and candidates are merged from that curated roster below —
-        // running the fuzzy county scan here as well would wrongly pull in every
-        // neighboring district's officials (e.g. selecting Utah County matched
-        // "Utah" inside every Utah office string and surfaced the whole state). So
-        // only fall back to the broad county heuristic for these offices when no
-        // authoritative roster applies to the voter's area.
-        if (t === 'representative' || t === 'state_senator' || t === 'state_rep') {
-          if (!krMatched && isPoliticianInSelectedCounty(pid)) {
-            add(pid, t);
-          }
-        } else if (t === 'local') {
+        // District offices (U.S. House, State Senate, State House) are resolved
+        // AFTER this loop rather than here: from the curated roster when we hold
+        // the voter's authoritative exact ballot (krMatched), otherwise via the
+        // tiered district → county → state fallback below. Doing it in one place
+        // keeps a matched area precise (no neighboring-district bleed) while
+        // guaranteeing every other in-state voter still gets a full slate instead
+        // of a blank section.
+        if (t === 'local') {
           // Local offices are never part of the curated district roster, so they
           // always rely on the county heuristic.
           if (isPoliticianInSelectedCounty(pid)) {
@@ -32758,6 +32753,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           }
         }
       });
+
+      // ── Never-empty fallback: the voter's in-state slate ────────────────────
+      // When we do NOT hold an authoritative exact-district ballot for this voter
+      // (their area could not be matched to a curated county roster — no county
+      // saved, or a county outside the curated set), the precise county/district
+      // heuristics can legitimately match nothing. That is what left the section
+      // showing 0. Instead of a blank race, fall back to the voter's in-state
+      // field for each district office — refined to their saved district or
+      // county when that detail is available, and dropping to the whole-state
+      // field only when nothing more specific matches. This guarantees a voter
+      // always sees their U.S. House, State Senate and State House races. A
+      // matched area (krMatched) is left untouched so its exact roster stays
+      // precise.
+      if (!krMatched) {
+        ['representative', 'state_senator', 'state_rep'].forEach(function(officeType) {
+          var inState = Object.keys(CMP_DATA).filter(function(pid) {
+            return _classifyBrowseType(pid) === officeType &&
+                   _getPoliticianState(pid).toLowerCase() === stateName.toLowerCase();
+          });
+          if (!inState.length) return;
+
+          // Tier 1 — flexible district-number match. _relevantDistNum normalizes
+          // "District 16", "D16", "UT-16", "16", "(UT-01)" etc. down to a number,
+          // so the formatting the data happens to use does not matter. Only the
+          // U.S. House seat keys off the voter's single saved district.
+          var refined = [];
+          var wantDist = (officeType === 'representative' && userDistrict)
+            ? parseInt(String(userDistrict).replace(/[^0-9]/g, ''), 10) : null;
+          if (wantDist != null && !isNaN(wantDist)) {
+            refined = inState.filter(function(pid) { return _relevantDistNum(pid) === wantDist; });
+          }
+          // Tier 2 — county match.
+          if (!refined.length && normalizedCounty) {
+            refined = inState.filter(function(pid) { return isPoliticianInSelectedCounty(pid); });
+          }
+          // Tier 3 — the whole in-state field, so the race is never empty.
+          if (!refined.length) refined = inState;
+
+          refined.forEach(function(pid) { add(pid, officeType); });
+        });
+      }
 
       // Merge the curated Key Races roster so the voter's actual races always show
       // their FULL field — incumbents, open seats, and still-thin challenger
@@ -32788,6 +32824,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             _mergeRacePids(rk, krData.statewide[rk]);
           });
         }
+      }
+
+      // Last-resort guarantee: if nothing at all was picked yet the voter's state
+      // does have politicians in our data, surface every in-state figure rather
+      // than the empty "no politicians found" card. Classification or data quirks
+      // should never leave a voter with representation in the data looking at a
+      // blank section.
+      if (Object.keys(picked).length === 0) {
+        Object.keys(CMP_DATA).forEach(function(pid) {
+          if (_getPoliticianState(pid).toLowerCase() === stateName.toLowerCase()) {
+            add(pid, _classifyBrowseType(pid));
+          }
+        });
       }
 
       // Bucket the picked pids into their office groups.
