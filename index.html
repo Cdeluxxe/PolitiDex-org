@@ -3251,6 +3251,20 @@
       color: #7596c0;
       margin-top: 0.3rem;
     }
+    .pm-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.45rem;
+    }
+    .pm-card-stats {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.1rem;
+    }
     .pm-card-score-wrap {
       display: flex;
       flex-direction: column;
@@ -3478,13 +3492,14 @@
 
     /* ── Compare Hub Section ─────────────────────────────── */
     .chub-card {
-      background: linear-gradient(135deg, rgba(17,29,54,0.95), rgba(13,21,38,0.95));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 1rem;
-      padding: 1rem;
+      background: linear-gradient(150deg, rgba(19,32,58,0.96), rgba(11,18,34,0.97));
+      border: 1px solid rgba(148,163,184,0.16);
+      border-radius: 0.9rem;
+      padding: 1rem 1.05rem;
       transition: all 0.25s ease;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.04);
     }
     .chub-card::before {
       content: '';
@@ -3626,6 +3641,62 @@
       border-color: rgba(148,163,184,0.35);
       color: #cbd5e1;
     }
+    /* ── Shared compact-card primitives ─────────────────────────────────
+       One consistent visual language for the party tag, the kept/broken/
+       pending follow-through pills and the office line — reused by every
+       politician listing card so the whole site reads as one design. */
+    .pdx-party-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600;
+      font-size: 0.56rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      line-height: 1.25;
+      vertical-align: middle;
+    }
+    .pdx-party-chip::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      flex-shrink: 0;
+    }
+    .pdx-party-r { color: #fca5a5; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+    .pdx-party-d { color: #93c5fd; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); }
+    .pdx-party-i { color: #c4b5fd; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); }
+    .pdx-party-f { color: #67e8f9; background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3); }
+    .pdx-statpills {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .pdx-statpill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.13rem 0.5rem;
+      border-radius: 999px;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .pdx-statpill-kept { color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); }
+    .pdx-statpill-broken { color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
+    .pdx-statpill-pending { color: #fbbf24; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); }
+    .pdx-statpill-none { color: #8aa3c4; background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.22); font-weight: 600; }
     .chub-add-btn {
       display: inline-flex;
       align-items: center;
@@ -23711,11 +23782,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (m.resolved === 0) return '';
     var keptPct = Math.round(m.kept / m.resolved * 100);
     return '<div style="margin:0.1rem 0 0.35rem;">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.3rem;">' +
-        '<span style="display:inline-flex;align-items:center;gap:0.35rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.04em;text-transform:uppercase;">' +
-          '<span style="color:#4ade80;font-weight:700;">✓ ' + m.kept + ' Kept</span>' +
-          '<span style="color:#5b7196;">·</span>' +
-          '<span style="color:#f87171;font-weight:700;">✗ ' + m.broken + ' Broken</span>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.35rem;flex-wrap:wrap;">' +
+        '<span class="pdx-statpills">' +
+          '<span class="pdx-statpill pdx-statpill-kept">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="pdx-statpill pdx-statpill-broken">✗ ' + m.broken + ' Broken</span>' +
+          (m.pending > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + m.pending + ' Pending</span>' : '') +
         '</span>' +
         '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.03em;text-transform:uppercase;color:' + m.col + ';">' + m.rate + '% Follow-Through</span>' +
       '</div>' +
@@ -30001,12 +30072,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var tid=m[0],sub=m[1],cty=m[2],dist=m[3],tc=TC[tid];
         var cont=getSub(tid,sub);if(!cont)continue;
         var iss=(p.keyIssues||[]).join(',');
-        var sc=p.score>=70?'#34d399':p.score>=50?'#f5c842':'#f87171';
+        var scNull=(p.score===null||p.score===undefined);
+        var sc=scNull?'#9fb4d4':(p.score>=70?'#34d399':p.score>=50?'#f5c842':'#f87171');
+        var scTxt=scNull?'—':p.score+'%';
+        var pmStatus=(typeof window._pdxStatusBadge==='function')?window._pdxStatusBadge(p,{size:'sm'}):'';
+        var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
+        var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
+        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending):'';
         var bio=(p.bio||'').split('.')[0]+'.';
         var ph=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pm-card-photo-placeholder" style="display:none;">'+(p.icon||tc.i)+'</div>':'<div class="pm-card-photo-placeholder" style="display:flex;">'+(p.icon||tc.i)+'</div>';
         var c=document.createElement('div');c.className='pm-card';c.style.border='1px solid '+tc.b;
         c.dataset.county=cty;c.dataset.pmstate='utah';c.dataset.district=dist;c.dataset.name=p.name;c.dataset.issues=iss;
-        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+(p.office||'')+'</div></div><div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+sc+';">'+p.score+'%</div><div class="pm-card-score-label">Score</div></div></div><div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bio+'</div><div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
+        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmParty+'</div>':'')+'</div><div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+sc+';">'+scTxt+'</div><div class="pm-card-score-label">Score</div></div></div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+'<div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bio+'</div><div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
         cont.appendChild(c);
       }
     }
@@ -30554,7 +30631,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.3);color:#fb7185;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.4rem;border-radius:999px;">❤️ Favorite</span>' +
               '<button class="potential-star-btn potential-saved" onclick="event.stopPropagation();window.toggleFavorite(\'' + pid + '\')" title="Remove from Favorites" style="font-size:1.1rem;background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:0 2px;" onmouseover="this.style.transform=\'scale(1.2)\'" onmouseout="this.style.transform=\'scale(1)\'">❤️</button>' +
             '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-2">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
@@ -31167,6 +31245,55 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
     }
 
+    // Subtle party tag — consistent across every compact card. Accepts either the
+    // single-letter codes used in the seed data ('R'/'D'/'I'/'F') or full names
+    // ('Republican'/'Democrat'/'Independent'/'Forward'). Returns '' when unknown so
+    // the card stays clean rather than showing an empty pill.
+    window._pdxPartyChip = function(party) {
+      if (!party) return '';
+      var p = String(party).trim().toLowerCase();
+      var cls, label;
+      if (p === 'r' || p === 'republican') { cls = 'pdx-party-r'; label = 'Republican'; }
+      else if (p === 'd' || p === 'democrat' || p === 'democratic') { cls = 'pdx-party-d'; label = 'Democrat'; }
+      else if (p === 'i' || p === 'independent') { cls = 'pdx-party-i'; label = 'Independent'; }
+      else if (p === 'f' || p === 'forward' || p === 'forward party') { cls = 'pdx-party-f'; label = 'Forward'; }
+      else { cls = 'pdx-party-i'; label = String(party); }
+      return '<span class="pdx-party-chip ' + cls + '">' + label + '</span>';
+    };
+
+    // Clean kept / broken / pending pill row — the at-a-glance accountability read
+    // shared by every listing card. When there is no resolved record yet it returns
+    // a single neutral "No voting record yet" pill so candidates read honestly.
+    window._pdxStatPills = function(kept, broken, pending) {
+      var k = kept || 0, b = broken || 0, pn = pending || 0;
+      if (k === 0 && b === 0 && pn === 0) {
+        return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">⏳ No voting record yet</span></div>';
+      }
+      return '<div class="pdx-statpills">' +
+        '<span class="pdx-statpill pdx-statpill-kept">✓ ' + k + ' Kept</span>' +
+        '<span class="pdx-statpill pdx-statpill-broken">✗ ' + b + ' Broken</span>' +
+        (pn > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + pn + ' Pending</span>' : '') +
+      '</div>';
+    };
+
+    // Consistent "Office • District • State" line for every compact card. District
+    // is trimmed to its short label (the part before any parenthetical) and skipped
+    // when it is already implied by the office title, so the line stays clean.
+    window._pdxOfficeLine = function(d) {
+      if (!d) return '';
+      var office = d.office || '';
+      var parts = [];
+      if (office) parts.push(office);
+      if (d.district) {
+        var dist = String(d.district).split('(')[0].trim();
+        var ol = office.toLowerCase();
+        if (dist && ol.indexOf(dist.toLowerCase()) === -1 && ol.indexOf('dist') === -1) parts.push(dist);
+      }
+      if (d.state) parts.push(d.state);
+      return (d.icon ? d.icon + ' ' : '') + parts.join(' • ');
+    };
+
+
     function _mypolRenderPrimaryCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
@@ -31252,7 +31379,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
               heartHtml +
             '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-2">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
@@ -31682,7 +31810,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
               heartHtml +
             '</div>' +
-            '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
@@ -31755,7 +31884,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               localBadge + teamBadge +
               heartHtml +
             '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-2">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
             '<div class="flex flex-wrap items-center gap-3 mb-2.5">' +
               '<div style="flex-shrink:0;text-align:center;background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:2.2rem;text-shadow:0 0 12px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + scTxt + '</div>' +
@@ -31831,8 +31960,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
               heartHtml +
             '</div>' +
-            // Office + state
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium leading-none" style="margin: 0.1rem 0;">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            // Office + district + state — one consistent line across the whole site
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium leading-none" style="margin: 0.1rem 0;">' + window._pdxOfficeLine(d) + '</p>' +
+            // Party — shown subtly, on its own line so the name/office hierarchy stays clean
+            (window._pdxPartyChip(d.party) ? '<div style="margin:0.15rem 0 0.05rem;">' + window._pdxPartyChip(d.party) + '</div>' : '') +
             // Score badges & Issue tags in a nice horizontal block
             '<div class="flex flex-wrap items-center gap-3 mt-1">' +
               '<div class="chub-score-container" style="background:rgba(10,15,30,0.65);border:1px solid ' + scCol + '45;border-radius:0.5rem;padding:0.25rem 0.6rem;box-shadow:0 4px 16px ' + scCol + '12, inset 0 1px 0 rgba(255,255,255,0.02);display:inline-flex;align-items:center;gap:0.35rem;">' +
@@ -31922,8 +32053,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="font-display text-base tracking-wider text-white font-bold leading-tight">' + d.name + '</span>' +
               heartHtml +
             '</div>' +
-            // Office + state (the seat they are running for)
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium" style="margin:0.05rem 0;">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            // Office + district + state (the seat they are running for)
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide font-medium" style="margin:0.05rem 0;">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
             // Lightweight meta: no-record note + a couple of issue tags
             '<div class="flex items-center gap-2 flex-wrap mt-0.5">' +
               noRecord +
@@ -33604,7 +33735,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<button class="mypol-star ' + (isMy ? 'mypol-saved' : '') + '" onclick="event.stopPropagation();mypolToggle(\'' + pid + '\')" title="' + (isMy ? 'Remove from My Politicians' : 'Add to My Politicians') + '">★</button>' +
               '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
             '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
             '<div class="flex flex-wrap gap-1 mb-2">' +
               d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2 py-0.5 font-condensed text-steel-500" style="font-size:0.55rem;letter-spacing:0.05em;">' + i + '</span>'; }).join('') +
             '</div>' +
@@ -33881,7 +34013,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="potential-badge">🌟 Watching</span>' +
               '<button class="potential-star-btn potential-saved" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="Remove from potential candidates">🌟</button>' +
             '</div>' +
-            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + d.icon + ' ' + d.office + ' · ' + d.state + '</p>' +
+            '<p class="font-condensed text-xs text-steel-400 tracking-wide mb-1">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.55rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
             '<div class="flex items-center gap-3 mb-2">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.2rem;">' + scTxt + '</div>' +
