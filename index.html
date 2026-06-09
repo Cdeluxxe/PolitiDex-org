@@ -5313,6 +5313,20 @@
       50% { box-shadow: 0 4px 24px rgba(245,200,66,0.9), 0 0 0 1.5px rgba(245,200,66,0.6); }
     }
     @media (prefers-reduced-motion: reduce) { .kr-incumbent-badge { animation: none; } }
+    /* Open-seat hero — the "no incumbent" counterpart to the gold officeholder
+       panel. A cool steel-blue card carrying a clear gold OPEN SEAT badge, so a
+       race with no sitting officeholder still reads as a complete, intentional
+       card rather than a blank where the incumbent would be. */
+    .kr-open-panel { background: linear-gradient(150deg, rgba(96,165,250,0.14), rgba(10,15,30,0.42)); box-shadow: none; }
+    .kr-open-panel::before { background: linear-gradient(90deg, #fde68a, #f59e0b); box-shadow: 0 1px 10px rgba(245,158,11,0.45); }
+    .kr-open-panel::after { background: radial-gradient(closest-side, rgba(96,165,250,0.14), transparent 70%); }
+    .kr-open-avatar { width: 74px; height: 74px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; color: #fcd34d; background: rgba(245,200,66,0.08); border: 3px dashed rgba(245,200,66,0.6); }
+    .kr-open-badge {
+      display: inline-flex; align-items: center; gap: 0.34rem; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #2a1903; background: linear-gradient(135deg, #fde68a, #f59e0b);
+      padding: 0.26rem 0.8rem; border-radius: 999px; box-shadow: 0 3px 14px rgba(245,158,11,0.45), 0 0 0 1.5px rgba(245,158,11,0.4);
+    }
     /* Structured meta row under the name: a tenure pill ("In office since YYYY")
        and a status pill (re-election / retiring / term info), grouped so the
        officeholder card carries real, scannable information weight. */
@@ -35246,10 +35260,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
     }
     function _krPartyMeta(p) {
-      if (p === 'R') return { label: 'Republican', color: '#f87171' };
-      if (p === 'D') return { label: 'Democrat', color: '#60a5fa' };
-      if (p === 'I' || p === 'Ind.') return { label: 'Independent', color: '#a78bfa' };
-      if (p === 'F' || p === 'Forward') return { label: 'Forward Party', color: '#22d3ee' };
+      // Party arrives in two shapes across the data set: the original single-letter
+      // codes ('R', 'D', 'I', 'F') in the bundled records, and the full party names
+      // ('Republican', 'Democrat', 'Forward', …) that Firestore stores and that
+      // overwrite the letter on merge. Normalize both so every Key Races card shows
+      // a correct, colored party chip instead of falling through to "Party TBD".
+      if (!p) return null;
+      var s = String(p).trim().toLowerCase();
+      if (!s) return null;
+      if (s === 'r' || s.indexOf('republican') !== -1 || s === 'gop') return { label: 'Republican', color: '#f87171' };
+      if (s === 'd' || s.indexOf('democrat') !== -1) return { label: 'Democrat', color: '#60a5fa' };
+      if (s === 'f' || s.indexOf('forward') !== -1) return { label: 'Forward Party', color: '#22d3ee' };
+      if (s === 'l' || s.indexOf('libertarian') !== -1) return { label: 'Libertarian', color: '#fbbf24' };
+      if (s === 'g' || s.indexOf('green') !== -1) return { label: 'Green', color: '#4ade80' };
+      // Independent / unaffiliated — checked last so it doesn't swallow other labels.
+      if (s === 'i' || s === 'ind.' || s.indexOf('independent') !== -1 || s.indexOf('unaffiliated') !== -1 || s.indexOf('no party') !== -1) return { label: 'Independent', color: '#a78bfa' };
       return null;
     }
     function _krPartyBadge(p) {
@@ -35268,6 +35293,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<img src="' + url + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.3rem;color:#9fb4d4&quot;>' + (d.icon || '🏛') + '</div>\'"></div>';
       }
       return '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '55;background:rgba(30,53,96,0.25);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
+    }
+
+    // Office strings arrive in mixed shapes — bundled records are terse ("UT State
+    // Representative"), while Firestore docs often carry a leading emoji and richer
+    // wording ("🏛 Utah State Representative - District 16"). The avatar already shows
+    // an icon, so we strip any leading symbol/emoji and tidy whitespace to keep the
+    // office/district line clean and consistent across every card.
+    function _krCleanOffice(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/^[^A-Za-z0-9(]+/, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
     }
 
     function _krLocationHeadline(locId) {
@@ -35379,7 +35417,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var roleTag = isIncumbent
         ? '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">Incumbent</span>'
         : '<span class="font-condensed" style="font-size:0.55rem;letter-spacing:0.06em;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);padding:0.08rem 0.42rem;border-radius:999px;font-weight:700;">' + (isChallengerRace ? 'Challenger' : 'Candidate') + '</span>';
-      var subLine = d.office ? d.office : (isIncumbent ? 'Current officeholder' : (isChallengerRace ? '2026 challenger' : '2026 candidate'));
+      var subLine = d.office ? _krCleanOffice(d.office) : (isIncumbent ? 'Current officeholder' : (isChallengerRace ? '2026 challenger' : '2026 candidate'));
       var btn = _krPickBtn(race, pid, isPick);
 
       // ── Score strip ──────────────────────────────────────────────────────
@@ -35508,7 +35546,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="kr-incumbent-badge"><span class="kr-incumbent-badge-ico">★</span>In Office</span>' + _krPartyBadge(d.party) +
             '</div>' +
             '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-incumbent-name" style="display:block;margin-top:0.4rem;">' + d.name + '</button>' +
-            '<div class="font-condensed" style="font-size:0.76rem;color:#fcd34d;margin-top:0.16rem;line-height:1.3;font-weight:600;">' + (d.office || 'Current officeholder') + '</div>' +
+            '<div class="font-condensed" style="font-size:0.76rem;color:#fcd34d;margin-top:0.16rem;line-height:1.3;font-weight:600;">' + (_krCleanOffice(d.office) || 'Current officeholder') + '</div>' +
           '</div>' +
         '</div>' +
         _krIncMeta(race, pid) +
@@ -35592,11 +35630,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         holderHtml = incList.map(function(pid) { return _krIncumbentCard(race, pid, selectedPid); }).join('');
       } else {
         holderHtml =
-          '<div class="kr-incumbent-panel" style="background:linear-gradient(150deg,rgba(96,165,250,0.12),rgba(10,15,30,0.4));border-color:' + race.color + '55;box-shadow:none;">' +
+          '<div class="kr-incumbent-panel kr-open-panel" style="border-color:' + race.color + '55;">' +
             '<div style="display:flex;align-items:center;gap:0.9rem;">' +
-              '<div style="width:74px;height:74px;border-radius:50%;flex-shrink:0;border:3px dashed ' + race.color + '88;display:flex;align-items:center;justify-content:center;font-size:1.9rem;color:' + race.color + ';">🪑</div>' +
-              '<div><div class="font-display text-xl text-white" style="line-height:1.05;">Open Seat</div>' +
-              '<div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;margin-top:0.15rem;">' + (race.incumbentNote || 'No incumbent on the 2026 ballot') + '</div></div>' +
+              '<div class="kr-open-avatar" style="border-color:' + race.color + '88;">🪑</div>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<span class="kr-open-badge">🪑 Open Seat</span>' +
+                '<div class="font-display text-xl text-white" style="line-height:1.05;margin-top:0.45rem;">' + (race.district || 'Open Seat · 2026') + '</div>' +
+                '<div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;margin-top:0.18rem;line-height:1.4;">' + (race.incumbentNote || 'No incumbent on the 2026 ballot — this seat is decided by the candidates below.') + '</div>' +
+              '</div>' +
             '</div>' +
           '</div>';
       }
@@ -35604,7 +35645,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── Challengers — everyone running who is NOT the sitting officeholder ───
       // The incumbent already appears (once) in the hero above, so we never list
       // them again here. That keeps the "who's running" list clean and secondary.
-      var challengerPids = race.candidates.filter(function(pid) { return incList.indexOf(pid) === -1; });
+      // Only list people we actually have a record for. A candidate id with no
+      // CMP_DATA entry (e.g. a filing referenced before its profile is published)
+      // would otherwise render as an empty fragment under the challenger heading,
+      // leaving the section looking broken — so we drop it and fall back to the
+      // clean "no challengers filed yet" state instead.
+      var challengerPids = race.candidates.filter(function(pid) {
+        return incList.indexOf(pid) === -1 && typeof CMP_DATA !== 'undefined' && CMP_DATA[pid];
+      });
       // A "running incumbent" is one who is actually defending the seat in 2026 —
       // not a retiring officeholder and not an open seat. This drives whether the
       // people running read as "Challengers" or simply "Candidates".
