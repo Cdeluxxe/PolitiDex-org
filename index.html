@@ -5414,6 +5414,20 @@
     .kr-challenger-card .kr-score-promise .kr-score-num,
     .kr-challenger-card .kr-score-acct .kr-score-num { font-size: 1.55rem; }
     .kr-challenger-card .kr-score-align .kr-score-num { font-size: 1.4rem; }
+    /* Clean "no voting record yet" notice on a brand-new 2026 candidate card —
+       a single tidy steel-blue strip that replaces the two empty Promise / Truth
+       Score cells, so a challenger with no record reads as intentional and complete
+       rather than like a broken card full of "NO RECORD YET" placeholders. */
+    .kr-norecord {
+      display: flex; align-items: flex-start; gap: 0.55rem; margin-top: 0.6rem;
+      border-radius: 0.7rem; padding: 0.6rem 0.7rem;
+      background: linear-gradient(135deg, rgba(96,165,250,0.10), rgba(10,15,30,0.35));
+      border: 1px dashed rgba(96,165,250,0.42);
+    }
+    .kr-norecord .kr-norecord-ico { font-size: 1rem; line-height: 1.2; flex-shrink: 0; }
+    .kr-norecord .kr-norecord-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+    .kr-norecord .kr-norecord-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.03em; color: #bcd2f0; line-height: 1.2; }
+    .kr-norecord .kr-norecord-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 0.64rem; letter-spacing: 0.01em; color: #88a0c4; line-height: 1.35; }
 
     /* Two-score strip on each 2026 candidate card:
        Accountability of Truth (purple, prominent) + Personalized Alignment (teal, secondary). */
@@ -35612,6 +35626,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // Single, intentional "no record yet" notice for a 2026 candidate who has
+    // never held office. Replaces the pair of empty Promise / Truth Score cells so
+    // a brand-new challenger card reads as complete and honest rather than broken,
+    // while pointing the visitor to the things they CAN act on (positions + compare).
+    function _krNoRecordNotice() {
+      return '<div class="kr-norecord">' +
+          '<span class="kr-norecord-ico">🗳️</span>' +
+          '<span class="kr-norecord-text">' +
+            '<span class="kr-norecord-title">New candidate — no voting record yet</span>' +
+            '<span class="kr-norecord-sub">Promise &amp; Truth Scores appear once they hold office and cast votes. Compare their positions below.</span>' +
+          '</span>' +
+        '</div>';
+    }
+
     function _krCandidateRow(race, pid, selectedPid, candidateMode) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
@@ -35637,18 +35665,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // scoring systems never blur together.
       // We only show a Truth Score where there is a real record to ground it — for
       // challengers with no record yet we say so plainly rather than inventing a number.
-      var _cells = _krScoreCells(pid, d, isIncumbent);
-      var promiseHtml = _cells.promise;
-      var acctHtml = _cells.acct;
+      // Does this candidate have any objective record to ground a score? A 2026
+      // challenger who has never held office has neither a Promise % nor a Truth
+      // Score, and stacking two big "No record yet" cells made the card read as
+      // broken. So we detect the no-record case up front and replace the two empty
+      // cells with a single, clean, intentional notice — while still showing the
+      // real score strip the moment either score exists.
+      var hasPromise = d.score !== null && d.score !== undefined;
+      var acctObj = (d.accountability && typeof d.accountability.overallScore === 'number')
+        ? d.accountability
+        : ((hasPromise && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
+      var hasAcct = !!(acctObj && typeof acctObj.overallScore === 'number');
+      var noObjectiveRecord = !isIncumbent && !hasPromise && !hasAcct;
       // ── Personalized alignment — shown INLINE on the card ────────────────
       // When the visitor has chosen issues we surface their match % right here so
       // it can be scanned and compared across candidates at a glance, with a tap
       // to expand an issue-by-issue breakdown without ever leaving Key Races.
       // When no issues are set yet we show a clean prompt that opens the picker.
       var alignInlineHtml = _krAlignInlineHtml(pid, d);
-      var scoreStrip =
-        '<div class="kr-score-strip">' + promiseHtml + acctHtml + '</div>' +
-        alignInlineHtml;
+      var scoreStrip;
+      if (noObjectiveRecord) {
+        scoreStrip = _krNoRecordNotice() + alignInlineHtml;
+      } else {
+        var _cells = _krScoreCells(pid, d, isIncumbent);
+        scoreStrip =
+          '<div class="kr-score-strip">' + _cells.promise + _cells.acct + '</div>' +
+          alignInlineHtml;
+      }
 
       // At-a-glance Spotlight: the single most timely thing to know about this
       // candidate, shown inline and tappable for the full modal + source.
