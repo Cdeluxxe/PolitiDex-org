@@ -3803,6 +3803,37 @@
     .pdx-statpill-pending { color: #fbbf24; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); }
     .pdx-statpill-none { color: #8aa3c4; background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.22); font-weight: 600; }
 
+    /* ── Clickable follow-through badges (profile hero) ──────────────────
+       The kept / broken / pending counts double as filters: tap one to jump
+       to the Promise Tracker filtered to that status. */
+    .vbadge-click { cursor: pointer; user-select: none; transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease; }
+    @media (hover: hover) { .vbadge-click:hover { transform: translateY(-1px); filter: brightness(1.12); } }
+    .vbadge-click:active { transform: translateY(0); }
+    .vbadge-click:focus-visible { outline: 2px solid rgba(255,255,255,0.55); outline-offset: 2px; }
+    .vbadge-active { box-shadow: 0 0 0 2px currentColor inset, 0 0 12px -2px currentColor; filter: brightness(1.18); }
+
+    /* ── Promise Tracker filter tabs (profile modal) ─────────────────────
+       All / Kept / Broken / Pending tabs that narrow the grouped list. */
+    .pdx-pfilter { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.1rem 0 0.7rem; }
+    .pdx-pfilter-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #9fb4d4; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 999px;
+      padding: 0.32rem 0.7rem; line-height: 1; cursor: pointer; white-space: nowrap;
+      transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    }
+    @media (hover: hover) { .pdx-pfilter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; } }
+    .pdx-pfilter-btn:focus-visible { outline: 2px solid rgba(255,255,255,0.55); outline-offset: 2px; }
+    .pdx-pfilter-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(192,21,42,0.32), rgba(124,58,237,0.32));
+      border-color: rgba(255,255,255,0.4);
+      box-shadow: 0 2px 10px rgba(192,21,42,0.22);
+    }
+    .pdx-pfilter-n { font-size: 0.6rem; opacity: 0.85; background: rgba(0,0,0,0.28); border-radius: 999px; padding: 0.04rem 0.36rem; }
+
     /* ─────────────────────────────────────────────────────────────────────────
        UNIFIED COMPACT POLITICIAN CARD (.pdx-snap)
        One clean, professional snapshot layout shared by every listing on the
@@ -24293,11 +24324,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
-          '<span class="vbadge vbadge-kept">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="vbadge vbadge-broken">✗ ' + m.broken + ' Broken</span>' +
-          '<span class="vbadge vbadge-pending">⏳ ' + m.pending + ' Pending</span>' +
+          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" data-jump="kept" onclick="window.pdxFilterPromises(\'kept\',true)" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" data-jump="broken" onclick="window.pdxFilterPromises(\'broken\',true)" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
+          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" data-jump="pending" onclick="window.pdxFilterPromises(\'pending\',true)" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to jump to those promises below</div>' +
       '</div>';
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // PROMISE FILTER — makes the kept / broken / pending counts (and the
+  // Promise Tracker filter tabs) interactive. Clicking a status scrolls
+  // the open profile modal to the Promise Tracker and shows only the
+  // promises with that verdict; "All" restores the full list. Works for
+  // every profile because it operates on whatever the open modal rendered.
+  // ════════════════════════════════════════════════════════════
+  window.pdxFilterPromises = function(verdict, doScroll){
+    verdict = verdict || 'all';
+    var list = document.getElementById('pdx-promise-list');
+    if (!list) return;
+    var labels = { all:'promises', kept:'kept promises', broken:'broken promises', pending:'pending promises', partial:'partial promises' };
+
+    // Toggle visibility of each verdict group.
+    var anyShown = false;
+    var groups = list.querySelectorAll('[data-verdict]');
+    for (var i = 0; i < groups.length; i++) {
+      var gv = groups[i].getAttribute('data-verdict');
+      var show = (verdict === 'all' || gv === verdict);
+      groups[i].style.display = show ? '' : 'none';
+      if (show) anyShown = true;
+    }
+
+    // Empty-state message for a status with no tracked promises.
+    var empty = document.getElementById('pdx-promise-empty');
+    if (empty) {
+      empty.textContent = 'No ' + (labels[verdict] || 'promises') + ' tracked yet.';
+      empty.style.display = anyShown ? 'none' : '';
+    }
+
+    // Reflect the active state on both the tabs and the hero badges.
+    var tabs = document.querySelectorAll('#pdx-promise-filter .pdx-pfilter-btn');
+    for (var t = 0; t < tabs.length; t++) {
+      tabs[t].classList.toggle('active', tabs[t].getAttribute('data-f') === verdict);
+    }
+    var badges = document.querySelectorAll('[data-jump]');
+    for (var b = 0; b < badges.length; b++) {
+      badges[b].classList.toggle('vbadge-active', badges[b].getAttribute('data-jump') === verdict);
+    }
+
+    if (doScroll) {
+      var sec = document.getElementById('pdx-promise-section');
+      if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  };
+
+  // Keyboard activation (Enter / Space) for the clickable hero badges.
+  window._pdxBadgeKey = function(ev, verdict){
+    if (ev && (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar')) {
+      ev.preventDefault();
+      window.pdxFilterPromises(verdict, true);
+    }
   };
 
   // Compact card strip — one-line kept/broken read + a thin split bar so a
@@ -24392,7 +24478,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const promiseRows = (p.promises && p.promises.length) ? _pGroups.map(g => {
       const rows = (p.promises || []).filter(r => (r.verdict || 'pending') === g.v);
       if (!rows.length) return '';
-      return `<div style="padding-top:0.4rem;">
+      return `<div data-verdict="${g.v}" style="padding-top:0.4rem;">
         <div style="display:flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${g.color};padding:0.45rem 0 0.4rem;border-bottom:1px solid ${g.color}26;margin-bottom:0.1rem;">
           <span>${g.icon} ${g.label}</span>
           <span style="margin-left:auto;background:${g.color}1a;border:1px solid ${g.color}44;color:${g.color};border-radius:999px;padding:0.02rem 0.5rem;">${rows.length}</span>
@@ -24401,6 +24487,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div style="font-size:0.78rem;color:#9fb4d4;line-height:1.5;">${r.detail}</div>
         </div>`).join('') + `</div>`;
     }).join('') : '';
+
+    // Filter tabs for the Promise Tracker — "All" plus one tab per verdict
+    // that actually has promises, so the list can be narrowed to a single
+    // status. Mirrors the clickable kept/broken/pending counts in the hero.
+    const promiseFilterBar = (p.promises && p.promises.length) ? (function(){
+      const counts = { all: p.promises.length };
+      _pGroups.forEach(g => { counts[g.v] = (p.promises || []).filter(r => (r.verdict || 'pending') === g.v).length; });
+      const tab = (f, label) => `<button type="button" class="pdx-pfilter-btn${f==='all'?' active':''}" data-f="${f}" onclick="window.pdxFilterPromises('${f}')">${label} <span class="pdx-pfilter-n">${counts[f]}</span></button>`;
+      let btns = tab('all', 'All');
+      _pGroups.forEach(g => { if (counts[g.v]) btns += tab(g.v, `${g.icon} ${g.label}`); });
+      return `<div id="pdx-promise-filter" class="pdx-pfilter">${btns}</div>`;
+    })() : '';
 
     // Stats summary bar
     const keptCount  = (p.promises||[]).filter(r=>r.verdict==='kept').length;
@@ -24682,11 +24780,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
 
       <!-- Promise breakdown table -->
-      <div class="modal-section">
+      <div class="modal-section" id="pdx-promise-section">
         <div class="modal-section-title">📊 Promise Tracker</div>
-        <p class="modal-section-sub">Every tracked promise, grouped by verdict — kept, broken, and still pending — so the record speaks plainly.</p>
+        <p class="modal-section-sub">Every tracked promise, grouped by verdict — kept, broken, and still pending — so the record speaks plainly. Tap a status to filter.</p>
+        ${promiseFilterBar}
         <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:0 0.875rem 0.6rem;">
-          ${promiseRows || '<div style="padding:1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No detailed promise data yet — monitoring in progress.</div>'}
+          <div id="pdx-promise-list">${promiseRows || '<div style="padding:1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No detailed promise data yet — monitoring in progress.</div>'}</div>
+          <div id="pdx-promise-empty" style="display:none;padding:1.1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No promises tracked yet.</div>
         </div>
         <button onclick="openFullProfileVerify('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
           <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110.2 21a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.746 3.746 0 0113.8 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
