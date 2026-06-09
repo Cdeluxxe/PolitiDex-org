@@ -33756,81 +33756,85 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var hasCounty = !!normalizedCounty;
       var hasNarrowingSignal = hasDistrict || hasCounty;
 
-      // Helper to check if a politician belongs to the selected county
+      // Decide whether a politician actually represents the selected county.
+      //
+      // This is deliberately CONSERVATIVE and authoritative-first. The earlier
+      // version led with a broad "does this word appear anywhere in the record"
+      // scan over name + office + state + bio + district label. That scan was the
+      // main reason the section ballooned out to most of the state:
+      //   • the county "Utah" appears in EVERY Utah politician's `state` field, so
+      //     every single Utah figure matched a Utah-County voter, and
+      //   • county names like "Davis", "Weber" and "Washington" are common
+      //     surnames and bio words, so unrelated people matched by coincidence.
+      // Instead we now key off the authoritative district→county maps and the
+      // curated ballot roster, and only fall back to a NAME match for local
+      // offices (which carry no legislative district) — and even then we match on
+      // the resolved district/county label and office text, never the bare state
+      // field or free-text bio.
       function isPoliticianInSelectedCounty(pid) {
         var d = CMP_DATA[pid];
         if (!d) return false;
         if (!normalizedCounty) return false;
 
         var cLower = normalizedCounty.toLowerCase().replace(/\s*county\s*/g, '').trim(); // e.g. "davis", "utah", "washington", "weber"
-
-        // 1. Check if the county or city name appears in the politician's data
-        var haystack = (d.name + ' ' + (d.office || '') + ' ' + (d.state || '') + ' ' + (d.bio || '') + ' ' + _getPoliticianDistrictOrCounty(pid)).toLowerCase();
-        if (haystack.includes(cLower)) return true;
-
-        if (cLower === 'davis') {
-          if (haystack.includes('layton') || haystack.includes('kaysville') || haystack.includes('clearfield') || haystack.includes('bountiful')) return true;
-        }
-        if (cLower === 'utah') {
-          if (haystack.includes('provo') || haystack.includes('orem') || haystack.includes('lehi') || haystack.includes('american fork')) return true;
-        }
-        if (cLower === 'washington') {
-          if (haystack.includes('st. george') || haystack.includes('st george')) return true;
-        }
-        if (cLower === 'weber') {
-          if (haystack.includes('ogden')) return true;
-        }
-
-        // 2. Check issues list
-        if (d.issues && d.issues.some(function(issue) {
-          var issLower = issue.toLowerCase();
-          if (issLower.includes(cLower)) return true;
-          if (cLower === 'davis' && (issLower.includes('layton') || issLower.includes('kaysville') || issLower.includes('clearfield') || issLower.includes('bountiful'))) return true;
-          if (cLower === 'utah' && (issLower.includes('provo') || issLower.includes('orem') || issLower.includes('lehi') || issLower.includes('american fork'))) return true;
-          if (cLower === 'washington' && (issLower.includes('st. george') || issLower.includes('st george'))) return true;
-          if (cLower === 'weber' && issLower.includes('ogden')) return true;
-          return false;
-        })) {
-          return true;
-        }
-
-        // 3. Check Utah Senate and House maps
         var t = _classifyBrowseType(pid);
-        var pDist = _relevantDistNum(pid);
-        if (pDist !== null) {
-          if (t === 'state_senator') {
-            var info = _UTAH_SENATE_INFO[pid];
-            if (info && info.c && info.c.toLowerCase().includes(cLower)) return true;
-            var pCounty = _UTAH_SENATE_COUNTY[pDist];
-            if (pCounty && pCounty.toLowerCase().includes(cLower)) return true;
-          }
-          if (t === 'state_rep') {
-            var pCounty = _UTAH_HOUSE_COUNTY[pDist];
-            if (pCounty && pCounty.toLowerCase().includes(cLower)) return true;
-          }
-        }
+        var pDist = _relevantDistNum(pid); // normalizes "District 16"/"D16"/"UT-16"/"16" → 16
 
-        // 4. Check key races mapping
+        // 1. Curated Key Races roster — anyone explicitly placed on this county's
+        //    ballot belongs to it, even when their district number can't be parsed.
         var locIdMap = { 'Davis County': 'davis', 'Utah County': 'utah_co', 'Washington County': 'washington', 'Weber County': 'weber' };
         var targetLocId = locIdMap[normalizedCounty];
         if (targetLocId && KEY_RACES_BY_LOCATION[targetLocId]) {
-          var matchedInKeyRaces = false;
+          var inRoster = false;
           KEY_RACES_BY_LOCATION[targetLocId].forEach(function(r) {
-            if (r.incumbentPid === pid) matchedInKeyRaces = true;
-            if (r.incumbentPids && r.incumbentPids.indexOf(pid) !== -1) matchedInKeyRaces = true;
-            if (r.candidates && r.candidates.indexOf(pid) !== -1) matchedInKeyRaces = true;
+            if (r.incumbentPid === pid) inRoster = true;
+            if (r.incumbentPids && r.incumbentPids.indexOf(pid) !== -1) inRoster = true;
+            if (r.candidates && r.candidates.indexOf(pid) !== -1) inRoster = true;
           });
-          if (matchedInKeyRaces) return true;
+          if (inRoster) return true;
         }
 
-        // 5. Congressional Districts
-        if (t === 'representative' && pDist !== null) {
+        // 2. State legislators — match ONLY on the authoritative district→county
+        //    maps. A legislator whose district is known but lies in another county
+        //    is excluded outright, so neighboring districts never bleed in.
+        if (t === 'state_senator') {
+          if (pDist === null) return false;
+          var sInfo = _UTAH_SENATE_INFO[pid];
+          if (sInfo && sInfo.c && sInfo.c.toLowerCase().indexOf(cLower) !== -1) return true;
+          var sCounty = _UTAH_SENATE_COUNTY[pDist];
+          return !!(sCounty && sCounty.toLowerCase().indexOf(cLower) !== -1);
+        }
+        if (t === 'state_rep') {
+          if (pDist === null) return false;
+          var hCounty = _UTAH_HOUSE_COUNTY[pDist];
+          return !!(hCounty && hCounty.toLowerCase().indexOf(cLower) !== -1);
+        }
+
+        // 3. U.S. House — congressional-district → county coverage.
+        if (t === 'representative') {
+          if (pDist === null) return false;
           if (pDist === 1 && (cLower === 'davis' || cLower === 'weber')) return true;
           if (pDist === 2 && cLower === 'washington') return true;
           if (pDist === 3 && cLower === 'utah') return true;
           if (pDist === 4 && (cLower === 'utah' || cLower === 'salt lake')) return true;
+          return false;
         }
 
+        // 4. Local offices (mayors, county seats) carry no legislative district,
+        //    so match them on their RESOLVED district/county label and office text
+        //    only — plus the county's principal cities. Never the bare state field
+        //    or bio, which over-match.
+        var label = (_getPoliticianDistrictOrCounty(pid) + ' ' + (d.office || '')).toLowerCase();
+        var CITY_TOKENS = {
+          'davis':      ['davis', 'layton', 'kaysville', 'clearfield', 'bountiful', 'farmington', 'centerville', 'syracuse', 'clinton'],
+          'utah':       ['provo', 'orem', 'lehi', 'american fork', 'spanish fork', 'springville', 'pleasant grove'],
+          'washington': ['washington', 'st. george', 'st george', 'hurricane', 'ivins', 'santa clara'],
+          'weber':      ['weber', 'ogden', 'roy', 'north ogden', 'south ogden']
+        };
+        var tokens = CITY_TOKENS[cLower] || [cLower];
+        for (var ti = 0; ti < tokens.length; ti++) {
+          if (label.indexOf(tokens[ti]) !== -1) return true;
+        }
         return false;
       }
 
