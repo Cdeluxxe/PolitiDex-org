@@ -24324,11 +24324,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
-          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" data-jump="kept" onclick="window.pdxFilterPromises(\'kept\',true)" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" data-jump="broken" onclick="window.pdxFilterPromises(\'broken\',true)" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
-          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" data-jump="pending" onclick="window.pdxFilterPromises(\'pending\',true)" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
+          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
+          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to jump to those promises below</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
       '</div>';
   };
 
@@ -24372,17 +24372,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       badges[b].classList.toggle('vbadge-active', badges[b].getAttribute('data-jump') === verdict);
     }
 
+    // Remember the active filter so the hero badges can toggle back to "All".
+    window._pdxActiveFilter = verdict;
+
     if (doScroll) {
       var sec = document.getElementById('pdx-promise-section');
       if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
     }
   };
 
+  // Hero badge click — tapping a status filters to it and scrolls down;
+  // tapping the SAME status again clears the filter back to "All". This gives
+  // the counts an obvious built-in reset in addition to the "All" tab.
+  window._pdxBadgeClick = function(verdict){
+    var next = (window._pdxActiveFilter === verdict) ? 'all' : verdict;
+    window.pdxFilterPromises(next, true);
+  };
+
   // Keyboard activation (Enter / Space) for the clickable hero badges.
   window._pdxBadgeKey = function(ev, verdict){
     if (ev && (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar')) {
       ev.preventDefault();
-      window.pdxFilterPromises(verdict, true);
+      window._pdxBadgeClick(verdict);
     }
   };
 
@@ -24421,6 +24432,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   function openModal(id) {
     const p = PROFILES[id];
     if (!p) return;
+
+    // Each profile opens with the promise list unfiltered ("All").
+    window._pdxActiveFilter = 'all';
 
     const scoreNum = p.score;
     const scoreText = scoreNum === null ? '—' : scoreNum + '%';
