@@ -3381,6 +3381,23 @@
       text-align: center;
       margin-top: 0.18rem;
     }
+    /* Clean "no promise record yet" state — keeps the score pill present (never
+       blank) so every Promise Tracker card reads as complete and consistent. */
+    .pm-card-score.pm-card-score-na {
+      color: #5f7798;
+      font-size: 1.5rem;
+    }
+    .pm-card-score-norec {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.46rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #647a9c;
+      text-align: center;
+      margin-top: 0.1rem;
+      line-height: 1.05;
+    }
     .pm-card-impact {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.72rem;
@@ -30280,6 +30297,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var scNull=(p.score===null||p.score===undefined);
         var sc=scNull?'#9fb4d4':(p.score>=70?'#34d399':p.score>=50?'#f5c842':'#f87171');
         var scTxt=scNull?'—':p.score+'%';
+        // Promise Score pill — always rendered so every card reads as complete. A
+        // scored politician shows the color-coded percentage; one with no record yet
+        // shows a clean "No record yet" line in the same slot instead of a bare dash.
+        var pmScoreWrap=scNull
+          ? '<div class="pm-card-score-wrap"><div class="pm-card-score pm-card-score-na">—</div><div class="pm-card-score-label">Promise Score</div><div class="pm-card-score-norec">No record yet</div></div>'
+          : '<div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+sc+';">'+scTxt+'</div><div class="pm-card-score-label">Promise Score</div></div>';
         var pmStatus=(typeof window._pdxStatusBadge==='function')?window._pdxStatusBadge(p,{size:'sm'}):'';
         var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
         var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
@@ -30288,7 +30311,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var ph=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pm-card-photo-placeholder" style="display:none;">'+(p.icon||tc.i)+'</div>':'<div class="pm-card-photo-placeholder" style="display:flex;">'+(p.icon||tc.i)+'</div>';
         var c=document.createElement('div');c.className='pm-card';c.style.border='1px solid '+tc.b;
         c.dataset.county=cty;c.dataset.pmstate='utah';c.dataset.district=dist;c.dataset.name=p.name;c.dataset.issues=iss;
-        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmParty+'</div>':'')+'</div><div class="pm-card-score-wrap"><div class="pm-card-score" style="color:'+sc+';">'+scTxt+'</div><div class="pm-card-score-label">Score</div></div></div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+'<div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bio+'</div><div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
+        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmParty+'</div>':'')+'</div>'+pmScoreWrap+'</div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+'<div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bio+'</div><div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
         cont.appendChild(c);
       }
     }
@@ -31671,6 +31694,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.3rem;">' + scTxt + '</div>' +
                 '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.5rem;">Promise Score</div>' +
+                ((sc === null || sc === undefined) ? '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.46rem;color:#647a9c;margin-top:0.1rem;">No record yet</div>' : '') +
               '</div>' +
               (typeof _alignScoreHtml === 'function' ? _alignScoreHtml(pid, 'ring') : '') +
               '<div class="flex flex-wrap gap-1">' +
@@ -32119,6 +32143,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
                 '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase text-center" style="font-size:0.55rem;">Promise Score</div>' +
+                ((sc === null || sc === undefined) ? '<div class="font-condensed tracking-wider uppercase text-center" style="font-size:0.5rem;color:#647a9c;margin-top:0.1rem;">No record yet</div>' : '') +
               '</div>' +
               acctBadgeHtml +
               alignHtml +
