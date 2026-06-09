@@ -1423,7 +1423,7 @@
        profile section reads as a self-contained, professional block. */
     .modal-section-sub {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
-      color: #7596c0; line-height: 1.45; margin: -0.35rem 0 0.75rem;
+      color: #8ba6cc; line-height: 1.45; margin: -0.35rem 0 0.75rem;
       letter-spacing: 0.01em;
     }
 
@@ -18349,7 +18349,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    usable name fall back to their own id so they never merge together.
         var groups = {};
         ids.forEach(function (id) {
-          var key = _hyNormName(raw[id] && raw[id].name) || (' id ' + id);
+          var key = _hyNormName(raw[id] && raw[id].name) || ('__id_' + id);
           (groups[key] = groups[key] || []).push(id);
         });
 
@@ -19205,7 +19205,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                   ${statusBadge}
                 </div>
                 <p class="text-xs text-steel-400 font-body">
-                  📍 District / Location: <span class="text-white font-medium">${suggestion.district}</span>
+                  📍 District / Location: <span class="text-white font-medium">${suggestion.district || 'Not specified'}</span>
                 </p>
               </div>
               <div class="flex items-center gap-3">
@@ -19217,7 +19217,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
           <div class="text-xs text-steel-300 font-body leading-relaxed bg-navy-950/60 p-4 rounded-xl border border-white/5 relative">
             <strong class="text-gold-400 font-condensed text-xs tracking-wider uppercase block mb-1">AI Recommendation Context:</strong>
-            ${suggestion.why}
+            ${suggestion.why ? suggestion.why : '<span class="text-steel-500 italic">No additional context provided.</span>'}
           </div>
 
           <!-- Collapsible Edit Form -->
@@ -24625,7 +24625,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="profile-hero-id">
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
           <h2 class="profile-name">${p.name}</h2>
-          <div class="profile-office">${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? parts.join('<span class="po-sep">·</span>') : (p.office||''); })()}</div>
+          ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${scoreNum === null ? '<span class="profile-status-monitoring">◷ No voting record yet</span>' : ''}
@@ -30897,7 +30897,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       bmoore: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg',
       cstewart: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001192.jpg',
       tlee: 'https://le.utah.gov/images/legislator/LEETR.jpg',
-      sadams: 'https://le.utah.gov/images/legislator/ADAMSS.jpg',
+      sadams: 'https://le.utah.gov/images/legislator/ADAMSJS.jpg',
+      dmccay: 'https://le.utah.gov/images/legislator/MCCAYD.jpg',
+      dowens_st: 'https://le.utah.gov/images/legislator/OWENSD.jpg',
+      rob_bishop: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Rob_Bishop_official_portrait.jpg',
+      jpike: 'https://insurance.utah.gov/wp-content/uploads/2026-Pike-200x300.jpg',
       jstevenson: 'https://le.utah.gov/images/legislator/STEVEJ.jpg',
       mschultz: 'https://le.utah.gov/images/legislator/SCHULTZM.jpg',
       tweiler: 'https://le.utah.gov/images/legislator/WEILERT.jpg',
@@ -33131,7 +33135,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         html += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
         html += '</button>';
         html += '<div class="browse-type-body"><div class="browse-type-inner">';
-        html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">';
+        html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">';
         _sortInOfficeFirst(otherPids).forEach(function(pid) {
           html += _renderBrowseTeamCard(pid);
         });
@@ -33570,7 +33574,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         s += '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + accent + '50,transparent);"></span>';
         s += '</div>';
         if (note) s += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
-        s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start" style="margin-bottom:1rem;">';
+        s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
         list.forEach(function(pid) { s += _renderRelevantPersonCard(pid); });
         s += '</div>';
         return s;
@@ -33598,7 +33602,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Safety net: if status classification produced nothing (shouldn't happen),
       // fall back to a flat in-office-first grid so cards never disappear.
       if (!out) {
-        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">';
+        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
         _sortInOfficeFirst(pids || []).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
         out += '</div>';
       }
