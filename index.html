@@ -29300,7 +29300,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Promise % / Accountability are shown only where PolitiDex has finished
     // compiling a voting record — others read "being compiled" until then.
     kgrover: {
-      name:'Keith Grover', office:'Utah State Senator', state:'UT District 23', party:'R',
+      name:'Keith Grover', office:'Utah State Senator', state:'UT District 15 (Provo)', party:'R',
       score:null, kept:0, broken:0, pending:0, icon:'🏛',
       issues:['Utah Senate District 23','Provo','Education','State Budget'],
       bio:'Keith Grover is the Republican state senator for Utah Senate District 23, covering the Provo area. He is up for re-election in 2026.',
@@ -29480,7 +29480,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     tweiler: {
-      name:'Todd Weiler', office:'UT State Senator', state:'UT District 23', party:'R',
+      name:'Todd Weiler', office:'UT State Senator', state:'UT District 8 (Woods Cross)', party:'R',
       score:65, kept:16, broken:7, pending:4, icon:'🏛',
       issues:['Internet Safety','Tech Regulation','Social Media for Minors','Criminal Justice'],
       stances:{
@@ -29570,7 +29570,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     rshipp: {
-      name:'Rex Shipp', office:'UT State Representative', state:'UT District 71 (St. George)', party:'R',
+      name:'Rex Shipp', office:'UT State Representative', state:'UT District 75 (St. George)', party:'R',
       score:59, kept:10, broken:6, pending:5, icon:'🏛',
       issues:['Water Conservation','Growth Management','Public Lands','Education'],
       stances:{
@@ -29630,7 +29630,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     jwestwood: {
-      name:'John Westwood', office:'UT State Representative', state:'UT District 71 (Cedar City)', party:'R',
+      name:'John Westwood', office:'UT State Representative', state:'UT District 73 (Cedar City)', party:'R',
       score:60, kept:11, broken:6, pending:5, icon:'🏛',
       issues:['Education Funding','SUU & Higher Ed','Rural Economy','Public Lands'],
       stances:{
@@ -29766,7 +29766,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       stances:{ border:'Supports state enforcement cooperation', debt:'Supports income tax reduction', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Focus on education and economic development', audit:'N/A' }
     },
     mrrobertson: {
-      name:'Mike Robertson', office:'UT State Senator', state:'UT District 15 (Provo/Orem)', party:'R',
+      name:'Mike Robertson', office:'UT State Senator', state:'UT District 21 (Provo/Orem)', party:'R',
       score:63, kept:14, broken:6, pending:5, icon:'🏛',
       issues:['Higher Education','Business Law','Tax Reform','Technology'],
       stances:{ border:'Supports state enforcement', debt:'Supports income tax reduction', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Focus on higher education funding', audit:'N/A' }
@@ -31780,6 +31780,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-400 hover:text-steel-200 tracking-wider uppercase" style="background:none;border:none;padding:0.3rem 0;cursor:pointer;">View Profile</button>';
     }
 
+    // Unified browse action row — the full, consistent action set every compact
+    // card in the browse / district tree / All Politicians sections shares:
+    // a primary "Add to My Team" button plus secondary "Compare" and "Profile"
+    // buttons. Keeping this in one place guarantees the same buttons, labels and
+    // states appear on incumbent, candidate and "other" cards alike, instead of
+    // each renderer hand-rolling a different subset.
+    function _pdxTeamActions(pid) {
+      var sel = (typeof _cmpSelected !== 'undefined') && _cmpSelected.has(pid);
+      var isMy = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid);
+      var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
+      var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
+      var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
+      return '<div class="mypol-card-actions" style="width:100%;">' +
+          '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
+          '<div class="mypol-card-actions-secondary">' +
+            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" data-pid="' + pid + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
+            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile">View Profile</button>' +
+          '</div>' +
+        '</div>';
+    }
+
     window._pdxCardInner = function(pid, opts) {
       opts = opts || {};
       var d = CMP_DATA[pid];
@@ -32382,24 +32403,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderBrowseTeamCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sel = _cmpSelected.has(pid);
       var isMy = _myPoliticians.has(pid);
       var alignBar = (typeof _alignCardBar === 'function') ? _alignCardBar(pid) : '';
 
-      var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
-      var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
-      var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
-
       var isInOffice = (typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(d) === 'office';
 
-      var actions =
-        '<div class="mypol-card-actions" style="width:100%;">' +
-          '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
-          '<div class="mypol-card-actions-secondary">' +
-            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
-            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile">Profile</button>' +
-          '</div>' +
-        '</div>';
+      var actions = _pdxTeamActions(pid);
 
       return window._pdxCardShell(pid, {
         cardClass: isInOffice ? 'is-incumbent' : '',
@@ -32418,7 +32427,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // lighter card so the sitting officeholder stays the visual hero of the race.
       var _status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       if (_status !== 'office') return _renderCandidateBrowseCard(pid);
-      var sel = _cmpSelected.has(pid);
 
       // Personalized "Your Match" bar + the lazy Accountability analysis expander
       // ride in the extra slot, below the unified snapshot.
@@ -32431,9 +32439,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div id="acctexp-' + pid + '" data-open="0" data-loaded="0" style="max-height:0;opacity:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;"></div>';
       var extra = (alignBar ? '<div style="margin-bottom:0.1rem;">' + alignBar + '</div>' : '') + acctExpander;
 
-      var actions =
-        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="chub-view-profile-btn" style="flex:1;">VIEW FULL PROFILE</button>' +
-        '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '" style="flex:1;">' + (sel ? '✓ COMPARING' : '+ COMPARE') + '</button>';
+      var actions = _pdxTeamActions(pid);
 
       var badges = (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') + _pdxLocalBadge(pid) + _pdxTeamBadge(pid);
 
@@ -32454,7 +32460,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderCandidateBrowseCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sel = _cmpSelected.has(pid);
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'candidate';
 
       // Personalized match bar — only once the visitor has chosen issues, so the
@@ -32463,9 +32468,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var badges = (typeof _alignTopMatchBadge === 'function' ? _alignTopMatchBadge(pid) : '') + _pdxLocalBadge(pid) + _pdxTeamBadge(pid);
 
-      var actions =
-        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="chub-view-profile-btn" style="flex:1;">View Profile</button>' +
-        '<button class="bp-compare-btn' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')" data-pid="' + pid + '" style="flex:1;">' + (sel ? '✓ Comparing' : '+ Compare') + '</button>';
+      var actions = _pdxTeamActions(pid);
 
       return window._pdxCardShell(pid, {
         cardClass: 'is-candidate',
@@ -32644,14 +32647,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       klisonbee:  { d: 2,  c: 'Salt Lake County' },
       jstevenson: { d: 6,  c: 'Davis County' },
       lescamilla:    { d: 7,  c: 'Salt Lake County' },
+      tweiler:    { d: 8,  c: 'Davis County' },
       kcullimore: { d: 9,  c: 'Salt Lake County' },
-      janderegg:    { d: 13, c: 'Utah County' },
-      mrrobertson:{ d: 15, c: 'Utah County' },
+      mrrobertson:{ d: 21, c: 'Utah County' },
       cbramble:   { d: 16, c: 'Utah County' },
+      kgrover:    { d: 15, c: 'Utah County' },
       aowens:     { d: 17, c: 'Salt Lake County' },
       rward:      { d: 19, c: 'Davis County' },
       sadams:     { d: 22, c: 'Davis County' },
-      tweiler:    { d: 23, c: 'Davis County' },
       bwilson:    { d: 24, c: 'Utah County' },
       evickers:   { d: 28, c: 'Iron County' },
       dipson:     { d: 29, c: 'Washington County' }
@@ -32741,14 +32744,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (_gm) distNum = parseInt(_gm[1], 10);
       }
       if (distNum !== null && !isNaN(distNum)) {
-        // Utah State House districts get their real county appended (fixing the
-        // "(Your County)" placeholder). Other offices stay as a clean label.
-        if (_classifyBrowseType(pid) === 'state_rep' && _getPoliticianState(pid) === 'Utah' && _UTAH_HOUSE_COUNTY[distNum]) {
-          return 'District ' + distNum + ' (' + _UTAH_HOUSE_COUNTY[distNum] + ')';
+        // A record's own parenthetical area descriptor ("(West SLC)", "(Park
+        // City)", "(Tooele/Grantsville)") is the most specific, truthful label
+        // for its seat, so it is preferred over the broad county-by-number map.
+        // The "(Your County)" style placeholders were already scrubbed above, so
+        // anything left in parentheses is a real, human-meaningful place name.
+        var _areaM = st.match(/\(([^)]+)\)/) || (origSt && origSt.match(/\(([^)]+)\)/));
+        var _area = (_areaM && _areaM[1]) ? _areaM[1].trim() : '';
+        // Utah State House districts get a county/area appended (fixing the
+        // "(Your County)" placeholder): the record's own area when present, else
+        // the canonical county for that district number. Other offices stay clean.
+        if (_classifyBrowseType(pid) === 'state_rep' && _getPoliticianState(pid) === 'Utah' && (_area || _UTAH_HOUSE_COUNTY[distNum])) {
+          return 'District ' + distNum + ' (' + (_area || _UTAH_HOUSE_COUNTY[distNum]) + ')';
         }
-        // Dynamically-added Utah State Senators get their county from the district map.
-        if (_isUtahSenator && _UTAH_SENATE_COUNTY[distNum]) {
-          return 'District ' + distNum + ' (' + _UTAH_SENATE_COUNTY[distNum] + ')';
+        // Dynamically-added Utah State Senators get their county from the district
+        // map (or their own area descriptor when the record carries one).
+        if (_isUtahSenator && (_area || _UTAH_SENATE_COUNTY[distNum])) {
+          return 'District ' + distNum + ' (' + (_area || _UTAH_SENATE_COUNTY[distNum]) + ')';
         }
         // Utah U.S. House seats read as their congressional district so the four
         // districts (UT-01…UT-04) are immediately distinguishable.
@@ -33422,7 +33434,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderRelevantPersonCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sel = _cmpSelected.has(pid);
       var isMy = _myPoliticians.has(pid);
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
       var isInOffice = status === 'office';
@@ -33432,17 +33443,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // Team-building action set, identical to the My Team browse cards so the
       // whole "build your team" flow reads as one consistent surface.
-      var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
-      var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
-      var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
-      var actions =
-        '<div class="mypol-card-actions" style="width:100%;">' +
-          '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
-          '<div class="mypol-card-actions-secondary">' +
-            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
-            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile">Profile</button>' +
-          '</div>' +
-        '</div>';
+      var actions = _pdxTeamActions(pid);
 
       // Candidates / former members render as the lighter secondary card (no
       // premium glow, fewer issue tags, no Promise/Accountability emphasis — they
