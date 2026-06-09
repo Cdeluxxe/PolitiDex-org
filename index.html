@@ -12147,18 +12147,41 @@
         .so-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.2rem;}
         .so-pill{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
           color:#fad96a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:999px;padding:0.3rem 0.8rem;white-space:nowrap;}
-        .so-intro{margin-top:0.95rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:0.85rem;padding:0.8rem 0.95rem;}
+        .so-intro{margin-top:0.95rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:0.85rem;padding:0.85rem 0.95rem 0.9rem;}
         .so-intro-lead{font-family:'Barlow Condensed',sans-serif;font-size:0.96rem;letter-spacing:0.02em;color:#e6eefb;line-height:1.32;}
         .so-intro-lead strong{color:#fad96a;font-weight:700;}
-        .so-intro-list{list-style:none;margin:0.6rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:0.35rem 0.9rem;}
-        .so-intro-list li{display:flex;align-items:center;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.84rem;letter-spacing:0.02em;color:#cdd9ec;line-height:1.2;}
-        .so-intro-list li em{font-style:normal;color:#7596c0;}
-        .so-i-n{flex-shrink:0;width:1.35rem;height:1.35rem;display:flex;align-items:center;justify-content:center;border-radius:0.4rem;background:rgba(52,211,153,0.16);border:1px solid rgba(52,211,153,0.4);color:#5ee7b0;font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;}
-        .so-note{margin-top:0.6rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#8aa0c4;line-height:1.35;}
-        .so-note strong{color:#cdd9ec;font-weight:700;}
-        .so-krloc{margin-top:0.45rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#7fa8e6;line-height:1.35;}
+        /* District-based seats — statewide total aligned with the voter's own district. */
+        .so-districts{margin-top:0.8rem;display:flex;flex-direction:column;gap:0.4rem;}
+        .so-districts-cap{display:flex;gap:0.45rem;align-items:flex-start;font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.32;margin-bottom:0.1rem;}
+        .so-districts-cap strong{color:#fad96a;font-weight:700;}
+        .so-drow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:0.6rem 0.75rem;
+          background:rgba(8,13,28,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:0.8rem;padding:0.62rem 0.9rem;
+          transition:border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;}
+        .so-drow:hover{border-color:rgba(255,255,255,0.18);background:rgba(12,19,40,0.7);transform:translateY(-1px);}
+        .so-drow-dot{width:0.6rem;height:0.6rem;border-radius:999px;flex-shrink:0;box-shadow:0 0 10px currentColor;}
+        .so-drow-office{display:flex;flex-direction:column;gap:0.12rem;min-width:0;}
+        .so-drow-name{display:flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.96rem;letter-spacing:0.04em;text-transform:uppercase;color:#e6eefb;line-height:1.1;}
+        .so-drow-state{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.05em;color:#6b82a8;line-height:1.1;}
+        .so-drow-arrow{font-size:1.05rem;color:#3f5378;flex-shrink:0;}
+        .so-drow-district{display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex-shrink:0;}
+        .so-drow-dlabel{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#7596c0;line-height:1.3;}
+        .so-drow-dnum{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;line-height:1;letter-spacing:0.02em;color:#5ee7b0;text-shadow:0 0 18px rgba(94,231,176,0.32);white-space:nowrap;}
+        .so-drow-dnum--muted{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:700;letter-spacing:0.03em;color:#9fb4d4;text-shadow:none;}
+        .so-drow-learn,.so-chip-learn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:1.15rem;height:1.15rem;border-radius:999px;
+          font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;line-height:1;color:#9fc0ef;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);cursor:pointer;
+          transition:color 0.2s ease,background 0.2s ease,border-color 0.2s ease,transform 0.2s ease;}
+        .so-drow-learn:hover,.so-chip-learn:hover{color:#fff;background:rgba(96,165,250,0.3);border-color:rgba(96,165,250,0.6);transform:translateY(-1px);}
+        .so-drow-learn:focus-visible,.so-chip-learn:focus-visible{outline:2px solid rgba(147,197,253,0.8);outline-offset:2px;}
+        /* Statewide offices every voter in the state shares — compact chips. */
+        .so-statewide{margin-top:0.75rem;}
+        .so-statewide-lead{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;margin-bottom:0.4rem;}
+        .so-chips{display:flex;flex-wrap:wrap;gap:0.45rem;}
+        .so-chip{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:0.03em;color:#cdd9ec;line-height:1;
+          background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:0.34rem 0.7rem;}
+        .so-chip-dot{width:0.48rem;height:0.48rem;border-radius:999px;flex-shrink:0;}
+        .so-chip b{color:#fff;font-weight:700;font-size:0.9rem;}
+        .so-krloc{margin-top:0.7rem;display:flex;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#7fa8e6;line-height:1.35;}
         .so-krloc strong{color:#cfe0ff;font-weight:700;}
-        .so-intro-list li em.so-dist{color:#5ee7b0;font-weight:600;}
         .so-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:0.6rem;margin-top:0.95rem;}
         .so-tile{background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.85rem;padding:0.7rem 0.8rem;
           display:flex;flex-direction:column;gap:0.1rem;transition:border-color 0.2s ease, transform 0.2s ease;}
@@ -12177,7 +12200,11 @@
         .so-prompt-btn{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff;
           background:#2563eb;border:1px solid rgba(96,165,250,0.5);border-radius:0.75rem;padding:0.55rem 1.1rem;cursor:pointer;transition:background 0.2s ease;}
         .so-prompt-btn:hover{background:#3b82f6;}
-        @media (max-width:480px){.so-grid{grid-template-columns:repeat(2,1fr);}.so-name{font-size:1.6rem;}}
+        @media (max-width:480px){.so-grid{grid-template-columns:repeat(2,1fr);}.so-name{font-size:1.6rem;}
+          .so-drow{gap:0.4rem 0.55rem;padding:0.6rem 0.7rem;}
+          .so-drow-name{font-size:0.88rem;}
+          .so-drow-dnum{font-size:1.3rem;}
+          .so-drow-arrow{display:none;}}
       </style>
       <div class="mb-8 animate-on-scroll" style="transition-delay:0.06s;">
         <div id="state-overview-voterhub"></div>
@@ -28934,57 +28961,64 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Pull the live district numbers from the "Your Key Races" selector so the
       // top bar mirrors whichever area the user is currently exploring below.
       // Key Races is Utah-only today, so we only borrow its numbers for Utah and
-      // fall back to the generic "(your district)" wording everywhere else.
+      // fall back to a generic placeholder everywhere else.
       var kr = (loc.state === 'Utah' && typeof window.keyRacesActiveDistricts === 'function')
         ? window.keyRacesActiveDistricts() : null;
 
-      // "(District N)" when we know the number, generic fallback otherwise.
-      var soDist = function(num) {
-        return num
-          ? '<em class="so-dist">(District ' + num + ')</em>'
-          : '<em>(your district)</em>';
+      // One aligned row per district-based seat: the office + statewide total sit
+      // on the left, and the voter's OWN district is called out on the right with
+      // the most visual weight — it is the single most useful fact on this screen.
+      var distRow = function(office, color, total, districtNum, officeKey) {
+        var learn = (officeKey && window.OFFICE_INFO && window.OFFICE_INFO[officeKey])
+          ? '<button type="button" class="so-drow-learn" onclick="openOfficeModal(\'' + officeKey + '\')" aria-label="Learn more about ' + office + '">ⓘ</button>'
+          : '';
+        var right = districtNum
+          ? '<span class="so-drow-dnum">District ' + districtNum + '</span>'
+          : '<span class="so-drow-dnum so-drow-dnum--muted">1 of ' + total + '</span>';
+        return '<div class="so-drow">' +
+            '<span class="so-drow-dot" style="background:' + color + ';color:' + color + ';"></span>' +
+            '<div class="so-drow-office">' +
+              '<span class="so-drow-name">' + office + learn + '</span>' +
+              '<span class="so-drow-state">' + total + ' statewide</span>' +
+            '</div>' +
+            '<span class="so-drow-arrow" aria-hidden="true">→</span>' +
+            '<div class="so-drow-district">' +
+              '<span class="so-drow-dlabel">Your district</span>' +
+              right +
+            '</div>' +
+          '</div>';
       };
 
-      var houseDistrictNum = kr && kr.house ? kr.house : null;
-      var houseSub = (houseDistrictNum ? 'Your district: ' + houseDistrictNum + ' · '
-            : (loc.district ? 'Your district: ' + loc.district + ' · ' : '')) +
-        c.house + ' statewide · you vote in 1';
+      // Compact chip for the statewide offices every voter in the state shares.
+      var soChip = function(num, label, color, officeKey) {
+        var learn = (officeKey && window.OFFICE_INFO && window.OFFICE_INFO[officeKey])
+          ? '<button type="button" class="so-chip-learn" onclick="openOfficeModal(\'' + officeKey + '\')" aria-label="Learn more about ' + label + '">ⓘ</button>'
+          : '';
+        return '<span class="so-chip"><span class="so-chip-dot" style="background:' + color + ';"></span><b>' + num + '</b> ' + label + learn + '</span>';
+      };
 
-      // Bicameral states let voters cast a ballot for both a state senator and a
-      // state house rep; unicameral (Nebraska) only has one legislative vote.
-      var mainCount = c.lower === 0 ? 4 : 5;
-
-      var legTiles, legIntro, districtNote;
+      // District-based seats: U.S. House everywhere, plus one or two legislative
+      // chambers. Bicameral states vote for a state senator AND a state house rep;
+      // unicameral (Nebraska) has a single legislative vote.
+      var usHouseDist = (kr && kr.house) ? kr.house : (loc.district || null);
+      var rows = distRow('U.S. House', '#60a5fa', c.house, usHouseDist, 'us-house');
+      var districtCount;
       if (c.lower === 0) {
-        // Unicameral legislature (Nebraska) — a single chamber.
-        legTiles = tile(c.senate, 'State Legislature', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-legislature');
-        legIntro = '<li><span class="so-i-n">1</span> State Legislator ' + soDist(kr && kr.senate) + '</li>';
-        districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong> and <strong>' + c.senate + ' legislative</strong> districts';
+        rows += distRow('State Legislature', '#a78bfa', c.senate, (kr && kr.senate) || null, 'state-legislature');
+        districtCount = 2;
       } else {
-        legTiles = tile(c.senate, 'State Senate', c.senate + ' statewide · you vote in 1', '#a78bfa', 'state-senate') +
-          tile(c.lower, c.lowerName, c.lower + ' statewide · you vote in 1', '#2dd4bf', 'state-house');
-        legIntro = '<li><span class="so-i-n">1</span> State Senator ' + soDist(kr && kr.senate) + '</li>' +
-          '<li><span class="so-i-n">1</span> State House Representative ' + soDist(kr && kr.lower) + '</li>';
-        districtNote = loc.state + ' is divided into <strong>' + c.house + ' U.S. House</strong>, <strong>' + c.senate + ' State Senate</strong>, and <strong>' + c.lower + ' State House</strong> districts';
+        rows += distRow('State Senate', '#a78bfa', c.senate, (kr && kr.senate) || null, 'state-senate');
+        rows += distRow(c.lowerName, '#2dd4bf', c.lower, (kr && kr.lower) || null, 'state-house');
+        districtCount = 3;
       }
+
+      var mainCount = c.lower === 0 ? 4 : 5;
 
       // When we have a Key Races area, tell the user exactly whose districts these
       // are and how to change them — connecting the top bar to the section below.
       var krNote = kr
-        ? '<div class="so-krloc"><span>🗺️</span><span>District numbers shown for <strong>' + kr.label + '</strong> — change your area in <strong>Your Key Races</strong> below to update them.</span></div>'
+        ? '<div class="so-krloc"><span>🗺️</span><span>Showing districts for <strong>' + kr.label + '</strong> — change your area in <strong>Your Key Races</strong> below to update them.</span></div>'
         : '';
-
-      var intro = '<div class="so-intro">' +
-          '<div class="so-intro-lead">You directly vote for <strong>' + mainCount + ' main positions</strong> at the federal + state level in ' + loc.state + ':</div>' +
-          '<ul class="so-intro-list">' +
-            '<li><span class="so-i-n">1</span> U.S. House Representative ' + soDist(kr && kr.house) + '</li>' +
-            '<li><span class="so-i-n">1</span> U.S. Senator</li>' +
-            '<li><span class="so-i-n">1</span> Governor</li>' +
-            legIntro +
-          '</ul>' +
-          '<div class="so-note"><span>📍</span><span>' + districtNote + ' — but each voter only votes in <strong>one</strong> of each.</span></div>' +
-          krNote +
-        '</div>';
 
       html = '<div class="so-card">' +
         '<div class="so-head">' +
@@ -28995,13 +29029,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
           '<div class="so-pill">📍 Your State</div>' +
         '</div>' +
-        intro +
-        '<div class="so-grid">' +
-          tile('2', 'U.S. Senators', 'Statewide · 6-yr terms', '#818cf8', 'us-senate') +
-          tile(c.house, 'U.S. House Reps', houseSub, '#60a5fa', 'us-house') +
-          tile('1', 'Governor', 'Statewide executive', '#34d399', 'governor') +
-          legTiles +
-          tile('★', 'Local Offices', 'Mayor · Council · School Bd', '#fbbf24', 'local') +
+        '<div class="so-intro">' +
+          '<div class="so-intro-lead">In <strong>' + loc.state + '</strong> you personally vote for <strong>' + mainCount + ' offices</strong> that represent you — from Congress to the state capitol.</div>' +
+          '<div class="so-districts">' +
+            '<div class="so-districts-cap"><span aria-hidden="true">🗳️</span><span>These <strong>' + districtCount + '</strong> seats depend on where you live — you\'re assigned <strong>one</strong> district of each type, so you cast a single vote per row:</span></div>' +
+            rows +
+          '</div>' +
+          '<div class="so-statewide">' +
+            '<span class="so-statewide-lead">Statewide · every ' + loc.state + ' voter shares these</span>' +
+            '<div class="so-chips">' +
+              soChip('2', 'U.S. Senators', '#818cf8', 'us-senate') +
+              soChip('1', 'Governor', '#34d399', 'governor') +
+              soChip('★', 'Local Offices', '#fbbf24', 'local') +
+            '</div>' +
+          '</div>' +
+          krNote +
         '</div>' +
         '<div class="so-foot"><span>★</span><span>These are the <strong>races where your vote has the most direct impact</strong>.</span></div>' +
       '</div>';
