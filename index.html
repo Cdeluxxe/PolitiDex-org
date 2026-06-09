@@ -27937,7 +27937,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
       else normalizedCounty = userCounty;
     }
-    var areaName = normalizedCounty || 'your area';
+    var areaName;
+    if (normalizedCounty) {
+      var cityRaw = (loc.city || '').trim();
+      var cityClean = (cityRaw && cityRaw.toLowerCase() !== normalizedCounty.toLowerCase() && cityRaw.toLowerCase().indexOf('county') === -1)
+        ? cityRaw.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+        : '';
+      areaName = cityClean ? (cityClean + ' / ' + normalizedCounty) : normalizedCounty;
+    } else {
+      areaName = 'your area';
+    }
     var stateDisplay = loc.state || 'Utah';
     textEl.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>, ' + stateDisplay + ' – your direct representatives. ' +
       '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
@@ -33575,6 +33584,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else normalizedCounty = userCounty;
       }
 
+      // Whether we hold the voter's AUTHORITATIVE exact-district ballot: a curated
+      // Utah area they explicitly picked, or one inferred from their saved
+      // city/county. (The same determination is referenced again further down for
+      // the district lookups; computed here so the header and the narrowing tiers
+      // below can both rely on it.)
+      var isUtah = (stateName || '').toLowerCase() === 'utah';
+      var krMatched = !!(krData && isUtah && krData.matched);
+
+      // When the active area is a matched curated area but the modal county is
+      // blank — e.g. the voter set their area through the "Your Key Races"
+      // selector rather than the location modal — adopt that area's county so the
+      // header reads correctly and the county heuristics still narrow to it.
+      if (!normalizedCounty && krMatched && krData && krData.county) {
+        normalizedCounty = krData.county;
+      }
+
+      // Narrowing signals from the voter's own input. We only widen out to the
+      // whole statewide field when the voter has given us NOTHING more specific —
+      // no district AND no county. With either signal present the section stays
+      // focused on their district / county rather than dumping every Utah office.
+      var userDistrictNum = parseInt(String(userDistrict || '').replace(/[^0-9]/g, ''), 10);
+      var hasDistrict = !isNaN(userDistrictNum);
+      var hasCounty = !!normalizedCounty;
+      var hasNarrowingSignal = hasDistrict || hasCounty;
+
       // Helper to check if a politician belongs to the selected county
       function isPoliticianInSelectedCounty(pid) {
         var d = CMP_DATA[pid];
@@ -33664,16 +33698,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var senateDist = null;
       var lowerDist  = null;
 
-      // Decide whether we hold an AUTHORITATIVE, exact-district ballot for this
-      // specific voter. That is true only when the active Key Races area genuinely
-      // belongs to them — they explicitly picked it, or it was inferred from their
-      // saved city/county (krData.matched) — AND their state is Utah (the only
-      // state with curated district rosters). When this is false the active area is
-      // merely the default fallback, so its districts/candidates must never be
-      // presented as the voter's own.
-      var isUtah = (stateName || '').toLowerCase() === 'utah';
-      var krMatched = !!(krData && isUtah && krData.matched);
-
+      // We already determined isUtah / krMatched above (the header and narrowing
+      // tiers rely on them). Pull the exact district numbers for the voter's
+      // matched ballot so the office subtitles and ballot chips can show them.
       if (krMatched) {
         houseDist  = krData.byRace.house    ? krData.byRace.house.district  : null;
         senateDist = krData.byRace.statesenate ? krData.byRace.statesenate.district : null;
@@ -33743,22 +33770,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           });
           if (!inState.length) return;
 
-          // Tier 1 — flexible district-number match. _relevantDistNum normalizes
-          // "District 16", "D16", "UT-16", "16", "(UT-01)" etc. down to a number,
-          // so the formatting the data happens to use does not matter. Only the
-          // U.S. House seat keys off the voter's single saved district.
+          // Tier 1 — exact district. _relevantDistNum normalizes the inconsistent
+          // formats in the data ("District 16", "D16", "UT-16", "16", "(UT-01)"…)
+          // down to a plain number, so whatever formatting a record happens to use
+          // does not matter. The voter's single saved district is their U.S. House
+          // (congressional) district, so only that office keys off it.
           var refined = [];
-          var wantDist = (officeType === 'representative' && userDistrict)
-            ? parseInt(String(userDistrict).replace(/[^0-9]/g, ''), 10) : null;
+          var wantDist = (officeType === 'representative' && hasDistrict) ? userDistrictNum : null;
           if (wantDist != null && !isNaN(wantDist)) {
             refined = inState.filter(function(pid) { return _relevantDistNum(pid) === wantDist; });
           }
           // Tier 2 — county match.
-          if (!refined.length && normalizedCounty) {
+          if (!refined.length && hasCounty) {
             refined = inState.filter(function(pid) { return isPoliticianInSelectedCounty(pid); });
           }
-          // Tier 3 — the whole in-state field, so the race is never empty.
-          if (!refined.length) refined = inState;
+          // Tier 3 — the whole in-state field. Applied ONLY when the voter gave us
+          // no narrowing signal at all (no district AND no county). When they DID
+          // give us a county/district but it matched no one for this office, the
+          // office is left empty on purpose so it renders its own "no one listed
+          // for your district" note — instead of dumping every politician in the
+          // state into a section that is supposed to be the voter's own ballot.
+          if (!refined.length && !hasNarrowingSignal) refined = inState;
 
           refined.forEach(function(pid) { add(pid, officeType); });
         });
@@ -33839,12 +33871,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         });
       }
 
-      // Apply the curated slate whenever the voter's resolved state is Utah and we
-      // are NOT holding their precise matched ballot (i.e. a vague state-level pick
-      // such as "Utah / your area"), or whenever nothing at all has been picked yet.
-      // This is what turns a blank "your area, Utah" section into a solid, always-
-      // populated slate while leaving a matched area's exact ballot untouched.
-      if (isUtah && (!krMatched || Object.keys(picked).length === 0)) {
+      // Apply the curated whole-state slate ONLY when the voter has given us no
+      // narrowing signal — a vague state-level pick such as "Utah / your area"
+      // with no county and no district — or as a last-resort empty guard. This is
+      // what turns a blank state-only selection into a solid, always-populated
+      // statewide slate. When the voter HAS a county or district selected we
+      // deliberately skip it: the tiered district → county matching above has
+      // already built their focused ballot, and sweeping in every Utah office
+      // here is exactly what made the section show "most of Utah".
+      if (isUtah && !hasNarrowingSignal && (!krMatched || Object.keys(picked).length === 0)) {
         _addCuratedUtahSlate();
       }
 
@@ -33870,11 +33905,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var total = Object.keys(picked).length;
       if (relevantCountBadge) relevantCountBadge.textContent = total;
 
-      // Header line: show user’s specific districts
+      // Header line: reflect the voter's ACTUAL location as specifically as we can
+      // — "Layton / Davis County" for a matched curated area, "City / County" for a
+      // free-text entry, the county alone when that is all we have, and only the
+      // vague "your area" when the voter gave us nothing more than a state. The
+      // exact district numbers (when known) are appended so the line doubles as a
+      // ballot summary.
       if (relevantLocText) {
-        var areaName = normalizedCounty || 'your area';
+        var headerArea;
+        if (krMatched && krData && krData.label) {
+          headerArea = krData.label;                       // e.g. "Layton / Davis County"
+        } else if (normalizedCounty) {
+          var _cityRaw = ((window._currentVoterLocation && window._currentVoterLocation.city) || '').trim();
+          var _cityClean = (_cityRaw && _cityRaw.toLowerCase() !== normalizedCounty.toLowerCase() && _cityRaw.toLowerCase().indexOf('county') === -1)
+            ? _cityRaw.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+            : '';
+          headerArea = _cityClean ? (_cityClean + ' / ' + normalizedCounty) : normalizedCounty;
+        } else {
+          headerArea = 'your area';
+        }
         var stateDisplay = stateName || 'Utah';
-        relevantLocText.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>, ' + stateDisplay + ' – your direct representatives. ' +
+        var _distBits = [];
+        if (houseDist)  _distBits.push('U.S. House Dist. ' + houseDist);
+        if (senateDist) _distBits.push('State Senate Dist. ' + senateDist);
+        if (lowerDist)  _distBits.push('State House Dist. ' + lowerDist);
+        var _distSuffix = _distBits.length
+          ? ' <span style="color:#9fb4d4;">· ' + _distBits.join(' · ') + '</span>'
+          : '';
+        relevantLocText.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + headerArea + '</strong>, ' + stateDisplay + _distSuffix + ' – your direct representatives. ' +
           '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
