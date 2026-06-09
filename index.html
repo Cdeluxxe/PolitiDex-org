@@ -33435,7 +33435,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } catch (e) {}
     };
 
-    window.renderRelevantToMe = function() {
+    // Internal implementation. The public window.renderRelevantToMe wrapper
+    // (defined just below) invokes this inside a try/catch so that a single
+    // unexpected error can never again leave the section silently stuck on its
+    // "0" HTML default — which is exactly what used to happen.
+    function _renderRelevantToMeImpl() {
+      // ── Cross-block data bridge ──────────────────────────────────────────
+      // The curated Key Races rosters, the storage key and the two location
+      // helpers are declared inside a DIFFERENT <script> block's IIFE and are
+      // published on `window` there. Referencing them by bare name from here
+      // threw a ReferenceError the instant a voter had a saved location — the
+      // original cause of the perpetual "0 politicians". Alias them into locals
+      // so every reference below resolves explicitly, with safe defaults if the
+      // Key Races block has not run yet.
+      var KR_LOCATION_KEY       = window.KR_LOCATION_KEY || 'politidex_keyraces_location';
+      var KEY_RACES_BY_LOCATION = window.KEY_RACES_BY_LOCATION || {};
+      var KEY_RACES_STATEWIDE   = window.KEY_RACES_STATEWIDE || [];
+      var _krInferLocation      = (typeof window._krInferLocation === 'function') ? window._krInferLocation : function() { return ''; };
+      var _krLocationMeta       = (typeof window._krLocationMeta === 'function') ? window._krLocationMeta : function() { return { label: 'Utah', city: '', county: '' }; };
+
       var relevantGrid = document.getElementById('relevant-browse-grid');
       var relevantCountBadge = document.getElementById('relevant-count-badge');
       var relevantLocText = document.getElementById('relevant-location-text');
@@ -33879,7 +33897,55 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       relevantGrid.innerHTML = valuesBanner + overview + _renderRelevantTree(officeGroups, ctx);
+    }
+
+    // Public entry point. Runs the implementation inside a guard so that any
+    // unexpected error degrades gracefully to a guaranteed, non-empty Utah slate
+    // (or a clear "choose your area" prompt) instead of silently leaving the
+    // count badge stuck at 0 and the grid blank.
+    window.renderRelevantToMe = function() {
+      try {
+        _renderRelevantToMeImpl();
+      } catch (e) {
+        try { console.warn('renderRelevantToMe: recovering via safe fallback —', e); } catch (_) {}
+        try { _renderRelevantToMeSafeFallback(); } catch (_) {}
+      }
     };
+
+    // Last-resort renderer. Builds the slate straight from the curated Key Races
+    // rosters, which reference politicians BY ID and therefore never depend on
+    // any mutable `state` formatting or district-matching heuristic. Invoked only
+    // when the main implementation throws — guaranteeing a located voter always
+    // sees their statewide offices and the major district reps rather than a
+    // blank section.
+    function _renderRelevantToMeSafeFallback() {
+      var relevantGrid = document.getElementById('relevant-browse-grid');
+      var relevantCountBadge = document.getElementById('relevant-count-badge');
+      if (!relevantGrid) return;
+      if (!window._hasUserLocation) {
+        if (relevantCountBadge) relevantCountBadge.textContent = '0';
+        relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function') ? window._relevantLocationPrompt() : '';
+        return;
+      }
+      var byLoc = window.KEY_RACES_BY_LOCATION || {};
+      var statewide = window.KEY_RACES_STATEWIDE || [];
+      var picked = {};
+      var RK = { house: 'representative', statesenate: 'state_senator', statehouse: 'state_rep', governor: 'governor', senate: 'senator' };
+      var addRace = function(r, gk) {
+        var pids = [];
+        if (r.incumbentPid) pids.push(r.incumbentPid);
+        (r.incumbentPids || []).forEach(function(p) { pids.push(p); });
+        (r.candidates || []).forEach(function(p) { pids.push(p); });
+        pids.forEach(function(pid) { if (pid && CMP_DATA[pid] && !picked[pid]) picked[pid] = (RK[r.raceKey] || gk); });
+      };
+      statewide.forEach(function(r) { addRace(r, 'governor'); });
+      Object.keys(byLoc).forEach(function(loc) { (byLoc[loc] || []).forEach(function(r) { addRace(r, 'representative'); }); });
+      var officeGroups = {};
+      Object.keys(picked).forEach(function(pid) { var g = picked[pid]; (officeGroups[g] = officeGroups[g] || []).push(pid); });
+      if (relevantCountBadge) relevantCountBadge.textContent = Object.keys(picked).length;
+      var ctx = { focused: true, state: 'Utah', houseDist: '', senateDist: '', lowerDist: '', levelExtras: null };
+      relevantGrid.innerHTML = (typeof _renderRelevantTree === 'function') ? _renderRelevantTree(officeGroups, ctx) : '';
+    }
 
     (function() {
       // Filters toolbar is non-sticky: ensure it always renders in its full,
@@ -34965,6 +35031,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       return KEY_RACES_LOCATIONS[0];
     }
+
+    // ── Cross-script-block bridge ────────────────────────────────────────────
+    // The curated Key Races rosters, location list, storage key and the two
+    // location helpers all live inside THIS IIFE. The "Relevant to Me" renderer
+    // (renderRelevantToMe) lives in a SEPARATE <script> IIFE and referenced these
+    // by bare name — which threw a ReferenceError the instant a voter had a
+    // location set, aborting the render and leaving the section stuck at 0.
+    // Publishing them on `window` lets the other block resolve them (and is the
+    // single source of truth the renderer now reads from).
+    window.KR_LOCATION_KEY      = KR_LOCATION_KEY;
+    window.KEY_RACES_LOCATIONS  = KEY_RACES_LOCATIONS;
+    window.KEY_RACES_BY_LOCATION = KEY_RACES_BY_LOCATION;
+    window.KEY_RACES_STATEWIDE  = KEY_RACES_STATEWIDE;
+    window._krInferLocation     = _krInferLocation;
+    window._krLocationMeta      = _krLocationMeta;
 
     // Expose the active area's district numbers so the top "Utah Voter Map" info
     // bar can show the exact U.S. House / State Senate / State House districts for
