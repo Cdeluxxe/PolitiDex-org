@@ -24666,6 +24666,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p></blockquote>` : ''}
       </div>` : ''}
 
+      <!-- Key Issues — a quick, at-a-glance read of what this official is most
+           defined by, placed right after the biography so it frames the detailed
+           record below. Only rendered when there are issues, so a profile without
+           tagged issues never shows an empty section. -->
+      ${(p.keyIssues && p.keyIssues.length) ? `<div class="modal-section">
+        <div class="modal-section-title">🎯 Key Issues</div>
+        <p class="modal-section-sub">The issues this official is most defined by — the lens for the record below.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
+      </div>` : ''}
+
       <!-- Personalized Alignment Score — a first-class "Your Match" read on every
            profile. When the visitor has set up alignment it shows their match vs.
            THIS politician (values, not party); when they haven't, a compact CTA
@@ -24787,11 +24797,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       <!-- Quote & Biography now render together near the top of the profile -->
 
-      <!-- Key Issues -->
-      <div class="modal-section">
-        <div class="modal-section-title">🎯 Key Issues</div>
-        <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
-      </div>
+      <!-- Key Issues now render near the top, directly under the Biography, so the
+           profile reads identity → issues at a glance → record → detail. -->
 
       <!-- Promise breakdown table -->
       <div class="modal-section" id="pdx-promise-section">
@@ -30539,11 +30546,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
         var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
         var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending):'';
-        var bio=(p.bio||'').split('.')[0]+'.';
+        // First sentence of the bio as a one-line "impact" blurb. Guard the empty
+        // case (no bio) so the row never renders as a lone period, and avoid cutting
+        // at an abbreviation such as "U.S." or "Sen." by falling back to a longer
+        // clamp when the first split fragment is suspiciously short.
+        var bioRaw=(p.bio||'').trim();
+        var bioSnip='';
+        if(bioRaw){var first=bioRaw.split('. ')[0];bioSnip=((first.length<24?bioRaw.slice(0,140).replace(/\s+\S*$/,''):first).replace(/[.\s]*$/,''))+'.';}
+        var impactHtml=bioSnip?'<div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bioSnip+'</div>':'';
         var ph=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pm-card-photo-placeholder" style="display:none;">'+(p.icon||tc.i)+'</div>':'<div class="pm-card-photo-placeholder" style="display:flex;">'+(p.icon||tc.i)+'</div>';
         var c=document.createElement('div');c.className='pm-card';c.style.border='1px solid '+tc.b;
         c.dataset.county=cty;c.dataset.pmstate='utah';c.dataset.district=dist;c.dataset.name=p.name;c.dataset.issues=iss;
-        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmParty+'</div>':'')+'</div>'+pmScoreWrap+'</div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+'<div class="pm-card-impact"><span class="pm-impact-dot" style="background:'+tc.d+';"></span>'+bio+'</div><div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
+        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmParty+'</div>':'')+'</div>'+pmScoreWrap+'</div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+impactHtml+'<div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
         cont.appendChild(c);
       }
     }
@@ -30625,11 +30639,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var text = whyMap[name];
         if (!text) return;
         var impact = card.querySelector('.pm-card-impact');
-        if (!impact) return;
         var el = document.createElement('div');
         el.className = 'pm-card-why';
         el.innerHTML = '<strong>Why This Matters to You:</strong> <span>' + text + '</span>';
-        impact.parentNode.insertBefore(el, impact.nextSibling);
+        if (impact) {
+          impact.parentNode.insertBefore(el, impact.nextSibling);
+        } else {
+          // No bio snippet on this card — still surface the "why" note by placing it
+          // just above the action row so the highlight is never silently dropped.
+          var actions = card.querySelector('.pm-card-actions');
+          if (actions) actions.parentNode.insertBefore(el, actions);
+          else return;
+        }
       });
 
       document.querySelectorAll('#voter-hub .pm-card-score-label').forEach(function(label) {
