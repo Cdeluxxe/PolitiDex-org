@@ -3865,6 +3865,26 @@
       color: #7596c0;
       margin-top: 0.18rem;
     }
+    /* Empty Promise pill — same footprint as the scored pill so the badge keeps a
+       consistent home on every card even when no record has been compiled yet. */
+    .pdx-snap-score-empty {
+      border-color: rgba(148,163,184,0.22) !important;
+      background: linear-gradient(160deg, rgba(16,24,44,0.6), rgba(8,13,27,0.62));
+    }
+    .pdx-snap-score-num-empty {
+      color: #5f7798;
+      font-size: 1.5rem;
+    }
+    .pdx-snap-score-na {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.46rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #647a9c;
+      margin-top: 0.1rem;
+      line-height: 1.05;
+    }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
     .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.55rem; }
     .pdx-snap-issue {
@@ -31558,14 +31578,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var unopposed = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       var party = (typeof window._pdxPartyChip === 'function') ? window._pdxPartyChip(d.party) : '';
 
-      // Prominent, color-coded score rail — shown only where a record grounds it,
-      // so candidates never display a hollow number.
+      // Prominent, color-coded Promise score rail — rendered on EVERY compact card
+      // so the badge is in the same place whether or not a record grounds it. When a
+      // score exists it shows the color-coded percentage; when one does not (a
+      // challenger with no voting record, or an officeholder still being compiled)
+      // it shows a clean, muted "No record yet" pill in the same slot rather than
+      // vanishing — which previously made cards look inconsistent and incomplete.
+      var scoreLbl = opts.scoreLabel || 'Promise';
       var scoreBlock = hasScore
         ? '<div class="pdx-snap-score" style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
             '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
-            '<div class="pdx-snap-score-lbl">' + (opts.scoreLabel || 'Promise') + '</div>' +
+            '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
           '</div>'
-        : '';
+        : '<div class="pdx-snap-score pdx-snap-score-empty" title="No promise record compiled yet">' +
+            '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
+            '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+            '<div class="pdx-snap-score-na">No record yet</div>' +
+          '</div>';
 
       var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
