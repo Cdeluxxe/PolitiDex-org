@@ -468,6 +468,8 @@
        controls regardless of utility-class resolution. */
     #myteam-browse-search,
     #myteam-browse-office,
+    #myteam-browse-party,
+    #myteam-browse-status,
     #myteam-browse-state,
     #myteam-browse-score,
     #myteam-browse-sort {
@@ -477,6 +479,8 @@
     }
     #myteam-browse-search::placeholder { color: #7596c0 !important; opacity: 1; }
     #myteam-browse-office option,
+    #myteam-browse-party option,
+    #myteam-browse-status option,
     #myteam-browse-state option,
     #myteam-browse-score option,
     #myteam-browse-sort option {
@@ -485,12 +489,23 @@
     }
     #myteam-browse-search:focus,
     #myteam-browse-office:focus,
+    #myteam-browse-party:focus,
+    #myteam-browse-status:focus,
     #myteam-browse-state:focus,
     #myteam-browse-score:focus,
     #myteam-browse-sort:focus {
       outline: none !important;
       border-color: rgba(245,158,11,0.6) !important;
       box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important;
+    }
+    /* New filter selects get the same "active" highlight as the others when set */
+    #myteam-browse-party.has-value,
+    #myteam-browse-status.has-value,
+    #myteam-browse-office.has-value,
+    #myteam-browse-state.has-value,
+    #myteam-browse-score.has-value {
+      border-color: rgba(245,158,11,0.5) !important;
+      background-color: rgba(245,200,66,0.07) !important;
     }
     .browse-toolbar.is-stuck {
       box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
@@ -13120,11 +13135,11 @@
           <div class="browse-toolbar-inner">
             <div class="flex-1 min-w-[240px]">
               <div class="relative">
-                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, issue, party..." class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" />
+                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, district, issue, party, bio…" class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" autocomplete="off" />
                 <span class="absolute left-3.5 top-3.5 text-steel-500 pointer-events-none text-xs">🔍</span>
               </div>
             </div>
-            
+
             <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
               <select id="myteam-browse-office" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[140px] min-h-[44px]">
                 <option value="">— Filter Office —</option>
@@ -13136,6 +13151,19 @@
                 <option value="local">Local / Mayor</option>
                 <option value="candidate">Candidate</option>
                 <option value="cabinet">Cabinet</option>
+              </select>
+
+              <select id="myteam-browse-status" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[150px] min-h-[44px]">
+                <option value="">— Filter Status —</option>
+                <option value="office">✅ Current Officeholder</option>
+                <option value="candidate">🗳️ 2026 Candidate</option>
+              </select>
+
+              <select id="myteam-browse-party" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
+                <option value="">— Filter Party —</option>
+                <option value="R">Republican</option>
+                <option value="D">Democrat</option>
+                <option value="I">Independent / Other</option>
               </select>
 
               <select id="myteam-browse-state" onchange="myteamBrowseFilter()" class="bg-navy-950/80 border border-white/10 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
@@ -13157,15 +13185,20 @@
               </select>
 
               <select id="myteam-browse-sort" onchange="myteamBrowseSortChanged()" class="bg-navy-950/80 border border-amber-500/20 text-white font-condensed text-sm rounded-xl px-3 py-2 min-w-[130px] min-h-[44px]">
-                <option value="score-desc">Score: High to Low</option>
+                <option value="score-desc">Promise Score: High → Low</option>
                 <option value="align-desc">🎯 Best Match for You</option>
-                <option value="score-asc">Score: Low to High</option>
-                <option value="alpha">Alphabetical (A-Z)</option>
+                <option value="score-asc">Promise Score: Low → High</option>
+                <option value="alpha">Name (A–Z)</option>
               </select>
 
               <button onclick="myteamBrowseReset()" class="font-condensed text-xs text-steel-500 hover:text-white uppercase transition-colors px-3 py-2.5 rounded-xl border border-white/5 bg-white/5" style="min-height: 44px;">Reset</button>
             </div>
           </div>
+
+          <!-- Active filter chips — show what's narrowing the list and let users
+               clear any one of them (or all) with a single tap. Populated by
+               myteamBrowseFilter(); stays empty (and invisible) when nothing is set. -->
+          <div id="browse-active-filters" class="flex flex-wrap items-center gap-2 mt-2.5"></div>
           
           <div class="flex items-center justify-between mt-2 px-1">
             <span id="myteam-browse-count-label" class="font-condensed text-xs text-steel-400 font-bold tracking-wide">0 politicians found</span>
@@ -34054,6 +34087,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">Reset view</button>');
     }
 
+    // ── Browse search index ────────────────────────────────────────────
+    // Builds the searchable text for one politician. Goes well beyond name +
+    // office: it folds in the party (spelled out so "republican" matches "R"),
+    // the home state / district token, key issues, the bio, the headline quote
+    // and every recorded stance, plus status words ("incumbent", "candidate",
+    // "2026") so a single search box reaches everything a voter might type.
+    function _browseSearchHay(d) {
+      if (!d) return '';
+      var parts = [d.name, d.office, d.state, d.district, d.bio, d.quote, d.tagline, d.summary];
+      if (Array.isArray(d.issues)) parts = parts.concat(d.issues);
+      if (d.stances && typeof d.stances === 'object') {
+        for (var k in d.stances) { if (d.stances[k]) parts.push(d.stances[k]); }
+      }
+      var pk = _browsePartyKey(d);
+      if (pk === 'R') parts.push('republican gop');
+      else if (pk === 'D') parts.push('democrat democratic');
+      else if (pk === 'I') parts.push('independent');
+      var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      if (status === 'candidate') parts.push('candidate challenger running 2026 ' + (window._pdx2026Candidate && window._pdx2026Candidate(d) ? '2026 candidate' : ''));
+      else if (status === 'former') parts.push('former previous');
+      else parts.push('incumbent officeholder in office current');
+      return parts.filter(Boolean).join(' ').toLowerCase();
+    }
+
+    // Normalize a free-form party string ('R', 'D', 'I (D caucus)', 'Ind.',
+    // 'I→R', etc.) down to a single bucket the Party filter can match against.
+    function _browsePartyKey(d) {
+      var p = (d && d.party ? String(d.party) : '').trim().toUpperCase();
+      if (!p) return '';
+      var c = p.charAt(0);
+      if (c === 'R') return 'R';
+      if (c === 'D') return 'D';
+      if (c === 'I') return 'I';
+      return 'I'; // any other label (Green, Libertarian, etc.) groups under Independent / Other
+    }
+
     window.myteamBrowseFilter = function() {
       var browseGrid = document.getElementById('myteam-browse-grid');
       var browseEmpty = document.getElementById('myteam-browse-empty');
@@ -34063,6 +34132,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var search = (document.getElementById('myteam-browse-search')?.value || '').toLowerCase().trim();
       var office = document.getElementById('myteam-browse-office')?.value || '';
+      var party = document.getElementById('myteam-browse-party')?.value || '';
+      var statusF = document.getElementById('myteam-browse-status')?.value || '';
       var stateFilter = document.getElementById('myteam-browse-state')?.value || '';
       var score = document.getElementById('myteam-browse-score')?.value || '';
       var show = document.getElementById('myteam-browse-show')?.value || 'all';
@@ -34084,7 +34155,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var clearBtn = document.getElementById('browse-search-clear');
       if (clearBtn) clearBtn.classList.toggle('visible', search.length > 0);
 
-      ['myteam-browse-office','myteam-browse-state','myteam-browse-score','myteam-browse-show'].forEach(function(id) {
+      ['myteam-browse-office','myteam-browse-party','myteam-browse-status','myteam-browse-state','myteam-browse-score','myteam-browse-show'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.classList.toggle('has-value', el.value !== '' && el.value !== 'all');
       });
@@ -34092,6 +34163,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var activeCount = 0;
       if (search) activeCount++;
       if (office) activeCount++;
+      if (party) activeCount++;
+      if (statusF) activeCount++;
       if (stateFilter) activeCount++;
       if (score) activeCount++;
       if (show && show !== 'all') activeCount++;
@@ -34114,11 +34187,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           'governor': 'Statewide Exec', 'state': 'State Legislator', 'local': 'Local / Mayor',
           'candidate': 'Candidate / Nominee', 'cabinet': 'Cabinet / Appointed'
         };
-        var scoreLabels = { 'high': 'High (70%+)', 'mid': 'Medium (40-69%)', 'low': 'Low (<40%)' };
+        var scoreLabels = { 'high': 'High (70%+)', 'mid': 'Medium (40-69%)', 'low': 'Low (<40%)', 'na': 'No Score Yet' };
+        var partyLabels = { 'R': 'Republican', 'D': 'Democrat', 'I': 'Independent / Other' };
+        var statusLabels = { 'office': 'Current Officeholder', 'candidate': '2026 Candidate' };
         var showLabels = { 'not-on-team': 'Not on My Team', 'on-team': 'On My Team Only' };
 
         if (search) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-search\').value=\'\';myteamBrowseFilter();">🔍 &ldquo;' + search.replace(/</g,'&lt;').substring(0,20) + (search.length > 20 ? '…' : '') + '&rdquo;<span class="chip-x">&times;</span></span>');
         if (office) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-office\').value=\'\';myteamBrowseFilter();">🏛 ' + (filterLabels[office] || office) + '<span class="chip-x">&times;</span></span>');
+        if (statusF) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-status\').value=\'\';myteamBrowseFilter();">' + (statusF === 'candidate' ? '🗳️ ' : '✅ ') + (statusLabels[statusF] || statusF) + '<span class="chip-x">&times;</span></span>');
+        if (party) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-party\').value=\'\';myteamBrowseFilter();">🎗 ' + (partyLabels[party] || party) + '<span class="chip-x">&times;</span></span>');
         if (stateFilter) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-state\').value=\'\';myteamBrowseFilter();">📍 ' + stateFilter + '<span class="chip-x">&times;</span></span>');
         if (score) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-score\').value=\'\';myteamBrowseFilter();">📊 ' + (scoreLabels[score] || score) + '<span class="chip-x">&times;</span></span>');
         if (show && show !== 'all') chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-show\').value=\'all\';myteamBrowseFilter();">👥 ' + (showLabels[show] || show) + '<span class="chip-x">&times;</span></span>');
@@ -34142,14 +34219,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       if (search) {
+        // Multi-term AND search: every word the visitor types must appear
+        // somewhere in the politician's expanded search text. Lets "utah senator"
+        // or "massie second amendment" narrow precisely instead of needing an
+        // exact phrase.
+        var terms = search.split(/\s+/).filter(Boolean);
         pids = pids.filter(function(pid) {
-          var d = CMP_DATA[pid];
-          if (!d) return false;
-          var haystack = [d.name || '', d.office || '', d.state || ''].concat(d.issues || []).join(' ').toLowerCase();
-          return haystack.includes(search);
+          var hay = _browseSearchHay(CMP_DATA[pid]);
+          if (!hay) return false;
+          for (var t = 0; t < terms.length; t++) {
+            if (hay.indexOf(terms[t]) === -1) return false;
+          }
+          return true;
         });
       }
       if (office) pids = pids.filter(function(pid) { return _chubOfficeMatch(pid, office); });
+      if (party) pids = pids.filter(function(pid) { return _browsePartyKey(CMP_DATA[pid]) === party; });
+      if (statusF) pids = pids.filter(function(pid) {
+        var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
+        return st === statusF;
+      });
       if (stateFilter) pids = pids.filter(function(pid) { return _chubStateMatch(pid, stateFilter); });
       if (score) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, score); });
 
@@ -34174,7 +34263,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       if (pids.length > 0) {
         // Start fully minimized; auto-expand all levels only while a search/filter is active so matches stay visible.
-        var _browseHasFilters = !!(search || office || stateFilter || score || (show && show !== 'all') || _browseScope === 'relevant');
+        var _browseHasFilters = !!(search || office || party || statusF || stateFilter || score || (show && show !== 'all') || _browseScope === 'relevant');
         browseGrid.innerHTML = _renderGroupedBrowse(pids, '', { forceOpen: _browseHasFilters, defaultOpen: false });
         if (browseEmpty) browseEmpty.classList.add('hidden');
       } else {
@@ -34182,7 +34271,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (browseEmpty) {
           browseEmpty.innerHTML = _renderBrowseEmpty({
             scope: _browseScope,
-            hasFilters: !!(search || office || stateFilter || score || (show && show !== 'all')),
+            hasFilters: !!(search || office || party || statusF || stateFilter || score || (show && show !== 'all')),
             search: search
           });
           browseEmpty.classList.remove('hidden');
@@ -34204,12 +34293,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window.myteamBrowseReset = function() {
       var searchEl = document.getElementById('myteam-browse-search');
       var officeEl = document.getElementById('myteam-browse-office');
+      var partyEl = document.getElementById('myteam-browse-party');
+      var statusEl = document.getElementById('myteam-browse-status');
       var stateEl = document.getElementById('myteam-browse-state');
       var scoreEl = document.getElementById('myteam-browse-score');
       var showEl = document.getElementById('myteam-browse-show');
       var sortEl = document.getElementById('myteam-browse-sort');
       if (searchEl) searchEl.value = '';
       if (officeEl) officeEl.value = '';
+      if (partyEl) partyEl.value = '';
+      if (statusEl) statusEl.value = '';
       if (stateEl) stateEl.value = '';
       if (scoreEl) scoreEl.value = '';
       if (showEl) showEl.value = 'all';
