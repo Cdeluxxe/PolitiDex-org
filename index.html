@@ -3965,6 +3965,89 @@
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
     .pdx-snap-divider { height: 1px; background: rgba(148,163,184,0.12); margin: 0.8rem 0 0; }
+
+    /* ── Clickable Promise % pill ─────────────────────────────────────────────
+       The score pill doubles as a "how is this calculated?" affordance — tapping
+       it opens the Promise-score explainer popover. */
+    .pdx-snap-score-click { cursor: pointer; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+    .pdx-snap-score-click:hover { transform: translateY(-1px); border-color: rgba(245,200,66,0.55) !important; }
+    .pdx-snap-score-click:focus-visible { outline: 2px solid rgba(245,200,66,0.65); outline-offset: 2px; }
+    .pdx-score-info {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.44rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      color: #6f86a8; margin-top: 0.16rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.12rem;
+      transition: color .18s ease;
+    }
+    .pdx-snap-score-click:hover .pdx-score-info,
+    .pdx-snap-score-click:focus-visible .pdx-score-info { color: #f5c842; }
+
+    /* ── Comment-count chip on listing cards (social proof) ───────────────── */
+    .pdx-snap-comments {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #9fb4d4; background: rgba(96,165,250,0.1);
+      border: 1px solid rgba(96,165,250,0.28); border-radius: 999px;
+      padding: 0.16rem 0.55rem; cursor: pointer; line-height: 1;
+      transition: color .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .pdx-snap-comments:hover { color: #cfe4ff; border-color: rgba(96,165,250,0.55); background: rgba(96,165,250,0.18); }
+    .pdx-snap-comments .comment-count { font-family: 'Bebas Neue', sans-serif; font-size: 0.92rem; letter-spacing: 0.02em; }
+
+    /* ── Promise % explainer popover ──────────────────────────────────────── */
+    .pdx-pinfo-overlay {
+      position: fixed; inset: 0; z-index: 11000;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(5,9,18,0.8); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      padding: 1.25rem; opacity: 0; transition: opacity .2s ease;
+    }
+    .pdx-pinfo-overlay.open { display: flex; opacity: 1; }
+    .pdx-pinfo-card {
+      width: 100%; max-width: 440px; max-height: 88vh; overflow-y: auto;
+      background: linear-gradient(160deg, rgba(18,28,50,0.98), rgba(8,13,27,0.99));
+      border: 1px solid rgba(245,200,66,0.34); border-radius: 1rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+      padding: 1.35rem 1.4rem 1.5rem;
+      transform: translateY(10px) scale(0.985); transition: transform .2s ease;
+    }
+    .pdx-pinfo-overlay.open .pdx-pinfo-card { transform: none; }
+    .pdx-pinfo-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.9rem; }
+    .pdx-pinfo-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; letter-spacing: 0.04em;
+      color: #fff; line-height: 1.05;
+    }
+    .pdx-pinfo-title span { color: #f5c842; }
+    .pdx-pinfo-close {
+      flex-shrink: 0; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.25);
+      color: #cbd9ec; width: 30px; height: 30px; border-radius: 0.55rem; cursor: pointer;
+      font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+      transition: background .18s ease, color .18s ease;
+    }
+    .pdx-pinfo-close:hover { background: rgba(192,21,42,0.2); color: #fff; }
+    .pdx-pinfo-formula {
+      background: rgba(10,15,30,0.6); border: 1px solid rgba(245,200,66,0.2);
+      border-radius: 0.7rem; padding: 0.75rem 0.85rem; margin-bottom: 0.85rem;
+    }
+    .pdx-pinfo-formula-eq {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.03em;
+      color: #fff; margin-bottom: 0.3rem;
+    }
+    .pdx-pinfo-formula-eq .k { color: #4ade80; }
+    .pdx-pinfo-formula-eq .b { color: #f87171; }
+    .pdx-pinfo-calc {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; color: #cbd9ec;
+      background: rgba(0,0,0,0.28); border-radius: 0.45rem; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+    }
+    .pdx-pinfo-row { display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 0.7rem; }
+    .pdx-pinfo-row-ico { flex-shrink: 0; font-size: 0.95rem; line-height: 1.4; }
+    .pdx-pinfo-row p { font-size: 0.78rem; color: #9fb4d4; line-height: 1.55; margin: 0; }
+    .pdx-pinfo-row p strong { color: #cbd9ec; }
+    .pdx-pinfo-note {
+      font-size: 0.72rem; color: #8aa3c4; line-height: 1.5; margin: 0.5rem 0 0;
+      padding-top: 0.75rem; border-top: 1px solid rgba(148,163,184,0.14);
+    }
+
     /* Compact icon button used for heart / star controls in the name row */
     .pdx-snap-ctrl {
       background: none; border: none; cursor: pointer;
@@ -5294,6 +5377,10 @@
     }
     @media (prefers-reduced-motion: reduce) { .kr-spot-live { animation: none; } }
     .kr-action-profile { color: #cbd9ee; background: rgba(159,180,212,0.10); border: 1px solid rgba(159,180,212,0.32); }
+    /* Comment-count button — compact (doesn't claim equal width) and tinted blue. */
+    .kr-action-comment { flex: 0 0 auto; color: #9fb4d4; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.32); padding: 0.35rem 0.6rem; }
+    .kr-action-comment:hover { color: #cfe4ff; border-color: rgba(96,165,250,0.55); background: rgba(96,165,250,0.18); }
+    .kr-action-comment .comment-count { font-family: 'Bebas Neue', sans-serif; font-size: 0.92rem; letter-spacing: 0.02em; }
     @media (max-width: 380px) {
       .kr-action-btn { font-size: 0.62rem; letter-spacing: 0.03em; }
     }
@@ -24327,18 +24414,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
   // Prominent profile hero — the headline "Did they follow through?" block.
-  window._renderFollowThrough = function(kept, broken, pending){
+  window._renderFollowThrough = function(kept, broken, pending, pid){
     var m = window._ftMeta(kept, broken, pending);
     if (m.resolved === 0 && m.pending === 0) return '';
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
     var rateTxt = m.rate === null ? '—' : m.rate + '%';
+    // The rate block opens the same Promise % explainer used by the cards.
+    var ftClick = ' role="button" tabindex="0"' +
+      ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
+      ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
+      ' title="How is the Follow-Through Rate calculated?"';
     return '' +
       '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(192,21,42,0.1),rgba(30,53,96,0.45));border:1px solid ' + m.col + '4d;border-radius:0.95rem;padding:1rem 1.1rem;box-shadow:0 0 22px ' + m.col + '14, inset 0 1px 0 rgba(255,255,255,0.04);">' +
         '<div style="display:flex;align-items:center;gap:0.95rem;margin-bottom:0.85rem;">' +
-          '<div style="flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
+          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
             '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:' + m.col + ';line-height:1;text-shadow:0 0 16px ' + m.col + '40;">' + rateTxt + '</div>' +
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Follow-Through Rate</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.12rem;">ⓘ How?</div>' +
           '</div>' +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">Did they actually follow through?</div>' +
@@ -24670,7 +24763,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <!-- Follow-Through summary — the headline integrity read: did they
            actually do what they said? Kept vs broken, a follow-through rate,
            and a plain-language verdict, shown before anything else. -->
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0)) : ''}
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id) : ''}
 
       <!-- Accountability of Truth Score (purple) — the headline objective rating, shown first -->
       <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
@@ -25723,6 +25816,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       overlay.style.overscrollBehavior = 'contain';
     }
     document.body.style.overflow = '';
+    // Refresh the comment counts on listing cards so any comment added inside the
+    // profile shows live the moment the modal closes.
+    if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
   }
 
 
@@ -26637,6 +26733,113 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     _commentCounts[pid] = count;
   }
 
+  // Small "💬 N" chip rendered on every listing card so a visitor can see how
+  // much discussion a politician has drawn (social proof) and jump straight into
+  // the comment thread. It carries the standard data-comment-pid + .comment-count
+  // hooks so the existing live-sync (_syncCommentCountToUI) keeps it up to date.
+  window._pdxCommentChip = function(pid) {
+    var n = (typeof _commentCounts !== 'undefined' && _commentCounts[pid]) ? _commentCounts[pid] : 0;
+    return '<button class="pdx-snap-comments" data-comment-pid="' + pid + '" ' +
+      'onclick="event.stopPropagation();openCommentModal(\'' + pid + '\')" ' +
+      'title="Read & add comments">💬 <span class="comment-count">' + n + '</span></button>';
+  };
+
+  // Re-sync every visible card chip from the cached counts — called when the
+  // profile / comment modal closes so freshly-added comments show on the cards.
+  window._pdxRefreshCommentChips = function() {
+    if (typeof _commentCounts === 'undefined') return;
+    Object.keys(_commentCounts).forEach(function(pid) {
+      document.querySelectorAll('[data-comment-pid="' + pid + '"] .comment-count').forEach(function(el) {
+        el.textContent = _commentCounts[pid];
+      });
+    });
+  };
+
+  // ════════════════════════════════════════════════════════════════════════
+  // PROMISE % EXPLAINER POPOVER
+  // A clean, non-overwhelming modal that demystifies the green Promise % /
+  // Follow-Through pill: how it's calculated, that pending promises are kept
+  // out of the math, that every promise is sourced from public records, and
+  // when scores refresh. Opened from any score pill (cards + profile hero).
+  // ════════════════════════════════════════════════════════════════════════
+  window._pdxClosePromiseInfo = function() {
+    var ov = document.getElementById('pdx-pinfo-overlay');
+    if (!ov) return;
+    ov.classList.remove('open');
+    setTimeout(function() {
+      // Only release the page scroll lock if no other modal is still open.
+      var stillModal = false;
+      ['modal-overlay', 'comment-overlay'].forEach(function(idd) {
+        var el = document.getElementById(idd);
+        if (el && getComputedStyle(el).display !== 'none') stillModal = true;
+      });
+      if (!stillModal) document.body.style.overflow = '';
+    }, 200);
+  };
+
+  window._pdxPromiseInfo = function(ev, pid) {
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    var ov = document.getElementById('pdx-pinfo-overlay');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'pdx-pinfo-overlay';
+      ov.className = 'pdx-pinfo-overlay';
+      ov.addEventListener('click', function(e) { if (e.target === ov) window._pdxClosePromiseInfo(); });
+      document.body.appendChild(ov);
+    }
+
+    // When we know which politician was tapped, show their own quick math so the
+    // explanation is concrete rather than abstract.
+    var calcLine = '';
+    try {
+      var p = (pid && typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
+      if (p && typeof p.kept === 'number' && typeof p.broken === 'number') {
+        var k = p.kept || 0, b = p.broken || 0, res = k + b;
+        if (res > 0) {
+          var rate = Math.round(k / res * 100);
+          var nm = (p.name ? String(p.name).split(' ').slice(-1)[0] : 'This official');
+          calcLine = '<div class="pdx-pinfo-calc">' + nm + ': <span style="color:#4ade80;font-weight:700;">' + k +
+            '</span> ÷ (<span style="color:#4ade80;font-weight:700;">' + k + '</span> + <span style="color:#f87171;font-weight:700;">' +
+            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '%</span></div>';
+        }
+      }
+    } catch (e) {}
+
+    ov.innerHTML =
+      '<div class="pdx-pinfo-card" role="dialog" aria-modal="true" aria-label="How the Promise score is calculated">' +
+        '<div class="pdx-pinfo-head">' +
+          '<div class="pdx-pinfo-title">🤝 How the <span>Promise %</span> works</div>' +
+          '<button class="pdx-pinfo-close" onclick="window._pdxClosePromiseInfo()" aria-label="Close">✕</button>' +
+        '</div>' +
+        '<div class="pdx-pinfo-formula">' +
+          '<div class="pdx-pinfo-formula-eq">Promise % = <span class="k">Kept</span> ÷ (<span class="k">Kept</span> + <span class="b">Broken</span>)</div>' +
+          '<p style="font-size:0.76rem;color:#9fb4d4;line-height:1.55;margin:0;">Only <strong style="color:#cbd9ec;">resolved</strong> promises count. ' +
+            '<strong style="color:#f5c842;">Pending</strong> promises are shown separately and never count for or against the score until they play out.</p>' +
+          calcLine +
+        '</div>' +
+        '<div class="pdx-pinfo-row">' +
+          '<span class="pdx-pinfo-row-ico">📜</span>' +
+          '<p>Every promise is drawn from <strong>official public records</strong> — le.utah.gov bills &amp; votes, campaign statements, and reported news — with sources linked on each profile.</p>' +
+        '</div>' +
+        '<div class="pdx-pinfo-row">' +
+          '<span class="pdx-pinfo-row-ico">⚖️</span>' +
+          '<p>A higher percentage means an official <strong>follows through</strong> on more of what they pledged. We only track <strong>verifiable public promises</strong>.</p>' +
+        '</div>' +
+        '<p class="pdx-pinfo-note">Scores update after each legislative session as pending promises resolve. Estimates built from public records — not official government findings.</p>' +
+      '</div>';
+
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function() { ov.classList.add('open'); });
+  };
+
+  // Escape closes the explainer popover (without disturbing anything behind it).
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var ov = document.getElementById('pdx-pinfo-overlay');
+      if (ov && ov.classList.contains('open')) { e.stopPropagation(); window._pdxClosePromiseInfo(); }
+    }
+  }, true);
+
   function _loadCommentCounts() {
     _initCommentButtons();
     // Count all local comments by pid
@@ -27153,6 +27356,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _commentsUnsubscribe = null;
     }
     cancelReply();
+    if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
     var overlay = document.getElementById('comment-overlay');
     overlay.classList.remove('cm-visible');
     overlay.classList.add('cm-hidden');
@@ -31911,21 +32115,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // it shows a clean, muted "No record yet" pill in the same slot rather than
       // vanishing — which previously made cards look inconsistent and incomplete.
       var scoreLbl = opts.scoreLabel || 'Promise';
+      // The score pill is tappable everywhere — it opens the Promise % explainer.
+      var scoreClick = ' role="button" tabindex="0"' +
+        ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')"' +
+        ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\');}"' +
+        ' title="How is the Promise % calculated?"';
+      var infoHint = '<div class="pdx-score-info">ⓘ How?</div>';
       var scoreBlock = hasScore
-        ? '<div class="pdx-snap-score" style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
+        ? '<div class="pdx-snap-score pdx-snap-score-click"' + scoreClick + ' style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
             '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
             '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+            infoHint +
           '</div>'
-        : '<div class="pdx-snap-score pdx-snap-score-empty" title="No promise record compiled yet">' +
+        : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
             '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
             '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
             '<div class="pdx-snap-score-na">No record yet</div>' +
+            infoHint +
           '</div>';
 
       var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
-      var metrics = (pills || acct) ? '<div class="pdx-snap-metrics">' + pills + acct + '</div>' : '';
+      var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
+      var metrics = (pills || acct || commentChip) ? '<div class="pdx-snap-metrics">' + pills + acct + commentChip + '</div>' : '';
 
       var issues = '';
       if (opts.issues !== false && d.issues && d.issues.length) {
@@ -35738,20 +35951,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (hasScore) {
         var pCol = _krScoreColor(d.score);
         promiseHtml =
-          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; open full profile">' +
+          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — ' + d.score + ' percent of campaign promises kept; tap to see how it is calculated">' +
             '<span class="kr-score-ico">📊</span>' +
             '<span class="kr-score-num" style="color:' + pCol + ';">' + d.score + '<span style="font-size:0.95rem;">%</span></span>' +
             '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise</span>' +
+              '<span class="kr-score-label">Promise ⓘ</span>' +
               '<span class="kr-score-sub"><span style="color:#4ade80;">✓' + (d.kept || 0) + '</span> <span style="color:#f87171;">✕' + (d.broken || 0) + '</span> kept/broken</span>' +
             '</span>' +
           '</button>';
       } else {
         promiseHtml =
-          '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — open full profile">' +
+          '<button type="button" onclick="event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\')" class="kr-score kr-score-promise" aria-label="Promise score for ' + d.name + ' — tap to see how the Promise % is calculated">' +
             '<span class="kr-score-ico">📊</span>' +
             '<span class="kr-score-meta">' +
-              '<span class="kr-score-label">Promise</span>' +
+              '<span class="kr-score-label">Promise ⓘ</span>' +
               '<span class="kr-score-sub">' + (isIncumbent ? 'Being compiled' : 'No record yet') + '</span>' +
             '</span>' +
           '</button>';
@@ -35798,9 +36011,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Compare / Profile action row shared by the incumbent hero and challenger rows.
     function _krActionRow(pid, d) {
       var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
+      var cCount = (typeof _commentCounts !== 'undefined' && _commentCounts[pid]) ? _commentCounts[pid] : 0;
       return '<div class="kr-action-row">' +
           '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-action-btn kr-action-compare' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to compare tool">' +
             '<span class="kr-action-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
+          '</button>' +
+          '<button onclick="event.stopPropagation();if(typeof openCommentModal===\'function\')openCommentModal(\'' + pid + '\')" class="kr-action-btn kr-action-comment" data-comment-pid="' + pid + '" aria-label="Comments for ' + d.name + '">' +
+            '<span class="kr-action-ico">💬</span><span class="comment-count">' + cCount + '</span>' +
           '</button>' +
           '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-action-btn kr-action-profile" aria-label="Open full profile for ' + d.name + '">' +
             '<span class="kr-action-ico">👤</span>Profile' +
