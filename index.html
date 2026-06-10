@@ -2162,6 +2162,19 @@
     }
     .spotlight-show-more.sl-expanded .sl-chevron-more { transform: rotate(180deg); }
 
+    /* ── Spotlight ↔ Accountability cross-highlight ───────
+       Shared flash applied when the user taps a Spotlight driver to find it in
+       the Accountability breakdown (or vice versa). A brief purple/gold pulse
+       traces the cause-and-effect link between the two sections without moving
+       layout. Used by window._slFlash() on both spotlight cards and the
+       Accountability card's contribution rows. */
+    @keyframes slFlashPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(167,139,250,0.0); border-color: rgba(167,139,250,0.0); }
+      18%  { box-shadow: 0 0 22px 3px rgba(167,139,250,0.55); border-color: rgba(167,139,250,0.9); }
+      100% { box-shadow: 0 0 0 0 rgba(167,139,250,0.0); }
+    }
+    .sl-flash { animation: slFlashPulse 1.5s cubic-bezier(0.4,0,0.2,1); }
+
 
     /* ── Comparison Mode ─────────────────────────────────── */
     #compare-float-btn {
@@ -14160,7 +14173,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
             <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
             <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
-            <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers and link to the full analysis; <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>). Entries without an impact appear as recent news.</div>
+            <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers: they appear under “Spotlight items feeding this score” in the Accountability card and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
           </div>
         </details>
 
@@ -26146,69 +26159,74 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         function _slCard(o) {
           var accent = o.accent || '96,165,250';
           var linked = (o.impact === 'positive' || o.impact === 'negative');
+          var neutral = (o.impact === 'neutral');
           var impactCol = o.impact === 'positive' ? '74,222,128' : '248,113,113';
           var impactLabel = o.impact === 'positive' ? '▲ Strengthens score' : '▼ Weighs on score';
-          var edge = linked ? impactCol : accent;
-          var open = '<div style="';
+          var catLabel = (o.category && typeof window._slCatLabel === 'function') ? window._slCatLabel(o.category) : '';
+          var edge = linked ? impactCol : (neutral ? '120,140,170' : accent);
+          var idAttr = o.anchorId ? (' id="' + o.anchorId + '"') : '';
+          var open = '<div' + idAttr + ' style="';
           if (linked) {
-            open = '<div role="button" tabindex="0"' +
-              ' onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')"' +
-              ' onkeydown="if((event.key===\'Enter\'||event.key===\' \')&&window.viewAccountabilityAnalysis){event.preventDefault();window.viewAccountabilityAnalysis(\'' + safeSlId + '\');}"' +
+            // Tap jumps to the Accountability card and pulses the matching
+            // contribution row — keeping the cause→effect link inside one modal.
+            var jump = 'if(window._slFocusAccountability)window._slFocusAccountability(\'' + safeSlId + '\',' + (o.contribIndex || 0) + ');';
+            open = '<div' + idAttr + ' role="button" tabindex="0"' +
+              ' onclick="' + jump + '"' +
+              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
               ' style="cursor:pointer;';
           }
-          return open + 'background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + edge + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
+          return open + 'background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + edge + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;transition:box-shadow 0.2s,border-color 0.2s;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
               (o.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + o.date + '</span>' : '') +
-              (linked ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:rgb(' + impactCol + ');background:rgba(' + impactCol + ',0.12);border:1px solid rgba(' + impactCol + ',0.4);padding:0.1rem 0.4rem;border-radius:999px;">' + impactLabel + '</span>' : '') +
+              (linked ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:rgb(' + impactCol + ');background:rgba(' + impactCol + ',0.12);border:1px solid rgba(' + impactCol + ',0.4);padding:0.1rem 0.4rem;border-radius:999px;">' + impactLabel + '</span>'
+                : (neutral ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:#9fb4d4;background:rgba(120,140,170,0.12);border:1px solid rgba(120,140,170,0.4);padding:0.1rem 0.4rem;border-radius:999px;">● Noted · no score impact</span>' : '')) +
             '</div>' +
             '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 ' + (o.body ? '0.35rem' : '0') + ';">' + o.headline + '</h4>' +
             (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
             (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
               '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
-            (linked ? '<div style="margin-top:0.5rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;">🛡️ Tap to see how this affects the Accountability Score →</div>' : '') +
+            (linked ? '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">' +
+              (catLabel ? '<span style="color:#c4b5fd;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.06rem 0.4rem;border-radius:999px;">' + catLabel + '</span>' : '') +
+              '<span style="color:#a78bfa;">🛡️ Tap to see this in the Accountability breakdown ↑</span>' +
+            '</div>' : '') +
           '</div>';
         }
 
         var _slDoc     = (p && Array.isArray(p.spotlight)) ? p.spotlight : [];
         var _slPromos  = (p && Array.isArray(p.promises)) ? p.promises : [];
-        var _slBroken  = _slPromos.filter(function(r) { return r && r.verdict === 'broken'; });
-        var _slKept    = _slPromos.filter(function(r) { return r && r.verdict === 'kept'; });
         var _slPending = _slPromos.filter(function(r) { return r && r.verdict === 'pending'; });
 
-        // 1) Score DRIVERS — items that genuinely feed the Accountability Score:
-        //    curator-flagged spotlight entries plus the official's own kept/broken
-        //    promise ledger (the analyzer's promise-keeping input). Each links to
-        //    the full analysis so users can move from "what happened" to "why the
-        //    score is what it is".
-        var slDrivers = [];
-        _slDoc.forEach(function(it) {
-          if (!it || (it.impact !== 'positive' && it.impact !== 'negative')) return;
-          if (slDrivers.length >= 5) return;
-          slDrivers.push(_slCard({
-            badge: it.badge || (it.impact === 'positive' ? '🛡️ Helps the Score' : '🛡️ Hurts the Score'),
-            accent: '167,139,250', date: it.date,
-            headline: it.headline || it.title || 'Tracked issue',
-            body: it.facts || it.detail, why: it.why, impact: it.impact
-          }));
-        });
-        _slBroken.slice(0, 2).forEach(function(r) {
-          slDrivers.push(_slCard({ badge:'⚠ Promise Broken', date:r.date, headline:r.title, body:r.detail, impact:'negative' }));
-        });
-        _slKept.slice(0, 2).forEach(function(r) {
-          slDrivers.push(_slCard({ badge:'✅ Promise Kept', date:r.date, headline:r.title, body:r.detail, impact:'positive' }));
+        // 1) Score DRIVERS — the SAME ordered list the Accountability card reads
+        //    from (window._slComputeDrivers), so the two sections map one-to-one
+        //    by index: curator-flagged spotlight entries (impact ▲/▼) followed by
+        //    the official's own kept/broken promise ledger. Each card is anchored
+        //    (id = sl-driver-<id>-<i>) and taps through to the matching row in the
+        //    Accountability breakdown, making cause→effect explicit.
+        var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+        var slDrivers = slDriverItems.map(function(it, i) {
+          return _slCard({
+            badge: it.badge,
+            accent: it.kind === 'spotlight' ? '167,139,250' : '96,165,250',
+            date: it.date, headline: it.headline, body: it.body, why: it.why,
+            impact: it.impact, category: it.category,
+            anchorId: 'sl-driver-' + safeSlId + '-' + i, contribIndex: i
+          });
         });
 
-        // 2) Recent NEWS / events — curated context with no declared score impact:
-        //    the SPOTLIGHT_DATA map plus any on-document entries left unflagged.
+        // 2) Recent NEWS / events — curated context plus any on-document entries
+        //    not flagged as ▲/▼ drivers. Entries explicitly tagged impact:'neutral'
+        //    are honored with a "no score impact" pill so a curator's intent reads
+        //    clearly; untagged entries simply appear as news.
         var slNews = [];
         (spotlightData[id] || []).forEach(function(it) {
           slNews.push(_slCard({ badge:'In the News', accent:'96,165,250', date:it.date, headline:it.headline, body:it.facts, why:it.why }));
         });
         _slDoc.forEach(function(it) {
           if (!it || it.impact === 'positive' || it.impact === 'negative') return;
-          slNews.push(_slCard({ badge: it.badge || 'In the News', accent:'96,165,250', date:it.date,
-            headline: it.headline || it.title, body: it.facts || it.detail, why: it.why }));
+          slNews.push(_slCard({ badge: it.badge || (it.impact === 'neutral' ? 'Context' : 'In the News'), accent:'96,165,250', date:it.date,
+            headline: it.headline || it.title, body: it.facts || it.detail, why: it.why,
+            impact: (it.impact === 'neutral' ? 'neutral' : undefined), category: it.category }));
         });
 
         // Connective sub-header that names the link to the score and offers a
@@ -26228,7 +26246,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (slDrivers.length) slBody += _slDriverHeader() + slDrivers.join('');
           if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
           return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + slBody +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score; tap any to open the full analysis. Sources linked inline.</p>' +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score — tap one to see it in the score breakdown, or open the full analysis above. Sources linked inline.</p>' +
           '</div>';
         }
 
@@ -42469,6 +42487,77 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return p;
     }
 
+    // ═══ Shared Spotlight ↔ Accountability linkage ═══════════════════════════
+    // The Spotlight section and the Accountability card both render from ONE
+    // ordered list of score-driving items, so they map to each other by index:
+    // contribution row i in the Accountability card highlights Spotlight card i,
+    // and tapping Spotlight card i highlights contribution row i. The source is
+    // strictly the official's own record — curator-flagged Spotlight entries
+    // (impact 'positive'/'negative') followed by the kept/broken promise ledger
+    // the score is actually computed from. Nothing is invented here.
+    window._slSafeId = function(id){ return String(id == null ? '' : id).replace(/[^a-zA-Z0-9_-]/g, ''); };
+
+    // Maps a Spotlight item's `category` to the Accountability category it feeds.
+    window._slCatLabel = function(key){
+      var m = { promise:'Promise Keeping', voting:'Voting Consistency', rhetoric:'Rhetoric vs Reality', redflags:'Red Flags / Controversies', transparency:'Transparency' };
+      return m[key] || '';
+    };
+
+    // The single ordered driver list shared by both sections.
+    window._slComputeDrivers = function(p){
+      p = p || {};
+      var out = [];
+      var doc = Array.isArray(p.spotlight) ? p.spotlight : [];
+      doc.forEach(function(it){
+        if (!it || (it.impact !== 'positive' && it.impact !== 'negative')) return;
+        if (out.length >= 5) return;
+        out.push({
+          kind: 'spotlight', impact: it.impact,
+          headline: it.headline || it.title || 'Tracked issue',
+          date: it.date || '', category: it.category || '',
+          body: it.facts || it.detail || '', why: it.why || '',
+          badge: it.badge || (it.impact === 'positive' ? '🛡️ Helps the Score' : '🛡️ Hurts the Score')
+        });
+      });
+      var proms = Array.isArray(p.promises) ? p.promises : [];
+      proms.filter(function(r){ return r && r.verdict === 'broken'; }).slice(0, 2).forEach(function(r){
+        out.push({ kind:'broken', impact:'negative', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', badge:'⚠ Promise Broken' });
+      });
+      proms.filter(function(r){ return r && r.verdict === 'kept'; }).slice(0, 2).forEach(function(r){
+        out.push({ kind:'kept', impact:'positive', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', badge:'✅ Promise Kept' });
+      });
+      return out;
+    };
+
+    // Brief cross-section highlight pulse (see .sl-flash in CSS).
+    window._slFlash = function(el){
+      if (!el) return;
+      el.classList.remove('sl-flash');
+      void el.offsetWidth; // restart the animation
+      el.classList.add('sl-flash');
+      setTimeout(function(){ if (el) el.classList.remove('sl-flash'); }, 1600);
+    };
+
+    // Accountability → Spotlight: jump to (and pulse) the matching Spotlight card.
+    window._slFocusSpotlight = function(safeId, i){
+      var el = document.getElementById('sl-driver-' + safeId + '-' + i);
+      if (!el){
+        var sec = document.getElementById('spotlight-modal-section');
+        if (sec) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+        return;
+      }
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+      window._slFlash(el);
+    };
+
+    // Spotlight → Accountability: jump to the card and pulse the matching row.
+    window._slFocusAccountability = function(safeId, i){
+      var card = document.getElementById('acct-inline-card');
+      if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+      var row = document.getElementById('acct-contrib-' + safeId + '-' + i);
+      if (row) setTimeout(function(){ window._slFlash(row); }, 240);
+    };
+
     // ── Always-visible inline card (purple) ──
     window._renderAccountabilityCard = function(id, p){
       p = p || getProfile(id) || {};
@@ -42506,9 +42595,54 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.5rem;">⚖️ What\'s driving this score</div>';
           _acctPos.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#4ade80', '▲'); });
           _acctNeg.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#f87171', '▼'); });
-          driversHtml += '<button type="button" onclick="var el=document.getElementById(\'spotlight-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="margin-top:0.45rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:none;border:none;padding:0;">🔦 See the related issues in Spotlight ↓</button>' +
-          '</div>';
+          driversHtml += '</div>';
         }
+
+        // ── Spotlight → Score: the concrete, tappable bridge between the two
+        //    sections. Lists the exact Spotlight items currently tagged as score
+        //    drivers (▲ positive / ▼ negative), a one-line read of how recent
+        //    Spotlight activity is moving the score, and a clean honest empty
+        //    state when nothing is tagged yet (the score above still stands on
+        //    the verified record). Each row jumps to — and pulses — the matching
+        //    Spotlight card, mirroring the reverse jump from Spotlight.
+        var slSafe = (typeof window._slSafeId === 'function') ? window._slSafeId(id) : safeId;
+        var _slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+        var _slPos = 0, _slNeg = 0;
+        _slDrivers.forEach(function(d){ if (d.impact === 'positive') _slPos++; else if (d.impact === 'negative') _slNeg++; });
+        var spotlightBlock = '<div style="margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid rgba(139,92,246,0.22);">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.55rem;">' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🔦 Spotlight items feeding this score</span>' +
+            (_slDrivers.length ? '<span style="display:inline-flex;gap:0.3rem;align-items:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;">' +
+              '<span style="color:#4ade80;">▲ ' + _slPos + '</span><span style="color:#3a4a66;">·</span><span style="color:#f87171;">▼ ' + _slNeg + '</span></span>' : '') +
+          '</div>';
+        if (_slDrivers.length) {
+          _slDrivers.forEach(function(d, i){
+            var col = d.impact === 'positive' ? '#4ade80' : '#f87171';
+            var sym = d.impact === 'positive' ? '▲' : '▼';
+            var cat = (typeof window._slCatLabel === 'function' && d.category) ? window._slCatLabel(d.category) : '';
+            var jump = 'if(window._slFocusSpotlight)window._slFocusSpotlight(\'' + slSafe + '\',' + i + ');';
+            spotlightBlock += '<div id="acct-contrib-' + slSafe + '-' + i + '" role="button" tabindex="0"' +
+              ' onclick="' + jump + '"' +
+              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
+              ' style="cursor:pointer;display:flex;align-items:flex-start;gap:0.5rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + col + ';border-radius:0.55rem;padding:0.42rem 0.55rem;margin-bottom:0.35rem;transition:border-color 0.2s,box-shadow 0.2s;">' +
+              '<span style="color:' + col + ';font-weight:700;font-size:0.7rem;line-height:1.5;flex-shrink:0;">' + sym + '</span>' +
+              '<span style="flex:1;min-width:0;font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + aesc(d.headline) +
+                (cat ? ' <span style="color:#8294b4;font-size:0.6rem;">· ' + aesc(cat) + '</span>' : '') + '</span>' +
+              '<span style="flex-shrink:0;color:#a78bfa;font-size:0.62rem;line-height:1.5;">🔦</span>' +
+            '</div>';
+          });
+          var net = _slPos - _slNeg;
+          var netTxt = _slPos + ' lifting · ' + _slNeg + ' weighing — ' +
+            (net > 0 ? 'recent Spotlight activity is a net positive on the score.'
+              : net < 0 ? 'recent Spotlight activity weighs on the score on balance.'
+              : 'recent Spotlight activity is roughly balanced.');
+          spotlightBlock += '<p style="font-size:0.62rem;color:#9fb4d4;line-height:1.5;margin:0.4rem 0 0;">' + netTxt +
+            ' <span style="color:#7596c0;">Tap any item to find it in the Spotlight ↓</span></p>';
+        } else {
+          spotlightBlock += '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0;">No Spotlight items are tagged as score drivers yet. The score above reflects this official’s verified record; tagged issues and events will appear here — and link both ways — as they’re added.</p>';
+        }
+        spotlightBlock += '</div>';
+
         return '' +
           '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1.5px solid rgba(139,92,246,0.45);border-radius:0.9rem;padding:1rem 1.1rem;box-shadow:0 0 26px rgba(139,92,246,0.14);">' +
             '<div style="display:flex;align-items:center;gap:1.05rem;">' +
@@ -42535,6 +42669,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '</div>' +
             '</div>' +
             driversHtml +
+            spotlightBlock +
             '<div style="display:flex;gap:0.5rem;margin-top:0.75rem;">' +
               '<button onclick="viewAccountabilityAnalysis(\'' + safeId + '\')" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.6rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis</button>' +
               '<button onclick="openAccountabilityAnalysis(\'' + safeId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.6rem 0.8rem;border-radius:0.6rem;">↻ Re-run</button>' +
