@@ -12328,16 +12328,121 @@
   <section id="voter-hub" class="py-14 md:py-20 border-b border-white/5" style="background:linear-gradient(180deg,rgba(5,8,20,0.95) 0%,rgba(10,20,50,0.9) 100%);">
     <div class="max-w-6xl mx-auto px-4">
 
-      <!-- ── Header ────────────────────────────────────────── -->
-      <div class="text-center mb-10 animate-on-scroll">
+      <!-- ── Header — value proposition + first-time guidance ─── -->
+      <style id="vh-intro-styles">
+        #voter-hub .vh-intro{max-width:64rem;margin:0 auto;}
+        /* "Old way vs. PolitiDex way" contrast — the core differentiator */
+        #voter-hub .vh-contrast{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:0.85rem;
+          max-width:46rem;margin:1.6rem auto 0;text-align:left;}
+        #voter-hub .vh-c-card{border-radius:1rem;padding:0.95rem 1.05rem;border:1px solid rgba(255,255,255,0.1);
+          background:rgba(10,15,30,0.55);}
+        #voter-hub .vh-c-old{border-color:rgba(120,135,160,0.22);}
+        #voter-hub .vh-c-new{border-color:rgba(245,200,66,0.4);background:linear-gradient(135deg,rgba(245,200,66,0.1),rgba(192,21,42,0.08));
+          box-shadow:0 0 26px rgba(245,200,66,0.08);}
+        #voter-hub .vh-c-tag{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.14em;
+          text-transform:uppercase;display:inline-flex;align-items:center;gap:0.35rem;margin-bottom:0.4rem;}
+        #voter-hub .vh-c-old .vh-c-tag{color:#8aa0c0;}
+        #voter-hub .vh-c-new .vh-c-tag{color:#fad96a;}
+        #voter-hub .vh-c-q{font-family:'Barlow Condensed',sans-serif;font-size:1.18rem;font-weight:700;letter-spacing:0.01em;
+          line-height:1.18;color:#e6eefb;}
+        #voter-hub .vh-c-old .vh-c-q{color:#aab9cf;}
+        #voter-hub .vh-c-sub{font-family:'Barlow',sans-serif;font-size:0.8rem;line-height:1.4;color:#8499b6;margin-top:0.3rem;}
+        #voter-hub .vh-c-new .vh-c-sub{color:#cdd9ec;}
+        #voter-hub .vh-c-vs{display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;
+          font-size:0.95rem;letter-spacing:0.08em;color:#6b82a8;}
+        /* 3-step "how it works" guide for first-time voters */
+        #voter-hub .vh-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0.85rem;max-width:52rem;margin:1.8rem auto 0;text-align:left;}
+        #voter-hub .vh-step{position:relative;border-radius:1rem;padding:1.05rem 1.1rem 1.1rem;border:1px solid rgba(255,255,255,0.1);
+          background:linear-gradient(135deg,rgba(13,21,38,0.92),rgba(17,29,54,0.86));transition:border-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;}
+        #voter-hub .vh-step:hover{border-color:rgba(96,165,250,0.4);transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,0.35);}
+        #voter-hub .vh-step-n{position:absolute;top:-0.7rem;left:1.05rem;width:1.7rem;height:1.7rem;border-radius:999px;
+          display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#0a0f1e;
+          background:linear-gradient(135deg,#fad96a,#e6b800);box-shadow:0 4px 12px rgba(245,200,66,0.4);border:2px solid rgba(10,15,30,0.9);}
+        #voter-hub .vh-step-ico{font-size:1.5rem;line-height:1;margin:0.45rem 0 0.5rem;display:block;}
+        #voter-hub .vh-step-t{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.03em;font-size:1.02rem;
+          color:#fff;line-height:1.1;}
+        #voter-hub .vh-step-d{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.45;color:#9fb4d4;margin-top:0.3rem;}
+        #voter-hub .vh-step-d strong{color:#e6eefb;font-weight:700;}
+        /* Primary calls to action */
+        #voter-hub .vh-cta-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.75rem;margin-top:1.8rem;}
+        #voter-hub .vh-cta-primary{display:inline-flex;align-items:center;gap:0.55rem;cursor:pointer;
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;
+          background:linear-gradient(135deg,#d91a31,#c0152a);border:1px solid rgba(255,255,255,0.14);border-radius:0.9rem;
+          padding:0.95rem 1.7rem;min-height:48px;box-shadow:0 8px 28px rgba(192,21,42,0.4),0 0 18px rgba(192,21,42,0.2);
+          transition:transform 0.2s ease,box-shadow 0.2s ease,background 0.2s ease;}
+        #voter-hub .vh-cta-primary:hover{background:linear-gradient(135deg,#ff2d4a,#d91a31);transform:translateY(-2px);
+          box-shadow:0 12px 36px rgba(192,21,42,0.55),0 0 26px rgba(192,21,42,0.3);}
+        #voter-hub .vh-cta-secondary{display:inline-flex;align-items:center;gap:0.5rem;cursor:pointer;
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:0.1em;text-transform:uppercase;color:#bcd3f5;
+          background:rgba(59,130,246,0.08);border:1px solid rgba(96,165,250,0.35);border-radius:0.9rem;padding:0.95rem 1.5rem;min-height:48px;
+          transition:color 0.2s ease,background 0.2s ease,border-color 0.2s ease;}
+        #voter-hub .vh-cta-secondary:hover{color:#fff;background:rgba(59,130,246,0.18);border-color:rgba(96,165,250,0.6);}
+        #voter-hub .vh-reassure{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;letter-spacing:0.03em;color:#7e93b4;
+          margin-top:0.95rem;display:inline-flex;align-items:center;gap:0.4rem;}
+        #voter-hub .vh-reassure strong{color:#a7f3d0;font-weight:700;}
+        @media (max-width:680px){
+          #voter-hub .vh-contrast{grid-template-columns:1fr;gap:0.6rem;}
+          #voter-hub .vh-c-vs{padding:0.1rem 0;}
+          #voter-hub .vh-steps{grid-template-columns:1fr;gap:1.1rem 0.85rem;}
+          #voter-hub .vh-cta-row{flex-direction:column;}
+          #voter-hub .vh-cta-primary,#voter-hub .vh-cta-secondary{width:100%;justify-content:center;}
+        }
+      </style>
+      <div class="text-center mb-10 animate-on-scroll vh-intro">
         <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
           <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ The Main Event · Build Your Team</span>
         </div>
         <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          This is the heart of PolitiDex. Fill every seat on your ballot with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> &mdash; not just whoever has the right letter next to their name. Set your location, then start picking the people who earn your vote.
+          This is the heart of PolitiDex. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. PolitiDex helps you fill each one with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your team so it's ready on election day.
         </p>
+
+        <!-- The difference: party-first voting vs. person-first voting -->
+        <div class="vh-contrast">
+          <div class="vh-c-card vh-c-old">
+            <span class="vh-c-tag">🥱 The usual way</span>
+            <div class="vh-c-q">“Which party am I?”</div>
+            <p class="vh-c-sub">Vote the whole ticket by the letter next to each name — and hope they earn it.</p>
+          </div>
+          <div class="vh-c-vs">VS</div>
+          <div class="vh-c-card vh-c-new">
+            <span class="vh-c-tag">✅ The PolitiDex way</span>
+            <div class="vh-c-q">“Who actually earns my vote?”</div>
+            <p class="vh-c-sub">Judge each candidate on record and values, one office at a time. No party required.</p>
+          </div>
+        </div>
+
+        <!-- First-time guidance: three simple steps -->
+        <div class="vh-steps">
+          <div class="vh-step">
+            <span class="vh-step-n">1</span>
+            <span class="vh-step-ico">📍</span>
+            <div class="vh-step-t">Set your location</div>
+            <p class="vh-step-d">Tell us where you vote and we'll pull <strong>your real ballot</strong> — the exact races you'll decide.</p>
+          </div>
+          <div class="vh-step">
+            <span class="vh-step-n">2</span>
+            <span class="vh-step-ico">🔎</span>
+            <div class="vh-step-t">Meet who's running</div>
+            <p class="vh-step-d">See every candidate's <strong>promise score and values</strong> — no party spin, just the receipts.</p>
+          </div>
+          <div class="vh-step">
+            <span class="vh-step-n">3</span>
+            <span class="vh-step-ico">⭐</span>
+            <div class="vh-step-t">Pick your team</div>
+            <p class="vh-step-d">Add the person who earns each seat. Your slate <strong>saves automatically</strong> for election day.</p>
+          </div>
+        </div>
+
+        <!-- Clear, prioritized calls to action -->
+        <div class="vh-cta-row">
+          <button type="button" class="vh-cta-primary" onclick="window.toggleChangeLocation && window.toggleChangeLocation()">📍 Start — set my location</button>
+          <button type="button" class="vh-cta-secondary" onclick="window.jumpToRelevantAccordion && window.jumpToRelevantAccordion('senate')">⭐ Jump to my team</button>
+        </div>
+        <div>
+          <span class="vh-reassure">🔒 <strong>Free &amp; non-partisan.</strong>&nbsp;No sign-up needed — your team saves right here on this device.</span>
+        </div>
       </div>
 
       <!-- ── Prominent Location Selector Card ──────────────── -->
