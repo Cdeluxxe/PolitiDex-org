@@ -14911,6 +14911,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         window.pmCreateNew(_pmSeatPrefill(key, num));
       };
 
+      // ── Expose the Utah seat-coverage helpers to the global scope ──
+      // These functions/tables live inside this IIFE, but the Database
+      // Coverage dashboard's updateExpansionStats() is defined further down the
+      // page OUTSIDE this closure. Without this bridge its
+      // `typeof _pmUtahCoverage === 'function'` guard fails, the seat map comes
+      // back null, and the Federal / Statewide / State Senate / State House
+      // bars are stuck at 0 no matter what's in Firestore. Publishing the same
+      // (live-PROFILES-backed) helpers lets the dashboard derive every
+      // legislative category from real data. Closures keep their private
+      // helpers (_pmAll, _pmNormName, _pmDistrictNum…) so behavior is identical.
+      window._pmUtahCoverage  = _pmUtahCoverage;
+      window._pmUtahChamber   = _pmUtahChamber;
+      window._pmIsUtah        = _pmIsUtah;
+      window.PM_UTAH_CHAMBERS = PM_UTAH_CHAMBERS;
+      window.PM_UTAH_STATEWIDE = PM_UTAH_STATEWIDE;
+
       // Aggregate coverage by state and by office type — the broad view that
       // exposes thin coverage outside the Utah seat map.
       function _pmCoverageBreakdown() {
@@ -18922,7 +18938,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var totalAll = rows.length;
       var utahRows = rows.filter(function(row) {
-        return (typeof _pmIsUtah === 'function') ? _pmIsUtah(row.p.state) : /^(utah|ut)$/i.test(String(row.p.state || '').trim());
+        return (typeof window._pmIsUtah === 'function') ? window._pmIsUtah(row.p.state) : /^(utah|ut)$/i.test(String(row.p.state || '').trim());
       });
 
       var targets = { federal: 6, statewide: 5, senate: 29, house: 75, local: 60, cand: 24 };
@@ -18945,10 +18961,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return (county || 'utah') + '|' + (t || name || id);
       }
 
-      var cov = (typeof _pmUtahCoverage === 'function') ? _pmUtahCoverage() : null;
+      var cov = (typeof window._pmUtahCoverage === 'function') ? window._pmUtahCoverage() : null;
+      var chambers = (typeof window.PM_UTAH_CHAMBERS !== 'undefined' ? window.PM_UTAH_CHAMBERS : []);
       if (cov && cov.seats) {
         ['us-house', 'us-senate'].forEach(function(key) {
-          var chamber = (typeof PM_UTAH_CHAMBERS !== 'undefined' ? PM_UTAH_CHAMBERS : []).filter(function(c) { return c.key === key; })[0];
+          var chamber = chambers.filter(function(c) { return c.key === key; })[0];
           var bucket = cov.seats[key];
           if (!bucket || !chamber) return;
           if (chamber.hasDistricts) {
@@ -18964,7 +18981,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         });
 
         ['state-senate', 'state-house'].forEach(function(key) {
-          var chamber = (typeof PM_UTAH_CHAMBERS !== 'undefined' ? PM_UTAH_CHAMBERS : []).filter(function(c) { return c.key === key; })[0];
+          var chamber = chambers.filter(function(c) { return c.key === key; })[0];
           var bucket = cov.seats[key];
           var statKey = key === 'state-senate' ? 'senate' : 'house';
           if (!bucket || !chamber) return;
@@ -18975,8 +18992,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           raw[statKey] += bucket.review ? bucket.review.length : 0;
         });
 
-        if (cov.statewide && typeof PM_UTAH_STATEWIDE !== 'undefined') {
-          PM_UTAH_STATEWIDE.forEach(function(s) {
+        if (cov.statewide && typeof window.PM_UTAH_STATEWIDE !== 'undefined') {
+          window.PM_UTAH_STATEWIDE.forEach(function(s) {
             var held = (cov.statewide[s.key] || []).length;
             raw.statewide += held;
             if (held) filled.statewide++;
@@ -18986,7 +19003,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       utahRows.forEach(function(row) {
         var p = row.p;
-        var ch = (typeof _pmUtahChamber === 'function') ? _pmUtahChamber(p) : null;
+        var ch = (typeof window._pmUtahChamber === 'function') ? window._pmUtahChamber(p) : null;
         if (isCandidate(p)) {
           raw.cand++;
           candidateSeatKeys[officeText(p).toLowerCase().replace(/\s+/g, ' ').trim() || row.id] = true;
