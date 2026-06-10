@@ -13695,6 +13695,7 @@
             <span aria-hidden="true">🔄</span>
             <span id="stats-refresh-label">Refresh Stats</span>
           </button>
+          <div id="stats-live-note" class="mt-2 font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Waiting for live Firestore counts...</div>
         </div>
       </div>
 
@@ -13706,7 +13707,7 @@
           <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
           <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Total Database Size</h4>
           <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">0</div>
-          <p class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
+          <p id="stats-total-detail" class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
         </div>
 
         <!-- Card 2: Utah Specific Total -->
@@ -13722,6 +13723,7 @@
             <div id="stats-utah-overall-bar" class="bg-gradient-to-r from-crimson-500 via-gold-400 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
           </div>
           <p class="text-xs text-steel-300 leading-relaxed font-body">Verified Utah officials and 2026 candidates tracked, against our target roster of federal, statewide, legislative, and county seats.</p>
+          <p id="stats-utah-detail" class="text-[11px] text-steel-500 leading-relaxed font-body mt-1.5">Live Utah records are counted from Firestore.</p>
         </div>
       </div>
 
@@ -13738,6 +13740,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏛️</span> Federal Delegation</span>
               <span id="stats-cat-federal-pct" class="font-condensed tracking-wide text-steel-300">0 / 6</span>
             </div>
+            <div id="stats-cat-federal-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-federal-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -13748,6 +13751,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">⭐</span> Statewide Offices</span>
               <span id="stats-cat-statewide-pct" class="font-condensed tracking-wide text-steel-300">0 / 5</span>
             </div>
+            <div id="stats-cat-statewide-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-statewide-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -13758,6 +13762,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏢</span> State Senate</span>
               <span id="stats-cat-senate-pct" class="font-condensed tracking-wide text-steel-300">0 / 29</span>
             </div>
+            <div id="stats-cat-senate-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-senate-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -13768,6 +13773,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏛</span> State House</span>
               <span id="stats-cat-house-pct" class="font-condensed tracking-wide text-steel-300">0 / 75</span>
             </div>
+            <div id="stats-cat-house-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-house-bar" class="bg-gradient-to-r from-crimson-500 to-crimson-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -13778,6 +13784,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">📍</span> Local &amp; County</span>
               <span id="stats-cat-local-pct" class="font-condensed tracking-wide text-steel-300">0 / 60</span>
             </div>
+            <div id="stats-cat-local-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-local-bar" class="bg-gradient-to-r from-steel-500 to-steel-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -13788,6 +13795,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🗳️</span> 2026 Candidates</span>
               <span id="stats-cat-cand-pct" class="font-condensed tracking-wide text-steel-300">0 / 24</span>
             </div>
+            <div id="stats-cat-cand-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-cand-bar" class="bg-gradient-to-r from-gold-600 to-gold-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -18903,62 +18911,131 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
     })();
 
-    window.updateExpansionStats = function() {
+    window.updateExpansionStats = function(options) {
       if (typeof PROFILES === 'undefined') return;
+      options = options || {};
 
-      var _clean = (typeof window._cleanProfiles === 'function') ? window._cleanProfiles() : null;
-      var cleanProfiles = _clean ? _clean.profiles : PROFILES;
-      var totalAll = Object.keys(cleanProfiles).length;
-      var profilesArr = Object.values(cleanProfiles);
-
-      var isUtah = function(p) { return p.state === 'Utah' || p.state === 'UT'; };
-      var utahProfiles = profilesArr.filter(isUtah);
-
-      var officeOf = function(p) { return (p.office || '') + ''; };
-      var isCandidate = function(p) {
-        return /Candidate/i.test(officeOf(p)) || /2026/i.test(officeOf(p) + ' ' + (p.bio || ''));
-      };
-
-      // Category counts (candidates handled separately so seats aren't double-counted)
-      var federalCount = 0, statewideCount = 0, senateCount = 0, houseCount = 0, localCount = 0, candCount = 0;
-      utahProfiles.forEach(function(p) {
-        var office = officeOf(p);
-        if (isCandidate(p)) { candCount++; return; }
-        if (/State\s*Sen/i.test(office)) { senateCount++; return; }
-        if (/State\s*Rep|State\s*Legislat|Assembly/i.test(office)) { houseCount++; return; }
-        if (/U\.?S\.?\s*(Sen|Rep|House|Congress)|Congress|Senator|Representative/i.test(office)) { federalCount++; return; }
-        if (/Governor|Lt\.?\s*Governor|Lieutenant|Attorney\s*General|Treasurer|Auditor|Secretary\s*of\s*State|Statewide/i.test(office)) { statewideCount++; return; }
-        if (/County|Mayor|Council|Commission|School\s*Board|City|Sheriff|District\s*Attorney|Clerk|Recorder/i.test(office)) { localCount++; return; }
-        // Fallback: legislative-looking entries land in the House bucket
-        if (/Legislature|District/i.test(office)) { houseCount++; return; }
-        localCount++;
+      var rows = [];
+      Object.keys(PROFILES || {}).forEach(function(id) {
+        rows.push({ id: id, p: PROFILES[id] || {} });
       });
 
-      // Target roster of Utah seats by category
+      var totalAll = rows.length;
+      var utahRows = rows.filter(function(row) {
+        return (typeof _pmIsUtah === 'function') ? _pmIsUtah(row.p.state) : /^(utah|ut)$/i.test(String(row.p.state || '').trim());
+      });
+
       var targets = { federal: 6, statewide: 5, senate: 29, house: 75, local: 60, cand: 24 };
-      var counts  = { federal: federalCount, statewide: statewideCount, senate: senateCount, house: houseCount, local: localCount, cand: candCount };
+      var raw = { federal: 0, statewide: 0, senate: 0, house: 0, local: 0, cand: 0 };
+      var filled = { federal: 0, statewide: 0, senate: 0, house: 0, local: 0, cand: 0 };
+      var candidateSeatKeys = {};
+      var localSeatKeys = {};
+
+      function officeText(p) {
+        return String((p && p.office) || '') + ' ' + String((p && p.district) || '') + ' ' + String((p && p.title) || '');
+      }
+      function isCandidate(p) {
+        var t = officeText(p) + ' ' + String((p && p.bio) || '') + ' ' + String((p && p.cycle) || '') + ' ' + String((p && p.electionYear) || '');
+        return /(?:\b2026\b|candidate|campaign|running\s+for|challenger)/i.test(t);
+      }
+      function localSeatKey(p, id) {
+        var t = officeText(p).toLowerCase().replace(/\s+/g, ' ').trim();
+        var county = String((p && (p.county || p.locality || p.city)) || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        var name = String((p && p.name) || id || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        return (county || 'utah') + '|' + (t || name || id);
+      }
+
+      var cov = (typeof _pmUtahCoverage === 'function') ? _pmUtahCoverage() : null;
+      if (cov && cov.seats) {
+        ['us-house', 'us-senate'].forEach(function(key) {
+          var chamber = (typeof PM_UTAH_CHAMBERS !== 'undefined' ? PM_UTAH_CHAMBERS : []).filter(function(c) { return c.key === key; })[0];
+          var bucket = cov.seats[key];
+          if (!bucket || !chamber) return;
+          if (chamber.hasDistricts) {
+            for (var d = 1; d <= chamber.total; d++) {
+              if (bucket.mapped[d] && bucket.mapped[d].length) filled.federal++;
+              raw.federal += bucket.mapped[d] ? bucket.mapped[d].length : 0;
+            }
+            raw.federal += bucket.review ? bucket.review.length : 0;
+          } else {
+            raw.federal += bucket.unmapped.length + Object.keys(bucket.mapped || {}).length;
+            filled.federal += Math.min(raw.federal, chamber.total);
+          }
+        });
+
+        ['state-senate', 'state-house'].forEach(function(key) {
+          var chamber = (typeof PM_UTAH_CHAMBERS !== 'undefined' ? PM_UTAH_CHAMBERS : []).filter(function(c) { return c.key === key; })[0];
+          var bucket = cov.seats[key];
+          var statKey = key === 'state-senate' ? 'senate' : 'house';
+          if (!bucket || !chamber) return;
+          for (var d = 1; d <= chamber.total; d++) {
+            if (bucket.mapped[d] && bucket.mapped[d].length) filled[statKey]++;
+            raw[statKey] += bucket.mapped[d] ? bucket.mapped[d].length : 0;
+          }
+          raw[statKey] += bucket.review ? bucket.review.length : 0;
+        });
+
+        if (cov.statewide && typeof PM_UTAH_STATEWIDE !== 'undefined') {
+          PM_UTAH_STATEWIDE.forEach(function(s) {
+            var held = (cov.statewide[s.key] || []).length;
+            raw.statewide += held;
+            if (held) filled.statewide++;
+          });
+        }
+      }
+
+      utahRows.forEach(function(row) {
+        var p = row.p;
+        var ch = (typeof _pmUtahChamber === 'function') ? _pmUtahChamber(p) : null;
+        if (isCandidate(p)) {
+          raw.cand++;
+          candidateSeatKeys[officeText(p).toLowerCase().replace(/\s+/g, ' ').trim() || row.id] = true;
+        }
+        if (!ch && /County|Mayor|Council|Commission|School\s*Board|City|Sheriff|District\s*Attorney|Clerk|Recorder/i.test(officeText(p))) {
+          raw.local++;
+          localSeatKeys[localSeatKey(p, row.id)] = true;
+        }
+      });
+      filled.cand = Math.min(Object.keys(candidateSeatKeys).length, targets.cand);
+      filled.local = Math.min(Object.keys(localSeatKeys).length, targets.local);
 
       var coveredTotal = 0, targetTotal = 0;
       Object.keys(targets).forEach(function(k) {
-        coveredTotal += Math.min(counts[k], targets[k]);
+        coveredTotal += Math.min(filled[k], targets[k]);
         targetTotal += targets[k];
       });
 
-      var setBar = function(key) {
+      function pctFor(key) {
+        return targets[key] ? Math.round((Math.min(filled[key], targets[key]) / targets[key]) * 100) : 0;
+      }
+      function setBar(key) {
         var pctEl = document.getElementById('stats-cat-' + key + '-pct');
         var barEl = document.getElementById('stats-cat-' + key + '-bar');
-        var shown = Math.min(counts[key], targets[key]);
-        if (pctEl) pctEl.textContent = shown + ' / ' + targets[key];
-        if (barEl) barEl.style.width = Math.min(100, (counts[key] / targets[key]) * 100) + '%';
-      };
+        var detailEl = document.getElementById('stats-cat-' + key + '-detail');
+        var shown = Math.min(filled[key], targets[key]);
+        var pct = pctFor(key);
+        if (pctEl) pctEl.textContent = shown + ' / ' + targets[key] + ' (' + pct + '%)';
+        if (barEl) {
+          barEl.style.width = Math.min(100, pct) + '%';
+          barEl.setAttribute('aria-valuenow', String(pct));
+        }
+        if (detailEl) {
+          var seatWord = (key === 'cand') ? 'candidate slots' : 'distinct seats';
+          detailEl.textContent = raw[key] + ' live record' + (raw[key] === 1 ? '' : 's') + ' matched, ' + shown + ' ' + seatWord + ' covered';
+        }
+      }
 
-      // Update DOM
       var totalAllEl = document.getElementById('stats-total-all');
-      if (totalAllEl) totalAllEl.textContent = totalAll;
+      if (totalAllEl) totalAllEl.textContent = totalAll.toLocaleString();
+
+      var totalDetailEl = document.getElementById('stats-total-detail');
+      if (totalDetailEl) {
+        totalDetailEl.textContent = 'Live documents in Firestore politicians collection. Utah-tagged records: ' + utahRows.length.toLocaleString() + '.';
+      }
 
       var utahTotalEl = document.getElementById('stats-utah-total');
       if (utahTotalEl) {
-        utahTotalEl.innerHTML = coveredTotal + ' <span class="text-sm font-condensed text-steel-400">/ ' + targetTotal + '</span>';
+        utahTotalEl.innerHTML = coveredTotal.toLocaleString() + ' <span class="text-sm font-condensed text-steel-400">/ ' + targetTotal.toLocaleString() + '</span>';
       }
 
       var utahPctEl = document.getElementById('stats-utah-pct');
@@ -18966,9 +19043,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (utahPctEl) utahPctEl.textContent = overallPct + '%';
 
       var overallBarEl = document.getElementById('stats-utah-overall-bar');
-      if (overallBarEl) overallBarEl.style.width = Math.min(100, overallPct) + '%';
+      if (overallBarEl) {
+        overallBarEl.style.width = Math.min(100, overallPct) + '%';
+        overallBarEl.setAttribute('aria-valuenow', String(overallPct));
+      }
+
+      var utahDetailEl = document.getElementById('stats-utah-detail');
+      if (utahDetailEl) {
+        utahDetailEl.textContent = coveredTotal + ' tracked seats/candidate slots from ' + utahRows.length + ' Utah Firestore record' + (utahRows.length === 1 ? '' : 's') + '. Duplicate records do not inflate seat coverage.';
+      }
 
       ['federal', 'statewide', 'senate', 'house', 'local', 'cand'].forEach(setBar);
+
+      var note = document.getElementById('stats-live-note');
+      if (note) {
+        var stamp = options.refreshedAt || new Date();
+        note.textContent = 'Live Firestore counts loaded ' + stamp.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      }
+
+      window._latestExpansionStats = {
+        totalAll: totalAll,
+        utahRecords: utahRows.length,
+        coveredTotal: coveredTotal,
+        targetTotal: targetTotal,
+        targets: targets,
+        raw: raw,
+        filled: filled,
+        overallPct: overallPct
+      };
     };
 
     // ──────────────────────────────────────────────────────────────
@@ -18979,20 +19081,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // On page load every document in the Firestore "politicians" collection is
     // fetched into the global PROFILES object (see the loader at the very top
     // of this file: db.collection("politicians").get()). updateExpansionStats()
-    // above then derives every number on the dashboard from that live data set
-    // — none of the figures are hardcoded:
-    //   • Total Database Size    → total number of politician documents
-    //                              (Object.keys(PROFILES).length)
-    //   • Utah Database Coverage → documents with state "Utah"/"UT", scored
-    //                              against the target roster (e.g. 133 / 199)
-    //   • State Senate / House   → Utah documents whose office is a
-    //                              state-legislature seat (House shown out of 75)
-    //   • 2026 Candidates        → documents whose office/bio marks them as a
-    //                              2026 candidate
-    // Office strings in the database are descriptive (e.g. "State Representative
-    // (Dist. 60)", "Candidate for Congress"), so each category is matched with a
-    // small regular expression rather than an exact string compare. Adjust the
-    // regexes / target counts inside updateExpansionStats() to tune the buckets.
+    // above then derives every number on the dashboard from that live data set.
+    // Total Database Size is the raw collection size. Seat coverage is distinct
+    // seats/candidate slots filled, with raw matched records shown separately so
+    // duplicate or overlapping records do not inflate coverage percentages.
     //
     // refreshDashboardStats() re-queries Firestore on demand (the "Refresh
     // Stats" button) so the numbers can be brought up to date without a full
@@ -19016,7 +19108,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         Object.keys(PROFILES).forEach(function(k) { delete PROFILES[k]; });
         Object.keys(fresh).forEach(function(k) { PROFILES[k] = fresh[k]; });
 
-        if (typeof updateExpansionStats === 'function') updateExpansionStats();
+        if (typeof updateExpansionStats === 'function') updateExpansionStats({ refreshedAt: new Date() });
+        if (typeof window.pmRenderCoverage === 'function') window.pmRenderCoverage();
 
         if (typeof window._showToast === 'function') {
           window._showToast('Stats refreshed from the live database — ' + querySnapshot.size + ' politicians tracked. 🇺🇸');
