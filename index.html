@@ -12864,7 +12864,7 @@
                   <span style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);pointer-events:none;color:#60a5fa;font-size:0.7rem;">▼</span>
                 </div>
               </div>
-              <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">Covers Utah’s major counties and population centers.</span></p>
+              <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the House, Senate, and Congressional races mapped for your Utah community. <span class="text-blue-300/80">Local profiles are strongest in covered districts and expand as new records are verified.</span></p>
             </div>
 
             <!-- Race cards injected here -->
@@ -29216,6 +29216,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       else if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) normalizedCounty = 'Utah County';
       else if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) normalizedCounty = 'Washington County';
       else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
+      else if (ucLower.includes('cache') || ucLower.includes('logan')) normalizedCounty = 'Cache County';
+      else if (ucLower.includes('box elder') || ucLower.includes('brigham')) normalizedCounty = 'Box Elder County';
+      else if (ucLower.includes('tooele') || ucLower.includes('grantsville')) normalizedCounty = 'Tooele County';
+      else if (ucLower.includes('summit') || ucLower.includes('park city')) normalizedCounty = 'Summit County';
+      else if (ucLower.includes('wasatch') || ucLower.includes('heber')) normalizedCounty = 'Wasatch County';
+      else if (ucLower.includes('uintah') || ucLower.includes('vernal') || ucLower.includes('duchesne')) normalizedCounty = 'Uintah County';
+      else if (ucLower.includes('carbon') || ucLower.includes('price') || ucLower.includes('emery')) normalizedCounty = 'Carbon County';
+      else if (ucLower.includes('grand') || ucLower.includes('moab')) normalizedCounty = 'Grand County';
+      else if (ucLower.includes('sevier') || ucLower.includes('richfield') || ucLower.includes('sanpete')) normalizedCounty = 'Sevier County';
+      else if (ucLower.includes('iron') || ucLower.includes('cedar')) normalizedCounty = 'Iron County';
       else normalizedCounty = userCounty;
     }
     var areaName;
@@ -35324,6 +35334,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else if (ucLower.includes('utah') || ucLower.includes('provo') || ucLower.includes('orem')) normalizedCounty = 'Utah County';
         else if (ucLower.includes('washington') || ucLower.includes('st. george') || ucLower.includes('st george')) normalizedCounty = 'Washington County';
         else if (ucLower.includes('weber') || ucLower.includes('ogden')) normalizedCounty = 'Weber County';
+        else if (ucLower.includes('cache') || ucLower.includes('logan')) normalizedCounty = 'Cache County';
+        else if (ucLower.includes('box elder') || ucLower.includes('brigham')) normalizedCounty = 'Box Elder County';
+        else if (ucLower.includes('tooele') || ucLower.includes('grantsville')) normalizedCounty = 'Tooele County';
+        else if (ucLower.includes('summit') || ucLower.includes('park city')) normalizedCounty = 'Summit County';
+        else if (ucLower.includes('wasatch') || ucLower.includes('heber')) normalizedCounty = 'Wasatch County';
+        else if (ucLower.includes('uintah') || ucLower.includes('vernal') || ucLower.includes('duchesne')) normalizedCounty = 'Uintah County';
+        else if (ucLower.includes('carbon') || ucLower.includes('price') || ucLower.includes('emery')) normalizedCounty = 'Carbon County';
+        else if (ucLower.includes('grand') || ucLower.includes('moab')) normalizedCounty = 'Grand County';
+        else if (ucLower.includes('sevier') || ucLower.includes('richfield') || ucLower.includes('sanpete')) normalizedCounty = 'Sevier County';
+        else if (ucLower.includes('iron') || ucLower.includes('cedar')) normalizedCounty = 'Iron County';
         else normalizedCounty = userCounty;
       }
 
@@ -35378,7 +35398,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         // 1. Curated Key Races roster — anyone explicitly placed on this county's
         //    ballot belongs to it, even when their district number can't be parsed.
-        var locIdMap = { 'Davis County': 'davis', 'Utah County': 'utah_co', 'Washington County': 'washington', 'Weber County': 'weber' };
+        var locIdMap = {
+          'Davis County': 'davis', 'Salt Lake County': 'slc', 'Utah County': 'utah_co',
+          'Washington County': 'washington', 'Weber County': 'weber', 'Cache County': 'cache',
+          'Box Elder County': 'box_elder', 'Tooele County': 'tooele', 'Summit County': 'summit',
+          'Wasatch County': 'wasatch', 'Uintah County': 'vernal', 'Carbon County': 'price',
+          'Grand County': 'moab', 'Sevier County': 'richfield', 'Iron County': 'cedar_city'
+        };
         var targetLocId = locIdMap[normalizedCounty];
         if (targetLocId && KEY_RACES_BY_LOCATION[targetLocId]) {
           var inRoster = false;
@@ -35423,9 +35449,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var label = (_getPoliticianDistrictOrCounty(pid) + ' ' + (d.office || '')).toLowerCase();
         var CITY_TOKENS = {
           'davis':      ['davis', 'layton', 'kaysville', 'clearfield', 'bountiful', 'farmington', 'centerville', 'syracuse', 'clinton'],
+          'salt lake':  ['salt lake', 'sandy', 'west valley', 'west jordan', 'south jordan', 'riverton', 'cottonwood', 'holladay', 'murray'],
           'utah':       ['provo', 'orem', 'lehi', 'american fork', 'spanish fork', 'springville', 'pleasant grove'],
           'washington': ['washington', 'st. george', 'st george', 'hurricane', 'ivins', 'santa clara'],
-          'weber':      ['weber', 'ogden', 'roy', 'north ogden', 'south ogden']
+          'weber':      ['weber', 'ogden', 'roy', 'north ogden', 'south ogden'],
+          'cache':      ['cache', 'logan', 'smithfield', 'hyrum', 'providence'],
+          'box elder':  ['box elder', 'brigham', 'tremonton'],
+          'tooele':     ['tooele', 'grantsville', 'stansbury'],
+          'summit':     ['summit', 'park city', 'coalville', 'kamas'],
+          'wasatch':    ['wasatch', 'heber', 'midway'],
+          'uintah':     ['uintah', 'vernal', 'duchesne', 'roosevelt'],
+          'carbon':     ['carbon', 'price', 'helper', 'emery'],
+          'grand':      ['grand', 'moab'],
+          'sevier':     ['sevier', 'richfield', 'salina', 'sanpete', 'manti', 'ephraim'],
+          'iron':       ['iron', 'cedar city', 'enoch', 'parowan']
         };
         var tokens = CITY_TOKENS[cLower] || [cLower];
         for (var ti = 0; ti < tokens.length; ti++) {
@@ -35726,6 +35763,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           overview += '</div>';
         }
         overview += '</div>';
+      }
+      if (krMatched && krData && krData.byRace) {
+        var limitedBits = [];
+        var raceLabels = {
+          house: 'U.S. House',
+          statesenate: 'State Senate',
+          statehouse: 'State House'
+        };
+        Object.keys(raceLabels).forEach(function(rk) {
+          var rr = krData.byRace[rk];
+          if (!rr) return;
+          var hasProfile = (rr.pids || []).some(function(pid) { return !!(typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]); });
+          if (!hasProfile) limitedBits.push(raceLabels[rk] + (rr.district ? ' District ' + rr.district : ''));
+        });
+        if (limitedBits.length) {
+          overview += '<div style="margin:-0.35rem 0 1.1rem;padding:0.85rem 1rem;border-radius:0.95rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.28);display:flex;gap:0.65rem;align-items:flex-start;">' +
+            '<span style="font-size:1rem;line-height:1.2;">📋</span>' +
+            '<div style="min-width:0;">' +
+              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:#fbbf24;">Local profile coverage is still expanding</div>' +
+              '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;color:#cbd5e1;line-height:1.35;margin:0.18rem 0 0;">PolitiDex has identified ' + limitedBits.join(', ') + ' for this area, but the local profile data is not published yet. Statewide and congressional records still show now, and these slots will fill in as local profiles are added.</p>' +
+            '</div>' +
+          '</div>';
+        }
       }
 
       // Values-first frame for the whole section: this is about the person, not
@@ -36703,7 +36763,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { id: 'lehi',         label: 'Lehi / Eagle Mountain',          city: 'Lehi',            county: 'Utah County' },
       // Northern & western Utah
       { id: 'cache',        label: 'Logan / Cache County',           city: 'Logan',           county: 'Cache County' },
+      { id: 'box_elder',    label: 'Brigham City / Box Elder County', city: 'Brigham City',    county: 'Box Elder County' },
       { id: 'tooele',       label: 'Tooele / Grantsville',           city: 'Tooele',          county: 'Tooele County' },
+      { id: 'summit',       label: 'Park City / Summit County',       city: 'Park City',       county: 'Summit County' },
+      { id: 'wasatch',      label: 'Heber / Wasatch County',          city: 'Heber',           county: 'Wasatch County' },
+      { id: 'vernal',       label: 'Vernal / Uintah Basin',           city: 'Vernal',          county: 'Uintah County' },
+      { id: 'price',        label: 'Price / Carbon County',           city: 'Price',           county: 'Carbon County' },
+      { id: 'moab',         label: 'Moab / Grand County',             city: 'Moab',            county: 'Grand County' },
+      { id: 'richfield',    label: 'Richfield / Sevier County',       city: 'Richfield',       county: 'Sevier County' },
       // Southern Utah
       { id: 'washington',   label: 'St. George / Washington County', city: 'St. George',      county: 'Washington County' },
       { id: 'cedar_city',   label: 'Cedar City / Iron County',       city: 'Cedar City',      county: 'Iron County' }
@@ -36775,11 +36842,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── St. George / Washington County ─────────────────────────────
       washington: [
         {
-          raceKey: 'statehouse', short: 'House District 71',
-          district: 'Utah House District 71', chamber: 'Utah State House',
+          raceKey: 'statehouse', short: 'House District 75',
+          district: 'Utah House District 75', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'rshipp',
           incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 71 choice to My Team',
+          addLabel: 'Add House District 75 choice to My Team',
           candidates: ['rshipp'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -36999,14 +37066,123 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Tooele / Grantsville (Tooele County) ───────────────────────
       tooele: [
-        { raceKey: 'statehouse', short: 'House District 68', district: 'Utah House District 68', chamber: 'Utah State House',
-          color: '#2dd4bf', incumbentPid: 'bolinder_h68', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 68 choice to My Team', candidates: ['bolinder_h68'],
+        { raceKey: 'statehouse', short: 'House District 67', district: 'Utah House District 67', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'sholland', incumbentNote: 'Incumbent — eligible for re-election in 2026',
+          addLabel: 'Add House District 67 choice to My Team', candidates: ['sholland'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
+        { raceKey: 'statesenate', short: 'Senate District 20', district: 'Utah Senate District 20', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 20', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 20 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the district mapped for Tooele County, but the local senator profile is not published in this build yet. Statewide and U.S. House records remain available below.' },
+        { raceKey: 'house', short: 'Congressional District 2', district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'maloy', incumbentNote: 'Incumbent — running for re-election in 2026',
+          incumbentSince: 2023, incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
+          addLabel: 'Add Congressional District 2 choice to My Team', candidates: ['maloy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      // ── Brigham City / Box Elder County ────────────────────────────
+      box_elder: [
+        { raceKey: 'statehouse', short: 'House District 1', district: 'Utah House District 1', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'jferry', incumbentName: 'House District 1 officeholder', incumbentNote: 'District identified — local profile coverage is still expanding',
+          addLabel: 'Add House District 1 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has mapped this district, but the full local profile may not be available in this build yet.' },
         { raceKey: 'statesenate', short: 'Senate District 1', district: 'Utah Senate District 1', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'ssandall', incumbentNote: 'Incumbent — your current state senator',
           addLabel: 'Add Senate District 1 choice to My Team', candidates: ['ssandall'],
-          extraNote: 'Senate District 1 spans Box Elder, Cache and Tooele counties. 2026 challenger filings are still being certified.' },
+          extraNote: 'Senate District 1 spans northern Utah. 2026 challenger filings are still being certified.' },
+        { raceKey: 'house', short: 'Congressional District 1', district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'bmoore', incumbentNote: 'Incumbent — running for re-election in 2026',
+          incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 1st District since 2021 and a member of U.S. House Republican leadership.',
+          addLabel: 'Add Congressional District 1 choice to My Team', candidates: ['bmoore'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      // ── Park City / Summit County ──────────────────────────────────
+      summit: [
+        { raceKey: 'statehouse', short: 'House District 65', district: 'Utah House District 65', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'jknotts', incumbentNote: 'Incumbent profile available — local coverage still expanding',
+          addLabel: 'Add House District 65 choice to My Team', candidates: ['jknotts'],
+          extraNote: 'Additional 2026 candidate filings for this district will appear as they are certified.' },
+        { raceKey: 'statesenate', short: 'Senate District 27', district: 'Utah Senate District 27', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 27', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 27 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the district mapped for Summit County, but the local senator profile is not published in this build yet.' },
+        { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
+          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      // ── Heber / Wasatch County ─────────────────────────────────────
+      wasatch: [
+        { raceKey: 'statehouse', short: 'House District 68', district: 'Utah House District 68', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentName: 'House District 68 officeholder', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add House District 68 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the district mapped for Wasatch County, but the local House profile is not published in this build yet.' },
+        { raceKey: 'statesenate', short: 'Senate District 27', district: 'Utah Senate District 27', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 27', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 27 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the district mapped for Wasatch County, but the local senator profile is not published in this build yet.' },
+        { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
+          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      // ── Eastern / rural Utah areas with thinner local profile coverage ─
+      vernal: [
+        { raceKey: 'statehouse', short: 'House District 72', district: 'Utah House District 72', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentName: 'House District 72 officeholder', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add House District 72 choice to My Team', candidates: [],
+          extraNote: 'Vernal is mapped to House District 72. PolitiDex is still adding the full local profile and 2026 candidate field.' },
+        { raceKey: 'statesenate', short: 'Senate District 26', district: 'Utah Senate District 26', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 26', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 26 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the Uintah Basin district mapped, but local Senate profile coverage is still being completed.' },
+        { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
+          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      price: [
+        { raceKey: 'statehouse', short: 'House District 71', district: 'Utah House District 71', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentName: 'House District 71 officeholder', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add House District 71 choice to My Team', candidates: [],
+          extraNote: 'Price is mapped to House District 71. PolitiDex is still adding the full local profile and 2026 candidate field.' },
+        { raceKey: 'statesenate', short: 'Senate District 26', district: 'Utah Senate District 26', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 26', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 26 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the Carbon County district mapped, but local Senate profile coverage is still being completed.' },
+        { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
+          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      moab: [
+        { raceKey: 'statehouse', short: 'House District 69', district: 'Utah House District 69', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentName: 'House District 69 officeholder', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add House District 69 choice to My Team', candidates: [],
+          extraNote: 'Moab is mapped to House District 69. PolitiDex is still adding the full local profile and 2026 candidate field.' },
+        { raceKey: 'statesenate', short: 'Senate District 26', district: 'Utah Senate District 26', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 26', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 26 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the Grand County district mapped, but local Senate profile coverage is still being completed.' },
+        { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
+          color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
+          incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
+          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
+      ],
+      richfield: [
+        { raceKey: 'statehouse', short: 'House District 70', district: 'Utah House District 70', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'carl_albrecht', incumbentNote: 'Incumbent profile available — local coverage still expanding',
+          addLabel: 'Add House District 70 choice to My Team', candidates: ['carl_albrecht'],
+          extraNote: 'Additional 2026 candidate filings for this district will appear as they are certified.' },
+        { raceKey: 'statesenate', short: 'Senate District 26', district: 'Utah Senate District 26', chamber: 'Utah State Senate',
+          color: '#a78bfa', incumbentName: 'State Senate District 26', incumbentNote: 'District identified — local profile is still being added',
+          addLabel: 'Add Senate District 26 choice to My Team', candidates: [],
+          extraNote: 'PolitiDex has the central Utah district mapped, but local Senate profile coverage is still being completed.' },
         { raceKey: 'house', short: 'Congressional District 2', district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'maloy', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023, incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
@@ -37105,11 +37281,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // ── Cache / Tooele ──
       if (county.indexOf('cache') !== -1 || city === 'logan' || city === 'north logan' || city === 'smithfield' || city === 'hyrum' || city === 'providence') return 'cache';
+      if (county.indexOf('box elder') !== -1 || city === 'brigham city' || city === 'tremonton' || city === 'perry' || city === 'willard') return 'box_elder';
       if (county.indexOf('tooele') !== -1 || city === 'tooele' || city === 'grantsville' || city === 'stansbury park') return 'tooele';
+      if (county.indexOf('summit') !== -1 || city === 'park city' || city === 'coalville' || city === 'kamas') return 'summit';
+      if (county.indexOf('wasatch') !== -1 || city === 'heber' || city === 'heber city' || city === 'midway') return 'wasatch';
 
       // ── Southern Utah ──
       if (county.indexOf('iron') !== -1 || city.indexOf('cedar city') !== -1 || city === 'enoch') return 'cedar_city';
       if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1 || city === 'hurricane' || city === 'washington' || city === 'santa clara' || city === 'ivins') return 'washington';
+      if (county.indexOf('uintah') !== -1 || county.indexOf('duchesne') !== -1 || city === 'vernal' || city === 'roosevelt' || city === 'duchesne') return 'vernal';
+      if (county.indexOf('carbon') !== -1 || county.indexOf('emery') !== -1 || city === 'price' || city === 'helper' || city === 'castle dale') return 'price';
+      if (county.indexOf('grand') !== -1 || city === 'moab') return 'moab';
+      if (county.indexOf('sevier') !== -1 || county.indexOf('sanpete') !== -1 || city === 'richfield' || city === 'salina' || city === 'ephraim' || city === 'manti') return 'richfield';
       return '';
     }
 
@@ -37718,14 +37901,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (incList.length) {
         holderHtml = incList.map(function(pid) { return _krIncumbentCard(race, pid, selectedPid); }).join('');
       } else {
+        var placeholderTitle = race.incumbentName || race.short || race.district || 'Local profile coming';
+        var placeholderNote = race.incumbentNote || 'PolitiDex has this district mapped, but the local officeholder profile is still being added.';
         holderHtml =
           '<div class="kr-incumbent-panel kr-open-panel" style="border-color:' + race.color + '55;">' +
             '<div style="display:flex;align-items:center;gap:0.9rem;">' +
-              '<div class="kr-open-avatar" style="border-color:' + race.color + '88;">🪑</div>' +
+              '<div class="kr-open-avatar" style="border-color:' + race.color + '88;">' + (race.incumbentName ? '📋' : '🪑') + '</div>' +
               '<div style="flex:1;min-width:0;">' +
-                '<span class="kr-open-badge">🪑 Open Seat</span>' +
-                '<div class="font-display text-xl text-white" style="line-height:1.05;margin-top:0.45rem;">' + (race.district || 'Open Seat · 2026') + '</div>' +
-                '<div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;margin-top:0.18rem;line-height:1.4;">' + (race.incumbentNote || 'No incumbent on the 2026 ballot — this seat is decided by the candidates below.') + '</div>' +
+                '<span class="kr-open-badge">' + (race.incumbentName ? '📋 Profile Coming' : '🪑 Open Seat') + '</span>' +
+                '<div class="font-display text-xl text-white" style="line-height:1.05;margin-top:0.45rem;">' + placeholderTitle + '</div>' +
+                '<div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;margin-top:0.18rem;line-height:1.4;">' + placeholderNote + '</div>' +
               '</div>' +
             '</div>' +
           '</div>';
@@ -37764,7 +37949,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // No one else is running yet — show a clean note instead of an empty list.
         candSection =
           '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>' +
-            (race.extraNote || 'No 2026 challengers have filed for this seat yet — check back as the field is certified.') +
+            (race.extraNote || (race.incumbentName ? 'Local candidate and officeholder profiles for this district are being added. Statewide and congressional records remain available now.' : 'No 2026 challengers have filed for this seat yet — check back as the field is certified.')) +
           '</span></div>';
       }
 
