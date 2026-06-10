@@ -19,6 +19,46 @@
   // Global cache for original states before they get overwritten by Firestore
   window._originalStates = {};
 
+  // ── Promise Score honesty guard ──────────────────────────────────────────
+  // A Promise Score (Follow-Through Rate) is only meaningful once at least one
+  // promise has actually resolved — i.e. been counted as kept or broken. With
+  // nothing resolved, any stored score is not a real follow-through record, so
+  // showing a percentage (e.g. "64%") is misleading, especially for 2026
+  // candidates and brand-new officeholders. These helpers let every display
+  // path treat the score as absent in that case and render "—" / "No record
+  // yet" instead, while leaving the underlying p.score untouched so sorting and
+  // the separate accountability model are unaffected.
+  window._pdxResolvedPromises = function(p) {
+    if (!p) return 0;
+    var k = parseInt(p.kept, 10);   if (isNaN(k)) k = 0;
+    var b = parseInt(p.broken, 10); if (isNaN(b)) b = 0;
+    // Fall back to a detailed promise list / breakdown when the summary counts
+    // are absent, so a profile that tracks promises only in those shapes still
+    // counts as having a record.
+    if (k + b === 0 && Array.isArray(p.promises)) {
+      for (var i = 0; i < p.promises.length; i++) {
+        var v = p.promises[i] && p.promises[i].verdict;
+        if (v === 'kept') k++; else if (v === 'broken') b++;
+      }
+    }
+    if (k + b === 0 && p.promiseBreakdown) {
+      var pk = parseInt(p.promiseBreakdown.kept, 10);   if (!isNaN(pk)) k += pk;
+      var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
+    }
+    return k + b;
+  };
+  window._pdxHasPromiseRecord = function(p) {
+    return window._pdxResolvedPromises(p) > 0;
+  };
+  // The Promise Score to DISPLAY: the stored score when there is a real record,
+  // otherwise null (callers render this as "—" / "No record yet").
+  window._pdxDisplayScore = function(p) {
+    if (!p) return null;
+    var s = p.score;
+    if (s === null || s === undefined || s === '') return null;
+    return window._pdxHasPromiseRecord(p) ? s : null;
+  };
+
   function _checkAndTrigger() {
     if (_firestoreLoaded && _domContentLoaded) {
       console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
@@ -25124,7 +25164,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Each profile opens with the promise list unfiltered ("All").
     window._pdxActiveFilter = 'all';
 
-    const scoreNum = p.score;
+    // Promise Score only counts once a promise has resolved (kept/broken).
+    // With nothing resolved, treat the score as absent so the hero ring, the
+    // score bar and the "No record yet" framing all read honestly rather than
+    // surfacing a misleading percentage.
+    const scoreNum = window._pdxDisplayScore(p);
     const scoreText = scoreNum === null ? '—' : scoreNum + '%';
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const barColor  = scoreNum === null ? 'linear-gradient(90deg,#334155,#64748b)' : scoreNum >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : scoreNum >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
@@ -31167,12 +31211,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     let rows = '';
 
     rows += sectionRow('📊 Promise Scores');
-    const _psVals = pids.map(pid => { const s = sc(pid).score; return (s === null || s === undefined) ? null : s; });
+    const _psVals = pids.map(pid => { const s = window._pdxDisplayScore(sc(pid)); return (s === null || s === undefined) ? null : s; });
     const _psLeader = leaderClasses(_psVals);
     rows += row('Promise Score', pids.map((pid, i) => {
-      const p = sc(pid); const col = scoreColor(p.score);
+      const p = sc(pid); const sVal = _psVals[i]; const col = scoreColor(sVal);
       const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
-      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${p.score !== null && p.score !== undefined ? p.score + '%' : '—'}</span>${lead}`;
+      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${lead}`;
     }), '', _psLeader);
     const _ftVals = pids.map(pid => followThrough(sc(pid)));
     const _ftLeader = leaderClasses(_ftVals);
@@ -31765,9 +31809,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var tid=m[0],sub=m[1],cty=m[2],dist=m[3],tc=TC[tid];
         var cont=getSub(tid,sub);if(!cont)continue;
         var iss=(p.keyIssues||[]).join(',');
-        var scNull=(p.score===null||p.score===undefined);
-        var sc=scNull?'#9fb4d4':(p.score>=70?'#34d399':p.score>=50?'#f5c842':'#f87171');
-        var scTxt=scNull?'—':p.score+'%';
+        // Only treat the score as real when a promise has actually resolved —
+        // a stored % with 0 kept + 0 broken reads as "No record yet" instead.
+        var scShow=window._pdxDisplayScore(p);
+        var scNull=(scShow===null||scShow===undefined);
+        var sc=scNull?'#9fb4d4':(scShow>=70?'#34d399':scShow>=50?'#f5c842':'#f87171');
+        var scTxt=scNull?'—':scShow+'%';
         // Promise Score pill — always rendered so every card reads as complete. A
         // scored politician shows the color-coded percentage; one with no record yet
         // shows a clean "No record yet" line in the same slot instead of a bare dash.
@@ -33106,7 +33153,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = CMP_DATA[pid];
       if (!d) return '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
-      var sc = d.score;
+      var sc = window._pdxDisplayScore(d);
       var hasScore = (sc !== null && sc !== undefined);
       var scCol = _chubScoreColor(sc);
 
@@ -33224,7 +33271,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _mypolRenderPrimaryCard(pid) {
       const d = CMP_DATA[pid];
       if (!d) return '';
-      const sc = d.score;
+      const sc = window._pdxDisplayScore(d);
       const scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
       const scCol = _chubScoreColor(sc);
       const sel = _cmpSelected.has(pid);
@@ -33396,7 +33443,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderSlotCard(pos, pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = d.score;
+      var sc = window._pdxDisplayScore(d);
       var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
       var scCol = _chubScoreColor(sc);
       var barClass = (sc !== null && sc !== undefined) ? (sc >= 70 ? 'bar-high' : sc >= 40 ? 'bar-mid' : 'bar-low') : 'bar-na';
@@ -33557,7 +33604,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (d) {
           filledCount++;
           filledPids.push(pid);
-          if (d.score !== null && d.score !== undefined) { totalScore += d.score; scoredCount++; }
+          var _dsc = window._pdxDisplayScore(d);
+          if (_dsc !== null && _dsc !== undefined) { totalScore += _dsc; scoredCount++; }
           slotsHtml += _renderSlotCard(pos, pid);
         } else {
           slotsHtml += _renderSlotEmpty(pos);
@@ -33733,7 +33781,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _renderMyTeamCard(pid) {
       var d = CMP_DATA[pid];
       if (!d) return '';
-      var sc = d.score;
+      var sc = window._pdxDisplayScore(d);
       var scTxt = (sc !== null && sc !== undefined) ? sc + '%' : '—';
       var scCol = _chubScoreColor(sc);
       var sel = _cmpSelected.has(pid);
@@ -36131,9 +36179,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         const pids = [..._cmpSelected];
         pills.innerHTML = pids.map(function(pid) {
           const d = CMP_DATA[pid];
-          const scCol = _chubScoreColor(d?.score);
+          const dsc = window._pdxDisplayScore(d);
+          const scCol = _chubScoreColor(dsc);
           return '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:rgba(30,53,96,0.6);border:1px solid rgba(96,165,250,0.3);color:white;font-family:\'Barlow Condensed\',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;padding:0.2rem 0.55rem;border-radius:999px;">' +
-            '<span style="color:' + scCol + ';font-size:0.65rem;">' + (d?.score != null ? d.score+'%' : '—') + '</span> ' + (d?.name || pid) +
+            '<span style="color:' + scCol + ';font-size:0.65rem;">' + (dsc != null ? dsc+'%' : '—') + '</span> ' + (d?.name || pid) +
             ' <button onclick="chubToggle(\'' + pid + '\')" style="background:none;border:none;color:#7596c0;cursor:pointer;padding:0;font-size:0.7rem;line-height:1;margin-left:0.1rem;" title="Remove">✕</button>' +
           '</span>';
         }).join('');
@@ -36473,7 +36522,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
 
         if (match) {
-          results.push({ pid: pid, name: d.name, office: d.office, score: d.score, icon: d.icon });
+          results.push({ pid: pid, name: d.name, office: d.office, score: window._pdxDisplayScore(d), icon: d.icon });
         }
       });
       results.sort(function(a, b) {
@@ -36622,8 +36671,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (d) {
           filled++;
           var photo = _getPhotoUrl(pid);
-          var sc = _scoreColor(d.score);
-          if (d.score !== null && d.score !== undefined) { totalScore += d.score; scoredCount++; }
+          var dsc = window._pdxDisplayScore(d);
+          var sc = _scoreColor(dsc);
+          if (dsc !== null && dsc !== undefined) { totalScore += dsc; scoredCount++; }
           var photoHtml = photo
             ? '<div class="myteam-sum-photo"><img src="' + photo + '" alt="' + d.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.4rem;color:#9fb4d4\\\'>' + (d.icon || '🏛') + '</div>\'"></div>'
             : '<div class="myteam-sum-photo" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#9fb4d4;">' + (d.icon || '🏛') + '</div>';
@@ -36632,7 +36682,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.58rem;margin-bottom:1px;">' + race.label + '</div>' +
             '<div class="font-display tracking-wider text-white leading-tight" style="font-size:0.78rem;margin-bottom:2px;">' + d.name + '</div>' +
             '<div class="font-condensed" style="font-size:0.55rem;color:#7596c0;margin-bottom:2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (d.office || '') + '</div>' +
-            (d.score !== null && d.score !== undefined ? '<div class="font-condensed" style="font-size:0.65rem;color:' + sc + ';font-weight:700;">' + d.score + '% Promise Score</div>' : '<div class="font-condensed" style="font-size:0.6rem;color:#64748b;">No score yet</div>') +
+            (dsc !== null && dsc !== undefined ? '<div class="font-condensed" style="font-size:0.65rem;color:' + sc + ';font-weight:700;">' + dsc + '% Promise Score</div>' : '<div class="font-condensed" style="font-size:0.6rem;color:#64748b;">No score yet</div>') +
             '<div class="myteam-card-btns">' +
               '<button class="myteam-profile-btn" onclick="event.stopPropagation();if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" title="View Full Profile">View Full Profile →</button>' +
               '<button class="ballot-clear-btn" onclick="event.stopPropagation();ballotClearRace(\'' + race.key + '\')" title="Remove pick" style="margin-top:0;font-size:0.6rem;">&times; Remove</button>' +
@@ -37582,7 +37632,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     Analysis). When no score exists yet it shows a clean "Tap to analyze"
     //     (incumbents) / "No record yet" (challengers) prompt instead of a number.
     function _krScoreCells(pid, d, isIncumbent) {
-      var hasScore = d.score !== null && d.score !== undefined;
+      var dScore = window._pdxDisplayScore(d);
+      var hasScore = dScore !== null && dScore !== undefined;
       var promiseHtml;
       if (hasScore) {
         var pCol = _krScoreColor(d.score);
@@ -37708,7 +37759,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // broken. So we detect the no-record case up front and replace the two empty
       // cells with a single, clean, intentional notice — while still showing the
       // real score strip the moment either score exists.
-      var hasPromise = d.score !== null && d.score !== undefined;
+      var hasPromise = window._pdxDisplayScore(d) !== null;
       var acctObj = (d.accountability && typeof d.accountability.overallScore === 'number')
         ? d.accountability
         : ((hasPromise && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
@@ -38381,7 +38432,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (best) {
         var isFlag = _krStanceIsFlag(best.t);
         var isVote = _krStanceIsConcrete(best.t);
-        var hasScore = d.score !== null && d.score !== undefined;
+        var hasScore = window._pdxDisplayScore(d) !== null;
         return {
           kind: isFlag ? 'flag' : (isVote ? 'vote' : 'position'),
           badge: isFlag ? 'On the Record' : (isVote ? 'Key Vote on File' : 'Where They Stand'),
@@ -38820,9 +38871,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (d) {
           filled++;
           var entry = race.label + ': ' + d.name;
-          if (d.score !== null && d.score !== undefined) {
-            entry += ' (' + d.score + '% Promise Score)';
-            totalScore += d.score;
+          var dsc = window._pdxDisplayScore(d);
+          if (dsc !== null && dsc !== undefined) {
+            entry += ' (' + dsc + '% Promise Score)';
+            totalScore += dsc;
             scoredCount++;
           }
           picks.push(entry);
