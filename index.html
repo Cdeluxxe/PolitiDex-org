@@ -42589,59 +42589,118 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span style="color:' + col + ';flex-shrink:0;font-size:0.66rem;line-height:1.5;font-weight:700;">' + sym + '</span>' +
             '<span style="font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + acctMd(txt) + '</span></div>';
         }
-        var driversHtml = '';
-        if (_acctPos.length || _acctNeg.length) {
-          driversHtml = '<div style="margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid rgba(139,92,246,0.22);">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.5rem;">⚖️ What\'s driving this score</div>';
-          _acctPos.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#4ade80', '▲'); });
-          _acctNeg.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#f87171', '▼'); });
-          driversHtml += '</div>';
-        }
-
-        // ── Spotlight → Score: the concrete, tappable bridge between the two
-        //    sections. Lists the exact Spotlight items currently tagged as score
-        //    drivers (▲ positive / ▼ negative), a one-line read of how recent
-        //    Spotlight activity is moving the score, and a clean honest empty
-        //    state when nothing is tagged yet (the score above still stands on
-        //    the verified record). Each row jumps to — and pulses — the matching
-        //    Spotlight card, mirroring the reverse jump from Spotlight.
+        // ── "Why This Score?" — one cohesive, honest breakdown ───────────────
+        //    Answers, in plain language, what is lifting and what is weighing on
+        //    the number above. It layers three transparent sources, glance →
+        //    detail: (1) a one-line synthesis of the strongest vs weakest scoring
+        //    category, (2) the analyst strengths / fact-checker concerns the
+        //    engine actually used, split into "Lifting" and "Weighing", and
+        //    (3) the curator-tagged Spotlight items the score is computed from,
+        //    each tapping through to its Spotlight card. Nothing is invented;
+        //    when the record is too thin to explain, it says so honestly.
         var slSafe = (typeof window._slSafeId === 'function') ? window._slSafeId(id) : safeId;
         var _slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
         var _slPos = 0, _slNeg = 0;
         _slDrivers.forEach(function(d){ if (d.impact === 'positive') _slPos++; else if (d.impact === 'negative') _slNeg++; });
-        var spotlightBlock = '<div style="margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid rgba(139,92,246,0.22);">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.55rem;">' +
-            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🔦 Spotlight items feeding this score</span>' +
-            (_slDrivers.length ? '<span style="display:inline-flex;gap:0.3rem;align-items:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;">' +
+
+        // Resolved-promise + stated-position signals let us tell a genuinely
+        // thin record apart from one we can actually explain. We only promise a
+        // detailed "why" when at least one concrete signal exists.
+        var _proms = Array.isArray(p.promises) ? p.promises : [];
+        var _keptN = _proms.filter(function(r){ return r && r.verdict === 'kept'; }).length;
+        var _brokenN = _proms.filter(function(r){ return r && r.verdict === 'broken'; }).length;
+        var _stanceN = 0;
+        if (p.stances && typeof p.stances === 'object') {
+          Object.keys(p.stances).forEach(function(k){
+            var t = p.stances[k];
+            if (t && typeof t === 'string' && t !== 'N/A' && t !== 'No stated position' && t !== 'No detailed healthcare position stated') _stanceN++;
+          });
+        }
+        var _hasWhy = _slDrivers.length > 0 || (_keptN + _brokenN) > 0 || _stanceN > 0;
+
+        // Strongest / weakest scoring category — the at-a-glance read of WHICH
+        // part of the record is moving the number, straight from the computed
+        // category scores. No new claims; just surfaces the existing spread.
+        var _cats = (a.categories || []).filter(function(c){ return c && typeof c.score === 'number'; });
+        var _catHi = null, _catLo = null;
+        _cats.forEach(function(c){
+          if (!_catHi || c.score > _catHi.score) _catHi = c;
+          if (!_catLo || c.score < _catLo.score) _catLo = c;
+        });
+        var _catLine = '';
+        if (_catHi && _catLo && _catHi !== _catLo && (_catHi.score - _catLo.score) >= 8) {
+          _catLine = 'Lifted most by <strong style="color:#86efac;">' + aesc(_catHi.label) + '</strong> (' + _catHi.score +
+            '); held back most by <strong style="color:#fca5a5;">' + aesc(_catLo.label) + '</strong> (' + _catLo.score + ').';
+        } else if (_catHi) {
+          _catLine = 'The five scoring categories land fairly evenly — no single area dominates the result.';
+        }
+
+        // Section sub-heading helper (Lifting = green, Weighing = red).
+        function _whySub(txt, col){
+          return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:' + col + ';margin:0.65rem 0 0.35rem;">' + txt + '</div>';
+        }
+
+        var whyBlock = '<div style="margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid rgba(139,92,246,0.22);">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">⚖️ Why This Score?</span>' +
+            (_hasWhy && _slDrivers.length ? '<span style="display:inline-flex;gap:0.3rem;align-items:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;">' +
               '<span style="color:#4ade80;">▲ ' + _slPos + '</span><span style="color:#3a4a66;">·</span><span style="color:#f87171;">▼ ' + _slNeg + '</span></span>' : '') +
           '</div>';
-        if (_slDrivers.length) {
-          _slDrivers.forEach(function(d, i){
-            var col = d.impact === 'positive' ? '#4ade80' : '#f87171';
-            var sym = d.impact === 'positive' ? '▲' : '▼';
-            var cat = (typeof window._slCatLabel === 'function' && d.category) ? window._slCatLabel(d.category) : '';
-            var jump = 'if(window._slFocusSpotlight)window._slFocusSpotlight(\'' + slSafe + '\',' + i + ');';
-            spotlightBlock += '<div id="acct-contrib-' + slSafe + '-' + i + '" role="button" tabindex="0"' +
-              ' onclick="' + jump + '"' +
-              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
-              ' style="cursor:pointer;display:flex;align-items:flex-start;gap:0.5rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + col + ';border-radius:0.55rem;padding:0.42rem 0.55rem;margin-bottom:0.35rem;transition:border-color 0.2s,box-shadow 0.2s;">' +
-              '<span style="color:' + col + ';font-weight:700;font-size:0.7rem;line-height:1.5;flex-shrink:0;">' + sym + '</span>' +
-              '<span style="flex:1;min-width:0;font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + aesc(d.headline) +
-                (cat ? ' <span style="color:#8294b4;font-size:0.6rem;">· ' + aesc(cat) + '</span>' : '') + '</span>' +
-              '<span style="flex-shrink:0;color:#a78bfa;font-size:0.62rem;line-height:1.5;">🔦</span>' +
-            '</div>';
-          });
-          var net = _slPos - _slNeg;
-          var netTxt = _slPos + ' lifting · ' + _slNeg + ' weighing — ' +
-            (net > 0 ? 'recent Spotlight activity is a net positive on the score.'
-              : net < 0 ? 'recent Spotlight activity weighs on the score on balance.'
-              : 'recent Spotlight activity is roughly balanced.');
-          spotlightBlock += '<p style="font-size:0.62rem;color:#9fb4d4;line-height:1.5;margin:0.4rem 0 0;">' + netTxt +
-            ' <span style="color:#7596c0;">Tap any item to find it in the Spotlight ↓</span></p>';
+
+        if (!_hasWhy) {
+          // Honest limited-data state — the score still stands on the engine's
+          // baseline read, but there is no verified record to break it down yet.
+          whyBlock += '<p style="font-size:0.68rem;color:#9fb4d4;line-height:1.55;margin:0;">' +
+            'There isn’t enough verified information yet to break this score down in detail. As this official’s promises are tracked and Spotlight items are added, the specific factors moving the score will appear here — with each one linking to its place in the Spotlight.</p>';
         } else {
-          spotlightBlock += '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0;">No Spotlight items are tagged as score drivers yet. The score above reflects this official’s verified record; tagged issues and events will appear here — and link both ways — as they’re added.</p>';
+          // (1) Plain-language category synthesis.
+          if (_catLine) {
+            whyBlock += '<p style="font-size:0.7rem;color:#cbd9ec;line-height:1.5;margin:0 0 0.2rem;">' + _catLine + '</p>';
+          }
+
+          // (2) Lifting the score / Weighing it down — the concrete factors.
+          if (_acctPos.length) {
+            whyBlock += _whySub('▲ Lifting the score', '#86efac');
+            _acctPos.slice(0, 2).forEach(function(t){ whyBlock += _acctDriverRow(t, '#4ade80', '▲'); });
+          }
+          if (_acctNeg.length) {
+            whyBlock += _whySub('▼ Weighing it down', '#fca5a5');
+            _acctNeg.slice(0, 2).forEach(function(t){ whyBlock += _acctDriverRow(t, '#f87171', '▼'); });
+          }
+
+          // (3) Spotlight items feeding this score — the tappable bridge to the
+          //     Spotlight section. Each row jumps to (and pulses) its card.
+          whyBlock += '<div style="margin-top:0.7rem;padding-top:0.65rem;border-top:1px dashed rgba(139,92,246,0.18);">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.45rem;">🔦 Spotlight items feeding this score</div>';
+          if (_slDrivers.length) {
+            _slDrivers.forEach(function(d, i){
+              var col = d.impact === 'positive' ? '#4ade80' : '#f87171';
+              var sym = d.impact === 'positive' ? '▲' : '▼';
+              var cat = (typeof window._slCatLabel === 'function' && d.category) ? window._slCatLabel(d.category) : '';
+              var jump = 'if(window._slFocusSpotlight)window._slFocusSpotlight(\'' + slSafe + '\',' + i + ');';
+              whyBlock += '<div id="acct-contrib-' + slSafe + '-' + i + '" role="button" tabindex="0"' +
+                ' onclick="' + jump + '"' +
+                ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
+                ' style="cursor:pointer;display:flex;align-items:flex-start;gap:0.5rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + col + ';border-radius:0.55rem;padding:0.42rem 0.55rem;margin-bottom:0.35rem;transition:border-color 0.2s,box-shadow 0.2s;">' +
+                '<span style="color:' + col + ';font-weight:700;font-size:0.7rem;line-height:1.5;flex-shrink:0;">' + sym + '</span>' +
+                '<span style="flex:1;min-width:0;font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + aesc(d.headline) +
+                  (cat ? ' <span style="color:#8294b4;font-size:0.6rem;">· ' + aesc(cat) + '</span>' : '') + '</span>' +
+                '<span style="flex-shrink:0;color:#a78bfa;font-size:0.62rem;line-height:1.5;">🔦</span>' +
+              '</div>';
+            });
+            var net = _slPos - _slNeg;
+            var netTxt = _slPos + ' lifting · ' + _slNeg + ' weighing — ' +
+              (net > 0 ? 'recent Spotlight activity is a net positive on the score.'
+                : net < 0 ? 'recent Spotlight activity weighs on the score on balance.'
+                : 'recent Spotlight activity is roughly balanced.');
+            whyBlock += '<p style="font-size:0.62rem;color:#9fb4d4;line-height:1.5;margin:0.4rem 0 0;">' + netTxt +
+              ' <span style="color:#7596c0;">Tap any item to find it in the Spotlight ↓</span></p>';
+          } else {
+            whyBlock += '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0;">No Spotlight items are tagged as score drivers yet — the breakdown above is drawn from this official’s verified record. Tagged issues and events will appear here, linking both ways, as they’re added.</p>';
+          }
+          whyBlock += '</div>';
         }
-        spotlightBlock += '</div>';
+        whyBlock += '</div>';
 
         return '' +
           '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1.5px solid rgba(139,92,246,0.45);border-radius:0.9rem;padding:1rem 1.1rem;box-shadow:0 0 26px rgba(139,92,246,0.14);">' +
@@ -42668,8 +42727,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '</div>' +
               '</div>' +
             '</div>' +
-            driversHtml +
-            spotlightBlock +
+            whyBlock +
             '<div style="display:flex;gap:0.5rem;margin-top:0.75rem;">' +
               '<button onclick="viewAccountabilityAnalysis(\'' + safeId + '\')" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.6rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis</button>' +
               '<button onclick="openAccountabilityAnalysis(\'' + safeId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.6rem 0.8rem;border-radius:0.6rem;">↻ Re-run</button>' +
