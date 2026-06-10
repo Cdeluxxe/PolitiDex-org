@@ -25594,36 +25594,92 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // same data Key Races reads). Falls back to a clean placeholder when no
         // items have been curated for this person yet, rather than showing the
         // generic statewide filler that used to appear for everyone.
-        var slItems = spotlightData[id] || [];
+        var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight</div>';
 
-        if (!slItems.length) {
-          return '<div class="modal-section">' +
-            '<div class="modal-section-title">\u{1F526} In the Spotlight</div>' +
-            '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
-              '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
-              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No recent spotlight items</div>' +
-              '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here.</p>' +
+        // Shared card renderer for every spotlight item, curated or derived.
+        // `accent` is an "r,g,b" string that tints the left border and badge so
+        // each item type (news, kept/broken promise, position) reads at a glance
+        // while staying in the same dark, gold-accented house style.
+        function _slCard(o) {
+          var accent = o.accent || '96,165,250';
+          return '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + accent + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
+              (o.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + o.date + '</span>' : '') +
             '</div>' +
+            '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 ' + (o.body ? '0.35rem' : '0') + ';">' + o.headline + '</h4>' +
+            (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
+            (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
+              '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
           '</div>';
         }
 
-        var slCards = slItems.map(function(it) {
-          return '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(96,165,250,0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
-            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.3);padding:0.1rem 0.45rem;border-radius:999px;">In the News</span>' +
-              (it.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + it.date + '</span>' : '') +
-            '</div>' +
-            '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 0.35rem;">' + it.headline + '</h4>' +
-            '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (it.why ? '0.45rem' : '0') + ';">' + it.facts + '</p>' +
-            (it.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
-              '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + it.why + '</span></div>' : '') +
+        // 1) Curated recent news / controversies for this specific official.
+        var slItems = spotlightData[id] || [];
+        if (slItems.length) {
+          var slCards = slItems.map(function(it) {
+            return _slCard({ badge:'In the News', accent:'96,165,250', date:it.date, headline:it.headline, body:it.facts, why:it.why });
+          }).join('');
+          return '<div class="modal-section">' + slTitle + slCards +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Recent bills, votes, and news tied to this official’s record. Sources linked inline.</p>' +
           '</div>';
-        }).join('');
+        }
 
-        return '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F526} In the Spotlight</div>' +
-          slCards +
-          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Recent bills, votes, and news tied to this official’s record. Sources linked inline.</p>' +
+        // 2) No curated news yet — derive spotlight items from THIS official's
+        // own record so the section stays relevant and specific: kept/broken
+        // promises, stated positions, and focus issues, in that priority order.
+        function _slHumanize(s) {
+          return String(s).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ').trim().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+        }
+        var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
+        var derived = [];
+        function _slPush(c) { if (derived.length < 4) derived.push(_slCard(c)); }
+
+        var _slPromos  = (p && Array.isArray(p.promises)) ? p.promises : [];
+        var _slBroken  = _slPromos.filter(function(r) { return r && r.verdict === 'broken'; });
+        var _slKept    = _slPromos.filter(function(r) { return r && r.verdict === 'kept'; });
+        var _slPending = _slPromos.filter(function(r) { return r && r.verdict === 'pending'; });
+
+        // Broken promises first — accountability is the most spotlight-worthy signal.
+        _slBroken.slice(0, 2).forEach(function(r) {
+          _slPush({ badge:'⚠ Promise Broken', accent:'248,113,113', headline:r.title, body:r.detail });
+        });
+        // Then kept promises.
+        _slKept.slice(0, 2).forEach(function(r) {
+          _slPush({ badge:'✅ Promise Kept', accent:'74,222,128', headline:r.title, body:r.detail });
+        });
+        // If nothing concrete landed yet, surface an in-progress pledge.
+        if (!derived.length && _slPending.length) {
+          _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail });
+        }
+        // Stated positions on major issues.
+        if (p && p.stances && typeof p.stances === 'object') {
+          Object.keys(p.stances).slice(0, 2).forEach(function(k) {
+            var txt = p.stances[k];
+            if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt });
+          });
+        }
+        // Focus issues — a clean at-a-glance summary when little else exists.
+        if (derived.length < 2 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
+          _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
+            headline:'What ' + _slLast + ' is focused on',
+            body: p.keyIssues.slice(0, 6).join('&nbsp;·&nbsp;') });
+        }
+
+        if (derived.length) {
+          return '<div class="modal-section">' + slTitle + derived.join('') +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Highlights drawn from this official’s tracked promises and stated positions.</p>' +
+          '</div>';
+        }
+
+        // 3) Genuinely nothing to highlight — clean, honest placeholder.
+        return '<div class="modal-section">' + slTitle +
+          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
+            '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">Limited public activity to highlight</div>' +
+            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here.</p>' +
+          '</div>' +
         '</div>';
       })()}
 
