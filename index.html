@@ -1402,13 +1402,19 @@
 
     /* ── Modal section dividers ────────────────────────── */
     .modal-section {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      margin-top: 1.65rem; padding-top: 1.65rem;
+      /* Tapered hairline divider — fades left-to-right so each section reads as
+         a distinct, letterhead-style block without the flat, boxy look of a
+         full-width rule. Slightly more vertical rhythm keeps sections from
+         feeling cramped against one another. */
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(90deg, rgba(255,255,255,0.14), rgba(255,255,255,0.045) 55%, rgba(255,255,255,0)) 1;
+      margin-top: 1.95rem; padding-top: 1.85rem;
+      scroll-margin-top: 0.75rem;
     }
     .modal-section-title {
       font-family: 'Bebas Neue', sans-serif;
       letter-spacing: 0.11em; font-size: 1.12rem;
-      color: #cbd9ec; margin-bottom: 0.8rem;
+      color: #cbd9ec; margin-bottom: 0.85rem;
       text-transform: uppercase;
       display: flex; align-items: center; gap: 0.5rem;
     }
@@ -1425,6 +1431,60 @@
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
       color: #8ba6cc; line-height: 1.45; margin: -0.35rem 0 0.75rem;
       letter-spacing: 0.01em;
+    }
+
+    /* ── Thin / early-stage profile notice ──────────────────────────────
+       Shown when a politician has no scorable record yet (a fresh challenger
+       or someone early in their term). Frames the sparse data as intentional
+       and honest rather than letting the profile read as broken or empty. */
+    .profile-thin-notice {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      background: linear-gradient(135deg, rgba(30,53,96,0.5), rgba(10,15,30,0.35));
+      border: 1px solid rgba(159,180,212,0.22);
+      border-left: 3px solid #c0152a;
+      border-radius: 0.85rem;
+      padding: 1rem 1.1rem; margin-bottom: 1.4rem;
+    }
+    .profile-thin-notice .ptn-icon {
+      font-size: 1.6rem; line-height: 1; flex-shrink: 0; margin-top: 0.05rem;
+    }
+    .profile-thin-notice .ptn-body { flex: 1; min-width: 0; }
+    .profile-thin-notice .ptn-title {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
+      font-size: 1.18rem; color: #e6eefb; line-height: 1.05; margin-bottom: 0.35rem;
+    }
+    .profile-thin-notice .ptn-pill {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #9fb4d4; background: rgba(159,180,212,0.12);
+      border: 1px solid rgba(159,180,212,0.32); border-radius: 999px;
+      padding: 0.14rem 0.5rem; line-height: 1;
+    }
+    .profile-thin-notice .ptn-text {
+      font-family: 'Barlow', sans-serif; font-size: 0.82rem; color: #9fb4d4;
+      line-height: 1.6; margin: 0;
+    }
+    .profile-thin-notice .ptn-hint {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #7596c0;
+      margin-top: 0.55rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+
+    /* ── Profile section empty state — a clean, intentional placeholder for
+       sections (e.g. the Promise Tracker) that have no entries yet. */
+    .pdx-empty-state {
+      text-align: center; padding: 1.5rem 1rem 1.35rem;
+    }
+    .pdx-empty-state .pdx-empty-ico { font-size: 1.7rem; opacity: 0.5; margin-bottom: 0.4rem; }
+    .pdx-empty-state .pdx-empty-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #9fb4d4; margin-bottom: 0.3rem;
+    }
+    .pdx-empty-state .pdx-empty-sub {
+      font-size: 0.72rem; color: #4e72a0; line-height: 1.55;
+      max-width: 26rem; margin: 0 auto;
     }
 
     /* ── Verdict badges ────────────────────────────────── */
@@ -24687,6 +24747,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const brokenCount = (p.promises||[]).filter(r=>r.verdict==='broken').length;
     const pendingAct = (p.promises||[]).filter(r=>r.verdict==='pending').length;
 
+    // Thin / early-stage profile detection — when a politician has no published
+    // score, no resolved promises, and no detailed promise list, the profile
+    // would otherwise render as a stack of empty placeholders that reads as
+    // broken. We instead surface a single honest notice up top and let the
+    // stated-positions sections below carry the rest.
+    const _pbThin = p.promiseBreakdown || {};
+    const _pbThinTotal = (_pbThin.kept||0) + (_pbThin.compromise||0) + (_pbThin.broken||0) + (_pbThin.pending||0);
+    const _resolvedCount = (keptCount || p.kept || 0) + (brokenCount || p.broken || 0);
+    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && (p.promises||[]).length === 0 && _pbThinTotal === 0;
+    const _isChallenger = /candidat|challenger|nominee|running/i.test(((p.office||'') + ' ' + (p.state||'')));
+    const thinNotice = _isThinProfile ? (
+      '<div class="profile-thin-notice">' +
+        '<div class="ptn-icon">🗳️</div>' +
+        '<div class="ptn-body">' +
+          '<div class="ptn-title">Limited voting record available<span class="ptn-pill">◷ Monitoring</span></div>' +
+          '<p class="ptn-text">' + (_isChallenger
+            ? 'This politician is running as a challenger and hasn’t yet built a votable record in this office, so there’s nothing to score yet. We’re tracking their stated positions now and will log kept-and-broken promises as the race develops.'
+            : 'This official is early in their term, so there isn’t yet enough of a record to score fairly. We’re tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
+          '<div class="ptn-hint">↓ Their key issues and stated positions are below</div>' +
+        '</div>' +
+      '</div>'
+    ) : '';
+
     // Extra sections
     let extraSections = '';
     for (const sec of (p.sections || [])) {
@@ -24807,6 +24890,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="flex-shrink:0;font-family:\'Bebas Neue\',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;background:' + urgencyBg + ';border:1px solid ' + urgencyBorder + ';color:' + urgencyColor + ';padding:0.2rem 0.5rem;border-radius:999px;">' + (diffDays <= 90 ? 'IMMINENT' : diffDays <= 365 ? 'APPROACHING' : 'DISTANT') + '</div>' +
         '</div>';
       })()}
+
+      <!-- Early-stage / thin-record notice — an honest framing shown only when
+           there is no scorable record yet, so a fresh challenger or new
+           officeholder reads as intentional rather than broken. -->
+      ${thinNotice}
 
       <!-- Follow-Through summary — the headline integrity read: did they
            actually do what they said? Kept vs broken, a follow-through rate,
@@ -24978,7 +25066,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <button type="button" class="pdx-pfilter-reset" onclick="window.pdxFilterPromises('all')">↺ Show all promises</button>
         </div>
         <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:0 0.875rem 0.6rem;">
-          <div id="pdx-promise-list">${promiseRows || '<div style="padding:1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No detailed promise data yet — monitoring in progress.</div>'}</div>
+          <div id="pdx-promise-list">${promiseRows || '<div class="pdx-empty-state"><div class="pdx-empty-ico">📋</div><div class="pdx-empty-title">No promises tracked yet</div><div class="pdx-empty-sub">' + (_isChallenger ? 'Once this candidate takes office and acts on their pledges, kept and broken promises will be logged here.' : 'As this official acts on their pledges, kept and broken promises will be logged here — until then, see their stated positions above.') + '</div></div>'}</div>
           <div id="pdx-promise-empty" style="display:none;padding:1.1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No promises tracked yet.</div>
         </div>
         <button onclick="openFullProfileVerify('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
