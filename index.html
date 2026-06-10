@@ -2276,6 +2276,58 @@
       padding: 0.15rem 0;
     }
 
+    /* ── At-a-glance insights (common ground / differences) ── */
+    #cmp-insights {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem; margin-bottom: 1.25rem;
+    }
+    #cmp-insights:empty { display: none; }
+    .cmp-insight-card {
+      background: linear-gradient(180deg, rgba(13,21,38,0.92), rgba(10,15,30,0.92));
+      border: 1px solid rgba(59,130,246,0.18); border-radius: 0.65rem;
+      padding: 0.8rem 0.9rem;
+    }
+    .cmp-insight-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #60a5fa; margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .cmp-insight-body { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; color: #cdd9ec; line-height: 1.4; }
+    .cmp-insight-lead {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.04em;
+      color: #fff; display: block; margin-bottom: 0.15rem;
+    }
+    .cmp-insight-sub { font-size: 0.72rem; color: #7596c0; }
+    .cmp-common-tag {
+      display: inline-block; margin: 0.15rem 0.2rem 0 0;
+      background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 0.375rem; padding: 0.12rem 0.45rem;
+      font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase; color: #6ee7a0;
+      white-space: nowrap;
+    }
+
+    /* Status badge (Officeholder vs Candidate) */
+    .cmp-status-badge {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.18rem 0.5rem; border-radius: 999px; white-space: nowrap;
+    }
+    .cmp-status-office { background: rgba(96,165,250,0.14); border: 1px solid rgba(96,165,250,0.35); color: #93c5fd; }
+    .cmp-status-cand   { background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.4); color: #f5c842; }
+
+    /* Leader highlight — marks the strongest value in a numeric row */
+    #cmp-table td.cmp-leader-cell {
+      background: rgba(74,222,128,0.07);
+      box-shadow: inset 0 0 0 1px rgba(74,222,128,0.28);
+    }
+    .cmp-leader-badge {
+      display: inline-flex; align-items: center; gap: 0.2rem; margin-top: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #4ade80;
+    }
+
     /* Mobile: allow horizontal scroll on table */
     @media (max-width: 640px) {
       #cmp-scroll-area { padding: 0.875rem; }
@@ -26200,6 +26252,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
     <!-- Scrollable table area -->
     <div id="cmp-scroll-area">
+      <!-- At-a-glance insight panel (common ground / biggest differences) -->
+      <div id="cmp-insights"></div>
       <table id="cmp-table">
         <thead id="cmp-thead"></thead>
         <tbody id="cmp-tbody"></tbody>
@@ -30721,6 +30775,65 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const na = `<span class="cmp-na">—</span>`;
     const colW = Math.max(180, Math.floor(700 / pids.length));
 
+    // Derived accountability metric: how many of the resolved (kept+broken)
+    // promises were actually kept. Candidates with no track record → null.
+    const followThrough = (p) => (p.kept + p.broken) > 0 ? Math.round(100 * p.kept / (p.kept + p.broken)) : null;
+    // Officeholder vs candidate — inferred from the office/role label.
+    const statusOf = (p) => /candidate|nominee/i.test(p.office || '') ? 'Candidate' : 'Officeholder';
+    const statusBadge = (p, full) => statusOf(p) === 'Candidate'
+      ? `<span class="cmp-status-badge cmp-status-cand">🗳 Candidate</span>`
+      : `<span class="cmp-status-badge cmp-status-office">🏛 ${full ? 'Current Officeholder' : 'In Office'}</span>`;
+    // Returns a class array marking the single strongest cell in a numeric row,
+    // but only when there is a genuine difference to highlight (≥2 values, not a tie).
+    const leaderClasses = (vals) => {
+      const valid = vals.filter(v => v !== null && v !== undefined);
+      if (valid.length < 2) return vals.map(() => '');
+      const max = Math.max(...valid);
+      if (Math.min(...valid) === max) return vals.map(() => '');
+      return vals.map(v => (v !== null && v !== undefined && v === max) ? 'cmp-leader-cell' : '');
+    };
+
+    // Focus areas shared by 2+ of the selected politicians = their common ground.
+    const _issueCount = {};
+    pids.forEach(pid => (sc(pid).issues || []).forEach(iss => {
+      const k = iss.trim(); _issueCount[k] = (_issueCount[k] || 0) + 1;
+    }));
+    const sharedIssues = new Set(Object.keys(_issueCount).filter(k => _issueCount[k] >= 2));
+
+    // ── At-a-glance insight panel ──────────────────────────
+    const insEl = document.getElementById('cmp-insights');
+    if (insEl) {
+      if (pids.length < 2) {
+        insEl.innerHTML = '';
+      } else {
+        const commonBody = sharedIssues.size
+          ? [...sharedIssues].map(s => `<span class="cmp-common-tag">${s}</span>`).join('')
+          : `<span class="cmp-insight-sub">No overlapping focus areas — these ${pids.length} prioritize different issues.</span>`;
+
+        const scored = pids.map(pid => ({ name: sc(pid).name, s: sc(pid).score })).filter(x => x.s !== null && x.s !== undefined);
+        let spreadHtml;
+        if (scored.length >= 2) {
+          const top = scored.reduce((a, b) => b.s > a.s ? b : a);
+          const bot = scored.reduce((a, b) => b.s < a.s ? b : a);
+          const gap = top.s - bot.s;
+          spreadHtml = `<span class="cmp-insight-lead">${top.name.split(' ').pop()} leads · ${top.s}%</span>`
+            + `<span class="cmp-insight-sub">${gap === 0 ? 'Promise scores are even' : gap + '-pt gap to ' + bot.name.split(' ').pop() + ' (' + bot.s + '%)'}</span>`;
+        } else {
+          spreadHtml = `<span class="cmp-insight-sub">Not enough scored records — candidates have no track record yet.</span>`;
+        }
+
+        const candCount = pids.filter(pid => statusOf(sc(pid)) === 'Candidate').length;
+        const officeCount = pids.length - candCount;
+        const lineupHtml = `<span class="cmp-insight-lead">${officeCount} in office · ${candCount} candidate${candCount !== 1 ? 's' : ''}</span>`
+          + `<span class="cmp-insight-sub">${(candCount && officeCount) ? 'Mixed — track records vs. pledges' : candCount ? 'All candidates — compare pledges' : 'All hold office — compare records'}</span>`;
+
+        insEl.innerHTML =
+          `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Common Ground</div><div class="cmp-insight-body">${commonBody}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">🏆 Promise Score Spread</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">📋 Lineup</div><div class="cmp-insight-body">${lineupHtml}</div></div>`;
+      }
+    }
+
     const _getPhoto = (pid) => {
       if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) return BROWSE_PHOTOS[pid];
       return '';
@@ -30741,6 +30854,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             ${avatarHtml}
             <div class="cmp-col-name">${p.name}</div>
             <div class="cmp-col-office">${p.office} · ${p.state}</div>
+            <div>${statusBadge(p, false)}</div>
             <div class="cmp-col-score-ring" style="border-color:${col};">
               <span class="cmp-score-val" style="color:${col};">${sc_val !== null && sc_val !== undefined ? sc_val + '%' : '—'}</span>
             </div>
@@ -30755,9 +30869,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('')}
     </tr>`;
 
-    const row = (label, cells, icon) => `<tr>
+    const row = (label, cells, icon, cellClasses) => `<tr>
       <td class="cmp-row-label">${icon ? icon + ' ' : ''}${label}</td>
-      ${pids.map((pid, i) => `<td style="text-align:center;">${cells[i]}</td>`).join('')}
+      ${pids.map((pid, i) => `<td class="${cellClasses && cellClasses[i] ? cellClasses[i] : ''}" style="text-align:center;">${cells[i]}</td>`).join('')}
     </tr>`;
 
     const sectionRow = (label) => `<tr class="cmp-section-divider"><td colspan="${pids.length + 1}">${label}</td></tr>`;
@@ -30765,10 +30879,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     let rows = '';
 
     rows += sectionRow('📊 Promise Scores');
-    rows += row('Promise Score', pids.map(pid => {
+    const _psVals = pids.map(pid => { const s = sc(pid).score; return (s === null || s === undefined) ? null : s; });
+    const _psLeader = leaderClasses(_psVals);
+    rows += row('Promise Score', pids.map((pid, i) => {
       const p = sc(pid); const col = scoreColor(p.score);
-      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${p.score !== null && p.score !== undefined ? p.score + '%' : '—'}</span>`;
-    }), '');
+      const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
+      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${p.score !== null && p.score !== undefined ? p.score + '%' : '—'}</span>${lead}`;
+    }), '', _psLeader);
+    const _ftVals = pids.map(pid => followThrough(sc(pid)));
+    const _ftLeader = leaderClasses(_ftVals);
+    rows += row('Follow-Through Rate', pids.map((pid, i) => {
+      const v = _ftVals[i];
+      if (v === null) return na;
+      const col = scoreColor(v);
+      const lead = _ftLeader[i] ? '<div class="cmp-leader-badge">👑 Most reliable</div>' : '';
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
+          <span class="cmp-score-val" style="color:${col};font-size:1.2rem;">${v}%</span>
+          <div style="width:100%;max-width:90px;height:4px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${v}%;background:${barGrad(v)};border-radius:999px;transition:width 0.8s ease;"></div>
+          </div>
+        </div>${lead}`;
+    }), '', _ftLeader);
     rows += row('Promises Kept', pids.map(pid => {
       const p = sc(pid);
       return `<span class="cmp-stat-pill" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;">✓ ${p.kept}</span>`;
@@ -30789,6 +30920,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       const p = sc(pid);
       return `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;color:#9fb4d4;">${p.party}</span>`;
     }), '');
+    rows += row('Status', pids.map(pid => statusBadge(sc(pid), true)), '');
 
     if (typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0) {
       rows += sectionRow('🎯 Personalized Alignment');
@@ -30806,7 +30938,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     rows += sectionRow('🎯 Key Issues & Focus Areas');
     rows += row('Focus Areas', pids.map(pid => {
       const p = sc(pid);
-      return `<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">${(p.issues && p.issues.length) ? p.issues.slice(0,3).map(i => `<span class="cmp-tag">${i}</span>`).join('') : (typeof window._pdxFocusEmptyNote === 'function' ? window._pdxFocusEmptyNote(p, { center: true }) : '')}</div>`;
+      return `<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">${(p.issues && p.issues.length) ? p.issues.slice(0,3).map(i => {
+        const shared = sharedIssues.has(i.trim());
+        return `<span class="cmp-tag"${shared ? ' style="background:rgba(74,222,128,0.14);border-color:rgba(74,222,128,0.35);color:#6ee7a0;" title="Shared focus area"' : ''}>${i}</span>`;
+      }).join('') : (typeof window._pdxFocusEmptyNote === 'function' ? window._pdxFocusEmptyNote(p, { center: true }) : '')}</div>`;
     }), '');
 
     rows += sectionRow('🏛 Policy Positions — Head to Head');
