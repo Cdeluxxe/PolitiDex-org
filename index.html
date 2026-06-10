@@ -24755,16 +24755,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const _pbThin = p.promiseBreakdown || {};
     const _pbThinTotal = (_pbThin.kept||0) + (_pbThin.compromise||0) + (_pbThin.broken||0) + (_pbThin.pending||0);
     const _resolvedCount = (keptCount || p.kept || 0) + (brokenCount || p.broken || 0);
-    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && (p.promises||[]).length === 0 && _pbThinTotal === 0;
-    const _isChallenger = /candidat|challenger|nominee|running/i.test(((p.office||'') + ' ' + (p.state||'')));
+    // Thin when there is no scorable record yet (no published score and nothing
+    // resolved). A score-less profile that carries only a few pending pledges still
+    // counts — the notice explains the gap while the pending items list below it.
+    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && _pbThinTotal === 0;
+    const _statusMode = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+    const _is2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+    const _isChallenger = _statusMode === 'candidate' || /candidat|challenger|nominee|running/i.test(((p.office||'') + ' ' + (p.state||'')));
+    const _thinTitle = _isChallenger
+      ? (_is2026 ? '2026 Candidate — no voting record yet' : 'Candidate — no voting record yet')
+      : 'Early in term — limited record';
     const thinNotice = _isThinProfile ? (
       '<div class="profile-thin-notice">' +
-        '<div class="ptn-icon">🗳️</div>' +
+        '<div class="ptn-icon">' + (_isChallenger ? '🗳️' : '🌱') + '</div>' +
         '<div class="ptn-body">' +
-          '<div class="ptn-title">Limited voting record available<span class="ptn-pill">◷ Monitoring</span></div>' +
+          '<div class="ptn-title">' + _thinTitle + '<span class="ptn-pill">◷ Monitoring</span></div>' +
           '<p class="ptn-text">' + (_isChallenger
-            ? 'This politician is running as a challenger and hasn’t yet built a votable record in this office, so there’s nothing to score yet. We’re tracking their stated positions now and will log kept-and-broken promises as the race develops.'
-            : 'This official is early in their term, so there isn’t yet enough of a record to score fairly. We’re tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
+            ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
+            : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
           '<div class="ptn-hint">↓ Their key issues and stated positions are below</div>' +
         '</div>' +
       '</div>'
@@ -24852,7 +24860,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
-            ${scoreNum === null ? '<span class="profile-status-monitoring">◷ No voting record yet</span>' : ''}
+            ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
+            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">◷ No voting record yet</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
@@ -28336,11 +28345,70 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var fs = sm ? '0.5rem' : '0.6rem';
     var pad = sm ? '0.1rem 0.42rem' : '0.16rem 0.5rem';
     var base = 'display:inline-flex;align-items:center;gap:0.25rem;vertical-align:middle;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border-radius:999px;white-space:nowrap;line-height:1.15;font-size:' + fs + ';padding:' + pad + ';';
-    if (status === 'candidate')
-      return '<span class="pdx-status-badge pdx-status-candidate" style="' + base + 'background:rgba(59,130,246,0.18);border:1px solid rgba(59,130,246,0.5);color:#93c5fd;">🗳️ Candidate</span>';
+    if (status === 'candidate') {
+      // Sharpen the label to "2026 Candidate" when the data shows the seat is on
+      // the 2026 ballot, so a challenger reads as a specific, on-the-ballot choice
+      // rather than a vague "candidate". Only when a data object is supplied.
+      var candLabel = (typeof statusOrData !== 'string' && typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(statusOrData)) ? '2026 Candidate' : 'Candidate';
+      return '<span class="pdx-status-badge pdx-status-candidate" style="' + base + 'background:rgba(59,130,246,0.18);border:1px solid rgba(59,130,246,0.5);color:#93c5fd;">🗳️ ' + candLabel + '</span>';
+    }
     if (status === 'former')
       return '<span class="pdx-status-badge pdx-status-former" style="' + base + 'background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;">⏳ Former Office</span>';
     return '<span class="pdx-status-badge pdx-status-office" style="' + base + 'background:rgba(34,197,94,0.22);border:1.5px solid rgba(34,197,94,0.75);color:#4ade80;box-shadow:0 0 10px rgba(34,197,94,0.4);font-weight:800;">✅ In Office</span>';
+  };
+
+  // ─── Thin / early-stage record classifiers ──────────────────────────────
+  // Shared signals used across cards, lists and the profile modal so a
+  // politician with little tracked data reads as *intentional and honest*
+  // ("2026 Candidate", "Limited Record", "Early in Term") instead of broken.
+
+  // True when the seat is on the 2026 ballot, read only from structured fields
+  // (office title, election label/date, rank) — never the freeform bio, so an
+  // officeholder who merely mentions 2026 in their story isn't mislabeled.
+  window._pdx2026Candidate = function(d) {
+    if (!d) return false;
+    if (d.nextElection && /^2026/.test(String(d.nextElection))) return true;
+    var hay = ((d.office || '') + ' ' + (d.electionLabel || '') + ' ' + (d.rank || '')).toLowerCase();
+    return hay.indexOf('2026') !== -1;
+  };
+
+  // Classify how much real record a profile carries:
+  //   'none'    — no published score and nothing tracked at all
+  //   'limited' — a sparse record (a score with very few promises, or only a
+  //               handful of pending items and no score)
+  //   'full'    — enough of a record to stand on its own
+  window._pdxRecordDepth = function(d) {
+    if (!d) return 'full';
+    var hasScore = (d.score !== null && d.score !== undefined);
+    var k = d.kept || 0, b = d.broken || 0, pn = d.pending || 0;
+    var resolved = k + b;
+    var tracked = resolved + pn;
+    var promCount = (d.promises && d.promises.length) ? d.promises.length : tracked;
+    if (!hasScore && tracked === 0 && promCount === 0) return 'none';
+    if (!hasScore && resolved === 0) return 'limited';
+    if (hasScore && resolved <= 1 && tracked <= 2 && promCount <= 2) return 'limited';
+    return 'full';
+  };
+
+  // A small, secondary status chip for genuinely sparse *officeholder* records.
+  // Candidates/former members are left to the primary status badge (which already
+  // says "2026 Candidate"/"Candidate"/"Former Office"), so this never double-labels.
+  //   • in office, nothing tracked        → "🌱 Early in Term"
+  //   • in office, only a sliver tracked   → "📋 Limited Record"
+  window._pdxDepthBadge = function(d, opts) {
+    if (!d) return '';
+    opts = opts || {};
+    var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+    if (status !== 'office') return '';
+    var depth = window._pdxRecordDepth(d);
+    if (depth === 'full') return '';
+    var sm = opts.size === 'sm';
+    var fs = sm ? '0.5rem' : '0.6rem';
+    var pad = sm ? '0.1rem 0.42rem' : '0.16rem 0.5rem';
+    var base = 'display:inline-flex;align-items:center;gap:0.25rem;vertical-align:middle;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border-radius:999px;white-space:nowrap;line-height:1.15;font-size:' + fs + ';padding:' + pad + ';';
+    if (depth === 'none')
+      return '<span class="pdx-status-badge pdx-depth-early" style="' + base + 'background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.45);color:#c4b5fd;">🌱 Early in Term</span>';
+    return '<span class="pdx-status-badge pdx-depth-limited" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;">📋 Limited Record</span>';
   };
 
   // ═══ Unopposed race status ═══
@@ -32082,10 +32150,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Clean kept / broken / pending pill row — the at-a-glance accountability read
     // shared by every listing card. When there is no resolved record yet it returns
     // a single neutral "No voting record yet" pill so candidates read honestly.
-    window._pdxStatPills = function(kept, broken, pending) {
+    window._pdxStatPills = function(kept, broken, pending, opts) {
       var k = kept || 0, b = broken || 0, pn = pending || 0;
+      opts = opts || {};
       if (k === 0 && b === 0 && pn === 0) {
-        return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">⏳ No voting record yet</span></div>';
+        // Honest, context-aware empty state instead of a misleading "0 Kept / 0
+        // Broken". A 2026 challenger reads as on-the-ballot-but-no-record-yet; a
+        // new officeholder reads as early-in-term; everyone else as monitoring.
+        var msg = '⏳ No voting record yet';
+        if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+        else if (opts.status === 'former') msg = '⏳ Former office — record archived';
+        else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
+        return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">' + msg + '</span></div>';
       }
       return '<div class="pdx-statpills">' +
         '<span class="pdx-statpill pdx-statpill-kept">✓ ' + k + ' Kept</span>' +
@@ -32222,7 +32298,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (_rd && _rd !== 'Statewide' && _rd !== 'Statewide Office') resolvedDist = _rd;
       }
 
-      var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(status, { size: 'sm' }) : '';
+      var statusBadge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
+      var depthBadge = (typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(d, { size: 'sm' }) : '';
       var unopposed = (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d)) ? window._pdxUnopposedBadge({ size: 'sm' }) : '';
       var party = (typeof window._pdxPartyChip === 'function') ? window._pdxPartyChip(d.party) : '';
 
@@ -32252,7 +32329,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             infoHint +
           '</div>';
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending) : '';
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -32285,7 +32362,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               (opts.controls || '') +
             '</div>' +
             '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d, resolvedDist) + '</div>' +
-            '<div class="pdx-snap-badges">' + statusBadge + unopposed + party + (opts.badges || '') + '</div>' +
+            '<div class="pdx-snap-badges">' + statusBadge + depthBadge + unopposed + party + (opts.badges || '') + '</div>' +
           '</div>' +
           scoreBlock +
         '</div>' +
@@ -32782,6 +32859,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="flex items-center gap-2 flex-wrap mb-1">' +
               '<span class="font-display text-lg tracking-wider text-white leading-tight">' + d.name + '</span>' +
               window._pdxStatusBadge(d, { size: 'sm' }) +
+              (typeof window._pdxDepthBadge === 'function' ? window._pdxDepthBadge(d, { size: 'sm' }) : '') +
               (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d) ? window._pdxUnopposedBadge({ size: 'sm' }) : '') +
               localBadge +
               '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">⭐ On Your Team</span>' +
@@ -32789,7 +32867,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending) + '</div>' : '') +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
