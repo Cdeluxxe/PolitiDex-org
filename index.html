@@ -26981,9 +26981,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (res > 0) {
           var rate = Math.round(k / res * 100);
           var nm = (p.name ? String(p.name).split(' ').slice(-1)[0] : 'This official');
+          // Surface this official's own pending count so "shown separately, doesn't
+          // count" is concrete rather than abstract.
+          var pend = (typeof p.pending === 'number' && p.pending > 0) ? p.pending : 0;
+          var pendNote = pend ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + pend +
+            ' pending (not counted)</span>' : '';
           calcLine = '<div class="pdx-pinfo-calc">' + nm + ': <span style="color:#4ade80;font-weight:700;">' + k +
             '</span> ÷ (<span style="color:#4ade80;font-weight:700;">' + k + '</span> + <span style="color:#f87171;font-weight:700;">' +
-            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '%</span></div>';
+            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '%</span>' + pendNote + '</div>';
         }
       }
     } catch (e) {}
