@@ -12864,7 +12864,7 @@
                   <span style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);pointer-events:none;color:#60a5fa;font-size:0.7rem;">▼</span>
                 </div>
               </div>
-              <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">Covers Utah’s major counties and population centers.</span></p>
+              <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">Covers all 29 Utah counties using official district boundaries.</span></p>
             </div>
 
             <!-- Race cards injected here -->
@@ -36685,28 +36685,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     // Order of the selector dropdown. id must match a KEY_RACES_BY_LOCATION key.
     var KEY_RACES_LOCATIONS = [
-      // Salt Lake County (the state's most populous county)
-      { id: 'slc',          label: 'Salt Lake City',                 city: 'Salt Lake City',  county: 'Salt Lake County' },
-      { id: 'west_valley',  label: 'West Valley City',               city: 'West Valley City', county: 'Salt Lake County' },
-      { id: 'west_jordan',  label: 'West Jordan',                    city: 'West Jordan',     county: 'Salt Lake County' },
-      { id: 'south_jordan', label: 'South Jordan / Riverton',        city: 'South Jordan',    county: 'Salt Lake County' },
-      { id: 'sandy',        label: 'Sandy / Cottonwood Heights',     city: 'Sandy',           county: 'Salt Lake County' },
-      // Davis County
-      { id: 'davis',        label: 'Layton / Davis County',          city: 'Layton',          county: 'Davis County' },
-      { id: 'clearfield',   label: 'Clearfield / Syracuse',          city: 'Clearfield',      county: 'Davis County' },
-      // Weber County
-      { id: 'weber',        label: 'Ogden / Weber County',           city: 'Ogden',           county: 'Weber County' },
-      { id: 'south_ogden',  label: 'South Ogden / Roy',              city: 'South Ogden',     county: 'Weber County' },
-      // Utah County
-      { id: 'utah_co',      label: 'Provo / Utah County',            city: 'Provo',           county: 'Utah County' },
-      { id: 'orem',         label: 'Orem',                           city: 'Orem',            county: 'Utah County' },
-      { id: 'lehi',         label: 'Lehi / Eagle Mountain',          city: 'Lehi',            county: 'Utah County' },
-      // Northern & western Utah
-      { id: 'cache',        label: 'Logan / Cache County',           city: 'Logan',           county: 'Cache County' },
-      { id: 'tooele',       label: 'Tooele / Grantsville',           city: 'Tooele',          county: 'Tooele County' },
+      // Wasatch Front
+      { id: 'slc',          region: 'Wasatch Front', label: 'Salt Lake City / Salt Lake County',     city: 'Salt Lake City',  county: 'Salt Lake County', houseDistrict: 22, senateDistrict: 9,  congressDistrict: 1 },
+      { id: 'west_valley',  region: 'Wasatch Front', label: 'West Valley City',                       city: 'West Valley City', county: 'Salt Lake County', houseDistrict: 30, senateDistrict: 12, congressDistrict: 1 },
+      { id: 'west_jordan',  region: 'Wasatch Front', label: 'West Jordan',                            city: 'West Jordan',     county: 'Salt Lake County', houseDistrict: 36, senateDistrict: 16, congressDistrict: 1 },
+      { id: 'south_jordan', region: 'Wasatch Front', label: 'South Jordan / Riverton',                city: 'South Jordan',    county: 'Salt Lake County', houseDistrict: 45, senateDistrict: 17, congressDistrict: 4 },
+      { id: 'sandy',        region: 'Wasatch Front', label: 'Sandy / Cottonwood Heights',             city: 'Sandy',           county: 'Salt Lake County', houseDistrict: 42, senateDistrict: 19, congressDistrict: 4 },
+      { id: 'davis',        region: 'Wasatch Front', label: 'Layton / Davis County',                  city: 'Layton',          county: 'Davis County',     houseDistrict: 15, senateDistrict: 6,  congressDistrict: 2 },
+      { id: 'clearfield',   region: 'Wasatch Front', label: 'Clearfield / Syracuse',                  city: 'Clearfield',      county: 'Davis County',     houseDistrict: 14, senateDistrict: 5,  congressDistrict: 2 },
+      { id: 'weber',        region: 'Wasatch Front', label: 'Ogden / Weber County',                   city: 'Ogden',           county: 'Weber County',     houseDistrict: 9,  senateDistrict: 5,  congressDistrict: 2 },
+      { id: 'south_ogden',  region: 'Wasatch Front', label: 'South Ogden / Roy',                      city: 'South Ogden',     county: 'Weber County',     houseDistrict: 10, senateDistrict: 5,  congressDistrict: 2 },
+      { id: 'utah_co',      region: 'Wasatch Front', label: 'Provo / Utah County',                    city: 'Provo',           county: 'Utah County',      houseDistrict: 62, senateDistrict: 24, congressDistrict: 3 },
+      { id: 'orem',         region: 'Wasatch Front', label: 'Orem',                                   city: 'Orem',            county: 'Utah County',      houseDistrict: 57, senateDistrict: 24, congressDistrict: 3 },
+      { id: 'lehi',         region: 'Wasatch Front', label: 'Lehi / Eagle Mountain',                  city: 'Lehi',            county: 'Utah County',      houseDistrict: 52, senateDistrict: 22, congressDistrict: 4 },
+      { id: 'tooele',       region: 'Wasatch Front', label: 'Tooele / Grantsville / Tooele County',   city: 'Tooele',          county: 'Tooele County',    houseDistrict: 28, senateDistrict: 11, congressDistrict: 4 },
+
+      // Northern Utah
+      { id: 'box_elder',    region: 'Northern Utah', label: 'Brigham City / Box Elder County',        city: 'Brigham City',    county: 'Box Elder County', houseDistrict: 6,  senateDistrict: 1,  congressDistrict: 2 },
+      { id: 'cache',        region: 'Northern Utah', label: 'Logan / Cache County',                   city: 'Logan',           county: 'Cache County',     houseDistrict: 3,  senateDistrict: 2,  congressDistrict: 2 },
+      { id: 'rich',         region: 'Northern Utah', label: 'Randolph / Rich County',                 city: 'Randolph',        county: 'Rich County',      houseDistrict: 4,  senateDistrict: 2,  congressDistrict: 2 },
+      { id: 'morgan',       region: 'Northern Utah', label: 'Morgan / Morgan County',                 city: 'Morgan',          county: 'Morgan County',    houseDistrict: 4,  senateDistrict: 3,  congressDistrict: 3 },
+      { id: 'summit',       region: 'Northern Utah', label: 'Coalville / Park City / Summit County',  city: 'Coalville',       county: 'Summit County',    houseDistrict: 4,  senateDistrict: 3,  congressDistrict: 3 },
+
+      // Eastern Utah
+      { id: 'daggett',      region: 'Eastern Utah', label: 'Manila / Daggett County',                 city: 'Manila',          county: 'Daggett County',   houseDistrict: 68, senateDistrict: 20, congressDistrict: 3 },
+      { id: 'duchesne',     region: 'Eastern Utah', label: 'Duchesne / Duchesne County',              city: 'Duchesne',        county: 'Duchesne County',  houseDistrict: 67, senateDistrict: 20, congressDistrict: 3 },
+      { id: 'uintah',       region: 'Eastern Utah', label: 'Vernal / Uintah County',                  city: 'Vernal',          county: 'Uintah County',    houseDistrict: 68, senateDistrict: 20, congressDistrict: 3 },
+      { id: 'carbon',       region: 'Eastern Utah', label: 'Price / Carbon County',                   city: 'Price',           county: 'Carbon County',    houseDistrict: 67, senateDistrict: 26, congressDistrict: 3 },
+      { id: 'emery',        region: 'Eastern Utah', label: 'Castle Dale / Emery County',              city: 'Castle Dale',     county: 'Emery County',     houseDistrict: 67, senateDistrict: 26, congressDistrict: 3 },
+      { id: 'grand',        region: 'Eastern Utah', label: 'Moab / Grand County',                     city: 'Moab',            county: 'Grand County',     houseDistrict: 69, senateDistrict: 26, congressDistrict: 3 },
+      { id: 'san_juan',     region: 'Eastern Utah', label: 'Monticello / Blanding / San Juan County', city: 'Monticello',      county: 'San Juan County',  houseDistrict: 69, senateDistrict: 26, congressDistrict: 3 },
+
+      // Central Utah
+      { id: 'wasatch',      region: 'Central Utah', label: 'Heber City / Wasatch County',             city: 'Heber City',      county: 'Wasatch County',   houseDistrict: 59, senateDistrict: 20, congressDistrict: 3 },
+      { id: 'juab',         region: 'Central Utah', label: 'Nephi / Juab County',                     city: 'Nephi',           county: 'Juab County',      houseDistrict: 66, senateDistrict: 27, congressDistrict: 4 },
+      { id: 'sanpete',      region: 'Central Utah', label: 'Manti / Sanpete County',                  city: 'Manti',           county: 'Sanpete County',   houseDistrict: 66, senateDistrict: 27, congressDistrict: 4 },
+      { id: 'millard',      region: 'Central Utah', label: 'Fillmore / Millard County',               city: 'Fillmore',        county: 'Millard County',   houseDistrict: 29, senateDistrict: 27, congressDistrict: 4 },
+      { id: 'sevier',       region: 'Central Utah', label: 'Richfield / Sevier County',               city: 'Richfield',       county: 'Sevier County',    houseDistrict: 70, senateDistrict: 27, congressDistrict: 4 },
+      { id: 'piute',        region: 'Central Utah', label: 'Junction / Piute County',                 city: 'Junction',        county: 'Piute County',     houseDistrict: 70, senateDistrict: 27, congressDistrict: 3 },
+      { id: 'wayne',        region: 'Central Utah', label: 'Loa / Wayne County',                      city: 'Loa',             county: 'Wayne County',     houseDistrict: 69, senateDistrict: 27, congressDistrict: 3 },
+
       // Southern Utah
-      { id: 'washington',   label: 'St. George / Washington County', city: 'St. George',      county: 'Washington County' },
-      { id: 'cedar_city',   label: 'Cedar City / Iron County',       city: 'Cedar City',      county: 'Iron County' }
+      { id: 'beaver',       region: 'Southern Utah', label: 'Beaver / Beaver County',                 city: 'Beaver',          county: 'Beaver County',    houseDistrict: 70, senateDistrict: 28, congressDistrict: 3 },
+      { id: 'cedar_city',   region: 'Southern Utah', label: 'Cedar City / Iron County',               city: 'Cedar City',      county: 'Iron County',      houseDistrict: 71, senateDistrict: 28, congressDistrict: 3 },
+      { id: 'garfield',     region: 'Southern Utah', label: 'Panguitch / Garfield County',            city: 'Panguitch',       county: 'Garfield County',  houseDistrict: 69, senateDistrict: 27, congressDistrict: 3 },
+      { id: 'washington',   region: 'Southern Utah', label: 'St. George / Washington County',         city: 'St. George',      county: 'Washington County',houseDistrict: 75, senateDistrict: 29, congressDistrict: 3 },
+      { id: 'kane',         region: 'Southern Utah', label: 'Kanab / Kane County',                    city: 'Kanab',           county: 'Kane County',      houseDistrict: 69, senateDistrict: 26, congressDistrict: 3 }
     ];
 
     var KEY_RACES_BY_LOCATION = {
@@ -37031,6 +37055,62 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ]
     };
 
+    var KR_CONGRESSIONAL_INCUMBENTS = {
+      1: { pid: 'bmoore', label: 'Incumbent — current Utah U.S. Representative' },
+      2: { pid: 'maloy',  label: 'Incumbent — current Utah U.S. Representative' },
+      3: { pid: 'kennedy', label: 'Incumbent — current Utah U.S. Representative' },
+      4: { pid: 'owens',  label: 'Incumbent — current Utah U.S. Representative' }
+    };
+    var KR_STATE_HOUSE_INCUMBENTS = {
+      3:'stephanie_gricius_h3', 5:'snider_h5', 9:'jake_sawyer', 14:'lisonbee_h14', 22:'hooper_h22',
+      28:'nelson_h28', 30:'fitisemanu_h30', 36:'matthews_h36', 42:'judkins_h42', 45:'teuscher_h44',
+      57:'valpeterson_h56', 62:'lisa_shepherd', 67:'albrecht_h67', 68:'bolinder_h68', 69:'phil_lyman_h69',
+      70:'jwestwood', 71:'jwestwood', 75:'rshipp'
+    };
+    var KR_STATE_SENATE_INCUMBENTS = {
+      1:'ssandall', 2:'chris_wilson_s2', 3:'fillerup_s3', 5:'amillner', 6:'jstevenson',
+      9:'jen_plumb_s9', 11:'lincoln_fillmore_s11', 12:'kwan_s12', 16:'harper_s16',
+      17:'mccay_s11', 19:'cullimore_s19', 20:'ron_winterton_s20', 22:'brammer_s21',
+      24:'kgrover', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
+    };
+
+    function _krGenericRace(location, raceKey, num) {
+      var isHouse = raceKey === 'statehouse';
+      var isSenate = raceKey === 'statesenate';
+      var chamber = isHouse ? 'Utah State House' : (isSenate ? 'Utah State Senate' : 'U.S. House of Representatives');
+      var short = (isHouse ? 'House District ' : (isSenate ? 'Senate District ' : 'Congressional District ')) + num;
+      var district = (isHouse ? 'Utah House District ' : (isSenate ? 'Utah Senate District ' : 'Utah Congressional District ')) + num;
+      var incPid = isHouse ? KR_STATE_HOUSE_INCUMBENTS[num] : (isSenate ? KR_STATE_SENATE_INCUMBENTS[num] : (KR_CONGRESSIONAL_INCUMBENTS[num] && KR_CONGRESSIONAL_INCUMBENTS[num].pid));
+      var race = {
+        raceKey: raceKey,
+        short: short,
+        district: district,
+        chamber: chamber,
+        color: isHouse ? '#2dd4bf' : (isSenate ? '#a78bfa' : '#60a5fa'),
+        incumbentPid: incPid || null,
+        incumbentNote: isHouse || isSenate ? 'District mapped from official Utah legislative boundaries' : (KR_CONGRESSIONAL_INCUMBENTS[num] && KR_CONGRESSIONAL_INCUMBENTS[num].label) || 'District mapped from official Utah congressional boundaries',
+        addLabel: 'Add ' + short + ' choice to My Team',
+        candidates: incPid ? [incPid] : [],
+        extraNote: location.city + ', ' + location.county + ' is mapped to this district using Utah’s official district boundaries. Candidate rosters will expand as local filings and profiles are added.'
+      };
+      if (!incPid) delete race.incumbentPid;
+      return race;
+    }
+
+    function _krBuildLocationRaces(location) {
+      return [
+        _krGenericRace(location, 'statehouse', location.houseDistrict),
+        _krGenericRace(location, 'statesenate', location.senateDistrict),
+        _krGenericRace(location, 'house', location.congressDistrict)
+      ];
+    }
+
+    KEY_RACES_LOCATIONS.forEach(function(location) {
+      if (location.houseDistrict && location.senateDistrict && location.congressDistrict) {
+        KEY_RACES_BY_LOCATION[location.id] = _krBuildLocationRaces(location);
+      }
+    });
+
     // ── Statewide races — shown for EVERY location ──────────────────────
     // Governor and U.S. Senate represent the whole state, so they appear
     // above the district races no matter which area is selected. Same card
@@ -37104,10 +37184,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'spanish fork' || city === 'springville' || city === 'payson') return 'utah_co';
 
       // ── Cache / Tooele ──
+      if (county.indexOf('box elder') !== -1 || city === 'brigham city') return 'box_elder';
       if (county.indexOf('cache') !== -1 || city === 'logan' || city === 'north logan' || city === 'smithfield' || city === 'hyrum' || city === 'providence') return 'cache';
+      if (county.indexOf('rich') !== -1 || city === 'randolph' || city === 'garden city') return 'rich';
       if (county.indexOf('tooele') !== -1 || city === 'tooele' || city === 'grantsville' || city === 'stansbury park') return 'tooele';
+      if (county.indexOf('morgan') !== -1 || city === 'morgan') return 'morgan';
+      if (county.indexOf('summit') !== -1 || city === 'coalville' || city === 'park city' || city === 'kamas') return 'summit';
+
+      // ── Eastern Utah ──
+      if (county.indexOf('daggett') !== -1 || city === 'manila') return 'daggett';
+      if (county.indexOf('duchesne') !== -1 || city === 'duchesne' || city === 'roosevelt') return 'duchesne';
+      if (county.indexOf('uintah') !== -1 || city === 'vernal' || city === 'naples') return 'uintah';
+      if (county.indexOf('carbon') !== -1 || city === 'price' || city === 'helper') return 'carbon';
+      if (county.indexOf('emery') !== -1 || city === 'castle dale' || city === 'huntington' || city === 'green river') return 'emery';
+      if (county.indexOf('grand') !== -1 || city === 'moab') return 'grand';
+      if (county.indexOf('san juan') !== -1 || city === 'monticello' || city === 'blanding' || city === 'bluff') return 'san_juan';
+
+      // ── Central Utah ──
+      if (county.indexOf('wasatch') !== -1 || city === 'heber city' || city === 'midway') return 'wasatch';
+      if (county.indexOf('juab') !== -1 || city === 'nephi') return 'juab';
+      if (county.indexOf('sanpete') !== -1 || city === 'manti' || city === 'ephraim' || city === 'mount pleasant') return 'sanpete';
+      if (county.indexOf('millard') !== -1 || city === 'fillmore' || city === 'delta') return 'millard';
+      if (county.indexOf('sevier') !== -1 || city === 'richfield' || city === 'salina') return 'sevier';
+      if (county.indexOf('piute') !== -1 || city === 'junction') return 'piute';
+      if (county.indexOf('wayne') !== -1 || city === 'loa' || city === 'bicknell') return 'wayne';
 
       // ── Southern Utah ──
+      if (county.indexOf('beaver') !== -1 || city === 'beaver') return 'beaver';
+      if (county.indexOf('garfield') !== -1 || city === 'panguitch' || city === 'boulder' || city === 'escalante') return 'garfield';
+      if (county.indexOf('kane') !== -1 || city === 'kanab' || city === 'orderville') return 'kane';
       if (county.indexOf('iron') !== -1 || city.indexOf('cedar city') !== -1 || city === 'enoch') return 'cedar_city';
       if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1 || city === 'hurricane' || city === 'washington' || city === 'santa clara' || city === 'ivins') return 'washington';
       return '';
@@ -38389,9 +38494,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var sel = document.getElementById('keyraces-location-select');
         if (sel) {
           if (sel.options.length !== KEY_RACES_LOCATIONS.length) {
-            sel.innerHTML = KEY_RACES_LOCATIONS.map(function(l) {
-              return '<option value="' + l.id + '">' + l.label + '</option>';
-            }).join('');
+            var currentRegion = '';
+            var optionsHtml = '';
+            KEY_RACES_LOCATIONS.forEach(function(l) {
+              if ((l.region || '') !== currentRegion) {
+                if (currentRegion) optionsHtml += '</optgroup>';
+                currentRegion = l.region || 'Utah';
+                optionsHtml += '<optgroup label="' + currentRegion + '">';
+              }
+              optionsHtml += '<option value="' + l.id + '">' + l.label + '</option>';
+            });
+            if (currentRegion) optionsHtml += '</optgroup>';
+            sel.innerHTML = optionsHtml;
           }
           if (sel.value !== locId) sel.value = locId;
         }
