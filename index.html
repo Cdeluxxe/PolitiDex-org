@@ -19755,26 +19755,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
     </div>
 
-    <!-- Stats bar -->
+    <!-- Stats bar — both figures are live, not hardcoded. "Active Proposals" is
+         the number of reform cards currently shown (set by filterAgenda); "Total
+         Votes Cast" sums the live up/down vote counts pulled from Firestore. The
+         earlier "Community Members" / "Ideas Submitted" figures were removed
+         because no real data source backed them. -->
     <div class="mandate-stat-bar animate-on-scroll" style="transition-delay:0.05s;">
       <div class="mandate-stat">
-        <span class="mandate-stat-num" style="color:#f5c842;" id="rh-count">23</span>
+        <span class="mandate-stat-num" style="color:#f5c842;" id="rh-count">0</span>
         <span class="mandate-stat-label">Active Proposals</span>
       </div>
       <div class="mandate-stat-divider hidden sm:block"></div>
       <div class="mandate-stat">
-        <span class="mandate-stat-num" style="color:#4ade80;">35.1k</span>
+        <span class="mandate-stat-num" style="color:#4ade80;" id="rh-total-votes">0</span>
         <span class="mandate-stat-label">Total Votes Cast</span>
-      </div>
-      <div class="mandate-stat-divider hidden sm:block"></div>
-      <div class="mandate-stat">
-        <span class="mandate-stat-num" style="color:#f87171;">312</span>
-        <span class="mandate-stat-label">Community Members</span>
-      </div>
-      <div class="mandate-stat-divider hidden sm:block"></div>
-      <div class="mandate-stat">
-        <span class="mandate-stat-num" style="color:#93c5fd;">47</span>
-        <span class="mandate-stat-label">Ideas Submitted</span>
       </div>
     </div>
 
@@ -20546,6 +20540,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // ════════════════════════════════════════════════════════
   const _agendaVoted = JSON.parse(localStorage.getItem('pdx_agenda_voted') || '{}');
 
+  // Sum every live up/down vote count currently shown on the agenda cards and
+  // write the honest total into the "Total Votes Cast" stat. Called after each
+  // Firestore snapshot so the figure reflects real data, never a hardcoded one.
+  function _updateMandateVoteTotal() {
+    var el = document.getElementById('rh-total-votes');
+    if (!el) return;
+    var total = 0;
+    document.querySelectorAll('#agenda-grid .vote-count').forEach(function(span) {
+      var n = parseInt(span.textContent, 10);
+      if (!isNaN(n)) total += n;
+    });
+    el.textContent = total.toLocaleString();
+  }
+
   function _loadAgendaVotes() {
     document.querySelectorAll('.agenda-vote-up').forEach(function(upBtn) {
       var match = upBtn.getAttribute('onclick').match(/handleAgendaVote\(this,'([^']+)'/);
@@ -20559,6 +20567,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var dBtn = card.querySelector('.agenda-vote-down');
         if (typeof data.likes === 'number') { var lv = Math.max(0, data.likes); upBtn.dataset.count = lv; upBtn.querySelector('.vote-count').textContent = lv; }
         if (dBtn && typeof data.dislikes === 'number') { var dv = Math.max(0, data.dislikes); dBtn.dataset.count = dv; dBtn.querySelector('.vote-count').textContent = dv; }
+        _updateMandateVoteTotal();
       }, function(e) { console.warn("agenda onSnapshot error:", e); });
     });
     Object.keys(_agendaVoted).forEach(function(pid) {
@@ -20609,6 +20618,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     btn.style.transform = 'scale(1.15)';
     setTimeout(() => { btn.style.transform = ''; }, 200);
 
+    if (typeof _updateMandateVoteTotal === 'function') _updateMandateVoteTotal();
     localStorage.setItem('pdx_agenda_voted', JSON.stringify(_agendaVoted));
     var update = { updated: firebase.firestore.FieldValue.serverTimestamp() };
     if (upDelta !== 0) update.likes = firebase.firestore.FieldValue.increment(upDelta);
@@ -25439,64 +25449,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'2026', headline:'Johnson Runs in UT-4 on Schools, Healthcare, and Clean Air', facts:'Democrat Jen Johnson is challenging in Utah\'s competitive-leaning 4th District with a platform centered on public-school funding, protecting the Affordable Care Act, and Wasatch Front air quality. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'UT-4 covers fast-growing suburban Salt Lake County, where school capacity, healthcare costs, and air quality are daily concerns — making Johnson\'s priorities a direct contrast for voters to weigh.' },
           ],
         });
-        // ── Utah Issues Spotlight — clean 3-card visual layout ──────────────
-        // Replaces the older accordion list. Three timely, high-impact Utah
-        // issues, each tied to a real official with working actions: open that
-        // official's profile, add them to the user's ballot team, or jump to the
-        // team builder / Voter Hub. The spotlightData object above is preserved
-        // because Key Races (_krBuildSpotlight) still reads window.SPOTLIGHT_DATA.
-        var pmSpotCards = [
-          { tc:'#f5c842', icon:'\u{1F3ED}', tag:'Energy · Growth',
-            title:'Data Centers vs. the Grid',
-            desc:'A wave of new AI data centers is straining Utah\'s power and water — and raising the question of who pays for it. Gov. Cox is steering the state\'s response.',
-            pid:'cox' },
-          { tc:'#4ade80', icon:'\u{1F3D4}️', tag:'Public Lands · Water',
-            title:'Public Lands Showdown',
-            desc:'From Bears Ears boundaries to a shrinking Great Salt Lake, the fight over Utah\'s land and water is on the 2026 ballot — and Rep. Maloy is at the center of it.',
-            pid:'maloy' },
-          { tc:'#60a5fa', icon:'\u{1F5F3}️', tag:'Your 2026 Ballot',
-            title:'Build Your Voting Team',
-            desc:'Governor, Congress, and the Legislature are all up this November. Line up your team now and walk into the booth knowing exactly who earned your vote.',
-            scroll:true }
-        ];
+        // ── In the Spotlight — politician-specific recent items ────────────
+        // Renders THIS official's own recent bills, votes, news, and positions
+        // from the per-politician SPOTLIGHT_DATA map (keyed by profile id, the
+        // same data Key Races reads). Falls back to a clean placeholder when no
+        // items have been curated for this person yet, rather than showing the
+        // generic statewide filler that used to appear for everyone.
+        var slItems = spotlightData[id] || [];
 
-        function pmSpotScrollBtn(target, label, primary) {
-          return '<button type="button" class="ht-topic-btn' + (primary ? ' ht-topic-btn-primary' : '') + '" ' +
-            'onclick="closeModal();setTimeout(function(){var e=document.getElementById(\'' + target + '\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});},260);">' + label + '</button>';
-        }
-
-        function pmSpotCard(c) {
-          var actions;
-          if (c.scroll) {
-            actions = pmSpotScrollBtn('my-politicians', '⭐ Build My Team', true) +
-                      pmSpotScrollBtn('voter-hub', '\u{1F5F3}️ Voter Hub', false);
-          } else {
-            // Inside this same official's profile, a "View Profile" button would
-            // be a no-op, so swap it for a Voter Hub jump and keep two useful
-            // actions; otherwise open the featured official's profile directly.
-            var primaryBtn = (c.pid === id)
-              ? pmSpotScrollBtn('voter-hub', '\u{1F5F3}️ Voter Hub', true)
-              : '<button type="button" class="ht-topic-btn ht-topic-btn-primary" onclick="showProfile(\'' + c.pid + '\')">\u{1F464} View Profile</button>';
-            var addBtn = '<button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,\'' + c.pid + '\')">⭐ Add to My Team</button>';
-            actions = primaryBtn + addBtn;
-          }
-          return '<div class="ht-topic-card" style="--tc:' + c.tc + ';">' +
-            '<div class="ht-topic-head">' +
-              '<span class="ht-topic-icon">' + c.icon + '</span>' +
-              '<span class="ht-topic-tag">' + c.tag + '</span>' +
+        if (!slItems.length) {
+          return '<div class="modal-section">' +
+            '<div class="modal-section-title">\u{1F526} In the Spotlight</div>' +
+            '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
+              '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
+              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No recent spotlight items</div>' +
+              '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here.</p>' +
             '</div>' +
-            '<h3 class="ht-topic-title">' + c.title + '</h3>' +
-            '<p class="ht-topic-desc">' + c.desc + '</p>' +
-            '<div class="ht-topic-actions">' + actions + '</div>' +
           '</div>';
         }
 
+        var slCards = slItems.map(function(it) {
+          return '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(96,165,250,0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.3);padding:0.1rem 0.45rem;border-radius:999px;">In the News</span>' +
+              (it.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + it.date + '</span>' : '') +
+            '</div>' +
+            '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 0.35rem;">' + it.headline + '</h4>' +
+            '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (it.why ? '0.45rem' : '0') + ';">' + it.facts + '</p>' +
+            (it.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
+              '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + it.why + '</span></div>' : '') +
+          '</div>';
+        }).join('');
+
         return '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F526} In the Spotlight — Utah Issues That Matter</div>' +
-          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.85rem;">' +
-            pmSpotCards.map(pmSpotCard).join('') +
-          '</div>' +
-          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.75rem 0 0;text-align:center;">The issues defining Utah\'s 2026 cycle — explore the officials shaping them and build your ballot.</p>' +
+          '<div class="modal-section-title">\u{1F526} In the Spotlight</div>' +
+          slCards +
+          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Recent bills, votes, and news tied to this official’s record. Sources linked inline.</p>' +
         '</div>';
       })()}
 
