@@ -24567,22 +24567,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     p = p || {};
     var stances = _resolveStanceList(id, p);
     var derived = false;
+    // A 2026 candidate (or any not-yet-seated challenger) has no voting record to
+    // build documented stances from. When we fall back to their key issues we
+    // reframe the section as the priorities they are campaigning on — an honest,
+    // intentional read — rather than positions that are merely "being researched."
+    var _is2026Cand = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+    var _isCandidate = _is2026Cand ||
+      ((typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(p) === 'candidate') ||
+      /candidat|challenger|nominee|running/i.test(((p.office || '') + ' ' + (p.state || '')));
+    var _firstName = (p.name ? String(p.name).split(' ')[0] : 'this candidate');
     if (!stances || !stances.length) {
       // Fall back to the politician's tracked key issues so the section is
-      // still informative, with positions flagged as not-yet-documented.
+      // still informative. For a sitting official the position is flagged as
+      // not-yet-documented; for a candidate it is presented as a stated priority.
       var ki = (p.keyIssues || []).slice(0, 6);
       if (!ki.length) return '';
       derived = true;
       stances = ki.map(function(issue) {
-        return { topic: issue, icon: _deepProfileTopicIcon(issue), pos: 'tracking',
-          text: 'A detailed position is being researched and will be added as statements and votes are verified.' };
+        return { topic: issue, icon: _deepProfileTopicIcon(issue),
+          pos: _isCandidate ? 'priority' : 'tracking',
+          text: _isCandidate
+            ? ('A core priority of ' + _firstName + '\'s campaign. Detailed positions are added as the campaign publishes statements and, once in office, a voting record begins.')
+            : 'A detailed position is being researched and will be added as statements and votes are verified.' };
       });
     }
+    var _derivedCand = derived && _isCandidate;
     var posMeta = {
       support:  { cls:'stance-support',  sc:'sc-support',  ico:'✓', label:'Supports' },
       oppose:   { cls:'stance-oppose',   sc:'sc-oppose',   ico:'✗', label:'Opposes' },
       mixed:    { cls:'stance-mixed',    sc:'sc-mixed',    ico:'~', label:'Mixed Record' },
-      tracking: { cls:'stance-tracking', sc:'sc-tracking', ico:'…', label:'Researching' }
+      tracking: { cls:'stance-tracking', sc:'sc-tracking', ico:'…', label:'Researching' },
+      priority: { cls:'stance-tracking', sc:'sc-tracking', ico:'★', label:'Top Priority' }
     };
 
     // Category metadata mirrors the Alignment Tool's groupings so stances slot
@@ -24676,15 +24691,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('');
     }
 
-    var note = derived
-      ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
-      : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.';
+    var note = _derivedCand
+      ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record to score. The priorities above are drawn from their public campaign — PolitiDex logs kept-and-broken promises once they take office.')
+      : (derived
+        ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
+        : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.');
+    var _countWord = _derivedCand
+      ? (stances.length === 1 ? ' priority' : ' priorities')
+      : (' issue' + (stances.length === 1 ? '' : 's'));
     return '<div class="modal-section">' +
       '<div class="modal-section-title" style="justify-content:space-between;">' +
-        '<span style="display:inline-flex;align-items:center;gap:0.45rem;">🎯 Key Issue Stances</span>' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + stances.length + ' issue' + (stances.length === 1 ? '' : 's') + '</span>' +
+        '<span style="display:inline-flex;align-items:center;gap:0.45rem;">' + (_derivedCand ? '🎯 Top Priorities' : '🎯 Key Issue Stances') + '</span>' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + stances.length + _countWord + '</span>' +
       '</div>' +
-      '<p class="modal-section-sub">Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.</p>' +
+      '<p class="modal-section-sub">' + (_derivedCand
+        ? ('The core priorities of ' + _firstName + '\'s campaign — drawn from public campaign materials, with detailed positions and sources added as they are published.')
+        : ('Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.')) + '</p>' +
       (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
       body +
       '<p class="src-note">' + note + '</p>' +
