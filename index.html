@@ -148,14 +148,21 @@
   auth.onAuthStateChanged(function(user) {
     _fbAuthResolve();
     if (user) {
-      if (user.isAnonymous) {
-        console.log("Firebase signed in anonymously:", user.uid);
-      } else {
-        console.log("Firebase signed in as user:", user.uid, user.email);
-      }
       _lastAuthUser = user.isAnonymous ? null : user;
       if (typeof updateNavAuth === 'function') updateNavAuth(user);
-      if (typeof syncUserDataFromFirestore === 'function') syncUserDataFromFirestore(user.uid);
+      if (user.isAnonymous) {
+        console.log("Firebase signed in anonymously:", user.uid);
+        // Guest/anonymous visitors have no saved cloud profile, so their My Team,
+        // Favorites and Watching lists live entirely in this browser's
+        // localStorage. Reading the (empty) anonymous Firestore profile here would
+        // overwrite a team the visitor already built on this device — the bug that
+        // made "My Team" appear to reset on every refresh. Load from localStorage
+        // instead so selections persist across refreshes and browser sessions.
+        if (typeof window._loadLocalUserData === 'function') window._loadLocalUserData();
+      } else {
+        console.log("Firebase signed in as user:", user.uid, user.email);
+        if (typeof syncUserDataFromFirestore === 'function') syncUserDataFromFirestore(user.uid);
+      }
     } else {
       _lastAuthUser = null;
       console.log("No user, signing in anonymously...");
@@ -4676,6 +4683,37 @@
     .myteam-summary-line.is-empty .myteam-summary-strong { color: #cbd5e1; }
     .myteam-summary-line.is-complete { color: #4ade80; border-left-color: rgba(74,222,128,0.7); background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.22); }
     .myteam-summary-line.is-complete .myteam-summary-strong { color: #86efac; }
+
+    /* ── "Saved on this device" persistence reassurance ──────────────── */
+    .myteam-save-status { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 999px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); color: #86efac; }
+    .myteam-save-status .mss-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.8); flex-shrink: 0; }
+    .myteam-save-status .mss-sub { color: #7f93b3; font-weight: 400; }
+    .myteam-save-status.is-synced { background: rgba(96,165,250,0.08); border-color: rgba(96,165,250,0.28); color: #bfdbfe; }
+    .myteam-save-status.is-synced .mss-dot { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.8); }
+
+    /* ── Per-office picks summary — compact scannable roster ─────────── */
+    .myteam-office-summary { margin-bottom: 1.25rem; padding: 1rem 1.1rem; background: linear-gradient(135deg, rgba(245,158,11,0.05), rgba(10,15,30,0.4)); border: 1px solid rgba(245,158,11,0.18); border-radius: 0.9rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+    .myteam-office-summary-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+    .myteam-office-summary-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fbbf24; }
+    .myteam-office-summary-count { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.06em; color: #9fb4d4; }
+    .myteam-office-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .myteam-office-chip { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.6rem 0.4rem 0.7rem; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.025); font-family: 'Barlow Condensed', sans-serif; max-width: 100%; }
+    .myteam-office-chip .moc-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
+    .myteam-office-chip .moc-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+    .myteam-office-chip .moc-office { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7f93b3; }
+    .myteam-office-chip .moc-name { font-size: 0.86rem; font-weight: 600; color: #e7eefb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 11rem; }
+    .myteam-office-chip.is-filled { border-color: rgba(74,222,128,0.35); background: linear-gradient(135deg, rgba(74,222,128,0.12), rgba(74,222,128,0.04)); }
+    .myteam-office-chip.is-filled .moc-name { color: #d6f5e1; }
+    .myteam-office-chip.is-open { cursor: pointer; border-style: dashed; border-color: rgba(245,158,11,0.3); transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+    .myteam-office-chip.is-open:hover { border-color: rgba(245,158,11,0.6); background: rgba(245,158,11,0.08); transform: translateY(-1px); }
+    .myteam-office-chip.is-open .moc-name { color: #f0b860; font-weight: 700; font-size: 0.78rem; }
+    .myteam-office-chip .moc-remove { flex-shrink: 0; margin-left: 0.15rem; width: 1.25rem; height: 1.25rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.4rem; border: none; background: rgba(239,68,68,0.12); color: #f87171; font-size: 0.8rem; line-height: 1; cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s; }
+    .myteam-office-chip .moc-remove:hover { background: rgba(239,68,68,0.28); color: #fff; transform: scale(1.1); }
+    @media (max-width: 640px) {
+      .myteam-office-chips { gap: 0.4rem; }
+      .myteam-office-chip { padding: 0.35rem 0.5rem; }
+      .myteam-office-chip .moc-name { max-width: 8rem; }
+    }
     /* Ballot completion progress — header bar + per-slot pips. */
     .myteam-progress { margin: 0 0 1.5rem; }
     .myteam-progress-track {
@@ -12522,6 +12560,11 @@
               </div>
             </div>
 
+            <!-- Persistence reassurance — confirms the team is saved on this device
+                 (and synced when signed in). Shown by _mypolBuildGrid once a pick
+                 exists so the feature reads as durable, not throwaway. -->
+            <div id="myteam-save-status" class="myteam-save-status" style="display:none;"></div>
+
             <!-- Team stats bar -->
             <div id="myteam-stats" class="mb-6" style="display:none;">
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
@@ -12553,6 +12596,12 @@
             <!-- Live team summary / friendly empty-state line -->
             <div id="myteam-summary-line" class="myteam-summary-line" style="display:none;"></div>
 
+            <!-- Per-office picks summary — a compact, scannable roster of every
+                 office on the ballot, each showing the chosen pick (tap ✕ to
+                 remove) or an "open" prompt. Gives an at-a-glance read of how many
+                 picks are made per office. Populated by _renderTeamOfficeSummary(). -->
+            <div id="myteam-office-summary" class="myteam-office-summary" style="display:none;"></div>
+
             <!-- 6-Slot Position Grid -->
             <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
 
@@ -12575,7 +12624,7 @@
               <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
               <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR TEAM</div>
               <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Build a team of politicians who actually represent what you believe in. Each office below — from the U.S. Senate down to your local government — goes to the candidate who earns it on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
-              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Sign in to save your team to your account and access it from any device.</p>
+              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Your team saves automatically on this device as you build it — come back anytime and it's still here. Sign in to also sync it across your devices.</p>
               <button onclick="window.jumpToRelevantAccordion('senate')" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
                 <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                 Find Candidates Who Match You
@@ -12722,7 +12771,7 @@
       <div id="account-save-toast" class="account-save-toast">💾 Saved to your account</div>
       <div id="vote-save-toast" class="account-save-toast">✅ Vote saved to your account</div>
       <div id="signin-prompt-toast" class="signin-prompt-toast">
-        <span>Sign in to save your team permanently</span>
+        <span>Sign in to sync your team across your devices</span>
         <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideSigninPrompt();">Sign In</button>
       </div>
       <div id="vote-signin-nudge" class="signin-prompt-toast">
@@ -32286,6 +32335,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     }
 
+    // Load the visitor's My Team, Favorites and Watching lists straight from this
+    // browser's localStorage and repaint every grid. This is the persistence path
+    // for guests / anonymous visitors (anyone not signed into a real account): it
+    // never touches Firestore, so a team built on this device survives refreshes
+    // and return visits instead of being wiped by an empty cloud profile.
+    function _loadLocalUserData() {
+      try { _mypolLoad(); } catch (e) {}
+      try { _loadFavorites(); } catch (e) {}
+      try { _potentialLoad(); } catch (e) {}
+      try { _mypolBuildGrid(); } catch (e) {}
+      try { _favoritesBuildGrid(); } catch (e) {}
+      try { _potentialBuildGrid(); } catch (e) {}
+      try { _refreshAllHeartUI(); } catch (e) {}
+      try { _mypolUpdateCount(); } catch (e) {}
+      try { if (typeof filterDirectory === 'function') filterDirectory(); } catch (e) {}
+    }
+    window._loadLocalUserData = _loadLocalUserData;
+
     window.openAuthModal = openAuthModal;
     window.closeAuthModal = closeAuthModal;
     window.toggleAuthMode = toggleAuthMode;
@@ -32967,6 +33034,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }
 
+    // Per-office picks summary — a compact, scannable roster that answers, at a
+    // glance, how many picks the visitor has made and for which offices. Each of
+    // the ballot's offices renders as a chip: a filled chip shows the chosen
+    // teammate's name with a one-tap ✕ to remove them; an open chip invites a pick
+    // and jumps to that office's candidates. Complements the larger slot tiles
+    // below with a tight, list-style read of the whole team.
+    function _renderTeamOfficeSummary(ballotSelections, filledCount) {
+      var box = document.getElementById('myteam-office-summary');
+      if (!box) return;
+      if (!filledCount) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+      var total = TEAM_POSITIONS.length;
+      var chips = TEAM_POSITIONS.map(function(pos) {
+        var pid = ballotSelections[pos.key];
+        var d = pid ? CMP_DATA[pid] : null;
+        var ico = pos.icon || '🏛';
+        if (d) {
+          var name = (d.name || 'Selected').replace(/"/g, '&quot;');
+          return '<span class="myteam-office-chip is-filled" title="' + pos.label + ' — ' + name + '">' +
+              '<span class="moc-ico">' + ico + '</span>' +
+              '<span class="moc-text"><span class="moc-office">' + pos.label + '</span>' +
+              '<span class="moc-name">' + name + '</span></span>' +
+              '<button class="moc-remove" title="Remove ' + name + ' from your team" ' +
+                'onclick="event.stopPropagation();window.myteamClearSlot(\'' + pos.key + '\', this)">✕</button>' +
+            '</span>';
+        }
+        return '<span class="myteam-office-chip is-open" title="Pick your ' + pos.label + '" ' +
+            'onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">' +
+            '<span class="moc-ico">' + ico + '</span>' +
+            '<span class="moc-text"><span class="moc-office">' + pos.label + '</span>' +
+            '<span class="moc-name">+ Add a pick</span></span>' +
+          '</span>';
+      }).join('');
+
+      box.innerHTML =
+        '<div class="myteam-office-summary-head">' +
+          '<span class="myteam-office-summary-title">⭐ Your Picks by Office</span>' +
+          '<span class="myteam-office-summary-count">' + filledCount + ' of ' + total + ' offices filled</span>' +
+        '</div>' +
+        '<div class="myteam-office-chips">' + chips + '</div>';
+      box.style.display = '';
+    }
+
+    // Persistence reassurance pill. Anonymous/guest visitors are told their team
+    // is saved on this device (the localStorage that now reliably persists across
+    // refreshes); signed-in members are told it is synced to their account. Hidden
+    // until at least one pick exists so an empty team stays clean.
+    function _renderTeamSaveStatus(filledCount) {
+      var el = document.getElementById('myteam-save-status');
+      if (!el) return;
+      if (!filledCount) { el.style.display = 'none'; el.innerHTML = ''; return; }
+      var signedIn = false;
+      try { signedIn = !!(typeof auth !== 'undefined' && auth && auth.currentUser && !auth.currentUser.isAnonymous); } catch (e) {}
+      el.classList.toggle('is-synced', signedIn);
+      el.innerHTML = signedIn
+        ? '<span class="mss-dot"></span><span>Synced to your account</span><span class="mss-sub">— available on all your devices</span>'
+        : '<span class="mss-dot"></span><span>Saved on this device</span><span class="mss-sub">— sign in to sync everywhere</span>';
+      el.style.display = '';
+    }
+
     function _mypolBuildGrid() {
       var slotsGrid = document.getElementById('myteam-slots-grid');
       var teamEmpty = document.getElementById('myteam-empty');
@@ -33104,6 +33231,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       if (teamCountBadge) teamCountBadge.textContent = filledCount + '/' + TEAM_POSITIONS.length;
+
+      _renderTeamOfficeSummary(ballotSelections, filledCount);
+      _renderTeamSaveStatus(filledCount);
 
       var browseSlotsLabel = document.getElementById('myteam-browse-slots-label');
       var browseSlotsBar = document.getElementById('myteam-browse-slots-bar');
@@ -35610,6 +35740,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof CMP_DATA === 'undefined') return;
       _selectedDistrict = _getSelectedDistrict();
       _mypolLoad();
+      _loadFavorites();
       _potentialLoad();
       _mypolBuildGrid();
       _potentialBuildGrid();
@@ -40137,7 +40268,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         sel: '#my-politicians',
         emoji: '👥',
         title: 'Build Your Voting Team',
-        body: 'These are your ballot slots — one pick per race. Choose the people you trust on record and values, not party, and PolitiDex builds your personal voting team. Sign in and it saves to your account, so your slate is ready every time you come back.'
+        body: 'These are your ballot slots — one pick per race. Choose the people you trust on record and values, not party, and PolitiDex builds your personal voting team. It saves automatically on this device, so your slate is ready every time you come back — and signing in syncs it across your devices.'
       },
       {
         sel: '#relevant-section',
