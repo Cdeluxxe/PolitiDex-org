@@ -4164,6 +4164,18 @@
       margin-top: 0.1rem;
       line-height: 1.05;
     }
+    /* Candidate variant of the empty score rail — a 2026 candidate has no governing
+       record to score yet, so instead of the generic grey "—" (which reads as a
+       missing officeholder score) the rail wears the blue 2026 identity and a clear,
+       forward-looking line: the record begins once they're in office. */
+    .pdx-snap-score-cand {
+      border-color: rgba(96,165,250,0.32) !important;
+      background: linear-gradient(160deg, rgba(23,40,72,0.7), rgba(8,13,27,0.66));
+    }
+    .pdx-snap-score-cand .pdx-snap-score-num-cand { color: #93c5fd; font-size: 1.42rem; line-height: 1.15; }
+    .pdx-snap-score-cand .pdx-snap-score-lbl-cand { color: #93c5fd; }
+    .pdx-snap-score-cand .pdx-snap-score-na-cand { color: #7aa0d4; }
+    .pdx-snap-score-cand.pdx-snap-score-click:hover { border-color: rgba(96,165,250,0.62) !important; }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
     .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.55rem; }
     .pdx-snap-issue {
@@ -33148,6 +33160,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // Derive a short, clean one-line blurb from a full bio for use as a card's
+    // descriptive line. Takes the first sentence (and a second only when the first
+    // is very short), collapses whitespace and returns a single tidy line. It only
+    // ever excerpts the real, stored bio — it never invents or paraphrases text.
+    function _pdxBioBlurb(bio) {
+      if (!bio) return '';
+      var t = String(bio).replace(/\s+/g, ' ').trim();
+      if (!t) return '';
+      var m = t.match(/^[^.!?]*[.!?]/);
+      var out = m ? m[0].trim() : t;
+      if (out.length < 60) {
+        var rest = t.slice(out.length).trim();
+        var m2 = rest.match(/^[^.!?]*[.!?]/);
+        if (m2) out = (out + ' ' + m2[0].trim()).trim();
+      }
+      return out;
+    }
+    window._pdxBioBlurb = _pdxBioBlurb;
+
     window._pdxCardInner = function(pid, opts) {
       opts = opts || {};
       var d = CMP_DATA[pid];
@@ -33190,12 +33221,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
             infoHint +
           '</div>'
-        : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
-            '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
-            '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
-            '<div class="pdx-snap-score-na">No record yet</div>' +
-            infoHint +
-          '</div>';
+        : (status === 'candidate'
+          ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-cand pdx-snap-score-click"' + scoreClick + '>' +
+              '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-cand">🗳️</div>' +
+              '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-cand">2026 Ballot</div>' +
+              '<div class="pdx-snap-score-na pdx-snap-score-na-cand">Record begins in office</div>' +
+              infoHint +
+            '</div>'
+          : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
+              '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
+              '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+              '<div class="pdx-snap-score-na">No record yet</div>' +
+              infoHint +
+            '</div>');
 
       var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
@@ -33227,6 +33265,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var highlight = '';
       if (opts.highlight !== false) {
         var hl = (typeof opts.highlight === 'string') ? opts.highlight : (d.why || '');
+        // 2026 candidates almost never carry a "why this matters" blurb yet, which
+        // left their cards with no descriptive line at all — the main reason they
+        // read as thin. Fall back to a clean one-line excerpt of their real, stored
+        // bio so the card carries honest, verifiable context instead of a blank gap.
+        if (!hl && status === 'candidate' && d.bio) hl = _pdxBioBlurb(d.bio);
         if (hl) {
           if (hl.length > 150) hl = hl.slice(0, 147).replace(/\s+\S*$/, '') + '…';
           var isCand = (status === 'candidate');
@@ -38456,6 +38499,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var headlineIssue = (d.issues || []).filter(function(i) {
         return !/2026 candidate|district \d|congressional district|senate district|house district/i.test(i);
       })[0];
+      // Lead the inline note with a one-line excerpt of the candidate's real bio when
+      // we have one, so each newcomer reads as a specific person rather than identical
+      // boilerplate. Falls back to the plain "record begins in office" line otherwise.
+      var bioLine = (isCandidate && d.bio && typeof window._pdxBioBlurb === 'function') ? window._pdxBioBlurb(d.bio) : '';
       return {
         kind: isCandidate ? 'newcomer' : 'monitoring',
         badge: isCandidate ? 'On the 2026 Ballot' : 'Compiling Record',
@@ -38463,7 +38510,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         date: '',
         title: isCandidate ? 'On the 2026 ballot' : 'Now being tracked by PolitiDex',
         teaser: isCandidate
-          ? 'Track record begins once they take office or pledge on the record.'
+          ? (bioLine || 'Track record begins once they take office or pledge on the record.')
           : 'PolitiDex is compiling this official’s voting record.',
         body: (d.office || '2026 candidate') + '. ' + (headlineIssue ? ('Signature focus: ' + headlineIssue + '. ') : '') +
           (isCandidate ? 'No public voting record yet — there is nothing to hold them to so far.' : 'A voting record is being compiled for this office right now.'),
