@@ -1401,35 +1401,44 @@
     @media (hover: hover) { .promise-row:hover { background: rgba(255,255,255,0.027); } }
 
     /* ── Modal section dividers ────────────────────────── */
+    /* One shared vertical-rhythm token drives every top-level block in the
+       modal (named sections AND the standalone metric/alignment cards), so the
+       whole profile breathes on a single consistent grid instead of three
+       competing margin values. */
+    #modal-content { --modal-gap: 2.1rem; }
     .modal-section {
       /* Tapered hairline divider — fades left-to-right so each section reads as
          a distinct, letterhead-style block without the flat, boxy look of a
-         full-width rule. Slightly more vertical rhythm keeps sections from
-         feeling cramped against one another. */
+         full-width rule. The shared gap keeps every section on the same rhythm. */
       border-top: 1px solid transparent;
-      border-image: linear-gradient(90deg, rgba(255,255,255,0.14), rgba(255,255,255,0.045) 55%, rgba(255,255,255,0)) 1;
-      margin-top: 1.95rem; padding-top: 1.85rem;
+      border-image: linear-gradient(90deg, rgba(255,255,255,0.17), rgba(255,255,255,0.05) 55%, rgba(255,255,255,0)) 1;
+      margin-top: var(--modal-gap); padding-top: calc(var(--modal-gap) - 0.15rem);
       scroll-margin-top: 0.75rem;
     }
+    /* Standalone cards that sit between named sections (e.g. the personalized
+       "Your Match" card) get the same gap above so they never read as cramped
+       against the section before them. */
+    .modal-block { margin-top: var(--modal-gap); }
     .modal-section-title {
       font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 0.11em; font-size: 1.12rem;
-      color: #cbd9ec; margin-bottom: 0.85rem;
+      letter-spacing: 0.12em; font-size: 1.2rem;
+      color: #dbe6f6; margin-bottom: 0.95rem;
       text-transform: uppercase;
-      display: flex; align-items: center; gap: 0.5rem;
+      display: flex; align-items: center; gap: 0.55rem;
     }
     /* Leading accent rule gives every section a consistent, ledger-like
        anchor on the left — strengthens the scan hierarchy without clutter. */
     .modal-section-title::before {
       content: ""; flex-shrink: 0;
-      width: 3px; height: 0.95em; border-radius: 2px;
-      background: currentColor; opacity: 0.85;
+      width: 3px; height: 1.05em; border-radius: 2px;
+      background: currentColor; opacity: 0.9;
     }
     /* Short descriptive line under a section title — sets context so each
-       profile section reads as a self-contained, professional block. */
+       profile section reads as a self-contained, professional block. Pulled
+       snug to the title, then a clear gap before the section's content. */
     .modal-section-sub {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
-      color: #8ba6cc; line-height: 1.45; margin: -0.35rem 0 0.75rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem;
+      color: #8ba6cc; line-height: 1.5; margin: -0.45rem 0 0.95rem;
       letter-spacing: 0.01em;
     }
 
@@ -1443,7 +1452,7 @@
       border: 1px solid rgba(159,180,212,0.22);
       border-left: 3px solid #c0152a;
       border-radius: 0.85rem;
-      padding: 1rem 1.1rem; margin-bottom: 1.4rem;
+      padding: 1rem 1.1rem; margin-bottom: 1.25rem;
     }
     .profile-thin-notice .ptn-icon {
       font-size: 1.6rem; line-height: 1; flex-shrink: 0; margin-top: 0.05rem;
@@ -11531,8 +11540,11 @@
         word-break: break-word;
       }
       #modal-body img, #modal-body table, #modal-body pre { max-width: 100% !important; }
-      .modal-section { margin-top: 1.1rem !important; padding-top: 1.1rem !important; }
-      .modal-section-title { font-size: 0.98rem !important; }
+      /* Tighter — but not cramped — rhythm on phones. Driven through the shared
+         token so named sections and standalone .modal-block cards stay in step. */
+      #modal-content { --modal-gap: 1.4rem; }
+      .modal-section { padding-top: 1.25rem !important; }
+      .modal-section-title { font-size: 1.02rem !important; }
 
       /* ── 4 · BUTTONS — consistent, thumb-friendly tap targets ──────────── */
       .kr-action-btn, .myteam-add-btn, .myteam-remove-btn,
@@ -24979,7 +24991,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (alignScore === null) return '';
           const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
           const verdict = alignScore >= 70 ? 'Strong match' : alignScore >= 50 ? 'Partial match' : 'Weak match';
-          return `<div id="modal-personalized-alignment" role="button" tabindex="0" onclick="if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView('${id}');" style="cursor:pointer;margin-bottom:1.25rem;background:linear-gradient(135deg, rgba(139,92,246,0.14) 0%, rgba(10,15,30,0.4) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:0.85rem;padding:0.85rem 1rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 20px rgba(139,92,246,0.1);">
+          return `<div id="modal-personalized-alignment" class="modal-block" role="button" tabindex="0" onclick="if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView('${id}');" style="cursor:pointer;margin-bottom:1.25rem;background:linear-gradient(135deg, rgba(139,92,246,0.14) 0%, rgba(10,15,30,0.4) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:0.85rem;padding:0.85rem 1rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 20px rgba(139,92,246,0.1);">
             <div style="display:flex;align-items:center;gap:0.85rem;">
               <div style="flex-shrink:0;text-align:center;min-width:62px;">
                 <div style="font-family:'Bebas Neue',sans-serif;font-weight:900;line-height:1;font-size:2.4rem;color:${aCol};text-shadow:0 0 14px ${aCol}55;">${alignScore}<span style="font-size:1.1rem;">%</span></div>
@@ -24998,7 +25010,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </div>`;
         }
         // Not set up yet → invite the visitor to unlock their match on this person.
-        return `<div id="modal-personalized-alignment-setup" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.05) 100%);border:1px dashed rgba(139,92,246,0.5);border-radius:0.85rem;padding:0.85rem 1rem;">
+        return `<div id="modal-personalized-alignment-setup" class="modal-block" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.05) 100%);border:1px dashed rgba(139,92,246,0.5);border-radius:0.85rem;padding:0.85rem 1rem;">
             <div style="width:38px;height:38px;border-radius:0.65rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;box-shadow:0 0 14px rgba(139,92,246,0.4);">🎯</div>
             <div style="flex:1;min-width:170px;">
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.03em;color:#d8b4fe;font-size:0.9rem;text-transform:uppercase;">See your match with ${firstName}</div>
