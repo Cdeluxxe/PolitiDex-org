@@ -25055,9 +25055,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
         '</div>' : '') +
         '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
-          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
-          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
-          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
+          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
+          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
         '</div>' +
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
       '</div>';
@@ -25096,11 +25096,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Reflect the active state on both the tabs and the hero badges.
     var tabs = document.querySelectorAll('#pdx-promise-filter .pdx-pfilter-btn');
     for (var t = 0; t < tabs.length; t++) {
-      tabs[t].classList.toggle('active', tabs[t].getAttribute('data-f') === verdict);
+      var tabActive = tabs[t].getAttribute('data-f') === verdict;
+      tabs[t].classList.toggle('active', tabActive);
+      tabs[t].setAttribute('aria-pressed', tabActive ? 'true' : 'false');
     }
     var badges = document.querySelectorAll('[data-jump]');
     for (var b = 0; b < badges.length; b++) {
-      badges[b].classList.toggle('vbadge-active', badges[b].getAttribute('data-jump') === verdict);
+      var badgeActive = badges[b].getAttribute('data-jump') === verdict;
+      badges[b].classList.toggle('vbadge-active', badgeActive);
+      badges[b].setAttribute('aria-pressed', badgeActive ? 'true' : 'false');
     }
 
     // Remember the active filter so the hero badges can toggle back to "All".
@@ -25135,6 +25139,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ev.preventDefault();
       window._pdxBadgeClick(verdict);
     }
+  };
+
+  // Filter-tab click — same toggle semantics as the hero counts: tapping the
+  // already-active tab clears back to "All", so every clickable pill (hero
+  // counts and tracker tabs alike) can also undo its own filter.
+  window.pdxToggleFilter = function(f){
+    var next = (window._pdxActiveFilter === f) ? 'all' : f;
+    window.pdxFilterPromises(next);
   };
 
   // Compact card strip — one-line kept/broken read + a thin split bar so a
@@ -25252,7 +25264,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const promiseFilterBar = (p.promises && p.promises.length) ? (function(){
       const counts = { all: p.promises.length };
       _pGroups.forEach(g => { counts[g.v] = (p.promises || []).filter(r => (r.verdict || 'pending') === g.v).length; });
-      const tab = (f, label) => `<button type="button" class="pdx-pfilter-btn${f==='all'?' active':''}" data-f="${f}" onclick="window.pdxFilterPromises('${f}')">${label} <span class="pdx-pfilter-n">${counts[f]}</span></button>`;
+      const tab = (f, label) => `<button type="button" class="pdx-pfilter-btn${f==='all'?' active':''}" data-f="${f}" aria-pressed="${f==='all'?'true':'false'}" onclick="window.pdxToggleFilter('${f}')">${label} <span class="pdx-pfilter-n">${counts[f]}</span></button>`;
       let btns = tab('all', 'All');
       _pGroups.forEach(g => { if (counts[g.v]) btns += tab(g.v, `${g.icon} ${g.label}`); });
       return `<div id="pdx-promise-filter" class="pdx-pfilter">${btns}</div>`;
