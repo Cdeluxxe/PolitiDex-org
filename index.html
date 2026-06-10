@@ -3829,19 +3829,38 @@
       box-shadow: 0 0 8px rgba(74,222,128,0.9);
       flex-shrink: 0;
     }
+    /* 2026 candidates / challengers — given their own clear BLUE identity so they
+       read as intentional, on-the-ballot choices rather than half-built cards. A
+       solid blue frame, a subtle navy-blue lift and a soft glow give them real
+       visual weight, while a bright blue rail across the top edge mirrors the
+       incumbent's gold→green hero rail — same structure, a different (cooler)
+       colour — so a candidate is instantly distinguishable from a sitting
+       officeholder yet visually consistent with the rest of the cards. */
     .chub-card.is-candidate {
-      background: rgba(14,23,42,0.55);
-      border: 1px dashed rgba(148,163,184,0.3);
-      border-radius: 0.8rem;
-      box-shadow: none;
+      background: linear-gradient(150deg, rgba(23,40,72,0.95), rgba(11,18,34,0.97));
+      border: 1.5px solid rgba(96,165,250,0.45);
+      border-radius: 0.9rem;
+      padding-top: 1.4rem;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.12), 0 10px 30px rgba(0,0,0,0.42), 0 0 20px rgba(59,130,246,0.1), inset 0 1px 0 rgba(255,255,255,0.04);
     }
-    .chub-card.is-candidate::before { display: none; }
+    .chub-card.is-candidate::before {
+      content: '';
+      position: absolute;
+      inset: auto;
+      top: 0; left: 0; right: 0; bottom: auto;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 55%, #93c5fd 100%);
+      opacity: 1;
+      z-index: 2;
+      pointer-events: none;
+    }
     @media (hover: hover) {
       .chub-card.is-candidate:hover {
-        border-color: rgba(96,165,250,0.45);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+        border-color: rgba(96,165,250,0.7);
+        transform: translateY(-3px);
+        box-shadow: 0 0 0 1px rgba(96,165,250,0.22), 0 14px 40px rgba(0,0,0,0.5), 0 0 26px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
       }
+      .chub-card.is-candidate:hover::before { opacity: 1; }
     }
     .chub-candidate-norecord {
       display: inline-flex;
@@ -4133,6 +4152,14 @@
       color: #d9c89a;
     }
     .pdx-snap-highlight .pdx-snap-highlight-ico { flex-shrink: 0; color: #f5c842; }
+    /* Candidate variant — blue tint + ballot icon, matching the 2026-candidate
+       identity used by the badge, photo ring and card frame. */
+    .pdx-snap-highlight--candidate {
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(96,165,250,0.28);
+      color: #b9cef0;
+    }
+    .pdx-snap-highlight--candidate .pdx-snap-highlight-ico { color: #60a5fa; }
     .pdx-snap-extra { margin-top: 0.65rem; }
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
@@ -10650,20 +10677,37 @@
 
     /* Candidates — deliberately the secondary tier: flat, low-contrast surface,
        hairline neutral border, no glow, tighter padding, smaller name. */
+    /* Candidates — a clear, intentional BLUE secondary tier. Solid blue frame, a
+       faint navy lift and a blue top rail give them real weight and an on-the-ballot
+       identity, while a softer glow and slightly smaller name keep them a step below
+       the green incumbent hero. (No more flat grey hairline that read as unfinished.) */
     #myteam-browse-grid .chub-card.is-candidate {
-      background: rgba(13, 20, 38, 0.5) !important;
-      border: 1px solid rgba(148, 163, 184, 0.16) !important;
+      background: linear-gradient(135deg, rgba(22,38,70,0.92) 0%, rgba(11,18,36,0.95) 100%) !important;
+      border: 1.5px solid rgba(96, 165, 250, 0.45) !important;
       border-radius: 0.9rem !important;
-      box-shadow: none !important;
-      padding: 0.95rem 1.05rem !important;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.12), 0 10px 26px rgba(0,0,0,0.45), 0 0 18px rgba(59,130,246,0.1) !important;
+      padding: 1.4rem 1.05rem 0.95rem !important;
+    }
+    #myteam-browse-grid .chub-card.is-candidate::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
+      height: 3px !important;
+      background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 55%, #93c5fd 100%) !important;
+      opacity: 1 !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
     }
     #myteam-browse-grid .chub-card.is-candidate:hover {
-      transform: translateY(-2px) !important;
-      border-color: rgba(96, 165, 250, 0.4) !important;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32) !important;
+      transform: translateY(-3px) !important;
+      border-color: rgba(96, 165, 250, 0.7) !important;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.22), 0 14px 34px rgba(0,0,0,0.5), 0 0 24px rgba(59,130,246,0.18) !important;
     }
     #myteam-browse-grid .chub-card.is-candidate .font-display {
-      font-size: 1.02rem !important;
+      font-size: 1.05rem !important;
     }
 
     /* Politician Photo Container & Spacing */
@@ -10892,20 +10936,36 @@
 
     /* Candidates — the secondary tier: flat, low-contrast surface, hairline
        neutral border, no glow, tighter padding, smaller name. */
+    /* Candidates — a clear, intentional BLUE secondary tier (solid blue frame, faint
+       navy lift, blue top rail), a step below the green incumbent hero but never the
+       flat grey hairline that read as unfinished. */
     #relevant-browse-grid .chub-card.is-candidate {
-      background: rgba(13, 20, 38, 0.5) !important;
-      border: 1px solid rgba(148, 163, 184, 0.16) !important;
+      background: linear-gradient(135deg, rgba(22,38,70,0.92) 0%, rgba(11,18,36,0.95) 100%) !important;
+      border: 1.5px solid rgba(96, 165, 250, 0.45) !important;
       border-radius: 0.9rem !important;
-      box-shadow: none !important;
-      padding: 0.95rem 1.05rem !important;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.12), 0 10px 26px rgba(0,0,0,0.45), 0 0 18px rgba(59,130,246,0.1) !important;
+      padding: 1.4rem 1.05rem 0.95rem !important;
+    }
+    #relevant-browse-grid .chub-card.is-candidate::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: auto !important;
+      height: 3px !important;
+      background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 55%, #93c5fd 100%) !important;
+      opacity: 1 !important;
+      z-index: 2 !important;
+      pointer-events: none !important;
     }
     #relevant-browse-grid .chub-card.is-candidate:hover {
-      transform: translateY(-2px) !important;
-      border-color: rgba(96, 165, 250, 0.4) !important;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32) !important;
+      transform: translateY(-3px) !important;
+      border-color: rgba(96, 165, 250, 0.7) !important;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.22), 0 14px 34px rgba(0,0,0,0.5), 0 0 24px rgba(59,130,246,0.18) !important;
     }
     #relevant-browse-grid .chub-card.is-candidate .font-display {
-      font-size: 1.02rem !important;
+      font-size: 1.05rem !important;
     }
 
     /* Politician photo container & spacing */
@@ -33002,16 +33062,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         issues = '<div class="pdx-snap-issues">' +
           d.issues.slice(0, nIssues).map(function(i) { return '<span class="pdx-snap-issue">' + i + '</span>'; }).join('') +
           '</div>';
+      } else if (opts.issues !== false && (status === 'candidate' || (typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(d) !== 'full'))) {
+        // No key issues tracked yet AND this is a candidate or a thin-record profile:
+        // fill the slot with the clean "key positions being added" note instead of
+        // leaving a blank gap, so the card always reads as intentional rather than
+        // half-built. Full officeholder records with no issues are left untouched.
+        var emptyNote = (typeof window._pdxFocusEmptyNote === 'function') ? window._pdxFocusEmptyNote(d) : '';
+        if (emptyNote) issues = '<div class="pdx-snap-issues pdx-snap-issues-empty">' + emptyNote + '</div>';
       }
 
       // Signature highlight: explicit opts.highlight string, or derived from the
       // record's "why this matters" blurb. opts.highlight === false suppresses it.
+      // For candidates the highlight is tinted blue and led with a ballot icon, so
+      // a thin challenger card still carries a clear, intentional line about who they
+      // are and why they're running — its main source of content weight.
       var highlight = '';
       if (opts.highlight !== false) {
         var hl = (typeof opts.highlight === 'string') ? opts.highlight : (d.why || '');
         if (hl) {
           if (hl.length > 150) hl = hl.slice(0, 147).replace(/\s+\S*$/, '') + '…';
-          highlight = '<div class="pdx-snap-highlight"><span class="pdx-snap-highlight-ico">★</span><span>' + hl + '</span></div>';
+          var isCand = (status === 'candidate');
+          var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
+          var hlIco = isCand ? '🗳️' : '★';
+          highlight = '<div class="' + hlCls + '"><span class="pdx-snap-highlight-ico">' + hlIco + '</span><span>' + hl + '</span></div>';
         }
       }
 
@@ -33695,7 +33768,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         controls: _pdxHeartCtrl(pid),
         badges: badges,
         maxIssues: 2,
-        highlight: false,
         acct: false,
         extra: alignBar,
         actions: actions
@@ -34784,7 +34856,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           controls: _pdxHeartCtrl(pid),
           badges: badges,
           maxIssues: 2,
-          highlight: false,
           acct: false,
           extra: candAlign,
           actions: actions
