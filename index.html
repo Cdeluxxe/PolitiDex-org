@@ -8737,8 +8737,19 @@
     .align-hide { display: none !important; }
     .align-search-empty {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; color: #9d8fe0;
-      padding: 0.7rem 0.2rem; text-align: center; display: none; letter-spacing: 0.02em;
+      padding: 1.1rem 0.5rem; text-align: center; display: none; letter-spacing: 0.02em;
+      flex-direction: column; align-items: center; gap: 0.2rem;
     }
+    .align-search-empty .align-empty-ico { font-size: 1.5rem; opacity: 0.6; margin-bottom: 0.15rem; }
+    .align-search-empty .align-empty-title { font-weight: 700; color: #d6cbff; font-size: 0.92rem; letter-spacing: 0.03em; }
+    .align-search-empty .align-empty-sub { color: #9d8fe0; font-size: 0.78rem; line-height: 1.5; max-width: 22rem; }
+    .align-search-empty .align-empty-sub b { color: #c4b5fd; font-weight: 700; }
+    .align-search-empty .align-empty-clear {
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: #a78bfa; font-family: inherit; font-size: inherit; font-weight: 700;
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+    .align-search-empty .align-empty-clear:hover { color: #c4b5fd; }
 
     /* ── Picker control bar: live selected-count + expand / collapse all ──
        Gives the accordion a single, calm place to drive the whole list, so a long
@@ -12648,7 +12659,7 @@
             <div class="align-cats" id="align-cats-rel">
               <!-- Same collapsible category accordion as the main panel, rendered by _alignRenderPickers() -->
             </div>
-            <div id="align-cats-rel-empty" class="align-search-empty">No issues match your search.</div>
+            <div id="align-cats-rel-empty" class="align-search-empty"><span class="align-empty-ico">🔍</span><span class="align-empty-title">No issues match that search</span><span class="align-empty-sub">Try a broader word like <b>taxes</b>, <b>climate</b>, or <b>guns</b> — or <button type="button" class="align-empty-clear" onclick="var i=document.getElementById('align-search-rel');i.value='';alignSearch(i,'align-cats-rel');i.focus();">show all issues</button>.</span></div>
 
             <p id="relevant-align-status" class="font-condensed text-xs text-purple-300/80 tracking-wide m-0 mt-1"></p>
 
@@ -13060,7 +13071,7 @@
               <div class="align-cats" id="align-cats-main">
                 <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
               </div>
-              <div id="align-cats-main-empty" class="align-search-empty">No issues match your search.</div>
+              <div id="align-cats-main-empty" class="align-search-empty"><span class="align-empty-ico">🔍</span><span class="align-empty-title">No issues match that search</span><span class="align-empty-sub">Try a broader word like <b>taxes</b>, <b>climate</b>, or <b>guns</b> — or <button type="button" class="align-empty-clear" onclick="var i=document.getElementById('align-search-main');i.value='';alignSearch(i,'align-cats-main');i.focus();">show all issues</button>.</span></div>
               <p id="align-status" class="font-condensed text-xs text-steel-400 tracking-wide"></p>
               <!-- Alignment Signature save status. Populated by _alignUpdateSigninPrompt():
                    signed-in members see a "saved to your account" confirmation; signed-out
@@ -33992,6 +34003,45 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return (typeof _isRelevantToUser === 'function') ? _isRelevantToUser(pid) : false;
     }
 
+    // Contextual empty state for the All Politicians / Search / Relevant To Me
+    // browse grid. Instead of one generic "No results" message, it explains WHY
+    // the list is empty for the situation the visitor is actually in and offers a
+    // concrete next step — clear filters, set a location, or widen the scope.
+    function _renderBrowseEmpty(o) {
+      o = o || {};
+      var btn = 'display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;border-radius:0.7rem;padding:0.6rem 1.2rem;min-height:44px;transition:all 0.2s;';
+      var btnPrimary = btn + 'color:#fff;background:linear-gradient(135deg,#c0152a,#7f1d1d);border:1px solid rgba(248,113,113,0.5);box-shadow:0 6px 18px rgba(192,21,42,0.3);';
+      var btnGhost = btn + 'color:#cbd9ee;background:rgba(30,53,96,0.4);border:1px solid rgba(117,150,192,0.35);';
+      var wrap = function(ico, title, sub, actions) {
+        return '<div style="max-width:30rem;margin:0 auto;">' +
+          '<div style="font-size:2.6rem;margin-bottom:0.5rem;opacity:0.55;">' + ico + '</div>' +
+          '<div class="font-display text-xl tracking-wider text-white" style="margin-bottom:0.4rem;">' + title + '</div>' +
+          '<p class="font-condensed text-steel-400" style="font-size:0.9rem;line-height:1.55;margin:0 auto 1.2rem;max-width:26rem;">' + sub + '</p>' +
+          (actions ? '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;">' + actions + '</div>' : '') +
+        '</div>';
+      };
+
+      if (o.hasFilters) {
+        var searchNote = o.search
+          ? 'Nothing matched <span class="text-amber-300">&ldquo;' + String(o.search).replace(/</g, '&lt;').substring(0, 24) + '&rdquo;</span> with your current filters.'
+          : 'No politicians match the filters you have set.';
+        return wrap('🔍', 'No matches found',
+          searchNote + ' Try a broader search term or remove a filter to see more of the field.',
+          '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">✕ Clear all filters</button>');
+      }
+
+      if (o.scope === 'relevant') {
+        return wrap('📍', 'Set your location to see your races',
+          'The <span class="text-blue-300">Relevant To Me</span> view shows the officials and 2026 candidates tied to your address. Add your location and your personal ballot fills in here — or browse every database in the meantime.',
+          '<button type="button" style="' + btnPrimary + '" onclick="if(window.toggleChangeLocation)window.toggleChangeLocation();">📍 Set my location</button>' +
+          '<button type="button" style="' + btnGhost + '" onclick="setBrowseScope(\'all\')">Browse all databases</button>');
+      }
+
+      return wrap('🗂️', 'Nothing to show yet',
+        'There are no politicians to display here right now. New officials and candidates are added as records are verified — check back soon.',
+        '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">Reset view</button>');
+    }
+
     window.myteamBrowseFilter = function() {
       var browseGrid = document.getElementById('myteam-browse-grid');
       var browseEmpty = document.getElementById('myteam-browse-empty');
@@ -34117,7 +34167,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (browseEmpty) browseEmpty.classList.add('hidden');
       } else {
         browseGrid.innerHTML = '';
-        if (browseEmpty) browseEmpty.classList.remove('hidden');
+        if (browseEmpty) {
+          browseEmpty.innerHTML = _renderBrowseEmpty({
+            scope: _browseScope,
+            hasFilters: !!(search || office || stateFilter || score || (show && show !== 'all')),
+            search: search
+          });
+          browseEmpty.classList.remove('hidden');
+        }
       }
 
       if (typeof window.renderRelevantToMe === 'function') {
@@ -35925,7 +35982,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<p class="ballot-race-edu-desc">' + (race.edu || '') + '</p>' +
           '<div class="ballot-cand-grid">';
         if (candidates.length === 0) {
-          html += '<div class="font-condensed text-xs text-steel-600" style="padding:0.5rem;">No candidates in database for this race yet.</div>';
+          html += '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>No candidates are in the database for this race yet. We add them as filings are certified — check back soon, or pick from another race above.</span></div>';
         }
         candidates.forEach(function(c) {
           var isSelected = c.pid === selectedPid;
@@ -39486,7 +39543,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Group dividers only add noise while searching across topics — hide them.
       cats.querySelectorAll('.align-group-divider').forEach(function(d) { d.classList.toggle('align-hide', !!q); });
       var empty = document.getElementById(catsId + '-empty');
-      if (empty) empty.style.display = (q && !anyVisible) ? 'block' : 'none';
+      if (empty) empty.style.display = (q && !anyVisible) ? 'flex' : 'none';
     };
 
     function _alignInit() {
