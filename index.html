@@ -14158,8 +14158,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
           <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
             <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
-            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability</code>.</div>
+            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
             <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
+            <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers and link to the full analysis; <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>). Entries without an impact appear as recent news.</div>
           </div>
         </details>
 
@@ -26116,79 +26117,134 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'2026', headline:'Johnson Runs in UT-4 on Schools, Healthcare, and Clean Air', facts:'Democrat Jen Johnson is challenging in Utah\'s competitive-leaning 4th District with a platform centered on public-school funding, protecting the Affordable Care Act, and Wasatch Front air quality. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'UT-4 covers fast-growing suburban Salt Lake County, where school capacity, healthcare costs, and air quality are daily concerns — making Johnson\'s priorities a direct contrast for voters to weigh.' },
           ],
         });
-        // ── In the Spotlight — politician-specific recent items ────────────
-        // Renders THIS official's own recent bills, votes, news, and positions
-        // from the per-politician SPOTLIGHT_DATA map (keyed by profile id, the
-        // same data Key Races reads). Falls back to a clean placeholder when no
-        // items have been curated for this person yet, rather than showing the
-        // generic statewide filler that used to appear for everyone.
+        // ── In the Spotlight — politician-specific, accountability-linked ──────
+        // Surfaces THIS official's own record and ties it directly to the
+        // Accountability of Truth Score. The same kept/broken promises the score
+        // is computed from are shown here as the *drivers* of that score — each
+        // tagged ▲/▼ and tappable to open the full accountability analysis. An
+        // optional per-document `spotlight` array lets curators attach specific
+        // issues/events and flag whether each helps or hurts the score (impact:
+        // 'positive' | 'negative', plus optional `category` matching an
+        // accountability category key). Curated news from the SPOTLIGHT_DATA map
+        // and on-document entries without an impact are shown as context. Falls
+        // back to a clean, honest empty state when there is nothing to show.
         var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight</div>';
+        var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 
-        // Shared card renderer for every spotlight item, curated or derived.
-        // `accent` is an "r,g,b" string that tints the left border and badge so
-        // each item type (news, kept/broken promise, position) reads at a glance
-        // while staying in the same dark, gold-accented house style.
+        function _slHumanize(s) {
+          return String(s).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ').trim().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+        }
+
+        // Shared card renderer. When `impact` is 'positive'/'negative' the card
+        // becomes a tappable link into the full Accountability analysis, gets a
+        // green/red left border, and shows an impact pill + tap hint — making the
+        // connection between a Spotlight item and the score explicit. `accent` is
+        // an "r,g,b" tint used for the type badge and (when not score-linked) the
+        // left border, keeping every card in the dark, gold-accented house style.
         function _slCard(o) {
           var accent = o.accent || '96,165,250';
-          return '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + accent + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
+          var linked = (o.impact === 'positive' || o.impact === 'negative');
+          var impactCol = o.impact === 'positive' ? '74,222,128' : '248,113,113';
+          var impactLabel = o.impact === 'positive' ? '▲ Strengthens score' : '▼ Weighs on score';
+          var edge = linked ? impactCol : accent;
+          var open = '<div style="';
+          if (linked) {
+            open = '<div role="button" tabindex="0"' +
+              ' onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')"' +
+              ' onkeydown="if((event.key===\'Enter\'||event.key===\' \')&&window.viewAccountabilityAnalysis){event.preventDefault();window.viewAccountabilityAnalysis(\'' + safeSlId + '\');}"' +
+              ' style="cursor:pointer;';
+          }
+          return open + 'background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + edge + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
               (o.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + o.date + '</span>' : '') +
+              (linked ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:rgb(' + impactCol + ');background:rgba(' + impactCol + ',0.12);border:1px solid rgba(' + impactCol + ',0.4);padding:0.1rem 0.4rem;border-radius:999px;">' + impactLabel + '</span>' : '') +
             '</div>' +
             '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 ' + (o.body ? '0.35rem' : '0') + ';">' + o.headline + '</h4>' +
             (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
             (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
               '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
+            (linked ? '<div style="margin-top:0.5rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;">🛡️ Tap to see how this affects the Accountability Score →</div>' : '') +
           '</div>';
         }
 
-        // 1) Curated recent news / controversies for this specific official.
-        var slItems = spotlightData[id] || [];
-        if (slItems.length) {
-          var slCards = slItems.map(function(it) {
-            return _slCard({ badge:'In the News', accent:'96,165,250', date:it.date, headline:it.headline, body:it.facts, why:it.why });
-          }).join('');
-          return '<div class="modal-section">' + slTitle + slCards +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Recent bills, votes, and news tied to this official’s record. Sources linked inline.</p>' +
-          '</div>';
-        }
-
-        // 2) No curated news yet — derive spotlight items from THIS official's
-        // own record so the section stays relevant and specific: kept/broken
-        // promises, stated positions, and focus issues, in that priority order.
-        function _slHumanize(s) {
-          return String(s).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ')
-            .replace(/\s+/g, ' ').trim().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-        }
-        var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
-        var derived = [];
-        function _slPush(c) { if (derived.length < 4) derived.push(_slCard(c)); }
-
+        var _slDoc     = (p && Array.isArray(p.spotlight)) ? p.spotlight : [];
         var _slPromos  = (p && Array.isArray(p.promises)) ? p.promises : [];
         var _slBroken  = _slPromos.filter(function(r) { return r && r.verdict === 'broken'; });
         var _slKept    = _slPromos.filter(function(r) { return r && r.verdict === 'kept'; });
         var _slPending = _slPromos.filter(function(r) { return r && r.verdict === 'pending'; });
 
-        // Broken promises first — accountability is the most spotlight-worthy signal.
+        // 1) Score DRIVERS — items that genuinely feed the Accountability Score:
+        //    curator-flagged spotlight entries plus the official's own kept/broken
+        //    promise ledger (the analyzer's promise-keeping input). Each links to
+        //    the full analysis so users can move from "what happened" to "why the
+        //    score is what it is".
+        var slDrivers = [];
+        _slDoc.forEach(function(it) {
+          if (!it || (it.impact !== 'positive' && it.impact !== 'negative')) return;
+          if (slDrivers.length >= 5) return;
+          slDrivers.push(_slCard({
+            badge: it.badge || (it.impact === 'positive' ? '🛡️ Helps the Score' : '🛡️ Hurts the Score'),
+            accent: '167,139,250', date: it.date,
+            headline: it.headline || it.title || 'Tracked issue',
+            body: it.facts || it.detail, why: it.why, impact: it.impact
+          }));
+        });
         _slBroken.slice(0, 2).forEach(function(r) {
-          _slPush({ badge:'⚠ Promise Broken', accent:'248,113,113', headline:r.title, body:r.detail });
+          slDrivers.push(_slCard({ badge:'⚠ Promise Broken', date:r.date, headline:r.title, body:r.detail, impact:'negative' }));
         });
-        // Then kept promises.
         _slKept.slice(0, 2).forEach(function(r) {
-          _slPush({ badge:'✅ Promise Kept', accent:'74,222,128', headline:r.title, body:r.detail });
+          slDrivers.push(_slCard({ badge:'✅ Promise Kept', date:r.date, headline:r.title, body:r.detail, impact:'positive' }));
         });
-        // If nothing concrete landed yet, surface an in-progress pledge.
-        if (!derived.length && _slPending.length) {
+
+        // 2) Recent NEWS / events — curated context with no declared score impact:
+        //    the SPOTLIGHT_DATA map plus any on-document entries left unflagged.
+        var slNews = [];
+        (spotlightData[id] || []).forEach(function(it) {
+          slNews.push(_slCard({ badge:'In the News', accent:'96,165,250', date:it.date, headline:it.headline, body:it.facts, why:it.why }));
+        });
+        _slDoc.forEach(function(it) {
+          if (!it || it.impact === 'positive' || it.impact === 'negative') return;
+          slNews.push(_slCard({ badge: it.badge || 'In the News', accent:'96,165,250', date:it.date,
+            headline: it.headline || it.title, body: it.facts || it.detail, why: it.why }));
+        });
+
+        // Connective sub-header that names the link to the score and offers a
+        // one-tap jump into the full analysis.
+        function _slDriverHeader() {
+          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Driving the Accountability Score</span>' +
+              '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.25rem 0.6rem;border-radius:999px;white-space:nowrap;">View Score Analysis →</button>' +
+            '</div>';
+        }
+        function _slNewsHeader() {
+          return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:' + (slDrivers.length ? '1rem' : '0.2rem') + ' 0 0.6rem;">📰 Recent News &amp; Events</div>';
+        }
+
+        if (slDrivers.length || slNews.length) {
+          var slBody = '';
+          if (slDrivers.length) slBody += _slDriverHeader() + slDrivers.join('');
+          if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + slBody +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score; tap any to open the full analysis. Sources linked inline.</p>' +
+          '</div>';
+        }
+
+        // 3) No drivers or news yet — derive lightweight context from stated
+        //    positions and focus issues so the section stays specific.
+        var derived = [];
+        function _slPush(c) { if (derived.length < 4) derived.push(_slCard(c)); }
+        if (_slPending.length) {
           _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail });
         }
-        // Stated positions on major issues.
         if (p && p.stances && typeof p.stances === 'object') {
           Object.keys(p.stances).slice(0, 2).forEach(function(k) {
             var txt = p.stances[k];
             if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt });
           });
         }
-        // Focus issues — a clean at-a-glance summary when little else exists.
         if (derived.length < 2 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
           _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
             headline:'What ' + _slLast + ' is focused on',
@@ -26196,17 +26252,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
 
         if (derived.length) {
-          return '<div class="modal-section">' + slTitle + derived.join('') +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Highlights drawn from this official’s tracked promises and stated positions.</p>' +
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + derived.join('') +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Highlights drawn from this official’s stated positions. Tracked promises will appear here as score drivers once verified.</p>' +
           '</div>';
         }
 
-        // 3) Genuinely nothing to highlight — clean, honest placeholder.
-        return '<div class="modal-section">' + slTitle +
+        // 4) Genuinely nothing to highlight — clean, honest placeholder.
+        return '<div class="modal-section" id="spotlight-modal-section">' + slTitle +
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
             '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">Limited public activity to highlight</div>' +
-            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here.</p>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No Spotlight items yet</div>' +
+            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here — and any that affect the Accountability of Truth Score will be tagged and linked to it.</p>' +
           '</div>' +
         '</div>';
       })()}
@@ -42431,6 +42487,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var s = a.overallScore;
         var lvl = a.color || acctLevelColor(s);
         var r = 30, circ = 2 * Math.PI * r, dash = (s / 100) * circ;
+
+        // "What's driving this score" — surface the top positive and negative
+        // factors the engine actually used so the number is transparent and ties
+        // back to the Spotlight items in the same profile. Pulls straight from the
+        // computed analysis (analyst strengths / fact-checker concerns); no new
+        // claims are invented here.
+        var _acctPos = (a.analyst && a.analyst.strengths) || a.strengths || [];
+        var _acctNeg = (a.factChecker && a.factChecker.concerns) || a.concerns || [];
+        function _acctDriverRow(txt, col, sym) {
+          return '<div style="display:flex;gap:0.45rem;align-items:flex-start;margin-bottom:0.3rem;">' +
+            '<span style="color:' + col + ';flex-shrink:0;font-size:0.66rem;line-height:1.5;font-weight:700;">' + sym + '</span>' +
+            '<span style="font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + acctMd(txt) + '</span></div>';
+        }
+        var driversHtml = '';
+        if (_acctPos.length || _acctNeg.length) {
+          driversHtml = '<div style="margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid rgba(139,92,246,0.22);">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.5rem;">⚖️ What\'s driving this score</div>';
+          _acctPos.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#4ade80', '▲'); });
+          _acctNeg.slice(0, 2).forEach(function(t) { driversHtml += _acctDriverRow(t, '#f87171', '▼'); });
+          driversHtml += '<button type="button" onclick="var el=document.getElementById(\'spotlight-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="margin-top:0.45rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:none;border:none;padding:0;">🔦 See the related issues in Spotlight ↓</button>' +
+          '</div>';
+        }
         return '' +
           '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(139,92,246,0.06));border:1.5px solid rgba(139,92,246,0.45);border-radius:0.9rem;padding:1rem 1.1rem;box-shadow:0 0 26px rgba(139,92,246,0.14);">' +
             '<div style="display:flex;align-items:center;gap:1.05rem;">' +
@@ -42456,6 +42534,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '</div>' +
               '</div>' +
             '</div>' +
+            driversHtml +
             '<div style="display:flex;gap:0.5rem;margin-top:0.75rem;">' +
               '<button onclick="viewAccountabilityAnalysis(\'' + safeId + '\')" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;padding:0.6rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(124,58,237,0.3);">View Full Analysis</button>' +
               '<button onclick="openAccountabilityAnalysis(\'' + safeId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.6rem 0.8rem;border-radius:0.6rem;">↻ Re-run</button>' +
