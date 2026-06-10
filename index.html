@@ -3833,6 +3833,35 @@
       box-shadow: 0 2px 10px rgba(192,21,42,0.22);
     }
     .pdx-pfilter-n { font-size: 0.6rem; opacity: 0.85; background: rgba(0,0,0,0.28); border-radius: 999px; padding: 0.04rem 0.36rem; }
+    /* Pin the filter tabs to the top of the modal scroll so the counts and the
+       "All" reset stay reachable no matter how far down the promise list is
+       scrolled — the summary/controls are always one tap away. */
+    #pdx-promise-filter {
+      position: sticky; top: -1px; z-index: 6;
+      margin: 0.1rem 0 0; padding: 0.55rem 0 0.6rem;
+      background: rgba(10,15,30,0.92);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    /* Active-filter status + inline reset, shown only while a single status is
+       selected so it's always obvious what's being viewed and how to clear it. */
+    .pdx-pfilter-status {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #9fb4d4;
+      margin: 0.1rem 0 0.55rem;
+    }
+    .pdx-pfilter-status b { color: #fff; font-weight: 700; }
+    .pdx-pfilter-reset {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fff; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 999px;
+      padding: 0.22rem 0.6rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.14s ease, border-color 0.14s ease;
+    }
+    @media (hover: hover) { .pdx-pfilter-reset:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); } }
+    .pdx-pfilter-reset:focus-visible { outline: 2px solid rgba(255,255,255,0.55); outline-offset: 2px; }
 
     /* ─────────────────────────────────────────────────────────────────────────
        UNIFIED COMPACT POLITICIAN CARD (.pdx-snap)
@@ -24505,6 +24534,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Remember the active filter so the hero badges can toggle back to "All".
     window._pdxActiveFilter = verdict;
 
+    // Active-filter status line: spell out what's showing and offer a one-tap
+    // reset whenever a single status is selected; hidden when viewing all.
+    var status = document.getElementById('pdx-promise-status');
+    if (status) {
+      var statusLabel = document.getElementById('pdx-promise-status-label');
+      if (statusLabel) statusLabel.textContent = labels[verdict] || 'all promises';
+      status.style.display = (verdict === 'all') ? 'none' : '';
+    }
+
     if (doScroll) {
       var sec = document.getElementById('pdx-promise-section');
       if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -24935,6 +24973,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="modal-section-title">📊 Promise Tracker</div>
         <p class="modal-section-sub">Every tracked promise, grouped by verdict — kept, broken, and still pending — so the record speaks plainly. Tap a status to filter.</p>
         ${promiseFilterBar}
+        <div id="pdx-promise-status" class="pdx-pfilter-status" style="display:none;">
+          <span>Showing <b id="pdx-promise-status-label">all promises</b></span>
+          <button type="button" class="pdx-pfilter-reset" onclick="window.pdxFilterPromises('all')">↺ Show all promises</button>
+        </div>
         <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:0 0.875rem 0.6rem;">
           <div id="pdx-promise-list">${promiseRows || '<div style="padding:1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No detailed promise data yet — monitoring in progress.</div>'}</div>
           <div id="pdx-promise-empty" style="display:none;padding:1.1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No promises tracked yet.</div>
