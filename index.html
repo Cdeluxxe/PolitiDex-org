@@ -13575,7 +13575,7 @@
           <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
           <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ The Main Event · Build Your Team</span>
         </div>
-        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
+        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
           This is the heart of PolitiDex. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. PolitiDex helps you fill each one with the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your team so it's ready on election day.
         </p>
@@ -14967,9 +14967,9 @@
 
         <div id="myteam-browse-grid" class="grid grid-cols-1 gap-4 mb-6"></div>
         <div id="myteam-browse-empty" class="text-center py-10 hidden">
-          <div class="text-4xl mb-2">🤷‍♂️</div>
-          <div class="font-display text-lg text-white">No results found</div>
-          <p class="font-condensed text-xs text-steel-500 tracking-wide mt-1">Try adjusting your filters or search query to broaden your results.</p>
+          <div class="text-4xl mb-2" style="opacity:0.55;">🔍</div>
+          <div class="font-display text-xl tracking-wider text-white">No matches found</div>
+          <p class="font-condensed text-steel-400 tracking-wide mt-1" style="font-size:0.9rem;">Try a broader search term or clear a filter to see more of the field.</p>
         </div>
       </div>
       <div id="mypol-empty" style="display:none;"></div>
@@ -24223,7 +24223,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
             <span class="font-condensed text-xs tracking-widest uppercase text-crimson-300 font-700">Community-Powered Accountability</span>
           </div>
-          <h2 class="font-display text-4xl md:text-5xl tracking-wider mb-3">HOLD THEM <span class="text-crimson-400">ACCOUNTABLE</span></h2>
+          <h2 class="section-title font-display text-4xl md:text-5xl tracking-wider mb-3">HOLD THEM <span class="text-crimson-400">ACCOUNTABLE</span></h2>
           <p class="text-steel-300 text-base md:text-lg leading-relaxed mb-4 max-w-xl mx-auto">
             Spotted a politician breaking a promise or keeping their word? Submit the evidence below. Every verified claim helps We the People hold our leaders accountable and make our votes truly matter.
           </p>
@@ -39075,9 +39075,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (total === 0) {
         var areaName = normalizedCounty || 'this location';
         var noResultsHtml = '<div class="text-center py-10 px-4 bg-navy-900/40 border border-white/5 rounded-2xl mt-4">' +
-          '<div class="text-4xl mb-3">🔍</div>' +
-          '<h4 class="font-display text-lg tracking-wider text-white uppercase">No politicians found for ' + areaName + '</h4>' +
-          '<p class="font-condensed text-xs text-steel-400 mt-1 max-w-md mx-auto">We couldn\'t find any matching politicians in our database for this specific area. Try changing your state, county, or district to find your representatives.</p>' +
+          '<div class="text-4xl mb-3" style="opacity:0.55;">🔍</div>' +
+          '<h4 class="font-display text-xl tracking-wider text-white uppercase">No politicians found for ' + areaName + '</h4>' +
+          '<p class="font-condensed text-steel-400 mt-1 max-w-md mx-auto" style="font-size:0.9rem;line-height:1.55;">We couldn\'t find any matching politicians in our database for this area yet. Try changing your state, county, or district to find your representatives.</p>' +
           '<button type="button" onclick="window.toggleChangeLocation()" class="mt-4 font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md inline-flex items-center gap-1.5 min-h-[44px]">📍 Adjust Location</button>' +
           '</div>';
         relevantGrid.innerHTML = valuesBanner + overview + noResultsHtml;
@@ -39867,7 +39867,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.58rem;margin-bottom:1px;">' + race.label + '</div>' +
             '<div class="font-display tracking-wider text-white leading-tight" style="font-size:0.78rem;margin-bottom:2px;">' + d.name + '</div>' +
             '<div class="font-condensed" style="font-size:0.55rem;color:#7596c0;margin-bottom:2px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (d.office || '') + '</div>' +
-            (dsc !== null && dsc !== undefined ? '<div class="font-condensed" style="font-size:0.65rem;color:' + sc + ';font-weight:700;">' + dsc + '% Promise Score</div>' : '<div class="font-condensed" style="font-size:0.6rem;color:#64748b;">No score yet</div>') +
+            (dsc !== null && dsc !== undefined ? '<div class="font-condensed" style="font-size:0.65rem;color:' + sc + ';font-weight:700;">' + dsc + '% Promise Score</div>' : '<div class="font-condensed" style="font-size:0.6rem;color:#647a9c;">No record yet</div>') +
             '<div class="myteam-card-btns">' +
               '<button class="myteam-profile-btn" onclick="event.stopPropagation();if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" title="View Full Profile">View Full Profile →</button>' +
               '<button class="ballot-clear-btn" onclick="event.stopPropagation();ballotClearRace(\'' + race.key + '\')" title="Remove pick" style="margin-top:0;font-size:0.6rem;">&times; Remove</button>' +
