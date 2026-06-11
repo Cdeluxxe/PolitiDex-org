@@ -6277,6 +6277,16 @@
     .kraq-issue-row { margin-bottom: 0.7rem; }
     .kraq-issue-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: #cbd9ec; margin-bottom: 0.28rem; }
     .kraq-issue-bar { height: 7px; background: rgba(10,15,30,0.85); border-radius: 999px; overflow: hidden; }
+    /* At-a-glance match tally above the issue list — strong / partial / gap counts. */
+    .kraq-tally-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
+    .kraq-tally { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem; letter-spacing: 0.04em; padding: 0.22rem 0.55rem; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+    .kraq-tally-good { color: #6ee7b7; background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.4); }
+    .kraq-tally-mid  { color: #fcd34d; background: rgba(234,179,8,0.1); border-color: rgba(234,179,8,0.38); }
+    .kraq-tally-bad  { color: #fca5a5; background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); }
+    /* Per-issue weighting badge — shows how the voter prioritized each position. */
+    .kraq-int { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.05rem 0.4rem; border-radius: 999px; margin-left: 0.4rem; vertical-align: middle; }
+    .kraq-int-strong { color: #c4b5fd; background: rgba(139,92,246,0.16); border: 1px solid rgba(139,92,246,0.4); }
+    .kraq-int-opp { color: #fca5a5; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4); }
 
     /* Dynamic "Spotlight" quick-view (opened from the new per-candidate Spotlight
        button). Gold patriotic theme to match the site's SPOTLIGHT REPORT styling. */
@@ -39356,11 +39366,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var issuesHtml = bd.issues.map(function(it) {
         var ic = _krAlignColor(it.score);
         var note = it.hasEvidence ? '' : '<span style="font-size:0.58rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>';
+        // Surface how the voter weighted this issue so the score is self-explanatory:
+        // a 💪 strong pick counts ~1.7×, and an 🚫 opposed pick means a HIGH bar is a
+        // candidate who agrees with the voter's opposition (the score is inverted).
+        var intTag = '';
+        if (it.intensity === 'strong') intTag = '<span class="kraq-int kraq-int-strong" title="You marked this a strong priority — it carries extra weight">💪 Strong</span>';
+        else if (it.intensity === 'opposed') intTag = '<span class="kraq-int kraq-int-opp" title="You oppose this position — a high bar means this candidate agrees with you">🚫 You oppose</span>';
         return '<div class="kraq-issue-row">' +
-          '<div class="kraq-issue-head"><span>' + it.label + note + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
+          '<div class="kraq-issue-head"><span>' + it.label + intTag + note + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
           '<div class="kraq-issue-bar"><div style="height:100%;width:' + it.score + '%;background:linear-gradient(90deg,' + ic + '88,' + ic + ');border-radius:999px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);"></div></div>' +
         '</div>';
       }).join('');
+
+      // Quick-scan tally so a voter reads the match at a glance before scrolling the
+      // full list: how many of their issues are strong fits vs. real gaps.
+      var nStrong = bd.issues.filter(function(it) { return it.score >= 70; }).length;
+      var nMid    = bd.issues.filter(function(it) { return it.score >= 50 && it.score < 70; }).length;
+      var nGap    = bd.issues.filter(function(it) { return it.score < 50; }).length;
+      var tallyPills = '';
+      if (nStrong) tallyPills += '<span class="kraq-tally kraq-tally-good">✅ ' + nStrong + ' strong match' + (nStrong === 1 ? '' : 'es') + '</span>';
+      if (nMid)    tallyPills += '<span class="kraq-tally kraq-tally-mid">◐ ' + nMid + ' partial</span>';
+      if (nGap)    tallyPills += '<span class="kraq-tally kraq-tally-bad">⚠️ ' + nGap + ' gap' + (nGap === 1 ? '' : 's') + '</span>';
+      var tallyHtml = '<div class="kraq-tally-row">' + tallyPills + '</div>';
 
       var photo = _krPhoto(pid, d, '#2dd4bf');
       var matchWord = overall >= 70 ? 'Strong match' : overall >= 50 ? 'Partial match' : 'Weak match';
@@ -39385,6 +39412,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '</div>' +
             '</div>' +
             '<div class="font-condensed font-700" style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#5eead4;margin-bottom:0.6rem;">Issue-by-issue breakdown</div>' +
+            tallyHtml +
             issuesHtml +
             '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
               '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#0d9488,#2dd4bf);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(20,184,166,0.3);">👤 Full Profile</button>' +
@@ -40493,6 +40521,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       gov_balance:        { label: '⚖️ Balance the Budget', chip: 'Balance the budget over time using both targeted spending cuts and closing tax loopholes', cat: 'gov', stanceKeys: ['debt'], keywords: ['balanced budget','fiscal responsibility','deficit','debt','spending','accountability','efficiency','waste','reform','budget','bipartisan','tax loophole'] },
       gov_services:       { label: '🏛 Invest in Public Services', chip: 'Protect Social Security, Medicaid and public services — even if it means higher taxes on top earners', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','social security','funding','social','community service','services','paid leave','minimum wage','affordable','top earners','wealth tax'] },
       social_security:    { label: '👵 Protect Social Security & Medicare', chip: 'Protect Social Security and Medicare benefits from cuts or privatization', cat: 'gov', stanceKeys: [], keywords: ['social security','medicare','retirement','seniors','senior','entitlement','earned benefits','benefits','pension','fixed income','elderly','retiree'] },
+      national_debt:      { label: '📉 Tackle the National Debt', chip: 'Bring down the national debt and stop running huge yearly deficits', cat: 'gov', stanceKeys: ['debt'], keywords: ['national debt','debt','deficit','deficit spending','balanced budget','debt ceiling','fiscal responsibility','interest on the debt','overspending','spending','fiscal'] },
 
       // ── Immigration ──
       border_security:    { label: '🛡 Strong Border & Enforcement', chip: 'Finish border barriers and deport people here illegally', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
@@ -40511,6 +40540,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       public_schools:     { label: '🍎 Invest in Public Schools', chip: 'Raise teacher pay and fund public schools and classrooms', cat: 'edu', lean: 'D', stanceKeys: [], keywords: ['public education','public school','teacher pay','teacher','school funding','education funding','student welfare','classroom'] },
       edu_college_cost:   { label: '🎓 Lower College & Trade Costs', chip: 'Make college and trade school affordable and cut student debt', cat: 'edu', stanceKeys: [], keywords: ['college cost','tuition','student debt','student loan','trade school','apprenticeship','community college','pell grant','higher education','workforce training','affordable'] },
 
+      // ── Family, Children & Work ──
+      child_care:         { label: '🧸 Affordable Child Care', chip: 'Cut child-care costs and expand access to pre-K and early learning', cat: 'family', stanceKeys: [], keywords: ['child care','childcare','daycare','pre-k','prek','preschool','early childhood','early learning','head start','working parents','family'] },
+      paid_leave:         { label: '👶 Paid Family & Medical Leave', chip: 'Guarantee paid time off to care for a new baby or a sick loved one', cat: 'family', stanceKeys: [], keywords: ['paid leave','family leave','medical leave','maternity','paternity','fmla','parental leave','caregiver','time off','paid family leave'] },
+      family_support:     { label: '🍼 Help Families with Kids', chip: 'Expand the child tax credit and support to help with the cost of raising children', cat: 'family', stanceKeys: [], keywords: ['child tax credit','family tax','dependent','raising children','cost of raising','per-child','family budget','working families','adoption','parents'] },
+
       // ── Healthcare ──
       healthcare_market:  { label: '💊 Market-Based Healthcare', chip: 'Lower costs through competition and price transparency', cat: 'health', lean: 'R', stanceKeys: ['healthcare'], keywords: ['market-based','market healthcare','aca repeal','obamacare','deregulation','health savings','price transparency','competition','private insurance','medicaid reform','healthcare cost'] },
       health_drug_prices: { label: '💉 Lower Prescription Drug Prices', chip: 'Cap and negotiate prescription drug prices for patients', cat: 'health', stanceKeys: ['healthcare'], keywords: ['prescription','drug price','insulin','medicare negotiation','pharmaceutical','pbm','out-of-pocket','medication cost','price cap','affordable'] },
@@ -40527,22 +40561,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
       rural_ag:           { label: '🌾 Farmers & Rural Communities', chip: 'Support family farms, ranchers and rural communities with fair prices and access', cat: 'econ', stanceKeys: [], keywords: ['agriculture','farm','farmer','farming','ranch','rancher','rural','crop','livestock','farm bill','rural broadband','rural community','grazing','drought','water right'] },
 
+      // ── Infrastructure & Transportation ──
+      infrastructure:     { label: '🚧 Rebuild Roads & Bridges', chip: 'Invest in roads, bridges, water systems and the power grid', cat: 'infra', stanceKeys: [], keywords: ['infrastructure','roads','bridges','highway','public works','transportation','grid','power grid','water systems','airport','rebuild','construction'] },
+      broadband:          { label: '📶 Universal Broadband', chip: 'Bring fast, affordable internet to rural and underserved communities', cat: 'infra', stanceKeys: [], keywords: ['broadband','internet access','rural broadband','digital divide','connectivity','fiber','high-speed internet','fcc','underserved'] },
+      transit:            { label: '🚆 Public Transit & Transportation', chip: 'Expand reliable public transit and modern transportation options', cat: 'infra', lean: 'D', stanceKeys: [], keywords: ['public transit','transit','bus','rail','light rail','commuter','transportation','infrastructure','mobility','high-speed rail'] },
+
       // ── Water & Environment ──
       water:              { label: '💧 Water Conservation', chip: 'Conserve water and protect rivers and the Great Salt Lake from drying up', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
       water_storage:      { label: '🚰 Water Storage & Infrastructure', chip: 'Build reservoirs, pipelines and recycling to secure future water supply', cat: 'enviro', stanceKeys: [], keywords: ['water','water storage','reservoir','dam','pipeline','infrastructure','water supply','recycling','water reuse','aquifer','lake powell pipeline','drought','colorado river'] },
       enviro_balance:     { label: '⚖️ Practical Stewardship', chip: 'Protect clean air and water while keeping responsible jobs in farming and energy', cat: 'enviro', stanceKeys: [], keywords: ['conservation','environment','stewardship','clean air','clean water','recreation','balance','wildlife','land','responsible'] },
       climate_action:     { label: '🌱 Climate Action & Clean Energy', chip: 'Act on climate and invest in clean energy', cat: 'enviro', lean: 'D', stanceKeys: [], keywords: ['climate','clean energy','renewable','renewables','emissions','carbon','greenhouse','solar','wind','pollution','environment','air quality','conservation','paris agreement','electric vehicle'] },
       enviro_energy:      { label: '⚡ Energy Independence', chip: 'Use every energy source — gas, nuclear and renewables — to keep power reliable and affordable', cat: 'enviro', lean: 'R', stanceKeys: [], keywords: ['energy','energy independence','nuclear','natural gas','oil','grid','reliable','affordable','all of the above','domestic energy','baseload'] },
+      disaster_resilience:{ label: '🔥 Wildfire & Disaster Resilience', chip: 'Prepare for wildfires, floods and droughts and speed up disaster recovery', cat: 'enviro', stanceKeys: [], keywords: ['wildfire','fire','drought','flood','flooding','disaster','fema','emergency','resilience','mitigation','recovery','natural disaster','preparedness'] },
 
       // ── Housing & Cost of Living ──
       housing_build:      { label: '🏗 Build More Housing', chip: 'Loosen zoning and permitting so more homes — including apartments — can be built', cat: 'housing', stanceKeys: [], keywords: ['housing','home building','zoning','permitting','supply','construction','development','affordable housing','housing cost','red tape','density'] },
       cost_living:        { label: '🛒 Tackle the Cost of Living', chip: 'Make lowering rent, grocery, gas and utility prices the top economic priority', cat: 'housing', stanceKeys: [], keywords: ['cost of living','inflation','affordable','rent','prices','grocery','gas prices','mortgage','family budget','wage','middle class','utilities'] },
       housing_support:    { label: '🏘 Affordable Housing & Renters', chip: 'Fund affordable housing and protect renters with assistance and limits on evictions', cat: 'housing', lean: 'D', stanceKeys: [], keywords: ['affordable housing','renter','rent','tenant','housing assistance','homeless','homelessness','public housing','housing voucher','eviction','low-income'] },
+      property_tax:       { label: '🏡 Lower Property Taxes', chip: 'Cap property taxes so families and seniors can afford to stay in their homes', cat: 'housing', stanceKeys: [], keywords: ['property tax','property taxes','homeowner','home value','assessment','tax relief','seniors','fixed income','homestead','escrow'] },
 
       // ── Criminal Justice & Public Safety ──
       back_police:        { label: '👮 Back Law Enforcement', chip: 'Fund police and impose tougher penalties for violent crime', cat: 'justice', lean: 'R', stanceKeys: [], keywords: ['police','law enforcement','public safety','crime','tough on crime','fund the police','sheriff','violent crime','fentanyl','cartel','border crime','safety'] },
       justice_balance:    { label: '⚖️ Safe & Fair Justice', chip: 'Fund police while adding training, body cameras and accountability for misconduct', cat: 'justice', stanceKeys: [], keywords: ['public safety','police','criminal justice','reform','accountability','community policing','safer communities','due process','rehabilitation','fair','balanced'] },
       justice_reform:     { label: '🤝 Criminal Justice Reform', chip: 'Reform sentencing and reduce mass incarceration', cat: 'justice', lean: 'D', stanceKeys: [], keywords: ['criminal justice reform','sentencing','incarceration','prison','first step act','bail reform','mass incarceration','reentry','rehabilitation','second chance','clemency','police reform'] },
+      cannabis_reform:    { label: '🌿 Cannabis Reform', chip: 'Legalize or decriminalize cannabis and clear past low-level convictions', cat: 'justice', stanceKeys: [], keywords: ['cannabis','marijuana','legalization','legalize','decriminalize','expunge','expungement','drug policy','hemp','recreational','medical marijuana'] },
 
       // ── Abortion & Reproductive Rights ──
       pro_life:           { label: '🕊 Pro-Life Protections', chip: 'Protect the unborn and limit abortion', cat: 'repro', lean: 'R', stanceKeys: [], keywords: ['pro-life','pro life','abortion','unborn','life','sanctity of life','heartbeat','dobbs','defund planned parenthood','adoption'] },
@@ -40553,6 +40595,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       religious_liberty:  { label: '⛪ Religious Liberty Focus', chip: 'Protect religious freedom and conscience rights', cat: 'rights', lean: 'R', stanceKeys: [], keywords: ['religious liberty','religious freedom','faith','conscience','traditional values','first amendment','parental rights','free exercise'] },
       rights_balance:     { label: '⚖️ Equal Treatment for All', chip: 'Protect equal treatment in jobs and housing while protecting religious conscience', cat: 'rights', stanceKeys: [], keywords: ['civil rights','equality','equal treatment','fairness','anti-discrimination','tolerance','respect','liberty','balanced','common ground'] },
       lgbtq_rights:       { label: '🏳️‍🌈 Protect LGBTQ+ Rights', chip: 'Protect LGBTQ+ rights and anti-discrimination laws', cat: 'rights', lean: 'D', stanceKeys: [], keywords: ['lgbtq','lgbt','gay','transgender','marriage equality','respect for marriage','anti-discrimination','equality','civil rights','pride','equal protection'] },
+      free_speech:        { label: '🗣 Free Speech Protections', chip: 'Protect free speech and limit government and Big Tech censorship', cat: 'rights', stanceKeys: [], keywords: ['free speech','first amendment','censorship','deplatform','viewpoint','expression','speech','big tech censorship','content moderation','silenced'] },
 
       // ── Foreign Policy & Defense ──
       strong_defense:     { label: '🦅 Peace Through Strength', chip: 'Maintain the strongest military and stand firm abroad', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['national defense','military','defense spending','ndaa','peace through strength','national security','armed forces','deterrence','china','adversaries','strong military'] },
@@ -40588,6 +40631,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'gov',        group: 'Economy & Government',          icon: '💰', label: 'Taxes & Government' },
       { key: 'econ',       group: 'Economy & Government',          icon: '📈', label: 'Economy & Jobs' },
       { key: 'housing',    group: 'Economy & Government',          icon: '🏠', label: 'Housing & Cost of Living' },
+      { key: 'infra',      group: 'Economy & Government',          icon: '🚧', label: 'Infrastructure & Transportation' },
       { key: 'land',       group: 'Land, Energy & Environment',    icon: '🏔', label: 'Public Lands & Energy' },
       { key: 'enviro',     group: 'Land, Energy & Environment',    icon: '💧', label: 'Water & Environment' },
       { key: 'immig',      group: 'Security & Justice',            icon: '🛡', label: 'Immigration' },
@@ -40596,6 +40640,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'foreign',    group: 'Security & Justice',            icon: '🦅', label: 'Foreign Policy & Defense' },
       { key: 'health',     group: 'Health, Education & Society',   icon: '🏥', label: 'Healthcare' },
       { key: 'edu',        group: 'Health, Education & Society',   icon: '🎓', label: 'Education' },
+      { key: 'family',     group: 'Health, Education & Society',   icon: '🧸', label: 'Family, Children & Work' },
       { key: 'repro',      group: 'Health, Education & Society',   icon: '🕊', label: 'Abortion & Reproductive Rights' },
       { key: 'rights',     group: 'Health, Education & Society',   icon: '🏳️‍🌈', label: 'Civil Rights & LGBTQ+' },
       { key: 'tech',       group: 'Technology & Democracy',        icon: '🚀', label: 'Technology & Privacy' },
@@ -41752,7 +41797,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var ALIGN_QUICK_PICKS = [
       'term_limits', 'border_security', 'healthcare', 'gun_rights',
       'school_choice', 'climate_action', 'cost_living', 'social_security',
-      'water', 'immigration_reform', 'health_mental', 'gun_safety'
+      'national_debt', 'property_tax', 'child_care', 'immigration_reform',
+      'water', 'health_mental', 'gun_safety'
     ];
 
     function _alignRenderQuickPicks() {
