@@ -2581,6 +2581,45 @@
       white-space: nowrap;
     }
 
+    /* ── "Bottom Line" verdict: a single synthesized read that combines Promise
+         Score, Follow-Through (accountability) and personal Alignment into one
+         plain-language recommendation, then points at the next step. ── */
+    #cmp-verdict { margin-bottom: 1.1rem; }
+    #cmp-verdict:empty { display: none; }
+    .cmp-verdict-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(245,158,11,0.13) 0%, rgba(37,99,235,0.13) 100%);
+      border: 1px solid rgba(245,200,66,0.4); border-radius: 0.85rem;
+      padding: 1rem 1.15rem; display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap;
+    }
+    .cmp-verdict-card.cmp-verdict-neutral {
+      background: linear-gradient(135deg, rgba(37,99,235,0.16) 0%, rgba(13,21,38,0.6) 100%);
+      border-color: rgba(96,165,250,0.4);
+    }
+    .cmp-verdict-main { display: flex; align-items: flex-start; gap: 0.8rem; min-width: 0; flex: 1; }
+    .cmp-verdict-ico { font-size: 1.7rem; line-height: 1; flex-shrink: 0; }
+    .cmp-verdict-kicker {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #fbbf24; margin-bottom: 0.25rem;
+    }
+    .cmp-verdict-neutral .cmp-verdict-kicker { color: #60a5fa; }
+    .cmp-verdict-lead {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.03em;
+      color: #fff; line-height: 1.12;
+    }
+    .cmp-verdict-lead strong { color: #fde68a; font-weight: 400; }
+    .cmp-verdict-neutral .cmp-verdict-lead strong { color: #bfdbfe; }
+    .cmp-verdict-body {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; line-height: 1.45;
+      color: #cdd9ec; margin-top: 0.35rem;
+    }
+    .cmp-verdict-body strong { color: #fff; font-weight: 700; }
+    .cmp-verdict-actions { display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; flex-wrap: wrap; }
+    @media (max-width: 640px) {
+      .cmp-verdict-actions { flex-basis: 100%; }
+      .cmp-verdict-actions .cmp-btn-team, .cmp-verdict-actions .cmp-footer-btn { flex: 1; justify-content: center; }
+    }
+
     /* Status badge (Officeholder vs Candidate) */
     .cmp-status-badge {
       display: inline-flex; align-items: center; gap: 0.25rem;
@@ -28213,6 +28252,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
         <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> a high Promise Score shows they keep their word; Alignment shows they're keeping it on the issues you care about. New 2026 candidates have no record yet — compare them on policy positions and alignment instead.</div>
       </div>
+      <!-- The Bottom Line — one synthesized recommendation that reads Promise
+           Score, accountability and personal Alignment together so the visitor
+           isn't left to combine three numbers in their head. -->
+      <div id="cmp-verdict"></div>
       <!-- At-a-glance insight panel (common ground / biggest differences) -->
       <div id="cmp-insights"></div>
       <table id="cmp-table">
@@ -33085,6 +33128,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     tbody.innerHTML = rows;
     _cmpRenderGuide();
+    _cmpRenderVerdict(pids);
     _cmpRenderCoach(pids);
     _cmpRenderFooter(pids);
   }
@@ -33102,6 +33146,132 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (g) g.style.display = 'none';
     try { localStorage.setItem('pdx_cmp_guide_dismissed', '1'); } catch (e) {}
   };
+
+  // ── The Bottom Line ────────────────────────────────────────────────────
+  // The comparison table lays out Promise Score, accountability (Follow-Through)
+  // and personal Alignment in separate rows — but a first-time voter still has
+  // to combine those numbers in their head to reach a decision. This reads them
+  // together and states one honest, plain-language recommendation, so the three
+  // tools add up to an actual call instead of three disconnected stats. Read-only
+  // over the same data the table already shows; it never invents a score.
+  function _cmpVerdictFollowThrough(p) {
+    return (p.kept + p.broken) > 0 ? Math.round(100 * p.kept / (p.kept + p.broken)) : null;
+  }
+  function _cmpVerdictIsCandidate(p) {
+    return /candidate|nominee/i.test(p.office || '');
+  }
+  function _cmpRenderVerdict(pids) {
+    const el = document.getElementById('cmp-verdict');
+    if (!el) return;
+    // A verdict only means something with a real side-by-side; the coaching
+    // banner handles the single-pick case.
+    if (!pids || pids.length < 2) { el.innerHTML = ''; return; }
+
+    const hasAlignment = (typeof _alignIssues !== 'undefined' && _alignIssues.size > 0);
+    const recs = pids.map(pid => {
+      const p = CMP_DATA[pid];
+      const score = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : p.score;
+      const align = (hasAlignment && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      return {
+        pid,
+        short: (p.name || '').split(' ').pop() || p.name,
+        score: (score === null || score === undefined) ? null : score,
+        ft: _cmpVerdictFollowThrough(p),
+        align: (align === null || align === undefined) ? null : align,
+        isCand: _cmpVerdictIsCandidate(p),
+        onTeam: (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid),
+      };
+    });
+
+    // Pick the strongest pick and the basis we judged on. Alignment leads when
+    // the visitor has set it (it answers "fits ME?"); otherwise we fall back to
+    // the public record (Promise Score, broken ties by Follow-Through).
+    const bestBy = (arr, key, tie) => arr.reduce((a, b) => {
+      if (b[key] > a[key]) return b;
+      if (b[key] === a[key] && tie && (b[tie] || 0) > (a[tie] || 0)) return b;
+      return a;
+    });
+    let standout = null, basis = null, close = false;
+    if (hasAlignment) {
+      const withA = recs.filter(r => r.align !== null);
+      if (withA.length) {
+        standout = bestBy(withA, 'align', 'score');
+        basis = 'alignment';
+        const others = withA.filter(r => r !== standout);
+        close = others.length > 0 && (standout.align - Math.max(...others.map(r => r.align))) <= 3;
+      }
+    }
+    if (!standout) {
+      const withS = recs.filter(r => r.score !== null);
+      if (withS.length) {
+        standout = bestBy(withS, 'score', 'ft');
+        basis = 'record';
+        const others = withS.filter(r => r !== standout);
+        close = others.length > 0 && (standout.score - Math.max(...others.map(r => r.score))) <= 4;
+      }
+    }
+
+    let kicker, lead, body, neutral = false;
+    if (!standout) {
+      // Nobody has a record or an alignment read yet — almost always an all-new
+      // field of 2026 candidates. Don't fake a winner; point at the tools that
+      // actually apply.
+      neutral = true;
+      kicker = 'The Bottom Line';
+      lead = `These are new candidates with no track record yet`;
+      body = hasAlignment
+        ? `There's nothing settled to score, so weigh them on the <strong>policy positions</strong> below. Their personal <strong>🎯 Alignment</strong> match is your best signal here.`
+        : `There's nothing settled to score yet. Weigh them on the <strong>policy positions</strong> below, or set the <strong>🎯 Alignment Tool</strong> to see which one fits your values.`;
+    } else if (basis === 'alignment') {
+      kicker = 'The Bottom Line · Best fit for you';
+      const hasScore = standout.score !== null;
+      const recordBit = hasScore ? ` and has kept <strong>${standout.score}%</strong> of their tracked promises` : '';
+      lead = close
+        ? `It's close — <strong>${standout.short}</strong> edges ahead on your issues`
+        : `<strong>${standout.short}</strong> is your strongest match`;
+      const togetherBit = hasScore
+        ? `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues; the Promise Score shows whether they follow through — ${standout.short} reads well on both.`
+        : `Alignment shows they're with you on <em style="color:#c4b5fd;font-style:normal;">your</em> issues. As a new candidate they have no track record yet, so weigh the policy positions below alongside that match.`;
+      body = `Based on the positions you set, ${standout.short} aligns with you most at <strong>${standout.align}%</strong>${recordBit}. ` +
+             togetherBit +
+             (close ? ` The runner-up is right behind, so skim the policy rows before you commit.` : '');
+    } else {
+      kicker = 'The Bottom Line · Strongest record';
+      const ftBit = standout.ft !== null ? `, keeping <strong>${standout.ft}%</strong> of the promises that are settled` : '';
+      lead = close
+        ? `It's close — <strong>${standout.short}</strong> has the slight edge on record`
+        : `<strong>${standout.short}</strong> has the strongest track record`;
+      body = `${standout.short} leads on Promise Score at <strong>${standout.score}%</strong>${ftBit}. ` +
+             `That's the accountability read — how much of what they pledged they've actually delivered. ` +
+             `<strong>Set the 🎯 Alignment Tool</strong> to also see who fits <em style="color:#93c5fd;font-style:normal;">your</em> values, not just who keeps their word.` +
+             (close ? ` It's a tight race — the policy rows below break the tie.` : '');
+    }
+
+    // Next step, right in the verdict: claim the standout for the team, and/or
+    // unlock the personalized read when alignment isn't set yet.
+    let actions = '';
+    if (standout) {
+      actions += standout.onTeam
+        ? `<button class="cmp-btn-team on-team" onclick="_cmpToggleTeam('${standout.pid}', this)">✓ ${standout.short} on your team</button>`
+        : `<button class="cmp-btn-team" onclick="_cmpToggleTeam('${standout.pid}', this)">⭐ Add ${standout.short} to Team</button>`;
+    }
+    if (!hasAlignment) {
+      actions += `<button class="cmp-footer-btn cmp-footer-btn-ghost" onclick="closeCompare();setTimeout(function(){var a=document.getElementById('alignment-panel');if(a){a.scrollIntoView({behavior:'smooth',block:'center'});if(typeof alignTogglePanel==='function')alignTogglePanel(true);}},320)">🎯 Set Your Alignment</button>`;
+    }
+
+    el.innerHTML =
+      `<div class="cmp-verdict-card${neutral ? ' cmp-verdict-neutral' : ''}">` +
+        `<div class="cmp-verdict-main">` +
+          `<span class="cmp-verdict-ico">${neutral ? '🧭' : '🏅'}</span>` +
+          `<div style="min-width:0;">` +
+            `<div class="cmp-verdict-kicker">${kicker}</div>` +
+            `<div class="cmp-verdict-lead">${lead}</div>` +
+            `<div class="cmp-verdict-body">${body}</div>` +
+          `</div>` +
+        `</div>` +
+        (actions ? `<div class="cmp-verdict-actions">${actions}</div>` : '') +
+      `</div>`;
+  }
 
   // Build the contextual next-steps footer. Guides the visitor from "I've
   // compared" to a concrete decision — pick someone, set up alignment, or
@@ -33124,6 +33294,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       const sigs = pids.map(pid => _cmpRaceSig(pid));
       if (sigs.length >= 2 && sigs.every(s => s && s === sigs[0])) {
         sameRaceNote = `<span class="cmp-footer-samerace">✓ Same seat — you're comparing one race head-to-head, exactly how to decide who earns it.</span>`;
+      } else {
+        // Picks span seats we can confidently tell apart. Gently steer toward the
+        // highest-value comparison: rivals for a single seat on their own ballot.
+        const distinct = [...new Set(sigs.filter(Boolean))];
+        if (distinct.length >= 2) {
+          sameRaceNote = `<span class="cmp-footer-samerace" style="color:#9fb4d4;">🗺 These picks are running for different seats. To decide one race, compare just the candidates for that single seat in your district side-by-side.</span>`;
+        }
       }
     } catch (e) {}
 
