@@ -45904,6 +45904,48 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var a = p.accountability;
       var safeId = aesc(id);
 
+      // ── Honesty guard: no scorable record yet ────────────────────────────
+      // A 2026 candidate or a brand-new officeholder has no resolved promises,
+      // votes, or curated record for the engine to ground a score on. Left to
+      // its defaults the analyzer would still emit a confident ~60% ("0 kept vs
+      // 0 broken — a 60% keep rate"), the exact kind of misleading number the
+      // rest of the profile works to avoid. When there is genuinely nothing to
+      // score — and no curated or previously-computed score exists — we show an
+      // honest "score begins once there's a record" state and deliberately do
+      // NOT compute or persist a fabricated one, so the downstream People's
+      // Mandate scorecard (which reads p.accountability) stays honest too.
+      var _acctScorable = (a && typeof a.overallScore === 'number') ||
+        (typeof CURATED !== 'undefined' && CURATED[id]) ||
+        (typeof window._pdxDisplayScore === 'function' && window._pdxDisplayScore(p) !== null) ||
+        (typeof window._pdxHasPromiseRecord === 'function' && window._pdxHasPromiseRecord(p)) ||
+        (function(){ var pb = p.promiseBreakdown || {}; return ((+pb.kept || 0) + (+pb.broken || 0) + (+pb.compromise || 0)) > 0; })();
+      if (!_acctScorable) {
+        var _acctStatus = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+        var _acctCand = _acctStatus === 'candidate';
+        var _acct2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+        var _acctFirst = (p.name ? String(p.name).split(' ')[0] : 'This official');
+        var _acctMsg = _acctCand
+          ? (_acctFirst + ' is running as a ' + (_acct2026 ? '2026 candidate' : 'candidate') + ' and has no voting record or resolved promises yet, so there is nothing to score. This score appears here once they take office and their first promises resolve.')
+          : (_acctFirst + ' is early in their term, with too little verified record to score fairly yet. This score fills in as their promises resolve and votes are logged.');
+        return '' +
+          '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(139,92,246,0.03));border:1px dashed rgba(139,92,246,0.4);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.9rem;">' +
+              '<div style="width:64px;height:64px;flex-shrink:0;border-radius:0.75rem;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+                '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:#9fb4d4;line-height:0.9;">—</span>' +
+                '<span style="font-size:0.46rem;color:#7596c0;letter-spacing:0.08em;">/ 100</span>' +
+              '</div>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;">🛡️ Accountability of Truth Score</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-top:0.15rem;">' +
+                  '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.35rem;color:#9fb4d4;line-height:1.1;">No record yet</span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.12rem 0.5rem;border-radius:999px;">◷ Monitoring</span>' +
+                '</div>' +
+                '<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.3rem 0 0;">' + _acctMsg + '</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
       // Eagerly compute (and cache) the Accountability of Truth Score so the
       // percentage + rating label are visible by default in the profile modal —
       // never hidden behind a "Run Analysis" click. Falls back to the prompt
