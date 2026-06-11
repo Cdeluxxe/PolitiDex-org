@@ -25266,10 +25266,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div style="display:flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${g.color};padding:0.45rem 0 0.4rem;border-bottom:1px solid ${g.color}26;margin-bottom:0.1rem;">
           <span>${g.icon} ${g.label}</span>
           <span style="margin-left:auto;background:${g.color}1a;border:1px solid ${g.color}44;color:${g.color};border-radius:999px;padding:0.02rem 0.5rem;">${rows.length}</span>
-        </div>` + rows.map(r => `<div class="promise-row" style="padding:0.6rem 0 0.6rem 0.7rem;border-left:2px solid ${g.color}55;margin:0.15rem 0;">
+        </div>` + rows.map(r => {
+          // Source chips — promises may carry a `sources` array of {url,label}
+          // objects (or bare URL strings). Surfacing them here lets the receipts
+          // show right next to each promise instead of only inside the deep-dive.
+          const _srcs = Array.isArray(r.sources) ? r.sources : [];
+          const _srcHtml = _srcs.length ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;">' + _srcs.map(s => {
+            const _u = (s && typeof s === 'object') ? s.url : s;
+            if (!_u) return '';
+            let _lbl = (s && typeof s === 'object' && s.label) ? s.label : '';
+            if (!_lbl) { try { _lbl = new URL(_u).hostname.replace(/^www\./, ''); } catch (e) { _lbl = 'Source'; } }
+            return `<a href="${_u}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="dd-source-chip">🔗 ${_lbl}</a>`;
+          }).join('') + '</div>' : '';
+          return `<div class="promise-row" style="padding:0.6rem 0 0.6rem 0.7rem;border-left:2px solid ${g.color}55;margin:0.15rem 0;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.85rem;color:white;letter-spacing:0.01em;margin-bottom:0.15rem;">${r.title}</div>
           <div style="font-size:0.78rem;color:#9fb4d4;line-height:1.5;">${r.detail}</div>
-        </div>`).join('') + `</div>`;
+          ${_srcHtml}
+        </div>`;
+        }).join('') + `</div>`;
     }).join('') : '';
 
     // Filter tabs for the Promise Tracker — "All" plus one tab per verdict
