@@ -115,6 +115,11 @@
       }
       // Trigger deferred DOMContentLoaded events
       _triggerDeferredEvents();
+      // If the page was opened with a ?p=<id> deep link, open that profile now
+      // that PROFILES is populated and the renderers are defined.
+      setTimeout(function() {
+        if (typeof window._pdxOpenFromUrl === 'function') window._pdxOpenFromUrl();
+      }, 0);
     }
   }
 
@@ -3659,6 +3664,93 @@
       color: white;
       box-shadow: 0 0 8px rgba(59,130,246,0.25);
     }
+    /* ── Share: compact-card button, modal button, and share sheet ──────── */
+    .pm-btn-share {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15,23,42,0.55);
+      border: 1px solid rgba(159,180,212,0.28);
+      color: #cbd5e1;
+      padding: 0.6rem 0.75rem;
+      min-height: 40px;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pm-btn-share:hover { background: rgba(30,41,59,0.85); border-color: rgba(159,180,212,0.55); color: #fff; transform: translateY(-1px); }
+    .pm-btn-share svg { width: 1rem; height: 1rem; }
+    .pdx-modal-share-btn {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .pdx-modal-share-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .pdx-share-overlay {
+      position: fixed; inset: 0; z-index: 60;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      animation: pdxShareFade 0.18s ease;
+    }
+    @keyframes pdxShareFade { from { opacity: 0; } to { opacity: 1; } }
+    .pdx-share-sheet {
+      width: 100%; max-width: 380px;
+      background: linear-gradient(160deg,#13213f,#0a0f1e);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+      animation: pdxShareRise 0.22s cubic-bezier(0.34,1.1,0.64,1);
+    }
+    @keyframes pdxShareRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    .pdx-share-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
+    .pdx-share-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.04em; color: #fff; }
+    .pdx-share-x { background: none; border: none; color: #7596c0; font-size: 1.05rem; cursor: pointer; line-height: 1; padding: 0.25rem; }
+    .pdx-share-x:hover { color: #fff; }
+    .pdx-share-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: #9fb4d4; margin-bottom: 1rem; }
+    .pdx-share-linkrow { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .pdx-share-link {
+      flex: 1; min-width: 0;
+      background: rgba(10,15,30,0.8);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.55rem;
+      color: #cbd5e1;
+      font-size: 0.78rem;
+      padding: 0.6rem 0.7rem;
+    }
+    .pdx-share-copy {
+      flex-shrink: 0;
+      background: linear-gradient(135deg,rgba(192,21,42,0.9),rgba(160,15,30,0.95));
+      border: none; color: #fff;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0 1.1rem; border-radius: 0.55rem; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .pdx-share-copy:hover { background: linear-gradient(135deg,#d91a31,#c0152a); }
+    .pdx-share-copy.copied { background: linear-gradient(135deg,#16a34a,#15803d); }
+    .pdx-share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .pdx-share-opt {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #e2e8f0;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.7rem; border-radius: 0.6rem; cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .pdx-share-opt:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+    .pdx-share-opt svg { width: 1rem; height: 1rem; }
+    .pdx-share-native { grid-column: 1 / -1; }
     /* Impact dot indicator */
     .pm-impact-dot {
       display: inline-block;
@@ -23322,9 +23414,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div id="modal-office-small" class="font-condensed text-xs tracking-widest uppercase text-steel-400 mt-0.5 truncate"></div>
           </div>
         </div>
-        <button onclick="closeModal()" class="flex-shrink-0 ml-3 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/12 active:bg-white/18 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center" style="min-height:unset;">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        <div class="flex items-center gap-2 flex-shrink-0 ml-3">
+          <button id="modal-share-btn" onclick="if(window._pdxCurrentProfileId)window.pdxSharePolitician(window._pdxCurrentProfileId,event)" class="pdx-modal-share-btn" aria-label="Share this profile" title="Share">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          </button>
+          <button onclick="closeModal()" class="flex-shrink-0 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/12 active:bg-white/18 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center" style="min-height:unset;">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
       </div>
       <!-- Scrollable body -->
       <div id="modal-body" class="flex-1 overflow-y-auto" style="overscroll-behavior:contain; -webkit-overflow-scrolling:touch;">
@@ -23352,6 +23449,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             Comment
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SHARE SHEET ═══════════════════════ -->
+  <div id="pdx-share-overlay" class="pdx-share-overlay" style="display:none;" onclick="if(event.target===this)window._pdxCloseShareSheet()">
+    <div class="pdx-share-sheet" role="dialog" aria-modal="true" aria-label="Share politician profile">
+      <div class="pdx-share-head">
+        <div class="pdx-share-title">Share Profile</div>
+        <button class="pdx-share-x" onclick="window._pdxCloseShareSheet()" aria-label="Close share">✕</button>
+      </div>
+      <div id="pdx-share-name" class="pdx-share-name"></div>
+      <div class="pdx-share-linkrow">
+        <input id="pdx-share-link" class="pdx-share-link" type="text" readonly onclick="this.select()" aria-label="Direct link to profile" />
+        <button id="pdx-share-copy" class="pdx-share-copy" onclick="window._pdxCopyShareLink()">Copy</button>
+      </div>
+      <div class="pdx-share-grid">
+        <button class="pdx-share-opt" onclick="window._pdxShareTo('x')" aria-label="Share on X">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </button>
+        <button class="pdx-share-opt" onclick="window._pdxShareTo('facebook')" aria-label="Share on Facebook">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button id="pdx-share-native" class="pdx-share-opt pdx-share-native" onclick="window._pdxShareTo('native')" aria-label="More share options" style="display:none;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          More Options
+        </button>
       </div>
     </div>
   </div>
@@ -26546,6 +26672,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     document.getElementById('modal-body').scrollTop = 0;
     document.body.style.overflow = 'hidden';
+    // Track which profile is open (used by the top-bar Share button) and reflect
+    // it in the address bar so the link can be copied or shared directly.
+    window._pdxCurrentProfileId = id;
+    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
     // Like button setup — use live data from Firestore
     const _likeBtn = document.getElementById('modal-like-btn');
     if (_likeBtn) {
@@ -26615,6 +26745,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       overlay.style.overscrollBehavior = 'contain';
     }
     document.body.style.overflow = '';
+    // Drop the ?p=<id> deep-link param from the address bar on close.
+    window._pdxCurrentProfileId = null;
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
     // Refresh the comment + vote counts on listing cards so anything added inside
     // the profile shows live the moment the modal closes.
     if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
@@ -26632,7 +26765,104 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   }
 
   // Close on Escape key
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      // Close the share sheet first if it's open, otherwise close the modal.
+      var _sh = document.getElementById('pdx-share-overlay');
+      if (_sh && _sh.style.display !== 'none') { window._pdxCloseShareSheet(); return; }
+      closeModal();
+    }
+  });
+
+  // ════════════════════════════════════════════════════════════
+  // SHARE — direct links to a specific politician profile
+  // ════════════════════════════════════════════════════════════
+  // A shared link looks like  https://<site>/?p=<id>  and re-opens that
+  // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  window._pdxShareData = null;
+
+  window.pdxShareUrl = function(id) {
+    return location.origin + location.pathname + '?p=' + encodeURIComponent(id);
+  };
+
+  window.pdxSharePolitician = function(id, ev) {
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    var p = (typeof PROFILES !== 'undefined' && PROFILES) ? PROFILES[id] : null;
+    var name = (p && p.name) ? p.name : 'this politician';
+    var office = (p && p.office) ? p.office : '';
+    var url = window.pdxShareUrl(id);
+    var text = name + (office ? ' (' + office + ')' : '') + ' on PolitiDex — track their promises and record. 🇺🇸';
+    window._pdxShareData = { id: id, name: name, url: url, text: text };
+
+    var overlay  = document.getElementById('pdx-share-overlay');
+    var nameEl   = document.getElementById('pdx-share-name');
+    var linkEl   = document.getElementById('pdx-share-link');
+    var copyBtn  = document.getElementById('pdx-share-copy');
+    var nativeBtn = document.getElementById('pdx-share-native');
+    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
+    if (linkEl)  linkEl.value = url;
+    if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
+    // The native Web Share API ("More Options") is only offered where supported —
+    // mostly mobile and some desktop browsers.
+    if (nativeBtn) nativeBtn.style.display = (navigator.share) ? '' : 'none';
+    if (overlay) overlay.style.display = 'flex';
+  };
+
+  window._pdxCloseShareSheet = function() {
+    var overlay = document.getElementById('pdx-share-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+
+  function _pdxLegacyCopy(text) {
+    try {
+      var inp = document.getElementById('pdx-share-link');
+      if (inp) { inp.focus(); inp.select(); document.execCommand('copy'); }
+    } catch (e) { console.warn('Legacy copy failed:', e); }
+  }
+
+  window._pdxCopyShareLink = function() {
+    var d = window._pdxShareData; if (!d) return;
+    var copyBtn = document.getElementById('pdx-share-copy');
+    var done = function() {
+      if (copyBtn) {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function() { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1800);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(d.url).then(done).catch(function() { _pdxLegacyCopy(d.url); done(); });
+    } else {
+      _pdxLegacyCopy(d.url); done();
+    }
+  };
+
+  window._pdxShareTo = function(platform) {
+    var d = window._pdxShareData; if (!d) return;
+    var u = encodeURIComponent(d.url);
+    var t = encodeURIComponent(d.text);
+    if (platform === 'native') {
+      if (navigator.share) {
+        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url }).catch(function() {});
+      }
+      return;
+    }
+    var link = '';
+    if (platform === 'x') link = 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+    else if (platform === 'facebook') link = 'https://www.facebook.com/sharer/sharer.php?u=' + u;
+    if (link) window.open(link, '_blank', 'noopener,noreferrer,width=600,height=540');
+  };
+
+  // Deep-link: open the profile named in the URL (?p=<id>) once profiles
+  // have loaded. Called from _checkAndTrigger after the directory is built.
+  window._pdxOpenFromUrl = function() {
+    try {
+      var pid = new URLSearchParams(location.search).get('p');
+      if (!pid) return;
+      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) return;
+      if (typeof showProfile === 'function') showProfile(pid);
+    } catch (e) { console.warn('Deep-link open failed:', e); }
+  };
 
   // ════════════════════════════════════════════════════════════
   // SCROLL ANIMATIONS
@@ -31951,7 +32181,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var ph=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pm-card-photo-placeholder" style="display:none;">'+(p.icon||tc.i)+'</div>':'<div class="pm-card-photo-placeholder" style="display:flex;">'+(p.icon||tc.i)+'</div>';
         var c=document.createElement('div');c.className='pm-card';c.style.border='1px solid '+tc.b;
         c.dataset.county=cty;c.dataset.pmstate='utah';c.dataset.district=dist;c.dataset.name=p.name;c.dataset.issues=iss;
-        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmDepth||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmDepth+pmParty+'</div>':'')+'</div>'+pmScoreWrap+'</div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+impactHtml+'<div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button></div></div>';
+        c.innerHTML='<div class="pm-card-inner"><div class="pm-card-top"><div class="pm-card-photo" style="border-color:'+tc.p+';">'+ph+'</div><div class="pm-card-info"><div class="pm-card-name">'+p.name+'</div><div class="pm-card-office">'+pmOffice+'</div>'+((pmStatus||pmDepth||pmParty)?'<div class="pm-card-meta">'+pmStatus+pmDepth+pmParty+'</div>':'')+'</div>'+pmScoreWrap+'</div>'+(pmStats?'<div class="pm-card-stats">'+pmStats+'</div>':'')+impactHtml+'<div class="pm-card-actions"><button class="pm-btn-profile" onclick="showProfile(\''+id+'\')">View Full Profile</button><button class="pm-btn-compare" id="pmc-'+id+'" onclick="pmAddCompare(\''+id+'\',this)">+ Compare</button><button class="pm-btn-share" onclick="window.pdxSharePolitician(\''+id+'\',event)" aria-label="Share profile" title="Share"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></button></div></div>';
         cont.appendChild(c);
       }
     }
