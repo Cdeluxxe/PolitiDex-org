@@ -5227,7 +5227,23 @@
       box-shadow: 0 0 14px rgba(74,222,128,0.35);
       transition: width 0.7s cubic-bezier(0.34,1.25,0.64,1);
     }
-    .myteam-dcov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; margin-bottom: 0.6rem; }
+    .myteam-dcov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; }
+    /* Grouped coverage: "Your voting districts" vs "Statewide & local". */
+    .myteam-dcov-group { margin-bottom: 0.85rem; }
+    .myteam-dcov-group:last-of-type { margin-bottom: 0.5rem; }
+    .myteam-dcov-grouphead { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+    .myteam-dcov-grouptitle {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; color: #dbe7fb; line-height: 1;
+    }
+    .myteam-dcov-groupfrac {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #fcd9a0; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 999px; padding: 0.1rem 0.55rem; line-height: 1.25;
+    }
+    .myteam-dcov-groupfrac.is-done { color: #86efac; background: rgba(34,197,94,0.13); border-color: rgba(34,197,94,0.4); }
+    .myteam-dcov-msg-more { color: #9fb4d4; }
     .myteam-dcov-seat {
       display: flex; align-items: center; gap: 0.6rem; text-align: left; width: 100%;
       padding: 0.6rem 0.7rem; min-height: 56px; border-radius: 0.7rem; cursor: pointer;
@@ -35511,14 +35527,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var positions = window.TEAM_POSITIONS || [];
       if (!positions.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
-      var total = positions.length;
-      var covered = 0;
-      var firstOpen = null;
-      var seats = positions.map(function(pos) {
+      // Render a single seat as a tappable coverage chip and tally it. A seat is
+      // "covered" when the voter has a pick saved for that office; tapping it jumps
+      // straight to the matching race so closing a gap is always one tap away.
+      function _seatHtml(pos) {
         var pid = ballotSelections[pos.key];
         var d = pid ? CMP_DATA[pid] : null;
         var on = !!d;
-        if (on) covered++; else if (!firstOpen) firstOpen = pos;
         var scope = _myteamSeatScope(pos.key);
         var cls = on ? 'is-covered' : 'is-open';
         var nm = on ? (d.name || 'On your team').replace(/"/g, '&quot;') : '';
@@ -35535,27 +35550,86 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="myteam-dcov-status">' + status + '</span>' +
             '</span>' +
           '</button>';
-      }).join('');
+      }
+
+      // Split the slate into the voter's OWN voting districts — the geographically
+      // specific seats that only people who live there elect (their U.S. House,
+      // State Senate & State House districts) — versus the statewide & local seats
+      // that everyone in the state shares. Surfacing the districts as their own
+      // group, with their own coverage count, makes "which of MY districts have I
+      // covered" concrete and motivating rather than a flat 6-seat tally.
+      var districtSeats = [], otherSeats = [];
+      positions.forEach(function(pos) {
+        (_MYTEAM_DISTRICT_KEYS[pos.key] ? districtSeats : otherSeats).push(pos);
+      });
+
+      function _isOn(pos) {
+        var pid = ballotSelections[pos.key];
+        return !!(pid && CMP_DATA[pid]);
+      }
+      function _coveredCount(list) {
+        return list.filter(_isOn).length;
+      }
+      function _firstOpen(list) {
+        for (var i = 0; i < list.length; i++) { if (!_isOn(list[i])) return list[i]; }
+        return null;
+      }
+
+      var total = positions.length;
+      var covered = _coveredCount(positions);
+      var distCovered = _coveredCount(districtSeats);
+      var distTotal = districtSeats.length;
+      // Prefer steering the voter at an open DISTRICT seat first — those are the
+      // races unique to them — then fall back to any remaining statewide/local gap.
+      var firstOpen = _firstOpen(districtSeats) || _firstOpen(otherSeats);
 
       var pct = Math.round(covered / total * 100);
       var done = covered >= total;
+      var distDone = distTotal > 0 && distCovered >= distTotal;
 
-      // Gentle, state-aware guidance: celebrate a full ballot, otherwise name the
-      // single next gap (with its district number when known) so the voter always
-      // knows exactly what one thing to do next.
-      var msg, cta = '';
       function _openLabel(pos) {
         var s = _myteamSeatScope(pos.key);
         return pos.label + (s.indexOf('District') === 0 ? ' (' + s + ')' : '');
       }
+
+      // Build the grouped grids. Each group renders only when it actually has seats,
+      // and carries its own covered/total badge (green once that group is complete).
+      function _groupHtml(title, list) {
+        if (!list.length) return '';
+        var c = _coveredCount(list);
+        var fracCls = c >= list.length ? 'myteam-dcov-groupfrac is-done' : 'myteam-dcov-groupfrac';
+        return '<div class="myteam-dcov-group">' +
+            '<div class="myteam-dcov-grouphead">' +
+              '<span class="myteam-dcov-grouptitle">' + title + '</span>' +
+              '<span class="' + fracCls + '">' + c + '/' + list.length + ' covered</span>' +
+            '</div>' +
+            '<div class="myteam-dcov-grid">' + list.map(_seatHtml).join('') + '</div>' +
+          '</div>';
+      }
+      var groupsHtml =
+        _groupHtml('\u{1F4CD} Your voting districts', districtSeats) +
+        _groupHtml('\u{1F3DB}️ Statewide & local', otherSeats);
+
+      // Gentle, state-aware guidance that always names the single next gap — and
+      // leans on the voter's own districts so the advice feels personal: "add your
+      // State House district", "compare your U.S. House district", etc.
+      var msg, cta = '';
       if (done) {
-        msg = '\u{1F389} <strong>Every seat on your ballot has a pick.</strong> Your team covers all your districts — compare your slate below to weigh them side by side.';
-      } else if (covered === 0) {
-        msg = 'None of your districts are covered yet. Start with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> — tap any seat to meet the candidates and add your pick. Everything saves as you go.';
-        cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
-      } else {
+        msg = '\u{1F389} <strong>Every seat on your ballot has a pick</strong>' + (distTotal ? ', including all ' + distTotal + ' of your voting districts' : '') + '. Compare your slate below to weigh your picks side by side.';
+      } else if (firstOpen) {
+        var inDistrict = !!_MYTEAM_DISTRICT_KEYS[firstOpen.key];
         var openCount = total - covered;
-        msg = 'Great progress! <strong>' + covered + ' of ' + total + '</strong> seats covered — you still need to add someone for your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>' + (openCount > 1 ? ' (and ' + (openCount - 1) + ' more)' : '') + '. Tap it to compare the field and complete your coverage.';
+        var lead;
+        if (covered === 0) {
+          lead = 'Nothing covered yet — start with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
+        } else if (!distDone && inDistrict) {
+          lead = '<strong>' + distCovered + ' of ' + distTotal + '</strong> of your voting districts covered — add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> next.';
+        } else if (distDone && distTotal) {
+          lead = 'All your voting districts are covered ✓ — round out your slate with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
+        } else {
+          lead = '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> next.';
+        }
+        msg = lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Tap to compare the field and add your pick — it saves as you go.';
         cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
       }
 
@@ -35570,11 +35644,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       box.classList.toggle('is-complete', done);
       box.innerHTML =
         '<div class="myteam-dcov-head">' +
-          '<span class="myteam-dcov-title">\u{1F5FA}️ Your District Coverage</span>' +
+          '<span class="myteam-dcov-title">\u{1F5FA}️ Your Ballot Coverage</span>' +
           '<span class="myteam-dcov-frac">' + covered + ' of ' + total + ' seats covered</span>' +
         '</div>' +
         '<div class="myteam-dcov-bar"><div class="myteam-dcov-fill" style="width:' + pct + '%;"></div></div>' +
-        '<div class="myteam-dcov-grid">' + seats + '</div>' +
+        groupsHtml +
         '<p class="myteam-dcov-msg">' + msg + '</p>' +
         cta +
         locNudge;
