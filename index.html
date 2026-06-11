@@ -12081,9 +12081,122 @@
       background: none; border: none; padding: 0; cursor: pointer;
       color: #fbbf24; font: inherit; text-decoration: underline; letter-spacing: 0.01em;
     }
+
+    /* ── District coverage tracker ─────────────────────────────────────────────
+       Bridges "these are your districts" to "build your team". A compact progress
+       strip at the top of the 2026 ballot shows how many of the voter's own
+       district seats already have a pick on their team, names the seats still
+       open, and offers a one-tap jump to fill the next one. Green = covered,
+       amber/gold = still open — the same coverage language used on the chips and
+       office headers below. Scoped to #relevant-browse-grid. */
+    #relevant-browse-grid .relevant-coverage {
+      margin: 0 0 0.95rem;
+      padding: 0.85rem 1rem;
+      border-radius: 0.9rem;
+      background: linear-gradient(135deg, rgba(34,197,94,0.10) 0%, rgba(10,15,30,0.45) 100%);
+      border: 1px solid rgba(34,197,94,0.32);
+    }
+    #relevant-browse-grid .relevant-coverage.is-empty {
+      background: linear-gradient(135deg, rgba(245,158,11,0.10) 0%, rgba(10,15,30,0.45) 100%);
+      border-color: rgba(245,158,11,0.34);
+    }
+    #relevant-browse-grid .relevant-coverage.is-complete {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(10,15,30,0.4) 100%);
+      border-color: rgba(34,197,94,0.55);
+    }
+    #relevant-browse-grid .rel-cov-top {
+      display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap;
+      margin-bottom: 0.55rem;
+    }
+    #relevant-browse-grid .rel-cov-title {
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
+      font-size: 1.08rem; color: #fff; line-height: 1;
+    }
+    #relevant-browse-grid .rel-cov-frac {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #86efac;
+    }
+    #relevant-browse-grid .relevant-coverage.is-empty .rel-cov-frac { color: #fcd9a0; }
+    #relevant-browse-grid .rel-cov-bar {
+      height: 8px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,0.08); margin-bottom: 0.6rem;
+    }
+    #relevant-browse-grid .rel-cov-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #16a34a, #4ade80);
+      transition: width 0.4s ease;
+    }
+    #relevant-browse-grid .rel-cov-msg {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.86rem; letter-spacing: 0.01em; color: #cfe0f5; line-height: 1.4;
+      margin: 0;
+    }
+    #relevant-browse-grid .rel-cov-msg strong { color: #fff; }
+    #relevant-browse-grid .rel-cov-open { color: #fcd9a0; font-weight: 700; }
+    #relevant-browse-grid .rel-cov-cta {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      margin-top: 0.65rem; min-height: 40px;
+      padding: 0.45rem 0.95rem; border-radius: 0.7rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.28), rgba(245,158,11,0.14));
+      border: 1px solid rgba(245,158,11,0.5);
+      color: #ffe9c2; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+      transition: transform 0.12s ease, border-color 0.15s ease;
+    }
+    #relevant-browse-grid .rel-cov-cta:hover { transform: translateY(-1px); border-color: rgba(251,191,36,0.85); }
+
+    /* Filled / open status badge shown on each "Your 2026 Ballot" chip. */
+    #relevant-browse-grid .rel-chip-status {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      max-width: 100%; margin-top: 0.18rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.66rem; letter-spacing: 0.03em;
+      padding: 0.1rem 0.45rem; border-radius: 999px; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #relevant-browse-grid .rel-chip-status.is-filled {
+      color: #bbf7d0; background: rgba(34,197,94,0.16); border: 1px solid rgba(34,197,94,0.5);
+    }
+    #relevant-browse-grid .rel-chip-status.is-open {
+      color: #fcd9a0; background: rgba(245,158,11,0.14); border: 1px solid rgba(245,158,11,0.45);
+    }
+
+    /* Coverage pill beside a district office header (✓ On your team / Open seat). */
+    #relevant-browse-grid .relevant-cov-pill {
+      display: inline-flex; align-items: center; gap: 0.26rem;
+      flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.62rem; letter-spacing: 0.07em;
+      text-transform: uppercase; white-space: nowrap;
+      border-radius: 999px; padding: 0.16rem 0.55rem; line-height: 1.1;
+    }
+    #relevant-browse-grid .relevant-cov-pill.is-filled {
+      color: #bbf7d0; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.58);
+    }
+    #relevant-browse-grid .relevant-cov-pill.is-open {
+      color: #ffe9c2; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.5);
+    }
+
+    /* "Add your pick" guidance shown inside an open district office body. */
+    #relevant-browse-grid .relevant-addhint {
+      display: flex; gap: 0.5rem; align-items: flex-start;
+      margin: 0.2rem 0.4rem 0.85rem;
+      padding: 0.6rem 0.82rem;
+      border-radius: 0.7rem;
+      background: rgba(245,158,11,0.09);
+      border: 1px solid rgba(245,158,11,0.3);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.82rem; letter-spacing: 0.01em; color: #fcd9a0; line-height: 1.45;
+    }
+    #relevant-browse-grid .relevant-addhint strong { color: #ffffff; }
+    #relevant-browse-grid .relevant-addhint .relevant-addhint-ico { flex-shrink: 0; }
+
     @media (max-width: 640px) {
       #relevant-browse-grid .relevant-why-pill { font-size: 0.56rem; margin-left: 0.35rem; padding: 0.14rem 0.45rem; }
       #relevant-browse-grid .relevant-match-legend { gap: 0.4rem; padding: 0.6rem 0.7rem; }
+      #relevant-browse-grid .relevant-cov-pill { font-size: 0.56rem; padding: 0.14rem 0.45rem; }
     }
     @media (max-width: 640px) {
       #relevant-browse-grid .browse-type-name { font-size: 1.22rem !important; }
@@ -34403,6 +34516,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _mypolBuildGrid();
       chubBuildAll();
       _mypolUpdateCount();
+      if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
     };
 
     // Exposed so other script blocks (e.g. the Compare modal) can read whether a
@@ -34498,6 +34612,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _mypolBuildGrid();
         chubBuildAll();
         _mypolUpdateCount();
+        // Keep the "Relevant to Me" district-coverage UI (tracker, chips, office
+        // pills) in sync with the pick the voter just made or removed.
+        if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
       }, wasOnTeam ? 0 : 350);
     };
 
@@ -36683,6 +36800,72 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'other',   label: 'CANDIDATES & OTHER', icon: '🗳', offices: ['candidate', 'other'] }
     ];
 
+    // ── District → team coverage ──────────────────────────────────────────────
+    // Maps each "Relevant to Me" office group to the My Team ballot race key it
+    // fills. Mirrors window.TEAM_POSITIONS and jumpToRelevantAccordion's mapping,
+    // so the section can tell the voter — at a glance — which of their own
+    // district seats already have a pick on their team and which remain open.
+    var _RELEVANT_OFFICE_TO_RACE = {
+      representative: 'house',
+      senator:        'senate',
+      governor:       'governor',
+      state_senator:  'statesenate',
+      state_rep:      'statehouse',
+      local:          'local'
+    };
+    // The Federal/State/Local level each office lives under, so a coverage CTA can
+    // open the right branch before scrolling to the seat.
+    var _RELEVANT_OFFICE_LEVEL = {
+      representative: 'federal', senator: 'federal',
+      governor: 'state', state_senator: 'state', state_rep: 'state',
+      local: 'local'
+    };
+    // Short, scannable seat names for the coverage strip ("still need: State House…").
+    var _RELEVANT_OFFICE_SHORT = {
+      representative: 'U.S. House', senator: 'U.S. Senate',
+      governor: 'Statewide Exec', state_senator: 'State Senate',
+      state_rep: 'State House', local: 'Local'
+    };
+    // First-person seat phrasing for the "add your …" guidance lines.
+    var _RELEVANT_OFFICE_YOURS = {
+      representative: 'your U.S. House representative',
+      senator: 'your U.S. Senator',
+      governor: 'your statewide executive',
+      state_senator: 'your State Senator',
+      state_rep: 'your State House representative',
+      local: 'a local leader'
+    };
+
+    // Live team selections ({ raceKey: pid }), read from the same store the team
+    // builder writes to, so coverage can never drift from My Team. Returns {} when
+    // nothing has been picked yet.
+    function _relevantTeamSelections() {
+      try {
+        if (typeof _getTeamBallotSelections === 'function') return _getTeamBallotSelections() || {};
+      } catch (e) {}
+      return (window._ballotLoad ? (window._ballotLoad() || {}) : {});
+    }
+
+    // Whether the voter has already added someone from this office's seat to their
+    // team — and, if so, who. Only district/ballot offices are "tracked"; others
+    // (candidate lists, "other") return tracked:false and get no coverage UI.
+    function _relevantOfficeCoverage(groupKey, sel) {
+      var raceKey = _RELEVANT_OFFICE_TO_RACE[groupKey];
+      if (!raceKey) return { tracked: false, filled: false };
+      sel = sel || _relevantTeamSelections();
+      var pid = sel[raceKey];
+      var filled = !!(pid && CMP_DATA[pid]);
+      return { tracked: true, raceKey: raceKey, filled: filled, pid: filled ? pid : null };
+    }
+
+    // Minimal HTML-text escaper. _esc lives in a different <script> block, so this
+    // block keeps its own tiny copy for the few names it injects as text.
+    function _relTxt(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     // Short, per-office subtitle clarifying WHY a seat is on the voter's ballot —
     // their EXACT district, the COUNTY-level field we can match when no exact
     // district is known, a STATEWIDE seat shared by everyone in the state, or a
@@ -36989,9 +37172,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += '<div style="display:flex;flex-direction:column;min-width:0;gap:0.18rem;">';
         h += '<span class="browse-type-name">' + tDef.label + '</span>';
         var _whyPill = _relevantPrecisionBadge(groupKey, ctx);
-        if (subtitle || _whyPill) {
+        // Coverage pill: does the voter already have a pick from this seat on
+        // their team? Reads the live ballot so the answer matches My Team exactly.
+        var _cov = _relevantOfficeCoverage(groupKey, ctx.teamSel);
+        var _covPill = '';
+        if (_cov.tracked) {
+          _covPill = _cov.filled
+            ? '<span class="relevant-cov-pill is-filled">✓ On your team</span>'
+            : '<span class="relevant-cov-pill is-open">➕ Add your pick</span>';
+        }
+        if (subtitle || _whyPill || _covPill) {
           h += '<span style="display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.32rem;min-width:0;">';
           if (_whyPill) h += _whyPill;
+          if (_covPill) h += _covPill;
           if (subtitle) h += '<span class="browse-type-scope">📍 ' + subtitle + '</span>';
           h += '</span>';
         }
@@ -37020,10 +37213,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           h += '<div class="text-center py-6 px-4 bg-navy-950/20 border border-white/5 rounded-xl m-2">' +
             '<p class="font-condensed text-xs text-steel-400 m-0">No politicians are currently listed in our database for this specific district/office.</p>' +
             '</div>';
-        } else if (groupKey === 'state_senator' || groupKey === 'state_rep') {
-          h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
         } else {
-          h += _renderRelevantStatusSplit(officePids);
+          // Open-seat nudge: this office maps to a team slot the voter hasn't
+          // filled yet, so point them at the one action that fills it — add the
+          // candidate who earns their vote (compare first when there's a field).
+          if (_cov.tracked && !_cov.filled) {
+            var _yours = _RELEVANT_OFFICE_YOURS[groupKey] || 'your representative';
+            var _addMsg = officePids.length > 1
+              ? 'Compare the candidates in your district, then tap <strong>⭐ Add to My Team</strong> on the one who earns your vote. This seat is still <strong>open</strong> on your team.'
+              : 'Tap <strong>⭐ Add to My Team</strong> to put ' + _relTxt(_yours) + ' on your team. This seat is still <strong>open</strong>.';
+            h += '<div class="relevant-addhint"><span class="relevant-addhint-ico">➕</span><span>' + _addMsg + '</span></div>';
+          }
+          if (groupKey === 'state_senator' || groupKey === 'state_rep') {
+            h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
+          } else {
+            h += _renderRelevantStatusSplit(officePids);
+          }
         }
         
         h += '</div></div></div>';
@@ -37659,17 +37864,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         houseDist: houseDist ? ('District ' + houseDist) : '',
         senateDist: senateDist ? ('District ' + senateDist) : '',
         lowerDist: lowerDist ? ('District ' + lowerDist) : '',
+        teamSel: _relevantTeamSelections(),
         levelExtras: null
       };
 
       // ── "Your 2026 Ballot" overview ────────────────────────────────────────
+      // Each tile is a seat in the voter's own districts. The status row turns the
+      // overview into a coverage map: green ✓ with the pick they've already added,
+      // or an amber "add your pick" nudge for a seat that's still open on their
+      // team. The border picks up the same color so coverage is scannable at a
+      // glance and tapping any tile jumps to that race to add or swap a pick.
       function _ballotChip(emoji, title, sub, levelKey, officeKey) {
-        var border = 'rgba(59,130,246,0.4)';
+        var cov = _relevantOfficeCoverage(officeKey, ctx.teamSel);
+        var filled = cov.tracked && cov.filled;
+        var open = cov.tracked && !cov.filled;
+        var rgb = filled ? '34,197,94' : (open ? '245,158,11' : '59,130,246');
+        var border = 'rgba(' + rgb + ',0.45)';
+        var hoverBorder = 'rgba(' + rgb + ',0.85)';
+        var statusRow = '';
+        if (filled) {
+          var nm = (CMP_DATA[cov.pid] && CMP_DATA[cov.pid].name) ? CMP_DATA[cov.pid].name : 'On your team';
+          statusRow = '<span class="rel-chip-status is-filled" title="On your team">✓ ' + _relTxt(nm) + '</span>';
+        } else if (open) {
+          statusRow = '<span class="rel-chip-status is-open">➕ Add your pick</span>';
+        }
         return '<button type="button" onclick="_relevantJump(\'' + levelKey + '\',\'' + officeKey + '\')" ' +
-          'style="text-align:left;display:flex;flex-direction:column;gap:0.12rem;background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(10,15,30,0.4));border:1px solid ' + border + ';border-radius:0.8rem;padding:0.6rem 0.8rem;cursor:pointer;transition:transform 0.15s,border-color 0.15s;min-height:44px;" ' +
-          'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.borderColor=\'rgba(96,165,250,0.85)\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'' + border + '\'">' +
+          'style="text-align:left;display:flex;flex-direction:column;gap:0.12rem;background:linear-gradient(135deg,rgba(' + rgb + ',0.12),rgba(10,15,30,0.4));border:1px solid ' + border + ';border-radius:0.8rem;padding:0.6rem 0.8rem;cursor:pointer;transition:transform 0.15s,border-color 0.15s;min-height:44px;" ' +
+          'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.borderColor=\'' + hoverBorder + '\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'' + border + '\'">' +
           '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.84rem;letter-spacing:0.03em;color:#fff;line-height:1.1;">' + emoji + ' ' + title + '</span>' +
           '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;letter-spacing:0.04em;color:#9fb4d4;line-height:1.15;">' + sub + '</span>' +
+          statusRow +
           '</button>';
       }
       var ballotChips = [];
@@ -37679,6 +37903,48 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (officeGroups.governor)       ballotChips.push(_ballotChip('⭐', 'Statewide Exec', 'Statewide · ' + stateName, 'state', 'governor'));
       if (officeGroups.senator)        ballotChips.push(_ballotChip('🏛', 'U.S. Senate', 'Statewide · ' + stateName, 'federal', 'senator'));
       if (officeGroups.local)          ballotChips.push(_ballotChip('🏙', 'Local', 'Your community', 'local', 'local'));
+
+      // ── District coverage tracker ──────────────────────────────────────────
+      // Turn the voter's own seats into a progress goal: how many already have a
+      // pick on their team, and which ones are still open. Same green/amber
+      // language as the chips and office headers, so the whole section agrees.
+      var _covOrder = ['representative', 'senator', 'state_senator', 'state_rep', 'governor', 'local'];
+      var _covOffices = _covOrder.filter(function(k) { return officeGroups[k] && officeGroups[k].length; });
+      var _covOpen = [];
+      var _covFilled = 0;
+      _covOffices.forEach(function(k) {
+        if (_relevantOfficeCoverage(k, ctx.teamSel).filled) _covFilled++;
+        else _covOpen.push(k);
+      });
+      var _covTotal = _covOffices.length;
+      var coverageStrip = '';
+      if (_covTotal > 0) {
+        var _covPct = Math.round((_covFilled / _covTotal) * 100);
+        var _covDone = _covFilled >= _covTotal;
+        var _stripClass = _covDone ? ' is-complete' : (_covFilled === 0 ? ' is-empty' : '');
+        var _covMsg, _covCta = '';
+        if (_covDone) {
+          _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> Review your slate below, or compare your full team to weigh them side by side.';
+        } else {
+          var _names = _covOpen.map(function(k) { return '<span class="rel-cov-open">' + _relTxt(_RELEVANT_OFFICE_SHORT[k] || k) + '</span>'; });
+          var _list = _names.length === 1 ? _names[0]
+            : _names.slice(0, -1).join(', ') + ' &amp; ' + _names[_names.length - 1];
+          _covMsg = 'Still open on your team: ' + _list + '. Add a pick for each to build a team that covers your whole ballot.';
+          var _firstOpen = _covOpen[0];
+          var _firstLevel = _RELEVANT_OFFICE_LEVEL[_firstOpen] || 'state';
+          _covCta = '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _firstLevel + '\',\'' + _firstOpen + '\')">➕ Fill your ' + _relTxt(_RELEVANT_OFFICE_SHORT[_firstOpen] || 'next') + ' seat</button>';
+        }
+        coverageStrip =
+          '<div class="relevant-coverage' + _stripClass + '">' +
+            '<div class="rel-cov-top">' +
+              '<span class="rel-cov-title">🗳️ Your district coverage</span>' +
+              '<span class="rel-cov-frac">' + _covFilled + ' of ' + _covTotal + ' seats on your team</span>' +
+            '</div>' +
+            '<div class="rel-cov-bar"><div class="rel-cov-fill" style="width:' + _covPct + '%;"></div></div>' +
+            '<p class="rel-cov-msg">' + _covMsg + '</p>' +
+            _covCta +
+          '</div>';
+      }
 
       var overview = '';
       if (ballotChips.length) {
@@ -37691,6 +37957,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // them": every chip is a real seat in the voter's own districts, and the
         // action is always the same — open it and add your pick to your team.
         overview += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.86rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.45;margin:0 0 0.85rem;">Each tile is a seat in <strong style="color:#fff;">your</strong> districts. Tap one to meet the people who hold it and who\'s running in 2026 — then <strong style="color:#fbbf24;">➕ Add to My Team</strong> the candidate who earns your vote.</p>';
+        overview += coverageStrip;
         overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
         // Compact in-place area switcher so voters can re-point the whole ballot
         // to another supported area without scrolling back up to "Your Key Races".
@@ -40658,6 +40925,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       _flashSavedBadge();
+
+      // Reflect the pick in the "Relevant to Me" district-coverage UI too, so the
+      // tracker and chips agree no matter which surface the voter picked from.
+      if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
 
       if (selections[raceKey]) {
         var raceIdx = -1;
