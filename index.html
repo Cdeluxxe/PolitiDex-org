@@ -12405,6 +12405,34 @@
       transition: transform 0.12s ease, border-color 0.15s ease;
     }
     #relevant-browse-grid .rel-cov-cta:hover { transform: translateY(-1px); border-color: rgba(251,191,36,0.85); }
+    /* Row holding the coverage strip's primary "Add" CTA plus an optional
+       secondary "Compare the field" action, wrapping cleanly on narrow screens. */
+    #relevant-browse-grid .rel-cov-actions {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.65rem;
+    }
+    #relevant-browse-grid .rel-cov-actions .rel-cov-cta { margin-top: 0; }
+    /* Secondary "Compare the field" button — calmer blue so the amber "Add" CTA
+       stays the clear primary action. */
+    #relevant-browse-grid .rel-cov-cta.is-compare {
+      background: linear-gradient(135deg, rgba(59,130,246,0.24), rgba(59,130,246,0.12));
+      border-color: rgba(96,165,250,0.5);
+      color: #cfe0f5;
+    }
+    #relevant-browse-grid .rel-cov-cta.is-compare:hover { border-color: rgba(147,197,253,0.85); }
+    /* Inline "Compare the field" button inside an open office's add-hint. */
+    #relevant-browse-grid .relevant-addhint-cmp {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      margin-left: 0.1rem; vertical-align: baseline;
+      padding: 0.12rem 0.55rem; border-radius: 0.55rem;
+      background: rgba(59,130,246,0.16); border: 1px solid rgba(96,165,250,0.5);
+      color: #cfe0f5; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    #relevant-browse-grid .relevant-addhint-cmp:hover {
+      border-color: rgba(147,197,253,0.85); background: rgba(59,130,246,0.24);
+    }
 
     /* Filled / open status badge shown on each "Your 2026 Ballot" chip. */
     #relevant-browse-grid .rel-chip-status {
@@ -38036,7 +38064,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             var _addMsg = officePids.length > 1
               ? 'Compare the candidates in your district, then tap <strong>⭐ Add to My Team</strong> on the one who earns your vote. This seat is still <strong>open</strong> on your team.'
               : 'Tap <strong>⭐ Add to My Team</strong> to put ' + _relTxt(_yours) + ' on your team. This seat is still <strong>open</strong>.';
-            h += '<div class="relevant-addhint"><span class="relevant-addhint-ico">➕</span><span>' + _addMsg + '</span></div>';
+            // When there's a real field, give the voter a one-tap way to weigh
+            // everyone running side by side before they commit a pick.
+            var _addCmp = officePids.length > 1
+              ? ' <button type="button" class="relevant-addhint-cmp" onclick="window._relevantCompareOffice(\'' + groupKey + '\')">⚖️ Compare the field</button>'
+              : '';
+            h += '<div class="relevant-addhint"><span class="relevant-addhint-ico">➕</span><span>' + _addMsg + _addCmp + '</span></div>';
           }
           if (groupKey === 'state_senator' || groupKey === 'state_rep') {
             h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
@@ -38173,6 +38206,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (target && typeof target.scrollIntoView === 'function') {
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+      } catch (e) {}
+    };
+
+    // Load every candidate in one of the voter's own races into the Compare tool
+    // and open it — the "explore my options before I commit" path the section
+    // promises. Falls back to simply jumping to the office when there's only one
+    // name to weigh (nothing to compare). The Compare overlay shows up to four
+    // columns, so a deep field is capped to keep the table readable.
+    window._relevantCompareOffice = function(groupKey) {
+      try {
+        var groups = window._relevantLastOfficeGroups || {};
+        var pids = (groups[groupKey] || []).filter(function(pid) { return CMP_DATA[pid]; });
+        if (pids.length < 2) {
+          var lvl = (typeof _RELEVANT_OFFICE_LEVEL !== 'undefined' && _RELEVANT_OFFICE_LEVEL[groupKey]) || 'state';
+          if (window._relevantJump) window._relevantJump(lvl, groupKey);
+          return;
+        }
+        var capped = pids.slice(0, 4);
+        if (typeof _cmpSelected !== 'undefined' && _cmpSelected) {
+          _cmpSelected.clear();
+          capped.forEach(function(pid) { _cmpSelected.add(pid); });
+        }
+        // Refresh the other grids' compare checkboxes so their state matches, then
+        // open the overlay (mirrors how My Team's "Compare All" launches).
+        if (typeof chubBuildAll === 'function') { try { chubBuildAll(); } catch (e) {} }
+        if (typeof _mypolBuildGrid === 'function') { try { _mypolBuildGrid(); } catch (e) {} }
+        if (typeof openCompare === 'function') openCompare();
       } catch (e) {}
     };
 
@@ -38622,6 +38682,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var total = Object.keys(picked).length;
       if (relevantCountBadge) relevantCountBadge.textContent = total;
 
+      // Publish the freshly-bucketed slate so the "Compare the field" actions
+      // (coverage strip + open-office hints) can hand an office's whole field
+      // straight to the Compare tool without recomputing the match.
+      window._relevantLastOfficeGroups = officeGroups;
+
       // Header line: reflect the voter's ACTUAL location as specifically as we can
       // — "Layton / Davis County" for a matched curated area, "City / County" for a
       // free-text entry, the county alone when that is all we have, and only the
@@ -38681,6 +38746,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         teamSel: _relevantTeamSelections(),
         levelExtras: null
       };
+
+      // Give voters a clear on-ramp into the FULL district tree for their own
+      // chambers — so "I want to see other options before I pick" has a home
+      // right inside this section instead of sending them elsewhere. Tucked under
+      // STATE LEVEL (where the many-seat chambers live) and collapsed by default
+      // so it never competes with the voter's own focused ballot above it.
+      try {
+        var _exploreState = stateName || 'Utah';
+        var _stateExplore = _relevantExploreSection(
+          _exploreState,
+          (senateDist != null && senateDist !== '') ? parseInt(senateDist, 10) : null,
+          (lowerDist  != null && lowerDist  !== '') ? parseInt(lowerDist, 10)  : null
+        );
+        if (_stateExplore) ctx.levelExtras = { state: _stateExplore };
+      } catch (e) {}
 
       // ── "Your 2026 Ballot" overview ────────────────────────────────────────
       // Each tile is a seat in the voter's own districts. The status row turns the
@@ -38779,10 +38859,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var _coveredLevels = ['federal', 'state', 'local'].filter(function(lv) {
             return lv !== _foLevel && _covOfficesInLevel(lv).length && !_covOpenInLevel(lv).length;
           });
+          // The voter's OWN voting districts they've already filled — powers the
+          // most motivating, district-specific nudge this section can give:
+          // "You've covered your U.S. House district — add your State Senator next."
+          var _coveredDistOffices = _covDistOffices.filter(function(k) {
+            return k !== _firstOpen && _relevantOfficeCoverage(k, ctx.teamSel).filled;
+          });
           var _lead;
           if (_lvlOfficeCount > 1 && _lvlOpenCount === 1) {
             // Filling this seat finishes its whole level.
             _lead = 'Add <span class="rel-cov-open">' + _foYours + '</span> to complete your <strong>' + _foLevelWord + '</strong> coverage.';
+          } else if (_RELEVANT_DISTRICT_OFFICES[_firstOpen] && _coveredDistOffices.length) {
+            // Celebrate a district seat already covered, then point at the next
+            // district gap by name — the exact "you've covered X, add Y" framing.
+            var _doneDist = _relTxt(_RELEVANT_OFFICE_SHORT[_coveredDistOffices[0]] || 'a district');
+            _lead = 'You’ve covered your <strong>' + _doneDist + '</strong> district — add <span class="rel-cov-open">' + _foYours + '</span> next.';
           } else if (_coveredLevels.length) {
             // Pat on the back for a level already done, then point at the next gap.
             var _doneWord = _RELEVANT_LEVEL_WORD[_coveredLevels[0]] || _coveredLevels[0];
@@ -38798,7 +38889,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _covMsg = _lead +
             (_moreOpen > 0 ? ' <span class="rel-cov-more">' + _moreOpen + ' more after that.</span>' : '') +
             ' Open it to compare the field and add your pick — it saves to My Team as you go.';
-          _covCta = '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _foLevel + '\',\'' + _firstOpen + '\')">➕ Add ' + _foShort + '</button>';
+          // Primary action jumps straight to the open seat. When that seat has a
+          // real field, offer a second tap that loads everyone running into the
+          // Compare tool — the "weigh my options before I commit" path.
+          var _foHasField = (officeGroups[_firstOpen] || []).length > 1;
+          _covCta = '<div class="rel-cov-actions">' +
+            '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _foLevel + '\',\'' + _firstOpen + '\')">➕ Add ' + _foShort + '</button>' +
+            (_foHasField ? '<button type="button" class="rel-cov-cta is-compare" onclick="window._relevantCompareOffice(\'' + _firstOpen + '\')">⚖️ Compare the field</button>' : '') +
+          '</div>';
         }
 
         // District-first sub-stat in the header: how many of the voter's OWN voting
@@ -38846,7 +38944,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         };
         var _bothBands = _distChips.length && _sharedChips.length;
         if (_distChips.length) {
-          if (_bothBands) overview += _bandLabel('📍 Your voting districts — seats only you elect');
+          if (_bothBands) {
+            // Surface the district coverage count right on the band label so
+            // "how many of MY districts are covered vs. still missing" reads
+            // instantly, before the voter even scans the individual chips.
+            var _distCountTag = _covDistTotal
+              ? ' <span style="color:' + (_covDistDone ? '#86efac' : '#fcd9a0') + ';">· ' + _covDistFilled + '/' + _covDistTotal + ' covered</span>'
+              : '';
+            overview += _bandLabel('📍 Your voting districts — seats only you elect' + _distCountTag);
+          }
           overview += _chipGrid(_distChips);
         }
         if (_sharedChips.length) {
