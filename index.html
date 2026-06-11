@@ -4927,6 +4927,36 @@
     .myteam-save-status.is-synced { background: rgba(96,165,250,0.08); border-color: rgba(96,165,250,0.28); color: #bfdbfe; }
     .myteam-save-status.is-synced .mss-dot { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.8); }
 
+    /* ── "What to do next" guided checklist ──────────────────────────── */
+    .myteam-guide { margin: 0 0 1.25rem; padding: 1rem 1.1rem 1.05rem; border-radius: 0.95rem; background: linear-gradient(135deg, rgba(245,158,11,0.07) 0%, rgba(10,15,30,0.45) 55%, rgba(26,58,107,0.12) 100%); border: 1px solid rgba(245,158,11,0.22); border-left: 3px solid rgba(245,158,11,0.65); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+    .myteam-guide.is-complete { background: linear-gradient(135deg, rgba(74,222,128,0.08) 0%, rgba(10,15,30,0.4) 60%, rgba(26,58,107,0.1) 100%); border-color: rgba(74,222,128,0.28); border-left-color: rgba(74,222,128,0.7); }
+    .myteam-guide-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
+    .myteam-guide-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fbbf24; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .myteam-guide.is-complete .myteam-guide-title { color: #86efac; }
+    .myteam-guide-count { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.06em; color: #9fb4d4; }
+    .myteam-guide-sub { font-family: 'Barlow', sans-serif; font-size: 0.8rem; line-height: 1.45; color: #cbd5e1; margin: 0.15rem 0 0.85rem; }
+    .myteam-guide-sub strong { color: #fff; font-weight: 700; }
+    .myteam-guide-steps { display: flex; flex-direction: column; gap: 0.4rem; }
+    .myteam-guide-step { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.7rem; border-radius: 0.65rem; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); transition: background 0.2s, border-color 0.2s; }
+    .myteam-guide-step.is-active { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); box-shadow: 0 0 18px rgba(245,158,11,0.08); }
+    .myteam-guide-step.is-done { opacity: 0.72; }
+    .myteam-guide-step.is-todo { opacity: 0.55; }
+    .myteam-guide-marker { flex: none; width: 1.55rem; height: 1.55rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; border: 1.5px solid rgba(255,255,255,0.18); color: #9fb4d4; background: rgba(255,255,255,0.03); }
+    .myteam-guide-step.is-done .myteam-guide-marker { background: rgba(74,222,128,0.16); border-color: rgba(74,222,128,0.5); color: #4ade80; }
+    .myteam-guide-step.is-active .myteam-guide-marker { background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.65); color: #fbbf24; box-shadow: 0 0 10px rgba(245,158,11,0.35); }
+    .myteam-guide-txt { min-width: 0; flex: 1; }
+    .myteam-guide-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem; letter-spacing: 0.02em; color: #e6eefb; line-height: 1.15; }
+    .myteam-guide-step.is-done .myteam-guide-label { color: #a7d8b6; text-decoration: line-through; text-decoration-color: rgba(74,222,128,0.4); }
+    .myteam-guide-desc { font-family: 'Barlow', sans-serif; font-size: 0.74rem; line-height: 1.35; color: #8aa0c2; margin-top: 0.08rem; }
+    .myteam-guide-go { flex: none; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #0a0f1e; background: linear-gradient(135deg, #fad96a, #e6b800); border: none; border-radius: 0.55rem; padding: 0.5rem 0.85rem; white-space: nowrap; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 3px 12px rgba(245,200,66,0.25); }
+    .myteam-guide-go:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(245,200,66,0.4); }
+    .myteam-guide.is-complete .myteam-guide-go { background: linear-gradient(135deg, #6ee7a8, #34d399); box-shadow: 0 3px 12px rgba(52,211,153,0.25); }
+    .myteam-guide.is-complete .myteam-guide-go:hover { box-shadow: 0 6px 16px rgba(52,211,153,0.4); }
+    @media (max-width: 560px) {
+      .myteam-guide-step { flex-wrap: wrap; }
+      .myteam-guide-go { width: 100%; margin-top: 0.4rem; margin-left: 2.25rem; }
+    }
+
     /* ── Per-office picks summary — compact scannable roster ─────────── */
     .myteam-office-summary { margin-bottom: 1.25rem; padding: 1rem 1.1rem; background: linear-gradient(135deg, rgba(245,158,11,0.05), rgba(10,15,30,0.4)); border: 1px solid rgba(245,158,11,0.18); border-radius: 0.9rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
     .myteam-office-summary-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
@@ -13461,6 +13491,13 @@
                 <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 picks chosen</div>
               </div>
             </div>
+
+            <!-- "What to do next" guided checklist — a state-aware roadmap that
+                 always points the visitor at their single most useful next action
+                 (set location → add a pick → match values → fill the ballot),
+                 then flips to a "ready" state once the team is built. Rendered by
+                 _renderTeamNextStep() on every builder repaint. -->
+            <div id="myteam-next-step"></div>
 
             <!-- Persistence reassurance — confirms the team is saved on this device
                  (and synced when signed in). Shown by _mypolBuildGrid once a pick
@@ -34554,6 +34591,125 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       el.style.display = '';
     }
 
+    // Returns the ballot key of the first office the visitor hasn't filled yet, so
+    // the guide's CTA can drop them straight onto the right race. Falls back to the
+    // Senate accordion if everything is somehow filled or state is unavailable.
+    function _myteamFirstOpenOffice() {
+      try {
+        var sel = _getTeamBallotSelections();
+        for (var i = 0; i < TEAM_POSITIONS.length; i++) {
+          var k = TEAM_POSITIONS[i].key;
+          if (!(sel[k] && CMP_DATA[sel[k]])) return k;
+        }
+      } catch (e) {}
+      return TEAM_POSITIONS && TEAM_POSITIONS[0] ? TEAM_POSITIONS[0].key : 'senate';
+    }
+
+    // Single entry point for the guided checklist's "do this" buttons. Each branch
+    // routes to the tool that completes that step — keeping the onclick markup tiny.
+    window._myteamGuideGo = function(which) {
+      try {
+        if (which === 'loc') {
+          if (window.toggleChangeLocation) window.toggleChangeLocation();
+        } else if (which === 'align') {
+          if (window.alignTogglePanel) window.alignTogglePanel(true);
+          var ap = document.getElementById('alignment-panel');
+          if (ap && ap.scrollIntoView) ap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (which === 'compare') {
+          if (window.myteamCompareAll) window.myteamCompareAll();
+        } else { // 'pick' / 'fill' — jump to the next open race
+          if (window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(_myteamFirstOpenOffice());
+        }
+      } catch (e) {}
+    };
+
+    // "What to do next" guided checklist. Surfaces the build journey as four
+    // milestones — set location, add a first pick, match values, fill the ballot —
+    // marks the ones already done, and highlights the single next action with a
+    // clear CTA. Once the ballot is full it flips to a celebratory "ready" state
+    // that points at Compare. This is the section's primary hand-holding for a
+    // first-time visitor who otherwise wouldn't know where to begin.
+    function _renderTeamNextStep(filledCount) {
+      var box = document.getElementById('myteam-next-step');
+      if (!box) return;
+      var total = (window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) || 6;
+
+      var locDone = !!window._hasUserLocation;
+      var pickDone = filledCount >= 1;
+      var alignDone = !!(window._alignIssues && window._alignIssues.size > 0);
+      var teamComplete = filledCount >= total;
+
+      var remaining = Math.max(0, total - filledCount);
+      var steps = [
+        { key: 'loc', icon: '📍', go: 'loc', done: locDone,
+          label: 'Set your location',
+          desc: 'See the exact races on your ballot — your real Senate, House &amp; local seats.',
+          cta: 'Set location' },
+        { key: 'pick', icon: '⭐', go: 'pick', done: pickDone,
+          label: 'Add your first pick',
+          desc: 'Find a candidate who earns it and tap <strong>➕ Add to My Team</strong>.',
+          cta: 'Add a pick' },
+        { key: 'align', icon: '🎯', go: 'align', done: alignDone,
+          label: 'Match your values',
+          desc: 'Use the <strong>Alignment Tool</strong> to see who actually fits what you believe.',
+          cta: 'Match values' },
+        { key: 'fill', icon: '🗳️', go: 'fill', done: teamComplete,
+          label: 'Fill all ' + total + ' ballot seats',
+          desc: pickDone && !teamComplete
+            ? '<strong>' + remaining + '</strong> ' + (remaining === 1 ? 'seat' : 'seats') + ' left — one pick per office, swap anytime.'
+            : 'One pick per office, from U.S. Senate down to local — swap anytime.',
+          cta: 'Fill a seat' }
+      ];
+
+      // Everything done → compact celebratory "ready" banner.
+      if (teamComplete && locDone && alignDone) {
+        box.innerHTML =
+          '<div class="myteam-guide is-complete">' +
+            '<div class="myteam-guide-head">' +
+              '<span class="myteam-guide-title">🎉 Your ballot team is ready</span>' +
+              '<span class="myteam-guide-count">' + total + '/' + total + ' seats filled</span>' +
+            '</div>' +
+            '<p class="myteam-guide-sub">Every seat is filled with someone who reflects <strong>your values</strong>, and it\'s <strong>saved on this device</strong> for election day. Compare your slate side-by-side or keep refining it.</p>' +
+            (filledCount >= 2
+              ? '<div class="myteam-guide-steps"><div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your team</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div></div>'
+              : '') +
+          '</div>';
+        box.style.display = '';
+        return;
+      }
+
+      // Otherwise → the journey checklist, highlighting the first incomplete step.
+      var doneCount = steps.filter(function(s) { return s.done; }).length;
+      var activeFound = false;
+      var rows = steps.map(function(s) {
+        var state, marker;
+        if (s.done) { state = 'is-done'; marker = '✓'; }
+        else if (!activeFound) { state = 'is-active'; marker = '▶'; activeFound = true; }
+        else { state = 'is-todo'; marker = '○'; }
+        var btn = state === 'is-active'
+          ? '<button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'' + s.go + '\')">' + s.cta + ' →</button>'
+          : '';
+        return '<div class="myteam-guide-step ' + state + '">' +
+            '<span class="myteam-guide-marker">' + marker + '</span>' +
+            '<span class="myteam-guide-txt">' +
+              '<span class="myteam-guide-label">' + s.icon + ' ' + s.label + '</span>' +
+              '<span class="myteam-guide-desc">' + s.desc + '</span>' +
+            '</span>' + btn +
+          '</div>';
+      }).join('');
+
+      box.innerHTML =
+        '<div class="myteam-guide">' +
+          '<div class="myteam-guide-head">' +
+            '<span class="myteam-guide-title">🧭 Your next step</span>' +
+            '<span class="myteam-guide-count">' + doneCount + '/' + steps.length + ' done</span>' +
+          '</div>' +
+          '<p class="myteam-guide-sub">Building your team takes about a minute. Follow these steps and your slate <strong>saves automatically</strong> as you go.</p>' +
+          '<div class="myteam-guide-steps">' + rows + '</div>' +
+        '</div>';
+      box.style.display = '';
+    }
+
     function _mypolBuildGrid() {
       var slotsGrid = document.getElementById('myteam-slots-grid');
       var teamEmpty = document.getElementById('myteam-empty');
@@ -34695,6 +34851,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       _renderTeamOfficeSummary(ballotSelections, filledCount);
       _renderTeamSaveStatus(filledCount);
+      _renderTeamNextStep(filledCount);
 
       var browseSlotsLabel = document.getElementById('myteam-browse-slots-label');
       var browseSlotsBar = document.getElementById('myteam-browse-slots-bar');
