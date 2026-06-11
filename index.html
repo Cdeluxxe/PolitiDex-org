@@ -13103,6 +13103,107 @@
       .kr-incumbent-panel { padding: 1rem 1rem 1.05rem; }
       .pdx-pfilter-btn { font-size: 0.68rem; padding: 0.45rem 0.75rem !important; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — PASS 4 (≤768px, with ≤480 / ≤380 refinements)
+       The site's primary politician card is the *unified compact card*
+       (.pdx-snap-*) shown everywhere a voter browses — the district tree,
+       All Politicians, Relevant to Me, Favorites and the Compare hub. Earlier
+       mobile passes tuned the .pm-card and #*-browse-grid .chub-card variants
+       but left this shared card largely at its desktop sizing, so on a phone
+       its issue tags and "why this matters" pills were too small to read, the
+       photo/name/score row felt tight, and its action row left the plain
+       "View Profile" text link as a sub-thumb tap target sitting beside a
+       pill-sized Compare button. This pass gives that card a roomier head,
+       legible chips, and a balanced full-width action row with two real
+       thumb-sized buttons. It also lifts a few core profile-modal content
+       controls (promise rows, stance cards, issue pills) and the Relevant /
+       Key Races section rhythm. Additive and phone-scoped only — no markup or
+       JS changes — and appended last so it reliably wins the cascade. The dark
+       patriotic palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · UNIFIED COMPACT CARD — roomier, more legible head ──────────
+         A touch more space between the photo, the name/office block and the
+         Promise-score rail so nothing reads as crammed against the next
+         element on a narrow screen. */
+      .pdx-snap-head { gap: 0.9rem; }
+      .pdx-snap-office { font-size: 0.86rem; line-height: 1.4; }
+      .pdx-snap-metrics { gap: 0.5rem; margin-top: 0.8rem; }
+      .pdx-snap-badges { gap: 0.4rem; margin-top: 0.5rem; }
+
+      /* Issue + metric chips were ~0.57rem — readable on a desktop grid but
+         genuinely hard to read on a phone. Nudge them up and give a little
+         more padding so they read as tappable, glanceable tags. */
+      .pdx-snap-issue { font-size: 0.66rem; padding: 0.2rem 0.6rem; }
+      .pdx-snap-comments, .pdx-snap-votes { font-size: 0.66rem; padding: 0.24rem 0.62rem; }
+
+      /* The clickable Promise-score pill doubles as the "how is this scored?"
+         affordance, so give it a comfortable minimum tap footprint. */
+      .pdx-snap-score-click { min-height: 48px; }
+
+      /* ── 2 · UNIFIED CARD ACTION ROW — two real thumb targets ───────────
+         The compare/profile row mixed a pill-sized "+ Compare" button with a
+         borderless "View Profile" text link (~no tap height). On phones, let
+         the row span the full card width and turn both into balanced, equal
+         buttons so either action is an easy, deliberate tap. (Cards that use
+         the richer .mypol-card-actions block are already full-width and keep
+         their own layout — this only reshapes the lightweight two-button
+         variant.) */
+      .pdx-snap-actions { width: 100%; gap: 0.55rem; }
+      .pdx-snap-actions > .chub-add-btn {
+        flex: 1 1 0 !important;
+        justify-content: center;
+        min-height: 46px !important;
+        font-size: 0.74rem !important;
+      }
+      .pdx-snap-actions > button:not(.chub-add-btn) {
+        flex: 1 1 0 !important;
+        min-height: 46px !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 0.85rem !important;
+        border: 1px solid rgba(117,150,192,0.28) !important;
+        border-radius: 0.55rem !important;
+        background: rgba(30,53,96,0.4) !important;
+        color: #9fb4d4 !important;
+        font-size: 0.74rem !important;
+      }
+
+      /* ── 3 · PROFILE MODAL CONTENT — comfortable, tappable rows ─────────
+         Promise rows expand on tap, so give them a real minimum height and a
+         little more breathing room; stance cards and issue pills get the same
+         readability lift the listing chips received. */
+      .promise-row { min-height: 52px; padding-top: 0.7rem !important; padding-bottom: 0.7rem !important; }
+      .stance-card { padding: 0.9rem 0.95rem; }
+      .issue-pill { min-height: 40px; font-size: 0.72rem; }
+
+      /* ── 4 · RELEVANT TO ME / KEY RACES — readable "why" tags & rhythm ──
+         The "why this is relevant to you" pills were ~0.56rem; lift them so
+         the personalised reasoning is actually readable, and give the
+         Relevant and Key Races blocks a touch more vertical separation. */
+      #relevant-browse-grid .relevant-why-pill { font-size: 0.66rem !important; padding: 0.18rem 0.55rem !important; }
+      #relevant-section { scroll-margin-top: 72px; }
+    }
+
+    @media (max-width: 480px) {
+      /* On the narrowest phones the compact card's name can dominate; keep it
+         strong but slightly trimmed, and let the photo shrink just enough to
+         leave the name/score room without crowding. */
+      .pdx-snap-name { font-size: 1.16rem; }
+      .pdx-photo { width: 52px; height: 52px; }
+      /* Stack the lightweight Compare / Profile actions when both labels would
+         otherwise be squeezed, so each stays a full-width, unmistakable tap. */
+      .pdx-snap-actions > .chub-add-btn,
+      .pdx-snap-actions > button:not(.chub-add-btn) { flex: 1 1 100% !important; }
+    }
+
+    @media (max-width: 380px) {
+      /* Tiniest screens: shave the card's score rail width a hair so it never
+         pushes the name onto too many lines. */
+      .pdx-snap-score { min-width: 56px; padding-left: 0.4rem; padding-right: 0.4rem; }
+    }
   </style>
 
       </head>
