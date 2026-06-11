@@ -5278,6 +5278,10 @@
       font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #93c5fd;
     }
     .myteam-dcov.is-complete .myteam-dcov-frac { color: #86efac; }
+    /* District-focused sub-stat ("X of 3 voting districts") — amber while a
+       district is still open, green once all the voter's districts are filled. */
+    .myteam-dcov-distfrac { color: #fcd9a0; }
+    .myteam-dcov-distfrac.is-done { color: #86efac; }
     .myteam-dcov-bar { height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.07); margin-bottom: 0.85rem; }
     .myteam-dcov-fill {
       height: 100%; border-radius: 999px;
@@ -35827,15 +35831,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return 'Statewide';
     }
 
+    // Ballot "level" for a slate seat — the tier a voter naturally reasons about:
+    // a federal office (U.S. Senate/House, President), a state office (Governor,
+    // State Senate/House, AG, etc.), or a local office. Lets the coverage view group
+    // seats the way a ballot actually reads and lets the guidance speak in those
+    // terms ("complete your federal coverage"). The National cabinet slate has no
+    // state/local seats, so its offices all count as federal.
+    var _MYTEAM_FED_KEYS = { senate: 1, house: 1, president: 1, vicepresident: 1, defense: 1, intel: 1, treasury: 1, homeland: 1 };
+    function _myteamSeatLevel(key) {
+      if (key === 'local') return 'local';
+      if (_MYTEAM_FED_KEYS[key]) return 'federal';
+      var st = (window._currentVoterLocation && window._currentVoterLocation.state) || '';
+      if (st === 'National') return 'federal';
+      return 'state';
+    }
+    var _MYTEAM_LEVELS = [
+      { id: 'federal', title: '\u{1F1FA}\u{1F1F8} Federal', word: 'federal' },
+      { id: 'state',   title: '\u{1F3DB}\u{FE0F} State',    word: 'state' },
+      { id: 'local',   title: '\u{1F3D9}\u{FE0F} Local',    word: 'local' }
+    ];
+
     function _renderTeamDistrictCoverage(ballotSelections, filledCount) {
       var box = document.getElementById('myteam-district-coverage');
       if (!box) return;
       var positions = window.TEAM_POSITIONS || [];
       if (!positions.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
-      // Render a single seat as a tappable coverage chip and tally it. A seat is
-      // "covered" when the voter has a pick saved for that office; tapping it jumps
-      // straight to the matching race so closing a gap is always one tap away.
+      function _isOn(pos) {
+        var pid = ballotSelections[pos.key];
+        return !!(pid && CMP_DATA[pid]);
+      }
+
+      // Render a single seat as a tappable coverage chip. A seat is "covered" when
+      // the voter has a pick saved for that office; tapping it jumps straight to the
+      // matching race so closing a gap is always one tap away. District-based seats
+      // carry their real district number in the scope line when we know it.
       function _seatHtml(pos) {
         var pid = ballotSelections[pos.key];
         var d = pid ? CMP_DATA[pid] : null;
@@ -35858,80 +35888,76 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</button>';
       }
 
-      // Split the slate into the voter's OWN voting districts — the geographically
-      // specific seats that only people who live there elect (their U.S. House,
-      // State Senate & State House districts) — versus the statewide & local seats
-      // that everyone in the state shares. Surfacing the districts as their own
-      // group, with their own coverage count, makes "which of MY districts have I
-      // covered" concrete and motivating rather than a flat 6-seat tally.
-      var districtSeats = [], otherSeats = [];
-      positions.forEach(function(pos) {
-        (_MYTEAM_DISTRICT_KEYS[pos.key] ? districtSeats : otherSeats).push(pos);
-      });
-
-      function _isOn(pos) {
-        var pid = ballotSelections[pos.key];
-        return !!(pid && CMP_DATA[pid]);
-      }
-      function _coveredCount(list) {
-        return list.filter(_isOn).length;
-      }
+      function _coveredCount(list) { return list.filter(_isOn).length; }
       function _firstOpen(list) {
         for (var i = 0; i < list.length; i++) { if (!_isOn(list[i])) return list[i]; }
         return null;
       }
 
-      var total = positions.length;
-      var covered = _coveredCount(positions);
+      // The voter's OWN voting districts — the geographically specific seats that
+      // only people who live there elect (their U.S. House, State Senate & State
+      // House districts). These get top billing because "which of MY districts have
+      // I covered" is the motivating question this whole view answers.
+      var districtSeats = positions.filter(function(p) { return _MYTEAM_DISTRICT_KEYS[p.key]; });
       var distCovered = _coveredCount(districtSeats);
       var distTotal = districtSeats.length;
-      // Prefer steering the voter at an open DISTRICT seat first — those are the
-      // races unique to them — then fall back to any remaining statewide/local gap.
-      var firstOpen = _firstOpen(districtSeats) || _firstOpen(otherSeats);
-
-      var pct = Math.round(covered / total * 100);
-      var done = covered >= total;
       var distDone = distTotal > 0 && distCovered >= distTotal;
+
+      var total = positions.length;
+      var covered = _coveredCount(positions);
+      var pct = total ? Math.round(covered / total * 100) : 0;
+      var done = covered >= total;
+
+      // Prefer steering the voter at an open DISTRICT seat first — those are the
+      // races unique to them — then fall back to any remaining gap on the slate.
+      var firstOpen = _firstOpen(districtSeats) || _firstOpen(positions);
 
       function _openLabel(pos) {
         var s = _myteamSeatScope(pos.key);
         return pos.label + (s.indexOf('District') === 0 ? ' (' + s + ')' : '');
       }
 
-      // Build the grouped grids. Each group renders only when it actually has seats,
-      // and carries its own covered/total badge (green once that group is complete).
-      function _groupHtml(title, list) {
+      // Group the grid by ballot level — Federal · State · Local — the tiers a voter
+      // actually reasons about. Each group renders only when it has seats and carries
+      // its own covered/total badge (green once that whole tier is complete), so the
+      // gap in any single level of the ballot is obvious at a glance.
+      function _groupHtml(level) {
+        var list = positions.filter(function(p) { return _myteamSeatLevel(p.key) === level.id; });
         if (!list.length) return '';
         var c = _coveredCount(list);
         var fracCls = c >= list.length ? 'myteam-dcov-groupfrac is-done' : 'myteam-dcov-groupfrac';
         return '<div class="myteam-dcov-group">' +
             '<div class="myteam-dcov-grouphead">' +
-              '<span class="myteam-dcov-grouptitle">' + title + '</span>' +
+              '<span class="myteam-dcov-grouptitle">' + level.title + '</span>' +
               '<span class="' + fracCls + '">' + c + '/' + list.length + ' covered</span>' +
             '</div>' +
             '<div class="myteam-dcov-grid">' + list.map(_seatHtml).join('') + '</div>' +
           '</div>';
       }
-      var groupsHtml =
-        _groupHtml('\u{1F4CD} Your voting districts', districtSeats) +
-        _groupHtml('\u{1F3DB}️ Statewide & local', otherSeats);
+      var groupsHtml = _MYTEAM_LEVELS.map(_groupHtml).join('');
 
-      // Gentle, state-aware guidance that always names the single next gap — and
-      // leans on the voter's own districts so the advice feels personal: "add your
-      // State House district", "compare your U.S. House district", etc.
+      // Gentle, level- and district-aware guidance that always names the single next
+      // gap. When that gap is the last open seat in its level it's framed as
+      // completing the tier ("complete your federal coverage"); when it's one of the
+      // voter's own voting districts it's framed in district terms ("you still need
+      // someone from your State House district"). Either way the wording is personal.
       var msg, cta = '';
       if (done) {
         msg = '\u{1F389} <strong>Every seat on your ballot has a pick</strong>' + (distTotal ? ', including all ' + distTotal + ' of your voting districts' : '') + '. Compare your slate below to weigh your picks side by side.';
       } else if (firstOpen) {
+        var lvlId = _myteamSeatLevel(firstOpen.key);
+        var lvl = _MYTEAM_LEVELS.filter(function(l) { return l.id === lvlId; })[0];
+        var lvlSeats = positions.filter(function(p) { return _myteamSeatLevel(p.key) === lvlId; });
+        var lvlOpen = lvlSeats.filter(function(p) { return !_isOn(p); }).length;
         var inDistrict = !!_MYTEAM_DISTRICT_KEYS[firstOpen.key];
         var openCount = total - covered;
         var lead;
-        if (covered === 0) {
+        if (lvl && lvlSeats.length > 1 && lvlOpen === 1) {
+          lead = 'Add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> to complete your <strong>' + lvl.word + '</strong> coverage.';
+        } else if (inDistrict) {
+          lead = 'You still need someone from your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
+        } else if (covered === 0) {
           lead = 'Nothing covered yet — start with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
-        } else if (!distDone && inDistrict) {
-          lead = '<strong>' + distCovered + ' of ' + distTotal + '</strong> of your voting districts covered — add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> next.';
-        } else if (distDone && distTotal) {
-          lead = 'All your voting districts are covered ✓ — round out your slate with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
         } else {
           lead = '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> next.';
         }
@@ -35947,11 +35973,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()">Set your location</button></div>';
       }
 
+      // District-focused sub-stat in the header so the motivating question — how many
+      // of MY voting districts are filled — is answered up top, no matter how the
+      // grid below is grouped.
+      var distFrac = distTotal
+        ? '<span class="myteam-dcov-frac myteam-dcov-distfrac' + (distDone ? ' is-done' : '') + '">\u{1F4CD} ' + distCovered + ' of ' + distTotal + ' voting districts</span>'
+        : '';
+
       box.classList.toggle('is-complete', done);
       box.innerHTML =
         '<div class="myteam-dcov-head">' +
-          '<span class="myteam-dcov-title">\u{1F5FA}️ Your Ballot Coverage</span>' +
+          '<span class="myteam-dcov-title">\u{1F5FA}\u{FE0F} Your District Coverage</span>' +
           '<span class="myteam-dcov-frac">' + covered + ' of ' + total + ' seats covered</span>' +
+          distFrac +
         '</div>' +
         '<div class="myteam-dcov-bar"><div class="myteam-dcov-fill" style="width:' + pct + '%;"></div></div>' +
         groupsHtml +
