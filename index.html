@@ -13268,7 +13268,7 @@
       <div class="relative overflow-hidden rounded-2xl border border-gold-400/35 px-6 py-5 backdrop-blur-md text-left" style="background:linear-gradient(135deg,rgba(13,21,38,0.85) 0%,rgba(10,15,30,0.7) 100%);box-shadow:0 0 28px rgba(245,200,66,0.12),inset 0 1px 0 rgba(255,255,255,0.05);">
         <p class="font-condensed text-xs tracking-[0.22em] uppercase text-gold-300 font-700 mb-2 flex items-center gap-2">👋 New here? Start with one small step</p>
         <p class="font-body text-steel-200 text-base sm:text-lg leading-relaxed">
-          <span class="text-white font-bold">Set your location</span>, then add your <span class="text-white font-bold">first politician</span> — usually someone already representing you. That's your first team pick. Build the rest one race at a time; there's no rush, and everything saves as you go.
+          <span class="text-white font-bold">Set your location</span> to see the <span class="text-white font-bold">districts you actually vote in</span>, then add your <span class="text-white font-bold">first politician</span> — usually someone already representing you. That's your first team pick. Build the rest one race at a time; there's no rush, and everything saves as you go.
         </p>
       </div>
     </div>
@@ -13449,7 +13449,7 @@
       <div class="sh-steps animate-on-scroll">
         <span class="sh-step"><b>1</b> Set your location</span>
         <span class="sh-arrow">→</span>
-        <span class="sh-step"><b>2</b> Pick the values you care about</span>
+        <span class="sh-step"><b>2</b> See your districts &amp; who represents you</span>
         <span class="sh-arrow">→</span>
         <span class="sh-step"><b>3</b> Build your voting team</span>
       </div>
@@ -13528,6 +13528,23 @@
           color:#fff;line-height:1.1;}
         #voter-hub .vh-step-d{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.45;color:#9fb4d4;margin-top:0.3rem;}
         #voter-hub .vh-step-d strong{color:#e6eefb;font-weight:700;}
+        /* Live "Your Path" tracker states — turns the static 3-step explainer into a
+           stateful, clickable spine: each step is done ✓ / active ▶ / still-to-come. */
+        #voter-hub .vh-step.is-clickable{cursor:pointer;}
+        #voter-hub .vh-step.is-done{border-color:rgba(74,222,128,0.4);background:linear-gradient(135deg,rgba(16,40,30,0.92),rgba(13,32,26,0.86));}
+        #voter-hub .vh-step.is-done .vh-step-n{background:linear-gradient(135deg,#4ade80,#22c55e);color:#06210f;box-shadow:0 4px 12px rgba(34,197,94,0.4);}
+        #voter-hub .vh-step.is-active{border-color:rgba(245,200,66,0.6);box-shadow:0 0 0 1px rgba(245,200,66,0.25),0 12px 30px rgba(0,0,0,0.4);}
+        #voter-hub .vh-step.is-todo{opacity:0.78;}
+        #voter-hub .vh-step-status{position:absolute;top:0.65rem;right:0.85rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+          font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:0.3rem;padding:0.18rem 0.5rem;border-radius:999px;}
+        #voter-hub .vh-step.is-done .vh-step-status{color:#86efac;background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.4);}
+        #voter-hub .vh-step.is-active .vh-step-status{color:#fad96a;background:rgba(245,200,66,0.14);border:1px solid rgba(245,200,66,0.45);}
+        #voter-hub .vh-step.is-todo .vh-step-status{color:#8aa0c4;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);}
+        #voter-hub .vh-step-cta{margin-top:0.7rem;display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;
+          font-weight:700;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;color:#0a0f1e;
+          background:linear-gradient(135deg,#fad96a,#e6b800);border:none;border-radius:0.6rem;padding:0.5rem 0.9rem;cursor:pointer;
+          transition:transform 0.15s ease,box-shadow 0.15s ease;box-shadow:0 4px 14px rgba(245,200,66,0.3);}
+        #voter-hub .vh-step-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,200,66,0.45);}
         /* Primary calls to action */
         #voter-hub .vh-cta-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.75rem;margin-top:1.8rem;}
         #voter-hub .vh-cta-primary{display:inline-flex;align-items:center;gap:0.55rem;cursor:pointer;
@@ -13578,24 +13595,32 @@
           </div>
         </div>
 
-        <!-- First-time guidance: three simple steps -->
-        <div class="vh-steps">
-          <div class="vh-step">
+        <!-- Live "Your Path" tracker — the page's connective spine. Starts as a
+             simple 3-step explainer and, once a location is set or picks are made,
+             updates in place to show what's done, what's next, and a one-tap action
+             for the current step. Rendered by window._vhSyncPathSteps(); the markup
+             below is the pre-JS / no-location default so it reads correctly on load. -->
+        <div class="vh-steps" id="vh-path-steps">
+          <div class="vh-step is-clickable is-active" onclick="window.toggleChangeLocation && window.toggleChangeLocation()">
+            <span class="vh-step-status">▶ Start here</span>
             <span class="vh-step-n">1</span>
             <span class="vh-step-ico">📍</span>
             <div class="vh-step-t">Set your location</div>
             <p class="vh-step-d">Tell us where you vote and we'll pull <strong>your real ballot</strong> — the exact races you'll decide.</p>
+            <button type="button" class="vh-step-cta" onclick="event.stopPropagation();window.toggleChangeLocation && window.toggleChangeLocation()">Set location →</button>
           </div>
-          <div class="vh-step">
+          <div class="vh-step is-todo">
+            <span class="vh-step-status">Up next</span>
             <span class="vh-step-n">2</span>
-            <span class="vh-step-ico">🔎</span>
-            <div class="vh-step-t">Meet who's running</div>
-            <p class="vh-step-d">See every candidate's <strong>promise score and values</strong> — no party spin, just the receipts.</p>
+            <span class="vh-step-ico">🗺️</span>
+            <div class="vh-step-t">See your districts</div>
+            <p class="vh-step-d">Your <strong>U.S. House, State Senate &amp; State House</strong> seats — and exactly who represents you in each.</p>
           </div>
-          <div class="vh-step">
+          <div class="vh-step is-todo">
+            <span class="vh-step-status">Up next</span>
             <span class="vh-step-n">3</span>
             <span class="vh-step-ico">⭐</span>
-            <div class="vh-step-t">Pick your team</div>
+            <div class="vh-step-t">Build your team</div>
             <p class="vh-step-d">Add the person who earns each seat. Your slate <strong>saves automatically</strong> for election day.</p>
           </div>
         </div>
@@ -31005,6 +31030,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // No hardcoded state or default city. Purely reflects whatever the user saved.
   window._vhSyncBanner = function() {
     try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
+    try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var grad = '<span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">';
     var cityEl    = document.getElementById('vh-loc-city');
@@ -31144,6 +31170,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<button type="button" onclick="window.jumpToRelevantAccordion(\'house\')" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">⭐ See who represents me →</button>' +
         '</div>' +
       '</div>';
+  };
+
+  // ── Live "Your Path" tracker ───────────────────────────────────────────────
+  // The connective spine that sits at the top of the Voter Hub. It mirrors the
+  // real state of the visitor's journey — Set location → See your districts →
+  // Build your team — marking each milestone done ✓ as it's reached and pointing
+  // a single clear "do this now" action at the current step. It reads the same
+  // globals the rest of the builder uses (window._hasUserLocation, the saved
+  // team count) so it can never drift out of sync, and is refreshed from both the
+  // location hook (_vhSyncBanner) and the team hook (_renderTeamNextStep).
+  window._vhSyncPathSteps = function() {
+    var host = document.getElementById('vh-path-steps');
+    if (!host) return;
+
+    var locDone = !!window._hasUserLocation;
+    var filled  = Math.max(0, window._myteamFilledCount || 0);
+    var total   = (window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) || 6;
+    var districtsDone = locDone && filled >= 1;   // "done" once they've engaged a race
+    var teamDone      = locDone && filled >= total;
+    var remaining     = Math.max(0, total - filled);
+
+    var steps = [
+      { n: 1, ico: '📍', title: 'Set your location', done: locDone,
+        desc: locDone
+          ? 'Locked in — your real ballot is loaded below.'
+          : 'Tell us where you vote and we\'ll pull <strong>your real ballot</strong> — the exact races you\'ll decide.',
+        cta: 'Set location →',
+        act: 'window.toggleChangeLocation&&window.toggleChangeLocation()' },
+      { n: 2, ico: '🗺️', title: 'See your districts', done: districtsDone,
+        desc: 'Your <strong>U.S. House, State Senate &amp; State House</strong> seats — and exactly who represents you in each.',
+        cta: 'See who represents me →',
+        act: "var e=document.getElementById('vh-district-strip');if(e)e.scrollIntoView({behavior:'smooth',block:'center'})" },
+      { n: 3, ico: '⭐', title: 'Build your team', done: teamDone,
+        desc: teamDone
+          ? 'All <strong>' + total + '</strong> seats filled with people who share your values.'
+          : (filled >= 1
+              ? '<strong>' + filled + '/' + total + '</strong> picked — <strong>' + remaining + '</strong> to go. One pick per office, swap anytime.'
+              : 'Add the person who earns each seat. Your slate <strong>saves automatically</strong> for election day.'),
+        cta: filled >= 1 ? 'Keep building →' : 'Start picking →',
+        act: 'window._myteamGuideGo&&window._myteamGuideGo(\'pick\')' }
+    ];
+
+    var activeAssigned = false;
+    host.innerHTML = steps.map(function(s) {
+      var state, statusTxt;
+      if (s.done) { state = 'is-done'; statusTxt = '✓ Done'; }
+      else if (!activeAssigned) { state = 'is-active'; statusTxt = '▶ Do this now'; activeAssigned = true; }
+      else { state = 'is-todo'; statusTxt = 'Up next'; }
+      var cta = state === 'is-active'
+        ? '<button type="button" class="vh-step-cta" onclick="event.stopPropagation();' + s.act + '">' + s.cta + '</button>'
+        : '';
+      return '<div class="vh-step is-clickable ' + state + '" onclick="' + s.act + '">' +
+          '<span class="vh-step-status">' + statusTxt + '</span>' +
+          '<span class="vh-step-n">' + (s.done ? '✓' : s.n) + '</span>' +
+          '<span class="vh-step-ico">' + s.ico + '</span>' +
+          '<div class="vh-step-t">' + s.title + '</div>' +
+          '<p class="vh-step-d">' + s.desc + '</p>' +
+          cta +
+        '</div>';
+    }).join('');
   };
 
   window._updateTeamPositionsForLocation = function() {
@@ -35929,6 +36015,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // that points at Compare. This is the section's primary hand-holding for a
     // first-time visitor who otherwise wouldn't know where to begin.
     function _renderTeamNextStep(filledCount) {
+      // Expose the live pick count so the Voter Hub "Your Path" spine can reflect
+      // build progress without re-deriving it from storage.
+      window._myteamFilledCount = filledCount;
+      try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
       var box = document.getElementById('myteam-next-step');
       if (!box) return;
       var total = (window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) || 6;
