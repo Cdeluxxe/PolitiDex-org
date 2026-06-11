@@ -37642,6 +37642,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { id: 'utah_co',      region: 'Wasatch Front', label: 'Provo / Utah County',                    city: 'Provo',           county: 'Utah County',      houseDistrict: 62, senateDistrict: 24, congressDistrict: 3 },
       { id: 'orem',         region: 'Wasatch Front', label: 'Orem',                                   city: 'Orem',            county: 'Utah County',      houseDistrict: 57, senateDistrict: 24, congressDistrict: 3 },
       { id: 'lehi',         region: 'Wasatch Front', label: 'Lehi / Eagle Mountain',                  city: 'Lehi',            county: 'Utah County',      houseDistrict: 52, senateDistrict: 22, congressDistrict: 4 },
+      { id: 'south_utah_co',region: 'Wasatch Front', label: 'Spanish Fork / Salem / South Utah County',city: 'Spanish Fork',    county: 'Utah County',      houseDistrict: 63, senateDistrict: 25, congressDistrict: 3 },
       { id: 'tooele',       region: 'Wasatch Front', label: 'Tooele / Grantsville / Tooele County',   city: 'Tooele',          county: 'Tooele County',    houseDistrict: 28, senateDistrict: 11, congressDistrict: 4 },
 
       // Northern Utah
@@ -38015,7 +38016,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       1:'ssandall', 2:'chris_wilson_s2', 3:'fillerup_s3', 5:'amillner', 6:'jstevenson',
       9:'jen_plumb_s9', 11:'lincoln_fillmore_s11', 12:'kwan_s12', 16:'harper_s16',
       17:'mccay_s11', 19:'cullimore_s19', 20:'ron_winterton_s20', 22:'brammer_s21',
-      24:'kgrover', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
+      24:'kgrover', 25:'mckell_s25', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
     };
 
     function _krGenericRace(location, raceKey, num) {
@@ -38106,59 +38107,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // City-specific matches first (so a city resolves to its own area before the
       // broader county fallback), then county-level fallbacks for anything else.
 
+      // City lists below are intentionally broad: every incorporated Utah town
+      // (plus common unincorporated communities) routes to the area whose
+      // U.S. House / State Senate / State House representation it shares, so a
+      // voter anywhere in the state resolves to the right slate even when only a
+      // small town name is known. County-level fallbacks catch anything else.
+
       // ── Salt Lake County ──
       if (city.indexOf('west valley') !== -1 || city === 'kearns' || city === 'magna') return 'west_valley';
       if (city.indexOf('west jordan') !== -1) return 'west_jordan';
-      if (city.indexOf('south jordan') !== -1 || city === 'riverton' || city === 'herriman' || city === 'bluffdale') return 'south_jordan';
-      if (city === 'sandy' || city.indexOf('cottonwood heights') !== -1 || city === 'midvale' || city === 'draper') return 'sandy';
-      if (city.indexOf('salt lake city') !== -1 || city === 'slc' || city === 'millcreek' || city === 'holladay' || city === 'murray' || city === 'taylorsville' || city === 'south salt lake') return 'slc';
+      if (city.indexOf('south jordan') !== -1 || city === 'riverton' || city === 'herriman' || city === 'bluffdale' || city === 'copperton') return 'south_jordan';
+      if (city === 'sandy' || city.indexOf('cottonwood heights') !== -1 || city === 'midvale' || city === 'draper' || city === 'alta' || city === 'brighton') return 'sandy';
+      if (city.indexOf('salt lake city') !== -1 || city === 'slc' || city === 'millcreek' || city === 'holladay' || city === 'murray' || city === 'taylorsville' || city === 'south salt lake' || city === 'emigration canyon') return 'slc';
       if (county.indexOf('salt lake') !== -1) return 'slc';
 
       // ── Davis County ──
       if (city === 'clearfield' || city === 'syracuse' || city === 'clinton' || city === 'west point' || city === 'sunset') return 'clearfield';
-      if (county.indexOf('davis') !== -1 || city === 'layton' || city === 'bountiful' || city === 'kaysville' || city === 'farmington' || city === 'centerville' || city === 'woods cross') return 'davis';
+      if (county.indexOf('davis') !== -1 || city === 'layton' || city === 'bountiful' || city === 'kaysville' || city === 'farmington' || city === 'centerville' || city === 'woods cross' || city === 'north salt lake' || city === 'west bountiful' || city === 'fruit heights' || city === 'south weber') return 'davis';
 
       // ── Weber County ──
       if (city === 'south ogden' || city === 'roy' || city === 'riverdale' || city === 'washington terrace') return 'south_ogden';
-      if (county.indexOf('weber') !== -1 || city === 'ogden' || city === 'north ogden' || city === 'west haven') return 'weber';
+      if (county.indexOf('weber') !== -1 || city === 'ogden' || city === 'north ogden' || city === 'west haven' || city === 'pleasant view' || city === 'farr west' || city === 'harrisville' || city === 'plain city' || city === 'marriott-slaterville' || city === 'hooper' || city === 'huntsville' || city === 'eden' || city === 'liberty') return 'weber';
 
       // ── Utah County ──
-      if (city === 'orem') return 'orem';
-      if (city === 'lehi' || city === 'eagle mountain' || city === 'saratoga springs' || city === 'american fork' || city === 'highland' || city === 'pleasant grove' || city === 'lindon' || city === 'alpine') return 'lehi';
-      if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'spanish fork' || city === 'springville' || city === 'payson') return 'utah_co';
+      if (city === 'spanish fork' || city === 'salem' || city === 'woodland hills' || city === 'elk ridge' || city === 'spring lake' || city === 'benjamin') return 'south_utah_co';
+      if (city === 'orem' || city === 'vineyard') return 'orem';
+      if (city === 'lehi' || city === 'eagle mountain' || city === 'saratoga springs' || city === 'american fork' || city === 'highland' || city === 'pleasant grove' || city === 'lindon' || city === 'alpine' || city === 'cedar hills' || city === 'cedar fort' || city === 'fairfield') return 'lehi';
+      if (county.indexOf('utah') !== -1 || city === 'provo' || city === 'springville' || city === 'mapleton' || city === 'payson' || city === 'santaquin' || city === 'goshen' || city === 'genola') return 'utah_co';
 
-      // ── Cache / Tooele ──
-      if (county.indexOf('box elder') !== -1 || city === 'brigham city') return 'box_elder';
-      if (county.indexOf('cache') !== -1 || city === 'logan' || city === 'north logan' || city === 'smithfield' || city === 'hyrum' || city === 'providence') return 'cache';
-      if (county.indexOf('rich') !== -1 || city === 'randolph' || city === 'garden city') return 'rich';
-      if (county.indexOf('tooele') !== -1 || city === 'tooele' || city === 'grantsville' || city === 'stansbury park') return 'tooele';
-      if (county.indexOf('morgan') !== -1 || city === 'morgan') return 'morgan';
-      if (county.indexOf('summit') !== -1 || city === 'coalville' || city === 'park city' || city === 'kamas') return 'summit';
+      // ── Northern Utah ──
+      if (county.indexOf('box elder') !== -1 || city === 'brigham city' || city === 'tremonton' || city === 'perry' || city === 'willard' || city === 'mantua' || city === 'garland' || city === 'corinne' || city === 'bear river city' || city === 'deweyville' || city === 'fielding' || city === 'honeyville' || city === 'snowville' || city === 'plymouth' || city === 'portage') return 'box_elder';
+      if (county.indexOf('cache') !== -1 || city === 'logan' || city === 'north logan' || city === 'smithfield' || city === 'hyrum' || city === 'providence' || city === 'nibley' || city === 'river heights' || city === 'wellsville' || city === 'mendon' || city === 'millville' || city === 'hyde park' || city === 'lewiston' || city === 'richmond' || city === 'cornish' || city === 'clarkston' || city === 'newton' || city === 'trenton' || city === 'paradise' || city === 'amalga') return 'cache';
+      if (county.indexOf('rich') !== -1 || city === 'randolph' || city === 'garden city' || city === 'laketown' || city === 'woodruff') return 'rich';
+      if (county.indexOf('tooele') !== -1 || city === 'tooele' || city === 'grantsville' || city === 'stansbury park' || city === 'erda' || city === 'lake point' || city === 'stockton' || city === 'wendover' || city === 'vernon' || city === 'rush valley' || city === 'ophir' || city === 'dugway') return 'tooele';
+      if (county.indexOf('morgan') !== -1 || city === 'morgan' || city === 'mountain green' || city === 'croydon' || city === 'porterville') return 'morgan';
+      if (county.indexOf('summit') !== -1 || city === 'coalville' || city === 'park city' || city === 'kamas' || city === 'oakley' || city === 'francis' || city === 'henefer' || city === 'hoytsville' || city === 'peoa' || city === 'snyderville' || city === 'wanship' || city === 'marion') return 'summit';
 
       // ── Eastern Utah ──
-      if (county.indexOf('daggett') !== -1 || city === 'manila') return 'daggett';
-      if (county.indexOf('duchesne') !== -1 || city === 'duchesne' || city === 'roosevelt') return 'duchesne';
-      if (county.indexOf('uintah') !== -1 || city === 'vernal' || city === 'naples') return 'uintah';
-      if (county.indexOf('carbon') !== -1 || city === 'price' || city === 'helper') return 'carbon';
-      if (county.indexOf('emery') !== -1 || city === 'castle dale' || city === 'huntington' || city === 'green river') return 'emery';
-      if (county.indexOf('grand') !== -1 || city === 'moab') return 'grand';
-      if (county.indexOf('san juan') !== -1 || city === 'monticello' || city === 'blanding' || city === 'bluff') return 'san_juan';
+      if (county.indexOf('daggett') !== -1 || city === 'manila' || city === 'dutch john') return 'daggett';
+      if (county.indexOf('duchesne') !== -1 || city === 'duchesne' || city === 'roosevelt' || city === 'myton' || city === 'altamont' || city === 'tabiona' || city === 'neola' || city === 'fruitland' || city === 'bluebell' || city === 'hanna' || city === 'talmage') return 'duchesne';
+      if (county.indexOf('uintah') !== -1 || city === 'vernal' || city === 'naples' || city === 'ballard' || city === 'jensen' || city === 'lapoint' || city === 'tridell' || city === 'fort duchesne' || city === 'whiterocks' || city === 'gusher' || city === 'randlett') return 'uintah';
+      if (county.indexOf('carbon') !== -1 || city === 'price' || city === 'helper' || city === 'wellington' || city === 'east carbon' || city === 'sunnyside' || city === 'scofield' || city === 'kenilworth' || city === 'spring glen') return 'carbon';
+      if (county.indexOf('emery') !== -1 || city === 'castle dale' || city === 'huntington' || city === 'green river' || city === 'ferron' || city === 'orangeville' || city === 'cleveland' || city === 'elmo' || city === 'clawson' || city === 'emery') return 'emery';
+      if (county.indexOf('grand') !== -1 || city === 'moab' || city === 'castle valley' || city === 'thompson springs' || city === 'spanish valley') return 'grand';
+      if (county.indexOf('san juan') !== -1 || city === 'monticello' || city === 'blanding' || city === 'bluff' || city === 'montezuma creek' || city === 'mexican hat' || city === 'la sal' || city === 'aneth' || city === 'white mesa' || city === 'halchita') return 'san_juan';
 
       // ── Central Utah ──
-      if (county.indexOf('wasatch') !== -1 || city === 'heber city' || city === 'midway') return 'wasatch';
-      if (county.indexOf('juab') !== -1 || city === 'nephi') return 'juab';
-      if (county.indexOf('sanpete') !== -1 || city === 'manti' || city === 'ephraim' || city === 'mount pleasant') return 'sanpete';
-      if (county.indexOf('millard') !== -1 || city === 'fillmore' || city === 'delta') return 'millard';
-      if (county.indexOf('sevier') !== -1 || city === 'richfield' || city === 'salina') return 'sevier';
-      if (county.indexOf('piute') !== -1 || city === 'junction') return 'piute';
-      if (county.indexOf('wayne') !== -1 || city === 'loa' || city === 'bicknell') return 'wayne';
+      if (county.indexOf('wasatch') !== -1 || city === 'heber city' || city === 'heber' || city === 'midway' || city === 'charleston' || city === 'daniel' || city === 'wallsburg' || city === 'independence' || city === 'hideout') return 'wasatch';
+      if (county.indexOf('juab') !== -1 || city === 'nephi' || city === 'mona' || city === 'levan' || city === 'eureka' || city === 'rocky ridge') return 'juab';
+      if (county.indexOf('sanpete') !== -1 || city === 'manti' || city === 'ephraim' || city === 'mount pleasant' || city === 'gunnison' || city === 'fairview' || city === 'moroni' || city === 'spring city' || city === 'fountain green' || city === 'mayfield' || city === 'centerfield' || city === 'fayette' || city === 'sterling' || city === 'wales' || city === 'chester') return 'sanpete';
+      if (county.indexOf('millard') !== -1 || city === 'fillmore' || city === 'delta' || city === 'hinckley' || city === 'oak city' || city === 'holden' || city === 'scipio' || city === 'lynndyl' || city === 'leamington' || city === 'meadow' || city === 'kanosh' || city === 'deseret') return 'millard';
+      if (county.indexOf('sevier') !== -1 || city === 'richfield' || city === 'salina' || city === 'monroe' || city === 'redmond' || city === 'aurora' || city === 'sigurd' || city === 'glenwood' || city === 'central valley' || city === 'joseph' || city === 'elsinore' || city === 'annabella' || city === 'koosharem') return 'sevier';
+      if (county.indexOf('piute') !== -1 || city === 'junction' || city === 'circleville' || city === 'marysvale' || city === 'kingston' || city === 'greenwich') return 'piute';
+      if (county.indexOf('wayne') !== -1 || city === 'loa' || city === 'bicknell' || city === 'torrey' || city === 'hanksville' || city === 'lyman' || city === 'teasdale' || city === 'fremont' || city === 'caineville' || city === 'grover') return 'wayne';
 
       // ── Southern Utah ──
-      if (county.indexOf('beaver') !== -1 || city === 'beaver') return 'beaver';
-      if (county.indexOf('garfield') !== -1 || city === 'panguitch' || city === 'boulder' || city === 'escalante') return 'garfield';
-      if (county.indexOf('kane') !== -1 || city === 'kanab' || city === 'orderville') return 'kane';
-      if (county.indexOf('iron') !== -1 || city.indexOf('cedar city') !== -1 || city === 'enoch') return 'cedar_city';
-      if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1 || city === 'hurricane' || city === 'washington' || city === 'santa clara' || city === 'ivins') return 'washington';
+      if (county.indexOf('beaver') !== -1 || city === 'beaver' || city === 'milford' || city === 'minersville' || city === 'greenville' || city === 'adamsville') return 'beaver';
+      if (county.indexOf('garfield') !== -1 || city === 'panguitch' || city === 'boulder' || city === 'escalante' || city === 'tropic' || city === 'henrieville' || city === 'cannonville' || city === 'hatch' || city === 'antimony' || city === 'bryce canyon' || city === 'bryce') return 'garfield';
+      if (county.indexOf('kane') !== -1 || city === 'kanab' || city === 'orderville' || city === 'glendale' || city === 'mount carmel' || city === 'alton' || city === 'big water' || city === 'duck creek village') return 'kane';
+      if (county.indexOf('iron') !== -1 || city.indexOf('cedar city') !== -1 || city === 'enoch' || city === 'parowan' || city === 'paragonah' || city === 'kanarraville' || city === 'brian head') return 'cedar_city';
+      if (county.indexOf('washington') !== -1 || city.indexOf('george') !== -1 || city === 'hurricane' || city === 'washington' || city === 'santa clara' || city === 'ivins' || city === 'la verkin' || city === 'toquerville' || city === 'leeds' || city === 'springdale' || city === 'rockville' || city === 'virgin' || city === 'apple valley' || city === 'enterprise' || city === 'veyo' || city === 'central' || city === 'dammeron valley' || city === 'pine valley' || city === 'gunlock' || city === 'hildale') return 'washington';
       return '';
     }
 
