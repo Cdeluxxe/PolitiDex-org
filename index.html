@@ -9250,6 +9250,27 @@
     .align-compact-btn-arrow { transition: transform 0.18s ease; }
     .align-compact-btn:hover .align-compact-btn-arrow { transform: translateX(3px); }
 
+    /* Compact card layout: status + plain-language tagline on the left, the
+       primary "open the picker" CTA and the teal forward action on the right. */
+    .align-compact-info { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; flex: 1 1 240px; }
+    .align-compact-tagline {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.01em; color: #9fb0d0; line-height: 1.45; text-transform: none;
+    }
+    .align-compact-actions { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+    /* Teal echoes the "Your Match" colour used on every card, so the action that
+       surfaces matches reads as the same feature, not a separate button. */
+    .align-compact-matches {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 800;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #5eead4;
+      background: rgba(20,184,166,0.12); border: 1px solid rgba(94,234,212,0.45);
+      border-radius: 999px; padding: 0.58rem 1.1rem; cursor: pointer;
+      box-shadow: 0 2px 14px rgba(20,184,166,0.16); transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .align-compact-matches:hover { background: rgba(20,184,166,0.2); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(20,184,166,0.32); }
+    .align-compact-matches:active { transform: translateY(0); }
+
     /* Expandable body — grid trick animates to natural content height */
     .align-expandable {
       display: grid; grid-template-rows: 1fr; opacity: 1; margin-top: 0;
@@ -9269,8 +9290,37 @@
     }
     .align-collapse-link:hover { color: #c4b5fd; border-color: rgba(168,85,247,0.5); background: rgba(139,92,246,0.14); transform: translateY(-1px); }
 
+    /* Footer of the open tool: collapse on the left, a teal "you're done — go act on
+       your matches" forward action on the right once issues are picked. */
+    .align-done-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem;
+    }
+    .align-done-row .align-collapse-link { margin-top: 0; }
+    .align-done-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #062a25;
+      background: linear-gradient(135deg, #5eead4, #14b8a6);
+      border: 1px solid rgba(94,234,212,0.6);
+      border-radius: 999px; padding: 0.5rem 1.1rem; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(20,184,166,0.3); transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .align-done-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(20,184,166,0.45); }
+    .align-done-btn:active { transform: translateY(0); }
+
+    /* Brief teal halo when alignSeeMatches() drops the visitor onto the candidate
+       list, so it's obvious the list re-sorted to their best matches. */
+    @keyframes alignFlash {
+      0% { box-shadow: 0 0 0 0 rgba(94,234,212,0); }
+      30% { box-shadow: 0 0 0 3px rgba(94,234,212,0.55), 0 0 22px rgba(20,184,166,0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(94,234,212,0); }
+    }
+    .align-flash { animation: alignFlash 1.2s ease-out; border-radius: 0.85rem; }
+
     @media (prefers-reduced-motion: reduce) {
       .align-expandable, .align-head-chev, .align-compact-btn { transition: none; }
+      .align-flash { animation: none; }
     }
     .align-chip {
       display: inline-flex;
@@ -14609,13 +14659,24 @@
             <button onclick="alignClearAll()" class="align-clear-btn font-condensed text-xs text-purple-400 hover:text-purple-300 tracking-wider uppercase transition-colors" style="background:none;border:none;padding:0;">Clear Issues</button>
           </div>
 
-          <!-- Compact (collapsed) call-to-action: status + a prominent button that opens the full tool -->
+          <!-- Compact (collapsed) call-to-action: a plain-language status + tagline that
+               frames the tool around team-building, the primary "open the picker" button,
+               and — once issues are chosen — a forward action that jumps straight to the
+               best-match candidates so the visitor can act on their alignment. -->
           <div class="align-compact" id="align-compact">
-            <span class="align-compact-status" id="align-compact-status">No positions selected yet</span>
-            <button type="button" class="align-compact-btn" onclick="alignTogglePanel(true)">
-              <span id="align-compact-btn-label">Start Matching Politicians</span>
-              <span class="align-compact-btn-arrow" aria-hidden="true">→</span>
-            </button>
+            <div class="align-compact-info">
+              <span class="align-compact-status" id="align-compact-status">No positions selected yet</span>
+              <span class="align-compact-tagline" id="align-compact-tagline">Pick the issues you care about, then compare the candidates running in your district and add your best matches to your team.</span>
+            </div>
+            <div class="align-compact-actions">
+              <button type="button" class="align-compact-btn" onclick="alignTogglePanel(true)">
+                <span id="align-compact-btn-label">Start Matching Politicians</span>
+                <span class="align-compact-btn-arrow" aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="align-compact-matches" id="align-compact-matches" onclick="alignSeeMatches()" style="display:none;">
+                🎯 See My Best Matches <span class="align-compact-btn-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
 
           <!-- Expandable body: the full picker. Animates open via grid-template-rows. -->
@@ -14626,7 +14687,7 @@
                    steps, no tutorial. -->
               <div class="pdx-hint pdx-hint-purple" style="margin-bottom:1rem;">
                 <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
-                <p class="pdx-hint-text"><strong>How to use this:</strong> ① check the positions you actually believe in below — pick as few or as many as you like. ② Every politician on the site instantly gets a <strong>Your Match %</strong> showing how their record fits your values. ③ Add your best matches to your team. You can change your picks anytime.</p>
+                <p class="pdx-hint-text"><strong>How to use this:</strong> ① check the positions you actually believe in below — pick as few or as many as you like. ② Every politician on the site instantly gets a <strong>Your Match %</strong> showing how their record fits your values. ③ Compare the candidates running in your district side by side, then add your strongest matches to your team. You can change your picks anytime.</p>
               </div>
 
               <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
@@ -14670,8 +14731,13 @@
                 <span>Save these positions as your personal <strong>Alignment Signature</strong> — sign in and your picks follow you across devices, so your personalized matches and top races load automatically every time.</span>
               </div>
 
-              <!-- Collapse back to the compact card -->
-              <button type="button" class="align-collapse-link" onclick="alignTogglePanel(false)"><span aria-hidden="true">⌃</span> Collapse tool</button>
+              <!-- Collapse back to the compact card, plus a forward action (shown once
+                   issues are chosen) that takes the visitor straight to their best-match
+                   candidates so picking issues flows naturally into building the team. -->
+              <div class="align-done-row">
+                <button type="button" class="align-collapse-link" onclick="alignTogglePanel(false)"><span aria-hidden="true">⌃</span> Collapse tool</button>
+                <button type="button" class="align-done-btn" id="align-done-btn" onclick="alignSeeMatches()" style="display:none;">✓ Done — see my best matches <span aria-hidden="true">→</span></button>
+              </div>
             </div>
           </div>
         </div>
@@ -42347,6 +42413,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       var cbl = document.getElementById('align-compact-btn-label');
       if (cbl) cbl.textContent = (n === 0) ? 'Start Matching Politicians' : 'Adjust My Alignment';
+      // Once the visitor has picks, reframe the tagline around acting on the results
+      // and reveal the forward actions that jump to their best-match candidates.
+      var ct = document.getElementById('align-compact-tagline');
+      if (ct) ct.textContent = (n === 0)
+        ? 'Pick the issues you care about, then compare the candidates running in your district and add your best matches to your team.'
+        : 'Your Match % now shows on every candidate — see who fits you best and add your top picks to your team.';
+      var cm = document.getElementById('align-compact-matches');
+      if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
+      var dn = document.getElementById('align-done-btn');
+      if (dn) dn.style.display = (n === 0) ? 'none' : 'inline-flex';
     }
 
     // Personalized Alignment Tool: a compact-by-default feature card that expands
@@ -42363,6 +42439,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       panel.classList.toggle('align-expanded', willOpen);
       var head = panel.querySelector('.align-head-main');
       if (head) head.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    };
+
+    // Closes the loop from "I picked my issues" to "show me who to add." Collapses
+    // the tool, re-asserts the alignment-aware "Best Match for You" browse sort, and
+    // scrolls the visitor straight to the candidate list so their alignment turns
+    // directly into team-building decisions. Used by both the compact card's
+    // "See My Best Matches" button and the open tool's "Done" action.
+    window.alignSeeMatches = function() {
+      var hasPicks = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      if (window.alignTogglePanel) window.alignTogglePanel(false);
+      if (hasPicks) {
+        // Let the auto-default kick back in so the strongest matches lead the list.
+        window._myteamBrowseSortAuto = true;
+        if (typeof myteamBrowseFilter === 'function') myteamBrowseFilter();
+      }
+      var target = document.getElementById('browse-toolbar') || document.getElementById('myteam-browse-grid');
+      if (target) {
+        setTimeout(function() {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.classList.add('align-flash');
+          setTimeout(function() { target.classList.remove('align-flash'); }, 1200);
+        }, 140);
+      }
     };
 
     function _alignRenderPickers() {
