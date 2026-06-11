@@ -4186,6 +4186,26 @@
       }
       .chub-card.is-candidate:hover::before { opacity: 1; }
     }
+    /* ── "Already on your team" — glanceable whole-card treatment ────────────
+       So a voter scanning a long grid (district tree, All Politicians, Relevant
+       to Me, Favorites) can instantly see which picks are already theirs without
+       reading each button. A bright-mint left rail + green glow reads as "mine"
+       at a glance. Layered on top of the incumbent / candidate base styles and
+       deliberately placed AFTER them in source order so it wins the cascade; it
+       never collides with the compare ✓ medallion, which owns the top-right
+       corner. Kept in the dark patriotic palette (the same mint green used by the
+       team buttons and the My Voting Team slots). */
+    .chub-card.pdx-on-team {
+      border-color: rgba(74,222,128,0.55);
+      box-shadow: inset 4px 0 0 0 #4ade80, 0 0 0 1px rgba(74,222,128,0.30), 0 10px 32px rgba(0,0,0,0.42), 0 0 22px rgba(74,222,128,0.14);
+    }
+    @media (hover: hover) {
+      .chub-card.pdx-on-team:hover {
+        border-color: rgba(74,222,128,0.78);
+        transform: translateY(-3px);
+        box-shadow: inset 4px 0 0 0 #4ade80, 0 0 0 1px rgba(74,222,128,0.42), 0 14px 44px rgba(0,0,0,0.5), 0 0 30px rgba(74,222,128,0.24);
+      }
+    }
     .chub-candidate-norecord {
       display: inline-flex;
       align-items: center;
@@ -34081,7 +34101,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         controls: _pdxHeartCtrl(pid),
         badges: favBadge + _pdxLocalBadge(pid),
         extra: alignBar,
-        actions: _pdxCompareActions(pid)
+        actions: _pdxTeamActions(pid)
       });
     }
 
@@ -34896,11 +34916,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
       var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
       var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
+      // Light, contextual guidance on each action so a browsing voter knows the
+      // good next step without extra on-card clutter: add fills a ballot seat,
+      // compare weighs them against the others in the race, profile reads the
+      // full record first.
+      var addTitle = isMy ? 'On your team — click to remove' : 'Add to your voting team — fills their seat in My Voting Team';
+      var cmpTitle = isMy ? 'Compare them against the others in this race' : 'Not sure yet? Compare with others in this race first';
       return '<div class="mypol-card-actions" style="width:100%;">' +
-          '<button class="' + addBtnClass + ' mypol-act-add" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
+          '<button class="' + addBtnClass + ' mypol-act-add" title="' + addTitle + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
           '<div class="mypol-card-actions-secondary">' +
-            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" data-pid="' + pid + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
-            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile">View Profile</button>' +
+            '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" data-pid="' + pid + '" title="' + cmpTitle + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
+            '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile" title="See their full record and promises first">View Profile</button>' +
           '</div>' +
         '</div>';
     }
@@ -35048,7 +35074,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       opts = opts || {};
       var inner = window._pdxCardInner(pid, opts);
       if (!inner) return '';
-      var cls = 'chub-card pdx-card' + (opts.cardClass ? ' ' + opts.cardClass : '');
+      // Glanceable "already on your team" state — one chokepoint so the same
+      // mint rail + glow appears on every browse surface (district tree, All
+      // Politicians, Relevant to Me, Favorites, Compare hub) the moment a pick
+      // is added, and persists so it's obvious what's already on the team.
+      var onTeam = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid);
+      var cls = 'chub-card pdx-card' + (opts.cardClass ? ' ' + opts.cardClass : '') + (onTeam ? ' pdx-on-team' : '');
       var style = 'cursor:pointer;' + (opts.cardStyle || '');
       var idAttr = opts.cardId ? ' id="' + opts.cardId + '"' : '';
       return '<div class="' + cls + '" data-pid="' + pid + '"' + idAttr +
@@ -35934,7 +35965,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       return window._pdxCardShell(pid, {
         cardClass: isInOffice ? 'is-incumbent' : '',
-        cardStyle: (!isInOffice && isMy) ? 'border-color:rgba(74,222,128,0.25);' : '',
         controls: _pdxHeartCtrl(pid),
         badges: _pdxLocalBadge(pid) + _pdxTeamBadge(pid),
         extra: alignBar,
