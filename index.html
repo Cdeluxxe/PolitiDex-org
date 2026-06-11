@@ -6367,6 +6367,43 @@
       .kr-action-btn { font-size: 0.62rem; letter-spacing: 0.03em; }
     }
 
+    /* ── Per-race "Compare these candidates" CTA ─────────────────────────────
+       The bridge between browsing a race and choosing a pick: one tap loads
+       every candidate in THIS seat into the side-by-side compare tool, so a
+       voter weighs the people running against each other before adding anyone
+       to their team. Blue to read as a research/decision step, sitting just
+       above the gold "Add to My Team" commitment so the flow reads top-to-
+       bottom: see who's running → compare them → pick one. */
+    .kr-race-compare {
+      width: 100%; display: flex; align-items: center; gap: 0.7rem;
+      text-align: left; cursor: pointer; min-height: 48px;
+      padding: 0.7rem 0.95rem; border-radius: 0.85rem;
+      background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(37,99,235,0.07));
+      border: 1.5px solid rgba(96,165,250,0.45);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kr-race-compare:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, rgba(59,130,246,0.26), rgba(37,99,235,0.12));
+      border-color: rgba(96,165,250,0.7);
+      box-shadow: 0 6px 20px rgba(59,130,246,0.18);
+    }
+    .kr-race-compare:active { transform: scale(0.99); }
+    .kr-race-compare-ico {
+      flex: 0 0 auto; width: 36px; height: 36px; border-radius: 0.6rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+      background: rgba(96,165,250,0.16); border: 1px solid rgba(96,165,250,0.4);
+    }
+    .kr-race-compare-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .kr-race-compare-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.84rem; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #bfdbfe; line-height: 1.1;
+    }
+    .kr-race-compare-sub { font-family: 'Barlow', sans-serif; font-size: 0.68rem; color: #9fb4d4; line-height: 1.3; }
+    .kr-race-compare-go { flex: 0 0 auto; color: #93c5fd; font-size: 1.2rem; line-height: 1; }
+    @media (max-width: 380px) { .kr-race-compare-sub { font-size: 0.64rem; } .kr-race-compare-title { font-size: 0.78rem; } }
+
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
@@ -14365,7 +14402,7 @@
                  reads as a friendly nudge, not an instruction manual. -->
             <div class="pdx-hint mt-5">
               <span class="pdx-hint-ico" aria-hidden="true">🗳️</span>
-              <p class="pdx-hint-text"><strong>What to do here:</strong> these are the offices you'll actually vote on. Compare the people running on their record and values, then tap <strong>➕ Add to My Team</strong> to lock in your pick — it fills that seat in <strong>My Voting Team</strong> above. Not sure yet? Tap a name to open their full profile first.</p>
+              <p class="pdx-hint-text"><strong>What to do here:</strong> these are the offices you'll actually vote on. In each race, tap <strong>⚖️ Compare these candidates</strong> to see who's running side-by-side on their record and values — then tap <strong>➕ Add to My Team</strong> to lock in your pick. Not sure yet? Tap a name to open their full profile first.</p>
             </div>
 
             <p class="font-condensed text-xs text-steel-500 tracking-wide mt-5" style="line-height:1.5;">
@@ -41425,6 +41462,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '➕ ' + race.addLabel + '</button>' + hintHtml;
       }
 
+      // ── "Compare these candidates" CTA — the decision bridge ─────────────────
+      // Everyone running for this seat (officeholder + challengers) that we have a
+      // profile for. When there are two or more, offer a one-tap head-to-head so
+      // the voter weighs them against each other BEFORE committing a pick. The
+      // sub-line gently points at the Alignment Tool's payoff: if they've chosen
+      // their issues we promise a values match; if not, we frame it as weighing
+      // records — and a separate nudge invites them to set issues for a personal fit.
+      var comparePids = (hasRunningIncumbent ? incList : []).concat(challengerPids).filter(function(pid) {
+        return typeof CMP_DATA !== 'undefined' && CMP_DATA[pid];
+      });
+      var compareCta = '';
+      if (comparePids.length >= 2) {
+        var nCmp = comparePids.length;
+        var hasAlign = (typeof window._alignIssueCount === 'function') && window._alignIssueCount() > 0;
+        var cmpSub = hasAlign
+          ? 'See who best matches your values, side-by-side'
+          : 'Weigh their promises &amp; records side-by-side before you pick';
+        compareCta =
+          '<button type="button" onclick="window.keyRacesCompareRace(\'' + comparePids.join(',') + '\')" class="kr-race-compare" aria-label="Compare all ' + nCmp + ' candidates running for ' + (race.short || 'this seat') + ' side by side">' +
+            '<span class="kr-race-compare-ico" aria-hidden="true">⚖️</span>' +
+            '<span class="kr-race-compare-text">' +
+              '<span class="kr-race-compare-title">Compare these ' + nCmp + ' candidates</span>' +
+              '<span class="kr-race-compare-sub">' + cmpSub + '</span>' +
+            '</span>' +
+            '<span class="kr-race-compare-go" aria-hidden="true">›</span>' +
+          '</button>';
+      }
+
       return '<div style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);box-shadow:0 8px 30px rgba(0,0,0,0.28);">' +
         '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
@@ -41437,7 +41502,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>' +
         '<div style="padding:0.5rem 1.2rem 1.2rem;">' +
           candSection +
-          '<div style="margin-top:1rem;">' + footer + '</div>' +
+          (compareCta ? '<div style="margin-top:0.9rem;">' + compareCta + '</div>' : '') +
+          '<div style="margin-top:0.85rem;">' + footer + '</div>' +
         '</div>' +
       '</div>';
     }
@@ -41467,6 +41533,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           btn.classList.toggle('added', !!added);
           btn.innerHTML = '<span class="kr-action-ico">' + (added ? '✓' : '⚖️') + '</span>' + (added ? 'Comparing' : 'Compare');
         }
+      } catch (e) {}
+    };
+
+    // ── Compare a whole race in one tap ──────────────────────────────────────
+    // Loads every candidate competing for THIS seat (incumbent + challengers)
+    // into the side-by-side compare tool and opens it. Because the picks are all
+    // one race, the compare overlay's "same seat" coaching fires and the voter
+    // gets a clean head-to-head — the natural step between browsing a district
+    // and committing a pick to their team. The candidate ids are passed in as a
+    // comma-joined list straight from the rendered card, so no race lookup is
+    // needed. We reset any prior ad-hoc compare selection first so the overlay
+    // shows exactly this race, not a mix of seats.
+    window.keyRacesCompareRace = function(pidsCsv) {
+      try {
+        var pids = (pidsCsv || '').split(',').filter(function(p) {
+          return p && typeof CMP_DATA !== 'undefined' && CMP_DATA[p];
+        });
+        if (pids.length < 2) {
+          // Nothing meaningful to compare — fall back to the first profile.
+          if (pids.length === 1 && typeof showProfile === 'function') showProfile(pids[0]);
+          return;
+        }
+        // Clear whatever was previously staged for comparison so this race stands
+        // alone, mirroring the un-select bookkeeping the standalone compare tool uses.
+        if (typeof _cmpSelected !== 'undefined' && _cmpSelected.size) {
+          Array.from(_cmpSelected).forEach(function(p) {
+            _cmpSelected.delete(p);
+            document.querySelectorAll('.compare-cb[data-pid="' + p + '"]').forEach(function(c) { c.checked = false; });
+            document.querySelectorAll('.bp-compare-btn[data-pid="' + p + '"]').forEach(function(b) {
+              b.textContent = '+ COMPARE'; b.classList.remove('added');
+              var card = b.closest('.card-holo'); if (card) card.classList.remove('cmp-highlight');
+            });
+            var pmBtn = document.getElementById('pmc-' + p);
+            if (pmBtn) { pmBtn.textContent = '+ Compare'; pmBtn.classList.remove('added'); }
+          });
+        }
+        pids.forEach(function(p) {
+          if (typeof _cmpSelectPid === 'function') _cmpSelectPid(p);
+          else if (typeof _cmpSelected !== 'undefined') _cmpSelected.add(p);
+        });
+        if (typeof _updateCmpFloat === 'function') _updateCmpFloat();
+        if (typeof _pmUpdateTray === 'function') _pmUpdateTray();
+        // Repaint the Key Races cards so their per-candidate Compare chips reflect
+        // the new "Comparing" state, then open the side-by-side overlay.
+        if (window.renderKeyRaces) window.renderKeyRaces();
+        if (typeof openCompare === 'function') openCompare();
       } catch (e) {}
     };
 
