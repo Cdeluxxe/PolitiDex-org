@@ -1706,6 +1706,60 @@
     }
     .cand-snapshot .cs-align-text { font-size: 0.76rem; color: #b9a8e6; line-height: 1.5; margin: 0; }
     .cand-snapshot .cs-align-text strong { color: #d8b4fe; }
+    .cand-snapshot .cs-align-foot { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.6rem 0 0; }
+
+    /* Issue-position list inside the Alignment linkage card — the scannable,
+       at-a-glance read on which issues the candidate has taken a stance on,
+       pulled from the same data the Alignment Tool compares against. */
+    .cand-snapshot .cs-pos-legend {
+      display: flex; flex-wrap: wrap; gap: 0.35rem 0.85rem;
+      margin: 0.1rem 0 0.6rem;
+      font-size: 0.64rem; color: #9a8cc9; line-height: 1.4;
+    }
+    .cand-snapshot .cs-pos-legend > span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .cand-snapshot .cs-pos-list { display: grid; gap: 0; }
+    .cand-snapshot .cs-pos {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem;
+      padding: 0.5rem 0;
+    }
+    .cand-snapshot .cs-pos + .cs-pos { border-top: 1px dashed rgba(139,92,246,0.2); }
+    .cand-snapshot .cs-pos-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
+    .cand-snapshot .cs-pos-topic {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem;
+      color: #f0eaff; letter-spacing: 0.01em; flex: 1 1 8rem; min-width: 0;
+    }
+    .cand-snapshot .cs-pos-badge {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.5rem; letter-spacing: 0.07em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
+    }
+    /* Source-type tag — the visible difference between a position backed by an
+       actual vote/bill ("Recorded") and one taken from public statements ("Stated"). */
+    .cand-snapshot .cs-src {
+      display: inline-flex; align-items: center; gap: 0.22rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
+    }
+    .cand-snapshot .cs-src-rec {
+      color: #7dd3a0; background: rgba(74,222,128,0.12);
+      border: 1px solid rgba(74,222,128,0.34);
+    }
+    .cand-snapshot .cs-src-stated {
+      color: #9fb4d4; background: rgba(159,180,212,0.08);
+      border: 1px dashed rgba(159,180,212,0.4);
+    }
+    /* Per-issue "your match" verdict, shown only when the visitor has saved
+       Alignment Tool picks that overlap this candidate's positions. */
+    .cand-snapshot .cs-vd {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.12rem 0.42rem; white-space: nowrap; flex-shrink: 0;
+    }
+    .cand-snapshot .cs-vd-match    { color: #4ade80; background: rgba(74,222,128,0.14);  border: 1px solid rgba(74,222,128,0.34); }
+    .cand-snapshot .cs-vd-partial  { color: #60a5fa; background: rgba(96,165,250,0.14);  border: 1px solid rgba(96,165,250,0.34); }
+    .cand-snapshot .cs-vd-mismatch { color: #f87171; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.34); }
+    .cand-snapshot .cs-pos-more { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.5rem 0 0; }
 
     /* Spotlight linkage */
     .cand-snapshot .cs-spot { margin-top: 1rem; }
@@ -26811,11 +26865,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var keyIssues = (p.keyIssues || []);
       var statedCount = stanceList.length || keyIssues.length;
       var trackedIssueCount = keyed.length || keyIssues.length;
+      // A position is "recorded" when it carries concrete evidence — a named
+      // vote, signed bill or sponsored measure — versus "stated", taken from
+      // public statements or campaign materials. This split drives the visual
+      // treatment that lets users tell a voting record from a campaign promise.
+      var recordedCount = stanceList.filter(function(s) { return s && s.evidence; }).length;
 
       // ── Honest "Limited Record" lede ─────────────────────────────────
       var lede = isChallenger
-        ? (first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so there are <strong>no tracked promises to score yet</strong>. This snapshot focuses on what ' + first + ' says they stand for — and we are actively gathering more positions, statements and sources as the race develops.')
-        : (first + ' is early in their term, so there are <strong>few tracked promises so far</strong>. This snapshot focuses on their stated positions and priorities — and we are actively gathering more as their record develops.');
+        ? (first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so there are <strong>no tracked promises to score yet</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, starting with where they stand on the issues below, and adding votes, sources and promises as the race develops.')
+        : (first + ' is early in their term, so there are <strong>few tracked promises so far</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, starting with where they stand on the issues below, and adding more of their voting record as it develops.');
 
       // ── At-a-glance facts ─────────────────────────────────────────────
       var facts = [];
@@ -26825,7 +26884,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var ed = new Date(p.nextElection + 'T00:00:00');
         if (!isNaN(ed.getTime())) facts.push({ k: (p.electionLabel || 'Next election'), v: ed.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
       }
-      if (statedCount) facts.push({ k: 'Stated positions', v: String(statedCount), accent: true });
+      if (statedCount) facts.push({ k: 'Issue positions', v: String(statedCount), accent: true });
+      if (recordedCount) facts.push({ k: 'Vote/bill-backed', v: String(recordedCount) });
       facts.push({ k: 'Promises scored', v: '0' });
       var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
         return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
@@ -26871,19 +26931,84 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var standsBlock = '<div class="cs-block"><div class="cs-block-h">' + standsHead + '</div>' + standsBody + '</div>';
 
       // ── Alignment Tool linkage ────────────────────────────────────────
+      // Actively surfaces the issues this candidate has taken a position on —
+      // the same positions the Alignment Tool compares a visitor's values
+      // against — so even a thin profile shows, at a glance, where the
+      // candidate stands. Each row makes two things visible: the DIRECTION of
+      // the position (Supports / Opposes / Mixed) and its BASIS — "Recorded"
+      // (backed by a named vote or bill) versus "Stated" (from public
+      // statements). When the visitor has saved Alignment picks, overlapping
+      // issues also get a per-issue "your match" verdict.
       var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
       var userMatch = (alignHasUser && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
-      var alignText = (trackedIssueCount > 0)
-        ? (first + ' has stated positions on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> PolitiDex tracks. Compare ' + first + ' to the issues you care about — by values, not party.')
-        : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party.');
+      var hasIssueMap = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
+
       var matchChip = '';
       if (userMatch !== null) {
         var mc = userMatch >= 70 ? '#4ade80' : userMatch >= 50 ? '#f5c842' : '#f87171';
         matchChip = '<span class="cs-align-match" style="color:' + mc + ';border-color:' + mc + '55;">🎯 ' + userMatch + '% your match</span>';
       }
+
+      // Build the scannable position rows. Show keyed (Alignment-comparable)
+      // positions first so the ones a visitor can be matched on lead.
+      var srcMeta = {
+        rec:    { ico: '🗳', label: 'Recorded', cls: 'cs-src-rec' },
+        stated: { ico: '💬', label: 'Stated',   cls: 'cs-src-stated' }
+      };
+      var vdMeta = {
+        match:    { ico: '✓', label: 'Match',  cls: 'cs-vd-match' },
+        partial:  { ico: '~', label: 'Partial', cls: 'cs-vd-partial' },
+        mismatch: { ico: '✗', label: 'Differs', cls: 'cs-vd-mismatch' }
+      };
+      var posRows = stanceList.slice().sort(function(a, b) {
+        return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
+      }).slice(0, 6).map(function(s) {
+        var m = posMetaCS[s.pos] || posMetaCS.tracking;
+        var src = s.evidence ? srcMeta.rec : srcMeta.stated;
+        // Per-issue verdict only when the visitor selected this exact issue.
+        var vdHtml = '';
+        if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
+          var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+          var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos) : null;
+          var vm = verdict && vdMeta[verdict];
+          if (vm) vdHtml = '<span class="cs-vd ' + vm.cls + '">' + vm.ico + ' ' + vm.label + '</span>';
+        }
+        return '<div class="cs-pos">' +
+          '<span class="cs-pos-ico">' + (s.icon || '🎯') + '</span>' +
+          '<span class="cs-pos-topic">' + (s.topic || 'Issue') + '</span>' +
+          '<span class="cs-pos-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+          '<span class="cs-src ' + src.cls + '">' + src.ico + ' ' + src.label + '</span>' +
+          vdHtml +
+        '</div>';
+      }).join('');
+
+      var alignBody;
+      if (posRows) {
+        var legend = '<div class="cs-pos-legend">' +
+          '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
+          '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
+        '</div>';
+        var moreNote = (stanceList.length > 6)
+          ? '<p class="cs-pos-more">+ ' + (stanceList.length - 6) + ' more position' + (stanceList.length - 6 === 1 ? '' : 's') + ' below in <strong style="color:#d8b4fe;">Key Issue Stances</strong>.</p>'
+          : '';
+        var foot = alignHasUser
+          ? ('Matched against your saved Alignment picks. Open the <strong>Alignment Tool</strong> to compare ' + first + ' issue by issue — by your values, not their party.')
+          : ('Pick the issues you care about in the <strong>Alignment Tool</strong> to see, issue by issue, where you and ' + first + ' line up — by values, not party.');
+        alignBody = legend +
+          '<div class="cs-pos-list">' + posRows + '</div>' +
+          moreNote +
+          '<p class="cs-align-foot">' + foot + '</p>';
+      } else {
+        // No documented positions yet — keep the honest, encouraging prompt.
+        var alignText = (trackedIssueCount > 0)
+          ? (first + ' has stated priorities on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> PolitiDex tracks. Compare ' + first + ' to the issues you care about — by values, not party.')
+          : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party. Their positions appear here as we document them.');
+        alignBody = '<p class="cs-align-text">' + alignText + '</p>';
+      }
+
       var alignBlock = '<div class="cs-align">' +
-        '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on the issues</span>' + matchChip + '</div>' +
-        '<p class="cs-align-text">' + alignText + '</p>' +
+        '<div class="cs-align-top"><span class="cs-align-h">🤝 Where ' + first + ' stands on the issues</span>' + matchChip + '</div>' +
+        alignBody +
       '</div>';
 
       // ── Spotlight linkage ─────────────────────────────────────────────
