@@ -1586,6 +1586,198 @@
       border-color: rgba(74,222,128,0.6); color: #4ade80;
     }
 
+    /* ── Candidate Snapshot ───────────────────────────────────────────
+       A structured overview shown at the top of thin / early-record
+       profiles. Instead of a stack of empty placeholders, it leads with
+       what IS known — stated positions, the issues a candidate can be
+       compared on, the latest Spotlight item — and is transparent about
+       what is still being gathered. Supersedes the bare thin notice and
+       ties together the Alignment Tool, the Spotlight and the bio. */
+    .cand-snapshot {
+      background: linear-gradient(135deg, rgba(30,53,96,0.55), rgba(10,15,30,0.42));
+      border: 1px solid rgba(159,180,212,0.22);
+      border-left: 3px solid #c0152a;
+      border-radius: 0.95rem;
+      padding: 1.05rem 1.15rem 1.1rem;
+      margin-bottom: 1.4rem;
+    }
+    .cand-snapshot .cs-head { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .cand-snapshot .cs-head-ico { font-size: 1.7rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
+    .cand-snapshot .cs-head-main { flex: 1; min-width: 0; }
+    .cand-snapshot .cs-title {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
+      font-size: 1.35rem; color: #e6eefb; line-height: 1.05; margin-bottom: 0.4rem;
+    }
+    .cand-snapshot .cs-pill {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #f5c842; background: rgba(245,200,66,0.12);
+      border: 1px solid rgba(245,200,66,0.34); border-radius: 999px;
+      padding: 0.16rem 0.55rem; line-height: 1;
+    }
+    .cand-snapshot .cs-lede {
+      font-family: 'Barlow', sans-serif; font-size: 0.82rem; color: #9fb4d4;
+      line-height: 1.6; margin: 0;
+    }
+    .cand-snapshot .cs-lede strong { color: #cbd9ec; }
+
+    /* At-a-glance facts */
+    .cand-snapshot .cs-facts {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+      gap: 0.5rem; margin-top: 0.95rem;
+    }
+    .cand-snapshot .cs-fact {
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.16);
+      border-radius: 0.6rem; padding: 0.55rem 0.65rem; min-width: 0;
+    }
+    .cand-snapshot .cs-fact-k {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #7596c0; margin-bottom: 0.2rem;
+    }
+    .cand-snapshot .cs-fact-v {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.86rem; color: #e6eefb; line-height: 1.25;
+    }
+    .cand-snapshot .cs-fact-v.cs-accent { color: #a78bfa; }
+
+    /* Generic divided block (e.g. "What they stand for") */
+    .cand-snapshot .cs-block {
+      margin-top: 1rem; padding-top: 0.9rem;
+      border-top: 1px solid rgba(159,180,212,0.14);
+    }
+    .cand-snapshot .cs-block-h {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #dbe6f6; margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    /* Stated-position list */
+    .cand-snapshot .cs-stance { display: flex; align-items: flex-start; gap: 0.55rem; padding: 0.42rem 0; }
+    .cand-snapshot .cs-stance + .cs-stance { border-top: 1px dashed rgba(159,180,212,0.12); }
+    .cand-snapshot .cs-stance-ico { font-size: 0.95rem; line-height: 1.4; flex-shrink: 0; }
+    .cand-snapshot .cs-stance-body { flex: 1; min-width: 0; }
+    .cand-snapshot .cs-stance-topic {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;
+      color: #fff; letter-spacing: 0.01em;
+    }
+    .cand-snapshot .cs-stance-badge {
+      display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.1rem 0.42rem; margin-left: 0.4rem; white-space: nowrap;
+      vertical-align: middle;
+    }
+    .cand-snapshot .cs-stance-text { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin: 0.18rem 0 0; }
+    .cand-snapshot .cs-b-support  { background: rgba(74,222,128,0.14);  color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+    .cand-snapshot .cs-b-oppose   { background: rgba(248,113,113,0.14); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    .cand-snapshot .cs-b-mixed    { background: rgba(96,165,250,0.14);  color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+    .cand-snapshot .cs-b-priority { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+
+    /* Campaign-priority pills (fallback when no documented stances) */
+    .cand-snapshot .cs-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cand-snapshot .cs-pill-issue {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: rgba(30,53,96,0.5); border: 1px solid rgba(159,180,212,0.2);
+      border-radius: 0.5rem; padding: 0.32rem 0.62rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.72rem; color: #b9cae3;
+    }
+
+    /* Alignment Tool linkage card */
+    .cand-snapshot .cs-align {
+      margin-top: 1rem; padding: 0.75rem 0.85rem;
+      background: linear-gradient(135deg, rgba(139,92,246,0.13), rgba(10,15,30,0.25));
+      border: 1px solid rgba(139,92,246,0.32); border-radius: 0.7rem;
+    }
+    .cand-snapshot .cs-align-top {
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+      margin-bottom: 0.4rem;
+    }
+    .cand-snapshot .cs-align-h {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: #d8b4fe;
+    }
+    .cand-snapshot .cs-align-match {
+      margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.1rem 0.5rem;
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.22);
+    }
+    .cand-snapshot .cs-align-text { font-size: 0.76rem; color: #b9a8e6; line-height: 1.5; margin: 0; }
+    .cand-snapshot .cs-align-text strong { color: #d8b4fe; }
+
+    /* Spotlight linkage */
+    .cand-snapshot .cs-spot { margin-top: 1rem; }
+    .cand-snapshot .cs-spot-card {
+      width: 100%; text-align: left; display: flex; align-items: center; gap: 0.65rem;
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.18);
+      border-radius: 0.7rem; padding: 0.6rem 0.7rem; color: inherit;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .cand-snapshot button.cs-spot-card { cursor: pointer; }
+    @media (hover: hover) { .cand-snapshot button.cs-spot-card:hover { border-color: rgba(245,200,66,0.42); transform: translateY(-1px); } }
+    .cand-snapshot .cs-spot-main { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; flex: 1; }
+    .cand-snapshot .cs-spot-badge {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #f5c842;
+    }
+    .cand-snapshot .cs-spot-text { font-size: 0.76rem; color: #cbd9ec; line-height: 1.45; }
+    .cand-snapshot .cs-spot-cta { margin-left: auto; flex-shrink: 0; font-size: 1.05rem; color: #7596c0; }
+    .cand-snapshot .cs-spot-note { font-size: 0.72rem; color: #7596c0; line-height: 1.5; margin: 0.45rem 0 0; }
+
+    /* "We're actively gathering" transparency block */
+    .cand-snapshot .cs-gather {
+      margin-top: 1rem; padding: 0.75rem 0.85rem;
+      background: rgba(10,15,30,0.42); border: 1px solid rgba(245,200,66,0.16);
+      border-radius: 0.7rem;
+    }
+    .cand-snapshot .cs-gather-h {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #f5c842; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .cand-snapshot .cs-gather-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.32rem; }
+    .cand-snapshot .cs-gather-list li {
+      font-size: 0.74rem; color: #9fb4d4; line-height: 1.45;
+      display: flex; align-items: flex-start; gap: 0.45rem;
+    }
+    .cand-snapshot .cs-gather-list li::before { content: '○'; color: #f5c842; flex-shrink: 0; opacity: 0.8; }
+
+    /* Snapshot actions (mirror the thin-notice CTA buttons) */
+    .cand-snapshot .cs-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .cand-snapshot .cs-act-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 0.65rem; padding: 0.5rem 0.85rem; cursor: pointer;
+      border: 1px solid transparent; color: #fff;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .cand-snapshot .cs-act-btn:hover { transform: translateY(-1px); }
+    .cand-snapshot .cs-act-align {
+      background: linear-gradient(135deg, rgba(124,58,237,0.9), rgba(109,40,217,0.9));
+      border-color: rgba(167,139,250,0.5); box-shadow: 0 4px 14px rgba(139,92,246,0.28);
+    }
+    .cand-snapshot .cs-act-team {
+      background: linear-gradient(135deg, rgba(192,21,42,0.9), rgba(124,15,30,0.92));
+      border-color: rgba(245,158,11,0.45); box-shadow: 0 4px 14px rgba(192,21,42,0.28);
+    }
+    .cand-snapshot .cs-act-team.is-on {
+      background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,80,40,0.42));
+      border-color: rgba(74,222,128,0.5); color: #4ade80; box-shadow: none;
+    }
+    .cand-snapshot .cs-act-btn.just-added {
+      background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(16,80,40,0.5));
+      border-color: rgba(74,222,128,0.6); color: #4ade80;
+    }
+    .cand-snapshot .cs-foot-hint {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #7596c0;
+      margin-top: 0.9rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+
     /* ── Profile section empty state — a clean, intentional placeholder for
        sections (e.g. the Promise Tracker) that have no entries yet. */
     .pdx-empty-state {
@@ -26586,6 +26778,185 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
 
+  // ── Candidate Snapshot ───────────────────────────────────────────────
+  // A structured overview for thin / early-record profiles. Rather than a
+  // stack of empty placeholders, it leads with what IS known about a
+  // candidate — their stated positions and priorities, the issues they can
+  // be compared on, and the latest Spotlight item — while being honest about
+  // the limited record and what is still being gathered. It is the orienting
+  // summary that ties together three existing systems:
+  //   • the Alignment Tool — which issues they have stated positions on,
+  //     keyed by the SAME ISSUE_MAP keys so it links one-to-one;
+  //   • the Spotlight — where statements, positions and events are logged;
+  //   • their bio, key issues and documented stances.
+  // Returns '' for a full record (or on any error) so it never shows there
+  // and the caller can cleanly fall back to the plain thin notice.
+  window._renderCandidateSnapshot = function(id, p, opts) {
+    p = p || {}; opts = opts || {};
+    if (!opts.isThin) return '';
+    try {
+      var name = (p.name || 'This candidate');
+      var first = String(name).split(' ')[0] || 'They';
+      var is2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+      var statusMode = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+      var isChallenger = statusMode === 'candidate' ||
+        /candidat|challenger|nominee|running/i.test(((p.office || '') + ' ' + (p.state || '')));
+
+      // Stated positions — documented stances are keyed by the same ISSUE_MAP
+      // keys the Alignment Tool uses, so each one is an issue the candidate can
+      // be compared on by values. Fall back to their key issues as the stated
+      // priorities they are campaigning on.
+      var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+      var keyed = stanceList.filter(function(s) { return s && s.issueKey; });
+      var keyIssues = (p.keyIssues || []);
+      var statedCount = stanceList.length || keyIssues.length;
+      var trackedIssueCount = keyed.length || keyIssues.length;
+
+      // ── Honest "Limited Record" lede ─────────────────────────────────
+      var lede = isChallenger
+        ? (first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so there are <strong>no tracked promises to score yet</strong>. This snapshot focuses on what ' + first + ' says they stand for — and we are actively gathering more positions, statements and sources as the race develops.')
+        : (first + ' is early in their term, so there are <strong>few tracked promises so far</strong>. This snapshot focuses on their stated positions and priorities — and we are actively gathering more as their record develops.');
+
+      // ── At-a-glance facts ─────────────────────────────────────────────
+      var facts = [];
+      if (p.office) facts.push({ k: 'Seat', v: p.office });
+      if (p.party) facts.push({ k: 'Party', v: p.party });
+      if (p.nextElection) {
+        var ed = new Date(p.nextElection + 'T00:00:00');
+        if (!isNaN(ed.getTime())) facts.push({ k: (p.electionLabel || 'Next election'), v: ed.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
+      }
+      if (statedCount) facts.push({ k: 'Stated positions', v: String(statedCount), accent: true });
+      facts.push({ k: 'Promises scored', v: '0' });
+      var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
+        return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
+          '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + '">' + f.v + '</div></div>';
+      }).join('') + '</div>';
+
+      // ── What they stand for ───────────────────────────────────────────
+      var posMetaCS = {
+        support:  { ico: '✓', label: 'Supports', cls: 'cs-b-support' },
+        oppose:   { ico: '✗', label: 'Opposes',  cls: 'cs-b-oppose' },
+        mixed:    { ico: '~', label: 'Mixed',     cls: 'cs-b-mixed' },
+        priority: { ico: '★', label: 'Priority',  cls: 'cs-b-priority' },
+        tracking: { ico: '…', label: 'Tracking',  cls: 'cs-b-priority' }
+      };
+      var standsHead, standsBody;
+      if (stanceList.length) {
+        standsHead = '📌 What ' + first + ' says they stand for';
+        standsBody = stanceList.slice(0, 4).map(function(s) {
+          var m = posMetaCS[s.pos] || posMetaCS.tracking;
+          var txt = (s.text || '').toString();
+          return '<div class="cs-stance">' +
+            '<span class="cs-stance-ico">' + (s.icon || '🎯') + '</span>' +
+            '<div class="cs-stance-body">' +
+              '<span class="cs-stance-topic">' + (s.topic || 'Issue') + '</span>' +
+              '<span class="cs-stance-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+              (txt ? '<p class="cs-stance-text">' + txt + '</p>' : '') +
+            '</div>' +
+          '</div>';
+        }).join('');
+        if (stanceList.length > 4) {
+          standsBody += '<p class="cs-stance-text" style="margin-top:0.5rem;">+ ' + (stanceList.length - 4) + ' more documented below in <strong style="color:#cbd9ec;">Key Issue Stances</strong>.</p>';
+        }
+      } else if (keyIssues.length) {
+        standsHead = '🎯 ' + first + '\'s campaign priorities';
+        standsBody = '<div class="cs-pills">' + keyIssues.slice(0, 8).map(function(i) {
+          return '<span class="cs-pill-issue">🎯 ' + i + '</span>';
+        }).join('') + '</div>' +
+        '<p class="cs-stance-text" style="margin-top:0.5rem;">These are the priorities ' + first + ' is campaigning on. Detailed positions and sources are added as they are published.</p>';
+      } else {
+        standsHead = '🧭 Stated positions';
+        standsBody = '<p class="cs-stance-text">We are gathering ' + first + '\'s stated positions from public statements and campaign materials. In the meantime, you can still compare ' + first + ' to your own values with the Alignment Tool.</p>';
+      }
+      var standsBlock = '<div class="cs-block"><div class="cs-block-h">' + standsHead + '</div>' + standsBody + '</div>';
+
+      // ── Alignment Tool linkage ────────────────────────────────────────
+      var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var userMatch = (alignHasUser && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+      var alignText = (trackedIssueCount > 0)
+        ? (first + ' has stated positions on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> PolitiDex tracks. Compare ' + first + ' to the issues you care about — by values, not party.')
+        : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party.');
+      var matchChip = '';
+      if (userMatch !== null) {
+        var mc = userMatch >= 70 ? '#4ade80' : userMatch >= 50 ? '#f5c842' : '#f87171';
+        matchChip = '<span class="cs-align-match" style="color:' + mc + ';border-color:' + mc + '55;">🎯 ' + userMatch + '% your match</span>';
+      }
+      var alignBlock = '<div class="cs-align">' +
+        '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on the issues</span>' + matchChip + '</div>' +
+        '<p class="cs-align-text">' + alignText + '</p>' +
+      '</div>';
+
+      // ── Spotlight linkage ─────────────────────────────────────────────
+      var spot = (typeof window._krBuildSpotlight === 'function') ? window._krBuildSpotlight(id) : null;
+      var spotBlock = '';
+      if (spot) {
+        var spotText = (spot.teaser || spot.title || '').toString();
+        if (spot.kind === 'newcomer' || spot.kind === 'monitoring') {
+          // No real story to open yet — show the honest status note and explain
+          // that the Spotlight is where future statements/events get logged.
+          spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
+            '<div class="cs-spot-card">' +
+              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + '</span>' +
+              '<span class="cs-spot-text">' + spotText + '</span></span>' +
+            '</div>' +
+            '<p class="cs-spot-note">The Spotlight is where we log ' + first + '\'s statements, positions and key moments as they happen.</p>' +
+          '</div>';
+        } else {
+          spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
+            '<button type="button" class="cs-spot-card" onclick="event.stopPropagation();window.keyRacesSpotlight && window.keyRacesSpotlight(\'' + id + '\');">' +
+              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + (spot.date ? ' · ' + spot.date : '') + '</span>' +
+              '<span class="cs-spot-text">' + spotText + '</span></span>' +
+              '<span class="cs-spot-cta" aria-hidden="true">→</span>' +
+            '</button>' +
+          '</div>';
+        }
+      }
+
+      // ── "We're actively gathering" transparency ───────────────────────
+      var gatherItems = [];
+      gatherItems.push(isChallenger
+        ? ('A voting record — it begins once ' + first + ' takes office')
+        : ('More of ' + first + '\'s voting record'));
+      gatherItems.push(stanceList.length
+        ? 'More sourced positions across additional issues'
+        : 'Detailed, sourced positions on their key issues');
+      gatherItems.push('Kept-and-broken promises as commitments play out');
+      var gatherBlock = '<div class="cs-gather"><div class="cs-gather-h">⏳ We\'re actively gathering</div>' +
+        '<ul class="cs-gather-list">' + gatherItems.map(function(g) { return '<li>' + g + '</li>'; }).join('') + '</ul></div>';
+
+      // ── Actions (mirror the thin-notice CTAs) ─────────────────────────
+      var onTeam = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
+      var actions = '<div class="cs-actions">' +
+        '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>' +
+        '<button type="button" class="cs-act-btn cs-act-team' + (onTeam ? ' is-on' : '') + '" onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
+          (onTeam ? '✓ On your team' : '★ Add to my team') + '</button>' +
+      '</div>';
+
+      var hint = '<div class="cs-foot-hint">↓ ' +
+        ((keyIssues.length || stanceList.length) ? 'Full positions, your alignment and the promise tracker are below' : 'More detail is below') + '</div>';
+
+      return '<div class="cand-snapshot">' +
+        '<div class="cs-head">' +
+          '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
+          '<div class="cs-head-main">' +
+            '<div class="cs-title">Candidate Snapshot<span class="cs-pill">Limited Record</span></div>' +
+            '<p class="cs-lede">' + lede + '</p>' +
+          '</div>' +
+        '</div>' +
+        factsHtml +
+        standsBlock +
+        alignBlock +
+        spotBlock +
+        gatherBlock +
+        actions +
+        hint +
+      '</div>';
+    } catch (e) {
+      return '';
+    }
+  };
+
+
   // The People's Mandate Alignment — a scorecard of core good-government
   // principles, derived from the Promise %, Accountability score and funding
   // signals PolitiDex already tracks (curated overrides supported).
@@ -27000,6 +27371,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>'
     ) : '';
 
+    // Candidate Snapshot — a structured overview that supersedes the bare thin
+    // notice on low-data profiles, leading with stated positions, the Alignment
+    // Tool linkage and the latest Spotlight item. Returns '' for a full record
+    // (or on error), so the template cleanly falls back to thinNotice.
+    const candidateSnapshot = (typeof window._renderCandidateSnapshot === 'function')
+      ? window._renderCandidateSnapshot(id, p, { isThin: _isThinProfile })
+      : '';
+
     // Extra sections
     let extraSections = '';
     for (const sec of (p.sections || [])) {
@@ -27122,10 +27501,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
       })()}
 
-      <!-- Early-stage / thin-record notice — an honest framing shown only when
-           there is no scorable record yet, so a fresh challenger or new
-           officeholder reads as intentional rather than broken. -->
-      ${thinNotice}
+      <!-- Candidate Snapshot — a structured overview shown only when there is no
+           scorable record yet. It leads with what IS known (stated positions,
+           the issues they can be compared on, the latest Spotlight item) and is
+           honest about the limited record, so a fresh challenger or new
+           officeholder reads as intentional rather than broken. Falls back to
+           the plain thin notice if the snapshot can't render. -->
+      ${candidateSnapshot || thinNotice}
 
       <!-- Follow-Through summary — the headline integrity read: did they
            actually do what they said? Kept vs broken, a follow-through rate,
