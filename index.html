@@ -6020,8 +6020,9 @@
       top: 1.5rem;
       right: 1.5rem;
       display: flex;
-      align-items: center;
-      gap: 0.85rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
       min-width: 280px;
       max-width: 370px;
       padding: 0.85rem 1.1rem 0.85rem 0.95rem;
@@ -6076,6 +6077,38 @@
     .team-add-toast.removing .team-add-toast-check { background: linear-gradient(135deg,#f87171,#ef4444); color: #fff; box-shadow: 0 0 16px rgba(248,113,113,0.45); }
     .team-add-toast.complete .team-add-toast-check { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 18px rgba(245,158,11,0.5); }
     @keyframes team-toast-check-pop { 0%{transform:scale(0) rotate(-30deg);} 60%{transform:scale(1.25) rotate(0);} 100%{transform:scale(1);} }
+
+    /* Top row of the toast — avatar · message · check. Wrapped so the toast can
+       grow a guidance footer beneath it without disturbing this layout. */
+    .team-add-toast-main { display: flex; align-items: center; gap: 0.85rem; }
+    /* Contextual "what next" guidance footer — appears under an add confirmation
+       with one-tap actions (fill the next seat, compare, jump to the workspace).
+       Hidden automatically when no actions are supplied (e.g. on remove). */
+    .team-add-toast-actions {
+      display: flex; align-items: stretch; gap: 0.45rem; flex-wrap: wrap;
+      padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.09);
+    }
+    .team-add-toast-actions:empty { display: none; padding-top: 0; border-top: none; }
+    .tat-action {
+      flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 0.5rem 0.7rem; border-radius: 0.6rem; cursor: pointer; line-height: 1;
+      white-space: nowrap; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .tat-action-primary {
+      color: #0a0f1e; border: none;
+      background: linear-gradient(135deg, #fad96a, #e6b800);
+      box-shadow: 0 3px 12px rgba(245,200,66,0.28);
+    }
+    .tat-action-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(245,200,66,0.45); }
+    .tat-action-secondary {
+      flex: 0 1 auto; color: #cbd5e1; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .tat-action-secondary:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.28); }
+    .team-add-toast.complete .tat-action-primary { background: linear-gradient(135deg, #6ee7a8, #34d399); box-shadow: 0 3px 12px rgba(52,211,153,0.28); }
+    .team-add-toast.complete .tat-action-primary:hover { box-shadow: 0 6px 16px rgba(52,211,153,0.45); }
 
     /* Counter "pop" when the team count changes */
     @keyframes myteam-count-pop {
@@ -13653,6 +13686,7 @@
                 </div>
               </div>
               <div class="flex gap-2 items-center flex-wrap">
+                <button onclick="window._myteamGuideGo && window._myteamGuideGo('pick')" class="font-condensed text-xs text-amber-300 hover:text-amber-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-amber-500/12 border border-amber-500/30 hover:border-amber-400/55" style="background:rgba(245,158,11,0.07);" title="Jump to your next open race and keep building">➕ Add more picks</button>
                 <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
                 <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
               </div>
@@ -13926,12 +13960,16 @@
 
       <!-- Premium "Added to your team" toast -->
       <div id="team-add-toast" class="team-add-toast" role="status" aria-live="polite">
-        <div id="team-add-toast-avatar" class="team-add-toast-avatar">🏛</div>
-        <div class="team-add-toast-body">
-          <div id="team-add-toast-title" class="team-add-toast-title">Added to your team</div>
-          <div id="team-add-toast-sub" class="team-add-toast-sub"></div>
+        <div class="team-add-toast-main">
+          <div id="team-add-toast-avatar" class="team-add-toast-avatar">🏛</div>
+          <div class="team-add-toast-body">
+            <div id="team-add-toast-title" class="team-add-toast-title">Added to your team</div>
+            <div id="team-add-toast-sub" class="team-add-toast-sub"></div>
+          </div>
+          <div id="team-add-toast-check" class="team-add-toast-check">✓</div>
         </div>
-        <div id="team-add-toast-check" class="team-add-toast-check">✓</div>
+        <!-- Contextual next-step actions (populated by _showTeamToast). -->
+        <div id="team-add-toast-actions" class="team-add-toast-actions"></div>
       </div>
 
     </div>
@@ -31040,12 +31078,50 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (sub) sub.textContent = name + (opts.count ? '  ·  ' + opts.count + '/' + total + ' slots filled' : '');
     }
 
+    // Contextual "what next" guidance footer. On an add, the caller supplies
+    // one-tap actions (fill the next open seat, compare, jump to the workspace)
+    // so the user is guided forward right where they acted instead of being left
+    // to find the next step on their own. Cleared on remove.
+    var actionsEl = document.getElementById('team-add-toast-actions');
+    if (actionsEl) {
+      actionsEl.innerHTML = '';
+      if (action !== 'remove' && opts.actions && opts.actions.length) {
+        opts.actions.forEach(function(a) {
+          if (!a || !a.label) return;
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tat-action ' + (a.kind === 'secondary' ? 'tat-action-secondary' : 'tat-action-primary');
+          b.innerHTML = a.label;
+          b.addEventListener('click', function() {
+            try { if (typeof a.act === 'function') a.act(); } catch (e) {}
+            toast.classList.remove('visible');
+            if (_teamToastTimer) clearTimeout(_teamToastTimer);
+          });
+          actionsEl.appendChild(b);
+        });
+      }
+    }
+    var hasActions = action !== 'remove' && !!(opts.actions && opts.actions.length);
+
     // Restart the entrance animation even if a toast is already showing.
     toast.classList.remove('visible');
     void toast.offsetWidth;
     toast.classList.add('visible');
+
+    // Keep the toast up long enough to act on its guidance, and pause the
+    // countdown while the pointer is over it so a deliberate click never races
+    // the auto-dismiss.
+    if (!toast._hoverBound) {
+      toast._hoverBound = true;
+      toast.addEventListener('mouseenter', function() { if (_teamToastTimer) clearTimeout(_teamToastTimer); });
+      toast.addEventListener('mouseleave', function() {
+        if (_teamToastTimer) clearTimeout(_teamToastTimer);
+        _teamToastTimer = setTimeout(function() { toast.classList.remove('visible'); }, 1800);
+      });
+    }
     if (_teamToastTimer) clearTimeout(_teamToastTimer);
-    _teamToastTimer = setTimeout(function() { toast.classList.remove('visible'); }, action === 'remove' ? 2200 : 3000);
+    var hideMs = action === 'remove' ? 2200 : (hasActions ? 7000 : 3000);
+    _teamToastTimer = setTimeout(function() { toast.classList.remove('visible'); }, hideMs);
   };
 
   // Pulse the "My Voting Team" counters so the section feels alive.
@@ -34335,6 +34411,53 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid);
     };
 
+    // Smoothly bring the My Voting Team workspace into view — used by the toast's
+    // "View team" action so a user can hop from exploring to managing in one tap.
+    function _scrollToTeamWorkspace() {
+      var t = document.getElementById('myteam-summary-box') || document.getElementById('my-politicians');
+      if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Build the contextual guidance shown in the add-to-team toast. Reads the
+    // freshly-saved ballot to work out progress, then offers the single most
+    // useful next move: fill the next still-open office (the "want to add your
+    // State House Rep next?" nudge), compare once a couple of picks exist, or —
+    // when every seat is filled — celebrate and point at the finished slate.
+    // Returns the opts object _showTeamToast consumes (count/total/complete/actions).
+    function _buildTeamToastNextStep(justAddedPid) {
+      var positions = window.TEAM_POSITIONS || [];
+      var total = positions.length || 6;
+      var sel = (typeof _getTeamBallotSelections === 'function')
+        ? _getTeamBallotSelections()
+        : (window._ballotLoad ? window._ballotLoad() : {});
+      var filled = 0, nextOpen = null;
+      positions.forEach(function(pos) {
+        if (sel[pos.key] && CMP_DATA[sel[pos.key]]) filled++;
+        else if (!nextOpen) nextOpen = pos;
+      });
+      var complete = total > 0 && filled >= total;
+      var actions = [];
+      var compareAct = function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _scrollToTeamWorkspace(); };
+
+      if (complete) {
+        if (filled >= 2) actions.push({ label: '⚖️ Compare your team', kind: 'primary', act: compareAct });
+        actions.push({ label: '⭐ View team', kind: 'secondary', act: _scrollToTeamWorkspace });
+      } else if (nextOpen) {
+        actions.push({
+          label: '➕ Add your ' + nextOpen.label,
+          kind: 'primary',
+          act: (function(k) { return function() {
+            if (window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(k);
+            else _scrollToTeamWorkspace();
+          }; })(nextOpen.key)
+        });
+        actions.push(filled >= 2
+          ? { label: '⚖️ Compare', kind: 'secondary', act: compareAct }
+          : { label: '⭐ Team', kind: 'secondary', act: _scrollToTeamWorkspace });
+      }
+      return { count: filled, total: total, complete: complete, actions: actions };
+    }
+
     window.mypolToggleAnimated = function(btn, pid) {
       var wasOnTeam = _myPoliticians.has(pid);
       if (wasOnTeam) { 
@@ -34363,7 +34486,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         setTimeout(function() { btn.classList.remove('just-added'); }, 600);
       }
       if (typeof window._showTeamToast === 'function') {
-        window._showTeamToast(pid, wasOnTeam ? 'remove' : 'add', {});
+        if (wasOnTeam) {
+          window._showTeamToast(pid, 'remove', {});
+        } else {
+          window._showTeamToast(pid, 'add', _buildTeamToastNextStep(pid));
+        }
       }
       if (typeof window._popTeamCounter === 'function') window._popTeamCounter();
       _mypolSave();
@@ -40502,7 +40629,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (isRemoving) {
             window._showTeamToast(pid, 'remove', { count: _filled, total: _total });
           } else {
-            window._showTeamToast(pid, 'add', { count: _filled, total: _total, complete: _filled === _total });
+            // Key Races already auto-advances to the next open race below, so the
+            // toast's guidance focuses on the other direction: comparing the slate
+            // so far, or hopping over to the team workspace.
+            var _complete = _filled === _total;
+            var _acts = [];
+            var _viewTeam = function() {
+              var b = document.getElementById('myteam-summary-box') || document.getElementById('my-politicians');
+              if (b && b.scrollIntoView) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+            if (_complete) {
+              if (_filled >= 2) _acts.push({ label: '⚖️ Compare your team', kind: 'primary', act: function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); } });
+              _acts.push({ label: '⭐ View team', kind: 'secondary', act: _viewTeam });
+            } else if (_filled >= 2) {
+              _acts.push({ label: '⚖️ Compare my picks', kind: 'secondary', act: function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); } });
+            }
+            window._showTeamToast(pid, 'add', { count: _filled, total: _total, complete: _complete, actions: _acts });
           }
         }
       } catch (e) {}
