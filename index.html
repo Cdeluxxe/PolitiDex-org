@@ -26391,7 +26391,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // still informative. For a sitting official the position is flagged as
       // not-yet-documented; for a candidate it is presented as a stated priority.
       var ki = (p.keyIssues || []).slice(0, 6);
-      if (!ki.length) return '';
+      if (!ki.length) {
+        // No documented stances AND no tagged issues. For a complete
+        // officeholder record we still deliberately omit the section to avoid
+        // noise. But for a 2026 candidate, or any thin / early-record profile,
+        // we render a clean, intentional empty state instead of vanishing — so
+        // the profile reads as honestly in-progress rather than broken, the
+        // thin-record notice's "positions below" hint always has something to
+        // land on, and the visitor is still pointed to the Alignment Tool as a
+        // way to judge them on values right now.
+        var _depthES = (typeof window._pdxRecordDepth === 'function') ? window._pdxRecordDepth(p) : 'full';
+        if (!_isCandidate && _depthES === 'full') return '';
+        var _esTitle = _isCandidate ? '🎯 Top Priorities' : '🎯 Key Issue Stances';
+        var _esIco   = _isCandidate ? '🗳️' : '🧭';
+        var _esHead  = _isCandidate ? 'Campaign priorities being added' : 'Stated positions being documented';
+        var _esSub   = _isCandidate
+          ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record. We are gathering their stated priorities from public campaign materials and will add detailed positions and sources as they are published — until then, you can still compare ' + _firstName + ' to your own values with the Alignment Tool.')
+          : ('Detailed positions for ' + _firstName + ' are still being documented and will be added as public statements and votes are verified. In the meantime, you can compare ' + _firstName + ' to your own values with the Alignment Tool.');
+        return '<div class="modal-section">' +
+          '<div class="modal-section-title">' + _esTitle + '</div>' +
+          '<div class="pdx-empty-state">' +
+            '<div class="pdx-empty-ico">' + _esIco + '</div>' +
+            '<div class="pdx-empty-title">' + _esHead + '</div>' +
+            '<div class="pdx-empty-sub">' + _esSub + '</div>' +
+          '</div>' +
+        '</div>';
+      }
       derived = true;
       stances = ki.map(function(issue) {
         return { topic: issue, icon: _deepProfileTopicIcon(issue),
@@ -26932,7 +26957,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<p class="ptn-text">' + (_isChallenger
             ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
             : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
-          '<div class="ptn-hint">↓ Their key issues and stated positions are below</div>' +
+          '<div class="ptn-hint">↓ ' + ((p.keyIssues && p.keyIssues.length) ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
           _thinNext +
         '</div>' +
       '</div>'
