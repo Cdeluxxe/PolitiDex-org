@@ -28894,23 +28894,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </div>
       </div>
 
-      <!-- Encouraging first steps -->
+      <!-- Encouraging first steps — mirrors the page's real path so the very first
+           thing a new visitor reads matches what the rest of the site asks them to
+           do: set a location, see the races on their ballot, add a first pick. -->
       <div class="bg-navy-900/40 border border-white/5 rounded-xl px-4 py-3.5 mb-6">
-        <p class="font-condensed text-xs tracking-[0.2em] uppercase text-gold-300 mb-2.5">New here? Start with three quick wins</p>
+        <p class="font-condensed text-xs tracking-[0.2em] uppercase text-gold-300 mb-2.5">New here? It's three quick steps</p>
         <ol class="space-y-2">
           <li class="flex items-center gap-2.5">
             <span class="flex-none w-5 h-5 rounded-full bg-crimson-600/25 border border-crimson-600/40 text-crimson-400 font-condensed font-700 text-[0.65rem] flex items-center justify-center">1</span>
-            <span class="text-steel-300 text-xs sm:text-sm font-body">Build your first <strong class="text-white">voting team</strong></span>
+            <span class="text-steel-300 text-xs sm:text-sm font-body"><strong class="text-white">Set your location</strong> — we'll pull up your real ballot</span>
           </li>
           <li class="flex items-center gap-2.5">
             <span class="flex-none w-5 h-5 rounded-full bg-crimson-600/25 border border-crimson-600/40 text-crimson-400 font-condensed font-700 text-[0.65rem] flex items-center justify-center">2</span>
-            <span class="text-steel-300 text-xs sm:text-sm font-body">Set your <strong class="text-white">alignments</strong> to find your best matches</span>
+            <span class="text-steel-300 text-xs sm:text-sm font-body">See <strong class="text-white">your races &amp; districts</strong> — the seats you actually vote on</span>
           </li>
           <li class="flex items-center gap-2.5">
             <span class="flex-none w-5 h-5 rounded-full bg-crimson-600/25 border border-crimson-600/40 text-crimson-400 font-condensed font-700 text-[0.65rem] flex items-center justify-center">3</span>
-            <span class="text-steel-300 text-xs sm:text-sm font-body">Track the <strong class="text-white">promises</strong> and add your voice</span>
+            <span class="text-steel-300 text-xs sm:text-sm font-body">Add your <strong class="text-white">first pick</strong> to start your voting team</span>
           </li>
         </ol>
+        <p class="text-steel-400 text-[0.7rem] sm:text-xs font-body leading-snug mt-3">Your team is just the people you'd vote for — chosen by <strong class="text-steel-200">your values</strong> and the <strong class="text-steel-200">districts you live in</strong>, not by party. No rush — everything saves as you go.</p>
       </div>
 
       <!-- Actions -->
@@ -31735,6 +31738,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (check) check.textContent = '🎉';
       if (title) title.textContent = 'Your voting team is complete!';
       if (sub) sub.textContent = name + ' fills your final slot — all ' + total + ' picked';
+    } else if (opts.count === 1) {
+      // First pick — a real milestone for a new voter. Acknowledge it warmly and
+      // reassure them their slate is now saving itself, so they know they're
+      // properly underway and what the next step is.
+      toast.classList.add('complete');
+      if (check) check.textContent = '⭐';
+      if (title) title.textContent = 'That\'s your first pick! 🎉';
+      if (sub) sub.textContent = name + ' is on your team — saved automatically. ' + Math.max(0, total - 1) + ' seats to go, at your own pace.';
     } else {
       if (check) check.textContent = '✓';
       if (title) title.textContent = 'Added to your team';
@@ -44794,6 +44805,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Each step points at a real section on the page, scrolls to it, glows it,
     // and explains the key features (and why they matter) in plain language.
     var steps = [
+      {
+        sel: '.pm-location-bar',
+        emoji: '📍',
+        title: 'Start With Your Location',
+        body: 'This is step one, and it takes a few seconds. Tell PolitiDex where you vote — or tap "Detect my location" — and it instantly maps your districts and pulls up your real ballot: the exact Senate, House, state and local races you\'ll actually decide. Everything else on the page tailors itself to you from here.'
+      },
       {
         sel: '#my-politicians',
         emoji: '👥',
