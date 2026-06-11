@@ -5196,6 +5196,88 @@
       .myteam-progress-pip { font-size: 0.56rem; padding: 0.2rem 0.5rem; }
       .myteam-progress-meta { gap: 0.6rem; }
     }
+    /* ── "Your Districts" coverage map ───────────────────────────────────────
+       A location-aware panel in the My Team builder that shows how much of the
+       voter's own ballot their team covers. Blue/navy ballot theme (distinct
+       from the amber team chrome around it); green = a seat that's covered,
+       amber = a seat still open — the same coverage language used elsewhere in
+       the app. Rendered by _renderTeamDistrictCoverage(). */
+    .myteam-dcov {
+      margin: 0 0 1.5rem; padding: 1.1rem 1.15rem 1.15rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(30,58,138,0.22) 0%, rgba(10,15,30,0.5) 60%, rgba(30,41,59,0.4) 100%);
+      border: 1px solid rgba(96,165,250,0.32);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .myteam-dcov.is-complete {
+      border-color: rgba(74,222,128,0.5);
+      background: linear-gradient(135deg, rgba(22,101,52,0.28) 0%, rgba(10,15,30,0.45) 60%, rgba(30,41,59,0.4) 100%);
+    }
+    .myteam-dcov-head { display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+    .myteam-dcov-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; font-size: 1.18rem; color: #fff; line-height: 1; }
+    .myteam-dcov-frac {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #93c5fd;
+    }
+    .myteam-dcov.is-complete .myteam-dcov-frac { color: #86efac; }
+    .myteam-dcov-bar { height: 8px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.07); margin-bottom: 0.85rem; }
+    .myteam-dcov-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #2563eb, #4ade80);
+      box-shadow: 0 0 14px rgba(74,222,128,0.35);
+      transition: width 0.7s cubic-bezier(0.34,1.25,0.64,1);
+    }
+    .myteam-dcov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; margin-bottom: 0.6rem; }
+    .myteam-dcov-seat {
+      display: flex; align-items: center; gap: 0.6rem; text-align: left; width: 100%;
+      padding: 0.6rem 0.7rem; min-height: 56px; border-radius: 0.7rem; cursor: pointer;
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.09);
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .myteam-dcov-seat:hover { transform: translateY(-2px); }
+    .myteam-dcov-seat.is-covered { background: rgba(34,197,94,0.09); border-color: rgba(34,197,94,0.4); }
+    .myteam-dcov-seat.is-covered:hover { border-color: rgba(34,197,94,0.7); }
+    .myteam-dcov-seat.is-open { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.32); }
+    .myteam-dcov-seat.is-open:hover { border-color: rgba(245,158,11,0.65); }
+    .myteam-dcov-ico { font-size: 1.25rem; flex-shrink: 0; line-height: 1; }
+    .myteam-dcov-seat-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.08rem; }
+    .myteam-dcov-office { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.84rem; letter-spacing: 0.02em; color: #fff; line-height: 1.1; }
+    .myteam-dcov-scope { font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; letter-spacing: 0.04em; color: #9fb4d4; line-height: 1.15; }
+    .myteam-dcov-status {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+      letter-spacing: 0.02em; line-height: 1.2; margin-top: 0.04rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    .myteam-dcov-seat.is-covered .myteam-dcov-status { color: #86efac; }
+    .myteam-dcov-seat.is-open .myteam-dcov-status { color: #fcd9a0; }
+    .myteam-dcov-msg { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; letter-spacing: 0.01em; color: #cfe0f5; line-height: 1.45; margin: 0.25rem 0 0; }
+    .myteam-dcov-msg strong { color: #fff; }
+    .myteam-dcov-msg .dcov-open { color: #fcd9a0; font-weight: 700; }
+    .myteam-dcov-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.8rem; min-height: 42px;
+      padding: 0.5rem 1.05rem; border-radius: 0.7rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.15));
+      border: 1px solid rgba(245,158,11,0.55); color: #ffe9c2; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.8rem;
+      letter-spacing: 0.06em; text-transform: uppercase; transition: transform 0.12s, border-color 0.15s;
+    }
+    .myteam-dcov-cta:hover { transform: translateY(-1px); border-color: rgba(251,191,36,0.9); }
+    .myteam-dcov-locnudge {
+      display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+      margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid rgba(96,165,250,0.18);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; color: #9fb4d4;
+    }
+    .myteam-dcov-locnudge button {
+      background: none; border: none; padding: 0; cursor: pointer; font: inherit;
+      color: #93c5fd; text-decoration: underline; font-weight: 700;
+    }
+    @media (max-width: 639px) {
+      .myteam-dcov-grid { grid-template-columns: 1fr 1fr; }
+      .myteam-dcov-office { font-size: 0.78rem; }
+    }
+    @media (max-width: 380px) {
+      .myteam-dcov-grid { grid-template-columns: 1fr; }
+    }
     .myteam-compare-all-bar {
       background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(139,92,246,0.08) 100%);
       border: 1px solid rgba(59,130,246,0.25);
@@ -13829,6 +13911,15 @@
                 <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 picks chosen</div>
               </div>
             </div>
+
+            <!-- "Your Districts" coverage map — a location-aware read on how much
+                 of the voter's OWN ballot their team covers. Each key seat (their
+                 U.S. House, State Senate & State House districts, plus the
+                 statewide and local seats on their slate) shows as covered ✓ or
+                 still open, with the real district number when known, gentle
+                 guidance naming the next gap, and a one-tap jump into that race.
+                 Rendered by _renderTeamDistrictCoverage() on every builder repaint. -->
+            <div id="myteam-district-coverage" class="myteam-dcov" style="display:none;"></div>
 
             <!-- "What to do next" guided checklist — a state-aware roadmap that
                  always points the visitor at their single most useful next action
@@ -35377,6 +35468,119 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       box.style.display = '';
     }
 
+    // ── "Your Districts" coverage map ──────────────────────────────────────────
+    // Turns the abstract "6 of N picks" count into a concrete map of the voter's
+    // OWN ballot: every seat on their slate (their U.S. House, State Senate &
+    // State House districts, plus the statewide and local seats) is shown as
+    // covered ✓ or still open, labelled with the real district number when we
+    // know it. The guidance line always names the single next gap, and every
+    // row — plus the CTA — jumps straight to that race so adding the missing
+    // pick is one tap away. Same green/amber coverage language used elsewhere.
+    var _MYTEAM_DISTRICT_KEYS = { house: 1, statesenate: 1, statehouse: 1 };
+
+    // The voter's real district number for a slate seat when their ballot area is
+    // known (matched), else null. Only meaningful for district-based seats; the
+    // U.S. House number also falls back to the saved location's district field.
+    function _myteamDistrictNum(key) {
+      try {
+        var kr = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+        if (kr && kr.matched && kr.byRace && kr.byRace[key] && kr.byRace[key].district) {
+          return String(kr.byRace[key].district);
+        }
+      } catch (e) {}
+      if (key === 'house') {
+        var d = (window._currentVoterLocation && window._currentVoterLocation.district) || '';
+        if (d) return String(d);
+      }
+      return null;
+    }
+
+    // Short, office-appropriate scope label for a seat row.
+    function _myteamSeatScope(key) {
+      if (_MYTEAM_DISTRICT_KEYS[key]) {
+        var n = _myteamDistrictNum(key);
+        return n ? 'District ' + n : 'Your district';
+      }
+      if (key === 'local') return 'Your community';
+      return 'Statewide';
+    }
+
+    function _renderTeamDistrictCoverage(ballotSelections, filledCount) {
+      var box = document.getElementById('myteam-district-coverage');
+      if (!box) return;
+      var positions = window.TEAM_POSITIONS || [];
+      if (!positions.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+      var total = positions.length;
+      var covered = 0;
+      var firstOpen = null;
+      var seats = positions.map(function(pos) {
+        var pid = ballotSelections[pos.key];
+        var d = pid ? CMP_DATA[pid] : null;
+        var on = !!d;
+        if (on) covered++; else if (!firstOpen) firstOpen = pos;
+        var scope = _myteamSeatScope(pos.key);
+        var cls = on ? 'is-covered' : 'is-open';
+        var nm = on ? (d.name || 'On your team').replace(/"/g, '&quot;') : '';
+        var status = on ? '✓ ' + nm : '➕ Add a pick';
+        var title = on
+          ? nm + ' — your ' + pos.label + ' pick (tap to review or swap)'
+          : 'Add your ' + pos.label + ' pick';
+        return '<button type="button" class="myteam-dcov-seat ' + cls + '" title="' + title + '" ' +
+            'onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">' +
+            '<span class="myteam-dcov-ico">' + (pos.icon || '\u{1F3DB}') + '</span>' +
+            '<span class="myteam-dcov-seat-body">' +
+              '<span class="myteam-dcov-office">' + pos.label + '</span>' +
+              '<span class="myteam-dcov-scope">' + scope + '</span>' +
+              '<span class="myteam-dcov-status">' + status + '</span>' +
+            '</span>' +
+          '</button>';
+      }).join('');
+
+      var pct = Math.round(covered / total * 100);
+      var done = covered >= total;
+
+      // Gentle, state-aware guidance: celebrate a full ballot, otherwise name the
+      // single next gap (with its district number when known) so the voter always
+      // knows exactly what one thing to do next.
+      var msg, cta = '';
+      function _openLabel(pos) {
+        var s = _myteamSeatScope(pos.key);
+        return pos.label + (s.indexOf('District') === 0 ? ' (' + s + ')' : '');
+      }
+      if (done) {
+        msg = '\u{1F389} <strong>Every seat on your ballot has a pick.</strong> Your team covers all your districts — compare your slate below to weigh them side by side.';
+      } else if (covered === 0) {
+        msg = 'None of your districts are covered yet. Start with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> — tap any seat to meet the candidates and add your pick. Everything saves as you go.';
+        cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
+      } else {
+        var openCount = total - covered;
+        msg = 'Great progress! <strong>' + covered + ' of ' + total + '</strong> seats covered — you still need to add someone for your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>' + (openCount > 1 ? ' (and ' + (openCount - 1) + ' more)' : '') + '. Tap it to compare the field and complete your coverage.';
+        cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
+      }
+
+      // When no area is set we can't show real district numbers — offer a one-tap
+      // way to set it so the seats fill in with the voter's actual districts.
+      var locNudge = '';
+      if (!window._hasUserLocation) {
+        locNudge = '<div class="myteam-dcov-locnudge"><span>\u{1F4CD} Set your area to see your exact district numbers.</span>' +
+          '<button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()">Set your location</button></div>';
+      }
+
+      box.classList.toggle('is-complete', done);
+      box.innerHTML =
+        '<div class="myteam-dcov-head">' +
+          '<span class="myteam-dcov-title">\u{1F5FA}️ Your District Coverage</span>' +
+          '<span class="myteam-dcov-frac">' + covered + ' of ' + total + ' seats covered</span>' +
+        '</div>' +
+        '<div class="myteam-dcov-bar"><div class="myteam-dcov-fill" style="width:' + pct + '%;"></div></div>' +
+        '<div class="myteam-dcov-grid">' + seats + '</div>' +
+        '<p class="myteam-dcov-msg">' + msg + '</p>' +
+        cta +
+        locNudge;
+      box.style.display = '';
+    }
+
     function _mypolBuildGrid() {
       var slotsGrid = document.getElementById('myteam-slots-grid');
       var teamEmpty = document.getElementById('myteam-empty');
@@ -35519,6 +35723,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _renderTeamOfficeSummary(ballotSelections, filledCount);
       _renderTeamSaveStatus(filledCount);
       _renderTeamNextStep(filledCount);
+      _renderTeamDistrictCoverage(ballotSelections, filledCount);
 
       var browseSlotsLabel = document.getElementById('myteam-browse-slots-label');
       var browseSlotsBar = document.getElementById('myteam-browse-slots-bar');
