@@ -12328,6 +12328,15 @@
       color: #86efac;
     }
     #relevant-browse-grid .relevant-coverage.is-empty .rel-cov-frac { color: #fcd9a0; }
+    /* District-first sub-stat: how many of the voter's OWN voting districts are
+       filled. Amber while any remain open, green once every district is covered —
+       mirrors the My Team coverage map's "voting districts" badge. */
+    #relevant-browse-grid .rel-cov-distfrac {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fcd9a0;
+    }
+    #relevant-browse-grid .rel-cov-distfrac.is-done { color: #86efac; }
     #relevant-browse-grid .rel-cov-bar {
       height: 8px; border-radius: 999px; overflow: hidden;
       background: rgba(255,255,255,0.08); margin-bottom: 0.6rem;
@@ -12344,6 +12353,7 @@
     }
     #relevant-browse-grid .rel-cov-msg strong { color: #fff; }
     #relevant-browse-grid .rel-cov-open { color: #fcd9a0; font-weight: 700; }
+    #relevant-browse-grid .rel-cov-more { color: #9fb4d4; }
     #relevant-browse-grid .rel-cov-cta {
       display: inline-flex; align-items: center; gap: 0.35rem;
       margin-top: 0.65rem; min-height: 40px;
@@ -37453,6 +37463,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       state_rep: 'your State House representative',
       local: 'a local leader'
     };
+    // The voter's OWN voting districts — the geographically specific seats only
+    // people who live there elect (U.S. House, State Senate, State House). These get
+    // top billing in the coverage tracker because "which of MY districts have I
+    // covered" is the motivating question this section answers. Mirrors My Team's
+    // _MYTEAM_DISTRICT_KEYS so the two surfaces frame coverage identically.
+    var _RELEVANT_DISTRICT_OFFICES = { representative: 1, state_senator: 1, state_rep: 1 };
+    // Plain-language word for each ballot level, used by the level-completion
+    // guidance ("you've covered your federal seats — add your State Senator next").
+    var _RELEVANT_LEVEL_WORD = { federal: 'federal', state: 'state', local: 'local' };
 
     // Live team selections ({ raceKey: pid }), read from the same store the team
     // builder writes to, so coverage can never drift from My Team. Returns {} when
@@ -38514,18 +38533,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           statusRow +
           '</button>';
       }
-      var ballotChips = [];
-      if (officeGroups.representative) ballotChips.push(_ballotChip('🏛', 'U.S. House', houseDist ? 'District ' + houseDist : 'Your district', 'federal', 'representative'));
-      if (officeGroups.state_senator)  ballotChips.push(_ballotChip('🏛', 'State Senate', senateDist ? 'District ' + senateDist : 'Your district', 'state', 'state_senator'));
-      if (officeGroups.state_rep)      ballotChips.push(_ballotChip('🏛', 'State House', lowerDist ? 'District ' + lowerDist : 'Your district', 'state', 'state_rep'));
-      if (officeGroups.governor)       ballotChips.push(_ballotChip('⭐', 'Statewide Exec', 'Statewide · ' + stateName, 'state', 'governor'));
-      if (officeGroups.senator)        ballotChips.push(_ballotChip('🏛', 'U.S. Senate', 'Statewide · ' + stateName, 'federal', 'senator'));
-      if (officeGroups.local)          ballotChips.push(_ballotChip('🏙', 'Local', 'Your community', 'local', 'local'));
+      // Two labeled chip groups so the voter instantly sees the distinction that
+      // matters: the seats unique to THEIR districts (U.S. House, State Senate,
+      // State House) versus the statewide/federal seats every neighbor shares.
+      // Mirrors the My Team coverage map's level grouping.
+      var _distChips = [];
+      var _sharedChips = [];
+      if (officeGroups.representative) _distChips.push(_ballotChip('🏛', 'U.S. House', houseDist ? 'District ' + houseDist : 'Your district', 'federal', 'representative'));
+      if (officeGroups.state_senator)  _distChips.push(_ballotChip('🏛', 'State Senate', senateDist ? 'District ' + senateDist : 'Your district', 'state', 'state_senator'));
+      if (officeGroups.state_rep)      _distChips.push(_ballotChip('🏛', 'State House', lowerDist ? 'District ' + lowerDist : 'Your district', 'state', 'state_rep'));
+      if (officeGroups.senator)        _sharedChips.push(_ballotChip('🏛', 'U.S. Senate', 'Statewide · ' + stateName, 'federal', 'senator'));
+      if (officeGroups.governor)       _sharedChips.push(_ballotChip('⭐', 'Statewide Exec', 'Statewide · ' + stateName, 'state', 'governor'));
+      if (officeGroups.local)          _sharedChips.push(_ballotChip('🏙', 'Local', 'Your community', 'local', 'local'));
+      var ballotChips = _distChips.concat(_sharedChips);
 
       // ── District coverage tracker ──────────────────────────────────────────
       // Turn the voter's own seats into a progress goal: how many already have a
-      // pick on their team, and which ones are still open. Same green/amber
-      // language as the chips and office headers, so the whole section agrees.
+      // pick on their team, and which one to fill next. Mirrors the My Team
+      // coverage map — district seats get their own sub-stat, and the guidance
+      // always names a single next gap with level-completion framing — so the two
+      // surfaces guide the voter the same way and can never disagree.
       var _covOrder = ['representative', 'senator', 'state_senator', 'state_rep', 'governor', 'local'];
       var _covOffices = _covOrder.filter(function(k) { return officeGroups[k] && officeGroups[k].length; });
       var _covOpen = [];
@@ -38535,28 +38562,80 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else _covOpen.push(k);
       });
       var _covTotal = _covOffices.length;
+
+      // The voter's OWN voting districts (U.S. House, State Senate, State House),
+      // tracked separately so the motivating "how many of MY districts are filled"
+      // question is answered up top no matter how many statewide seats are present.
+      var _covDistOffices = _covOffices.filter(function(k) { return _RELEVANT_DISTRICT_OFFICES[k]; });
+      var _covDistOpen = _covOpen.filter(function(k) { return _RELEVANT_DISTRICT_OFFICES[k]; });
+      var _covDistTotal = _covDistOffices.length;
+      var _covDistFilled = _covDistTotal - _covDistOpen.length;
+      var _covDistDone = _covDistTotal > 0 && _covDistOpen.length === 0;
+
+      // Open seats sharing a given ballot level, and the levels already fully
+      // covered — the inputs for "complete your federal coverage" / "you've covered
+      // your federal seats" framing.
+      function _covOpenInLevel(lv) { return _covOpen.filter(function(k) { return (_RELEVANT_OFFICE_LEVEL[k] || '') === lv; }); }
+      function _covOfficesInLevel(lv) { return _covOffices.filter(function(k) { return (_RELEVANT_OFFICE_LEVEL[k] || '') === lv; }); }
+
       var coverageStrip = '';
       if (_covTotal > 0) {
         var _covPct = Math.round((_covFilled / _covTotal) * 100);
         var _covDone = _covFilled >= _covTotal;
         var _stripClass = _covDone ? ' is-complete' : (_covFilled === 0 ? ' is-empty' : '');
+
+        // Steer at ONE next gap, preferring an open seat in the voter's own voting
+        // districts (the races unique to them) before any statewide/federal gap.
+        var _firstOpen = _covDistOpen[0] || _covOpen[0];
         var _covMsg, _covCta = '';
         if (_covDone) {
           _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> Review your slate below, or compare your full team to weigh them side by side.';
-        } else {
-          var _names = _covOpen.map(function(k) { return '<span class="rel-cov-open">' + _relTxt(_RELEVANT_OFFICE_SHORT[k] || k) + '</span>'; });
-          var _list = _names.length === 1 ? _names[0]
-            : _names.slice(0, -1).join(', ') + ' &amp; ' + _names[_names.length - 1];
-          _covMsg = 'Still open on your team: ' + _list + '. Add a pick for each to build a team that covers your whole ballot.';
-          var _firstOpen = _covOpen[0];
-          var _firstLevel = _RELEVANT_OFFICE_LEVEL[_firstOpen] || 'state';
-          _covCta = '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _firstLevel + '\',\'' + _firstOpen + '\')">➕ Fill your ' + _relTxt(_RELEVANT_OFFICE_SHORT[_firstOpen] || 'next') + ' seat</button>';
+        } else if (_firstOpen) {
+          var _foShort = _relTxt(_RELEVANT_OFFICE_SHORT[_firstOpen] || _firstOpen);
+          var _foYours = _relTxt(_RELEVANT_OFFICE_YOURS[_firstOpen] || ('your ' + _foShort + ' seat'));
+          var _foLevel = _RELEVANT_OFFICE_LEVEL[_firstOpen] || 'state';
+          var _foLevelWord = _RELEVANT_LEVEL_WORD[_foLevel] || 'ballot';
+          var _lvlOfficeCount = _covOfficesInLevel(_foLevel).length;
+          var _lvlOpenCount = _covOpenInLevel(_foLevel).length;
+          // Other levels the voter has already fully covered — used for the
+          // encouraging "you've covered your federal seats" lead-in.
+          var _coveredLevels = ['federal', 'state', 'local'].filter(function(lv) {
+            return lv !== _foLevel && _covOfficesInLevel(lv).length && !_covOpenInLevel(lv).length;
+          });
+          var _lead;
+          if (_lvlOfficeCount > 1 && _lvlOpenCount === 1) {
+            // Filling this seat finishes its whole level.
+            _lead = 'Add <span class="rel-cov-open">' + _foYours + '</span> to complete your <strong>' + _foLevelWord + '</strong> coverage.';
+          } else if (_coveredLevels.length) {
+            // Pat on the back for a level already done, then point at the next gap.
+            var _doneWord = _RELEVANT_LEVEL_WORD[_coveredLevels[0]] || _coveredLevels[0];
+            _lead = 'You’ve covered your <strong>' + _doneWord + '</strong> seats — add <span class="rel-cov-open">' + _foYours + '</span> next.';
+          } else if (_RELEVANT_DISTRICT_OFFICES[_firstOpen]) {
+            _lead = 'You still need someone from <span class="rel-cov-open">' + _foYours + '</span>.';
+          } else if (_covFilled === 0) {
+            _lead = 'Nothing on your team yet — start with <span class="rel-cov-open">' + _foYours + '</span>.';
+          } else {
+            _lead = '<strong>' + _covFilled + ' of ' + _covTotal + '</strong> seats covered — add <span class="rel-cov-open">' + _foYours + '</span> next.';
+          }
+          var _moreOpen = _covOpen.length - 1;
+          _covMsg = _lead +
+            (_moreOpen > 0 ? ' <span class="rel-cov-more">' + _moreOpen + ' more after that.</span>' : '') +
+            ' Open it to compare the field and add your pick — it saves to My Team as you go.';
+          _covCta = '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _foLevel + '\',\'' + _firstOpen + '\')">➕ Add ' + _foShort + '</button>';
         }
+
+        // District-first sub-stat in the header: how many of the voter's OWN voting
+        // districts are filled, green once every one is covered.
+        var _covDistFrac = _covDistTotal
+          ? '<span class="rel-cov-distfrac' + (_covDistDone ? ' is-done' : '') + '">\u{1F4CD} ' + _covDistFilled + ' of ' + _covDistTotal + ' voting districts</span>'
+          : '';
+
         coverageStrip =
           '<div class="relevant-coverage' + _stripClass + '">' +
             '<div class="rel-cov-top">' +
               '<span class="rel-cov-title">🗳️ Your district coverage</span>' +
               '<span class="rel-cov-frac">' + _covFilled + ' of ' + _covTotal + ' seats on your team</span>' +
+              _covDistFrac +
             '</div>' +
             '<div class="rel-cov-bar"><div class="rel-cov-fill" style="width:' + _covPct + '%;"></div></div>' +
             '<p class="rel-cov-msg">' + _covMsg + '</p>' +
@@ -38572,11 +38651,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + (krData ? krData.label : 'Personalized Ballot') + ' — tap a race to jump to it</span>';
         overview += '</div>';
         // One-line bridge from "these are your districts" to "do something with
-        // them": every chip is a real seat in the voter's own districts, and the
-        // action is always the same — open it and add your pick to your team.
-        overview += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.86rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.45;margin:0 0 0.85rem;">Each tile is a seat in <strong style="color:#fff;">your</strong> districts. Tap one to meet the people who hold it and who\'s running in 2026 — then <strong style="color:#fbbf24;">➕ Add to My Team</strong> the candidate who earns your vote.</p>';
+        // them": the tiles are the seats on your ballot — your own districts first,
+        // then the statewide seats you share — and the action is always the same:
+        // open one and add your pick to your team.
+        overview += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.86rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.45;margin:0 0 0.85rem;">These are the seats on <strong style="color:#fff;">your</strong> ballot — your own districts first, then the statewide seats you share. Tap one to meet who holds it and who\'s running in 2026, then <strong style="color:#fbbf24;">➕ Add to My Team</strong> the candidate who earns your vote.</p>';
         overview += coverageStrip;
-        overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
+        // Render the chips in two labeled bands — the voter's own voting districts
+        // first (the seats only they elect), then the statewide/shared seats — so
+        // "which of MY districts have I covered" reads at a glance. Each band only
+        // appears when it has seats, and the labels are dropped when there is just
+        // one band so a single-group ballot stays clean.
+        var _chipGrid = function(chips) {
+          return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + chips.join('') + '</div>';
+        };
+        var _bandLabel = function(txt) {
+          return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fb4d4;margin:0 0 0.4rem;">' + txt + '</div>';
+        };
+        var _bothBands = _distChips.length && _sharedChips.length;
+        if (_distChips.length) {
+          if (_bothBands) overview += _bandLabel('📍 Your voting districts — seats only you elect');
+          overview += _chipGrid(_distChips);
+        }
+        if (_sharedChips.length) {
+          if (_bothBands) overview += '<div style="margin-top:0.7rem;">' + _bandLabel('⭐ Statewide &amp; shared — every ' + (stateName || 'state') + ' voter') + _chipGrid(_sharedChips) + '</div>';
+          else overview += _chipGrid(_sharedChips);
+        }
         // Compact in-place area switcher so voters can re-point the whole ballot
         // to another supported area without scrolling back up to "Your Key Races".
         if (krData && typeof window._relevantAreaSwitcher === 'function') {
