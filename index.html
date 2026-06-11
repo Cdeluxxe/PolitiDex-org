@@ -12964,6 +12964,220 @@
         </div>
       </div>
 
+      <!-- ══════════════════════════════════════════════════════════════════
+           ELECTION COUNTDOWN — live countdowns to Utah's key 2026 voting
+           dates and deadlines. Data is hardcoded below; the soonest upcoming
+           date becomes a live ticker and the rest render as compact cards.
+           Past dates auto-collapse into a muted "done" strip, so the block
+           stays correct as time passes with no edits required.
+      ════════════════════════════════════════════════════════════════════ -->
+      <div id="election-countdown" class="pd-ec mb-6 animate-on-scroll" style="scroll-margin-top:80px;transition-delay:0.05s;">
+        <style id="pd-ec-styles">
+          .pd-ec-shell{position:relative;border-radius:1.5rem;padding:1.5rem;overflow:hidden;
+            background:linear-gradient(135deg,rgba(192,21,42,0.10) 0%,rgba(10,15,30,0.92) 45%,rgba(26,58,107,0.20) 100%);
+            border:2px solid rgba(255,255,255,0.10);box-shadow:0 12px 50px rgba(0,0,0,0.4),0 0 40px rgba(192,21,42,0.08);}
+          .pd-ec-shell::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+            background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);opacity:0.6;}
+          .pd-ec-head{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.25rem;}
+          .pd-ec-head-ico{width:3.25rem;height:3.25rem;flex:none;border-radius:1rem;display:flex;align-items:center;justify-content:center;
+            font-size:1.55rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 100%);box-shadow:0 0 28px rgba(192,21,42,0.4);
+            border:2px solid rgba(255,255,255,0.15);}
+          .pd-ec-kicker{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.18em;
+            text-transform:uppercase;color:#fad96a;}
+          .pd-ec-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:0.04em;color:#fff;margin:0.1rem 0 0.15rem;
+            text-shadow:0 0 30px rgba(239,68,68,0.3);}
+          .pd-ec-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;letter-spacing:0.01em;color:#9fb4d4;margin:0;line-height:1.3;}
+
+          /* Featured (soonest) date — live ticker */
+          .pd-ec-hero-card{border-radius:1.25rem;padding:1.25rem 1.35rem;border:1.5px solid rgba(255,255,255,0.12);
+            background:linear-gradient(135deg,rgba(13,21,38,0.9),rgba(17,29,54,0.86));margin-bottom:1rem;}
+          .pd-ec-hero-el{border-color:rgba(245,200,66,0.45);box-shadow:0 0 30px rgba(245,200,66,0.10);
+            background:linear-gradient(135deg,rgba(245,200,66,0.10),rgba(192,21,42,0.08));}
+          .pd-ec-hero-dl{border-color:rgba(239,68,68,0.45);box-shadow:0 0 30px rgba(239,68,68,0.10);
+            background:linear-gradient(135deg,rgba(192,21,42,0.12),rgba(13,21,38,0.9));}
+          .pd-ec-hero-top{display:flex;align-items:center;gap:0.85rem;margin-bottom:1rem;}
+          .pd-ec-hero-ico{font-size:2.1rem;line-height:1;flex:none;}
+          .pd-ec-hero-meta{display:flex;flex-direction:column;min-width:0;}
+          .pd-ec-hero-tag{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.15em;
+            text-transform:uppercase;color:#fad96a;}
+          .pd-ec-hero-dl .pd-ec-hero-tag{color:#ff8a9a;}
+          .pd-ec-hero-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
+          .pd-ec-hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:#aebfd8;line-height:1.25;}
+          .pd-ec-clock{display:flex;align-items:stretch;gap:0.5rem;flex-wrap:wrap;}
+          .pd-ec-unit{flex:1 1 0;min-width:3.6rem;text-align:center;border-radius:0.85rem;padding:0.6rem 0.4rem;
+            background:rgba(5,8,20,0.55);border:1px solid rgba(255,255,255,0.08);}
+          .pd-ec-unit-n{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;line-height:1;color:#fff;letter-spacing:0.02em;
+            font-variant-numeric:tabular-nums;}
+          .pd-ec-hero-el .pd-ec-unit-n{color:#fad96a;}
+          .pd-ec-unit-l{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.14em;
+            text-transform:uppercase;color:#7e93b4;margin-top:0.25rem;}
+          .pd-ec-hero-foot{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
+            margin-top:0.95rem;padding-top:0.85rem;border-top:1px solid rgba(255,255,255,0.08);}
+          .pd-ec-hero-date{font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:600;color:#cdd9ec;letter-spacing:0.02em;}
+          .pd-ec-hero-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;
+            text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-radius:0.7rem;
+            padding:0.5rem 0.95rem;text-decoration:none;transition:transform 0.15s ease,box-shadow 0.15s ease;white-space:nowrap;}
+          .pd-ec-hero-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,200,66,0.35);}
+
+          /* Secondary dates grid */
+          .pd-ec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;}
+          .pd-ec-card{border-radius:1rem;padding:0.95rem 1rem;border:1px solid rgba(255,255,255,0.1);
+            background:rgba(10,15,30,0.55);display:flex;flex-direction:column;gap:0.3rem;transition:border-color 0.2s ease,transform 0.2s ease;}
+          .pd-ec-card:hover{border-color:rgba(96,165,250,0.4);transform:translateY(-2px);}
+          .pd-ec-card-el{border-left:3px solid #fad96a;}
+          .pd-ec-card-dl{border-left:3px solid #ef4444;}
+          .pd-ec-card-top{display:flex;align-items:center;gap:0.45rem;}
+          .pd-ec-card-ico{font-size:1.05rem;line-height:1;}
+          .pd-ec-card-title{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:700;color:#e6eefb;line-height:1.1;}
+          .pd-ec-card-days{display:flex;align-items:baseline;gap:0.35rem;margin-top:0.15rem;}
+          .pd-ec-card-n{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums;}
+          .pd-ec-card-u{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.12em;
+            text-transform:uppercase;color:#7e93b4;}
+          .pd-ec-card-date{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#8499b6;letter-spacing:0.02em;}
+
+          /* Completed strip */
+          .pd-ec-past{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:1rem;}
+          .pd-ec-past-chip{display:inline-flex;align-items:center;gap:0.35rem;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;
+            font-weight:600;letter-spacing:0.02em;color:#74849c;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+            border-radius:999px;padding:0.3rem 0.7rem;}
+          .pd-ec-past-chip .pd-ec-check{color:#34d399;}
+          .pd-ec-alldone{font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;color:#aebfd8;text-align:center;padding:1rem;}
+          .pd-ec-foot{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#6b82a8;letter-spacing:0.02em;margin:1rem 0 0;text-align:center;}
+          .pd-ec-foot a{color:#60a5fa;text-decoration:none;}
+          .pd-ec-foot a:hover{text-decoration:underline;}
+
+          @media (max-width:720px){
+            .pd-ec-grid{grid-template-columns:1fr;}
+            .pd-ec-title{font-size:1.7rem;}
+            .pd-ec-unit-n{font-size:1.8rem;}
+            .pd-ec-hero-foot{flex-direction:column;align-items:flex-start;}
+            .pd-ec-hero-cta{width:100%;text-align:center;}
+          }
+        </style>
+        <div class="pd-ec-shell">
+          <div class="pd-ec-head">
+            <div class="pd-ec-head-ico">🗳️</div>
+            <div>
+              <div class="pd-ec-kicker">Mark your calendar · Utah 2026</div>
+              <h2 class="pd-ec-title">ELECTION COUNTDOWN</h2>
+              <p class="pd-ec-sub">The key voting dates and deadlines that decide whether your vote counts — counting down live.</p>
+            </div>
+          </div>
+          <div id="pd-ec-hero" class="pd-ec-hero"></div>
+          <div id="pd-ec-grid" class="pd-ec-grid"></div>
+          <div id="pd-ec-past" class="pd-ec-past"></div>
+          <p class="pd-ec-foot">Dates shown in Mountain Time. Always confirm the details for your county at <a href="https://vote.utah.gov/" target="_blank" rel="noopener">vote.utah.gov</a>.</p>
+        </div>
+      </div>
+      <script>
+      (function(){
+        // ── Hardcoded Utah 2026 key election dates ──────────────────────────
+        //   Mountain Time offsets are explicit: -06:00 in summer (MDT),
+        //   -07:00 in November (MST). Polls close 8:00 PM; deadlines are 5:00 PM.
+        //   Add or edit entries here; the UI re-sorts and re-labels automatically.
+        var EVENTS = [
+          { id:'filing',      icon:'🖊️', kind:'deadline', title:'Candidate Filing Deadline',
+            sub:'Last day candidates could file to appear on the 2026 ballot.',
+            date:'2026-01-08T17:00:00-07:00' },
+          { id:'reg-primary', icon:'📝', kind:'deadline', title:'Register to Vote — Primary',
+            sub:'Online & by-mail registration deadline for the June primary.',
+            date:'2026-06-12T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
+          { id:'primary',     icon:'🗳️', kind:'election', title:'Utah Primary Election',
+            sub:'Parties choose their nominees. Polls open 7 AM–8 PM.',
+            date:'2026-06-23T20:00:00-06:00', cta:{ label:'How to vote', href:'https://vote.utah.gov/' } },
+          { id:'reg-general', icon:'📝', kind:'deadline', title:'Register to Vote — General',
+            sub:'Online & by-mail registration deadline for the November general.',
+            date:'2026-10-23T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
+          { id:'general',     icon:'🏛️', kind:'election', title:'Utah General Election',
+            sub:'The main event — every key seat on your ballot is decided.',
+            date:'2026-11-03T20:00:00-07:00', cta:{ label:'Plan your vote', href:'https://vote.utah.gov/' } }
+        ];
+
+        var heroHost = document.getElementById('pd-ec-hero');
+        var gridHost = document.getElementById('pd-ec-grid');
+        var pastHost = document.getElementById('pd-ec-past');
+        if(!heroHost || !gridHost || !pastHost) return;
+
+        var ts = function(e){ return new Date(e.date).getTime(); };
+        var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+        var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+          return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; }); };
+        var fmtDate = function(t){
+          return new Date(t).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' }); };
+        var dhms = function(ms){
+          var s = Math.max(0, Math.floor(ms / 1000));
+          return { d:Math.floor(s/86400), h:Math.floor((s%86400)/3600), m:Math.floor((s%3600)/60), s:s%60 }; };
+
+        var lastSig = null;
+
+        function unit(id, label){
+          return '<div class="pd-ec-unit"><div class="pd-ec-unit-n" id="'+id+'">--</div>'
+               + '<div class="pd-ec-unit-l">'+label+'</div></div>';
+        }
+        function heroHTML(e){
+          var cls = e.kind === 'election' ? 'pd-ec-hero-el' : 'pd-ec-hero-dl';
+          var tag = e.kind === 'election' ? 'Next Election' : 'Next Deadline';
+          var cta = e.cta ? '<a class="pd-ec-hero-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
+          return '<div class="pd-ec-hero-card '+cls+'">'
+            + '<div class="pd-ec-hero-top"><span class="pd-ec-hero-ico">'+e.icon+'</span>'
+            + '<div class="pd-ec-hero-meta"><span class="pd-ec-hero-tag">'+tag+'</span>'
+            + '<span class="pd-ec-hero-title">'+esc(e.title)+'</span>'
+            + '<span class="pd-ec-hero-sub">'+esc(e.sub)+'</span></div></div>'
+            + '<div class="pd-ec-clock">'+unit('pd-ec-d','Days')+unit('pd-ec-h','Hours')+unit('pd-ec-m','Min')+unit('pd-ec-s','Sec')+'</div>'
+            + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+fmtDate(ts(e))+'</span>'+cta+'</div></div>';
+        }
+        function cardHTML(e){
+          var cls = e.kind === 'election' ? 'pd-ec-card-el' : 'pd-ec-card-dl';
+          return '<div class="pd-ec-card '+cls+'">'
+            + '<div class="pd-ec-card-top"><span class="pd-ec-card-ico">'+e.icon+'</span>'
+            + '<span class="pd-ec-card-title">'+esc(e.title)+'</span></div>'
+            + '<div class="pd-ec-card-days"><span class="pd-ec-card-n" id="pd-ec-days-'+e.id+'">--</span>'
+            + '<span class="pd-ec-card-u">days away</span></div>'
+            + '<div class="pd-ec-card-date">'+fmtDate(ts(e))+'</div></div>';
+        }
+        function pastHTML(e){
+          return '<span class="pd-ec-past-chip"><span class="pd-ec-check">✓</span>'+esc(e.title)+' · '+fmtDate(ts(e))+'</span>';
+        }
+
+        function render(upcoming, past){
+          if(upcoming.length){
+            heroHost.innerHTML = heroHTML(upcoming[0]);
+            gridHost.innerHTML = upcoming.slice(1).map(cardHTML).join('');
+          } else {
+            heroHost.innerHTML = '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check vote.utah.gov for the next cycle.</div>';
+            gridHost.innerHTML = '';
+          }
+          pastHost.innerHTML = past.map(pastHTML).join('');
+        }
+
+        function tick(){
+          var now = Date.now();
+          var sorted = EVENTS.slice().sort(function(a,b){ return ts(a) - ts(b); });
+          var upcoming = sorted.filter(function(e){ return ts(e) > now; });
+          var past = sorted.filter(function(e){ return ts(e) <= now; });
+
+          // Rebuild the DOM only when the set of upcoming dates changes.
+          var sig = upcoming.map(function(e){ return e.id; }).join('|');
+          if(sig !== lastSig){ lastSig = sig; render(upcoming, past); }
+
+          // Live-update the featured ticker.
+          if(upcoming.length){
+            var t = dhms(ts(upcoming[0]) - now);
+            var set = function(id, v){ var el = document.getElementById(id); if(el) el.textContent = v; };
+            set('pd-ec-d', t.d); set('pd-ec-h', pad(t.h)); set('pd-ec-m', pad(t.m)); set('pd-ec-s', pad(t.s));
+          }
+          // Update day counts on the secondary cards.
+          for(var i = 1; i < upcoming.length; i++){
+            var el = document.getElementById('pd-ec-days-' + upcoming[i].id);
+            if(el) el.textContent = Math.ceil((ts(upcoming[i]) - now) / 86400000);
+          }
+        }
+
+        tick();
+        setInterval(tick, 1000);
+      })();
+      </script>
+
       <!-- Change Location Modal (State → County → District) -->
       <div id="change-location-form" class="loc-modal-overlay" style="display:none;" onclick="if(event.target===this)window.closeLocationModal()">
         <div class="loc-modal-box" role="dialog" aria-modal="true" aria-labelledby="loc-modal-title">
