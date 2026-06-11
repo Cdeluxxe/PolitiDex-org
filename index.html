@@ -12832,6 +12832,23 @@
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
   <section id="voter-hub" class="py-16 md:py-24 border-b border-white/5" style="background:linear-gradient(180deg,rgba(5,8,20,0.95) 0%,rgba(10,20,50,0.9) 100%);">
+    <!-- Reusable, low-key "guidance hint" — a quiet helper line used to gently
+         orient first-time visitors at each decision point without cluttering the
+         interface. Blue by default; amber/purple modifiers tie a hint to the
+         section it lives in (team = amber, alignment = purple). -->
+    <style id="pdx-hint-styles">
+      .pdx-hint{display:flex;gap:0.6rem;align-items:flex-start;background:rgba(96,165,250,0.07);
+        border:1px solid rgba(96,165,250,0.22);border-left:3px solid rgba(96,165,250,0.6);
+        border-radius:0.75rem;padding:0.7rem 0.9rem;}
+      .pdx-hint + .pdx-hint{margin-top:0.55rem;}
+      .pdx-hint-ico{font-size:1rem;line-height:1.4;flex:none;}
+      .pdx-hint-text{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.5;color:#bcd3f5;margin:0;}
+      .pdx-hint-text strong{color:#fff;font-weight:700;}
+      .pdx-hint-amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.26);border-left-color:rgba(245,158,11,0.6);}
+      .pdx-hint-amber .pdx-hint-text{color:#f5d9a8;}
+      .pdx-hint-purple{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.26);border-left-color:rgba(139,92,246,0.65);}
+      .pdx-hint-purple .pdx-hint-text{color:#cdbdf5;}
+    </style>
     <div class="max-w-6xl mx-auto px-4">
 
       <!-- ── Header — value proposition + first-time guidance ─── -->
@@ -13420,6 +13437,14 @@
               </div>
             </div>
 
+            <!-- Gentle "how to fill your team" guidance — explains the add
+                 mechanic in one line so a first-time visitor knows exactly where
+                 picks come from. Shown for everyone; it never gets in the way. -->
+            <div class="pdx-hint pdx-hint-amber mb-5">
+              <span class="pdx-hint-ico" aria-hidden="true">💡</span>
+              <p class="pdx-hint-text"><strong>How to fill a seat:</strong> scroll to <strong>Your Key Races</strong> or <strong>Relevant to Me</strong> below, then tap <strong>➕ Add to My Team</strong> on the candidate who earns it. Each seat holds one pick — swap it anytime. Your team builds up right here as you go.</p>
+            </div>
+
             <!-- Personalized Alignment prompt / status — ties the visitor's saved
                  Alignment Signature into team building. Rendered by
                  _myteamRenderAlignPrompt(): a setup CTA when no issues are chosen,
@@ -13539,6 +13564,13 @@
             <!-- Race cards injected here -->
             <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
 
+            <!-- What this section is for + the one action to take. Kept light so it
+                 reads as a friendly nudge, not an instruction manual. -->
+            <div class="pdx-hint mt-5">
+              <span class="pdx-hint-ico" aria-hidden="true">🗳️</span>
+              <p class="pdx-hint-text"><strong>What to do here:</strong> these are the offices you'll actually vote on. Compare the people running on their record and values, then tap <strong>➕ Add to My Team</strong> to lock in your pick — it fills that seat in <strong>My Voting Team</strong> above. Not sure yet? Tap a name to open their full profile first.</p>
+            </div>
+
             <p class="font-condensed text-xs text-steel-500 tracking-wide mt-5" style="line-height:1.5;">
               Candidate fields are preliminary and update as the 2026 ballot is certified. Promise % and Accountability scores are shown only for current officeholders with a voting record — challengers have no record yet.
             </p>
@@ -13622,6 +13654,14 @@
               <span>Sign in to save your picks as a personal <strong>Alignment Signature</strong> — your personalized politician matches then follow you across every device.</span>
             </div>
           </div>
+        </div>
+
+        <!-- Why these names appear + what to do with them. Sits just above the
+             cards so the guidance is right where the action is. Hidden until a
+             location is set (handled in JS) so it never shows above an empty grid. -->
+        <div id="relevant-grid-hint" class="pdx-hint mb-5" style="display:none;">
+          <span class="pdx-hint-ico" aria-hidden="true">🧭</span>
+          <p class="pdx-hint-text"><strong>Why you're seeing these:</strong> everyone below either represents you today or is running to in 2026 — grouped by the office they hold or seek. Open an office, see how each person scores, then tap <strong>➕ Add to My Team</strong> on the one who earns your vote. New 2026 candidates won't have a record yet — compare their positions instead.</p>
         </div>
 
         <!-- Relevant cards — grouped by type & location -->
@@ -14037,6 +14077,14 @@
           <!-- Expandable body: the full picker. Animates open via grid-template-rows. -->
           <div id="align-expandable" class="align-expandable">
             <div class="align-expandable-inner">
+              <!-- Light "how it works" guidance, shown when the tool is open so a
+                   first-time visitor knows the payoff of checking boxes. Three short
+                   steps, no tutorial. -->
+              <div class="pdx-hint pdx-hint-purple" style="margin-bottom:1rem;">
+                <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
+                <p class="pdx-hint-text"><strong>How to use this:</strong> ① check the positions you actually believe in below — pick as few or as many as you like. ② Every politician on the site instantly gets a <strong>Your Match %</strong> showing how their record fits your values. ③ Add your best matches to your team. You can change your picks anytime.</p>
+              </div>
+
               <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
                    their strength mix, and the areas they have / haven't weighed in on.
                    Rendered by _alignRenderProfile(); every chip jumps into the picker. -->
@@ -36426,6 +36474,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var relevantLocText = document.getElementById('relevant-location-text');
       if (!relevantGrid) return;
 
+      // Show the "why these names appear" helper only once there's a personalized
+      // ballot to explain — above the location prompt it would just add noise.
+      var _relGridHint = document.getElementById('relevant-grid-hint');
+      if (_relGridHint) _relGridHint.style.display = window._hasUserLocation ? 'flex' : 'none';
+
       // Until the visitor has actually chosen an area, never present a default
       // district's ballot as if it were theirs. Show a prominent, ballot-focused
       // prompt that lets them personalize the section in one tap.
@@ -36990,6 +37043,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var relevantGrid = document.getElementById('relevant-browse-grid');
       var relevantCountBadge = document.getElementById('relevant-count-badge');
       if (!relevantGrid) return;
+      var _relGridHintFb = document.getElementById('relevant-grid-hint');
+      if (_relGridHintFb) _relGridHintFb.style.display = window._hasUserLocation ? 'flex' : 'none';
       if (!window._hasUserLocation) {
         if (relevantCountBadge) relevantCountBadge.textContent = '0';
         relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function') ? window._relevantLocationPrompt() : '';
@@ -39774,6 +39829,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (races.length) {
           html += _krGroupHeader('📍', 'Your District Races', 'Specific to the area selected above — change your location to update them.', '#60a5fa');
           html += races.map(_krRaceCard).join('');
+        }
+        // Friendly fallback so the section never renders blank if no races resolve
+        // for a location (e.g. data still loading or an unmapped area). Points the
+        // visitor at the one control that fixes it rather than leaving dead space.
+        if (!html) {
+          html = '<div style="padding:1.4rem 1.25rem;border-radius:1.1rem;background:rgba(30,58,138,0.14);border:1px solid rgba(96,165,250,0.28);text-align:center;">' +
+            '<div style="font-size:1.8rem;line-height:1;margin-bottom:0.5rem;">🗺️</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1.05rem;color:#e6eefb;margin-bottom:0.3rem;">No races to show for this area yet</div>' +
+            '<p style="font-family:\'Barlow\',sans-serif;font-size:0.85rem;line-height:1.5;color:#9fb4d4;max-width:30rem;margin:0 auto 0.9rem;">Pick a different Utah area above and your statewide and district races will load here.</p>' +
+            '<button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()" class="font-condensed font-700 text-xs tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all min-h-[44px]">📍 Change location</button>' +
+            '</div>';
         }
         list.innerHTML = html;
       } catch (e) { /* never break the page */ }
