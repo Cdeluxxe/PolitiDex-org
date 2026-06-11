@@ -14883,6 +14883,14 @@
           </div>
         </div>
 
+        <!-- Next-step guidance for the full directory — mirrors the hint pattern used
+             in Key Races and Relevant to Me so every browsing surface points the voter
+             toward the same goal: narrow down, compare, then claim a seat. -->
+        <div class="pdx-hint pdx-hint-amber mb-4">
+          <span class="pdx-hint-ico" aria-hidden="true">🧭</span>
+          <p class="pdx-hint-text"><strong>Not sure where to start?</strong> This is everyone — <button type="button" onclick="if(window.toggleChangeLocation)window.toggleChangeLocation();" style="background:none;border:none;padding:0;margin:0;font:inherit;color:#fbbf24;font-weight:700;text-decoration:underline;cursor:pointer;">set your location</button> or switch to <strong>Relevant To Me</strong> to see just the races on your ballot. Open any office to compare the field side by side, then tap <strong>⭐ Add to My Team</strong> on your pick — it fills that seat in <strong>My Voting Team</strong> above.</p>
+        </div>
+
         <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
         <div id="browse-toolbar-sentinel" class="w-full h-px pointer-events-none"></div>
 
@@ -24771,7 +24779,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
       <!-- Sticky footer actions -->
       <div class="flex-shrink-0 border-t border-white/8 bg-navy-900/60" style="backdrop-filter:blur(8px);">
-        <div class="flex gap-3 px-5 pt-4 pb-2">
+        <!-- Primary action — Add to My Team — always one tap away, straight from the
+             deep-dive profile so the decision and the action live in the same place. -->
+        <div class="px-5 pt-4 pb-1">
+          <button id="modal-addteam-btn" type="button" onclick="pdxModalToggleTeam(this)" class="myteam-add-btn" style="width:100%;justify-content:center;min-height:46px;">⭐ Add to My Team</button>
+          <p id="modal-addteam-hint" class="font-condensed text-xs text-steel-400 tracking-wide text-center" style="margin-top:0.5rem;margin-bottom:0;line-height:1.45;"></p>
+        </div>
+        <div class="flex gap-3 px-5 pt-3 pb-2">
           <button onclick="closeModal()" class="flex-1 border border-steel-400/30 hover:border-white/50 active:bg-white/5 text-steel-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all">← Close</button>
           <a href="#submit" onclick="closeModal()" class="flex-1 bg-crimson-600 hover:bg-crimson-500 active:bg-crimson-400 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl text-center transition-all btn-glow">Submit Evidence</a>
         </div>
@@ -28057,6 +28071,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (_dislikedPids.has(id)) _modalDisBtn.classList.add('disliked');
       else _modalDisBtn.classList.remove('disliked');
     }
+
+    // Reflect whether this politician is already on the voter's team so the
+    // footer call-to-action opens in the right state with a fitting next step.
+    if (typeof window.pdxSyncModalTeamBtn === 'function') window.pdxSyncModalTeamBtn(id);
 
     // My Notes — show for logged-in (non-anonymous) users
     var _notesSection = document.getElementById('my-notes-section');
@@ -35322,7 +35340,39 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Keep the "Relevant to Me" district-coverage UI (tracker, chips, office
         // pills) in sync with the pick the voter just made or removed.
         if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
+        // Keep the open profile modal's footer CTA in sync — but only when the
+        // toggle came from somewhere else (e.g. the inline thin-profile button),
+        // so we never stomp the footer button's own "✓ Added!" flash.
+        if (window._pdxCurrentProfileId && typeof window.pdxSyncModalTeamBtn === 'function') {
+          var _mb = document.getElementById('modal-addteam-btn');
+          if (_mb && _mb !== btn) window.pdxSyncModalTeamBtn(window._pdxCurrentProfileId);
+        }
       }, wasOnTeam ? 0 : 350);
+    };
+
+    // ── Profile-modal team CTA ────────────────────────────────────────────
+    // The deep-dive profile is where most voters decide — so the primary action
+    // lives right there in the footer. These helpers keep that button honest:
+    // showing the resting state on open, and a light next-step nudge either way.
+    window.pdxSyncModalTeamBtn = function(id) {
+      var btn = document.getElementById('modal-addteam-btn');
+      if (!btn || !id) return;
+      var on = _myPoliticians.has(id);
+      btn.classList.toggle('on-team', on);
+      btn.innerHTML = on ? '✓ On Your Team' : '⭐ Add to My Team';
+      var hint = document.getElementById('modal-addteam-hint');
+      if (hint) {
+        hint.innerHTML = on
+          ? 'Saved to <strong style="color:#cbd9ee;">My Team</strong>. Compare the others running for this seat before you lock it in.'
+          : 'Claims this seat on your saved 2026 ballot — swap your pick anytime.';
+      }
+    };
+    window.pdxModalToggleTeam = function(btn) {
+      var id = window._pdxCurrentProfileId;
+      if (!id) return;
+      window.mypolToggleAnimated(btn, id);
+      // Let the "✓ Added!" flash play, then settle into the resting label/hint.
+      setTimeout(function() { window.pdxSyncModalTeamBtn(id); }, 720);
     };
 
     window.mypolClearAll = function() {
