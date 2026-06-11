@@ -9188,6 +9188,39 @@
     }
     .align-search-empty .align-empty-clear:hover { color: #c4b5fd; }
 
+    /* ── Quick Picks — fast one-tap shortcuts to popular specific issues ──
+       A compact pill row that sits above the search/accordion so visitors can
+       seed their alignment in seconds. Chips reuse .align-chip styling; the
+       leading box is suppressed so they read as tidy pills, not checkbox rows. */
+    .align-quickpicks {
+      background: linear-gradient(135deg, rgba(30,53,96,0.42), rgba(10,15,30,0.4));
+      border: 1px solid rgba(139,92,246,0.22);
+      border-radius: 0.85rem;
+      padding: 0.7rem 0.85rem 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .align-quick-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #b9a7ef; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.55rem;
+    }
+    .align-quick-label .align-quick-hint { color: #7c6bb0; font-weight: 600; letter-spacing: 0.04em; text-transform: none; font-size: 0.72rem; }
+    .align-quick-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .align-quick-chip {
+      padding: 0.34rem 0.7rem;
+      font-size: 0.72rem;
+      white-space: normal;
+      text-align: left;
+      line-height: 1.15;
+    }
+    .align-quick-chip::before {
+      content: '+';
+      font-weight: 800;
+      opacity: 0.7;
+      margin-right: 0.05rem;
+    }
+    .align-quick-chip.active::before { content: '✓'; opacity: 1; }
+
     /* ── Picker control bar: live selected-count + expand / collapse all ──
        Gives the accordion a single, calm place to drive the whole list, so a long
        set of topics never feels overwhelming. */
@@ -13668,6 +13701,13 @@
                    their strength mix, and the areas they have / haven't weighed in on.
                    Rendered by _alignRenderProfile(); every chip jumps into the picker. -->
               <div id="align-profile-summary" class="align-profile"></div>
+
+              <!-- Quick Picks — one-tap shortcuts to the most-asked-about specific
+                   issues, so a visitor can start matching in seconds without opening
+                   every topic. Rendered by _alignRenderQuickPicks(); the chips share
+                   the .align-chip[data-align-issue] contract so their active state and
+                   toggling are handled by the same engine as the full picker. -->
+              <div id="align-quickpicks" class="align-quickpicks"></div>
 
               <!-- Quick search across every issue in every category -->
               <div class="align-search-wrap">
@@ -39979,6 +40019,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       gov_regulation:     { label: '✂️ Cut Federal Red Tape', chip: 'Sunset outdated federal regulations and require a cost-benefit review of new ones', cat: 'gov', lean: 'R', stanceKeys: [], keywords: ['regulation','deregulation','red tape','regulatory reform','rules','compliance','bureaucracy','permitting reform','sunset','cost-benefit','paperwork reduction','overregulation'] },
       gov_balance:        { label: '⚖️ Balance the Budget', chip: 'Balance the budget over time using both targeted spending cuts and closing tax loopholes', cat: 'gov', stanceKeys: ['debt'], keywords: ['balanced budget','fiscal responsibility','deficit','debt','spending','accountability','efficiency','waste','reform','budget','bipartisan','tax loophole'] },
       gov_services:       { label: '🏛 Invest in Public Services', chip: 'Protect Social Security, Medicaid and public services — even if it means higher taxes on top earners', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','social security','funding','social','community service','services','paid leave','minimum wage','affordable','top earners','wealth tax'] },
+      social_security:    { label: '👵 Protect Social Security & Medicare', chip: 'Protect Social Security and Medicare benefits from cuts or privatization', cat: 'gov', stanceKeys: [], keywords: ['social security','medicare','retirement','seniors','senior','entitlement','earned benefits','benefits','pension','fixed income','elderly','retiree'] },
 
       // ── Immigration ──
       border_security:    { label: '🛡 Strong Border & Enforcement', chip: 'Finish border barriers and deport people here illegally', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
@@ -40002,6 +40043,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       health_drug_prices: { label: '💉 Lower Prescription Drug Prices', chip: 'Cap and negotiate prescription drug prices for patients', cat: 'health', stanceKeys: ['healthcare'], keywords: ['prescription','drug price','insulin','medicare negotiation','pharmaceutical','pbm','out-of-pocket','medication cost','price cap','affordable'] },
       health_balance:     { label: '⚖️ Lower Costs, Keep Coverage', chip: 'Lower costs by keeping private insurance while adding a public option to compete', cat: 'health', stanceKeys: ['healthcare'], keywords: ['healthcare','health','cost','prescription','price transparency','coverage','insurance','medical','mental health','reform','affordable','public option'] },
       healthcare:         { label: '🏥 Expand Healthcare Access', chip: 'Expand healthcare access and coverage for everyone', cat: 'health', lean: 'D', stanceKeys: ['healthcare'], keywords: ['healthcare','health','medicaid','medicaid expansion','aca','coverage','uninsured','hospital','medical','mental health','insurance','prescription','public health','overdose'] },
+      health_mental:      { label: '🧠 Mental Health & Addiction', chip: 'Expand mental-health care and fight the opioid and fentanyl crisis', cat: 'health', stanceKeys: ['healthcare'], keywords: ['mental health','addiction','opioid','fentanyl','overdose','substance abuse','suicide','behavioral health','recovery','treatment','crisis','drug epidemic','rehabilitation'] },
 
       // ── Economy & Jobs ──
       econ_growth:        { label: '📈 Pro-Growth Deregulation', chip: 'Roll back federal business regulations and keep taxes low to spur hiring and investment', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['economy','economic growth','deregulation','free market','pro-growth','business','investment','industry','jobs','entrepreneur'] },
@@ -40010,6 +40052,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       econ_balance:       { label: '⚖️ Balanced Prosperity', chip: 'Support business growth but keep worker protections, overtime and benefit rules in place', cat: 'econ', stanceKeys: [], keywords: ['economy','jobs','small business','workers','wage','cost of living','middle class','manufacturing','affordable','growth','opportunity'] },
       econ_workers:       { label: '🛠 Raise Wages & Protect Workers', chip: 'Raise the minimum wage and protect workers from exploitation', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
+      rural_ag:           { label: '🌾 Farmers & Rural Communities', chip: 'Support family farms, ranchers and rural communities with fair prices and access', cat: 'econ', stanceKeys: [], keywords: ['agriculture','farm','farmer','farming','ranch','rancher','rural','crop','livestock','farm bill','rural broadband','rural community','grazing','drought','water right'] },
 
       // ── Water & Environment ──
       water:              { label: '💧 Water Conservation', chip: 'Conserve water and protect rivers and the Great Salt Lake from drying up', cat: 'enviro', stanceKeys: [], keywords: ['water','water right','water policy','drought','great salt lake','lake powell','bear river','conservation','colorado river'] },
@@ -40043,6 +40086,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       foreign_balance:    { label: '⚖️ Strategic Engagement', chip: 'Keep a strong military but lead through NATO and allied diplomacy, not solo action', cat: 'foreign', stanceKeys: [], keywords: ['foreign policy','diplomacy','alliances','nato','national security','strategic','allies','defense','engagement','statecraft','bipartisan'] },
       restraint:          { label: '🕊 Diplomacy & Restraint', chip: 'Prioritize diplomacy and limit foreign military intervention', cat: 'foreign', stanceKeys: [], keywords: ['diplomacy','restraint','end endless wars','foreign aid','intervention','peace','de-escalation','troops home','war powers','negotiation'] },
       america_first:      { label: '🇺🇸 America First', chip: 'Put U.S. interests first and avoid foreign entanglements', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','sovereignty','national interest','entanglement','ukraine aid','nation building','trade','tariff','border'] },
+      veterans:           { label: '🎖 Take Care of Veterans', chip: 'Deliver better healthcare, benefits and support for the men and women who served', cat: 'foreign', stanceKeys: [], keywords: ['veteran','veterans','va','veterans affairs','gi bill','servicemember','service member','military families','va health','troops','wounded warrior','military service'] },
 
       // ── Technology & Privacy ──
       tech_innovation:    { label: '🚀 Innovation & Light Rules', chip: 'Let American tech and AI innovate with minimal red tape', cat: 'tech', lean: 'R', stanceKeys: [], keywords: ['technology','innovation','ai','artificial intelligence','deregulation','tech leadership','startup','crypto','light touch','competitiveness','semiconductor'] },
@@ -40052,7 +40096,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── Elections & Democracy ──
       election_integrity: { label: '🗳 Election Integrity', chip: 'Secure elections with voter ID and audits', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['election integrity','voter id','election security','audit','clean elections','citizenship verification','ballot security','fraud','voter rolls'] },
       democracy_balance:  { label: '⚖️ Secure & Accessible Voting', chip: 'Require voter ID but keep early voting and mail ballots widely available', cat: 'democracy', stanceKeys: ['termLimits','campaign'], keywords: ['voting','elections','secure','accessible','bipartisan','term limits','transparency','accountability','reform','campaign finance','redistricting','voter id','mail voting','early voting'] },
-      voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] }
+      voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] },
+
+      // ── Government Reform & Term Limits ──
+      term_limits:        { label: '⏳ Term Limits for Congress', chip: 'Set term limits so Congress gets fresh faces instead of career politicians', cat: 'reform', stanceKeys: ['termLimits'], keywords: ['term limit','term limits','career politician','citizen legislator','rotation in office','government reform','accountability','revolving door'] },
+      gov_transparency:   { label: '🔍 Transparency & Anti-Corruption', chip: 'Force more disclosure, ban member stock trading and toughen ethics rules', cat: 'reform', stanceKeys: ['campaign'], keywords: ['transparency','ethics','anti-corruption','disclosure','stock trading','insider trading','accountability','open government','dark money','lobbying','conflict of interest','government reform','swamp'] },
+      campaign_finance:   { label: '💸 Get Money Out of Politics', chip: 'Limit big money and super-PAC influence over our elections', cat: 'reform', lean: 'D', stanceKeys: ['campaign'], keywords: ['campaign finance','super pac','dark money','citizens united','money in politics','small donor','public financing','lobbying','special interests','election reform','disclosure'] },
+      audit_spending:     { label: '🧾 Audit Spending & the Fed', chip: 'Audit federal agencies and the Federal Reserve and root out wasteful spending', cat: 'reform', lean: 'R', stanceKeys: ['audit','debt'], keywords: ['audit','audit the fed','federal reserve','wasteful spending','spending','government efficiency','accountability','deficit','debt','fraud','government waste','improper payments','duplicate programs'] },
+      reform_balance:     { label: '⚖️ Practical Government Reform', chip: 'Make government work better through common-sense efficiency, ethics and accountability', cat: 'reform', stanceKeys: ['termLimits','campaign'], keywords: ['government reform','efficiency','accountability','bipartisan','good governance','modernize','reform','transparency','ethics','term limits','common sense'] }
     };
 
     // Ordered category list that drives the collapsible picker sections. Issues are
@@ -40075,7 +40126,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'repro',      group: 'Health, Education & Society',   icon: '🕊', label: 'Abortion & Reproductive Rights' },
       { key: 'rights',     group: 'Health, Education & Society',   icon: '🏳️‍🌈', label: 'Civil Rights & LGBTQ+' },
       { key: 'tech',       group: 'Technology & Democracy',        icon: '🚀', label: 'Technology & Privacy' },
-      { key: 'democracy',  group: 'Technology & Democracy',        icon: '🗳', label: 'Elections & Democracy' }
+      { key: 'democracy',  group: 'Technology & Democracy',        icon: '🗳', label: 'Elections & Democracy' },
+      { key: 'reform',     group: 'Technology & Democracy',        icon: '⏳', label: 'Government Reform & Term Limits' }
     ];
 
     // ── Data-driven picker rendering ───────────────────────────
@@ -41219,6 +41271,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // the Strong / Moderate / Opposed mix (with a proportional strength meter), the
     // topics they've defined most, and the topics they haven't weighed in on yet.
     // Every area chip jumps straight back into the picker for that topic.
+    // ── Quick Picks — popular specific issues for a fast start ─────────
+    // A curated, ideologically-balanced shortlist of the most-asked-about granular
+    // issues. The chips carry the same data-align-issue contract as the full picker,
+    // so _alignSyncAllChips toggles their active state and alignToggle handles taps —
+    // no separate state to keep in sync.
+    var ALIGN_QUICK_PICKS = [
+      'term_limits', 'border_security', 'healthcare', 'gun_rights',
+      'school_choice', 'climate_action', 'cost_living', 'social_security',
+      'water', 'immigration_reform', 'health_mental', 'gun_safety'
+    ];
+
+    function _alignRenderQuickPicks() {
+      var el = document.getElementById('align-quickpicks');
+      if (!el) return;
+      var chips = ALIGN_QUICK_PICKS.filter(function(k) { return !!ISSUE_MAP[k]; }).map(function(k) {
+        var d = ISSUE_MAP[k];
+        return '<button type="button" class="align-chip align-quick-chip" data-align-issue="' + k + '"' +
+          ' aria-pressed="false" title="' + d.chip + '" onclick="alignToggle(this)">' + d.label + '</button>';
+      }).join('');
+      el.innerHTML =
+        '<div class="align-quick-label">⚡ Quick picks ' +
+          '<span class="align-quick-hint">popular specific issues — tap to add</span></div>' +
+        '<div class="align-quick-row">' + chips + '</div>';
+    }
+
     function _alignRenderProfile() {
       var el = document.getElementById('align-profile-summary');
       if (!el) return;
@@ -41360,6 +41437,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // _alignLoad may replace the _alignIssues Set, so re-export the live
       // reference (the Key Races quick-adjust reads window._alignIssues directly).
       window._alignIssues = _alignIssues;
+      _alignRenderQuickPicks();
       _alignRenderPickers();
       _alignUpdateStatus();
       _alignRenderProfile();
