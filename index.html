@@ -5506,6 +5506,145 @@
       border-color: rgba(74,222,128,0.5);
       color: #4ade80;
     }
+    /* Primary "Share Link" sits in patriotic gold; the text-copy fallback stays blue. */
+    .myteam-share-btn-primary {
+      background: linear-gradient(135deg, rgba(245,200,66,0.22), rgba(192,21,42,0.18));
+      border-color: rgba(245,200,66,0.55);
+      color: #fad96a;
+    }
+    .myteam-share-btn-primary:hover {
+      background: linear-gradient(135deg, rgba(245,200,66,0.34), rgba(192,21,42,0.26));
+      border-color: rgba(245,200,66,0.8);
+      box-shadow: 0 0 16px rgba(245,200,66,0.18);
+    }
+
+    /* ── Saved Teams panel ─────────────────────────────────── */
+    .myteam-saved-panel {
+      background: linear-gradient(135deg, rgba(26,58,107,0.22) 0%, rgba(10,15,30,0.96) 55%, rgba(245,200,66,0.06) 100%);
+      border: 1.5px solid rgba(96,165,250,0.28);
+      border-radius: 1.1rem;
+      padding: 1.25rem 1.25rem 1.35rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .myteam-saved-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, #1a3a6b, #3b82f6 40%, #fbbf24 75%, #c0152a);
+      opacity: 0.7;
+    }
+    .myteam-saved-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem; }
+    .myteam-saved-head-title { display: flex; align-items: center; gap: 0.7rem; }
+    .myteam-saved-head-ico {
+      width: 2.4rem; height: 2.4rem; border-radius: 0.7rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+      background: linear-gradient(135deg, #1a3a6b, #0a0f1e);
+      border: 1.5px solid rgba(96,165,250,0.35); box-shadow: 0 0 14px rgba(59,130,246,0.2);
+    }
+    .myteam-saved-count-badge {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #93c5fd;
+      background: rgba(59,130,246,0.12); border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 0.4rem; padding: 0.2rem 0.5rem; white-space: nowrap;
+    }
+    .myteam-saved-form { display: flex; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .myteam-name-input {
+      flex: 1; min-width: 200px;
+      background: rgba(10,15,30,0.7); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 0.6rem; padding: 0.6rem 0.85rem;
+      color: #e7eefc; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; letter-spacing: 0.01em;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .myteam-name-input::placeholder { color: #5d779c; }
+    .myteam-name-input:focus { outline: none; border-color: rgba(245,200,66,0.55); box-shadow: 0 0 0 3px rgba(245,200,66,0.1); }
+    .myteam-save-btn {
+      flex-shrink: 0; cursor: pointer;
+      background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e;
+      border: 1.5px solid rgba(245,200,66,0.9);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.6rem 1.1rem; border-radius: 0.6rem;
+      box-shadow: 0 0 16px rgba(245,200,66,0.3), inset 0 1px 0 rgba(255,255,255,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .myteam-save-btn:hover { transform: translateY(-1px); box-shadow: 0 0 22px rgba(245,200,66,0.45), inset 0 1px 0 rgba(255,255,255,0.4); }
+    .myteam-saved-list { display: flex; flex-direction: column; gap: 0.55rem; }
+    .myteam-saved-empty {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; color: #7596c0;
+      line-height: 1.5; text-align: center; padding: 1rem 0.5rem;
+      border: 1px dashed rgba(255,255,255,0.08); border-radius: 0.7rem; background: rgba(255,255,255,0.015);
+    }
+    .myteam-saved-empty strong { color: #fad96a; }
+    .myteam-saved-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+      background: rgba(10,15,30,0.55); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 0.75rem; padding: 0.65rem 0.8rem;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .myteam-saved-card:hover { border-color: rgba(96,165,250,0.35); background: rgba(26,58,107,0.25); transform: translateX(2px); }
+    .myteam-saved-card-main { display: flex; align-items: center; gap: 0.7rem; min-width: 0; flex: 1; }
+    .myteam-saved-avatars { display: flex; flex-shrink: 0; }
+    .myteam-saved-ava {
+      width: 1.9rem; height: 1.9rem; border-radius: 50%; object-fit: cover;
+      border: 2px solid #0a0f1e; margin-left: -0.5rem; background: #1a3a6b;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;
+    }
+    .myteam-saved-ava:first-child { margin-left: 0; }
+    .myteam-saved-ava-ph { color: #9fb4d4; }
+    .myteam-saved-meta { min-width: 0; }
+    .myteam-saved-name {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: #fff; font-size: 0.95rem;
+      letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 14rem;
+    }
+    .myteam-saved-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: #7596c0; letter-spacing: 0.04em; text-transform: uppercase; }
+    .myteam-saved-actions { display: flex; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; }
+    .myteam-saved-btn {
+      cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.38rem 0.6rem; border-radius: 0.45rem;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #aebfd8;
+      transition: all 0.2s;
+    }
+    .myteam-saved-btn:hover { transform: translateY(-1px); }
+    .myteam-saved-btn.st-load { background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.4); color: #86efac; }
+    .myteam-saved-btn.st-load:hover { background: rgba(74,222,128,0.24); }
+    .myteam-saved-btn.st-share { background: rgba(59,130,246,0.14); border-color: rgba(96,165,250,0.4); color: #93c5fd; }
+    .myteam-saved-btn.st-share:hover { background: rgba(59,130,246,0.24); }
+    .myteam-saved-btn.st-del:hover { background: rgba(192,21,42,0.2); border-color: rgba(192,21,42,0.5); color: #fca5a5; }
+
+    /* ── Shared-team import banner (shown only when a ?team= link is opened) ── */
+    .myteam-import-banner {
+      display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+      background: linear-gradient(135deg, rgba(245,200,66,0.16), rgba(10,15,30,0.96) 60%, rgba(59,130,246,0.16));
+      border: 1.5px solid rgba(245,200,66,0.5);
+      border-radius: 1rem; padding: 1rem 1.15rem; margin-bottom: 1.25rem;
+      box-shadow: 0 0 28px rgba(245,200,66,0.1);
+      animation: myteam-import-in 0.5s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    @keyframes myteam-import-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+    .myteam-import-ico {
+      width: 2.6rem; height: 2.6rem; border-radius: 0.7rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      background: linear-gradient(135deg, #fad96a, #c0152a); border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 16px rgba(245,200,66,0.35);
+    }
+    .myteam-import-body { flex: 1; min-width: 180px; }
+    .myteam-import-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: #fad96a; font-size: 1rem; letter-spacing: 0.02em; }
+    .myteam-import-sub { font-family: 'Barlow Condensed', sans-serif; color: #bcd0ee; font-size: 0.82rem; margin-top: 2px; }
+    .myteam-import-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .myteam-import-load, .myteam-import-merge {
+      cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.5rem 0.9rem; border-radius: 0.55rem; transition: all 0.2s;
+    }
+    .myteam-import-load { background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e; border: 1.5px solid rgba(245,200,66,0.9); box-shadow: 0 0 14px rgba(245,200,66,0.3); }
+    .myteam-import-load:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(245,200,66,0.45); }
+    .myteam-import-merge { background: rgba(59,130,246,0.16); border: 1.5px solid rgba(96,165,250,0.45); color: #93c5fd; }
+    .myteam-import-merge:hover { background: rgba(59,130,246,0.28); transform: translateY(-1px); }
+    .myteam-import-dismiss {
+      cursor: pointer; background: none; border: 1px solid rgba(255,255,255,0.12); color: #7596c0;
+      width: 1.9rem; height: 1.9rem; border-radius: 0.5rem; font-size: 0.8rem; transition: all 0.2s;
+    }
+    .myteam-import-dismiss:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
     .myteam-summary-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -13426,6 +13565,20 @@
           </div>
         </div>
 
+        <!-- 🔗 Shared-team import banner — appears only when someone opens a ?team= share link -->
+        <div id="myteam-import-banner" class="myteam-import-banner" style="display:none;">
+          <div class="myteam-import-ico">🔗</div>
+          <div class="myteam-import-body">
+            <div id="myteam-import-title" class="myteam-import-title">A team was shared with you</div>
+            <div id="myteam-import-sub" class="myteam-import-sub"></div>
+          </div>
+          <div class="myteam-import-actions">
+            <button class="myteam-import-load" onclick="myteamImportShared(false)">Load This Team</button>
+            <button class="myteam-import-merge" onclick="myteamImportShared(true)">Merge With Mine</button>
+            <button class="myteam-import-dismiss" onclick="myteamDismissImport()" aria-label="Dismiss">✕</button>
+          </div>
+        </div>
+
         <!-- ★ MY 2026 VOTING TEAM — Compact Reference Summary Box ★ -->
         <div id="myteam-summary-box" class="myteam-summary-box mb-6 animate-on-scroll" style="position:relative;z-index:1; transition-delay:0.02s;">
           <div class="myteam-summary-header">
@@ -13437,10 +13590,14 @@
               </div>
               <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
             </div>
-            <div class="myteam-summary-actions">
-              <button id="myteam-share-btn" class="myteam-share-btn" onclick="ballotShareTeam()">
+            <div class="myteam-summary-actions" id="myteam-summary-actions">
+              <button id="myteam-share-btn" class="myteam-share-btn myteam-share-btn-primary" onclick="ballotShareTeamLink()" title="Copy a link that loads this exact team for anyone you send it to">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Share Link
+              </button>
+              <button id="myteam-sharetext-btn" class="myteam-share-btn myteam-share-btn-text" onclick="ballotShareTeam()" title="Copy your picks as plain text to paste anywhere">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                Share My Team
+                Copy Text
               </button>
               <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
             </div>
@@ -13457,6 +13614,25 @@
           </div>
           <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
           <div id="myteam-summary-stats" class="myteam-summary-stats" style="display:none;"></div>
+        </div>
+
+        <!-- 💾 SAVED TEAMS — name, save, reload, share and manage multiple slates -->
+        <div id="myteam-saved-panel" class="myteam-saved-panel mb-6 animate-on-scroll" style="transition-delay:0.025s;">
+          <div class="myteam-saved-head">
+            <div class="myteam-saved-head-title">
+              <span class="myteam-saved-head-ico">💾</span>
+              <div>
+                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">Saved Teams</div>
+                <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Save your slate under a name and come back to it anytime — or keep several side&nbsp;by&nbsp;side.</div>
+              </div>
+            </div>
+            <span id="myteam-saved-count" class="myteam-saved-count-badge"></span>
+          </div>
+          <div class="myteam-saved-form">
+            <input id="myteam-name-input" type="text" maxlength="60" class="myteam-name-input" placeholder="Name this team — e.g. “My Utah Team”, “Presidential Picks”…" onkeydown="if(event.key==='Enter'){event.preventDefault();myteamSaveCurrent();}" aria-label="Team name" autocomplete="off" />
+            <button class="myteam-save-btn" onclick="myteamSaveCurrent()">＋ Save Team</button>
+          </div>
+          <div id="myteam-saved-list" class="myteam-saved-list"></div>
         </div>
 
         <!-- 🎯 Alignment Score Tool Panel — compact feature card by default, expands to the full picker on demand -->
@@ -37130,6 +37306,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (shareBtn) {
         shareBtn.style.display = filled > 0 ? '' : 'none';
       }
+      var shareTextBtn = document.getElementById('myteam-sharetext-btn');
+      if (shareTextBtn) {
+        shareTextBtn.style.display = filled > 0 ? '' : 'none';
+      }
     }
 
     function _getWhyText(pid) {
@@ -37192,6 +37372,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var selections = _ballotLoad();
       _renderSummaryBox(selections);
       _renderBallotRaces(selections);
+      if (typeof _renderSavedTeams === 'function') _renderSavedTeams();
       if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     }
     window._ballotRender = _ballotRender;
@@ -39272,7 +39453,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _fallbackCopy(text);
       }
 
-      var btn = document.getElementById('myteam-share-btn');
+      var btn = document.getElementById('myteam-sharetext-btn');
       if (btn) {
         btn.classList.add('copied');
         var origHTML = btn.innerHTML;
@@ -39303,6 +39484,329 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       toast.classList.add('visible');
       setTimeout(function() { toast.classList.remove('visible'); }, 2500);
     }
+
+    // ════════════════════════════════════════════════════════════════════
+    // SAVED TEAMS + SHAREABLE LINKS
+    // Visitors can name and keep several teams. They persist to localStorage
+    // for everyone (so they survive refreshes and return visits even without
+    // an account) and are mirrored to Firestore for signed-in members so the
+    // same teams follow them across devices. Sharing encodes a team into a
+    // URL that rebuilds the exact slate for whoever opens it — no backend.
+    // ════════════════════════════════════════════════════════════════════
+    var SAVED_TEAMS_KEY = 'politidex_saved_teams_v1';
+
+    function _esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function _savedTeamsLoad() {
+      try {
+        var raw = localStorage.getItem(SAVED_TEAMS_KEY);
+        var arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) { return []; }
+    }
+    function _savedTeamsStore(arr) {
+      try { localStorage.setItem(SAVED_TEAMS_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function _genTeamId() {
+      return 'saved_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+    }
+    function _findSavedTeam(id) {
+      var teams = _savedTeamsLoad();
+      for (var i = 0; i < teams.length; i++) { if (teams[i].id === id) return teams[i]; }
+      return null;
+    }
+    function _slotsFilledCount(slots) {
+      var n = 0;
+      for (var k in slots) { if (slots[k] && typeof CMP_DATA !== 'undefined' && CMP_DATA[slots[k]]) n++; }
+      return n;
+    }
+
+    // ── URL-safe encode / decode of a shared team ({name, slots}) ──────────
+    function _b64urlEncode(str) {
+      var b64 = btoa(unescape(encodeURIComponent(str)));
+      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function _b64urlDecode(str) {
+      var b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      return decodeURIComponent(escape(atob(b64)));
+    }
+    function _encodeTeam(name, slots) {
+      var payload = { v: 1, n: (name || '').toString().slice(0, 60), s: {} };
+      for (var k in slots) { if (slots[k]) payload.s[k] = slots[k]; }
+      try { return _b64urlEncode(JSON.stringify(payload)); } catch (e) { return ''; }
+    }
+    function _decodeTeam(token) {
+      try {
+        var obj = JSON.parse(_b64urlDecode(token));
+        if (!obj || typeof obj !== 'object') return null;
+        var slots = obj.s || obj.slots || {};
+        var clean = {};
+        for (var k in slots) { if (slots[k]) clean[k] = String(slots[k]); }
+        return { name: (obj.n || obj.name || '').toString().slice(0, 60), slots: clean };
+      } catch (e) { return null; }
+    }
+    function _teamShareUrl(name, slots) {
+      return location.origin + location.pathname + '?team=' + _encodeTeam(name, slots) + '#my-politicians';
+    }
+    function _copyShareLink(name, slots) {
+      var url = _teamShareUrl(name, slots);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url)
+          .then(function() { _showShareToast('Share link copied — anyone who opens it loads this exact team.'); })
+          .catch(function() { _fallbackCopy(url); });
+      } else {
+        _fallbackCopy(url);
+      }
+    }
+
+    // ── Firestore mirror (signed-in members only) ──────────────────────────
+    function _teamMember() {
+      var u = (typeof auth !== 'undefined') ? auth.currentUser : null;
+      return (u && !u.isAnonymous) ? u : null;
+    }
+    function _cloudSaveTeam(team) {
+      var u = _teamMember();
+      if (!u || typeof db === 'undefined') return;
+      try {
+        var members = [];
+        for (var k in (team.slots || {})) { if (team.slots[k]) members.push(team.slots[k]); }
+        db.collection('userTeams').doc(u.uid).collection('teams').doc(team.id).set({
+          schemaVersion: (window.PDX_TEAM_SCHEMA_VERSION || 2),
+          name: team.name || 'My Team',
+          slots: team.slots || {},
+          members: members,
+          isMain: false,
+          savedTeam: true,
+          visibility: 'private',
+          ownerUid: u.uid,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(function() {});
+      } catch (e) {}
+    }
+    function _cloudDeleteTeam(id) {
+      var u = _teamMember();
+      if (!u || typeof db === 'undefined') return;
+      try { db.collection('userTeams').doc(u.uid).collection('teams').doc(id).delete().catch(function() {}); } catch (e) {}
+    }
+    // Pull any cloud-saved teams the user made on another device into this one.
+    function _cloudFetchSavedTeams() {
+      var u = _teamMember();
+      if (!u || typeof db === 'undefined') return;
+      try {
+        db.collection('userTeams').doc(u.uid).collection('teams').get().then(function(snap) {
+          var local = _savedTeamsLoad();
+          var byId = {};
+          local.forEach(function(t) { byId[t.id] = t; });
+          var changed = false;
+          snap.forEach(function(doc) {
+            var d = doc.data() || {};
+            if (!d.savedTeam) return;          // skip the auto-saved "main" team
+            if (!byId[doc.id]) {
+              byId[doc.id] = { id: doc.id, name: d.name || 'My Team', slots: d.slots || {}, createdAt: Date.now(), updatedAt: Date.now() };
+              changed = true;
+            }
+          });
+          if (changed) {
+            _savedTeamsStore(Object.keys(byId).map(function(k) { return byId[k]; }));
+            _renderSavedTeams();
+          }
+        }).catch(function() {});
+      } catch (e) {}
+    }
+
+    // ── Public actions ─────────────────────────────────────────────────────
+    window.myteamSaveCurrent = function() {
+      var slots = _ballotLoad();
+      if (_slotsFilledCount(slots) === 0) {
+        _showShareToast('Add at least one pick above before saving a team.');
+        return;
+      }
+      var input = document.getElementById('myteam-name-input');
+      var name = input && input.value ? input.value.trim() : '';
+      if (!name) name = 'My Team ' + (_savedTeamsLoad().length + 1);
+      name = name.slice(0, 60);
+      var team = { id: _genTeamId(), name: name, slots: JSON.parse(JSON.stringify(slots)), createdAt: Date.now(), updatedAt: Date.now() };
+      var teams = _savedTeamsLoad();
+      teams.unshift(team);
+      _savedTeamsStore(teams);
+      _cloudSaveTeam(team);
+      if (input) input.value = '';
+      _renderSavedTeams();
+      _showShareToast('Saved “' + name + '” — find it under Saved Teams.');
+    };
+
+    window.myteamLoadSaved = function(id) {
+      var team = _findSavedTeam(id);
+      if (!team) return;
+      _ballotSave(JSON.parse(JSON.stringify(team.slots || {})));
+      _ballotRender();
+      _flashSavedBadge();
+      _showShareToast('Loaded “' + team.name + '” into your ballot.');
+      var box = document.getElementById('myteam-summary-box');
+      if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.myteamDeleteSaved = function(id) {
+      var team = _findSavedTeam(id);
+      if (team && typeof window.confirm === 'function' && !window.confirm('Delete saved team “' + team.name + '”?')) return;
+      _savedTeamsStore(_savedTeamsLoad().filter(function(t) { return t.id !== id; }));
+      _cloudDeleteTeam(id);
+      _renderSavedTeams();
+    };
+
+    window.myteamRenameSaved = function(id) {
+      var teams = _savedTeamsLoad();
+      var team = null;
+      for (var i = 0; i < teams.length; i++) { if (teams[i].id === id) { team = teams[i]; break; } }
+      if (!team) return;
+      var name = (typeof window.prompt === 'function') ? window.prompt('Rename this team:', team.name) : null;
+      if (name === null) return;
+      name = name.trim().slice(0, 60) || team.name;
+      team.name = name;
+      team.updatedAt = Date.now();
+      _savedTeamsStore(teams);
+      _cloudSaveTeam(team);
+      _renderSavedTeams();
+    };
+
+    window.myteamShareSaved = function(id) {
+      var team = _findSavedTeam(id);
+      if (team) _copyShareLink(team.name, team.slots);
+    };
+
+    // Primary share: copies a link that re-creates the live ballot for anyone.
+    window.ballotShareTeamLink = function() {
+      var slots = _ballotLoad();
+      if (_slotsFilledCount(slots) === 0) { _showShareToast('Add some picks first, then share your link.'); return; }
+      _copyShareLink('My 2026 Voting Team', slots);
+      var btn = document.getElementById('myteam-share-btn');
+      if (btn) {
+        btn.classList.add('copied');
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Link Copied!';
+        setTimeout(function() { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2500);
+      }
+    };
+
+    function _renderSavedTeams() {
+      var list = document.getElementById('myteam-saved-list');
+      if (!list) return;
+      var teams = _savedTeamsLoad();
+      var countEl = document.getElementById('myteam-saved-count');
+      if (countEl) countEl.textContent = teams.length ? (teams.length + ' saved') : '';
+      if (teams.length === 0) {
+        list.innerHTML = '<div class="myteam-saved-empty">No saved teams yet. Build your slate above, give it a name, and hit <strong>Save Team</strong> to keep it for later.</div>';
+        return;
+      }
+      var html = '';
+      teams.forEach(function(team) {
+        var slots = team.slots || {};
+        var filled = _slotsFilledCount(slots);
+        var avatars = '';
+        var shown = 0;
+        for (var k in slots) {
+          if (shown >= 6) break;
+          var pid = slots[k];
+          var d = pid && typeof CMP_DATA !== 'undefined' ? CMP_DATA[pid] : null;
+          if (!d) continue;
+          shown++;
+          var photo = _getPhotoUrl(pid);
+          avatars += photo
+            ? '<img class="myteam-saved-ava" src="' + photo + '" alt="' + _esc(d.name) + '" title="' + _esc(d.name) + '" onerror="this.style.display=\'none\'">'
+            : '<span class="myteam-saved-ava myteam-saved-ava-ph" title="' + _esc(d.name) + '">' + (d.icon || '🏛') + '</span>';
+        }
+        if (!avatars) avatars = '<span class="myteam-saved-ava myteam-saved-ava-ph">🗳️</span>';
+        html += '<div class="myteam-saved-card">' +
+          '<div class="myteam-saved-card-main">' +
+            '<div class="myteam-saved-avatars">' + avatars + '</div>' +
+            '<div class="myteam-saved-meta">' +
+              '<div class="myteam-saved-name">' + _esc(team.name) + '</div>' +
+              '<div class="myteam-saved-sub">' + filled + ' pick' + (filled === 1 ? '' : 's') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="myteam-saved-actions">' +
+            '<button class="myteam-saved-btn st-load" onclick="myteamLoadSaved(\'' + team.id + '\')">Load</button>' +
+            '<button class="myteam-saved-btn st-share" onclick="myteamShareSaved(\'' + team.id + '\')" title="Copy a share link for this team">🔗 Share</button>' +
+            '<button class="myteam-saved-btn st-rename" onclick="myteamRenameSaved(\'' + team.id + '\')" title="Rename">✏️</button>' +
+            '<button class="myteam-saved-btn st-del" onclick="myteamDeleteSaved(\'' + team.id + '\')" title="Delete">🗑</button>' +
+          '</div>' +
+        '</div>';
+      });
+      list.innerHTML = html;
+    }
+    window._renderSavedTeams = _renderSavedTeams;
+
+    // ── Importing a team that was shared via ?team= link ───────────────────
+    var _pendingSharedTeam = null;
+
+    function _checkSharedTeamInUrl() {
+      var token = null;
+      try { token = new URLSearchParams(location.search).get('team'); } catch (e) { token = null; }
+      // Strip the param immediately so a refresh doesn't re-prompt and the
+      // token isn't accidentally carried into onward navigation.
+      if (token) { try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} }
+      if (!token) return;
+      var decoded = _decodeTeam(token);
+      if (!decoded || _slotsFilledCount(decoded.slots) === 0) return;
+      _pendingSharedTeam = decoded;
+      _renderImportBanner(decoded);
+    }
+
+    function _renderImportBanner(team) {
+      var banner = document.getElementById('myteam-import-banner');
+      if (!banner) return;
+      var filled = _slotsFilledCount(team.slots);
+      var names = [];
+      for (var k in team.slots) {
+        var d = typeof CMP_DATA !== 'undefined' ? CMP_DATA[team.slots[k]] : null;
+        if (d) names.push(d.name);
+      }
+      var titleEl = document.getElementById('myteam-import-title');
+      var subEl = document.getElementById('myteam-import-sub');
+      if (titleEl) titleEl.innerHTML = '🔗 ' + (team.name ? _esc(team.name) : 'A shared team') + ' was shared with you';
+      if (subEl) subEl.textContent = filled + ' pick' + (filled === 1 ? '' : 's') +
+        (names.length ? ' · ' + names.slice(0, 4).join(', ') + (names.length > 4 ? ' +' + (names.length - 4) + ' more' : '') : '');
+      banner.style.display = '';
+      setTimeout(function() { banner.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
+    }
+
+    window.myteamImportShared = function(merge) {
+      if (!_pendingSharedTeam) return;
+      var slots = JSON.parse(JSON.stringify(_pendingSharedTeam.slots || {}));
+      if (merge) {
+        var cur = _ballotLoad();
+        for (var k in cur) { if (cur[k] && !slots[k]) slots[k] = cur[k]; }
+      }
+      // Keep a named copy under Saved Teams so the shared slate is never lost.
+      var team = {
+        id: _genTeamId(),
+        name: (_pendingSharedTeam.name || 'Shared Team').slice(0, 60),
+        slots: JSON.parse(JSON.stringify(_pendingSharedTeam.slots || {})),
+        createdAt: Date.now(), updatedAt: Date.now()
+      };
+      var teams = _savedTeamsLoad();
+      teams.unshift(team);
+      _savedTeamsStore(teams);
+      _cloudSaveTeam(team);
+      _ballotSave(slots);
+      _ballotRender();
+      _flashSavedBadge();
+      window.myteamDismissImport();
+      _showShareToast('Team loaded into your ballot — also kept under Saved Teams.');
+      var box = document.getElementById('myteam-summary-box');
+      if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.myteamDismissImport = function() {
+      _pendingSharedTeam = null;
+      var banner = document.getElementById('myteam-import-banner');
+      if (banner) banner.style.display = 'none';
+    };
 
     var _savedBadgeTimer = null;
     function _flashSavedBadge() {
@@ -39356,9 +39860,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof CMP_DATA === 'undefined') return;
       _ballotRender();
 
+      // Surface any team shared via a ?team= link, once data is ready to resolve names.
+      if (typeof _checkSharedTeamInUrl === 'function') _checkSharedTeamInUrl();
+
       window.addEventListener('storage', function(e) {
         if (e.key === BALLOT_KEY) {
           _ballotRender();
+        } else if (e.key === SAVED_TEAMS_KEY) {
+          _renderSavedTeams();
         }
       });
 
@@ -39371,6 +39880,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             if (typeof syncUserDataFromFirestore === 'function') {
               syncUserDataFromFirestore(user.uid);
             }
+            // Pull any saved teams the member created on other devices.
+            if (typeof _cloudFetchSavedTeams === 'function') _cloudFetchSavedTeams();
           }
         });
       }
