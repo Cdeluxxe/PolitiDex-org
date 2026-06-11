@@ -13015,7 +13015,17 @@
               <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
             </div>
           </div>
-          <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.5rem;border-radius:2px;opacity:0.7;"></div>
+
+          <!-- ── YOUR DISTRICTS strip ──────────────────────────────────────────
+               Once a location is set, this spells out the exact voting districts
+               that location belongs to (U.S. House, State Senate, State House) and
+               links straight to the people who hold those seats. Before a location
+               is set it explains, in one line, what setting a location unlocks — so
+               a first-time visitor immediately knows what to do and why. Populated
+               entirely by window._vhSyncDistrictStrip(). -->
+          <div id="vh-district-strip" style="margin-top:1.1rem;"></div>
+
+          <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.9rem;border-radius:2px;opacity:0.7;"></div>
         </div>
       </div>
 
@@ -13241,12 +13251,12 @@
             <div class="loc-modal-icon">📍</div>
             <div>
               <div id="loc-modal-title" class="loc-modal-title">Set Your Voting Location</div>
-              <div class="loc-modal-sub">Choose your State, then optionally narrow by County and District.</div>
+              <div class="loc-modal-sub">Pick your state, then your city or county — we'll map your exact U.S. House, State Senate &amp; State House districts and the politicians who represent you.</div>
             </div>
           </div>
           <div class="loc-modal-fields">
             <div class="flex flex-col gap-1.5">
-            <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Select State / Region</label>
+            <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 1</span> · Select State / Region</label>
             <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
               
                 <option value="">— Set your state —</option>
@@ -13307,13 +13317,15 @@
           </div>
           
           <div id="voter-county-wrap" class="flex flex-col gap-1.5">
-            <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">City / County (optional)</label>
+            <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 2</span> · City / County</label>
             <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
+            <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">💡 This is how we pinpoint your districts — your city tells us which U.S. House, State Senate &amp; State House seats are on your ballot.</p>
           </div>
 
           <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
-            <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">Congressional District <span class="text-steel-500 normal-case">(optional)</span></label>
+            <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">U.S. House (Congressional) District <span class="text-steel-500 normal-case">(optional)</span></label>
             <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
+            <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">Don't know your district number? Leave it blank — entering your city above lets us find it for you.</p>
           </div>
           </div>
           <div class="loc-modal-foot">
@@ -30285,6 +30297,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // Sync the prominent "YOUR LOCATION" banner (Power Map) — 100% dynamic from localStorage saved city/county/state/district.
   // No hardcoded state or default city. Purely reflects whatever the user saved.
   window._vhSyncBanner = function() {
+    try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var grad = '<span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">';
     var cityEl    = document.getElementById('vh-loc-city');
@@ -30325,6 +30338,105 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (pmCountySel) pmCountySel.value = 'all';
 
     if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
+  };
+
+  // ── "YOUR VOTING DISTRICTS" strip (inside the prominent location card) ──────
+  // Turns an abstract saved location into the concrete thing a voter actually
+  // needs: the exact districts they vote in. Before a location is set it states,
+  // in one line, what setting one unlocks — answering "why should I bother?". Once
+  // a location is set it names the U.S. House, State Senate and State House
+  // districts that location belongs to and links straight to the people who hold
+  // those seats, so the next step ("see who represents me") is one tap away.
+  // District numbers come from the same authoritative Key Races data the
+  // "Relevant to Me" ballot uses, so the two surfaces can never disagree.
+  window._vhSyncDistrictStrip = function() {
+    var host = document.getElementById('vh-district-strip');
+    if (!host) return;
+
+    var btnLink = 'font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,box-shadow .15s;';
+
+    // ── No location yet: make the first step obvious and motivating. ──────────
+    if (!window._hasUserLocation) {
+      host.innerHTML =
+        '<div style="display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;background:rgba(10,15,30,0.45);border:1px dashed rgba(96,165,250,0.45);border-radius:0.9rem;padding:0.75rem 0.95rem;">' +
+          '<span style="font-size:1.2rem;line-height:1;">🧭</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.94rem;letter-spacing:0.01em;color:#cdd9ec;line-height:1.4;flex:1;min-width:220px;">' +
+            'Set your location and we instantly map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> districts — then show exactly who represents you in each.' +
+          '</span>' +
+          '<button type="button" onclick="window.toggleChangeLocation()" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">📍 Set location →</button>' +
+        '</div>';
+      return;
+    }
+
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+    var state = loc.state || '';
+
+    // National / federal focus has no local voting districts to resolve.
+    if (state === 'National') {
+      host.innerHTML =
+        '<div style="display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;background:rgba(10,15,30,0.5);border:1px solid rgba(59,130,246,0.35);border-radius:0.9rem;padding:0.75rem 0.95rem;">' +
+          '<span style="font-size:1.2rem;line-height:1;">🇺🇸</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.94rem;letter-spacing:0.01em;color:#cdd9ec;line-height:1.4;flex:1;min-width:220px;">' +
+            'You\'re focused on <strong style="color:#93c5fd;">federal offices</strong>. Pick your state to also see your U.S. House, State Senate &amp; State House districts.' +
+          '</span>' +
+          '<button type="button" onclick="var s=document.getElementById(\'relevant-section\');if(s)s.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">⭐ See who represents me →</button>' +
+        '</div>';
+      return;
+    }
+
+    // District numbers: prefer the voter's matched curated Utah area (which knows
+    // all three seats), then fall back to whatever they typed for U.S. House.
+    var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+    var matched = !!(krd && krd.matched && state.toLowerCase() === 'utah');
+    var house  = (matched && krd.byRace && krd.byRace.house)       ? krd.byRace.house.district       : (loc.district || null);
+    var senate = (matched && krd.byRace && krd.byRace.statesenate) ? krd.byRace.statesenate.district : null;
+    var lower  = (matched && krd.byRace && krd.byRace.statehouse)  ? krd.byRace.statehouse.district  : null;
+    var areaLabel = (matched && krd && krd.label)
+      ? krd.label
+      : ([ (loc.city || loc.county || ''), state ].filter(Boolean).join(', ') || 'your area');
+
+    // One district pill. Known → links to that office's people in "Relevant to
+    // Me"; unknown → opens the location picker so the voter can pinpoint it.
+    function pill(color, glow, office, value, jumpKey) {
+      var known = !!value;
+      var action = known
+        ? "window.jumpToRelevantAccordion('" + jumpKey + "')"
+        : 'window.toggleChangeLocation()';
+      var valHtml = known
+        ? '<span style="color:#fff;font-weight:800;">District ' + String(value).replace(/[^0-9]/g, '') + '</span>'
+        : '<span style="color:#8aa0c4;font-weight:700;">Tap to find →</span>';
+      return '<button type="button" onclick="' + action + '" ' +
+        'style="text-align:left;display:flex;flex-direction:column;gap:0.18rem;background:linear-gradient(135deg,' + glow + ',rgba(10,15,30,0.4));border:1px solid ' + color + '80;border-radius:0.85rem;padding:0.6rem 0.85rem;cursor:pointer;min-height:48px;transition:transform .15s,border-color .15s;" ' +
+        'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.borderColor=\'' + color + '\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'' + color + '80\'">' +
+        '<span style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.64rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + color + ';line-height:1;">' +
+          '<span style="width:0.5rem;height:0.5rem;border-radius:50%;background:' + color + ';flex-shrink:0;"></span>' + office +
+        '</span>' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.98rem;letter-spacing:0.02em;line-height:1.05;">' + valHtml + '</span>' +
+      '</button>';
+    }
+
+    var pills =
+      pill('#60a5fa', 'rgba(59,130,246,0.16)',  'U.S. House',    house,  'house') +
+      pill('#a78bfa', 'rgba(167,139,250,0.16)', 'State Senate',  senate, 'statesenate') +
+      pill('#2dd4bf', 'rgba(45,212,191,0.16)',  'State House',   lower,  'statehouse');
+
+    var allKnown = house && senate && lower;
+    var guidance = allKnown
+      ? 'These are <strong style="color:#fff;">your</strong> seats — they decide your taxes, schools, roads and local laws. Here\'s who holds them and who\'s running in 2026.'
+      : 'Pick your city in <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#93c5fd;text-decoration:underline;">Change Location</button> and we\'ll fill in every district seat automatically.';
+
+    host.innerHTML =
+      '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.22),rgba(10,15,30,0.4));border:1px solid rgba(59,130,246,0.32);border-radius:1rem;padding:0.95rem 1rem;">' +
+        '<div style="display:flex;align-items:baseline;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.7rem;">' +
+          '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.06em;font-size:1.05rem;color:#fff;">📍 Your Voting Districts</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;letter-spacing:0.03em;color:#9fb4d4;">' + areaLabel + '</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.55rem;">' + pills + '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.7rem;flex-wrap:wrap;margin-top:0.8rem;">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.85rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;flex:1;min-width:200px;">' + guidance + '</span>' +
+          '<button type="button" onclick="window.jumpToRelevantAccordion(\'house\')" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">⭐ See who represents me →</button>' +
+        '</div>' +
+      '</div>';
   };
 
   window._updateTeamPositionsForLocation = function() {
@@ -37137,6 +37249,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         overview += '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.06em;font-size:1.2rem;color:#fff;">🗳️ Your 2026 Ballot</span>';
         overview += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.04em;color:#9fb4d4;">' + (krData ? krData.label : 'Personalized Ballot') + ' — tap a race to jump to it</span>';
         overview += '</div>';
+        // One-line bridge from "these are your districts" to "do something with
+        // them": every chip is a real seat in the voter's own districts, and the
+        // action is always the same — open it and add your pick to your team.
+        overview += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.86rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.45;margin:0 0 0.85rem;">Each tile is a seat in <strong style="color:#fff;">your</strong> districts. Tap one to meet the people who hold it and who\'s running in 2026 — then <strong style="color:#fbbf24;">➕ Add to My Team</strong> the candidate who earns your vote.</p>';
         overview += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.55rem;">' + ballotChips.join('') + '</div>';
         // Compact in-place area switcher so voters can re-point the whole ballot
         // to another supported area without scrolling back up to "Your Key Races".
