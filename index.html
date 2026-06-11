@@ -11768,6 +11768,71 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.8rem; letter-spacing: 0.01em; color: #f5d98a; line-height: 1.45;
     }
+
+    /* ── "Why you're seeing each race" — match-precision affordances ───────────
+       A small colored pill beside each office count names the BASIS on which that
+       seat is on the voter's ballot (their exact district / their county / a
+       statewide seat / a federal seat). A matching legend up top decodes the
+       colors, and a county-level note inside the state-chamber bodies admits when
+       we are showing every county seat rather than the voter's single district.
+       Driven by one --why-rgb custom property each so the colors stay true to the
+       rest of the dark patriotic palette. Scoped to #relevant-browse-grid. */
+    #relevant-browse-grid .relevant-why-pill {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.62rem; letter-spacing: 0.08em;
+      text-transform: uppercase; white-space: nowrap;
+      color: #fff;
+      background: rgba(var(--why-rgb), 0.22);
+      border: 1px solid rgba(var(--why-rgb), 0.62);
+      border-radius: 999px;
+      padding: 0.16rem 0.55rem; line-height: 1.1;
+    }
+    #relevant-browse-grid .relevant-match-legend {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem;
+      margin: 0 0 1.25rem;
+      padding: 0.7rem 0.95rem;
+      border-radius: 0.85rem;
+      background: linear-gradient(135deg, rgba(30,58,138,0.18) 0%, rgba(10,15,30,0.45) 100%);
+      border: 1px solid rgba(59,130,246,0.26);
+    }
+    #relevant-browse-grid .relevant-legend-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.66rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #9fb4d4;
+    }
+    #relevant-browse-grid .relevant-legend-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    #relevant-browse-grid .relevant-legend-chip {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.66rem; letter-spacing: 0.05em;
+      text-transform: uppercase; white-space: nowrap;
+      color: #e7eefb;
+      background: rgba(var(--why-rgb), 0.16);
+      border: 1px solid rgba(var(--why-rgb), 0.55);
+      border-radius: 999px;
+      padding: 0.18rem 0.6rem; line-height: 1.1;
+    }
+    #relevant-browse-grid .relevant-narrow-note {
+      display: flex; gap: 0.5rem; align-items: flex-start;
+      margin: 0.2rem 0.4rem 0.85rem;
+      padding: 0.6rem 0.82rem;
+      border-radius: 0.7rem;
+      background: rgba(245,158,11,0.09);
+      border: 1px solid rgba(245,158,11,0.3);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.01em; color: #fcd9a0; line-height: 1.45;
+    }
+    #relevant-browse-grid .relevant-narrow-note strong { color: #ffffff; }
+    #relevant-browse-grid .relevant-narrow-link {
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: #fbbf24; font: inherit; text-decoration: underline; letter-spacing: 0.01em;
+    }
+    @media (max-width: 640px) {
+      #relevant-browse-grid .relevant-why-pill { font-size: 0.56rem; margin-left: 0.35rem; padding: 0.14rem 0.45rem; }
+      #relevant-browse-grid .relevant-match-legend { gap: 0.4rem; padding: 0.6rem 0.7rem; }
+    }
     @media (max-width: 640px) {
       #relevant-browse-grid .browse-type-name { font-size: 1.22rem !important; }
       #relevant-browse-grid .relevant-values-banner { padding: 0.85rem 0.9rem; gap: 0.65rem; }
@@ -35264,7 +35329,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                               polOffice.indexOf('lt. gov') !== -1);
         var _isFederalOrStatewide = (_isUSHouse || _fedSenate || _statewideExec || polOffice.indexOf('u.s.') !== -1);
         if (!_isFederalOrStatewide) {
-          var hay = (polStateRaw + ' ' + (d.office||'') + ' ' + (d.bio||'') + ' ' + (d.quote||'')).toLowerCase();
+          // Match the county ONLY against authoritative location fields — the
+          // state/district label and the office text — NOT the free-text bio or
+          // headline quote. County names like "Davis", "Weber" and "Washington"
+          // are common surnames and bio words, so scanning the bio pulled in
+          // unrelated people by coincidence and bloated this list. Keeping the
+          // scan to real location data is what makes "Relevant To Me" precise.
+          var hay = (polStateRaw + ' ' + (d.office || '') + ' ' + (d.district || '')).toLowerCase();
           if (hay.indexOf(userCounty) === -1) return false;
         }
       }
@@ -35582,20 +35653,106 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key: 'other',   label: 'CANDIDATES & OTHER', icon: '🗳', offices: ['candidate', 'other'] }
     ];
 
-    // Short, per-office subtitle clarifying WHY a seat is on the voter's ballot
-    // (their exact district vs. a statewide seat shared by everyone in the state).
+    // Short, per-office subtitle clarifying WHY a seat is on the voter's ballot —
+    // their EXACT district, the COUNTY-level field we can match when no exact
+    // district is known, a STATEWIDE seat shared by everyone in the state, or a
+    // FEDERAL seat shared by every American. Reads ctx.precision (set by the
+    // renderer from the same location signals that drove the matching) so the
+    // label always tells the truth about how precise the match really is.
     function _relevantOfficeSubtitle(groupKey, ctx) {
       if (!ctx || !ctx.focused) return '';
+      var prec = (ctx.precision && ctx.precision[groupKey]) || null;
+      var county = ctx.county || '';
+      var state = ctx.state || 'your state';
       switch (groupKey) {
-        case 'representative': return ctx.houseDist ? 'Your U.S. House district · ' + ctx.houseDist : '';
-        case 'state_senator':  return ctx.senateDist ? 'Your State Senate district · ' + ctx.senateDist : '';
-        case 'state_rep':      return ctx.lowerDist ? 'Your State House district · ' + ctx.lowerDist : '';
-        case 'senator':        return 'Statewide — represents every ' + (ctx.state || 'state') + ' voter';
-        case 'governor':       return 'Statewide — represents every ' + (ctx.state || 'state') + ' voter';
+        case 'representative':
+          if (ctx.houseDist) return 'Your U.S. House district · ' + ctx.houseDist;
+          if (prec === 'county' && county) return 'Your U.S. House seat · ' + county;
+          return 'Every U.S. House seat in ' + state + ' — set your district to narrow';
+        case 'state_senator':
+          if (prec === 'exact' && ctx.senateDist) return 'Your State Senate district · ' + ctx.senateDist;
+          if (prec === 'county' && county) return county + ' Senate seats · set your district to pinpoint yours';
+          return 'Every State Senate seat in ' + state + ' — set your area to narrow';
+        case 'state_rep':
+          if (prec === 'exact' && ctx.lowerDist) return 'Your State House district · ' + ctx.lowerDist;
+          if (prec === 'county' && county) return county + ' House seats · set your district to pinpoint yours';
+          return 'Every State House seat in ' + state + ' — set your area to narrow';
+        case 'senator':        return 'Statewide — represents every ' + state + ' voter';
+        case 'governor':       return 'Statewide — represents every ' + state + ' voter';
         case 'president':
         case 'cabinet':        return 'Federal — represents every American';
+        case 'local':          return county ? 'Your community · ' + county : 'Your community';
         default: return '';
       }
+    }
+
+    // The basis on which a seat made it onto the voter's ballot, one of:
+    //   'exact'    — matched to the voter's own district number
+    //   'county'   — matched to the voter's county (their exact seat is one of these)
+    //   'statewide'— a seat every voter in the state shares (U.S. Senate, Governor)
+    //   'federal'  — a seat every American shares (President, Cabinet)
+    // Drives the colored "why shown" pill in each office header and the legend.
+    function _relevantPrecisionKind(groupKey, ctx) {
+      var prec = (ctx && ctx.precision && ctx.precision[groupKey]) || null;
+      switch (groupKey) {
+        case 'representative':
+          return ctx && ctx.houseDist ? 'exact' : (prec || 'statewide');
+        case 'state_senator':
+        case 'state_rep':
+          return prec || 'statewide';
+        case 'senator':
+        case 'governor':
+          return 'statewide';
+        case 'president':
+        case 'cabinet':
+          return 'federal';
+        case 'local':
+          return 'local';
+        default: return '';
+      }
+    }
+
+    // Visual definitions for each match basis — kept in one place so the per-office
+    // pill and the section legend stay perfectly in sync. Dark patriotic palette.
+    var _RELEVANT_PRECISION_DEFS = {
+      exact:     { ico: '✓', label: 'Your district',  rgb: '34,197,94'  },
+      county:    { ico: '◑', label: 'County-level',   rgb: '245,158,11' },
+      statewide: { ico: '★', label: 'Statewide',      rgb: '59,130,246' },
+      federal:   { ico: '🦅', label: 'Federal',        rgb: '192,21,42'  },
+      local:     { ico: '🏙', label: 'Local',          rgb: '20,184,166' }
+    };
+
+    // A compact colored pill rendered beside an office's count, naming WHY the seat
+    // is on the voter's ballot (their district / county / statewide / federal).
+    function _relevantPrecisionBadge(groupKey, ctx) {
+      var kind = _relevantPrecisionKind(groupKey, ctx);
+      var def = _RELEVANT_PRECISION_DEFS[kind];
+      if (!def) return '';
+      return '<span class="relevant-why-pill" style="--why-rgb:' + def.rgb + ';">' + def.ico + ' ' + def.label + '</span>';
+    }
+
+    // A one-line key explaining the colored "why shown" pills, shown once at the
+    // top of the section. Only lists the bases actually present on this ballot so
+    // it never explains a category the voter cannot see.
+    function _relevantMatchLegend(officeGroups, ctx) {
+      var present = {};
+      ['representative', 'state_senator', 'state_rep', 'senator', 'governor', 'president', 'cabinet', 'local'].forEach(function(gk) {
+        if (officeGroups[gk] && officeGroups[gk].length) {
+          var kind = _relevantPrecisionKind(gk, ctx);
+          if (_RELEVANT_PRECISION_DEFS[kind]) present[kind] = true;
+        }
+      });
+      var order = ['exact', 'county', 'statewide', 'federal', 'local'];
+      var items = order.filter(function(k) { return present[k]; });
+      if (items.length <= 1) return ''; // nothing to disambiguate
+      var chips = items.map(function(k) {
+        var def = _RELEVANT_PRECISION_DEFS[k];
+        return '<span class="relevant-legend-chip" style="--why-rgb:' + def.rgb + ';">' + def.ico + ' ' + def.label + '</span>';
+      }).join('');
+      return '<div class="relevant-match-legend">' +
+        '<span class="relevant-legend-label">Why you\'re seeing each race:</span>' +
+        '<div class="relevant-legend-chips">' + chips + '</div>' +
+      '</div>';
     }
 
     // Within a single office (e.g. "U.S. House"), split the politicians into
@@ -35799,16 +35956,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         h += '<button class="browse-type-header" onclick="toggleBrowseAccordion(\'relevant-browse-group-' + groupKey + '\', \'relevant-office-' + groupKey + '\')">';
         h += '<div class="browse-type-title">';
         h += '<div class="browse-type-icon" style="background:' + tDef.bg + ';">' + tDef.icon + '</div>';
-        h += '<div style="display:flex;flex-direction:column;min-width:0;">';
+        h += '<div style="display:flex;flex-direction:column;min-width:0;gap:0.18rem;">';
         h += '<span class="browse-type-name">' + tDef.label + '</span>';
-        if (subtitle) h += '<span class="browse-type-scope">📍 ' + subtitle + '</span>';
+        var _whyPill = _relevantPrecisionBadge(groupKey, ctx);
+        if (subtitle || _whyPill) {
+          h += '<span style="display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.32rem;min-width:0;">';
+          if (_whyPill) h += _whyPill;
+          if (subtitle) h += '<span class="browse-type-scope">📍 ' + subtitle + '</span>';
+          h += '</span>';
+        }
         h += '</div>';
         h += '<span class="browse-type-count">' + officePids.length + (officePids.length === 1 ? ' option' : ' options') + '</span>';
         h += '</div>';
         h += _chevronWrapped('browse-type-chevron-wrap', 'browse-type-chevron');
         h += '</button>';
         h += '<div class="browse-type-body"><div class="browse-type-inner">';
-        
+
+        // County-level chambers: we have the voter's county but not their single
+        // state-legislative district, so the body lists every seat in the county.
+        // Say so plainly — and offer the one tap that narrows it — instead of
+        // letting the voter assume all of these people personally represent them.
+        var _kind = _relevantPrecisionKind(groupKey, ctx);
+        if (officePids.length > 1 && _kind === 'county' && (groupKey === 'state_senator' || groupKey === 'state_rep')) {
+          var _chamberWord = groupKey === 'state_senator' ? 'State Senate' : 'State House';
+          h += '<div class="relevant-narrow-note">' +
+            '<span style="flex-shrink:0;">📍</span>' +
+            '<span>Showing all ' + officePids.length + ' ' + _chamberWord + ' seats in <strong>' + (ctx.county || 'your county') + '</strong>. ' +
+            'Your single district is one of these — <button type="button" onclick="window.toggleChangeLocation()" class="relevant-narrow-link">add your district</button> to pinpoint just yours.</span>' +
+          '</div>';
+        }
+
         if (officePids.length === 0) {
           h += '<div class="text-center py-6 px-4 bg-navy-950/20 border border-white/5 rounded-xl m-2">' +
             '<p class="font-condensed text-xs text-steel-400 m-0">No politicians are currently listed in our database for this specific district/office.</p>' +
@@ -36422,8 +36599,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
       }
 
+      // ── Per-office match precision ─────────────────────────────────────────
+      // Record HOW each district office was matched so the renderer can label it
+      // truthfully: 'exact' when we resolved the voter's own district number,
+      // 'county' when we could only match their county (their seat is one of the
+      // set), and 'statewide' when we fell back to the whole in-state field. This
+      // is derived from the very same location signals that drove the matching
+      // above, so the label can never disagree with what was actually selected.
+      function _precOf(officeType, distVal) {
+        if (distVal) return 'exact';
+        if (hasCounty) return 'county';
+        return 'statewide';
+      }
+      var _precision = {
+        representative: _precOf('representative', houseDist),
+        state_senator:  _precOf('state_senator', senateDist),
+        state_rep:      _precOf('state_rep', lowerDist)
+      };
+
       var ctx = {
         focused: true, state: stateName,
+        precision: _precision,
+        county: normalizedCounty || '',
         houseDist: houseDist ? ('District ' + houseDist) : '',
         senateDist: senateDist ? ('District ' + senateDist) : '',
         lowerDist: lowerDist ? ('District ' + lowerDist) : '',
@@ -36491,7 +36688,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return;
       }
 
-      relevantGrid.innerHTML = valuesBanner + overview + _renderRelevantTree(officeGroups, ctx);
+      var matchLegend = _relevantMatchLegend(officeGroups, ctx);
+      relevantGrid.innerHTML = valuesBanner + overview + matchLegend + _renderRelevantTree(officeGroups, ctx);
     }
 
     // Public entry point. Runs the implementation inside a guard so that any
