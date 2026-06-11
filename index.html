@@ -2408,6 +2408,44 @@
     }
     .cmp-guide-dismiss:hover { background: rgba(255,255,255,0.12); color: #fff; }
 
+    /* ── Coaching banner: shown in the compare overlay when only one politician
+         is selected. Nudges toward a real side-by-side and offers a one-tap way
+         to pull in the rest of that race so a voter compares before deciding. ── */
+    .cmp-coach {
+      background: linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(13,21,38,0.6) 100%);
+      border: 1px solid rgba(96,165,250,0.42); border-radius: 0.85rem;
+      padding: 1rem 1.15rem; margin-bottom: 1.1rem;
+    }
+    .cmp-coach-head {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.05em; color: #fff;
+    }
+    .cmp-coach-head .cmp-coach-ico { font-size: 1.2rem; }
+    .cmp-coach-body {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; line-height: 1.45; color: #c5d4ea;
+    }
+    .cmp-coach-body strong { color: #fff; font-weight: 700; }
+    .cmp-coach-body em { color: #93c5fd; font-style: normal; }
+    .cmp-coach-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.85rem; }
+    .cmp-coach-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.6rem 1.1rem; border-radius: 0.55rem; cursor: pointer; transition: all 0.18s;
+      white-space: nowrap; min-height: unset;
+    }
+    .cmp-coach-btn-primary {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #fff; border: 1px solid rgba(96,165,250,0.45);
+      box-shadow: 0 3px 14px rgba(37,99,235,0.25);
+    }
+    .cmp-coach-btn-primary:hover { background: linear-gradient(135deg, #2563eb, #3b82f6); transform: translateY(-1px); }
+    .cmp-coach-btn-ghost { background: rgba(255,255,255,0.06); color: #cdd9ec; border: 1px solid rgba(255,255,255,0.14); }
+    .cmp-coach-btn-ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .cmp-footer-samerace {
+      display: inline-block; margin-top: 0.2rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #6ee7a0;
+    }
+
     /* ── Compare Hub flow guide (Discover → Compare → Decide) ── */
     .chub-flow {
       background: linear-gradient(135deg, rgba(13,28,58,0.7) 0%, rgba(10,15,30,0.6) 100%);
@@ -14656,7 +14694,7 @@
             <div class="chub-flow-step">
               <span class="chub-flow-step-num"><span class="chub-flow-dot">2</span> Compare</span>
               <span class="chub-flow-step-title">Put 2–4 side by side</span>
-              <span class="chub-flow-step-desc">Tap <strong style="color:#93c5fd;">⚖️ Compare</strong> on any cards, then open the table to weigh records, promises and policy positions head-to-head.</span>
+              <span class="chub-flow-step-desc">Tap <strong style="color:#93c5fd;">⚖️ Compare</strong> on any cards, then open the table to weigh records, promises and policy positions head-to-head. Comparing the candidates for one seat side-by-side is the fastest way to decide that race.</span>
             </div>
             <div class="chub-flow-arrow" aria-hidden="true">→</div>
             <div class="chub-flow-step">
@@ -28079,6 +28117,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
     <!-- Scrollable table area -->
     <div id="cmp-scroll-area">
+      <!-- Coaching banner — only rendered when a single politician is selected,
+           steering the visitor toward an actual 2+ comparison (and, when we can
+           identify the race, offering to pull in their rivals in one tap). -->
+      <div id="cmp-coach" class="cmp-coach" style="display:none;"></div>
       <!-- "How to read this" guidance — explains how the scores work together.
            Dismissible; the choice is remembered in localStorage. -->
       <div id="cmp-guide" class="cmp-guide" style="display:none;">
@@ -32741,7 +32783,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
     if (pids.length === 0) { closeCompare(); return; }
     const sub = document.getElementById('cmp-header-sub');
-    sub.textContent = `Comparing ${pids.length} politician${pids.length !== 1 ? 's' : ''} side-by-side`;
+    sub.textContent = pids.length < 2
+      ? 'Add one more pick to see a true side-by-side'
+      : `Comparing ${pids.length} politicians side-by-side`;
     const pillsEl = document.getElementById('cmp-selected-pills');
     if (pillsEl) { pillsEl.innerHTML = ''; }
 
@@ -32961,6 +33005,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     tbody.innerHTML = rows;
     _cmpRenderGuide();
+    _cmpRenderCoach(pids);
     _cmpRenderFooter(pids);
   }
 
@@ -32984,9 +33029,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   function _cmpRenderFooter(pids) {
     const f = document.getElementById('cmp-footer');
     if (!f) return;
+    // With fewer than two picks there is nothing to weigh yet — the coaching
+    // banner above carries the next step, so keep the footer out of the way.
+    if (pids.length < 2) { f.innerHTML = ''; return; }
     const onTeamCount = (typeof window._pdxIsOnTeam === 'function')
       ? pids.filter(pid => window._pdxIsOnTeam(pid)).length : 0;
     const hasAlignment = (typeof _alignIssues !== 'undefined' && _alignIssues.size > 0);
+
+    // When every pick is running for the same seat, say so — it reassures the
+    // voter they're doing the highest-value kind of comparison: one race, head
+    // to head, before committing that seat on their ballot.
+    let sameRaceNote = '';
+    try {
+      const sigs = pids.map(pid => _cmpRaceSig(pid));
+      if (sigs.length >= 2 && sigs.every(s => s && s === sigs[0])) {
+        sameRaceNote = `<span class="cmp-footer-samerace">✓ Same seat — you're comparing one race head-to-head, exactly how to decide who earns it.</span>`;
+      }
+    } catch (e) {}
 
     let ico, msg;
     if (onTeamCount > 0) {
@@ -33008,10 +33067,160 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       : '';
 
     f.innerHTML =
-      `<div class="cmp-footer-msg"><span class="cmp-footer-ico">${ico}</span><span>${msg}</span></div>`
+      `<div class="cmp-footer-msg"><span class="cmp-footer-ico">${ico}</span><span>${msg}${sameRaceNote}</span></div>`
       + `<div class="cmp-footer-actions">${alignBtn}${teamBtn}`
       + `<button class="cmp-footer-btn cmp-footer-btn-ghost" onclick="closeCompare();setTimeout(function(){var b=document.getElementById('myteam-browse-search')||document.getElementById('compare-hub');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},320)">🔍 Browse More</button>`
       + `</div>`;
+  }
+
+  // ── Race-aware coaching ────────────────────────────────────────────────
+  // Classify which seat a politician is running for, well enough to find their
+  // rivals from the same pool. We lean on the app's own race-key heuristic for
+  // the office category, then narrow by state (and district, where it applies)
+  // so "this race" means the people actually competing for the same seat — not
+  // every senator in the country. Kept self-contained and read-only so it can't
+  // disturb the ballot/team logic elsewhere.
+  const _CMP_STATE_MAP = {
+    'alabama':'al','alaska':'ak','arizona':'az','arkansas':'ar','california':'ca','colorado':'co',
+    'connecticut':'ct','delaware':'de','florida':'fl','georgia':'ga','hawaii':'hi','idaho':'id',
+    'illinois':'il','indiana':'in','iowa':'ia','kansas':'ks','kentucky':'ky','louisiana':'la',
+    'maine':'me','maryland':'md','massachusetts':'ma','michigan':'mi','minnesota':'mn','mississippi':'ms',
+    'missouri':'mo','montana':'mt','nebraska':'ne','nevada':'nv','new hampshire':'nh','new jersey':'nj',
+    'new mexico':'nm','new york':'ny','north carolina':'nc','north dakota':'nd','ohio':'oh','oklahoma':'ok',
+    'oregon':'or','pennsylvania':'pa','rhode island':'ri','south carolina':'sc','south dakota':'sd',
+    'tennessee':'tn','texas':'tx','utah':'ut','vermont':'vt','virginia':'va','washington':'wa',
+    'west virginia':'wv','wisconsin':'wi','wyoming':'wy'
+  };
+  const _CMP_CODE_SET = {}; for (const _n in _CMP_STATE_MAP) { _CMP_CODE_SET[_CMP_STATE_MAP[_n]] = 1; }
+  // Statewide / national seats: everyone in the state (or country) is one race.
+  const _CMP_STATEWIDE = { president:1, senate:1, governor:1, ltgovernor:1, attorneygeneral:1, secretaryofstate:1, secstate:1, chiefjustice:1, defense:1, intel:1 };
+  // District seats: the district number, not just the state, defines the race.
+  const _CMP_DISTRICT = { house:1, statesenate:1, statehouse:1 };
+  const _CMP_NATIONAL = { president:1, chiefjustice:1, defense:1, intel:1 };
+
+  function _cmpRaceKeyOf(pid) {
+    try { return (typeof window._findRaceKeyForPolitician === 'function') ? (window._findRaceKeyForPolitician(pid) || '') : ''; }
+    catch (e) { return ''; }
+  }
+  function _cmpStateCode(d) {
+    const s = ((d && d.state) || '').toLowerCase();
+    if (!s) return '';
+    for (const name in _CMP_STATE_MAP) { if (s.indexOf(name) !== -1) return _CMP_STATE_MAP[name]; }
+    const m = s.match(/\b([a-z]{2})\b/);
+    if (m && _CMP_CODE_SET[m[1]]) return m[1];
+    return s.split(/[^a-z]/)[0] || '';
+  }
+  function _cmpDistTok(d) {
+    const hay = (((d && d.state) || '') + ' ' + ((d && d.office) || ''));
+    let m = hay.match(/dist(?:rict|\.)?\s*\.?\s*0*(\d+)/i);
+    if (m) return m[1];
+    m = ((d && d.state) || '').match(/-\s*0*(\d+)/); // e.g. "UT-3"
+    return m ? m[1] : '';
+  }
+
+  // Find a single politician's race rivals: same office category, same state,
+  // and (for district seats) the same district when we can read one. Returns the
+  // rival pids plus whether we're confident it's literally the same seat.
+  function _cmpFindRacePeers(pid) {
+    const out = { peers: [], sameRace: false };
+    try {
+      if (typeof CMP_DATA === 'undefined' || !CMP_DATA[pid]) return out;
+      const rk = _cmpRaceKeyOf(pid);
+      if (!rk || (!_CMP_STATEWIDE[rk] && !_CMP_DISTRICT[rk])) return out;
+      const base = CMP_DATA[pid];
+      const national = !!_CMP_NATIONAL[rk];
+      const sc = national ? '' : _cmpStateCode(base);
+      const dt = _cmpDistTok(base);
+      let same = [];
+      Object.keys(CMP_DATA).forEach(p => {
+        if (p === pid || _cmpSelected.has(p)) return;
+        const d = CMP_DATA[p]; if (!d) return;
+        if (_cmpRaceKeyOf(p) !== rk) return;
+        if (!national && _cmpStateCode(d) !== sc) return;
+        same.push(p);
+      });
+      if (!same.length) return out;
+      let sameRace;
+      if (_CMP_DISTRICT[rk]) {
+        if (dt) {
+          const sd = same.filter(p => _cmpDistTok(CMP_DATA[p]) === dt);
+          if (sd.length) { same = sd; sameRace = true; } else { sameRace = false; }
+        } else { sameRace = false; }
+      } else {
+        sameRace = true; // one statewide / national seat
+      }
+      out.peers = same;
+      out.sameRace = sameRace;
+    } catch (e) {}
+    return out;
+  }
+
+  // A stable "same seat" signature, used to recognise when every pick in the
+  // table is competing for the identical seat. Null when we can't be sure.
+  function _cmpRaceSig(pid) {
+    try {
+      const d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return null;
+      const rk = _cmpRaceKeyOf(pid);
+      if (!rk) return null;
+      if (_CMP_NATIONAL[rk]) return rk;
+      if (_CMP_STATEWIDE[rk]) return rk + '|' + _cmpStateCode(d);
+      if (_CMP_DISTRICT[rk]) { const dt = _cmpDistTok(d); return dt ? (rk + '|' + _cmpStateCode(d) + '|' + dt) : null; }
+      return null;
+    } catch (e) { return null; }
+  }
+
+  // Select a politician for comparison and mirror that state across every
+  // surface that shows a compare control for them (cards, power-map, checkboxes).
+  function _cmpSelectPid(pid) {
+    if (_cmpSelected.has(pid)) return;
+    _cmpSelected.add(pid);
+    document.querySelectorAll(`.compare-cb[data-pid="${pid}"]`).forEach(c => c.checked = true);
+    document.querySelectorAll(`.bp-compare-btn[data-pid="${pid}"]`).forEach(b => {
+      b.textContent = '✓ ADDED'; b.classList.add('added');
+      b.closest('.card-holo')?.classList.add('cmp-highlight');
+    });
+    const pmBtn = document.getElementById('pmc-' + pid);
+    if (pmBtn) { pmBtn.textContent = '✓ Added'; pmBtn.classList.add('added'); }
+  }
+
+  // One-tap "compare this race" — pull a single pick's rivals into the table,
+  // up to a comfortable 4 columns, then re-render.
+  window.cmpAddRacePeers = function(pid) {
+    const found = _cmpFindRacePeers(pid);
+    if (!found.peers.length) return;
+    const room = Math.max(0, 4 - _cmpSelected.size);
+    found.peers.slice(0, room || 3).forEach(p => _cmpSelectPid(p));
+    _updateCmpFloat();
+    _pmUpdateTray();
+    _buildCmpTable();
+  };
+
+  // Coaching banner shown only when a lone politician is selected. A one-person
+  // "comparison" is a dead end, so this explains the payoff of a real side-by-
+  // side and — when the race can be identified — offers to load the rivals.
+  function _cmpRenderCoach(pids) {
+    const c = document.getElementById('cmp-coach');
+    if (!c) return;
+    if (pids.length >= 2) { c.style.display = 'none'; c.innerHTML = ''; return; }
+    const pid = pids[0];
+    const d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    const name = (d && d.name) ? d.name : 'this politician';
+    const found = _cmpFindRacePeers(pid);
+    const nPeers = Math.min(found.peers.length, 3);
+    const peerWord = found.sameRace ? 'rival' : 'similar candidate';
+    const inlinePhrase = nPeers ? (found.sameRace ? 'a rival from the same race' : 'a similar candidate') : 'another candidate';
+
+    const rivalBtn = nPeers
+      ? `<button class="cmp-coach-btn cmp-coach-btn-primary" onclick="cmpAddRacePeers('${pid}')">⚖️ Add ${nPeers} ${peerWord}${nPeers === 1 ? '' : 's'}${found.sameRace ? ' from this race' : ''}</button>`
+      : '';
+    const browseBtn = `<button class="cmp-coach-btn cmp-coach-btn-ghost" onclick="closeCompare();setTimeout(function(){var b=document.getElementById('myteam-browse-search')||document.getElementById('compare-hub');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},300)">🔍 Browse to add more</button>`;
+
+    c.innerHTML =
+      `<div class="cmp-coach-head"><span class="cmp-coach-ico">⚖️</span> Add one more to compare</div>`
+      + `<div class="cmp-coach-body">A side-by-side needs <strong>2 or more</strong> picks. Put <strong>${name}</strong> next to ${inlinePhrase} to weigh <strong>Promise Scores</strong>, <strong>accountability</strong> and policy positions together — the clearest way to decide a seat <em>before</em> you add anyone to your team.</div>`
+      + `<div class="cmp-coach-actions">${rivalBtn}${browseBtn}</div>`;
+    c.style.display = '';
   }
 
   // Toggle a politician on/off the visitor's team straight from the compare
