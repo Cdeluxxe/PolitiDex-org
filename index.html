@@ -12398,6 +12398,59 @@
         grid-template-columns: 1fr !important;
       }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — PASS 4 (touch targets + Key Races)
+       A focused, phone-scoped pass that closes the gaps the earlier passes
+       didn't reach. The interactive controls voters actually tap most — the
+       promise filters inside every profile, the Alignment Tool's issue
+       chips, and the Key Races "your match" controls — were still rendering
+       well below a comfortable thumb size, and the Key Races officeholder
+       "hero" name (a large Bebas Neue heading) could overrun the card edge
+       on narrow phones. Additive only — no markup or JS changes — and
+       appended last so it reliably wins the cascade. The dark patriotic
+       palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · PROMISE FILTERS — finger-sized tabs in every profile ───────
+         The All / Kept / Broken / Pending tabs and their inline Reset sat
+         at ~26px tall — fiddly to hit while scanning a promise list. Lift
+         them to a comfortable tap height; the rounded-pill look is kept. */
+      .pdx-pfilter { gap: 0.45rem; }
+      .pdx-pfilter-btn { min-height: 40px; padding: 0.45rem 0.85rem !important; font-size: 0.7rem; }
+      .pdx-pfilter-reset { min-height: 38px; padding: 0.4rem 0.85rem !important; }
+
+      /* ── 2 · ALIGNMENT TOOL — issue chips & controls easy to tap ────────
+         Building an alignment profile is a core voting action, but its
+         Quick Picks, position rows, intensity presets and expand/collapse
+         controls were all small targets. Give each a real touch height so
+         the picker stops being a precision exercise on a phone. */
+      .align-quick-chip { min-height: 40px; }
+      .align-opt-list .align-chip { min-height: 44px; padding: 0.6rem 0.75rem; }
+      .align-int-btn { min-height: 36px; padding: 0.35rem 0.7rem; }
+      .align-tool-btn { min-height: 38px; padding: 0.4rem 0.8rem; }
+      .align-cat-head { min-height: 50px; }
+
+      /* ── 3 · KEY RACES — readable hero name + tappable match controls ───
+         Scale the gold officeholder name down a touch and let it wrap, so a
+         long name can never push past the card edge or force a sideways
+         scroll. The inline "your match" bar, its quick-adjust issue chips
+         and the score cells become comfortable thumb targets. */
+      .kr-incumbent-name { font-size: 1.55rem; line-height: 1.08; white-space: normal; overflow-wrap: anywhere; }
+      .kr-align-inline { min-height: 52px; }
+      .kr-align-inline-more { min-height: 42px; }
+      .kr-align-chip { min-height: 38px; padding: 0.4rem 0.7rem; }
+      .kr-score { min-height: 50px; }
+    }
+
+    @media (max-width: 480px) {
+      /* Narrow phones: trim the hero name and its panel a little further so
+         the officeholder card stays clean on one or two lines, and keep the
+         promise-filter tabs legible at the reduced width. */
+      .kr-incumbent-name { font-size: 1.4rem; }
+      .kr-incumbent-panel { padding: 1rem 1rem 1.05rem; }
+      .pdx-pfilter-btn { font-size: 0.68rem; padding: 0.45rem 0.75rem !important; }
+    }
   </style>
 
       </head>
