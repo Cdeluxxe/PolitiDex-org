@@ -1806,6 +1806,22 @@
     .cand-snapshot .cs-spot-cta { margin-left: auto; flex-shrink: 0; font-size: 1.05rem; color: #7596c0; }
     .cand-snapshot .cs-spot-note { font-size: 0.72rem; color: #7596c0; line-height: 1.5; margin: 0.45rem 0 0; }
 
+    /* Issue-tie chip — the connective tissue that ties a Spotlight item back to a
+       specific issue position shown in the Snapshot (and tracked by the Alignment
+       Tool). Gold-to-purple bridge: gold border reads as Spotlight, purple text
+       reads as an Alignment issue, so the link between the two sections is visible
+       at a glance. Used in the Snapshot spotlight card and the full Spotlight modal. */
+    .pdx-issue-tie {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #c4b5fd; background: rgba(167,139,250,0.12);
+      border: 1px solid rgba(167,139,250,0.32); border-radius: 999px;
+      padding: 0.12rem 0.5rem; line-height: 1.3; white-space: nowrap;
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cand-snapshot .cs-spot-tie-row { margin-top: 0.5rem; }
+
     /* "We're actively gathering" transparency block */
     .cand-snapshot .cs-gather {
       margin-top: 1rem; padding: 0.75rem 0.85rem;
@@ -27512,6 +27528,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
 
+  // ── Issue-tie chip ───────────────────────────────────────────────────
+  // Renders a small chip naming the Alignment Tool issue a Spotlight item is
+  // tied to, given an ISSUE_MAP key. This is what makes a Spotlight headline
+  // read as connected to the issue positions shown in the Candidate Snapshot:
+  // the chip uses the SAME label the Snapshot and Alignment Tool use, so a
+  // visitor sees "this news is about the same issue I just read their stance on."
+  // Returns '' when the key is missing or unknown, so callers can drop it in
+  // unconditionally. `prefix` overrides the lead-in wording.
+  window._issueTagHtml = function(issueKey, prefix) {
+    try {
+      if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
+      var lbl = ISSUE_MAP[issueKey].label || 'this issue';
+      var lead = prefix || 'On the issue:';
+      return '<span class="pdx-issue-tie" title="This Spotlight item connects to the &quot;' + lbl +
+        '&quot; position — compare it in the Alignment Tool.">🔗 ' + lead + ' ' + lbl + '</span>';
+    } catch (e) { return ''; }
+  };
+
+
   // ── Candidate Snapshot ───────────────────────────────────────────────
   // A structured overview for thin / early-record profiles. Rather than a
   // stack of empty placeholders, it leads with what IS known about a
@@ -27684,15 +27719,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var spotBlock = '';
       if (spot) {
         var spotText = (spot.teaser || spot.title || '').toString();
+        // When the lead Spotlight item is tagged with an Alignment issue, surface
+        // the tie. If the candidate also holds a documented position on that exact
+        // issue above, say so explicitly — that is the Snapshot↔Spotlight link the
+        // whole card is built around: the news below is about a value stated above.
+        var spotTiedToPosition = !!(spot.issueKey) && keyed.some(function(s) { return s.issueKey === spot.issueKey; });
+        var spotTie = (spot.issueKey && typeof window._issueTagHtml === 'function')
+          ? window._issueTagHtml(spot.issueKey, spotTiedToPosition ? 'Connects to their position on' : 'On the issue:')
+          : '';
+        var spotTieRow = spotTie ? '<div class="cs-spot-tie-row">' + spotTie + '</div>' : '';
         if (spot.kind === 'newcomer' || spot.kind === 'monitoring') {
           // No real story to open yet — show the honest status note and explain
-          // that the Spotlight is where future statements/events get logged.
+          // that the Spotlight is where future statements/events get logged, tied
+          // to the very issues this candidate is being tracked on.
           spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
             '<div class="cs-spot-card">' +
               '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + '</span>' +
               '<span class="cs-spot-text">' + spotText + '</span></span>' +
             '</div>' +
-            '<p class="cs-spot-note">The Spotlight is where we log ' + first + '\'s statements, positions and key moments as they happen.</p>' +
+            '<p class="cs-spot-note">As ' + first + ' makes news, the Spotlight logs each statement, vote and key moment here — tied to the issue positions above, so you can see how the record matches the rhetoric.</p>' +
           '</div>';
         } else {
           spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
@@ -27701,6 +27746,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="cs-spot-text">' + spotText + '</span></span>' +
               '<span class="cs-spot-cta" aria-hidden="true">→</span>' +
             '</button>' +
+            spotTieRow +
+            (spotTiedToPosition ? '<p class="cs-spot-note">This Spotlight item ties to a position above — open it to see the news, sources and why it matters for that issue.</p>' : '') +
           '</div>';
         }
       }
@@ -27739,7 +27786,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="cs-head">' +
           '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
           '<div class="cs-head-main">' +
-            '<div class="cs-title">Candidate Snapshot<span class="cs-pill">Limited Record</span></div>' +
+            '<div class="cs-title">Candidate Snapshot<span class="cs-pill" title="Not a knock on the candidate — it just means we have few tracked promises so far. This snapshot leads with what is known: their stated positions and where they stand on the issues.">Limited Record</span></div>' +
             '<p class="cs-lede">' + lede + '</p>' +
           '</div>' +
         '</div>' +
@@ -28815,17 +28862,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Federal Workforce Reduction Plan Eliminates 65,000 Positions', facts:'DOGE-recommended reductions in force affected 14 federal agencies. Courts have temporarily blocked layoffs at 3 agencies pending legal review. GAO estimates $4.2B in severance and transition costs. <a href="https://www.gao.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">GAO.gov</a>', why:'The largest federal workforce reduction since post-WWII demobilization affects government service delivery across multiple sectors.' },
           ],
           cox: [
-            { date:'May 2026', headline:'Great Salt Lake Hits New Record Low Despite Conservation Efforts', facts:'Lake elevation measured at 4,188.5 ft, below the ecological tipping point. State invested $500M since 2022 in water conservation, but drought and upstream diversions continue to outpace recovery. <a href="https://waterdata.usgs.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">USGS Water Data</a>', why:'An ecological collapse of the Great Salt Lake would expose arsenic-laden lakebed dust to the Wasatch Front population and devastate the $1.3B brine shrimp industry.' },
+            { date:'May 2026', headline:'Great Salt Lake Hits New Record Low Despite Conservation Efforts', issueKey:'water', facts:'Lake elevation measured at 4,188.5 ft, below the ecological tipping point. State invested $500M since 2022 in water conservation, but drought and upstream diversions continue to outpace recovery. <a href="https://waterdata.usgs.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">USGS Water Data</a>', why:'An ecological collapse of the Great Salt Lake would expose arsenic-laden lakebed dust to the Wasatch Front population and devastate the $1.3B brine shrimp industry.' },
             { date:'Apr 2026', headline:'Cox Signs Controversial AI Governance Bill', facts:'Utah H.B. 403 creates the first state-level AI regulatory sandbox. Tech companies receive liability protections in exchange for transparency requirements. Civil liberties groups express mixed reactions. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'Utah is positioning itself as a tech regulation pioneer, which could attract AI companies but also sets precedent on liability standards other states may follow.' },
             { date:'Feb 2026', headline:'Utah Housing Affordability Crisis Deepens', facts:'Median home price in Salt Lake County reached $585K, up 8% year-over-year. Cox\'s Affordable Housing Task Force report recommends zoning reforms but faces resistance from suburban municipalities. <a href="https://gardner.utah.edu" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Kem C. Gardner Institute</a>', why:'Housing costs now consume 42% of median household income in the Wasatch Front, pushing workforce migration to neighboring states.' },
           ],
           lee: [
-            { date:'May 2026', headline:'Lee Leads Filibuster Against Reauthorization of Federal Surveillance Program', facts:'Senator Lee held the floor for 14 hours opposing renewal of Section 702 amendments. He argued the bill lacks adequate warrant requirements for querying American communications. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'The filibuster highlights the ongoing tension between national security authorities and Fourth Amendment protections, a defining issue for Lee\'s brand.' },
+            { date:'May 2026', headline:'Lee Leads Filibuster Against Reauthorization of Federal Surveillance Program', issueKey:'privacy_rights', facts:'Senator Lee held the floor for 14 hours opposing renewal of Section 702 amendments. He argued the bill lacks adequate warrant requirements for querying American communications. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'The filibuster highlights the ongoing tension between national security authorities and Fourth Amendment protections, a defining issue for Lee\'s brand.' },
             { date:'Mar 2026', headline:'Lee-Backed Convention of States Resolution Advances', facts:'Lee championed a resolution calling for an Article V convention to propose a balanced budget amendment. The resolution passed the Utah Legislature and now 21 of the required 34 states have signed on. <a href="https://conventionofstates.com" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Convention of States</a>', why:'An Article V convention has never been successfully convened; reaching the 34-state threshold would be a historic first in American governance.' },
             { date:'Jan 2026', headline:'Lee Opposes Omnibus Spending Bill, Votes Against Party Leadership', facts:'Lee was one of 8 Republican senators to vote against the $1.9T spending package despite leadership urging party unity. He cited a $2.1T deficit projection for FY2026. <a href="https://www.cbo.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">CBO.gov</a>', why:'The vote underscores Lee\'s willingness to break from party leadership on fiscal issues, consistent with his constitutional conservative brand.' },
           ],
           curtis: [
-            { date:'May 2026', headline:'Curtis Introduces Bipartisan Clean Energy Permitting Reform', facts:'The bill would streamline environmental reviews for renewable energy projects on federal land from an average of 4.5 years to 2 years. Co-sponsored with a Democratic senator. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'As a Republican championing clean energy, Curtis occupies a rare bipartisan space that could influence national energy policy direction.' },
+            { date:'May 2026', headline:'Curtis Introduces Bipartisan Clean Energy Permitting Reform', issueKey:'climate_action', facts:'The bill would streamline environmental reviews for renewable energy projects on federal land from an average of 4.5 years to 2 years. Co-sponsored with a Democratic senator. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'As a Republican championing clean energy, Curtis occupies a rare bipartisan space that could influence national energy policy direction.' },
             { date:'Mar 2026', headline:'Curtis Faces Criticism Over Vote on Social Media Age Verification Bill', facts:'Curtis voted against a federal social media age verification bill after receiving $310K from tech industry PACs. He argued it would create a national ID system for internet users. <a href="https://www.opensecrets.org" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">OpenSecrets</a>', why:'The vote raised questions about tech donor influence on a senator who represents a state that pioneered its own social media age verification law.' },
           ],
           massie: [
@@ -28838,7 +28885,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Owens Under Fire for PAC Spending on Luxury Travel', facts:'FEC filings show Owens\' leadership PAC spent $48K on travel and lodging at resort locations during a non-election period. His office stated all expenses were for fundraising events. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'PAC spending on travel and lodging is legal but raises transparency questions, especially for members who campaign on fiscal responsibility.' },
           ],
           maloy: [
-            { date:'May 2026', headline:'Maloy Leads Fight Over Bears Ears Monument Boundaries', facts:'Introduced legislation to reduce Bears Ears National Monument by 85%, restoring pre-Biden boundaries. The Navajo Nation and conservation groups oppose the bill. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'The Bears Ears debate encapsulates the tension between tribal sovereignty, conservation, and economic development on federal lands in rural Utah.' },
+            { date:'May 2026', headline:'Maloy Leads Fight Over Bears Ears Monument Boundaries', issueKey:'lands_local', facts:'Introduced legislation to reduce Bears Ears National Monument by 85%, restoring pre-Biden boundaries. The Navajo Nation and conservation groups oppose the bill. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'The Bears Ears debate encapsulates the tension between tribal sovereignty, conservation, and economic development on federal lands in rural Utah.' },
             { date:'Mar 2026', headline:'Maloy Secures $45M for Rural Broadband in District 2', facts:'Funding from the Infrastructure Investment and Jobs Act will extend broadband to 12,000 homes in rural southern Utah. Maloy voted against the original infrastructure bill in 2021. <a href="https://www.ntia.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">NTIA.gov</a>', why:'Accepting and championing funds from a bill she voted against highlights the common tension between political positioning and constituent service.' },
           ],
           boebert: [
@@ -28878,7 +28925,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'May 2026', headline:'Fine Campaigns on Anti-BDS Platform for FL-08 Congressional Seat', facts:'Fine\'s signature issue is expanding state-level anti-BDS laws to the federal level. He authored Florida\'s original anti-BDS resolution and proposes federal contractors be barred from boycotting Israel. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'Federal anti-BDS legislation intersects First Amendment free speech protections and foreign policy, making it legally and politically complex.' },
           ],
           bmoore: [
-            { date:'May 2026', headline:'Moore Champions F-35 Expansion at Hill Air Force Base', facts:'Moore secured $180M in additional F-35 sustainment funding through the FY2027 NDAA. Hill AFB employs 27,000 workers, making it Utah\'s largest employer. <a href="https://www.hill.af.mil" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Hill AFB</a>', why:'Defense spending at Hill AFB is the economic backbone of northern Utah — funding decisions directly affect tens of thousands of constituents.' },
+            { date:'May 2026', headline:'Moore Champions F-35 Expansion at Hill Air Force Base', issueKey:'strong_defense', facts:'Moore secured $180M in additional F-35 sustainment funding through the FY2027 NDAA. Hill AFB employs 27,000 workers, making it Utah\'s largest employer. <a href="https://www.hill.af.mil" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Hill AFB</a>', why:'Defense spending at Hill AFB is the economic backbone of northern Utah — funding decisions directly affect tens of thousands of constituents.' },
             { date:'Mar 2026', headline:'Moore Faces Primary Challenge Over Infrastructure Bill Vote', facts:'A primary challenger criticized Moore for voting against the Infrastructure Investment and Jobs Act while later championing its Utah projects. Moore defended the vote as principled opposition to overall spending. <a href="https://www.opensecrets.org" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">OpenSecrets</a>', why:'The contradiction between opposing a bill and then claiming credit for its local benefits is a common political vulnerability.' },
           ],
           jpetro: [
@@ -28893,11 +28940,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Lee Backs Income-Tax Cut and Smaller-Government Push', facts:'Rep. Lee supported the Legislature\'s continued reduction of Utah\'s flat income-tax rate and has pushed to limit the size and reach of state government, consistent with his self-described limited-government platform. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'Income-tax changes show up in every Davis County paycheck. As one of the House\'s vocal fiscal conservatives, Lee\'s votes help set how much the state collects — and which services that revenue does or does not fund.' },
           ],
           sadams: [
-            { date:'May 2026', headline:'Senate President Adams Drives Utah\'s Nuclear-Energy Push to Power Data Centers', facts:'Adams opened the 2025 legislative session calling for Utah to triple its energy production by 2050 and made advanced nuclear a centerpiece of the state\'s "Operation Gigawatt" initiative, backing site-readiness funding to attract small modular reactors. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Adams decides which energy bills reach the floor of a GOP supermajority. Whether Utah leans on nuclear, gas, or renewables to power its data-center boom will shape your electricity bills, air quality, and water use for decades.' },
+            { date:'May 2026', headline:'Senate President Adams Drives Utah\'s Nuclear-Energy Push to Power Data Centers', issueKey:'enviro_energy', facts:'Adams opened the 2025 legislative session calling for Utah to triple its energy production by 2050 and made advanced nuclear a centerpiece of the state\'s "Operation Gigawatt" initiative, backing site-readiness funding to attract small modular reactors. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Adams decides which energy bills reach the floor of a GOP supermajority. Whether Utah leans on nuclear, gas, or renewables to power its data-center boom will shape your electricity bills, air quality, and water use for decades.' },
             { date:'Feb 2026', headline:'Adams Backs Fifth Straight Income-Tax Cut While Funding Great Salt Lake Recovery', facts:'As Senate President, Adams championed another reduction to Utah\'s flat income-tax rate alongside continued spending on Great Salt Lake conservation and a proposed multi-state water compact with neighboring states. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'The Senate President sets the agenda for every tax and budget bill in Utah. How he balances tax cuts against the cost of saving a drying Great Salt Lake directly affects your paycheck, your water, and the air along the Wasatch Front.' },
           ],
           mschultz: [
-            { date:'May 2026', headline:'Speaker Schultz Defends "Utah Fits All" School-Choice Scholarship Amid Court Fight', facts:'Schultz, a driving force behind the program as House leadership, defended Utah\'s "Utah Fits All" scholarship — which gives families up to $8,000 per child for private school, homeschooling, and tutoring — after a state district court ruled it unconstitutional and the state appealed to the Utah Supreme Court. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'The case decides whether tax dollars can follow students out of public schools. As Speaker, Schultz controls which education bills advance — a direct line to how your district is funded and what choices your family has.' },
+            { date:'May 2026', headline:'Speaker Schultz Defends "Utah Fits All" School-Choice Scholarship Amid Court Fight', issueKey:'school_choice', facts:'Schultz, a driving force behind the program as House leadership, defended Utah\'s "Utah Fits All" scholarship — which gives families up to $8,000 per child for private school, homeschooling, and tutoring — after a state district court ruled it unconstitutional and the state appealed to the Utah Supreme Court. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'The case decides whether tax dollars can follow students out of public schools. As Speaker, Schultz controls which education bills advance — a direct line to how your district is funded and what choices your family has.' },
             { date:'Feb 2026', headline:'Homebuilder Speaker Pushes Zoning Reform to Ease Utah Housing Costs', facts:'Schultz, a homebuilder by trade, used the session to advance permitting and zoning-reform measures aimed at expanding starter-home supply while steering the House through an on-time multibillion-dollar state budget. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'With median Wasatch Front home prices pricing out first-time buyers, the Speaker\'s zoning and budget choices shape whether your kids can afford to live in Utah — and what services the state can fund without raising taxes.' },
           ],
           emendenhall: [
@@ -28905,7 +28952,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Mar 2026', headline:'Salt Lake City Climate Goals Face Infrastructure Funding Gap', facts:'An independent audit found a $340M gap between SLC\'s Climate Positive 2040 commitments and current funding. The city has achieved 38% of its interim 2025 renewable energy targets.', why:'The gap between climate rhetoric and funding reality raises questions about the feasibility of ambitious municipal climate goals nationwide.' },
           ],
           jteuscher: [
-            { date:'May 2026', headline:'Teuscher\'s App Store Age-Verification Law Pressures Apple and Google', facts:'Rep. Teuscher was the House sponsor of Utah\'s App Store Accountability Act (S.B. 142, 2025), a first-in-the-nation law requiring app stores to verify users\' ages and obtain parental consent before minors download apps. He also carried the earlier Social Media Regulation Act. The mandate is now being studied by other states and in Congress. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'The law shifts the job of keeping kids off harmful apps onto the largest tech companies in the world. If it survives the inevitable legal challenges, it changes how every Utah family sets up a child\'s phone — and could become the template the rest of the country copies.' },
+            { date:'May 2026', headline:'Teuscher\'s App Store Age-Verification Law Pressures Apple and Google', issueKey:'tech_balance', facts:'Rep. Teuscher was the House sponsor of Utah\'s App Store Accountability Act (S.B. 142, 2025), a first-in-the-nation law requiring app stores to verify users\' ages and obtain parental consent before minors download apps. He also carried the earlier Social Media Regulation Act. The mandate is now being studied by other states and in Congress. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'The law shifts the job of keeping kids off harmful apps onto the largest tech companies in the world. If it survives the inevitable legal challenges, it changes how every Utah family sets up a child\'s phone — and could become the template the rest of the country copies.' },
             { date:'Mar 2026', headline:'House Leader Teuscher Backs Tax Cuts as District 42 Strains Under Growth', facts:'As a member of House leadership, Teuscher supported the Legislature\'s continued cut to Utah\'s flat income-tax rate and has worked on the housing, transportation, and school-capacity pressures facing fast-growing southwest Salt Lake County. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'District 42 — South Jordan and Riverton — is one of the fastest-growing corners of the state. How its representative balances tax cuts against the roads, schools, and water that growth demands shapes daily life for tens of thousands of families.' },
           ],
           aromero: [
@@ -28913,11 +28960,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Romero Leads Democratic Pushback on Abortion Limits and Voucher Spending', facts:'As the top Democrat in a Republican supermajority House, Romero has opposed Utah\'s near-total abortion ban and the diversion of public funds into the "Utah Fits All" private-school scholarship, arguing both move against the priorities of her West Side district. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'In a chamber where Democrats can rarely pass bills, the Minority Leader\'s job is to shape the debate and force the record. Her stands on reproductive access and school funding are the clearest counterweight your district has to the majority\'s agenda.' },
           ],
           evickers: [
-            { date:'May 2026', headline:'Pharmacist-Legislator Vickers Targets Pharmacy Middlemen and Drug Costs', facts:'Senate Majority Leader Evan Vickers, a Cedar City pharmacist by trade, has used his health-industry background to push regulation of pharmacy benefit managers (PBMs) and measures to rein in out-of-pocket prescription costs such as insulin. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'PBMs sit invisibly between you and the pharmacy counter and help set what you pay. A Majority Leader who has spent decades filling prescriptions brings rare first-hand leverage to a fight that hits every Utahn picking up medication.' },
+            { date:'May 2026', headline:'Pharmacist-Legislator Vickers Targets Pharmacy Middlemen and Drug Costs', issueKey:'health_drug_prices', facts:'Senate Majority Leader Evan Vickers, a Cedar City pharmacist by trade, has used his health-industry background to push regulation of pharmacy benefit managers (PBMs) and measures to rein in out-of-pocket prescription costs such as insulin. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'PBMs sit invisibly between you and the pharmacy counter and help set what you pay. A Majority Leader who has spent decades filling prescriptions brings rare first-hand leverage to a fight that hits every Utahn picking up medication.' },
             { date:'Feb 2026', headline:'Vickers Steers Rural Priorities Through the Senate Majority', facts:'As the No. 2 leader in the Senate, Vickers has championed water infrastructure, healthcare access, and economic development for rural southwestern Utah while backing the Legislature\'s continued income-tax reductions. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Rural Utah often loses out to the Wasatch Front on funding fights. As Majority Leader, Vickers is the most powerful advocate Iron, Beaver, and Millard counties have for getting their water lines, clinics, and roads onto the state\'s priority list.' },
           ],
           lescamilla: [
-            { date:'May 2026', headline:'Senate Democratic Leader Escamilla Defends Medicaid and Clean-Air Funding', facts:'Senate Minority Leader Luz Escamilla, who represents Salt Lake City\'s west side, has worked to protect voter-approved full Medicaid expansion from rollbacks and to keep emissions and inversion air-quality programs funded along the Wasatch Front. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Escamilla\'s district sits in the path of Utah\'s worst air and includes many families who depend on Medicaid. As the lead Senate Democrat, she is the firewall against cuts that would land first on the constituents she represents.' },
+            { date:'May 2026', headline:'Senate Democratic Leader Escamilla Defends Medicaid and Clean-Air Funding', issueKey:'healthcare', facts:'Senate Minority Leader Luz Escamilla, who represents Salt Lake City\'s west side, has worked to protect voter-approved full Medicaid expansion from rollbacks and to keep emissions and inversion air-quality programs funded along the Wasatch Front. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Escamilla\'s district sits in the path of Utah\'s worst air and includes many families who depend on Medicaid. As the lead Senate Democrat, she is the firewall against cuts that would land first on the constituents she represents.' },
             { date:'Feb 2026', headline:'Escamilla Opposed the 2023 Voucher Law as a Hit to Public Schools', facts:'Escamilla voted against H.B. 215, the law that created Utah\'s "Utah Fits All" private-education scholarship, arguing it pulls money from underfunded neighborhood schools. She continues to push for higher public-school investment and immigrant-family protections. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'West Side schools are among the most reliant on state dollars in Utah. Escamilla\'s vote against vouchers is a direct statement about where she thinks limited education funding should go — into the public classrooms her district fills.' },
           ],
           kcullimore: [
@@ -28925,7 +28972,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Senate Leader Cullimore Works Business-Law and Growth Issues for Salt Lake County', facts:'A member of Senate leadership, Cullimore has focused on business-liability and economic-development legislation while representing the fast-growing south end of Salt Lake County. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'The rules governing lawsuits, contracts, and development set the climate every small business in Draper and Sandy operates under. Cullimore\'s seat in leadership gives District 9 outsized say over that fine print.' },
           ],
           tweiler: [
-            { date:'May 2026', headline:'Weiler\'s Online Age-Verification Law Becomes a National Template', facts:'Sen. Todd Weiler sponsored Utah\'s law (S.B. 287, 2023) requiring age verification to access pornography websites and authored the 2016 resolution (S.C.R. 9) declaring porn a public-health crisis — approaches now copied by other states. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'Age-verification mandates raise real questions about privacy and free speech even as they aim to shield kids. Weiler\'s bills put Davis County at the center of a national legal fight over how far government can go to police what minors see online.' },
+            { date:'May 2026', headline:'Weiler\'s Online Age-Verification Law Becomes a National Template', issueKey:'tech_balance', facts:'Sen. Todd Weiler sponsored Utah\'s law (S.B. 287, 2023) requiring age verification to access pornography websites and authored the 2016 resolution (S.C.R. 9) declaring porn a public-health crisis — approaches now copied by other states. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'Age-verification mandates raise real questions about privacy and free speech even as they aim to shield kids. Weiler\'s bills put Davis County at the center of a national legal fight over how far government can go to police what minors see online.' },
             { date:'Feb 2026', headline:'Judiciary Veteran Weiler Shapes Criminal and Family Law', facts:'An attorney on the Senate Judiciary Committee, Weiler has been active on criminal-sentencing, family-law, and child-protection legislation across his Davis County tenure. <a href="https://senate.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Senate</a>', why:'Judiciary bills rewrite the rules courts use in custody disputes, sentencing, and protective orders — the moments when ordinary families collide with the legal system. Weiler\'s committee work quietly decides much of that for the whole state.' },
           ],
           amillner: [
@@ -28945,7 +28992,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'Feb 2026', headline:'Ward Floats Tax Restructuring to Ease the Squeeze on Working Families', facts:'Ward has proposed reworking parts of Utah\'s tax structure to lighten the load on middle- and lower-income households, pairing his healthcare focus with cost-of-living concerns. <a href="https://le.utah.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Utah Legislature</a>', why:'Flat-rate tax cuts deliver the most to high earners. Ward\'s push to target relief at working families is a direct test of who Utah\'s tax policy is actually built to help.' },
           ],
           kennedy: [
-            { date:'May 2026', headline:'Dr. Kennedy Centers Healthcare Costs in His Congressional Work', facts:'Rep. Mike Kennedy of Utah\'s 3rd District, an emergency-room physician and former state senator, has made price transparency and reining in pharmacy benefit managers signature issues, arguing patients deserve to know costs up front. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'Surprise medical bills and opaque drug pricing hit nearly every household. A doctor in Congress pushing transparency could change what Utah County families actually pay — though watchdogs note his pharma-sector donations are worth tracking against his rhetoric.' },
+            { date:'May 2026', headline:'Dr. Kennedy Centers Healthcare Costs in His Congressional Work', issueKey:'healthcare_market', facts:'Rep. Mike Kennedy of Utah\'s 3rd District, an emergency-room physician and former state senator, has made price transparency and reining in pharmacy benefit managers signature issues, arguing patients deserve to know costs up front. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'Surprise medical bills and opaque drug pricing hit nearly every household. A doctor in Congress pushing transparency could change what Utah County families actually pay — though watchdogs note his pharma-sector donations are worth tracking against his rhetoric.' },
             { date:'Feb 2026', headline:'Kennedy Backs Border Security and a Market-Based Health Agenda', facts:'A constitutional conservative, Kennedy supports strict border enforcement, market-driven healthcare reform over government-run coverage, and limited federal spending, consistent with his record in the Utah Legislature. <a href="https://www.congress.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Congress.gov</a>', why:'Utah\'s 3rd District is among the most Republican in the country, so Kennedy\'s votes — not a general election — define its representation. His blend of doctor and hard-line conservative is the lens through which Utah County\'s federal voice gets cast.' },
           ],
           dipson: [
@@ -28991,10 +29038,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { date:'2025', headline:'Vaccine-Policy Changes Under Kennedy Spark Public-Health Alarm', facts:'Kennedy\'s changes to federal vaccine committees and messaging have drawn concern from physician and pediatric groups that cite decades of evidence on vaccine safety and effectiveness. <a href="https://www.cdc.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">CDC.gov</a>', why:'Federal vaccine recommendations ripple out to schools, insurers, and families nationwide — making the clash between Kennedy\'s skepticism and established science a high-stakes national fight.' },
           ],
           dballard: [
-            { date:'2026', headline:'Ballard Mounts an Uphill UT-1 Challenge on Veterans and Rural Health', facts:'Democrat Derek Ballard is campaigning across northern Utah\'s 1st District on veterans\' services, rural healthcare access, and a small-dollar, no-corporate-PAC funding pledge in one of the state\'s most Republican seats. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'Even long-shot challengers force incumbents to defend their records; Ballard\'s focus on veterans and rural care spotlights services many UT-1 communities say are stretched thin.' },
+            { date:'2026', headline:'Ballard Mounts an Uphill UT-1 Challenge on Veterans and Rural Health', issueKey:'veterans', facts:'Democrat Derek Ballard is campaigning across northern Utah\'s 1st District on veterans\' services, rural healthcare access, and a small-dollar, no-corporate-PAC funding pledge in one of the state\'s most Republican seats. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'Even long-shot challengers force incumbents to defend their records; Ballard\'s focus on veterans and rural care spotlights services many UT-1 communities say are stretched thin.' },
           ],
           jjohnson: [
-            { date:'2026', headline:'Johnson Runs in UT-4 on Schools, Healthcare, and Clean Air', facts:'Democrat Jen Johnson is challenging in Utah\'s competitive-leaning 4th District with a platform centered on public-school funding, protecting the Affordable Care Act, and Wasatch Front air quality. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'UT-4 covers fast-growing suburban Salt Lake County, where school capacity, healthcare costs, and air quality are daily concerns — making Johnson\'s priorities a direct contrast for voters to weigh.' },
+            { date:'2026', headline:'Johnson Runs in UT-4 on Schools, Healthcare, and Clean Air', issueKey:'public_schools', facts:'Democrat Jen Johnson is challenging in Utah\'s competitive-leaning 4th District with a platform centered on public-school funding, protecting the Affordable Care Act, and Wasatch Front air quality. <a href="https://www.fec.gov" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">FEC.gov</a>', why:'UT-4 covers fast-growing suburban Salt Lake County, where school capacity, healthcare costs, and air quality are daily concerns — making Johnson\'s priorities a direct contrast for voters to weigh.' },
+          ],
+          tami_tran: [
+            { date:'May 2026', headline:'Kaysville Mayor Tami Tran Enters Utah Senate District 6 Race on Experience and Fiscal Discipline', issueKey:'lower_taxes', facts:'Tami Tran, the sitting mayor of Kaysville, announced her candidacy for Utah Senate District 6, pointing to her record running a growing Davis County city and campaigning on keeping taxes low, balancing budgets, and government transparency. <a href="https://www.standard.net/news/2026/may/25/tami-tran-highlights-experience-in-bid-for-senate-district-6-seat/" target="_blank" rel="noopener" style="color:#60a5fa;text-decoration:underline;">Standard-Examiner</a>', why:'A sitting mayor moving up to a legislative race brings an actual governing record voters can weigh — her choices on city budgets and growth are an early read on how she would vote on taxes and spending at the state level.' },
           ],
         });
         // ── In the Spotlight — politician-specific, accountability-linked ──────
@@ -43810,6 +43860,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             title: it.headline,
             body: (it.facts || '').replace(/<[^>]*>/g, '').trim(),
             why: it.why || '',
+            // Optional linkage to a specific Alignment Tool issue (an ISSUE_MAP key),
+            // so a Spotlight headline can be tied to the same issue position shown in
+            // the Candidate Snapshot — the connective tissue between the two sections.
+            issueKey: it.issueKey || null,
             source: _krSpotlightExtractSource(it.facts)
           };
         };
@@ -43832,6 +43886,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           teaser: top.title,
           body: top.body,
           why: top.why,
+          issueKey: top.issueKey || null,
           source: top.source,
           total: stories.length,
           stories: stories
@@ -43989,6 +44044,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '<span style="flex:1;min-width:0;">' +
                   '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">' + st.date + '</span>' +
                   '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:600;font-size:0.82rem;color:#e8edf6;line-height:1.3;">' + st.title + '</span>' +
+                  ((st.issueKey && typeof window._issueTagHtml === 'function') ? ('<span style="display:inline-block;margin-top:0.3rem;">' + window._issueTagHtml(st.issueKey, 'On the issue:') + '</span>') : '') +
                 '</span>' +
                 '<svg class="krspot-chev" width="15" height="15" fill="none" stroke="#7596c0" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:0.15rem;transition:transform 0.2s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
               '</button>' +
@@ -44027,6 +44083,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="padding:1.1rem;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">' +
               '<span class="kr-spot-badge ' + s.kind + '">' + s.badgeIco + ' ' + s.badge + '</span>' + dateChip +
+              ((s.issueKey && typeof window._issueTagHtml === 'function') ? window._issueTagHtml(s.issueKey, 'On the issue:') : '') +
             '</div>' +
             '<div class="font-display text-white" style="font-size:1.12rem;line-height:1.25;margin-bottom:0.5rem;">' + s.title + '</div>' +
             '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
