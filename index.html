@@ -13885,6 +13885,109 @@
       .kraq-card { max-width: 94vw; }
       #relevant-browse-grid .relevant-compare-cta-btn { font-size: 0.72rem; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE EXPERIENCE — FINAL POLISH PASS
+       A last, phone-only layer that builds on the earlier passes and closes
+       the remaining rough spots: the profile modal's bottom action bar now
+       reads as a distinct, elevated control deck; the many small in-modal
+       controls (promise filter tabs, issue pills, stance toggles, verdict
+       badges) become real thumb targets; oversized section headers stop
+       overflowing on narrow phones; and the most-used sections (Relevant to
+       Me, Key Races, My Team, the district tree and top nav) get a calmer,
+       more comfortable rhythm. Additive only — no markup or JS changes — and
+       appended last so it reliably wins the cascade. The dark patriotic
+       palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── PROFILE MODAL — an elevated, easy-to-read action deck ───────────
+         The footer was separated from the scrolling body by only a hairline.
+         Lift it with a soft top shadow and a slightly stronger surface so it
+         reads as a fixed control deck the eye can return to, give the primary
+         CTA real presence, and keep its two rows comfortably padded. The
+         scroll body gets extra bottom room so the final section never sits
+         tight against the deck. */
+      #modal-footer {
+        box-shadow: 0 -10px 26px rgba(0,0,0,0.42);
+        background: rgba(8,13,26,0.92) !important;
+        border-top-color: rgba(255,255,255,0.12) !important;
+      }
+      #modal-footer > div:first-child { padding-top: 0.7rem !important; padding-bottom: 0.55rem !important; }
+      #modal-addteam-btn { letter-spacing: 0.06em !important; border-radius: 0.7rem !important; }
+      #modal-addteam-hint { font-size: 0.74rem !important; }
+      #modal-action-strip { gap: 0.45rem !important; padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px)) !important; }
+      #modal-action-strip .like-count, #modal-action-strip .dislike-count { font-size: 0.82rem !important; }
+      #modal-content { padding-bottom: 1.4rem !important; }
+
+      /* ── PROFILE MODAL — small controls become genuine tap targets ───────
+         The promise All/Kept/Broken/Pending tabs, the key-issue pills, the
+         stance cards and the verdict badges were comfortable with a mouse but
+         fiddly on glass. Bump their padding and minimum height, and let the
+         filter-tab strip breathe so the counts stay legible. */
+      .pdx-pfilter { gap: 0.5rem !important; }
+      .pdx-pfilter-btn { font-size: 0.74rem !important; padding: 0.5rem 0.85rem !important; min-height: 38px !important; }
+      .pdx-pfilter-reset { font-size: 0.7rem !important; padding: 0.4rem 0.8rem !important; min-height: 34px !important; }
+      .issue-pill { font-size: 0.82rem !important; padding: 0.5rem 0.85rem !important; }
+      .vbadge-click { padding: 0.32rem 0.7rem !important; }
+      .stance-card { padding: 0.9rem 0.95rem !important; }
+      .profile-quote p { font-size: 0.95rem !important; }
+
+      /* ── SECTION HEADERS — confident but contained ──────────────────────
+         The big Bebas/Bebas-style display titles (My Team, Key Races, etc.)
+         could run wide enough to wrap awkwardly or nudge their count badges
+         off-line on a phone. Keep them bold yet contained, and let the
+         header rows wrap cleanly with a little vertical gap. */
+      #myteam-selected-panel .font-display.text-3xl,
+      #keyraces-panel .font-display,
+      #relevant-section .font-display.text-2xl { line-height: 1.05 !important; overflow-wrap: anywhere; }
+      #myteam-count-badge, #relevant-count-badge { white-space: nowrap; }
+      #relevant-section .flex.flex-wrap, #keyraces-panel .flex.flex-wrap { row-gap: 0.4rem !important; }
+
+      /* ── KEY RACES — readable location selector & headline ──────────────
+         The location picker is the gateway to this whole section; give it a
+         full thumb height and 16px text so focusing it never triggers iOS
+         auto-zoom, and let the headline wrap rather than clip. */
+      #keyraces-location-select { min-height: 48px !important; font-size: 16px !important; }
+      #keyraces-headline { line-height: 1.4 !important; }
+
+      /* ── MY TEAM — progress bar & compare-all stay comfortable ──────────
+         The progress label and the "compare all" bar are the section's two
+         primary affordances; keep the label legible and the compare control
+         a confident, full-width thumb target. */
+      #myteam-progress-label { font-size: 0.8rem !important; line-height: 1.35 !important; }
+      #myteam-compare-all-btn { min-height: 48px !important; }
+      #myteam-subtext, #myteam-location-text { line-height: 1.4 !important; }
+
+      /* ── TOP NAV — brand never crowds the menu button ───────────────────
+         On the narrowest phones the wordmark could butt against the right-
+         side controls; trim its size a touch and keep a hard gap so the logo,
+         account chip and hamburger always read as three distinct targets. */
+      nav .max-w-7xl { gap: 0.6rem !important; }
+    }
+
+    @media (max-width: 480px) {
+      /* The engagement strip's five controls fit one tight row on most
+         phones; on the narrowest screens let them wrap to a second row
+         rather than shrink below a comfortable tap size. */
+      #modal-action-strip { flex-wrap: wrap !important; row-gap: 0.45rem !important; }
+      #modal-action-strip > a.ml-auto { margin-left: 0 !important; }
+
+      /* Section display titles: a small step down so they never overflow or
+         force the count badge onto its own crowded line. */
+      #myteam-selected-panel .font-display.text-3xl { font-size: 1.85rem !important; }
+      #keyraces-panel .font-display.text-3xl { font-size: 1.9rem !important; }
+
+      /* District tree: a touch more separation between office groups so the
+         full-width phone stack stops reading as one dense block. */
+      #myteam-browse-grid .browse-type-group,
+      #relevant-browse-grid .browse-type-group { margin-bottom: 0.8rem !important; }
+    }
+
+    @media (max-width: 380px) {
+      /* Ultra-compact phones: keep the brand wordmark from pushing the
+         account + menu controls off the bar. */
+      nav .font-display.text-xl { font-size: 1.05rem !important; }
+    }
   </style>
 
       </head>
