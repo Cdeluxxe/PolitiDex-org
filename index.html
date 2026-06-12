@@ -14228,6 +14228,9 @@
         <p class="font-body text-steel-200 text-base sm:text-lg leading-relaxed">
           <span class="text-white font-bold">Set your location</span> to see the <span class="text-white font-bold">districts you actually vote in</span>, then add your <span class="text-white font-bold">first politician</span> — usually someone already representing you. That's your first team pick. Build the rest one race at a time; there's no rush, and everything saves as you go.
         </p>
+        <button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()" class="btn-tap mt-4 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-condensed font-700 text-sm tracking-widest uppercase px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95" style="box-shadow:0 4px 18px rgba(59,130,246,0.3);min-height:unset;">
+          📍 Set your location — step one
+        </button>
       </div>
     </div>
 
@@ -29846,6 +29849,116 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </button>
   </div>
 
+  <!-- ── First-run "Getting Started" companion ─────────────────────────────────
+       The one piece of guidance that travels with a BRAND-NEW visitor across the
+       whole page — from the moment they arrive to the moment they take their first
+       real action (adding a first team pick). Every other helper on the page is
+       section-bound (the hero card, Start Here, the Voter Hub "Your Path" tracker)
+       or scroll-gated (the Team dock only appears in a band below the team panel).
+       None of them follow a confused newcomer who has scrolled into the dense middle
+       of the page. This compact, dismissible companion fills that gap: it always
+       shows the single next step (Set location → See your districts → Add first pick)
+       with one clear action, stays in sync with the live state the rest of the page
+       already tracks, and then gracefully retires for good once the first pick lands.
+       Shown only to first-timers (hidden once a pick exists or after dismissal),
+       collapsible to a small pill, and tucked out of the way whenever a modal opens. -->
+  <style id="pdx-fr-styles">
+    .pdx-fr{position:fixed;left:50%;bottom:1.35rem;transform:translateX(-50%);z-index:46;
+      width:min(360px,calc(100vw - 1.4rem));font-family:'Barlow',sans-serif;}
+    .pdx-fr[hidden]{display:none;}
+    /* Expanded card */
+    .pdx-fr-card{position:relative;border-radius:1.1rem;overflow:hidden;
+      background:linear-gradient(150deg,rgba(16,24,46,0.98),rgba(26,15,26,0.98));
+      border:1px solid rgba(245,200,66,0.5);
+      box-shadow:0 16px 40px rgba(0,0,0,0.55),0 0 26px rgba(245,158,11,0.18);
+      backdrop-filter:blur(8px);animation:pdxFrIn 0.4s cubic-bezier(0.34,1.3,0.64,1);}
+    @keyframes pdxFrIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .pdx-fr-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,#c0152a,#ffffff,#1a3a6b);opacity:0.85;}
+    .pdx-fr-head{display:flex;align-items:center;gap:0.5rem;padding:0.7rem 0.85rem 0.45rem;}
+    .pdx-fr-kicker{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;
+      font-weight:800;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#fad96a;}
+    .pdx-fr-stepof{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.58rem;
+      letter-spacing:0.1em;text-transform:uppercase;color:#8aa0c4;}
+    .pdx-fr-iconbtn{flex:none;width:1.45rem;height:1.45rem;border-radius:0.45rem;border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.05);color:#9fb4d4;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      font-size:0.85rem;line-height:1;transition:background 0.15s ease,color 0.15s ease;min-height:unset;padding:0;}
+    .pdx-fr-iconbtn:hover{background:rgba(255,255,255,0.12);color:#fff;}
+    /* 3-pip progress */
+    .pdx-fr-pips{display:flex;gap:0.3rem;padding:0 0.85rem 0.55rem;}
+    .pdx-fr-pip{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,0.12);transition:background 0.3s ease;}
+    .pdx-fr-pip.is-done{background:linear-gradient(90deg,#4ade80,#22c55e);}
+    .pdx-fr-pip.is-active{background:linear-gradient(90deg,#fad96a,#e6b800);}
+    /* Active-step body */
+    .pdx-fr-body{display:flex;gap:0.65rem;align-items:flex-start;padding:0 0.85rem 0.2rem;}
+    .pdx-fr-ico{flex:none;font-size:1.5rem;line-height:1;margin-top:0.05rem;}
+    .pdx-fr-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.02rem;letter-spacing:0.01em;
+      color:#fff;line-height:1.1;}
+    .pdx-fr-desc{font-size:0.78rem;line-height:1.45;color:#aebfd8;margin:0.2rem 0 0;}
+    .pdx-fr-desc strong{color:#e6eefb;font-weight:700;}
+    .pdx-fr-foot{display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.85rem 0.8rem;}
+    .pdx-fr-go{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;cursor:pointer;
+      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;
+      color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:none;border-radius:0.65rem;padding:0.62rem 0.9rem;
+      transition:transform 0.15s ease,box-shadow 0.15s ease;box-shadow:0 5px 16px rgba(245,200,66,0.32);min-height:unset;}
+    .pdx-fr-go:hover{transform:translateY(-1px);box-shadow:0 7px 20px rgba(245,200,66,0.45);}
+    .pdx-fr-skip{flex:none;background:none;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;
+      font-size:0.68rem;letter-spacing:0.05em;color:#7e93b4;text-decoration:underline;text-underline-offset:2px;padding:0.3rem;min-height:unset;}
+    .pdx-fr-skip:hover{color:#cbd5e1;}
+    /* Celebration state */
+    .pdx-fr-card.is-done-state{border-color:rgba(74,222,128,0.55);box-shadow:0 16px 40px rgba(0,0,0,0.55),0 0 26px rgba(74,222,128,0.22);}
+    .pdx-fr-card.is-done-state .pdx-fr-kicker{color:#86efac;}
+    /* Collapsed pill */
+    .pdx-fr-pill{display:inline-flex;align-items:center;gap:0.55rem;cursor:pointer;
+      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;
+      color:#fad96a;background:linear-gradient(135deg,rgba(16,24,46,0.97),rgba(26,15,26,0.97));
+      border:1px solid rgba(245,200,66,0.45);border-radius:999px;padding:0.5rem 0.95rem;
+      box-shadow:0 12px 30px rgba(0,0,0,0.5),0 0 22px rgba(245,158,11,0.16);backdrop-filter:blur(8px);
+      animation:pdxFrIn 0.35s cubic-bezier(0.34,1.3,0.64,1);}
+    .pdx-fr-pill:hover{border-color:rgba(245,200,66,0.7);}
+    .pdx-fr-pill .pdx-fr-pill-ico{font-size:0.95rem;line-height:1;}
+    .pdx-fr-pill .pdx-fr-pill-n{color:#fff;}
+    body[style*="overflow: hidden"] .pdx-fr{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px);}
+    @media (max-width:639px){
+      .pdx-fr{bottom:0.7rem;}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .pdx-fr-card,.pdx-fr-pill{animation:none;}
+    }
+  </style>
+  <div id="pdx-firstrun" class="pdx-fr" hidden aria-live="polite">
+    <!-- Collapsed pill (re-expands on tap) -->
+    <button type="button" id="pdx-fr-pill" class="pdx-fr-pill" style="display:none;" onclick="window._pdxFirstRunCollapse(false)" aria-label="Open getting started guide">
+      <span class="pdx-fr-pill-ico">🧭</span>
+      <span>Getting started · <span class="pdx-fr-pill-n" id="pdx-fr-pill-n">Step 1/3</span></span>
+    </button>
+    <!-- Expanded card -->
+    <div id="pdx-fr-card" class="pdx-fr-card">
+      <div class="pdx-fr-head">
+        <span class="pdx-fr-kicker" id="pdx-fr-kicker">🧭 Getting started</span>
+        <span class="pdx-fr-stepof" id="pdx-fr-stepof">Step 1 of 3</span>
+        <button type="button" class="pdx-fr-iconbtn" title="Minimize" aria-label="Minimize guide" onclick="window._pdxFirstRunCollapse(true)">–</button>
+        <button type="button" class="pdx-fr-iconbtn" title="Dismiss" aria-label="Dismiss guide" onclick="window._pdxFirstRunDismiss()">✕</button>
+      </div>
+      <div class="pdx-fr-pips" id="pdx-fr-pips">
+        <span class="pdx-fr-pip is-active"></span>
+        <span class="pdx-fr-pip"></span>
+        <span class="pdx-fr-pip"></span>
+      </div>
+      <div class="pdx-fr-body">
+        <span class="pdx-fr-ico" id="pdx-fr-ico">📍</span>
+        <div>
+          <div class="pdx-fr-title" id="pdx-fr-title">Set your location</div>
+          <p class="pdx-fr-desc" id="pdx-fr-desc">Tell us where you vote and we'll pull up <strong>your real ballot</strong> — the exact races you'll decide.</p>
+        </div>
+      </div>
+      <div class="pdx-fr-foot" id="pdx-fr-foot">
+        <button type="button" class="pdx-fr-go" id="pdx-fr-go" onclick="window._pdxFirstRunAction()">Set my location →</button>
+        <button type="button" class="pdx-fr-skip" onclick="window._pdxFirstRunDismiss()">I'll explore</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════════ COMPARE MODAL ═══════════════════ -->
   <div id="compare-overlay" role="dialog" aria-modal="true" aria-label="Politician Comparison">
     <!-- Header -->
@@ -32614,6 +32727,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._vhSyncBanner = function() {
     try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
     try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
+    try { if (typeof window._pdxFirstRunSync === 'function') window._pdxFirstRunSync(); } catch (e) {}
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var grad = '<span style="background:linear-gradient(90deg,#ef4444,#ffffff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">';
     var cityEl    = document.getElementById('vh-loc-city');
@@ -37752,6 +37866,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // build progress without re-deriving it from storage.
       window._myteamFilledCount = filledCount;
       try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
+      try { if (typeof window._pdxFirstRunSync === 'function') window._pdxFirstRunSync(); } catch (e) {}
       var box = document.getElementById('myteam-next-step');
       if (!box) return;
       var total = (window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) || 6;
@@ -49034,6 +49149,180 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       document.addEventListener('DOMContentLoaded', function () { window._paintTeamDock(); });
     } else {
       window._paintTeamDock();
+    }
+  })();
+  </script>
+
+  <!-- ── First-run "Getting Started" companion — controller ───────────────────
+       Drives the single page-wide newcomer guide defined above. It reads the same
+       live globals the rest of the page already maintains (window._hasUserLocation,
+       window._myteamFilledCount) so it never invents its own notion of progress,
+       and it reuses the page's real actions (open the location picker, scroll to the
+       districts strip, jump to the team builder) so every button does exactly what
+       the equivalent in-flow control does. The guide only ever speaks to a first-
+       timer: it hides for anyone who already has a pick or who has dismissed it,
+       celebrates the very first pick once, then retires permanently. -->
+  <script>
+  (function () {
+    var DONE_KEY = 'politidex_firstrun_done';
+    var COLLAPSE_KEY = 'politidex_firstrun_collapsed';
+    var shownThisSession = false;   // guide has been actively presented at least once
+    var celebrated = false;         // first-pick celebration has fired
+
+    function el(id){ return document.getElementById(id); }
+    function isDone(){ try { return localStorage.getItem(DONE_KEY) === '1'; } catch(e){ return false; } }
+    function markDone(){ try { localStorage.setItem(DONE_KEY, '1'); } catch(e){} }
+    function isCollapsed(){ try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch(e){ return false; } }
+    function setCollapsedPref(v){ try { localStorage.setItem(COLLAPSE_KEY, v ? '1' : '0'); } catch(e){} }
+
+    // The three milestones, mirroring the page's own "Your Path" model: setting a
+    // location is what reveals the voter's districts, so steps 1 and 2 are both
+    // satisfied the moment a location is saved; step 3 is the first real action.
+    function currentStep() {
+      var locDone = !!window._hasUserLocation;
+      var filled = Math.max(0, window._myteamFilledCount || 0);
+      // [done flags for the 3 pips, index of the active step]
+      if (!locDone) return { active: 0, done: [false, false, false] };
+      if (filled < 1) return { active: 2, done: [true, true, false] };
+      return { active: 3, done: [true, true, true] };
+    }
+
+    var STEPS = [
+      { ico: '📍', title: 'Set your location',
+        desc: 'Tell us where you vote and we\'ll pull up <strong>your real ballot</strong> — the exact races you\'ll decide.',
+        cta: 'Set my location →',
+        act: function(){ if (window.toggleChangeLocation) window.toggleChangeLocation(); } },
+      null, // step index 1 ("see your districts") shares the pip but is auto-satisfied by step 0
+      { ico: '⭐', title: 'Add your first pick',
+        desc: 'Your team is just the people who <strong>earn your vote</strong> — chosen by your values and your districts. Add one to begin.',
+        cta: 'Add my first pick →',
+        act: function(){ if (window._myteamGuideGo) window._myteamGuideGo('pick'); } }
+    ];
+
+    function activeStepObj() {
+      var st = currentStep();
+      // Active index 2 maps to STEPS[2]; index 0 to STEPS[0]. Index 1 is never active.
+      return STEPS[st.active] || STEPS[2];
+    }
+
+    function paintPips() {
+      var st = currentStep();
+      var pips = el('pdx-fr-pips');
+      if (!pips) return;
+      var nodes = pips.children;
+      for (var i = 0; i < nodes.length; i++) {
+        nodes[i].className = 'pdx-fr-pip' + (st.done[i] ? ' is-done' : (i === st.active && st.active < 3 ? ' is-active' : ''));
+      }
+    }
+
+    function paintGuide() {
+      var step = activeStepObj();
+      var stepNum = (!window._hasUserLocation) ? 1 : 3;   // shown as "Step 1/3" or "Step 3/3"
+      if (el('pdx-fr-ico')) el('pdx-fr-ico').textContent = step.ico;
+      if (el('pdx-fr-title')) el('pdx-fr-title').textContent = step.title;
+      if (el('pdx-fr-desc')) el('pdx-fr-desc').innerHTML = step.desc;
+      if (el('pdx-fr-go')) el('pdx-fr-go').textContent = step.cta;
+      if (el('pdx-fr-stepof')) el('pdx-fr-stepof').textContent = 'Step ' + stepNum + ' of 3';
+      if (el('pdx-fr-pill-n')) el('pdx-fr-pill-n').textContent = 'Step ' + stepNum + '/3';
+      if (el('pdx-fr-kicker')) el('pdx-fr-kicker').innerHTML = '🧭 Getting started';
+      var card = el('pdx-fr-card');
+      if (card) card.classList.remove('is-done-state');
+      paintPips();
+    }
+
+    function paintCelebrate() {
+      if (el('pdx-fr-kicker')) el('pdx-fr-kicker').innerHTML = '🎉 Nice — you\'re rolling';
+      if (el('pdx-fr-stepof')) el('pdx-fr-stepof').textContent = '';
+      if (el('pdx-fr-ico')) el('pdx-fr-ico').textContent = '⭐';
+      if (el('pdx-fr-title')) el('pdx-fr-title').textContent = 'Your team has its first pick';
+      if (el('pdx-fr-desc')) el('pdx-fr-desc').innerHTML = 'That\'s how it works — one race at a time, saved as you go. Keep filling the rest of your ballot whenever you\'re ready.';
+      if (el('pdx-fr-go')) el('pdx-fr-go').textContent = 'Keep building →';
+      if (el('pdx-fr-pips')) {
+        var nodes = el('pdx-fr-pips').children;
+        for (var i = 0; i < nodes.length; i++) nodes[i].className = 'pdx-fr-pip is-done';
+      }
+      var card = el('pdx-fr-card');
+      if (card) card.classList.add('is-done-state');
+    }
+
+    function showCard() {
+      var root = el('pdx-firstrun'), card = el('pdx-fr-card'), pill = el('pdx-fr-pill');
+      if (!root) return;
+      root.hidden = false;
+      if (card) card.style.display = '';
+      if (pill) pill.style.display = 'none';
+    }
+    function showPill() {
+      var root = el('pdx-firstrun'), card = el('pdx-fr-card'), pill = el('pdx-fr-pill');
+      if (!root) return;
+      root.hidden = false;
+      if (card) card.style.display = 'none';
+      if (pill) pill.style.display = '';
+    }
+    function hideAll() {
+      var root = el('pdx-firstrun');
+      if (root) root.hidden = true;
+    }
+
+    // The active-step button: run the step's real page action, then collapse the
+    // guide out of the way so it doesn't sit on top of what the user just opened.
+    window._pdxFirstRunAction = function () {
+      var step = activeStepObj();
+      if (step && typeof step.act === 'function') step.act();
+    };
+
+    window._pdxFirstRunCollapse = function (collapsed) {
+      setCollapsedPref(collapsed);
+      if (collapsed) showPill(); else { paintGuide(); showCard(); }
+    };
+
+    window._pdxFirstRunDismiss = function () {
+      markDone();
+      hideAll();
+    };
+
+    // Central sync — called on load and from the same hook points that refresh the
+    // page's "Your Path" spine, so the companion always reflects the latest state.
+    window._pdxFirstRunSync = function () {
+      if (!el('pdx-firstrun')) return;
+      if (isDone()) { hideAll(); return; }
+
+      var filled = Math.max(0, window._myteamFilledCount || 0);
+
+      if (filled >= 1) {
+        if (shownThisSession && !celebrated) {
+          // They reached the first real action while the guide was live → celebrate
+          // once, then retire it for good a few seconds later.
+          celebrated = true;
+          paintCelebrate();
+          showCard();
+          setTimeout(function () { markDone(); hideAll(); }, 5200);
+        } else {
+          // Returning visitor who already had a pick (or already celebrated): retire
+          // silently so the guide never nags an established user.
+          markDone();
+          hideAll();
+        }
+        return;
+      }
+
+      // Pre-first-pick: this is exactly who the guide is for.
+      shownThisSession = true;
+      paintGuide();
+      if (isCollapsed()) showPill(); else showCard();
+    };
+
+    function init() {
+      // A visitor who already has a pick saved from a previous visit isn't a
+      // first-timer — retire the guide silently before it ever paints.
+      if (Math.max(0, window._myteamFilledCount || 0) >= 1) { markDone(); }
+      window._pdxFirstRunSync();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
     }
   })();
   </script>
