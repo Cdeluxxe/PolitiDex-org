@@ -28862,6 +28862,55 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             .replace(/\s+/g, ' ').trim().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
         }
 
+        // Classify a REAL curated item by the kind of thing it is — a
+        // controversy, a piece of legislation, a public statement, or a key
+        // campaign/office event — using keyword heuristics over its own headline
+        // and facts. This only re-labels existing, sourced text (it never invents
+        // content) so each card announces what it is at a glance and controversies
+        // read distinctly from routine news. Order matters: the most consequential
+        // signal a card can carry wins.
+        function _slClassifyNews(headline, facts) {
+          var t = String(headline || '') + ' ' + String(facts || '').replace(/<[^>]*>/g, ' ');
+          if (/scrutiny|controvers|under fire|allegation|criticism|rebuke|ethics|conviction|questions? raised|misdemeanor|\bprobe\b|investigat|fire over|backlash|lawsuit|sued|unconstitutional|draws? .*question/i.test(t))
+            return { badge: '🚩 Controversy', accent: '248,113,113' };
+          if (/\bh\.?\s?b\.?\s?\d|\bs\.?\s?b\.?\s?\d|\bbill\b|signed|sponsor|co-spons|introduced|\bpassed\b|enacted|\blaw\b|amendment|resolution|reauthor|filibuster|\bveto|legislation|advances?\b/i.test(t))
+            return { badge: '📋 Key Legislation', accent: '96,165,250' };
+          if (/secured \$|\bfunding\b|\$\d|grant\b|approved|appointed|wins?\b|elected|polling|leads? in|re-?emerges|launch|mounts?|runs? in|campaign/i.test(t))
+            return { badge: '🏛️ Key Event', accent: '120,180,140' };
+          if (/announce|testif|argued|defend|called for|champions?|push(?:es|ed|ing)?\b|\bvows?\b|warned|statement|\bsaid\b|centers?\b|backs?\b|opposes?\b|supports?\b/i.test(t))
+            return { badge: '🗣️ Public Statement', accent: '245,200,66' };
+          return { badge: '📰 In the News', accent: '96,165,250' };
+        }
+
+        // Detect the issue area a REAL item touches from its own text and return a
+        // short, alignment-flavored label. The label echoes the People's Mandate
+        // issue vocabulary so a Spotlight card visibly connects to the positions a
+        // voter is comparing on — the tag itself taps up to the alignment scorecard
+        // (see _slCard). Returns '' when no clear issue is present rather than
+        // forcing a guess.
+        function _slIssueTag(headline, facts) {
+          var t = (String(headline || '') + ' ' + String(facts || '').replace(/<[^>]*>/g, ' ')).toLowerCase();
+          var map = [
+            [/great salt lake|water|drought|virgin river|conservation|air quality|emission|climate|inversion|environment/, '💧 Water & Environment'],
+            [/housing|home price|affordable|zoning|\brent\b|starter-home/, '🏠 Housing'],
+            [/health|medicaid|medicare|\baca\b|affordable care|drug|pharma|vaccine|insulin|nursing|clinic/, '🏥 Healthcare'],
+            [/ethics|\bpac\b|\bfec\b|campaign finance|\bdisclos|conflict of interest|luxury travel|self-funded|personal loans/, '🔎 Ethics & Money'],
+            [/tax|budget|spending|deficit|income-tax|fiscal|tariff|subsid/, '💰 Taxes & Spending'],
+            [/school|education|voucher|scholarship|universit|curriculum|\bstudent/, '🎓 Education'],
+            [/energy|nuclear|reactor|gigawatt|\boil\b|\bgas\b|renewable|solar|data center|\bgrid\b/, '⚡ Energy'],
+            [/social media|app store|privacy|\bdata\b|surveillance|\bai\b|age verification|tech industry|broadband|\bapp\b/, '🖥️ Tech & Privacy'],
+            [/\bborder\b|immigration|immigrant/, '🛡️ Border & Immigration'],
+            [/federal land|public land|bears ears|monument|grazing|mineral|lands transfer/, '🏔️ Public Lands'],
+            [/defense|military|pentagon|f-35|air force|\bndaa\b|veteran|armed/, '🎖️ Defense & Veterans'],
+            [/abortion|reproductive/, '⚖️ Abortion'],
+            [/\bgun\b|firearm|second amendment/, '🔫 Gun Rights'],
+            [/foreign|\bchina\b|russia|\biran\b|israel|\bbds\b|\bwho\b|intelligence|assad|syria/, '🌐 Foreign Policy'],
+            [/\bjail\b|police|\bcrime\b|homeless|sentencing|rape-?kit|justice/, '🚔 Public Safety']
+          ];
+          for (var i = 0; i < map.length; i++) { if (map[i][0].test(t)) return map[i][1]; }
+          return '';
+        }
+
         // Shared card renderer. When `impact` is 'positive'/'negative' the card
         // becomes a tappable link into the full Accountability analysis, gets a
         // green/red left border, and shows an impact pill + tap hint — making the
@@ -28891,6 +28940,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
               (o.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + o.date + '</span>' : '') +
+              (o.topic ? '<button type="button" onclick="event.stopPropagation();var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" title="See how this issue shapes ' + _slLast + '’s alignment" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:#86b8e0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.32);padding:0.08rem 0.42rem;border-radius:999px;">' + o.topic + ' ↗</button>' : '') +
               (linked ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:rgb(' + impactCol + ');background:rgba(' + impactCol + ',0.12);border:1px solid rgba(' + impactCol + ',0.4);padding:0.1rem 0.4rem;border-radius:999px;">' + impactLabel + '</span>'
                 : (neutral ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:#9fb4d4;background:rgba(120,140,170,0.12);border:1px solid rgba(120,140,170,0.4);padding:0.1rem 0.4rem;border-radius:999px;">● Noted · no score impact</span>' : '')) +
             '</div>' +
@@ -28932,13 +28982,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    clearly; untagged entries simply appear as news.
         var slNews = [];
         (spotlightData[id] || []).forEach(function(it) {
-          slNews.push(_slCard({ badge:'In the News', accent:'96,165,250', date:it.date, headline:it.headline, body:it.facts, why:it.why }));
+          var cls = _slClassifyNews(it.headline, it.facts);
+          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, topic: _slIssueTag(it.headline, it.facts) }));
         });
         _slDoc.forEach(function(it) {
           if (!it || it.impact === 'positive' || it.impact === 'negative') return;
-          slNews.push(_slCard({ badge: it.badge || (it.impact === 'neutral' ? 'Context' : 'In the News'), accent:'96,165,250', date:it.date,
-            headline: it.headline || it.title, body: it.facts || it.detail, why: it.why,
-            impact: (it.impact === 'neutral' ? 'neutral' : undefined), category: it.category }));
+          var _h = it.headline || it.title, _b = it.facts || it.detail;
+          var _neutral = it.impact === 'neutral';
+          var cls = _slClassifyNews(_h, _b);
+          slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
+            headline: _h, body: _b, why: it.why,
+            impact: (_neutral ? 'neutral' : undefined), category: it.category,
+            topic: _slIssueTag(_h, _b) }));
         });
 
         // Connective lead-in shown above any populated Spotlight. Frames the
@@ -28949,7 +29004,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
             'The key issues, public statements, and notable actions tied to ' + _slLast + ' — the real record behind the scores above. ' +
-            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and the issues they touch shape the alignment read.' +
+            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and each <span style="color:#86b8e0;font-weight:700;">issue tag ↗</span> jumps to how that topic shapes the alignment read.' +
           '</p>';
         }
 
@@ -28971,7 +29026,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>';
         }
         function _slNewsHeader() {
-          return '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin:' + (slDrivers.length ? '1rem' : '0.2rem') + ' 0 0.6rem;">📰 Recent News &amp; Events</div>';
+          return '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:' + (slDrivers.length ? '1rem' : '0.2rem') + ' 0 0.6rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">📰 News, Statements &amp; Key Events</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:0.06rem 0.4rem;border-radius:999px;">' + slNews.length + '</span>' +
+            '</div>';
         }
 
         if (slDrivers.length || slNews.length) {
@@ -28998,12 +29056,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             headline:'“' + String(p.quote).trim() + '”' });
         }
         if (_slPending.length) {
-          _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail });
+          _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail,
+            topic:_slIssueTag(_slPending[0].title, _slPending[0].detail) });
         }
         if (p && p.stances && typeof p.stances === 'object') {
           Object.keys(p.stances).slice(0, 2).forEach(function(k) {
             var txt = p.stances[k];
-            if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt });
+            if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt,
+              topic:_slIssueTag(k, txt) });
           });
         }
         if (derived.length < 3 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
