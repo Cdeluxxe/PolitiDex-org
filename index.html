@@ -13803,6 +13803,88 @@
          pushes the name onto too many lines. */
       .pdx-snap-score { min-width: 56px; padding-left: 0.4rem; padding-right: 0.4rem; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — PASS 5 (whole-site cohesion)
+       Earlier passes tuned individual cards and toolbars; this pass closes
+       the cross-section gaps that still made the phone experience feel
+       uneven. The top navigation's menu button had no real tap footprint,
+       the profile modal's bottom action bar tucked itself under the notch's
+       home indicator on modern phones, and the primary buttons in Key Races,
+       Build Your Team and Relevant-to-Me were still rendering below a
+       comfortable thumb size. It also gives the browse grids a little more
+       air between cards and a consistent press feedback on every control.
+       Additive and phone-scoped only — no markup or JS changes — appended
+       last so it reliably wins the cascade. The dark patriotic palette is
+       preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* ── 1 · TOP NAV — a real hamburger tap target ──────────────────────
+         The mobile menu toggle was a bare 24px icon with no padding; give it
+         a full 44px touch footprint and a subtle pressed state so opening the
+         menu is an easy, deliberate tap. The "Join" pill gets a comfortable
+         minimum height too. */
+      nav button[onclick*="classList.toggle"] {
+        min-width: 44px; min-height: 44px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 0.6rem; margin-right: -0.3rem;
+      }
+      nav button[onclick*="classList.toggle"]:active { background: rgba(255,255,255,0.08); }
+      #nav-auth-desktop button { min-height: 40px; }
+
+      /* ── 2 · PROFILE MODAL — bottom bar clears the notch, roomier CTA ────
+         On notched phones the sticky engagement strip sat under the home
+         indicator; reserve the safe-area inset so every footer control is
+         reachable. The "Add to My Team" call-to-action and the react / save /
+         comment / evidence strip get a touch more height so they read as
+         confident, separated thumb targets rather than a cramped cluster. */
+      #modal-footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      #modal-action-strip > * { min-height: 46px !important; }
+      #modal-addteam-btn { min-height: 50px !important; font-size: 0.82rem !important; }
+      .pdx-modal-share-btn { min-width: 44px; min-height: 44px; }
+
+      /* ── 3 · KEY RACES — primary actions are confident thumb targets ─────
+         The race action buttons and the alignment overlay's tally chips were
+         comfortable on desktop but small on a phone; lift them and let the
+         overlay use a touch more of the viewport height. */
+      .kr-action-btn { min-height: 46px; }
+      .kraq-card { max-height: 92vh; border-radius: 1rem; }
+      .kraq-tally { font-size: 0.7rem; padding: 0.3rem 0.62rem; }
+
+      /* ── 4 · BUILD YOUR TEAM — guide steps & team controls easy to tap ───
+         The onboarding guide's "go" button, the saved / share controls and
+         the headline "Add to Team" button all get a real touch height, and
+         each guide step a little more padding so the list stops reading as a
+         tight stack. */
+      .myteam-guide-step { padding: 0.7rem 0.8rem; }
+      .myteam-guide-go { min-height: 44px; font-size: 0.78rem; padding: 0.55rem 1rem; }
+      .myteam-saved-btn, .myteam-share-btn { min-height: 44px; }
+      .myteam-add-btn { min-height: 48px; }
+
+      /* ── 5 · RELEVANT TO ME — readable CTA & coverage pills ─────────────
+         The "compare your matches" call-to-action becomes a full thumb
+         target and the small coverage pills are nudged up to a legible size. */
+      #relevant-browse-grid .relevant-compare-cta-btn { min-height: 46px; font-size: 0.74rem; }
+      #relevant-browse-grid .relevant-cov-pill { font-size: 0.66rem; padding: 0.22rem 0.6rem; }
+
+      /* ── 6 · BROWSE GRIDS — a touch more air between cards ───────────────
+         The district-tree and flat browse grids sat at a 0.6rem gutter; a
+         hair more separation keeps full-width phone cards from reading as a
+         single dense block. */
+      .browse-sub-grid, .browse-type-flat-grid { gap: 0.7rem; }
+
+      /* ── 7 · GLOBAL — consistent press feedback on every control ─────────
+         A faint, on-brand tap highlight replaces the browser default so taps
+         feel intentional across the whole interface. */
+      button, a, [role="button"] { -webkit-tap-highlight-color: rgba(255,255,255,0.06); }
+    }
+
+    @media (max-width: 480px) {
+      /* Narrowest phones: let the Key Races alignment overlay use the full
+         width comfortably, and keep the Relevant call-to-action legible. */
+      .kraq-card { max-width: 94vw; }
+      #relevant-browse-grid .relevant-compare-cta-btn { font-size: 0.72rem; }
+    }
   </style>
 
       </head>
