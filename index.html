@@ -14631,7 +14631,7 @@
            Past dates auto-collapse into a muted "done" strip, so the block
            stays correct as time passes with no edits required.
       ════════════════════════════════════════════════════════════════════ -->
-      <div id="election-countdown" class="pd-ec mb-6 animate-on-scroll" style="scroll-margin-top:80px;transition-delay:0.05s;">
+      <div id="key-dates" class="pd-ec mb-6 animate-on-scroll" style="scroll-margin-top:80px;transition-delay:0.05s;">
         <style id="pd-ec-styles">
           .pd-ec-shell{position:relative;border-radius:1.5rem;padding:1.5rem;overflow:hidden;
             background:linear-gradient(135deg,rgba(192,21,42,0.10) 0%,rgba(10,15,30,0.92) 45%,rgba(26,58,107,0.20) 100%);
@@ -14706,12 +14706,38 @@
           .pd-ec-foot a{color:#60a5fa;text-decoration:none;}
           .pd-ec-foot a:hover{text-decoration:underline;}
 
+          /* "Open now" banner for active windows (e.g. early voting in progress) */
+          .pd-ec-active{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1rem;}
+          .pd-ec-active:empty{display:none;margin:0;}
+          .pd-ec-now-card{display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;border-radius:1.1rem;padding:0.9rem 1.1rem;
+            border:1.5px solid rgba(52,211,153,0.45);background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(13,21,38,0.9));
+            box-shadow:0 0 26px rgba(16,185,129,0.12);}
+          .pd-ec-now-ico{font-size:1.8rem;line-height:1;flex:none;}
+          .pd-ec-now-meta{display:flex;flex-direction:column;min-width:0;flex:1 1 12rem;}
+          .pd-ec-now-tag{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;
+            font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#34d399;}
+          .pd-ec-now-dot{width:0.5rem;height:0.5rem;border-radius:999px;background:#34d399;box-shadow:0 0 10px #34d399;
+            animation:pdEcPulse 1.6s ease-in-out infinite;}
+          @keyframes pdEcPulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+          .pd-ec-now-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
+          .pd-ec-now-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;color:#bfe9d6;line-height:1.25;}
+          .pd-ec-now-close{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.02em;
+            color:#bfe9d6;white-space:nowrap;}
+          .pd-ec-now-close b{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
+          .pd-ec-now-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+            color:#04130d;background:linear-gradient(135deg,#34d399,#10b981);border-radius:0.7rem;padding:0.5rem 0.95rem;text-decoration:none;
+            white-space:nowrap;transition:transform 0.15s ease,box-shadow 0.15s ease;}
+          .pd-ec-now-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(16,185,129,0.35);}
+          .pd-ec-card-win{border-left:3px solid #34d399;}
+
           @media (max-width:720px){
             .pd-ec-grid{grid-template-columns:1fr;}
             .pd-ec-title{font-size:1.7rem;}
             .pd-ec-unit-n{font-size:1.8rem;}
             .pd-ec-hero-foot{flex-direction:column;align-items:flex-start;}
             .pd-ec-hero-cta{width:100%;text-align:center;}
+            .pd-ec-now-card{align-items:flex-start;}
+            .pd-ec-now-cta{width:100%;text-align:center;}
           }
         </style>
         <div class="pd-ec-shell">
@@ -14723,6 +14749,7 @@
               <p class="pd-ec-sub">The key voting dates and deadlines that decide whether your vote counts — counting down live.</p>
             </div>
           </div>
+          <div id="pd-ec-active" class="pd-ec-active"></div>
           <div id="pd-ec-hero" class="pd-ec-hero"></div>
           <div id="pd-ec-grid" class="pd-ec-grid"></div>
           <div id="pd-ec-past" class="pd-ec-past"></div>
@@ -14734,36 +14761,59 @@
         // ── Hardcoded Utah 2026 key election dates ──────────────────────────
         //   Mountain Time offsets are explicit: -06:00 in summer (MDT),
         //   -07:00 in November (MST). Polls close 8:00 PM; deadlines are 5:00 PM.
-        //   Add or edit entries here; the UI re-sorts and re-labels automatically.
+        //   Entries with an `end` are date *windows* (e.g. early voting): while
+        //   active they surface an "open now" banner and count down to close;
+        //   before they open they count down to the start. Add or edit entries
+        //   here — the UI re-sorts, re-labels and re-buckets (upcoming / open
+        //   now / done) automatically as time passes, with no other edits.
         var EVENTS = [
-          { id:'filing',      icon:'🖊️', kind:'deadline', title:'Candidate Filing Deadline',
+          { id:'filing',          icon:'🖊️', kind:'deadline', title:'Candidate Filing Deadline',
             sub:'Last day candidates could file to appear on the 2026 ballot.',
             date:'2026-01-08T17:00:00-07:00' },
-          { id:'reg-primary', icon:'📝', kind:'deadline', title:'Register to Vote — Primary',
+          { id:'ballots-primary', icon:'✉️', kind:'deadline', title:'Primary Ballots Mailed',
+            sub:'Vote-by-mail ballots sent to every active registered voter.',
+            date:'2026-06-02T08:00:00-06:00' },
+          { id:'early-primary',   icon:'⏳', kind:'window', title:'Early Voting — Primary',
+            sub:'Vote in person before primary day at a county early-voting site.',
+            date:'2026-06-09T08:00:00-06:00', end:'2026-06-19T20:00:00-06:00',
+            cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
+          { id:'reg-primary',     icon:'📝', kind:'deadline', title:'Register to Vote — Primary',
             sub:'Online & by-mail registration deadline for the June primary.',
             date:'2026-06-12T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
-          { id:'primary',     icon:'🗳️', kind:'election', title:'Utah Primary Election',
+          { id:'primary',         icon:'🗳️', kind:'election', title:'Utah Primary Election',
             sub:'Parties choose their nominees. Polls open 7 AM–8 PM.',
             date:'2026-06-23T20:00:00-06:00', cta:{ label:'How to vote', href:'https://vote.utah.gov/' } },
-          { id:'reg-general', icon:'📝', kind:'deadline', title:'Register to Vote — General',
+          { id:'early-general',   icon:'⏳', kind:'window', title:'Early Voting — General',
+            sub:'In-person early voting for the November general election.',
+            date:'2026-10-20T08:00:00-06:00', end:'2026-10-30T20:00:00-06:00',
+            cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
+          { id:'reg-general',     icon:'📝', kind:'deadline', title:'Register to Vote — General',
             sub:'Online & by-mail registration deadline for the November general.',
             date:'2026-10-23T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
-          { id:'general',     icon:'🏛️', kind:'election', title:'Utah General Election',
+          { id:'general',         icon:'🏛️', kind:'election', title:'Utah General Election',
             sub:'The main event — every key seat on your ballot is decided.',
             date:'2026-11-03T20:00:00-07:00', cta:{ label:'Plan your vote', href:'https://vote.utah.gov/' } }
         ];
 
+        var activeHost = document.getElementById('pd-ec-active');
         var heroHost = document.getElementById('pd-ec-hero');
         var gridHost = document.getElementById('pd-ec-grid');
         var pastHost = document.getElementById('pd-ec-past');
-        if(!heroHost || !gridHost || !pastHost) return;
+        if(!heroHost || !gridHost || !pastHost || !activeHost) return;
 
-        var ts = function(e){ return new Date(e.date).getTime(); };
+        var start  = function(e){ return new Date(e.date).getTime(); };
+        var finish = function(e){ return new Date(e.end || e.date).getTime(); };
         var pad = function(n){ return (n < 10 ? '0' : '') + n; };
         var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
           return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; }); };
         var fmtDate = function(t){
           return new Date(t).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' }); };
+        var fmtRange = function(e){
+          var a = new Date(start(e)), b = new Date(finish(e));
+          var sameMonth = a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+          var aS = a.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+          var bS = b.toLocaleDateString('en-US', sameMonth ? { day:'numeric', year:'numeric' } : { month:'short', day:'numeric', year:'numeric' });
+          return aS + ' – ' + bS; };
         var dhms = function(ms){
           var s = Math.max(0, Math.floor(ms / 1000));
           return { d:Math.floor(s/86400), h:Math.floor((s%86400)/3600), m:Math.floor((s%3600)/60), s:s%60 }; };
@@ -14774,9 +14824,19 @@
           return '<div class="pd-ec-unit"><div class="pd-ec-unit-n" id="'+id+'">--</div>'
                + '<div class="pd-ec-unit-l">'+label+'</div></div>';
         }
+        function nowHTML(e){
+          var cta = e.cta ? '<a class="pd-ec-now-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
+          return '<div class="pd-ec-now-card">'
+            + '<span class="pd-ec-now-ico">'+e.icon+'</span>'
+            + '<div class="pd-ec-now-meta"><span class="pd-ec-now-tag"><span class="pd-ec-now-dot"></span>Open now · '+fmtRange(e)+'</span>'
+            + '<span class="pd-ec-now-title">'+esc(e.title)+'</span>'
+            + '<span class="pd-ec-now-sub">'+esc(e.sub)+'</span></div>'
+            + '<span class="pd-ec-now-close">Closes in <b id="pd-ec-close-'+e.id+'">--</b></span>'
+            + cta + '</div>';
+        }
         function heroHTML(e){
-          var cls = e.kind === 'election' ? 'pd-ec-hero-el' : 'pd-ec-hero-dl';
-          var tag = e.kind === 'election' ? 'Next Election' : 'Next Deadline';
+          var cls = (e.kind === 'election' || e.kind === 'window') ? 'pd-ec-hero-el' : 'pd-ec-hero-dl';
+          var tag = e.kind === 'election' ? 'Next Election' : (e.kind === 'window' ? 'Early Voting Opens' : 'Next Deadline');
           var cta = e.cta ? '<a class="pd-ec-hero-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
           return '<div class="pd-ec-hero-card '+cls+'">'
             + '<div class="pd-ec-hero-top"><span class="pd-ec-hero-ico">'+e.icon+'</span>'
@@ -14784,27 +14844,30 @@
             + '<span class="pd-ec-hero-title">'+esc(e.title)+'</span>'
             + '<span class="pd-ec-hero-sub">'+esc(e.sub)+'</span></div></div>'
             + '<div class="pd-ec-clock">'+unit('pd-ec-d','Days')+unit('pd-ec-h','Hours')+unit('pd-ec-m','Min')+unit('pd-ec-s','Sec')+'</div>'
-            + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+fmtDate(ts(e))+'</span>'+cta+'</div></div>';
+            + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>'+cta+'</div></div>';
         }
         function cardHTML(e){
-          var cls = e.kind === 'election' ? 'pd-ec-card-el' : 'pd-ec-card-dl';
+          var cls = e.kind === 'election' ? 'pd-ec-card-el' : (e.kind === 'window' ? 'pd-ec-card-win' : 'pd-ec-card-dl');
+          var label = e.kind === 'window' ? 'days to early voting' : 'days away';
+          var when = e.end ? fmtRange(e) : fmtDate(start(e));
           return '<div class="pd-ec-card '+cls+'">'
             + '<div class="pd-ec-card-top"><span class="pd-ec-card-ico">'+e.icon+'</span>'
             + '<span class="pd-ec-card-title">'+esc(e.title)+'</span></div>'
             + '<div class="pd-ec-card-days"><span class="pd-ec-card-n" id="pd-ec-days-'+e.id+'">--</span>'
-            + '<span class="pd-ec-card-u">days away</span></div>'
-            + '<div class="pd-ec-card-date">'+fmtDate(ts(e))+'</div></div>';
+            + '<span class="pd-ec-card-u">'+label+'</span></div>'
+            + '<div class="pd-ec-card-date">'+when+'</div></div>';
         }
         function pastHTML(e){
-          return '<span class="pd-ec-past-chip"><span class="pd-ec-check">✓</span>'+esc(e.title)+' · '+fmtDate(ts(e))+'</span>';
+          return '<span class="pd-ec-past-chip"><span class="pd-ec-check">✓</span>'+esc(e.title)+' · '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>';
         }
 
-        function render(upcoming, past){
+        function render(active, upcoming, past){
+          activeHost.innerHTML = active.map(nowHTML).join('');
           if(upcoming.length){
             heroHost.innerHTML = heroHTML(upcoming[0]);
             gridHost.innerHTML = upcoming.slice(1).map(cardHTML).join('');
           } else {
-            heroHost.innerHTML = '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check vote.utah.gov for the next cycle.</div>';
+            heroHost.innerHTML = active.length ? '' : '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check vote.utah.gov for the next cycle.</div>';
             gridHost.innerHTML = '';
           }
           pastHost.innerHTML = past.map(pastHTML).join('');
@@ -14812,24 +14875,31 @@
 
         function tick(){
           var now = Date.now();
-          var sorted = EVENTS.slice().sort(function(a,b){ return ts(a) - ts(b); });
-          var upcoming = sorted.filter(function(e){ return ts(e) > now; });
-          var past = sorted.filter(function(e){ return ts(e) <= now; });
+          var sorted = EVENTS.slice().sort(function(a,b){ return start(a) - start(b); });
+          var active   = sorted.filter(function(e){ return e.end && start(e) <= now && finish(e) > now; });
+          var upcoming = sorted.filter(function(e){ return start(e) > now; });
+          var past     = sorted.filter(function(e){ return finish(e) <= now; });
 
-          // Rebuild the DOM only when the set of upcoming dates changes.
-          var sig = upcoming.map(function(e){ return e.id; }).join('|');
-          if(sig !== lastSig){ lastSig = sig; render(upcoming, past); }
+          // Rebuild the DOM only when the bucketed set of dates changes.
+          var sig = 'A' + active.map(function(e){ return e.id; }).join(',')
+                  + '|U' + upcoming.map(function(e){ return e.id; }).join(',');
+          if(sig !== lastSig){ lastSig = sig; render(active, upcoming, past); }
 
-          // Live-update the featured ticker.
+          // Live-update the featured ticker (counts down to the soonest upcoming date).
           if(upcoming.length){
-            var t = dhms(ts(upcoming[0]) - now);
+            var t = dhms(start(upcoming[0]) - now);
             var set = function(id, v){ var el = document.getElementById(id); if(el) el.textContent = v; };
             set('pd-ec-d', t.d); set('pd-ec-h', pad(t.h)); set('pd-ec-m', pad(t.m)); set('pd-ec-s', pad(t.s));
+          }
+          // Live-update the "closes in" counter on any open window.
+          for(var a = 0; a < active.length; a++){
+            var ce = document.getElementById('pd-ec-close-' + active[a].id);
+            if(ce){ var ct = dhms(finish(active[a]) - now); ce.textContent = ct.d + 'd ' + pad(ct.h) + 'h ' + pad(ct.m) + 'm'; }
           }
           // Update day counts on the secondary cards.
           for(var i = 1; i < upcoming.length; i++){
             var el = document.getElementById('pd-ec-days-' + upcoming[i].id);
-            if(el) el.textContent = Math.ceil((ts(upcoming[i]) - now) / 86400000);
+            if(el) el.textContent = Math.ceil((start(upcoming[i]) - now) / 86400000);
           }
         }
 
@@ -15422,7 +15492,7 @@
           <p class="ht-topic-desc">Governor, Congress, and the Legislature are all up this November. Build your voting team now and walk into the booth knowing exactly who's earned your vote.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#my-politicians">⭐ Build My Team</a>
-            <a class="ht-topic-btn" href="#election-countdown">📅 Key Dates</a>
+            <a class="ht-topic-btn" href="#key-dates">📅 Key Dates</a>
           </div>
         </div>
 
