@@ -7020,6 +7020,51 @@
       box-shadow: 0 0 12px rgba(45,212,191,0.2);
     }
 
+    /* ── Persistent Alignment launcher (floating) ──────────────────
+       Keeps the Personalized Alignment Tool one tap away from every
+       section — district browse, Key Races, Relevant to Me — so a
+       visitor can start, adjust, or act on their issue match without
+       scrolling back up to find the panel. State-aware: a gentle
+       purple "set me up" before any picks, a confident teal "see your
+       matches" with a live count once issues are chosen. */
+    .align-fab {
+      position: fixed; right: 1.25rem; bottom: 1.5rem; z-index: 47;
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 0.7rem 1.05rem 0.7rem 0.85rem; border-radius: 999px;
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 55%, #4f46e5 100%);
+      border: 1px solid rgba(167,139,250,0.55);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 22px rgba(139,92,246,0.4);
+      color: #fff; cursor: pointer; max-width: min(80vw, 22rem);
+      transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+    }
+    .align-fab:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,0.55), 0 0 30px rgba(139,92,246,0.55); }
+    .align-fab:active { transform: translateY(0) scale(0.98); }
+    .align-fab-ico { font-size: 1.15rem; line-height: 1; flex: none; filter: drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
+    .align-fab-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; line-height: 1.05; text-align: left; }
+    .align-fab-line1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.86rem; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+    .align-fab-line2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.62rem; letter-spacing: 0.01em; color: rgba(233,224,255,0.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 15rem; }
+    .align-fab-count {
+      flex: none; display: inline-flex; align-items: center; justify-content: center;
+      min-width: 1.5rem; height: 1.5rem; padding: 0 0.4rem; border-radius: 999px;
+      background: #2dd4bf; color: #06231f; font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem; line-height: 1; box-shadow: 0 0 12px rgba(45,212,191,0.5);
+    }
+    .align-fab.is-active { background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #4f46e5 130%); border-color: rgba(45,212,191,0.6); }
+    /* Gentle attention halo only before the visitor has set anything up. */
+    .align-fab.is-empty { animation: alignFabPulse 2.8s ease-in-out infinite; }
+    @keyframes alignFabPulse {
+      0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 0 rgba(139,92,246,0.5); }
+      50% { box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 9px rgba(139,92,246,0); }
+    }
+    /* Stay out of the way while any modal/overlay has locked page scroll. */
+    body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; transform: translateY(10px); }
+    @media (max-width: 640px) {
+      .align-fab { right: 0.85rem; bottom: 0.85rem; padding: 0.6rem 0.85rem 0.6rem 0.7rem; max-width: 70vw; }
+      .align-fab-line2 { display: none; }
+      .align-fab-line1 { font-size: 0.8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { .align-fab.is-empty { animation: none; } }
+
     /* Personalized-alignment quick-view modal (opened from the Align button) */
     .kraq-overlay { position: fixed; inset: 0; z-index: 130; background: rgba(2,6,18,0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
     .kraq-card { width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; background: linear-gradient(180deg, rgba(17,24,46,0.98), rgba(10,15,30,0.98)); border: 1px solid rgba(45,212,191,0.32); border-radius: 1.1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(20,184,166,0.12); }
@@ -29001,6 +29046,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     <span id="cmp-float-clear" style="border-left:1px solid rgba(255,255,255,0.25);margin-left:0.15rem;padding-left:0.55rem;opacity:0.75;font-size:0.75rem;" title="Clear all">✕</span>
   </button>
 
+  <!-- ═══════════ FLOATING ALIGNMENT LAUNCHER ══════════════
+       Always-on entry point to the Personalized Alignment Tool so the
+       feature is reachable from every section, not just where the panel
+       sits. Label + colour are state-aware (see _alignUpdateFab). -->
+  <button id="align-fab" type="button" class="align-fab is-empty" style="display:none;" onclick="window._alignFabAction&&window._alignFabAction()" aria-label="Set up the Personalized Alignment Tool — match politicians to your values">
+    <span class="align-fab-ico" aria-hidden="true">🎯</span>
+    <span class="align-fab-text">
+      <span class="align-fab-line1" id="align-fab-line1">Match your values</span>
+      <span class="align-fab-line2" id="align-fab-line2">See past party — find your fit</span>
+    </span>
+    <span class="align-fab-count" id="align-fab-count" style="display:none;">0</span>
+  </button>
+
   <!-- ═══════════════════ COMPARE MODAL ═══════════════════ -->
   <div id="compare-overlay" role="dialog" aria-modal="true" aria-label="Politician Comparison">
     <!-- Header -->
@@ -42366,6 +42424,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var photo = _krPhoto(pid, d, '#2dd4bf');
       var matchWord = overall >= 70 ? 'Strong match' : overall >= 50 ? 'Partial match' : 'Weak match';
 
+      // Confidence cue — how much of this score rests on a documented record vs.
+      // an early read from stated priorities. Critical for fresh 2026 candidates,
+      // who otherwise show a confident-looking number with nothing behind it.
+      var nEvidence = bd.issues.filter(function(it) { return it.hasEvidence; }).length;
+      var nTotal = bd.issues.length;
+      var firstName = (d.name || 'This candidate').split(' ')[0];
+      var confHtml;
+      if (nEvidence === 0) {
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.32);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
+            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented voting or position record for ' + firstName + ' yet, so this is estimated from their stated priorities. It sharpens as positions and votes are verified — but you can already see where ' + firstName + ' stands against your values.</p>' +
+          '</div>';
+      } else if (nEvidence < nTotal) {
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📋</span>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nTotal + '</b> of your issues are backed by ' + firstName + '\'s documented record; the rest are estimated from their stated priorities until more is verified.</p>' +
+          '</div>';
+      } else {
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">✅</span>' +
+            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">Grounded in ' + firstName + '\'s <b style="color:#6ee7b7;">documented record</b> across all ' + nTotal + ' of your selected issue' + (nTotal === 1 ? '' : 's') + '.</p>' +
+          '</div>';
+      }
+
       var html =
         '<div class="kraq-card">' +
           '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(20,184,166,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(45,212,191,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
@@ -42385,6 +42467,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">Weighted across the ' + bd.issues.length + ' issue' + (bd.issues.length === 1 ? '' : 's') + ' you selected — your personal fit, separate from the objective Accountability of Truth Score.</p>' +
               '</div>' +
             '</div>' +
+            confHtml +
             '<div class="font-condensed font-700" style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#5eead4;margin-bottom:0.6rem;">Issue-by-issue breakdown</div>' +
             tallyHtml +
             issuesHtml +
@@ -44659,6 +44742,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _alignSyncAllChips();
       _alignUpdateStatus();
       _alignRenderProfile();
+      _alignUpdateFab();
       _alignSyncBrowseChips();
 
       if (typeof syncRelevantAlignmentUI === 'function') {
@@ -44990,6 +45074,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (empty) empty.style.display = (q && !anyVisible) ? 'flex' : 'none';
     };
 
+    // ── Persistent floating launcher ───────────────────────────
+    // Keeps the Alignment Tool reachable and top-of-mind from every section.
+    // Reflects live state: a purple "set me up" before any picks, a teal
+    // "see your matches" with a count once issues are chosen. Empty-state taps
+    // open the picker; active taps jump the visitor to their best matches.
+    function _alignUpdateFab() {
+      var fab = document.getElementById('align-fab');
+      if (!fab) return;
+      var n = (_alignIssues && _alignIssues.size) || 0;
+      var l1 = document.getElementById('align-fab-line1');
+      var l2 = document.getElementById('align-fab-line2');
+      var cnt = document.getElementById('align-fab-count');
+      fab.style.display = 'inline-flex';
+      if (n === 0) {
+        fab.classList.add('is-empty');
+        fab.classList.remove('is-active');
+        if (l1) l1.textContent = 'Match your values';
+        if (l2) l2.textContent = 'See past party — find your fit';
+        if (cnt) cnt.style.display = 'none';
+        fab.setAttribute('aria-label', 'Set up the Personalized Alignment Tool — match politicians to your values');
+      } else {
+        fab.classList.remove('is-empty');
+        fab.classList.add('is-active');
+        if (l1) l1.textContent = 'See your best matches';
+        if (l2) l2.textContent = n + ' issue' + (n > 1 ? 's' : '') + ' active · tap to compare';
+        if (cnt) { cnt.style.display = 'inline-flex'; cnt.textContent = n; }
+        fab.setAttribute('aria-label', 'See your best-matched politicians — ' + n + ' issue' + (n > 1 ? 's' : '') + ' selected');
+      }
+    }
+    window._alignUpdateFab = _alignUpdateFab;
+
+    window._alignFabAction = function() {
+      var n = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
+      if (n === 0) {
+        if (window._krAlignGuideToPicker) window._krAlignGuideToPicker();
+      } else if (window.alignSeeMatches) {
+        window.alignSeeMatches();
+      }
+    };
+
     function _alignInit() {
       _alignLoad();
       // _alignLoad may replace the _alignIssues Set, so re-export the live
@@ -45002,6 +45126,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _alignSyncBrowseChips();
       syncRelevantAlignmentUI();
       _alignUpdateSigninPrompt();
+      _alignUpdateFab();
       _alignBindAuth();
     }
 
