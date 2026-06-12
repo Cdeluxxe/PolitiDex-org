@@ -12928,6 +12928,59 @@
       color: #cfe0f5;
     }
     #relevant-browse-grid .rel-cov-cta.is-compare:hover { border-color: rgba(147,197,253,0.85); }
+    /* "My Voting Team" round-trip button — amber team theme, distinct from the
+       green "Add" CTA, so the path BACK to the team being built is always one tap
+       away from the discovery surface. */
+    #relevant-browse-grid .rel-cov-cta.is-team {
+      background: linear-gradient(135deg, rgba(245,158,11,0.16), rgba(245,158,11,0.07));
+      border-color: rgba(245,158,11,0.45);
+      color: #ffe9c2;
+    }
+    #relevant-browse-grid .rel-cov-cta.is-team:hover { border-color: rgba(251,191,36,0.85); }
+
+    /* ── Closing "back to My Team" bridge ──────────────────────────────────────
+       Rendered at the very bottom of the personalized ballot — the moment a voter
+       finishes scanning every race. Restates their live team progress and offers
+       the one tap back UP to "My Voting Team", closing the discovery → building
+       loop. Amber/team palette so it reads as part of the team workflow. */
+    #relevant-browse-grid .relevant-team-bridge {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.85rem; flex-wrap: wrap;
+      margin: 1.25rem 0 0.25rem;
+      padding: 0.9rem 1.1rem; border-radius: 0.95rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(10,15,30,0.5) 100%);
+      border: 1px solid rgba(245,158,11,0.34);
+    }
+    #relevant-browse-grid .relevant-team-bridge.is-complete {
+      background: linear-gradient(135deg, rgba(34,197,94,0.16) 0%, rgba(10,15,30,0.45) 100%);
+      border-color: rgba(34,197,94,0.5);
+    }
+    #relevant-browse-grid .rel-bridge-text { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; flex: 1; }
+    #relevant-browse-grid .rel-bridge-title {
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
+      font-size: 1.02rem; color: #fff; line-height: 1;
+    }
+    #relevant-browse-grid .rel-bridge-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.84rem;
+      letter-spacing: 0.01em; color: #cfe0f5; line-height: 1.4;
+    }
+    #relevant-browse-grid .rel-bridge-sub strong { color: #fff; }
+    #relevant-browse-grid .rel-bridge-btn {
+      flex-shrink: 0; min-height: 42px;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.5rem 1.05rem; border-radius: 0.7rem; cursor: pointer;
+      background: linear-gradient(135deg, rgba(245,158,11,0.28), rgba(245,158,11,0.14));
+      border: 1px solid rgba(245,158,11,0.5); color: #ffe9c2;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase;
+      transition: transform 0.12s ease, border-color 0.15s ease;
+    }
+    #relevant-browse-grid .rel-bridge-btn:hover { transform: translateY(-1px); border-color: rgba(251,191,36,0.9); }
+    #relevant-browse-grid .relevant-team-bridge.is-complete .rel-bridge-btn {
+      background: linear-gradient(135deg, rgba(34,197,94,0.26), rgba(34,197,94,0.13));
+      border-color: rgba(34,197,94,0.55); color: #bbf7d0;
+    }
+    #relevant-browse-grid .relevant-team-bridge.is-complete .rel-bridge-btn:hover { border-color: rgba(74,222,128,0.9); }
     /* Inline "Compare the field" button inside an open office's add-hint. */
     #relevant-browse-grid .relevant-addhint-cmp {
       display: inline-flex; align-items: center; gap: 0.3rem;
@@ -32995,6 +33048,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   };
 
+  // The reverse trip: scroll UP from district browsing to the "My Voting Team"
+  // builder so the voter can flip between discovering races and managing the team
+  // they're assembling without hunting for it. Pairs with jumpToRelevantAccordion
+  // (team → race) to make the two surfaces feel like one workspace. Briefly flashes
+  // the district-coverage map so the eye lands on the live progress, not a wall of
+  // slots. `focusOpen`, when true, then bounces to the first still-open race so the
+  // round trip ends on an action rather than a dead end.
+  window._relevantScrollToTeam = function(focusOpen) {
+    var panel = document.getElementById('myteam-selected-panel');
+    if (!panel) { return; }
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var cov = document.getElementById('myteam-district-coverage');
+    var flash = (cov && cov.style.display !== 'none') ? cov : panel.querySelector('#myteam-progress') || panel;
+    if (flash) {
+      var prevShadow = flash.style.boxShadow;
+      var prevRadius = flash.style.borderRadius;
+      flash.style.borderRadius = flash.style.borderRadius || '0.9rem';
+      flash.style.boxShadow = '0 0 0 2px rgba(245,158,11,0.55), 0 0 28px rgba(245,158,11,0.3)';
+      setTimeout(function() { flash.style.boxShadow = prevShadow; flash.style.borderRadius = prevRadius; }, 1600);
+    }
+  };
+
   // Perform initial load
   window.loadVoterLocation();
   window._updateTeamPositionsForLocation();
@@ -40048,14 +40123,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var rgb = filled ? '34,197,94' : (open ? '245,158,11' : '59,130,246');
         var border = 'rgba(' + rgb + ',0.45)';
         var hoverBorder = 'rgba(' + rgb + ',0.85)';
+        // A plain-language tooltip that turns each tile into an explicit invitation:
+        // a covered seat says who holds it and that tapping swaps the pick, an open
+        // district seat asks for a candidate from THAT specific district, and an open
+        // shared seat asks for a pick. Reduces the "I see my districts but don't know
+        // what to do" gap right at the point of action.
+        var _isDistrictOffice = !!_RELEVANT_DISTRICT_OFFICES[officeKey];
+        var _titleAttr;
+        if (filled) {
+          var _onNm = (CMP_DATA[cov.pid] && CMP_DATA[cov.pid].name) ? CMP_DATA[cov.pid].name : 'your pick';
+          _titleAttr = _relTxt(_onNm) + ' is on your team for ' + _relTxt(title) + ' — tap to review or swap';
+        } else if (open && _isDistrictOffice) {
+          _titleAttr = 'Add a candidate from your ' + _relTxt(title) + (sub ? ' (' + _relTxt(sub) + ')' : '') + ' to your team';
+        } else if (open) {
+          _titleAttr = 'Add your ' + _relTxt(title) + ' pick to your team';
+        } else {
+          _titleAttr = 'See the candidates for ' + _relTxt(title);
+        }
         var statusRow = '';
         if (filled) {
           var nm = (CMP_DATA[cov.pid] && CMP_DATA[cov.pid].name) ? CMP_DATA[cov.pid].name : 'On your team';
           statusRow = '<span class="rel-chip-status is-filled" title="On your team">✓ ' + _relTxt(nm) + '</span>';
         } else if (open) {
-          statusRow = '<span class="rel-chip-status is-open">➕ Add your pick</span>';
+          statusRow = '<span class="rel-chip-status is-open">➕ ' + (_isDistrictOffice ? 'Add from this district' : 'Add your pick') + '</span>';
         }
-        return '<button type="button" onclick="_relevantJump(\'' + levelKey + '\',\'' + officeKey + '\')" ' +
+        return '<button type="button" title="' + _titleAttr + '" onclick="_relevantJump(\'' + levelKey + '\',\'' + officeKey + '\')" ' +
           'style="text-align:left;display:flex;flex-direction:column;gap:0.12rem;background:linear-gradient(135deg,rgba(' + rgb + ',0.12),rgba(10,15,30,0.4));border:1px solid ' + border + ';border-radius:0.8rem;padding:0.6rem 0.8rem;cursor:pointer;transition:transform 0.15s,border-color 0.15s;min-height:44px;" ' +
           'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.borderColor=\'' + hoverBorder + '\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'' + border + '\'">' +
           '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.84rem;letter-spacing:0.03em;color:#fff;line-height:1.1;">' + emoji + ' ' + title + '</span>' +
@@ -40117,9 +40209,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Steer at ONE next gap, preferring an open seat in the voter's own voting
         // districts (the races unique to them) before any statewide/federal gap.
         var _firstOpen = _covDistOpen[0] || _covOpen[0];
+        // The round-trip link back to the team being built. "My Voting Team" sits
+        // directly ABOVE this section, so the button scrolls up and flashes the
+        // live coverage map — pairing with the per-seat "jump to race" links so the
+        // voter can move freely between discovering races and managing their team.
+        var _teamJumpBtn = '<button type="button" class="rel-cov-cta is-team" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">\u{1F5F3}\u{FE0F} My Voting Team' + (_covTotal ? ' (' + _covFilled + '/' + _covTotal + ')' : '') + ' ↑</button>';
         var _covMsg, _covCta = '';
         if (_covDone) {
-          _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> Review your slate below, or compare your full team to weigh them side by side.';
+          _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> Head up to <strong>My Voting Team</strong> to review your slate and compare your picks side by side.';
+          _covCta = '<div class="rel-cov-actions">' + _teamJumpBtn + '</div>';
         } else if (_firstOpen) {
           var _foShort = _relTxt(_RELEVANT_OFFICE_SHORT[_firstOpen] || _firstOpen);
           var _foYours = _relTxt(_RELEVANT_OFFICE_YOURS[_firstOpen] || ('your ' + _foShort + ' seat'));
@@ -40169,6 +40267,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _covCta = '<div class="rel-cov-actions">' +
             '<button type="button" class="rel-cov-cta" onclick="_relevantJump(\'' + _foLevel + '\',\'' + _firstOpen + '\')">➕ Add ' + _foShort + '</button>' +
             (_foHasField ? '<button type="button" class="rel-cov-cta is-compare" onclick="window._relevantCompareOffice(\'' + _firstOpen + '\')">⚖️ Compare the field</button>' : '') +
+            _teamJumpBtn +
           '</div>';
         }
 
@@ -40188,6 +40287,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="rel-cov-bar"><div class="rel-cov-fill" style="width:' + _covPct + '%;"></div></div>' +
             '<p class="rel-cov-msg">' + _covMsg + '</p>' +
             _covCta +
+          '</div>';
+      }
+
+      // ── Closing bridge back to My Team ──────────────────────────────────────
+      // After scrolling through every race, the voter lands here — the natural
+      // moment to send them back UP to the team they've been assembling. Restates
+      // their live progress (so the round trip closes the loop on "am I done?")
+      // and offers the one tap back to "My Voting Team". When district seats remain
+      // open it stays action-oriented by naming how many still need a pick; once the
+      // slate is complete it celebrates and points to reviewing the finished team.
+      var closingBridge = '';
+      if (_covTotal > 0) {
+        var _cbDone = _covFilled >= _covTotal;
+        var _cbOpenCount = _covTotal - _covFilled;
+        var _cbDistOpen = _covDistOpen.length;
+        var _cbLine;
+        if (_cbDone) {
+          _cbLine = '🎉 <strong>Your slate is complete</strong> — all ' + _covTotal + ' seats on your ballot have a pick. Head back up to review and compare your team.';
+        } else if (_cbDistOpen > 0) {
+          _cbLine = 'You’ve added <strong>' + _covFilled + ' of ' + _covTotal + '</strong> — <strong>' + _cbDistOpen + '</strong> of your own voting district' + (_cbDistOpen === 1 ? '' : 's') + ' still need' + (_cbDistOpen === 1 ? 's' : '') + ' a pick. Your team is building up above as you go.';
+        } else {
+          _cbLine = 'You’ve added <strong>' + _covFilled + ' of ' + _covTotal + '</strong> seats — ' + _cbOpenCount + ' still open. Your team is building up above as you go.';
+        }
+        closingBridge =
+          '<div class="relevant-team-bridge' + (_cbDone ? ' is-complete' : '') + '">' +
+            '<div class="rel-bridge-text">' +
+              '<span class="rel-bridge-title">\u{1F5F3}\u{FE0F} Your Voting Team</span>' +
+              '<span class="rel-bridge-sub">' + _cbLine + '</span>' +
+            '</div>' +
+            '<button type="button" class="rel-bridge-btn" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">Manage My Team ' + _covFilled + '/' + _covTotal + ' ↑</button>' +
           '</div>';
       }
 
@@ -40268,7 +40397,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       var matchLegend = _relevantMatchLegend(officeGroups, ctx);
-      relevantGrid.innerHTML = valuesBanner + overview + matchLegend + _renderRelevantTree(officeGroups, ctx);
+      relevantGrid.innerHTML = valuesBanner + overview + matchLegend + _renderRelevantTree(officeGroups, ctx) + closingBridge;
     }
 
     // Public entry point. Runs the implementation inside a guard so that any
