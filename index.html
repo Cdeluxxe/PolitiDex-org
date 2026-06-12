@@ -1718,11 +1718,14 @@
     }
     .cand-snapshot .cs-pos-legend > span { display: inline-flex; align-items: center; gap: 0.3rem; }
     .cand-snapshot .cs-pos-list { display: grid; gap: 0; }
-    .cand-snapshot .cs-pos {
+    .cand-snapshot .cs-pos { padding: 0.55rem 0; }
+    .cand-snapshot .cs-pos + .cs-pos { border-top: 1px dashed rgba(159,180,212,0.16); }
+    .cand-snapshot .cs-pos-line {
       display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem;
-      padding: 0.5rem 0;
     }
-    .cand-snapshot .cs-pos + .cs-pos { border-top: 1px dashed rgba(139,92,246,0.2); }
+    /* The position's one-line stance, shown right under its topic so a visitor
+       reads WHAT the candidate said, not just that they took a position. */
+    .cand-snapshot .cs-pos-text { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin: 0.32rem 0 0; }
     .cand-snapshot .cs-pos-ico { font-size: 0.95rem; line-height: 1; flex-shrink: 0; }
     .cand-snapshot .cs-pos-topic {
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem;
@@ -1760,6 +1763,28 @@
     .cand-snapshot .cs-vd-partial  { color: #60a5fa; background: rgba(96,165,250,0.14);  border: 1px solid rgba(96,165,250,0.34); }
     .cand-snapshot .cs-vd-mismatch { color: #f87171; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.34); }
     .cand-snapshot .cs-pos-more { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.5rem 0 0; }
+
+    /* Issue-positions centerpiece — the heart of a thin profile. A gold-accented
+       card so a candidate's documented positions read as the valuable, central
+       part of getting to know them, even when the rest of the record is sparse. */
+    .cand-snapshot .cs-positions {
+      margin-top: 1rem; padding: 0.85rem 0.9rem 0.9rem;
+      border-top: none;
+      background: linear-gradient(135deg, rgba(30,53,96,0.42), rgba(10,15,30,0.28));
+      border: 1px solid rgba(159,180,212,0.2);
+      border-left: 3px solid #f5c842;
+      border-radius: 0.7rem;
+    }
+    .cand-snapshot .cs-positions .cs-block-h { margin-bottom: 0.5rem; }
+    /* Count pill in a block header — "5 positions" at a glance */
+    .cand-snapshot .cs-count-pill {
+      margin-left: auto;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #f5c842; background: rgba(245,200,66,0.12);
+      border: 1px solid rgba(245,200,66,0.3); border-radius: 999px;
+      padding: 0.1rem 0.45rem; line-height: 1; white-space: nowrap;
+    }
 
     /* Spotlight linkage */
     .cand-snapshot .cs-spot { margin-top: 1rem; }
@@ -26671,7 +26696,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
-    return '<div class="modal-section">' +
+    return '<div class="modal-section" id="cs-howcompare-anchor">' +
       '<div class="modal-section-title">🤝 How You Compare</div>' +
       '<p class="modal-section-sub">Your saved Alignment Tool picks, matched issue by issue against ' + first + '\'s documented positions.</p>' +
       summary +
@@ -26927,26 +26952,73 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         priority: { ico: '★', label: 'Priority',  cls: 'cs-b-priority' },
         tracking: { ico: '…', label: 'Tracking',  cls: 'cs-b-priority' }
       };
-      var standsHead, standsBody;
+      // Shared linkage state, used by both the positions list and the connector.
+      var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var hasIssueMap = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
+      // Source-type tag — the visible difference between a position backed by an
+      // actual vote/bill ("Recorded") and one taken from public statements ("Stated").
+      var srcMeta = {
+        rec:    { ico: '🗳', label: 'Recorded', cls: 'cs-src-rec' },
+        stated: { ico: '💬', label: 'Stated',   cls: 'cs-src-stated' }
+      };
+      // Per-issue "your match" verdict, surfaced inline only when the visitor has
+      // a saved Alignment pick on this exact issue — the at-a-glance linkage.
+      var vdMeta = {
+        match:    { ico: '✓', label: 'You match',  cls: 'cs-vd-match' },
+        partial:  { ico: '~', label: 'Partial',    cls: 'cs-vd-partial' },
+        mismatch: { ico: '✗', label: 'You differ', cls: 'cs-vd-mismatch' }
+      };
+      function _csPositionRow(s) {
+        var m = posMetaCS[s.pos] || posMetaCS.tracking;
+        var src = s.evidence ? srcMeta.rec : srcMeta.stated;
+        var vdHtml = '';
+        if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
+          var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+          var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos) : null;
+          var vm = verdict && vdMeta[verdict];
+          if (vm) vdHtml = '<span class="cs-vd ' + vm.cls + '">' + vm.ico + ' ' + vm.label + '</span>';
+        }
+        var txt = (s.text || '').toString();
+        return '<div class="cs-pos">' +
+          '<div class="cs-pos-line">' +
+            '<span class="cs-pos-ico">' + (s.icon || '🎯') + '</span>' +
+            '<span class="cs-pos-topic">' + (s.topic || 'Issue') + '</span>' +
+            '<span class="cs-pos-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+            '<span class="cs-src ' + src.cls + '">' + src.ico + ' ' + src.label + '</span>' +
+            vdHtml +
+          '</div>' +
+          (txt ? '<p class="cs-pos-text">' + txt + '</p>' : '') +
+        '</div>';
+      }
+
+      // ── Issue positions (the centerpiece) ─────────────────────────────
+      // The heart of a thin profile: the specific issues this candidate has
+      // taken a documented position on, each shown with its DIRECTION
+      // (Supports / Opposes / Mixed), the one-line position itself, and its
+      // BASIS — "Recorded" (a named vote or bill) vs "Stated" (a public
+      // statement). Comparable (Alignment-keyed) positions lead, and any that
+      // overlap the visitor's saved Alignment picks get an inline match verdict.
+      var standsHead, standsBody, posCountPill = '';
       if (stanceList.length) {
-        standsHead = '📌 What ' + first + ' says they stand for';
-        standsBody = stanceList.slice(0, 4).map(function(s) {
-          var m = posMetaCS[s.pos] || posMetaCS.tracking;
-          var txt = (s.text || '').toString();
-          return '<div class="cs-stance">' +
-            '<span class="cs-stance-ico">' + (s.icon || '🎯') + '</span>' +
-            '<div class="cs-stance-body">' +
-              '<span class="cs-stance-topic">' + (s.topic || 'Issue') + '</span>' +
-              '<span class="cs-stance-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
-              (txt ? '<p class="cs-stance-text">' + txt + '</p>' : '') +
-            '</div>' +
-          '</div>';
-        }).join('');
-        if (stanceList.length > 4) {
-          standsBody += '<p class="cs-stance-text" style="margin-top:0.5rem;">+ ' + (stanceList.length - 4) + ' more documented below in <strong style="color:#cbd9ec;">Key Issue Stances</strong>.</p>';
+        var SHOWN = 5;
+        var sortedStances = stanceList.slice().sort(function(a, b) {
+          return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
+        });
+        standsHead = '📌 Where ' + first + ' stands';
+        posCountPill = '<span class="cs-count-pill">' + stanceList.length + ' position' + (stanceList.length === 1 ? '' : 's') + '</span>';
+        var posLegend = '<div class="cs-pos-legend">' +
+          '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
+          '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
+        '</div>';
+        standsBody = posLegend + '<div class="cs-pos-list">' +
+          sortedStances.slice(0, SHOWN).map(_csPositionRow).join('') +
+        '</div>';
+        if (stanceList.length > SHOWN) {
+          standsBody += '<p class="cs-pos-more">+ ' + (stanceList.length - SHOWN) + ' more position' + (stanceList.length - SHOWN === 1 ? '' : 's') + ' below in <strong style="color:#d8b4fe;">Key Issue Stances</strong>.</p>';
         }
       } else if (keyIssues.length) {
         standsHead = '🎯 ' + first + '\'s campaign priorities';
+        posCountPill = '<span class="cs-count-pill">' + keyIssues.length + ' issue' + (keyIssues.length === 1 ? '' : 's') + '</span>';
         standsBody = '<div class="cs-pills">' + keyIssues.slice(0, 8).map(function(i) {
           return '<span class="cs-pill-issue">🎯 ' + i + '</span>';
         }).join('') + '</div>' +
@@ -26955,87 +27027,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         standsHead = '🧭 Stated positions';
         standsBody = '<p class="cs-stance-text">We are gathering ' + first + '\'s stated positions from public statements and campaign materials. In the meantime, you can still compare ' + first + ' to your own values with the Alignment Tool.</p>';
       }
-      var standsBlock = '<div class="cs-block"><div class="cs-block-h">' + standsHead + '</div>' + standsBody + '</div>';
+      var standsBlock = '<div class="cs-block cs-positions"><div class="cs-block-h">' + standsHead + posCountPill + '</div>' + standsBody + '</div>';
 
-      // ── Alignment Tool linkage ────────────────────────────────────────
-      // Actively surfaces the issues this candidate has taken a position on —
-      // the same positions the Alignment Tool compares a visitor's values
-      // against — so even a thin profile shows, at a glance, where the
-      // candidate stands. Each row makes two things visible: the DIRECTION of
-      // the position (Supports / Opposes / Mixed) and its BASIS — "Recorded"
-      // (backed by a named vote or bill) versus "Stated" (from public
-      // statements). When the visitor has saved Alignment picks, overlapping
-      // issues also get a per-issue "your match" verdict.
-      var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      // ── Alignment Tool connector ──────────────────────────────────────
+      // Ties the positions above to the Personalized Alignment Tool. When the
+      // visitor has saved picks it shows their match score and points to the
+      // full issue-by-issue "How You Compare" breakdown lower in this same
+      // profile; otherwise it invites them to set their positions so they can
+      // judge the candidate by their own values, not party.
       var userMatch = (alignHasUser && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
-      var hasIssueMap = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
-
       var matchChip = '';
       if (userMatch !== null) {
         var mc = userMatch >= 70 ? '#4ade80' : userMatch >= 50 ? '#f5c842' : '#f87171';
         matchChip = '<span class="cs-align-match" style="color:' + mc + ';border-color:' + mc + '55;">🎯 ' + userMatch + '% your match</span>';
       }
-
-      // Build the scannable position rows. Show keyed (Alignment-comparable)
-      // positions first so the ones a visitor can be matched on lead.
-      var srcMeta = {
-        rec:    { ico: '🗳', label: 'Recorded', cls: 'cs-src-rec' },
-        stated: { ico: '💬', label: 'Stated',   cls: 'cs-src-stated' }
-      };
-      var vdMeta = {
-        match:    { ico: '✓', label: 'Match',  cls: 'cs-vd-match' },
-        partial:  { ico: '~', label: 'Partial', cls: 'cs-vd-partial' },
-        mismatch: { ico: '✗', label: 'Differs', cls: 'cs-vd-mismatch' }
-      };
-      var posRows = stanceList.slice().sort(function(a, b) {
-        return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
-      }).slice(0, 6).map(function(s) {
-        var m = posMetaCS[s.pos] || posMetaCS.tracking;
-        var src = s.evidence ? srcMeta.rec : srcMeta.stated;
-        // Per-issue verdict only when the visitor selected this exact issue.
-        var vdHtml = '';
-        if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
-          var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
-          var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos) : null;
-          var vm = verdict && vdMeta[verdict];
-          if (vm) vdHtml = '<span class="cs-vd ' + vm.cls + '">' + vm.ico + ' ' + vm.label + '</span>';
-        }
-        return '<div class="cs-pos">' +
-          '<span class="cs-pos-ico">' + (s.icon || '🎯') + '</span>' +
-          '<span class="cs-pos-topic">' + (s.topic || 'Issue') + '</span>' +
-          '<span class="cs-pos-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
-          '<span class="cs-src ' + src.cls + '">' + src.ico + ' ' + src.label + '</span>' +
-          vdHtml +
-        '</div>';
-      }).join('');
-
-      var alignBody;
-      if (posRows) {
-        var legend = '<div class="cs-pos-legend">' +
-          '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
-          '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
-        '</div>';
-        var moreNote = (stanceList.length > 6)
-          ? '<p class="cs-pos-more">+ ' + (stanceList.length - 6) + ' more position' + (stanceList.length - 6 === 1 ? '' : 's') + ' below in <strong style="color:#d8b4fe;">Key Issue Stances</strong>.</p>'
-          : '';
-        var foot = alignHasUser
-          ? ('Matched against your saved Alignment picks. Open the <strong>Alignment Tool</strong> to compare ' + first + ' issue by issue — by your values, not their party.')
-          : ('Pick the issues you care about in the <strong>Alignment Tool</strong> to see, issue by issue, where you and ' + first + ' line up — by values, not party.');
-        alignBody = legend +
-          '<div class="cs-pos-list">' + posRows + '</div>' +
-          moreNote +
-          '<p class="cs-align-foot">' + foot + '</p>';
-      } else {
-        // No documented positions yet — keep the honest, encouraging prompt.
-        var alignText = (trackedIssueCount > 0)
-          ? (first + ' has stated priorities on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> PolitiDex tracks. Compare ' + first + ' to the issues you care about — by values, not party.')
-          : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party. Their positions appear here as we document them.');
-        alignBody = '<p class="cs-align-text">' + alignText + '</p>';
-      }
-
+      var alignText = alignHasUser
+        ? ('Your saved Alignment picks are matched against ' + first + '\'s positions, issue by issue — see the full <strong>How You Compare</strong> breakdown below.')
+        : (trackedIssueCount > 0
+            ? (first + ' has positions on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> the Alignment Tool tracks. Pick the issues you care about to see, point by point, where you and ' + first + ' line up — by values, not party.')
+            : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party. Their positions appear here as we document them.'));
       var alignBlock = '<div class="cs-align">' +
-        '<div class="cs-align-top"><span class="cs-align-h">🤝 Where ' + first + ' stands on the issues</span>' + matchChip + '</div>' +
-        alignBody +
+        '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on your values</span>' + matchChip + '</div>' +
+        '<p class="cs-align-text">' + alignText + '</p>' +
       '</div>';
 
       // ── Spotlight linkage ─────────────────────────────────────────────
@@ -27078,8 +27091,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       // ── Actions (mirror the thin-notice CTAs) ─────────────────────────
       var onTeam = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
+      // When the visitor already has Alignment picks, the primary action keeps
+      // them on the profile and jumps to the in-modal "How You Compare"
+      // breakdown — connecting the snapshot's positions directly to their
+      // alignment. Otherwise it opens the Alignment Tool so they can set picks.
+      var alignActionBtn = alignHasUser
+        ? '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();var el=document.getElementById(\'cs-howcompare-anchor\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}else{closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var a=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(a)a.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);}">🤝 See your issue-by-issue match</button>'
+        : '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>';
       var actions = '<div class="cs-actions">' +
-        '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>' +
+        alignActionBtn +
         '<button type="button" class="cs-act-btn cs-act-team' + (onTeam ? ' is-on' : '') + '" onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
           (onTeam ? '✓ On your team' : '★ Add to my team') + '</button>' +
       '</div>';
