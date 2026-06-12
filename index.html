@@ -29268,6 +29268,107 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     <span class="align-fab-count" id="align-fab-count" style="display:none;">0</span>
   </button>
 
+  <!-- ── Persistent Team Builder dock ──────────────────────────────────────────
+       A compact, always-available progress pill that follows the voter while they
+       browse races BELOW the team panel — Your Key Races, Relevant to Me, and the
+       district tree. It keeps the build goal in view no matter how far they scroll:
+       a live "filled / total" ring, the single next seat to fill (named, with its
+       district number when known), and two one-tap actions — jump straight to that
+       open race, or hop back UP to the team they're assembling. This is the missing
+       bridge that ties district discovery to "My Team" persistently, so the next
+       logical step is never more than a tap away. Hidden whenever the team panel
+       itself is on screen (its full progress UI is already there) and while any
+       modal is open. State is computed in _renderTeamNextStep() and pushed via
+       window._paintTeamDock(); visibility is driven by _updateTeamDockVisibility()
+       on scroll/resize. Dark patriotic palette, mirroring the Alignment launcher. -->
+  <style id="team-dock-styles">
+    .team-dock {
+      position: fixed; left: 1.25rem; bottom: 1.5rem; z-index: 47;
+      display: flex; align-items: stretch; gap: 0;
+      border-radius: 1rem; overflow: hidden;
+      background: linear-gradient(135deg, rgba(16,24,46,0.97), rgba(26,15,26,0.97));
+      border: 1px solid rgba(245,200,66,0.45);
+      box-shadow: 0 12px 34px rgba(0,0,0,0.5), 0 0 26px rgba(245,158,11,0.18);
+      backdrop-filter: blur(8px);
+      animation: teamDockIn 0.35s cubic-bezier(0.34,1.3,0.64,1);
+    }
+    @keyframes teamDockIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .team-dock-main {
+      display: flex; align-items: center; gap: 0.7rem; cursor: pointer;
+      background: none; border: none; padding: 0.6rem 0.85rem; text-align: left;
+      transition: background 0.2s ease;
+    }
+    .team-dock-main:hover { background: rgba(245,200,66,0.08); }
+    .team-dock-main:active { transform: scale(0.99); }
+    .team-dock-ring {
+      --pct: 0; width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%;
+      background: conic-gradient(#f5c842 calc(var(--pct) * 1%), rgba(255,255,255,0.1) 0);
+      display: grid; place-items: center; position: relative;
+      transition: background 0.6s cubic-bezier(0.34,1.25,0.64,1);
+    }
+    .team-dock-ring::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: #0b1322; }
+    .team-dock-ring-num {
+      position: relative; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.72rem; color: #fff; letter-spacing: 0.01em;
+    }
+    .team-dock-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.12; }
+    .team-dock-line1 {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #fad96a; white-space: nowrap;
+    }
+    .team-dock-line2 {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 0.01em; color: #fff; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 14rem;
+    }
+    .team-dock-up {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.12rem;
+      cursor: pointer; border: none; border-left: 1px solid rgba(245,200,66,0.28);
+      background: rgba(245,158,11,0.1); padding: 0.5rem 0.72rem; color: #fad96a;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .team-dock-up:hover { background: rgba(245,158,11,0.2); color: #fff; }
+    .team-dock-up-ico { font-size: 1rem; line-height: 1; }
+    .team-dock-up-txt {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.55rem;
+      letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+    }
+    /* Completed slate → green, celebratory. */
+    .team-dock.is-complete { border-color: rgba(74,222,128,0.5); box-shadow: 0 12px 34px rgba(0,0,0,0.5), 0 0 26px rgba(74,222,128,0.22); }
+    .team-dock.is-complete .team-dock-ring { background: conic-gradient(#4ade80 calc(var(--pct) * 1%), rgba(255,255,255,0.1) 0); }
+    .team-dock.is-complete .team-dock-line1 { color: #86efac; }
+    .team-dock.is-complete .team-dock-up { color: #86efac; border-left-color: rgba(74,222,128,0.3); background: rgba(34,197,94,0.12); }
+    /* Empty slate → gentle pulse to invite the first pick. */
+    .team-dock.is-empty .team-dock-ring { animation: teamDockPulse 2.6s ease-in-out infinite; }
+    @keyframes teamDockPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } 50% { box-shadow: 0 0 0 5px rgba(245,158,11,0.14); } }
+    /* Slide out of the way whenever a modal takes over (same trick the Alignment launcher uses). */
+    body[style*="overflow: hidden"] .team-dock { opacity: 0; pointer-events: none; transform: translateY(10px); }
+    @media (max-width: 639px) {
+      .team-dock { left: 0.7rem; bottom: 0.7rem; }
+      .team-dock-line2 { max-width: 9.5rem; font-size: 0.8rem; }
+      .team-dock-main { padding: 0.5rem 0.65rem; gap: 0.55rem; }
+      .team-dock-ring { width: 36px; height: 36px; }
+      .team-dock-up { padding: 0.45rem 0.6rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .team-dock { animation: none; }
+      .team-dock.is-empty .team-dock-ring { animation: none; }
+    }
+  </style>
+  <div id="team-dock" class="team-dock" style="display:none;" aria-live="polite">
+    <button type="button" class="team-dock-main" id="team-dock-main" onclick="window._teamDockNext && window._teamDockNext()" aria-label="Go to your next open ballot seat">
+      <span class="team-dock-ring" id="team-dock-ring" style="--pct:0;"><span class="team-dock-ring-num" id="team-dock-ring-num">0/6</span></span>
+      <span class="team-dock-text">
+        <span class="team-dock-line1" id="team-dock-line1">Build your team</span>
+        <span class="team-dock-line2" id="team-dock-line2">Start: U.S. Senate →</span>
+      </span>
+    </button>
+    <button type="button" class="team-dock-up" id="team-dock-up" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()" title="Back to My Voting Team" aria-label="Back to My Voting Team">
+      <span class="team-dock-up-ico" aria-hidden="true">🗳️</span>
+      <span class="team-dock-up-txt">My Team</span>
+    </button>
+  </div>
+
   <!-- ═══════════════════ COMPARE MODAL ═══════════════════ -->
   <div id="compare-overlay" role="dialog" aria-modal="true" aria-label="Politician Comparison">
     <!-- Header -->
@@ -37148,6 +37249,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var pickDone = filledCount >= 1;
       var alignDone = !!(window._alignIssues && window._alignIssues.size > 0);
       var teamComplete = filledCount >= total;
+
+      // Keep the persistent Team Builder dock in sync with every team change. The
+      // dock lives outside this section's markup, so we compute its state here —
+      // where the live pick count and the seat helpers are already in scope — and
+      // push it through window._paintTeamDock() (guarded; the dock script may load
+      // after the first render). Names the single next open seat, with its real
+      // district number when we know it, so the dock can say "Next: State Senate
+      // (District 8)" rather than a generic prompt.
+      try {
+        var _dockNextKey = teamComplete ? null : (typeof _myteamFirstOpenOffice === 'function' ? _myteamFirstOpenOffice() : null);
+        var _dockNextLabel = '';
+        if (_dockNextKey && window.TEAM_POSITIONS) {
+          for (var _dpi = 0; _dpi < window.TEAM_POSITIONS.length; _dpi++) {
+            if (window.TEAM_POSITIONS[_dpi].key === _dockNextKey) { _dockNextLabel = window.TEAM_POSITIONS[_dpi].label; break; }
+          }
+        }
+        window._teamDockState = {
+          filled: filledCount,
+          total: total,
+          complete: teamComplete,
+          nextKey: _dockNextKey,
+          nextLabel: _dockNextLabel,
+          nextScope: (_dockNextKey && typeof _myteamSeatScope === 'function') ? _myteamSeatScope(_dockNextKey) : ''
+        };
+        if (typeof window._paintTeamDock === 'function') window._paintTeamDock();
+      } catch (_de) {}
 
       var remaining = Math.max(0, total - filledCount);
       var steps = [
@@ -48117,6 +48244,96 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // The accountability engine is defined after the Key Races script runs, so
     // repaint Key Races now that scores can be computed for each candidate card.
     try { if (window.renderKeyRaces) window.renderKeyRaces(); } catch (e) {}
+  })();
+  </script>
+
+  <!-- ── Team Builder dock controller ──────────────────────────────────────────
+       Renders and shows/hides the persistent progress pill defined above. State is
+       produced by _renderTeamNextStep() (window._teamDockState); this block turns it
+       into pixels and decides WHEN the dock is useful: only while the voter is
+       browsing the race zone below the team panel (so the dock never duplicates the
+       full progress UI that's already on screen inside My Team), and never past the
+       Relevant-to-Me section. Self-contained and defined last so every helper it
+       calls (jumpToRelevantAccordion, _relevantScrollToTeam) already exists. -->
+  <script>
+  (function () {
+    // Paint the dock from the latest team state. Safe to call any time; bails
+    // quietly until the slate (TEAM_POSITIONS) has been resolved at least once.
+    window._paintTeamDock = function () {
+      var dock = document.getElementById('team-dock');
+      if (!dock) return;
+      var st = window._teamDockState;
+      if (!st || !st.total) { dock.style.display = 'none'; return; }
+      var ring = document.getElementById('team-dock-ring');
+      var ringNum = document.getElementById('team-dock-ring-num');
+      var l1 = document.getElementById('team-dock-line1');
+      var l2 = document.getElementById('team-dock-line2');
+      var pct = Math.round(st.filled / st.total * 100);
+      if (ring) ring.style.setProperty('--pct', pct);
+      if (ringNum) ringNum.textContent = st.filled + '/' + st.total;
+      dock.classList.toggle('is-complete', !!st.complete);
+      dock.classList.toggle('is-empty', st.filled === 0);
+      // Append the district number only for the voter's own district seats — it's
+      // what makes "Next" feel like THEIR ballot rather than a generic checklist.
+      var scope = (st.nextScope && st.nextScope.indexOf('District') === 0) ? ' · ' + st.nextScope : '';
+      var nm = st.nextLabel || '';
+      if (st.complete) {
+        if (l1) l1.textContent = '🎉 Team complete';
+        if (l2) l2.textContent = 'Review your slate ↑';
+      } else if (st.filled === 0) {
+        if (l1) l1.textContent = 'Build your team';
+        if (l2) l2.textContent = 'Start: ' + nm + scope + ' →';
+      } else {
+        if (l1) l1.textContent = st.filled + ' of ' + st.total + ' seats';
+        if (l2) l2.textContent = 'Next: ' + nm + scope + ' →';
+      }
+      window._updateTeamDockVisibility();
+    };
+
+    // The main pill routes to the next logical step: an open race when the slate
+    // isn't full, or up to the finished team to review when it is.
+    window._teamDockNext = function () {
+      var st = window._teamDockState || {};
+      if (st.complete) { if (window._relevantScrollToTeam) window._relevantScrollToTeam(); return; }
+      if (st.nextKey && window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(st.nextKey);
+      else if (window._relevantScrollToTeam) window._relevantScrollToTeam(true);
+    };
+
+    // Show the dock only while the voter is browsing races BELOW the team panel:
+    // the panel has scrolled mostly above the fold (so its own progress UI isn't
+    // already in view) and we haven't scrolled past the Relevant-to-Me section.
+    // Outside that band the dock would just be noise, so it hides.
+    window._updateTeamDockVisibility = function () {
+      var dock = document.getElementById('team-dock');
+      if (!dock) return;
+      var st = window._teamDockState;
+      var panel = document.getElementById('myteam-selected-panel');
+      var rel = document.getElementById('relevant-section');
+      if (!st || !st.total || !panel || !rel) { dock.style.display = 'none'; return; }
+      var vh = window.innerHeight || 800;
+      var pr = panel.getBoundingClientRect();
+      var rr = rel.getBoundingClientRect();
+      var inZone = (pr.bottom < vh * 0.45) && (rr.bottom > vh * 0.3);
+      dock.style.display = inZone ? '' : 'none';
+    };
+
+    // Coalesce scroll events into one rAF-paced visibility check.
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; window._updateTeamDockVisibility(); });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () { window._updateTeamDockVisibility(); }, { passive: true });
+
+    // Initial paint — covers the case where the first team render ran before this
+    // controller was defined (the guard in _renderTeamNextStep skipped paint then).
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { window._paintTeamDock(); });
+    } else {
+      window._paintTeamDock();
+    }
   })();
   </script>
 
