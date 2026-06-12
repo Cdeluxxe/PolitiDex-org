@@ -5262,6 +5262,25 @@
     @keyframes myteam-add-ripple { 0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 100%{box-shadow:0 0 0 18px rgba(74,222,128,0)} }
     @keyframes myteam-checkmark { 0%{transform:scale(0) rotate(-45deg);opacity:0} 50%{transform:scale(1.3) rotate(0deg);opacity:1} 100%{transform:scale(1) rotate(0deg);opacity:1} }
     .myteam-add-btn.just-added { animation: myteam-add-success 0.5s cubic-bezier(0.34,1.56,0.64,1), myteam-add-ripple 0.6s ease-out; }
+    /* ── Strong-match invitation ───────────────────────────────────────────
+       When the visitor has set their Alignment Signature and the politician in
+       front of them is a strong personal match, the "Add to My Team" button
+       gently breathes a green halo — turning a quiet decision point into an
+       obvious, inviting next step ("they fit you — add them"). Resting state
+       only; the glow never fights the hover/added states above. */
+    @keyframes myteam-match-pulse {
+      0%, 100% { box-shadow: 0 4px 16px rgba(74,222,128,0.20), 0 0 0 0 rgba(74,222,128,0.0), inset 0 1px 0 rgba(255,255,255,0.08); }
+      50%      { box-shadow: 0 6px 22px rgba(74,222,128,0.30), 0 0 18px 2px rgba(74,222,128,0.22), inset 0 1px 0 rgba(255,255,255,0.10); }
+    }
+    .myteam-add-btn.match-strong:not(.on-team):not(:hover) {
+      background: linear-gradient(135deg, rgba(74,222,128,0.30) 0%, rgba(245,158,11,0.16) 100%);
+      border-color: rgba(74,222,128,0.7);
+      color: #86efac;
+      animation: myteam-match-pulse 2.4s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .myteam-add-btn.match-strong:not(.on-team):not(:hover) { animation: none; }
+    }
     /* Each filled slot is tinted with its own office color (--slot-color), so the
        six ballot positions read as visually distinct at a glance. Falls back to
        amber for any card that doesn't set the variable. */
@@ -12068,7 +12087,16 @@
       color: #f87171 !important;
       box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15) !important;
     }
-
+    /* Strong-match invitation inside the grouped browse / Relevant grids: the base
+       rules above pin the add button to amber with !important, so we re-assert the
+       green "they fit you" treatment here (resting, not-yet-added state only) so the
+       cue reads consistently with the same affordance everywhere else on the site. */
+    #myteam-browse-grid .myteam-add-btn.match-strong:not(.on-team):not(:hover),
+    #relevant-browse-grid .myteam-add-btn.match-strong:not(.on-team):not(:hover) {
+      background: linear-gradient(135deg, rgba(74,222,128,0.22) 0%, rgba(245,158,11,0.10) 100%) !important;
+      border-color: rgba(74,222,128,0.55) !important;
+      color: #86efac !important;
+    }
     /* ── Relevant to Me — SAME premium card system as All Politicians ──────────
        The premium card chrome above is scoped to #myteam-browse-grid only, which
        left the "Relevant to Me" ballot cards on the plainer base styling. These
@@ -12683,6 +12711,17 @@
     }
     #relevant-browse-grid .relevant-compare-cta-btn.ghost:hover {
       background: rgba(139,92,246,0.22); transform: translateY(-1px); box-shadow: none;
+    }
+    /* The one-tap "Add <strongest fit>" action wears the team-building amber/green
+       so it reads as the pick-them button, not another Alignment control. */
+    #relevant-browse-grid .relevant-compare-cta-btn.add {
+      color: #052e16;
+      background: linear-gradient(135deg,#86efac,#34d399);
+      border-color: rgba(134,239,172,0.7);
+      box-shadow: 0 4px 16px rgba(52,211,153,0.30);
+    }
+    #relevant-browse-grid .relevant-compare-cta-btn.add:hover {
+      box-shadow: 0 6px 22px rgba(52,211,153,0.45);
     }
 
     /* ── "Why you're seeing each race" — match-precision affordances ───────────
@@ -36202,17 +36241,63 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // The deep-dive profile is where most voters decide — so the primary action
     // lives right there in the footer. These helpers keep that button honest:
     // showing the resting state on open, and a light next-step nudge either way.
+    // Name the next still-open seat on the visitor's ballot, so the modal can
+    // point them at it after they add someone ("now fill your State Senate seat").
+    // Read-only: just reads TEAM_POSITIONS against the saved ballot. Returns the
+    // position object, or null when every seat is filled (or positions unknown).
+    function _pdxNextOpenSeat() {
+      var positions = window.TEAM_POSITIONS || [];
+      if (!positions.length) return null;
+      var sel = (typeof _getTeamBallotSelections === 'function') ? _getTeamBallotSelections() : {};
+      for (var i = 0; i < positions.length; i++) {
+        var k = positions[i].key;
+        if (!sel[k] || (typeof CMP_DATA !== 'undefined' && !CMP_DATA[sel[k]])) return positions[i];
+      }
+      return null;
+    }
+
     window.pdxSyncModalTeamBtn = function(id) {
       var btn = document.getElementById('modal-addteam-btn');
       if (!btn || !id) return;
       var on = _myPoliticians.has(id);
       btn.classList.toggle('on-team', on);
+
+      // Personal match read, when the visitor has set their Alignment Signature.
+      // This is what lets the CTA say "looks like a good match — add them?" right
+      // where the decision is made, instead of a generic, value-blind prompt.
+      var hasAlign = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var match = (hasAlign && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+      var strong = (match !== null && match >= 70);
+      // The breathing green halo only fires for a strong, not-yet-added match.
+      btn.classList.toggle('match-strong', strong && !on);
+
       btn.innerHTML = on ? '✓ On Your Team' : '⭐ Add to My Team';
+
       var hint = document.getElementById('modal-addteam-hint');
-      if (hint) {
-        hint.innerHTML = on
-          ? 'Saved to <strong style="color:#cbd9ee;">My Team</strong>. Compare the others running for this seat before you lock it in.'
-          : 'Claims this seat on your saved 2026 ballot — swap your pick anytime.';
+      if (!hint) return;
+
+      if (on) {
+        // Already on the team — keep momentum by naming the next empty seat, so the
+        // voter flows straight from one pick into building the rest of their ballot.
+        var next = _pdxNextOpenSeat();
+        hint.innerHTML = next
+          ? '✓ Saved to <strong style="color:#86efac;">My Team</strong>. Keep going — your <strong style="color:#cbd9ee;">' + next.label + '</strong> seat is still open. Browse that race next.'
+          : '🎉 Saved — that fills <strong style="color:#86efac;">every seat</strong> on your ballot. Compare your full team to lock it in.';
+        return;
+      }
+
+      if (match !== null) {
+        var mc = (typeof _alignScoreColor === 'function') ? _alignScoreColor(match) : '#86efac';
+        var pct = '<strong style="color:' + mc + ';">' + match + '%</strong>';
+        if (match >= 70) {
+          hint.innerHTML = '🎯 Looks like a strong match — they\'re with you on ' + pct + ' of your issues. Add them to your team?';
+        } else if (match >= 50) {
+          hint.innerHTML = '🎯 A solid match at ' + pct + ' on your issues. Add them to claim this seat — swap your pick anytime.';
+        } else {
+          hint.innerHTML = 'A ' + pct + ' match on your issues. Compare them against the others in this race, or add them to claim the seat.';
+        }
+      } else {
+        hint.innerHTML = 'Claims this seat on your saved 2026 ballot — swap your pick anytime.';
       }
     };
     window.pdxModalToggleTeam = function(btn) {
@@ -36391,14 +36476,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _pdxTeamActions(pid) {
       var sel = (typeof _cmpSelected !== 'undefined') && _cmpSelected.has(pid);
       var isMy = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid);
-      var addBtnClass = isMy ? 'myteam-add-btn on-team' : 'myteam-add-btn';
+      // When the visitor has set their Alignment Signature and this candidate is a
+      // strong personal match, give the "Add" button the breathing green halo so
+      // the best fits in a district browse visibly invite the pick.
+      var strongMatch = false;
+      if (!isMy && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0 && typeof _calcAlignmentScore === 'function') {
+        var _ms = _calcAlignmentScore(pid);
+        strongMatch = (_ms !== null && _ms >= 70);
+      }
+      var addBtnClass = isMy ? 'myteam-add-btn on-team' : ('myteam-add-btn' + (strongMatch ? ' match-strong' : ''));
       var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
       var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
       // Light, contextual guidance on each action so a browsing voter knows the
       // good next step without extra on-card clutter: add fills a ballot seat,
       // compare weighs them against the others in the race, profile reads the
       // full record first.
-      var addTitle = isMy ? 'On your team — click to remove' : 'Add to your voting team — fills their seat in My Voting Team';
+      var addTitle = isMy ? 'On your team — click to remove' : (strongMatch ? 'Strong match for your values — add them to claim this seat' : 'Add to your voting team — fills their seat in My Voting Team');
       var cmpTitle = isMy ? 'Compare them against the others in this race' : 'Not sure yet? Compare with others in this race first';
       return '<div class="mypol-card-actions" style="width:100%;">' +
           '<button class="' + addBtnClass + ' mypol-act-add" title="' + addTitle + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
@@ -38897,15 +38990,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         });
       }
       var col = (typeof _alignScoreColor === 'function' && best) ? _alignScoreColor(best.score) : '#a78bfa';
-      var line = (best && best.name)
-        ? 'Strongest fit: <b style="color:' + col + ';">' + best.name + '</b> at <b style="color:' + col + ';">' + best.score + '%</b>. Add the one who earns it to your team below.'
-        : 'These cards are ranked by how well each matches the issues you chose — add your top pick to your team below.';
+      var bestOnTeam = best && (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(best.pid);
+      var line;
+      if (best && best.name && bestOnTeam) {
+        line = '<b style="color:#86efac;">' + best.name + '</b> is your strongest fit here at <b style="color:' + col + ';">' + best.score + '%</b> — and they\'re on your team. ✓';
+      } else if (best && best.name) {
+        line = 'Strongest fit: <b style="color:' + col + ';">' + best.name + '</b> at <b style="color:' + col + ';">' + best.score + '%</b>. One tap adds them to your team.';
+      } else {
+        line = 'These cards are ranked by how well each matches the issues you chose — add your top pick to your team below.';
+      }
+      // When we can name a strongest fit who isn't already picked, lead with a
+      // one-tap "Add" for that exact person — turning the comparison's conclusion
+      // straight into a team pick without hunting for their card below.
+      var bestFirst = (best && best.name) ? best.name.split(/\s+/)[0] : '';
+      var addBtn = (best && best.name && !bestOnTeam)
+        ? '<button type="button" class="relevant-compare-cta-btn add" onclick="event.stopPropagation();if(window.mypolToggleAnimated)window.mypolToggleAnimated(this,\'' + best.pid + '\');">⭐ Add ' + bestFirst + '</button>'
+        : '';
       return '<div class="relevant-compare-cta is-set">' +
           '<div class="relevant-compare-cta-ico" aria-hidden="true">🎯</div>' +
           '<div class="relevant-compare-cta-body">' +
             '<div class="relevant-compare-cta-title">Ranked by your values · best match first</div>' +
             '<div class="relevant-compare-cta-sub">' + line + '</div>' +
           '</div>' +
+          addBtn +
           '<button type="button" class="relevant-compare-cta-btn ghost" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">⚙ Adjust Issues</button>' +
         '</div>';
     }
