@@ -13434,7 +13434,7 @@
     }
     .mypol-card-actions-secondary {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr auto;
       gap: 0.5rem;
     }
     /* Primary — Add to My Team — the clear, full-width call to action. */
@@ -13502,6 +13502,37 @@
       .mypol-card-actions .mypol-act-compare,
       .mypol-card-actions .mypol-act-profile { min-height: 44px; font-size: 0.72rem; }
     }
+
+    /* ── Compact card Share button — shared by the unified browse action row
+       (_pdxTeamActions) and the lightweight compare/profile row
+       (_pdxCompareActions). Icon-only and calm so it sits beside Compare /
+       Profile without competing with the primary "Add to My Team" action. */
+    .pdx-act-share {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      min-width: 38px;
+      padding: 0 0.55rem;
+      background: rgba(30,53,96,0.4);
+      border: 1px solid rgba(117,150,192,0.22);
+      color: #9fb4d4;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .pdx-act-share:hover {
+      background: rgba(30,53,96,0.62);
+      border-color: rgba(117,150,192,0.45);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    }
+    .pdx-act-share svg { width: 1rem; height: 1rem; }
+    @media (max-width: 640px) { .pdx-act-share { min-height: 44px; min-width: 44px; } }
+    /* In the lightweight flex row, keep Share compact instead of stretching to
+       a full-width child like Compare/Profile do on phones. */
+    .pdx-snap-actions > button.pdx-act-share { flex: 0 0 auto !important; min-width: 44px; padding: 0 0.6rem !important; }
 
     /* ════════════════════════════════════════════════════════════════════
        MOBILE COMFORT POLISH — final pass (≤768px)
@@ -37092,11 +37123,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _pdxTeamBadge(pid) {
       return ((typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid)) ? '<span class="chub-team-badge">✓ On Team</span>' : '';
     }
+    // Compact, icon-only Share button reused by the shared browse action rows.
+    // Calls the same share sheet used by the pm-card and the profile modal, and
+    // stops propagation so it never triggers the card's own open-profile click.
+    function _pdxShareBtn(pid) {
+      return '<button class="pdx-act-share" onclick="event.stopPropagation();window.pdxSharePolitician(\'' + pid + '\',event)" aria-label="Share this profile" title="Share">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></button>';
+    }
     // Standard "Compare + View Profile" action row used by most listings.
     function _pdxCompareActions(pid) {
       var sel = (typeof _cmpSelected !== 'undefined') && _cmpSelected.has(pid);
       return '<button class="chub-add-btn' + (sel ? ' chub-added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">' + (sel ? '✓ Added' : '+ Compare') + '</button>' +
-        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-400 hover:text-steel-200 tracking-wider uppercase" style="background:none;border:none;padding:0.3rem 0;cursor:pointer;">View Profile</button>';
+        '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="font-condensed text-xs text-steel-400 hover:text-steel-200 tracking-wider uppercase" style="background:none;border:none;padding:0.3rem 0;cursor:pointer;">View Profile</button>' +
+        _pdxShareBtn(pid);
     }
 
     // Unified browse action row — the full, consistent action set every compact
@@ -37130,6 +37169,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div class="mypol-card-actions-secondary">' +
             '<button class="bp-compare-btn mypol-act-compare' + (sel ? ' added' : '') + '" data-pid="' + pid + '" title="' + cmpTitle + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">⚖️ ' + (sel ? '✓ Comparing' : 'Compare') + '</button>' +
             '<button onclick="event.stopPropagation();showProfile(\'' + pid + '\')" class="mypol-act-profile" title="See their full record and promises first">View Profile</button>' +
+            _pdxShareBtn(pid) +
           '</div>' +
         '</div>';
     }
