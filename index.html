@@ -5669,6 +5669,16 @@
       letter-spacing: 0.06em; text-transform: uppercase; transition: transform 0.12s, border-color 0.15s;
     }
     .myteam-dcov-cta:hover { transform: translateY(-1px); border-color: rgba(251,191,36,0.9); }
+    /* Action row holding the primary "Add" CTA plus the optional "Compare the field
+       first" button — the compare-before-you-commit path, styled blue to match the
+       comparison tool and to read as the considered, secondary choice. */
+    .myteam-dcov-cta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+    .myteam-dcov-cta-row .myteam-dcov-cta { margin-top: 0; }
+    .myteam-dcov-cta.is-compare {
+      background: linear-gradient(135deg, rgba(59,130,246,0.26), rgba(59,130,246,0.12));
+      border-color: rgba(96,165,250,0.55); color: #d6e6ff;
+    }
+    .myteam-dcov-cta.is-compare:hover { border-color: rgba(147,197,253,0.9); }
     .myteam-dcov-locnudge {
       display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
       margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid rgba(96,165,250,0.18);
@@ -5730,6 +5740,30 @@
       box-shadow: 0 0 22px rgba(74,222,128,0.1);
     }
     .myteam-dcov-milestone strong { color: #fff; }
+    /* ── "Your Voting Districts" spotlight band ────────────────────────────────
+       The voter's own district seats (U.S. House, State Senate, State House) are
+       the seats only their address elects — the motivating heart of this view. We
+       pull them out of the abstract Federal/State/Local groups into a single,
+       visually distinct band at the top so "which of MY districts have I covered"
+       is the first thing the eye lands on. Amber+blue patriotic framing, flips
+       green once every one of the voter's districts is filled. */
+    .myteam-dcov-group.is-districts {
+      padding: 0.75rem 0.8rem 0.85rem; border-radius: 0.85rem; margin-bottom: 1rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.11), rgba(96,165,250,0.06));
+      border: 1px solid rgba(245,200,66,0.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .myteam-dcov-group.is-districts .myteam-dcov-grouptitle { color: #fde9b8; }
+    .myteam-dcov-group.is-districts.is-done {
+      border-color: rgba(74,222,128,0.45);
+      background: linear-gradient(135deg, rgba(34,197,94,0.13), rgba(34,197,94,0.04));
+    }
+    .myteam-dcov-group.is-districts.is-done .myteam-dcov-grouptitle { color: #bbf7d0; }
+    .myteam-dcov-districts-note {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.73rem; letter-spacing: 0.02em;
+      color: #c9d7ec; line-height: 1.35; margin: -0.05rem 0 0.55rem;
+    }
+    .myteam-dcov-districts-note strong { color: #fde9b8; font-weight: 700; }
     @media (max-width: 639px) {
       .myteam-dcov-grid { grid-template-columns: 1fr 1fr; }
       .myteam-dcov-office { font-size: 0.78rem; }
@@ -37506,12 +37540,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return arr.slice(0, -1).join(', ') + ' &amp; ' + arr[arr.length - 1];
       }
 
-      // Group the grid by ballot level — Federal · State · Local — the tiers a voter
-      // actually reasons about. Each group renders only when it has seats and carries
-      // its own covered/total badge (green + "✓ All covered" once that whole tier is
-      // complete), so the gap in any single level of the ballot is obvious at a glance.
+      // Group the grid so the voter's OWN voting districts lead, then the seats
+      // they share with the rest of the state/nation. The district seats (the ones
+      // unique to this address) get a dedicated spotlight band so "which of MY
+      // districts have I covered" is answered first; the remaining seats fall into
+      // their Federal · State · Local tiers below. _levelSeats (above) still counts
+      // ALL seats for the encouragement copy, so a level reads as "covered" only
+      // when every seat in it — district or not — is filled.
+      function _sharedLevelSeats(id) { return positions.filter(function(p) { return !_MYTEAM_DISTRICT_KEYS[p.key] && _myteamSeatLevel(p.key) === id; }); }
       function _groupHtml(level) {
-        var list = _levelSeats(level.id);
+        var list = _sharedLevelSeats(level.id);
         if (!list.length) return '';
         var c = _coveredCount(list);
         var allDone = c >= list.length;
@@ -37525,7 +37563,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="myteam-dcov-grid">' + list.map(_seatHtml).join('') + '</div>' +
           '</div>';
       }
-      var groupsHtml = _MYTEAM_LEVELS.map(_groupHtml).join('');
+
+      // The spotlight band for the voter's own voting districts. Rendered first and
+      // styled distinctly (amber/blue, green once complete) so it reads as the
+      // headline of the whole coverage view, not just another row.
+      function _districtBandHtml() {
+        if (!districtSeats.length) return '';
+        var fracCls = distDone ? 'myteam-dcov-groupfrac is-done' : 'myteam-dcov-groupfrac';
+        var fracTxt = distDone ? '✓ All ' + distTotal + ' covered' : distCovered + '/' + distTotal + ' covered';
+        var note = distDone
+          ? 'Every seat only your address elects now has your pick. 🎉'
+          : 'The seats <strong>only your address elects</strong> — fill these first.';
+        return '<div class="myteam-dcov-group is-districts' + (distDone ? ' is-done' : '') + '">' +
+            '<div class="myteam-dcov-grouphead">' +
+              '<span class="myteam-dcov-grouptitle">📍 Your Voting Districts</span>' +
+              '<span class="' + fracCls + '">' + fracTxt + '</span>' +
+            '</div>' +
+            '<div class="myteam-dcov-districts-note">' + note + '</div>' +
+            '<div class="myteam-dcov-grid">' + districtSeats.map(_seatHtml).join('') + '</div>' +
+          '</div>';
+      }
+      var groupsHtml = _districtBandHtml() + _MYTEAM_LEVELS.map(_groupHtml).join('');
 
       // Gentle, level- and district-aware guidance that always names the single next
       // gap, and — crucially — credits what's already done so building reads as
@@ -37554,7 +37612,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           : '';
 
         var lead;
-        if (lvl && lvlSeats.length > 1 && lvlOpen === 1) {
+        if (!inDistrict && lvl && lvlSeats.length > 1 && lvlOpen === 1) {
           lead = (praise ? 'now add your ' : 'Add your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span> to complete your <strong>' + lvl.word + '</strong> coverage.';
         } else if (inDistrict) {
           lead = (praise ? 'now fill your ' : 'You still need someone from your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
@@ -37564,7 +37622,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           lead = (praise ? 'next, add your ' : '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span>' + (praise ? '.' : ' next.');
         }
         msg = praise + lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Tap the seat to compare the field and add your pick — it saves as you go.';
-        cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
+        // Two clear next actions on the central hub: jump straight to the open race
+        // to add a pick, or — when that seat actually has a field — weigh everyone
+        // running side-by-side first. The second button mirrors the "Relevant to Me"
+        // coverage strip so "compare before you commit" is offered consistently in
+        // both the discovery and team-management views.
+        var _foField = [];
+        try { _foField = (window._relevantLastOfficeGroups && window._relevantLastOfficeGroups[firstOpen.key]) || []; } catch (e) {}
+        var _foHasField = _foField.filter(function(pid) { return CMP_DATA[pid]; }).length > 1;
+        cta = '<div class="myteam-dcov-cta-row">' +
+            '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>' +
+            (_foHasField ? '<button type="button" class="myteam-dcov-cta is-compare" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + firstOpen.key + '\')">⚖️ Compare the field first</button>' : '') +
+          '</div>';
       }
 
       // Standout milestone: all of the voter's OWN voting districts are filled, even
