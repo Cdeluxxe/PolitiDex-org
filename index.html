@@ -27564,7 +27564,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
         '</div>'
       : '<p style="font-size:0.74rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.85rem;">The People\'s Mandate scorecard rates how well this official upholds transparency, accountability, promise-keeping, and putting constituents over special interests. Ratings begin once they have a voting record or verified promises.</p>';
-    return '<div class="modal-section">' +
+    return '<div class="modal-section" id="alignment-modal-section">' +
       '<div class="modal-section-title">🏛️ The People\'s Mandate Alignment</div>' +
       '<div style="background:linear-gradient(135deg,rgba(192,21,42,0.08),rgba(30,53,96,0.35));border:1px solid rgba(192,21,42,0.22);border-radius:0.9rem;padding:1rem;">' +
         overallBlock +
@@ -28833,6 +28833,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             impact: (it.impact === 'neutral' ? 'neutral' : undefined), category: it.category }));
         });
 
+        // Connective lead-in shown above any populated Spotlight. Frames the
+        // section as THIS official's real record — issues, public statements and
+        // notable actions — and names the two-way link to the scores above, so
+        // Spotlight reads as the evidence behind the numbers rather than a stray
+        // news feed.
+        function _slIntro() {
+          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
+            'The key issues, public statements, and notable actions tied to ' + _slLast + ' — the real record behind the scores above. ' +
+            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and the issues they touch shape the alignment read.' +
+          '</p>';
+        }
+
+        // Closing tie-in: a one-tap jump up to the People's Mandate Alignment
+        // scorecard in the same modal, making explicit that these issues help
+        // explain how the official aligns with a voter's values.
+        function _slAlignFooter() {
+          return '<div style="margin-top:0.85rem;display:flex;justify-content:center;">' +
+            '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🏛️ How these shape ' + _slLast + '’s alignment ↑</button>' +
+          '</div>';
+        }
+
         // Connective sub-header that names the link to the score and offers a
         // one-tap jump into the full analysis.
         function _slDriverHeader() {
@@ -28849,15 +28870,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var slBody = '';
           if (slDrivers.length) slBody += _slDriverHeader() + slDrivers.join('');
           if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
-          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + slBody +
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + slBody +
             '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score — tap one to see it in the score breakdown, or open the full analysis above. Sources linked inline.</p>' +
+            _slAlignFooter() +
           '</div>';
         }
 
-        // 3) No drivers or news yet — derive lightweight context from stated
-        //    positions and focus issues so the section stays specific.
+        // 3) No curated drivers or news yet — build a specific, honest read from
+        //    the official's OWN record: their signature public statement, a
+        //    promise in progress, documented positions, and tracked priorities.
+        //    Everything here is real, politician-specific data already on the
+        //    profile — no generic filler.
         var derived = [];
         function _slPush(c) { if (derived.length < 4) derived.push(_slCard(c)); }
+        // Lead with the official's signature quote — a genuine public statement,
+        // rendered as a pull-quote so it reads as their voice, not boilerplate.
+        if (p && p.quote && String(p.quote).trim()) {
+          _slPush({ badge:'🗣️ In Their Own Words', accent:'245,200,66',
+            headline:'“' + String(p.quote).trim() + '”' });
+        }
         if (_slPending.length) {
           _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail });
         }
@@ -28867,24 +28898,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt });
           });
         }
-        if (derived.length < 2 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
+        if (derived.length < 3 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
           _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
             headline:'What ' + _slLast + ' is focused on',
             body: p.keyIssues.slice(0, 6).join('&nbsp;·&nbsp;') });
         }
 
         if (derived.length) {
-          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + derived.join('') +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Highlights drawn from this official’s stated positions. Tracked promises will appear here as score drivers once verified.</p>' +
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + derived.join('') +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Drawn from ' + _slLast + '’s own statements and tracked positions. Bills, votes and news will appear here as score drivers once verified.</p>' +
+            _slAlignFooter() +
           '</div>';
         }
 
-        // 4) Genuinely nothing to highlight — clean, honest placeholder.
+        // 4) Genuinely nothing to highlight — clean, honest placeholder that
+        //    still points the visitor to judge the official by their values now.
         return '<div class="modal-section" id="spotlight-modal-section">' + slTitle +
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
             '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No Spotlight items yet</div>' +
-            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0;">As this official’s record develops, notable bills, votes, and news will appear here — and any that affect the Accountability of Truth Score will be tagged and linked to it.</p>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No Spotlight items yet for ' + _slLast + '</div>' +
+            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0.85rem;">As this official’s record develops, notable bills, votes, and news will appear here — and any that affect the Accountability of Truth Score will be tagged and linked to it. In the meantime, you can still judge ' + _slLast + ' by your own values.</p>' +
+            '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🏛️ Compare on the People’s Mandate Alignment ↑</button>' +
           '</div>' +
         '</div>';
       })()}
