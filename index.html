@@ -5678,9 +5678,64 @@
       background: none; border: none; padding: 0; cursor: pointer; font: inherit;
       color: #93c5fd; text-decoration: underline; font-weight: 700;
     }
+    /* Dashboard "cockpit" header — coverage ring beside the title + bar so the
+       module reads as a workspace control panel, not another list. */
+    .myteam-dcov-top { display: flex; align-items: center; gap: 0.95rem; margin-bottom: 0.95rem; }
+    .myteam-dcov-headtext { flex: 1; min-width: 0; }
+    .myteam-dcov-headtext .myteam-dcov-head { margin-bottom: 0.6rem; }
+    .myteam-dcov-headtext .myteam-dcov-bar { margin-bottom: 0; }
+    .myteam-dcov-ring {
+      --pct: 0; width: 66px; height: 66px; flex-shrink: 0; border-radius: 50%;
+      background: conic-gradient(#4ade80 calc(var(--pct) * 1%), rgba(255,255,255,0.08) 0);
+      display: grid; place-items: center; position: relative;
+      box-shadow: 0 0 18px rgba(74,222,128,0.18);
+      transition: background 0.7s cubic-bezier(0.34,1.25,0.64,1);
+    }
+    .myteam-dcov-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #0b1322; }
+    .myteam-dcov-ring.is-complete { box-shadow: 0 0 24px rgba(74,222,128,0.4); }
+    .myteam-dcov-ring-num {
+      position: relative; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.02em;
+      font-size: 1.32rem; line-height: 1; color: #fff;
+    }
+    .myteam-dcov-ring-num small { font-size: 0.7rem; color: #9fb4d4; }
+    .myteam-dcov.is-complete .myteam-dcov-ring-num { color: #bbf7d0; }
+    /* Per-seat status badge — the at-a-glance "is this seat covered or missing"
+       read. Covered = green, an open voting district = amber "Missing" (the gap
+       that matters most), an open statewide/local seat = quiet "Open". */
+    .myteam-dcov-badge {
+      flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.56rem; letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 0.16rem 0.45rem; border-radius: 999px; line-height: 1.2; white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .myteam-dcov-badge.is-covered { color: #86efac; background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.4); }
+    .myteam-dcov-badge.is-missing { color: #fca5a5; background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.4); }
+    .myteam-dcov-badge.is-open { color: #fcd9a0; background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.32); }
+    /* An open seat that's one of the voter's OWN voting districts gets a touch more
+       weight than a statewide gap — it's the thing this view is built to surface. */
+    .myteam-dcov-seat.is-missing { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.3); border-style: dashed; }
+    .myteam-dcov-seat.is-missing:hover { border-color: rgba(248,113,113,0.7); border-style: solid; }
+    .myteam-dcov-seat.is-missing .myteam-dcov-status { color: #fca5a5; }
+    .myteam-dcov-pick { font-weight: 700; color: #86efac; }
+    .myteam-dcov-go { font-weight: 700; color: inherit; }
+    /* A whole ballot tier covered — quiet green wash + a celebratory frac label. */
+    .myteam-dcov-group.is-done .myteam-dcov-grouptitle { color: #bbf7d0; }
+    /* Standout milestone banner: all of the voter's voting districts are filled. */
+    .myteam-dcov-milestone {
+      display: block;
+      margin: 0 0 0.95rem; padding: 0.7rem 0.85rem; border-radius: 0.7rem;
+      background: linear-gradient(135deg, rgba(34,197,94,0.16), rgba(34,197,94,0.05));
+      border: 1px solid rgba(74,222,128,0.42);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.86rem; line-height: 1.4; color: #d8f3df;
+      box-shadow: 0 0 22px rgba(74,222,128,0.1);
+    }
+    .myteam-dcov-milestone strong { color: #fff; }
     @media (max-width: 639px) {
       .myteam-dcov-grid { grid-template-columns: 1fr 1fr; }
       .myteam-dcov-office { font-size: 0.78rem; }
+      .myteam-dcov-ring { width: 56px; height: 56px; }
+      .myteam-dcov-ring-num { font-size: 1.1rem; }
+      .myteam-dcov-top { gap: 0.7rem; }
     }
     @media (max-width: 380px) {
       .myteam-dcov-grid { grid-template-columns: 1fr; }
@@ -37161,18 +37216,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Render a single seat as a tappable coverage chip. A seat is "covered" when
       // the voter has a pick saved for that office; tapping it jumps straight to the
       // matching race so closing a gap is always one tap away. District-based seats
-      // carry their real district number in the scope line when we know it.
+      // carry their real district number in the scope line when we know it, and an
+      // open district seat is flagged "Missing" (vs a plain "Open" statewide/local
+      // seat) so the voter sees at a glance which of THEIR districts still need a pick.
       function _seatHtml(pos) {
         var pid = ballotSelections[pos.key];
         var d = pid ? CMP_DATA[pid] : null;
         var on = !!d;
+        var isDistrict = !!_MYTEAM_DISTRICT_KEYS[pos.key];
         var scope = _myteamSeatScope(pos.key);
-        var cls = on ? 'is-covered' : 'is-open';
+        var cls = on ? 'is-covered' : (isDistrict ? 'is-open is-missing' : 'is-open');
         var nm = on ? (d.name || 'On your team').replace(/"/g, '&quot;') : '';
-        var status = on ? '✓ ' + nm : '➕ Add a pick';
+        var badge = on
+          ? '<span class="myteam-dcov-badge is-covered">✓ Covered</span>'
+          : (isDistrict
+              ? '<span class="myteam-dcov-badge is-missing">Missing</span>'
+              : '<span class="myteam-dcov-badge is-open">Open</span>');
+        var status = on
+          ? '<span class="myteam-dcov-pick">' + nm + '</span>'
+          : '<span class="myteam-dcov-go">Tap to fill this seat →</span>';
         var title = on
           ? nm + ' — your ' + pos.label + ' pick (tap to review or swap)'
-          : 'Add your ' + pos.label + ' pick';
+          : 'Jump to the ' + pos.label + ' race and add your pick';
         return '<button type="button" class="myteam-dcov-seat ' + cls + '" title="' + title + '" ' +
             'onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">' +
             '<span class="myteam-dcov-ico">' + (pos.icon || '\u{1F3DB}') + '</span>' +
@@ -37181,6 +37246,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="myteam-dcov-scope">' + scope + '</span>' +
               '<span class="myteam-dcov-status">' + status + '</span>' +
             '</span>' +
+            badge +
           '</button>';
       }
 
@@ -37213,19 +37279,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return pos.label + (s.indexOf('District') === 0 ? ' (' + s + ')' : '');
       }
 
+      // Which ballot tiers (Federal · State · Local) actually exist on this slate,
+      // and which are fully covered. Drives both the per-tier celebration badges and
+      // the "you've already locked in your federal seats" framing in the guidance.
+      function _levelSeats(id) { return positions.filter(function(p) { return _myteamSeatLevel(p.key) === id; }); }
+      var presentLevels = _MYTEAM_LEVELS.filter(function(l) { return _levelSeats(l.id).length > 0; });
+      var completedLevels = presentLevels.filter(function(l) { return _levelSeats(l.id).every(_isOn); });
+      function _joinWords(arr) {
+        if (arr.length <= 1) return arr.join('');
+        if (arr.length === 2) return arr[0] + ' &amp; ' + arr[1];
+        return arr.slice(0, -1).join(', ') + ' &amp; ' + arr[arr.length - 1];
+      }
+
       // Group the grid by ballot level — Federal · State · Local — the tiers a voter
       // actually reasons about. Each group renders only when it has seats and carries
-      // its own covered/total badge (green once that whole tier is complete), so the
-      // gap in any single level of the ballot is obvious at a glance.
+      // its own covered/total badge (green + "✓ All covered" once that whole tier is
+      // complete), so the gap in any single level of the ballot is obvious at a glance.
       function _groupHtml(level) {
-        var list = positions.filter(function(p) { return _myteamSeatLevel(p.key) === level.id; });
+        var list = _levelSeats(level.id);
         if (!list.length) return '';
         var c = _coveredCount(list);
-        var fracCls = c >= list.length ? 'myteam-dcov-groupfrac is-done' : 'myteam-dcov-groupfrac';
-        return '<div class="myteam-dcov-group">' +
+        var allDone = c >= list.length;
+        var fracCls = allDone ? 'myteam-dcov-groupfrac is-done' : 'myteam-dcov-groupfrac';
+        var fracTxt = allDone ? '✓ All ' + list.length + ' covered' : c + '/' + list.length + ' covered';
+        return '<div class="myteam-dcov-group' + (allDone ? ' is-done' : '') + '">' +
             '<div class="myteam-dcov-grouphead">' +
               '<span class="myteam-dcov-grouptitle">' + level.title + '</span>' +
-              '<span class="' + fracCls + '">' + c + '/' + list.length + ' covered</span>' +
+              '<span class="' + fracCls + '">' + fracTxt + '</span>' +
             '</div>' +
             '<div class="myteam-dcov-grid">' + list.map(_seatHtml).join('') + '</div>' +
           '</div>';
@@ -37233,32 +37313,51 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var groupsHtml = _MYTEAM_LEVELS.map(_groupHtml).join('');
 
       // Gentle, level- and district-aware guidance that always names the single next
-      // gap. When that gap is the last open seat in its level it's framed as
-      // completing the tier ("complete your federal coverage"); when it's one of the
-      // voter's own voting districts it's framed in district terms ("you still need
-      // someone from your State House district"). Either way the wording is personal.
+      // gap, and — crucially — credits what's already done so building reads as
+      // progress, not a checklist of failures. When whole tiers are covered it opens
+      // with "You've covered your federal seats — now…"; when the gap is the last
+      // open seat in its level it frames the action as completing that tier; when it's
+      // one of the voter's own voting districts it's framed in district terms.
       var msg, cta = '';
       if (done) {
         msg = '\u{1F389} <strong>Every seat on your ballot has a pick</strong>' + (distTotal ? ', including all ' + distTotal + ' of your voting districts' : '') + '. Compare your slate below to weigh your picks side by side.';
       } else if (firstOpen) {
         var lvlId = _myteamSeatLevel(firstOpen.key);
         var lvl = _MYTEAM_LEVELS.filter(function(l) { return l.id === lvlId; })[0];
-        var lvlSeats = positions.filter(function(p) { return _myteamSeatLevel(p.key) === lvlId; });
+        var lvlSeats = _levelSeats(lvlId);
         var lvlOpen = lvlSeats.filter(function(p) { return !_isOn(p); }).length;
         var inDistrict = !!_MYTEAM_DISTRICT_KEYS[firstOpen.key];
         var openCount = total - covered;
+
+        // Credit any tiers the voter has already fully covered (excluding the one the
+        // next gap lives in) — this is what turns the nudge into encouragement.
+        var doneWords = completedLevels
+          .filter(function(l) { return l.id !== lvlId; })
+          .map(function(l) { return l.word; });
+        var praise = doneWords.length
+          ? '\u{2705} You’ve covered your <strong>' + _joinWords(doneWords) + '</strong> seats — '
+          : '';
+
         var lead;
         if (lvl && lvlSeats.length > 1 && lvlOpen === 1) {
-          lead = 'Add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> to complete your <strong>' + lvl.word + '</strong> coverage.';
+          lead = (praise ? 'now add your ' : 'Add your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span> to complete your <strong>' + lvl.word + '</strong> coverage.';
         } else if (inDistrict) {
-          lead = 'You still need someone from your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
+          lead = (praise ? 'now fill your ' : 'You still need someone from your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
         } else if (covered === 0) {
           lead = 'Nothing covered yet — start with your <span class="dcov-open">' + _openLabel(firstOpen) + '</span>.';
         } else {
-          lead = '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your <span class="dcov-open">' + _openLabel(firstOpen) + '</span> next.';
+          lead = (praise ? 'next, add your ' : '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span>' + (praise ? '.' : ' next.');
         }
-        msg = lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Tap to compare the field and add your pick — it saves as you go.';
+        msg = praise + lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Tap the seat to compare the field and add your pick — it saves as you go.';
         cta = '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>';
+      }
+
+      // Standout milestone: all of the voter's OWN voting districts are filled, even
+      // if statewide/local seats remain. This is the achievement the whole view is
+      // built around, so it gets its own celebratory banner.
+      var milestone = '';
+      if (distTotal && distDone && !done) {
+        milestone = '<div class="myteam-dcov-milestone">\u{1F3AF} <strong>All ' + distTotal + ' of your voting districts are covered.</strong> Every seat only you can elect now has your pick — finish the slate by filling the statewide &amp; local seats below.</div>';
       }
 
       // When no area is set we can't show real district numbers — offer a one-tap
@@ -37276,14 +37375,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? '<span class="myteam-dcov-frac myteam-dcov-distfrac' + (distDone ? ' is-done' : '') + '">\u{1F4CD} ' + distCovered + ' of ' + distTotal + ' voting districts</span>'
         : '';
 
+      // Circular coverage ring — a dashboard-style at-a-glance read on overall
+      // completion that makes the section feel like a workspace cockpit, not a list.
+      var ringCls = 'myteam-dcov-ring' + (done ? ' is-complete' : '');
+      var ringHtml = '<div class="' + ringCls + '" style="--pct:' + pct + ';" aria-hidden="true">' +
+          '<span class="myteam-dcov-ring-num">' + pct + '<small>%</small></span>' +
+        '</div>';
+
       box.classList.toggle('is-complete', done);
       box.innerHTML =
-        '<div class="myteam-dcov-head">' +
-          '<span class="myteam-dcov-title">\u{1F5FA}\u{FE0F} Your District Coverage</span>' +
-          '<span class="myteam-dcov-frac">' + covered + ' of ' + total + ' seats covered</span>' +
-          distFrac +
+        '<div class="myteam-dcov-top">' +
+          ringHtml +
+          '<div class="myteam-dcov-headtext">' +
+            '<div class="myteam-dcov-head">' +
+              '<span class="myteam-dcov-title">\u{1F5FA}\u{FE0F} Your District Coverage</span>' +
+              '<span class="myteam-dcov-frac">' + covered + ' of ' + total + ' seats covered</span>' +
+              distFrac +
+            '</div>' +
+            '<div class="myteam-dcov-bar"><div class="myteam-dcov-fill" style="width:' + pct + '%;"></div></div>' +
+          '</div>' +
         '</div>' +
-        '<div class="myteam-dcov-bar"><div class="myteam-dcov-fill" style="width:' + pct + '%;"></div></div>' +
+        milestone +
         groupsHtml +
         '<p class="myteam-dcov-msg">' + msg + '</p>' +
         cta +
