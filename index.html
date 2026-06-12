@@ -49356,5 +49356,94 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   })();
   </script>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MOBILE COMFORT POLISH — PASS 6 (section rhythm + secondary modals)
+       The earlier passes thoroughly tuned the cards, the profile modal, the
+       browse toolbar and the team-building tools. This final pass closes the
+       last phone-only gaps those passes did not reach:
+         • the long empty gaps BETWEEN page sections (a flat py-16 = 4rem top
+           and bottom on every section) that turned the phone into a marathon
+           scroll, and
+         • the two most-used SECONDARY dialogs — Sign In and Comments — whose
+           14px form fields triggered iOS's jarring auto-zoom, whose primary
+           buttons sat below a comfortable thumb size, and whose panels did not
+           reserve the notch safe-area or use the full short-viewport height.
+       Additive and phone-scoped only — no markup or JS changes — and appended
+       last so it reliably wins the cascade. The dark patriotic palette is
+       preserved throughout.
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <style id="pdx-mobile-polish-6">
+    /* ── 1 · SECTION RHYTHM — less dead space, less scrolling ─────────────
+       On phones the standard content sections carried a full 4rem of padding
+       above AND below, stacking ~128px of empty space between every block.
+       Trim it to a calmer, still-comfortable rhythm so the page reads as a
+       tighter sequence of cards rather than a long scroll of gaps. The hero
+       (min-h-screen) and the special offset utilities are deliberately left
+       untouched — this only relaxes the routine content sections. */
+    @media (max-width: 640px) {
+      section.py-16, section.py-14, section.py-12 {
+        padding-top: 2.75rem !important;
+        padding-bottom: 2.75rem !important;
+      }
+    }
+    @media (max-width: 420px) {
+      section.py-16, section.py-14, section.py-12 {
+        padding-top: 2.25rem !important;
+        padding-bottom: 2.25rem !important;
+      }
+    }
+
+    /* ── 2 · SIGN-IN & COMMENTS DIALOGS — phone-friendly at last ──────────
+       These are the two dialogs a voter meets most after a profile, yet they
+       still rendered at desktop sizing. Give the panels the full short-
+       viewport height to scroll within, trim the overlay gutter so they use
+       the screen, and reserve the home-indicator safe-area at the bottom. */
+    @media (max-width: 640px) {
+      #auth-overlay, #comment-overlay {
+        padding: 0.5rem !important;
+        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      #auth-panel, #comment-panel {
+        max-height: calc(100dvh - 1rem) !important;
+        width: 100% !important;
+        border-radius: 1.1rem !important;
+      }
+
+      /* 16px control text stops iOS from auto-zooming the moment a field is
+         focused — the single biggest "feels broken" moment in these forms. */
+      #auth-panel input, #auth-panel textarea, #auth-panel select,
+      #comment-panel input, #comment-panel textarea, #comment-panel select {
+        font-size: 16px !important;
+      }
+      /* The forms' primary, full-width call-to-action becomes a confident
+         thumb target (Sign In / Create Account / Post Comment). */
+      #auth-panel button.w-full,
+      #comment-panel button.w-full {
+        min-height: 50px !important;
+      }
+      /* Header utility buttons (close, submit-evidence) keep a square, finger-
+         sized footprint so the top row never reads as a row of tiny icons. */
+      #comment-panel > div:first-child button,
+      #auth-panel > div:first-child button {
+        min-height: 44px !important;
+      }
+      /* The comments list gets real room to scroll and a little bottom inset
+         so the last comment never tucks under the safe-area. */
+      #cf-comments-list {
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+
+    /* ── 3 · SHARE SHEET — clears the home indicator ──────────────────────
+       The bottom share sheet sat flush with the screen edge; reserve the
+       safe-area so its row of share targets stays fully tappable on notched
+       phones. */
+    @media (max-width: 640px) {
+      .pdx-share-sheet {
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+  </style>
+
 </body>
 </html>
