@@ -27506,8 +27506,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     p = p || {};
     var ov = MANDATE_OVERRIDES[id] || {};
     var acct = (p.accountability && typeof p.accountability.overallScore === 'number') ? p.accountability : null;
+    // Honesty gate: only let the Accountability of Truth Score feed this
+    // scorecard when there's enough verified record to stand behind it. On very
+    // thin profiles the row falls back to "Monitoring" instead of showing a
+    // precise number we can't explain. Curated overrides always win.
+    var acctShowable = !!acct && ((typeof window._pdxScoreExplainable !== 'function') || window._pdxScoreExplainable(p, id));
     function acctCat(re) {
-      if (!acct || !acct.categories) return null;
+      if (!acctShowable || !acct.categories) return null;
       for (var i = 0; i < acct.categories.length; i++) {
         if (re.test(acct.categories[i].label || '')) return acct.categories[i].score;
       }
@@ -27527,7 +27532,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         score: pick(ov.promises, promiseScore),
         desc:'Share of tracked campaign promises kept versus broken (Promise %).' },
       { label:'Accountability', icon:'🛡️',
-        score: pick(ov.accountability, acct ? acct.overallScore : null, acctCat(/account/i)),
+        score: pick(ov.accountability, acctShowable ? acct.overallScore : null, acctCat(/account/i)),
         desc:'Independent Accountability of Truth score for honesty and consistency.' },
       { label:'Transparency', icon:'🔍',
         score: pick(ov.transparency, acctCat(/transparen/i), integ),
@@ -42496,7 +42501,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? d.accountability
         : ((hasScore && typeof window._acctEnsureScore === 'function') ? window._acctEnsureScore(pid) : null);
       var acctHtml;
-      if (acct && typeof acct.overallScore === 'number') {
+      var acctExplainable = (typeof window._pdxScoreExplainable === 'function')
+        ? window._pdxScoreExplainable(d, pid) : true;
+      if (acct && typeof acct.overallScore === 'number' && acctExplainable) {
         var as = acct.overallScore;
         var aLvl = acct.color || _krScoreColor(as);
         acctHtml =
@@ -42506,6 +42513,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="kr-score-meta">' +
               '<span class="kr-score-label">Truth Score</span>' +
               '<span class="kr-score-rating" style="color:' + aLvl + ';background:' + aLvl + '1a;border:1px solid ' + aLvl + '55;">' + (acct.rating || '') + '</span>' +
+            '</span>' +
+          '</button>';
+      } else if (acct && typeof acct.overallScore === 'number') {
+        // A score exists but the record is too thin to show it honestly — say
+        // "Score pending" rather than surface a precise, unexplainable number.
+        acctHtml =
+          '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + pid + '\')" class="kr-score kr-score-acct" aria-label="Accountability of Truth Score for ' + d.name + ' — limited data, score pending">' +
+            '<span class="kr-score-ico">🛡️</span>' +
+            '<span class="kr-score-meta">' +
+              '<span class="kr-score-label">Truth Score</span>' +
+              '<span class="kr-score-sub">Score pending</span>' +
             '</span>' +
           '</button>';
       } else {
@@ -47852,6 +47870,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return out;
     };
 
+    // ── Score honesty gate ───────────────────────────────────────────────────
+    // Whether there is enough VERIFIED record to both compute AND explain a
+    // specific Accountability / Truth Score. The engine can always emit a number
+    // (it falls back to a baseline read), but a precise percentage we cannot
+    // break down — the case on very thin profiles and brand-new 2026 candidates —
+    // reads as false confidence and is exactly the kind of misleading figure the
+    // rest of the profile works to avoid. Callers use this to choose between
+    // showing the number and showing an honest "Score Pending" state instead.
+    //
+    // A score is explainable when ANY concrete, verified signal exists:
+    //   • a curator-authored breakdown (CURATED), or
+    //   • a Spotlight item flagged as a score driver, or
+    //   • a resolved (kept / broken) promise — from the promise ledger OR the
+    //     kept/broken counts / promiseBreakdown, or
+    //   • a stated position on the issues.
+    // This is the same set of signals the modal's "Why This Score?" breakdown is
+    // built from, so the number and its explanation always appear together.
+    window._pdxScoreExplainable = function(p, id){
+      p = p || {};
+      if (typeof CURATED !== 'undefined' && id != null && CURATED[id]) return true;
+      var drivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+      if (drivers.length) return true;
+      var proms = Array.isArray(p.promises) ? p.promises : [];
+      if (proms.some(function(r){ return r && (r.verdict === 'kept' || r.verdict === 'broken'); })) return true;
+      var pb = p.promiseBreakdown || {};
+      if (((+p.kept || 0) + (+p.broken || 0) + (+pb.kept || 0) + (+pb.broken || 0)) > 0) return true;
+      if (p.stances && typeof p.stances === 'object'){
+        return Object.keys(p.stances).some(function(k){
+          var t = p.stances[k];
+          return t && typeof t === 'string' && t !== 'N/A' && t !== 'No stated position' && t !== 'No detailed healthcare position stated';
+        });
+      }
+      return false;
+    };
+
     // Brief cross-section highlight pulse (see .sl-flash in CSS).
     window._slFlash = function(el){
       if (!el) return;
@@ -47937,6 +47990,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         try { a = window._acctEnsureScore(id, p) || a; } catch (e) {}
       }
 
+      // ── Honesty gate: a score with no verified basis to explain it ────────
+      // Even once the engine can emit a number, showing a precise percentage we
+      // cannot break down reads as false confidence. On profiles too thin to
+      // explain — typically brand-new 2026 candidates and officials with no
+      // resolved promises, stated positions, or Spotlight items yet — we
+      // deliberately withhold the specific figure and say so plainly, rather
+      // than pairing a number with "there isn't enough information to explain
+      // it". The number returns automatically the moment a verified record
+      // gives it something to stand on.
+      var _acctExplainable = (typeof window._pdxScoreExplainable === 'function')
+        ? window._pdxScoreExplainable(p, id) : true;
+      if (a && typeof a.overallScore === 'number' && !_acctExplainable) {
+        var _liFirst = (p.name ? String(p.name).split(' ')[0] : 'This official');
+        return '' +
+          '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(139,92,246,0.03));border:1px dashed rgba(139,92,246,0.4);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.9rem;">' +
+              '<div style="width:64px;height:64px;flex-shrink:0;border-radius:0.75rem;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+                '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;color:#9fb4d4;line-height:0.9;">—</span>' +
+                '<span style="font-size:0.46rem;color:#7596c0;letter-spacing:0.08em;">/ 100</span>' +
+              '</div>' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa;font-weight:700;">🛡️ Accountability of Truth Score</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-top:0.15rem;">' +
+                  '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.35rem;color:#9fb4d4;line-height:1.1;">Score Pending</span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.12rem 0.5rem;border-radius:999px;">◷ Limited Data</span>' +
+                '</div>' +
+                '<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.3rem 0 0;">There isn’t enough verified record yet to calculate ' + _liFirst + '’s score and explain it honestly, so no specific number is shown. It appears here once resolved promises, stated positions, or Spotlight items give the score a verified basis.</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
       if (a && typeof a.overallScore === 'number') {
         var s = a.overallScore;
         var lvl = a.color || acctLevelColor(s);
@@ -47981,7 +48066,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             if (t && typeof t === 'string' && t !== 'N/A' && t !== 'No stated position' && t !== 'No detailed healthcare position stated') _stanceN++;
           });
         }
-        var _hasWhy = _slDrivers.length > 0 || (_keptN + _brokenN) > 0 || _stanceN > 0;
+        // Mirror the honesty gate exactly: we only reach this numeric branch
+        // when the score is explainable, so the breakdown is always shown and a
+        // specific percentage is never paired with "not enough information".
+        // (The kept/broken-counts-only and curated-only cases — which the raw
+        // signal flags above miss — are folded in via _acctExplainable.)
+        var _hasWhy = _acctExplainable && (_slDrivers.length > 0 || (_keptN + _brokenN) > 0 || _stanceN > 0 ||
+          ((+p.kept || 0) + (+p.broken || 0)) > 0 ||
+          (typeof CURATED !== 'undefined' && CURATED[id]) ||
+          (function(){ var pb = p.promiseBreakdown || {}; return ((+pb.kept || 0) + (+pb.broken || 0)) > 0; })());
 
         // Strongest / weakest scoring category — the at-a-glance read of WHICH
         // part of the record is moving the number, straight from the computed
@@ -48133,7 +48226,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function'){
         try { a = window._acctEnsureScore(id, p); } catch (e) { a = null; }
       }
-      if (a && typeof a.overallScore === 'number'){
+      // Honesty gate: only show a specific percentage when there is enough
+      // verified record to stand behind (and explain) it. See _pdxScoreExplainable.
+      var _badgeExplainable = (typeof window._pdxScoreExplainable === 'function')
+        ? window._pdxScoreExplainable(p, id) : true;
+      if (a && typeof a.overallScore === 'number' && _badgeExplainable){
         var s = a.overallScore;
         var lvl = a.color || acctLevelColor(s);
         var rating = aesc(a.rating || acctRating(s));
@@ -48147,6 +48244,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="font-condensed uppercase font-bold" style="display:inline-flex;flex-direction:column;font-size:0.55rem;letter-spacing:0.05em;line-height:1.2;text-align:left;gap:0.12rem;">' +
               '<span style="color:#a78bfa;letter-spacing:0.09em;">Accountability</span>' +
               '<span style="display:inline-flex;align-items:center;gap:0.25rem;color:' + lvl + ';font-size:0.62rem;letter-spacing:0.02em;"><span style="width:6px;height:6px;border-radius:999px;background:' + lvl + ';box-shadow:0 0 6px ' + lvl + ';flex-shrink:0;"></span>' + rating + '</span>' +
+            '</span>' +
+          '</button>';
+      }
+      // Score exists but the record is too thin to explain it — show an honest
+      // "Score Pending" chip rather than a precise, unexplainable percentage.
+      // Still taps through so the visitor can see why it's pending.
+      if (a && typeof a.overallScore === 'number'){
+        return '<button type="button" class="chub-acct-chip" onclick="event.stopPropagation();if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + aesc(id) + '\')" title="Accountability of Truth Score: not enough verified record yet to show a specific figure. Tap to see what it\'s waiting on." style="margin:0;font:inherit;cursor:pointer;background:linear-gradient(135deg,rgba(124,58,237,0.16),rgba(139,92,246,0.05));border:1.5px solid rgba(167,139,250,0.5);border-radius:0.6rem;padding:0.3rem 0.7rem 0.3rem 0.55rem;box-shadow:0 4px 16px rgba(124,58,237,0.12),inset 0 1px 0 rgba(255,255,255,0.04);display:inline-flex;align-items:center;gap:0.5rem;transition:transform 0.15s,box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'translateY(0)\'">' +
+            '<span style="font-size:1.15rem;line-height:1;filter:drop-shadow(0 0 6px rgba(167,139,250,0.5));">🛡️</span>' +
+            '<span class="font-condensed uppercase font-bold" style="display:inline-flex;flex-direction:column;font-size:0.55rem;letter-spacing:0.05em;line-height:1.2;text-align:left;gap:0.12rem;">' +
+              '<span style="color:#a78bfa;letter-spacing:0.09em;">Accountability</span>' +
+              '<span style="display:inline-flex;align-items:center;gap:0.25rem;color:#9fb4d4;font-size:0.62rem;letter-spacing:0.02em;"><span style="width:6px;height:6px;border-radius:999px;background:#9fb4d4;flex-shrink:0;"></span>◷ Score Pending</span>' +
             '</span>' +
           '</button>';
       }
@@ -48248,13 +48357,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('');
     }
 
-    function renderAccountabilityPanel(data){
+    function renderAccountabilityPanel(data, p, id){
       var container = document.getElementById('acct-panel-body');
       if (!container) return;
       var s = data.overallScore;
       var lvl = data.color || acctLevelColor(s);
       var r = 38, circ = 2 * Math.PI * r, dash = (s / 100) * circ;
       var html = '';
+
+      // Honesty banner: when the record is too thin to stand behind a precise
+      // figure, lead with that plainly so the headline number below is read as a
+      // provisional baseline, not a verified rating.
+      var _panelExplainable = (typeof window._pdxScoreExplainable === 'function')
+        ? window._pdxScoreExplainable(p || {}, id) : true;
+      if (p && !_panelExplainable) {
+        html += '<div style="background:linear-gradient(135deg,rgba(124,58,237,0.14),rgba(139,92,246,0.05));border:1px dashed rgba(139,92,246,0.45);border-radius:0.8rem;padding:0.75rem 0.9rem;margin-bottom:0.9rem;display:flex;gap:0.6rem;align-items:flex-start;">' +
+          '<span style="font-size:1rem;line-height:1.2;flex-shrink:0;">◷</span>' +
+          '<div style="font-size:0.74rem;color:#cbd9ec;line-height:1.55;">' +
+            '<strong style="color:#c4b5fd;">Limited data — score pending.</strong> There isn’t enough verified record yet (resolved promises, stated positions, or Spotlight items) to stand behind a specific figure for this official. The number below is a provisional baseline shown for context only — it firms up, and appears across the site, once their record fills in.' +
+          '</div>' +
+        '</div>';
+      }
 
       // SECTION 1 — Overall score hero (purple)
       html += '<div style="background:linear-gradient(135deg,rgba(124,58,237,0.16),rgba(139,92,246,0.04));border:1px solid rgba(139,92,246,0.34);border-radius:1rem;padding:1.25rem;box-shadow:0 0 26px rgba(139,92,246,0.1);">' +
@@ -48373,7 +48496,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function showResult(id, data){
       document.getElementById('acct-loading').classList.add('hidden');
       document.getElementById('acct-content').classList.remove('hidden');
-      renderAccountabilityPanel(data);
+      renderAccountabilityPanel(data, getProfile(id), id);
       if (typeof window._refreshAccountabilityCard === 'function') window._refreshAccountabilityCard(id);
     }
 
@@ -48404,7 +48527,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (sub) sub.textContent = (p.name || '') + (p.office ? ' · ' + p.office : '');
       document.getElementById('acct-loading').classList.add('hidden');
       document.getElementById('acct-content').classList.remove('hidden');
-      renderAccountabilityPanel(p.accountability);
+      renderAccountabilityPanel(p.accountability, p, id);
       openOverlay();
     };
 
