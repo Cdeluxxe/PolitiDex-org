@@ -35786,35 +35786,51 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var userCounty = (userLoc.county || userLoc.city || '').toLowerCase().trim();
       var userDistrict = (userLoc.district || '').replace(/[^0-9]/g, '');
 
+      var userDistNum = userDistrict ? parseInt(userDistrict, 10) : NaN;
+
       var reps = [];
       Object.keys(CMP_DATA).forEach(function(pid) {
         var d = CMP_DATA[pid];
         var polStateRaw = (d.state || '').toLowerCase();
         var polOffice = (d.office || '').toLowerCase();
 
-        // Check if politician represents the user's state
-        if (polStateRaw.indexOf(userState) !== -1 || userState.indexOf(polStateRaw) !== -1) {
-          // If it's a statewide office (Senator, Governor, Attorney General, Auditor, Treasurer)
-          if (polOffice.includes('senator') || polOffice.includes('governor') || polOffice.includes('auditor') || polOffice.includes('attorney general') || polOffice.includes('treasurer')) {
-            reps.push(pid);
-          } else {
-            // Check district or county match
-            let match = false;
-            // District match for House representatives
-            var cdMatch = polStateRaw.match(/([A-Za-z]{2})\s*-?\s*(\d{1,2})\b/) || polStateRaw.match(/district\s*(\d{1,2})\b/);
-            if (cdMatch && userDistrict && String(parseInt(cdMatch[1], 10)) === userDistrict) {
-              match = true;
-            } else if (cdMatch && userDistrict && String(parseInt(cdMatch[2], 10)) === userDistrict) {
-              match = true;
-            }
-            // County/city match for local/state officials
-            if (!match && userCounty && (polStateRaw.includes(userCounty) || (d.bio||'').toLowerCase().includes(userCounty) || (d.office||'').toLowerCase().includes(userCounty))) {
-              match = true;
-            }
-            if (match) {
-              reps.push(pid);
-            }
-          }
+        // Resolve the politician's state through the authoritative helper rather
+        // than a raw substring test. A bare/Firestore-overwritten state field
+        // ("District 2", "House District 9") does not literally contain "utah", so
+        // the old `indexOf` check silently dropped the voter's own representatives.
+        var polState = _getPoliticianState(pid).toLowerCase();
+        if (!polState || polState === 'national') return;
+        if (userState && polState !== userState &&
+            polState.indexOf(userState) === -1 && userState.indexOf(polState) === -1) return;
+
+        // Statewide offices (U.S. Senator, Governor, Attorney General, Auditor,
+        // Treasurer) represent every voter in the state.
+        if (polOffice.includes('senator') || polOffice.includes('governor') || polOffice.includes('auditor') || polOffice.includes('attorney general') || polOffice.includes('treasurer')) {
+          reps.push(pid);
+          return;
+        }
+
+        var isUSHouse = polOffice.indexOf('u.s. rep') !== -1 || polOffice.indexOf('u.s. house') !== -1 ||
+                        polOffice.indexOf('us house') !== -1 ||
+                        (polOffice.indexOf('representative') !== -1 && polOffice.indexOf('state') === -1);
+
+        // U.S. House seats match ONLY on the voter's congressional district. The
+        // district number is read through _relevantDistNum, which normalizes every
+        // record format and is Firestore-safe, so a District 1 voter gets ONLY the
+        // District 1 representative and never a neighboring district's. House reps
+        // are deliberately excluded from the county fallback below — county text
+        // must never pull in a rep from the wrong district.
+        if (isUSHouse) {
+          if (isNaN(userDistNum)) return;
+          var polDistNum = _relevantDistNum(pid);
+          if (polDistNum !== null && polDistNum === userDistNum) reps.push(pid);
+          return;
+        }
+
+        // State-legislative / local offices: refine to the voter's county/city when
+        // we have one, matching only authoritative location/office text.
+        if (userCounty && (polStateRaw.includes(userCounty) || (d.office||'').toLowerCase().includes(userCounty) || (d.district||'').toLowerCase().includes(userCounty))) {
+          reps.push(pid);
         }
       });
       return reps;
@@ -35870,6 +35886,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (sublabel) sublabel.textContent = DISTRICT_HOUSE_REPS[district].area;
       var headerP = document.querySelector('#my-politicians .text-center p');
       if (headerP) headerP.innerHTML = 'These are the politicians who directly represent <span class="text-amber-400 font-700">YOU</span> in ' + DISTRICT_HOUSE_REPS[district].area;
+      // Add the authoritative U.S. House representative for the SELECTED district
+      // straight from the curated district→rep map, so picking "District 1" always
+      // adds that district's actual rep (e.g. bmoore) and never a neighboring
+      // district's. _getPrimaryReps then layers on the voter's statewide / state /
+      // local representatives from their saved location.
+      var _districtRepPid = DISTRICT_HOUSE_REPS[district].pid;
+      if (_districtRepPid && CMP_DATA[_districtRepPid]) _myPoliticians.add(_districtRepPid);
       _getPrimaryReps().forEach(function(pid) { _myPoliticians.add(pid); });
       _mypolSave();
       _mypolBuildGrid();
@@ -38822,74 +38845,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // National scope selected — only nationals shown (handled above).
       if (userState === 'National') return false;
 
-      // Build a normalized state name for the politician from free-form state field.
-      var stateMap = {
-        'al':'Alabama','alabama':'Alabama','ak':'Alaska','alaska':'Alaska',
-        'az':'Arizona','arizona':'Arizona','ar':'Arkansas','arkansas':'Arkansas',
-        'ca':'California','california':'California','co':'Colorado','colorado':'Colorado',
-        'ct':'Connecticut','connecticut':'Connecticut','de':'Delaware','delaware':'Delaware',
-        'dc':'District of Columbia','fl':'Florida','florida':'Florida',
-        'ga':'Georgia','georgia':'Georgia','hi':'Hawaii','hawaii':'Hawaii',
-        'id':'Idaho','idaho':'Idaho','il':'Illinois','illinois':'Illinois',
-        'in':'Indiana','indiana':'Indiana','ia':'Iowa','iowa':'Iowa',
-        'ks':'Kansas','kansas':'Kansas','ky':'Kentucky','kentucky':'Kentucky',
-        'la':'Louisiana','louisiana':'Louisiana','me':'Maine','maine':'Maine',
-        'md':'Maryland','maryland':'Maryland','ma':'Massachusetts','massachusetts':'Massachusetts',
-        'mi':'Michigan','michigan':'Michigan','mn':'Minnesota','minnesota':'Minnesota',
-        'ms':'Mississippi','mississippi':'Mississippi','mo':'Missouri','missouri':'Missouri',
-        'mt':'Montana','montana':'Montana','ne':'Nebraska','nebraska':'Nebraska',
-        'nv':'Nevada','nevada':'Nevada','nh':'New Hampshire','new hampshire':'New Hampshire',
-        'nj':'New Jersey','new jersey':'New Jersey','nm':'New Mexico','new mexico':'New Mexico',
-        'ny':'New York','new york':'New York','nc':'North Carolina','north carolina':'North Carolina',
-        'nd':'North Dakota','north dakota':'North Dakota','oh':'Ohio','ohio':'Ohio',
-        'ok':'Oklahoma','oklahoma':'Oklahoma','or':'Oregon','oregon':'Oregon',
-        'pa':'Pennsylvania','pennsylvania':'Pennsylvania','ri':'Rhode Island','rhode island':'Rhode Island',
-        'sc':'South Carolina','south carolina':'South Carolina','sd':'South Dakota','south dakota':'South Dakota',
-        'tn':'Tennessee','tennessee':'Tennessee','tx':'Texas','texas':'Texas',
-        'ut':'Utah','utah':'Utah','vt':'Vermont','vermont':'Vermont',
-        'va':'Virginia','virginia':'Virginia','wa':'Washington','washington':'Washington',
-        'wv':'West Virginia','west virginia':'West Virginia','wi':'Wisconsin','wisconsin':'Wisconsin',
-        'wy':'Wyoming','wyoming':'Wyoming'
-      };
-
-      var polStateName = null;
-      var polDistNum = '';
-
-      // Match "XX-##" or "XX ##" district patterns for state + district.
-      var cdMatch = polStateRaw.match(/([A-Za-z]{2})\s*-?\s*(\d{1,2})\b/);
-      if (cdMatch && stateMap[cdMatch[1].toLowerCase()]) {
-        polStateName = stateMap[cdMatch[1].toLowerCase()];
-        polDistNum = String(parseInt(cdMatch[2], 10));
-      }
-
-      // Fallback: any full state name in the string.
-      if (!polStateName) {
-        var _fulls = Object.keys(stateMap).filter(function(k){ return k.length > 2; })
-                       .sort(function(a, b){ return b.length - a.length; });
-        for (var _f = 0; _f < _fulls.length; _f++) {
-          if (polLower.indexOf(_fulls[_f]) !== -1) { polStateName = stateMap[_fulls[_f]]; break; }
-        }
-      }
-
-      // Fallback: standalone 2-letter code.
-      if (!polStateName) {
-        var _tok = polLower.match(/\b([a-z]{2})\b/);
-        if (_tok && stateMap[_tok[1]] && stateMap[_tok[1]].length > 2) {
-          polStateName = stateMap[_tok[1]];
-        }
-      }
-
-      if (!polStateName) return false;
+      // Resolve the politician's home state and (for district offices) their
+      // district number through the SAME authoritative helpers every other
+      // location-aware view uses — _getPoliticianState and _relevantDistNum. They
+      // read the dedicated `district` field and the cached original state, survive
+      // a Firestore sync overwriting the live `state` field, and normalize every
+      // inconsistent format ("UT-2", "District 2", "Utah · District 3", "HD15", a
+      // bare "15"…) down to a clean state name + number.
+      //
+      // The previous inline regex parsed ONLY the live `state` string and was the
+      // source of the district mismatches:
+      //   • A bare "District 2" was misread as Connecticut — the regex matched the
+      //     "ct 2" substring inside "Distri[ct] 2" — so the voter's own
+      //     representative (Maloy, Owens, Kennedy, whose records carry a bare
+      //     "District N" state) was wrongly filtered OUT of every Utah ballot.
+      //   • When the `state` field carried no inline "XX-N" code, polDistNum came
+      //     back empty and the district filter below was SKIPPED entirely — so a
+      //     House rep with no parseable district leaked into EVERY district's
+      //     ballot, showing voters a neighboring district's representative.
+      // Routing through the shared helpers makes this predicate agree with the Key
+      // Races and district-tree matching, so a District 1 voter sees the District 1
+      // rep and nobody else's.
+      var polStateName = _getPoliticianState(pid);
+      if (!polStateName || polStateName === 'National') return false;
       if (polStateName.toLowerCase() !== userState.toLowerCase()) return false;
 
-      // District match for House reps if user saved a district.
+      // District match for House reps when the voter saved a district. A House rep
+      // whose own (normalized) district number is known and differs from the
+      // voter's district is not their representative, so exclude them. If the rep's
+      // district genuinely cannot be resolved we keep them rather than hide a
+      // potentially-correct representative.
       var _isUSHouse = (polOffice.indexOf('u.s. rep') !== -1 || polOffice.indexOf('u.s. house') !== -1 ||
                         polOffice.indexOf('us house') !== -1 || polOffice.indexOf('house candidate') !== -1 ||
                         (polOffice.indexOf('representative') !== -1 && polOffice.indexOf('state') === -1));
-      if (_isUSHouse && polDistNum && userDistrict) {
-        var pDistNumClean = parseInt(polDistNum, 10);
+      if (_isUSHouse && userDistrict) {
+        var pDistNumClean = _relevantDistNum(pid);
         var userDistNum = parseInt(userDistrict, 10);
-        if (!isNaN(userDistNum) && !isNaN(pDistNumClean) && userDistNum !== pDistNumClean) {
+        if (!isNaN(userDistNum) && pDistNumClean !== null && userDistNum !== pDistNumClean) {
           return false;
         }
       }
