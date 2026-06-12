@@ -12623,6 +12623,68 @@
       font-size: 0.8rem; letter-spacing: 0.01em; color: #f5d98a; line-height: 1.45;
     }
 
+    /* ── "Compare these candidates" prompt — Alignment Tool launcher inside a race ──
+       Sits directly above a race's card grid whenever 2+ people share a seat, so the
+       voter is nudged to compare them on issue alignment right where the decision is
+       made. Purple to read as part of the Alignment Tool family, distinct from the
+       gold "open seat" note above it. */
+    #relevant-browse-grid .relevant-compare-cta {
+      display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
+      margin: 0 0 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 0.9rem;
+      background: linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.08) 100%);
+      border: 1px solid rgba(167,139,250,0.42);
+      box-shadow: 0 4px 20px rgba(88,28,135,0.18), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    #relevant-browse-grid .relevant-compare-cta.is-set {
+      background: linear-gradient(135deg, rgba(20,83,45,0.18) 0%, rgba(139,92,246,0.06) 100%);
+      border-color: rgba(167,139,250,0.32);
+    }
+    #relevant-browse-grid .relevant-compare-cta-ico {
+      flex-shrink: 0;
+      width: 2.35rem; height: 2.35rem; border-radius: 0.7rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+      background: linear-gradient(135deg,#7c3aed,#6d28d9);
+      box-shadow: 0 0 16px rgba(139,92,246,0.4);
+    }
+    #relevant-browse-grid .relevant-compare-cta-body { flex: 1; min-width: 12rem; }
+    #relevant-browse-grid .relevant-compare-cta-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.95rem; letter-spacing: 0.01em;
+      color: #e9d5ff; line-height: 1.2;
+    }
+    #relevant-browse-grid .relevant-compare-cta-sub {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.01em; color: #c4b5fd; line-height: 1.45;
+      margin-top: 0.18rem;
+    }
+    #relevant-browse-grid .relevant-compare-cta-sub b { color: #f0e6ff; font-weight: 800; }
+    #relevant-browse-grid .relevant-compare-cta-btn {
+      flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fff; white-space: nowrap;
+      background: linear-gradient(135deg,#7c3aed,#6d28d9);
+      border: 1px solid rgba(167,139,250,0.5);
+      border-radius: 0.75rem;
+      padding: 0.65rem 1.15rem; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(139,92,246,0.32);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      min-height: 44px;
+    }
+    #relevant-browse-grid .relevant-compare-cta-btn:hover {
+      transform: translateY(-1px); box-shadow: 0 6px 22px rgba(139,92,246,0.45);
+    }
+    #relevant-browse-grid .relevant-compare-cta-btn.ghost {
+      color: #c4b5fd; background: rgba(139,92,246,0.12);
+      box-shadow: none;
+    }
+    #relevant-browse-grid .relevant-compare-cta-btn.ghost:hover {
+      background: rgba(139,92,246,0.22); transform: translateY(-1px); box-shadow: none;
+    }
+
     /* ── "Why you're seeing each race" — match-precision affordances ───────────
        A small colored pill beside each office count names the BASIS on which that
        seat is on the voter's ballot (their exact district / their county / a
@@ -14761,7 +14823,7 @@
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow: 0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-lg tracking-wider text-purple-300 uppercase leading-none m-0">My Key Alignments</h4>
-                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the positions you agree with on each issue — choose as many as you like — to personalize alignment scores on your representative cards</p>
+                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the positions you agree with on each issue — then every race below ranks its candidates by how well they match you, so you can see who best fits your values before adding them to your team</p>
               </div>
             </div>
             <div id="relevant-alignments-chevron" class="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/20 text-purple-300 border border-purple-500/20 transition-transform duration-300">
@@ -38796,6 +38858,58 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
     }
 
+    // Compare-these-candidates prompt shown above a race's card grid. It turns the
+    // Alignment Tool into the obvious next step right where a voter is weighing the
+    // field: when issues aren't set yet it nudges them to pick the issues they care
+    // about (framed as the way to tell otherwise-thin 2026 candidates apart); once
+    // issues are set it confirms the cards below are ranked by personal match, names
+    // the current front-runner, and points straight at adding that pick to the team.
+    // Only shown when there are 2+ people in the race — comparison needs a field.
+    function _relevantCompareCTA(pids, kind) {
+      if (!pids || pids.length < 2) return '';
+      var n = pids.length;
+      var hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+
+      if (!hasIssues) {
+        var lead = (kind === 'candidate')
+          ? 'New names can look alike on paper — and 2026 candidates often have thin records.'
+          : 'Weigh them side by side on what actually matters to you.';
+        return '<div class="relevant-compare-cta">' +
+            '<div class="relevant-compare-cta-ico" aria-hidden="true">🎯</div>' +
+            '<div class="relevant-compare-cta-body">' +
+              '<div class="relevant-compare-cta-title">See which of these ' + n + ' best matches your values</div>' +
+              '<div class="relevant-compare-cta-sub">' + lead + ' Pick the issues you care about and the Alignment Tool ranks them by how well each matches you — then add your top pick to your team.</div>' +
+            '</div>' +
+            '<button type="button" class="relevant-compare-cta-btn" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">Compare on the Issues →</button>' +
+          '</div>';
+      }
+
+      // Issues set — name the strongest match from the live breakdown so the prompt
+      // pays off the comparison and routes the voter to the obvious pick.
+      var best = null;
+      if (typeof _calcAlignmentBreakdown === 'function') {
+        pids.forEach(function(pid) {
+          var bd = _calcAlignmentBreakdown(pid);
+          if (bd && (best === null || bd.overall > best.score)) {
+            var d = CMP_DATA[pid];
+            best = { pid: pid, score: bd.overall, name: d ? d.name : '' };
+          }
+        });
+      }
+      var col = (typeof _alignScoreColor === 'function' && best) ? _alignScoreColor(best.score) : '#a78bfa';
+      var line = (best && best.name)
+        ? 'Strongest fit: <b style="color:' + col + ';">' + best.name + '</b> at <b style="color:' + col + ';">' + best.score + '%</b>. Add the one who earns it to your team below.'
+        : 'These cards are ranked by how well each matches the issues you chose — add your top pick to your team below.';
+      return '<div class="relevant-compare-cta is-set">' +
+          '<div class="relevant-compare-cta-ico" aria-hidden="true">🎯</div>' +
+          '<div class="relevant-compare-cta-body">' +
+            '<div class="relevant-compare-cta-title">Ranked by your values · best match first</div>' +
+            '<div class="relevant-compare-cta-sub">' + line + '</div>' +
+          '</div>' +
+          '<button type="button" class="relevant-compare-cta-btn ghost" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">⚙ Adjust Issues</button>' +
+        '</div>';
+    }
+
     function _renderRelevantStatusSplit(pids) {
       var inOffice = [], candidates = [], former = [];
       (pids || []).forEach(function(pid) {
@@ -38805,7 +38919,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else inOffice.push(pid);
       });
 
-      function subsection(label, ico, accent, list, note) {
+      function subsection(label, ico, accent, list, note, kind) {
         if (!list.length) return '';
         var s = '';
         s += '<div class="relevant-status-divider" style="display:flex;align-items:center;gap:0.55rem;margin:0.15rem 0 0.7rem;">';
@@ -38813,8 +38927,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         s += '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + accent + '50,transparent);"></span>';
         s += '</div>';
         if (note) s += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
+
+        // Right where the field is shown, invite the voter to compare it on issue
+        // alignment. When their issues are set we also rank the cards best-match-first
+        // so the prompt's "best match" claim is literally true on screen.
+        s += _relevantCompareCTA(list, kind);
+        var renderList = list;
+        var hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+        if (hasIssues && list.length > 1 && typeof _calcAlignmentBreakdown === 'function') {
+          renderList = list.slice().sort(function(a, b) {
+            var ba = _calcAlignmentBreakdown(a), bb = _calcAlignmentBreakdown(b);
+            return (bb ? bb.overall : -1) - (ba ? ba.overall : -1);
+          });
+        }
+
         s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
-        list.forEach(function(pid) { s += _renderRelevantPersonCard(pid); });
+        renderList.forEach(function(pid) { s += _renderRelevantPersonCard(pid); });
         s += '</div>';
         return s;
       }
@@ -38834,9 +38962,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       var out = '';
-      out += subsection('Currently in Office', '✅', '#22c55e', inOffice);
-      out += subsection(candLabel, '🗳️', '#60a5fa', candidates, candNote);
-      out += subsection('Previously in Office', '⏳', '#94a3b8', former);
+      out += subsection('Currently in Office', '✅', '#22c55e', inOffice, '', 'office');
+      out += subsection(candLabel, '🗳️', '#60a5fa', candidates, candNote, 'candidate');
+      out += subsection('Previously in Office', '⏳', '#94a3b8', former, '', 'former');
 
       // Safety net: if status classification produced nothing (shouldn't happen),
       // fall back to a flat in-office-first grid so cards never disappear.
