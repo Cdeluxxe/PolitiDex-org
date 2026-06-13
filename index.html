@@ -2004,6 +2004,22 @@
     .stance-card.sc-oppose   { border-left-color: rgba(248,113,113,0.6); }
     .stance-card.sc-mixed    { border-left-color: rgba(96,165,250,0.6); }
     .stance-card.sc-tracking { border-left-color: rgba(159,180,212,0.4); }
+    /* "Limited Record" context banner — set on a thin-promise officeholder who
+       still has documented positions, so users get honest expectations while the
+       sourced issue positions remain the lead. */
+    .stance-limited-note {
+      display: flex; align-items: flex-start; gap: 0.55rem;
+      background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.28);
+      border-radius: 0.7rem; padding: 0.6rem 0.75rem; margin: 0 0 0.85rem;
+    }
+    .stance-limited-note .stance-limited-pill {
+      flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #cbd5e1; background: rgba(148,163,184,0.16);
+      border: 1px solid rgba(148,163,184,0.4); border-radius: 999px; padding: 0.12rem 0.5rem;
+      white-space: nowrap; margin-top: 0.05rem;
+    }
+    .stance-limited-note .stance-limited-text { font-size: 0.72rem; color: #9fb4d4; line-height: 1.55; }
     /* Grouped category sections within Key Issue Stances */
     .stance-cat { margin-bottom: 0.95rem; }
     .stance-cat:last-child { margin-bottom: 0; }
@@ -27059,6 +27075,174 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         text:'Supports the right of law-abiding citizens to keep and bear arms.',
         source:{label:'vote4tami.com', url:'https://vote4tami.com/issues/'} },
     ],
+
+    // ── Higher-visibility profiles with a thin "stated positions" record ──
+    // A roster review found several prominent figures — a U.S. cabinet official,
+    // current statewide officeholders, big-city mayors and former legislative
+    // leaders — carrying tracked promises but NO documented issue positions, so
+    // their profiles read thin on "where they stand." Each position below is a
+    // real, publicly reported stance tied to a named action, vote, lawsuit or
+    // on-the-record statement, with a citable source. `evidence` (the "Record:"
+    // line / "Recorded" badge) is used only for concrete, verifiable acts; broader
+    // stated positions carry a source chip and read as "Stated."
+    tgabbard: [
+      { topic:'Intelligence Transparency & Declassification', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'As Director of National Intelligence, made "restoring trust" in the intelligence community her central mission, standing up a task force to declassify material she argues serves the public interest.',
+        detail:'Launched the Director\'s Initiatives Group in April 2025 to review weaponization and politicization claims and oversaw the release of tens of thousands of pages tied to the JFK and RFK assassinations.',
+        evidence:'Established the Director\'s Initiatives Group (April 2025); released declassified JFK/RFK files.',
+        source:{label:'dni.gov', url:'https://www.dni.gov/index.php/newsroom/press-releases/press-releases-2025/4063-pr-05-25'} },
+      { topic:'Surveillance & FISA', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support',
+        text:'A longtime skeptic of warrantless surveillance who, as DNI, worked to declassify a FISA Court opinion detailing concerns over Section 702 searches so Congress and the public can weigh reform.',
+        detail:'Civil liberties and surveillance limits were a defining theme of her years in Congress and her 2020 presidential run.',
+        source:{label:'ODNI', url:'https://www.dni.gov'} },
+      { topic:'Foreign Intervention', icon:'🕊', pos:'support', issueKey:'restraint', issueStance:'support',
+        text:'Built her national profile opposing U.S. "regime-change wars" and open-ended foreign military intervention.',
+        detail:'A post-9/11 combat veteran and Army Reserve officer, she has long argued for diplomacy and restraint over prolonged deployments.',
+        source:{label:'Ballotpedia', url:'https://ballotpedia.org/Tulsi_Gabbard'} },
+      { topic:'Government Weaponization', icon:'🗣', pos:'support', issueKey:'free_speech', issueStance:'support',
+        text:'Frames her declassification push as ending the use of government power against ordinary citizens, releasing records she says labeled COVID-19 vaccine-mandate opponents "domestic violent extremists."',
+        evidence:'DIG declassification of Biden-era domestic-labeling documents (2025).',
+        source:{label:'dni.gov', url:'https://www.dni.gov'} },
+    ],
+    sreyes: [
+      { topic:'Big-Tech Antitrust', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support',
+        text:'Made Utah a leader in bipartisan antitrust action against Google — joining the 2020 multistate search-monopoly suit and co-leading Utah v. Google over the Play Store.',
+        detail:'Argued the company used its dominance to limit competition, raise app prices and harm consumers.',
+        evidence:'Joined the 38-state Google search antitrust suit (Dec 2020); co-led Utah v. Google over the Play Store.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/ag-reyes-and-a-bipartisan-coalition-seek-limits-to-googles-business-practices-to-end-search-engine-monopoly/'} },
+      { topic:'Opioid Crisis', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support',
+        text:'Co-founded the Utah Opioid Task Force and joined national litigation against drug distributors over the addiction epidemic.',
+        evidence:'Co-founded the Utah Opioid Task Force.',
+        source:{label:'Congress.gov bio', url:'https://www.congress.gov/118/meeting/house/115886/witnesses/HHRG-118-GO00-Bio-ReyesS-20230510.pdf'} },
+      { topic:'Human Trafficking', icon:'🛡', pos:'support', issueKey:'back_police', issueStance:'support',
+        text:'Made fighting human trafficking a signature cause, partnering with anti-trafficking groups — work that later drew scrutiny.',
+        detail:'His close ties to Operation Underground Railroad became the subject of a 2025 Utah legislative audit of his use of the office.',
+        source:{label:'Ballotpedia', url:'https://ballotpedia.org/Sean_D._Reyes'} },
+      { topic:'2020 Election Challenge', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support',
+        text:'Joined the December 2020 Texas brief urging the Supreme Court to challenge the election results in Pennsylvania and other states Trump lost.',
+        detail:'The move was criticized by Utah\'s Republican governor and incoming governor and prompted an outside ethics complaint.',
+        evidence:'Joined the Texas v. Pennsylvania amicus brief (Dec 2020).',
+        source:{label:'Deseret News', url:'https://www.deseret.com/utah/2022/9/26/23366939/utah-attorney-general-sean-reyes-ethics-complaint-donald-trump-2020-election-fraud/'} },
+    ],
+    derek_brown: [
+      { topic:'Child Online Safety & Big Tech', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'Calls protecting children online "one of my highest priorities," pressing the state\'s lawsuits against social-media platforms over harms to minors.',
+        detail:'Advanced Utah\'s suit against TikTok over alleged exploitation through its Live feature and filed a new suit against Snap (Snapchat) in June 2025.',
+        evidence:'Advanced Utah\'s TikTok litigation (2025); filed suit against Snap Inc. (June 2025).',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/utah-court-denies-tiktoks-motion-to-dismiss-in-landmark-childrens-protection-lawsuit/'} },
+      { topic:'Trust & Ethics in the Office', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'Entered office pledging to "return trust" to an Attorney General\'s Office shaken by his predecessor\'s controversies, emphasizing ethics and transparency.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/01/03/attorney-general-derek-brown-wants-to-return-trust-to-the-office/'} },
+      { topic:'Federalism & Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'A constitutional and appellate attorney who frames public-lands and state-authority questions around federalism and Utah\'s control of its own land.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
+      { topic:'Fentanyl & Public Safety', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support',
+        text:'Names fentanyl and public safety among the office\'s top enforcement priorities.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
+    ],
+    moaks: [
+      { topic:'ESG / Politicized Investing', icon:'💰', pos:'oppose',
+        text:'One of the nation\'s most prominent state officials opposing ESG investing; in 2022 he pulled about $100 million of state funds from BlackRock, arguing ESG breaches the fiduciary duty owed to Utahns.',
+        detail:'In 2025 he became national chair of the State Financial Officers Foundation, which coordinates conservative state treasurers against ESG.',
+        evidence:'Pulled ~$100M from BlackRock (2022); 2025 chair of the State Financial Officers Foundation.',
+        source:{label:'Salt Lake Tribune', url:'https://www.sltrib.com/news/politics/2022/09/18/utah-state-treasurer-pulls/'} },
+      { topic:'Fiduciary Duty & Fund Management', icon:'🏦', pos:'support',
+        text:'Administers the $37B+ Public Treasurers\' Investment Fund and backs Utah\'s law requiring that government proxy votes be cast solely in beneficiaries\' best economic interest.',
+        source:{label:'treasurer.utah.gov', url:'https://treasurer.utah.gov'} },
+      { topic:'Energy & Utah\'s Economy', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support',
+        text:'Frames his opposition to ESG and divestment campaigns as defending Utah\'s energy and resource industries against pressure from Wall Street.',
+        source:{label:'treasurer.utah.gov', url:'https://treasurer.utah.gov'} },
+      { topic:'Sound Money & Anti-CBDC', icon:'🪙', pos:'support',
+        text:'Opposes a federal central bank digital currency and has championed "economic freedom" and precious-metals options as protections against federal financial overreach.',
+        source:{label:'treasurer.utah.gov', url:'https://treasurer.utah.gov'} },
+    ],
+    bwilson: [
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'As Speaker, made saving the shrinking Great Salt Lake — much of which sits in his old district — a signature cause, leading a roughly half-billion-dollar water-conservation push.',
+        detail:'Championed creation of a $40 million Great Salt Lake trust to secure water rights that help prop up the lake.',
+        evidence:'Created the $40M Great Salt Lake trust (2022) as part of a ~$500M water-conservation investment.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/utah/2022/8/2/23288979/utah-house-speaker-brad-wilson-politics-farmington-bay-great-salt-lake-environment-climate-change/'} },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Presided over more than $1 billion in income-tax-rate cuts during his speakership.',
+        evidence:'$1B+ in tax cuts enacted while Speaker (2019–2023).',
+        source:{label:'KSL', url:'https://www.ksl.com/article/50733064/brad-wilson-to-resign-as-utah-house-speaker-ahead-of-likely-senate-run'} },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support',
+        text:'As Speaker, moved Utah\'s 2023 "Utah Fits All" school-choice ESA program through the House.',
+        source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
+      { topic:'Economic Development & the Olympics', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support',
+        text:'A homebuilder focused on growth and major infrastructure, including relocating the state prison; now CEO of the Salt Lake City–Utah 2034 Winter Olympics organizing committee.',
+        source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Brad_Wilson_(politician)'} },
+    ],
+    emendenhall: [
+      { topic:'Air Quality', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Built her career on clean-air advocacy before politics — co-founding the nonprofit Breathe Utah and serving on the state Air Quality Board.',
+        detail:'Became an activist after learning Salt Lake\'s winter inversions could shorten her newborn son\'s life, and has carried air quality into city policy as mayor.',
+        evidence:'Co-founded Breathe Utah (2010); appointed to Utah\'s Air Quality Board (2014).',
+        source:{label:'erinmendenhall.com', url:'https://erinmendenhall.com/biography/'} },
+      { topic:'Clean Energy', icon:'⚡', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Committed Salt Lake City to powering its electricity with 100% renewable energy.',
+        evidence:'City goal of net-100% renewable electricity by 2030.',
+        source:{label:'mayorplan.slc.gov', url:'https://mayorplan.slc.gov/'} },
+      { topic:'Affordable Housing', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
+        text:'Made expanding affordable housing a top priority for the state\'s largest and fastest-growing city.',
+        source:{label:'mayorplan.slc.gov', url:'https://mayorplan.slc.gov/'} },
+      { topic:'Homelessness', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support',
+        text:'Has prioritized homelessness services — including a tiny-home village for unsheltered residents — while pledging to protect residents\' dignity and safety.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/utah/2026/01/27/salt-lake-city-mayor-erin-mendenhall-state-of-the-city-address-priorities/'} },
+    ],
+    tcamp: [
+      { topic:'Government Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'Made transparency her central mission as State Auditor — opening a public "transparency room" at the Capitol and launching interactive dashboards that break down state revenue and spending.',
+        detail:'Says the office\'s job is to "shine a light" so the public can see and use government spending data at transparent.utah.gov.',
+        evidence:'Opened the Capitol transparency room and launched state spending dashboards (2025).',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/03/14/utah-auditor-tina-cannon-uses-ai-to-increase-government-transparency-like-datarepublican/'} },
+      { topic:'Fraud, Waste & Abuse', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support',
+        text:'Frames independent auditing as protecting taxpayers, and reported uncovering more than $500 million in fraud, waste and abuse in her first year.',
+        evidence:'~$518M in fraud, waste and abuse identified (per a 2026 report).',
+        source:{label:'auditor.utah.gov', url:'https://auditor.utah.gov/about-us/meet-auditor-tina-cannon/'} },
+      { topic:'Oversight of Government', icon:'⚖️', pos:'support', issueKey:'gov_balance', issueStance:'support',
+        text:'Oversees independent audits of more than 1,800 government entities, public universities, projects and election processes.',
+        source:{label:'auditor.utah.gov', url:'https://auditor.utah.gov'} },
+      { topic:'Data & Technology', icon:'🚀', pos:'support', issueKey:'tech_innovation', issueStance:'support',
+        text:'Uses data-analytics and AI tools to make government spending searchable and understandable for ordinary residents.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/03/14/utah-auditor-tina-cannon-uses-ai-to-increase-government-transparency-like-datarepublican/'} },
+    ],
+    jwilson: [
+      { topic:'Criminal Justice Reform', icon:'⚖️', pos:'support', issueKey:'justice_reform', issueStance:'support',
+        text:'Launched a five-year Human Services, Homeless and Criminal Justice Reform plan to break the costly cycle of jail, addiction and homelessness through early intervention.',
+        detail:'The bipartisan-endorsed plan links criminal justice, behavioral-health treatment, housing and workforce services rather than treating them separately.',
+        evidence:'Unveiled the county\'s Criminal Justice & Homelessness Reform Action Plan (2024).',
+        source:{label:'Deseret News', url:'https://www.deseret.com/utah/2024/07/22/salt-lake-country-unveils-criminal-justice-homelessness-reform/'} },
+      { topic:'Mental Health & Public Health', icon:'🧠', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Backed a new mental-health crisis center as an alternative to jail, where law enforcement can bring people in crisis directly to care and detox services.',
+        evidence:'Advanced the Huntsman Mental Health crisis receiving center.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/utah/2024/07/22/salt-lake-country-unveils-criminal-justice-homelessness-reform/'} },
+      { topic:'Affordable Housing', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support',
+        text:'Invested county dollars in affordable housing — more than $25 million across 17 projects, with another 1,000 deeply affordable units planned.',
+        evidence:'County Housing Trust Fund: $25M+ in 17 projects.',
+        source:{label:'City Journals', url:'https://www.valleyjournals.com/2025/01/27/520984/sl-county-mayor-jenny-wilson-discusses-goals-for-second-term-in-office'} },
+      { topic:'Watershed & Canyon Protection', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Calls protecting the Wasatch canyons one of her highest priorities, working to stop the Little Cottonwood gondola and a proposed Parleys Canyon quarry to safeguard the county\'s water supply.',
+        source:{label:'KUER', url:'https://www.kuer.org/politics-government/2024-10-11/2024-voter-guide-salt-lake-county-mayor-erin-rider-jenny-wilson'} },
+    ],
+    doug_owens: [
+      { topic:'Great Salt Lake & Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Co-chair of the Great Salt Lake Caucus and one of the Legislature\'s most prolific authors of water-conservation bills, introducing measures each session to send saved water toward the lake.',
+        detail:'Sponsored H.B. 318 (2025) restricting turf on new homes in the Great Salt Lake basin and pushed appropriations for dust mitigation, wetlands and water-wise landscaping.',
+        evidence:'Sponsored H.B. 318 Residential Turf Amendments (2025); H.B. 538 Great Salt Lake bill (2023).',
+        source:{label:'Utah House Democrats', url:'https://www.utahhousedemocrats.utleg.gov/doug-owens'} },
+      { topic:'Tiered Water Pricing', icon:'🚰', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Backs pricing reform that charges heavy residential water users more, creating a market signal to curb excessive outdoor watering — which drives most urban water use.',
+        evidence:'Sponsored H.B. 155 Water Rates Amendments (2026) requiring tiered residential pricing.',
+        source:{label:'Utah News Dispatch', url:'https://utahnewsdispatch.com/2026/01/14/utah-lawmakers-to-consider-forcing-cities-to-adopt-water-conservation-ordinances/'} },
+      { topic:'Clean Air', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Co-chairs the Bipartisan Clean Air Caucus, tying Wasatch Front air quality and the lake\'s exposed-bed dust to public health.',
+        source:{label:'Utah House Democrats', url:'https://www.utahhousedemocrats.utleg.gov/doug-owens'} },
+      { topic:'Wetlands & Habitat', icon:'⚖️', pos:'support', issueKey:'enviro_balance', issueStance:'support',
+        text:'Pushes to study and protect Utah\'s wetlands and working farmland from loss as the Wasatch Front grows.',
+        evidence:'Sponsored H.B. 509 Wetlands Modifications (2026).',
+        source:{label:'Utah House Democrats', url:'https://www.utahhousedemocrats.utleg.gov/doug-owens'} },
+    ],
   };
 
   // Optional curated overrides for the People's Mandate scorecard (0–100).
@@ -27513,6 +27697,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _countWord = _derivedCand
       ? (stances.length === 1 ? ' priority' : ' priorities')
       : (' issue' + (stances.length === 1 ? '' : 's'));
+    // ── "Limited Record" context for sitting officials with thin promise data ──
+    // When a real officeholder has documented positions but only a sparse tracked
+    // promise record, lead with an honest expectation-setting note so users know
+    // why the promise score is thin — and that these sourced positions are the
+    // most reliable read on where the official stands right now. Only shown for
+    // genuine, non-derived stances on a sitting (non-candidate) official.
+    var _depthKIS = (typeof window._pdxRecordDepth === 'function') ? window._pdxRecordDepth(p) : 'full';
+    var _limitedBanner = (!derived && !_isCandidate && _depthKIS === 'limited')
+      ? ('<div class="stance-limited-note">' +
+           '<span class="stance-limited-pill">📋 Limited Record</span>' +
+           '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These ' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + ' are the clearest read on where ' + _firstName + ' stands today — more of the voting record is added as it is verified.</span>' +
+         '</div>')
+      : '';
     return '<div class="modal-section">' +
       '<div class="modal-section-title" style="justify-content:space-between;">' +
         '<span style="display:inline-flex;align-items:center;gap:0.45rem;">' + (_derivedCand ? '🎯 Top Priorities' : '🎯 Key Issue Stances') + '</span>' +
@@ -27521,6 +27718,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '<p class="modal-section-sub">' + (_derivedCand
         ? ('The core priorities of ' + _firstName + '\'s campaign — drawn from public campaign materials, with detailed positions and sources added as they are published.')
         : ('Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.')) + '</p>' +
+      _limitedBanner +
       (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
       body +
       '<p class="src-note">' + note + '</p>' +
