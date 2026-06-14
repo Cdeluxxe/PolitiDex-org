@@ -27999,6 +27999,461 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { topic:'Parental Involvement', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support',
         text:'Backs strong public education paired with greater parental involvement in schools.' },
     ],
+    // ── Roster-wide thin-profile expansion (2026 sitting officials & candidates) ──
+    // Derived from each figure's own bill-sourced tracked promises and key issues
+    // (see their Firestore record). Positions carrying a bill citation are vote/
+    // sponsorship-backed; the rest reflect publicly campaigned priorities. Each is
+    // keyed to an ISSUE_MAP issue so the profile becomes comparable in the Alignment Tool.
+    ariel_defay: [ // Ariel Defay
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to limit non-essential screen time in K-12 classrooms (BALANCE Act).', evidence:'Sponsored HB 273 (2026).' },
+      { topic:'AI & Technology', icon:'🤖', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Sponsored legislation to create state task force on AI in education with student-data protections.', evidence:'Sponsored HB 168 (2025).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to launch a statewide dyslexia screening pilot.', evidence:'Sponsored HB 393 (2026).' },
+      { topic:'Paid Family Leave', icon:'👶', pos:'support', issueKey:'paid_leave', issueStance:'support', text:'Sponsored legislation to double paid postpartum leave for state employees.', evidence:'Sponsored HB 329 (2026).' },
+    ],
+    bob_stevenson: [ // Bob Stevenson
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Campaigned on a commitment to address rising property taxes.' },
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support', text:'Campaigned on a commitment to observe self-imposed term limits if elected.' },
+    ],
+    bridger_bolinder: [ // Bridger Bolinder
+      { topic:'Energy & Resource Development', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Sponsored legislation to regulate Utah\'s brine mining industry to unlock critical minerals responsibly.', evidence:'Sponsored HB 478.' },
+      { topic:'Rural Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to direct tourism-tax revenue to rural recreation infrastructure and mitigation.', evidence:'Sponsored HB 456.' },
+      { topic:'Prescription Drug Costs', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Sponsored legislation to strengthen Medicaid pharmacy delivery by moving to fee-for-service.', evidence:'Sponsored HB 409.' },
+      { topic:'Wildlife & Recreation', icon:'🦌', pos:'support', issueKey:'enviro_balance', issueStance:'support', text:'Sponsored legislation to revise Utah\'s wildlife licensing rules.', evidence:'Sponsored HB 111 (2026).' },
+    ],
+    brooks_benson: [ // Brooks Benson
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Campaigned on a commitment to put infrastructure ahead of new housing.' },
+      { topic:'School Choice', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'Campaigned on a commitment to expand parental rights and school choice.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Campaigned on a commitment to protect Utah water rights.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Campaigned on a commitment to cut government waste and the tax burden.' },
+    ],
+    calbrecht: [ // Carl Albrecht
+      { topic:'Energy Independence', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Sponsored legislation to lay groundwork for Utah\'s nuclear energy future.', evidence:'Sponsored HB 249 (2025).' },
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to protect ranchers\' public-lands watering rights from federal overreach.', evidence:'Sponsored HB 47 (2025).' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to strengthen state water policy and expand Division of Water Rights legal support.', evidence:'Sponsored HB 41 (2025).' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to modernize Department of Agriculture and improve rural veterinarian access.', evidence:'Sponsored HB 253 (2025).' },
+      { topic:'Disaster Resilience', icon:'🔥', pos:'support', issueKey:'disaster_resilience', issueStance:'support', text:'Sponsored legislation to strengthen disaster recovery funding and expand pre-disaster mitigation.', evidence:'Sponsored HB 239 (2025).' },
+    ],
+    calvin_roberts: [ // Calvin Roberts
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to reform transportation procurement in Utah.', evidence:'Sponsored HB 471 (2025).' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to keep land-use decisions local.' },
+      { topic:'Small Business', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Has worked to support small business and low-tax environment.' },
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Sponsored legislation to reshape economic-development incentives and data-center growth.', evidence:'Sponsored HB 507 (2026).' },
+      { topic:'Energy Independence', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Sponsored legislation to cut the motor-fuel tax and streamline energy infrastructure.', evidence:'Sponsored HB 575 (2026).' },
+    ],
+    charlie_tautuaa: [ // Charlie Tautuaa
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Campaigned on a commitment to lower the cost of living through property-tax relief.' },
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support', text:'Campaigned on a commitment to push term limits and accountability.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Campaigned on a commitment to strengthen public safety and law enforcement.' },
+    ],
+    cheryl_acton: [ // Cheryl Acton
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to reform raw milk permit suspension process.', evidence:'Sponsored HB 414.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to protect student directory data privacy in public schools.', evidence:'Sponsored HB 303.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to strengthen candidate financial disclosure requirements.', evidence:'Sponsored HB 443.' },
+    ],
+    christine_watkins: [ // Christine Watkins
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to require DCFS to report false child-abuse allegations to law enforcement.', evidence:'Sponsored HB 33.' },
+      { topic:'Climate & Clean Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Sponsored legislation to strengthen geologic carbon storage enforcement.', evidence:'Sponsored HB 352.' },
+    ],
+    cmusselman: [ // Calvin Musselman
+      { topic:'Child Online Safety', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Sponsored legislation to require age verification on adult content sites, including over VPNs.', evidence:'Sponsored SB 73 (2026).' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Sponsored legislation to impose mandatory jail sentences for repeat offenders with prior illegal-reentry convictions.', evidence:'Sponsored SB 90 (2025).' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to strengthen Utah\'s human trafficking and smuggling laws.', evidence:'Sponsored SB 30 (2026).' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored legislation to expand assisted reproductive technology coverage for public employees.', evidence:'Sponsored SB 242 (2025).' },
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Serves as Senate chair of the Economic Development and Workforce Services Appropriations Subcommittee for the 2025–2026 term, an ongoing oversight commitment for Utah\'s economic development and workforce funding.' },
+    ],
+    colin_w_jack: [ // Colin W. Jack
+      { topic:'Climate & Clean Energy', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Sponsored legislation to protect rooftop-solar consumers.', evidence:'Sponsored HB 57.' },
+      { topic:'Energy Independence', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Sponsored legislation to advance energy education and workforce programs.', evidence:'Sponsored HB 157.' },
+    ],
+    cory_maloy: [ // Cory Maloy
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Sponsored legislation to create a statewide regulatory sandbox for innovative businesses.', evidence:'Sponsored HB 217 (2021).' },
+      { topic:'Consumer Protection', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to regulate earned wage access apps to protect consumers.', evidence:'Sponsored HB 279.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Maloy continues to chair the House Business, Labor, and Commerce Committee and pursues ongoing priorities of reducing unnecessary business regulation and defending constitutional rights.' },
+    ],
+    cwilson: [ // Chris Wilson
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation to cut Utah\'s income tax rate.', evidence:'Sponsored SB 69 (2024).' },
+      { topic:'Mental Health & Disability', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Sponsored legislation to fund a behavioral health receiving center for Cache Valley.', evidence:'Sponsored HB 66 (2023).' },
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Sponsored legislation to reform Utah\'s property tax notice and appeals process.', evidence:'Sponsored SB 202 (2025).' },
+      { topic:'Parental Rights & Curriculum', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Sponsored legislation to require schools to provide parental education on student technology risks.', evidence:'Sponsored SB 98 (2025).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to create higher education development areas to drive innovation.', evidence:'Sponsored SB 129 (2025).' },
+    ],
+    darin_mann: [ // Darin Mann
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Campaigned on a commitment to build and sustain a community urban farm.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Campaigned on a commitment to strengthen election integrity and campaign-finance transparency.' },
+    ],
+    david_shallenberger: [ // David Shallenberger
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to optimize agricultural water use.', evidence:'Sponsored HB 243.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to modernize emergency communications infrastructure.', evidence:'Sponsored HB 150.' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Sponsored legislation to strengthen government data privacy and curb surveillance.', evidence:'Sponsored HB 450.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to reform water rights allocation.', evidence:'Sponsored HB 60.' },
+    ],
+    dhinkins: [ // David Hinkins
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to steer the Natural Resources, Agriculture & Environmental Quality base budget.', evidence:'Sponsored SB 5 (2025).' },
+      { topic:'Children & Families', icon:'🍼', pos:'support', issueKey:'family_support', issueStance:'support', text:'Sponsored legislation to expand Utah\'s Newborn Safe Haven window to 90 days.', evidence:'Sponsored SB 57 (2025).' },
+      { topic:'Workers & Wages', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', text:'Sponsored legislation to protect public-sector workers\' collective bargaining rights.', evidence:'Sponsored SB 168 (2025).' },
+      { topic:'Energy & Resource Development', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Sponsored legislation to redirect severance-tax revenue to rural counties.', evidence:'Sponsored SB 247 (2025).' },
+      { topic:'Energy Independence', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Has worked to ensure rural Utah access to nuclear power.' },
+    ],
+    doug_fiefia: [ // Doug Fiefia
+      { topic:'Children in State Care', icon:'🍼', pos:'support', issueKey:'family_support', issueStance:'support', text:'Sponsored legislation to strengthen protections for minors in state custody.', evidence:'Sponsored HB 302 (2025).' },
+      { topic:'AI & Child Safety', icon:'🤖', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Sponsored legislation to require AI companies to publish child-safety plans.', evidence:'Sponsored HB 286 (2026).' },
+    ],
+    doug_welton: [ // Doug Welton
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Sponsored legislation to recodify Utah property tax relief statutes.', evidence:'Sponsored HB 20.' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored legislation to expand volunteer EMS insurance coverage.', evidence:'Sponsored HB 298.' },
+    ],
+    dramsey: [ // Dawn Ramsey
+      { topic:'Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', text:'Announced in early 2026 a planned 17,000-square-foot senior center paired with affordable senior housing.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Has worked to manage rapid growth while maintaining services.' },
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Set 2026 priorities including new jobs, restaurants, entertainment, and a professional pickleball facility.' },
+    ],
+    dwatts: [ // Monica Zoltanski
+      { topic:'Public Transit', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Improved multimodal transit connections at Sandy Civic Center TRAX station.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Transit-oriented affordable housing below stated targets.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Working with UDOT on I-15 interchange capacity improvements in Sandy.' },
+    ],
+    emily_buss: [ // Emily Buss
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Has worked to restore local control over growth and development.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Has worked to increase per-pupil education funding and raise teacher pay.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to protect first-time homebuyers from large investor purchases.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation to adjust fuel tax rates to fund road maintenance.', evidence:'Sponsored SB 247 (2026).' },
+    ],
+    erin_jemison: [ // Erin Jemison
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Campaigned on a commitment to help pass Utah\'s Medicaid expansion.' },
+      { topic:'Air Quality & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Campaigned on clean air and affordability if elected.' },
+    ],
+    gallrein: [ // Ed Gallrein
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Campaigned on a commitment to vote against all amnesty legislation.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Campaigned on Second Amendment without restriction.' },
+      { topic:'Veterans & Military', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', text:'Campaigned on detailed veterans\' healthcare reform bill by Jan 2027.' },
+      { topic:'Fiscal Responsibility', icon:'⚖️', pos:'support', issueKey:'gov_balance', issueStance:'support', text:'Campaigned on a commitment to co-sponsor Audit the Fed.' },
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support', text:'Campaigned on a commitment to support federal term limits amendment.' },
+    ],
+    glenn_j_wright: [ // Glenn J. Wright
+      { topic:'Open Space & Conservation', icon:'🏞', pos:'support', issueKey:'lands_preserve', issueStance:'support', text:'As Council Chair, led the August 2021 vote to place a $50M open-space bond on the ballot.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Has worked to protect watershed and manage growth.' },
+      { topic:'Air Quality & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Has worked to advance renewable energy and cut emissions.' },
+    ],
+    gloria_vindas: [ // Gloria Vindas
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Campaigned on a commitment to oppose taxation by unelected bodies.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Campaigned on fiscal responsibility and limited government.' },
+      { topic:'Parental Rights & Curriculum', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Campaigned on a commitment to protect parental rights and improve education.' },
+      { topic:'Property Rights', icon:'🏡', pos:'support', issueKey:'property_rights', issueStance:'support', text:'Campaigned on a commitment to defend private property rights.' },
+    ],
+    heidi_balderree: [ // Heidi Balderree
+      { topic:'Veterans & Military', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', text:'Sponsored legislation to protect military families\' retirement contributions.', evidence:'Sponsored SB 19.' },
+      { topic:'Property Rights', icon:'🏡', pos:'support', issueKey:'property_rights', issueStance:'support', text:'Sponsored legislation to strengthen property-owner rights against unauthorized occupants.', evidence:'Sponsored SB 55.' },
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Sponsored legislation to reform truth-in-taxation hearing rules.', evidence:'Sponsored SB 95.' },
+      { topic:'Small Business & Licensing', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to credit military training toward civilian occupational licenses.', evidence:'Sponsored SB 90.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to protect victim and witness personal data in criminal cases.', evidence:'Sponsored SB 290.' },
+    ],
+    hoang_nguyen: [ // Hoang Nguyen
+      { topic:'Healthcare Costs & Access', icon:'⚖️', pos:'support', issueKey:'health_balance', issueStance:'support', text:'Sponsored legislation to improve emergency medical services.', evidence:'Sponsored HB 391.' },
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to strengthen Great Salt Lake water planning.', evidence:'Sponsored HB 296.' },
+      { topic:'School Safety & Student Health', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to protect student vision health in schools.', evidence:'Sponsored HB 351.' },
+    ],
+    jake_hunsaker: [ // Jake Hunsaker
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Campaigned on a commitment to lower housing costs through supply and infrastructure.' },
+      { topic:'Election & Redistricting Reform', icon:'⚖️', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Campaigned on honor the independent redistricting commission.' },
+    ],
+    jake_sawyer: [ // Jake Sawyer
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to improve highway access to state parks.', evidence:'Sponsored HB 345.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to champion housing affordability and ease development barriers.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Has worked to protect education funding and local school control.' },
+    ],
+    james_dunnigan: [ // James Dunnigan
+      { topic:'Child Online Safety', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Sponsored legislation to carry the nation\'s first App Store Accountability Act into law.', evidence:'Sponsored SB 142 (2025).' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Sponsored legislation to advance housing density and moderate income housing planning.', evidence:'Sponsored HB 37 (2025).' },
+      { topic:'Courts & Civil Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'Sponsored legislation to reform third-party litigation funding practices.', evidence:'Sponsored HB 280.' },
+    ],
+    jason_b_kyle: [ // Jason B. Kyle
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to protect lawful firearm possession for prescription drug users.', evidence:'Sponsored HB 103 (2023).' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to protect farmland tax status for water-reducing landowners.', evidence:'Sponsored HB 520 (2024).' },
+      { topic:'Addiction Recovery', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Sponsored legislation to regulate recovery residence sober-living homes.', evidence:'Sponsored HB 296 (2025).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to expand oversight of higher education private-equity deals.', evidence:'Sponsored HB 297 (2026).' },
+    ],
+    jason_thompson: [ // Jason Thompson
+      { topic:'Child Care', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', text:'Sponsored legislation to expand employer child-care tax credits for small businesses.', evidence:'Sponsored HB 190 (2026).' },
+      { topic:'Opioids & Overdose', icon:'🚑', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Sponsored legislation to require overdose recognition training in alcohol education programs.', evidence:'Sponsored HB 361 (2025).' },
+      { topic:'Small Business & Licensing', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to regulate service marketplace platform contractors.', evidence:'Sponsored HB 373 (2025).' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation to expand the employer child-care tax credit.', evidence:'Sponsored HB 190 (2026).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to study the impact of higher-education student housing.', evidence:'Sponsored HB 520 (2026).' },
+    ],
+    jbriscoe: [ // Joel Briscoe
+      { topic:'Air Quality & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Sponsored legislation to fund free-fare transit days to cut pollution.', evidence:'Sponsored HB 353 (2019).' },
+      { topic:'Public Transit', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Sponsored legislation to make all UTA transit permanently free.', evidence:'Sponsored HB 164 (2022).' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Has worked to champion public education from the classroom.' },
+    ],
+    jburton: [ // Jefferson Burton
+      { topic:'Veterans & Military', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support', text:'Sponsored legislation to modernize Utah National Guard law.', evidence:'Sponsored HB 376 (2025).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to provide education assistance to Guard members.', evidence:'Sponsored HB 376 (2025).' },
+    ],
+    jdraxler: [ // Jack Draxler
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Voted for every WPU per-pupil funding increase during his tenure, benefiting Cache County School District.' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Supported USU research appropriations increases and capital improvements for the Logan campus.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Voted for state transportation funding for SR-30 and US-89 improvements critical to Cache Valley commuters.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Pledged state-level affordable housing incentives for Logan\'s student and young professional population.' },
+      { topic:'Air Quality & Climate', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Promised expanded air quality monitoring during winter inversions in Cache Valley.' },
+    ],
+    jill_koford: [ // Jill Koford
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation that expanded the Great Salt Lake Commissioner\'s authority over water acquisition, leasing, and adaptive berm management.', evidence:'Sponsored HB 446.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation which establishes a consensus-based process for setting minimum basic tax rates and expands the education economic stabilization account.', evidence:'Sponsored HB 428.' },
+      { topic:'School Safety & Student Health', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation which broadened the definition of permitted epinephrine devices in schools to include nasal-spray options alongside injectable auto-injectors.', evidence:'Sponsored HB 333.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to require water transparency from large data centers.', evidence:'Sponsored HB 76 (2026).' },
+    ],
+    john_arthur: [ // John Arthur
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to advance waterwise landscaping to protect the Great Salt Lake.', evidence:'Sponsored HB 313 (2026).' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to strengthen and fund public education.', evidence:'Sponsored HB 198.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to champion policies that lower costs for working families.' },
+    ],
+    john_crofts: [ // John Crofts
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Has worked to improve Commission transparency.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Promised to spend taxpayer dollars more efficiently.' },
+    ],
+    john_johnson: [ // John Johnson
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to establish a Center for Civic Excellence at Utah State University.', evidence:'Sponsored SB 334 (2025).' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored legislation to reform health insurance preauthorization requirements.', evidence:'Sponsored SB 274 (2025).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to increase transparency in voter registration records.', evidence:'Sponsored SB 153 (2026).' },
+    ],
+    john_knotwell: [ // John Knotwell
+      { topic:'Property Rights', icon:'🏡', pos:'support', issueKey:'property_rights', issueStance:'support', text:'Campaigned on a commitment to protect short-term rental property rights.' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Campaigned on a commitment to legalize \'ballot selfies\' and increase voter engagement.' },
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Campaigned on a commitment to deliver property-tax and housing-cost relief.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Campaigned on a commitment to cut regulatory red tape and expand educational opportunity.' },
+    ],
+    jon_hawkins: [ // Jon Hawkins
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Sponsored legislation to restructure Utah\'s economic development agencies.', evidence:'Sponsored HB 542 (2025).' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to protect sports referees from assault.', evidence:'Sponsored HB 140 (2025).' },
+    ],
+    jonah_johnson: [ // Jonah Johnson
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to lower the cost of living and expand housing.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Campaigned on a commitment to defend parental rights and local control.' },
+    ],
+    joseph_elison: [ // Joseph Elison
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to establish Utah\'s State Sovereignty Fund to reduce federal dependency.', evidence:'Sponsored HB 464 (2025).' },
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to advance Great Salt Lake stewardship and scenic byway designations.', evidence:'Sponsored HCR 9.' },
+    ],
+    josh_smith: [ // Josh Smith
+      { topic:'Election Reform', icon:'⚖️', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Campaigned on a commitment to reform Utah\'s elections to end the \'spoiler effect.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Campaigned on fully and adequately fund public education.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to increase housing supply and affordability.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Campaigned on a commitment to advance consumer technology rights.' },
+    ],
+    jpetro: [ // Joy Petro
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Has worked to upgrade Layton road infrastructure by 2026.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Has worked to expand public safety staffing — hire 12 additional officers.' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Has worked to protect farmland buffer zones from residential over-development.' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Pledged an online city budget transparency dashboard.' },
+      { topic:'National Security & Defense', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Has worked to coordinate with Hill AFB on noise and flight path community impacts.' },
+    ],
+    jpike: [ // Jon Pike
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Implemented mandatory water conservation measures including turf removal rebates and tiered pricing.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Secured state and federal funding for Southern Parkway and I-15 interchange improvements.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has prioritized affordable housing in booming market.' },
+    ],
+    julie_jackson: [ // Julie Jackson
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Campaigned on a commitment to direct more education funding to classrooms.' },
+      { topic:'Child Care', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', text:'Campaigned on a commitment to strengthen childcare, healthcare and children\'s policy.' },
+    ],
+    jwestwood: [ // John Westwood
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Voted for every per-pupil funding increase during his tenure, benefiting Iron County School District.' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Supported state funding for SUU workforce development programs connecting students to Iron County employers.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation addressing income tax reduction.', evidence:'Sponsored HB 54 (2023).' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Pledged to secure state funding for SR-14 improvements connecting Cedar City to the I-15 corridor.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Pledged legislation for water conservation incentives specific to Iron County.' },
+    ],
+    kandee_myers: [ // Kandee Myers
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to address Utah\'s housing affordability crisis.' },
+      { topic:'Property Taxes', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Campaigned on a commitment to bring accountability to property taxes and school funding.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Campaigned on a commitment to improve Utah\'s per-student education funding.' },
+      { topic:'Child Care', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', text:'Campaigned on a commitment to expand child care and health care access.' },
+    ],
+    kara_toone: [ // Kara Toone
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support', text:'Campaigned on a commitment to serve a self-imposed three-term limit.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to address district housing affordability.' },
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Campaigned on a commitment to protect the Great Salt Lake.' },
+    ],
+    karen_m_peterson: [ // Karen M. Peterson
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to overhaul higher-education funding toward high-demand programs.', evidence:'Sponsored HB 265 (2025).' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to expand stipends for student teachers.', evidence:'Sponsored HB 204 (2025).' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to update state highway road jurisdiction designations.', evidence:'Sponsored HB 26 (2025).' },
+    ],
+    kay_christofferson: [ // Kay Christofferson
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to set state review of major Salt Lake City road changes.', evidence:'Sponsored SB 195 (2025).' },
+      { topic:'Public Transit', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Sponsored legislation to reform transit governance and end outdated EV HOV lane program.', evidence:'Sponsored HB 481 (2026).' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to streamline multi-agency law enforcement coordination.', evidence:'Sponsored HB 271 (2026).' },
+    ],
+    kelly_smith: [ // Kelly Smith
+      { topic:'Parental Rights & Curriculum', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Campaigned on a commitment to defend local control against state mandates.' },
+      { topic:'Public Transit', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Campaigned on a commitment to direct transportation investment to fast-growing areas.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on use creative tools to improve housing affordability.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Campaigned on govern with transparency and fiscal conservatism.' },
+    ],
+    kristen_chevrier: [ // Kristen Chevrier
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to limit synthetic food dyes and additives in public school meals.', evidence:'Sponsored HB 402 (2025).' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to expand raw milk access to all Utah grocery retailers.', evidence:'Sponsored HB 179 (2026).' },
+      { topic:'Privacy & Surveillance', icon:'🔒', pos:'support', issueKey:'privacy_rights', issueStance:'support', text:'Sponsored legislation to require in-vehicle privacy controls for automakers under Utah Consumer Privacy Act.', evidence:'Sponsored HB 357 (2026).' },
+    ],
+    kstratton: [ // Keven Stratton
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to create framework for state and local acquisition of federal lands.', evidence:'Sponsored SB 158.' },
+      { topic:'Courts & Civil Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'Sponsored legislation to strengthen guardianship protections for adults with severe intellectual disabilities.', evidence:'Sponsored SB 199.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to require water-wise landscaping at state government facilities.', evidence:'Sponsored SB 305.' },
+    ],
+    laurie_stringham: [ // Laurie Stringham
+      { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Has worked to pass the $507M public-safety bond.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Has worked to maintain fiscal restraint in county budgets.' },
+    ],
+    leah_hansen: [ // Leah Hansen
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation to tighten public notice before property-tax increases (Truth in Taxation).', evidence:'Sponsored HB 236 (2026).' },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support', text:'Sponsored legislation to affirm religious freedom through concurrent resolution.', evidence:'Sponsored HCR 4 (2026).' },
+    ],
+    lili_bitner: [ // Lili Bitner
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to oppose unnecessary tax increases.' },
+      { topic:'Parental Rights & Curriculum', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Campaigned on a commitment to defend local control in education.' },
+      { topic:'Great Salt Lake & Water', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Campaigned on a commitment to protect the Great Salt Lake and water supply.' },
+    ],
+    lisa_shepherd: [ // Lisa Shepherd
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to require conflict-of-interest disclosures from local candidates.', evidence:'Sponsored HB 504 (2025).' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Sponsored legislation to update election and ballot provisions.', evidence:'Sponsored HB 361 (2026).' },
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to limit international organization authority over Utah.', evidence:'Sponsored HB 85 (2026).' },
+    ],
+    logan_monson: [ // Logan Monson
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to add local-government oversight before state wildlife agency acquires grazing permits.', evidence:'Sponsored HB 421 (2025).' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation to create a tax credit for volunteer first responders.', evidence:'Sponsored HB 275 (2025).' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to strengthen Bears Ears visitor infrastructure through legislative advisory work.', evidence:'Sponsored HB 35 (2026).' },
+    ],
+    matt_macpherson: [ // Matt MacPherson
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to return seized firearms to lawful owners.', evidence:'Sponsored HB 195.' },
+      { topic:'Small Business & Licensing', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to repeal flavored-vape ban and add stricter enforcement.', evidence:'Sponsored HB 432.' },
+    ],
+    matthew_durrant: [ // Matthew Durrant
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Campaigned on a commitment to lower the cost of living by cutting taxes and regulation.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to protect property rights and ensure responsible growth.' },
+    ],
+    matthew_gwynn: [ // Matthew Gwynn
+      { topic:'Fentanyl & Cartels', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support', text:'Sponsored legislation to create a standalone fentanyl-trafficking crime.', evidence:'Sponsored HB 87 (2025).' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to set body-camera rules for narcotics investigators.', evidence:'Sponsored HB 339 (2025).' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to support permitless concealed carry.', evidence:'Sponsored HB 60 (2021).' },
+    ],
+    mballard: [ // Melissa Ballard
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to open college access to incarcerated students.', evidence:'Sponsored HB 248 (2024).' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Sponsored legislation to create government-efficiency incentives for state agencies.', evidence:'Sponsored HB 317 (2025).' },
+    ],
+    mike_kohler: [ // Mike Kohler
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to speed up Utah\'s water-rights adjudication.', evidence:'Sponsored HB 377 (2022).' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to ease building rules for agritourism operations.', evidence:'Sponsored HB 433 (2025).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to add transparency to nominating-petition signatures.', evidence:'Sponsored HB 374 (2025).' },
+    ],
+    mike_petersen: [ // Mike Petersen
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Sponsored legislation to strengthen voter-roll maintenance and election administration.', evidence:'Sponsored HB 411 (2022).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to update financial-disclosure requirements for officeholders.', evidence:'Sponsored HB 95 (2025).' },
+      { topic:'Religious Liberty', icon:'⛪', pos:'support', issueKey:'religious_liberty', issueStance:'support', text:'Sponsored legislation to adopt resolution affirming religious freedom in public spaces.', evidence:'Sponsored HCR 15 (2025).' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to set public-school history curriculum standards.', evidence:'Sponsored HB 269 (2024).' },
+      { topic:'Property Rights', icon:'🏡', pos:'support', issueKey:'property_rights', issueStance:'support', text:'Sponsored legislation to limit eminent domain to protect private-property owners.', evidence:'Sponsored HB 85 (2022).' },
+    ],
+    mpovey: [ // Robert Dandoy
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Working on 5600 South commercial corridor revitalization.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Seeking funding for additional police and fire department staffing.' },
+    ],
+    mroberts: [ // Marc Roberts
+      { topic:'Small Business & Licensing', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to let Utahns buy food directly from local producers.', evidence:'Sponsored HB 181 (2018).' },
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Sponsored legislation to block state support for federal mass surveillance.', evidence:'Sponsored HB 150 (2015).' },
+    ],
+    mwhalen: [ // Mike Caldwell
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Positioned Ogden as a national outdoor recreation destination, attracting major employers.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Downtown growth increased housing costs.' },
+    ],
+    mwinder: [ // Mike Winder
+      { topic:'Election & Redistricting Reform', icon:'⚖️', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Sponsored legislation to bring ranked-choice voting to statewide elections.', evidence:'Sponsored HB 178 (2022).' },
+      { topic:'Voting Access', icon:'📩', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Sponsored legislation to expand ranked-choice voting in partisan primaries.', evidence:'Sponsored HB 127 (2021).' },
+    ],
+    natalie_pinkney: [ // Natalie Pinkney
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'As a candidate she supported Salt Lake County\'s $507 million Justice and Accountability bond to fund a new jail and a lower-security accountability center.' },
+      { topic:'Child Care', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', text:'Has worked to defend affordable child care for families.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to expand affordable housing across the county.' },
+    ],
+    nelson_abbott: [ // Nelson Abbott
+      { topic:'Mental Health & Disability', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Sponsored legislation to reform civil-commitment and mental-health rights law.', evidence:'Sponsored HB 276 (2025).' },
+      { topic:'Courts & Civil Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'Sponsored legislation to modernize guardianship law and establish supported decision-making.', evidence:'Sponsored HB 334 (2025).' },
+    ],
+    nicholeen_p_peck: [ // Nicholeen P. Peck
+      { topic:'Parental Rights & Curriculum', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Sponsored legislation to set guardrails on public-school health curriculum.', evidence:'Sponsored HB 233 (2025).' },
+      { topic:'Healthcare Access', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored legislation to ban public funding for gender-affirming care.', evidence:'Sponsored HB 521 (2025).' },
+    ],
+    nthurston: [ // Norm Thurston
+      { topic:'Prescription Drug Costs', icon:'💉', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Sponsored legislation to lower insulin and prescription drug costs.', evidence:'Sponsored HB 207.' },
+      { topic:'Healthcare Costs & Access', icon:'⚖️', pos:'support', issueKey:'health_balance', issueStance:'support', text:'Sponsored legislation allowing licensed paramedics and EMTs to provide non-emergency medical services in clinics and community paramedicine programs, improving rural health access.', evidence:'Sponsored HB 14.' },
+      { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Sponsored legislation creating an Income Tax Surplus Restricted Account to prevent federal tax changes from unintentionally raising state income taxes.', evidence:'Sponsored HB 216.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation requiring massage establishments to register with the state and pass background checks to combat human trafficking.', evidence:'Sponsored HB 278.' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Sponsored legislation which would have required mail-in ballots to be received by the close of polls on Election Day.', evidence:'Sponsored HB 205.' },
+    ],
+    paul_a_cutler: [ // Paul A. Cutler
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to crack down on road rage.', evidence:'Sponsored HB 30 (2024).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to strengthen officeholder conflict-of-interest disclosure.', evidence:'Sponsored HB 80 (2024).' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Sponsored legislation to improve election administration and signature verification rules.', evidence:'Sponsored HB 32 (2026).' },
+      { topic:'Small Business & Licensing', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support', text:'Sponsored legislation to advance Utah\'s artificial intelligence policy framework.', evidence:'Sponsored HB 320 (2026).' },
+      { topic:'Courts & Civil Law', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'Sponsored legislation to protect children in family court through coercive control reforms.', evidence:'Sponsored HB 303 (2026).' },
+    ],
+    r_neil_walter: [ // R. Neil Walter
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to reform charter school funding and financial accountability.', evidence:'Sponsored HB 219 (2025).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to strengthen whistleblower protections for public employees.', evidence:'Sponsored HB 73 (2026).' },
+      { topic:'Higher Education', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'Sponsored legislation to restructure higher-education capital financing into a loan program.', evidence:'Sponsored HB 107 (2025).' },
+    ],
+    rfine: [ // Randy Fine
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Backs strict border enforcement and has pledged to vote against any amnesty legislation.' },
+      { topic:'National Security', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Centers national security and counter-extremism, building his profile on a hawkish, strongly pro-Israel foreign policy.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'A Second Amendment supporter who opposes new firearm restrictions.' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Backs voter-ID and election-integrity measures.' },
+      { topic:'Limited Government', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Runs on limited government, low taxes and fiscal conservatism.' },
+    ],
+    richard_t_whitney: [ // Richard T. Whitney
+      { topic:'Mental Health & Disability', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Campaigned on a commitment to champion disability rights and accessibility.' },
+      { topic:'Public Schools', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Campaigned on a commitment to strengthen public-education funding and teacher support.' },
+    ],
+    rob_bishop: [ // Rob Bishop
+      { topic:'Election & Redistricting Reform', icon:'⚖️', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Has worked to return to Utah state legislature to address redistricting battle.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Has worked to protect northern Utah water rights.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Has worked to reduce regulatory burden on teachers.' },
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support', text:'Has worked to limit himself to two or three terms in the Utah House.' },
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Has prioritized use federal land and natural resources experience to counter federal overreach in Utah.' },
+    ],
+    rosalba_dominguez: [ // Rosalba Dominguez
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to require disclosure labeling on AI-generated political advertising.', evidence:'Sponsored HB 504 (2026).' },
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Sponsored legislation to increase accountability for data center water and energy use.', evidence:'Sponsored HB 585 (2026).' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to advance affordable housing for lower-income households.' },
+    ],
+    rshipp: [ // Rex Shipp
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to mandate firearm safety instruction in public schools.', evidence:'Sponsored HB 104.' },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to modernize urban farming property-tax assessment.', evidence:'Sponsored HB 240.' },
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to create a regulatory framework for hunting guides and outfitters.', evidence:'Sponsored HB 153.' },
+      { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Sponsored legislation to shift Utah to opt-in mail voting.', evidence:'Sponsored HB 213.' },
+    ],
+    rwinterton: [ // Ronald Winterton
+      { topic:'Energy & Resource Development', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'Sponsored legislation to support Utah\'s oil, gas, and mining industry.', evidence:'Sponsored SB 146 (2022).' },
+      { topic:'Immigrant Communities', icon:'🤝', pos:'support', issueKey:'immigration_reform', issueStance:'support', text:'Sponsored legislation to create a state Refugee Services Office.', evidence:'Sponsored SB 31 (2025).' },
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to advance state sovereignty through federalism resolution.', evidence:'Sponsored SJR 12 (2025).' },
+    ],
+    rwood: [ // Troy Walker
+      { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Attracted major tech employers to Draper business parks and Innovation District.' },
+      { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Despite investment, commute times have increased as development accelerates.' },
+      { topic:'Public Transit', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Working on transit solutions connecting Draper to Point of the Mountain development.' },
+    ],
+    ryan_d_wilcox: [ // Ryan D. Wilcox
+      { topic:'Child Online Safety', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Sponsored legislation to expand sexual extortion law to cover AI-generated images.', evidence:'Sponsored HB 13.' },
+      { topic:'School Safety & Student Health', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to strengthen school safety standards and create a safety foundation.', evidence:'Sponsored HB 40.' },
+      { topic:'Limited Government', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Sponsored legislation to require legislative approval for costly agency rules.', evidence:'Sponsored HB 474.' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to improve criminal justice data collection and reporting.', evidence:'Sponsored HB 354.' },
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to preempt local knife restrictions.', evidence:'Sponsored HB 271 (2011).' },
+    ],
+    ryan_l_mahoney: [ // Ryan L. Mahoney
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Campaigned on a commitment to deliver balanced, affordable housing.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Campaigned on a commitment to advance water-wise conservation zoning.' },
+    ],
+    sahara_hayes: [ // Sahara Hayes
+      { topic:'Gun Rights', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'Sponsored legislation to pass firearm-safety and suicide-prevention education.', evidence:'Sponsored HB 481 (2023).' },
+      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Sponsored legislation to allow crime victims to use initials in public court documents.', evidence:'Sponsored HB 450 (2025).' },
+      { topic:'Transparency & Accountability', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored legislation to strengthen Board of Education ethics requirements.', evidence:'Sponsored HB 194 (2026).' },
+    ],
   };
 
   // Optional curated overrides for the People's Mandate scorecard (0–100).
@@ -28375,15 +28830,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // under the same human-readable headers a visitor already knows.
     var CAT_META = {
       gov:{icon:'💰',label:'Taxes & Government'}, econ:{icon:'📈',label:'Economy & Jobs'},
-      housing:{icon:'🏠',label:'Housing & Cost of Living'}, land:{icon:'🏔',label:'Public Lands & Energy'},
+      housing:{icon:'🏠',label:'Housing & Cost of Living'}, infra:{icon:'🚧',label:'Infrastructure & Transportation'},
+      land:{icon:'🏔',label:'Public Lands & Energy'},
       enviro:{icon:'💧',label:'Water & Environment'}, immig:{icon:'🛡',label:'Immigration'},
       guns:{icon:'🔫',label:'Gun Policy'}, justice:{icon:'👮',label:'Criminal Justice & Safety'},
       foreign:{icon:'🦅',label:'Foreign Policy & Defense'}, health:{icon:'🏥',label:'Healthcare'},
-      edu:{icon:'🎓',label:'Education'}, repro:{icon:'🕊',label:'Abortion & Reproductive Rights'},
+      edu:{icon:'🎓',label:'Education'}, family:{icon:'🧸',label:'Family, Children & Work'},
+      repro:{icon:'🕊',label:'Abortion & Reproductive Rights'},
       rights:{icon:'🏳️‍🌈',label:'Civil Rights & LGBTQ+'}, tech:{icon:'🚀',label:'Technology & Privacy'},
-      democracy:{icon:'🗳',label:'Elections & Democracy'}, other:{icon:'🎯',label:'Other Issues'}
+      democracy:{icon:'🗳',label:'Elections & Democracy'}, reform:{icon:'⏳',label:'Government Reform'},
+      other:{icon:'🎯',label:'Other Issues'}
     };
-    var CAT_ORDER = ['gov','econ','housing','land','enviro','immig','guns','justice','foreign','health','edu','repro','rights','tech','democracy','other'];
+    var CAT_ORDER = ['gov','econ','housing','infra','land','enviro','immig','guns','justice','foreign','health','edu','family','repro','rights','tech','democracy','reform','other'];
     function _stanceCat(s) {
       if (s.cat && CAT_META[s.cat]) return s.cat;
       if (s.issueKey && typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP[s.issueKey] && ISSUE_MAP[s.issueKey].cat) return ISSUE_MAP[s.issueKey].cat;
