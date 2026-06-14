@@ -113,6 +113,10 @@
       if (typeof updateExpansionStats === 'function') {
         updateExpansionStats();
       }
+      // Refresh the Live Pulse Bar now that PROFILES is populated.
+      if (typeof window._renderPulseBar === 'function') {
+        window._renderPulseBar();
+      }
       // Trigger deferred DOMContentLoaded events
       _triggerDeferredEvents();
       // If the page was opened with a ?p=<id> deep link, open that profile now
@@ -14367,12 +14371,16 @@
       @media (max-width:640px){#pulse-bar .pulse-live span.pl-text{display:none;}#pulse-bar .pulse-inner{padding:0.55rem 0.85rem;}}
       @media (prefers-reduced-motion:reduce){#pulse-bar .pulse-dot{animation:none;}#pulse-bar .pulse-chip,#pulse-bar .pulse-chip.pc-featured{transition:none;}}
     </style>
+    <!-- Chip values carry ids so _renderPulseBar() can fill them from the live
+         database (top promise score, featured reforms, officials tracked). The
+         markup ships with honest, non-numeric fallbacks so nothing reads as a
+         fabricated "live" figure if the data hasn't loaded. -->
     <div class="pulse-inner">
       <span class="pulse-live"><span class="pulse-dot"></span><span class="pl-text">Live Now</span></span>
-      <a href="#myteam-browse-panel" class="pulse-chip" style="--c:#f5c842;"><span class="pc-ico">🏆</span><span class="pc-text"><span class="pc-label">Top Performer This Week</span><span class="pc-value">John Curtis · 78%</span></span></a>
-      <a href="#trending-reforms" class="pulse-chip" style="--c:#4ade80;"><span class="pc-ico">📈</span><span class="pc-text"><span class="pc-label">Most Demanded Reform</span><span class="pc-value">Ban Congressional Stock Trading</span></span></a>
-      <a href="#agenda" class="pulse-chip" style="--c:#f87171;"><span class="pc-ico">✊</span><span class="pc-text"><span class="pc-label">Hot Mandate</span><span class="pc-value">Term Limits for Congress</span></span></a>
-      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Build Your Team</span><span class="pc-value">6 Open Ballot Slots</span></span></a>
+      <a href="#myteam-browse-panel" class="pulse-chip" style="--c:#f5c842;"><span class="pc-ico">🏆</span><span class="pc-text"><span class="pc-label">Top Promise Score</span><span class="pc-value" id="pulse-top-performer">See the leaderboard</span></span></a>
+      <a href="#trending-reforms" class="pulse-chip" style="--c:#4ade80;"><span class="pc-ico">📈</span><span class="pc-text"><span class="pc-label">Most Demanded Reform</span><span class="pc-value" id="pulse-top-reform">Ban Congressional Stock Trading</span></span></a>
+      <a href="#agenda" class="pulse-chip" style="--c:#f87171;"><span class="pc-ico">✊</span><span class="pc-text"><span class="pc-label">Hot Mandate</span><span class="pc-value" id="pulse-hot-mandate">Term Limits for Congress</span></span></a>
+      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Build Your Team</span><span class="pc-value" id="pulse-team-slots">Compare your options</span></span></a>
       <a href="#hot-topics" class="pulse-chip" style="--c:#60a5fa;"><span class="pc-ico">🔥</span><span class="pc-text"><span class="pc-label">In the Spotlight</span><span class="pc-value">Today's Hot Topics</span></span></a>
       <a href="#follow-the-money" class="pulse-chip" style="--c:#34d399;"><span class="pc-ico">💰</span><span class="pc-text"><span class="pc-label">Follow the Money</span><span class="pc-value">Top Donors Exposed</span></span></a>
     </div>
@@ -14397,6 +14405,69 @@
       function tick(){chips.forEach(function(c){c.classList.remove('pc-featured');});chips[i].classList.add('pc-featured');i=(i+1)%chips.length;}
       tick();setInterval(tick,3500);
     })();
+  </script>
+  <script>
+    // ── Live Pulse Bar data binding ────────────────────────────────────────
+    // Fills the pulse-bar chips from the live database instead of the old
+    // hardcoded figures ("John Curtis · 78%", "6 Open Ballot Slots", …). Safe to
+    // call repeatedly — on first data load and after every "Refresh Stats" — and
+    // every lookup is guarded, so a missing dataset just leaves the honest
+    // fallback text already in the markup.
+    window._renderPulseBar = function () {
+      var setVal = function (id, txt) {
+        var el = document.getElementById(id);
+        if (el && txt) el.textContent = txt;
+      };
+
+      // Top promise score: the official with the highest follow-through rate
+      // among those who actually have a resolved promise record (so brand-new
+      // candidates with no record never get crowned).
+      try {
+        if (typeof PROFILES !== 'undefined' && typeof window._pdxDisplayScore === 'function') {
+          var best = null, bestScore = -1;
+          Object.keys(PROFILES).forEach(function (id) {
+            var p = PROFILES[id];
+            if (!p || !p.name) return;
+            var s = window._pdxDisplayScore(p);
+            if (s === null || s === undefined || s === '') return;
+            var n = parseInt(s, 10);
+            if (isNaN(n)) return;
+            if (n > bestScore) { bestScore = n; best = p; }
+          });
+          if (best) setVal('pulse-top-performer', best.name + ' · ' + bestScore + '%');
+        }
+      } catch (e) {}
+
+      // Featured reforms: mirror the People's Mandate cards by rank so the bar
+      // always names the reforms actually ranked #1 / #2 on the page, even if
+      // that list is later re-ordered or edited.
+      try {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('#agenda-grid .agenda-card[data-rank]'));
+        cards.sort(function (a, b) {
+          return (parseInt(a.getAttribute('data-rank'), 10) || 99) - (parseInt(b.getAttribute('data-rank'), 10) || 99);
+        });
+        var titleOf = function (card) {
+          var h = card && card.querySelector('h4');
+          return h ? h.textContent.trim() : '';
+        };
+        if (cards[0]) setVal('pulse-hot-mandate', titleOf(cards[0]));
+        if (cards[1]) setVal('pulse-top-reform', titleOf(cards[1]));
+      } catch (e) {}
+
+      // Officials available to compare when building a ballot team.
+      try {
+        if (typeof PROFILES !== 'undefined') {
+          var total = Object.keys(PROFILES).length;
+          if (total > 0) setVal('pulse-team-slots', total.toLocaleString() + ' officials to compare');
+        }
+      } catch (e) {}
+    };
+    // Render now in case data is already present; the deferred-DOMContentLoaded
+    // path (which waits for Firestore) re-runs it once PROFILES is populated.
+    window._renderPulseBar();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window._renderPulseBar);
+    }
   </script>
 
   <!-- ═══════════════════════ START HERE · NEW VOTER WELCOME ════════ -->
@@ -15697,8 +15768,8 @@
               </div>
             </div>
             <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
+              <span class="tr-vote-count">✊</span>
+              <span class="tr-vote-label">Be the first</span>
             </div>
           </div>
         </div>
@@ -15719,8 +15790,8 @@
               </div>
             </div>
             <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
+              <span class="tr-vote-count">✊</span>
+              <span class="tr-vote-label">Be the first</span>
             </div>
           </div>
         </div>
@@ -15741,8 +15812,8 @@
               </div>
             </div>
             <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
+              <span class="tr-vote-count">✊</span>
+              <span class="tr-vote-label">Be the first</span>
             </div>
           </div>
         </div>
@@ -15763,8 +15834,8 @@
               </div>
             </div>
             <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
+              <span class="tr-vote-count">✊</span>
+              <span class="tr-vote-label">Be the first</span>
             </div>
           </div>
         </div>
@@ -15785,8 +15856,8 @@
               </div>
             </div>
             <div class="tr-stat-box hidden md:flex">
-              <span class="tr-vote-count">0</span>
-              <span class="tr-vote-label">Votes For</span>
+              <span class="tr-vote-count">✊</span>
+              <span class="tr-vote-label">Be the first</span>
             </div>
           </div>
         </div>
@@ -16762,6 +16833,13 @@
             </div>
           </div>
         </div>
+        <!-- Honesty note: federal/statewide/legislative targets are Utah's fixed
+             seat counts; local and 2026-candidate targets are working estimates of
+             a field that has no single official roster, so those bars track
+             progress toward a goal rather than a fixed denominator. -->
+        <p class="text-[11px] text-steel-500 leading-relaxed font-body mt-5 pt-4 border-t border-white/5">
+          <span class="text-steel-400 font-semibold">How to read these:</span> Federal, statewide, and legislative targets are Utah's actual seat counts (4 U.S. House + 2 Senate, 5 statewide offices, 29 Senate and 75 House districts). <span class="text-steel-400">Local &amp; county</span> and <span class="text-steel-400">2026 candidate</span> targets are working estimates — there's no single official roster for them — so those bars show momentum toward a goal we keep expanding, not a finished count.
+        </p>
       </div>
 
       <!-- ── Interactive Expansion Tool Workspace ────────────── -->
@@ -22089,6 +22167,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         if (typeof updateExpansionStats === 'function') updateExpansionStats({ refreshedAt: new Date() });
         if (typeof window.pmRenderCoverage === 'function') window.pmRenderCoverage();
+        if (typeof window._renderPulseBar === 'function') window._renderPulseBar();
 
         if (typeof window._showToast === 'function') {
           window._showToast('Stats refreshed from the live database — ' + querySnapshot.size + ' politicians tracked. 🇺🇸');
@@ -24151,10 +24230,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     _fbAuthReady.then(function() {
       document.querySelectorAll('.tr-slide[data-agenda-id]').forEach(function(slide) {
         var aid = slide.getAttribute('data-agenda-id');
-        db.collection('votes').doc(aid).onSnapshot(function(doc) {
-          if (!doc.exists) return;
+        // Show a real vote tally when the community has cast any; otherwise invite
+        // the first vote instead of displaying a dead "0" that reads as broken.
+        var setBox = function(likes) {
           var el = slide.querySelector('.tr-vote-count');
-          if (el && typeof doc.data().likes === 'number') el.textContent = Math.max(0, doc.data().likes).toLocaleString();
+          var lbl = slide.querySelector('.tr-vote-label');
+          var n = (typeof likes === 'number') ? Math.max(0, likes) : 0;
+          if (n > 0) {
+            if (el) el.textContent = n.toLocaleString();
+            if (lbl) lbl.textContent = 'Votes For';
+          } else {
+            if (el) el.textContent = '✊';
+            if (lbl) lbl.textContent = 'Be the first';
+          }
+        };
+        db.collection('votes').doc(aid).onSnapshot(function(doc) {
+          setBox(doc.exists ? doc.data().likes : 0);
         }, function(e) { console.warn("trending onSnapshot error:", e); });
       });
     });
