@@ -1804,6 +1804,25 @@
     .cand-snapshot .cs-vd-mismatch { color: #f87171; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.34); }
     .cand-snapshot .cs-pos-more { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.5rem 0 0; }
 
+    /* Centerpiece intro line — frames the positions list as the main read on a
+       thin candidate, not a secondary detail. */
+    .cand-snapshot .cs-pos-intro { font-size: 0.75rem; color: #cbd9ec; line-height: 1.55; margin: 0 0 0.6rem; }
+    .cand-snapshot .cs-pos-intro strong { color: #f5c842; }
+    /* At-a-glance distribution chips — the scan layer above the positions list.
+       Reuses the position direction (cs-b-*) and basis (cs-src-*) color tokens so
+       the summary and the rows below read in the same visual vocabulary. */
+    .cand-snapshot .cs-dist { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.65rem; }
+    .cand-snapshot .cs-dist-chip {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 999px; padding: 0.18rem 0.5rem; line-height: 1; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 0.2rem;
+    }
+    .cand-snapshot .cs-dist-chip.cs-dist-you {
+      color: #d8b4fe; background: rgba(167,139,250,0.16);
+      border: 1px solid rgba(167,139,250,0.42);
+    }
+
     /* Issue-positions centerpiece — the heart of a thin profile. A gold-accented
        card so a candidate's documented positions read as the valuable, central
        part of getting to know them, even when the rest of the record is sparse. */
@@ -27844,6 +27863,142 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         text:'Used the auditor\'s office to review election processes and government performance, framing independent oversight as essential to public trust.',
         source:{label:'Ballotpedia', url:'https://ballotpedia.org/John_Dougall'} },
     ],
+
+    // ── 2026-cycle & thin-profile expansion ──────────────────────────────
+    // Structured issue positions for thin / early-record profiles, drawn from
+    // each candidate's documented campaign platform and public statements (the
+    // same material logged as their tracked priorities). They carry no `evidence`
+    // field, so the Candidate Snapshot honestly tags them "💬 Stated" rather than
+    // vote-backed — but each is keyed to an ISSUE_MAP issue so the candidate
+    // becomes comparable in the Alignment Tool, turning a sparse profile into one
+    // a visitor can size up by values. Nothing here is invented; positions only
+    // reflect stances the candidate has publicly campaigned on.
+    kreese: [
+      { topic:'Protect & Expand the ACA', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support',
+        text:'Made defending and expanding the Affordable Care Act the centerpiece of his campaign, citing his own experience buying coverage on the individual market.' },
+      { topic:'Support for Veterans', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support',
+        text:'Draws on his frontline State Department service to call for stronger support and benefits for the men and women who served.' },
+      { topic:'Accountable Foreign Policy', icon:'🕊', pos:'support', issueKey:'restraint', issueStance:'support',
+        text:'Campaigned for more accountable national-security decision-making, informed by roughly seven years embedded with U.S. military units in Iraq and Afghanistan.' },
+      { topic:'Public Lands & Climate', icon:'🏔', pos:'support', issueKey:'lands_preserve', issueStance:'support',
+        text:'Ran on protecting Utah\'s public lands and addressing climate change, framing them as both an environmental and an economic priority for the district.' },
+      { topic:'Climate Action', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support',
+        text:'Treats climate change as a serious threat requiring action, pairing it with clean-energy and public-lands stewardship.' },
+      { topic:'Money in Politics', icon:'💸', pos:'support', issueKey:'campaign_finance', issueStance:'support',
+        text:'Pledged a campaign that accepts no PAC money — including energy-industry PACs — to draw a contrast with industry-backed opponents.' },
+    ],
+    christina_cj_hernandez: [
+      { topic:'Great Salt Lake & Clean Air', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Pledges to confront the water diversion and drought driving the lake\'s decline rather than relying on favorable weather, tying it to the region\'s air quality.' },
+      { topic:'Public School Funding', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Holds that public money should fund public schools and opposes voucher programs that divert funds to private schools.' },
+      { topic:'Worker Wages', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support',
+        text:'Argues Utah should be pro-worker as well as pro-business and stop defaulting to the $7.25 federal minimum wage.' },
+      { topic:'Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support',
+        text:'Proposes affordability measures on housing, childcare and healthcare, including renter equity-sharing and employer partnerships.' },
+      { topic:'Government Accountability', icon:'📩', pos:'support', issueKey:'voting_access', issueStance:'support',
+        text:'Centers government accountability and protecting voting rights as a core plank of her campaign.' },
+    ],
+    grant_pace: [
+      { topic:'Housing for Families', icon:'🔑', pos:'support', issueKey:'housing_first_time', issueStance:'support',
+        text:'Would curb large institutional investors buying up single-family homes and driving prices out of reach, while responsibly increasing supply and protecting neighborhood character.' },
+      { topic:'Cut Government Waste', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support',
+        text:'Made eliminating fraud and waste and streamlining government a stated priority on taking office.' },
+      { topic:'Responsible Tax Cuts', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Backs finding responsible ways to cut taxes alongside disciplined spending and support for small businesses.' },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Lists water conservation and infrastructure among his top priorities for a fast-growing Utah County district.' },
+    ],
+    john_taylor: [
+      { topic:'Property Taxes & Seniors', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support',
+        text:'Spoke against a Davis County truth-in-taxation property-tax increase, warning seniors on fixed incomes could be priced out of their homes.' },
+      { topic:'Limited Government', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
+        text:'Pledges to apply "conservative discernment," scrutinizing legislation for overreach and pushing to control spending amid inflation.' },
+      { topic:'State Housing Mandates', icon:'🏗', pos:'oppose', issueKey:'housing_build', issueStance:'oppose',
+        text:'Says he would resist state mandates forcing high-density housing on municipalities, calling it government overreach and favoring local control.' },
+      { topic:'Infrastructure Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'Proposes requiring upfront disclosure of bond obligations in development contracts and more transparency on public infrastructure districts.' },
+    ],
+    jared_neal: [
+      { topic:'Protect Workers', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support',
+        text:'Runs on economic fairness — protecting working families from price gouging and stagnant wages.' },
+      { topic:'Public Education', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Campaigns for a strong, well-funded public education system as a core priority.' },
+      { topic:'Families & Small Business', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support',
+        text:'Draws on a financial-services background to push banking and financial policy that works for families and small businesses.' },
+    ],
+    darren_croft: [
+      { topic:'Cut Red Tape', icon:'✂️', pos:'support', issueKey:'gov_regulation', issueStance:'support',
+        text:'Prioritizes streamlining state laws and regulations to reduce government inefficiency.' },
+      { topic:'Childhood Literacy', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support',
+        text:'Would direct education resources toward childhood literacy and measurable student outcomes.' },
+      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
+        text:'Lists housing affordability for Utah families among his core campaign priorities.' },
+      { topic:'Healthcare Cost Transparency', icon:'💊', pos:'support', issueKey:'healthcare_market', issueStance:'support',
+        text:'Backs greater healthcare cost transparency so patients can see and compare prices.' },
+    ],
+    bilzerian: [
+      { topic:'Term Limits', icon:'⏳', pos:'support', issueKey:'term_limits', issueStance:'support',
+        text:'Pledges to co-sponsor a constitutional amendment limiting House members to three terms and Senators to two.' },
+      { topic:'No PAC or Lobbyist Money', icon:'💸', pos:'support', issueKey:'campaign_finance', issueStance:'support',
+        text:'Promised to self-fund his campaign and refuse all PAC and lobbyist contributions.' },
+      { topic:'Balanced Budget', icon:'⚖️', pos:'support', issueKey:'gov_balance', issueStance:'support',
+        text:'Supports requiring Congress to pass a balanced federal budget every year.' },
+      { topic:'Foreign Aid & America First', icon:'🇺🇸', pos:'support', issueKey:'america_first', issueStance:'support',
+        text:'Pledged to vote no on all foreign aid packages until the national debt is addressed.' },
+      { topic:'Second Amendment', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support',
+        text:'States full opposition to any federal gun legislation.' },
+      { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support',
+        text:'Calls for completing the southern border wall and tightening asylum restrictions.' },
+      { topic:'Audit the Pentagon', icon:'🧾', pos:'support', issueKey:'audit_spending', issueStance:'support',
+        text:'Called for a full, independent audit of the Department of Defense and mandatory accounting reform.' },
+      { topic:'Ban Congressional Stock Trading', icon:'🚫', pos:'support', issueKey:'stock_trading_ban', issueStance:'support',
+        text:'Pledged to introduce and support a strong congressional stock-trading prohibition.' },
+      { topic:'Veterans\' Mental Health', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support',
+        text:'Promised to prioritize VA mental-health funding and expand veteran suicide-prevention programs.' },
+    ],
+    carlos_moreno: [
+      { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support',
+        text:'Would stand up a west-side public-safety committee and work closely with law enforcement to build trust in underserved neighborhoods.' },
+      { topic:'Fiscal Responsibility', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support',
+        text:'Commits to fiscal responsibility and efficient delivery of county services.' },
+      { topic:'Small Business', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support',
+        text:'A West Jordan small-business owner who centers small-business access and the county\'s west-side communities.' },
+    ],
+    dakota_wurth: [
+      { topic:'Housing Supply', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
+        text:'Makes housing his top priority, pushing state incentives for diverse housing types and down-payment assistance.' },
+      { topic:'Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Warns of ecological and air-quality harm from the shrinking lake and would prioritize its restoration.' },
+      { topic:'Tax on Groceries', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support',
+        text:'Calls the state sales tax on food regressive and would work to remove it.' },
+      { topic:'College & Trade Costs', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support',
+        text:'Supports fully funding education and making public universities and trade schools tuition-free.' },
+    ],
+    evan_done: [
+      { topic:'Renter Protections', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support',
+        text:'Pledges to expand attainable housing, strengthen renter protections and advocate for a living wage.' },
+      { topic:'Great Salt Lake & Air', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'Would address the shrinking Great Salt Lake, expand renewable energy and protect public lands.' },
+      { topic:'LGBTQ+ Equality', icon:'🏳️‍🌈', pos:'support', issueKey:'lgbtq_rights', issueStance:'support',
+        text:'An openly gay candidate who campaigns for LGBTQ+ equality and anti-discrimination protections.' },
+      { topic:'Reproductive Freedom', icon:'✊', pos:'support', issueKey:'pro_choice', issueStance:'support',
+        text:'Advocates for reproductive freedom as part of his platform for marginalized communities.' },
+      { topic:'Addiction & Recovery', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support',
+        text:'As an advocacy director for a recovery organization and a person in long-term recovery, centers addiction recovery and mental health.' },
+      { topic:'Criminal-Justice Reform', icon:'🤝', pos:'support', issueKey:'justice_reform', issueStance:'support',
+        text:'Campaigns for criminal-justice reform alongside racial justice and recovery-focused policy.' },
+    ],
+    jackie_larson: [
+      { topic:'Private Property Rights', icon:'🏡', pos:'support', issueKey:'property_rights', issueStance:'support',
+        text:'Centers private property rights and responsible, locally-controlled growth after entering politics over a zoning dispute.' },
+      { topic:'Water & Farmland', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
+        text:'A south Utah County farm-services owner who prioritizes water rights and protecting farmland.' },
+      { topic:'Spending Transparency', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support',
+        text:'Runs on fiscal responsibility and greater transparency in government spending.' },
+      { topic:'Parental Involvement', icon:'👪', pos:'support', issueKey:'edu_parental', issueStance:'support',
+        text:'Backs strong public education paired with greater parental involvement in schools.' },
+    ],
   };
 
   // Optional curated overrides for the People's Mandate scorecard (0–100).
@@ -28496,22 +28651,54 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // overlap the visitor's saved Alignment picks get an inline match verdict.
       var standsHead, standsBody, posCountPill = '';
       if (stanceList.length) {
-        var SHOWN = 5;
+        // Order so the strongest evidence leads: vote/bill-backed ("Recorded")
+        // positions first, then the other Alignment-comparable positions, then
+        // the rest. On a thin profile this list IS the main read, so every
+        // position is shown — nothing is hidden behind a "+N more" fold.
         var sortedStances = stanceList.slice().sort(function(a, b) {
+          var ae = a.evidence ? 1 : 0, be = b.evidence ? 1 : 0;
+          if (be !== ae) return be - ae;
           return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
         });
+        // At-a-glance distribution — the scan layer. A visitor reads the SHAPE of
+        // the record (how many supports vs opposes, how much is vote-backed vs
+        // stated, and how many line up with their own Alignment picks) before
+        // reading any single position. This is what makes the Snapshot the place
+        // to size up a thin candidate in a few seconds.
+        var dSup = 0, dOpp = 0, dMix = 0, dRec = 0, dStated = 0, dYouM = 0, dYouT = 0;
+        stanceList.forEach(function(s) {
+          if (s.pos === 'support') dSup++;
+          else if (s.pos === 'oppose') dOpp++;
+          else if (s.pos === 'mixed') dMix++;
+          if (s.evidence) dRec++; else dStated++;
+          if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
+            dYouT++;
+            var ivd = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+            if ((typeof _issueVerdict === 'function' ? _issueVerdict(ivd, s.issueStance || s.pos) : '') === 'match') dYouM++;
+          }
+        });
+        var distChips = '';
+        if (dSup) distChips += '<span class="cs-dist-chip cs-b-support">✓ ' + dSup + ' Support' + (dSup > 1 ? 's' : '') + '</span>';
+        if (dOpp) distChips += '<span class="cs-dist-chip cs-b-oppose">✗ ' + dOpp + ' Oppose' + (dOpp > 1 ? 's' : '') + '</span>';
+        if (dMix) distChips += '<span class="cs-dist-chip cs-b-mixed">~ ' + dMix + ' Mixed</span>';
+        if (dRec) distChips += '<span class="cs-dist-chip cs-src-rec">🗳 ' + dRec + ' Recorded</span>';
+        if (dStated) distChips += '<span class="cs-dist-chip cs-src-stated">💬 ' + dStated + ' Stated</span>';
+        if (dYouT) distChips += '<span class="cs-dist-chip cs-dist-you">🤝 You agree on ' + dYouM + '/' + dYouT + '</span>';
+        var distRow = distChips ? '<div class="cs-dist">' + distChips + '</div>' : '';
+
         standsHead = '📌 Where ' + first + ' stands';
         posCountPill = '<span class="cs-count-pill">' + stanceList.length + ' position' + (stanceList.length === 1 ? '' : 's') + '</span>';
+        var posIntro = '<p class="cs-pos-intro">The clearest read on ' + first + ' right now: <strong>every issue position on record</strong>, strongest evidence first. ' +
+          (dYouT ? 'Your matching picks are flagged inline.' : 'Set your Alignment picks to see where you line up.') + '</p>';
         var posLegend = '<div class="cs-pos-legend">' +
           '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
           '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
         '</div>';
-        standsBody = posLegend + '<div class="cs-pos-list">' +
-          sortedStances.slice(0, SHOWN).map(_csPositionRow).join('') +
-        '</div>';
-        if (stanceList.length > SHOWN) {
-          standsBody += '<p class="cs-pos-more">+ ' + (stanceList.length - SHOWN) + ' more position' + (stanceList.length - SHOWN === 1 ? '' : 's') + ' below in <strong style="color:#d8b4fe;">Key Issue Stances</strong>.</p>';
-        }
+        standsBody = posIntro + distRow + posLegend + '<div class="cs-pos-list">' +
+          sortedStances.map(_csPositionRow).join('') +
+        '</div>' +
+        '<p class="cs-pos-more">Full context, the record and sources for each position are in <strong style="color:#d8b4fe;">Key Issue Stances</strong> below' +
+          (alignHasUser ? ', and matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong>.' : '.') + '</p>';
       } else if (keyIssues.length) {
         standsHead = '🎯 ' + first + '\'s campaign priorities';
         posCountPill = '<span class="cs-count-pill">' + keyIssues.length + ' issue' + (keyIssues.length === 1 ? '' : 's') + '</span>';
