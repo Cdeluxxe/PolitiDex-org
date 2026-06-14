@@ -1714,6 +1714,39 @@
     .cand-snapshot .cs-align-text { font-size: 0.76rem; color: #b9a8e6; line-height: 1.5; margin: 0; }
     .cand-snapshot .cs-align-text strong { color: #d8b4fe; }
     .cand-snapshot .cs-align-foot { font-size: 0.72rem; color: #9a8cc9; line-height: 1.5; margin: 0.6rem 0 0; }
+    /* "What data powers this match" line — the honest read on whether the
+       comparison rests on a documented record or an early read from stated
+       priorities. Pulled from the same alignment engine the score uses, so the
+       Snapshot says out loud what's behind the number. */
+    .cand-snapshot .cs-align-basis {
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      margin: 0.55rem 0 0; padding: 0.45rem 0.55rem;
+      background: rgba(10,15,30,0.4); border: 1px dashed rgba(159,180,212,0.24);
+      border-radius: 0.55rem;
+      font-size: 0.72rem; color: #9fb4d4; line-height: 1.5;
+    }
+    .cand-snapshot .cs-align-basis strong { color: #c4b5fd; }
+    .cand-snapshot .cs-align-basis-ico { flex: none; font-size: 0.8rem; line-height: 1.3; }
+    /* In-context path from the Snapshot straight to the issue-by-issue match —
+       one tap to the same Alignment breakdown, no scrolling or hunting. */
+    .cand-snapshot .cs-align-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      margin-top: 0.65rem; width: 100%; justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #ede9fe; cursor: pointer;
+      background: linear-gradient(135deg, rgba(139,92,246,0.32), rgba(99,102,241,0.28));
+      border: 1px solid rgba(167,139,250,0.5); border-radius: 0.6rem;
+      padding: 0.55rem 0.7rem; line-height: 1;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    @media (hover: hover) { .cand-snapshot .cs-align-cta:hover { transform: translateY(-1px); border-color: rgba(167,139,250,0.85); background: linear-gradient(135deg, rgba(139,92,246,0.45), rgba(99,102,241,0.4)); } }
+    /* Light "how to use this for a thin candidate" guidance — shown before the
+       visitor has set any picks, so a new/thin profile teaches the tool's value. */
+    .cand-snapshot .cs-align-guide {
+      font-size: 0.71rem; color: #9a8cc9; line-height: 1.5; margin: 0.55rem 0 0;
+    }
+    .cand-snapshot .cs-align-guide strong { color: #c4b5fd; }
 
     /* Issue-position list inside the Alignment linkage card — the scannable,
        at-a-glance read on which issues the candidate has taken a stance on,
@@ -2175,6 +2208,19 @@
       border-radius: 999px; padding: 0.3rem 0.7rem;
     }
     @media (hover: hover) { .cmp-empty-cta:hover { background: rgba(139,92,246,0.24); } }
+    /* Honest "limited data" note inside How You Compare — shown when the visitor
+       has picks but none line up with a documented position yet (new / 2026
+       candidates). Green-leaning so it reads as "growing", not "broken". */
+    .cmp-limited {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      margin-top: 0.65rem; padding: 0.7rem 0.8rem;
+      background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.24);
+      border-radius: 0.7rem;
+    }
+    .cmp-limited-ico { flex: none; font-size: 1rem; line-height: 1.3; }
+    .cmp-limited-text { font-size: 0.74rem; color: #b6c6dc; line-height: 1.5; margin: 0; }
+    .cmp-limited-text strong { color: #d8b4fe; }
+    .cmp-limited-text em { color: #cbd9ec; font-style: italic; }
     /* At-a-glance segmented alignment meter — proportion of match / partial /
        mismatch across the visitor's shared issues. Reads instantly before any
        row is examined. */
@@ -16033,7 +16079,7 @@
                    steps, no tutorial. -->
               <div class="pdx-hint pdx-hint-purple" style="margin-bottom:1rem;">
                 <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
-                <p class="pdx-hint-text"><strong>How to use this:</strong> ① check the positions you actually believe in below — pick as few or as many as you like. ② Every politician on the site instantly gets a <strong>Your Match %</strong> showing how their record fits your values. ③ Compare the candidates running in your district side by side, then add your strongest matches to your team. You can change your picks anytime.</p>
+                <p class="pdx-hint-text"><strong>How to use this:</strong> ① check the positions you actually believe in below — pick as few or as many as you like. ② Every politician on the site instantly gets a <strong>Your Match %</strong> showing how their record fits your values. ③ Compare the candidates running in your district side by side, then add your strongest matches to your team. You can change your picks anytime.<br><span style="display:inline-block;margin-top:0.5rem;color:#c4b5fd;">🌱 <strong>New or 2026 candidate?</strong> Even without a long voting record, your match is built from their <strong>stated positions</strong> — and each candidate&rsquo;s profile tells you exactly how much of the score rests on a documented record versus an early read, so you always know what you&rsquo;re looking at.</span></p>
               </div>
 
               <!-- My Alignment Profile — live, scannable overview of the visitor's picks,
@@ -28068,6 +28114,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '</div>';
     }).join('');
 
+    // Honest read for the limited-data case: the visitor has picks but none of
+    // them line up with a documented position yet (common for new officials and
+    // 2026 candidates). Rather than a blank-looking section, explain what's
+    // happening and point back to the stated positions that ARE on record.
+    var limitedNote = '';
+    if (!documented.length) {
+      limitedNote =
+        '<div class="cmp-limited">' +
+          '<span class="cmp-limited-ico" aria-hidden="true">🌱</span>' +
+          '<p class="cmp-limited-text">This is expected for a new or 2026 candidate — ' + first + ' doesn\'t have a documented position on your specific issues <em>yet</em>. As statements and votes are verified, each one is matched here automatically. In the meantime, the <strong>Candidate Snapshot</strong> above shows the positions ' + first + ' <em>has</em> stated, so you can still get a read.</p>' +
+        '</div>';
+    }
+
     // Selected issues we can't yet compare → listed compactly so it's clear the
     // structure is ready and only the data is still being filled in.
     var researchingBlock = '';
@@ -28087,6 +28146,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       '<p class="modal-section-sub">Your saved Alignment Tool picks, matched issue by issue against ' + first + '\'s documented positions.</p>' +
       summary +
       meterLegend +
+      limitedNote +
       rows +
       researchingBlock +
       '<p class="src-note">Your saved Alignment Tool positions matched against ' + name + '\'s documented stances. Sign in to save your picks across devices — the comparison updates as more positions are verified.</p>' +
@@ -28482,9 +28542,58 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         : (trackedIssueCount > 0
             ? (first + ' has positions on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> the Alignment Tool tracks. Pick the issues you care about to see, point by point, where you and ' + first + ' line up — by values, not party.')
             : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party. Their positions appear here as we document them.'));
+
+      // ── What data powers the match ────────────────────────────────────
+      // The honesty layer: when the visitor has picks, pull the same per-issue
+      // breakdown the score uses and say plainly whether the number rests on a
+      // documented record or an early read from stated priorities. This is what
+      // makes the Alignment Tool legible on thin and 2026 candidates — it never
+      // claims more certainty than the data behind it supports.
+      var alignBd = (alignHasUser && typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(id) : null;
+      var basisHtml = '';
+      if (alignBd && alignBd.issues && alignBd.issues.length) {
+        var nEv = alignBd.issues.filter(function(it) { return it.hasEvidence; }).length;
+        var nTot = alignBd.issues.length;
+        var basisText, basisIco;
+        if (nEv === 0) {
+          basisIco = '🌱';
+          basisText = 'This match is an <strong>early read</strong> from ' + first + '\'s stated priorities — there\'s no voting record yet, so it sharpens as positions are verified.';
+        } else if (nEv < nTot) {
+          basisIco = '📊';
+          basisText = '<strong>' + nEv + ' of ' + nTot + '</strong> of your issues are backed by ' + first + '\'s documented positions; the rest are an early read from their stated priorities.';
+        } else {
+          basisIco = '✅';
+          basisText = 'Backed by ' + first + '\'s <strong>documented positions</strong> on all ' + nTot + ' of your selected issue' + (nTot === 1 ? '' : 's') + '.';
+        }
+        basisHtml = '<p class="cs-align-basis"><span class="cs-align-basis-ico" aria-hidden="true">' + basisIco + '</span><span>' + basisText + '</span></p>';
+      } else if (!alignHasUser && trackedIssueCount > 0) {
+        basisHtml = '<p class="cs-align-basis"><span class="cs-align-basis-ico" aria-hidden="true">📊</span><span>The comparison is built from ' + first + '\'s <strong>' + trackedIssueCount + ' stated position' + (trackedIssueCount === 1 ? '' : 's') + '</strong> on the issues — an honest values read even before a full voting record exists.</span></p>';
+      }
+
+      // ── In-context path to the match ──────────────────────────────────
+      // One tap from the Snapshot to the live Alignment result. With picks, it
+      // opens the instant issue-by-issue quick view; without, it opens the
+      // picker so a first-time visitor can set positions and compare on the spot.
+      var alignCtaHtml;
+      if (alignHasUser) {
+        alignCtaHtml = '<button type="button" class="cs-align-cta" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView){window.keyRacesAlignQuickView(\'' + id + '\');}else{var el=document.getElementById(\'cs-howcompare-anchor\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">🤝 See your issue-by-issue match <span aria-hidden="true">→</span></button>';
+      } else {
+        alignCtaHtml = '<button type="button" class="cs-align-cta" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Pick your issues to compare <span aria-hidden="true">→</span></button>';
+      }
+
+      // Light guidance for the new-visitor / thin-candidate case: explain that
+      // alignment leans on stated positions when a voting record isn't there yet,
+      // so the tool reads as useful rather than empty on early candidates.
+      var alignGuideHtml = alignHasUser
+        ? ''
+        : '<p class="cs-align-guide">💡 <strong>New to a candidate?</strong> Officials this early rarely have a long voting record — the Alignment Tool compares them on their <strong>stated positions</strong> instead, so you can still judge fit by your values, not their party.</p>';
+
       var alignBlock = '<div class="cs-align">' +
         '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on your values</span>' + matchChip + '</div>' +
         '<p class="cs-align-text">' + alignText + '</p>' +
+        basisHtml +
+        alignGuideHtml +
+        alignCtaHtml +
       '</div>';
 
       // ── Spotlight linkage ─────────────────────────────────────────────
@@ -28544,7 +28653,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // breakdown — connecting the snapshot's positions directly to their
       // alignment. Otherwise it opens the Alignment Tool so they can set picks.
       var alignActionBtn = alignHasUser
-        ? '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();var el=document.getElementById(\'cs-howcompare-anchor\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}else{closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var a=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(a)a.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);}">🤝 See your issue-by-issue match</button>'
+        ? '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();var el=document.getElementById(\'cs-howcompare-anchor\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}else{closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var a=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(a)a.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);}">🤝 Open the full breakdown</button>'
         : '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>';
       var actions = '<div class="cs-actions">' +
         alignActionBtn +
