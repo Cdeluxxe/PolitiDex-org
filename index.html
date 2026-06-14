@@ -1641,6 +1641,9 @@
       font-size: 0.86rem; color: #e6eefb; line-height: 1.25;
     }
     .cand-snapshot .cs-fact-v.cs-accent { color: #a78bfa; }
+    /* Muted fact value — an honest status word ("Monitoring", "Building") in
+       place of a bare, low-value "0" count. */
+    .cand-snapshot .cs-fact-v.cs-muted { color: #8ba6c9; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; text-transform: uppercase; }
 
     /* Generic divided block (e.g. "What they stand for") */
     .cand-snapshot .cs-block {
@@ -16664,7 +16667,7 @@
         <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
           <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
           <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Total Database Size</h4>
-          <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">0</div>
+          <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">—</div>
           <p id="stats-total-detail" class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
         </div>
 
@@ -16673,8 +16676,8 @@
           <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">🗺️</div>
           <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Utah Database Coverage</h4>
           <div class="flex items-baseline gap-2 mb-3">
-            <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400">0 <span class="text-sm font-condensed text-steel-400">/ 0</span></div>
-            <span id="stats-utah-pct" class="font-condensed text-sm font-700 tracking-wide text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2.5 py-0.5">0%</span>
+            <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400">— <span class="text-sm font-condensed text-steel-400">/ —</span></div>
+            <span id="stats-utah-pct" class="font-condensed text-sm font-700 tracking-wide text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2.5 py-0.5">—</span>
           </div>
           <!-- Overall coverage bar -->
           <div class="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5 mb-3">
@@ -16698,7 +16701,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏛️</span> Federal Delegation</span>
               <span id="stats-cat-federal-pct" class="font-condensed tracking-wide text-steel-300">0 / 6</span>
             </div>
-            <div id="stats-cat-federal-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-federal-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-federal-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -16709,7 +16712,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">⭐</span> Statewide Offices</span>
               <span id="stats-cat-statewide-pct" class="font-condensed tracking-wide text-steel-300">0 / 5</span>
             </div>
-            <div id="stats-cat-statewide-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-statewide-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-statewide-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -16720,7 +16723,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏢</span> State Senate</span>
               <span id="stats-cat-senate-pct" class="font-condensed tracking-wide text-steel-300">0 / 29</span>
             </div>
-            <div id="stats-cat-senate-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-senate-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-senate-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -16731,7 +16734,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🏛</span> State House</span>
               <span id="stats-cat-house-pct" class="font-condensed tracking-wide text-steel-300">0 / 75</span>
             </div>
-            <div id="stats-cat-house-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-house-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-house-bar" class="bg-gradient-to-r from-crimson-500 to-crimson-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -16742,7 +16745,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">📍</span> Local &amp; County</span>
               <span id="stats-cat-local-pct" class="font-condensed tracking-wide text-steel-300">0 / 60</span>
             </div>
-            <div id="stats-cat-local-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-local-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-local-bar" class="bg-gradient-to-r from-steel-500 to-steel-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -16753,7 +16756,7 @@
               <span class="flex items-center gap-1.5"><span class="text-sm">🗳️</span> 2026 Candidates</span>
               <span id="stats-cat-cand-pct" class="font-condensed tracking-wide text-steel-300">0 / 24</span>
             </div>
-            <div id="stats-cat-cand-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: 0</div>
+            <div id="stats-cat-cand-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
             <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
               <div id="stats-cat-cand-bar" class="bg-gradient-to-r from-gold-600 to-gold-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
             </div>
@@ -26563,6 +26566,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         text:'Supports stronger border enforcement and backed the House border-security package.',
         evidence:'Voted for the Secure the Border Act / H.R. 2 (2023).' },
     ],
+    hegseth: [
+      { topic:'Military Lethality & Standards', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support',
+        text:'Has made restoring a "warrior ethos," combat lethality, and merit-based standards the central mission of his tenure as Secretary of Defense.',
+        detail:'Ordered a department-wide review of fitness and combat standards and directed that combat-role standards be made sex-neutral.',
+        evidence:'Directed sex-neutral combat fitness standards (2025).',
+        source:{label:'defense.gov', url:'https://www.defense.gov'} },
+      { topic:'DEI in the Military', icon:'🪖', pos:'oppose',
+        text:'Moved to eliminate diversity, equity, and inclusion programs, offices, and training across the armed forces, calling them a distraction from warfighting.',
+        evidence:'Ordered the military to end DEI programs and offices (2025).' },
+      { topic:'COVID-Vaccine Discharges & Medical Freedom', icon:'🩺', pos:'support', issueKey:'medical_freedom', issueStance:'support',
+        text:'Backs reinstating service members discharged for refusing the COVID-19 vaccine — with back pay — and opposes such mandates.',
+        evidence:'Directed reinstatement of COVID-vaccine-discharged troops with back pay (2025).' },
+      { topic:'Transgender Military Service', icon:'⚖️', pos:'oppose', issueKey:'lgbtq_rights', issueStance:'oppose',
+        text:'Implemented the administration\'s policy barring transgender individuals from military service, citing readiness and uniform standards.',
+        evidence:'Implemented the transgender military-service policy (2025).' },
+      { topic:'Pentagon Audit & Accountability', icon:'🧾', pos:'support', issueKey:'audit_spending', issueStance:'support',
+        text:'Has pledged to deliver the Pentagon\'s first-ever clean financial audit and tighten accountability over defense spending.',
+        detail:'The Department of Defense has never passed a full independent audit; passing one is a stated goal of his tenure.' },
+      { topic:'Veterans', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support',
+        text:'An Iraq combat veteran and former veterans-advocacy leader who centers servicemember and veteran welfare in his agenda.',
+        detail:'Led the advocacy group Concerned Veterans for America before his Fox News career and appointment as Secretary of Defense.' },
+    ],
 
     // ── Utah State Legislature & 2026 races ───────────────────────────────
     // Keyed by the name-slug ids the directory import produces
@@ -28184,10 +28209,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       if (statedCount) facts.push({ k: 'Issue positions', v: String(statedCount), accent: true });
       if (recordedCount) facts.push({ k: 'Vote/bill-backed', v: String(recordedCount) });
-      facts.push({ k: 'Promises scored', v: '0' });
+      // Promise record: never show a bare "Promises scored: 0" — it reads as an
+      // empty scoreboard and adds no value. Lead with an honest status word
+      // instead. The lede already explains why nothing is scored yet.
+      facts.push(isChallenger
+        ? { k: 'Promise record', v: 'Begins in office', muted: true }
+        : { k: 'Promise record', v: 'Building', muted: true });
       var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
         return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
-          '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + '">' + f.v + '</div></div>';
+          '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + (f.muted ? ' cs-muted' : '') + '">' + f.v + '</div></div>';
       }).join('') + '</div>';
 
       // ── What they stand for ───────────────────────────────────────────
