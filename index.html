@@ -14783,61 +14783,107 @@
           <div class="pd-ec-head">
             <div class="pd-ec-head-ico">🗳️</div>
             <div>
-              <div class="pd-ec-kicker">Mark your calendar · Utah 2026</div>
+              <div class="pd-ec-kicker" id="pd-ec-kicker">Mark your calendar · 2026</div>
               <h2 class="pd-ec-title">ELECTION COUNTDOWN</h2>
-              <p class="pd-ec-sub">The key voting dates and deadlines that decide whether your vote counts — counting down live.</p>
+              <p class="pd-ec-sub" id="pd-ec-sub">The key voting dates and deadlines that decide whether your vote counts — counting down live.</p>
             </div>
           </div>
           <div id="pd-ec-active" class="pd-ec-active"></div>
           <div id="pd-ec-hero" class="pd-ec-hero"></div>
           <div id="pd-ec-grid" class="pd-ec-grid"></div>
           <div id="pd-ec-past" class="pd-ec-past"></div>
-          <p class="pd-ec-foot">Dates shown in Mountain Time. Always confirm the details for your county at <a href="https://vote.utah.gov/" target="_blank" rel="noopener">vote.utah.gov</a>.</p>
+          <p class="pd-ec-foot" id="pd-ec-foot">Always confirm the dates that apply to you at <a href="https://www.vote.org/" target="_blank" rel="noopener">vote.org</a>.</p>
         </div>
       </div>
       <script>
       (function(){
-        // ── Hardcoded Utah 2026 key election dates ──────────────────────────
-        //   Mountain Time offsets are explicit: -06:00 in summer (MDT),
-        //   -07:00 in November (MST). Polls close 8:00 PM; deadlines are 5:00 PM.
-        //   Entries with an `end` are date *windows* (e.g. early voting): while
-        //   active they surface an "open now" banner and count down to close;
-        //   before they open they count down to the start. Add or edit entries
-        //   here — the UI re-sorts, re-labels and re-buckets (upcoming / open
-        //   now / done) automatically as time passes, with no other edits.
-        var EVENTS = [
-          { id:'filing',          icon:'🖊️', kind:'deadline', title:'Candidate Filing Deadline',
-            sub:'Last day candidates could file to appear on the 2026 ballot.',
-            date:'2026-01-08T17:00:00-07:00' },
-          { id:'ballots-primary', icon:'✉️', kind:'deadline', title:'Primary Ballots Mailed',
-            sub:'Vote-by-mail ballots sent to every active registered voter.',
-            date:'2026-06-02T08:00:00-06:00' },
-          { id:'early-primary',   icon:'⏳', kind:'window', title:'Early Voting — Primary',
-            sub:'Vote in person before primary day at a county early-voting site.',
-            date:'2026-06-09T08:00:00-06:00', end:'2026-06-19T20:00:00-06:00',
-            cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
-          { id:'reg-primary',     icon:'📝', kind:'deadline', title:'Register to Vote — Primary',
-            sub:'Online & by-mail registration deadline for the June primary.',
-            date:'2026-06-12T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
-          { id:'primary',         icon:'🗳️', kind:'election', title:'Utah Primary Election',
-            sub:'Parties choose their nominees. Polls open 7 AM–8 PM.',
-            date:'2026-06-23T20:00:00-06:00', cta:{ label:'How to vote', href:'https://vote.utah.gov/' } },
-          { id:'early-general',   icon:'⏳', kind:'window', title:'Early Voting — General',
-            sub:'In-person early voting for the November general election.',
-            date:'2026-10-20T08:00:00-06:00', end:'2026-10-30T20:00:00-06:00',
-            cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
-          { id:'reg-general',     icon:'📝', kind:'deadline', title:'Register to Vote — General',
-            sub:'Online & by-mail registration deadline for the November general.',
-            date:'2026-10-23T17:00:00-06:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
-          { id:'general',         icon:'🏛️', kind:'election', title:'Utah General Election',
-            sub:'The main event — every key seat on your ballot is decided.',
-            date:'2026-11-03T20:00:00-07:00', cta:{ label:'Plan your vote', href:'https://vote.utah.gov/' } }
-        ];
+        // ════════════════════════════════════════════════════════════════════
+        //  PDX_ELECTION_DATA — the single, shared, data-driven election calendar
+        //  for the whole site. Both this Voter-Hub countdown and the "Key Dates"
+        //  section lower down read from it, so dates live in ONE place and the UI
+        //  is rendered entirely from data (never hardcoded into markup).
+        //
+        //   • national — federal milestones that apply to EVERY voter. Always shown.
+        //   • states   — keyed by the EXACT location-selector value (e.g. "Utah").
+        //                Light up a new state by adding its array here; no markup
+        //                or script changes are needed.
+        //   • links    — optional per-state "verify details" link (falls back to
+        //                vote.org).
+        //
+        //  Event shape: { id, kind, icon, tag, title, sub, date, end?, cta? }
+        //    kind: 'federal' | 'election' | 'deadline' | 'window'
+        //    'window' items have a start (date) + end; times are local.
+        // ════════════════════════════════════════════════════════════════════
+        window.PDX_ELECTION_DATA = window.PDX_ELECTION_DATA || {
+          national: [
+            { id:'general-2026', kind:'federal', icon:'🏛️', tag:'Federal',
+              title:'2026 General Election',
+              sub:'Every U.S. House seat and about a third of the U.S. Senate are decided nationwide — plus your own state & local races.',
+              date:'2026-11-03T08:00:00',
+              cta:{ label:'Plan your vote', href:'https://www.vote.org/' } }
+          ],
+          states: {
+            'Utah': [
+              { id:'filing', kind:'deadline', icon:'🖊️', tag:'Filing',
+                title:'Candidate Filing Deadline',
+                sub:'Last day candidates could file to appear on the 2026 ballot.',
+                date:'2026-01-08T17:00:00' },
+              { id:'ballots-primary', kind:'deadline', icon:'✉️', tag:'Mail Ballot',
+                title:'Primary Ballots Mailed',
+                sub:'Vote-by-mail ballots sent to every active registered voter.',
+                date:'2026-06-02T08:00:00' },
+              { id:'early-primary', kind:'window', icon:'⏳', tag:'Early Voting',
+                title:'Early Voting — Primary',
+                sub:'Vote in person before primary day at a county early-voting site.',
+                date:'2026-06-09T08:00:00', end:'2026-06-19T20:00:00',
+                cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
+              { id:'reg-primary', kind:'deadline', icon:'📝', tag:'Register By',
+                title:'Register to Vote — Primary',
+                sub:'Online & by-mail registration deadline for the June primary.',
+                date:'2026-06-12T17:00:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } },
+              { id:'primary', kind:'election', icon:'🗳️', tag:'Election',
+                title:'Utah Primary Election',
+                sub:'Parties choose their nominees. Polls open 7 AM–8 PM.',
+                date:'2026-06-23T07:00:00', cta:{ label:'How to vote', href:'https://vote.utah.gov/' } },
+              { id:'early-general', kind:'window', icon:'⏳', tag:'Early Voting',
+                title:'Early Voting — General',
+                sub:'In-person early voting for the November general election.',
+                date:'2026-10-20T08:00:00', end:'2026-10-30T20:00:00',
+                cta:{ label:'Find a site', href:'https://vote.utah.gov/' } },
+              { id:'reg-general', kind:'deadline', icon:'📝', tag:'Register By',
+                title:'Register to Vote — General',
+                sub:'Online & by-mail registration deadline for the November general.',
+                date:'2026-10-23T17:00:00', cta:{ label:'Register now', href:'https://vote.utah.gov/' } }
+            ]
+          },
+          links: {
+            'Utah': { label:'vote.utah.gov', url:'https://vote.utah.gov/' }
+          }
+        };
+        var DATA = window.PDX_ELECTION_DATA;
+        var DEFAULT_LINK = { label:'vote.org', url:'https://www.vote.org/' };
+
+        // The voter's selected state drives which dates show. '' = none chosen,
+        // 'National' = federal focus, or a full state name (data may not exist yet).
+        function currentState(){
+          if(!window._hasUserLocation) return '';
+          var loc = window._currentVoterLocation || {};
+          return (loc.state || '').trim();
+        }
+        function hasStateData(state){ return !!(state && state !== 'National' && DATA.states[state]); }
+        // National milestones + the selected state's events (if we have them).
+        function relevantEvents(){
+          var state = currentState();
+          return DATA.national.concat(hasStateData(state) ? DATA.states[state] : []);
+        }
 
         var activeHost = document.getElementById('pd-ec-active');
         var heroHost = document.getElementById('pd-ec-hero');
         var gridHost = document.getElementById('pd-ec-grid');
         var pastHost = document.getElementById('pd-ec-past');
+        var kickerEl = document.getElementById('pd-ec-kicker');
+        var subEl = document.getElementById('pd-ec-sub');
+        var footEl = document.getElementById('pd-ec-foot');
         if(!heroHost || !gridHost || !pastHost || !activeHost) return;
 
         var start  = function(e){ return new Date(e.date).getTime(); };
@@ -14874,8 +14920,8 @@
             + cta + '</div>';
         }
         function heroHTML(e){
-          var cls = (e.kind === 'election' || e.kind === 'window') ? 'pd-ec-hero-el' : 'pd-ec-hero-dl';
-          var tag = e.kind === 'election' ? 'Next Election' : (e.kind === 'window' ? 'Early Voting Opens' : 'Next Deadline');
+          var cls = (e.kind === 'deadline') ? 'pd-ec-hero-dl' : 'pd-ec-hero-el';
+          var tag = (e.kind === 'election' || e.kind === 'federal') ? 'Next Election' : (e.kind === 'window' ? 'Early Voting Opens' : 'Next Deadline');
           var cta = e.cta ? '<a class="pd-ec-hero-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
           return '<div class="pd-ec-hero-card '+cls+'">'
             + '<div class="pd-ec-hero-top"><span class="pd-ec-hero-ico">'+e.icon+'</span>'
@@ -14886,7 +14932,7 @@
             + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>'+cta+'</div></div>';
         }
         function cardHTML(e){
-          var cls = e.kind === 'election' ? 'pd-ec-card-el' : (e.kind === 'window' ? 'pd-ec-card-win' : 'pd-ec-card-dl');
+          var cls = (e.kind === 'election' || e.kind === 'federal') ? 'pd-ec-card-el' : (e.kind === 'window' ? 'pd-ec-card-win' : 'pd-ec-card-dl');
           var label = e.kind === 'window' ? 'days to early voting' : 'days away';
           var when = e.end ? fmtRange(e) : fmtDate(start(e));
           return '<div class="pd-ec-card '+cls+'">'
@@ -14900,21 +14946,63 @@
           return '<span class="pd-ec-past-chip"><span class="pd-ec-check">✓</span>'+esc(e.title)+' · '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>';
         }
 
+        // A dashed prompt appended to the grid when the user can unlock more
+        // local dates by choosing (or completing) their location.
+        function promptHTML(){
+          var state = currentState();
+          var title, sub;
+          if(!state){
+            title = 'See your state’s dates';
+            sub = 'You’re viewing national dates. Pick your state to add its primary, registration & early-voting deadlines.';
+          } else if(state !== 'National' && !hasStateData(state)){
+            title = esc(state) + ' dates coming soon';
+            sub = 'Detailed ' + esc(state) + ' deadlines aren’t in PolitiDex yet — the national dates above still apply to you.';
+          } else {
+            return '';
+          }
+          return '<div class="pd-ec-card pd-ec-card-dl" style="border-style:dashed;border-left-color:#60a5fa;">'
+            + '<div class="pd-ec-card-top"><span class="pd-ec-card-ico">📍</span>'
+            + '<span class="pd-ec-card-title">' + title + '</span></div>'
+            + '<div class="pd-ec-card-date" style="margin-top:0.2rem;">' + sub + '</div>'
+            + '<button type="button" onclick="window.toggleChangeLocation()" class="pd-ec-hero-cta" style="margin-top:0.6rem;border:none;cursor:pointer;font-family:inherit;">Choose location →</button>'
+            + '</div>';
+        }
+
         function render(active, upcoming, past){
           activeHost.innerHTML = active.map(nowHTML).join('');
+          var extra = promptHTML();
           if(upcoming.length){
             heroHost.innerHTML = heroHTML(upcoming[0]);
-            gridHost.innerHTML = upcoming.slice(1).map(cardHTML).join('');
+            gridHost.innerHTML = upcoming.slice(1).map(cardHTML).join('') + extra;
           } else {
-            heroHost.innerHTML = active.length ? '' : '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check vote.utah.gov for the next cycle.</div>';
-            gridHost.innerHTML = '';
+            heroHost.innerHTML = active.length ? '' : '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check your state election office for the next cycle.</div>';
+            gridHost.innerHTML = extra;
           }
           pastHost.innerHTML = past.map(pastHTML).join('');
         }
 
+        // Header kicker + footnote reflect the selected location.
+        function syncHeader(){
+          var state = currentState();
+          var link = DATA.links[state] || DEFAULT_LINK;
+          var verify = '<a href="' + esc(link.url) + '" target="_blank" rel="noopener">' + esc(link.label) + '</a>';
+          if(kickerEl){
+            kickerEl.textContent = 'Mark your calendar · ' + (hasStateData(state) ? state + ' 2026' : (state === 'National' ? 'National 2026' : '2026'));
+          }
+          if(footEl){
+            if(hasStateData(state)){
+              footEl.innerHTML = 'Dates reflect ' + esc(state) + '’s 2026 calendar; confirm county details at ' + verify + '.';
+            } else if(state && state !== 'National'){
+              footEl.innerHTML = 'Showing national dates — detailed ' + esc(state) + ' deadlines are on the way. Confirm your state’s specifics at ' + verify + '.';
+            } else {
+              footEl.innerHTML = 'Showing national dates. Set your location for your state’s deadlines, or confirm details at ' + verify + '.';
+            }
+          }
+        }
+
         function tick(){
           var now = Date.now();
-          var sorted = EVENTS.slice().sort(function(a,b){ return start(a) - start(b); });
+          var sorted = relevantEvents().slice().sort(function(a,b){ return start(a) - start(b); });
           var active   = sorted.filter(function(e){ return e.end && start(e) <= now && finish(e) > now; });
           var upcoming = sorted.filter(function(e){ return start(e) > now; });
           var past     = sorted.filter(function(e){ return finish(e) <= now; });
@@ -14942,8 +15030,14 @@
           }
         }
 
+        // Re-render when the user changes location (called by the central handler).
+        window._renderVoterHubCountdown = function(){ lastSig = null; syncHeader(); tick(); };
+
+        syncHeader();
         tick();
         setInterval(tick, 1000);
+        if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window._renderVoterHubCountdown);
+        else window._renderVoterHubCountdown();
       })();
       </script>
 
@@ -16102,19 +16196,82 @@
       <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-crimson-600/10 rounded-full blur-3xl"></div>
     </div>
 
+    <!-- Utah Key Dates timeline — scoped styling, consistent with the site's dark
+         patriotic card system. Cards are rendered + kept live by the script below. -->
+    <style id="ec-keydates-styles">
+      #election-countdown .ec-kd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0.85rem;}
+      #election-countdown .ec-kd{position:relative;border-radius:1rem;padding:1.15rem 1.15rem 1.2rem;border:1px solid rgba(255,255,255,0.1);
+        background:linear-gradient(135deg,rgba(13,21,38,0.92),rgba(17,29,54,0.86));overflow:hidden;
+        transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease;}
+      #election-countdown .ec-kd:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,0.35);}
+      #election-countdown .ec-kd-bar{position:absolute;top:0;left:0;width:100%;height:3px;background:rgba(255,255,255,0.12);}
+      #election-countdown .ec-kd.kind-election .ec-kd-bar{background:linear-gradient(90deg,#d91a31,#fad96a);}
+      #election-countdown .ec-kd.kind-deadline .ec-kd-bar{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+      #election-countdown .ec-kd.kind-window  .ec-kd-bar{background:linear-gradient(90deg,#22c55e,#4ade80);}
+      #election-countdown .ec-kd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.5rem;}
+      #election-countdown .ec-kd-tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.12em;
+        text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:999px;white-space:nowrap;flex:none;}
+      #election-countdown .ec-kd.kind-election .ec-kd-tag{color:#fad96a;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.35);}
+      #election-countdown .ec-kd.kind-deadline .ec-kd-tag{color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.35);}
+      #election-countdown .ec-kd.kind-window  .ec-kd-tag{color:#86efac;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);}
+      #election-countdown .ec-kd-count{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:0.03em;line-height:0.95;
+        color:#fff;text-align:right;}
+      #election-countdown .ec-kd-count small{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.56rem;font-weight:700;
+        letter-spacing:0.14em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
+      #election-countdown .ec-kd-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:0.02em;
+        color:#fff;line-height:1.12;}
+      #election-countdown .ec-kd-date{font-family:'Barlow',sans-serif;font-size:0.82rem;color:#9fb4d4;margin-top:0.15rem;}
+      #election-countdown .ec-kd-note{font-family:'Barlow',sans-serif;font-size:0.78rem;line-height:1.45;color:#8499b6;margin-top:0.55rem;}
+      /* status states */
+      #election-countdown .ec-kd.is-passed{opacity:0.45;}
+      #election-countdown .ec-kd.is-passed .ec-kd-count{color:#6b82a8;}
+      #election-countdown .ec-kd.is-next{border-color:rgba(245,200,66,0.65);box-shadow:0 0 0 1px rgba(245,200,66,0.25),0 12px 32px rgba(0,0,0,0.45);}
+      #election-countdown .ec-kd.is-next .ec-kd-count{color:#fad96a;text-shadow:0 0 22px rgba(245,200,66,0.35);}
+      #election-countdown .ec-kd.is-open{border-color:rgba(34,197,94,0.6);box-shadow:0 0 0 1px rgba(34,197,94,0.2),0 12px 32px rgba(0,0,0,0.45);}
+      #election-countdown .ec-kd.is-open .ec-kd-count{color:#4ade80;text-shadow:0 0 22px rgba(34,197,94,0.35);}
+      #election-countdown .ec-kd-flag{position:absolute;top:0.7rem;right:0.8rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+        font-size:0.56rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.16rem 0.46rem;border-radius:999px;display:none;}
+      #election-countdown .ec-kd.is-next .ec-kd-flag{display:inline-block;color:#fad96a;background:rgba(245,200,66,0.14);border:1px solid rgba(245,200,66,0.45);}
+      #election-countdown .ec-kd.is-open .ec-kd-flag{display:inline-block;color:#86efac;background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.45);}
+      #election-countdown .ec-kd.is-next .ec-kd-flag::before{content:'NEXT UP';}
+      #election-countdown .ec-kd.is-open .ec-kd-flag::before{content:'OPEN NOW';}
+      /* Federal items read as national, not state-specific */
+      #election-countdown .ec-kd.kind-federal .ec-kd-bar{background:linear-gradient(90deg,#3b82f6,#ffffff,#d91a31);}
+      #election-countdown .ec-kd.kind-federal .ec-kd-tag{color:#dbe6ff;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.25);}
+      #election-countdown .ec-kd.kind-federal .ec-kd-count{color:#fff;}
+      #election-countdown .ec-kd.kind-federal.is-next .ec-kd-count{color:#fad96a;text-shadow:0 0 22px rgba(245,200,66,0.35);}
+      /* Info / prompt card (used when a state has no detailed dates yet, or no location is set) */
+      #election-countdown .ec-kd.kind-info{border-style:dashed;border-color:rgba(96,165,250,0.45);
+        background:linear-gradient(135deg,rgba(13,21,38,0.85),rgba(20,30,58,0.8));}
+      #election-countdown .ec-kd.kind-info .ec-kd-bar{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+      #election-countdown .ec-kd.kind-info .ec-kd-tag{color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.35);}
+      #election-countdown .ec-kd-cta{display:inline-flex;align-items:center;gap:0.35rem;margin-top:0.75rem;font-family:'Barlow Condensed',sans-serif;
+        font-weight:700;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#fff;
+        background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.6rem;
+        padding:0.5rem 0.9rem;cursor:pointer;min-height:40px;}
+      #election-countdown .ec-kd-cta:hover{filter:brightness(1.08);}
+      /* Location chip above the countdown */
+      #election-countdown .ec-loc-chip{display:inline-flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:center;
+        font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;letter-spacing:0.01em;color:#cdd9ec;
+        background:rgba(10,15,30,0.5);border:1px solid rgba(96,165,250,0.3);border-radius:999px;padding:0.5rem 1rem;line-height:1.3;}
+      #election-countdown .ec-loc-chip.is-empty{border-style:dashed;}
+      #election-countdown .ec-loc-chip button{background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;}
+
     <div class="relative max-w-6xl mx-auto">
-      <h2 class="section-title font-display text-center tracking-wider mb-2">
-        ELECTION COUNTDOWN <span class="text-crimson-400">&</span> <span class="text-gold-400">READY TO VOTE</span>
+      <h2 id="ec-section-title" class="section-title font-display text-center tracking-wider mb-2">
+        ELECTION COUNTDOWN <span class="text-crimson-400">&</span> <span class="text-gold-400">KEY DATES</span>
       </h2>
-      <p class="text-center text-steel-300 font-condensed tracking-widest uppercase text-sm mb-10">Your vote is your power — don't waste it</p>
+      <p class="text-center text-steel-300 font-condensed tracking-widest uppercase text-sm mb-4">Your vote is your power — don't miss a deadline</p>
+      <!-- Location chip — set dynamically from the user's selected location (script below). -->
+      <div id="ec-loc-chip" class="flex justify-center mb-9"></div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <!-- ── Countdown Timer ── -->
+        <!-- ── Countdown Timer (auto-targets the next Utah election) ── -->
         <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-8 text-center relative overflow-hidden" style="box-shadow:0 12px 40px rgba(0,0,0,0.35),0 0 0 1px rgba(255,255,255,0.03);">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
-          <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white mb-1">DAYS UNTIL ELECTION DAY</h3>
-          <p class="font-condensed text-steel-400 tracking-widest uppercase text-xs mb-6">November 3, 2026 — Make Your Voice Heard</p>
+          <h3 id="cd-heading" class="font-display text-2xl md:text-3xl tracking-wider text-white mb-1">DAYS UNTIL ELECTION DAY</h3>
+          <p id="cd-subhead" class="font-condensed text-steel-400 tracking-widest uppercase text-xs mb-6">Make Your Voice Heard</p>
 
           <div id="countdown-timer" class="flex items-center justify-center gap-3 sm:gap-5 flex-wrap mb-6">
             <div class="flex flex-col items-center">
@@ -16196,39 +16353,261 @@
         </div>
 
       </div>
+
+      <!-- ── Key Dates timeline (rendered + kept live by the script below) ── -->
+      <div class="mt-10">
+        <div class="flex items-center justify-center gap-3 mb-1">
+          <span id="ec-kd-title" class="font-display text-xl md:text-2xl tracking-wider text-white">KEY DATES &mdash; 2026</span>
+        </div>
+        <p id="ec-kd-sub" class="text-center text-steel-400 font-condensed tracking-widest uppercase text-xs mb-6">Federal &middot; Primary &middot; General &middot; Registration &middot; Early Voting</p>
+        <div id="ec-keydates" class="ec-kd-grid"></div>
+        <p id="ec-kd-foot" class="text-center text-steel-500 font-body text-xs mt-5 max-w-3xl mx-auto"></p>
+      </div>
     </div>
   </section>
 
-  <!-- Countdown Timer Script -->
+  <!-- Location-aware election countdown + key-dates script -->
   <script>
   (function(){
-    var electionDate = new Date('2026-11-03T00:00:00');
+    // ════════════════════════════════════════════════════════════════════════
+    //  This "Key Dates" timeline reads the SAME shared, data-driven calendar that
+    //  the Voter-Hub countdown defines (window.PDX_ELECTION_DATA). Dates live in
+    //  ONE place — see that object for the national + per-state structure. To add
+    //  a state, add it there; both sections light up automatically.
+    //
+    //  Event shape: { id, kind, icon, tag, title, sub, date, end?, cta? }
+    //    kind: 'federal' | 'election' | 'deadline' | 'window'
+    // ════════════════════════════════════════════════════════════════════════
+    var ELECTION_DATA = window.PDX_ELECTION_DATA || { national: [], states: {}, links: {} };
+    var DEFAULT_LINK = { label:'vote.org', url:'https://www.vote.org/' };
+
+    var DAY = 86400000;
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function pad(n){ return n < 10 ? '0' + n : String(n); }
+    function fmt(d){ return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    // Whole calendar days from `now` until `target`, rounded up so a date later
+    // today still reads "1 day" rather than "0".
+    function daysUntil(target, now){ return Math.ceil((target - now) / DAY); }
+
+    // ── Location read: the user's selected state drives everything ────────────
+    // Returns '' when nothing is chosen, 'National' for the federal-focus pick,
+    // or a full state name that may or may not have detailed data yet.
+    function currentState(){
+      if(!window._hasUserLocation) return '';
+      var loc = window._currentVoterLocation || {};
+      return (loc.state || '').trim();
+    }
+    function hasStateData(state){
+      return !!(state && state !== 'National' && ELECTION_DATA.states[state]);
+    }
+
+    // ── Relevant dates = national milestones + the selected state's dates ─────
+    // Sorted chronologically so the timeline and the hero target read naturally.
+    function relevantDates(){
+      var state = currentState();
+      var list = ELECTION_DATA.national.slice();
+      if(hasStateData(state)) list = list.concat(ELECTION_DATA.states[state]);
+      list.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+      return list;
+    }
+
+    // ── Hero countdown elements ───────────────────────────────────────────────
+    var headingEl = document.getElementById('cd-heading');
+    var subheadEl = document.getElementById('cd-subhead');
     var daysEl = document.getElementById('cd-days');
     var hoursEl = document.getElementById('cd-hours');
     var minsEl = document.getElementById('cd-mins');
     var secsEl = document.getElementById('cd-secs');
-    function pad(n){ return n < 10 ? '0' + n : String(n); }
-    function tick(){
+
+    // Soonest still-upcoming election (federal counts as an election here).
+    function nextElection(now){
+      var els = relevantDates().filter(function(k){ return k.kind === 'election' || k.kind === 'federal'; });
+      for(var i=0;i<els.length;i++){
+        if(new Date(els[i].date) > now) return els[i];
+      }
+      return null;
+    }
+
+    function tickHero(){
       var now = new Date();
-      var diff = electionDate - now;
-      if(diff <= 0){
-        daysEl.textContent = '00';
-        hoursEl.textContent = '00';
-        minsEl.textContent = '00';
-        secsEl.textContent = '00';
+      var target = nextElection(now);
+      var state = currentState();
+      if(!target){
+        if(headingEl) headingEl.textContent = 'THE POLLS ARE CLOSED';
+        if(subheadEl) subheadEl.textContent = 'Thanks for voting — see you next cycle';
+        if(daysEl) daysEl.textContent = '0';
+        [hoursEl, minsEl, secsEl].forEach(function(el){ if(el) el.textContent = '00'; });
         return;
       }
-      var d = Math.floor(diff / 86400000);
-      var h = Math.floor((diff % 86400000) / 3600000);
+      // Heading reflects which election we're counting to. Titles already carry
+      // the state name where relevant (e.g. "Utah Primary Election").
+      var heading = 'DAYS UNTIL ' + target.title.toUpperCase();
+      if(headingEl) headingEl.textContent = heading;
+      if(subheadEl) subheadEl.textContent = fmt(new Date(target.date)) + ' — Make Your Voice Heard';
+
+      var diff = new Date(target.date) - now;
+      if(diff < 0) diff = 0;
+      var d = Math.floor(diff / DAY);
+      var h = Math.floor((diff % DAY) / 3600000);
       var m = Math.floor((diff % 3600000) / 60000);
       var s = Math.floor((diff % 60000) / 1000);
-      daysEl.textContent = String(d);
-      hoursEl.textContent = pad(h);
-      minsEl.textContent = pad(m);
-      secsEl.textContent = pad(s);
+      if(daysEl) daysEl.textContent = String(d);
+      if(hoursEl) hoursEl.textContent = pad(h);
+      if(minsEl) minsEl.textContent = pad(m);
+      if(secsEl) secsEl.textContent = pad(s);
     }
-    tick();
-    setInterval(tick, 1000);
+
+    function statusOf(item, now){
+      var start = new Date(item.date);
+      if(item.end){
+        var end = new Date(item.end);
+        if(now > end) return { state:'passed', days:0 };
+        if(now >= start) return { state:'open', days:daysUntil(end, now) };
+        return { state:'upcoming', days:daysUntil(start, now) };
+      }
+      if(now > start) return { state:'passed', days:0 };
+      return { state:'upcoming', days:daysUntil(start, now) };
+    }
+
+    function dateCardHtml(item, soonestKey, now){
+      var st = statusOf(item, now);
+      var cls = 'ec-kd kind-' + item.kind;
+      if(st.state === 'passed') cls += ' is-passed';
+      else if(st.state === 'open') cls += ' is-open';
+      else if(item.id === soonestKey) cls += ' is-next';
+
+      var count, unit;
+      if(st.state === 'passed'){ count = '&#10003;'; unit = 'Passed'; }
+      else if(st.state === 'open'){ count = String(st.days); unit = st.days === 1 ? 'day left' : 'days left'; }
+      else { count = String(st.days); unit = st.days === 1 ? 'day to go' : 'days to go'; }
+
+      var dateLabel = item.end
+        ? fmt(new Date(item.date)) + ' – ' + fmt(new Date(item.end))
+        : fmt(new Date(item.date));
+
+      return '<div class="' + cls + '" data-key="' + item.id + '">'
+        + '<div class="ec-kd-bar"></div>'
+        + '<span class="ec-kd-flag"></span>'
+        + '<div class="ec-kd-top">'
+        +   '<span class="ec-kd-tag">' + esc(item.tag) + '</span>'
+        +   '<span class="ec-kd-count">' + count + '<small>' + unit + '</small></span>'
+        + '</div>'
+        + '<div class="ec-kd-label">' + esc(item.title) + '</div>'
+        + '<div class="ec-kd-date">' + dateLabel + '</div>'
+        + '<div class="ec-kd-note">' + esc(item.sub) + '</div>'
+        + '</div>';
+    }
+
+    // A dashed "info" card used to prompt the user or explain missing state data.
+    function infoCardHtml(tag, label, note){
+      return '<div class="ec-kd kind-info">'
+        + '<div class="ec-kd-bar"></div>'
+        + '<div class="ec-kd-top"><span class="ec-kd-tag">' + esc(tag) + '</span></div>'
+        + '<div class="ec-kd-label">' + label + '</div>'
+        + '<div class="ec-kd-note">' + note + '</div>'
+        + '<button type="button" class="ec-kd-cta" onclick="window.toggleChangeLocation()">📍 Choose your location</button>'
+        + '</div>';
+    }
+
+    var gridEl = document.getElementById('ec-keydates');
+
+    function buildGrid(){
+      if(!gridEl) return;
+      var now = new Date();
+      var dates = relevantDates();
+
+      // The single soonest still-upcoming dated item gets the "Next up" highlight.
+      var soonestKey = null, soonestDays = Infinity;
+      dates.forEach(function(item){
+        var st = statusOf(item, now);
+        if(st.state === 'upcoming' && st.days < soonestDays){ soonestDays = st.days; soonestKey = item.id; }
+      });
+
+      var html = '';
+      dates.forEach(function(item){ html += dateCardHtml(item, soonestKey, now); });
+
+      // Append a contextual prompt depending on the location state.
+      var state = currentState();
+      if(!state){
+        html += infoCardHtml('Get Local Dates', 'See your state’s deadlines',
+          'You’re viewing national dates. Pick your state to add its primary, voter-registration and early-voting deadlines to this timeline.');
+      } else if(state !== 'National' && !hasStateData(state)){
+        html += infoCardHtml('Coming Soon', esc(state) + ' dates are on the way',
+          'Detailed ' + esc(state) + ' deadlines aren’t in PolitiDex yet — the national dates above still apply to you. Confirm your state’s specifics with your election office in the meantime.');
+      }
+      gridEl.innerHTML = html;
+    }
+
+    // ── Header / chip / footnote — all driven by the selected location ────────
+    var titleEl = document.getElementById('ec-section-title');
+    var chipEl = document.getElementById('ec-loc-chip');
+    var kdTitleEl = document.getElementById('ec-kd-title');
+    var kdSubEl = document.getElementById('ec-kd-sub');
+    var kdFootEl = document.getElementById('ec-kd-foot');
+
+    function renderHeaders(){
+      var state = currentState();
+      var amp = ' <span class="text-crimson-400">&</span> <span class="text-gold-400">KEY DATES</span>';
+
+      if(titleEl){
+        var prefix = hasStateData(state) ? (esc(state.toUpperCase()) + ' ') : (state === 'National' ? 'NATIONAL ' : '');
+        titleEl.innerHTML = prefix + 'ELECTION COUNTDOWN' + amp;
+      }
+
+      var changeBtn = '<button type="button" onclick="window.toggleChangeLocation()">change</button>';
+      if(chipEl){
+        if(!state){
+          chipEl.innerHTML = '<span class="ec-loc-chip is-empty">🇺🇸 Showing <strong>national dates</strong> · '
+            + '<button type="button" onclick="window.toggleChangeLocation()">Select your state</button> for local deadlines</span>';
+        } else if(state === 'National'){
+          chipEl.innerHTML = '<span class="ec-loc-chip">🇺🇸 <strong>Federal focus</strong> — national elections · ' + changeBtn + '</span>';
+        } else if(hasStateData(state)){
+          chipEl.innerHTML = '<span class="ec-loc-chip">📍 Showing <strong>federal + ' + esc(state) + '</strong> dates · ' + changeBtn + '</span>';
+        } else {
+          chipEl.innerHTML = '<span class="ec-loc-chip">📍 <strong>' + esc(state) + '</strong> — national dates shown · ' + changeBtn + '</span>';
+        }
+      }
+
+      if(kdTitleEl){
+        kdTitleEl.innerHTML = (hasStateData(state) ? (esc(state.toUpperCase()) + ' KEY DATES') : 'KEY ELECTION DATES') + ' &mdash; 2026';
+      }
+      if(kdSubEl){
+        kdSubEl.textContent = hasStateData(state)
+          ? 'Federal · Primary · General · Registration · Early Voting'
+          : 'Federal milestones every voter shares';
+      }
+      if(kdFootEl){
+        var link = ELECTION_DATA.links[state] || DEFAULT_LINK;
+        var verify = '<a href="' + link.url + '" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline-offset-2 hover:underline">' + esc(link.label) + '</a>';
+        if(hasStateData(state)){
+          kdFootEl.innerHTML = 'Dates reflect ' + esc(state) + '’s statewide 2026 calendar; early-voting locations and hours vary by county. Always confirm details at ' + verify + ' or your county clerk’s office.';
+        } else {
+          kdFootEl.innerHTML = 'Deadlines, primary dates and early-voting rules vary by state. Confirm the dates that apply to you at ' + verify + ' or your state election office.';
+        }
+      }
+    }
+
+    // Master render — called on load and whenever the location changes.
+    function renderAll(){
+      renderHeaders();
+      buildGrid();
+      tickHero();
+    }
+
+    // Expose so the central location-change handler can refresh this section,
+    // keeping it in sync with "Relevant to Me" and the rest of the site.
+    window._renderElectionDates = renderAll;
+
+    renderAll();
+    setInterval(tickHero, 1000);
+    // Day-counts only change across a calendar day — refreshing each minute keeps
+    // them accurate without rebuilding the DOM every second.
+    setInterval(buildGrid, 60000);
+    // Location is loaded from storage after this script parses, so re-render once
+    // the DOM is ready to pick up any saved state.
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderAll);
+    else renderAll();
   })();
   </script>
 
@@ -32861,6 +33240,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+    if (typeof window._renderElectionDates === 'function') window._renderElectionDates();
+    if (typeof window._renderVoterHubCountdown === 'function') window._renderVoterHubCountdown();
     
     var pmStateSel = document.getElementById('pm-state-sel');
     if (pmStateSel) pmStateSel.value = (state === 'National' ? 'national' : 'all');
