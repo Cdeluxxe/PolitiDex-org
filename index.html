@@ -24045,7 +24045,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
             <a href="${p.source}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;transition:color 0.2s;" onmouseenter="this.style.color='${accentColor}'" onmouseleave="this.style.color='#7596c0'">📄 Source: OpenSecrets / FEC</a>
           </div>
-          <button style="width:100%;background:${btnBg};color:white;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem;border-radius:0.625rem;border:none;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='${btnHover}'" onmouseleave="this.style.background='${btnBg}'" onclick="showProfile('${p.id}', event)">View Full Profile →</button>
+          <div style="display:flex;gap:0.5rem;align-items:stretch;">
+            <button style="flex:1;min-width:0;background:${btnBg};color:white;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem;border-radius:0.625rem;border:none;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='${btnHover}'" onmouseleave="this.style.background='${btnBg}'" onclick="showProfile('${p.id}', event)">View Full Profile →</button>
+            <button class="pdx-act-share" onclick="event.stopPropagation();window.pdxSharePolitician('${p.id}',event)" aria-label="Share this profile" title="Share this profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></button>
+          </div>
         </div>
       </div>`;
     }
@@ -24524,7 +24527,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">' +
             '<a href="' + p.source + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;transition:color 0.2s;" onmouseenter="this.style.color=\'#4ade80\'" onmouseleave="this.style.color=\'#7596c0\'">📄 Source: OpenSecrets / FEC</a>' +
           '</div>' +
-          '<button style="width:100%;background:rgba(251,146,60,0.85);color:white;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem;border-radius:0.625rem;border:none;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background=\'#f97316\'" onmouseleave="this.style.background=\'rgba(251,146,60,0.85)\'" onclick="showProfile(\'' + p.id + '\', event)">View Full Profile →</button>' +
+          '<div style="display:flex;gap:0.5rem;align-items:stretch;">' +
+            '<button style="flex:1;min-width:0;background:rgba(251,146,60,0.85);color:white;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem;border-radius:0.625rem;border:none;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background=\'#f97316\'" onmouseleave="this.style.background=\'rgba(251,146,60,0.85)\'" onclick="showProfile(\'' + p.id + '\', event)">View Full Profile →</button>' +
+            '<button class="pdx-act-share" onclick="event.stopPropagation();window.pdxSharePolitician(\'' + p.id + '\',event)" aria-label="Share this profile" title="Share this profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></button>' +
+          '</div>' +
         '</div>' +
       '</div>';
     }
