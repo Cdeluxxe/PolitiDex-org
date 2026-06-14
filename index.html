@@ -1626,6 +1626,40 @@
     }
     .cand-snapshot .cs-lede strong { color: #cbd9ec; }
 
+    /* Cohesion index — frames the Snapshot's three reads (stated Positions, the
+       visitor's Alignment match, and the Spotlight) as one connected system and
+       lets the visitor jump straight to any of them. This is what makes a thin
+       profile read as a single, intentional dossier rather than three separate,
+       half-filled sections that happen to share a card. */
+    .cand-snapshot .cs-map { margin-top: 0.95rem; }
+    .cand-snapshot .cs-map-intro {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #7596c0; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .cand-snapshot .cs-map-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.45rem;
+    }
+    .cand-snapshot .cs-map-chip {
+      display: flex; align-items: center; gap: 0.5rem; text-align: left; min-width: 0;
+      background: rgba(10,15,30,0.5); border: 1px solid rgba(159,180,212,0.18);
+      border-radius: 0.6rem; padding: 0.5rem 0.6rem; cursor: pointer; color: inherit;
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    }
+    @media (hover: hover) { .cand-snapshot .cs-map-chip:hover { border-color: rgba(167,139,250,0.5); transform: translateY(-1px); background: rgba(30,53,96,0.5); } }
+    .cand-snapshot .cs-map-ico { font-size: 1.05rem; line-height: 1; flex-shrink: 0; }
+    .cand-snapshot .cs-map-txt { display: flex; flex-direction: column; min-width: 0; }
+    .cand-snapshot .cs-map-k {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0;
+    }
+    .cand-snapshot .cs-map-v {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.82rem; color: #e6eefb; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cand-snapshot .cs-map-v.cs-map-v-match { color: #a78bfa; }
+
     /* At-a-glance facts */
     .cand-snapshot .cs-facts {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
@@ -29124,7 +29158,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _limitedBanner = (!derived && !_isCandidate && _depthKIS === 'limited')
       ? ('<div class="stance-limited-note">' +
            '<span class="stance-limited-pill">📋 Limited Record</span>' +
-           '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These ' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + ' are the clearest read on where ' + _firstName + ' stands today — more of the voting record is added as it is verified.</span>' +
+           '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These ' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + ' are the clearest read on where ' + _firstName + ' stands today — more of the voting record is added as it is verified. The <strong style="color:#c4b5fd;">Candidate Snapshot</strong> at the top of this profile pulls them together with your Alignment match and the Spotlight.</span>' +
          '</div>')
       : '';
     return '<div class="modal-section">' +
@@ -29354,7 +29388,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         standsHead = '🧭 Stated positions';
         standsBody = '<p class="cs-stance-text">We are gathering ' + first + '\'s stated positions from public statements and campaign materials. In the meantime, you can still compare ' + first + ' to your own values with the Alignment Tool.</p>';
       }
-      var standsBlock = '<div class="cs-block cs-positions"><div class="cs-block-h">' + standsHead + posCountPill + '</div>' + standsBody + '</div>';
+      var standsBlock = '<div class="cs-block cs-positions" id="cs-block-positions"><div class="cs-block-h">' + standsHead + posCountPill + '</div>' + standsBody + '</div>';
 
       // ── Alignment Tool connector ──────────────────────────────────────
       // Ties the positions above to the Personalized Alignment Tool. When the
@@ -29419,7 +29453,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? ''
         : '<p class="cs-align-guide">💡 <strong>New to a candidate?</strong> Officials this early rarely have a long voting record — the Alignment Tool compares them on their <strong>stated positions</strong> instead, so you can still judge fit by your values, not their party.</p>';
 
-      var alignBlock = '<div class="cs-align">' +
+      var alignBlock = '<div class="cs-align" id="cs-block-align">' +
         '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on your values</span>' + matchChip + '</div>' +
         '<p class="cs-align-text">' + alignText + '</p>' +
         basisHtml +
@@ -29441,11 +29475,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ? window._issueTagHtml(spot.issueKey, spotTiedToPosition ? 'Connects to their position on' : 'On the issue:')
           : '';
         var spotTieRow = spotTie ? '<div class="cs-spot-tie-row">' + spotTie + '</div>' : '';
+        // Cross-story bridge: even when the LEAD item isn't about a documented
+        // position, a more recent Spotlight update further down the timeline might
+        // be. Scan every story for one whose issue matches a position shown above,
+        // so the Snapshot can always point out "this news is about a value stated
+        // here" — the connection holds across the whole record, not just the top item.
+        var keyedByIssue = {};
+        keyed.forEach(function(s) { if (s.issueKey) keyedByIssue[s.issueKey] = s; });
+        var tiedStories = (spot.stories || []).filter(function(st) { return st && st.issueKey && keyedByIssue[st.issueKey]; });
+        // A secondary bridge note, shown when the lead itself isn't tied to a
+        // position but another recent update is — names the issue and points into
+        // the Spotlight so the rhetoric-vs-record link is never lost off the top.
+        var spotCrossNote = '';
+        if (!spotTiedToPosition && tiedStories.length && typeof window._issueLabel === 'function') {
+          var xKeys = {};
+          tiedStories.forEach(function(st) { xKeys[st.issueKey] = true; });
+          var xLabel = window._issueLabel(tiedStories[0].issueKey);
+          var xCount = 0; for (var xk in xKeys) { if (xKeys.hasOwnProperty(xk)) xCount++; }
+          if (xLabel) {
+            spotCrossNote = '<p class="cs-spot-note">🔗 A recent Spotlight update connects to ' + first + '\'s position on <strong style="color:#c4b5fd;">' + xLabel + '</strong>' +
+              (xCount > 1 ? ' (and ' + (xCount - 1) + ' other tracked issue' + (xCount - 1 === 1 ? '' : 's') + ')' : '') +
+              ' — open the Spotlight to see how the record matches the rhetoric.</p>';
+          }
+        }
         if (spot.kind === 'newcomer' || spot.kind === 'monitoring') {
           // No real story to open yet — show the honest status note and explain
           // that the Spotlight is where future statements/events get logged, tied
           // to the very issues this candidate is being tracked on.
-          spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
+          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
             '<div class="cs-spot-card">' +
               '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + '</span>' +
               '<span class="cs-spot-text">' + spotText + '</span></span>' +
@@ -29453,14 +29510,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<p class="cs-spot-note">As ' + first + ' makes news, the Spotlight logs each statement, vote and key moment here — tied to the issue positions above, so you can see how the record matches the rhetoric.</p>' +
           '</div>';
         } else {
-          spotBlock = '<div class="cs-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
+          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
             '<button type="button" class="cs-spot-card" onclick="event.stopPropagation();window.keyRacesSpotlight && window.keyRacesSpotlight(\'' + id + '\');">' +
               '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + (spot.date ? ' · ' + spot.date : '') + '</span>' +
               '<span class="cs-spot-text">' + spotText + '</span></span>' +
               '<span class="cs-spot-cta" aria-hidden="true">→</span>' +
             '</button>' +
             spotTieRow +
-            (spotTiedToPosition ? '<p class="cs-spot-note">This Spotlight item ties to a position above — open it to see the news, sources and why it matters for that issue.</p>' : '') +
+            (spotTiedToPosition ? '<p class="cs-spot-note">This Spotlight item ties to a position above — open it to see the news, sources and why it matters for that issue.</p>' : spotCrossNote) +
           '</div>';
         }
       }
@@ -29495,15 +29552,61 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var hint = '<div class="cs-foot-hint">↓ ' +
         ((keyIssues.length || stanceList.length) ? 'Full positions, your alignment and the promise tracker are below' : 'More detail is below') + '</div>';
 
+      // ── Cohesion index ("one read, three ways") ───────────────────────
+      // The connective frame for the whole snapshot: it names the three lenses
+      // this card uses to size up a thin candidate — their stated Positions, the
+      // visitor's own Alignment match, and the Spotlight — and lets the visitor
+      // jump straight to any of them. Each chip reflects what data actually
+      // exists (a count, a live match %, or an honest status word), so the
+      // snapshot reads as one intentional system rather than three loose blocks.
+      // Built last so it can reflect the spotlight/alignment state resolved above.
+      var mapChips = [];
+      var posV = stanceList.length
+        ? (stanceList.length + ' on record')
+        : (keyIssues.length ? (keyIssues.length + ' priorit' + (keyIssues.length === 1 ? 'y' : 'ies')) : 'Being added');
+      mapChips.push({ t: 'cs-block-positions', ico: '📌', k: 'Positions', v: posV });
+      var matchV, matchAccent = false;
+      if (userMatch !== null) { matchV = userMatch + '% match'; matchAccent = true; }
+      else if (trackedIssueCount > 0) { matchV = 'Compare'; }
+      else { matchV = 'Compare'; }
+      mapChips.push({ t: 'cs-block-align', ico: '🤝', k: 'Your match', v: matchV, accent: matchAccent });
+      if (spotBlock) {
+        var spotV = (spot && (spot.kind === 'newcomer' || spot.kind === 'monitoring'))
+          ? 'Monitoring'
+          : ((spot && spot.total > 1) ? (spot.total + ' updates') : 'Latest update');
+        mapChips.push({ t: 'cs-block-spot', ico: '🔦', k: 'Spotlight', v: spotV });
+      }
+      var mapHtml = '<div class="cs-map">' +
+        '<div class="cs-map-intro"><span aria-hidden="true">🧭</span>One read on ' + first + ', three ways — tap to jump</div>' +
+        '<div class="cs-map-row">' +
+          mapChips.map(function(c) {
+            return '<button type="button" class="cs-map-chip" onclick="event.stopPropagation();var el=document.getElementById(\'' + c.t + '\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});">' +
+              '<span class="cs-map-ico" aria-hidden="true">' + c.ico + '</span>' +
+              '<span class="cs-map-txt"><span class="cs-map-k">' + c.k + '</span>' +
+              '<span class="cs-map-v' + (c.accent ? ' cs-map-v-match' : '') + '">' + c.v + '</span></span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+
+      // Limited-record pill label — mirror the exact wording the card-level depth
+      // badge uses (🌱 "Early in Term" for a sitting official with nothing tracked
+      // yet, "Limited Record" otherwise), so a visitor sees the SAME label in the
+      // modal that drew them in from the card. Challengers keep "Limited Record"
+      // since their card already carries the "2026 Candidate" status badge.
+      var csPillLabel = (!isChallenger && typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(p) === 'none')
+        ? 'Early in Term' : 'Limited Record';
+
       return '<div class="cand-snapshot">' +
         '<div class="cs-head">' +
           '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
           '<div class="cs-head-main">' +
-            '<div class="cs-title">Candidate Snapshot<span class="cs-pill" title="Not a knock on the candidate — it just means we have few tracked promises so far. This snapshot leads with what is known: their stated positions and where they stand on the issues.">Limited Record</span></div>' +
+            '<div class="cs-title">Candidate Snapshot<span class="cs-pill" title="Not a knock on the candidate — it just means we have few tracked promises so far. This snapshot leads with what is known: their stated positions and where they stand on the issues.">' + csPillLabel + '</span></div>' +
             '<p class="cs-lede">' + lede + '</p>' +
           '</div>' +
         '</div>' +
         factsHtml +
+        mapHtml +
         standsBlock +
         alignBlock +
         spotBlock +
