@@ -7340,6 +7340,26 @@
     .kraq-group-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin: 0.55rem 0 0.6rem; padding-top: 0.55rem; border-top: 1px solid rgba(255,255,255,0.07); }
     .kraq-group-label:first-child { margin-top: 0; padding-top: 0; border-top: none; }
 
+    /* "📍 Stated position" badge — flags a breakdown row whose score rests on a
+       documented, sourced position on that exact issue (vs. one inferred from the
+       broader record). Teal to read as part of the personalized-alignment family. */
+    .kraq-doc-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase; color: #5eead4; background: rgba(45,212,191,0.16); border: 1px solid rgba(45,212,191,0.45); border-radius: 999px; padding: 0.02rem 0.36rem; margin-left: 0.34rem; vertical-align: middle; white-space: nowrap; }
+    /* The candidate's own one-line stance, shown under a documented breakdown row so
+       the voter reads WHERE the candidate stands, not just the match number. */
+    .kraq-issue-stance { font-size: 0.62rem; color: #9fb4d4; line-height: 1.5; margin: 0.35rem 0 0; }
+    /* Issue-discovery panel — the candidate's documented positions the visitor has
+       NOT picked yet, offered as tap-to-add chips. Makes available issues visible and
+       turns the breakdown into a place to broaden the comparison. */
+    .kraq-avail { margin-top: 1rem; padding: 0.85rem 0.9rem; background: rgba(45,212,191,0.06); border: 1px solid rgba(45,212,191,0.24); border-radius: 0.8rem; }
+    .kraq-avail-head { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.02em; color: #7ee7d8; line-height: 1.3; }
+    .kraq-avail-sub { font-size: 0.64rem; color: #9fb4d4; line-height: 1.45; margin-top: 0.15rem; }
+    .kraq-avail-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+    .kraq-avail-chip { display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.7rem; color: #cdeee8; background: rgba(20,184,166,0.1); border: 1px solid rgba(45,212,191,0.35); border-radius: 999px; padding: 0.28rem 0.6rem; transition: background 0.16s ease, border-color 0.16s ease, transform 0.12s ease; }
+    @media (hover: hover) { .kraq-avail-chip:hover { background: rgba(20,184,166,0.2); border-color: rgba(45,212,191,0.6); transform: translateY(-1px); } }
+    .kraq-avail-chip:active { transform: translateY(0) scale(0.97); }
+    .kraq-avail-st { font-size: 0.66rem; color: #5eead4; font-weight: 800; }
+    .kraq-avail-plus { font-size: 0.78rem; color: #5eead4; font-weight: 800; margin-left: 0.1rem; }
+
     /* Dynamic "Spotlight" quick-view (opened from the new per-candidate Spotlight
        button). Gold patriotic theme to match the site's SPOTLIGHT REPORT styling. */
     .kr-spot-overlay { position: fixed; inset: 0; z-index: 130; background: rgba(2,6,18,0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
@@ -45278,7 +45298,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krAlignInlineRows(bd) {
       return bd.issues.map(function(it) {
         var ic = _krAlignColor(it.score);
-        var note = it.hasEvidence ? '' : '<span style="font-size:0.54rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>';
+        // A documented position on this exact issue is the strongest evidence — flag
+        // it as such; only the genuinely thin (inferred) issues get the limited note.
+        var note = it.direct
+          ? '<span class="kraq-doc-badge" title="A documented, sourced position on this exact issue">📍 Stated</span>'
+          : (it.hasEvidence ? '' : '<span style="font-size:0.54rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>');
         // Surface the visitor's own intensity on the issue so the breakdown reflects
         // how they weighted it (Strong = counts more, Opposed = inverted match).
         var tag = '';
@@ -45448,16 +45472,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       function _kraqRow(it) {
         var ic = _krAlignColor(it.score);
-        var note = it.hasEvidence ? '' : '<span style="font-size:0.58rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>';
+        // Documented positions are the strongest signal — label them as such; reserve
+        // the "limited record" caveat for issues only inferred from the broader record.
+        var note = it.direct
+          ? '<span class="kraq-doc-badge" title="A documented, sourced position on this exact issue">📍 Stated position</span>'
+          : (it.hasEvidence ? '' : '<span style="font-size:0.58rem;color:#7596c0;margin-left:0.3rem;">(limited record)</span>');
         // Surface how the voter weighted this issue so the score is self-explanatory:
         // a 💪 strong pick counts ~1.7×, and an 🚫 opposed pick means a HIGH bar is a
         // candidate who agrees with the voter's opposition (the score is inverted).
         var intTag = '';
         if (it.intensity === 'strong') intTag = '<span class="kraq-int kraq-int-strong" title="You marked this a strong priority — it carries extra weight">💪 Strong</span>';
         else if (it.intensity === 'opposed') intTag = '<span class="kraq-int kraq-int-opp" title="You oppose this position — a high bar means this candidate agrees with you">🚫 You oppose</span>';
+        // For a documented position, show the candidate's own one-line stance right
+        // under the bar so the voter sees exactly WHERE they stand, not just a number.
+        var stanceLine = '';
+        if (it.direct && it.text) {
+          var _sw = it.stance === 'support' ? 'Supports' : it.stance === 'oppose' ? 'Opposes' : 'Mixed record';
+          stanceLine = '<p class="kraq-issue-stance"><b style="color:#7ee7d8;">' + _sw + ':</b> ' + it.text + '</p>';
+        }
         return '<div class="kraq-issue-row">' +
           '<div class="kraq-issue-head"><span>' + it.label + intTag + note + '</span><span style="color:' + ic + ';font-weight:700;">' + it.score + '%</span></div>' +
           '<div class="kraq-issue-bar"><div style="height:100%;width:' + it.score + '%;background:linear-gradient(90deg,' + ic + '88,' + ic + ');border-radius:999px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);"></div></div>' +
+          stanceLine +
         '</div>';
       }
 
@@ -45492,30 +45528,69 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var photo = _krPhoto(pid, d, '#2dd4bf');
       var matchWord = overall >= 70 ? 'Strong match' : overall >= 50 ? 'Partial match' : 'Weak match';
-
       // Confidence cue — how much of this score rests on a documented record vs.
       // an early read from stated priorities. Critical for fresh 2026 candidates,
       // who otherwise show a confident-looking number with nothing behind it.
+      // `nDirect` counts the visitor's issues backed by an explicit, sourced position
+      // on the exact issue — the strongest grounding — so the messaging leads with it.
+      var nDirect = bd.issues.filter(function(it) { return it.direct; }).length;
       var nEvidence = bd.issues.filter(function(it) { return it.hasEvidence; }).length;
       var nTotal = bd.issues.length;
       var firstName = (d.name || 'This candidate').split(' ')[0];
       var confHtml;
-      if (nEvidence === 0) {
+      if (nDirect > 0 && nDirect === nTotal) {
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
+            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">Every one of your <b style="color:#6ee7b7;">' + nTotal + '</b> selected issue' + (nTotal === 1 ? ' has a' : 's has a') + ' documented, sourced position from ' + firstName + ' — this match is grounded directly in where they stand, not inferred.</p>' +
+          '</div>';
+      } else if (nDirect > 0) {
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📍</span>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nDirect + ' of ' + nTotal + '</b> of your issues match a documented position ' + firstName + ' has stated (marked <b style="color:#5eead4;">📍 Stated</b> below); the rest are estimated from their broader record.</p>' +
+          '</div>';
+      } else if (nEvidence === 0) {
         confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.32);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
             '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
-            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented voting or position record for ' + firstName + ' yet, so this is estimated from their stated priorities. It sharpens as positions and votes are verified — but you can already see where ' + firstName + ' stands against your values.</p>' +
-          '</div>';
-      } else if (nEvidence < nTotal) {
-        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
-            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📋</span>' +
-            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nTotal + '</b> of your issues are backed by ' + firstName + '\'s documented record; the rest are estimated from their stated priorities until more is verified.</p>' +
+            '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;"><b style="color:#fbbf24;">Early read.</b> We don\'t have a documented position or voting record from ' + firstName + ' on the issues you picked yet, so this is estimated from their stated priorities. It sharpens as positions are verified — and the Candidate Snapshot shows what ' + firstName + ' <em>has</em> stated so far.</p>' +
           '</div>';
       } else {
-        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.28);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
-            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">✅</span>' +
-            '<p style="font-size:0.66rem;color:#a7d8c1;line-height:1.5;margin:0;">Grounded in ' + firstName + '\'s <b style="color:#6ee7b7;">documented record</b> across all ' + nTotal + ' of your selected issue' + (nTotal === 1 ? '' : 's') + '.</p>' +
+        confHtml = '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(45,212,191,0.07);border:1px solid rgba(45,212,191,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:1rem;">' +
+            '<span style="font-size:0.9rem;line-height:1.2;flex:none;">📋</span>' +
+            '<p style="font-size:0.66rem;color:#a7c4cf;line-height:1.5;margin:0;"><b style="color:#5eead4;">' + nEvidence + ' of ' + nTotal + '</b> of your issues are backed by ' + firstName + '\'s broader record; the rest are estimated from their stated priorities until more is verified.</p>' +
           '</div>';
       }
+
+      // Issue discovery — the candidate's OWN documented positions on issues the
+      // visitor hasn't picked yet. Makes it transparent which issues are available to
+      // match on (especially valuable for a thin candidate whose record IS these
+      // positions), and turns the modal into a place to broaden the comparison: tap a
+      // chip to add that issue and the breakdown instantly re-scores to include it.
+      var availBlock = '';
+      try {
+        var _polMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(pid, d) || {}) : {};
+        var _amap = window._alignIssueMap || {};
+        var _active = window._alignIssues;
+        var _availKeys = Object.keys(_polMap).filter(function(k) {
+          return _amap[k] && !(_active && _active.has && _active.has(k));
+        });
+        if (_availKeys.length) {
+          var _availChips = _availKeys.slice(0, 8).map(function(k) {
+            var lab = (_amap[k] && _amap[k].label) ? _amap[k].label : k;
+            var st = _polMap[k].stance;
+            var stIco = st === 'support' ? '✓' : st === 'oppose' ? '✗' : '~';
+            return '<button type="button" class="kraq-avail-chip" title="Add “' + lab.replace(/"/g, '&quot;') + '” to your issues and see how you compare" ' +
+                'onclick="window.alignSetIntensity(\'' + k + '\',\'moderate\');window.keyRacesAlignQuickView(\'' + pid + '\');">' +
+                '<span class="kraq-avail-st">' + stIco + '</span>' + lab + '<span class="kraq-avail-plus">＋</span>' +
+              '</button>';
+          }).join('');
+          availBlock =
+            '<div class="kraq-avail">' +
+              '<div class="kraq-avail-head">📍 ' + firstName + ' has stated positions on ' + _availKeys.length + ' more issue' + (_availKeys.length === 1 ? '' : 's') + ' you haven\'t picked</div>' +
+              '<div class="kraq-avail-sub">Tap to add one and see exactly where you line up.</div>' +
+              '<div class="kraq-avail-chips">' + _availChips + '</div>' +
+            '</div>';
+        }
+      } catch (e) {}
 
       var html =
         '<div class="kraq-card">' +
@@ -45540,6 +45615,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div class="font-condensed font-700" style="font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#5eead4;margin-bottom:0.6rem;">Issue-by-issue breakdown</div>' +
             tallyHtml +
             issuesGrouped +
+            availBlock +
             '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
               '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#0d9488,#2dd4bf);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(20,184,166,0.3);">👤 Full Profile</button>' +
               '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(window._krAlignGuideToPicker,220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#7ee7d8;background:rgba(20,184,166,0.12);border:1px solid rgba(45,212,191,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚙ Adjust Issues</button>' +
@@ -47338,6 +47414,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var profile = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
 
+      // The candidate's curated, sourced issue positions, keyed one-to-one to the
+      // same ISSUE_MAP keys the picker uses. These are the most authoritative signal
+      // we have — an explicit, documented "supports / opposes / mixed" on the exact
+      // issue — so when a selected issue matches one, it drives the score directly
+      // instead of being inferred from keyword overlap. This is what makes a thin
+      // candidate (stated positions only, no voting record) genuinely scorable.
+      var polMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(pid, d) || {}) : {};
+
       var totalWeight = 0;
       var totalScore = 0;
 
@@ -47442,19 +47526,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
         }
 
-        if (issueDef.lean) {
-          issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
-        }
-
-        issueScore = Math.min(100, Math.max(0, issueScore));
-
-        // Apply the optional intensity overlay. Default (no entry = moderate) leaves
-        // the score and weight untouched, so signatures saved before this feature
-        // score identically. 'strong' weights the issue more; 'opposed' inverts the
-        // match (a candidate who holds the position now scores LOW for this voter).
         var _intens = _alignIntensity[issueKey];
-        if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
-        else if (_intens === 'strong') { issueWeight *= 1.7; }
+        var _userIntensity = _intens || 'moderate';
+        var directPos = polMap[issueKey] || null;
+
+        if (directPos) {
+          // The candidate has a documented position on this exact issue — the most
+          // authoritative signal there is. Score it straight from that stance vs. the
+          // visitor's own view (_issueVerdict already folds in an 'opposed' pick), and
+          // give documented positions strong weight so they lead the match. A 'strong'
+          // pick still counts extra; we do NOT additionally invert for 'opposed'
+          // because the verdict already accounts for it.
+          var _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, directPos.stance) : 'partial';
+          issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
+          issueWeight = Math.max(issueWeight, 2.6);
+          if (_intens === 'strong') issueWeight *= 1.7;
+        } else {
+          if (issueDef.lean) {
+            issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
+          }
+          issueScore = Math.min(100, Math.max(0, issueScore));
+          // Apply the optional intensity overlay. Default (no entry = moderate) leaves
+          // the score and weight untouched, so signatures saved before this feature
+          // score identically. 'strong' weights the issue more; 'opposed' inverts the
+          // match (a candidate who holds the position now scores LOW for this voter).
+          if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
+          else if (_intens === 'strong') { issueWeight *= 1.7; }
+        }
 
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
@@ -47471,6 +47569,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return null;
       var profile = (typeof PROFILES !== 'undefined') ? PROFILES[pid] : null;
+
+      // Same authoritative curated positions used by _calcAlignmentScore (kept in
+      // lock-step), so the breakdown's per-issue scores and the headline % agree.
+      var polMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(pid, d) || {}) : {};
 
       var totalWeight = 0, totalScore = 0;
       var perIssue = [];
@@ -47570,22 +47672,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
         }
 
-        if (issueDef.lean) {
-          issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
-        }
-
-        issueScore = Math.min(100, Math.max(0, issueScore));
-
-        // Same intensity overlay as _calcAlignmentScore (kept in lock-step).
         var _intens = _alignIntensity[issueKey];
-        if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
-        else if (_intens === 'strong') { issueWeight *= 1.7; }
+        var _userIntensity = _intens || 'moderate';
+        var directPos = polMap[issueKey] || null;
+        var _verdict = null;
+
+        if (directPos) {
+          // Authoritative documented position — score straight from the stance vs.
+          // the visitor's view (see _calcAlignmentScore for the rationale).
+          _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, directPos.stance) : 'partial';
+          issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
+          issueWeight = Math.max(issueWeight, 2.6);
+          if (_intens === 'strong') issueWeight *= 1.7;
+        } else {
+          if (issueDef.lean) {
+            issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
+          }
+          issueScore = Math.min(100, Math.max(0, issueScore));
+          // Same intensity overlay as _calcAlignmentScore (kept in lock-step).
+          if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
+          else if (_intens === 'strong') { issueWeight *= 1.7; }
+        }
 
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
 
-        var hasEvidence = (relevance > 0 || stanceCount > 0 || votingCount > 0 || promiseCount > 0);
-        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, intensity: _intens || 'moderate' });
+        // `direct` flags a curated, documented position on this exact issue (the
+        // strongest evidence); the UI uses it to label the row honestly and to lead
+        // with documented matches. `hasEvidence` stays true for those too.
+        var hasEvidence = (!!directPos || relevance > 0 || stanceCount > 0 || votingCount > 0 || promiseCount > 0);
+        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _intens || 'moderate' });
       });
 
       if (totalWeight === 0) return null;
