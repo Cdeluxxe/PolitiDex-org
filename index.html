@@ -45964,6 +45964,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
       } catch (e) {}
 
+      // Consistent "Limited Record" / candidate framing — the same badges the
+      // politician cards and the Spotlight modal carry, so a thin profile reads
+      // identically across every surface. Conditional, so full officeholder
+      // records stay uncluttered.
+      var _aqStatus = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var _aqCandBadge = (_aqStatus === 'candidate' && typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
+      var _aqDepthBadge = (typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(d, { size: 'sm' }) : '';
+      var _aqHeadBadges = (_aqCandBadge || _aqDepthBadge)
+        ? ('<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem;">' + _aqCandBadge + _aqDepthBadge + '</div>')
+        : '';
+
       var html =
         '<div class="kraq-card">' +
           '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(20,184,166,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(45,212,191,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
@@ -45972,6 +45983,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div class="font-condensed" style="font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:#5eead4;">🎯 Your Personalized Alignment</div>' +
               '<div class="font-display text-lg text-white" style="line-height:1.1;">' + d.name + '</div>' +
               '<div class="font-condensed" style="font-size:0.66rem;color:#9fb4d4;">' + partyHtml + (d.office ? ' · ' + d.office : '') + '</div>' +
+              _aqHeadBadges +
             '</div>' +
             '<button type="button" onclick="window.keyRacesCloseAlign()" aria-label="Close" style="flex-shrink:0;width:34px;height:34px;border-radius:0.65rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;">✕</button>' +
           '</div>' +
@@ -46204,6 +46216,109 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }, 200);
     };
 
+    // ── Spotlight ↔ positions ↔ alignment bridge ──────────────────────────
+    // The connective tissue that keeps the Spotlight from reading as a detached
+    // news feed: it pulls the candidate's own documented issue positions — the
+    // same data the Candidate Snapshot leads with and the Alignment Tool compares
+    // against — into the Spotlight modal, leading with the exact issue this update
+    // is about. So a visitor reads the news, then sees where the candidate
+    // actually stands on that issue and (if they've set Alignment picks) how it
+    // lines up with their own values, all in one place. This is what makes the
+    // three sections read as one system rather than three feeds that happen to
+    // share a candidate. Returns '' when there are no documented positions, so
+    // full and bio-only profiles are untouched.
+    function _krSpotlightPositionsHtml(pid, d, s) {
+      try {
+        if (typeof window._resolveStanceList !== 'function') return '';
+        var list = window._resolveStanceList(pid, d) || [];
+        if (!list.length) return '';
+        var first = (d.name || 'They').toString().split(' ')[0] || 'They';
+
+        // Issues this Spotlight touches — the lead item plus every timeline story.
+        var tiedKeys = {};
+        if (s && s.issueKey) tiedKeys[s.issueKey] = true;
+        if (s && s.stories) s.stories.forEach(function(st) { if (st && st.issueKey) tiedKeys[st.issueKey] = true; });
+
+        // Authoritative per-issue match verdicts, from the same engine the
+        // Alignment quick-view uses — only when the visitor has saved picks.
+        var verdictByKey = {};
+        var hasPicks = !!(window._alignIssues && window._alignIssues.size > 0);
+        if (hasPicks && typeof window._calcAlignmentBreakdown === 'function') {
+          var bd = window._calcAlignmentBreakdown(pid);
+          if (bd && bd.issues) bd.issues.forEach(function(it) { if (it.direct && it.verdict) verdictByKey[it.key] = it.verdict; });
+        }
+
+        // Lead with the position this news is about, then vote/bill-backed, then
+        // the rest — the same priority order the Snapshot uses, so the two read
+        // alike and a visitor moving between them never loses their place.
+        var sorted = list.slice().sort(function(a, b) {
+          var at = (a.issueKey && tiedKeys[a.issueKey]) ? 1 : 0, bt = (b.issueKey && tiedKeys[b.issueKey]) ? 1 : 0;
+          if (bt !== at) return bt - at;
+          var ae = a.evidence ? 1 : 0, be = b.evidence ? 1 : 0;
+          if (be !== ae) return be - ae;
+          return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
+        });
+
+        var dirMeta = {
+          support:  { ico: '✓', label: 'Supports', col: '#4ade80', bg: 'rgba(74,222,128,0.14)',  bd: 'rgba(74,222,128,0.32)' },
+          oppose:   { ico: '✗', label: 'Opposes',  col: '#f87171', bg: 'rgba(248,113,113,0.14)', bd: 'rgba(248,113,113,0.32)' },
+          mixed:    { ico: '~', label: 'Mixed',     col: '#60a5fa', bg: 'rgba(96,165,250,0.14)',  bd: 'rgba(96,165,250,0.32)' },
+          priority: { ico: '★', label: 'Priority',  col: '#c4b5fd', bg: 'rgba(167,139,250,0.14)', bd: 'rgba(167,139,250,0.32)' },
+          tracking: { ico: '…', label: 'Tracking',  col: '#c4b5fd', bg: 'rgba(167,139,250,0.14)', bd: 'rgba(167,139,250,0.32)' }
+        };
+        var vMeta = {
+          match:    { ico: '✓', label: 'You match',  col: '#4ade80' },
+          partial:  { ico: '~', label: 'Partial',    col: '#60a5fa' },
+          mismatch: { ico: '✗', label: 'You differ', col: '#f87171' }
+        };
+        function _badge(txt, col, bg, bd, dashed) {
+          return '<span style="display:inline-flex;align-items:center;gap:0.18rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.5rem;letter-spacing:0.06em;text-transform:uppercase;color:' + col + ';background:' + bg + ';border:1px ' + (dashed ? 'dashed' : 'solid') + ' ' + bd + ';border-radius:999px;padding:0.12rem 0.42rem;white-space:nowrap;">' + txt + '</span>';
+        }
+
+        var MAX = 3;
+        var anyTied = sorted.some(function(x) { return x.issueKey && tiedKeys[x.issueKey]; });
+        var rows = sorted.slice(0, MAX).map(function(x) {
+          var m = dirMeta[x.pos] || dirMeta.priority;
+          var tied = !!(x.issueKey && tiedKeys[x.issueKey]);
+          var srcCol = x.evidence ? '#7dd3a0' : '#9fb4d4';
+          var srcTxt = x.evidence ? '🗳 Recorded' : '💬 Stated';
+          var srcBd  = x.evidence ? 'rgba(74,222,128,0.34)' : 'rgba(159,180,212,0.4)';
+          var vd = (x.issueKey && verdictByKey[x.issueKey]) ? vMeta[verdictByKey[x.issueKey]] : null;
+          var tieChip = tied ? _badge('🔗 In this update', '#f5c842', 'rgba(245,200,66,0.12)', 'rgba(245,200,66,0.4)') : '';
+          var txt = (x.text || '').toString();
+          return '<div style="padding:0.5rem 0;">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem 0.45rem;">' +
+              '<span style="font-size:0.9rem;line-height:1;flex-shrink:0;">' + (x.icon || '🎯') + '</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;color:#f0eaff;flex:1 1 7rem;min-width:0;">' + (x.topic || 'Issue') + '</span>' +
+              _badge(m.ico + ' ' + m.label, m.col, m.bg, m.bd) +
+              _badge(srcTxt, srcCol, 'rgba(10,15,30,0.5)', srcBd, !x.evidence) +
+              tieChip +
+              (vd ? _badge(vd.ico + ' ' + vd.label, vd.col, 'rgba(10,15,30,0.5)', vd.col + '55') : '') +
+            '</div>' +
+            (txt ? '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.5;margin:0.28rem 0 0;">' + txt + '</p>' : '') +
+          '</div>';
+        }).join('<div style="border-top:1px dashed rgba(159,180,212,0.16);"></div>');
+
+        var more = sorted.length > MAX
+          ? '<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;">+ ' + (sorted.length - MAX) + ' more position' + (sorted.length - MAX === 1 ? '' : 's') + ' on ' + first + '’s full profile.</p>'
+          : '';
+
+        var intro = anyTied
+          ? ('This update is about an issue ' + first + ' has taken a position on. Here’s where they actually stand — and how it lines up with your values:')
+          : ('Where ' + first + ' stands on the issues PolitiDex tracks — the documented record behind the headlines:');
+
+        return '<div style="margin-top:1.05rem;padding:0.75rem 0.85rem 0.6rem;background:linear-gradient(135deg,rgba(30,53,96,0.42),rgba(10,15,30,0.28));border:1px solid rgba(159,180,212,0.2);border-left:3px solid #f5c842;border-radius:0.7rem;">' +
+            '<div style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#dbe6f6;margin-bottom:0.4rem;">📌 Where ' + first + ' stands' +
+              '<span style="margin-left:auto;font-size:0.55rem;letter-spacing:0.08em;color:#f5c842;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);border-radius:999px;padding:0.1rem 0.45rem;">' + list.length + ' position' + (list.length === 1 ? '' : 's') + '</span>' +
+            '</div>' +
+            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.5;margin:0 0 0.4rem;">' + intro + '</p>' +
+            rows +
+            more +
+          '</div>';
+      } catch (e) { return ''; }
+    }
+    window._krSpotlightPositionsHtml = _krSpotlightPositionsHtml;
+
     window.keyRacesSpotlight = function(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) { if (typeof showProfile === 'function') showProfile(pid); return; }
@@ -46268,6 +46383,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>')
         : '';
 
+      // The candidate's documented positions, led by the issue this news is about
+      // — the bridge from the headline to where they actually stand and the
+      // Alignment Tool. Empty (so untouched) on profiles with no documented stances.
+      var posBlock = _krSpotlightPositionsHtml(pid, d, s);
+
+      // Consistent "Limited Record" / candidate framing — the SAME badges the
+      // politician cards carry, so a thin profile reads the same way in the
+      // Spotlight modal as it does on the card the visitor tapped. The depth badge
+      // renders only for sparse officeholders and the candidate badge only for
+      // challengers, so full officeholder records stay uncluttered.
+      var _spotStatus = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var _spotCandBadge = (_spotStatus === 'candidate' && typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
+      var _spotDepthBadge = (typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(d, { size: 'sm' }) : '';
+      var headBadges = (_spotCandBadge || _spotDepthBadge)
+        ? ('<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem;">' + _spotCandBadge + _spotDepthBadge + '</div>')
+        : '';
+
+      // One tap from the news to the visitor's personalized, issue-by-issue match
+      // — the third leg of the Snapshot ↔ Spotlight ↔ Alignment triad. Opens the
+      // alignment quick-view (which itself falls back to the issue picker when the
+      // visitor hasn't set any picks yet), so the path is never a dead end.
+      var alignBtn = '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){ if(window.keyRacesAlignQuickView) window.keyRacesAlignQuickView(\'' + pid + '\'); },220);" style="flex:1 1 auto;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#7ee7d8;background:rgba(20,184,166,0.12);border:1px solid rgba(45,212,191,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">🎯 Your alignment</button>';
+
       var html =
         '<div class="kr-spot-card">' +
           '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(245,200,66,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
@@ -46276,6 +46414,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div class="font-condensed" style="font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:#f5c842;">🔦 Spotlight — What’s Happening Now</div>' +
               '<div class="font-display text-lg text-white" style="line-height:1.1;">' + d.name + '</div>' +
               '<div class="font-condensed" style="font-size:0.66rem;color:#9fb4d4;">' + partyHtml + (d.office ? ' · ' + d.office : '') + '</div>' +
+              headBadges +
             '</div>' +
             '<button type="button" onclick="window.keyRacesCloseSpotlight()" aria-label="Close" style="flex-shrink:0;width:34px;height:34px;border-radius:0.65rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;">✕</button>' +
           '</div>' +
@@ -46288,10 +46427,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">' + s.body + '</p>' +
             whyHtml +
             sourceHtml +
+            posBlock +
             timelineHtml +
-            '<div style="display:flex;gap:0.5rem;margin-top:1rem;">' +
-              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#e0a82e);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(245,200,66,0.3);">👤 Full Profile</button>' +
-              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){ if(window.keyRacesCompare){ window.keyRacesCompare(document.createElement(\'button\'),\'' + pid + '\'); } if(window.renderKeyRaces) window.renderKeyRaces(); },220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚖️ Compare</button>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;">' +
+              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="flex:1 1 9rem;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#e0a82e);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(245,200,66,0.3);">👤 Full Profile</button>' +
+              alignBtn +
+              '<button type="button" onclick="window.keyRacesCloseSpotlight();setTimeout(function(){ if(window.keyRacesCompare){ window.keyRacesCompare(document.createElement(\'button\'),\'' + pid + '\'); } if(window.renderKeyRaces) window.renderKeyRaces(); },220);" style="flex:1 1 auto;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#93c5fd;background:rgba(59,130,246,0.12);border:1px solid rgba(96,165,250,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">⚖️ Compare</button>' +
             '</div>' +
           '</div>' +
         '</div>';
