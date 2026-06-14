@@ -28154,6 +28154,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     } catch (e) { return ''; }
   };
 
+  // Resolve just the human label for an ISSUE_MAP key (e.g. '💧 Save the Great
+  // Salt Lake'). Returns '' for an unknown/missing key so callers can drop it in
+  // unconditionally. Used by the full Spotlight modal to label an item's issue
+  // bridge with the SAME wording the Snapshot and Alignment Tool show, so a
+  // Spotlight headline reads as connected to a position the voter just compared.
+  window._issueLabel = function(issueKey) {
+    try {
+      if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
+      return ISSUE_MAP[issueKey].label || '';
+    } catch (e) { return ''; }
+  };
+
 
   // ── Candidate Snapshot ───────────────────────────────────────────────
   // A structured overview for thin / early-record profiles. Rather than a
@@ -29744,6 +29756,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var catLabel = (o.category && typeof window._slCatLabel === 'function') ? window._slCatLabel(o.category) : '';
           var edge = linked ? impactCol : (neutral ? '120,140,170' : accent);
           var idAttr = o.anchorId ? (' id="' + o.anchorId + '"') : '';
+
+          // ── Issue bridge ───────────────────────────────────────────────
+          // The connective tissue to the Candidate Snapshot. When a curated item
+          // carries an `issueKey`, this row names the SAME Alignment-tracked issue
+          // the Snapshot shows a position on — and, when the official actually
+          // holds a documented stance on that issue (`heldPosition`), it says so
+          // outright: "Expands on <Name>'s position · Supports <issue>." Tapping
+          // jumps up to the alignment scorecard in the same modal, so a news
+          // headline reads as evidence on a value the voter is already comparing,
+          // not a loose feed item. Falls back silently to '' for unknown keys.
+          var bridge = '';
+          var ilabel = (o.issueKey && typeof window._issueLabel === 'function') ? window._issueLabel(o.issueKey) : '';
+          if (ilabel) {
+            var jumpAlign = "event.stopPropagation();var el=document.getElementById('alignment-modal-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});";
+            var hp = o.heldPosition;
+            if (hp && (hp.stance === 'support' || hp.stance === 'oppose' || hp.stance === 'mixed')) {
+              var _sm = { support:{ t:'✓ Supports', c:'74,222,128' }, oppose:{ t:'✗ Opposes', c:'248,113,113' }, mixed:{ t:'~ Mixed record', c:'245,200,66' } }[hp.stance];
+              bridge = '<button type="button" onclick="' + jumpAlign + '"' +
+                ' title="' + _slLast + ' holds a tracked position on this issue — tap to compare it on the People’s Mandate Alignment."' +
+                ' style="cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem;background:linear-gradient(90deg,rgba(245,200,66,0.08),rgba(167,139,250,0.1));border:1px solid rgba(167,139,250,0.34);border-left:3px solid rgba(245,200,66,0.6);border-radius:0.55rem;padding:0.4rem 0.55rem;">' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#e3c97a;">🔗 Expands on ' + _slLast + '’s position</span>' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.05em;text-transform:uppercase;color:rgb(' + _sm.c + ');background:rgba(' + _sm.c + ',0.12);border:1px solid rgba(' + _sm.c + ',0.4);padding:0.05rem 0.4rem;border-radius:999px;">' + _sm.t + '</span>' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.04em;color:#c4b5fd;">' + ilabel + '</span>' +
+                '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;">Compare ↗</span>' +
+              '</button>';
+            } else {
+              bridge = '<button type="button" onclick="' + jumpAlign + '"' +
+                ' title="This item connects to the ' + ilabel + ' position the Alignment Tool tracks — tap to compare it."' +
+                ' style="cursor:pointer;margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.28rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.05em;text-transform:uppercase;color:#c4b5fd;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);border-radius:999px;padding:0.14rem 0.55rem;line-height:1.3;">🔗 On the issue: ' + ilabel + ' ↗</button>';
+            }
+          }
+
           var open = '<div' + idAttr + ' style="';
           if (linked) {
             // Tap jumps to the Accountability card and pulses the matching
@@ -29766,6 +29810,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
             (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
               '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
+            bridge +
             (linked ? '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">' +
               (catLabel ? '<span style="color:#c4b5fd;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.06rem 0.4rem;border-radius:999px;">' + catLabel + '</span>' : '') +
               '<span style="color:#a78bfa;">🛡️ Tap to see this in the Accountability breakdown ↑</span>' +
@@ -29799,19 +29844,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    are honored with a "no score impact" pill so a curator's intent reads
         //    clearly; untagged entries simply appear as news.
         var slNews = [];
+        // The official's own documented positions, keyed by ISSUE_MAP key, so a
+        // curated Spotlight item tagged with an `issueKey` can be matched against
+        // a stance they actually hold — turning a news card into "expands on
+        // their position on X" (the Snapshot↔Spotlight bridge built in _slCard).
+        var _slPosMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(id, p) || {}) : {};
+        function _slTieReady(ik) { return !!(ik && typeof window._issueLabel === 'function' && window._issueLabel(ik)); }
         (spotlightData[id] || []).forEach(function(it) {
           var cls = _slClassifyNews(it.headline, it.facts);
-          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, topic: _slIssueTag(it.headline, it.facts) }));
+          var ik = it.issueKey;
+          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why,
+            issueKey: ik, heldPosition: (ik && _slPosMap[ik]) ? _slPosMap[ik] : null,
+            topic: _slTieReady(ik) ? '' : _slIssueTag(it.headline, it.facts) }));
         });
         _slDoc.forEach(function(it) {
           if (!it || it.impact === 'positive' || it.impact === 'negative') return;
           var _h = it.headline || it.title, _b = it.facts || it.detail;
           var _neutral = it.impact === 'neutral';
           var cls = _slClassifyNews(_h, _b);
+          var ik2 = it.issueKey;
           slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
             headline: _h, body: _b, why: it.why,
             impact: (_neutral ? 'neutral' : undefined), category: it.category,
-            topic: _slIssueTag(_h, _b) }));
+            issueKey: ik2, heldPosition: (ik2 && _slPosMap[ik2]) ? _slPosMap[ik2] : null,
+            topic: _slTieReady(ik2) ? '' : _slIssueTag(_h, _b) }));
         });
 
         // Connective lead-in shown above any populated Spotlight. Frames the
@@ -29822,7 +29878,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
             'The key issues, public statements, and notable actions tied to ' + _slLast + ' — the real record behind the scores above. ' +
-            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and each <span style="color:#86b8e0;font-weight:700;">issue tag ↗</span> jumps to how that topic shapes the alignment read.' +
+            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to compare that stance on the People’s Mandate Alignment.' +
           '</p>';
         }
 
@@ -29877,7 +29933,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail,
             topic:_slIssueTag(_slPending[0].title, _slPending[0].detail) });
         }
-        if (p && p.stances && typeof p.stances === 'object') {
+        // Documented positions — prefer the resolved, ISSUE_MAP-keyed stance list
+        // so each card carries a 🔗 issue link straight to the same position shown
+        // in the Candidate Snapshot and Alignment Tool. Falls back to the raw
+        // stances object (keyword-tagged) when no keyed positions are curated.
+        var _slResolved = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+        var _slKeyed = _slResolved.filter(function(s) { return s && s.issueKey && (s.text || s.topic); });
+        if (_slKeyed.length) {
+          _slKeyed.slice(0, 2).forEach(function(s) {
+            _slPush({ badge:'📌 Where They Stand', accent:'167,139,250',
+              headline:(s.topic || _slHumanize(s.issueKey)), body:(s.text || ''),
+              issueKey:s.issueKey });
+          });
+        } else if (p && p.stances && typeof p.stances === 'object') {
           Object.keys(p.stances).slice(0, 2).forEach(function(k) {
             var txt = p.stances[k];
             if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt,
