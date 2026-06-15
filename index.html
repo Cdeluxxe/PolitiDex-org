@@ -117,6 +117,11 @@
       if (typeof window._renderPulseBar === 'function') {
         window._renderPulseBar();
       }
+      // Refresh the public "collection depth" line in the Promise Tracker header
+      // (documented positions / tracked promises) now that the full roster is merged.
+      if (typeof window._mypolUpdateCount === 'function') {
+        try { window._mypolUpdateCount(); } catch (e) {}
+      }
       // Trigger deferred DOMContentLoaded events
       _triggerDeferredEvents();
       // If the page was opened with a ?p=<id> deep link, open that profile now
@@ -16320,6 +16325,11 @@
               <div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
                 <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
+                <!-- Live "collection depth" line — the real totals behind the roster
+                     (documented issue positions + tracked promises), computed from the
+                     loaded data in _mypolUpdateCount(). Hidden until those totals are
+                     known so it never flashes a placeholder zero. -->
+                <p id="tracker-depth-line" class="font-condensed text-xs tracking-wide mt-1.5" style="color:#9fb4d4;display:none;"></p>
               </div>
             </div>
             <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
@@ -40252,7 +40262,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var allBrowse = Object.keys(CMP_DATA);
       var browseCount = document.getElementById('myteam-browse-count');
       if (browseCount) browseCount.textContent = allBrowse.length;
+
+      // Live "collection depth" summary — surfaces the real substance behind the
+      // roster (documented, sourced issue positions and tracked promises) so the
+      // header reads as a populated, working database rather than a bare count.
+      // Everything here is counted from the loaded records; the line stays hidden
+      // until there is something real to show, so it never flashes a placeholder.
+      var depthEl = document.getElementById('tracker-depth-line');
+      if (depthEl) {
+        var nPositions = 0, nWithPositions = 0, nPromises = 0;
+        allBrowse.forEach(function(id) {
+          var d = CMP_DATA[id]; if (!d) return;
+          var sCount = (d.stances && typeof d.stances === 'object' && !Array.isArray(d.stances))
+            ? Object.keys(d.stances).length : 0;
+          if (sCount > 0) { nPositions += sCount; nWithPositions++; }
+          if (Array.isArray(d.promises)) nPromises += d.promises.length;
+        });
+        if (nPositions > 0 || nPromises > 0) {
+          var parts = [];
+          if (nPositions > 0) {
+            parts.push('<span style="color:#5eead4;">📍 ' + nPositions.toLocaleString() + '</span> documented issue position' + (nPositions === 1 ? '' : 's') +
+              ' across <b style="color:#cbd5e1;">' + nWithPositions.toLocaleString() + '</b> profile' + (nWithPositions === 1 ? '' : 's'));
+          }
+          if (nPromises > 0) {
+            parts.push('<span style="color:#f5c842;">📋 ' + nPromises.toLocaleString() + '</span> tracked promise' + (nPromises === 1 ? '' : 's'));
+          }
+          depthEl.innerHTML = parts.join(' &nbsp;·&nbsp; ');
+          depthEl.style.display = '';
+        } else {
+          depthEl.style.display = 'none';
+        }
+      }
     }
+    // Exposed so the post-Firestore-load hook can refresh the live "collection
+    // depth" line as soon as the full roster is merged, independent of when the
+    // anonymous auth / deferred init paths happen to fire.
+    window._mypolUpdateCount = _mypolUpdateCount;
 
     function _chubScoreColor(s) {
       if (s === null || s === undefined) return '#9fb4d4';
@@ -46931,7 +46976,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (nStrong) tallyPills += '<span class="kraq-tally kraq-tally-good">✅ ' + nStrong + ' strong match' + (nStrong === 1 ? '' : 'es') + '</span>';
       if (nMid)    tallyPills += '<span class="kraq-tally kraq-tally-mid">◐ ' + nMid + ' partial</span>';
       if (nGap)    tallyPills += '<span class="kraq-tally kraq-tally-bad">⚠️ ' + nGap + ' gap' + (nGap === 1 ? '' : 's') + '</span>';
-      var tallyHtml = '<div class="kraq-tally-row">' + tallyPills + '</div>';
+      var tallyHtml = tallyPills ? ('<div class="kraq-tally-row">' + tallyPills + '</div>') : '';
 
       var photo = _krPhoto(pid, d, '#2dd4bf');
       var matchWord = overall >= 70 ? 'Strong match' : overall >= 50 ? 'Partial match' : 'Weak match';
