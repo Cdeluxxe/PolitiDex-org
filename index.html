@@ -117,6 +117,11 @@
       if (typeof window._renderPulseBar === 'function') {
         window._renderPulseBar();
       }
+      // Refresh the public "collection depth" line in the Promise Tracker header
+      // (documented positions / tracked promises) now that the full roster is merged.
+      if (typeof window._mypolUpdateCount === 'function') {
+        try { window._mypolUpdateCount(); } catch (e) {}
+      }
       // Trigger deferred DOMContentLoaded events
       _triggerDeferredEvents();
       // If the page was opened with a ?p=<id> deep link, open that profile now
@@ -2083,6 +2088,15 @@
       font-family: 'Barlow', sans-serif; font-style: italic;
       font-size: 0.9rem; color: #cbd9ec; line-height: 1.55; margin: 0;
     }
+    /* Short source note under a signature quote — keeps the attribution quiet
+       but present, so a pull-quote reads as sourced rather than free-floating. */
+    .profile-quote-cite {
+      display: block; margin-top: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-style: normal;
+      font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #8aa0c2;
+    }
+    .profile-quote-cite::before { content: "— "; color: #c0152a; }
 
     /* ── Deep profile: Key Issue Stances & People's Mandate ── */
     .stance-card {
@@ -5216,6 +5230,34 @@
       color: #b9cef0;
     }
     .pdx-snap-highlight--candidate .pdx-snap-highlight-ico { color: #60a5fa; }
+    /* Quote variant — a real signature quote surfaced on the card. Italic body
+       and a red opening quote mark echo the modal's .profile-quote so the voice
+       reads consistently across browse surfaces and the full profile. */
+    .pdx-snap-highlight--quote {
+      background: rgba(192,21,42,0.06);
+      border-color: rgba(192,21,42,0.22);
+      color: #cdd9ec;
+      font-style: italic;
+    }
+    .pdx-snap-highlight--quote .pdx-snap-highlight-ico {
+      color: rgba(192,21,42,0.75);
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; line-height: 0.8;
+      font-style: normal;
+    }
+    /* Body wrapper lets a sourced quote stack the attribution under the words. */
+    .pdx-snap-highlight--quote .pdx-snap-highlight-body { display: block; min-width: 0; }
+    /* Card-level quote attribution — mirrors the modal's .profile-quote-cite so
+       the same voice/source pairing reads consistently across browse and profile.
+       Only rendered when a documented source exists. */
+    .pdx-snap-highlight--quote .pdx-snap-quote-cite {
+      display: block;
+      margin-top: 0.3rem;
+      font-style: normal;
+      font-size: 0.66rem;
+      letter-spacing: 0.02em;
+      color: rgba(205,217,236,0.62);
+    }
+    .pdx-snap-highlight--quote .pdx-snap-quote-cite::before { content: "— "; opacity: 0.8; }
     .pdx-snap-extra { margin-top: 0.65rem; }
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
@@ -12713,17 +12755,18 @@
       box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 18px 46px rgba(0, 0, 0, 0.6), 0 0 32px rgba(34, 197, 94, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
     }
 
-    /* Candidates — the secondary tier: flat, low-contrast surface, hairline
-       neutral border, no glow, tighter padding, smaller name. */
     /* Candidates — a clear, intentional BLUE secondary tier (solid blue frame, faint
        navy lift, blue top rail), a step below the green incumbent hero but never the
-       flat grey hairline that read as unfinished. */
+       flat grey hairline that read as unfinished. Shares the incumbent's corner
+       radius and side padding so candidate and officeholder cards align cleanly when
+       stacked in the same grid — the tier reads through colour and weight, not a
+       cramped, mismatched frame. */
     #relevant-browse-grid .chub-card.is-candidate {
       background: linear-gradient(135deg, rgba(22,38,70,0.92) 0%, rgba(11,18,36,0.95) 100%) !important;
       border: 1.5px solid rgba(96, 165, 250, 0.45) !important;
-      border-radius: 0.9rem !important;
+      border-radius: 1.15rem !important;
       box-shadow: 0 0 0 1px rgba(96,165,250,0.12), 0 10px 26px rgba(0,0,0,0.45), 0 0 18px rgba(59,130,246,0.1) !important;
-      padding: 1.4rem 1.05rem 0.95rem !important;
+      padding: 1.4rem 1.35rem 1.1rem !important;
     }
     #relevant-browse-grid .chub-card.is-candidate::before {
       content: '' !important;
@@ -16320,6 +16363,11 @@
               <div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">PROMISE TRACKER <span id="myteam-browse-count" class="font-condensed text-sm font-bold tracking-wider text-steel-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
                 <p class="font-condensed text-sm text-steel-300 tracking-wide mt-1">The central hub for all politician profiles and promise % tracking. Tracked and verified on public record.</p>
+                <!-- Live "collection depth" line — the real totals behind the roster
+                     (documented issue positions + tracked promises), computed from the
+                     loaded data in _mypolUpdateCount(). Hidden until those totals are
+                     known so it never flashes a placeholder zero. -->
+                <p id="tracker-depth-line" class="font-condensed text-xs tracking-wide mt-1.5" style="color:#9fb4d4;display:none;"></p>
               </div>
             </div>
             <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
@@ -17576,7 +17624,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
           <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
             <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
-            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
+            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, quoteSource, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
             <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
             <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers: they appear under “Spotlight items feeding this score” in the Accountability card and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
           </div>
@@ -18239,8 +18287,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // True for any record whose state reads as Utah, tolerating the "UT"
       // abbreviation (and stray punctuation/case) the live data mixes in.
       function _pmIsUtah(s) {
+        // The live roster stores Utah in several shapes. Beyond the clean "Utah"
+        // / "UT", the data has accumulated location-tagged forms over time —
+        // "Utah · District 16 (Provo)", "Salt Lake City, Utah", "Utah · UT-03",
+        // "Salt Lake County, Utah". Matching only the bare values silently
+        // dropped ~35 genuine Utah records (sitting legislators including the
+        // House Speaker and Senate President, two U.S. Reps, and several mayors)
+        // from the Utah totals AND from seat coverage, making the dashboard read
+        // far thinner than the database actually is. No other U.S. state name
+        // contains the token "utah", so keying on it stays specific to Utah.
         var n = _pmNormName(s);
-        return n === 'utah' || n === 'ut';
+        if (!n) return false;
+        if (n === 'utah' || n === 'ut') return true;
+        return /(?:^|\s)utah(?:\s|$)/.test(n);
       }
 
       // Classify a Utah record into one of the tracked chambers / statewide
@@ -19864,7 +19923,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         var bio =
           _pmFieldArea('Bio', 'bio', p.bio, 4) +
-          _pmFieldArea('Signature Quote', 'quote', p.quote, 2);
+          _pmFieldArea('Signature Quote', 'quote', p.quote, 2) +
+          _pmFieldText('Quote Source / Attribution', 'quoteSource', p.quoteSource, { placeholder: 'e.g. To the Salt Lake Tribune, 2024', full: true });
 
         var issues =
           _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
@@ -20081,6 +20141,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         merged.photo = (val('photo') || '').trim();
         merged.bio = (val('bio') || '');
         merged.quote = (val('quote') || '').trim();
+        merged.quoteSource = (val('quoteSource') || '').trim();
 
         var scoreRaw = val('score');
         if (scoreRaw === '' || scoreRaw == null) {
@@ -22409,7 +22470,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var totalAll = rows.length;
       var utahRows = rows.filter(function(row) {
-        return (typeof window._pmIsUtah === 'function') ? window._pmIsUtah(row.p.state) : /^(utah|ut)$/i.test(String(row.p.state || '').trim());
+        return (typeof window._pmIsUtah === 'function') ? window._pmIsUtah(row.p.state) : /(?:^|\s)utah(?:\s|$)|^ut$/i.test(String(row.p.state || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim());
       });
 
       var targets = { federal: 6, statewide: 5, senate: 29, house: 75, local: 60, cand: 24 };
@@ -31068,7 +31129,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ${(p.bio || p.quote) ? `<div class="modal-section">
         <div class="modal-section-title">📋 Biography</div>
         ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
-        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p></blockquote>` : ''}
+        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
       </div>` : ''}
 
       <!-- Key Issues — a quick, at-a-glance read of what this official is most
@@ -35174,6 +35235,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var pad = sm ? '0.1rem 0.42rem' : '0.16rem 0.5rem';
     var base = 'display:inline-flex;align-items:center;gap:0.25rem;vertical-align:middle;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border-radius:999px;white-space:nowrap;line-height:1.15;font-size:' + fs + ';padding:' + pad + ';';
     if (status === 'candidate') {
+      // A candidate whose race has concluded (lost at convention / withdrew) is no
+      // longer on the ballot. Labeling them "2026 Candidate" in on-the-ballot blue
+      // would imply they're still a live choice a voter could add to a team, so
+      // show an honest, de-emphasized "Out of Race"/"Withdrew" badge instead. Driven
+      // only from the structured candidacyStatus flag, never the freeform bio.
+      var _cs = (typeof statusOrData !== 'string') ? String(statusOrData.candidacyStatus || '').toLowerCase() : '';
+      if (_cs === 'withdrew' || _cs === 'suspended')
+        return '<span class="pdx-status-badge pdx-status-out" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#9fb4d4;">✖ Withdrew</span>';
+      if (_cs === 'eliminated' || _cs === 'lost' || _cs === 'defeated')
+        return '<span class="pdx-status-badge pdx-status-out" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#9fb4d4;">✖ Out of Race</span>';
       // Sharpen the label to "2026 Candidate" when the data shows the seat is on
       // the 2026 ballot, so a challenger reads as a specific, on-the-ballot choice
       // rather than a vague "candidate". Only when a data object is supplied.
@@ -40252,7 +40323,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var allBrowse = Object.keys(CMP_DATA);
       var browseCount = document.getElementById('myteam-browse-count');
       if (browseCount) browseCount.textContent = allBrowse.length;
+
+      // Live "collection depth" summary — surfaces the real substance behind the
+      // roster (documented, sourced issue positions and tracked promises) so the
+      // header reads as a populated, working database rather than a bare count.
+      // Everything here is counted from the loaded records; the line stays hidden
+      // until there is something real to show, so it never flashes a placeholder.
+      var depthEl = document.getElementById('tracker-depth-line');
+      if (depthEl) {
+        var nPositions = 0, nWithPositions = 0, nPromises = 0;
+        allBrowse.forEach(function(id) {
+          var d = CMP_DATA[id]; if (!d) return;
+          var sCount = (d.stances && typeof d.stances === 'object' && !Array.isArray(d.stances))
+            ? Object.keys(d.stances).length : 0;
+          if (sCount > 0) { nPositions += sCount; nWithPositions++; }
+          if (Array.isArray(d.promises)) nPromises += d.promises.length;
+        });
+        if (nPositions > 0 || nPromises > 0) {
+          var parts = [];
+          if (nPositions > 0) {
+            parts.push('<span style="color:#5eead4;">📍 ' + nPositions.toLocaleString() + '</span> documented issue position' + (nPositions === 1 ? '' : 's') +
+              ' across <b style="color:#cbd5e1;">' + nWithPositions.toLocaleString() + '</b> profile' + (nWithPositions === 1 ? '' : 's'));
+          }
+          if (nPromises > 0) {
+            parts.push('<span style="color:#f5c842;">📋 ' + nPromises.toLocaleString() + '</span> tracked promise' + (nPromises === 1 ? '' : 's'));
+          }
+          depthEl.innerHTML = parts.join(' &nbsp;·&nbsp; ');
+          depthEl.style.display = '';
+        } else {
+          depthEl.style.display = 'none';
+        }
+      }
     }
+    // Exposed so the post-Firestore-load hook can refresh the live "collection
+    // depth" line as soon as the full roster is merged, independent of when the
+    // anonymous auth / deferred init paths happen to fire.
+    window._mypolUpdateCount = _mypolUpdateCount;
 
     function _chubScoreColor(s) {
       if (s === null || s === undefined) return '#9fb4d4';
@@ -40286,7 +40392,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Broken". A 2026 challenger reads as on-the-ballot-but-no-record-yet; a
         // new officeholder reads as early-in-term; everyone else as monitoring.
         var msg = '⏳ No voting record yet';
-        if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+        // A candidate who lost at convention or withdrew never took office, so
+        // "record starts in office" would be misleading — say so plainly instead,
+        // matching the "Out of Race" badge and the profile's honest lede.
+        var _cs = String(opts.candidacyStatus || '').toLowerCase();
+        var _outOfRace = (_cs === 'eliminated' || _cs === 'withdrew' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended');
+        if (_outOfRace) msg = (_cs === 'withdrew' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record' : '✖ Did not advance — never took office';
+        else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
         else if (opts.status === 'former') msg = '⏳ Former office — record archived';
         else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
         return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">' + msg + '</span></div>';
@@ -40506,7 +40618,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               infoHint +
             '</div>');
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) : '';
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -40545,11 +40657,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             (moreIssues > 0 ? '<span class="pdx-stance-more">+' + moreIssues + ' more</span>' : '') +
           '</div>' +
         '</div>';
-      } else if (opts.issues !== false && (status === 'candidate' || (typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(d) !== 'full'))) {
-        // No key issues tracked yet AND this is a candidate or a thin-record profile:
-        // fill the slot with the clean "key positions being added" note instead of
-        // leaving a blank gap, so the card always reads as intentional rather than
-        // half-built. Full officeholder records with no issues are left untouched.
+      } else if (opts.issues !== false) {
+        // No documented positions and no campaign-priority tags. Rather than leave
+        // a blank gap on the card — which read as half-built and inconsistent next
+        // to neighbours that DO carry a positions row — fill the slot with the
+        // clean, muted "Focus areas being compiled" note. _pdxFocusEmptyNote picks
+        // honest copy for the record (candidate / inactive / officeholder) and
+        // returns '' when there is nothing appropriate to say, so this never
+        // overstates. Applies to every card now, not just thin/candidate ones, so
+        // a full officeholder who simply has no stances yet still reads finished.
         var emptyNote = (typeof window._pdxFocusEmptyNote === 'function') ? window._pdxFocusEmptyNote(d) : '';
         if (emptyNote) issues = '<div class="pdx-snap-issues pdx-snap-issues-empty">' + emptyNote + '</div>';
       }
@@ -40562,6 +40678,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var highlight = '';
       if (opts.highlight !== false) {
         var hl = (typeof opts.highlight === 'string') ? opts.highlight : (d.why || '');
+        // No "why this matters" blurb, but the profile carries a real signature
+        // quote — surface it on the card as a pull-quote. A human, sourced quote
+        // reads as far more alive than a blank slot, and it makes the quote work
+        // visible while browsing instead of only inside the modal.
+        var hlIsQuote = false;
+        if (!hl && d.quote && String(d.quote).trim()) { hl = String(d.quote).trim(); hlIsQuote = true; }
         // 2026 candidates almost never carry a "why this matters" blurb yet, which
         // left their cards with no descriptive line at all — the main reason they
         // read as thin. Fall back to a clean one-line excerpt of their real, stored
@@ -40570,9 +40692,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (hl) {
           if (hl.length > 150) hl = hl.slice(0, 147).replace(/\s+\S*$/, '') + '…';
           var isCand = (status === 'candidate');
-          var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
-          var hlIco = isCand ? '🗳️' : '★';
-          highlight = '<div class="' + hlCls + '"><span class="pdx-snap-highlight-ico">' + hlIco + '</span><span>' + hl + '</span></div>';
+          if (hlIsQuote) {
+            // Quote variant — italic with an opening quotation mark, distinct from
+            // the ★/🗳️ "why" highlight so it reads unmistakably as their own words.
+            // When the quote carries a documented attribution, surface it as a
+            // small cite right on the card (the modal already does this) so the
+            // sourced-quote work reads as finished and trustworthy while browsing
+            // rather than only inside the profile. Quotes without a source simply
+            // omit the line — no empty "— " stub.
+            var qSrc = (d.quoteSource && String(d.quoteSource).trim()) ? String(d.quoteSource).trim() : '';
+            highlight = '<div class="pdx-snap-highlight pdx-snap-highlight--quote"><span class="pdx-snap-highlight-ico">“</span>' +
+              '<span class="pdx-snap-highlight-body"><span>' + hl + '</span>' +
+              (qSrc ? '<span class="pdx-snap-quote-cite">' + qSrc + '</span>' : '') +
+              '</span></div>';
+          } else {
+            var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
+            var hlIco = isCand ? '🗳️' : '★';
+            highlight = '<div class="' + hlCls + '"><span class="pdx-snap-highlight-ico">' + hlIco + '</span><span>' + hl + '</span></div>';
+          }
         }
       }
 
@@ -41617,7 +41754,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) + '</div>' : '') +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
@@ -46931,7 +47068,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (nStrong) tallyPills += '<span class="kraq-tally kraq-tally-good">✅ ' + nStrong + ' strong match' + (nStrong === 1 ? '' : 'es') + '</span>';
       if (nMid)    tallyPills += '<span class="kraq-tally kraq-tally-mid">◐ ' + nMid + ' partial</span>';
       if (nGap)    tallyPills += '<span class="kraq-tally kraq-tally-bad">⚠️ ' + nGap + ' gap' + (nGap === 1 ? '' : 's') + '</span>';
-      var tallyHtml = '<div class="kraq-tally-row">' + tallyPills + '</div>';
+      var tallyHtml = tallyPills ? ('<div class="kraq-tally-row">' + tallyPills + '</div>') : '';
 
       var photo = _krPhoto(pid, d, '#2dd4bf');
       var matchWord = overall >= 70 ? 'Strong match' : overall >= 50 ? 'Partial match' : 'Weak match';
