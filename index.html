@@ -2898,6 +2898,78 @@
     .cmp-issue-intro .cmp-issue-mine-ico { color: #fcd34d; }
     .cmp-insight-mine { color: #fcd34d; font-weight: 700; }
 
+    /* ── Issue-section meter + filter toolbar ────────────────────────────────
+       Sits at the top of "Where They Stand". The meter turns the agree/differ/
+       mixed counts into one glanceable bar so a voter sees the shape of the
+       overlap before reading rows; the chips let them jump straight to the
+       contrasts, the common ground, or the issues they personally flagged. */
+    .cmp-issue-meter-wrap { padding: 0.7rem 1rem 0.2rem; background: rgba(13,21,38,0.5); }
+    .cmp-issue-meter {
+      display: flex; width: 100%; height: 9px; border-radius: 999px; overflow: hidden;
+      background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.18);
+    }
+    .cmp-issue-meter .seg { height: 100%; transition: width 0.6s ease; }
+    .cmp-issue-meter .seg-differ  { background: linear-gradient(90deg,#b91c1c,#f87171); }
+    .cmp-issue-meter .seg-partial { background: linear-gradient(90deg,#b45309,#f5c842); }
+    .cmp-issue-meter .seg-agree   { background: linear-gradient(90deg,#15803d,#4ade80); }
+    .cmp-issue-meter-legend {
+      display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #8aa3c4;
+    }
+    .cmp-issue-meter-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .cmp-issue-meter-legend i { width: 0.6rem; height: 0.6rem; border-radius: 2px; font-style: normal; flex-shrink: 0; }
+    .cmp-issue-meter-legend i.k-differ  { background: #f87171; }
+    .cmp-issue-meter-legend i.k-partial { background: #f5c842; }
+    .cmp-issue-meter-legend i.k-agree   { background: #4ade80; }
+    .cmp-issue-meter-legend i.k-solo    { background: #60a5fa; }
+    .cmp-issue-meter-legend b { color: #cbd9ec; font-weight: 700; }
+
+    .cmp-issue-toolbar td { padding: 0.55rem 1rem; background: rgba(13,21,38,0.5); border-bottom: 1px solid rgba(59,130,246,0.1); }
+    .cmp-issue-fbtns { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+    .cmp-issue-fbtns .cmp-fb-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #6d8ab0; margin-right: 0.2rem;
+    }
+    .cmp-issue-fbtn {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.04em; color: #9fb4d4; cursor: pointer;
+      background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.25);
+      padding: 0.26rem 0.7rem; border-radius: 999px; transition: all 0.15s; min-height: unset;
+      white-space: nowrap;
+    }
+    .cmp-issue-fbtn:hover { background: rgba(96,165,250,0.18); color: #dbe6f7; }
+    .cmp-issue-fbtn .cmp-fb-n { opacity: 0.7; font-weight: 600; }
+    .cmp-issue-fbtn.active { color: #0b1020; background: linear-gradient(135deg,#bfdbfe,#60a5fa); border-color: rgba(96,165,250,0.8); }
+    .cmp-issue-fbtn.fb-differ { border-color: rgba(248,113,113,0.4); color: #fca5a5; background: rgba(248,113,113,0.08); }
+    .cmp-issue-fbtn.fb-differ:hover { background: rgba(248,113,113,0.16); }
+    .cmp-issue-fbtn.fb-differ.active { color: #2a0a0a; background: linear-gradient(135deg,#fecaca,#f87171); border-color: rgba(248,113,113,0.8); }
+    .cmp-issue-fbtn.fb-agree { border-color: rgba(74,222,128,0.4); color: #6ee7a0; background: rgba(74,222,128,0.08); }
+    .cmp-issue-fbtn.fb-agree:hover { background: rgba(74,222,128,0.16); }
+    .cmp-issue-fbtn.fb-agree.active { color: #052012; background: linear-gradient(135deg,#bbf7d0,#4ade80); border-color: rgba(74,222,128,0.8); }
+    .cmp-issue-fbtn.fb-mine { border-color: rgba(245,200,66,0.45); color: #fcd34d; background: rgba(245,200,66,0.1); }
+    .cmp-issue-fbtn.fb-mine:hover { background: rgba(245,200,66,0.2); }
+    .cmp-issue-fbtn.fb-mine.active { color: #2a2105; background: linear-gradient(135deg,#fde68a,#f5c842); border-color: rgba(245,200,66,0.85); }
+    /* Empty-state row shown when a filter matches nothing in the current lineup */
+    .cmp-issue-empty td {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; letter-spacing: 0.03em;
+      color: #7596c0; text-align: center; padding: 0.9rem 1rem; background: rgba(13,21,38,0.35);
+    }
+    /* Hidden by filter or by the show-all cap */
+    #cmp-table tr.cmp-issue-hidden { display: none; }
+    /* Inline expand / collapse control replacing the old "open a profile" dead-end */
+    .cmp-issue-showall td {
+      text-align: center; padding: 0.55rem 1rem; background: rgba(13,21,38,0.4);
+      border-top: 1px solid rgba(59,130,246,0.1);
+    }
+    .cmp-issue-showall-btn {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #93c5fd; cursor: pointer;
+      background: rgba(59,130,246,0.12); border: 1px solid rgba(96,165,250,0.4);
+      padding: 0.34rem 1.1rem; border-radius: 999px; transition: all 0.15s; min-height: unset;
+    }
+    .cmp-issue-showall-btn:hover { background: rgba(59,130,246,0.24); color: #dbe6f7; transform: translateY(-1px); }
+
     /* ── "How to read this" guidance bar (top of compare scroll area) ── */
     .cmp-guide {
       position: relative;
@@ -36723,6 +36795,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // can read the live compare selection to reflect added/removed state.
   window._cmpSelected = _cmpSelected;
 
+  // View state for the "Where They Stand" issue section: which filter chip is
+  // active (all / differ / agree / mine) and whether the capped overflow rows
+  // are expanded. Reset every time the table is rebuilt so a fresh comparison
+  // always opens on the full list.
+  let _cmpIssueFilterMode = 'all';
+  let _cmpIssueExpanded = false;
+  const _CMP_ISSUE_CAP = 14;
+
   const CMP_DATA = {
     curtis: {
       name:'John Curtis', office:'U.S. Senator', state:'Utah', party:'R',
@@ -37811,6 +37891,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
     if (pids.length === 0) { closeCompare(); return; }
 
+    // Fresh comparison always opens on the full, unfiltered issue list.
+    _cmpIssueFilterMode = 'all';
+    _cmpIssueExpanded = false;
+
     // ── Rank by the visitor's own issue match ──────────────────────────────
     // When Alignment issues are set, the comparison should answer "who fits ME?"
     // at a glance — so order the lineup best-match-first instead of click order,
@@ -38096,19 +38180,57 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         + `Real positions from each one's public record — so even a new candidate with no Promise Score can still be compared on where they stand. `
         + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
         + `</td></tr>`;
-      const CAP = 14;
-      const shownIssues = issueCmp.issues.slice(0, CAP);
+
+      // ── Overlap meter: turns the agree / differ / mixed counts into one bar so
+      // the shape of where these picks line up is readable before a single row.
+      const _mShared = issueCmp.nAgree + issueCmp.nDiffer + issueCmp.nPartial;
+      const _mSolo = issueCmp.issues.filter(i => i.count < 2).length;
+      if (_mShared > 0) {
+        const pct = (n) => (100 * n / _mShared).toFixed(1) + '%';
+        const seg = (n, cls) => n > 0 ? `<div class="seg ${cls}" style="width:${pct(n)}"></div>` : '';
+        const leg = (n, k, lbl) => n > 0 ? `<span><i class="${k}"></i><b>${n}</b> ${lbl}</span>` : '';
+        standBlock += `<tr class="cmp-issue-intro"><td colspan="${nCols}" style="padding:0;border:0;background:transparent;">`
+          + `<div class="cmp-issue-meter-wrap">`
+          + `<div class="cmp-issue-meter">${seg(issueCmp.nDiffer,'seg-differ')}${seg(issueCmp.nPartial,'seg-partial')}${seg(issueCmp.nAgree,'seg-agree')}</div>`
+          + `<div class="cmp-issue-meter-legend">`
+          + leg(issueCmp.nDiffer, 'k-differ', 'differ')
+          + leg(issueCmp.nAgree, 'k-agree', 'agree')
+          + leg(issueCmp.nPartial, 'k-partial', 'mixed')
+          + leg(_mSolo, 'k-solo', 'one side only')
+          + `</div></div></td></tr>`;
+      }
+
+      // ── Filter chips: jump straight to the contrasts, the common ground, or the
+      // issues the visitor flagged in the Alignment Tool. Each carries a live
+      // count and only appears when it would match something.
+      const _chip = (mode, extraCls, label, n) =>
+        `<button class="cmp-issue-fbtn${extraCls ? ' ' + extraCls : ''}${_cmpIssueFilterMode === mode ? ' active' : ''}" data-cmp-fmode="${mode}" onclick="_cmpFilterIssues('${mode}')">${label}<span class="cmp-fb-n"> (${n})</span></button>`;
+      let chips = `<span class="cmp-fb-label">Show</span>` + _chip('all', '', 'All', issueCmp.total);
+      if (issueCmp.nDiffer > 0) chips += _chip('differ', 'fb-differ', '✗ Differences', issueCmp.nDiffer);
+      if (issueCmp.nAgree > 0)  chips += _chip('agree', 'fb-agree', '✓ Common ground', issueCmp.nAgree);
+      if (issueCmp.mineActive && issueCmp.nMine > 0) chips += _chip('mine', 'fb-mine', '🎯 Your issues', issueCmp.nMine);
+      // Only worth a toolbar when there is more than one thing to switch between.
+      const _hasFilters = (issueCmp.nDiffer > 0) || (issueCmp.nAgree > 0) || (issueCmp.mineActive && issueCmp.nMine > 0);
+      if (_hasFilters) {
+        standBlock += `<tr class="cmp-issue-toolbar" id="cmp-issue-toolbar" data-cap="${_CMP_ISSUE_CAP}" data-total="${issueCmp.total}"><td colspan="${nCols}"><div class="cmp-issue-fbtns">${chips}</div></td></tr>`;
+      }
+
       const badgeMeta = {
         agree:   { cls:'is-agree',   ico:'✓', lbl:'Agree' },
         differ:  { cls:'is-differ',  ico:'✗', lbl:'Differ' },
         partial: { cls:'is-partial', ico:'~', lbl:'Mixed' },
         solo:    { cls:'is-solo',    ico:'•', lbl:'1 documented' },
       };
-      shownIssues.forEach(iss => {
+      // Render every documented issue (no longer capped to a dead-end). Rows past
+      // the cap start hidden and are revealed by the inline "Show all" toggle, so
+      // nothing is lost off-screen and the comparison stays inside the tool.
+      issueCmp.issues.forEach((iss, idx) => {
         const bm = badgeMeta[iss.agreement] || badgeMeta.solo;
+        const overCap = idx >= _CMP_ISSUE_CAP;
         const rowCls = (iss.mine ? 'cmp-issue-mine-row ' : '')
                      + (iss.agreement === 'agree' ? 'cmp-issue-agree-row'
-                      : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '');
+                      : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '')
+                     + (overCap ? ' cmp-issue-hidden' : '');
         // "🎯 Your issue" flags a topic the visitor chose to weigh — it marks
         // interest, not agreement; the cells below still show each real stance.
         const mineTag = iss.mine ? `<div><span class="cmp-issue-mine-badge">🎯 Your issue</span></div>` : '';
@@ -38116,11 +38238,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           + mineTag
           + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div></td>`;
         const cells = iss.cells.map(c => `<td style="text-align:center;vertical-align:top;">${_cmpIssueCell(c)}</td>`).join('');
-        standBlock += `<tr class="${rowCls.trim()}">${labelCell}${cells}</tr>`;
+        standBlock += `<tr class="${rowCls.trim()}" data-cmp-issue="1" data-idx="${idx}" data-agreement="${iss.agreement}" data-mine="${iss.mine ? '1' : '0'}">${labelCell}${cells}</tr>`;
       });
-      if (issueCmp.total > CAP) {
-        const extra = issueCmp.total - CAP;
-        standBlock += `<tr class="cmp-issue-more"><td colspan="${nCols}">+ ${extra} more documented issue${extra !== 1 ? 's' : ''} — open a full profile to read every position</td></tr>`;
+      // Empty state for when a filter matches nothing — hidden until a filter
+      // applies and the rows it would show don't exist for this lineup.
+      standBlock += `<tr class="cmp-issue-empty cmp-issue-hidden" id="cmp-issue-empty"><td colspan="${nCols}"></td></tr>`;
+      // Inline expand/collapse replacing the old "open a profile" dead-end.
+      if (issueCmp.total > _CMP_ISSUE_CAP) {
+        const extra = issueCmp.total - _CMP_ISSUE_CAP;
+        standBlock += `<tr class="cmp-issue-showall" id="cmp-issue-showall" data-total="${issueCmp.total}"><td colspan="${nCols}">`
+          + `<button class="cmp-issue-showall-btn" onclick="_cmpToggleAllIssues()">▾ Show all ${issueCmp.total} issues (${extra} more)</button>`
+          + `</td></tr>`;
       }
     } else {
       // Fallback for the rare lineup with no documented issue positions at all:
@@ -38175,6 +38303,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     _cmpRenderCoach(pids);
     _cmpRenderFooter(pids);
   }
+
+  // ── Issue-section filtering & expansion ──────────────────────────────────
+  // Operate on the already-rendered rows (no table rebuild) so switching views
+  // is instant. A row is visible when it passes the active filter AND isn't
+  // hidden by the overflow cap. Filtering to a subset (differences / common
+  // ground / your issues) always reveals every match, since those sets are
+  // naturally short and the visitor explicitly narrowed.
+  function _cmpApplyIssueView() {
+    const rows = document.querySelectorAll('#cmp-tbody tr[data-cmp-issue]');
+    if (!rows.length) return;
+    const mode = _cmpIssueFilterMode;
+    const capActive = (mode === 'all' && !_cmpIssueExpanded);
+    let visible = 0;
+    rows.forEach(r => {
+      const agree = r.getAttribute('data-agreement');
+      const mine = r.getAttribute('data-mine') === '1';
+      const idx = parseInt(r.getAttribute('data-idx'), 10) || 0;
+      let pass = true;
+      if (mode === 'differ') pass = (agree === 'differ');
+      else if (mode === 'agree') pass = (agree === 'agree');
+      else if (mode === 'mine') pass = mine;
+      const show = pass && !(capActive && idx >= _CMP_ISSUE_CAP);
+      r.classList.toggle('cmp-issue-hidden', !show);
+      if (show) visible++;
+    });
+    // Sync chip active state.
+    document.querySelectorAll('#cmp-issue-toolbar [data-cmp-fmode]').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-cmp-fmode') === mode);
+    });
+    // The expand toggle only belongs in the unfiltered "all" view.
+    const showall = document.getElementById('cmp-issue-showall');
+    if (showall) {
+      showall.classList.toggle('cmp-issue-hidden', mode !== 'all');
+      const btn = showall.querySelector('.cmp-issue-showall-btn');
+      const total = parseInt(showall.getAttribute('data-total'), 10) || 0;
+      if (btn) {
+        btn.textContent = _cmpIssueExpanded
+          ? '▴ Show fewer'
+          : '▾ Show all ' + total + ' issues (' + Math.max(0, total - _CMP_ISSUE_CAP) + ' more)';
+      }
+    }
+    // Empty-state row when a filter matches nothing in this lineup.
+    const empty = document.getElementById('cmp-issue-empty');
+    if (empty) {
+      const labels = { differ: 'differences', agree: 'common ground', mine: 'flagged issues' };
+      empty.classList.toggle('cmp-issue-hidden', visible > 0);
+      const cell = empty.querySelector('td');
+      if (cell && visible === 0) {
+        cell.textContent = 'No ' + (labels[mode] || 'issues') + ' among these picks — switch back to All to see every documented position.';
+      }
+    }
+  }
+  window._cmpFilterIssues = function(mode) {
+    _cmpIssueFilterMode = mode || 'all';
+    _cmpApplyIssueView();
+  };
+  window._cmpToggleAllIssues = function() {
+    _cmpIssueExpanded = !_cmpIssueExpanded;
+    _cmpApplyIssueView();
+  };
 
   // Show the "how to read this" guide unless the visitor dismissed it before.
   function _cmpRenderGuide() {
