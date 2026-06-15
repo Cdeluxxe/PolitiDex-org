@@ -10555,6 +10555,63 @@
       margin-right: 0.05rem;
     }
     .align-quick-chip.active::before { content: '✓'; opacity: 1; }
+    .align-quick-cov { margin-left: 0.3rem; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.01em; color: #5eead4; opacity: 0.92; }
+    .align-quick-chip.active .align-quick-cov { color: #99f6e4; }
+
+    /* ── Documented-coverage markers (📍) ─────────────────────────
+       A teal accent layer that shows, across the picker, how many politicians
+       have a documented, sourced position on each issue / topic. Teal = "data
+       available to match on", kept visually distinct from the purple = "your
+       selection" language used everywhere else in the tool. */
+    .align-opt-cov {
+      flex: 0 0 auto;
+      align-self: flex-start;
+      margin-top: 0.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.12rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #5eead4;
+      background: rgba(20,184,166,0.12);
+      border: 1px solid rgba(45,212,191,0.3);
+      border-radius: 999px;
+      padding: 0.08rem 0.42rem;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .align-opt-cov.is-none { color: #6f86a8; background: rgba(111,134,168,0.08); border-color: rgba(111,134,168,0.22); }
+    .align-chip.active .align-opt-cov { color: #99f6e4; border-color: rgba(45,212,191,0.5); background: rgba(20,184,166,0.18); }
+    .align-cat-cov {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.1rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #5eead4;
+      background: rgba(20,184,166,0.1);
+      border: 1px solid rgba(45,212,191,0.26);
+      border-radius: 999px;
+      padding: 0.06rem 0.42rem;
+      line-height: 1.3;
+    }
+    .align-cov-legend {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: #9fb4d4;
+      background: rgba(20,184,166,0.06);
+      border: 1px solid rgba(45,212,191,0.18);
+      border-left: 3px solid rgba(45,212,191,0.5);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.7rem;
+      margin: 0 0 0.7rem;
+    }
+    .align-cov-legend b { color: #7ee7d8; font-weight: 700; }
 
     /* ── Picker control bar: live selected-count + expand / collapse all ──
        Gives the accordion a single, calm place to drive the whole list, so a long
@@ -15871,6 +15928,7 @@
               </div>
             </div>
 
+            <p class="align-cov-legend">📍 <b>Coverage</b> shows how many politicians have a <b>documented, sourced position</b> on each issue — higher means more candidates you can match against. Issues without it still score from each candidate's broader record.</p>
             <div class="align-cats" id="align-cats-rel">
               <!-- Same collapsible category accordion as the main panel, rendered by _alignRenderPickers() -->
             </div>
@@ -16375,6 +16433,7 @@
                 </div>
               </div>
 
+              <p class="align-cov-legend">📍 <b>Coverage</b> shows how many politicians have a <b>documented, sourced position</b> on each issue — higher means more candidates you can match against. Issues without it still score from each candidate's broader record.</p>
               <div class="align-cats" id="align-cats-main">
                 <!-- Collapsible category accordion rendered by _alignRenderPickers() -->
               </div>
@@ -48345,9 +48404,59 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return Object.keys(ISSUE_MAP).filter(function(k) { return ISSUE_MAP[k].cat === catKey; });
     }
 
+    // ── Documented-coverage engine ─────────────────────────────
+    // How many politicians actually have a curated, sourced position on each
+    // issue — drawn straight from ISSUE_STANCE_DATA (the very records that power
+    // every politician's documented stances). This lets the picker show, BEFORE
+    // a visitor commits to an issue, which specific issues have real data to
+    // match on and how rich each one is, so they aren't choosing blind. Counts
+    // are factual (one per documented record that carries that issueKey — at most
+    // once per politician), so nothing here is fabricated. Memoized because the
+    // underlying data is static for the session.
+    var _alignCovCache = null;
+    function _alignCoverage() {
+      if (_alignCovCache) return _alignCovCache;
+      var byIssue = {}, byCat = {};
+      try {
+        if (typeof ISSUE_STANCE_DATA !== 'undefined' && ISSUE_STANCE_DATA) {
+          Object.keys(ISSUE_STANCE_DATA).forEach(function(pid) {
+            var list = ISSUE_STANCE_DATA[pid];
+            if (!Array.isArray(list)) return;
+            var seen = {}; // an issue counts at most once per politician record
+            list.forEach(function(s) {
+              var k = s && s.issueKey;
+              if (!k || !ISSUE_MAP[k] || seen[k]) return;
+              seen[k] = 1;
+              byIssue[k] = (byIssue[k] || 0) + 1;
+            });
+          });
+        }
+      } catch (e) {}
+      // Roll the per-issue counts up to their parent topic (category).
+      Object.keys(byIssue).forEach(function(k) {
+        var cat = ISSUE_MAP[k] && ISSUE_MAP[k].cat;
+        if (!cat) return;
+        if (!byCat[cat]) byCat[cat] = { issues: 0, positions: 0 };
+        byCat[cat].issues++;
+        byCat[cat].positions += byIssue[k];
+      });
+      _alignCovCache = { byIssue: byIssue, byCat: byCat };
+      return _alignCovCache;
+    }
+    window._alignCoverage = _alignCoverage;
+
     function _alignChipHtml(key) {
       var d = ISSUE_MAP[key];
       if (!d) return '';
+      // A small teal 📍 coverage badge tells the visitor, at a glance, how many
+      // politicians have a documented, sourced position on THIS exact issue — so
+      // they can see which issues actually have data to match on before picking.
+      // "—" marks issues with no documented position tagged yet (they still score
+      // from each candidate's broader record); the colour change keeps it honest.
+      var cov = _alignCoverage().byIssue[key] || 0;
+      var covHtml = cov > 0
+        ? '<span class="align-opt-cov" title="' + cov + ' politician' + (cov === 1 ? '' : 's') + ' on PolitiDex ' + (cov === 1 ? 'has a' : 'have a') + ' documented, sourced position on this exact issue — pick it to see who lines up with you">📍 ' + cov + '</span>'
+        : '<span class="align-opt-cov is-none" title="No documented positions are tagged to this exact issue yet — picking it still matches candidates from their broader record, and it sharpens as positions are added">📍 —</span>';
       // No party (R/D) badge — the option reads as a policy position, and the
       // checkbox box on the left makes the multi-select nature obvious. Once an
       // option is checked, an intensity row (Strong / Moderate / Opposed) reveals
@@ -48357,6 +48466,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ' aria-pressed="false" onclick="alignToggle(this)">' +
           '<span class="align-opt-box" aria-hidden="true"></span>' +
           '<span class="align-opt-text">' + d.chip + '</span>' +
+          covHtml +
         '</button>' +
         '<div class="align-intensity" role="group" aria-label="How strongly do you hold this position?">' +
           '<button type="button" class="align-int-btn" data-int="strong" title="This is a strong, high-priority position for me" onclick="alignSetIntensity(\'' + key + '\',\'strong\')">💪 Strong</button>' +
@@ -48376,17 +48486,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     function _alignBuildPicker() {
       var lastGroup = null;
+      var cov = _alignCoverage();
       return ALIGN_CATEGORIES.map(function(c) {
         var groupHtml = '';
         if (c.group && c.group !== lastGroup) {
           lastGroup = c.group;
           groupHtml = '<div class="align-group-divider">' + c.group + '</div>';
         }
+        // Static topic-level coverage: how many documented positions across the
+        // field this topic offers to match on. Surfaces the richest topics at a
+        // glance so a visitor knows where the data is deepest.
+        var cc = cov.byCat[c.key];
+        var covCatHtml = (cc && cc.positions > 0)
+          ? '<span class="align-cat-cov" title="' + cc.positions + ' documented position' + (cc.positions === 1 ? '' : 's') + ' from politicians across this topic, covering ' + cc.issues + ' issue' + (cc.issues === 1 ? '' : 's') + ' — these are ready to match on">📍 ' + cc.positions + '</span>'
+          : '';
         return groupHtml +
           '<div class="align-cat" data-cat="' + c.key + '">' +
           '<button type="button" class="align-cat-head" onclick="alignToggleCat(this)" aria-expanded="false">' +
             '<span class="align-cat-title"><span class="align-cat-ico">' + c.icon + '</span>' + c.label + '</span>' +
             '<span class="align-cat-meta">' +
+              covCatHtml +
               '<span class="align-cat-badge" data-cat-badge="' + c.key + '" style="display:none;">0</span>' +
               '<span class="align-cat-chev">▾</span>' +
             '</span>' +
@@ -49576,8 +49695,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!el) return;
       var chips = ALIGN_QUICK_PICKS.filter(function(k) { return !!ISSUE_MAP[k]; }).map(function(k) {
         var d = ISSUE_MAP[k];
+        var cov = _alignCoverage().byIssue[k] || 0;
+        var covHtml = cov > 0 ? '<span class="align-quick-cov" title="' + cov + ' politician' + (cov === 1 ? '' : 's') + ' with a documented position on this issue">📍' + cov + '</span>' : '';
         return '<button type="button" class="align-chip align-quick-chip" data-align-issue="' + k + '"' +
-          ' aria-pressed="false" title="' + d.chip + '" onclick="alignToggle(this)">' + d.label + '</button>';
+          ' aria-pressed="false" title="' + d.chip + '" onclick="alignToggle(this)">' + d.label + covHtml + '</button>';
       }).join('');
       el.innerHTML =
         '<div class="align-quick-label">⚡ Quick picks ' +
