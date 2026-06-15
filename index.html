@@ -2846,6 +2846,21 @@
       text-transform: uppercase; color: #6d8ab0; text-align: center;
       background: rgba(13,21,38,0.4); padding: 0.5rem 1rem;
     }
+    /* ── "Your issue" emphasis: rows the visitor flagged in the Alignment Tool ──
+       Connects Compare to the Alignment Tool — a row is marked when its issue is
+       one the visitor chose to weigh. Gold accent (matching the 🎯 alignment cue
+       used elsewhere); it signals a topic of interest, not agreement. */
+    .cmp-issue-mine-badge {
+      display: inline-flex; align-items: center; gap: 0.22rem; margin-top: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.56rem; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 0.14rem 0.5rem; border-radius: 999px; white-space: nowrap;
+      color: #fcd34d; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.4);
+    }
+    #cmp-table tr.cmp-issue-mine-row td { box-shadow: inset 3px 0 0 rgba(245,200,66,0.55); }
+    #cmp-table tr.cmp-issue-mine-row td.cmp-issue-label { color: #fde8a8; }
+    .cmp-issue-intro .cmp-issue-mine-ico { color: #fcd34d; }
+    .cmp-insight-mine { color: #fcd34d; font-weight: 700; }
 
     /* ── "How to read this" guidance bar (top of compare scroll area) ── */
     .cmp-guide {
@@ -37305,10 +37320,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // This is what lets a thin/new 2026 candidate — who has no promise score —
   // still be compared meaningfully: their stances are the comparison.
   function _cmpIssueData(pids) {
-    const out = { anyDocumented:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, docByPid:{} };
+    const out = { anyDocumented:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, nMine:0, nMineShared:0, mineActive:false, docByPid:{} };
     const resolve = (typeof window._resolveStanceList === 'function') ? window._resolveStanceList : null;
     if (!resolve) return out;
-    const mapOK = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
+    // ISSUE_MAP lives inside the Alignment IIFE and is published as
+    // window._alignIssueMap — use that reference (bare ISSUE_MAP doesn't resolve
+    // across script blocks). Gives canonical issue labels AND the category each
+    // issueKey belongs to, which powers the "your issue" matching below.
+    const issueMap = (typeof window !== 'undefined' && window._alignIssueMap) ? window._alignIssueMap
+                   : ((typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP) ? ISSUE_MAP : null);
+    const mapOK = !!issueMap;
+
+    // The visitor's own Alignment selections (when set) share the exact issueKey
+    // namespace as the documented stances, so we can honestly flag which compared
+    // issues are ones THEY chose to weigh. We match an issue as "yours" when its
+    // key was selected directly, or when it sits in a topic category the visitor
+    // flagged — this marks a topic of interest, never a claim that anyone agrees.
+    let mineKeys = null, mineCats = null;
+    if (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) {
+      mineKeys = new Set(_alignIssues);
+      if (mapOK) {
+        mineCats = new Set();
+        _alignIssues.forEach(k => { if (issueMap[k] && issueMap[k].cat) mineCats.add(issueMap[k].cat); });
+      }
+      out.mineActive = true;
+    }
+    const isMine = (ik) => {
+      if (!mineKeys || !ik) return false;
+      if (mineKeys.has(ik)) return true;
+      return !!(mineCats && issueMap[ik] && issueMap[ik].cat && mineCats.has(issueMap[ik].cat));
+    };
     const norm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const dirOf = (s) => {
       const d = String(s.issueStance || s.pos || 'mixed').toLowerCase();
@@ -37330,10 +37371,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         docCount++;
         if (!meta[key]) {
           let label = String(s.topic).trim();
-          if (s.issueKey && mapOK && ISSUE_MAP[s.issueKey] && ISSUE_MAP[s.issueKey].label) {
-            label = ISSUE_MAP[s.issueKey].label;  // canonical label (already carries an emoji)
+          if (s.issueKey && mapOK && issueMap[s.issueKey] && issueMap[s.issueKey].label) {
+            label = issueMap[s.issueKey].label;  // canonical label (already carries an emoji)
           }
-          meta[key] = { label: label };
+          meta[key] = { label: label, issueKey: s.issueKey || '' };
           order.push(key);
         }
       });
@@ -37356,20 +37397,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       else if (sup > 0 && opp > 0) agreement = 'differ';
       else if (soft > 0) agreement = 'partial';        // a clear side + a mixed/tracking read
       else agreement = 'agree';                        // all on the same clear side
-      out.issues.push({ key, label: meta[key].label, cells, count: present.length, agreement });
+      const mine = isMine(meta[key].issueKey);
+      out.issues.push({ key, label: meta[key].label, cells, count: present.length, agreement, mine });
     });
 
-    // Shared issues (2+ documented) lead; among those, differences first so the
-    // contrasts are easy to find, then agreements, then single-documented rows.
+    // Shared issues (2+ documented) lead; within those, the visitor's own flagged
+    // issues come first so a values-driven voter sees their priorities up top, then
+    // differences before agreements so contrasts are easy to find, then single-
+    // documented rows.
     const rank = { differ:0, partial:1, agree:2, solo:3 };
     out.issues.sort((a, b) => {
       if ((b.count >= 2) !== (a.count >= 2)) return (b.count >= 2) - (a.count >= 2);
+      if (b.mine !== a.mine) return (b.mine ? 1 : 0) - (a.mine ? 1 : 0);
       if (rank[a.agreement] !== rank[b.agreement]) return rank[a.agreement] - rank[b.agreement];
       return b.count - a.count;
     });
     out.total = out.issues.length;
     out.issues.forEach(iss => {
+      if (iss.mine) out.nMine++;
       if (iss.count >= 2) {
+        if (iss.mine) out.nMineShared++;
         if (iss.agreement === 'agree') out.nAgree++;
         else if (iss.agreement === 'differ') out.nDiffer++;
         else if (iss.agreement === 'partial') out.nPartial++;
@@ -37506,8 +37553,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           const lead = issueCmp.nDiffer > issueCmp.nAgree
             ? `Differ on ${issueCmp.nDiffer} · agree on ${issueCmp.nAgree}`
             : `Agree on ${issueCmp.nAgree} · differ on ${issueCmp.nDiffer}`;
+          const mineBit = issueCmp.nMineShared
+            ? ` · <span class="cmp-insight-mine">🎯 ${issueCmp.nMineShared} of your issue${issueCmp.nMineShared !== 1 ? 's' : ''}</span>`
+            : '';
           issueHtml = `<span class="cmp-insight-lead">${lead}</span>`
-            + `<span class="cmp-insight-sub">Across ${overlap} issue${overlap !== 1 ? 's' : ''} both have a documented stance on${issueCmp.nPartial ? ' · ' + issueCmp.nPartial + ' mixed' : ''}</span>`;
+            + `<span class="cmp-insight-sub">Across ${overlap} issue${overlap !== 1 ? 's' : ''} both have a documented stance on${issueCmp.nPartial ? ' · ' + issueCmp.nPartial + ' mixed' : ''}${mineBit}</span>`;
         } else if (issueCmp.anyDocumented) {
           issueHtml = `<span class="cmp-insight-sub">No issue is documented for two of these picks yet — see each one's positions below.</span>`;
         } else {
@@ -37566,17 +37616,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     let rows = '';
 
-    rows += sectionRow('📊 Promise Scores');
+    // Each major section is assembled into its own string so the order can adapt
+    // to the lineup. For thin/new fields with no Promise Scores, the documented
+    // issue positions are the only real signal, so they lead instead of a wall of
+    // "—" promise rows (see the `thinLineup` ordering below).
+    let promiseBlock = '', alignBlock = '', focusBlock = '', standBlock = '';
+
+    promiseBlock += sectionRow('📊 Promise Scores');
     const _psVals = pids.map(pid => { const s = window._pdxDisplayScore(sc(pid)); return (s === null || s === undefined) ? null : s; });
     const _psLeader = leaderClasses(_psVals);
-    rows += row('Promise Score', pids.map((pid, i) => {
+    promiseBlock += row('Promise Score', pids.map((pid, i) => {
       const p = sc(pid); const sVal = _psVals[i]; const col = scoreColor(sVal);
       const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
       return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${lead}`;
     }), '', _psLeader);
     const _ftVals = pids.map(pid => followThrough(sc(pid)));
     const _ftLeader = leaderClasses(_ftVals);
-    rows += row('Follow-Through Rate', pids.map((pid, i) => {
+    promiseBlock += row('Follow-Through Rate', pids.map((pid, i) => {
       const v = _ftVals[i];
       if (v === null) return na;
       const col = scoreColor(v);
@@ -37588,43 +37644,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </div>
         </div>${lead}`;
     }), '', _ftLeader);
-    rows += row('Promises Kept', pids.map(pid => {
+    promiseBlock += row('Promises Kept', pids.map(pid => {
       const p = sc(pid);
       return `<span class="cmp-stat-pill" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;">✓ ${p.kept}</span>`;
     }), '');
-    rows += row('Promises Broken', pids.map(pid => {
+    promiseBlock += row('Promises Broken', pids.map(pid => {
       const p = sc(pid);
       return `<span class="cmp-stat-pill" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;">✗ ${p.broken}</span>`;
     }), '');
-    rows += row('Pending / In Progress', pids.map(pid => {
+    promiseBlock += row('Pending / In Progress', pids.map(pid => {
       const p = sc(pid);
       return `<span class="cmp-stat-pill" style="background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.25);color:#f5c842;">⏳ ${p.pending}</span>`;
     }), '');
-    rows += row('Office / Role', pids.map(pid => {
+    promiseBlock += row('Office / Role', pids.map(pid => {
       const p = sc(pid);
       return `<span style="font-size:0.75rem;color:#9fb4d4;">${p.office}</span>`;
     }), '');
-    rows += row('Party', pids.map(pid => {
+    promiseBlock += row('Party', pids.map(pid => {
       const p = sc(pid);
       return `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;color:#9fb4d4;">${p.party}</span>`;
     }), '');
-    rows += row('Status', pids.map(pid => statusBadge(sc(pid), true)), '');
+    promiseBlock += row('Status', pids.map(pid => statusBadge(sc(pid), true)), '');
 
     if (_alignActive) {
-      rows += sectionRow('🎯 Personalized Alignment');
+      alignBlock += sectionRow('🎯 Personalized Alignment');
       // A plain-language read on who fits best, right where the numbers are — so
       // the visitor doesn't have to eyeball the row to find their match.
       if (_alignLeaderPid) {
         const _lp = sc(_alignLeaderPid);
         const _lShort = (_lp.name || '').split(' ').pop() || _lp.name;
-        rows += `<tr class="cmp-issue-intro"><td colspan="${pids.length + 1}">`
+        alignBlock += `<tr class="cmp-issue-intro"><td colspan="${pids.length + 1}">`
           + `🏆 <strong style="color:#fde68a;">${_lShort}</strong> aligns with your issues best at <strong>${_alignLeaderScore}%</strong> — ranked first below. `
           + `Lower-matching picks follow; any with no documented positions yet can't be scored on your issues.`
           + `</td></tr>`;
       }
       const _alVals = pids.map(pid => _alignBy[pid]);
       const _alLeader = pids.map(pid => pid === _alignLeaderPid ? 'cmp-leader-cell' : '');
-      rows += row('Your Alignment', pids.map((pid, i) => {
+      alignBlock += row('Your Alignment', pids.map((pid, i) => {
         const alignScore = _alVals[i];
         if (alignScore === null || alignScore === undefined) return `<span class="cmp-na">—</span>`;
         const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
@@ -37636,8 +37692,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }), '🎯', _alLeader);
     }
 
-    rows += sectionRow('🎯 Key Issues & Focus Areas');
-    rows += row('Focus Areas', pids.map(pid => {
+    focusBlock += sectionRow('🎯 Key Issues & Focus Areas');
+    focusBlock += row('Focus Areas', pids.map(pid => {
       const p = sc(pid);
       return `<div style="display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;">${(p.issues && p.issues.length) ? p.issues.slice(0,3).map(i => {
         const shared = sharedIssues.has(i.trim());
@@ -37645,15 +37701,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('') : (typeof window._pdxFocusEmptyNote === 'function' ? window._pdxFocusEmptyNote(p, { center: true }) : '')}</div>`;
     }), '');
 
+    // Is this a thin field? When 2+ picks are compared, at least one has a
+    // documented issue position, and NONE has a Promise Score, the traditional
+    // record rows are empty — so we lead with where they actually stand.
+    const _anyScore = pids.some((pid, i) => _psVals[i] !== null && _psVals[i] !== undefined);
+    const thinLineup = pids.length >= 2 && issueCmp.anyDocumented && !_anyScore;
+
     if (issueCmp.anyDocumented) {
       // ── Where They Stand — issue-by-issue, from documented ISSUE_STANCE_DATA.
       // This is the heart of comparing thin/new candidates: it lines up each
       // pick's real positions on the same issue so agreement and contrast are
       // obvious, with no fabricated stances — a pick with nothing on file simply
       // reads "Not documented yet".
-      rows += sectionRow('🏛 Where They Stand — Issue by Issue');
+      standBlock += sectionRow('🏛 Where They Stand — Issue by Issue');
       const nCols = pids.length + 1;
-      rows += `<tr class="cmp-issue-intro"><td colspan="${nCols}">`
+      // Lead-in adapts: when the visitor has set Alignment, point out that their
+      // own flagged issues are pulled to the top; otherwise the standard read.
+      const mineLead = (issueCmp.mineActive && issueCmp.nMineShared)
+        ? `<strong><span class="cmp-issue-mine-ico">🎯 ${issueCmp.nMineShared} of your issue${issueCmp.nMineShared !== 1 ? 's' : ''}</span></strong> ${issueCmp.nMineShared !== 1 ? 'are' : 'is'} pulled to the top — the positions you flagged in the Alignment Tool, compared head-to-head. `
+        : '';
+      const thinLead = thinLineup
+        ? `<strong style="color:#cbd9ec;">These are new candidates with no Promise Score yet</strong>, so their documented positions are the clearest way to compare them. `
+        : '';
+      standBlock += `<tr class="cmp-issue-intro"><td colspan="${nCols}">`
+        + thinLead + mineLead
         + `Real positions from each one's public record — so even a new candidate with no Promise Score can still be compared on where they stand. `
         + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
         + `</td></tr>`;
@@ -37667,21 +37738,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       };
       shownIssues.forEach(iss => {
         const bm = badgeMeta[iss.agreement] || badgeMeta.solo;
-        const rowCls = iss.agreement === 'agree' ? 'cmp-issue-agree-row'
-                     : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '';
+        const rowCls = (iss.mine ? 'cmp-issue-mine-row ' : '')
+                     + (iss.agreement === 'agree' ? 'cmp-issue-agree-row'
+                      : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '');
+        // "🎯 Your issue" flags a topic the visitor chose to weigh — it marks
+        // interest, not agreement; the cells below still show each real stance.
+        const mineTag = iss.mine ? `<div><span class="cmp-issue-mine-badge">🎯 Your issue</span></div>` : '';
         const labelCell = `<td class="cmp-row-label cmp-issue-label">${iss.label}`
+          + mineTag
           + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div></td>`;
         const cells = iss.cells.map(c => `<td style="text-align:center;vertical-align:top;">${_cmpIssueCell(c)}</td>`).join('');
-        rows += `<tr class="${rowCls}">${labelCell}${cells}</tr>`;
+        standBlock += `<tr class="${rowCls.trim()}">${labelCell}${cells}</tr>`;
       });
       if (issueCmp.total > CAP) {
         const extra = issueCmp.total - CAP;
-        rows += `<tr class="cmp-issue-more"><td colspan="${nCols}">+ ${extra} more documented issue${extra !== 1 ? 's' : ''} — open a full profile to read every position</td></tr>`;
+        standBlock += `<tr class="cmp-issue-more"><td colspan="${nCols}">+ ${extra} more documented issue${extra !== 1 ? 's' : ''} — open a full profile to read every position</td></tr>`;
       }
     } else {
       // Fallback for the rare lineup with no documented issue positions at all:
       // the legacy curated head-to-head on a fixed set of high-salience topics.
-      rows += sectionRow('🏛 Policy Positions — Head to Head');
+      standBlock += sectionRow('🏛 Policy Positions — Head to Head');
       const stanceLabels = [
         ['border',      '🛡 Border / Immigration'],
         ['debt',        '💰 Debt / Spending'],
@@ -37693,7 +37769,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ['audit',       '🏦 Audit the Fed'],
       ];
       stanceLabels.forEach(([key, label]) => {
-        rows += row(label, pids.map(pid => {
+        standBlock += row(label, pids.map(pid => {
           const stance = CMP_DATA[pid]?.stances?.[key] || '—';
           if (stance === 'N/A' || stance === '—') return na;
           const color = stance.includes('❌') ? '#f87171' : stance.includes('🔥') ? '#fb923c' : '#9fb4d4';
@@ -37701,6 +37777,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }), '');
       });
     }
+
+    // Order the assembled sections. Thin fields lead with the personal Alignment
+    // read and the documented positions (the only real signal); established
+    // lineups keep the record-first order.
+    rows += thinLineup
+      ? (alignBlock + standBlock + focusBlock + promiseBlock)
+      : (promiseBlock + alignBlock + focusBlock + standBlock);
 
     rows += sectionRow('🔗 Actions');
     rows += row('Add to My Team', pids.map(pid => {
