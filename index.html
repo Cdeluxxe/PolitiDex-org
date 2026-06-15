@@ -5098,6 +5098,38 @@
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700;
       letter-spacing: 0.05em; text-transform: uppercase; color: #7596c0; padding: 0.12rem 0.3rem;
     }
+    /* ── Alignment-aware chips ─────────────────────────────────────────────────
+       A chip that lands on one of the visitor's OWN saved Alignment Tool issues
+       gets a soft verdict-colored ring plus a trailing "you" marker, so a voter
+       instantly sees how this official lines up with the positions they care about
+       — the same agree / partly / differ read used in the profile's How You
+       Compare, surfaced right on the browse card. */
+    .pdx-stance-chip--mine { position: relative; }
+    .pdx-stance-chip--mine.mine-match  { box-shadow: 0 0 0 1px rgba(74,222,128,0.55), 0 0 10px rgba(74,222,128,0.22); }
+    .pdx-stance-chip--mine.mine-partial{ box-shadow: 0 0 0 1px rgba(245,200,66,0.55), 0 0 10px rgba(245,200,66,0.2); }
+    .pdx-stance-chip--mine.mine-differ { box-shadow: 0 0 0 1px rgba(248,113,113,0.55), 0 0 10px rgba(248,113,113,0.2); }
+    .pdx-stance-you {
+      display: inline-flex; align-items: center; gap: 0.16rem;
+      margin-left: 0.1rem; padding: 0.02rem 0.3rem 0.02rem 0.26rem; border-radius: 999px;
+      font-weight: 800; font-size: 0.56rem; line-height: 1.4;
+    }
+    .pdx-stance-you-lbl { font-weight: 700; font-size: 0.5rem; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.92; }
+    .mine-match  .pdx-stance-you { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
+    .mine-partial .pdx-stance-you { background: rgba(245,200,66,0.18);  color: #fcd34d; }
+    .mine-differ .pdx-stance-you { background: rgba(248,113,113,0.18); color: #fca5a5; }
+    /* Eyebrow read: "🎯 N of your issues", color-cued to how the official's
+       documented positions lean against the visitor's picks. */
+    .pdx-stance-mine-eb {
+      display: inline-flex; align-items: center; gap: 0.22rem;
+      font-weight: 700; letter-spacing: 0.04em;
+      padding: 0.04rem 0.4rem; border-radius: 999px;
+      border: 1px solid rgba(124,156,210,0.3); background: rgba(124,156,210,0.1);
+    }
+    .pdx-stance-mine-eb b { font-weight: 800; }
+    .pdx-stance-mine-eb.is-agree   { color: #86efac; border-color: rgba(74,222,128,0.4);  background: rgba(74,222,128,0.1); }
+    .pdx-stance-mine-eb.is-agree b { color: #bbf7d0; }
+    .pdx-stance-mine-eb.is-partial { color: #fcd34d; border-color: rgba(245,200,66,0.4);  background: rgba(245,200,66,0.1); }
+    .pdx-stance-mine-eb.is-differ  { color: #fca5a5; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.1); }
 
     .pdx-snap-highlight {
       display: flex; align-items: flex-start; gap: 0.4rem;
@@ -29195,6 +29227,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   function _pdxStanceAttr(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
+  // Verdict marker shown on a chip the visitor ALSO picked in the Alignment Tool:
+  // a compact "you" badge — agree (green) · partly (amber) · differ (red) — so a
+  // card reads, at a glance, how this official lines up with the visitor's own
+  // saved positions. Glyphs are kept distinct from the leading direction icon.
+  var _PDX_MINE_DIR = {
+    match:    { cls: 'mine-match',  ico: '✓', word: 'You match'  },
+    partial:  { cls: 'mine-partial', ico: '≈', word: 'Partial'    },
+    mismatch: { cls: 'mine-differ', ico: '✗', word: 'You differ' }
+  };
   window._pdxStanceChips = function(pid, d, opts) {
     opts = opts || {};
     if (typeof window._resolveStanceList !== 'function') return '';
@@ -29203,6 +29244,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Only genuine topical positions count — skip any malformed entry with no topic.
     list = list.filter(function(s) { return s && String(s.topic || '').trim(); });
     if (!list.length) return '';
+
+    // ── Alignment Tool linkage ───────────────────────────────────────────────
+    // When the visitor has saved positions, mark each chip that lands on one of
+    // THEIR issues with how the two line up. This is what ties the cards to the
+    // Alignment Tool everywhere a voter browses — the same matched/partial/differs
+    // read shown in the profile's "How You Compare", now surfaced inline on the
+    // card. Everything degrades gracefully: no saved issues → plain stance chips.
+    var hasAlign = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+    function _mineVerdict(s) {
+      if (!hasAlign || !s || !s.issueKey || !_alignIssues.has(s.issueKey)) return null;
+      var inten = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'moderate';
+      var polStance = String(s.issueStance || s.pos || 'mixed').toLowerCase();
+      return (typeof window._issueVerdict === 'function') ? window._issueVerdict(inten, polStance) : 'partial';
+    }
+    // Lead with the visitor's own issues so a card opens on what's relevant to them
+    // (stable within each group, so curated ordering is otherwise preserved).
+    if (hasAlign) {
+      var mineList = [], restList = [];
+      list.forEach(function(s) { (_mineVerdict(s) ? mineList : restList).push(s); });
+      list = mineList.concat(restList);
+    }
+
     var max = opts.max || 3;
     var shown = list.slice(0, max);
     var chips = shown.map(function(s) {
@@ -29212,8 +29275,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var label = topic.length > 26 ? topic.slice(0, 24).replace(/\s+\S*$/, '') + '…' : topic;
       var verb = pos === 'support' ? 'Supports' : pos === 'oppose' ? 'Opposes' : 'Mixed record on';
       var tip = verb + ' — ' + (s.text || topic);
-      return '<span class="pdx-stance-chip ' + meta.cls + '" title="' + _pdxStanceAttr(tip) + '">' +
-        '<span class="pdx-stance-ico">' + meta.ico + '</span>' + _pdxStanceAttr(label) + '</span>';
+      var v = _mineVerdict(s);
+      var mineCls = '', youMark = '';
+      if (v) {
+        var mm = _PDX_MINE_DIR[v] || _PDX_MINE_DIR.partial;
+        mineCls = ' pdx-stance-chip--mine ' + mm.cls;
+        tip = '🎯 On your issue · ' + mm.word + ' — ' + (s.text || topic);
+        youMark = '<span class="pdx-stance-you" aria-hidden="true">' + mm.ico + '<span class="pdx-stance-you-lbl">you</span></span>';
+      }
+      return '<span class="pdx-stance-chip ' + meta.cls + mineCls + '" title="' + _pdxStanceAttr(tip) + '">' +
+        '<span class="pdx-stance-ico">' + meta.ico + '</span>' + _pdxStanceAttr(label) + youMark + '</span>';
     }).join('');
     var moreN = list.length - shown.length;
     var more = moreN > 0 ? '<span class="pdx-stance-more">+' + moreN + ' more</span>' : '';
@@ -29239,9 +29310,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           (nMix ? '<span class="pdx-stance-sum-i is-mixed" title="' + nMix + ' mixed / nuanced position' + (nMix === 1 ? '' : 's') + '">~ ' + nMix + '</span>' : '') +
           '</span>';
       }
+      // Personalized read: how many of the visitor's own picked issues this
+      // official has a documented position on, color-cued to how they line up.
+      var mineEb = '';
+      if (hasAlign) {
+        var mineN = 0, mAgree = 0, mDiff = 0;
+        list.forEach(function(s) { var mv = _mineVerdict(s); if (mv) { mineN++; if (mv === 'match') mAgree++; else if (mv === 'mismatch') mDiff++; } });
+        if (mineN > 0) {
+          var leanCls = mDiff > mAgree ? 'is-differ' : (mAgree >= mDiff && mAgree > 0 ? 'is-agree' : 'is-partial');
+          mineEb = '<span class="pdx-stance-mine-eb ' + leanCls + '" title="Has a documented position on ' + mineN +
+            ' of the issues you picked in the Alignment Tool">🎯 <b>' + mineN + '</b> of your issues</span>';
+        }
+      }
       label = '<div class="pdx-stance-eyebrow"><span class="pdx-stance-eyebrow-ico">\u{1F4CC}</span>' +
         '<span class="pdx-stance-eyebrow-txt">Where ' + _pdxStanceAttr(first) + ' stands · <b>' +
-        list.length + ' position' + (list.length === 1 ? '' : 's') + '</b></span>' + sum + '</div>';
+        list.length + ' position' + (list.length === 1 ? '' : 's') + '</b></span>' + mineEb + sum + '</div>';
     }
     return '<div class="pdx-snap-stances">' + label + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
   };
