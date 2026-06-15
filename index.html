@@ -7497,6 +7497,10 @@
     .kraq-avail-chip:active { transform: translateY(0) scale(0.97); }
     .kraq-avail-st { font-size: 0.66rem; color: #5eead4; font-weight: 800; }
     .kraq-avail-plus { font-size: 0.78rem; color: #5eead4; font-weight: 800; margin-left: 0.1rem; }
+    /* "Build Your Match" discovery view — the popular-issue fallback row shown under
+       a candidate's documented positions so even a thin profile offers a way in. */
+    .kraq-disc-quick { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px dashed rgba(159,180,212,0.18); }
+    .kraq-disc-quick-head { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.03em; color: #9fb4d4; margin-bottom: 0.1rem; }
 
     /* Dynamic "Spotlight" quick-view (opened from the new per-candidate Spotlight
        button). Gold patriotic theme to match the site's SPOTLIGHT REPORT styling. */
@@ -46073,11 +46077,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
             : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
       if (!n) {
-        return '<button type="button" onclick="window._krAlignGuideToPicker()" class="kr-align-inline kr-align-inline-setup" aria-label="Set your issues to see your personalized alignment with ' + d.name + '">' +
+        return '<button type="button" onclick="window.keyRacesAlignQuickView(\'' + pid + '\')" class="kr-align-inline kr-align-inline-setup" aria-label="See which issues ' + d.name + ' has positions on and build your personalized match">' +
             '<span class="kr-align-inline-ico">🎯</span>' +
             '<span class="kr-align-inline-text">' +
               '<span class="kr-align-inline-title">See your personal match</span>' +
-              '<span class="kr-align-inline-sub">Pick the issues you care about — we\'ll score this candidate for you</span>' +
+              '<span class="kr-align-inline-sub">See the issues ' + (d.name || '').split(' ')[0] + ' has positions on — pick what matters to you</span>' +
             '</span>' +
             '<span class="kr-align-inline-go">›</span>' +
           '</button>';
@@ -46148,10 +46152,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     };
 
     window.keyRacesAlign = function(pid) {
-      var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
-            : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
-      if (n > 0) { window.keyRacesAlignQuickView(pid); return; }
-      _krAlignGuideToPicker();
+      // Always open this candidate's match view — keyRacesAlignQuickView shows the
+      // scored breakdown when issues are picked, or the issue-discovery view (which
+      // issues THIS candidate has positions on) when the visitor hasn't picked yet.
+      window.keyRacesAlignQuickView(pid);
     };
 
     function _krEnsureAlignOverlay() {
@@ -46177,9 +46181,120 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }, 200);
     };
 
+    // ── Issue-discovery view (opened when a visitor taps a candidate's match
+    //    BEFORE picking any issues of their own) ─────────────────────────────
+    // Instead of bouncing to the generic, candidate-agnostic picker, this shows
+    // WHICH specific issues THIS politician has documented positions on — turning
+    // the dead-end into the most productive entry point. It's especially valuable
+    // for thin / new candidates whose entire record IS those stated positions:
+    // the visitor sees exactly what's available to match on, taps the issues that
+    // matter to them, and the modal instantly re-opens as a real, scored breakdown.
+    // No data is fabricated — when a candidate has no documented positions we say so
+    // plainly and offer popular issues plus the full picker.
+    function _krAlignDiscoveryView(pid, d) {
+      var amap = window._alignIssueMap || {};
+      var polMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(pid, d) || {}) : {};
+      var firstName = (d.name || 'This candidate').split(' ')[0];
+
+      // The candidate's OWN documented positions, keyed to issues the tool can match.
+      var docKeys = Object.keys(polMap).filter(function(k) { return amap[k]; });
+
+      function _addChip(key, withStance) {
+        var lab = (amap[key] && amap[key].label) ? amap[key].label : key;
+        var stHtml = '';
+        if (withStance && polMap[key]) {
+          var st = polMap[key].stance;
+          var stIco = st === 'support' ? '✓' : st === 'oppose' ? '✗' : '~';
+          stHtml = '<span class="kraq-avail-st">' + stIco + '</span>';
+        }
+        return '<button type="button" class="kraq-avail-chip" title="Add “' + lab.replace(/"/g, '&quot;') + '” to your issues and see how ' + firstName.replace(/"/g, '&quot;') + ' lines up" ' +
+            'onclick="window.alignSetIntensity(\'' + key + '\',\'moderate\');window.keyRacesAlignQuickView(\'' + pid + '\');">' +
+            stHtml + lab + '<span class="kraq-avail-plus">＋</span>' +
+          '</button>';
+      }
+
+      // Block 1 — this politician's documented positions (the high-value list).
+      var docBlock = '';
+      if (docKeys.length) {
+        var docChips = docKeys.slice(0, 12).map(function(k) { return _addChip(k, true); }).join('');
+        docBlock =
+          '<div class="kraq-avail" style="margin-top:0;">' +
+            '<div class="kraq-avail-head">📍 ' + firstName + ' has stated positions on ' + docKeys.length + ' issue' + (docKeys.length === 1 ? '' : 's') + '</div>' +
+            '<div class="kraq-avail-sub">These are documented, sourced stances — tap any that matter to you to instantly see where you line up.</div>' +
+            '<div class="kraq-avail-chips">' + docChips + '</div>' +
+          '</div>';
+      }
+
+      // Block 2 — popular issues (only those NOT already shown above), so even a
+      // thin candidate offers a path into a meaningful, personalized match.
+      var quick = (window._alignQuickPicks || []).filter(function(k) { return amap[k] && !polMap[k]; });
+      var quickBlock = '';
+      if (quick.length) {
+        var quickChips = quick.slice(0, 10).map(function(k) { return _addChip(k, false); }).join('');
+        quickBlock =
+          '<div class="kraq-disc-quick">' +
+            '<div class="kraq-disc-quick-head">⚡ Or start from a popular issue</div>' +
+            '<div class="kraq-avail-chips">' + quickChips + '</div>' +
+          '</div>';
+      }
+
+      // Honest framing when there's nothing documented to match on yet.
+      var emptyNote = docKeys.length ? '' :
+        '<div style="display:flex;gap:0.55rem;align-items:flex-start;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:0.7rem;padding:0.6rem 0.75rem;margin-bottom:0.9rem;">' +
+          '<span style="font-size:0.95rem;line-height:1.2;flex:none;">🌱</span>' +
+          '<p style="font-size:0.66rem;color:#fcd9a6;line-height:1.5;margin:0;">We don\'t have documented positions for ' + firstName + ' on file yet. Pick the issues you care about below and we\'ll match them against ' + firstName + '\'s broader record as it\'s verified — the Candidate Snapshot shows what we do know so far.</p>' +
+        '</div>';
+
+      var photo = _krPhoto(pid, d, '#2dd4bf');
+      var partyMeta = _krPartyMeta(d.party);
+      var partyHtml = partyMeta ? '<span style="color:' + partyMeta.color + ';">' + partyMeta.label + '</span>' : '';
+      var _dStatus = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var _dCandBadge = (_dStatus === 'candidate' && typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
+      var _dDepthBadge = (typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(d, { size: 'sm' }) : '';
+      var _dHeadBadges = (_dCandBadge || _dDepthBadge)
+        ? ('<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem;">' + _dCandBadge + _dDepthBadge + '</div>')
+        : '';
+
+      var html =
+        '<div class="kraq-card">' +
+          '<div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:0.75rem;padding:1rem 1.1rem;background:linear-gradient(135deg,rgba(20,184,166,0.16),rgba(10,15,30,0.6));border-bottom:1px solid rgba(45,212,191,0.25);border-radius:1.1rem 1.1rem 0 0;">' +
+            photo +
+            '<div style="flex:1;min-width:0;">' +
+              '<div class="font-condensed" style="font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:#5eead4;">🎯 Build Your Match</div>' +
+              '<div class="font-display text-lg text-white" style="line-height:1.1;">' + d.name + '</div>' +
+              '<div class="font-condensed" style="font-size:0.66rem;color:#9fb4d4;">' + partyHtml + (d.office ? ' · ' + d.office : '') + '</div>' +
+              _dHeadBadges +
+            '</div>' +
+            '<button type="button" onclick="window.keyRacesCloseAlign()" aria-label="Close" style="flex-shrink:0;width:34px;height:34px;border-radius:0.65rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;">✕</button>' +
+          '</div>' +
+          '<div style="padding:1.1rem;">' +
+            '<p style="font-size:0.74rem;color:#cbd9ec;line-height:1.55;margin:0 0 1rem;">Your personal match is built from <b style="color:#5eead4;">the issues you care about</b> — not party labels. Pick a few below to see exactly how ' + firstName + ' aligns with you, issue by issue.</p>' +
+            emptyNote +
+            docBlock +
+            quickBlock +
+            '<div style="display:flex;gap:0.5rem;margin-top:1.1rem;">' +
+              '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(window._krAlignGuideToPicker,220);" style="flex:1;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#0d9488,#2dd4bf);border:none;padding:0.7rem;border-radius:0.6rem;box-shadow:0 4px 14px rgba(20,184,166,0.3);">⚙ Browse all issues</button>' +
+              '<button type="button" onclick="window.keyRacesCloseAlign();setTimeout(function(){if(typeof showProfile===\'function\')showProfile(\'' + pid + '\');},220);" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#7ee7d8;background:rgba(20,184,166,0.12);border:1px solid rgba(45,212,191,0.4);padding:0.7rem 0.85rem;border-radius:0.6rem;">👤 Snapshot</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      var ov = _krEnsureAlignOverlay();
+      ov.innerHTML = html;
+      ov.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function() { ov.style.opacity = '1'; });
+    }
+    window._krAlignDiscoveryView = _krAlignDiscoveryView;
+
     window.keyRacesAlignQuickView = function(pid) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) { if (typeof showProfile === 'function') showProfile(pid); return; }
+      // No issues chosen yet → show THIS candidate's available issues to pick from,
+      // rather than bouncing to the generic picker (the discovery view above).
+      var _n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
+             : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
+      if (!_n) { _krAlignDiscoveryView(pid, d); return; }
       var bd = (typeof window._calcAlignmentBreakdown === 'function') ? window._calcAlignmentBreakdown(pid) : null;
       if (!bd) { _krAlignGuideToPicker(); return; }
 
@@ -48715,7 +48830,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var n = (typeof window._alignIssueCount === 'function') ? window._alignIssueCount()
             : ((typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size) || 0);
       if (!n) {
-        return '<button type="button" onclick="event.stopPropagation();if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="align-card-bar setup" aria-label="Set the issues you care about to see your personalized match — judge them by your values, not their party">' +
+        return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView){window.keyRacesAlignQuickView(\'' + pid + '\');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}" class="align-card-bar setup" aria-label="See the issues this politician has positions on and build your personalized match — judge them by your values, not their party">' +
             '<span class="align-card-num" style="color:#5eead4;font-size:1.15rem;">🎯</span>' +
             '<span class="align-card-main" style="gap:0.1rem;">' +
               '<span class="align-card-title">See Your Personal Match</span>' +
@@ -49049,6 +49164,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       'national_debt', 'property_tax', 'child_care', 'immigration_reform',
       'water', 'health_mental', 'gun_safety'
     ];
+    // Exposed so the per-politician alignment discovery modal (in the Key Races
+    // script) can offer the same curated "popular issues" as tap-to-add chips when
+    // a visitor opens a candidate's match before picking any issues of their own.
+    window._alignQuickPicks = ALIGN_QUICK_PICKS;
 
     function _alignRenderQuickPicks() {
       var el = document.getElementById('align-quickpicks');
