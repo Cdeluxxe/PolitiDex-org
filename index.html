@@ -2782,6 +2782,71 @@
       padding: 0.15rem 0;
     }
 
+    /* ── Issue-by-issue comparison (documented ISSUE_STANCE_DATA positions) ──
+       Built from the same sourced issue positions the profile cards and the
+       Alignment Tool use, so even a brand-new candidate with no promise record
+       still compares on where they actually stand. Each cell shows a direction
+       (Supports / Opposes / Mixed) plus the one-line documented position; the
+       row label flags whether the picks who DO have a stance agree or differ. */
+    .cmp-issue-intro td {
+      font-family: 'Barlow', sans-serif; font-size: 0.7rem; line-height: 1.5;
+      color: #8aa3c4; background: rgba(13,21,38,0.5);
+      padding: 0.55rem 1rem; border-bottom: 1px solid rgba(59,130,246,0.1);
+    }
+    .cmp-issue-intro strong { color: #cbd9ec; font-weight: 700; }
+    .cmp-issue-intro .cmp-issue-agree-ico { color: #6ee7a0; }
+    .cmp-issue-intro .cmp-issue-differ-ico { color: #fca5a5; }
+    /* Issue row label: readable, wrapping, with the agree/differ verdict under it */
+    #cmp-table td.cmp-issue-label {
+      white-space: normal; text-transform: none; letter-spacing: 0;
+      font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.74rem;
+      color: #cbd9ec; line-height: 1.3; vertical-align: top; padding-top: 0.7rem;
+    }
+    .cmp-issue-agree-badge {
+      display: inline-flex; align-items: center; gap: 0.22rem; margin-top: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 0.14rem 0.5rem; border-radius: 999px; white-space: nowrap;
+    }
+    .cmp-issue-agree-badge.is-agree   { color:#6ee7a0; background:rgba(74,222,128,0.12);  border:1px solid rgba(74,222,128,0.32); }
+    .cmp-issue-agree-badge.is-differ  { color:#fca5a5; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.32); }
+    .cmp-issue-agree-badge.is-partial { color:#fcd34d; background:rgba(245,200,66,0.12);  border:1px solid rgba(245,200,66,0.3); }
+    .cmp-issue-agree-badge.is-solo    { color:#7596c0; background:rgba(96,165,250,0.1);   border:1px solid rgba(96,165,250,0.25); }
+    /* A row where the documented picks line up gets a subtle green wash */
+    #cmp-table tr.cmp-issue-agree-row td { background: rgba(74,222,128,0.045); }
+    #cmp-table tr.cmp-issue-differ-row td { background: rgba(248,113,113,0.045); }
+    .cmp-issue-cell {
+      display: inline-flex; flex-direction: column; align-items: center; gap: 0.32rem;
+      max-width: 230px; text-align: center;
+    }
+    .cmp-issue-dir {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap;
+    }
+    .cmp-issue-cell.is-support .cmp-issue-dir { color:#86efac; background:rgba(52,211,153,0.1);  border:1px solid rgba(52,211,153,0.32); }
+    .cmp-issue-cell.is-oppose  .cmp-issue-dir { color:#fca5a5; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.32); }
+    .cmp-issue-cell.is-mixed   .cmp-issue-dir { color:#fcd34d; background:rgba(245,200,66,0.1);  border:1px solid rgba(245,200,66,0.3); }
+    .cmp-issue-text {
+      font-family: 'Barlow', sans-serif; font-size: 0.68rem; line-height: 1.42;
+      color: #9fb4d4; max-width: 220px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .cmp-issue-none {
+      display: inline-flex; flex-direction: column; align-items: center; gap: 0.12rem;
+      color: #4e72a0; font-size: 1rem; line-height: 1;
+    }
+    .cmp-issue-none span {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; letter-spacing: 0.07em;
+      text-transform: uppercase; color: #3f5d85;
+    }
+    .cmp-issue-more td {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #6d8ab0; text-align: center;
+      background: rgba(13,21,38,0.4); padding: 0.5rem 1rem;
+    }
+
     /* ── "How to read this" guidance bar (top of compare scroll area) ── */
     .cmp-guide {
       position: relative;
@@ -32280,8 +32345,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div class="cmp-guide-item"><span class="cmp-guide-ico">📊</span><span><strong>Promise Score</strong> — how much of what they pledged they've actually delivered. Higher = a stronger track record.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">⚖️</span><span><strong>Follow-Through</strong> — of the promises that are settled, the share they kept. This is the accountability read.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">🎯</span><span><strong>Your Alignment</strong> — how their record fits <em>your</em> values. Set your positions in the Alignment Tool to unlock it.</span></div>
+          <div class="cmp-guide-item"><span class="cmp-guide-ico">🏛</span><span><strong>Where They Stand</strong> — their real, documented positions lined up issue by issue, with a ✓ Agree / ✗ Differ flag where two or more picks both have a stance.</span></div>
         </div>
-        <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> a high Promise Score shows they keep their word; Alignment shows they're keeping it on the issues you care about. New 2026 candidates have no record yet — compare them on policy positions and alignment instead.</div>
+        <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> a high Promise Score shows they keep their word; Alignment shows they're keeping it on the issues you care about. New 2026 candidates have no record yet — compare them on <strong>Where They Stand</strong> and alignment instead.</div>
       </div>
       <!-- The Bottom Line — one synthesized recommendation that reads Promise
            Score, accountability and personal Alignment together so the visitor
@@ -37029,6 +37095,100 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   }, true);
 
+  // ── Issue-by-issue comparison data ───────────────────────────────────
+  // Pulls each selected politician's REAL documented positions from
+  // ISSUE_STANCE_DATA (via the shared _resolveStanceList chokepoint), groups
+  // them by issue so the same issue lines up in one row across everyone, and
+  // works out where the picks who actually hold a position agree or differ.
+  // This is what lets a thin/new 2026 candidate — who has no promise score —
+  // still be compared meaningfully: their stances are the comparison.
+  function _cmpIssueData(pids) {
+    const out = { anyDocumented:false, issues:[], shown:0, total:0, nAgree:0, nDiffer:0, nPartial:0, docByPid:{} };
+    const resolve = (typeof window._resolveStanceList === 'function') ? window._resolveStanceList : null;
+    if (!resolve) return out;
+    const mapOK = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
+    const norm = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const dirOf = (s) => {
+      const d = String(s.issueStance || s.pos || 'mixed').toLowerCase();
+      return (d === 'support' || d === 'oppose' || d === 'mixed') ? d : (d === 'tracking' ? 'tracking' : 'mixed');
+    };
+
+    const byPid = {};      // pid -> { issueKey -> entry }
+    const order = [];      // first-seen issue keys
+    const meta = {};       // issueKey -> { label }
+    pids.forEach(pid => {
+      const list = resolve(pid, CMP_DATA[pid]) || [];
+      const m = {};
+      let docCount = 0;
+      list.forEach(s => {
+        if (!s || !String(s.topic || '').trim()) return;
+        const key = s.issueKey ? ('k:' + s.issueKey) : ('t:' + norm(s.topic));
+        if (m[key]) return;                       // one position per issue per person
+        m[key] = { dir: dirOf(s), topic: String(s.topic).trim(), text: String(s.text || '').trim() };
+        docCount++;
+        if (!meta[key]) {
+          let label = String(s.topic).trim();
+          if (s.issueKey && mapOK && ISSUE_MAP[s.issueKey] && ISSUE_MAP[s.issueKey].label) {
+            label = ISSUE_MAP[s.issueKey].label;  // canonical label (already carries an emoji)
+          }
+          meta[key] = { label: label };
+          order.push(key);
+        }
+      });
+      byPid[pid] = m;
+      out.docByPid[pid] = docCount;
+      if (docCount) out.anyDocumented = true;
+    });
+    if (!out.anyDocumented) return out;
+
+    // Assemble one record per issue, with each pick's cell + an agreement read.
+    order.forEach(key => {
+      const cells = pids.map(pid => byPid[pid][key] || null);
+      const present = cells.filter(Boolean);
+      const dirs = present.map(c => c.dir);
+      const sup = dirs.filter(d => d === 'support').length;
+      const opp = dirs.filter(d => d === 'oppose').length;
+      const soft = dirs.length - sup - opp;           // mixed / tracking
+      let agreement;
+      if (present.length < 2) agreement = 'solo';
+      else if (sup > 0 && opp > 0) agreement = 'differ';
+      else if (soft > 0) agreement = 'partial';        // a clear side + a mixed/tracking read
+      else agreement = 'agree';                        // all on the same clear side
+      out.issues.push({ key, label: meta[key].label, cells, count: present.length, agreement });
+    });
+
+    // Shared issues (2+ documented) lead; among those, differences first so the
+    // contrasts are easy to find, then agreements, then single-documented rows.
+    const rank = { differ:0, partial:1, agree:2, solo:3 };
+    out.issues.sort((a, b) => {
+      if ((b.count >= 2) !== (a.count >= 2)) return (b.count >= 2) - (a.count >= 2);
+      if (rank[a.agreement] !== rank[b.agreement]) return rank[a.agreement] - rank[b.agreement];
+      return b.count - a.count;
+    });
+    out.total = out.issues.length;
+    out.issues.forEach(iss => {
+      if (iss.count >= 2) {
+        if (iss.agreement === 'agree') out.nAgree++;
+        else if (iss.agreement === 'differ') out.nDiffer++;
+        else if (iss.agreement === 'partial') out.nPartial++;
+      }
+    });
+    return out;
+  }
+
+  // Render one politician's stance cell for the issue comparison.
+  function _cmpIssueCell(entry) {
+    if (!entry) return '<div class="cmp-issue-none">—<span>Not documented yet</span></div>';
+    const d = entry.dir;
+    const m = d === 'support' ? { cls:'is-support', ico:'✓', lbl:'Supports' }
+            : d === 'oppose'  ? { cls:'is-oppose',  ico:'✗', lbl:'Opposes' }
+            : d === 'tracking' ? { cls:'is-mixed',  ico:'•', lbl:'Tracking' }
+            :                    { cls:'is-mixed',  ico:'~', lbl:'Mixed' };
+    const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    const text = entry.text ? `<div class="cmp-issue-text" title="${esc(entry.text)}">${esc(entry.text)}</div>` : '';
+    return `<div class="cmp-issue-cell ${m.cls}"><span class="cmp-issue-dir">${m.ico} ${m.lbl}</span>${text}</div>`;
+  }
+
   // ── Table builder ─────────────────────────────────────
   function _buildCmpTable() {
     const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
@@ -37074,6 +37234,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }));
     const sharedIssues = new Set(Object.keys(_issueCount).filter(k => _issueCount[k] >= 2));
 
+    // Documented issue positions across the lineup (ISSUE_STANCE_DATA) — drives
+    // both the "Issue Agreement" insight and the head-to-head section below.
+    const issueCmp = _cmpIssueData(pids);
+
     // ── At-a-glance insight panel ──────────────────────────
     const insEl = document.getElementById('cmp-insights');
     if (insEl) {
@@ -37101,8 +37265,26 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         const lineupHtml = `<span class="cmp-insight-lead">${officeCount} in office · ${candCount} candidate${candCount !== 1 ? 's' : ''}</span>`
           + `<span class="cmp-insight-sub">${(candCount && officeCount) ? 'Mixed — track records vs. pledges' : candCount ? 'All candidates — compare pledges' : 'All hold office — compare records'}</span>`;
 
+        // Issue Agreement — how the picks line up on the issues both have a
+        // documented position on. Replaces the static Promise-Score-only read for
+        // thin fields where the stances are the only real signal.
+        const overlap = issueCmp.nAgree + issueCmp.nDiffer + issueCmp.nPartial;
+        let issueHtml;
+        if (overlap > 0) {
+          const lead = issueCmp.nDiffer > issueCmp.nAgree
+            ? `Differ on ${issueCmp.nDiffer} · agree on ${issueCmp.nAgree}`
+            : `Agree on ${issueCmp.nAgree} · differ on ${issueCmp.nDiffer}`;
+          issueHtml = `<span class="cmp-insight-lead">${lead}</span>`
+            + `<span class="cmp-insight-sub">Across ${overlap} issue${overlap !== 1 ? 's' : ''} both have a documented stance on${issueCmp.nPartial ? ' · ' + issueCmp.nPartial + ' mixed' : ''}</span>`;
+        } else if (issueCmp.anyDocumented) {
+          issueHtml = `<span class="cmp-insight-sub">No issue is documented for two of these picks yet — see each one's positions below.</span>`;
+        } else {
+          issueHtml = `<span class="cmp-insight-sub">Issue positions are still being documented for this lineup.</span>`;
+        }
+
         insEl.innerHTML =
           `<div class="cmp-insight-card"><div class="cmp-insight-title">🤝 Common Ground</div><div class="cmp-insight-body">${commonBody}</div></div>`
+          + `<div class="cmp-insight-card"><div class="cmp-insight-title">⚖️ Issue Agreement</div><div class="cmp-insight-body">${issueHtml}</div></div>`
           + `<div class="cmp-insight-card"><div class="cmp-insight-title">🏆 Promise Score Spread</div><div class="cmp-insight-body">${spreadHtml}</div></div>`
           + `<div class="cmp-insight-card"><div class="cmp-insight-title">📋 Lineup</div><div class="cmp-insight-body">${lineupHtml}</div></div>`;
       }
@@ -37218,25 +37400,62 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).join('') : (typeof window._pdxFocusEmptyNote === 'function' ? window._pdxFocusEmptyNote(p, { center: true }) : '')}</div>`;
     }), '');
 
-    rows += sectionRow('🏛 Policy Positions — Head to Head');
-    const stanceLabels = [
-      ['border',      '🛡 Border / Immigration'],
-      ['debt',        '💰 Debt / Spending'],
-      ['gun',         '🔫 Second Amendment'],
-      ['termLimits',  '⏳ Term Limits'],
-      ['campaign',    '💸 Campaign Finance'],
-      ['dataCenters', '🖥 Data Centers / Tech'],
-      ['healthcare',  '🏥 Healthcare'],
-      ['audit',       '🏦 Audit the Fed'],
-    ];
-    stanceLabels.forEach(([key, label]) => {
-      rows += row(label, pids.map(pid => {
-        const stance = CMP_DATA[pid]?.stances?.[key] || '—';
-        if (stance === 'N/A' || stance === '—') return na;
-        const color = stance.includes('❌') ? '#f87171' : stance.includes('🔥') ? '#fb923c' : '#9fb4d4';
-        return `<div class="cmp-stance-cell" style="color:${color};">${stance}</div>`;
-      }), '');
-    });
+    if (issueCmp.anyDocumented) {
+      // ── Where They Stand — issue-by-issue, from documented ISSUE_STANCE_DATA.
+      // This is the heart of comparing thin/new candidates: it lines up each
+      // pick's real positions on the same issue so agreement and contrast are
+      // obvious, with no fabricated stances — a pick with nothing on file simply
+      // reads "Not documented yet".
+      rows += sectionRow('🏛 Where They Stand — Issue by Issue');
+      const nCols = pids.length + 1;
+      rows += `<tr class="cmp-issue-intro"><td colspan="${nCols}">`
+        + `Real positions from each one's public record — so even a new candidate with no Promise Score can still be compared on where they stand. `
+        + `<strong><span class="cmp-issue-agree-ico">✓ Agree</span></strong> and <strong><span class="cmp-issue-differ-ico">✗ Differ</span></strong> mark issues where two or more picks each have a documented position.`
+        + `</td></tr>`;
+      const CAP = 14;
+      const shownIssues = issueCmp.issues.slice(0, CAP);
+      const badgeMeta = {
+        agree:   { cls:'is-agree',   ico:'✓', lbl:'Agree' },
+        differ:  { cls:'is-differ',  ico:'✗', lbl:'Differ' },
+        partial: { cls:'is-partial', ico:'~', lbl:'Mixed' },
+        solo:    { cls:'is-solo',    ico:'•', lbl:'1 documented' },
+      };
+      shownIssues.forEach(iss => {
+        const bm = badgeMeta[iss.agreement] || badgeMeta.solo;
+        const rowCls = iss.agreement === 'agree' ? 'cmp-issue-agree-row'
+                     : iss.agreement === 'differ' ? 'cmp-issue-differ-row' : '';
+        const labelCell = `<td class="cmp-row-label cmp-issue-label">${iss.label}`
+          + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div></td>`;
+        const cells = iss.cells.map(c => `<td style="text-align:center;vertical-align:top;">${_cmpIssueCell(c)}</td>`).join('');
+        rows += `<tr class="${rowCls}">${labelCell}${cells}</tr>`;
+      });
+      if (issueCmp.total > CAP) {
+        const extra = issueCmp.total - CAP;
+        rows += `<tr class="cmp-issue-more"><td colspan="${nCols}">+ ${extra} more documented issue${extra !== 1 ? 's' : ''} — open a full profile to read every position</td></tr>`;
+      }
+    } else {
+      // Fallback for the rare lineup with no documented issue positions at all:
+      // the legacy curated head-to-head on a fixed set of high-salience topics.
+      rows += sectionRow('🏛 Policy Positions — Head to Head');
+      const stanceLabels = [
+        ['border',      '🛡 Border / Immigration'],
+        ['debt',        '💰 Debt / Spending'],
+        ['gun',         '🔫 Second Amendment'],
+        ['termLimits',  '⏳ Term Limits'],
+        ['campaign',    '💸 Campaign Finance'],
+        ['dataCenters', '🖥 Data Centers / Tech'],
+        ['healthcare',  '🏥 Healthcare'],
+        ['audit',       '🏦 Audit the Fed'],
+      ];
+      stanceLabels.forEach(([key, label]) => {
+        rows += row(label, pids.map(pid => {
+          const stance = CMP_DATA[pid]?.stances?.[key] || '—';
+          if (stance === 'N/A' || stance === '—') return na;
+          const color = stance.includes('❌') ? '#f87171' : stance.includes('🔥') ? '#fb923c' : '#9fb4d4';
+          return `<div class="cmp-stance-cell" style="color:${color};">${stance}</div>`;
+        }), '');
+      });
+    }
 
     rows += sectionRow('🔗 Actions');
     rows += row('Add to My Team', pids.map(pid => {
