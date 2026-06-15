@@ -5244,6 +5244,20 @@
       font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; line-height: 0.8;
       font-style: normal;
     }
+    /* Body wrapper lets a sourced quote stack the attribution under the words. */
+    .pdx-snap-highlight--quote .pdx-snap-highlight-body { display: block; min-width: 0; }
+    /* Card-level quote attribution — mirrors the modal's .profile-quote-cite so
+       the same voice/source pairing reads consistently across browse and profile.
+       Only rendered when a documented source exists. */
+    .pdx-snap-highlight--quote .pdx-snap-quote-cite {
+      display: block;
+      margin-top: 0.3rem;
+      font-style: normal;
+      font-size: 0.66rem;
+      letter-spacing: 0.02em;
+      color: rgba(205,217,236,0.62);
+    }
+    .pdx-snap-highlight--quote .pdx-snap-quote-cite::before { content: "— "; opacity: 0.8; }
     .pdx-snap-extra { margin-top: 0.65rem; }
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
@@ -12741,17 +12755,18 @@
       box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 18px 46px rgba(0, 0, 0, 0.6), 0 0 32px rgba(34, 197, 94, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
     }
 
-    /* Candidates — the secondary tier: flat, low-contrast surface, hairline
-       neutral border, no glow, tighter padding, smaller name. */
     /* Candidates — a clear, intentional BLUE secondary tier (solid blue frame, faint
        navy lift, blue top rail), a step below the green incumbent hero but never the
-       flat grey hairline that read as unfinished. */
+       flat grey hairline that read as unfinished. Shares the incumbent's corner
+       radius and side padding so candidate and officeholder cards align cleanly when
+       stacked in the same grid — the tier reads through colour and weight, not a
+       cramped, mismatched frame. */
     #relevant-browse-grid .chub-card.is-candidate {
       background: linear-gradient(135deg, rgba(22,38,70,0.92) 0%, rgba(11,18,36,0.95) 100%) !important;
       border: 1.5px solid rgba(96, 165, 250, 0.45) !important;
-      border-radius: 0.9rem !important;
+      border-radius: 1.15rem !important;
       box-shadow: 0 0 0 1px rgba(96,165,250,0.12), 0 10px 26px rgba(0,0,0,0.45), 0 0 18px rgba(59,130,246,0.1) !important;
-      padding: 1.4rem 1.05rem 0.95rem !important;
+      padding: 1.4rem 1.35rem 1.1rem !important;
     }
     #relevant-browse-grid .chub-card.is-candidate::before {
       content: '' !important;
@@ -18272,8 +18287,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // True for any record whose state reads as Utah, tolerating the "UT"
       // abbreviation (and stray punctuation/case) the live data mixes in.
       function _pmIsUtah(s) {
+        // The live roster stores Utah in several shapes. Beyond the clean "Utah"
+        // / "UT", the data has accumulated location-tagged forms over time —
+        // "Utah · District 16 (Provo)", "Salt Lake City, Utah", "Utah · UT-03",
+        // "Salt Lake County, Utah". Matching only the bare values silently
+        // dropped ~35 genuine Utah records (sitting legislators including the
+        // House Speaker and Senate President, two U.S. Reps, and several mayors)
+        // from the Utah totals AND from seat coverage, making the dashboard read
+        // far thinner than the database actually is. No other U.S. state name
+        // contains the token "utah", so keying on it stays specific to Utah.
         var n = _pmNormName(s);
-        return n === 'utah' || n === 'ut';
+        if (!n) return false;
+        if (n === 'utah' || n === 'ut') return true;
+        return /(?:^|\s)utah(?:\s|$)/.test(n);
       }
 
       // Classify a Utah record into one of the tracked chambers / statewide
@@ -22444,7 +22470,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var totalAll = rows.length;
       var utahRows = rows.filter(function(row) {
-        return (typeof window._pmIsUtah === 'function') ? window._pmIsUtah(row.p.state) : /^(utah|ut)$/i.test(String(row.p.state || '').trim());
+        return (typeof window._pmIsUtah === 'function') ? window._pmIsUtah(row.p.state) : /(?:^|\s)utah(?:\s|$)|^ut$/i.test(String(row.p.state || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim());
       });
 
       var targets = { federal: 6, statewide: 5, senate: 29, house: 75, local: 60, cand: 24 };
@@ -40631,11 +40657,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             (moreIssues > 0 ? '<span class="pdx-stance-more">+' + moreIssues + ' more</span>' : '') +
           '</div>' +
         '</div>';
-      } else if (opts.issues !== false && (status === 'candidate' || (typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(d) !== 'full'))) {
-        // No key issues tracked yet AND this is a candidate or a thin-record profile:
-        // fill the slot with the clean "key positions being added" note instead of
-        // leaving a blank gap, so the card always reads as intentional rather than
-        // half-built. Full officeholder records with no issues are left untouched.
+      } else if (opts.issues !== false) {
+        // No documented positions and no campaign-priority tags. Rather than leave
+        // a blank gap on the card — which read as half-built and inconsistent next
+        // to neighbours that DO carry a positions row — fill the slot with the
+        // clean, muted "Focus areas being compiled" note. _pdxFocusEmptyNote picks
+        // honest copy for the record (candidate / inactive / officeholder) and
+        // returns '' when there is nothing appropriate to say, so this never
+        // overstates. Applies to every card now, not just thin/candidate ones, so
+        // a full officeholder who simply has no stances yet still reads finished.
         var emptyNote = (typeof window._pdxFocusEmptyNote === 'function') ? window._pdxFocusEmptyNote(d) : '';
         if (emptyNote) issues = '<div class="pdx-snap-issues pdx-snap-issues-empty">' + emptyNote + '</div>';
       }
@@ -40665,7 +40695,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (hlIsQuote) {
             // Quote variant — italic with an opening quotation mark, distinct from
             // the ★/🗳️ "why" highlight so it reads unmistakably as their own words.
-            highlight = '<div class="pdx-snap-highlight pdx-snap-highlight--quote"><span class="pdx-snap-highlight-ico">“</span><span>' + hl + '</span></div>';
+            // When the quote carries a documented attribution, surface it as a
+            // small cite right on the card (the modal already does this) so the
+            // sourced-quote work reads as finished and trustworthy while browsing
+            // rather than only inside the profile. Quotes without a source simply
+            // omit the line — no empty "— " stub.
+            var qSrc = (d.quoteSource && String(d.quoteSource).trim()) ? String(d.quoteSource).trim() : '';
+            highlight = '<div class="pdx-snap-highlight pdx-snap-highlight--quote"><span class="pdx-snap-highlight-ico">“</span>' +
+              '<span class="pdx-snap-highlight-body"><span>' + hl + '</span>' +
+              (qSrc ? '<span class="pdx-snap-quote-cite">' + qSrc + '</span>' : '') +
+              '</span></div>';
           } else {
             var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
             var hlIco = isCand ? '🗳️' : '★';
