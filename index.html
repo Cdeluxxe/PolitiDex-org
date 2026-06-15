@@ -13560,6 +13560,28 @@
       border-color: rgba(147,197,253,0.85); background: rgba(59,130,246,0.24);
     }
 
+    /* Per-office "Rank by my values" launcher inside the district tree — opens the
+       Best-Matches board focused on just this office's field. Purple to read as
+       part of the Alignment Tool family, distinct from the blue Compare action. */
+    #relevant-browse-grid .relevant-rankrow {
+      display: flex; margin: 0.1rem 0.4rem 0.7rem;
+    }
+    #relevant-browse-grid .relevant-rank-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      width: 100%; justify-content: center;
+      padding: 0.5rem 0.85rem; border-radius: 0.7rem; cursor: pointer;
+      background: linear-gradient(135deg, rgba(124,58,237,0.22) 0%, rgba(13,148,136,0.12) 100%);
+      border: 1px solid rgba(167,139,250,0.45); color: #ddd0fb;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+      min-height: 42px;
+    }
+    #relevant-browse-grid .relevant-rank-btn:hover {
+      border-color: rgba(196,181,253,0.85); background: linear-gradient(135deg, rgba(124,58,237,0.32) 0%, rgba(13,148,136,0.18) 100%);
+    }
+    #relevant-browse-grid .relevant-rank-btn:active { transform: scale(0.99); }
+
     /* Filled / open status badge shown on each "Your 2026 Ballot" chip. */
     #relevant-browse-grid .rel-chip-status {
       display: inline-flex; align-items: center; gap: 0.25rem;
@@ -16714,11 +16736,11 @@
           <!-- Best-Matches board launcher — turn the whole browsable list into a
                leaderboard ranked by the visitor's issues, in one tap, without
                opening each card's modal. -->
-          <button type="button" onclick="if(window.openAlignBoard)window.openAlignBoard('all')" class="w-full mt-3 flex items-center gap-3 text-left rounded-xl border border-purple-500/40 px-3.5 py-3 transition-all hover:border-purple-400/70 hover:scale-[1.005] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(13,148,136,0.1) 100%); cursor:pointer; min-height:54px;">
+          <button type="button" id="myteam-board-launch" onclick="if(window._alignBoardFromBrowse)window._alignBoardFromBrowse()" class="w-full mt-3 flex items-center gap-3 text-left rounded-xl border border-purple-500/40 px-3.5 py-3 transition-all hover:border-purple-400/70 hover:scale-[1.005] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(13,148,136,0.1) 100%); cursor:pointer; min-height:54px;">
             <span class="flex-none text-xl" aria-hidden="true">🏆</span>
             <span class="flex-1 min-w-0">
-              <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm leading-tight">Rank these politicians by my values</span>
-              <span class="block font-condensed text-purple-200/90 text-xs leading-snug mt-0.5">Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.</span>
+              <span id="myteam-board-launch-title" class="block font-condensed font-800 text-white tracking-wide uppercase text-sm leading-tight">Rank these politicians by my values</span>
+              <span id="myteam-board-launch-sub" class="block font-condensed text-purple-200/90 text-xs leading-snug mt-0.5">Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.</span>
             </span>
             <span class="flex-none text-purple-300 text-lg" aria-hidden="true">›</span>
           </button>
@@ -42868,6 +42890,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       if (browseCount) browseCount.textContent = pids.length;
       var scopeLabel = _browseScope === 'relevant' ? ' relevant' : '';
+
+      // Hand the exact filtered/sorted set to the Best-Matches board launcher so
+      // "Rank these by my values" ranks precisely what the visitor is looking at.
+      window._myteamLastFilteredPids = pids.slice();
+      window._myteamLastFilterDesc = (function() {
+        var parts = [];
+        if (statusF) parts.push(statusF === 'candidate' ? '2026 candidates' : 'officeholders');
+        if (party) parts.push({ 'R': 'Republicans', 'D': 'Democrats', 'I': 'Independents' }[party] || party);
+        if (stateFilter) parts.push(stateFilter);
+        var officeWord = { 'president': 'President', 'senator': 'U.S. Senators', 'representative': 'U.S. Reps', 'governor': 'statewide execs', 'state': 'state legislators', 'local': 'local offices', 'candidate': 'candidates', 'cabinet': 'cabinet' }[office];
+        if (officeWord) parts.push(officeWord);
+        var d = parts.join(' · ');
+        if (search) d = d ? (d + ' matching “' + search + '”') : ('matching “' + search + '”');
+        return d;
+      })();
+      if (typeof window._alignBrowseLauncherSync === 'function') window._alignBrowseLauncherSync();
+
       if (browseCountLabel) {
         var _matchCue = window._alignBrowseSortActive
           ? ' · <span style="color:#5eead4;font-weight:700;">🎯 Best match for you first</span>'
@@ -42895,6 +42934,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof window.renderRelevantToMe === 'function') {
         window.renderRelevantToMe();
       }
+    };
+
+    // Keep the All-Politicians board launcher label honest about what it will
+    // rank: the active filtered subset (with a plain-language description) when
+    // filters narrow the list, or the whole field otherwise.
+    window._alignBrowseLauncherSync = function() {
+      var titleEl = document.getElementById('myteam-board-launch-title');
+      var subEl = document.getElementById('myteam-board-launch-sub');
+      if (!titleEl || !subEl) return;
+      var pids = window._myteamLastFilteredPids || [];
+      var desc = window._myteamLastFilterDesc || '';
+      var n = pids.length;
+      if (desc) {
+        titleEl.textContent = 'Rank these ' + n + ' by my values';
+        subEl.textContent = 'Score your filtered list (' + desc + ') on the issues you care about, best match first — then add your top fits to your team.';
+      } else {
+        titleEl.textContent = 'Rank these ' + (n ? n + ' ' : '') + 'politicians by my values';
+        subEl.textContent = 'Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.';
+      }
+    };
+
+    // Launch the Best-Matches board focused on the exact list the visitor has
+    // filtered to in All Politicians. Falls back to the full field if nothing is
+    // captured yet (e.g. board opened before the first filter pass).
+    window._alignBoardFromBrowse = function() {
+      var pids = (window._myteamLastFilteredPids || []).slice();
+      if (typeof window.openAlignBoard !== 'function') return;
+      if (!pids.length) { window.openAlignBoard('all'); return; }
+      var desc = window._myteamLastFilterDesc || '';
+      window.openAlignBoard('__focus', {
+        pids: pids,
+        label: desc ? (desc.length > 42 ? desc.slice(0, 40) + '…' : desc) : 'All politicians',
+        sub: 'Your filtered list',
+        ico: '🔎'
+      });
     };
 
     // Remembers when the visitor deliberately chose a browse sort, so the
@@ -43465,6 +43539,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               : '';
             h += '<div class="relevant-addhint"><span class="relevant-addhint-ico">➕</span><span>' + _addMsg + _addCmp + '</span></div>';
           }
+          // Rank this office's whole field by the visitor's issues without opening
+          // a single profile — shown whenever there's an actual field to compare.
+          if (officePids.length >= 2) {
+            h += '<div class="relevant-rankrow">' +
+              '<button type="button" class="relevant-rank-btn" onclick="window._alignBoardFromOffice && window._alignBoardFromOffice(\'' + groupKey + '\')">🎯 Rank these ' + officePids.length + ' by my values</button>' +
+            '</div>';
+          }
           if (groupKey === 'state_senator' || groupKey === 'state_rep') {
             h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
           } else {
@@ -43627,6 +43708,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (typeof chubBuildAll === 'function') { try { chubBuildAll(); } catch (e) {} }
         if (typeof _mypolBuildGrid === 'function') { try { _mypolBuildGrid(); } catch (e) {} }
         if (typeof openCompare === 'function') openCompare();
+      } catch (e) {}
+    };
+
+    // Open the Best-Matches board focused on one office's field — ranks just the
+    // people running for (or holding) this seat by the visitor's chosen issues.
+    window._alignBoardFromOffice = function(groupKey) {
+      try {
+        var groups = window._relevantLastOfficeGroups || {};
+        var pids = (groups[groupKey] || []).filter(function(pid) { return CMP_DATA[pid]; });
+        if (!pids.length || typeof window.openAlignBoard !== 'function') return;
+        var tDef = (typeof _RELEVANT_OFFICE_DEFS !== 'undefined') ? _RELEVANT_OFFICE_DEFS[groupKey] : null;
+        window.openAlignBoard('__focus', {
+          pids: pids,
+          label: (tDef && tDef.label) ? tDef.label : 'This office',
+          sub: 'On your ballot',
+          ico: (tDef && tDef.icon) ? tDef.icon : '🏛️'
+        });
       } catch (e) {}
     };
 
@@ -53296,12 +53394,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { key:'all',        label:'All Politicians', ico:'🏛️', sub:'Everyone' }
     ];
     var _scope='ballot', _adjust=false, _q='';
+    // When the board is launched from a specific browsing surface (the filtered
+    // All-Politicians list, or one office's field in the district tree), the
+    // caller hands us the exact set to rank. That becomes a "focused" tab so the
+    // board ranks precisely what the visitor was looking at — not the whole DB.
+    var _focus=null; // { pids:[], label:'', sub:'', ico:'' }
 
     function scopePids(scope){
       var out=[], seen={};
       function add(p){ if(p && D(p) && !seen[p]){ seen[p]=1; out.push(p); } }
       try {
-        if(scope==='all'){ Object.keys(CMP_DATA).forEach(add); }
+        if(scope==='__focus'){ ((_focus&&_focus.pids)||[]).forEach(add); }
+        else if(scope==='all'){ Object.keys(CMP_DATA).forEach(add); }
         else if(scope==='candidates'){ Object.keys(CMP_DATA).forEach(function(p){ var d=D(p); if(d && status(d)==='candidate') add(p); }); }
         else { // ballot — the location-personalised races (incumbents + challengers + statewide)
           var kr=(typeof window.keyRacesRelevantData==='function')?window.keyRacesRelevantData():null;
@@ -53423,6 +53527,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return;
       }
       var pids=scopePids(_scope);
+      if(_scope==='__focus' && pids.length===0){
+        host.innerHTML=summaryHtml()+'<div class="amb-empty"><div class="amb-empty-ico">🔍</div>'+
+          '<div class="amb-empty-t">Nothing to rank in this view</div>'+
+          '<div class="amb-empty-s">This group is empty right now. See how everyone matches you instead:</div>'+
+          '<button type="button" class="amb-cta" onclick="ambSetScope(\'all\')">Rank all politicians →</button></div>';
+        return;
+      }
       if(_scope==='ballot' && pids.length===0){
         host.innerHTML=summaryHtml()+'<div class="amb-empty"><div class="amb-empty-ico">📍</div>'+
           '<div class="amb-empty-t">Set your location to rank your ballot</div>'+
@@ -53434,7 +53545,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       pids.forEach(function(p){ var s=scoreOf(p); if(s==null) unscored.push(p); else scored.push({p:p,s:s}); });
       scored.sort(function(a,b){ return b.s-a.s; });
       var rows=scored.map(function(o,i){ return rowHtml(o.p, i+1); }).join('');
-      var head='<div class="amb-resulthead">Showing <b>'+scored.length+'</b> of '+pids.length+' ranked by your <b>'+n+' issue'+(n===1?'':'s')+'</b> · best match first</div>';
+      var _focusTag=(_scope==='__focus' && _focus && _focus.label) ? ' from <b style="color:#c4b5fd;">'+_e(_focus.label)+'</b>' : '';
+      var head='<div class="amb-resulthead">Showing <b>'+scored.length+'</b> of '+pids.length+_focusTag+' ranked by your <b>'+n+' issue'+(n===1?'':'s')+'</b> · best match first</div>';
       var uns='';
       if(unscored.length){
         uns='<div class="amb-unscored"><div class="amb-unscored-h">🌱 '+unscored.length+' with a limited record for these issues — no score invented</div>'+
@@ -53445,9 +53557,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     function renderTabs(){
       var host=document.getElementById('amb-tabs'); if(!host) return;
-      host.innerHTML=SCOPES.map(function(sc){
+      var tabs=SCOPES.slice();
+      if(_focus){ tabs=[{ key:'__focus', label:(_focus.label||'These picks'), ico:(_focus.ico||'🎯'), sub:(_focus.sub||'What you’re browsing') }].concat(tabs); }
+      host.innerHTML=tabs.map(function(sc){
         return '<button type="button" class="amb-tab'+(sc.key===_scope?' on':'')+'" onclick="ambSetScope(\''+sc.key+'\')">'+
-          '<span class="amb-tab-ico">'+sc.ico+'</span><span class="amb-tab-lab">'+sc.label+'</span><span class="amb-tab-sub">'+sc.sub+'</span></button>';
+          '<span class="amb-tab-ico">'+sc.ico+'</span><span class="amb-tab-lab">'+_e(sc.label)+'</span><span class="amb-tab-sub">'+_e(sc.sub)+'</span></button>';
       }).join('');
     }
 
@@ -53478,11 +53592,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ var o=document.getElementById('amb-overlay'); if(o && o.style.display==='flex') closeAlignBoard(); } });
     }
 
-    window.openAlignBoard=function(scope){
+    window.openAlignBoard=function(scope, ctx){
       ensureShell();
-      var ballotHas=scopePids('ballot').length>0;
-      _scope=scope || (ballotHas?'ballot':'all');
-      if(_scope==='ballot' && !ballotHas && scope!=='ballot') _scope='all';
+      // A focused launch hands us the exact set being browsed — rank just those,
+      // but keep the standard tabs so the visitor can widen to ballot/all.
+      if(ctx && ctx.pids && ctx.pids.length){
+        _focus={ pids:ctx.pids.slice(), label:(ctx.label||'These picks'), sub:(ctx.sub||''), ico:(ctx.ico||'🎯') };
+        _scope='__focus';
+      } else {
+        _focus=null;
+        var ballotHas=scopePids('ballot').length>0;
+        _scope=scope || (ballotHas?'ballot':'all');
+        if(_scope==='ballot' && !ballotHas && scope!=='ballot') _scope='all';
+      }
       _adjust=(nIssues()===0);
       _q='';
       renderTabs();
