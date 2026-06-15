@@ -37230,7 +37230,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const label = document.getElementById('cmp-float-label');
     const n = _cmpSelected.size;
     if (n >= 1) {
-      label.textContent = `Compare (${n})`;
+      // When the visitor has set their Alignment issues, signal the payoff right
+      // on the button: the side-by-side will be ranked by how well each fits them.
+      const aligned = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      label.textContent = aligned ? `Compare (${n}) · 🎯 by match` : `Compare (${n})`;
       btn.classList.add('cmp-float-visible');
     } else {
       btn.classList.remove('cmp-float-visible');
@@ -37392,10 +37395,40 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   function _buildCmpTable() {
     const pids = [..._cmpSelected].filter(pid => CMP_DATA[pid]);
     if (pids.length === 0) { closeCompare(); return; }
+
+    // ── Rank by the visitor's own issue match ──────────────────────────────
+    // When Alignment issues are set, the comparison should answer "who fits ME?"
+    // at a glance — so order the lineup best-match-first instead of click order,
+    // and remember the single crowned leader to flag below. Picks with no
+    // documented alignment read (thin 2026 records) keep their relative order and
+    // fall to the right; nothing is fabricated to force a ranking.
+    const _alignActive = (typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0);
+    const _alignBy = {};
+    if (_alignActive) {
+      pids.forEach(pid => { _alignBy[pid] = _calcAlignmentScore(pid); });
+      pids.sort((a, b) => {
+        const av = _alignBy[a], bv = _alignBy[b];
+        if (av === null || av === undefined) return (bv === null || bv === undefined) ? 0 : 1;
+        if (bv === null || bv === undefined) return -1;
+        return bv - av;
+      });
+    }
+    // The single best-aligned pick — only when 2+ have a real read and the top
+    // isn't a tie, so we never crown an arbitrary winner.
+    let _alignLeaderPid = null, _alignLeaderScore = null;
+    if (_alignActive) {
+      const _aScored = pids.filter(pid => _alignBy[pid] !== null && _alignBy[pid] !== undefined);
+      if (_aScored.length >= 2) {
+        const _aTop = Math.max(..._aScored.map(pid => _alignBy[pid]));
+        const _aLeaders = _aScored.filter(pid => _alignBy[pid] === _aTop);
+        if (_aLeaders.length === 1) { _alignLeaderPid = _aLeaders[0]; _alignLeaderScore = _aTop; }
+      }
+    }
+
     const sub = document.getElementById('cmp-header-sub');
     sub.textContent = pids.length < 2
       ? 'Add one more pick to see a true side-by-side'
-      : `Comparing ${pids.length} politicians side-by-side`;
+      : (_alignActive ? `${pids.length} compared · ranked by your issue match 🎯` : `Comparing ${pids.length} politicians side-by-side`);
     const pillsEl = document.getElementById('cmp-selected-pills');
     if (pillsEl) { pillsEl.innerHTML = ''; }
 
@@ -37518,7 +37551,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 <div style="height:100%;width:${sc_val !== null && sc_val !== undefined ? sc_val : 5}%;background:${barGrad(sc_val)};border-radius:999px;transition:width 0.8s ease;"></div>
               </div>
             </div>
-            ${(typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0) ? (() => { const aScore = _calcAlignmentScore(pid); if (aScore === null) return ''; const aCol = aScore >= 70 ? '#4ade80' : aScore >= 50 ? '#f5c842' : '#f87171'; return '<div style="margin-top:0.4rem;display:flex;align-items:center;justify-content:center;gap:0.3rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.6rem;color:' + aCol + ';font-weight:700;letter-spacing:0.06em;border:1px solid ' + aCol + '55;background:' + aCol + '14;padding:0.12rem 0.5rem;border-radius:999px;">🎯 ' + aScore + '% Aligned</span></div>'; })() : ''}
+            ${_alignActive ? (() => { const aScore = _alignBy[pid]; if (aScore === null || aScore === undefined) return '<div style="margin-top:0.4rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.58rem;color:#7e8aa3;font-weight:600;letter-spacing:0.05em;border:1px dashed rgba(159,180,212,0.3);padding:0.12rem 0.5rem;border-radius:999px;">🎯 No match data yet</span></div>'; const aCol = aScore >= 70 ? '#4ade80' : aScore >= 50 ? '#f5c842' : '#f87171'; const isLeader = pid === _alignLeaderPid; const crown = isLeader ? '<div style="margin-top:0.3rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#0b1020;background:linear-gradient(135deg,#fde68a,#f5c842);padding:0.14rem 0.6rem;border-radius:999px;box-shadow:0 2px 10px rgba(245,200,66,0.35);">🏆 Best Match</span></div>' : ''; return '<div style="margin-top:0.4rem;display:flex;flex-direction:column;align-items:center;gap:0.15rem;"><span style="font-family:Barlow Condensed,sans-serif;font-size:0.62rem;color:' + aCol + ';font-weight:800;letter-spacing:0.06em;border:1px solid ' + aCol + (isLeader ? '99' : '55') + ';background:' + aCol + (isLeader ? '24' : '14') + ';padding:0.12rem 0.55rem;border-radius:999px;">🎯 ' + aScore + '% Aligned</span>' + crown + '</div>'; })() : ''}
           </div>
         </th>`;
       }).join('')}
@@ -37577,17 +37610,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }), '');
     rows += row('Status', pids.map(pid => statusBadge(sc(pid), true)), '');
 
-    if (typeof _calcAlignmentScore === 'function' && typeof _alignIssues !== 'undefined' && _alignIssues.size > 0) {
+    if (_alignActive) {
       rows += sectionRow('🎯 Personalized Alignment');
-      rows += row('Your Alignment', pids.map(pid => {
-        const alignScore = _calcAlignmentScore(pid);
-        if (alignScore === null) return `<span class="cmp-na">—</span>`;
+      // A plain-language read on who fits best, right where the numbers are — so
+      // the visitor doesn't have to eyeball the row to find their match.
+      if (_alignLeaderPid) {
+        const _lp = sc(_alignLeaderPid);
+        const _lShort = (_lp.name || '').split(' ').pop() || _lp.name;
+        rows += `<tr class="cmp-issue-intro"><td colspan="${pids.length + 1}">`
+          + `🏆 <strong style="color:#fde68a;">${_lShort}</strong> aligns with your issues best at <strong>${_alignLeaderScore}%</strong> — ranked first below. `
+          + `Lower-matching picks follow; any with no documented positions yet can't be scored on your issues.`
+          + `</td></tr>`;
+      }
+      const _alVals = pids.map(pid => _alignBy[pid]);
+      const _alLeader = pids.map(pid => pid === _alignLeaderPid ? 'cmp-leader-cell' : '');
+      rows += row('Your Alignment', pids.map((pid, i) => {
+        const alignScore = _alVals[i];
+        if (alignScore === null || alignScore === undefined) return `<span class="cmp-na">—</span>`;
         const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
+        const crown = pid === _alignLeaderPid ? '<div class="cmp-leader-badge">👑 Best fit</div>' : '';
         return `<div style="display:flex;flex-direction:column;align-items:center;gap:0.2rem;">
           <div style="width:48px;height:48px;border-radius:50%;border:2px solid ${aCol}99;display:flex;align-items:center;justify-content:center;background:${aCol}14;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:${aCol};">${alignScore}%</div>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;color:${aCol}99;letter-spacing:0.08em;text-transform:uppercase;">Alignment</span>
-        </div>`;
-      }), '🎯');
+        </div>${crown}`;
+      }), '🎯', _alLeader);
     }
 
     rows += sectionRow('🎯 Key Issues & Focus Areas');
@@ -49216,6 +49262,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (cmpOverlay && cmpOverlay.style && cmpOverlay.style.display !== 'none') {
         if (typeof _buildCmpTable === 'function') _buildCmpTable();
       }
+      // Keep the floating Compare button's "🎯 by match" hint in step with the
+      // visitor's current issue selection.
+      if (typeof _updateCmpFloat === 'function') _updateCmpFloat();
 
       // Keep the inline alignment % on the Your Key Races candidate cards in sync
       // with the issues the visitor just changed.
