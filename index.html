@@ -5059,10 +5059,24 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.56rem; font-weight: 700; letter-spacing: 0.08em;
       text-transform: uppercase; color: #7596c0;
-      display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.34rem;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem 0.5rem; margin-bottom: 0.34rem;
     }
     .pdx-stance-eyebrow b { color: #9fb4d4; font-weight: 700; }
     .pdx-stance-eyebrow-ico { opacity: 0.85; font-style: normal; }
+    /* Factual support / oppose / mixed tally pushed to the trailing edge of the
+       eyebrow — a one-glance read of which way a record leans, color-matched to
+       the chips below it. */
+    .pdx-stance-sum { display: inline-flex; align-items: center; gap: 0.4rem; margin-left: auto; }
+    .pdx-stance-sum-i {
+      display: inline-flex; align-items: center; gap: 0.16rem;
+      font-weight: 800; letter-spacing: 0.02em;
+    }
+    .pdx-stance-sum-i.is-support { color: #86efac; }
+    .pdx-stance-sum-i.is-oppose  { color: #fca5a5; }
+    .pdx-stance-sum-i.is-mixed   { color: #fcd34d; }
+    /* When the campaign-priorities fallback reuses the stance wrapper, the inner
+       tag row sits directly under the eyebrow without its own top margin. */
+    .pdx-snap-issues-wrap .pdx-snap-issues { margin-top: 0; }
     .pdx-stance-chips { display: flex; flex-wrap: wrap; gap: 0.32rem; align-items: center; }
     .pdx-stance-chip {
       display: inline-flex; align-items: center; gap: 0.28rem;
@@ -29168,8 +29182,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var label = '';
     if (opts.label !== false) {
       var first = (rec && rec.name) ? String(rec.name).split(' ')[0] : 'They';
-      label = '<div class="pdx-stance-eyebrow"><span class="pdx-stance-eyebrow-ico">\u{1F4CC}</span>Where ' +
-        _pdxStanceAttr(first) + ' stands · <b>' + list.length + ' position' + (list.length === 1 ? '' : 's') + '</b></div>';
+      // At-a-glance balance of the FULL documented record — a literal count of how
+      // many positions lean support vs oppose vs mixed, color-coded to match the
+      // chips. The counts are factual (never derived or editorialized), so the
+      // summary stays honest while giving a values gist even when the card only has
+      // room to show the first few chips. This is the quick read a voter scans to
+      // see whether someone's record skews for or against before opening anything.
+      var nSup = 0, nOpp = 0, nMix = 0;
+      list.forEach(function(s) {
+        var p = String(s.issueStance || s.pos || 'mixed').toLowerCase();
+        if (p === 'support') nSup++; else if (p === 'oppose') nOpp++; else nMix++;
+      });
+      var sum = '';
+      if (list.length >= 2) {
+        sum = '<span class="pdx-stance-sum">' +
+          (nSup ? '<span class="pdx-stance-sum-i is-support" title="' + nSup + ' position' + (nSup === 1 ? '' : 's') + ' supported">✓ ' + nSup + '</span>' : '') +
+          (nOpp ? '<span class="pdx-stance-sum-i is-oppose" title="' + nOpp + ' position' + (nOpp === 1 ? '' : 's') + ' opposed">✗ ' + nOpp + '</span>' : '') +
+          (nMix ? '<span class="pdx-stance-sum-i is-mixed" title="' + nMix + ' mixed / nuanced position' + (nMix === 1 ? '' : 's') + '">~ ' + nMix + '</span>' : '') +
+          '</span>';
+      }
+      label = '<div class="pdx-stance-eyebrow"><span class="pdx-stance-eyebrow-ico">\u{1F4CC}</span>' +
+        '<span class="pdx-stance-eyebrow-txt">Where ' + _pdxStanceAttr(first) + ' stands · <b>' +
+        list.length + ' position' + (list.length === 1 ? '' : 's') + '</b></span>' + sum + '</div>';
     }
     return '<div class="pdx-snap-stances">' + label + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
   };
@@ -39967,10 +40001,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (stanceRow) {
         issues = stanceRow;
       } else if (opts.issues !== false && d.issues && d.issues.length) {
+        // No documented support/oppose record yet, but the politician DOES have
+        // stated campaign priorities / focus areas. Rather than floating these as
+        // bare, unlabeled tags (which read ambiguously — are they positions? topics?),
+        // give them the same eyebrow treatment as stance chips so the card explains
+        // what the tags mean and reads as intentional. This is the main lever that
+        // makes a thin / new-candidate card feel informative: a voter sees, at a
+        // glance, the issues the campaign actually leads with. Labeled honestly as
+        // priorities (not voting positions) so nothing is overstated.
         var nIssues = opts.maxIssues || 3;
-        issues = '<div class="pdx-snap-issues">' +
-          d.issues.slice(0, nIssues).map(function(i) { return '<span class="pdx-snap-issue">' + i + '</span>'; }).join('') +
-          '</div>';
+        var moreIssues = d.issues.length - nIssues;
+        var issueLbl = (status === 'candidate') ? 'Campaign priorities' : 'Focus areas';
+        issues = '<div class="pdx-snap-stances pdx-snap-issues-wrap">' +
+          '<div class="pdx-stance-eyebrow"><span class="pdx-stance-eyebrow-ico">🎯</span>' +
+            '<span class="pdx-stance-eyebrow-txt">' + issueLbl + ' · <b>' + d.issues.length + '</b></span></div>' +
+          '<div class="pdx-snap-issues">' +
+            d.issues.slice(0, nIssues).map(function(i) { return '<span class="pdx-snap-issue">' + i + '</span>'; }).join('') +
+            (moreIssues > 0 ? '<span class="pdx-stance-more">+' + moreIssues + ' more</span>' : '') +
+          '</div>' +
+        '</div>';
       } else if (opts.issues !== false && (status === 'candidate' || (typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(d) !== 'full'))) {
         // No key issues tracked yet AND this is a candidate or a thin-record profile:
         // fill the slot with the clean "key positions being added" note instead of
