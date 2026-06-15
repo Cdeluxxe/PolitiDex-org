@@ -5083,7 +5083,7 @@
     .pdx-snap-score-cand .pdx-snap-score-na-cand { color: #7aa0d4; }
     .pdx-snap-score-cand.pdx-snap-score-click:hover { border-color: rgba(96,165,250,0.62) !important; }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
-    .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.55rem; }
+    .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.6rem; }
     .pdx-snap-issue {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.57rem;
@@ -5238,6 +5238,12 @@
       border-color: rgba(192,21,42,0.22);
       color: #cdd9ec;
       font-style: italic;
+      /* Read as a real voice, not a condensed tag: the body drops the condensed
+         face for plain Barlow with roomier leading, echoing the modal's
+         .profile-quote so a card pull-quote and the full profile quote share one
+         typographic voice. */
+      font-family: 'Barlow', sans-serif;
+      line-height: 1.5;
     }
     .pdx-snap-highlight--quote .pdx-snap-highlight-ico {
       color: rgba(192,21,42,0.75);
@@ -5252,12 +5258,14 @@
     .pdx-snap-highlight--quote .pdx-snap-quote-cite {
       display: block;
       margin-top: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif;
       font-style: normal;
-      font-size: 0.66rem;
-      letter-spacing: 0.02em;
-      color: rgba(205,217,236,0.62);
+      font-size: 0.64rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8aa0c2;
     }
-    .pdx-snap-highlight--quote .pdx-snap-quote-cite::before { content: "— "; opacity: 0.8; }
+    .pdx-snap-highlight--quote .pdx-snap-quote-cite::before { content: "— "; color: rgba(192,21,42,0.85); }
     .pdx-snap-extra { margin-top: 0.65rem; }
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
@@ -14540,6 +14548,38 @@
       /* Ultra-compact phones: keep the brand wordmark from pushing the
          account + menu controls off the bar. */
       nav .font-display.text-xl { font-size: 1.05rem !important; }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE EXPERIENCE — CARD ADDITIONS LEGIBILITY PASS
+       The earlier phone passes enlarged the original browse-card chips (issue
+       tags, metric pills, "why this matters" lines) but predate the at-a-glance
+       issue-position work that was added later: the support/oppose stance chips,
+       the signature stance line, the "Where X stands" eyebrow and the sourced
+       pull-quote. On phones those newer pieces were still rendering at their
+       small desktop sizing, so a card's most informative content read smaller
+       than the tags around it. This pass brings them up to the same legible,
+       glanceable size the older chips already use, so the whole card reads as
+       one consistent system. Additive and phone-scoped only — no markup or JS
+       changes — appended last so it reliably wins the cascade. The dark
+       patriotic palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* Stance chips match the issue tags' phone size so the documented
+         positions read as clearly as the topic tags they replace. */
+      .pdx-stance-chip { font-size: 0.66rem; padding: 0.2rem 0.6rem; }
+      .pdx-stance-chip .pdx-stance-ico { font-size: 0.68rem; }
+      .pdx-stance-more { font-size: 0.64rem; }
+      /* The "Where X stands · N positions" eyebrow and its tally were ~0.56rem;
+         nudge up so the at-a-glance summary stays readable on glass. */
+      .pdx-stance-eyebrow { font-size: 0.6rem; }
+      /* The signature stance line is the card's most quotable substance — give
+         it a touch more size and leading than the desktop default. */
+      .pdx-stance-lead { font-size: 0.78rem; line-height: 1.45; }
+      /* The "why this matters" / candidate / quote highlight, and the quote's
+         attribution, get the same readability lift as the rest of the card. */
+      .pdx-snap-highlight { font-size: 0.8rem; }
+      .pdx-snap-highlight--quote .pdx-snap-quote-cite { font-size: 0.66rem; }
     }
   </style>
 
