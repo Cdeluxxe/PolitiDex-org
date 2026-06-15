@@ -35209,6 +35209,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var pad = sm ? '0.1rem 0.42rem' : '0.16rem 0.5rem';
     var base = 'display:inline-flex;align-items:center;gap:0.25rem;vertical-align:middle;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border-radius:999px;white-space:nowrap;line-height:1.15;font-size:' + fs + ';padding:' + pad + ';';
     if (status === 'candidate') {
+      // A candidate whose race has concluded (lost at convention / withdrew) is no
+      // longer on the ballot. Labeling them "2026 Candidate" in on-the-ballot blue
+      // would imply they're still a live choice a voter could add to a team, so
+      // show an honest, de-emphasized "Out of Race"/"Withdrew" badge instead. Driven
+      // only from the structured candidacyStatus flag, never the freeform bio.
+      var _cs = (typeof statusOrData !== 'string') ? String(statusOrData.candidacyStatus || '').toLowerCase() : '';
+      if (_cs === 'withdrew' || _cs === 'suspended')
+        return '<span class="pdx-status-badge pdx-status-out" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#9fb4d4;">✖ Withdrew</span>';
+      if (_cs === 'eliminated' || _cs === 'lost' || _cs === 'defeated')
+        return '<span class="pdx-status-badge pdx-status-out" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#9fb4d4;">✖ Out of Race</span>';
       // Sharpen the label to "2026 Candidate" when the data shows the seat is on
       // the 2026 ballot, so a challenger reads as a specific, on-the-ballot choice
       // rather than a vague "candidate". Only when a data object is supplied.
@@ -40356,7 +40366,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Broken". A 2026 challenger reads as on-the-ballot-but-no-record-yet; a
         // new officeholder reads as early-in-term; everyone else as monitoring.
         var msg = '⏳ No voting record yet';
-        if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+        // A candidate who lost at convention or withdrew never took office, so
+        // "record starts in office" would be misleading — say so plainly instead,
+        // matching the "Out of Race" badge and the profile's honest lede.
+        var _cs = String(opts.candidacyStatus || '').toLowerCase();
+        var _outOfRace = (_cs === 'eliminated' || _cs === 'withdrew' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended');
+        if (_outOfRace) msg = (_cs === 'withdrew' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record' : '✖ Did not advance — never took office';
+        else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
         else if (opts.status === 'former') msg = '⏳ Former office — record archived';
         else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
         return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">' + msg + '</span></div>';
@@ -40576,7 +40592,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               infoHint +
             '</div>');
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) : '';
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -41699,7 +41715,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)) }) + '</div>' : '') +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
