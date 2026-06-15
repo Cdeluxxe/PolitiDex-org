@@ -2088,6 +2088,15 @@
       font-family: 'Barlow', sans-serif; font-style: italic;
       font-size: 0.9rem; color: #cbd9ec; line-height: 1.55; margin: 0;
     }
+    /* Short source note under a signature quote — keeps the attribution quiet
+       but present, so a pull-quote reads as sourced rather than free-floating. */
+    .profile-quote-cite {
+      display: block; margin-top: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-style: normal;
+      font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #8aa0c2;
+    }
+    .profile-quote-cite::before { content: "— "; color: #c0152a; }
 
     /* ── Deep profile: Key Issue Stances & People's Mandate ── */
     .stance-card {
@@ -5221,6 +5230,20 @@
       color: #b9cef0;
     }
     .pdx-snap-highlight--candidate .pdx-snap-highlight-ico { color: #60a5fa; }
+    /* Quote variant — a real signature quote surfaced on the card. Italic body
+       and a red opening quote mark echo the modal's .profile-quote so the voice
+       reads consistently across browse surfaces and the full profile. */
+    .pdx-snap-highlight--quote {
+      background: rgba(192,21,42,0.06);
+      border-color: rgba(192,21,42,0.22);
+      color: #cdd9ec;
+      font-style: italic;
+    }
+    .pdx-snap-highlight--quote .pdx-snap-highlight-ico {
+      color: rgba(192,21,42,0.75);
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; line-height: 0.8;
+      font-style: normal;
+    }
     .pdx-snap-extra { margin-top: 0.65rem; }
     .pdx-snap-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; flex-wrap: wrap; }
     .pdx-snap-actions > * { flex: 0 0 auto; }
@@ -17586,7 +17609,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
           <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
             <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
-            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
+            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, quoteSource, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
             <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
             <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers: they appear under “Spotlight items feeding this score” in the Accountability card and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
           </div>
@@ -19874,7 +19897,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         var bio =
           _pmFieldArea('Bio', 'bio', p.bio, 4) +
-          _pmFieldArea('Signature Quote', 'quote', p.quote, 2);
+          _pmFieldArea('Signature Quote', 'quote', p.quote, 2) +
+          _pmFieldText('Quote Source / Attribution', 'quoteSource', p.quoteSource, { placeholder: 'e.g. To the Salt Lake Tribune, 2024', full: true });
 
         var issues =
           _pmFieldArea('Key Issues (one per line)', 'keyIssues', keyIssues, 3) +
@@ -20091,6 +20115,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         merged.photo = (val('photo') || '').trim();
         merged.bio = (val('bio') || '');
         merged.quote = (val('quote') || '').trim();
+        merged.quoteSource = (val('quoteSource') || '').trim();
 
         var scoreRaw = val('score');
         if (scoreRaw === '' || scoreRaw == null) {
@@ -31078,7 +31103,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ${(p.bio || p.quote) ? `<div class="modal-section">
         <div class="modal-section-title">📋 Biography</div>
         ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
-        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p></blockquote>` : ''}
+        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
       </div>` : ''}
 
       <!-- Key Issues — a quick, at-a-glance read of what this official is most
@@ -40607,6 +40632,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var highlight = '';
       if (opts.highlight !== false) {
         var hl = (typeof opts.highlight === 'string') ? opts.highlight : (d.why || '');
+        // No "why this matters" blurb, but the profile carries a real signature
+        // quote — surface it on the card as a pull-quote. A human, sourced quote
+        // reads as far more alive than a blank slot, and it makes the quote work
+        // visible while browsing instead of only inside the modal.
+        var hlIsQuote = false;
+        if (!hl && d.quote && String(d.quote).trim()) { hl = String(d.quote).trim(); hlIsQuote = true; }
         // 2026 candidates almost never carry a "why this matters" blurb yet, which
         // left their cards with no descriptive line at all — the main reason they
         // read as thin. Fall back to a clean one-line excerpt of their real, stored
@@ -40615,9 +40646,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (hl) {
           if (hl.length > 150) hl = hl.slice(0, 147).replace(/\s+\S*$/, '') + '…';
           var isCand = (status === 'candidate');
-          var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
-          var hlIco = isCand ? '🗳️' : '★';
-          highlight = '<div class="' + hlCls + '"><span class="pdx-snap-highlight-ico">' + hlIco + '</span><span>' + hl + '</span></div>';
+          if (hlIsQuote) {
+            // Quote variant — italic with an opening quotation mark, distinct from
+            // the ★/🗳️ "why" highlight so it reads unmistakably as their own words.
+            highlight = '<div class="pdx-snap-highlight pdx-snap-highlight--quote"><span class="pdx-snap-highlight-ico">“</span><span>' + hl + '</span></div>';
+          } else {
+            var hlCls = isCand ? 'pdx-snap-highlight pdx-snap-highlight--candidate' : 'pdx-snap-highlight';
+            var hlIco = isCand ? '🗳️' : '★';
+            highlight = '<div class="' + hlCls + '"><span class="pdx-snap-highlight-ico">' + hlIco + '</span><span>' + hl + '</span></div>';
+          }
         }
       }
 
