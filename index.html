@@ -5113,6 +5113,33 @@
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700;
       letter-spacing: 0.05em; text-transform: uppercase; color: #7596c0; padding: 0.12rem 0.3rem;
     }
+    /* ── Signature stance line ──────────────────────────────────────────────────
+       One readable, sourced sentence of the lead position — what the politician
+       actually stands for, in plain language, no hover required. Sits between the
+       eyebrow tally and the topic chips: a quotable headline above the scannable
+       index. Direction-colored marker keeps it consistent with the chips, and the
+       2-line clamp keeps even a long position from crowding the card. */
+    .pdx-stance-lead {
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      margin: 0.05rem 0 0.46rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem; line-height: 1.4; color: #c3d2e6;
+    }
+    .pdx-stance-lead-ico { flex-shrink: 0; font-weight: 800; font-size: 0.72rem; line-height: 1.46; }
+    .pdx-stance-lead.is-support .pdx-stance-lead-ico { color: #34d399; }
+    .pdx-stance-lead.is-oppose  .pdx-stance-lead-ico { color: #f87171; }
+    .pdx-stance-lead.is-mixed   .pdx-stance-lead-ico { color: #f5c842; }
+    .pdx-stance-lead-txt {
+      min-width: 0;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    /* When the lead position is one of the visitor's own Alignment Tool issues,
+       give the line a soft left rail so it reads as "this is about what you care
+       about" — tying the headline back to the Alignment Tool like the chips do. */
+    .pdx-stance-lead--mine {
+      padding-left: 0.5rem;
+      border-left: 2px solid rgba(124,156,210,0.5);
+    }
     /* ── Alignment-aware chips ─────────────────────────────────────────────────
        A chip that lands on one of the visitor's OWN saved Alignment Tool issues
        gets a soft verdict-colored ring plus a trailing "you" marker, so a voter
@@ -29460,7 +29487,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<span class="pdx-stance-eyebrow-txt">Where ' + _pdxStanceAttr(first) + ' stands · <b>' +
         list.length + ' position' + (list.length === 1 ? '' : 's') + '</b></span>' + mineEb + sum + '</div>';
     }
-    return '<div class="pdx-snap-stances">' + label + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
+
+    // ── Signature stance line ────────────────────────────────────────────────
+    // The chips are the scannable index of WHICH issues a politician has a record
+    // on; this one readable line surfaces WHAT the lead position actually says,
+    // quoted verbatim from the sourced `text` of the top stance — the visitor's
+    // own aligned issue when they have one, otherwise the first documented
+    // position. It turns the hover-only tooltip into visible, touch-friendly
+    // substance and gives even a single-position card a real, quotable statement
+    // of values. Drawn straight from ISSUE_STANCE_DATA, so nothing is fabricated;
+    // when no position carries readable text the line is simply omitted.
+    var lead = '';
+    if (opts.summary !== false) {
+      var leadPos = null;
+      for (var li = 0; li < list.length; li++) {
+        if (list[li] && String(list[li].text || '').trim()) { leadPos = list[li]; break; }
+      }
+      if (leadPos) {
+        var lp = String(leadPos.issueStance || leadPos.pos || 'mixed').toLowerCase();
+        var lmeta = _PDX_STANCE_DIR[lp] || _PDX_STANCE_DIR.mixed;
+        var ltext = String(leadPos.text).trim();
+        if (ltext.length > 116) ltext = ltext.slice(0, 113).replace(/\s+\S*$/, '') + '…';
+        var leadMine = (hasAlign && _mineVerdict(leadPos)) ? ' pdx-stance-lead--mine' : '';
+        lead = '<div class="pdx-stance-lead ' + lmeta.cls + leadMine + '">' +
+          '<span class="pdx-stance-lead-ico" aria-hidden="true">' + lmeta.ico + '</span>' +
+          '<span class="pdx-stance-lead-txt">' + _pdxStanceAttr(ltext) + '</span></div>';
+      }
+    }
+    return '<div class="pdx-snap-stances">' + label + lead + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
   };
 
   // Compare one of the visitor's selected positions to the politician's stance.
