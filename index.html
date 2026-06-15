@@ -2101,10 +2101,10 @@
        still has documented positions, so users get honest expectations while the
        sourced issue positions remain the lead. */
     .stance-limited-note {
-      display: flex; align-items: flex-start; gap: 0.55rem;
       background: rgba(148,163,184,0.08); border: 1px solid rgba(148,163,184,0.28);
-      border-radius: 0.7rem; padding: 0.6rem 0.75rem; margin: 0 0 0.85rem;
+      border-radius: 0.7rem; padding: 0.7rem 0.8rem; margin: 0 0 0.85rem;
     }
+    .stance-limited-note .lr-head { display: flex; align-items: flex-start; gap: 0.55rem; }
     .stance-limited-note .stance-limited-pill {
       flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
@@ -2113,6 +2113,28 @@
       white-space: nowrap; margin-top: 0.05rem;
     }
     .stance-limited-note .stance-limited-text { font-size: 0.72rem; color: #9fb4d4; line-height: 1.55; }
+    /* "On record now / Still being built" — the connective read that makes a thin
+       officeholder profile feel like one intentional system rather than a sparse
+       scoreboard, naming the lenses that DO work (positions, alignment, spotlight). */
+    .stance-limited-note .lr-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem;
+      margin-top: 0.6rem; padding-top: 0.55rem; border-top: 1px dashed rgba(159,180,212,0.16);
+    }
+    .stance-limited-note .lr-row-label {
+      flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0;
+    }
+    .stance-limited-note .lr-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .stance-limited-note .lr-chip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.02em;
+      color: #cbd9ec; background: rgba(30,53,96,0.5); border: 1px solid rgba(159,180,212,0.25);
+      border-radius: 999px; padding: 0.18rem 0.55rem; white-space: nowrap;
+    }
+    .stance-limited-note .lr-chip-ico { font-size: 0.78rem; line-height: 1; }
+    .stance-limited-note .lr-chip-align { color: #c4b5fd; border-color: rgba(167,139,250,0.4); background: rgba(139,92,246,0.12); }
+    .stance-limited-note .lr-chip-spot { color: #f5c842; border-color: rgba(245,200,66,0.35); background: rgba(245,200,66,0.1); }
+    .stance-limited-note .lr-building-text { font-size: 0.7rem; color: #8ba6c9; line-height: 1.5; flex: 1 1 12rem; min-width: 0; }
     /* Grouped category sections within Key Issue Stances */
     .stance-cat { margin-bottom: 0.95rem; }
     .stance-cat:last-child { margin-bottom: 0; }
@@ -29919,12 +29941,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // most reliable read on where the official stands right now. Only shown for
     // genuine, non-derived stances on a sitting (non-candidate) official.
     var _depthKIS = (typeof window._pdxRecordDepth === 'function') ? window._pdxRecordDepth(p) : 'full';
-    var _limitedBanner = (!derived && !_isCandidate && _depthKIS === 'limited')
-      ? ('<div class="stance-limited-note">' +
-           '<span class="stance-limited-pill">📋 Limited Record</span>' +
-           '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These ' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + ' are the clearest read on where ' + _firstName + ' stands today — more of the voting record is added as it is verified. The <strong style="color:#c4b5fd;">Candidate Snapshot</strong> at the top of this profile pulls them together with your Alignment match and the Spotlight.</span>' +
-         '</div>')
-      : '';
+    var _limitedBanner = '';
+    if (!derived && !_isCandidate && _depthKIS === 'limited') {
+      // A sitting official with a thin promise record but real documented positions
+      // is the profile that most easily reads as "broken" — a sparse score with no
+      // obvious anchor. Rather than a one-line apology, this panel makes the limited
+      // record feel like one intentional system: it names the connected lenses that
+      // DO work without a full promise score — the sourced positions here, the
+      // visitor's Alignment match, and the Spotlight — with honest counts, then says
+      // plainly what is still being built. It mirrors the Candidate Snapshot's
+      // framing for officials that don't qualify for the (score-less) Snapshot, and
+      // references the Snapshot only when it is actually shown above.
+      var _lrSnap = (window._pdxSnapshotShownId === id);
+      var _lrChips = [];
+      _lrChips.push('<span class="lr-chip"><span class="lr-chip-ico" aria-hidden="true">📌</span>' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</span>');
+      var _lrHasPicks = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var _lrMatch = (_lrHasPicks && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+      _lrChips.push('<span class="lr-chip lr-chip-align"><span class="lr-chip-ico" aria-hidden="true">🤝</span>' +
+        (_lrMatch !== null ? (_lrMatch + '% your match') : 'Compare on your values') + '</span>');
+      var _lrSpot = (typeof window._krBuildSpotlight === 'function') ? window._krBuildSpotlight(id) : null;
+      if (_lrSpot) {
+        var _lrSpotV = (_lrSpot.kind === 'newcomer' || _lrSpot.kind === 'monitoring')
+          ? 'Monitoring'
+          : ((_lrSpot.total > 1) ? (_lrSpot.total + ' updates') : 'Latest update');
+        _lrChips.push('<span class="lr-chip lr-chip-spot"><span class="lr-chip-ico" aria-hidden="true">🔦</span>' + _lrSpotV + '</span>');
+      }
+      // Honest pointer — to the Snapshot when present, otherwise to the sections
+      // that ARE on this profile, so the cross-reference is always real.
+      var _lrRef = _lrSnap
+        ? ' The <strong style="color:#c4b5fd;">Candidate Snapshot</strong> at the top pulls these together at a glance.'
+        : (' Your <strong style="color:#a78bfa;">How You Compare</strong> match' +
+            (_lrSpot ? ' and the <strong style="color:#f5c842;">Spotlight</strong> are' : ' is') + ' on this profile too.');
+      _limitedBanner =
+        '<div class="stance-limited-note">' +
+          '<div class="lr-head">' +
+            '<span class="stance-limited-pill">📋 Limited Record</span>' +
+            '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These <strong style="color:#cbd9ec;">' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</strong> are the clearest read on where ' + _firstName + ' stands today.' + _lrRef + '</span>' +
+          '</div>' +
+          '<div class="lr-row"><span class="lr-row-label">On record now</span><div class="lr-chips">' + _lrChips.join('') + '</div></div>' +
+          '<div class="lr-row lr-row-building"><span class="lr-row-label">Still being built</span><span class="lr-building-text"><span aria-hidden="true">⏳</span> More of ' + _firstName + '\'s voting record, and kept-and-broken promises as commitments play out — added only as each is verified, never invented.</span></div>' +
+        '</div>';
+    }
     return '<div class="modal-section">' +
       '<div class="modal-section-title" style="justify-content:space-between;">' +
         '<span style="display:inline-flex;align-items:center;gap:0.45rem;">' + (_derivedCand ? '🎯 Top Priorities' : '🎯 Key Issue Stances') + '</span>' +
@@ -30852,6 +30909,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const candidateSnapshot = (typeof window._renderCandidateSnapshot === 'function')
       ? window._renderCandidateSnapshot(id, p, { isThin: _isThinProfile })
       : '';
+    // Record whether the cohesive Candidate Snapshot actually rendered on THIS
+    // profile, so downstream sections (e.g. the Key Issue Stances "Limited Record"
+    // panel) only cross-reference it when it is really there — never pointing a
+    // visitor at a section that isn't present on a limited-but-scored officeholder.
+    window._pdxSnapshotShownId = candidateSnapshot ? id : null;
 
     // Extra sections
     let extraSections = '';
