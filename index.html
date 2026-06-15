@@ -14620,7 +14620,7 @@
           <p class="font-condensed text-sm sm:text-base text-steel-200 tracking-wide leading-relaxed max-w-xl">
             Tell PolitiDex the positions you actually believe in — that's your <strong class="text-purple-200">True North</strong>. Every politician then gets a personal <strong class="text-purple-200">Your Match&nbsp;%</strong>: a clear, sourced read of how their record lines up with <em class="text-white">yours</em>, red or blue. A team built on your compass beats one built on a party label.
           </p>
-          <button type="button" onclick="if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-sm sm:text-base tracking-widest uppercase px-9 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 30px rgba(139,92,246,0.45), inset 0 2px 0 rgba(255,255,255,0.25);">
+          <button type="button" onclick="if(window.openAlignBoard){window.openAlignBoard('all');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var e=document.getElementById('alignment-panel');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}" class="btn-tap mt-1 inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-400 text-white font-condensed font-900 text-sm sm:text-base tracking-widest uppercase px-9 py-4 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95" style="box-shadow:0 0 30px rgba(139,92,246,0.45), inset 0 2px 0 rgba(255,255,255,0.25);">
             🎯 Find Your Matches
           </button>
           <p class="font-condensed text-[0.65rem] sm:text-xs tracking-[0.18em] uppercase text-steel-500">Free · Nonpartisan · Takes about a minute</p>
@@ -15780,6 +15780,17 @@
               <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">Covers all 29 Utah counties using official district boundaries.</span></p>
             </div>
 
+            <!-- Best-Matches board launcher for the whole slate of key races —
+                 rank every candidate on the ballot by the visitor's issues at once. -->
+            <button type="button" onclick="if(window.openAlignBoard)window.openAlignBoard('ballot')" class="w-full mb-5 flex items-center gap-3 text-left rounded-2xl border border-purple-500/40 px-4 py-3.5 transition-all hover:border-purple-400/70 hover:scale-[1.01] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.22) 0%, rgba(30,58,138,0.12) 100%); box-shadow:0 0 24px rgba(139,92,246,0.16); cursor:pointer; min-height:60px;">
+              <span class="flex-none text-2xl" aria-hidden="true">🏆</span>
+              <span class="flex-1 min-w-0">
+                <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm sm:text-base leading-tight">Rank every race by your values</span>
+                <span class="block font-condensed text-purple-200/90 text-xs sm:text-sm leading-snug mt-0.5">See which candidates across all your key races best match the issues you care about — then add your top picks to your team.</span>
+              </span>
+              <span class="flex-none text-purple-300 text-xl" aria-hidden="true">›</span>
+            </button>
+
             <!-- Race cards injected here -->
             <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
 
@@ -15874,6 +15885,18 @@
             </div>
           </div>
         </div>
+
+        <!-- One-tap launcher into the ranked Best-Matches board, scoped to the
+             visitor's ballot — compare every name on their ballot by their issues
+             without opening a single profile. -->
+        <button type="button" id="relevant-board-launch" onclick="if(window.openAlignBoard)window.openAlignBoard('ballot')" class="w-full mb-5 flex items-center gap-3 text-left rounded-2xl border border-purple-500/40 px-4 py-3.5 transition-all hover:border-purple-400/70 hover:scale-[1.01] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.22) 0%, rgba(13,148,136,0.12) 100%); box-shadow:0 0 24px rgba(139,92,246,0.16); cursor:pointer; min-height:60px;">
+          <span class="flex-none text-2xl" aria-hidden="true">🏆</span>
+          <span class="flex-1 min-w-0">
+            <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm sm:text-base leading-tight">Rank your ballot by your values</span>
+            <span class="block font-condensed text-purple-200/90 text-xs sm:text-sm leading-snug mt-0.5">See who on your ballot best matches the issues you care about — current officeholders and 2026 candidates alike — then add your top fits to your team.</span>
+          </span>
+          <span class="flex-none text-purple-300 text-xl" aria-hidden="true">›</span>
+        </button>
 
         <!-- Why these names appear + what to do with them. Sits just above the
              cards so the guidance is right where the action is. Hidden until a
@@ -16491,6 +16514,18 @@
                clear any one of them (or all) with a single tap. Populated by
                myteamBrowseFilter(); stays empty (and invisible) when nothing is set. -->
           <div id="browse-active-filters" class="flex flex-wrap items-center gap-2 mt-2.5"></div>
+
+          <!-- Best-Matches board launcher — turn the whole browsable list into a
+               leaderboard ranked by the visitor's issues, in one tap, without
+               opening each card's modal. -->
+          <button type="button" onclick="if(window.openAlignBoard)window.openAlignBoard('all')" class="w-full mt-3 flex items-center gap-3 text-left rounded-xl border border-purple-500/40 px-3.5 py-3 transition-all hover:border-purple-400/70 hover:scale-[1.005] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(13,148,136,0.1) 100%); cursor:pointer; min-height:54px;">
+            <span class="flex-none text-xl" aria-hidden="true">🏆</span>
+            <span class="flex-1 min-w-0">
+              <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm leading-tight">Rank these politicians by my values</span>
+              <span class="block font-condensed text-purple-200/90 text-xs leading-snug mt-0.5">Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.</span>
+            </span>
+            <span class="flex-none text-purple-300 text-lg" aria-hidden="true">›</span>
+          </button>
           
           <div class="flex items-center justify-between mt-2 px-1">
             <span id="myteam-browse-count-label" class="font-condensed text-xs text-steel-400 font-bold tracking-wide">0 politicians found</span>
@@ -49693,6 +49728,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._alignUpdateFab = _alignUpdateFab;
 
     window._alignFabAction = function() {
+      // One tap from any browsing section opens the ranked Best-Matches board —
+      // pick issues right there (empty state) or jump straight to the live ranking.
+      if (typeof window.openAlignBoard === 'function') { window.openAlignBoard(); return; }
+      // Fallback to the legacy picker/sort flow if the board hasn't loaded.
       var n = (typeof _alignIssues !== 'undefined' && _alignIssues) ? _alignIssues.size : 0;
       if (n === 0) {
         if (window._krAlignGuideToPicker) window._krAlignGuideToPicker();
@@ -52688,6 +52727,357 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     }
   </style>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       BEST-MATCHES ALIGNMENT BOARD — cross-section "rank everyone by my values"
+       A single, reusable overlay that turns any browsing scope (your ballot,
+       2026 candidates, all politicians) into a ranked leaderboard of how well
+       each politician matches the issues the visitor cares about — with the
+       issue picker built right in, an honest "limited record" bucket for thin
+       2026 candidates (no fabricated scores), and one-tap "Add to team" on every
+       row. Reuses the live alignment engine on window (_calcAlignmentScore /
+       _calcAlignmentBreakdown / _alignIssues / _alignScoreColor) and the team
+       store (_pdxIsOnTeam / mypolToggle), so its numbers always agree with the
+       per-card and per-profile alignment shown elsewhere. Reachable from the FAB
+       and from a launcher in each browsing section, so values-based comparison no
+       longer requires opening one profile modal at a time. Dark patriotic palette,
+       purple/teal "match" accents inside a navy frame. -->
+  <style id="amb-styles">
+    #amb-overlay{position:fixed;inset:0;z-index:120;display:none;align-items:flex-start;justify-content:center;padding:max(0.75rem,env(safe-area-inset-top)) 0.75rem 0.75rem;background:rgba(3,7,18,0.86);backdrop-filter:blur(9px);opacity:0;transition:opacity 0.22s ease;overflow-y:auto;}
+    .amb-sheet{width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;max-height:94vh;border-radius:1.25rem;overflow:hidden;background:linear-gradient(160deg,#0d1530 0%,#0a0f24 50%,#150d22 100%);border:1px solid rgba(245,200,66,0.32);box-shadow:0 24px 70px rgba(0,0,0,0.6),0 0 50px rgba(139,92,246,0.16);}
+    .amb-head{position:relative;flex:none;padding:1rem 1.1rem 0.85rem;background:linear-gradient(135deg,rgba(76,29,149,0.4),rgba(10,15,30,0.5) 60%,rgba(13,148,136,0.18));border-bottom:1px solid rgba(255,255,255,0.07);}
+    .amb-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#c4b5fd;display:flex;align-items:center;gap:0.4rem;}
+    .amb-title{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.65rem;line-height:1.05;letter-spacing:0.02em;color:#fff;margin:0.15rem 0 0.1rem;}
+    .amb-tagline{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:#9fb4d4;line-height:1.35;max-width:46ch;}
+    .amb-x{position:absolute;top:0.85rem;right:0.85rem;width:34px;height:34px;border-radius:0.6rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#cbd9ec;cursor:pointer;font-size:1.05rem;line-height:1;}
+    .amb-x:hover{background:rgba(255,255,255,0.14);}
+    .amb-tabs{display:flex;gap:0.4rem;margin-top:0.8rem;flex-wrap:wrap;}
+    .amb-tab{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0.05rem;padding:0.5rem 0.55rem;border-radius:0.7rem;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);transition:all 0.18s ease;}
+    .amb-tab-ico{font-size:1rem;line-height:1;}
+    .amb-tab-lab{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;white-space:nowrap;}
+    .amb-tab-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.56rem;letter-spacing:0.04em;text-transform:uppercase;color:#7596c0;white-space:nowrap;}
+    .amb-tab.on{background:linear-gradient(135deg,rgba(124,58,237,0.9),rgba(99,102,241,0.85));border-color:rgba(167,139,250,0.7);box-shadow:0 4px 16px rgba(139,92,246,0.3);}
+    .amb-tab.on .amb-tab-lab,.amb-tab.on .amb-tab-sub{color:#fff;}
+    .amb-body{flex:1 1 auto;overflow-y:auto;padding:0.9rem 1.1rem 0.4rem;-webkit-overflow-scrolling:touch;}
+    .amb-summary{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.22);border-radius:0.85rem;padding:0.7rem 0.8rem;margin-bottom:0.8rem;}
+    .amb-sum-row{display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
+    .amb-sum-t{font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;color:#e9e0ff;}
+    .amb-sum-t b{color:#c4b5fd;}
+    .amb-adjbtn{flex:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.04em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.16);border:1px solid rgba(139,92,246,0.4);border-radius:0.55rem;padding:0.35rem 0.7rem;cursor:pointer;white-space:nowrap;}
+    .amb-adjbtn:hover{background:rgba(139,92,246,0.28);}
+    .amb-selchips{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.55rem;}
+    .amb-selchip{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:600;color:#ddd6fe;background:rgba(139,92,246,0.18);border:1px solid rgba(139,92,246,0.4);border-radius:999px;padding:0.12rem 0.55rem;}
+    .amb-selmore{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;color:#a78bfa;align-self:center;}
+    .amb-picker{margin-top:0.7rem;}
+    .amb-search{display:flex;align-items:center;gap:0.4rem;background:rgba(10,15,30,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:0.6rem;padding:0.4rem 0.6rem;}
+    .amb-search span{font-size:0.85rem;opacity:0.7;}
+    .amb-search input{flex:1;background:none;border:none;outline:none;color:#fff;font-family:'Barlow',sans-serif;font-size:0.82rem;min-width:0;}
+    .amb-search button{background:none;border:none;color:#7596c0;cursor:pointer;font-size:0.8rem;padding:0 0.2rem;}
+    .amb-chips{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.6rem;}
+    .amb-chip{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.72rem;color:#cbd9ec;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);border-radius:999px;padding:0.25rem 0.62rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.28rem;transition:all 0.15s ease;}
+    .amb-chip span{font-weight:800;color:#7596c0;}
+    .amb-chip:hover{border-color:rgba(167,139,250,0.6);color:#fff;}
+    .amb-chip.on{background:rgba(124,58,237,0.28);border-color:rgba(167,139,250,0.75);color:#fff;}
+    .amb-chip.on span{color:#a7f3d0;}
+    .amb-nochip{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:#7596c0;}
+    .amb-pickhint{font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;color:#7596c0;margin-top:0.5rem;line-height:1.4;}
+    .amb-resulthead{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#9fb4d4;margin:0 0.15rem 0.6rem;letter-spacing:0.01em;}
+    .amb-resulthead b{color:#e9e0ff;}
+    .amb-rows{display:flex;flex-direction:column;gap:0.55rem;}
+    .amb-row{display:flex;align-items:flex-start;gap:0.7rem;padding:0.7rem 0.75rem;border-radius:0.9rem;background:linear-gradient(135deg,rgba(20,30,56,0.7),rgba(12,18,38,0.7));border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:border-color 0.15s ease,transform 0.12s ease;}
+    .amb-row:hover{border-color:rgba(167,139,250,0.45);transform:translateY(-1px);}
+    .amb-rank{flex:none;width:1.7rem;text-align:center;font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.15rem;color:#f5c842;line-height:1.6;}
+    .amb-av{width:46px;height:46px;border-radius:50%;overflow:hidden;flex:none;border:2px solid rgba(159,180,212,0.4);background:#0a0f1e;display:flex;align-items:center;justify-content:center;}
+    .amb-av img{width:100%;height:100%;object-fit:cover;}
+    .amb-av-ico{font-size:1.3rem;color:#9fb4d4;}
+    .amb-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:0.15rem;}
+    .amb-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:#fff;line-height:1.1;}
+    .amb-subline{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.2;}
+    .amb-badges{display:flex;flex-wrap:wrap;gap:0.25rem;margin-top:0.1rem;}
+    .amb-isswrap{display:flex;flex-wrap:wrap;gap:0.28rem;margin-top:0.28rem;}
+    .amb-iss{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;border:1px solid;border-radius:999px;padding:0.08rem 0.45rem;background:rgba(255,255,255,0.03);}
+    .amb-iss-clash{color:#fca5a5 !important;border-color:rgba(248,113,113,0.45) !important;}
+    .amb-matchline{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;color:#9fb4d4;margin-top:0.28rem;}
+    .amb-lim{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;color:#fcd9a6;margin-top:0.28rem;display:inline-block;}
+    .amb-right{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;min-width:6.2rem;}
+    .amb-pct{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.85rem;line-height:0.9;letter-spacing:0.01em;text-shadow:0 0 14px currentColor;}
+    .amb-pct i{font-size:0.9rem;font-style:normal;}
+    .amb-na{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#5b6f8c;}
+    .amb-meter{width:6rem;height:6px;border-radius:999px;background:rgba(255,255,255,0.1);overflow:hidden;}
+    .amb-meter>div{height:100%;border-radius:999px;}
+    .amb-add{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#d97706,#f59e0b);border:none;border-radius:0.55rem;padding:0.4rem 0.65rem;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px rgba(245,158,11,0.3);}
+    .amb-add:hover{filter:brightness(1.08);}
+    .amb-add.on{background:rgba(34,197,94,0.16);color:#86efac;border:1px solid rgba(34,197,94,0.5);box-shadow:none;}
+    .amb-bd{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.04em;text-transform:uppercase;color:#93c5fd;}
+    .amb-unscored{margin-top:1rem;padding-top:0.8rem;border-top:1px dashed rgba(255,255,255,0.12);}
+    .amb-unscored-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;color:#fcd9a6;margin-bottom:0.5rem;letter-spacing:0.02em;}
+    .amb-unrow{display:flex;align-items:center;gap:0.55rem;width:100%;text-align:left;padding:0.45rem 0.55rem;border-radius:0.7rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);cursor:pointer;margin-bottom:0.35rem;}
+    .amb-unrow:hover{border-color:rgba(245,200,66,0.4);}
+    .amb-unrow .amb-av{width:34px;height:34px;}
+    .amb-unrow .amb-av-ico{font-size:1rem;}
+    .amb-unname{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.84rem;color:#e2e8f5;}
+    .amb-unsee{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.04em;color:#93c5fd;}
+    .amb-empty{text-align:center;padding:0.5rem 0.3rem 1rem;}
+    .amb-empty-ico{font-size:2rem;}
+    .amb-empty-t{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.3rem;color:#fff;margin:0.3rem 0 0.2rem;letter-spacing:0.01em;}
+    .amb-empty-s{font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:#9fb4d4;line-height:1.4;max-width:42ch;margin:0 auto 0.5rem;}
+    .amb-empty .amb-picker{text-align:left;}
+    .amb-cta{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.74rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:0.6rem;padding:0.55rem 1.1rem;cursor:pointer;box-shadow:0 4px 14px rgba(139,92,246,0.3);}
+    .amb-foot{flex:none;padding:0.7rem 1.1rem;background:rgba(8,12,26,0.7);border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
+    .amb-foot-note{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;color:#7596c0;line-height:1.3;flex:1;min-width:0;}
+    .amb-done{flex:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#f5c842,#f59e0b);border:none;border-radius:0.6rem;padding:0.55rem 1rem;cursor:pointer;}
+    @media (max-width:560px){
+      .amb-title{font-size:1.4rem;}
+      .amb-right{min-width:5rem;}
+      .amb-pct{font-size:1.55rem;}
+      .amb-meter{width:4.6rem;}
+      .amb-tab-sub{display:none;}
+      .amb-add{font-size:0.6rem;padding:0.35rem 0.5rem;}
+    }
+    @media (prefers-reduced-motion:reduce){#amb-overlay,.amb-row{transition:none;}}
+  </style>
+  <script>
+  (function(){
+    if (window.__ambInit) return; window.__ambInit = true;
+
+    function _e(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    function D(pid){ try { return (typeof CMP_DATA!=='undefined' && CMP_DATA) ? CMP_DATA[pid] : null; } catch(e){ return null; } }
+    function IM(){ return window._alignIssueMap || {}; }
+    function ISS(){ return window._alignIssues || new Set(); }
+    function nIssues(){ var s=ISS(); return (s&&s.size)||0; }
+    function status(d){ return (typeof window._pdxOfficeStatus==='function') ? window._pdxOfficeStatus(d) : 'office'; }
+    function scoreOf(pid){ try { return (typeof window._calcAlignmentScore==='function') ? window._calcAlignmentScore(pid) : null; } catch(e){ return null; } }
+    function bdOf(pid){ try { return (typeof window._calcAlignmentBreakdown==='function') ? window._calcAlignmentBreakdown(pid) : null; } catch(e){ return null; } }
+    function col(s){ return (typeof window._alignScoreColor==='function') ? window._alignScoreColor(s) : (s>=70?'#4ade80':s>=50?'#f5c842':'#f87171'); }
+    function onTeam(pid){ return (typeof window._pdxIsOnTeam==='function') ? window._pdxIsOnTeam(pid) : false; }
+
+    var SCOPES = [
+      { key:'ballot',     label:'Your Ballot',     ico:'🗳️', sub:'On your ballot' },
+      { key:'candidates', label:'2026 Candidates', ico:'🚀', sub:'New names' },
+      { key:'all',        label:'All Politicians', ico:'🏛️', sub:'Everyone' }
+    ];
+    var _scope='ballot', _adjust=false, _q='';
+
+    function scopePids(scope){
+      var out=[], seen={};
+      function add(p){ if(p && D(p) && !seen[p]){ seen[p]=1; out.push(p); } }
+      try {
+        if(scope==='all'){ Object.keys(CMP_DATA).forEach(add); }
+        else if(scope==='candidates'){ Object.keys(CMP_DATA).forEach(function(p){ var d=D(p); if(d && status(d)==='candidate') add(p); }); }
+        else { // ballot — the location-personalised races (incumbents + challengers + statewide)
+          var kr=(typeof window.keyRacesRelevantData==='function')?window.keyRacesRelevantData():null;
+          if(kr){
+            Object.keys(kr.byRace||{}).forEach(function(k){ ((kr.byRace[k]&&kr.byRace[k].pids)||[]).forEach(add); });
+            Object.keys(kr.statewide||{}).forEach(function(k){ (kr.statewide[k]||[]).forEach(add); });
+          }
+        }
+      } catch(e){}
+      return out;
+    }
+
+    function party(p){ p=(p||'').toString().toUpperCase().charAt(0); if(p==='R') return {l:'Republican',c:'#f87171'}; if(p==='D') return {l:'Democrat',c:'#60a5fa'}; if(p==='I'||p==='L'||p==='G') return {l:'Independent',c:'#c4b5fd'}; return {l:'',c:'#9fb4d4'}; }
+
+    function avatar(pid,d,c,small){
+      var url=(typeof window._getPhotoUrl==='function')?window._getPhotoUrl(pid):'';
+      var ico=(d&&d.icon)||'🏛';
+      if(url){ return '<div class="amb-av" style="border-color:'+c+'66;"><img src="'+_e(url)+'" alt="'+_e(d.name)+'" onerror="this.parentElement.classList.add(\'amb-av-ico\');this.parentElement.innerHTML=\''+ico+'\'"></div>'; }
+      return '<div class="amb-av amb-av-ico" style="border-color:'+c+'66;">'+ico+'</div>';
+    }
+
+    function badges(d){
+      var b='';
+      try {
+        if(typeof window._pdxStatusBadge==='function') b+=(window._pdxStatusBadge(d,{size:'sm'})||'');
+        if(typeof window._pdxDepthBadge==='function') b+=(window._pdxDepthBadge(d,{size:'sm'})||'');
+      } catch(e){}
+      return b;
+    }
+
+    function issChip(k,on){ var d=IM()[k]; if(!d) return ''; return '<button type="button" class="amb-chip'+(on?' on':'')+'" aria-pressed="'+(on?'true':'false')+'" onclick="ambToggleIssue(\''+k+'\')"><span>'+(on?'✓':'+')+'</span>'+_e(d.label)+'</button>'; }
+
+    function pickResultsHtml(){
+      var im=IM(), iss=ISS();
+      var q=(_q||'').trim().toLowerCase();
+      var list;
+      if(q){
+        list=Object.keys(im).filter(function(k){
+          var d=im[k]; if(!d) return false;
+          var hay=(d.label+' '+(d.keywords?d.keywords.join(' '):'')+' '+(d.chip||'')).toLowerCase();
+          return hay.indexOf(q)!==-1;
+        }).slice(0,40);
+      } else {
+        var sel=[]; iss.forEach(function(k){ if(im[k]) sel.push(k); });
+        var qp=(window._alignQuickPicks||[]).filter(function(k){ return im[k] && !iss.has(k); });
+        list=sel.concat(qp);
+      }
+      var chips=list.map(function(k){ return issChip(k, iss.has(k)); }).join('');
+      var total=Object.keys(im).length;
+      return '<div class="amb-chips">'+(chips||'<span class="amb-nochip">No issues match that search — try a broader word like taxes, climate, or guns.</span>')+'</div>'+
+        (q?'':'<div class="amb-pickhint">Popular issues shown — search to reach any of '+total+'+ positions. Tap to add or remove. Officeholders and 2026 candidates are both matched on their documented stances.</div>');
+    }
+
+    function pickerHtml(){
+      return '<div class="amb-picker">'+
+        '<div class="amb-search"><span>🔍</span><input id="amb-search" type="text" placeholder="Search issues — taxes, climate, guns, housing…" value="'+_e(_q)+'" oninput="ambSearch(this.value)" autocomplete="off" aria-label="Search alignment issues"><button type="button" onclick="ambSearch(\'\')" aria-label="Clear search">✕</button></div>'+
+        '<div id="amb-pick-results">'+pickResultsHtml()+'</div>'+
+      '</div>';
+    }
+
+    function summaryHtml(){
+      var n=nIssues(), iss=ISS(), im=IM();
+      var title=n
+        ? '<span class="amb-sum-t">Ranking by your <b>'+n+'</b> issue'+(n===1?'':'s')+'</span>'
+        : '<span class="amb-sum-t">Pick the issues you care about</span>';
+      var btn='<button type="button" class="amb-adjbtn" onclick="ambToggleAdjust()">'+(_adjust?'▲ Hide':(n?'⚙ Adjust':'＋ Pick'))+'</button>';
+      var chips='';
+      if(n){ var arr=[]; iss.forEach(function(k){ if(im[k]) arr.push(im[k].label); });
+        chips='<div class="amb-selchips">'+arr.slice(0,5).map(function(l){return '<span class="amb-selchip">'+_e(l)+'</span>';}).join('')+(arr.length>5?'<span class="amb-selmore">+'+(arr.length-5)+' more</span>':'')+'</div>'; }
+      return '<div class="amb-summary"><div class="amb-sum-row">'+title+btn+'</div>'+chips+(_adjust?pickerHtml():'')+'</div>';
+    }
+
+    function rowHtml(pid, rank){
+      var d=D(pid); if(!d) return '';
+      var s=scoreOf(pid), bd=bdOf(pid);
+      var c=col(s==null?0:s), pm=party(d.party);
+      var office=(d.office||'');
+      var topChips='', clash='', matchCount=0, total=0, directCount=0;
+      if(bd && bd.issues){
+        total=bd.issues.length;
+        var sorted=bd.issues.slice().sort(function(a,b){return b.score-a.score;});
+        sorted.forEach(function(it){ if(it.score>=60) matchCount++; if(it.direct) directCount++; });
+        topChips=sorted.slice(0,3).map(function(it){ var ic=col(it.score); return '<span class="amb-iss" style="border-color:'+ic+'55;color:'+ic+';">'+(it.direct?'📍 ':'')+_e(it.label)+' '+it.score+'%</span>'; }).join('');
+        var worst=sorted[sorted.length-1];
+        if(worst && worst.score<40 && total>1){ clash='<span class="amb-iss amb-iss-clash">⚠ differs on '+_e(worst.label)+'</span>'; }
+      }
+      var rankBadge = rank<=3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank;
+      var ot=onTeam(pid);
+      var teamBtn='<button type="button" class="amb-add'+(ot?' on':'')+'" onclick="event.stopPropagation();ambToggleTeam(\''+pid+'\')" aria-label="'+(ot?'Remove '+_e(d.name)+' from your team':'Add '+_e(d.name)+' to your team')+'">'+(ot?'✓ On team':'⭐ Add')+'</button>';
+      var bigNum=(s==null)?'<span class="amb-na">—</span>':'<span class="amb-pct" style="color:'+c+';">'+s+'<i>%</i></span>';
+      var meter=(s==null)?'':'<div class="amb-meter"><div style="width:'+s+'%;background:linear-gradient(90deg,'+c+'88,'+c+');"></div></div>';
+      var matchLine=(s==null)
+        ? '<span class="amb-lim">Limited record — tap to see stated positions</span>'
+        : '<span class="amb-matchline">Matches you on <b style="color:'+c+';">'+matchCount+'</b> of '+total+' issue'+(total===1?'':'s')+(directCount?' · <span style="color:#86efac;">'+directCount+' stated</span>':'')+'</span>';
+      return '<div class="amb-row" onclick="ambBreakdown(\''+pid+'\')">'+
+        '<div class="amb-rank">'+rankBadge+'</div>'+
+        avatar(pid,d,c)+
+        '<div class="amb-main">'+
+          '<div class="amb-name">'+_e(d.name)+'</div>'+
+          '<div class="amb-subline">'+(pm.l?'<span style="color:'+pm.c+';">'+pm.l+'</span>':'')+(office?(pm.l?' · ':'')+_e(office):'')+'</div>'+
+          (badges(d)?'<div class="amb-badges">'+badges(d)+'</div>':'')+
+          ((topChips||clash)?'<div class="amb-isswrap">'+topChips+clash+'</div>':'')+
+          matchLine+
+        '</div>'+
+        '<div class="amb-right">'+bigNum+meter+teamBtn+'<span class="amb-bd">Breakdown ›</span></div>'+
+      '</div>';
+    }
+
+    function renderBody(){
+      var host=document.getElementById('amb-body'); if(!host) return;
+      var n=nIssues();
+      if(n===0){
+        host.innerHTML='<div class="amb-summary"><div class="amb-sum-row"><span class="amb-sum-t">Pick the issues you care about</span></div></div>'+
+          '<div class="amb-empty"><div class="amb-empty-ico">🎯</div>'+
+            '<div class="amb-empty-t">Compare everyone by what <i>you</i> believe</div>'+
+            '<div class="amb-empty-s">Pick a few issues and we’ll rank these politicians by how well their record matches yours — then add your best matches to your team. No party labels.</div>'+
+            pickerHtml()+
+          '</div>';
+        return;
+      }
+      var pids=scopePids(_scope);
+      if(_scope==='ballot' && pids.length===0){
+        host.innerHTML=summaryHtml()+'<div class="amb-empty"><div class="amb-empty-ico">📍</div>'+
+          '<div class="amb-empty-t">Set your location to rank your ballot</div>'+
+          '<div class="amb-empty-s">Choose your area in “Relevant to Me” and we’ll rank the exact races on your ballot. Meanwhile, see how everyone matches you:</div>'+
+          '<button type="button" class="amb-cta" onclick="ambSetScope(\'all\')">Rank all politicians →</button></div>';
+        return;
+      }
+      var scored=[], unscored=[];
+      pids.forEach(function(p){ var s=scoreOf(p); if(s==null) unscored.push(p); else scored.push({p:p,s:s}); });
+      scored.sort(function(a,b){ return b.s-a.s; });
+      var rows=scored.map(function(o,i){ return rowHtml(o.p, i+1); }).join('');
+      var head='<div class="amb-resulthead">Showing <b>'+scored.length+'</b> of '+pids.length+' ranked by your <b>'+n+' issue'+(n===1?'':'s')+'</b> · best match first</div>';
+      var uns='';
+      if(unscored.length){
+        uns='<div class="amb-unscored"><div class="amb-unscored-h">🌱 '+unscored.length+' with a limited record for these issues — no score invented</div>'+
+          unscored.map(function(p){ var d=D(p); return '<button type="button" class="amb-unrow" onclick="ambBreakdown(\''+p+'\')">'+avatar(p,d,'#9fb4d4')+'<span class="amb-unname">'+_e(d.name)+'</span><span class="amb-unsee">See positions ›</span></button>'; }).join('')+'</div>';
+      }
+      host.innerHTML=summaryHtml()+head+'<div class="amb-rows">'+rows+'</div>'+uns;
+    }
+
+    function renderTabs(){
+      var host=document.getElementById('amb-tabs'); if(!host) return;
+      host.innerHTML=SCOPES.map(function(sc){
+        return '<button type="button" class="amb-tab'+(sc.key===_scope?' on':'')+'" onclick="ambSetScope(\''+sc.key+'\')">'+
+          '<span class="amb-tab-ico">'+sc.ico+'</span><span class="amb-tab-lab">'+sc.label+'</span><span class="amb-tab-sub">'+sc.sub+'</span></button>';
+      }).join('');
+    }
+
+    function ensureShell(){
+      if(document.getElementById('amb-overlay')) return;
+      var ov=document.createElement('div');
+      ov.id='amb-overlay';
+      ov.setAttribute('role','dialog');
+      ov.setAttribute('aria-modal','true');
+      ov.setAttribute('aria-label','Best matches — rank politicians by your values');
+      ov.innerHTML=
+        '<div class="amb-sheet" role="document">'+
+          '<div class="amb-head">'+
+            '<div class="amb-eyebrow">🏆 Values Match</div>'+
+            '<h2 class="amb-title">Your Best Matches</h2>'+
+            '<p class="amb-tagline">Rank these politicians by how their record lines up with the issues <em>you</em> care about — then add your top fits to your team.</p>'+
+            '<button type="button" class="amb-x" onclick="closeAlignBoard()" aria-label="Close">✕</button>'+
+            '<div class="amb-tabs" id="amb-tabs"></div>'+
+          '</div>'+
+          '<div class="amb-body" id="amb-body"></div>'+
+          '<div class="amb-foot">'+
+            '<span class="amb-foot-note">Your picks save to <b style="color:#cbd9ec;">My Voting Team</b> and your match shows on every card.</span>'+
+            '<button type="button" class="amb-done" onclick="ambDone()">Done</button>'+
+          '</div>'+
+        '</div>';
+      ov.addEventListener('click', function(e){ if(e.target===ov) closeAlignBoard(); });
+      document.body.appendChild(ov);
+      document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ var o=document.getElementById('amb-overlay'); if(o && o.style.display==='flex') closeAlignBoard(); } });
+    }
+
+    window.openAlignBoard=function(scope){
+      ensureShell();
+      var ballotHas=scopePids('ballot').length>0;
+      _scope=scope || (ballotHas?'ballot':'all');
+      if(_scope==='ballot' && !ballotHas && scope!=='ballot') _scope='all';
+      _adjust=(nIssues()===0);
+      _q='';
+      renderTabs();
+      renderBody();
+      var ov=document.getElementById('amb-overlay');
+      ov.style.display='flex';
+      document.body.style.overflow='hidden';
+      requestAnimationFrame(function(){ ov.style.opacity='1'; });
+    };
+
+    window.closeAlignBoard=function(){
+      var ov=document.getElementById('amb-overlay'); if(!ov) return;
+      ov.style.opacity='0';
+      setTimeout(function(){
+        ov.style.display='none';
+        var others=['modal-overlay','accountability-overlay','compare-overlay','auth-overlay','kr-align-overlay','kr-spot-overlay'];
+        var any=others.some(function(id){var el=document.getElementById(id); return el&&el.style.display&&el.style.display!=='none';});
+        if(!any) document.body.style.overflow='';
+      },200);
+    };
+
+    window.ambSetScope=function(scope){ _scope=scope; renderTabs(); renderBody(); var b=document.getElementById('amb-body'); if(b) b.scrollTop=0; };
+    window.ambToggleAdjust=function(){ _adjust=!_adjust; renderBody(); };
+    window.ambToggleIssue=function(k){ if(typeof window.alignToggleIssue==='function') window.alignToggleIssue(k); _adjust=true; renderBody(); };
+    window.ambSearch=function(v){ _q=v; var r=document.getElementById('amb-pick-results'); if(r){ r.innerHTML=pickResultsHtml(); } else { renderBody(); } };
+    window.ambToggleTeam=function(pid){ if(typeof window.mypolToggle==='function') window.mypolToggle(pid); renderBody(); };
+    window.ambBreakdown=function(pid){ if(typeof window.keyRacesAlignQuickView==='function') window.keyRacesAlignQuickView(pid); };
+    window.ambDone=function(){ closeAlignBoard(); };
+
+    // Keep an open board in sync if issues change from any surface (e.g. a chip
+    // toggled elsewhere). Cheap no-op while the board is closed.
+    window._ambSync=function(){ var o=document.getElementById('amb-overlay'); if(o && o.style.display==='flex') renderBody(); };
+  })();
+  </script>
 
 </body>
 </html>
