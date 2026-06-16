@@ -4926,6 +4926,88 @@
       border-color: rgba(148,163,184,0.35);
       color: #cbd5e1;
     }
+    /* ── Unified "full field for this seat" header + role legend ──────────────
+       Used everywhere a district seat shows the current officeholder(s) AND the
+       people running for that same seat in one place (the Relevant-to-Me district
+       tree and the All Politicians district accordions). Instead of stacking a
+       separate "Currently in Office" list above a separate "2026 Candidates"
+       list, the field renders as a single grid — and this header frames it and
+       carries a tiny colour legend so it's instantly clear, at a glance, who
+       holds the seat today (green) versus who is challenging for it (blue). */
+    .pdx-field-head {
+      margin: 0.1rem 0 0.85rem;
+    }
+    .pdx-field-head-title {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      color: #f1f6ff;
+      line-height: 1.15;
+    }
+    .pdx-field-head-title .pdx-field-head-ico { font-size: 0.95rem; line-height: 1; }
+    .pdx-field-head-sub {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.01em;
+      color: #9fb4d4;
+      line-height: 1.4;
+      margin: 0.22rem 0 0;
+    }
+    .pdx-field-head-sub b { font-weight: 800; }
+    .pdx-field-legend {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.7rem;
+      margin: 0.5rem 0 0;
+    }
+    .pdx-field-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #cbd9ec;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.18rem 0.55rem 0.18rem 0.45rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .pdx-field-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .pdx-field-key-office { color: #86efac; border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.1); }
+    .pdx-field-key-office .pdx-field-dot { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.85); }
+    .pdx-field-key-cand { color: #bfdbfe; border-color: rgba(96,165,250,0.4); background: rgba(59,130,246,0.1); }
+    .pdx-field-key-cand .pdx-field-dot { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.85); }
+    .pdx-field-key-former { color: #cbd5e1; border-color: rgba(148,163,184,0.35); background: rgba(148,163,184,0.08); }
+    .pdx-field-key-former .pdx-field-dot { background: #94a3b8; }
+    /* Light divider that introduces the de-emphasised "previously held this seat"
+       trailing group, so former office-holders sit clearly apart from the live
+       race without being hidden. */
+    .pdx-field-former-divider {
+      display: flex; align-items: center; gap: 0.55rem;
+      margin: 0.35rem 0 0.7rem;
+    }
+    .pdx-field-former-divider .pdx-field-former-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.62rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #94a3b8; background: rgba(148,163,184,0.12);
+      border: 1px solid rgba(148,163,184,0.4); padding: 0.16rem 0.6rem;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .pdx-field-former-divider .pdx-field-former-rule {
+      flex: 1; height: 1px; background: linear-gradient(90deg, rgba(148,163,184,0.3), transparent);
+    }
     /* ── Shared compact-card primitives ─────────────────────────────────
        One consistent visual language for the party tag, the kept/broken/
        pending follow-through pills and the office line — reused by every
@@ -35409,6 +35491,51 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     return '<span class="pdx-status-badge pdx-status-office" style="' + base + 'background:rgba(34,197,94,0.22);border:1.5px solid rgba(34,197,94,0.75);color:#4ade80;box-shadow:0 0 10px rgba(34,197,94,0.4);font-weight:800;">✅ In Office</span>';
   };
 
+  // Unified "full field for this seat" header. Given the counts of people who
+  // currently hold the seat, who are running for it, and who held it before, it
+  // returns a single compact header that frames the one combined grid below —
+  // a title, a one-line tally, and a colour legend (green = current officeholder,
+  // blue = candidate). This is what lets a district seat show the incumbent and
+  // every challenger together, in one place, with the roles still obvious at a
+  // glance. Returns '' when there is nothing meaningful to frame (a single record
+  // with no contest), so simple one-person seats stay uncluttered.
+  //   opts.openSeat  — true when candidates are running but no incumbent holds it
+  //   opts.compact   — smaller heading (used inside dense All-Politicians districts)
+  window._pdxSeatFieldHead = function(nOffice, nCand, nFormer, opts) {
+    opts = opts || {};
+    nOffice = nOffice || 0; nCand = nCand || 0; nFormer = nFormer || 0;
+
+    // The header earns its space only when there are two roles to tell apart: a
+    // sitting officeholder AND at least one challenger, or an open-seat field of
+    // two or more candidates. A lone record, or a list that is purely sitting
+    // officeholders (e.g. both U.S. Senators), needs no "who's who" key, so we
+    // return nothing and let the cards' own status badges speak.
+    var isMix = nOffice > 0 && nCand > 0;
+    var isOpenField = opts.openSeat && nCand > 1;
+    if (!isMix && !isOpenField) return '';
+
+    var title, ico;
+    if (opts.openSeat) { ico = '🗳️'; title = 'Open Seat — The Full Field'; }
+    else { ico = '⚔️'; title = 'This Seat — Incumbent & Challengers'; }
+
+    var tally = [];
+    if (nOffice) tally.push('<b style="color:#4ade80;">' + nOffice + '</b> currently in office');
+    if (nCand) tally.push('<b style="color:#93c5fd;">' + nCand + '</b> running' + (opts.openSeat ? ' (open seat)' : ''));
+    var sub = tally.length ? '<div class="pdx-field-head-sub">' + tally.join(' · ') + ' — shown together so you can see the whole race at once.</div>' : '';
+
+    var keys = '';
+    if (nOffice) keys += '<span class="pdx-field-key pdx-field-key-office"><span class="pdx-field-dot"></span>Current officeholder' + (nOffice > 1 ? 's' : '') + '</span>';
+    if (nCand) keys += '<span class="pdx-field-key pdx-field-key-cand"><span class="pdx-field-dot"></span>Candidate' + (nCand > 1 ? 's' : '') + ' running</span>';
+    var legend = '<div class="pdx-field-legend">' + keys + '</div>';
+
+    var titleStyle = opts.compact ? ' style="font-size:0.8rem;"' : '';
+    return '<div class="pdx-field-head">' +
+        '<div class="pdx-field-head-title"' + titleStyle + '><span class="pdx-field-head-ico" aria-hidden="true">' + ico + '</span><span>' + title + '</span></div>' +
+        sub +
+        legend +
+      '</div>';
+  };
+
   // ─── Thin / early-stage record classifiers ──────────────────────────────
   // Shared signals used across cards, lists and the profile modal so a
   // politician with little tracked data reads as *intentional and honest*
@@ -42700,6 +42827,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             out += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
             out += '</button>';
             out += '<div class="browse-sub-body"><div class="p-2">';
+            // When a district holds both a sitting officeholder and people running
+            // for that same seat, frame the combined grid with the role legend so
+            // the incumbent-vs-challenger split reads clearly here too — the same
+            // "full field for this seat" treatment used in Relevant to Me.
+            var _distOffice = 0, _distCand = 0;
+            distPids.forEach(function(pid) {
+              var _st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
+              if (_st === 'candidate') _distCand++;
+              else if (_st !== 'former') _distOffice++;
+            });
+            if (_distOffice && _distCand && typeof window._pdxSeatFieldHead === 'function') {
+              out += window._pdxSeatFieldHead(_distOffice, _distCand, 0, { compact: true });
+            }
             out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
             var _leafPids = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function')
               ? distPids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
@@ -43587,6 +43727,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // Renders one district seat's WHOLE field in a single place: the current
+    // officeholder(s) and every candidate running for that same seat together in
+    // one grid, instead of splitting them into stacked "Currently in Office" /
+    // "2026 Candidates" lists a voter had to scan separately. The incumbent stays
+    // the visual hero (gold/green card + "✅ In Office" badge) and challengers
+    // read as the cooler blue tier ("🗳️ 2026 Candidate"), so who holds the seat
+    // today versus who is running for it is obvious at a glance — while the whole
+    // competitive landscape sits in front of the voter at once. Former holders of
+    // the seat, who aren't part of the live race, follow in a quiet trailing group.
     function _renderRelevantStatusSplit(pids) {
       var inOffice = [], candidates = [], former = [];
       (pids || []).forEach(function(pid) {
@@ -43596,52 +43745,63 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         else inOffice.push(pid);
       });
 
-      function subsection(label, ico, accent, list, note, kind) {
-        if (!list.length) return '';
-        var s = '';
-        s += '<div class="relevant-status-divider" style="display:flex;align-items:center;gap:0.55rem;margin:0.15rem 0 0.7rem;">';
-        s += '<span style="display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.09em;text-transform:uppercase;color:' + accent + ';background:' + accent + '1f;border:1px solid ' + accent + '66;padding:0.18rem 0.62rem;border-radius:999px;white-space:nowrap;">' + ico + ' ' + label + ' <span style="opacity:0.75;">(' + list.length + ')</span></span>';
-        s += '<span style="flex:1;height:1px;background:linear-gradient(90deg,' + accent + '50,transparent);"></span>';
-        s += '</div>';
-        if (note) s += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
+      // The live race = who holds the seat now + everyone challenging for it.
+      // An open seat has candidates but no sitting incumbent.
+      var isOpenSeat = candidates.length > 0 && inOffice.length === 0;
+      var hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
 
-        // Right where the field is shown, invite the voter to compare it on issue
-        // alignment. When their issues are set we also rank the cards best-match-first
-        // so the prompt's "best match" claim is literally true on screen.
-        s += _relevantCompareCTA(list, kind);
-        var renderList = list;
-        var hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
-        if (hasIssues && list.length > 1 && typeof _calcAlignmentBreakdown === 'function') {
-          renderList = list.slice().sort(function(a, b) {
-            var ba = _calcAlignmentBreakdown(a), bb = _calcAlignmentBreakdown(b);
-            return (bb ? bb.overall : -1) - (ba ? ba.overall : -1);
-          });
-        }
-
-        s += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
-        renderList.forEach(function(pid) { s += _renderRelevantPersonCard(pid); });
-        s += '</div>';
-        return s;
+      // Default order keeps the incumbent(s) first, then candidates (challengers
+      // read as the second tier). Once the voter has set their issues we instead
+      // rank the entire combined field best-match-first, so "ranked by your
+      // values" is literally true across incumbent and challengers alike.
+      var liveField = _sortInOfficeFirst(inOffice.concat(candidates));
+      if (hasIssues && liveField.length > 1 && typeof _calcAlignmentBreakdown === 'function') {
+        liveField = liveField.slice().sort(function(a, b) {
+          var ba = _calcAlignmentBreakdown(a), bb = _calcAlignmentBreakdown(b);
+          return (bb ? bb.overall : -1) - (ba ? ba.overall : -1);
+        });
       }
 
-      // An open seat has candidates running but no sitting incumbent. We surface
-      // the whole field with a clear "no incumbent" frame so voters compare
-      // everyone — even brand-new candidates whose profiles are still thin.
-      var isOpenSeat = candidates.length > 0 && inOffice.length === 0;
-      var candLabel = isOpenSeat ? 'Open Seat · The Field' : '2026 Candidates';
-      var candNote = '';
+      // Honest framing for the race below — open seats and contested ballots get
+      // a one-line "weigh the whole field" reminder.
+      var note = '';
       if (isOpenSeat && candidates.length > 1) {
-        candNote = 'No incumbent holds this seat — compare the full field below and back the person whose values and follow-through you trust, party label aside. Some are new candidates, so their profiles may still be thin.';
+        note = 'No incumbent holds this seat — compare the full field below and back the person whose values and follow-through you trust, party label aside. Some are new candidates, so their profiles may still be thin.';
       } else if (isOpenSeat) {
-        candNote = 'No incumbent holds this seat — weigh this candidate on values and follow-through. The profile may still be thin this early in the race.';
+        note = 'No incumbent holds this seat — weigh this candidate on values and follow-through. The profile may still be thin this early in the race.';
+      } else if (inOffice.length && candidates.length) {
+        note = 'The current officeholder and everyone challenging this seat are shown together — compare them on values and follow-through, not just party.';
       } else if (candidates.length > 1) {
-        candNote = 'More than one name is on this ballot — compare them on values and follow-through, not just party.';
+        note = 'More than one name is on this ballot — compare them on values and follow-through, not just party.';
       }
 
       var out = '';
-      out += subsection('Currently in Office', '✅', '#22c55e', inOffice, '', 'office');
-      out += subsection(candLabel, '🗳️', '#60a5fa', candidates, candNote, 'candidate');
-      out += subsection('Previously in Office', '⏳', '#94a3b8', former, '', 'former');
+      if (liveField.length) {
+        // Header + colour legend that frames the one combined grid (omitted for a
+        // lone, uncontested record, which needs no "who's who" key).
+        out += (typeof window._pdxSeatFieldHead === 'function')
+          ? window._pdxSeatFieldHead(inOffice.length, candidates.length, former.length, { openSeat: isOpenSeat })
+          : '';
+        if (note) out += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
+        // Invite a side-by-side comparison of the field on issue alignment, right
+        // where the decision is made (only renders for an actual 2+ field).
+        out += _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
+        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
+        liveField.forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+        out += '</div>';
+      }
+
+      // Former holders of this seat aren't part of the live race, so they trail
+      // behind a quiet divider rather than mixing into the field above.
+      if (former.length) {
+        out += '<div class="pdx-field-former-divider">' +
+            '<span class="pdx-field-former-pill">⏳ Previously held this seat <span style="opacity:0.75;">(' + former.length + ')</span></span>' +
+            '<span class="pdx-field-former-rule"></span>' +
+          '</div>';
+        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
+        _sortInOfficeFirst(former).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+        out += '</div>';
+      }
 
       // Safety net: if status classification produced nothing (shouldn't happen),
       // fall back to a flat in-office-first grid so cards never disappear.
