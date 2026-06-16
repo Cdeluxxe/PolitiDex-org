@@ -16247,109 +16247,192 @@
       ════════════════════════════════════════════════════════════════════ -->
       <div id="key-dates" class="pd-ec mb-6 animate-on-scroll" style="scroll-margin-top:80px;transition-delay:0.05s;">
         <style id="pd-ec-styles">
-          .pd-ec-shell{position:relative;border-radius:1.5rem;padding:1.5rem;overflow:hidden;
+          .pd-ec-shell{position:relative;border-radius:1.25rem;padding:1.1rem 1.15rem;overflow:hidden;
             background:linear-gradient(135deg,rgba(192,21,42,0.10) 0%,rgba(10,15,30,0.92) 45%,rgba(26,58,107,0.20) 100%);
             border:2px solid rgba(255,255,255,0.10);box-shadow:0 12px 50px rgba(0,0,0,0.4),0 0 40px rgba(192,21,42,0.08);}
           .pd-ec-shell::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
             background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);opacity:0.6;}
-          .pd-ec-head{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.25rem;}
-          .pd-ec-head-ico{width:3.25rem;height:3.25rem;flex:none;border-radius:1rem;display:flex;align-items:center;justify-content:center;
-            font-size:1.55rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 100%);box-shadow:0 0 28px rgba(192,21,42,0.4);
+          /* Compact header row */
+          .pd-ec-head{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.85rem;}
+          .pd-ec-head-ico{width:2.5rem;height:2.5rem;flex:none;border-radius:0.8rem;display:flex;align-items:center;justify-content:center;
+            font-size:1.2rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 100%);box-shadow:0 0 22px rgba(192,21,42,0.35);
             border:2px solid rgba(255,255,255,0.15);}
-          .pd-ec-kicker{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.18em;
-            text-transform:uppercase;color:#fad96a;}
-          .pd-ec-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:0.04em;color:#fff;margin:0.1rem 0 0.15rem;
+          .pd-ec-head-text{flex:1 1 auto;min-width:0;}
+          .pd-ec-kicker{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.16em;
+            text-transform:uppercase;color:#fad96a;line-height:1.1;}
+          .pd-ec-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;line-height:1;letter-spacing:0.04em;color:#fff;margin:0.05rem 0 0;
             text-shadow:0 0 30px rgba(239,68,68,0.3);}
-          .pd-ec-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;letter-spacing:0.01em;color:#9fb4d4;margin:0;line-height:1.3;}
+          .pd-ec-collapse{flex:none;width:2rem;height:2rem;border-radius:0.6rem;display:flex;align-items:center;justify-content:center;
+            background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#9fb4d4;cursor:pointer;
+            transition:all 0.2s ease;padding:0;}
+          .pd-ec-collapse:hover{color:#fff;background:rgba(96,165,250,0.18);border-color:rgba(96,165,250,0.4);}
+          .pd-ec-chev{display:block;font-size:0.7rem;line-height:1;transition:transform 0.2s ease;transform:rotate(180deg);}
+          .pd-ec-collapse.is-collapsed .pd-ec-chev{transform:rotate(0deg);}
+          .pd-ec-body[hidden],.pd-ec-collapsed[hidden],.pd-ec-modal[hidden]{display:none;}
 
-          /* Featured (soonest) date — live ticker */
-          .pd-ec-hero-card{border-radius:1.25rem;padding:1.25rem 1.35rem;border:1.5px solid rgba(255,255,255,0.12);
-            background:linear-gradient(135deg,rgba(13,21,38,0.9),rgba(17,29,54,0.86));margin-bottom:1rem;}
+          /* Featured (soonest) date — live ticker, now compact + clickable */
+          .pd-ec-hero-card{border-radius:1rem;padding:0.9rem 1rem;border:1.5px solid rgba(255,255,255,0.12);
+            background:linear-gradient(135deg,rgba(13,21,38,0.9),rgba(17,29,54,0.86));margin-bottom:0.7rem;cursor:pointer;
+            transition:border-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;}
+          .pd-ec-hero-card:hover{transform:translateY(-1px);}
           .pd-ec-hero-el{border-color:rgba(245,200,66,0.45);box-shadow:0 0 30px rgba(245,200,66,0.10);
             background:linear-gradient(135deg,rgba(245,200,66,0.10),rgba(192,21,42,0.08));}
+          .pd-ec-hero-el:hover{box-shadow:0 6px 26px rgba(245,200,66,0.20);}
           .pd-ec-hero-dl{border-color:rgba(239,68,68,0.45);box-shadow:0 0 30px rgba(239,68,68,0.10);
             background:linear-gradient(135deg,rgba(192,21,42,0.12),rgba(13,21,38,0.9));}
-          .pd-ec-hero-top{display:flex;align-items:center;gap:0.85rem;margin-bottom:1rem;}
-          .pd-ec-hero-ico{font-size:2.1rem;line-height:1;flex:none;}
+          .pd-ec-hero-dl:hover{box-shadow:0 6px 26px rgba(239,68,68,0.20);}
+          .pd-ec-hero-top{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.7rem;}
+          .pd-ec-hero-ico{font-size:1.7rem;line-height:1;flex:none;}
           .pd-ec-hero-meta{display:flex;flex-direction:column;min-width:0;}
-          .pd-ec-hero-tag{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.15em;
+          .pd-ec-hero-tag{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;
             text-transform:uppercase;color:#fad96a;}
           .pd-ec-hero-dl .pd-ec-hero-tag{color:#ff8a9a;}
-          .pd-ec-hero-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
-          .pd-ec-hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:#aebfd8;line-height:1.25;}
-          .pd-ec-clock{display:flex;align-items:stretch;gap:0.5rem;flex-wrap:wrap;}
-          .pd-ec-unit{flex:1 1 0;min-width:3.6rem;text-align:center;border-radius:0.85rem;padding:0.6rem 0.4rem;
+          .pd-ec-hero-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
+          .pd-ec-hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:#aebfd8;line-height:1.2;
+            display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+          .pd-ec-clock{display:flex;align-items:stretch;gap:0.4rem;flex-wrap:nowrap;}
+          .pd-ec-unit{flex:1 1 0;min-width:0;text-align:center;border-radius:0.6rem;padding:0.45rem 0.25rem;
             background:rgba(5,8,20,0.55);border:1px solid rgba(255,255,255,0.08);}
-          .pd-ec-unit-n{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;line-height:1;color:#fff;letter-spacing:0.02em;
+          .pd-ec-unit-n{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;line-height:1;color:#fff;letter-spacing:0.02em;
             font-variant-numeric:tabular-nums;}
           .pd-ec-hero-el .pd-ec-unit-n{color:#fad96a;}
-          .pd-ec-unit-l{font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.14em;
-            text-transform:uppercase;color:#7e93b4;margin-top:0.25rem;}
-          .pd-ec-hero-foot{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
-            margin-top:0.95rem;padding-top:0.85rem;border-top:1px solid rgba(255,255,255,0.08);}
-          .pd-ec-hero-date{font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;font-weight:600;color:#cdd9ec;letter-spacing:0.02em;}
-          .pd-ec-hero-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;
-            text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-radius:0.7rem;
-            padding:0.5rem 0.95rem;text-decoration:none;transition:transform 0.15s ease,box-shadow 0.15s ease;white-space:nowrap;}
+          .pd-ec-unit-l{font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.12em;
+            text-transform:uppercase;color:#7e93b4;margin-top:0.2rem;}
+          .pd-ec-hero-foot{display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;
+            margin-top:0.65rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}
+          .pd-ec-hero-date{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:600;color:#cdd9ec;letter-spacing:0.02em;}
+          .pd-ec-hero-actions{display:flex;align-items:center;gap:0.6rem;}
+          .pd-ec-hero-more{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;
+            text-transform:uppercase;color:#9fb4d4;white-space:nowrap;}
+          .pd-ec-hero-card:hover .pd-ec-hero-more{color:#fff;}
+          .pd-ec-hero-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;font-weight:700;letter-spacing:0.05em;
+            text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-radius:0.6rem;
+            padding:0.4rem 0.8rem;text-decoration:none;transition:transform 0.15s ease,box-shadow 0.15s ease;white-space:nowrap;}
           .pd-ec-hero-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,200,66,0.35);}
 
-          /* Secondary dates grid */
-          .pd-ec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;}
-          .pd-ec-card{border-radius:1rem;padding:0.95rem 1rem;border:1px solid rgba(255,255,255,0.1);
-            background:rgba(10,15,30,0.55);display:flex;flex-direction:column;gap:0.3rem;transition:border-color 0.2s ease,transform 0.2s ease;}
-          .pd-ec-card:hover{border-color:rgba(96,165,250,0.4);transform:translateY(-2px);}
-          .pd-ec-card-el{border-left:3px solid #fad96a;}
-          .pd-ec-card-dl{border-left:3px solid #ef4444;}
-          .pd-ec-card-top{display:flex;align-items:center;gap:0.45rem;}
-          .pd-ec-card-ico{font-size:1.05rem;line-height:1;}
-          .pd-ec-card-title{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:700;color:#e6eefb;line-height:1.1;}
-          .pd-ec-card-days{display:flex;align-items:baseline;gap:0.35rem;margin-top:0.15rem;}
-          .pd-ec-card-n{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums;}
-          .pd-ec-card-u{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.12em;
-            text-transform:uppercase;color:#7e93b4;}
-          .pd-ec-card-date{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#8499b6;letter-spacing:0.02em;}
+          /* Secondary dates — compact clickable pills (3-up, collapse to rows on mobile) */
+          .pd-ec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;}
+          .pd-ec-pill{display:flex;align-items:center;gap:0.55rem;border-radius:0.7rem;padding:0.5rem 0.6rem;text-align:left;
+            border:1px solid rgba(255,255,255,0.1);border-left-width:3px;background:rgba(10,15,30,0.55);cursor:pointer;width:100%;
+            font-family:inherit;transition:border-color 0.2s ease,transform 0.2s ease;}
+          .pd-ec-pill:hover{border-color:rgba(96,165,250,0.4);transform:translateY(-1px);}
+          .pd-ec-pill-el{border-left-color:#fad96a;}
+          .pd-ec-pill-dl{border-left-color:#ef4444;}
+          .pd-ec-pill-win{border-left-color:#34d399;}
+          .pd-ec-pill-ico{font-size:1rem;line-height:1;flex:none;}
+          .pd-ec-pill-meta{display:flex;flex-direction:column;min-width:0;flex:1 1 auto;}
+          .pd-ec-pill-title{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;font-weight:700;color:#e6eefb;line-height:1.1;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+          .pd-ec-pill-date{font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;color:#8499b6;letter-spacing:0.01em;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+          .pd-ec-pill-days{display:flex;flex-direction:column;align-items:flex-end;flex:none;line-height:1;}
+          .pd-ec-pill-n{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#fff;font-variant-numeric:tabular-nums;line-height:1;}
+          .pd-ec-pill-u{font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;font-weight:700;letter-spacing:0.1em;
+            text-transform:uppercase;color:#7e93b4;margin-top:0.1rem;}
+          .pd-ec-pill-prompt{border-style:dashed;border-left-color:#60a5fa;grid-column:1/-1;}
+          .pd-ec-pill-prompt .pd-ec-pill-date{white-space:normal;}
 
-          /* Completed strip */
-          .pd-ec-past{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:1rem;}
-          .pd-ec-past-chip{display:inline-flex;align-items:center;gap:0.35rem;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;
-            font-weight:600;letter-spacing:0.02em;color:#74849c;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
-            border-radius:999px;padding:0.3rem 0.7rem;}
-          .pd-ec-past-chip .pd-ec-check{color:#34d399;}
-          .pd-ec-alldone{font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;color:#aebfd8;text-align:center;padding:1rem;}
-          .pd-ec-foot{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#6b82a8;letter-spacing:0.02em;margin:1rem 0 0;text-align:center;}
+          /* Action row (view-all + collapse) */
+          .pd-ec-actions{display:flex;gap:0.5rem;margin-top:0.7rem;}
+          .pd-ec-allbtn{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;min-height:40px;
+            font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+            color:#cdd9ec;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:0.7rem;
+            padding:0.5rem 0.8rem;cursor:pointer;transition:all 0.2s ease;}
+          .pd-ec-allbtn:hover{border-color:rgba(96,165,250,0.4);color:#fff;background:rgba(96,165,250,0.08);}
+
+          /* Collapsed summary line */
+          .pd-ec-collapsed{display:flex;align-items:center;gap:0.6rem;cursor:pointer;border-radius:0.8rem;padding:0.55rem 0.7rem;
+            border:1px solid rgba(255,255,255,0.08);background:rgba(10,15,30,0.45);transition:border-color 0.2s ease;}
+          .pd-ec-collapsed:hover{border-color:rgba(96,165,250,0.4);}
+          .pd-ec-col-ico{font-size:1.1rem;line-height:1;flex:none;}
+          .pd-ec-col-txt{flex:1 1 auto;min-width:0;font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;color:#cdd9ec;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+          .pd-ec-col-txt b{color:#fff;font-weight:700;}
+          .pd-ec-col-meta{color:#9fb4d4;}
+          .pd-ec-col-exp{flex:none;font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;
+            text-transform:uppercase;color:#60a5fa;white-space:nowrap;}
+
+          .pd-ec-alldone{font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;color:#aebfd8;text-align:center;padding:0.8rem;}
+          .pd-ec-foot{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;color:#6b82a8;letter-spacing:0.02em;margin:0.7rem 0 0;text-align:center;}
           .pd-ec-foot a{color:#60a5fa;text-decoration:none;}
           .pd-ec-foot a:hover{text-decoration:underline;}
 
-          /* "Open now" banner for active windows (e.g. early voting in progress) */
-          .pd-ec-active{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1rem;}
+          /* "Open now" banner for active windows (e.g. early voting in progress) — compact */
+          .pd-ec-active{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.7rem;}
           .pd-ec-active:empty{display:none;margin:0;}
-          .pd-ec-now-card{display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;border-radius:1.1rem;padding:0.9rem 1.1rem;
+          .pd-ec-now-card{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;border-radius:0.9rem;padding:0.7rem 0.9rem;
             border:1.5px solid rgba(52,211,153,0.45);background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(13,21,38,0.9));
             box-shadow:0 0 26px rgba(16,185,129,0.12);}
-          .pd-ec-now-ico{font-size:1.8rem;line-height:1;flex:none;}
-          .pd-ec-now-meta{display:flex;flex-direction:column;min-width:0;flex:1 1 12rem;}
-          .pd-ec-now-tag{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;
-            font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#34d399;}
-          .pd-ec-now-dot{width:0.5rem;height:0.5rem;border-radius:999px;background:#34d399;box-shadow:0 0 10px #34d399;
+          .pd-ec-now-ico{font-size:1.5rem;line-height:1;flex:none;}
+          .pd-ec-now-meta{display:flex;flex-direction:column;min-width:0;flex:1 1 11rem;}
+          .pd-ec-now-tag{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;
+            font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#34d399;}
+          .pd-ec-now-dot{width:0.45rem;height:0.45rem;border-radius:999px;background:#34d399;box-shadow:0 0 10px #34d399;
             animation:pdEcPulse 1.6s ease-in-out infinite;}
           @keyframes pdEcPulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
-          .pd-ec-now-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
-          .pd-ec-now-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;color:#bfe9d6;line-height:1.25;}
-          .pd-ec-now-close{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.02em;
+          .pd-ec-now-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;line-height:1.05;letter-spacing:0.03em;color:#fff;}
+          .pd-ec-now-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;color:#bfe9d6;line-height:1.2;
+            display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+          .pd-ec-now-close{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;font-weight:600;letter-spacing:0.02em;
             color:#bfe9d6;white-space:nowrap;}
-          .pd-ec-now-close b{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
-          .pd-ec-now-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
-            color:#04130d;background:linear-gradient(135deg,#34d399,#10b981);border-radius:0.7rem;padding:0.5rem 0.95rem;text-decoration:none;
+          .pd-ec-now-close b{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:0.02em;}
+          .pd-ec-now-cta{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+            color:#04130d;background:linear-gradient(135deg,#34d399,#10b981);border-radius:0.6rem;padding:0.4rem 0.8rem;text-decoration:none;
             white-space:nowrap;transition:transform 0.15s ease,box-shadow 0.15s ease;}
           .pd-ec-now-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(16,185,129,0.35);}
-          .pd-ec-card-win{border-left:3px solid #34d399;}
 
+          /* ── Key Dates modal (deep detail) ───────────────────────────────── */
+          .pd-ec-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;
+            background:rgba(4,8,18,0.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:loc-modal-fade 0.2s ease;}
+          .pd-ec-modal-box{position:relative;width:100%;max-width:32rem;max-height:88vh;display:flex;flex-direction:column;
+            background:linear-gradient(135deg,rgba(13,21,38,0.99) 0%,rgba(17,29,54,0.98) 100%);
+            border:2px solid rgba(245,200,66,0.25);border-top-left-radius:1.25rem;border-top-right-radius:1.25rem;
+            box-shadow:0 -10px 60px rgba(0,0,0,0.6),0 0 40px rgba(192,21,42,0.12);animation:loc-modal-rise 0.25s ease;}
+          .pd-ec-modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:1.25rem 1.25rem 0 0;
+            background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.85;}
+          .pd-ec-modal-head{display:flex;align-items:center;gap:0.7rem;padding:1.1rem 1.2rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.08);}
+          .pd-ec-modal-ico{font-size:1.3rem;width:2.5rem;height:2.5rem;flex:none;display:flex;align-items:center;justify-content:center;
+            border-radius:0.8rem;background:linear-gradient(135deg,#c0152a 0%,#1a3a6b 100%);border:2px solid rgba(255,255,255,0.18);}
+          .pd-ec-modal-titles{flex:1 1 auto;min-width:0;}
+          .pd-ec-modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1;letter-spacing:0.04em;color:#fff;}
+          .pd-ec-modal-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;color:#7596c0;margin-top:0.2rem;line-height:1.25;}
+          .pd-ec-modal-close{flex:none;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+            line-height:1;color:#7596c0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.6rem;
+            cursor:pointer;transition:all 0.2s ease;}
+          .pd-ec-modal-close:hover{color:#fff;background:rgba(192,21,42,0.25);border-color:rgba(192,21,42,0.5);}
+          .pd-ec-modal-scroll{overflow-y:auto;padding:0.5rem 1.2rem 0.4rem;}
+          .pd-ec-m-group{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.16em;
+            text-transform:uppercase;color:#fad96a;margin:0.9rem 0 0.2rem;}
+          .pd-ec-m-item{display:flex;gap:0.7rem;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.07);}
+          .pd-ec-m-item.is-past{opacity:0.55;}
+          .pd-ec-m-ico{font-size:1.15rem;line-height:1;flex:none;width:1.6rem;text-align:center;}
+          .pd-ec-m-body{flex:1 1 auto;min-width:0;}
+          .pd-ec-m-title{font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;line-height:1.15;}
+          .pd-ec-m-when{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:600;color:#cdd9ec;margin-top:0.1rem;
+            border-left:3px solid var(--mc,#60a5fa);padding-left:0.5rem;}
+          .pd-ec-m-sub{font-family:'Barlow',sans-serif;font-size:0.76rem;color:#8499b6;line-height:1.4;margin-top:0.3rem;}
+          .pd-ec-m-link{display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.45rem;font-family:'Barlow Condensed',sans-serif;
+            font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#0a0f1e;
+            background:linear-gradient(135deg,#fad96a,#e6b800);border-radius:0.55rem;padding:0.35rem 0.7rem;text-decoration:none;}
+          .pd-ec-m-link:hover{box-shadow:0 4px 14px rgba(245,200,66,0.3);}
+          .pd-ec-m-badge{flex:none;align-self:flex-start;font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;font-weight:700;
+            letter-spacing:0.06em;text-transform:uppercase;color:#cdd9ec;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+            border-radius:999px;padding:0.2rem 0.55rem;white-space:nowrap;}
+          .pd-ec-m-badge.done{color:#86efac;border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.1);}
+          .pd-ec-m-badge.open{color:#86efac;border-color:rgba(52,211,153,0.5);background:rgba(52,211,153,0.14);}
+          .pd-ec-modal-foot{padding:0.7rem 1.2rem 1rem;border-top:1px solid rgba(255,255,255,0.08);font-family:'Barlow Condensed',sans-serif;
+            font-size:0.74rem;color:#7596c0;text-align:center;}
+          .pd-ec-modal-foot a{color:#60a5fa;text-decoration:none;}
+          .pd-ec-modal-foot a:hover{text-decoration:underline;}
+
+          @media (min-width:640px){
+            .pd-ec-modal{align-items:center;padding:1.5rem;}
+            .pd-ec-modal-box{border-radius:1.25rem;}
+          }
           @media (max-width:720px){
             .pd-ec-grid{grid-template-columns:1fr;}
-            .pd-ec-title{font-size:1.7rem;}
-            .pd-ec-unit-n{font-size:1.8rem;}
-            .pd-ec-hero-foot{flex-direction:column;align-items:flex-start;}
-            .pd-ec-hero-cta{width:100%;text-align:center;}
+            .pd-ec-hero-foot{flex-direction:column;align-items:stretch;}
+            .pd-ec-hero-actions{justify-content:space-between;}
             .pd-ec-now-card{align-items:flex-start;}
             .pd-ec-now-cta{width:100%;text-align:center;}
           }
@@ -16357,17 +16440,47 @@
         <div class="pd-ec-shell">
           <div class="pd-ec-head">
             <div class="pd-ec-head-ico">🗳️</div>
-            <div>
+            <div class="pd-ec-head-text">
               <div class="pd-ec-kicker" id="pd-ec-kicker">Mark your calendar · 2026</div>
               <h2 class="pd-ec-title">ELECTION COUNTDOWN</h2>
-              <p class="pd-ec-sub" id="pd-ec-sub">The key voting dates and deadlines that decide whether your vote counts — counting down live.</p>
             </div>
+            <button type="button" class="pd-ec-collapse" id="pd-ec-collapse" aria-expanded="true"
+                    aria-controls="pd-ec-body" aria-label="Collapse election countdown" title="Collapse"
+                    onclick="window._pdEcToggle()"><span class="pd-ec-chev">▾</span></button>
           </div>
-          <div id="pd-ec-active" class="pd-ec-active"></div>
-          <div id="pd-ec-hero" class="pd-ec-hero"></div>
-          <div id="pd-ec-grid" class="pd-ec-grid"></div>
-          <div id="pd-ec-past" class="pd-ec-past"></div>
-          <p class="pd-ec-foot" id="pd-ec-foot">Always confirm the dates that apply to you at <a href="https://www.vote.org/" target="_blank" rel="noopener">vote.org</a>.</p>
+          <!-- Collapsed one-line summary (shown only when collapsed) -->
+          <div class="pd-ec-collapsed" id="pd-ec-collapsed" role="button" tabindex="0" hidden
+               aria-label="Expand election countdown" onclick="window._pdEcToggle()"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window._pdEcToggle();}"></div>
+          <!-- Expandable body -->
+          <div class="pd-ec-body" id="pd-ec-body">
+            <div id="pd-ec-active" class="pd-ec-active"></div>
+            <div id="pd-ec-hero" class="pd-ec-hero"></div>
+            <div id="pd-ec-grid" class="pd-ec-grid"></div>
+            <div class="pd-ec-actions">
+              <button type="button" class="pd-ec-allbtn" id="pd-ec-all" onclick="window._pdEcModal('open')">
+                📅 Show all key dates
+              </button>
+            </div>
+            <p class="pd-ec-foot" id="pd-ec-foot">Always confirm the dates that apply to you at <a href="https://www.vote.org/" target="_blank" rel="noopener">vote.org</a>.</p>
+          </div>
+        </div>
+
+        <!-- Deep-detail modal: full list of every deadline, window & election -->
+        <div class="pd-ec-modal" id="pd-ec-modal" hidden role="dialog" aria-modal="true" aria-labelledby="pd-ec-modal-title"
+             onclick="if(event.target===this)window._pdEcModal('close')">
+          <div class="pd-ec-modal-box">
+            <div class="pd-ec-modal-head">
+              <div class="pd-ec-modal-ico">🗳️</div>
+              <div class="pd-ec-modal-titles">
+                <div class="pd-ec-modal-title" id="pd-ec-modal-title">All Key Dates</div>
+                <div class="pd-ec-modal-sub" id="pd-ec-modal-sub">Every 2026 deadline, voting window &amp; election — with the official links to act on each.</div>
+              </div>
+              <button type="button" class="pd-ec-modal-close" aria-label="Close" onclick="window._pdEcModal('close')">&times;</button>
+            </div>
+            <div class="pd-ec-modal-scroll" id="pd-ec-modal-content"></div>
+            <div class="pd-ec-modal-foot" id="pd-ec-modal-foot"></div>
+          </div>
         </div>
       </div>
       <script>
@@ -16455,11 +16568,16 @@
         var activeHost = document.getElementById('pd-ec-active');
         var heroHost = document.getElementById('pd-ec-hero');
         var gridHost = document.getElementById('pd-ec-grid');
-        var pastHost = document.getElementById('pd-ec-past');
         var kickerEl = document.getElementById('pd-ec-kicker');
-        var subEl = document.getElementById('pd-ec-sub');
         var footEl = document.getElementById('pd-ec-foot');
-        if(!heroHost || !gridHost || !pastHost || !activeHost) return;
+        var bodyEl = document.getElementById('pd-ec-body');
+        var collapsedEl = document.getElementById('pd-ec-collapsed');
+        var collapseBtn = document.getElementById('pd-ec-collapse');
+        var modalEl = document.getElementById('pd-ec-modal');
+        var modalContentEl = document.getElementById('pd-ec-modal-content');
+        var modalFootEl = document.getElementById('pd-ec-modal-foot');
+        var modalSubEl = document.getElementById('pd-ec-modal-sub');
+        if(!heroHost || !gridHost || !activeHost) return;
 
         var start  = function(e){ return new Date(e.date).getTime(); };
         var finish = function(e){ return new Date(e.end || e.date).getTime(); };
@@ -16477,6 +16595,7 @@
         var dhms = function(ms){
           var s = Math.max(0, Math.floor(ms / 1000));
           return { d:Math.floor(s/86400), h:Math.floor((s%86400)/3600), m:Math.floor((s%3600)/60), s:s%60 }; };
+        var dayWord = function(n){ return n + ' day' + (n === 1 ? '' : 's'); };
 
         var lastSig = null;
 
@@ -16494,31 +16613,34 @@
             + '<span class="pd-ec-now-close">Closes in <b id="pd-ec-close-'+e.id+'">--</b></span>'
             + cta + '</div>';
         }
+        // Featured countdown — the whole card opens the all-dates modal; the CTA
+        // link still works independently (its click is stopped from bubbling).
         function heroHTML(e){
           var cls = (e.kind === 'deadline') ? 'pd-ec-hero-dl' : 'pd-ec-hero-el';
           var tag = (e.kind === 'election' || e.kind === 'federal') ? 'Next Election' : (e.kind === 'window' ? 'Early Voting Opens' : 'Next Deadline');
-          var cta = e.cta ? '<a class="pd-ec-hero-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
-          return '<div class="pd-ec-hero-card '+cls+'">'
+          var cta = e.cta ? '<a class="pd-ec-hero-cta" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+esc(e.cta.label)+' →</a>' : '';
+          return '<div class="pd-ec-hero-card '+cls+'" role="button" tabindex="0" aria-label="'+esc(e.title)+' — view all key dates"'
+            + ' onclick="window._pdEcModal(\'open\')"'
+            + ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdEcModal(\'open\');}">'
             + '<div class="pd-ec-hero-top"><span class="pd-ec-hero-ico">'+e.icon+'</span>'
             + '<div class="pd-ec-hero-meta"><span class="pd-ec-hero-tag">'+tag+'</span>'
             + '<span class="pd-ec-hero-title">'+esc(e.title)+'</span>'
             + '<span class="pd-ec-hero-sub">'+esc(e.sub)+'</span></div></div>'
             + '<div class="pd-ec-clock">'+unit('pd-ec-d','Days')+unit('pd-ec-h','Hours')+unit('pd-ec-m','Min')+unit('pd-ec-s','Sec')+'</div>'
-            + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>'+cta+'</div></div>';
+            + '<div class="pd-ec-hero-foot"><span class="pd-ec-hero-date">📅 '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>'
+            + '<span class="pd-ec-hero-actions">'+cta+'<span class="pd-ec-hero-more">Details →</span></span></div></div>';
         }
-        function cardHTML(e){
-          var cls = (e.kind === 'election' || e.kind === 'federal') ? 'pd-ec-card-el' : (e.kind === 'window' ? 'pd-ec-card-win' : 'pd-ec-card-dl');
-          var label = e.kind === 'window' ? 'days to early voting' : 'days away';
-          var when = e.end ? fmtRange(e) : fmtDate(start(e));
-          return '<div class="pd-ec-card '+cls+'">'
-            + '<div class="pd-ec-card-top"><span class="pd-ec-card-ico">'+e.icon+'</span>'
-            + '<span class="pd-ec-card-title">'+esc(e.title)+'</span></div>'
-            + '<div class="pd-ec-card-days"><span class="pd-ec-card-n" id="pd-ec-days-'+e.id+'">--</span>'
-            + '<span class="pd-ec-card-u">'+label+'</span></div>'
-            + '<div class="pd-ec-card-date">'+when+'</div></div>';
-        }
-        function pastHTML(e){
-          return '<span class="pd-ec-past-chip"><span class="pd-ec-check">✓</span>'+esc(e.title)+' · '+(e.end ? fmtRange(e) : fmtDate(start(e)))+'</span>';
+        // Secondary dates as tight, tappable pills (each opens the modal).
+        function pillHTML(e){
+          var cls = (e.kind === 'election' || e.kind === 'federal') ? 'pd-ec-pill-el' : (e.kind === 'window' ? 'pd-ec-pill-win' : 'pd-ec-pill-dl');
+          var unitLbl = e.kind === 'window' ? 'to early' : 'days';
+          var when = e.end ? fmtRange(e) : new Date(start(e)).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+          return '<button type="button" class="pd-ec-pill '+cls+'" onclick="window._pdEcModal(\'open\')" aria-label="'+esc(e.title)+' — view details">'
+            + '<span class="pd-ec-pill-ico">'+e.icon+'</span>'
+            + '<span class="pd-ec-pill-meta"><span class="pd-ec-pill-title">'+esc(e.title)+'</span>'
+            + '<span class="pd-ec-pill-date">'+when+'</span></span>'
+            + '<span class="pd-ec-pill-days"><span class="pd-ec-pill-n" id="pd-ec-days-'+e.id+'">--</span>'
+            + '<span class="pd-ec-pill-u">'+unitLbl+'</span></span></button>';
         }
 
         // A dashed prompt appended to the grid when the user can unlock more
@@ -16535,12 +16657,57 @@
           } else {
             return '';
           }
-          return '<div class="pd-ec-card pd-ec-card-dl" style="border-style:dashed;border-left-color:#60a5fa;">'
-            + '<div class="pd-ec-card-top"><span class="pd-ec-card-ico">📍</span>'
-            + '<span class="pd-ec-card-title">' + title + '</span></div>'
-            + '<div class="pd-ec-card-date" style="margin-top:0.2rem;">' + sub + '</div>'
-            + '<button type="button" onclick="window.toggleChangeLocation()" class="pd-ec-hero-cta" style="margin-top:0.6rem;border:none;cursor:pointer;font-family:inherit;">Choose location →</button>'
-            + '</div>';
+          return '<button type="button" onclick="window.toggleChangeLocation()" class="pd-ec-pill pd-ec-pill-prompt">'
+            + '<span class="pd-ec-pill-ico">📍</span>'
+            + '<span class="pd-ec-pill-meta"><span class="pd-ec-pill-title">' + title + '</span>'
+            + '<span class="pd-ec-pill-date">' + sub + '</span></span>'
+            + '<span class="pd-ec-pill-days"><span class="pd-ec-pill-n">→</span></span></button>';
+        }
+
+        // ── Modal: the full, deep-detail list of every date ──────────────────
+        function modalItemHTML(e, status){
+          var when = e.end ? fmtRange(e) : fmtDate(start(e));
+          var color = e.kind === 'deadline' ? '#ef4444' : (e.kind === 'window' ? '#34d399' : '#fad96a');
+          var badge;
+          if(status === 'past') badge = '<span class="pd-ec-m-badge done">✓ Done</span>';
+          else if(status === 'open') badge = '<span class="pd-ec-m-badge open">● Open now</span>';
+          else badge = '<span class="pd-ec-m-badge" id="pd-ec-mdays-'+e.id+'">--</span>';
+          var link = e.cta ? '<a class="pd-ec-m-link" href="'+esc(e.cta.href)+'" target="_blank" rel="noopener">'+esc(e.cta.label)+' →</a>' : '';
+          return '<div class="pd-ec-m-item'+(status === 'past' ? ' is-past' : '')+'" style="--mc:'+color+'">'
+            + '<span class="pd-ec-m-ico">'+e.icon+'</span>'
+            + '<div class="pd-ec-m-body"><div class="pd-ec-m-title">'+esc(e.title)+'</div>'
+            + '<div class="pd-ec-m-when">'+when+'</div>'
+            + '<div class="pd-ec-m-sub">'+esc(e.sub)+'</div>'+link+'</div>'
+            + badge + '</div>';
+        }
+        function buildModal(active, upcoming, past){
+          if(!modalContentEl) return;
+          var html = '';
+          if(active.length)   html += '<div class="pd-ec-m-group">Open now</div>'   + active.map(function(e){ return modalItemHTML(e,'open'); }).join('');
+          if(upcoming.length) html += '<div class="pd-ec-m-group">Coming up</div>'  + upcoming.map(function(e){ return modalItemHTML(e,'upcoming'); }).join('');
+          if(past.length)     html += '<div class="pd-ec-m-group">Completed</div>'  + past.map(function(e){ return modalItemHTML(e,'past'); }).join('');
+          modalContentEl.innerHTML = html || '<p class="pd-ec-alldone">No upcoming dates to show.</p>';
+          if(modalSubEl){
+            var st = currentState();
+            modalSubEl.textContent = hasStateData(st)
+              ? 'Every ' + st + ' 2026 deadline, voting window & election — with the official links to act on each.'
+              : 'Every 2026 federal deadline & election — set your state for local primary, registration & early-voting dates.';
+          }
+          if(modalFootEl){
+            var link = DATA.links[currentState()] || DEFAULT_LINK;
+            modalFootEl.innerHTML = 'Official source — confirm details at <a href="'+esc(link.url)+'" target="_blank" rel="noopener">'+esc(link.label)+'</a>.';
+          }
+        }
+
+        // ── Collapsed one-line summary ───────────────────────────────────────
+        function buildCollapsed(active, upcoming){
+          if(!collapsedEl) return;
+          var next = upcoming[0] || active[0];
+          var icon = next ? '⏱️' : '🗳️';
+          var title = next ? esc(next.title) : '2026 Election Dates';
+          collapsedEl.innerHTML = '<span class="pd-ec-col-ico">'+icon+'</span>'
+            + '<span class="pd-ec-col-txt"><b>'+title+'</b><span class="pd-ec-col-meta" id="pd-ec-col-meta"></span></span>'
+            + '<span class="pd-ec-col-exp">Tap to expand ▾</span>';
         }
 
         function render(active, upcoming, past){
@@ -16548,12 +16715,14 @@
           var extra = promptHTML();
           if(upcoming.length){
             heroHost.innerHTML = heroHTML(upcoming[0]);
-            gridHost.innerHTML = upcoming.slice(1).map(cardHTML).join('') + extra;
+            gridHost.innerHTML = upcoming.slice(1).map(pillHTML).join('') + extra;
           } else {
             heroHost.innerHTML = active.length ? '' : '<div class="pd-ec-alldone">🎉 All listed 2026 election dates have passed — check your state election office for the next cycle.</div>';
             gridHost.innerHTML = extra;
           }
-          pastHost.innerHTML = past.map(pastHTML).join('');
+          buildModal(active, upcoming, past);
+          buildCollapsed(active, upcoming);
+          applyAuto(past);
         }
 
         // Header kicker + footnote reflect the selected location.
@@ -16574,6 +16743,48 @@
             }
           }
         }
+
+        // ── Collapse / expand (persists user choice; auto-collapses once the
+        //    primary has passed unless the user has set their own preference) ──
+        var collapsed = false;
+        var storedCollapse = null;
+        try{ storedCollapse = localStorage.getItem('pdEcCollapsed'); }catch(err){}
+        var autoApplied = false;
+
+        function setCollapsed(c, persist){
+          collapsed = c;
+          if(persist){ try{ localStorage.setItem('pdEcCollapsed', c ? '1' : '0'); }catch(err){} storedCollapse = c ? '1' : '0'; }
+          if(bodyEl) bodyEl.hidden = c;
+          if(collapsedEl) collapsedEl.hidden = !c;
+          if(collapseBtn){
+            collapseBtn.setAttribute('aria-expanded', String(!c));
+            collapseBtn.setAttribute('aria-label', c ? 'Expand election countdown' : 'Collapse election countdown');
+            collapseBtn.setAttribute('title', c ? 'Expand' : 'Collapse');
+            collapseBtn.classList.toggle('is-collapsed', c);
+          }
+        }
+        function applyAuto(past){
+          if(autoApplied) return;
+          autoApplied = true;
+          if(storedCollapse === '1') return setCollapsed(true, false);
+          if(storedCollapse === '0') return setCollapsed(false, false);
+          // No saved preference: collapse by default once the primary is over.
+          var primaryDone = past.some(function(e){ return e.id === 'primary'; });
+          setCollapsed(primaryDone, false);
+        }
+        window._pdEcToggle = function(){ setCollapsed(!collapsed, true); };
+
+        // ── Modal open / close ───────────────────────────────────────────────
+        window._pdEcModal = function(action){
+          if(!modalEl) return;
+          if(action === 'close'){ modalEl.hidden = true; document.body.style.overflow = ''; return; }
+          modalEl.hidden = false; document.body.style.overflow = 'hidden';
+          var closeBtn = modalEl.querySelector('.pd-ec-modal-close');
+          if(closeBtn) closeBtn.focus();
+        };
+        document.addEventListener('keydown', function(e){
+          if(e.key === 'Escape' && modalEl && !modalEl.hidden) window._pdEcModal('close');
+        });
 
         function tick(){
           var now = Date.now();
@@ -16598,10 +16809,25 @@
             var ce = document.getElementById('pd-ec-close-' + active[a].id);
             if(ce){ var ct = dhms(finish(active[a]) - now); ce.textContent = ct.d + 'd ' + pad(ct.h) + 'h ' + pad(ct.m) + 'm'; }
           }
-          // Update day counts on the secondary cards.
+          // Update day counts on the secondary pills + the modal badges.
           for(var i = 1; i < upcoming.length; i++){
+            var d = Math.ceil((start(upcoming[i]) - now) / 86400000);
             var el = document.getElementById('pd-ec-days-' + upcoming[i].id);
-            if(el) el.textContent = Math.ceil((start(upcoming[i]) - now) / 86400000);
+            if(el) el.textContent = d;
+          }
+          for(var j = 0; j < upcoming.length; j++){
+            var md = document.getElementById('pd-ec-mdays-' + upcoming[j].id);
+            if(md) md.textContent = dayWord(Math.ceil((start(upcoming[j]) - now) / 86400000)) + ' away';
+          }
+          // Keep the collapsed summary's relative time fresh.
+          var cm = document.getElementById('pd-ec-col-meta');
+          if(cm){
+            var nx = upcoming[0] || active[0];
+            if(nx){
+              cm.textContent = active.indexOf(nx) >= 0
+                ? ' · Open now'
+                : ' · ' + dayWord(Math.ceil((start(nx) - now) / 86400000)) + ' away';
+            } else cm.textContent = '';
           }
         }
 
