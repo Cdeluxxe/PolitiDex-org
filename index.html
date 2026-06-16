@@ -14239,6 +14239,13 @@
     #relevant-browse-grid .myteam-cov-pill.is-open {
       color: #9fb4d4; background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.28);
     }
+    /* An OPEN seat that is one of the voter's own ballot districts — amber, in the
+       same "still to fill" coverage language used on the chips and progress bars,
+       so the gaps they personally need stand out while scanning the tree. */
+    #myteam-browse-grid .myteam-cov-pill.is-yours-open,
+    #relevant-browse-grid .myteam-cov-pill.is-yours-open {
+      color: #ffe9c2; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.55);
+    }
     #myteam-browse-grid .myteam-cov-note-slot,
     #relevant-browse-grid .myteam-cov-note-slot { display: block; }
     #myteam-browse-grid .myteam-cov-note,
@@ -14255,6 +14262,12 @@
     #myteam-browse-grid .myteam-cov-note.is-open,
     #relevant-browse-grid .myteam-cov-note.is-open {
       background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28); color: #fcd9a0;
+    }
+    /* The voter's own still-open district gets a touch more emphasis than a
+       generic open seat — it's a real gap in THEIR coverage, not just any race. */
+    #myteam-browse-grid .myteam-cov-note.is-open.is-yours,
+    #relevant-browse-grid .myteam-cov-note.is-open.is-yours {
+      background: rgba(245,158,11,0.13); border-color: rgba(245,158,11,0.45); color: #ffe9c2;
     }
     #myteam-browse-grid .myteam-cov-note strong,
     #relevant-browse-grid .myteam-cov-note strong { color: #ffffff; font-weight: 700; }
@@ -43454,13 +43467,58 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid);
       });
     }
+    // Whether this district accordion is one of the VOTER'S OWN ballot seats —
+    // i.e. its seat precisely matches one the voter holds on their ballot. We
+    // deliberately require an EXACT district-number match (or, for local seats, a
+    // saved county) rather than relying on _isRelevantToUser alone: that broader
+    // predicate keeps every same-state legislative seat when no county is known,
+    // which would light up dozens of districts as "yours" and clutter the tree.
+    // Resolving the voter's own U.S. House / State Senate / State House district
+    // numbers from the same Key-Races area the rest of the app uses keeps "your
+    // district" meaning the same thing everywhere. Conservative by design — when
+    // a seat's district can't be resolved we stay silent rather than over-claim.
+    function _myteamOwnDistricts() {
+      var loc = window._currentVoterLocation || {};
+      var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+      var matched = !!(krd && krd.matched);
+      function num(v) { if (v == null) return null; var n = parseInt(String(v).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? null : n; }
+      var house  = (matched && krd.byRace && krd.byRace.house)       ? krd.byRace.house.district       : (loc.district || null);
+      var senate = (matched && krd.byRace && krd.byRace.statesenate) ? krd.byRace.statesenate.district : null;
+      var lower  = (matched && krd.byRace && krd.byRace.statehouse)  ? krd.byRace.statehouse.district  : null;
+      return { county: (loc.county || loc.city || '').trim(), house: num(house), senate: num(senate), lower: num(lower) };
+    }
+    function _myteamCovIsOwnSeat(distPids) {
+      if (typeof _isRelevantToUser !== 'function') return false;
+      if (!window._hasUserLocation) return false;
+      var pids = distPids || [];
+      // The accordion this serves is homogeneous (grouped by office type → state →
+      // district), so the first ballot-relevant person characterizes the whole seat.
+      var pid = null;
+      for (var i = 0; i < pids.length; i++) { if (_isRelevantToUser(pids[i])) { pid = pids[i]; break; } }
+      if (!pid) return false;
+      var own = _myteamOwnDistricts();
+      var type = (typeof _classifyBrowseType === 'function') ? _classifyBrowseType(pid) : 'other';
+      var distNum = (typeof _relevantDistNum === 'function') ? _relevantDistNum(pid) : null;
+      switch (type) {
+        case 'representative': return own.house  != null && distNum != null && distNum === own.house;
+        case 'state_senator':  return own.senate != null && distNum != null && distNum === own.senate;
+        case 'state_rep':      return own.lower  != null && distNum != null && distNum === own.lower;
+        case 'local':          return !!own.county; // county seat already refined to the voter's area
+        default:               return false;        // statewide/federal seats don't render as district accordions
+      }
+    }
     function _myteamCovPillHTML(distPids) {
       var n = _myteamCovOnTeamPids(distPids).length;
-      // Only the covered (green) state shows on the header — across the national
-      // tree a pill on every open seat would be noise. Covered seats stand out at
-      // a glance; the in-body note carries the "open seat" guidance on expand.
+      // Covered seats always get the green pill so coverage reads while scanning.
       if (n > 0) {
         return '<span class="myteam-cov-pill is-filled" title="' + n + ' from this race on your team">✓ On your team</span>';
+      }
+      // An OPEN seat that is one of the voter's own ballot districts gets an amber
+      // "your district" flag so the gaps they personally need to fill stand out
+      // while scanning. Open seats that aren't theirs stay silent — a pill on
+      // every open seat across the national tree would just be noise.
+      if (_myteamCovIsOwnSeat(distPids)) {
+        return '<span class="myteam-cov-pill is-yours-open" title="One of your districts — no pick yet">◯ Your district · open</span>';
       }
       return '';
     }
@@ -43476,6 +43534,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var verb = (onTeam.length === 1) ? 'is' : 'are';
         return '<div class="myteam-cov-note is-filled"><span class="myteam-cov-note-ico">✓</span>' +
           '<span><strong>' + _myteamCovEsc(shown) + '</strong> ' + verb + ' on your team from this race. ' + jump + '</span></div>';
+      }
+      // Open seat. When it's the voter's OWN district, the prompt is stronger and
+      // amber-emphasized — this is a gap in THEIR coverage and the cards to fix it
+      // are right below. Other open seats keep the lighter, generic invitation.
+      if (_myteamCovIsOwnSeat(distPids)) {
+        return '<div class="myteam-cov-note is-open is-yours"><span class="myteam-cov-note-ico">➕</span>' +
+          '<span><strong>This is one of your districts</strong> — you haven’t added anyone yet. Pick someone below to complete your coverage. ' + jump + '</span></div>';
       }
       return '<div class="myteam-cov-note is-open"><span class="myteam-cov-note-ico">➕</span>' +
         '<span>You haven’t added anyone from this race yet — add someone below to complete your coverage. ' + jump + '</span></div>';
