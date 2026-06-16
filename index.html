@@ -288,6 +288,11 @@
   <!-- ── Tailwind + Fonts ──────────────────────────────────── -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Leaflet (interactive Utah legislative district map). Loaded here so the
+       "Select district on map" experience in the location system is ready the
+       moment a voter opens it. GeoJSON district boundaries are fetched on demand. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -16186,6 +16191,7 @@
             </div>
             <div class="flex gap-2.5 flex-wrap items-center">
               <button id="detect-loc-btn" onclick="window.triggerManualLocationDetection()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-slate-700 hover:bg-slate-600 border border-slate-500/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">🌐 Detect my location</button>
+              <button onclick="window.openDistrictMapModal && window.openDistrictMapModal()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white border px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]" style="background:linear-gradient(135deg,#15803d,#0e7490);border-color:rgba(34,197,94,0.4);">🗺️ View on Map</button>
               <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 min-h-[44px]">📍 Change Location</button>
             </div>
           </div>
@@ -16665,9 +16671,169 @@
             <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
             <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">Don't know your district number? Leave it blank — entering your city above lets us find it for you.</p>
           </div>
+
+          <!-- ── Utah interactive map option ──────────────────────────────────
+               For Utah, cities like Layton straddle several legislative seats, so
+               a city name alone can't pin the exact district. This opens a visual
+               map where the voter taps their precise State House & State Senate
+               district — the most accurate way to set them. -->
+          <div id="voter-map-trigger-row" class="loc-map-trigger" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDistrictMapModal&&window.openDistrictMapModal();}">
+            <div class="loc-map-trigger-ico" aria-hidden="true">🗺️</div>
+            <div class="loc-map-trigger-text">
+              <div class="loc-map-trigger-title">Select your district on a map</div>
+              <div class="loc-map-trigger-sub">Tap your exact Utah State House &amp; Senate district — best for cities split across seats (e.g. Layton)</div>
+            </div>
+            <div class="loc-map-trigger-arrow" aria-hidden="true">→</div>
+          </div>
           </div>
           <div class="loc-modal-foot">
             <button type="button" onclick="window.closeLocationModal()" class="loc-modal-done">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ INTERACTIVE UTAH LEGISLATIVE DISTRICT MAP ════════════════════════
+           A Leaflet + GeoJSON map (boundaries from the Utah Geospatial Resource
+           Center) that lets a voter tap their precise State House / State Senate
+           district. Selecting a district highlights it, writes it into the shared
+           voter-location state, and refreshes every location surface — so the map
+           is part of the location system, not a disconnected widget. ═════════ -->
+      <style id="pdx-district-map-styles">
+        /* Shared "set via map" chip used across the location surfaces */
+        .pdx-map-chip{display:inline-flex;align-items:center;gap:0.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+          font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:#7ee7b8;background:rgba(16,185,129,0.12);
+          border:1px solid rgba(52,211,153,0.4);border-radius:999px;padding:0.22rem 0.6rem;line-height:1.15;white-space:nowrap;}
+
+        /* Map trigger row inside the location modal */
+        .loc-map-trigger{display:flex;align-items:center;gap:0.85rem;cursor:pointer;border-radius:0.9rem;padding:0.8rem 0.95rem;
+          background:linear-gradient(135deg,rgba(21,128,61,0.18),rgba(14,116,144,0.16));border:1.5px solid rgba(34,197,94,0.32);
+          transition:border-color 0.2s ease,transform 0.2s ease,background 0.2s ease;}
+        .loc-map-trigger:hover{border-color:rgba(52,211,153,0.6);transform:translateY(-1px);background:linear-gradient(135deg,rgba(21,128,61,0.26),rgba(14,116,144,0.24));}
+        .loc-map-trigger:focus-visible{outline:2px solid #34d399;outline-offset:2px;}
+        .loc-map-trigger-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}
+        .loc-map-trigger-text{min-width:0;flex:1;}
+        .loc-map-trigger-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.96rem;letter-spacing:0.04em;
+          text-transform:uppercase;color:#d7f5e4;line-height:1.15;}
+        .loc-map-trigger-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#8fcfb0;line-height:1.3;margin-top:0.15rem;}
+        .loc-map-trigger-arrow{font-size:1.2rem;color:#52d399;flex-shrink:0;}
+
+        /* Compact map button under the Relevant-to-Me location line */
+        .rel-map-btn{cursor:pointer;color:#a7f3d0;background:rgba(16,185,129,0.1);border:1px solid rgba(52,211,153,0.34);
+          border-radius:999px;padding:0.32rem 0.8rem;transition:all 0.2s ease;}
+        .rel-map-btn:hover{color:#fff;background:rgba(16,185,129,0.24);border-color:rgba(52,211,153,0.6);transform:translateY(-1px);}
+
+        /* Modal shell */
+        .pdx-map-overlay{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;
+          background:rgba(5,9,18,0.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1rem;}
+        .pdx-map-box{position:relative;width:100%;max-width:880px;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;
+          border-radius:1.25rem;background:linear-gradient(160deg,#0c1426 0%,#101d36 60%,#16274a 100%);
+          border:2px solid rgba(245,200,66,0.22);box-shadow:0 24px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);}
+        .pdx-map-box::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:2;
+          background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.9;}
+        .pdx-map-head{display:flex;align-items:flex-start;gap:0.85rem;padding:1.1rem 1.25rem 0.85rem;flex-shrink:0;}
+        .pdx-map-head-ico{font-size:1.7rem;line-height:1;width:2.9rem;height:2.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+          border-radius:0.85rem;background:linear-gradient(135deg,rgba(192,21,42,0.25),rgba(30,58,138,0.25));border:1px solid rgba(255,255,255,0.12);}
+        .pdx-map-title{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;line-height:1;letter-spacing:0.03em;color:#fff;}
+        .pdx-map-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:0.03em;color:#7596c0;margin-top:0.25rem;line-height:1.35;}
+        .pdx-map-close{position:absolute;top:0.7rem;right:0.8rem;z-index:3;width:2.2rem;height:2.2rem;border-radius:999px;border:1px solid rgba(255,255,255,0.16);
+          background:rgba(8,13,28,0.7);color:#cbd5e1;font-size:1.4rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;}
+        .pdx-map-close:hover{background:rgba(192,21,42,0.4);color:#fff;border-color:rgba(239,68,68,0.6);}
+
+        /* Layer toggle */
+        .pdx-map-toggle{display:flex;gap:0.4rem;padding:0 1.25rem 0.7rem;flex-shrink:0;}
+        .pdx-map-toggle-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;cursor:pointer;
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.84rem;letter-spacing:0.06em;text-transform:uppercase;
+          color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);border-radius:0.7rem;padding:0.55rem 0.6rem;
+          min-height:44px;transition:all 0.2s ease;}
+        .pdx-map-toggle-btn:hover{border-color:rgba(255,255,255,0.24);color:#e6eefb;}
+        .pdx-map-toggle-btn.is-active{color:#fff;border-color:rgba(245,200,66,0.6);
+          background:linear-gradient(135deg,rgba(192,21,42,0.32),rgba(30,58,138,0.32));box-shadow:0 0 16px rgba(245,200,66,0.14);}
+
+        /* Map canvas */
+        .pdx-map-canvas-wrap{position:relative;flex:1;min-height:300px;margin:0 1.25rem;border-radius:0.9rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
+        #pdx-district-map{position:absolute;inset:0;width:100%;height:100%;background:#0a1120;}
+        .pdx-map-status{position:absolute;inset:0;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;
+          text-align:center;padding:1.5rem;background:rgba(8,13,28,0.92);font-family:'Barlow Condensed',sans-serif;color:#bcd3f5;}
+        .pdx-map-spinner{width:2.2rem;height:2.2rem;border-radius:999px;border:3px solid rgba(96,165,250,0.25);border-top-color:#60a5fa;animation:pdxspin 0.8s linear infinite;}
+        @keyframes pdxspin{to{transform:rotate(360deg);}}
+        .pdx-map-retry{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.8rem;
+          color:#fff;background:#2563eb;border:none;border-radius:0.6rem;padding:0.5rem 1.1rem;margin-top:0.3rem;}
+
+        /* Leaflet dark-theme overrides */
+        .pdx-map-canvas-wrap .leaflet-tile{filter:none;}
+        .pdx-map-canvas-wrap .leaflet-container{background:#0a1120;font-family:'Barlow Condensed',sans-serif;}
+        .pdx-map-canvas-wrap .leaflet-control-zoom a{background:#101d36;color:#cbd5e1;border-color:rgba(255,255,255,0.12);}
+        .pdx-map-canvas-wrap .leaflet-control-zoom a:hover{background:#16274a;color:#fff;}
+        .pdx-map-canvas-wrap .leaflet-control-attribution{background:rgba(8,13,28,0.7);color:#6b82a8;font-size:9px;}
+        .pdx-map-canvas-wrap .leaflet-control-attribution a{color:#7596c0;}
+        .pdx-dist-tip{background:#0c1426;border:1px solid rgba(245,200,66,0.4);color:#fff;border-radius:0.5rem;
+          font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.82rem;box-shadow:0 4px 14px rgba(0,0,0,0.5);}
+        .pdx-dist-tip::before{display:none;}
+
+        /* Selection / confirmation panel */
+        .pdx-map-foot{flex-shrink:0;padding:0.85rem 1.25rem 1.1rem;}
+        .pdx-map-hint{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.02em;color:#8aa3c8;line-height:1.35;margin:0 0 0.65rem;}
+        .pdx-map-selection{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+        .pdx-sel-card{flex:1;min-width:130px;display:flex;flex-direction:column;gap:0.15rem;border-radius:0.8rem;padding:0.6rem 0.85rem;
+          background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);transition:border-color 0.2s ease,background 0.2s ease;}
+        .pdx-sel-card.is-set{border-color:rgba(52,211,153,0.5);background:rgba(16,185,129,0.08);}
+        .pdx-sel-label{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;}
+        .pdx-sel-val{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.02em;color:#5ee7b0;}
+        .pdx-sel-val.is-empty{color:#48597a;font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:600;}
+        .pdx-map-actions{display:flex;gap:0.6rem;flex-wrap:wrap;}
+        .pdx-map-done{flex:1;min-width:140px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.08em;
+          text-transform:uppercase;font-size:0.9rem;color:#fff;border:none;border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;
+          background:linear-gradient(135deg,#15803d,#0e7490);box-shadow:0 6px 20px rgba(20,128,61,0.3);transition:transform 0.15s ease,box-shadow 0.2s ease;}
+        .pdx-map-done:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(20,128,61,0.42);}
+        .pdx-map-done:disabled{opacity:0.5;cursor:default;transform:none;box-shadow:none;background:#33415a;}
+        .pdx-map-secondary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+          font-size:0.84rem;color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;transition:all 0.2s ease;}
+        .pdx-map-secondary:hover{color:#fff;border-color:rgba(255,255,255,0.28);}
+        @media (max-width:560px){
+          .pdx-map-box{max-height:96vh;border-radius:1rem;}
+          .pdx-map-title{font-size:1.3rem;}
+          .pdx-map-canvas-wrap{margin:0 0.85rem;}
+          .pdx-map-head,.pdx-map-toggle,.pdx-map-foot{padding-left:0.85rem;padding-right:0.85rem;}
+        }
+      </style>
+
+      <div id="district-map-modal" class="pdx-map-overlay" onclick="if(event.target===this)window.closeDistrictMapModal()">
+        <div class="pdx-map-box" role="dialog" aria-modal="true" aria-labelledby="pdx-map-title">
+          <button type="button" class="pdx-map-close" onclick="window.closeDistrictMapModal()" aria-label="Close map">&times;</button>
+          <div class="pdx-map-head">
+            <div class="pdx-map-head-ico" aria-hidden="true">🗺️</div>
+            <div style="min-width:0;">
+              <div id="pdx-map-title" class="pdx-map-title">Pick Your District</div>
+              <div class="pdx-map-sub">Tap the district on the map where you live. Switch between your <strong style="color:#9fc0ef;">State House</strong> and <strong style="color:#9fc0ef;">State Senate</strong> seats — we'll set both.</div>
+            </div>
+          </div>
+          <div class="pdx-map-toggle" role="tablist" aria-label="District layer">
+            <button type="button" id="pdx-layer-house" class="pdx-map-toggle-btn is-active" role="tab" aria-selected="true" onclick="window.pdxMapSetLayer('house')">🏛️ State House <span style="opacity:0.6;">· 75</span></button>
+            <button type="button" id="pdx-layer-senate" class="pdx-map-toggle-btn" role="tab" aria-selected="false" onclick="window.pdxMapSetLayer('senate')">🏛️ State Senate <span style="opacity:0.6;">· 29</span></button>
+          </div>
+          <div class="pdx-map-canvas-wrap">
+            <div id="pdx-district-map"></div>
+            <div id="pdx-map-status" class="pdx-map-status">
+              <div class="pdx-map-spinner"></div>
+              <div id="pdx-map-status-text">Loading Utah district boundaries…</div>
+            </div>
+          </div>
+          <div class="pdx-map-foot">
+            <p class="pdx-map-hint" id="pdx-map-hint">Showing <strong style="color:#cfe0f7;">State House</strong> districts — tap the area where you live.</p>
+            <div class="pdx-map-selection">
+              <div id="pdx-sel-house" class="pdx-sel-card">
+                <span class="pdx-sel-label">State House</span>
+                <span class="pdx-sel-val is-empty">Not set</span>
+              </div>
+              <div id="pdx-sel-senate" class="pdx-sel-card">
+                <span class="pdx-sel-label">State Senate</span>
+                <span class="pdx-sel-val is-empty">Not set</span>
+              </div>
+            </div>
+            <div class="pdx-map-actions">
+              <button type="button" id="pdx-map-done" class="pdx-map-done" onclick="window.closeDistrictMapModal()">Done</button>
+              <button type="button" class="pdx-map-secondary" onclick="window.pdxMapClearSelection()">Clear</button>
+            </div>
           </div>
         </div>
       </div>
@@ -17000,6 +17166,13 @@
               <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">Build Your Team · Your Ballot</div>
               <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
               <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
+              <!-- Compact map entry point + "set via map" indicator, kept right under
+                   the location line so picking an exact district feels like part of
+                   setting your location, not a separate tool. -->
+              <div class="flex items-center gap-2 flex-wrap mt-2">
+                <button type="button" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" class="rel-map-btn font-condensed text-xs font-700 tracking-wider uppercase inline-flex items-center gap-1.5">🗺️ Select district on map</button>
+                <span id="relevant-map-indicator" class="pdx-map-chip" style="display:none;"></span>
+              </div>
             </div>
           </div>
           <!-- Welcoming "how it works" framing: one seat at a time, judged on values & follow-through -->
@@ -36718,7 +36891,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             state: parsed.state || '',
             city: parsed.city || '',
             county: parsed.county || '',
-            district: (parsed.district == null ? '' : String(parsed.district)).replace(/[^0-9]/g, '')
+            district: (parsed.district == null ? '' : String(parsed.district)).replace(/[^0-9]/g, ''),
+            // Exact State House / State Senate districts when the voter pinpointed
+            // them on the interactive map. Kept distinct from `district` (which is
+            // the U.S. House / congressional seat) so all three can coexist.
+            stateHouseDistrict: (parsed.stateHouseDistrict == null ? '' : String(parsed.stateHouseDistrict)).replace(/[^0-9]/g, ''),
+            stateSenateDistrict: (parsed.stateSenateDistrict == null ? '' : String(parsed.stateSenateDistrict)).replace(/[^0-9]/g, ''),
+            // True when the active districts were chosen on the map — drives the
+            // small "set via map" indicator across the location surfaces.
+            mapSelected: !!parsed.mapSelected
           };
           window._hasUserLocation = true;
         } else {
@@ -36731,6 +36912,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
     }
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
+    if (typeof window._pdxRefreshMapIndicators === 'function') window._pdxRefreshMapIndicators();
   };
 
   window.saveVoterLocation = function() {
@@ -36777,6 +36959,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (countyWrap) countyWrap.style.display = 'flex';
     if (distWrap) distWrap.style.display = (loc.state && loc.state !== 'National') ? 'flex' : 'none';
     if (distSel) distSel.value = loc.district || '';
+    // The interactive map covers Utah legislative districts, so only offer it when
+    // the voter is in Utah (or hasn't picked a state yet on this Utah-focused site).
+    var mapRow = document.getElementById('voter-map-trigger-row');
+    if (mapRow) mapRow.style.display = (!loc.state || loc.state === 'Utah') ? 'flex' : 'none';
     form.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     if (stateSel) { try { stateSel.focus(); } catch(e) {} }
@@ -36829,6 +37015,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
     if (typeof window._renderElectionDates === 'function') window._renderElectionDates();
     if (typeof window._renderVoterHubCountdown === 'function') window._renderVoterHubCountdown();
+    if (typeof window._pdxRefreshMapIndicators === 'function') window._pdxRefreshMapIndicators();
     
     var pmStateSel = document.getElementById('pm-state-sel');
     if (pmStateSel) pmStateSel.value = (state === 'National' ? 'national' : 'all');
@@ -36843,6 +37030,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (!stateSel) return;
     var state = stateSel.value;
     window._currentVoterLocation.state = state;
+
+    // Show the Utah map option only for Utah (the map's district data is Utah-only).
+    var mapRow = document.getElementById('voter-map-trigger-row');
+    if (mapRow) mapRow.style.display = (!state || state === 'Utah') ? 'flex' : 'none';
 
     // The modal is now the source of truth for the voter's location, so drop any
     // earlier explicit "Key Races" area pick. That stale pick would otherwise keep
@@ -36879,6 +37070,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (!distSel) return;
     var num = (distSel.value || '').replace(/[^0-9]/g, '');
     window._currentVoterLocation.district = num;
+    // A manual edit supersedes any earlier map pinpoint, so drop the map flag and
+    // the exact State House/Senate numbers it had set.
+    window._currentVoterLocation.mapSelected = false;
+    window._currentVoterLocation.stateHouseDistrict = '';
+    window._currentVoterLocation.stateSenateDistrict = '';
     // Modal location wins over any earlier explicit Key Races pick (see above).
     try { localStorage.removeItem('politidex_keyraces_location'); } catch(e) {}
     window.saveVoterLocation();
@@ -36893,6 +37089,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Store both city and county as the free-text value for 100% dynamic national use
     window._currentVoterLocation.city = val;
     window._currentVoterLocation.county = val;
+    // A typed city/county supersedes a map pinpoint — clear it for an honest indicator.
+    window._currentVoterLocation.mapSelected = false;
+    window._currentVoterLocation.stateHouseDistrict = '';
+    window._currentVoterLocation.stateSenateDistrict = '';
     // Modal location wins over any earlier explicit Key Races pick (see above).
     try { localStorage.removeItem('politidex_keyraces_location'); } catch(e) {}
     window.saveVoterLocation();
@@ -56562,6 +56762,317 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Keep an open board in sync if issues change from any surface (e.g. a chip
     // toggled elsewhere). Cheap no-op while the board is closed.
     window._ambSync=function(){ var o=document.getElementById('amb-overlay'); if(o && o.style.display==='flex') renderBody(); };
+  })();
+  </script>
+
+  <!-- ══ INTERACTIVE UTAH DISTRICT MAP — controller ═══════════════════════════
+       Owns the Leaflet map, the House/Senate GeoJSON layers (fetched on demand
+       from the Utah Geospatial Resource Center), district selection, and the
+       hand-off back into the shared voter-location state. Self-contained IIFE;
+       every entry point is published on window for the inline onclick handlers. -->
+  <script>
+  (function(){
+    'use strict';
+
+    // UGRC (Utah Geospatial Resource Center) FeatureServers, 2022–2032 maps.
+    // Geometry is server-simplified (maxAllowableOffset) and trimmed to the DIST
+    // field so the payloads stay small enough to load comfortably on mobile.
+    var GEO_URLS = {
+      house:  'https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/UtahHouseDistricts2022to2032/FeatureServer/0/query?where=1%3D1&outFields=DIST&returnGeometry=true&outSR=4326&maxAllowableOffset=0.0025&geometryPrecision=5&f=geojson',
+      senate: 'https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/UtahSenateDistricts2022to2032/FeatureServer/0/query?where=1%3D1&outFields=DIST&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003&geometryPrecision=5&f=geojson'
+    };
+
+    var STROKE = { house: '#60a5fa', senate: '#f59e0b' };
+    var LABEL  = { house: 'State House', senate: 'State Senate' };
+
+    var _geoCache   = { house: null, senate: null };
+    var _map        = null;
+    var _layers     = { house: null, senate: null };
+    var _activeLayer = 'house';
+    var _selected   = { house: null, senate: null };   // chosen DIST numbers
+    var _selPath    = { house: null, senate: null };   // chosen Leaflet path refs
+    var _lastPicked = null;                            // 'house' | 'senate'
+    var _booted     = false;
+
+    function distOf(feature){
+      var p = feature && feature.properties || {};
+      var d = p.DIST != null ? p.DIST : (p.dist != null ? p.dist : null);
+      var n = parseInt(d, 10);
+      return isNaN(n) ? null : n;
+    }
+
+    // ── Styling ──────────────────────────────────────────────────────────────
+    function baseStyle(layerType){
+      return { color: STROKE[layerType], weight: 1, opacity: 0.75,
+               fillColor: STROKE[layerType], fillOpacity: 0.08 };
+    }
+    function selStyle(){
+      return { color: '#f5c842', weight: 3, opacity: 1,
+               fillColor: '#34d399', fillOpacity: 0.42 };
+    }
+    function applyPathStyle(path, layerType, selected){
+      if (!path) return;
+      path.setStyle(selected ? selStyle() : baseStyle(layerType));
+      if (selected && path.bringToFront) path.bringToFront();
+    }
+
+    // ── Status overlay (loading / error) ─────────────────────────────────────
+    function showStatus(html, withSpinner){
+      var s = document.getElementById('pdx-map-status');
+      var t = document.getElementById('pdx-map-status-text');
+      if (!s) return;
+      s.style.display = 'flex';
+      var spin = s.querySelector('.pdx-map-spinner');
+      if (spin) spin.style.display = withSpinner ? 'block' : 'none';
+      if (t) t.innerHTML = html;
+    }
+    function hideStatus(){
+      var s = document.getElementById('pdx-map-status');
+      if (s) s.style.display = 'none';
+    }
+
+    // ── Data ─────────────────────────────────────────────────────────────────
+    function fetchGeo(layerType){
+      if (_geoCache[layerType]) return Promise.resolve(_geoCache[layerType]);
+      return fetch(GEO_URLS[layerType], { cache: 'force-cache' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(json){
+          if (!json || !json.features || !json.features.length) throw new Error('No districts returned');
+          _geoCache[layerType] = json;
+          return json;
+        });
+    }
+
+    // ── Map build ────────────────────────────────────────────────────────────
+    function ensureMap(){
+      if (_map) return _map;
+      _map = L.map('pdx-district-map', {
+        zoomControl: true, attributionControl: true,
+        scrollWheelZoom: true, minZoom: 5, maxZoom: 13
+      }).setView([39.32, -111.55], 6);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 19,
+        attribution: 'Districts: UGRC · &copy; OpenStreetMap, &copy; CARTO'
+      }).addTo(_map);
+
+      return _map;
+    }
+
+    function buildLayer(layerType, geojson){
+      return L.geoJSON(geojson, {
+        style: function(){ return baseStyle(layerType); },
+        onEachFeature: function(feature, path){
+          var dist = distOf(feature);
+          if (dist == null) return;
+          path.bindTooltip(LABEL[layerType] + ' District ' + dist, {
+            sticky: true, direction: 'top', className: 'pdx-dist-tip', opacity: 1
+          });
+          path.on({
+            mouseover: function(){ if (_selected[layerType] !== dist) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
+            mouseout:  function(){ if (_selected[layerType] !== dist) path.setStyle(baseStyle(layerType)); },
+            click:     function(){ selectDistrict(layerType, dist, path); }
+          });
+          // Re-highlight a previously chosen district when the layer (re)builds.
+          if (_selected[layerType] === dist){ _selPath[layerType] = path; applyPathStyle(path, layerType, true); }
+        }
+      });
+    }
+
+    function showLayer(layerType){
+      if (!_geoCache[layerType]) return;
+      ['house','senate'].forEach(function(t){
+        if (_layers[t] && _map.hasLayer(_layers[t]) && t !== layerType) _map.removeLayer(_layers[t]);
+      });
+      if (!_layers[layerType]) _layers[layerType] = buildLayer(layerType, _geoCache[layerType]);
+      if (!_map.hasLayer(_layers[layerType])) _layers[layerType].addTo(_map);
+      try { _map.fitBounds(_layers[layerType].getBounds(), { padding: [12, 12] }); } catch(e) {}
+    }
+
+    function loadAndShow(layerType){
+      showStatus('Loading ' + LABEL[layerType] + ' boundaries…', true);
+      fetchGeo(layerType).then(function(){
+        hideStatus();
+        showLayer(layerType);
+        setTimeout(function(){ if (_map) _map.invalidateSize(); }, 60);
+      }).catch(function(err){
+        showStatus('Couldn’t load the district map.<br><span style="font-size:0.78rem;color:#8aa3c8;">' +
+          (err && err.message ? err.message : 'Network error') + '</span><br>' +
+          '<button type="button" class="pdx-map-retry" onclick="window.pdxMapRetry()">Try again</button>', false);
+      });
+    }
+
+    // ── Selection ────────────────────────────────────────────────────────────
+    function selectDistrict(layerType, dist, path){
+      // Clear the previous pick's styling in this layer.
+      if (_selPath[layerType] && _selPath[layerType] !== path) applyPathStyle(_selPath[layerType], layerType, false);
+      _selected[layerType] = dist;
+      _selPath[layerType]  = path || null;
+      _lastPicked = layerType;
+      applyPathStyle(path, layerType, true);
+      updateSelectionUI(layerType, dist);
+      applyToLocation();
+    }
+
+    function updateSelectionUI(justSet, dist){
+      ['house','senate'].forEach(function(t){
+        var card = document.getElementById('pdx-sel-' + t);
+        if (!card) return;
+        var val = card.querySelector('.pdx-sel-val');
+        if (_selected[t]) {
+          card.classList.add('is-set');
+          val.textContent = 'District ' + _selected[t];
+          val.classList.remove('is-empty');
+        } else {
+          card.classList.remove('is-set');
+          val.textContent = 'Not set';
+          val.classList.add('is-empty');
+        }
+      });
+      var hint = document.getElementById('pdx-map-hint');
+      if (hint && justSet && dist != null) {
+        hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' District ' + dist +
+          '</strong> selected — it’s now part of your location.' +
+          (justSet === 'house' ? ' Switch to <strong style="color:#cfe0f7;">State Senate</strong> to set that too.'
+                                : ' Switch to <strong style="color:#cfe0f7;">State House</strong> to set that too.');
+      }
+    }
+
+    // Resolve the curated Key-Races area that best matches the chosen districts so
+    // the rest of the location system (Relevant to Me slate, ballot, voter map)
+    // updates to the right seats.
+    function resolveArea(){
+      var locs = window.KEY_RACES_LOCATIONS || [];
+      var h = _selected.house, s = _selected.senate;
+      var both = null, byH = null, byS = null;
+      for (var i = 0; i < locs.length; i++) {
+        var a = locs[i];
+        if (h && s && a.houseDistrict === h && a.senateDistrict === s && !both) both = a;
+        if (h && a.houseDistrict === h && !byH) byH = a;
+        if (s && a.senateDistrict === s && !byS) byS = a;
+      }
+      if (both) return both;
+      if (_lastPicked === 'senate') return byS || byH || null;
+      return byH || byS || null;
+    }
+
+    function applyToLocation(){
+      var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+      loc.state = 'Utah';
+      if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
+      if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
+      loc.mapSelected = true;
+
+      var area = resolveArea();
+      if (area) {
+        loc.city = area.city || loc.city;
+        loc.county = area.county || loc.county;
+        if (area.congressDistrict) loc.district = String(area.congressDistrict);
+        try { localStorage.setItem(window.KR_LOCATION_KEY || 'politidex_keyraces_location', area.id); } catch(e) {}
+      }
+
+      window._currentVoterLocation = loc;
+      window._hasUserLocation = true;
+      if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
+      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+    }
+
+    // ── "Set via map" indicator (called from _triggerLocationReaction) ─────────
+    window._pdxRefreshMapIndicators = function(){
+      var loc = window._currentVoterLocation || {};
+      var on = !!(loc.mapSelected && (loc.stateHouseDistrict || loc.stateSenateDistrict));
+      var parts = [];
+      if (loc.stateHouseDistrict)  parts.push('House ' + loc.stateHouseDistrict);
+      if (loc.stateSenateDistrict) parts.push('Senate ' + loc.stateSenateDistrict);
+      var txt = '🗺️ Set via map' + (parts.length ? ' · ' + parts.join(' · ') : '');
+      var el = document.getElementById('relevant-map-indicator');
+      if (el) {
+        if (on) { el.textContent = txt; el.style.display = 'inline-flex'; }
+        else { el.style.display = 'none'; }
+      }
+    };
+
+    // ── Public entry points ────────────────────────────────────────────────────
+    window.pdxMapSetLayer = function(layerType){
+      if (layerType !== 'house' && layerType !== 'senate') return;
+      _activeLayer = layerType;
+      var hb = document.getElementById('pdx-layer-house');
+      var sb = document.getElementById('pdx-layer-senate');
+      if (hb) { hb.classList.toggle('is-active', layerType === 'house'); hb.setAttribute('aria-selected', layerType === 'house'); }
+      if (sb) { sb.classList.toggle('is-active', layerType === 'senate'); sb.setAttribute('aria-selected', layerType === 'senate'); }
+      var hint = document.getElementById('pdx-map-hint');
+      if (hint) hint.innerHTML = 'Showing <strong style="color:#cfe0f7;">' + LABEL[layerType] +
+        '</strong> districts — tap the area where you live.';
+      if (_map) loadAndShow(layerType);
+    };
+
+    window.pdxMapClearSelection = function(){
+      ['house','senate'].forEach(function(t){
+        if (_selPath[t]) applyPathStyle(_selPath[t], t, false);
+        _selected[t] = null; _selPath[t] = null;
+      });
+      _lastPicked = null;
+      updateSelectionUI();
+      var hint = document.getElementById('pdx-map-hint');
+      if (hint) hint.innerHTML = 'Selection cleared — tap a district to set it again.';
+      // Drop the map flag from the saved location (manual entry remains intact).
+      var loc = window._currentVoterLocation || {};
+      loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
+      window._currentVoterLocation = loc;
+      if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
+      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+    };
+
+    window.pdxMapRetry = function(){ if (_map) loadAndShow(_activeLayer); };
+
+    window.openDistrictMapModal = function(){
+      var modal = document.getElementById('district-map-modal');
+      if (!modal) return;
+      if (typeof L === 'undefined') {
+        // Leaflet failed to load — fall back to the standard location picker.
+        if (typeof window.openLocationModal === 'function') window.openLocationModal();
+        return;
+      }
+      // Seed the selection from any districts already chosen on the map.
+      var loc = window._currentVoterLocation || {};
+      if (loc.mapSelected) {
+        var h = parseInt(loc.stateHouseDistrict, 10);
+        var s = parseInt(loc.stateSenateDistrict, 10);
+        _selected.house  = isNaN(h) ? null : h;
+        _selected.senate = isNaN(s) ? null : s;
+      }
+
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      updateSelectionUI();
+
+      // Build the map after the container is visible so Leaflet measures it right.
+      setTimeout(function(){
+        ensureMap();
+        _map.invalidateSize();
+        if (!_booted) { _booted = true; window.pdxMapSetLayer(_activeLayer); }
+        else { loadAndShow(_activeLayer); }
+      }, 80);
+    };
+
+    window.closeDistrictMapModal = function(){
+      var modal = document.getElementById('district-map-modal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    };
+
+    // Close on Escape (only when the map modal is the topmost open layer).
+    document.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape') return;
+      var modal = document.getElementById('district-map-modal');
+      if (modal && modal.style.display === 'flex') window.closeDistrictMapModal();
+    });
+
+    // Reflect any saved map selection on first paint.
+    if (typeof window._pdxRefreshMapIndicators === 'function') {
+      try { window._pdxRefreshMapIndicators(); } catch(e) {}
+    }
   })();
   </script>
 
