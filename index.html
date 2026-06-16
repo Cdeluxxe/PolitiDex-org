@@ -6144,6 +6144,36 @@
     @media (max-width: 639px) {
       .myteam-slots-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
     }
+    /* ── MY TEAM: grouped builder (Federal · Statewide · Your Districts · Local) ──
+       The single authoritative builder organizes its seats into the four tiers a
+       voter actually reasons about. When grouped, the outer container stops being
+       a grid and each tier gets its own labelled sub-grid. */
+    .myteam-slots-grid.is-grouped { display: block; }
+    .myteam-group { margin-bottom: 1.4rem; }
+    .myteam-group:last-child { margin-bottom: 0.5rem; }
+    .myteam-group-head { display: flex; align-items: center; gap: 0.55rem; margin: 0 0 0.7rem; padding-bottom: 0.45rem; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; }
+    .myteam-group-ico { font-size: 1rem; line-height: 1; }
+    .myteam-group-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fde68a; }
+    .myteam-group-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.03em; color: #8aa0c2; }
+    .myteam-group-count { margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.16rem 0.6rem; border-radius: 999px; color: #9fb4d4; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); }
+    .myteam-group-count.is-full { color: #4ade80; background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.35); }
+    .myteam-group-count.is-partial { color: #fbbf24; background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.32); }
+    .myteam-group-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: stretch; }
+    @media (max-width: 1023px) { .myteam-group-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 639px) {
+      .myteam-group-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .myteam-group-sub { flex-basis: 100%; order: 3; margin-top: -0.2rem; }
+    }
+    .myteam-slot-scope { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #9fb4d4; margin: 0.15rem 0 0.1rem; }
+    /* Compact "you're underway" next-step strip (shown once 2+ seats are filled) */
+    .myteam-guide.is-compact { padding-bottom: 0.9rem; }
+    .myteam-guide-compact-row { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.4rem; }
+    .myteam-guide-compact-next { font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.4; color: #cbd5e1; }
+    .myteam-guide-compact-next strong { color: #fff; font-weight: 700; }
+    @media (max-width: 560px) { .myteam-guide-compact-row .myteam-guide-go { width: 100%; margin-left: 0; } }
+    /* "Manage full team" round-trip link on supporting discovery sections */
+    .pdx-back-to-team { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.32); border-radius: 999px; padding: 0.4rem 0.85rem; min-height: 36px; transition: background 0.2s, border-color 0.2s, color 0.2s; text-decoration: none; }
+    .pdx-back-to-team:hover { color: #fff; background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.55); }
     @keyframes myteam-card-in { from { opacity: 0; transform: translateY(16px) scale(0.94); } to { opacity: 1; transform: none; } }
     @keyframes myteam-add-success { 0%{transform:scale(1)} 25%{transform:scale(1.08)} 50%{transform:scale(0.96)} 75%{transform:scale(1.03)} 100%{transform:scale(1)} }
     @keyframes myteam-add-ripple { 0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 100%{box-shadow:0 0 0 18px rgba(74,222,128,0)} }
@@ -16968,6 +16998,20 @@
       </style>
       <div class="mb-8 animate-on-scroll" style="transition-delay:0.06s;">
         <div id="state-overview-voterhub"></div>
+        <!-- Connector: the breakdown above is a read-only map of your ballot; this
+             strip ties it to the one place you actually build — the My Voting Team
+             section just below — and mirrors its live progress so the breakdown
+             stays a lightweight overview rather than a second builder. -->
+        <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'});" class="vh-breakdown-link" style="margin-top:0.85rem;width:100%;display:flex;align-items:center;justify-content:space-between;gap:0.85rem;flex-wrap:wrap;cursor:pointer;text-align:left;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(10,15,30,0.5));border:1px solid rgba(245,158,11,0.32);border-radius:1rem;padding:0.85rem 1.1rem;min-height:48px;transition:border-color 0.2s,background 0.2s;" onmouseover="this.style.borderColor='rgba(245,158,11,0.6)';this.style.background='linear-gradient(135deg,rgba(245,158,11,0.18),rgba(10,15,30,0.5))';" onmouseout="this.style.borderColor='rgba(245,158,11,0.32)';this.style.background='linear-gradient(135deg,rgba(245,158,11,0.12),rgba(10,15,30,0.5))';">
+          <span style="display:flex;align-items:center;gap:0.65rem;min-width:0;">
+            <span style="font-size:1.25rem;line-height:1;" aria-hidden="true">⭐</span>
+            <span style="min-width:0;">
+              <span class="font-condensed" style="display:block;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:#fde68a;font-size:0.86rem;line-height:1.1;">Build your team in My Voting Team</span>
+              <span id="vh-breakdown-count" class="font-condensed" style="display:block;color:#cbd5e1;font-size:0.78rem;letter-spacing:0.02em;margin-top:0.12rem;">Fill these offices with the candidates who earn your vote — start below.</span>
+            </span>
+          </span>
+          <span class="font-condensed" style="flex:none;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:0.74rem;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-radius:0.6rem;padding:0.5rem 0.95rem;white-space:nowrap;">Go to builder ↓</span>
+        </button>
       </div>
 
       <!-- ── KNOW YOUR OFFICES — plain-English guide to every seat on your ballot ── -->
@@ -16993,15 +17037,25 @@
           #voter-hub .ko-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;margin-top:0.15rem;}
           #voter-hub .ko-arrow{flex-shrink:0;color:#fad96a;font-size:1rem;opacity:0.7;transition:transform 0.2s ease,opacity 0.2s ease;}
           #voter-hub .ko-btn:hover .ko-arrow{transform:translateX(3px);opacity:1;}
+          /* Collapsible: closed by default so it doesn't push the team builder down
+             the page (the same office explainers also open from the Power Map). */
+          #voter-hub details.ko-wrap > summary.ko-head{cursor:pointer;list-style:none;margin-bottom:0;}
+          #voter-hub details.ko-wrap[open] > summary.ko-head{margin-bottom:0.95rem;}
+          #voter-hub details.ko-wrap > summary.ko-head::-webkit-details-marker{display:none;}
+          #voter-hub .ko-chev{margin-left:auto;flex-shrink:0;color:#fad96a;font-size:1.4rem;line-height:1;transition:transform 0.25s ease;}
+          #voter-hub details.ko-wrap[open] .ko-chev{transform:rotate(180deg);}
+          #voter-hub .ko-head .ko-hint{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;letter-spacing:0.04em;text-transform:none;color:#9fb4d4;margin-top:0.25rem;}
         </style>
-        <div class="ko-wrap">
-          <div class="ko-head">
+        <details class="ko-wrap">
+          <summary class="ko-head">
             <div class="ko-head-ico">🏛️</div>
             <div>
               <h3>Know Your Offices</h3>
               <p>What every seat on your ballot actually does</p>
+              <span class="ko-hint">Optional · tap to expand a plain-English guide to each office</span>
             </div>
-          </div>
+            <span class="ko-chev" aria-hidden="true">⌄</span>
+          </summary>
           <p class="ko-lead">Before you fill your team, know what you're voting for. Your ballot isn't just names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Power Map.</p>
           <div class="ko-grid">
             <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
@@ -17012,7 +17066,7 @@
             <button type="button" class="ko-btn" style="--ko-color:#2dd4bf;" onclick="openOfficeModal('state-house')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">State House Rep</span><span class="ko-meta">State · lower chamber</span></span><span class="ko-arrow">→</span></button>
             <button type="button" class="ko-btn" style="--ko-color:#fbbf24;" onclick="openOfficeModal('local')"><span class="ko-ico">🏙</span><span class="ko-txt"><span class="ko-name">Local Offices</span><span class="ko-meta">City · County · School Bd</span></span><span class="ko-arrow">→</span></button>
           </div>
-        </div>
+        </details>
       </div>
 
       <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
@@ -17161,7 +17215,8 @@
               <div class="flex-1 min-w-0">
                 <h3 class="font-display text-3xl md:text-4xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(59,130,246,0.3);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1">These are the races that matter most to you — add your pick in each to your team in one tap.</p>
+                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1">A place to <strong class="text-blue-200">discover &amp; quick-add</strong> — every <strong class="text-blue-200">➕ Add to My Team</strong> here drops a pick into your one team up top.</p>
+                <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
 
@@ -17236,6 +17291,7 @@
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#f5d98a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.32);">🤝 Rewards follow-through</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#cbd5e1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">👇 One race at a time</span>
           </div>
+          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
           <!-- Live, district-focused guided status — the section's first-glance
                "where am I, what's my single next step" element. Populated by
                renderRelevantToMe once a location is set; hidden otherwise. -->
@@ -17675,6 +17731,13 @@
               </button>
               <button onclick="ballotClearAll()" class="font-condensed text-xs text-steel-600 hover:text-crimson-400 tracking-wider uppercase transition-colors cursor-pointer" style="background:none;border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.65rem;border-radius:0.5rem;">Reset</button>
             </div>
+          </div>
+          <!-- Reframe as a lightweight overview that feeds the one authoritative
+               builder up top: a clear round-trip link plus a "this mirrors your
+               main team" line so it never reads as a second place to build. -->
+          <div style="margin:-0.2rem 0 0.95rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+            <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'})" class="pdx-back-to-team">↑ Manage your full team in My Voting Team</button>
+            <span class="font-condensed text-xs text-steel-500 tracking-wide">A quick-reference &amp; share view of the slate you build above.</span>
           </div>
           <!-- Empty state prompt - shown when no picks made -->
           <div id="myteam-empty-prompt" class="myteam-empty-prompt">
@@ -42712,6 +42775,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<button class="myteam-slot-clear-btn" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
         '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" title="' + _slotBlurb(pos.key) + '" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
+        '<div class="myteam-slot-scope">' + (typeof _myteamSeatScope === 'function' ? _myteamSeatScope(pos.key) : '') + '</div>' +
         photoHtml +
         '<div class="font-display text-xl tracking-wider text-white leading-tight" style="margin-bottom:0.2rem;text-shadow:0 1px 8px rgba(0,0,0,0.3);">' + d.name + '</div>' +
         '<p class="font-condensed text-xs text-steel-400 tracking-wide" style="font-size:0.68rem;margin-bottom:0.15rem;">' + d.icon + ' ' + d.office + '</p>' +
@@ -42744,6 +42808,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<div class="myteam-slot-empty" style="--slot-color:' + pos.color + ';" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Find your match for ' + pos.label + ' — the candidate who best represents your values. ' + _slotBlurb(pos.key) + '">' +
         '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
+        '<div class="myteam-slot-scope">' + (typeof _myteamSeatScope === 'function' ? _myteamSeatScope(pos.key) : '') + '</div>' +
         '<div class="myteam-empty-ring" style="width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:1.9rem;margin:0.65rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
         '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Find Your Match</div>' +
         '<div class="myteam-empty-desc">' + _slotBlurb(pos.key) + '</div>' +
@@ -42761,6 +42826,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // and jumps to that office's candidates. Complements the larger slot tiles
     // below with a tight, list-style read of the whole team.
     function _renderTeamOfficeSummary(ballotSelections, filledCount) {
+      var box = document.getElementById('myteam-office-summary');
+      if (!box) return;
+      // Consolidation: the grouped team grid now lists every office with its pick
+      // (or open state) and a one-tap jump, so this chip roster duplicated it. It
+      // is kept hidden to remove the repetition and shorten the section. The
+      // function body below is retained for reference but never renders.
+      box.style.display = 'none'; box.innerHTML = '';
+      return;
+    }
+
+    function _renderTeamOfficeSummary_legacy(ballotSelections, filledCount) {
       var box = document.getElementById('myteam-office-summary');
       if (!box) return;
       if (!filledCount) { box.style.display = 'none'; box.innerHTML = ''; return; }
@@ -42935,6 +43011,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return;
       }
 
+      // Once the voter is clearly underway (2+ picks) but not yet finished, the
+      // full four-step checklist is just noise — they already know how this works.
+      // Collapse it to a single progress line that names the next open seat (with
+      // its real district when known) and offers a one-tap jump. This is the main
+      // de-cluttering of the builder once building is in motion.
+      if (pickDone && filledCount >= 2 && !teamComplete) {
+        var _nextKey = (typeof _myteamFirstOpenOffice === 'function') ? _myteamFirstOpenOffice() : null;
+        var _nextLabel = '';
+        if (_nextKey && window.TEAM_POSITIONS) {
+          for (var _nci = 0; _nci < window.TEAM_POSITIONS.length; _nci++) {
+            if (window.TEAM_POSITIONS[_nci].key === _nextKey) { _nextLabel = window.TEAM_POSITIONS[_nci].label; break; }
+          }
+        }
+        var _nextScope = (_nextKey && typeof _myteamSeatScope === 'function') ? _myteamSeatScope(_nextKey) : '';
+        box.innerHTML =
+          '<div class="myteam-guide is-compact">' +
+            '<div class="myteam-guide-head">' +
+              '<span class="myteam-guide-title">⭐ ' + filledCount + ' of ' + total + ' seats filled</span>' +
+              '<span class="myteam-guide-count">' + remaining + ' to go</span>' +
+            '</div>' +
+            '<div class="myteam-guide-compact-row">' +
+              '<span class="myteam-guide-compact-next">Next up: <strong>' + (_nextLabel || 'your next seat') + '</strong>' + (_nextScope ? ' · ' + _nextScope : '') + '. Add a pick — or jump to <strong>My Ballot</strong> to review your slate.</span>' +
+              '<button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'pick\')">➕ Add this pick →</button>' +
+            '</div>' +
+          '</div>';
+        box.style.display = '';
+        return;
+      }
+
       // Otherwise → the journey checklist, highlighting the first incomplete step.
       var doneCount = steps.filter(function(s) { return s.done; }).length;
       var activeFound = false;
@@ -43024,9 +43129,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { id: 'local',   title: '\u{1F3D9}\u{FE0F} Local',    word: 'local' }
     ];
 
+    // Which builder group a seat belongs to. The authoritative team grid splits the
+    // ballot into the four buckets a voter naturally reasons about — Federal,
+    // Statewide, Your Districts (the geographically specific seats only this address
+    // elects), and Local — so the grid reads as an organized ballot, not a flat list.
+    // Reuses _MYTEAM_DISTRICT_KEYS / _slotTier so the grouping can never drift from
+    // the rest of the builder.
+    function _slotGroup(key) {
+      if (_MYTEAM_DISTRICT_KEYS[key]) return 'districts';
+      if (key === 'local') return 'local';
+      if (_slotTier(key) === 'Federal') return 'federal';
+      return 'statewide';
+    }
+    window._slotGroup = _slotGroup;
+    var _MYTEAM_GROUPS = [
+      { id: 'federal',   ico: '\u{1F1FA}\u{1F1F8}', title: 'Federal',        sub: 'Represent your whole state &amp; nation' },
+      { id: 'statewide', ico: '\u{1F3DB}\u{FE0F}',  title: 'Statewide',      sub: 'Every voter in your state shares these' },
+      { id: 'districts', ico: '\u{1F4CD}',          title: 'Your Districts', sub: 'The seats only your address elects' },
+      { id: 'local',     ico: '\u{1F3D9}\u{FE0F}',  title: 'Local',          sub: 'The offices closest to home' }
+    ];
+
     function _renderTeamDistrictCoverage(ballotSelections, filledCount) {
       var box = document.getElementById('myteam-district-coverage');
       if (!box) return;
+      // Consolidation: the grouped team grid below — with its dedicated "Your
+      // Districts" group, real district numbers, and per-seat covered/open state —
+      // now carries everything this standalone coverage map used to show. It is
+      // suppressed so the same information isn't repeated twice down the page,
+      // which is the single biggest scroll saving on mobile.
+      box.style.display = 'none'; box.innerHTML = '';
+      return;
       var positions = window.TEAM_POSITIONS || [];
       if (!positions.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
@@ -43343,7 +43475,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var totalScore = 0;
       var scoredCount = 0;
 
-      var slotsHtml = '';
+      var slotsByGroup = { federal: [], statewide: [], districts: [], local: [] };
       TEAM_POSITIONS.forEach(function(pos) {
         var pid = ballotSelections[pos.key];
         var d = pid ? CMP_DATA[pid] : null;
@@ -43352,13 +43484,39 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           filledPids.push(pid);
           var _dsc = window._pdxDisplayScore(d);
           if (_dsc !== null && _dsc !== undefined) { totalScore += _dsc; scoredCount++; }
-          slotsHtml += _renderSlotCard(pos, pid);
-        } else {
-          slotsHtml += _renderSlotEmpty(pos);
         }
+        var g = (typeof _slotGroup === 'function') ? _slotGroup(pos.key) : 'statewide';
+        if (!slotsByGroup[g]) slotsByGroup[g] = [];
+        slotsByGroup[g].push({ pos: pos, pid: d ? pid : null });
       });
 
-      if (slotsGrid) slotsGrid.innerHTML = slotsHtml;
+      // Render the slots tier by tier (Federal → Statewide → Your Districts →
+      // Local) so the authoritative builder reads as an organized ballot. Each
+      // tier header carries its own "filled/total" count, turning the grid itself
+      // into the page's progress map and making the separate coverage/chip blocks
+      // redundant (those are now suppressed).
+      var slotsHtml = '';
+      _MYTEAM_GROUPS.forEach(function(grp) {
+        var items = slotsByGroup[grp.id] || [];
+        if (!items.length) return;
+        var gFilled = items.filter(function(it) { return it.pid; }).length;
+        var gCls = gFilled >= items.length ? 'is-full' : (gFilled > 0 ? 'is-partial' : '');
+        var cards = items.map(function(it) {
+          return it.pid ? _renderSlotCard(it.pos, it.pid) : _renderSlotEmpty(it.pos);
+        }).join('');
+        slotsHtml +=
+          '<div class="myteam-group">' +
+            '<div class="myteam-group-head">' +
+              '<span class="myteam-group-ico">' + grp.ico + '</span>' +
+              '<span class="myteam-group-title">' + grp.title + '</span>' +
+              '<span class="myteam-group-sub">' + grp.sub + '</span>' +
+              '<span class="myteam-group-count ' + gCls + '">' + gFilled + '/' + items.length + ' filled</span>' +
+            '</div>' +
+            '<div class="myteam-group-grid">' + cards + '</div>' +
+          '</div>';
+      });
+
+      if (slotsGrid) { slotsGrid.classList.add('is-grouped'); slotsGrid.innerHTML = slotsHtml; }
 
       // Header completion progress — fill bar + per-slot pips (filled vs open).
       var progressFill = document.getElementById('myteam-progress-fill');
@@ -43463,6 +43621,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       if (teamCountBadge) teamCountBadge.textContent = filledCount + '/' + TEAM_POSITIONS.length;
+
+      // Mirror live progress onto the lightweight "Ballot Breakdown" connector above
+      // so that read-only overview always points back at the authoritative builder.
+      var _bdCount = document.getElementById('vh-breakdown-count');
+      if (_bdCount) {
+        var _bdTotal = TEAM_POSITIONS.length;
+        _bdCount.textContent = filledCount <= 0
+          ? 'Fill these offices with the candidates who earn your vote — start below.'
+          : (filledCount >= _bdTotal
+              ? '★ All ' + _bdTotal + ' seats filled — review or print your ballot below.'
+              : filledCount + ' of ' + _bdTotal + ' seats filled — ' + (_bdTotal - filledCount) + ' to go. Pick up where you left off below.');
+      }
 
       _renderTeamOfficeSummary(ballotSelections, filledCount);
       _renderTeamSaveStatus(filledCount);
