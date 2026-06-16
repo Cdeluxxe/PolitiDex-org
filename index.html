@@ -14211,6 +14211,138 @@
     #relevant-browse-grid .relevant-addhint strong { color: #ffffff; }
     #relevant-browse-grid .relevant-addhint .relevant-addhint-ico { flex-shrink: 0; }
 
+    /* ── "Start Here" guided status banner ─────────────────────────────────────
+       The section's first-glance orienting element, rendered live at the top of
+       the Relevant-to-Me hero card once a location is set. Where the in-grid
+       coverage strip takes an all-seats lens, this banner takes the voter's OWN
+       voting-districts lens — the motivating "which of my districts are covered,
+       which still need attention" question — and turns each district into a
+       tappable chip that jumps straight to its race, plus one clear next step and
+       a round trip back to the team being built. Lives in #relevant-section (the
+       hero card), not #relevant-browse-grid. Green = covered, amber = still open,
+       matching the coverage language used throughout the section. */
+    #relevant-section .rel-guide {
+      margin-top: 1.1rem;
+      padding: 0.95rem 1.05rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(10,15,30,0.5) 60%, rgba(34,197,94,0.08) 100%);
+      border: 1px solid rgba(245,158,11,0.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    #relevant-section .rel-guide.is-complete {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(10,15,30,0.45) 100%);
+      border-color: rgba(34,197,94,0.55);
+    }
+    #relevant-section .rel-guide-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #fcd9a0; margin-bottom: 0.35rem;
+    }
+    #relevant-section .rel-guide.is-complete .rel-guide-eyebrow { color: #86efac; }
+    #relevant-section .rel-guide-head {
+      display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    #relevant-section .rel-guide-title {
+      font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
+      font-size: 1.18rem; color: #fff; line-height: 1;
+    }
+    #relevant-section .rel-guide-frac {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fcd9a0;
+    }
+    #relevant-section .rel-guide.is-complete .rel-guide-frac { color: #86efac; }
+    #relevant-section .rel-guide-bar {
+      height: 8px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,255,255,0.08); margin-bottom: 0.7rem;
+    }
+    #relevant-section .rel-guide-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      transition: width 0.4s ease;
+    }
+    #relevant-section .rel-guide.is-complete .rel-guide-fill {
+      background: linear-gradient(90deg, #16a34a, #4ade80);
+    }
+    /* Per-district chips — each of the voter's own voting districts, green when a
+       pick is on the team, amber when it still needs attention. Tappable to jump
+       straight to that race in the ballot below. */
+    #relevant-section .rel-guide-chips {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    #relevant-section .rel-guide-chip {
+      display: flex; flex-direction: column; gap: 0.1rem; text-align: left;
+      padding: 0.5rem 0.7rem; border-radius: 0.7rem; cursor: pointer;
+      min-height: 44px;
+      font-family: 'Barlow Condensed', sans-serif;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    #relevant-section .rel-guide-chip:hover { transform: translateY(-2px); }
+    #relevant-section .rel-guide-chip.is-filled {
+      background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(10,15,30,0.35));
+      border: 1px solid rgba(34,197,94,0.48);
+    }
+    #relevant-section .rel-guide-chip.is-filled:hover { border-color: rgba(74,222,128,0.85); }
+    #relevant-section .rel-guide-chip.is-open {
+      background: linear-gradient(135deg, rgba(245,158,11,0.13), rgba(10,15,30,0.35));
+      border: 1px solid rgba(245,158,11,0.46);
+    }
+    #relevant-section .rel-guide-chip.is-open:hover { border-color: rgba(251,191,36,0.85); }
+    #relevant-section .rgc-name {
+      font-weight: 800; font-size: 0.82rem; letter-spacing: 0.02em;
+      color: #fff; line-height: 1.1;
+    }
+    #relevant-section .rgc-sub {
+      font-size: 0.64rem; letter-spacing: 0.04em; color: #9fb4d4; line-height: 1.15;
+    }
+    #relevant-section .rgc-stat {
+      font-weight: 700; font-size: 0.66rem; letter-spacing: 0.02em;
+      line-height: 1.2; margin-top: 0.1rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    #relevant-section .rel-guide-chip.is-filled .rgc-stat { color: #86efac; }
+    #relevant-section .rel-guide-chip.is-open .rgc-stat { color: #fcd9a0; }
+    #relevant-section .rel-guide-next {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.88rem; letter-spacing: 0.01em; color: #e7eefb; line-height: 1.45;
+      margin: 0 0 0.7rem;
+    }
+    #relevant-section .rel-guide-next strong { color: #fff; }
+    #relevant-section .rel-guide-next .rgn-open { color: #fcd9a0; font-weight: 700; }
+    #relevant-section .rel-guide-actions {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    #relevant-section .rel-guide-btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      min-height: 44px; padding: 0.5rem 1.05rem; border-radius: 0.7rem;
+      cursor: pointer; white-space: nowrap;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.16);
+      color: #e7eefb;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    #relevant-section .rel-guide-btn:hover { transform: translateY(-1px); }
+    #relevant-section .rel-guide-btn.is-primary {
+      background: linear-gradient(135deg, rgba(245,158,11,0.30), rgba(245,158,11,0.15));
+      border-color: rgba(245,158,11,0.55); color: #ffe9c2;
+    }
+    #relevant-section .rel-guide-btn.is-primary:hover { border-color: rgba(251,191,36,0.9); }
+    #relevant-section .rel-guide.is-complete .rel-guide-btn.is-primary {
+      background: linear-gradient(135deg, rgba(34,197,94,0.28), rgba(34,197,94,0.14));
+      border-color: rgba(34,197,94,0.6); color: #bbf7d0;
+    }
+    #relevant-section .rel-guide-btn.is-team {
+      background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(59,130,246,0.10));
+      border-color: rgba(96,165,250,0.5); color: #cfe0f5;
+    }
+    #relevant-section .rel-guide-btn.is-team:hover { border-color: rgba(147,197,253,0.85); }
+    @media (max-width: 768px) {
+      #relevant-section .rel-guide-btn { flex: 1 1 auto; justify-content: center; }
+    }
+
     /* ── District trees: team-coverage indicators ─────────────────────────────
        The unified district view shows a seat's officeholder(s) alongside everyone
        running for it. These mark, at a glance, whether the voter has already added
@@ -16705,6 +16837,10 @@
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#f5d98a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.32);">🤝 Rewards follow-through</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#cbd5e1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">👇 One race at a time</span>
           </div>
+          <!-- Live, district-focused guided status — the section's first-glance
+               "where am I, what's my single next step" element. Populated by
+               renderRelevantToMe once a location is set; hidden otherwise. -->
+          <div id="relevant-guided-status" class="rel-guide" style="display:none;"></div>
         </div>
 
         <!-- 🎯 My Key Alignments Panel (Purple Theme) -->
@@ -45352,6 +45488,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!window._hasUserLocation) {
         if (relevantCountBadge) relevantCountBadge.textContent = '0';
         if (relevantLocText) relevantLocText.innerHTML = 'Choose your area to personalize this section to your exact ballot.';
+        var _gEl0 = document.getElementById('relevant-guided-status');
+        if (_gEl0) { _gEl0.innerHTML = ''; _gEl0.style.display = 'none'; }
         relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function')
           ? window._relevantLocationPrompt()
           : '';
@@ -45934,6 +46072,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       function _covOfficesInLevel(lv) { return _covOffices.filter(function(k) { return (_RELEVANT_OFFICE_LEVEL[k] || '') === lv; }); }
 
       var coverageStrip = '';
+      // Built below from the same coverage figures and injected into the header's
+      // #relevant-guided-status banner (the section's first-glance "Start Here").
+      var _guidedHtml = '';
+      var _guidedComplete = false;
       if (_covTotal > 0) {
         var _covPct = Math.round((_covFilled / _covTotal) * 100);
         var _covDone = _covFilled >= _covTotal;
@@ -46021,6 +46163,101 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<p class="rel-cov-msg">' + _covMsg + '</p>' +
             _covCta +
           '</div>';
+
+        // ── "Start Here" guided status banner (district-focused) ──────────────
+        // A compact, first-glance companion to the strip above, rendered into the
+        // section header so the guided next step greets the voter before they
+        // scroll. Where the strip takes an all-seats lens, this banner takes the
+        // voter's OWN voting-districts lens: each district becomes a tappable
+        // covered/open chip, one clear next step is named, and the round trip to
+        // the team stays one tap away. Reuses the same coverage figures so the two
+        // surfaces can never disagree.
+        _guidedComplete = _covDone;
+        var _gDistNum = { representative: houseDist, state_senator: senateDist, state_rep: lowerDist };
+
+        // Per-district chips — green when a pick is on the team, amber when the
+        // district still needs attention. Tapping jumps straight to that race.
+        var _gChips = _covDistOffices.map(function(k) {
+          var _c = _relevantOfficeCoverage(k, ctx.teamSel);
+          var _lvl = _RELEVANT_OFFICE_LEVEL[k] || 'state';
+          var _short = _relTxt(_RELEVANT_OFFICE_SHORT[k] || k);
+          var _dn = _gDistNum[k];
+          var _sub = _dn ? ('District ' + _relTxt(_dn)) : 'Your district';
+          var _stat;
+          if (_c.filled) {
+            var _nm = (CMP_DATA[_c.pid] && CMP_DATA[_c.pid].name) ? _relTxt(CMP_DATA[_c.pid].name) : 'On your team';
+            _stat = '✓ ' + _nm;
+          } else {
+            _stat = '➕ Needs a pick';
+          }
+          return '<button type="button" class="rel-guide-chip ' + (_c.filled ? 'is-filled' : 'is-open') + '" ' +
+            'onclick="_relevantJump(\'' + _lvl + '\',\'' + k + '\')">' +
+            '<span class="rgc-name">🏛 ' + _short + '</span>' +
+            '<span class="rgc-sub">' + _sub + '</span>' +
+            '<span class="rgc-stat">' + _stat + '</span>' +
+          '</button>';
+        }).join('');
+
+        // The single next step — a still-open voting district first (the seats
+        // unique to this voter), then any other open seat. The lead celebrates a
+        // district already covered before naming the next gap, so the nudge always
+        // points toward a balanced, complete team.
+        var _gNext = _covDistOpen[0] || _covOpen[0];
+        var _gNextLine, _gPrimaryBtn = '';
+        if (_guidedComplete) {
+          _gNextLine = '🎉 <strong>Every seat on your ballot has a pick.</strong> Head up to review your slate and compare your picks side by side.';
+          _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">🗳️ Review My Team ↑</button>';
+        } else if (_gNext) {
+          var _gShort = _relTxt(_RELEVANT_OFFICE_SHORT[_gNext] || _gNext);
+          var _gYours = _relTxt(_RELEVANT_OFFICE_YOURS[_gNext] || ('your ' + _gShort + ' seat'));
+          var _gLvl = _RELEVANT_OFFICE_LEVEL[_gNext] || 'state';
+          var _gIsDistrict = !!_RELEVANT_DISTRICT_OFFICES[_gNext];
+          var _gCoveredDist = _covDistOffices.filter(function(k) {
+            return k !== _gNext && _relevantOfficeCoverage(k, ctx.teamSel).filled;
+          });
+          if (_gIsDistrict && _gCoveredDist.length) {
+            var _gDone = _relTxt(_RELEVANT_OFFICE_SHORT[_gCoveredDist[0]] || 'a district');
+            _gNextLine = 'You’ve covered your <strong>' + _gDone + '</strong> district — next, add <span class="rgn-open">' + _gYours + '</span> to your team.';
+          } else if (_gIsDistrict) {
+            _gNextLine = 'Your next voting district to cover: add <span class="rgn-open">' + _gYours + '</span> to your team.';
+          } else if (_covDistTotal > 0 && _covDistOpen.length === 0) {
+            _gNextLine = '🎉 <strong>All your voting districts are covered.</strong> Round out your team by adding <span class="rgn-open">' + _gYours + '</span>.';
+          } else {
+            _gNextLine = 'Start your team: add <span class="rgn-open">' + _gYours + '</span>.';
+          }
+          _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="_relevantJump(\'' + _gLvl + '\',\'' + _gNext + '\')">➕ Add ' + _gShort + '</button>';
+        }
+
+        // Headline progress takes the voting-districts view when the voter has any
+        // (the motivating "which of MY districts are covered" metric); otherwise it
+        // falls back to the full seat count so a districtless ballot still tracks.
+        var _gUseDist = _covDistTotal > 0;
+        var _gNum = _gUseDist ? _covDistFilled : _covFilled;
+        var _gDen = _gUseDist ? _covDistTotal : _covTotal;
+        var _gPct = _gDen ? Math.round((_gNum / _gDen) * 100) : 0;
+        var _gFracLabel = _gUseDist
+          ? (_covDistFilled + ' of ' + _covDistTotal + ' voting district' + (_covDistTotal === 1 ? '' : 's'))
+          : (_covFilled + ' of ' + _covTotal + ' seat' + (_covTotal === 1 ? '' : 's'));
+        var _gEyebrow = _guidedComplete ? '✓ Your Team Is Taking Shape' : '🧭 Start Here · Build Your Team';
+        var _gTitle = _guidedComplete
+          ? (_gUseDist ? 'Your Districts Are Covered' : 'Your Team Is Set')
+          : (_gUseDist ? 'Cover Your Districts' : 'Build Your Team');
+
+        var _gActions = _gPrimaryBtn;
+        if (!_guidedComplete) {
+          _gActions += '<button type="button" class="rel-guide-btn is-team" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">🗳️ My Voting Team ' + _covFilled + '/' + _covTotal + ' ↑</button>';
+        }
+
+        _guidedHtml =
+          '<div class="rel-guide-eyebrow">' + _gEyebrow + '</div>' +
+          '<div class="rel-guide-head">' +
+            '<span class="rel-guide-title">' + _gTitle + '</span>' +
+            '<span class="rel-guide-frac">' + _gFracLabel + ' on your team</span>' +
+          '</div>' +
+          '<div class="rel-guide-bar"><div class="rel-guide-fill" style="width:' + _gPct + '%;"></div></div>' +
+          (_gChips ? '<div class="rel-guide-chips">' + _gChips + '</div>' : '') +
+          '<p class="rel-guide-next">' + _gNextLine + '</p>' +
+          '<div class="rel-guide-actions">' + _gActions + '</div>';
       }
 
       // ── Closing bridge back to My Team ──────────────────────────────────────
@@ -46117,6 +46354,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>' +
         '</div>';
 
+      // Sync the header's guided-status banner. Reached on both the zero-result
+      // and normal render paths, so it shows the live next step when there's a
+      // tracked ballot and stays hidden otherwise.
+      var _gEl = document.getElementById('relevant-guided-status');
+      if (_gEl) {
+        if (_guidedHtml) {
+          _gEl.innerHTML = _guidedHtml;
+          _gEl.className = 'rel-guide' + (_guidedComplete ? ' is-complete' : '');
+          _gEl.style.display = 'block';
+        } else {
+          _gEl.innerHTML = '';
+          _gEl.style.display = 'none';
+        }
+      }
+
       if (total === 0) {
         var areaName = normalizedCounty || 'this location';
         var noResultsHtml = '<div class="text-center py-10 px-4 bg-navy-900/40 border border-white/5 rounded-2xl mt-4">' +
@@ -46158,6 +46410,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!relevantGrid) return;
       var _relGridHintFb = document.getElementById('relevant-grid-hint');
       if (_relGridHintFb) _relGridHintFb.style.display = window._hasUserLocation ? 'flex' : 'none';
+      // The fallback slate has no computed coverage, so the guided banner can't be
+      // trusted — hide it rather than leave a stale next step from a prior render.
+      var _gElFb = document.getElementById('relevant-guided-status');
+      if (_gElFb) { _gElFb.innerHTML = ''; _gElFb.style.display = 'none'; }
       if (!window._hasUserLocation) {
         if (relevantCountBadge) relevantCountBadge.textContent = '0';
         relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function') ? window._relevantLocationPrompt() : '';
