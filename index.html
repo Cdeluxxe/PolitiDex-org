@@ -5095,6 +5095,24 @@
       line-height: 1.32;
       margin-top: 0.16rem;
     }
+    /* Office tenure pill — "In office since 2019 (6 years)" / "Served 2015 – 2023
+       (8 years)". Sits on the office line so a voter sees how long someone has
+       actually held the seat. Green for sitting officeholders, muted steel for
+       former ones, matching the In Office / Former Office status palette. */
+    .pdx-tenure {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.62rem; letter-spacing: 0.045em; line-height: 1.2;
+      padding: 0.14rem 0.55rem; border-radius: 999px; white-space: nowrap;
+      vertical-align: middle;
+    }
+    .pdx-tenure .pdx-tenure-ico { font-size: 0.82em; line-height: 1; }
+    .pdx-tenure--current { background: rgba(34,197,94,0.13); border: 1px solid rgba(34,197,94,0.42); color: #86efac; }
+    .pdx-tenure--former { background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.4); color: #cbd5e1; }
+    .pdx-snap-tenure { margin-top: 0.34rem; }
+    /* In the profile modal hero the tenure line gets a touch more presence. */
+    .profile-tenure { margin-top: 0.5rem; }
+    .profile-tenure .pdx-tenure { font-size: 0.7rem; padding: 0.2rem 0.7rem; }
     .pdx-snap-badges { display: flex; align-items: center; gap: 0.34rem; flex-wrap: wrap; margin-top: 0.42rem; }
     .pdx-snap-score {
       flex-shrink: 0;
@@ -31190,6 +31208,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
           <h2 class="profile-name">${p.name}</h2>
           ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
+          ${(function(){ var tp=(typeof window._pdxTenurePill==='function')?window._pdxTenurePill(p):''; return tp ? '<div class="profile-tenure">' + tp + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
@@ -35444,6 +35463,61 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     return '<span class="pdx-status-badge pdx-depth-limited" style="' + base + 'background:rgba(148,163,184,0.13);border:1px solid rgba(148,163,184,0.4);color:#cbd5e1;">📋 Limited Record</span>';
   };
 
+  // ─── Office tenure ───────────────────────────────────────────────────────
+  // How long a politician has actually held their office — important
+  // accountability context the status badge alone ("In Office") doesn't convey.
+  // Driven entirely by structured data (d.termStart / d.termEnd); when no start
+  // date is recorded the helpers return nothing rather than guess a date.
+  //
+  // termStart / termEnd accept a plain year ("2019"), a month-year ("2023-01"),
+  // or a full ISO date ("2019-01-07"). A present termEnd marks a FORMER office
+  // ("Served 2015 – 2023"); its absence means the seat is still held today
+  // ("In office since 2019"). Years served are whole completed years.
+  var _PDX_TENURE_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function _pdxParseTermDate(v) {
+    if (v === null || v === undefined || v === '') return null;
+    var m = String(v).trim().match(/^(\d{4})(?:-(\d{1,2}))?/);
+    if (!m) return null;
+    var year = parseInt(m[1], 10);
+    if (!year || year < 1776 || year > 2100) return null;
+    var month = m[2] ? parseInt(m[2], 10) : null;
+    if (month !== null && (month < 1 || month > 12)) month = null;
+    return { year: year, month: month };
+  }
+  function _pdxFmtTermDate(p) {
+    if (!p) return '';
+    return p.month ? (_PDX_TENURE_MONTHS[p.month - 1] + ' ' + p.year) : String(p.year);
+  }
+  // Returns { current, years, text, start, end } or null when no start is known.
+  window._pdxTenure = function(d) {
+    if (!d) return null;
+    var start = _pdxParseTermDate(d.termStart);
+    if (!start) return null;
+    var end = _pdxParseTermDate(d.termEnd);
+    var current = !end;
+    var nowY = 2026, nowM = 6;
+    try { var nd = new Date(); nowY = nd.getFullYear(); nowM = nd.getMonth() + 1; } catch (e) {}
+    var endY = end ? end.year : nowY;
+    var endM = end ? (end.month || 12) : nowM;
+    var years = endY - start.year;
+    if (endM < (start.month || 1)) years -= 1;   // anniversary not yet reached
+    if (years < 0) years = 0;
+    var yrTxt = years >= 1 ? ' (' + years + ' year' + (years === 1 ? '' : 's') + ')' : '';
+    var startTxt = _pdxFmtTermDate(start);
+    var text = current
+      ? ('In office since ' + startTxt + yrTxt)
+      : ('Served ' + startTxt + ' – ' + _pdxFmtTermDate(end) + yrTxt);
+    return { current: current, years: years, text: text, start: start, end: end };
+  };
+  // The pill HTML for a card / profile. Returns '' when there is no tenure data.
+  window._pdxTenurePill = function(d, opts) {
+    var t = window._pdxTenure(d);
+    if (!t) return '';
+    var cls = t.current ? 'pdx-tenure--current' : 'pdx-tenure--former';
+    return '<span class="pdx-tenure ' + cls + '" title="' + t.text + '">' +
+      '<span class="pdx-tenure-ico">🗓️</span>' + t.text + '</span>';
+  };
+
   // Graceful, consistent stand-in for the focus / key-issue chip row when a
   // politician has no tracked issues yet. Instead of leaving a blank gap (which
   // reads as a broken or half-built card), the card shows a clean, muted
@@ -36805,7 +36879,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
   const CMP_DATA = {
     curtis: {
-      name:'John Curtis', office:'U.S. Senator', state:'Utah', party:'R',
+      name:'John Curtis', office:'U.S. Senator', state:'Utah', party:'R', termStart:'2025-01',
       score:78, kept:31, broken:6, pending:3, icon:'🏛',
       issues:['Western Water Rights','Fiscal Conservatism','Technology Policy','Rural Broadband'],
       stances:{
@@ -36835,7 +36909,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     lee: {
-      name:'Mike Lee', office:'U.S. Senator', state:'Utah', party:'R',
+      name:'Mike Lee', office:'U.S. Senator', state:'Utah', party:'R', termStart:'2011-01',
       score:72, kept:36, broken:11, pending:3, icon:'🏛',
       issues:['Constitutional Originalism','Federalism','Deficit Reduction','Religious Liberty'],
       stances:{
@@ -36850,7 +36924,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     cox: {
-      name:'Spencer Cox', office:'Governor', state:'Utah', party:'R',
+      name:'Spencer Cox', office:'Governor', state:'Utah', party:'R', termStart:'2021-01',
       score:67, kept:22, broken:9, pending:7, icon:'🦅',
       issues:['Rural Development','Water Policy','Mental Health','Data Center Controversy'],
       stances:{
@@ -36910,7 +36984,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     owens: {
-      name:'Burgess Owens', office:'U.S. Representative', state:'District 4', party:'R',
+      name:'Burgess Owens', office:'U.S. Representative', state:'District 4', party:'R', termStart:'2021-01',
       score:64, kept:18, broken:7, pending:8, icon:'🏛',
       issues:['Education Freedom','School Choice','Second Amendment','Anti-CRT'],
       stances:{
@@ -36926,7 +37000,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     maloy: {
-      name:'Celeste Maloy', office:'U.S. Representative', state:'District 2', party:'R',
+      name:'Celeste Maloy', office:'U.S. Representative', state:'District 2', party:'R', termStart:'2023-11',
       score:61, kept:11, broken:5, pending:9, icon:'🏛',
       issues:['Public Lands','Western Water Rights','Border Security','Fiscal Conservatism'],
       stances:{
@@ -36942,7 +37016,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     },
     kennedy: {
       unopposed: true,
-      name:'Mike Kennedy', office:'U.S. Representative', state:'Utah · District 3', party:'R',
+      name:'Mike Kennedy', office:'U.S. Representative', state:'Utah · District 3', party:'R', termStart:'2025-01',
       score:null, kept:0, broken:0, pending:9, icon:'🏛',
       issues:['Healthcare Reform','Constitutional Conservatism','Religious Liberty','Fiscal Reform'],
       bio:'Mike Kennedy is the Republican U.S. Representative for Utah’s 3rd Congressional District (Utah County), first elected in 2024. A physician and attorney, he previously served in the Utah Legislature before his Congressional bid.',
@@ -36988,7 +37062,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     bmoore: {
-      name:'Blake Moore', office:'U.S. Representative', state:'Utah · UT-1', party:'R',
+      name:'Blake Moore', office:'U.S. Representative', state:'Utah · UT-1', party:'R', termStart:'2021-01',
       score:66, kept:18, broken:8, pending:5, icon:'🏛',
       issues:['Tax Policy','Western Water','Hill AFB','Fiscal Conservatism'],
       stances:{
@@ -37018,7 +37092,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     jstevenson: {
-      name:'Jerry Stevenson', office:'Utah State Senator', state:'UT District 6', party:'R',
+      name:'Jerry Stevenson', office:'Utah State Senator', state:'UT District 6', party:'R', termStart:'2010',
       score:62, kept:13, broken:7, pending:4, icon:'🏛',
       issues:['Transportation','Water Policy','State Budget','Davis County'],
       stances:{
@@ -37033,7 +37107,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
     },
     tlee: {
-      name:'Trevor Lee', office:'UT State Representative', state:'UT District 16', party:'R',
+      name:'Trevor Lee', office:'UT State Representative', state:'UT District 16', party:'R', termStart:'2023-01',
       score:68, kept:15, broken:7, pending:5, icon:'🏛',
       issues:['Parental Rights','Government Neutrality','Income Tax Cuts','Limited Government'],
       stances:{
@@ -37052,21 +37126,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Promise % / Accountability are shown only where PolitiDex has finished
     // compiling a voting record — others read "being compiled" until then.
     kgrover: {
-      name:'Keith Grover', office:'Utah State Senator', state:'UT District 15 (Provo)', party:'R',
+      name:'Keith Grover', office:'Utah State Senator', state:'UT District 15 (Provo)', party:'R', termStart:'2018',
       score:null, kept:0, broken:0, pending:0, icon:'🏛',
       issues:['Utah Senate District 23','Provo','Education','State Budget'],
       bio:'Keith Grover is the Republican state senator for Utah Senate District 23, covering the Provo area. He is up for re-election in 2026.',
       stances:{ border:'PolitiDex is compiling this official’s voting record.', debt:'PolitiDex is compiling this official’s voting record.', gun:'PolitiDex is compiling this official’s voting record.', termLimits:'PolitiDex is compiling this official’s voting record.', campaign:'PolitiDex is compiling this official’s voting record.', dataCenters:'N/A', healthcare:'PolitiDex is compiling this official’s voting record.', audit:'N/A — state-level office' }
     },
     amillner: {
-      name:'Ann Millner', office:'Utah State Senator', state:'UT District 5', party:'R',
+      name:'Ann Millner', office:'Utah State Senator', state:'UT District 5', party:'R', termStart:'2015-01',
       score:74, kept:21, broken:4, pending:5, icon:'🏛',
       issues:['Higher Education','Workforce Development','Healthcare','Ogden / Weber Co.'],
       bio:'Ann Millner is the Republican state senator for Utah Senate District 5 (Weber County) and a former Weber State University president, focused on education and workforce policy.',
       stances:{ border:'Supports state cooperation with federal enforcement', debt:'Supports balanced state budgeting', gun:'Supports constitutional carry', termLimits:'No formal position', campaign:'No formal position', dataCenters:'N/A', healthcare:'Leading voice on workforce and higher-education funding', audit:'N/A — state-level office' }
     },
     sadams: {
-      name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Davis County', party:'R',
+      name:'Stuart Adams', office:'Utah Senate President', state:'Utah · Davis County', party:'R', termStart:'2009',
       score:65, kept:20, broken:10, pending:5, icon:'🏛',
       issues:['School Choice','Transportation','State Budget','Legislative Leadership'],
       stances:{
@@ -40971,6 +41045,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               (opts.controls || '') +
             '</div>' +
             '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d, resolvedDist) + '</div>' +
+            (function(){ var tp = (typeof window._pdxTenurePill === 'function') ? window._pdxTenurePill(d) : ''; return tp ? '<div class="pdx-snap-tenure">' + tp + '</div>' : ''; })() +
             '<div class="pdx-snap-badges">' + statusBadge + depthBadge + unopposed + party + (opts.badges || '') + '</div>' +
           '</div>' +
           scoreBlock +
@@ -46681,7 +46756,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _krIncTenure(race, pid) {
       var since = race.incumbentSince;
       if (since && typeof since === 'object') since = since[pid];
-      if (!since) return '';
+      // Fall back to the officeholder's own structured tenure (termStart) so the
+      // pill appears — with whole-years served — even where the race table has no
+      // hardcoded incumbentSince. Keeps Key Races consistent with cards/profiles.
+      if (!since) {
+        var _d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+        var _t = (_d && typeof window._pdxTenure === 'function') ? window._pdxTenure(_d) : null;
+        if (_t && _t.current) return '<span class="kr-inc-tenure"><span>🗓️</span>' + _t.text + '</span>';
+        return '';
+      }
       var yrs = 2026 - since;
       var yrTxt = yrs > 0 ? ' · ' + yrs + ' yr' + (yrs === 1 ? '' : 's') + ' in office' : '';
       return '<span class="kr-inc-tenure"><span>🗓️</span>In office since ' + since + yrTxt + '</span>';
