@@ -34347,13 +34347,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <p class="text-steel-400 text-[0.7rem] sm:text-xs font-body leading-snug mt-3">Your team is just the people you'd vote for — chosen by <strong class="text-steel-200">your values</strong> and the <strong class="text-steel-200">districts you live in</strong>, not by party. No rush — everything saves as you go.</p>
       </div>
 
-      <!-- Actions -->
+      <!-- Actions — lead with the real first step (set location → see your ballot)
+           so the very first tap drops a new visitor straight into their own ballot,
+           not a walkthrough. The guided tour stays one tap away for anyone who wants
+           the full lay of the land first. -->
       <div class="space-y-3 pt-1">
-        <button onclick="pdxStartTour()" class="w-full bg-crimson-600 hover:bg-crimson-500 active:bg-crimson-400 text-white font-condensed font-700 text-sm tracking-widest uppercase py-3.5 rounded-xl text-center transition-all btn-glow shadow-lg flex items-center justify-center gap-2" style="min-height:unset;">
-          🚀 Start the Quick Tour
+        <button onclick="pdxWelcomeSetLocation()" class="w-full bg-gradient-to-r from-gold-500 via-yellow-500 to-gold-400 hover:from-gold-400 hover:via-yellow-400 hover:to-gold-300 text-navy-900 font-condensed font-900 text-sm tracking-widest uppercase py-3.5 rounded-xl text-center transition-all hover:scale-[1.02] active:scale-95 shadow-lg flex items-center justify-center gap-2" style="min-height:unset;box-shadow:0 6px 24px rgba(245,200,66,0.35);">
+          📍 Set my location &amp; see my ballot
         </button>
-        <button onclick="pdxCloseWelcome()" class="w-full bg-transparent hover:bg-white/5 text-steel-400 hover:text-steel-300 font-condensed font-600 text-xs tracking-widest uppercase py-2.5 rounded-xl text-center transition-all" style="min-height:unset;">
-          Maybe later — let me explore
+        <button onclick="pdxStartTour()" class="w-full bg-blue-900/40 hover:bg-blue-800/60 border border-blue-400/40 hover:border-blue-400/70 text-blue-200 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 rounded-xl text-center transition-all flex items-center justify-center gap-2" style="min-height:unset;">
+          🚀 Or take the 2-min tour first
+        </button>
+        <button onclick="pdxCloseWelcome()" class="w-full bg-transparent hover:bg-white/5 text-steel-400 hover:text-steel-300 font-condensed font-600 text-xs tracking-widest uppercase py-2 rounded-xl text-center transition-all" style="min-height:unset;">
+          Maybe later — let me explore on my own
         </button>
       </div>
 
@@ -36609,6 +36615,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (!form) return;
     form.style.display = 'none';
     document.body.style.overflow = '';
+
+    // Welcome→location handoff: if the picker was opened from the welcome modal's
+    // "Set my location & see my ballot" action and a location is now set, carry the
+    // new visitor down to their personalized ballot so they actually see what they
+    // just unlocked. Strictly one-shot and scoped to that flow — returning users who
+    // simply tweak their location are never auto-scrolled.
+    if (window._pdxWelcomeAwaitingBallot) {
+      window._pdxWelcomeAwaitingBallot = false;
+      if (window._hasUserLocation) {
+        var dest = document.getElementById('voter-hub') || document.getElementById('relevant-section');
+        if (dest) {
+          setTimeout(function() {
+            try { dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { dest.scrollIntoView(); }
+          }, 120);
+        }
+      }
+    }
   };
 
   // Close the location modal with the Escape key.
@@ -53230,6 +53253,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       markSeen();
       hideWelcome(250);
       setTimeout(function() { showStep(0); }, 300);
+    };
+
+    // The welcome modal's primary action: skip straight to the real first step.
+    // Closes the welcome card and opens the location picker so a brand-new visitor
+    // goes from "what is this?" to "this is my ballot" in a single tap.
+    window.pdxWelcomeSetLocation = function() {
+      markSeen();
+      hideWelcome(200);
+      // Flag the welcome→location handoff so closing the picker with a location set
+      // scrolls the new visitor to their now-personalized ballot (see closeLocationModal),
+      // making good on the button's "see my ballot" promise instead of dropping them
+      // back at the top of the page.
+      window._pdxWelcomeAwaitingBallot = true;
+      setTimeout(function() {
+        if (window.openLocationModal) window.openLocationModal();
+        else if (window.toggleChangeLocation) window.toggleChangeLocation();
+      }, 240);
     };
 
     window.pdxNextStep = function() {
