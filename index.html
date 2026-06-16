@@ -5433,6 +5433,107 @@
     .mine-match  .pdx-stance-you { background: rgba(74,222,128,0.18);  color: #6ee7a8; }
     .mine-partial .pdx-stance-you { background: rgba(245,200,66,0.18);  color: #fcd34d; }
     .mine-differ .pdx-stance-you { background: rgba(248,113,113,0.18); color: #fca5a5; }
+    /* ── Seat issue board ───────────────────────────────────────────────────────
+       The at-a-glance, aligned issue comparison for one unified district seat:
+       key issues down the side, everyone in the race across the top, each cell a
+       color-coded ✓/✗/~/— read. A voter scans straight across a row to compare
+       the whole field on the same issue without opening a profile. Dark patriotic
+       palette, contained as one tidy module above the detailed cards. */
+    .pdx-seat-board {
+      margin: 0 0 0.95rem; border: 1px solid rgba(148,163,184,0.16);
+      border-radius: 0.85rem; overflow: hidden;
+      background: linear-gradient(180deg, rgba(15,28,52,0.66), rgba(10,15,30,0.5));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 14px rgba(0,0,0,0.18);
+    }
+    .pdx-seat-board-head {
+      display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+      padding: 0.55rem 0.8rem 0.5rem; border-bottom: 1px solid rgba(148,163,184,0.12);
+      background: linear-gradient(90deg, rgba(245,200,66,0.07), rgba(192,21,42,0.05));
+    }
+    .pdx-seat-board-ico { font-size: 0.92rem; line-height: 1; }
+    .pdx-seat-board-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #fbbf24; font-size: 0.76rem;
+    }
+    .pdx-seat-board-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.04em;
+      color: #7596c0; margin-left: auto; text-align: right;
+    }
+    .pdx-seat-board-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pdx-sib-grid { border-collapse: collapse; width: 100%; }
+    .pdx-sib-grid th, .pdx-sib-grid td { border: 0; }
+    /* The issue label column stays pinned while the people columns scroll, so the
+       row a voter is reading never loses its label on a narrow screen. */
+    .pdx-sib-corner, .pdx-sib-issue {
+      position: sticky; left: 0; z-index: 2; text-align: left;
+      background: rgba(11,20,38,0.97);
+    }
+    .pdx-sib-corner {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #5f7aa0;
+      padding: 0.5rem 0.7rem; min-width: 122px;
+    }
+    .pdx-sib-person {
+      vertical-align: bottom; padding: 0.45rem 0.4rem 0.5rem; min-width: 62px;
+      text-align: center; cursor: pointer; transition: background 0.15s ease;
+    }
+    .pdx-sib-person:hover { background: rgba(255,255,255,0.045); }
+    .pdx-sib-av {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 50%; overflow: hidden;
+      border: 2px solid rgba(148,163,184,0.5); background: rgba(30,53,96,0.55); margin: 0 auto 0.22rem;
+    }
+    .pdx-sib-av img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .pdx-sib-av-ph { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.82rem; }
+    .pdx-sib-name {
+      display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.6rem; letter-spacing: 0.02em; max-width: 72px; margin: 0 auto;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pdx-sib-role { display: block; font-size: 0.5rem; opacity: 0.5; line-height: 1.1; }
+    .pdx-sib-row th, .pdx-sib-row td { border-top: 1px solid rgba(148,163,184,0.08); }
+    .pdx-sib-issue { padding: 0.4rem 0.7rem; max-width: 156px; }
+    .pdx-sib-issue-ico { margin-right: 0.3rem; font-size: 0.72rem; }
+    .pdx-sib-issue-lbl {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.7rem;
+      letter-spacing: 0.01em; color: #c3d2e6;
+    }
+    .pdx-sib-flag {
+      display: inline-block; margin-left: 0.36rem; vertical-align: middle;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.5rem;
+      letter-spacing: 0.05em; text-transform: uppercase; padding: 0.05rem 0.34rem; border-radius: 999px;
+      color: #fcd34d; background: rgba(245,200,66,0.12); border: 1px solid rgba(245,200,66,0.28);
+    }
+    .pdx-sib-flag.is-mine { color: #d8b4fe; background: rgba(139,92,246,0.14); border-color: rgba(139,92,246,0.34); }
+    .pdx-sib-cell { text-align: center; padding: 0.3rem 0.4rem; min-width: 62px; }
+    .pdx-sib-ico {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; line-height: 1;
+    }
+    .pdx-sib-cell.is-support .pdx-sib-ico { color: #34d399; background: rgba(52,211,153,0.12); box-shadow: inset 0 0 0 1px rgba(52,211,153,0.32); }
+    .pdx-sib-cell.is-oppose  .pdx-sib-ico { color: #f87171; background: rgba(248,113,113,0.12); box-shadow: inset 0 0 0 1px rgba(248,113,113,0.32); }
+    .pdx-sib-cell.is-mixed   .pdx-sib-ico { color: #f5c842; background: rgba(245,200,66,0.12); box-shadow: inset 0 0 0 1px rgba(245,200,66,0.32); }
+    .pdx-sib-cell.is-none { color: #46587a; font-weight: 700; }
+    .pdx-sib-row.is-contested th.pdx-sib-issue { box-shadow: inset 3px 0 0 rgba(245,200,66,0.6); }
+    .pdx-sib-row.is-mine th.pdx-sib-issue { box-shadow: inset 3px 0 0 rgba(139,92,246,0.72); }
+    .pdx-seat-board-legend {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.28rem 0.7rem;
+      padding: 0.45rem 0.8rem 0.55rem; border-top: 1px solid rgba(148,163,184,0.1);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; letter-spacing: 0.03em;
+    }
+    .pdx-sib-lg { color: #8aa0c0; }
+    .pdx-sib-lg.is-support { color: #86efac; }
+    .pdx-sib-lg.is-oppose { color: #fca5a5; }
+    .pdx-sib-lg.is-mixed { color: #fcd34d; }
+    .pdx-sib-lg.is-none { color: #5f7aa0; }
+    .pdx-sib-lg-more { margin-left: auto; color: #7596c0; font-style: italic; }
+    @media (max-width: 640px) {
+      .pdx-sib-corner { min-width: 104px; }
+      .pdx-sib-issue { max-width: 124px; }
+      .pdx-sib-issue-lbl { font-size: 0.64rem; }
+      .pdx-sib-person, .pdx-sib-cell { min-width: 50px; }
+      .pdx-seat-board-sub { font-size: 0.56rem; }
+    }
     /* Eyebrow read: "🎯 N of your issues", color-cued to how the official's
        documented positions lean against the visitor's picks. */
     .pdx-stance-mine-eb {
@@ -29979,6 +30080,169 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     return '<div class="pdx-snap-stances">' + label + lead + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
   };
 
+  // ── At-a-glance issue comparison for one district seat ─────────────────────
+  // Lays a unified seat's WHOLE live field (the sitting officeholder plus every
+  // challenger for that same seat) against the SAME key issues in one compact,
+  // aligned grid: issues down the side, people across the top, every cell a
+  // color-coded ✓ supports · ✗ opposes · ~ mixed · — no-position read. This is
+  // what makes the district view answer "where does everyone in this race
+  // stand?" without opening a single profile — and, because the rows are shared
+  // issues rather than each person's own top tags, a voter can scan straight
+  // ACROSS a row to compare the field head-to-head.
+  //
+  // Everything is drawn from documented ISSUE_STANCE_DATA via _polPositionMap,
+  // so nothing is fabricated: a person with no record on an issue simply reads
+  // "—". Rows are prioritized by what actually decides the race — the visitor's
+  // own Alignment Tool issues first, then issues the field openly disagrees on
+  // (support AND oppose both present), then the most widely-held — so the few
+  // rows shown are the most distinctive and relevant. Returns '' unless at least
+  // two people in the field carry documented positions (no field, no comparison).
+  window._pdxSeatIssueBoard = function(fieldPids, opts) {
+    opts = opts || {};
+    if (typeof window._polPositionMap !== 'function' || typeof CMP_DATA === 'undefined') return '';
+
+    // Gather each person's documented position map, preserving the caller's order
+    // (the field arrives incumbent-first), so the columns mirror the cards below.
+    var people = [];
+    (fieldPids || []).forEach(function(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return;
+      var map = window._polPositionMap(pid, d) || {};
+      people.push({ pid: pid, d: d, map: map, n: Object.keys(map).length });
+    });
+    if (people.length < 2) return '';
+    // A genuine comparison needs documented positions from at least two people —
+    // otherwise the grid would be one filled column beside a wall of "—".
+    if (people.filter(function(p) { return p.n > 0; }).length < 2) return '';
+
+    var hasAlign = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+
+    // Aggregate every documented issue across the field, keyed by canonical
+    // issueKey so the same topic from different people lands on one shared row.
+    var issues = {};
+    people.forEach(function(p) {
+      Object.keys(p.map).forEach(function(k) {
+        var e = p.map[k] || {};
+        var st = String(e.stance || 'mixed').toLowerCase();
+        if (st !== 'support' && st !== 'oppose') st = 'mixed';
+        if (!issues[k]) issues[k] = { key: k, topics: [], icon: e.icon || '', byPid: {}, txt: {} };
+        issues[k].byPid[p.pid] = st;
+        issues[k].txt[p.pid] = e.text || '';
+        if (e.topic) issues[k].topics.push(String(e.topic).trim());
+        if (!issues[k].icon && e.icon) issues[k].icon = e.icon;
+      });
+    });
+
+    var arr = Object.keys(issues).map(function(k) {
+      var it = issues[k];
+      var stances = Object.keys(it.byPid).map(function(pid) { return it.byPid[pid]; });
+      var distinct = {};
+      stances.forEach(function(s) { distinct[s] = 1; });
+      it.cov = stances.length;
+      it.contested = it.cov >= 2 && distinct.support && distinct.oppose;   // open disagreement
+      it.divergent = it.cov >= 2 && Object.keys(distinct).length > 1;      // any difference
+      it.mine = !!(hasAlign && _alignIssues.has(k));
+      // Representative label: the shortest topic phrasing seen for this issue
+      // (keeps the row compact); fall back to a de-slugged key.
+      it.label = it.topics.slice().sort(function(a, b) { return a.length - b.length; })[0] ||
+        k.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+      if (!it.icon) it.icon = '📌';
+      return it;
+    });
+
+    // Most decision-relevant first: your issues → openly contested → any
+    // divergence → widest coverage → stable alphabetical.
+    arr.sort(function(a, b) {
+      return (b.mine - a.mine) || (b.contested - a.contested) || (b.divergent - a.divergent) ||
+        (b.cov - a.cov) || a.label.localeCompare(b.label);
+    });
+
+    var max = opts.max || 4;
+    var rows = arr.slice(0, max);
+    if (!rows.length) return '';
+    var moreIssues = arr.length - rows.length;
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function partyCol(party) {
+      return party === 'R' ? '#f87171' : party === 'D' ? '#60a5fa'
+        : (party === 'F' || party === 'Forward') ? '#22d3ee' : '#a78bfa';
+    }
+
+    // Person column headers — a small party-tinted avatar + first name, the same
+    // people shown as cards below, each tappable to open the full profile.
+    var headCells = people.map(function(p) {
+      var d = p.d;
+      var first = d.name ? String(d.name).split(/\s+/)[0] : '—';
+      var url = d.photo ? d.photo
+        : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[p.pid]) ? BROWSE_PHOTOS[p.pid] : '');
+      var col = partyCol(d.party);
+      var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var roleIco = status === 'office' ? '★' : status === 'candidate' ? '🗳' : '◷';
+      var av = url
+        ? '<span class="pdx-sib-av" style="border-color:' + col + '99;"><img src="' + esc(url) + '" alt="' + esc(d.name) + '" loading="lazy" onerror="this.style.display=\'none\'"></span>'
+        : '<span class="pdx-sib-av pdx-sib-av-ph" style="border-color:' + col + '99;color:' + col + ';">' + esc(first.slice(0, 1)) + '</span>';
+      return '<th class="pdx-sib-person" title="' + esc(d.name) + ' — open profile" ' +
+          'onclick="event.stopPropagation();showProfile(\'' + p.pid + '\')">' +
+          av +
+          '<span class="pdx-sib-name" style="color:' + col + ';">' + esc(first) + '</span>' +
+          '<span class="pdx-sib-role" aria-hidden="true">' + roleIco + '</span>' +
+        '</th>';
+    }).join('');
+
+    var DIR = {
+      support: { cls: 'is-support', ico: '✓', verb: 'Supports' },
+      oppose:  { cls: 'is-oppose',  ico: '✗', verb: 'Opposes' },
+      mixed:   { cls: 'is-mixed',   ico: '~', verb: 'Mixed record on' }
+    };
+    var bodyRows = rows.map(function(it) {
+      var cells = people.map(function(p) {
+        var st = it.byPid[p.pid];
+        if (!st) return '<td class="pdx-sib-cell is-none" title="No documented position on this issue">·</td>';
+        var m = DIR[st] || DIR.mixed;
+        var who = p.d.name ? String(p.d.name).split(/\s+/)[0] : 'They';
+        var tip = who + ' — ' + m.verb + ' ' + it.label + (it.txt[p.pid] ? ': ' + it.txt[p.pid] : '');
+        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span></td>';
+      }).join('');
+      var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : ''));
+      var flag = it.mine
+        ? '<span class="pdx-sib-flag is-mine" title="One of your Alignment Tool issues">🎯 yours</span>'
+        : (it.contested ? '<span class="pdx-sib-flag" title="The field openly disagrees here">⚡ split</span>' : '');
+      return '<tr class="' + rowCls + '">' +
+          '<th class="pdx-sib-issue" scope="row">' +
+            '<span class="pdx-sib-issue-ico" aria-hidden="true">' + (it.icon || '📌') + '</span>' +
+            '<span class="pdx-sib-issue-lbl">' + esc(it.label) + '</span>' + flag +
+          '</th>' + cells +
+        '</tr>';
+    }).join('');
+
+    var sub = moreIssues > 0
+      ? rows.length + ' of ' + arr.length + ' issues · most distinctive first'
+      : rows.length + ' issue' + (rows.length === 1 ? '' : 's') + ' across this race';
+
+    return '<div class="pdx-seat-board" onclick="event.stopPropagation();">' +
+        '<div class="pdx-seat-board-head">' +
+          '<span class="pdx-seat-board-ico" aria-hidden="true">📊</span>' +
+          '<span class="pdx-seat-board-title">Where they stand</span>' +
+          '<span class="pdx-seat-board-sub">' + sub + '</span>' +
+        '</div>' +
+        '<div class="pdx-seat-board-scroll">' +
+          '<table class="pdx-sib-grid"><thead><tr><th class="pdx-sib-corner" scope="col">Key issue</th>' +
+            headCells + '</tr></thead><tbody>' + bodyRows + '</tbody></table>' +
+        '</div>' +
+        '<div class="pdx-seat-board-legend">' +
+          '<span class="pdx-sib-lg is-support">✓ Supports</span>' +
+          '<span class="pdx-sib-lg is-oppose">✗ Opposes</span>' +
+          '<span class="pdx-sib-lg is-mixed">~ Mixed</span>' +
+          '<span class="pdx-sib-lg is-none">· No position on record</span>' +
+          (moreIssues > 0 ? '<span class="pdx-sib-lg-more">Open a profile for the full record</span>' : '') +
+        '</div>' +
+      '</div>';
+  };
+
   // Compare one of the visitor's selected positions to the politician's stance.
   //   userIntensity : 'strong' | 'moderate' | 'opposed'  (how they feel about it)
   //   polStance     : 'support' | 'oppose'  | 'mixed'     (does the politician hold it)
@@ -43031,6 +43295,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 hasIncumbent: _distOffice > 0
               });
             }
+            // At-a-glance issue board for this seat — every person's documented
+            // stances laid against the same key issues so the race compares head-to-
+            // head without opening a profile. The field here is already one district
+            // (these pids were grouped by their resolved district/seat above), so the
+            // comparison is always coherent. Skipped when the field is a single
+            // record (no race) or when fewer than two people carry documented data.
+            if (typeof window._pdxSeatIssueBoard === 'function') {
+              out += window._pdxSeatIssueBoard(_distOfficePids.concat(_distCandPids), { max: 4 });
+            }
             // Contested seat (incumbent + challengers) in default order: split into
             // clearly labeled tiers — who holds the seat now, who's running for it,
             // and (quietly) who held it before — so the field reads at a glance. When
@@ -44040,6 +44313,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Invite a side-by-side comparison of the field on issue alignment, right
         // where the decision is made (only renders for an actual 2+ field).
         out += _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
+        // At-a-glance issue board: the whole field's documented stances laid against
+        // the same key issues, so a voter compares everyone in the race head-to-head
+        // without opening a profile. Only render when the field is ONE coherent seat
+        // — this renderer is also handed multi-district range groups (county-level /
+        // unfocused chambers), where a cross-field "race" comparison would be wrong.
+        if (typeof window._pdxSeatIssueBoard === 'function' && liveField.length >= 2) {
+          var _seatDistSet = {};
+          liveField.forEach(function(pid) {
+            var _dd = (typeof _getPoliticianDistrictOrCounty === 'function') ? _getPoliticianDistrictOrCounty(pid) : '';
+            if (_dd) _seatDistSet[_dd] = 1;
+          });
+          if (Object.keys(_seatDistSet).length <= 1) {
+            out += window._pdxSeatIssueBoard(liveField, { max: 4 });
+          }
+        }
 
         var _gridCls = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start';
         // When a sitting officeholder is being challenged AND we're not ranking the
