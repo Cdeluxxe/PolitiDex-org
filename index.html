@@ -13799,6 +13799,137 @@
       #relevant-browse-grid .browse-type-name { font-size: 1.18rem !important; letter-spacing: 0.08em !important; }
     }
 
+    /* ── RELEVANT TO ME — statewide office sub-groups ─────────────────────────
+       Inside the purple "Statewide Executive Offices" accordion, each individual
+       statewide race (Governor, Lt. Governor, Attorney General, Treasurer,
+       Auditor…) gets its own clean, collapsible card so voters can scan a tidy
+       menu of statewide seats and open just the one they want — instead of one
+       long, co-mingled list. Tinted to the Governor branch's purple accent to
+       stay visually anchored to its parent, in the dark patriotic palette. */
+    #relevant-browse-grid .relevant-sw-group {
+      --sw-rgb: 168,85,247;
+      margin-bottom: 0.7rem;
+      border: 1px solid rgba(var(--sw-rgb),0.22);
+      border-left: 3px solid rgba(var(--sw-rgb),0.55);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(var(--sw-rgb),0.07), rgba(13,21,38,0.5));
+    }
+    #relevant-browse-grid .relevant-sw-group:last-child { margin-bottom: 0; }
+    #relevant-browse-grid .relevant-sw-group.expanded {
+      border-color: rgba(var(--sw-rgb),0.4);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.28), -4px 0 14px rgba(var(--sw-rgb),0.12);
+    }
+    #relevant-browse-grid .relevant-sw-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      border: none;
+      padding: 0.7rem 0.85rem;
+      background: linear-gradient(135deg, rgba(var(--sw-rgb),0.16) 0%, rgba(17,29,54,0.7) 60%, rgba(13,21,38,0.78) 100%);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: filter 0.2s, transform 0.1s ease;
+    }
+    @media (hover: hover) {
+      #relevant-browse-grid .relevant-sw-header:hover { filter: brightness(1.12); }
+    }
+    #relevant-browse-grid .relevant-sw-header:active { transform: scale(0.995); }
+    #relevant-browse-grid .relevant-sw-icon {
+      width: 1.85rem;
+      height: 1.85rem;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      border-radius: 0.5rem;
+      background: rgba(var(--sw-rgb),0.22);
+      border: 1px solid rgba(var(--sw-rgb),0.5);
+      box-shadow: 0 0 0 1px rgba(var(--sw-rgb),0.25);
+    }
+    #relevant-browse-grid .relevant-sw-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      gap: 0.1rem;
+    }
+    #relevant-browse-grid .relevant-sw-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.02rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+    #relevant-browse-grid .relevant-sw-hint {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #c9b8ee;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    #relevant-browse-grid .relevant-sw-count {
+      margin-left: auto;
+      flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #fff;
+      background: rgba(var(--sw-rgb),0.28);
+      border: 1px solid rgba(var(--sw-rgb),0.55);
+      border-radius: 999px;
+      padding: 0.1rem 0.55rem;
+      white-space: nowrap;
+    }
+    #relevant-browse-grid .relevant-sw-chevron-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.7rem;
+      height: 1.7rem;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.25s, border-color 0.25s;
+    }
+    #relevant-browse-grid .relevant-sw-group.expanded .relevant-sw-chevron-wrap {
+      background: rgba(var(--sw-rgb),0.22);
+      border-color: rgba(var(--sw-rgb),0.45);
+    }
+    #relevant-browse-grid .relevant-sw-chevron {
+      width: 0.95rem;
+      height: 0.95rem;
+      color: #c9b8ee;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+    #relevant-browse-grid .relevant-sw-group.expanded .relevant-sw-chevron {
+      transform: rotate(180deg);
+      color: #fff;
+    }
+    #relevant-browse-grid .relevant-sw-inner { padding: 0.65rem; }
+    @media (max-width: 640px) {
+      #relevant-browse-grid .relevant-sw-header { padding: 0.6rem 0.65rem; gap: 0.5rem; }
+      #relevant-browse-grid .relevant-sw-name { font-size: 0.92rem; letter-spacing: 0.04em; }
+      #relevant-browse-grid .relevant-sw-icon { width: 1.65rem; height: 1.65rem; font-size: 0.88rem; }
+      #relevant-browse-grid .relevant-sw-chevron-wrap { width: 1.55rem; height: 1.55rem; }
+      #relevant-browse-grid .relevant-sw-inner { padding: 0.45rem; }
+    }
+
     /* ── RELEVANT TO ME — extra header prominence + values-first messaging ────
        Builds on the office-header styles above to make each race an even
        louder, scroll-proof break, and adds the supporting classes used by the
@@ -44933,6 +45064,32 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // guidance ("you've covered your federal seats — add your State Senator next").
     var _RELEVANT_LEVEL_WORD = { federal: 'federal', state: 'state', local: 'local' };
 
+    // ── Statewide-office sub-grouping ─────────────────────────────────────────
+    // Every statewide constitutional/executive office (Governor, Lt. Governor,
+    // Attorney General, Treasurer, Auditor) shares the single 'governor' bucket,
+    // so the office body used to dump them all into one flat, co-ranked field —
+    // comparing a Governor against an Attorney General as if they were one race.
+    // These defs let the body split that bucket into one clearly separated block
+    // PER office, in ballot order, so each statewide race is scannable on its own
+    // and its compare / alignment / add-to-team actions stay scoped to its field.
+    var _RELEVANT_STATEWIDE_DEFS = [
+      { key: 'governor',  label: 'Governor',         icon: '🏛️', test: function(o){ return o.indexOf('governor') !== -1 && o.indexOf('lt') === -1 && o.indexOf('lieutenant') === -1; } },
+      { key: 'ltgov',     label: 'Lt. Governor',     icon: '🤝', test: function(o){ return (o.indexOf('lt') !== -1 || o.indexOf('lieutenant') !== -1) && o.indexOf('governor') !== -1; } },
+      { key: 'attorney',  label: 'Attorney General', icon: '⚖️', test: function(o){ return o.indexOf('attorney general') !== -1; } },
+      { key: 'treasurer', label: 'State Treasurer',  icon: '💰', test: function(o){ return o.indexOf('treasurer') !== -1; } },
+      { key: 'auditor',   label: 'State Auditor',    icon: '📊', test: function(o){ return o.indexOf('auditor') !== -1; } },
+      { key: 'other_sw',  label: 'Other Statewide',  icon: '⭐', test: function(){ return true; } }
+    ];
+    // Bucket one statewide politician into the first matching sub-office above.
+    function _relevantStatewideKey(pid) {
+      var d = CMP_DATA[pid];
+      var o = (d && d.office ? d.office : '').toLowerCase();
+      for (var i = 0; i < _RELEVANT_STATEWIDE_DEFS.length; i++) {
+        if (_RELEVANT_STATEWIDE_DEFS[i].test(o)) return _RELEVANT_STATEWIDE_DEFS[i].key;
+      }
+      return 'other_sw';
+    }
+
     // Live team selections ({ raceKey: pid }), read from the same store the team
     // builder writes to, so coverage can never drift from My Team. Returns {} when
     // nothing has been picked yet.
@@ -45525,6 +45682,79 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return out;
     }
 
+    // Render the statewide-executive bucket as one clearly separated block PER
+    // office (Governor, Lt. Governor, Attorney General, Treasurer, Auditor…),
+    // in ballot order, instead of one chaotic combined field. Each office is a
+    // collapsible card with a scannable header — icon, office name, a who-holds-it
+    // hint and a count — so a voter can jump straight to the race they want. The
+    // body of each reuses _renderRelevantStatusSplit, so every existing action
+    // (compare the field, rank by my values, add to team, view profile) stays
+    // intact and is now correctly scoped to that single statewide race.
+    function _renderRelevantStatewideGrouped(officePids, prefix) {
+      prefix = prefix || 'relevant-';
+
+      // Partition the bucket into its constituent statewide offices.
+      var buckets = {};
+      (officePids || []).forEach(function(pid) {
+        var k = _relevantStatewideKey(pid);
+        (buckets[k] || (buckets[k] = [])).push(pid);
+      });
+
+      // A short "who holds it" hint for the collapsed header, so the office reads
+      // at a glance without expanding it.
+      function _swHint(pids) {
+        var holder = null, candidates = 0, former = 0;
+        (pids || []).forEach(function(pid) {
+          var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
+          if (st === 'candidate') candidates++;
+          else if (st === 'former') former++;
+          else if (!holder) holder = (CMP_DATA[pid] && CMP_DATA[pid].name) || null;
+        });
+        if (holder && candidates) return holder + ' + ' + candidates + ' challenging';
+        if (holder) return holder;
+        if (candidates) return 'Open seat · ' + candidates + (candidates === 1 ? ' candidate' : ' candidates');
+        if (former) return 'Past officeholders';
+        return '';
+      }
+
+      var html = '';
+      var first = true;
+      _RELEVANT_STATEWIDE_DEFS.forEach(function(def) {
+        var pids = buckets[def.key];
+        if (!pids || !pids.length) return;
+
+        // Open the first populated office by default (usually Governor) so the
+        // section never opens fully collapsed; the rest start closed to keep the
+        // statewide list a tidy, tappable menu.
+        var swKey = prefix + 'sw-' + def.key;
+        var defaultOpen = first;
+        var isOpen = _browseGroupState[swKey] !== undefined ? _browseGroupState[swKey] : defaultOpen;
+        var expandedClass = isOpen ? ' expanded' : '';
+        var hint = _swHint(pids);
+
+        html += '<div class="relevant-sw-group' + expandedClass + '" id="' + swKey + '-group">';
+        html += '<button class="relevant-sw-header" onclick="toggleBrowseAccordion(\'' + swKey + '-group\', \'' + swKey + '\')">';
+        html += '<span class="relevant-sw-icon">' + def.icon + '</span>';
+        html += '<span class="relevant-sw-text">';
+        html += '<span class="relevant-sw-name">' + def.label + '</span>';
+        if (hint) html += '<span class="relevant-sw-hint">' + esc(hint) + '</span>';
+        html += '</span>';
+        html += '<span class="relevant-sw-count">' + pids.length + '</span>';
+        html += _chevronWrapped('relevant-sw-chevron-wrap', 'relevant-sw-chevron');
+        html += '</button>';
+        html += '<div class="browse-sub-body"><div class="relevant-sw-inner">';
+        html += _renderRelevantStatusSplit(pids);
+        html += '</div></div></div>';
+
+        first = false;
+      });
+
+      // Safety net: if the defs somehow matched nothing, fall back to the flat
+      // field so cards never vanish.
+      if (!html) return _renderRelevantStatusSplit(officePids);
+      return html;
+    }
+
     function _renderRelevantGroupedChamber(officePids, groupKey, prefix) {
       prefix = prefix || 'rel-';
       var stateName = 'Utah';
@@ -45668,21 +45898,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               ? 'Compare the candidates in your district, then tap <strong>⭐ Add to My Team</strong> on the one who earns your vote. This seat is still <strong>open</strong> on your team.'
               : 'Tap <strong>⭐ Add to My Team</strong> to put ' + _relTxt(_yours) + ' on your team. This seat is still <strong>open</strong>.';
             // When there's a real field, give the voter a one-tap way to weigh
-            // everyone running side by side before they commit a pick.
-            var _addCmp = officePids.length > 1
+            // everyone running side by side before they commit a pick. Suppressed
+            // for the statewide bucket, where the field spans several different
+            // offices — each statewide sub-office below carries its own correctly
+            // scoped "compare the field" instead.
+            var _addCmp = (officePids.length > 1 && groupKey !== 'governor')
               ? ' <button type="button" class="relevant-addhint-cmp" onclick="window._relevantCompareOffice(\'' + groupKey + '\')">⚖️ Compare the field</button>'
               : '';
             h += '<div class="relevant-addhint"><span class="relevant-addhint-ico">➕</span><span>' + _addMsg + _addCmp + '</span></div>';
           }
           // Rank this office's whole field by the visitor's issues without opening
           // a single profile — shown whenever there's an actual field to compare.
-          if (officePids.length >= 2) {
+          // Skipped for the statewide bucket: ranking a Governor against an
+          // Attorney General as one list is meaningless, so each statewide
+          // sub-office renders its own per-race ranking instead.
+          if (officePids.length >= 2 && groupKey !== 'governor') {
             h += '<div class="relevant-rankrow">' +
               '<button type="button" class="relevant-rank-btn" onclick="window._alignBoardFromOffice && window._alignBoardFromOffice(\'' + groupKey + '\')">🎯 Rank these ' + officePids.length + ' by my values</button>' +
             '</div>';
           }
           if (groupKey === 'state_senator' || groupKey === 'state_rep') {
             h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
+          } else if (groupKey === 'governor') {
+            h += _renderRelevantStatewideGrouped(officePids, 'relevant-');
           } else {
             h += _renderRelevantStatusSplit(officePids);
           }
