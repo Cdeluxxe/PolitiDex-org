@@ -7815,6 +7815,47 @@
        are the sitting officeholder(s). */
     .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
     .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
+    /* ── Field-experience comparison rail ───────────────────────────────────
+       A scannable "time in office across the whole field" strip that sits
+       between the officeholder hero and the challengers, so a voter can weigh
+       an incumbent's years in power against every challenger's experience (or
+       lack of it) at a single glance. Rows are sorted longest-serving first;
+       each carries a horizontal meter scaled to the most-tenured person in the
+       race, so a 12-year incumbent visibly towers over a first-time challenger
+       whose meter is empty. Tapping a row opens that person's full profile. */
+    .kr-xp { margin: 0.2rem 0 0.9rem; border-radius: 0.95rem; padding: 0.85rem 0.95rem 0.9rem; background: linear-gradient(160deg, rgba(245,200,66,0.07), rgba(10,15,30,0.4)); border: 1px solid rgba(245,200,66,0.22); box-shadow: inset 0 1px 0 rgba(245,200,66,0.08); }
+    .kr-xp-title { display: inline-flex; align-items: center; gap: 0.36rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.13em; text-transform: uppercase; color: #f5c842; }
+    .kr-xp-title .kr-xp-ico { font-size: 0.82em; }
+    .kr-xp-sum { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; line-height: 1.4; color: #cdd8ec; margin: 0.3rem 0 0.75rem; }
+    .kr-xp-sum strong { color: #ffe6a3; font-weight: 700; }
+    .kr-xp-rows { display: flex; flex-direction: column; gap: 0.42rem; }
+    .kr-xp-row { display: grid; grid-template-columns: 30px minmax(0,1fr) auto; align-items: center; gap: 0.62rem; width: 100%; text-align: left; background: none; border: none; padding: 0.16rem 0.12rem; cursor: pointer; border-radius: 0.55rem; transition: background 0.18s ease; }
+    .kr-xp-row:hover { background: rgba(255,255,255,0.045); }
+    .kr-xp-av { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; background: rgba(30,53,96,0.3); border: 1.5px solid rgba(159,180,212,0.3); color: #9fb4d4; }
+    .kr-xp-av img { width: 100%; height: 100%; object-fit: cover; }
+    .kr-xp-row.is-inc .kr-xp-av { border-color: rgba(245,200,66,0.7); box-shadow: 0 0 0 1px rgba(245,200,66,0.18); }
+    .kr-xp-mid { min-width: 0; }
+    .kr-xp-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem; color: #fff; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kr-xp-row.is-inc .kr-xp-name { color: #ffe6a3; }
+    .kr-xp-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; letter-spacing: 0.02em; color: #8aa0c0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.04rem; }
+    .kr-xp-meter { margin-top: 0.3rem; height: 6px; border-radius: 999px; background: rgba(10,15,30,0.75); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+    .kr-xp-fill { display: block; height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.22,1,0.36,1); }
+    .kr-xp-row.is-inc .kr-xp-fill { background: linear-gradient(90deg, #fde68a, #f59e0b); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+    .kr-xp-row.is-other .kr-xp-fill { background: linear-gradient(90deg, #7dd3fc, #38bdf8); }
+    .kr-xp-row.is-former .kr-xp-fill { background: linear-gradient(90deg, #cbd5e1, #94a3b8); }
+    .kr-xp-row.is-new .kr-xp-meter { background: repeating-linear-gradient(90deg, rgba(167,139,250,0.16) 0 6px, transparent 6px 12px); border-color: rgba(167,139,250,0.3); }
+    .kr-xp-val { text-align: right; line-height: 1; white-space: nowrap; }
+    .kr-xp-val-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.02em; color: #ffe6a3; }
+    .kr-xp-row.is-other .kr-xp-val-num { color: #bae6fd; }
+    .kr-xp-row.is-former .kr-xp-val-num { color: #cbd5e1; }
+    .kr-xp-val-unit { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.48rem; letter-spacing: 0.09em; text-transform: uppercase; color: #8aa0c0; margin-top: 0.05rem; }
+    .kr-xp-newchip { display: inline-flex; align-items: center; gap: 0.24rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.56rem; letter-spacing: 0.07em; text-transform: uppercase; color: #c4b5fd; background: rgba(139,92,246,0.16); border: 1px solid rgba(167,139,250,0.45); padding: 0.16rem 0.5rem; border-radius: 999px; }
+    /* The explicit "first-time candidate" experience pill shown on a challenger
+       card when they hold no prior office — so the absence of tenure reads as
+       real, comparable context rather than an empty slot. */
+    .kr-cand-newexp { display: inline-flex; align-items: center; gap: 0.32rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.03em; color: #c4b5fd; background: rgba(139,92,246,0.13); border: 1px solid rgba(167,139,250,0.4); padding: 0.18rem 0.62rem; border-radius: 999px; }
+    .kr-cand-newexp .kr-cand-newexp-ico { font-size: 0.82em; line-height: 1; }
+    @media (max-width: 480px) { .kr-xp-val-num { font-size: 1.1rem; } .kr-xp-sub { font-size: 0.55rem; } }
     /* ── "Up for Election" ballot-status banner ─────────────────────────────
        A full-width strip directly under each race header that makes the single
        most important fact — can I actually vote in this race in 2026? —
@@ -48720,10 +48761,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             // Tenure pill for a candidate who ALREADY holds (or held) another office —
             // e.g. a sitting state senator challenging for Congress. Lets voters weigh
             // the incumbent's years in this seat against the challenger's own record of
-            // time in office. A first-time candidate has no termStart, so nothing shows —
-            // the absence itself reads as "hasn't held office." Incumbents are skipped
-            // here because the hero panel already carries their tenure via _krIncMeta.
-            (function(){ if (isIncumbent) return ''; var tp = (typeof window._pdxTenurePill === 'function') ? window._pdxTenurePill(d) : ''; return tp ? '<div style="margin-top:0.34rem;">' + tp + '</div>' : ''; })() +
+            // time in office. A first-time candidate has no termStart, so instead of a
+            // blank we show an explicit "first-time candidate — no prior elected office"
+            // pill, making the absence of experience real, comparable context. Incumbents
+            // are skipped here because the hero panel already carries their tenure via
+            // _krIncMeta.
+            (function(){
+              if (isIncumbent) return '';
+              var tp = (typeof window._pdxTenurePill === 'function') ? window._pdxTenurePill(d) : '';
+              if (tp) return '<div style="margin-top:0.34rem;">' + tp + '</div>';
+              var isCand = (d.rank === 'candidate') || /candidate/i.test(d.office || '');
+              if (isCand) return '<div style="margin-top:0.34rem;"><span class="kr-cand-newexp"><span class="kr-cand-newexp-ico">🆕</span>First-time candidate · no prior elected office</span></div>';
+              return '';
+            })() +
           '</div>' +
           btn +
         '</div>' +
@@ -48899,6 +48949,133 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // ── Field-experience comparison rail ─────────────────────────────────────
+    // The accountability payoff of unifying the field: one compact strip that
+    // lines up EVERYONE running for a seat — the sitting officeholder(s) and the
+    // challengers — by how long each has actually held elected office. Sorted
+    // longest-serving first, with a meter scaled to the most-tenured person, so
+    // the experience gradient (e.g. a 12-year incumbent over first-time
+    // challengers) is obvious at a glance rather than something the voter has to
+    // reconstruct by scanning each card. Driven entirely by the same structured
+    // tenure data (_pdxTenure / race.incumbentSince) used everywhere else.
+
+    // One person's experience descriptor for the rail. Reuses the shared tenure
+    // helper so the numbers match the cards/profiles exactly; falls back to an
+    // explicit "first-time, no prior office" entry for a candidate with no
+    // recorded term, so the absence is itself comparable context.
+    function _krXpEntry(race, pid, isIncumbent) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return null;
+      var t = (typeof window._pdxTenure === 'function') ? window._pdxTenure(d) : null;
+      // A confident, hardcoded start year for the seat-holder takes precedence so
+      // the rail agrees with the hero card's "In office since YYYY" pill.
+      var since = race.incumbentSince;
+      if (since && typeof since === 'object') since = since[pid];
+      var years = 0, kind = 'new', sub = '', current = false;
+      if (isIncumbent && since) {
+        years = Math.max(0, 2026 - since); current = true; kind = 'inc';
+        sub = 'In office since ' + since;
+      } else if (t && t.current) {
+        years = t.years; current = true;
+        kind = isIncumbent ? 'inc' : 'other';
+        sub = isIncumbent ? ('In office since ' + t.start.year)
+                          : (_krCleanOffice(d.office) || ('In office since ' + t.start.year));
+      } else if (t && !t.current) {
+        years = t.years; kind = 'former';
+        sub = 'Served ' + t.start.year + '–' + (t.end ? t.end.year : '');
+      } else if (isIncumbent) {
+        // Sitting officeholder we have no start date for: never mistake them for a
+        // newcomer — keep them in the incumbent lane, just without a year figure.
+        kind = 'inc'; current = true; years = 0; sub = 'Sitting officeholder';
+      } else {
+        // No recorded tenure. Within a curated field, a person running who holds
+        // no office reads as a first-time candidate — we say so plainly rather
+        // than leaving a blank, but only assert "no prior elected office" for an
+        // actual candidate; anyone else just shows "No tenure on record".
+        var isCand = (d.rank === 'candidate') || /candidate/i.test(d.office || '');
+        years = 0; kind = 'new';
+        sub = isCand ? 'No prior elected office on record' : 'No tenure on record';
+      }
+      return { pid: pid, d: d, name: d.name, isIncumbent: isIncumbent,
+               years: years, current: current, kind: kind, sub: sub };
+    }
+
+    // Plain-language read of the experience gap, so a voter gets the takeaway
+    // ("the incumbent has 12 years; 2 of 3 challengers have never held office")
+    // without having to interpret the meters themselves.
+    function _krXpSummary(entries) {
+      var last = function(n) { return (String(n || '').trim().split(/\s+/).pop()) || n; };
+      var inc = entries.filter(function(e) { return e.isIncumbent && e.current && e.years > 0; })
+                       .sort(function(a, b) { return b.years - a.years; })[0];
+      var chals = entries.filter(function(e) { return !e.isIncumbent; });
+      var newChals = chals.filter(function(e) { return e.kind === 'new'; });
+      var parts = [];
+      if (inc) {
+        parts.push('<strong>' + last(inc.name) + '</strong> has held this seat ' +
+          inc.years + ' year' + (inc.years === 1 ? '' : 's') + '.');
+      }
+      if (chals.length && newChals.length) {
+        if (newChals.length === chals.length) {
+          parts.push((chals.length === 1 ? 'The challenger has' : 'None of the ' + chals.length + ' challengers has') +
+            ' held elected office before.');
+        } else {
+          parts.push(newChals.length + ' of ' + chals.length + ' challengers have no prior elected office.');
+        }
+      } else if (!inc && chals.length) {
+        var expd = chals.filter(function(e) { return e.years > 0; });
+        if (expd.length) parts.push('Weigh each candidate’s time in office below.');
+      }
+      return parts.join(' ');
+    }
+
+    // The rail itself. Returns '' unless there are at least two people to line up,
+    // since a lone candidate has nothing to compare against.
+    function _krExperienceField(race, incList, challengerPids) {
+      if (typeof window._pdxTenure !== 'function') return '';
+      var entries = [];
+      (incList || []).forEach(function(pid) { var e = _krXpEntry(race, pid, true); if (e) entries.push(e); });
+      (challengerPids || []).forEach(function(pid) { var e = _krXpEntry(race, pid, false); if (e) entries.push(e); });
+      if (entries.length < 2) return '';
+      // Longest-serving first; current office outranks a former span at equal
+      // years so a sitting holder always reads above someone out of office.
+      entries.sort(function(a, b) {
+        if (b.years !== a.years) return b.years - a.years;
+        return (b.current ? 1 : 0) - (a.current ? 1 : 0);
+      });
+      var maxY = entries.reduce(function(m, e) { return Math.max(m, e.years); }, 0);
+      var rows = entries.map(function(e) {
+        var pct = maxY > 0 ? Math.max(e.years > 0 ? 8 : 0, Math.round((e.years / maxY) * 100)) : 0;
+        var url = (typeof _getPhotoUrl === 'function') ? _getPhotoUrl(e.pid) : '';
+        var av = url
+          ? '<span class="kr-xp-av"><img src="' + url + '" alt="' + e.name + '" onerror="this.parentElement.textContent=\'' + (e.d.icon || '🏛') + '\'"></span>'
+          : '<span class="kr-xp-av">' + (e.d.icon || '🏛') + '</span>';
+        var val = (e.kind === 'new')
+          ? '<span class="kr-xp-newchip">🆕 New</span>'
+          : (e.years > 0
+            ? '<span class="kr-xp-val"><span class="kr-xp-val-num">' + e.years + '</span>' +
+                '<span class="kr-xp-val-unit">' + (e.kind === 'former' ? 'yrs past' : 'yrs') + '</span></span>'
+            : '<span class="kr-xp-val"><span class="kr-xp-val-num" style="color:#7e8aa3;">—</span>' +
+                '<span class="kr-xp-val-unit">on record</span></span>');
+        return '<button type="button" class="kr-xp-row is-' + e.kind + '" ' +
+            'onclick="if(typeof showProfile===\'function\')showProfile(\'' + e.pid + '\')" ' +
+            'aria-label="' + e.name + ' — ' + e.sub.replace(/"/g, '') + '">' +
+            av +
+            '<span class="kr-xp-mid">' +
+              '<span class="kr-xp-name">' + e.name + '</span>' +
+              '<span class="kr-xp-sub">' + e.sub + '</span>' +
+              '<span class="kr-xp-meter"><span class="kr-xp-fill" style="width:' + pct + '%;"></span></span>' +
+            '</span>' +
+            val +
+          '</button>';
+      }).join('');
+      var summary = _krXpSummary(entries);
+      return '<div class="kr-xp">' +
+          '<span class="kr-xp-title"><span class="kr-xp-ico">⏳</span>Experience Across the Field</span>' +
+          (summary ? '<div class="kr-xp-sum">' + summary + '</div>' : '<div style="height:0.5rem;"></div>') +
+          '<div class="kr-xp-rows">' + rows + '</div>' +
+        '</div>';
+    }
+
     function _krRaceCard(race) {
       var selections = (typeof _ballotLoad === 'function') ? _ballotLoad() : {};
       var selectedPid = selections[race.raceKey];
@@ -49041,6 +49218,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           holderHtml +
         '</div>' +
         '<div style="padding:0.5rem 1.2rem 1.2rem;">' +
+          _krExperienceField(race, incList, challengerPids) +
           candSection +
           (compareCta ? '<div style="margin-top:0.9rem;">' + compareCta + '</div>' : '') +
           '<div style="margin-top:0.85rem;">' + footer + '</div>' +
