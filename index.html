@@ -39164,6 +39164,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return `<span style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;color:#9fb4d4;">${p.party}</span>`;
     }), '');
     promiseBlock += row('Status', pids.map(pid => statusBadge(sc(pid), true)), '');
+    // Time in Office — how long each pick has actually held power, the accountability
+    // context the Status badge alone doesn't convey. Sitting officeholders read in
+    // green ("Since 2019 · N yrs"), former ones in steel ("2015–2023"). Only sitting
+    // officeholders compete for the 👑 "Longest serving" badge so a former's past span
+    // can't out-rank a current incumbent. Picks with no recorded start show "—".
+    const _tenObjs = pids.map(pid => (typeof window._pdxTenure === 'function') ? window._pdxTenure(sc(pid)) : null);
+    if (_tenObjs.some(Boolean)) {
+      const _tenVals = _tenObjs.map(t => (t && t.current) ? t.years : null);
+      const _tenLeader = leaderClasses(_tenVals);
+      promiseBlock += row('Time in Office', pids.map((pid, i) => {
+        const t = _tenObjs[i];
+        if (!t) return na;
+        const col = t.current ? '#86efac' : '#cbd5e1';
+        const big = t.years >= 1 ? (t.years + ' yr' + (t.years === 1 ? '' : 's')) : '< 1 yr';
+        const sub = t.current ? ('Since ' + t.start.year) : (t.start.year + '–' + (t.end ? t.end.year : ''));
+        const lead = _tenLeader[i] ? '<div class="cmp-leader-badge">👑 Longest serving</div>' : '';
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:0.18rem;">
+            <span class="cmp-score-val" style="color:${col};font-size:1.2rem;">${big}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;white-space:nowrap;">${sub}</span>
+          </div>${lead}`;
+      }), '🗓️', _tenLeader);
+    }
 
     if (_alignActive) {
       alignBlock += sectionRow('🎯 Personalized Alignment');
@@ -48695,6 +48717,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               _krPartyBadge(d.party) + roleTag +
             '</div>' +
             '<div class="font-condensed" style="font-size:0.68rem;color:#9fb4d4;margin-top:0.15rem;">' + subLine + '</div>' +
+            // Tenure pill for a candidate who ALREADY holds (or held) another office —
+            // e.g. a sitting state senator challenging for Congress. Lets voters weigh
+            // the incumbent's years in this seat against the challenger's own record of
+            // time in office. A first-time candidate has no termStart, so nothing shows —
+            // the absence itself reads as "hasn't held office." Incumbents are skipped
+            // here because the hero panel already carries their tenure via _krIncMeta.
+            (function(){ if (isIncumbent) return ''; var tp = (typeof window._pdxTenurePill === 'function') ? window._pdxTenurePill(d) : ''; return tp ? '<div style="margin-top:0.34rem;">' + tp + '</div>' : ''; })() +
           '</div>' +
           btn +
         '</div>' +
