@@ -6646,6 +6646,37 @@
       color: #c9d7ec; line-height: 1.35; margin: -0.05rem 0 0.55rem;
     }
     .myteam-dcov-districts-note strong { color: #fde9b8; font-weight: 700; }
+    /* ── "Finish your districts" focused action list ───────────────────────────
+       Inside the spotlight band, each of the voter's own districts that's still
+       missing a pick gets a row naming the seat, its real district number and how
+       many candidates are running, plus two one-tap moves: ➕ Add (jump into that
+       race) and ⚖️ Compare N (weigh the field first). Turns "you're missing a
+       district" into a concrete, do-it-now checklist. */
+    .myteam-dcov-moves {
+      margin-top: 0.65rem; padding-top: 0.6rem;
+      border-top: 1px dashed rgba(245,200,66,0.28);
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .myteam-dcov-moves-head {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #fde9b8; margin-bottom: 0.05rem;
+    }
+    .myteam-dcov-move {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.42rem 0.55rem; border-radius: 0.65rem;
+      background: rgba(10,15,30,0.4); border: 1px solid rgba(245,200,66,0.22);
+    }
+    .myteam-dcov-move .myteam-dcov-ico { font-size: 1.1rem; }
+    .dcov-move-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.05rem; }
+    .dcov-move-office { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.84rem; color: #fff; line-height: 1.1; }
+    .dcov-move-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; letter-spacing: 0.02em; color: #c9d7ec; line-height: 1.2; }
+    .dcov-move-actions { display: flex; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .myteam-dcov-cta.dcov-move-btn { margin-top: 0; min-height: 34px; padding: 0.32rem 0.7rem; font-size: 0.68rem; }
+    @media (max-width: 479px) {
+      .myteam-dcov-move { flex-wrap: wrap; }
+      .dcov-move-actions { width: 100%; justify-content: flex-start; margin-top: 0.2rem; }
+    }
     @media (max-width: 639px) {
       .myteam-dcov-grid { grid-template-columns: 1fr 1fr; }
       .myteam-dcov-office { font-size: 0.78rem; }
@@ -42381,6 +42412,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return !!(pid && CMP_DATA[pid]);
       }
 
+      // How many candidates the voter actually has running for an office on their
+      // own slate — read from the freshly-bucketed "Relevant to Me" field so the
+      // coverage view can tell them what's WAITING in each open race ("3 running")
+      // rather than a generic "tap to fill". 0 when the slate hasn't rendered yet
+      // or the race has no field; the UI degrades to a plain prompt in that case.
+      function _fieldCount(key) {
+        try {
+          return ((window._relevantLastOfficeGroups && window._relevantLastOfficeGroups[key]) || [])
+            .filter(function(pid) { return CMP_DATA[pid]; }).length;
+        } catch (e) { return 0; }
+      }
+
       // Render a single seat as a tappable coverage chip. A seat is "covered" when
       // the voter has a pick saved for that office; tapping it jumps straight to the
       // matching race so closing a gap is always one tap away. District-based seats
@@ -42402,7 +42445,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               : '<span class="myteam-dcov-badge is-open">Open</span>');
         var status = on
           ? '<span class="myteam-dcov-pick">' + nm + '</span>'
-          : '<span class="myteam-dcov-go">Tap to fill this seat →</span>';
+          : '<span class="myteam-dcov-go">' + (function() {
+              var fc = _fieldCount(pos.key);
+              return fc > 1 ? fc + ' running — tap to compare →' : (fc === 1 ? '1 running — tap to add →' : 'Tap to fill this seat →');
+            })() + '</span>';
         var title = on
           ? nm + ' — your ' + pos.label + ' pick (tap to review or swap)'
           : 'Jump to the ' + pos.label + ' race and add your pick';
@@ -42432,6 +42478,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var distCovered = _coveredCount(districtSeats);
       var distTotal = districtSeats.length;
       var distDone = distTotal > 0 && distCovered >= distTotal;
+      // The voter's own districts that still need a pick — the gaps this view exists
+      // to close. Drives the focused "finish your districts" action list and lets us
+      // skip the generic bottom CTA when those per-district actions are already shown.
+      var openDistrictSeats = districtSeats.filter(function(p) { return !_isOn(p); });
 
       var total = positions.length;
       var covered = _coveredCount(positions);
@@ -42500,6 +42550,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '</div>' +
             '<div class="myteam-dcov-districts-note">' + note + '</div>' +
             '<div class="myteam-dcov-grid">' + districtSeats.map(_seatHtml).join('') + '</div>' +
+            _districtMovesHtml() +
+          '</div>';
+      }
+
+      // Focused "finish your districts" action list. For each of the voter's own
+      // voting districts still missing a pick, it spells out the seat, its real
+      // district number, and how many candidates are running there — then offers two
+      // one-tap moves: jump straight into that race to ADD a pick, or COMPARE the
+      // whole field first. This turns the abstract "you're missing a district" into
+      // a concrete, do-it-now checklist that lands the voter inside the right
+      // district view. Only shown while a district seat is still open.
+      function _districtMovesHtml() {
+        if (!openDistrictSeats.length) return '';
+        var rows = openDistrictSeats.map(function(pos) {
+          var scope = _myteamSeatScope(pos.key);
+          var fc = _fieldCount(pos.key);
+          var meta = scope + (fc > 0 ? ' · ' + fc + ' candidate' + (fc === 1 ? '' : 's') + ' running' : ' · field still forming');
+          var add = '<button type="button" class="myteam-dcov-cta dcov-move-btn" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">➕ Add</button>';
+          var cmp = fc > 1
+            ? '<button type="button" class="myteam-dcov-cta is-compare dcov-move-btn" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + pos.key + '\')">⚖️ Compare ' + fc + '</button>'
+            : '';
+          return '<div class="myteam-dcov-move">' +
+              '<span class="myteam-dcov-ico">' + (pos.icon || '\u{1F3DB}') + '</span>' +
+              '<span class="dcov-move-body">' +
+                '<span class="dcov-move-office">' + pos.label + '</span>' +
+                '<span class="dcov-move-meta">' + meta + '</span>' +
+              '</span>' +
+              '<span class="dcov-move-actions">' + add + cmp + '</span>' +
+            '</div>';
+        }).join('');
+        var head = openDistrictSeats.length === distTotal
+          ? '🎯 Start with your districts — ' + openDistrictSeats.length + ' to fill'
+          : '🎯 Finish your districts — ' + openDistrictSeats.length + ' still open';
+        return '<div class="myteam-dcov-moves">' +
+            '<div class="myteam-dcov-moves-head">' + head + '</div>' +
+            rows +
           '</div>';
       }
       var groupsHtml = _districtBandHtml() + _MYTEAM_LEVELS.map(_groupHtml).join('');
@@ -42549,10 +42635,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var _foField = [];
         try { _foField = (window._relevantLastOfficeGroups && window._relevantLastOfficeGroups[firstOpen.key]) || []; } catch (e) {}
         var _foHasField = _foField.filter(function(pid) { return CMP_DATA[pid]; }).length > 1;
-        cta = '<div class="myteam-dcov-cta-row">' +
-            '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>' +
-            (_foHasField ? '<button type="button" class="myteam-dcov-cta is-compare" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + firstOpen.key + '\')">⚖️ Compare the field first</button>' : '') +
-          '</div>';
+        // When the next gap is one of the voter's own districts, the focused
+        // "finish your districts" list above already offers per-district Add /
+        // Compare actions — so we skip this duplicate bottom CTA and let the
+        // narrative line stand alone. The bottom CTA is reserved for the case where
+        // every district is covered and only a statewide/local seat remains.
+        if (!openDistrictSeats.length) {
+          cta = '<div class="myteam-dcov-cta-row">' +
+              '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>' +
+              (_foHasField ? '<button type="button" class="myteam-dcov-cta is-compare" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + firstOpen.key + '\')">⚖️ Compare the field first</button>' : '') +
+            '</div>';
+        }
       }
 
       // Standout milestone: all of the voter's OWN voting districts are filled, even
