@@ -16752,6 +16752,45 @@
           border-radius:999px;padding:0.32rem 0.8rem;transition:all 0.2s ease;}
         .rel-map-btn:hover{color:#fff;background:rgba(16,185,129,0.24);border-color:rgba(52,211,153,0.6);transform:translateY(-1px);}
 
+        /* ── Smart "location & districts" trigger card (Relevant-to-Me header) ──
+           A single tappable control that names where the voter is AND which seats
+           apply there, then offers to open the map to change them. Populated by
+           window._pdxRefreshMapIndicators so it always mirrors the saved location. */
+        .rel-map-card{display:flex;align-items:center;gap:0.85rem;width:100%;text-align:left;cursor:pointer;
+          border-radius:0.95rem;padding:0.7rem 0.85rem;margin-top:0.35rem;
+          background:linear-gradient(135deg,rgba(21,128,61,0.16),rgba(14,116,144,0.14));
+          border:1.5px solid rgba(34,197,94,0.3);transition:border-color .2s ease,transform .2s ease,background .2s ease,box-shadow .2s ease;}
+        .rel-map-card:hover{border-color:rgba(52,211,153,0.62);transform:translateY(-1px);
+          background:linear-gradient(135deg,rgba(21,128,61,0.24),rgba(14,116,144,0.22));box-shadow:0 8px 26px rgba(0,0,0,0.32);}
+        .rel-map-card:focus-visible{outline:2px solid #34d399;outline-offset:2px;}
+        .rel-map-card__ico{font-size:1.45rem;line-height:1;flex-shrink:0;}
+        .rel-map-card__body{min-width:0;flex:1;}
+        .rel-map-card__eyebrow{display:flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+          font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase;color:#7ee7b8;line-height:1;}
+        .rel-map-card__loc{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.02rem;letter-spacing:0.01em;
+          color:#eaf6ef;line-height:1.18;margin-top:0.18rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .rel-map-card__chips{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;}
+        .rel-map-dchip{display:inline-flex;align-items:center;gap:0.32rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+          font-size:0.7rem;letter-spacing:0.02em;border-radius:999px;padding:0.16rem 0.55rem;line-height:1.2;white-space:nowrap;}
+        .rel-map-dchip__dot{width:0.42rem;height:0.42rem;border-radius:50%;flex-shrink:0;}
+        .rel-map-card__cta{display:flex;align-items:center;gap:0.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+          font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#aef0cf;margin-top:0.5rem;}
+        .rel-map-card__arrow{font-size:1.15rem;color:#52d399;flex-shrink:0;align-self:center;}
+        @media (max-width:480px){
+          .rel-map-card{align-items:flex-start;}
+          .rel-map-card__arrow{align-self:flex-start;margin-top:0.15rem;}
+        }
+
+        /* Brief "your location just updated" highlight, applied to the location
+           header, the Voting Districts strip and the trigger card after the map
+           commits a new location — the subtle confirmation the voter sees on close. */
+        @keyframes pdxLocFlash{
+          0%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+          18%{box-shadow:0 0 0 3px rgba(52,211,153,0.6),0 0 30px rgba(52,211,153,0.34);}
+          100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+        }
+        .pdx-loc-flash{animation:pdxLocFlash 1.7s ease-out;border-radius:1rem;}
+
         /* Modal shell */
         .pdx-map-overlay{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;
           background:rgba(5,9,18,0.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1rem;}
@@ -17322,10 +17361,28 @@
               <!-- Compact map entry point + "set via map" indicator, kept right under
                    the location line so picking an exact district feels like part of
                    setting your location, not a separate tool. -->
-              <div class="flex items-center gap-2 flex-wrap mt-2">
-                <button type="button" id="relevant-map-btn" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" class="rel-map-btn font-condensed text-xs font-700 tracking-wider uppercase inline-flex items-center gap-1.5">🗺️ Select district on map</button>
-                <span id="relevant-map-indicator" class="pdx-map-chip" style="display:none;"></span>
+              <!-- Smart "location & districts" trigger: names where the voter is and
+                   which seats apply there, and opens the map to view/change them.
+                   Filled by window._pdxRefreshMapIndicators; the markup below is the
+                   no-location default it overwrites once a location is known. -->
+              <div class="mt-2">
+                <button type="button" id="relevant-map-trigger" class="rel-map-card"
+                        onclick="window.openDistrictMapModal && window.openDistrictMapModal()"
+                        aria-label="View or change your voting districts on the map">
+                  <span class="rel-map-card__ico" aria-hidden="true">🗺️</span>
+                  <span class="rel-map-card__body">
+                    <span class="rel-map-card__eyebrow">📍 Your voting location</span>
+                    <span class="rel-map-card__loc" id="relevant-map-loc">Not set yet</span>
+                    <span class="rel-map-card__chips" id="relevant-map-chips"></span>
+                    <span class="rel-map-card__cta" id="relevant-map-cta">Select your district on a map</span>
+                  </span>
+                  <span class="rel-map-card__arrow" aria-hidden="true">→</span>
+                </button>
               </div>
+              <!-- Legacy ids kept for backward-compat with code that may still poke
+                   them; the card above is the live control. -->
+              <button type="button" id="relevant-map-btn" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" class="rel-map-btn font-condensed text-xs font-700 tracking-wider uppercase inline-flex items-center gap-1.5" style="display:none;">🗺️ Select district on map</button>
+              <span id="relevant-map-indicator" class="pdx-map-chip" style="display:none;"></span>
             </div>
           </div>
           <!-- Welcoming "how it works" framing: one seat at a time, judged on values & follow-through -->
@@ -57380,26 +57437,105 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     // ── "Set via map" indicator (called from _triggerLocationReaction) ─────────
+    // Resolve the voter's three key seats — U.S. House, State Senate, State House —
+    // the same way the "Your Voting Districts" strip does, then render the smart
+    // trigger card so it always names the current city/county and districts and
+    // reads as a live "here's where you are — change it" control.
+    window._pdxResolveVoterDistricts = function(){
+      var loc = window._currentVoterLocation || {};
+      var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+      var state = loc.state || '';
+      var matched = !!(krd && krd.matched && state.toLowerCase() === 'utah');
+      function num(v){ v = (v == null ? '' : String(v)).replace(/[^0-9]/g, ''); return v || null; }
+      return {
+        house:  num((matched && krd.byRace && krd.byRace.house)       ? krd.byRace.house.district       : loc.district),
+        senate: num((matched && krd.byRace && krd.byRace.statesenate) ? krd.byRace.statesenate.district : loc.stateSenateDistrict),
+        lower:  num((matched && krd.byRace && krd.byRace.statehouse)  ? krd.byRace.statehouse.district  : loc.stateHouseDistrict)
+      };
+    };
+
     window._pdxRefreshMapIndicators = function(){
       var loc = window._currentVoterLocation || {};
+      var d = window._pdxResolveVoterDistricts();
       var on = !!(loc.mapSelected && (loc.stateHouseDistrict || loc.stateSenateDistrict));
+
+      // Legacy chip + button (hidden, but kept in sync for any code that reads them).
       var parts = [];
       if (loc.stateHouseDistrict)  parts.push('House ' + loc.stateHouseDistrict);
       if (loc.stateSenateDistrict) parts.push('Senate ' + loc.stateSenateDistrict);
-      var txt = '🗺️ Set via map' + (parts.length ? ' · ' + parts.join(' · ') : '');
       var el = document.getElementById('relevant-map-indicator');
       if (el) {
-        if (on) { el.textContent = txt; el.style.display = 'inline-flex'; }
+        if (on) { el.textContent = '🗺️ Set via map' + (parts.length ? ' · ' + parts.join(' · ') : ''); el.style.display = 'inline-flex'; }
         else { el.style.display = 'none'; }
       }
-      // Make the trigger button name the current district so it reads as a live
-      // "here's where you are — change it" control, not a generic link.
-      var btn = document.getElementById('relevant-map-btn');
-      if (btn) {
-        btn.textContent = on
-          ? '🗺️ Change district on map · ' + parts.join(' · ')
-          : '🗺️ Select your district on a map';
+      var legacyBtn = document.getElementById('relevant-map-btn');
+      if (legacyBtn) legacyBtn.textContent = on
+        ? '🗺️ Change district on map · ' + parts.join(' · ')
+        : '🗺️ Select your district on a map';
+
+      // ── Smart trigger card ───────────────────────────────────────────────────
+      var locEl   = document.getElementById('relevant-map-loc');
+      var chipsEl = document.getElementById('relevant-map-chips');
+      var ctaEl   = document.getElementById('relevant-map-cta');
+      if (!locEl || !chipsEl || !ctaEl) return;
+
+      var hasLoc = !!window._hasUserLocation;
+      if (!hasLoc) {
+        locEl.textContent = 'Not set yet';
+        chipsEl.innerHTML = '';
+        ctaEl.textContent = 'Select your district on a map →';
+        return;
       }
+
+      // City / county line — mirror the location header's phrasing.
+      var city  = (loc.city || loc.county || '').trim();
+      var stateName = loc.state || 'Utah';
+      var locLine = [city, (stateName === 'National' ? 'United States' : stateName)].filter(Boolean).join(', ') || 'Your area';
+      locEl.textContent = locLine;
+
+      // District chips — colour-matched to the "Your Voting Districts" pills.
+      function chip(color, glow, label, value){
+        if (!value) return '';
+        return '<span class="rel-map-dchip" style="color:' + color + ';background:' + glow + ';border:1px solid ' + color + '55;">' +
+          '<span class="rel-map-dchip__dot" style="background:' + color + ';"></span>' + label + ' ' + value + '</span>';
+      }
+      var chips =
+        chip('#60a5fa', 'rgba(59,130,246,0.14)',  'U.S. House',   d.house) +
+        chip('#a78bfa', 'rgba(167,139,250,0.14)', 'State Senate', d.senate) +
+        chip('#2dd4bf', 'rgba(45,212,191,0.14)',  'State House',  d.lower);
+      chipsEl.innerHTML = chips;
+
+      var anyDistrict = !!(d.house || d.senate || d.lower);
+      ctaEl.textContent = anyDistrict
+        ? 'View or change districts on map →'
+        : 'Pinpoint your exact districts on the map →';
+    };
+
+    // ── Confirmation: toast + brief highlight after the map commits a location ──
+    // Fired only on an explicit confirm so the voter gets a clear "it's updated"
+    // signal the moment the modal closes — no page refresh, no guessing.
+    window._pdxFlashLocationUpdated = function(){
+      var d = (typeof window._pdxResolveVoterDistricts === 'function') ? window._pdxResolveVoterDistricts() : {};
+      var loc = window._currentVoterLocation || {};
+      var city = (loc.city || loc.county || '').trim();
+      var seats = [];
+      if (d.house)  seats.push('U.S. House ' + d.house);
+      if (d.senate) seats.push('State Senate ' + d.senate);
+      if (d.lower)  seats.push('State House ' + d.lower);
+      var msg = '✅ Location updated' + (city ? ' to ' + city : '') +
+        (seats.length ? ' — ' + seats.join(' · ') : '') + '. Your ballot below now reflects it.';
+      if (typeof window._showToast === 'function') window._showToast(msg);
+
+      // Briefly outline the surfaces that just changed so the eye lands on them.
+      ['relevant-map-trigger', 'relevant-location-text', 'vh-district-strip'].forEach(function(id){
+        var node = document.getElementById(id);
+        if (!node) return;
+        node.classList.remove('pdx-loc-flash');
+        // Force reflow so re-adding the class restarts the animation on repeat use.
+        void node.offsetWidth;
+        node.classList.add('pdx-loc-flash');
+        setTimeout(function(){ node.classList.remove('pdx-loc-flash'); }, 1900);
+      });
     };
 
     // ── Address search (geocode → zoom → auto-select) ──────────────────────────
@@ -57500,6 +57636,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!_selected.house && !_selected.senate) return;
       applyToLocation();
       window.closeDistrictMapModal();
+      // Confirmation lands after the modal clears so the highlighted main-page
+      // surfaces are visible behind it.
+      setTimeout(function(){
+        if (typeof window._pdxFlashLocationUpdated === 'function') window._pdxFlashLocationUpdated();
+      }, 180);
     };
 
     window.pdxMapSetLayer = function(layerType){
