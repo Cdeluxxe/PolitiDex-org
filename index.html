@@ -5534,6 +5534,140 @@
       .pdx-sib-person, .pdx-sib-cell { min-width: 50px; }
       .pdx-seat-board-sub { font-size: 0.56rem; }
     }
+
+    /* ── District-level "Your Match in this race" panel (_pdxSeatAlignBoard) ────
+       A personalized, race-scoped alignment surface shown inside the unified
+       district view: a quick-selector chip row when no issues are chosen, and a
+       ranked best-fit leaderboard once they are. Dark navy card, gold/teal accents
+       to match the rest of the alignment UI. */
+    .pdx-amatch {
+      margin: 0 0 0.9rem; border: 1px solid rgba(45,212,191,0.22);
+      border-radius: 0.9rem; overflow: hidden;
+      background: linear-gradient(180deg, rgba(13,28,40,0.72), rgba(10,15,30,0.55));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 3px 16px rgba(0,0,0,0.22);
+    }
+    .pdx-amatch.is-setup { border-color: rgba(94,234,212,0.28); }
+    .pdx-amatch-head {
+      display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+      padding: 0.55rem 0.85rem 0.5rem; border-bottom: 1px solid rgba(94,234,212,0.14);
+      background: linear-gradient(90deg, rgba(45,212,191,0.09), rgba(192,21,42,0.04));
+    }
+    .pdx-amatch-ico { font-size: 0.95rem; line-height: 1; }
+    .pdx-amatch-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #5eead4; font-size: 0.8rem;
+    }
+    .pdx-amatch-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.03em;
+      color: #8aa6c8; margin-left: auto; text-align: right;
+    }
+    .pdx-amatch-sub b { color: #cdeaff; font-weight: 800; }
+
+    /* Quick-selector chip row */
+    .pdx-amatch-picks {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.6rem 0.8rem 0.7rem;
+    }
+    .pdx-amatch-picks.tune {
+      border-top: 1px dashed rgba(148,163,184,0.16); align-items: center;
+      padding-top: 0.55rem; margin-top: 0.1rem;
+    }
+    .pdx-amatch-tune-lbl {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #6f8bb0; margin-right: 0.15rem;
+    }
+    .pdx-align-pick {
+      display: inline-flex; align-items: center; gap: 0.26rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.01em; line-height: 1.2; padding: 0.26rem 0.6rem; border-radius: 999px;
+      color: #c3d2e6; background: rgba(15,28,52,0.6); border: 1px solid rgba(148,163,184,0.24);
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+    .pdx-align-pick:hover { background: rgba(45,212,191,0.1); border-color: rgba(94,234,212,0.5); color: #eafff9; }
+    .pdx-align-pick:active { transform: scale(0.96); }
+    .pdx-align-pick-x { font-weight: 800; opacity: 0.7; font-size: 0.82em; }
+    .pdx-align-pick.active {
+      color: #062b25; background: linear-gradient(135deg, #5eead4, #2dd4bf);
+      border-color: rgba(94,234,212,0.9); box-shadow: 0 0 10px rgba(45,212,191,0.4);
+    }
+    .pdx-align-pick.active .pdx-align-pick-x { opacity: 1; }
+    .pdx-align-pick.more { color: #c4b5fd; border-color: rgba(167,139,250,0.34); background: rgba(139,92,246,0.08); }
+    .pdx-align-pick.more:hover { background: rgba(139,92,246,0.16); border-color: rgba(167,139,250,0.6); color: #ede9fe; }
+
+    /* Ranked leaderboard */
+    .pdx-amatch-board { padding: 0.5rem 0.7rem 0.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .pdx-amatch-row {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%; cursor: pointer; text-align: left;
+      padding: 0.42rem 0.55rem; border-radius: 0.7rem;
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(148,163,184,0.12);
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+    .pdx-amatch-row:hover { background: rgba(255,255,255,0.06); border-color: var(--mc, rgba(148,163,184,0.4)); }
+    .pdx-amatch-row:active { transform: scale(0.995); }
+    .pdx-amatch-row.is-best {
+      background: linear-gradient(90deg, rgba(74,222,128,0.12), rgba(255,255,255,0.03));
+      border-color: rgba(74,222,128,0.5); box-shadow: 0 0 14px rgba(74,222,128,0.16), inset 0 0 0 1px rgba(74,222,128,0.12);
+    }
+    .pdx-amatch-rank {
+      flex-shrink: 0; width: 1.5rem; text-align: center; font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.05rem; font-weight: 700; color: #7e96b8; line-height: 1;
+    }
+    .pdx-amatch-row.is-best .pdx-amatch-rank { font-size: 1.15rem; }
+    .pdx-amatch-av {
+      flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 50%; overflow: hidden;
+      border: 2px solid rgba(148,163,184,0.5); background: rgba(30,53,96,0.55);
+    }
+    .pdx-amatch-av img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .pdx-amatch-av-ph { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.85rem; }
+    .pdx-amatch-id { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .pdx-amatch-name {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem;
+      letter-spacing: 0.01em; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pdx-amatch-meta { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+    .pdx-amatch-best {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.52rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #86efac;
+      background: rgba(74,222,128,0.16); border: 1px solid rgba(74,222,128,0.45);
+      border-radius: 999px; padding: 0.08rem 0.42rem;
+    }
+    .pdx-amatch-score { flex-shrink: 0; display: flex; align-items: center; gap: 0.5rem; }
+    .pdx-amatch-bar {
+      display: inline-block; width: 4.5rem; height: 0.42rem; border-radius: 999px;
+      background: rgba(148,163,184,0.18); overflow: hidden;
+    }
+    .pdx-amatch-bar > span { display: block; height: 100%; border-radius: 999px; }
+    .pdx-amatch-pct {
+      font-family: 'Bebas Neue', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1;
+      min-width: 2.6rem; text-align: right; text-shadow: 0 0 10px currentColor;
+    }
+    .pdx-amatch-unscored {
+      padding: 0.1rem 0.85rem 0.2rem; font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.66rem; letter-spacing: 0.02em; color: #7e96b8;
+    }
+    .pdx-amatch-unscored-lbl { color: #9fb4d4; font-weight: 700; }
+    .pdx-amatch-add {
+      display: block; width: calc(100% - 1.6rem); margin: 0.55rem 0.8rem 0.15rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.82rem;
+      letter-spacing: 0.04em; text-transform: uppercase; padding: 0.5rem 0.7rem; border-radius: 0.65rem;
+      color: #062b25; background: linear-gradient(135deg, #fde68a, #f5c842);
+      border: 1px solid rgba(245,200,66,0.7); box-shadow: 0 3px 14px rgba(245,200,66,0.28);
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+    .pdx-amatch-add:hover { box-shadow: 0 4px 18px rgba(245,200,66,0.42); }
+    .pdx-amatch-add:active { transform: scale(0.985); }
+    .pdx-amatch-onteam {
+      margin: 0.5rem 0.85rem 0.15rem; font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.74rem; letter-spacing: 0.03em; color: #86efac;
+    }
+    @media (max-width: 640px) {
+      .pdx-amatch-title { font-size: 0.74rem; }
+      .pdx-amatch-sub { font-size: 0.58rem; }
+      .pdx-amatch-name { font-size: 0.84rem; }
+      .pdx-amatch-bar { width: 3.2rem; }
+      .pdx-amatch-pct { font-size: 1.05rem; min-width: 2.2rem; }
+      .pdx-align-pick { font-size: 0.66rem; padding: 0.24rem 0.5rem; }
+    }
     /* Eyebrow read: "🎯 N of your issues", color-cued to how the official's
        documented positions lean against the visitor's picks. */
     .pdx-stance-mine-eb {
@@ -43295,6 +43429,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 hasIncumbent: _distOffice > 0
               });
             }
+            // Personalized "Your Match in this race" panel for this district — a
+            // race-scoped quick selector when no issues are chosen, or a ranked
+            // best-fit-first leaderboard once they are. Lets a voter judge the whole
+            // field by their own values right here, without opening the global tool.
+            if (typeof _pdxSeatAlignBoard === 'function') {
+              out += _pdxSeatAlignBoard(_distOfficePids.concat(_distCandPids));
+            }
             // At-a-glance issue board for this seat — every person's documented
             // stances laid against the same key issues so the race compares head-to-
             // head without opening a profile. The field here is already one district
@@ -44249,6 +44390,177 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</button>';
     }
 
+    // ── District-level "Your Match in this race" panel ───────────────────────
+    // Surfaces personalized alignment for an ENTIRE seat's field — the sitting
+    // officeholder (when running) and every challenger together — right inside the
+    // unified district view, so a voter never has to leave for the global Alignment
+    // Tool to see who in this district best fits their values. One panel, two states:
+    //   • No issues chosen yet → a lightweight, race-scoped QUICK SELECTOR: the key
+    //     issues this field actually documents positions on, as one-tap toggle chips.
+    //     Picking any one instantly ranks the race below — no separate tool, no
+    //     leaving the view.
+    //   • Issues chosen → a compact RANKED LEADERBOARD of the whole field, best match
+    //     first, each with a colour-coded %/bar and a clear 👑 "Best match" flag on
+    //     the top fit. Every row taps through to the issue-by-issue breakdown, and the
+    //     strongest not-yet-picked match gets a one-tap "Add to team" — so browse →
+    //     evaluate → add all happens in one place. A "Tune this race" chip row stays
+    //     below so issues can be adjusted inline.
+    // The chips carry data-align-issue and reuse the shared alignToggle handler, so
+    // they stay in lock-step with every other picker and a pick re-ranks this race
+    // (and the rest of the site) immediately. Renders only for a real 2+ field, and
+    // works identically for an open seat, a contested primary, or an incumbent
+    // defending the seat — the field is simply whatever was handed in.
+    function _pdxSeatAlignBoard(fieldPids, opts) {
+      opts = opts || {};
+      if (typeof CMP_DATA === 'undefined' || typeof ISSUE_MAP === 'undefined') return '';
+      var pids = (fieldPids || []).filter(function(pid) { return CMP_DATA[pid]; });
+      if (pids.length < 2) return '';
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+      function partyCol(party) {
+        return party === 'R' ? '#f87171' : party === 'D' ? '#60a5fa'
+          : (party === 'F' || party === 'Forward') ? '#22d3ee' : '#a78bfa';
+      }
+
+      var hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var nIssues = hasIssues ? _alignIssues.size : 0;
+
+      // ── Race-relevant quick-selector chip set ──
+      // The issues this field actually documents positions on, ranked by how many of
+      // the field hold a documented stance (widest coverage first) so the chips are
+      // the ones that most sharply separate these specific people. Topped up from a
+      // short, broadly-relevant fallback so the selector is never empty for a thin
+      // field; the voter's already-chosen issues lead so they read as active.
+      var cov = {};
+      if (typeof window._polPositionMap === 'function') {
+        pids.forEach(function(pid) {
+          var map = window._polPositionMap(pid, CMP_DATA[pid]) || {};
+          Object.keys(map).forEach(function(k) { if (ISSUE_MAP[k]) cov[k] = (cov[k] || 0) + 1; });
+        });
+      }
+      var pickKeys = Object.keys(cov).sort(function(a, b) {
+        return (cov[b] - cov[a]) || ISSUE_MAP[a].label.localeCompare(ISSUE_MAP[b].label);
+      });
+      var FALLBACK = ['border_security', 'lower_taxes', 'gun_rights', 'lands_keep_public', 'social_security', 'gun_safety', 'immigration_reform', 'gov_services'];
+      FALLBACK.forEach(function(k) { if (ISSUE_MAP[k] && pickKeys.indexOf(k) === -1) pickKeys.push(k); });
+
+      var ordered = [];
+      if (hasIssues) _alignIssues.forEach(function(k) { if (ISSUE_MAP[k] && ordered.indexOf(k) === -1) ordered.push(k); });
+      pickKeys.forEach(function(k) { if (ordered.indexOf(k) === -1) ordered.push(k); });
+      var chipKeys = ordered.slice(0, Math.max(8, nIssues));
+
+      var chips = chipKeys.map(function(k) {
+        var on = hasIssues && _alignIssues.has(k);
+        return '<button type="button" class="pdx-align-pick' + (on ? ' active' : '') + '" ' +
+            'data-align-issue="' + k + '" aria-pressed="' + (on ? 'true' : 'false') + '" ' +
+            'onclick="event.stopPropagation();if(window.alignToggle)window.alignToggle(this);" ' +
+            'title="' + esc(ISSUE_MAP[k].chip || ISSUE_MAP[k].label) + '">' +
+            '<span class="pdx-align-pick-x" aria-hidden="true">' + (on ? '✓' : '＋') + '</span>' +
+            esc(ISSUE_MAP[k].label) +
+          '</button>';
+      }).join('');
+      var moreBtn = '<button type="button" class="pdx-align-pick more" onclick="event.stopPropagation();if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" title="Open the full Alignment Tool to weight issues and pick from every topic">⚙ More issues</button>';
+
+      // ── No issues yet → quick selector only ──
+      if (!hasIssues) {
+        return '<div class="pdx-amatch is-setup" onclick="event.stopPropagation();">' +
+            '<div class="pdx-amatch-head">' +
+              '<span class="pdx-amatch-ico" aria-hidden="true">🎯</span>' +
+              '<span class="pdx-amatch-title">Match this race to your values</span>' +
+              '<span class="pdx-amatch-sub">Tap an issue — rank everyone in this district without leaving</span>' +
+            '</div>' +
+            '<div class="pdx-amatch-picks">' + chips + moreBtn + '</div>' +
+          '</div>';
+      }
+
+      // ── Issues set → ranked leaderboard ──
+      var rows = pids.map(function(pid) {
+        var sc = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+        return { pid: pid, d: CMP_DATA[pid], score: sc };
+      });
+      var scored = rows.filter(function(r) { return r.score !== null && r.score !== undefined; })
+                       .sort(function(a, b) { return b.score - a.score; });
+      var unscored = rows.filter(function(r) { return r.score === null || r.score === undefined; });
+
+      if (!scored.length) {
+        // Issues chosen, but nobody in this field carries enough record to score —
+        // keep the selector visible so the voter can adjust, and say so honestly.
+        return '<div class="pdx-amatch" onclick="event.stopPropagation();">' +
+            '<div class="pdx-amatch-head">' +
+              '<span class="pdx-amatch-ico" aria-hidden="true">🎯</span>' +
+              '<span class="pdx-amatch-title">Your Match in this race</span>' +
+              '<span class="pdx-amatch-sub">Not enough record yet to rank this field on your issues</span>' +
+            '</div>' +
+            '<div class="pdx-amatch-picks tune"><span class="pdx-amatch-tune-lbl">Tune this race:</span>' + chips + moreBtn + '</div>' +
+          '</div>';
+      }
+
+      var rowsHtml = scored.map(function(r, i) {
+        var d = r.d;
+        var col = (typeof _alignScoreColor === 'function') ? _alignScoreColor(r.score) : '#a78bfa';
+        var pcol = partyCol(d.party);
+        var isBest = (i === 0 && r.score >= 50);
+        var url = d.photo ? d.photo : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[r.pid]) ? BROWSE_PHOTOS[r.pid] : '');
+        var av = url
+          ? '<span class="pdx-amatch-av" style="border-color:' + pcol + '99;"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>'
+          : '<span class="pdx-amatch-av pdx-amatch-av-ph" style="border-color:' + pcol + '99;color:' + pcol + ';">' + esc((d.name || '?').slice(0, 1)) + '</span>';
+        var badge = (typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(d, { size: 'sm' }) : '';
+        return '<button type="button" class="pdx-amatch-row' + (isBest ? ' is-best' : '') + '" ' +
+            'style="--mc:' + col + ';" ' +
+            'onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + r.pid + '\');" ' +
+            'title="' + esc(d.name) + ' — ' + r.score + '% match on your ' + nIssues + ' issue' + (nIssues > 1 ? 's' : '') + '. Tap for the issue-by-issue breakdown.">' +
+            '<span class="pdx-amatch-rank">' + (isBest ? '👑' : (i + 1)) + '</span>' +
+            av +
+            '<span class="pdx-amatch-id">' +
+              '<span class="pdx-amatch-name" style="color:' + pcol + ';">' + esc(d.name) + '</span>' +
+              '<span class="pdx-amatch-meta">' + badge + (isBest ? '<span class="pdx-amatch-best">Best match for you</span>' : '') + '</span>' +
+            '</span>' +
+            '<span class="pdx-amatch-score">' +
+              '<span class="pdx-amatch-bar"><span style="width:' + r.score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></span></span>' +
+              '<span class="pdx-amatch-pct" style="color:' + col + ';">' + r.score + '<span style="font-size:0.62em;">%</span></span>' +
+            '</span>' +
+          '</button>';
+      }).join('');
+
+      var unscoredHtml = '';
+      if (unscored.length) {
+        unscoredHtml = '<div class="pdx-amatch-unscored">' +
+            '<span class="pdx-amatch-unscored-lbl">⏳ Too little record to score yet:</span> ' +
+            unscored.map(function(r) { return esc((r.d.name || '').split(/\s+/)[0]); }).join(', ') +
+          '</div>';
+      }
+
+      // One-tap "add my best fit" — turns the ranking's conclusion straight into a
+      // team pick without leaving the district. Only when the top match is a genuine
+      // fit and isn't already on the team.
+      var best = scored[0];
+      var bestOnTeam = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has && _myPoliticians.has(best.pid);
+      var addBtn = '';
+      if (best && !bestOnTeam && best.score >= 50) {
+        var firstName = (best.d.name || '').split(/\s+/)[0];
+        addBtn = '<button type="button" class="pdx-amatch-add" onclick="event.stopPropagation();if(window.mypolToggleAnimated)window.mypolToggleAnimated(this,\'' + best.pid + '\');">⭐ Add ' + esc(firstName) + ' to your team</button>';
+      } else if (best && bestOnTeam) {
+        addBtn = '<div class="pdx-amatch-onteam">✓ Your top match in this district is on your team</div>';
+      }
+
+      return '<div class="pdx-amatch is-ranked" onclick="event.stopPropagation();">' +
+          '<div class="pdx-amatch-head">' +
+            '<span class="pdx-amatch-ico" aria-hidden="true">🎯</span>' +
+            '<span class="pdx-amatch-title">Your Match in this race</span>' +
+            '<span class="pdx-amatch-sub">Ranked by your <b>' + nIssues + '</b> issue' + (nIssues > 1 ? 's' : '') + ' · best fit first</span>' +
+          '</div>' +
+          '<div class="pdx-amatch-board">' + rowsHtml + '</div>' +
+          unscoredHtml +
+          addBtn +
+          '<div class="pdx-amatch-picks tune"><span class="pdx-amatch-tune-lbl">Tune this race:</span>' + chips + moreBtn + '</div>' +
+        '</div>';
+    }
+    window._pdxSeatAlignBoard = _pdxSeatAlignBoard;
+
     // Renders one district seat's WHOLE field in a single place: the current
     // officeholder(s) and every candidate running for that same seat together in
     // one grid, instead of splitting them into stacked "Currently in Office" /
@@ -44310,9 +44622,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Sits above the alignment prompt so the direct head-to-head is the first
         // thing a voter sees when weighing the race.
         out += _pdxFieldCompareBtn(liveField, { openSeat: isOpenSeat, hasIncumbent: inOffice.length > 0 });
-        // Invite a side-by-side comparison of the field on issue alignment, right
-        // where the decision is made (only renders for an actual 2+ field).
-        out += _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
+        // Personalized district-level alignment, right where the decision is made:
+        // a race-scoped quick selector when no issues are chosen yet, or a ranked
+        // "Your Match in this race" leaderboard (best fit first, top match flagged,
+        // one-tap add-to-team) once they are. Supersedes the older compare-CTA so a
+        // voter sees who in THIS district fits their values without opening the
+        // global tool. Falls back to that CTA if the board can't render a 2+ field.
+        var _alignBoard = (typeof _pdxSeatAlignBoard === 'function') ? _pdxSeatAlignBoard(liveField) : '';
+        out += _alignBoard || _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
         // At-a-glance issue board: the whole field's documented stances laid against
         // the same key issues, so a voter compares everyone in the race head-to-head
         // without opening a profile. Only render when the field is ONE coherent seat
@@ -51052,6 +51369,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (typeof _potentialBuildGrid === 'function') _potentialBuildGrid();
 
       if (typeof filterDirectory === 'function') filterDirectory();
+
+      // The All Politicians browse tree carries the same district-level "Your Match
+      // in this race" panels, so re-render it too when it's actually on screen (its
+      // accordion open-state is preserved), so a quick-pick made there re-ranks the
+      // race immediately. Skipped when the panel is hidden to avoid needless work.
+      if (typeof window.myteamBrowseFilter === 'function') {
+        var _apg = document.getElementById('myteam-browse-grid');
+        if (_apg && _apg.offsetParent !== null) window.myteamBrowseFilter();
+      }
 
       var cmpOverlay = document.getElementById('compare-overlay');
       if (cmpOverlay && cmpOverlay.style && cmpOverlay.style.display !== 'none') {
