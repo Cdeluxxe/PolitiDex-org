@@ -42949,6 +42949,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             if (_distOffice && _distCand && typeof window._pdxSeatFieldHead === 'function') {
               out += window._pdxSeatFieldHead(_distOffice, _distCand, _distFormerPids.length, { compact: true });
             }
+            // Full-field side-by-side launcher for this seat — the live race is the
+            // officeholder(s) plus everyone challenging for the same seat. One tap
+            // stages exactly that field in the Compare overlay, so a voter weighs
+            // this race head-to-head right from the All Politicians district view.
+            if (typeof _pdxFieldCompareBtn === 'function') {
+              out += _pdxFieldCompareBtn(_distOfficePids.concat(_distCandPids), {
+                openSeat: _distOffice === 0 && _distCand > 0,
+                hasIncumbent: _distOffice > 0
+              });
+            }
             // Contested seat (incumbent + challengers) in default order: split into
             // clearly labeled tiers — who holds the seat now, who's running for it,
             // and (quietly) who held it before — so the field reads at a glance. When
@@ -43861,6 +43871,39 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // The prominent "Compare the field" action for one unified district seat. One
+    // tap loads the seat's whole live lineup — the sitting officeholder (when
+    // they're running again) plus every 2026 candidate for that same seat — into
+    // the side-by-side Compare overlay, so a voter weighs exactly this race head-
+    // to-head without hand-selecting anyone or leaving the district view. Styled
+    // as the same blue research/decision step used per-race in Key Races, so the
+    // flow reads top-to-bottom: see who's running → compare the field → add a pick.
+    // Renders only for a real 2+ field (a lone, uncontested record has no race to
+    // compare). The sub-line adapts to whether an incumbent is in the running.
+    function _pdxFieldCompareBtn(fieldPids, opts) {
+      opts = opts || {};
+      var pids = (fieldPids || []).filter(function(pid) {
+        return typeof CMP_DATA !== 'undefined' && CMP_DATA[pid];
+      });
+      if (pids.length < 2) return '';
+      var n = pids.length;
+      var sub = opts.openSeat
+        ? 'No incumbent — line up all ' + n + ' candidates for this open seat side-by-side'
+        : (opts.hasIncumbent
+            ? 'Weigh the current officeholder against every challenger, side-by-side'
+            : 'Put all ' + n + ' on this ballot side-by-side before you pick');
+      return '<button type="button" class="kr-race-compare pdx-field-compare" style="margin-bottom:0.85rem;" ' +
+          'onclick="event.stopPropagation();window.pdxCompareField(\'' + pids.join(',') + '\')" ' +
+          'aria-label="Compare all ' + n + ' people running for this seat side by side">' +
+          '<span class="kr-race-compare-ico" aria-hidden="true">⚖️</span>' +
+          '<span class="kr-race-compare-text">' +
+            '<span class="kr-race-compare-title">Compare the field · ' + n + ' in this race</span>' +
+            '<span class="kr-race-compare-sub">' + sub + '</span>' +
+          '</span>' +
+          '<span class="kr-race-compare-go" aria-hidden="true">›</span>' +
+        '</button>';
+    }
+
     // Renders one district seat's WHOLE field in a single place: the current
     // officeholder(s) and every candidate running for that same seat together in
     // one grid, instead of splitting them into stacked "Currently in Office" /
@@ -43917,6 +43960,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ? window._pdxSeatFieldHead(inOffice.length, candidates.length, former.length, { openSeat: isOpenSeat })
           : '';
         if (note) out += '<div class="relevant-open-note"><span style="flex-shrink:0;">🗳️</span><span>' + note + '</span></div>';
+        // The full-field side-by-side launcher — the prominent, one-tap way to
+        // compare exactly this seat's lineup (officeholder + every challenger).
+        // Sits above the alignment prompt so the direct head-to-head is the first
+        // thing a voter sees when weighing the race.
+        out += _pdxFieldCompareBtn(liveField, { openSeat: isOpenSeat, hasIncumbent: inOffice.length > 0 });
         // Invite a side-by-side comparison of the field on issue alignment, right
         // where the decision is made (only renders for an actual 2+ field).
         out += _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
@@ -45411,6 +45459,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window.chubLaunchCompare = function() {
       if (_cmpSelected.size < 2) return;
       openCompare();
+    };
+
+    // One-tap "Compare the field" — load an ENTIRE district seat's lineup (the
+    // sitting officeholder if they're running again, plus every 2026 candidate for
+    // that same seat) straight into the side-by-side Compare overlay, with nothing
+    // for the voter to hand-pick. This is the bridge from the unified district view
+    // ("here's who's running for this seat") to a head-to-head of exactly those
+    // people, so a voter can evaluate one specific race without detouring through
+    // the global Compare tool. Mirrors keyRacesCompareRace's staging but repaints
+    // the browse/district surfaces (chub cards) rather than the Key Races cards.
+    window.pdxCompareField = function(pidsCsv) {
+      try {
+        var pids = (pidsCsv || '').split(',').filter(function(p) {
+          return p && typeof CMP_DATA !== 'undefined' && CMP_DATA[p];
+        });
+        if (pids.length < 2) {
+          // Nothing to weigh side-by-side — fall back to the lone profile.
+          if (pids.length === 1 && typeof showProfile === 'function') showProfile(pids[0]);
+          return;
+        }
+        // Stage exactly this seat's field: drop whatever was previously selected so
+        // the race stands alone, then add the full field. Track every pid whose
+        // state changes (cleared + newly added) so we can resync each one's chips,
+        // checkboxes and power-map pills across the whole page.
+        var touched = {};
+        var prev = (typeof _cmpSelected !== 'undefined') ? Array.from(_cmpSelected) : [];
+        prev.forEach(function(p) { _cmpSelected.delete(p); touched[p] = 1; });
+        pids.forEach(function(p) { _cmpSelected.add(p); touched[p] = 1; });
+        if (typeof _syncAllCompareUI === 'function') {
+          Object.keys(touched).forEach(function(p) { _syncAllCompareUI(p); });
+        }
+        if (typeof _chubRefreshCards === 'function') _chubRefreshCards();
+        if (typeof _chubUpdateLaunchBar === 'function') _chubUpdateLaunchBar();
+        if (typeof _updateCmpFloat === 'function') _updateCmpFloat();
+        if (typeof _pmUpdateTray === 'function') _pmUpdateTray();
+        if (typeof openCompare === 'function') openCompare();
+      } catch (e) {}
     };
 
     const _origHandleCompareCheck = window.handleCompareCheck;
