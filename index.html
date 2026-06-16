@@ -4935,7 +4935,30 @@
        carries a tiny colour legend so it's instantly clear, at a glance, who
        holds the seat today (green) versus who is challenging for it (blue). */
     .pdx-field-head {
-      margin: 0.1rem 0 0.85rem;
+      position: relative;
+      margin: 0.1rem 0 0.95rem;
+      padding: 0.7rem 0.9rem 0.72rem 1.05rem;
+      border-radius: 0.8rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(20,36,64,0.6) 0%, rgba(11,18,34,0.4) 100%);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    /* A vertical accent bar reads green→blue: the seat below holds an incumbent
+       (green) AND challengers (blue), so the banner itself previews the two
+       roles a voter is about to compare. The open-seat variant goes all blue. */
+    .pdx-field-head::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(180deg, #4ade80 0%, #4ade80 46%, #60a5fa 54%, #60a5fa 100%);
+    }
+    .pdx-field-head--open::before {
+      background: linear-gradient(180deg, #60a5fa 0%, #93c5fd 100%);
+    }
+    .pdx-field-head--compact {
+      padding: 0.55rem 0.8rem 0.58rem 0.92rem;
+      margin: 0.05rem 0 0.7rem;
+      border-radius: 0.7rem;
     }
     .pdx-field-head-title {
       display: flex;
@@ -5007,6 +5030,49 @@
     }
     .pdx-field-former-divider .pdx-field-former-rule {
       flex: 1; height: 1px; background: linear-gradient(90deg, rgba(148,163,184,0.3), transparent);
+    }
+    /* ── In-field role dividers ───────────────────────────────────────────────
+       Inside one unified seat section, a labeled rail separates the people who
+       HOLD the seat now (green) from those RUNNING for it (blue). It keeps the
+       whole field in a single section while making the "who's who" split obvious
+       without forcing the voter to read each card's badge. Mirrors the former
+       divider's shape so the three role rails (current / challenger / former)
+       read as one consistent family. */
+    .pdx-field-role-divider {
+      display: flex; align-items: center; gap: 0.55rem;
+      margin: 0.1rem 0 0.7rem;
+    }
+    .pdx-field-role-divider .pdx-field-role-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.66rem; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 0.18rem 0.62rem; border-radius: 999px; white-space: nowrap;
+      line-height: 1.2;
+    }
+    .pdx-field-role-divider .pdx-field-role-pill .pdx-field-role-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .pdx-field-role-divider .pdx-field-role-pill .pdx-field-role-n { opacity: 0.72; font-weight: 700; }
+    .pdx-field-role-divider .pdx-field-role-rule { flex: 1; height: 1px; }
+    /* Current officeholder rail — green, matching the incumbent hero card. */
+    .pdx-field-role-divider.is-office .pdx-field-role-pill {
+      color: #86efac; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.5);
+    }
+    .pdx-field-role-divider.is-office .pdx-field-role-pill .pdx-field-role-dot {
+      background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.85);
+    }
+    .pdx-field-role-divider.is-office .pdx-field-role-rule {
+      background: linear-gradient(90deg, rgba(34,197,94,0.4), transparent);
+    }
+    /* Challenger rail — blue, matching the candidate card's cool identity. */
+    .pdx-field-role-divider.is-cand .pdx-field-role-pill {
+      color: #bfdbfe; background: rgba(59,130,246,0.12); border: 1px solid rgba(96,165,250,0.5);
+    }
+    .pdx-field-role-divider.is-cand .pdx-field-role-pill .pdx-field-role-dot {
+      background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.85);
+    }
+    .pdx-field-role-divider.is-cand .pdx-field-role-rule {
+      background: linear-gradient(90deg, rgba(96,165,250,0.4), transparent);
     }
     /* ── Shared compact-card primitives ─────────────────────────────────
        One consistent visual language for the party tag, the kept/broken/
@@ -5551,6 +5617,13 @@
     @media (max-width: 640px) {
       .pdx-snap-name { font-size: 1.24rem; }
       .pdx-snap-office { font-size: 0.84rem; }
+      /* Keep the unified seat banner + role rails tight and never let a long role
+         label overflow on a narrow phone — the label wraps, the rule re-flows. */
+      .pdx-field-head { padding: 0.6rem 0.75rem 0.62rem 0.9rem; }
+      .pdx-field-head--compact { padding: 0.5rem 0.7rem 0.52rem 0.82rem; }
+      .pdx-field-role-divider { flex-wrap: wrap; gap: 0.4rem; }
+      .pdx-field-role-divider .pdx-field-role-pill { white-space: normal; }
+      .pdx-field-role-divider .pdx-field-role-rule { min-width: 2rem; }
     }
 
     .chub-add-btn {
@@ -35529,10 +35602,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var legend = '<div class="pdx-field-legend">' + keys + '</div>';
 
     var titleStyle = opts.compact ? ' style="font-size:0.8rem;"' : '';
-    return '<div class="pdx-field-head">' +
+    var headCls = 'pdx-field-head'
+      + (opts.openSeat ? ' pdx-field-head--open' : '')
+      + (opts.compact ? ' pdx-field-head--compact' : '');
+    return '<div class="' + headCls + '">' +
         '<div class="pdx-field-head-title"' + titleStyle + '><span class="pdx-field-head-ico" aria-hidden="true">' + ico + '</span><span>' + title + '</span></div>' +
         sub +
         legend +
+      '</div>';
+  };
+
+  // A labeled, colour-coded rail that separates one role tier from the next
+  // INSIDE a single unified seat section — "🏛 Currently holds this seat" (green)
+  // above the incumbent grid, "🗳️ Running for this seat" (blue) above the
+  // challenger grid. It keeps the incumbent and every candidate in one place
+  // while making the who-holds-it / who's-running split obvious at a glance,
+  // without the voter having to read each card's status badge. Pairs with the
+  // existing former-holders divider so all three role rails read as one family.
+  //   kind  — 'office' | 'cand'
+  //   n     — count shown in the rail
+  //   opts.openSeat — true to label the challenger rail as an open-seat field
+  window._pdxSeatRoleDivider = function(kind, n, opts) {
+    opts = opts || {};
+    n = n || 0;
+    var ico, label, cls;
+    if (kind === 'office') {
+      cls = 'is-office'; ico = '🏛';
+      label = 'Currently holds this seat';
+    } else {
+      cls = 'is-cand'; ico = '🗳️';
+      label = opts.openSeat ? 'On the ballot for this open seat' : 'Running for this seat';
+    }
+    var nTxt = n ? ' <span class="pdx-field-role-n">(' + n + ')</span>' : '';
+    return '<div class="pdx-field-role-divider ' + cls + '">' +
+        '<span class="pdx-field-role-pill"><span class="pdx-field-role-dot"></span>' +
+          '<span aria-hidden="true">' + ico + '</span> ' + label + nTxt + '</span>' +
+        '<span class="pdx-field-role-rule"></span>' +
       '</div>';
   };
 
@@ -42831,23 +42936,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             // for that same seat, frame the combined grid with the role legend so
             // the incumbent-vs-challenger split reads clearly here too — the same
             // "full field for this seat" treatment used in Relevant to Me.
-            var _distOffice = 0, _distCand = 0;
+            var _distOfficePids = [], _distCandPids = [], _distFormerPids = [];
             distPids.forEach(function(pid) {
               var _st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
-              if (_st === 'candidate') _distCand++;
-              else if (_st !== 'former') _distOffice++;
+              if (_st === 'candidate') _distCandPids.push(pid);
+              else if (_st === 'former') _distFormerPids.push(pid);
+              else _distOfficePids.push(pid);
             });
+            var _distOffice = _distOfficePids.length, _distCand = _distCandPids.length;
+            var _distGridCls = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start';
+            var _alignSort = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function');
             if (_distOffice && _distCand && typeof window._pdxSeatFieldHead === 'function') {
-              out += window._pdxSeatFieldHead(_distOffice, _distCand, 0, { compact: true });
+              out += window._pdxSeatFieldHead(_distOffice, _distCand, _distFormerPids.length, { compact: true });
             }
-            out += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
-            var _leafPids = (window._alignBrowseSortActive && typeof _calcAlignmentScore === 'function')
-              ? distPids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
-              : _sortInOfficeFirst(distPids);
-            _leafPids.forEach(function(pid) {
-              out += _renderAllPoliticiansCard(pid);
-            });
-            out += '</div>';
+            // Contested seat (incumbent + challengers) in default order: split into
+            // clearly labeled tiers — who holds the seat now, who's running for it,
+            // and (quietly) who held it before — so the field reads at a glance. When
+            // the voter has sorted the whole tree by alignment, keep one ranked grid
+            // so the best-match order isn't broken.
+            if (_distOffice && _distCand && !_alignSort && typeof window._pdxSeatRoleDivider === 'function') {
+              out += window._pdxSeatRoleDivider('office', _distOffice);
+              out += '<div class="' + _distGridCls + '" style="margin-bottom:0.85rem;">';
+              _sortInOfficeFirst(_distOfficePids).forEach(function(pid) { out += _renderAllPoliticiansCard(pid); });
+              out += '</div>';
+              out += window._pdxSeatRoleDivider('cand', _distCand);
+              out += '<div class="' + _distGridCls + '"' + (_distFormerPids.length ? ' style="margin-bottom:0.85rem;"' : '') + '>';
+              _sortInOfficeFirst(_distCandPids).forEach(function(pid) { out += _renderAllPoliticiansCard(pid); });
+              out += '</div>';
+              if (_distFormerPids.length) {
+                out += '<div class="pdx-field-former-divider">' +
+                    '<span class="pdx-field-former-pill">⏳ Previously held this seat <span style="opacity:0.75;">(' + _distFormerPids.length + ')</span></span>' +
+                    '<span class="pdx-field-former-rule"></span>' +
+                  '</div>';
+                out += '<div class="' + _distGridCls + '">';
+                _sortInOfficeFirst(_distFormerPids).forEach(function(pid) { out += _renderAllPoliticiansCard(pid); });
+                out += '</div>';
+              }
+            } else {
+              out += '<div class="' + _distGridCls + '">';
+              var _leafPids = _alignSort
+                ? distPids.slice().sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); })
+                : _sortInOfficeFirst(distPids);
+              _leafPids.forEach(function(pid) {
+                out += _renderAllPoliticiansCard(pid);
+              });
+              out += '</div>';
+            }
             out += '</div></div></div>';
             return out;
           };
@@ -43786,9 +43920,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Invite a side-by-side comparison of the field on issue alignment, right
         // where the decision is made (only renders for an actual 2+ field).
         out += _relevantCompareCTA(liveField, isOpenSeat ? 'candidate' : 'office');
-        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start" style="margin-bottom:1rem;">';
-        liveField.forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
-        out += '</div>';
+
+        var _gridCls = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start';
+        // When a sitting officeholder is being challenged AND we're not ranking the
+        // whole field by the voter's values, split it into two clearly labeled
+        // tiers — who holds the seat now, then who's running for it — so the
+        // competitive landscape reads at a glance even before reading any badge.
+        // Once issues are set we keep the single best-match-first grid so "ranked
+        // by your values" stays literally true across incumbent and challengers.
+        if (inOffice.length && candidates.length && !hasIssues && typeof window._pdxSeatRoleDivider === 'function') {
+          out += window._pdxSeatRoleDivider('office', inOffice.length);
+          out += '<div class="' + _gridCls + '" style="margin-bottom:1rem;">';
+          _sortInOfficeFirst(inOffice).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+          out += '</div>';
+          out += window._pdxSeatRoleDivider('cand', candidates.length, { openSeat: isOpenSeat });
+          out += '<div class="' + _gridCls + '" style="margin-bottom:1rem;">';
+          _sortInOfficeFirst(candidates).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+          out += '</div>';
+        } else {
+          out += '<div class="' + _gridCls + '" style="margin-bottom:1rem;">';
+          liveField.forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+          out += '</div>';
+        }
       }
 
       // Former holders of this seat aren't part of the live race, so they trail
