@@ -14180,6 +14180,73 @@
     #relevant-browse-grid .relevant-addhint strong { color: #ffffff; }
     #relevant-browse-grid .relevant-addhint .relevant-addhint-ico { flex-shrink: 0; }
 
+    /* ── District trees: team-coverage indicators ─────────────────────────────
+       The unified district view shows a seat's officeholder(s) alongside everyone
+       running for it. These mark, at a glance, whether the voter has already added
+       someone from that seat to their team: a green "On your team" pill on the
+       (collapsed) district header so coverage reads while scanning the tree, plus
+       a short, quiet note inside the expanded body that either confirms the pick
+       or nudges the voter to fill an open seat — with a one-tap jump back to My
+       Team. Coverage language mirrors Relevant to Me; green = covered, muted =
+       still open. Applied to both the All Politicians tree (#myteam-browse-grid)
+       and the "Explore other districts" tree nested in Relevant to Me. */
+    #myteam-browse-grid .myteam-cov-slot,
+    #relevant-browse-grid .myteam-cov-slot { display: inline-flex; flex-shrink: 0; }
+    #myteam-browse-grid .myteam-cov-pill,
+    #relevant-browse-grid .myteam-cov-pill {
+      display: inline-flex; align-items: center; gap: 0.24rem; flex-shrink: 0;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 0.6rem; letter-spacing: 0.06em;
+      text-transform: uppercase; white-space: nowrap;
+      border-radius: 999px; padding: 0.12rem 0.5rem; line-height: 1.1; margin-left: 0.4rem;
+    }
+    #myteam-browse-grid .myteam-cov-pill.is-filled,
+    #relevant-browse-grid .myteam-cov-pill.is-filled {
+      color: #bbf7d0; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.58);
+    }
+    #myteam-browse-grid .myteam-cov-pill.is-open,
+    #relevant-browse-grid .myteam-cov-pill.is-open {
+      color: #9fb4d4; background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.28);
+    }
+    #myteam-browse-grid .myteam-cov-note-slot,
+    #relevant-browse-grid .myteam-cov-note-slot { display: block; }
+    #myteam-browse-grid .myteam-cov-note,
+    #relevant-browse-grid .myteam-cov-note {
+      display: flex; gap: 0.5rem; align-items: flex-start;
+      margin: 0 0 0.7rem; padding: 0.55rem 0.78rem; border-radius: 0.7rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.82rem; letter-spacing: 0.01em; line-height: 1.45;
+    }
+    #myteam-browse-grid .myteam-cov-note.is-filled,
+    #relevant-browse-grid .myteam-cov-note.is-filled {
+      background: rgba(34,197,94,0.09); border: 1px solid rgba(34,197,94,0.3); color: #bbf7d0;
+    }
+    #myteam-browse-grid .myteam-cov-note.is-open,
+    #relevant-browse-grid .myteam-cov-note.is-open {
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28); color: #fcd9a0;
+    }
+    #myteam-browse-grid .myteam-cov-note strong,
+    #relevant-browse-grid .myteam-cov-note strong { color: #ffffff; font-weight: 700; }
+    #myteam-browse-grid .myteam-cov-note-ico,
+    #relevant-browse-grid .myteam-cov-note-ico { flex-shrink: 0; }
+    #myteam-browse-grid .myteam-cov-link,
+    #relevant-browse-grid .myteam-cov-link {
+      display: inline; background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 800; letter-spacing: 0.02em;
+      color: #fbbf24; text-decoration: underline; white-space: nowrap;
+    }
+    #myteam-browse-grid .myteam-cov-note.is-filled .myteam-cov-link,
+    #relevant-browse-grid .myteam-cov-note.is-filled .myteam-cov-link { color: #86efac; }
+    #myteam-browse-grid .myteam-cov-link:hover,
+    #relevant-browse-grid .myteam-cov-link:hover { opacity: 0.85; }
+
+    @media (max-width: 640px) {
+      #myteam-browse-grid .myteam-cov-pill,
+      #relevant-browse-grid .myteam-cov-pill { font-size: 0.54rem; padding: 0.1rem 0.42rem; margin-left: 0.3rem; }
+      #myteam-browse-grid .myteam-cov-note,
+      #relevant-browse-grid .myteam-cov-note { font-size: 0.78rem; padding: 0.5rem 0.65rem; }
+    }
+
     @media (max-width: 640px) {
       #relevant-browse-grid .relevant-why-pill { font-size: 0.56rem; margin-left: 0.35rem; padding: 0.14rem 0.45rem; }
       #relevant-browse-grid .relevant-match-legend { gap: 0.4rem; padding: 0.6rem 0.7rem; }
@@ -41146,6 +41213,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       chubBuildAll();
       _mypolUpdateCount();
       if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
+      if (window._myteamBrowseRefreshCoverage) { try { window._myteamBrowseRefreshCoverage(); } catch (e) {} }
     };
 
     // Exposed so other script blocks (e.g. the Compare modal) can read whether a
@@ -41244,6 +41312,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Keep the "Relevant to Me" district-coverage UI (tracker, chips, office
         // pills) in sync with the pick the voter just made or removed.
         if (window.renderRelevantToMe) { try { window.renderRelevantToMe(); } catch (e) {} }
+        // Keep the All Politicians district tree's coverage pills + notes in sync.
+        if (window._myteamBrowseRefreshCoverage) { try { window._myteamBrowseRefreshCoverage(); } catch (e) {} }
         // Keep the open profile modal's footer CTA in sync — but only when the
         // toggle came from somewhere else (e.g. the inline thin-profile button),
         // so we never stomp the footer button's own "✓ Added!" flash.
@@ -43277,6 +43347,62 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         .map(function(x) { return x.pid; });
     }
 
+    // ── All Politicians district tree: team-coverage helpers ──────────────────
+    // Mark whether the voter has already added someone from a given district seat
+    // to their team. renderDistAccordion uses these to stamp a coverage pill on
+    // each district header and a short guidance note in its body; the same helpers
+    // are re-applied in place by _myteamBrowseRefreshCoverage whenever a pick is
+    // toggled, so the indicators stay live without rebuilding the whole tree.
+    function _myteamCovEsc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function _myteamCovOnTeamPids(distPids) {
+      return (distPids || []).filter(function(pid) {
+        return (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid);
+      });
+    }
+    function _myteamCovPillHTML(distPids) {
+      var n = _myteamCovOnTeamPids(distPids).length;
+      // Only the covered (green) state shows on the header — across the national
+      // tree a pill on every open seat would be noise. Covered seats stand out at
+      // a glance; the in-body note carries the "open seat" guidance on expand.
+      if (n > 0) {
+        return '<span class="myteam-cov-pill is-filled" title="' + n + ' from this race on your team">✓ On your team</span>';
+      }
+      return '';
+    }
+    function _myteamCovNoteHTML(distPids) {
+      var jump = '<button type="button" class="myteam-cov-link" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">View My Team ↑</button>';
+      var onTeam = _myteamCovOnTeamPids(distPids);
+      if (onTeam.length) {
+        var names = onTeam.map(function(pid) {
+          return (typeof CMP_DATA !== 'undefined' && CMP_DATA[pid] && CMP_DATA[pid].name) ? CMP_DATA[pid].name : 'Someone';
+        });
+        var shown = names.slice(0, 2).join(', ');
+        if (names.length > 2) shown += ' +' + (names.length - 2) + ' more';
+        var verb = (onTeam.length === 1) ? 'is' : 'are';
+        return '<div class="myteam-cov-note is-filled"><span class="myteam-cov-note-ico">✓</span>' +
+          '<span><strong>' + _myteamCovEsc(shown) + '</strong> ' + verb + ' on your team from this race. ' + jump + '</span></div>';
+      }
+      return '<div class="myteam-cov-note is-open"><span class="myteam-cov-note-ico">➕</span>' +
+        '<span>You haven’t added anyone from this race yet — add someone below to complete your coverage. ' + jump + '</span></div>';
+    }
+    // Re-stamp the coverage pill + note on every rendered district accordion so the
+    // All Politicians tree reflects the latest team pick without a full rebuild.
+    window._myteamBrowseRefreshCoverage = function() {
+      var grid = document.getElementById('myteam-browse-grid');
+      if (!grid) return;
+      var accs = grid.querySelectorAll('[data-distpids]');
+      for (var i = 0; i < accs.length; i++) {
+        var el = accs[i];
+        var pids = (el.getAttribute('data-distpids') || '').split(',').filter(Boolean);
+        var pillSlot = el.querySelector('.myteam-cov-slot');
+        var noteSlot = el.querySelector('.myteam-cov-note-slot');
+        if (pillSlot) pillSlot.innerHTML = _myteamCovPillHTML(pids);
+        if (noteSlot) noteSlot.innerHTML = _myteamCovNoteHTML(pids);
+      }
+    };
+
     function _renderGroupedBrowse(pids, prefix, opts) {
       prefix = prefix || '';
       opts = opts || {};
@@ -43392,16 +43518,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             var distExpandedClass = isDistOpen ? ' expanded' : '';
 
             var out = '';
-            out += '<div class="border border-white/5 rounded-lg overflow-hidden bg-navy-950/20' + distExpandedClass + '" id="' + prefix + 'browse-dist-' + distKey + '">';
+            out += '<div class="border border-white/5 rounded-lg overflow-hidden bg-navy-950/20' + distExpandedClass + '" id="' + prefix + 'browse-dist-' + distKey + '" data-distpids="' + distPids.join(',') + '">';
             out += '<button class="w-full flex items-center justify-between px-3 py-2 bg-navy-900/40 hover:bg-navy-900/60 text-left border-none" onclick="toggleBrowseAccordion(\'' + prefix + 'browse-dist-' + distKey + '\', \'' + prefix + 'dist-' + distKey + '\')" style="min-height: 38px;">';
-            out += '<div class="flex items-center gap-1.5">';
+            out += '<div class="flex items-center gap-1.5 flex-wrap">';
             out += '<span class="text-[10px] text-steel-500">▶</span>';
             out += '<span class="font-condensed font-600 text-xs text-steel-300 uppercase tracking-wide">' + dist + '</span>';
             out += '<span class="text-[10px] text-steel-500 bg-white/5 border border-white/5 rounded-full px-1.5 py-0.2 ml-1">' + distPids.length + '</span>';
+            out += '<span class="myteam-cov-slot">' + _myteamCovPillHTML(distPids) + '</span>';
             out += '</div>';
             out += _chevronWrapped('w-5 h-5 flex items-center justify-center rounded-full bg-white/5 text-steel-400', 'w-2.5 h-2.5 text-steel-400 transition-transform duration-300');
             out += '</button>';
             out += '<div class="browse-sub-body"><div class="p-2">';
+            // Team-coverage guidance for this seat: confirms the voter's pick or
+            // nudges them to fill an open seat, with a one-tap jump back to My Team.
+            out += '<div class="myteam-cov-note-slot">' + _myteamCovNoteHTML(distPids) + '</div>';
             // When a district holds both a sitting officeholder and people running
             // for that same seat, frame the combined grid with the role legend so
             // the incumbent-vs-challenger split reads clearly here too — the same
