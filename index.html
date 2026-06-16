@@ -7634,6 +7634,78 @@
     .kr-norecord .kr-norecord-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.74rem; letter-spacing: 0.03em; color: #bcd2f0; line-height: 1.2; }
     .kr-norecord .kr-norecord-sub { font-family: 'Barlow Condensed', sans-serif; font-weight: 500; font-size: 0.64rem; letter-spacing: 0.01em; color: #88a0c4; line-height: 1.35; }
 
+    /* ── District / ballot coverage guidance (Key Races) ─────────────────────
+       Helps a voter see at a glance which of the seats on their ballot already
+       have someone on their team and which districts still need a pick, and
+       makes jumping to an uncovered race one tap. Same dark-navy / gold / green
+       patriotic palette as the rest of Key Races. */
+    .kr-coverage-panel {
+      border-radius: 1.1rem; padding: 1rem 1.15rem; margin: 0.1rem 0 0.35rem;
+      background: linear-gradient(135deg, rgba(30,58,138,0.24), rgba(10,15,30,0.5));
+      border: 1px solid rgba(96,165,250,0.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .kr-coverage-panel.is-complete {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(10,15,30,0.5));
+      border-color: rgba(74,222,128,0.45);
+    }
+    .kr-cov-head { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+    .kr-cov-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; font-size: 1.18rem; color: #fff; line-height: 1; }
+    .kr-cov-count { margin-left: auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4; white-space: nowrap; }
+    .kr-cov-count strong { color: #fcd34d; font-size: 0.98rem; }
+    .kr-coverage-panel.is-complete .kr-cov-count strong { color: #86efac; }
+    .kr-cov-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.84rem; line-height: 1.4; color: #cbd9ee; margin: 0.4rem 0 0; }
+    .kr-cov-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin: 0.7rem 0 0.2rem; }
+    .kr-cov-bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #fde68a, #f59e0b); transition: width 0.55s cubic-bezier(0.34,1.2,0.64,1); }
+    .kr-coverage-panel.is-complete .kr-cov-bar > span { background: linear-gradient(90deg, #86efac, #22c55e); }
+    .kr-cov-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+    .kr-cov-chip {
+      display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.02em;
+      padding: 0.34rem 0.64rem; border-radius: 999px; line-height: 1; min-height: 32px;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .kr-cov-chip:hover { transform: translateY(-1px); }
+    .kr-cov-chip.is-covered { color: #9af0b8; background: rgba(34,197,94,0.12); border: 1px solid rgba(74,222,128,0.42); }
+    .kr-cov-chip.is-covered:hover { border-color: rgba(74,222,128,0.72); }
+    .kr-cov-chip.is-open-gap { color: #fcd34d; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.5); animation: krCovNudge 2.6s ease-in-out infinite; }
+    .kr-cov-chip.is-open-gap:hover { border-color: rgba(245,158,11,0.85); background: rgba(245,158,11,0.2); }
+    .kr-cov-chip .kr-cov-chip-ico { font-size: 0.8rem; line-height: 1; }
+    @keyframes krCovNudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } 50% { box-shadow: 0 0 0 3px rgba(245,158,11,0.14); } }
+    .kr-cov-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.85rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #06280f; background: linear-gradient(135deg, #86efac, #22c55e); border: none;
+      padding: 0.6rem 1rem; border-radius: 0.7rem; box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+    }
+    .kr-cov-cta:hover { filter: brightness(1.07); }
+
+    /* Per-race coverage ribbon shown inside each race card, directly under the
+       ballot banner: a clear, scannable "covered" / "needs a pick" status. */
+    .kr-cover-strip {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06); font-family: 'Barlow Condensed', sans-serif;
+    }
+    .kr-cover-strip .kr-cover-ico { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+    .kr-cover-strip .kr-cover-text { font-size: 0.78rem; line-height: 1.3; font-weight: 600; min-width: 0; }
+    .kr-cover-strip.is-covered { background: linear-gradient(100deg, rgba(34,197,94,0.12), transparent 70%); }
+    .kr-cover-strip.is-covered .kr-cover-text { color: #9af0b8; }
+    .kr-cover-strip.is-covered .kr-cover-text strong { color: #d7f7e3; }
+    .kr-cover-strip.is-gap { background: linear-gradient(100deg, rgba(245,158,11,0.13), transparent 72%); }
+    .kr-cover-strip.is-gap .kr-cover-text { color: #fcd34d; }
+
+    /* Highlight a race card when the voter jumps to it from a coverage chip. */
+    .kr-race-flash { animation: krRaceFlash 1.5s ease-out; }
+    @keyframes krRaceFlash {
+      0% { box-shadow: 0 0 0 0 rgba(245,200,66,0); }
+      25% { box-shadow: 0 0 0 3px rgba(245,200,66,0.5), 0 0 32px rgba(245,200,66,0.32); }
+      100% { box-shadow: 0 0 0 0 rgba(245,200,66,0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .kr-cov-chip.is-open-gap { animation: none; }
+      .kr-race-flash { animation: none; }
+    }
+
     /* Two-score strip on each 2026 candidate card:
        Accountability of Truth (purple, prominent) + Personalized Alignment (teal, secondary). */
     .kr-score-strip { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
@@ -47309,6 +47381,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // selectedPid may also be the incumbent (e.g. retiring) if user picked them elsewhere
       if (selectedPid && !selInThisRace && CMP_DATA[selectedPid]) selInThisRace = selectedPid;
 
+      // ── Per-race coverage ribbon ─────────────────────────────────────────────
+      // Directly under the ballot banner, a clear status line so the voter always
+      // knows whether this seat is covered on their team. Covered → green confirm
+      // with the picked name; on the 2026 ballot but empty → gold "you haven't
+      // added anyone yet" nudge with the seat name, pointing at the picks below.
+      // Reference-only seats (not on the 2026 ballot) get no nag.
+      var coverStrip = '';
+      if (selInThisRace && CMP_DATA[selInThisRace]) {
+        coverStrip = '<div class="kr-cover-strip is-covered">' +
+            '<span class="kr-cover-ico">✓</span>' +
+            '<span class="kr-cover-text"><strong>' + CMP_DATA[selInThisRace].name + '</strong> is on your team for this seat</span>' +
+          '</div>';
+      } else if (_krRaceTone(race) === 'now' || _krRaceTone(race) === 'open') {
+        coverStrip = '<div class="kr-cover-strip is-gap">' +
+            '<span class="kr-cover-ico">🎯</span>' +
+            '<span class="kr-cover-text">You haven’t added anyone from ' + (race.short || 'this race') + ' yet — pick the officeholder or a candidate below</span>' +
+          '</div>';
+      }
+
       // ── Current officeholder(s) ─────────────────────────────────────────────
       // A race can have more than one sitting officeholder (e.g. a state's two
       // U.S. Senators), so we render every incumbent as its own elevated hero.
@@ -47413,12 +47504,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</button>';
       }
 
-      return '<div style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);box-shadow:0 8px 30px rgba(0,0,0,0.28);">' +
+      return '<div id="kr-race-' + race.raceKey + '" style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);box-shadow:0 8px 30px rgba(0,0,0,0.28);">' +
         '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
           '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
         '</div>' +
         _krBallotBanner(race) +
+        coverStrip +
         '<div style="padding:1.15rem 1.2rem 0.5rem;">' +
           '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
           holderHtml +
@@ -48436,6 +48528,94 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // The ballot "tone" for a race, mirroring _krBallotBanner: 'now' (on the
+    // 2026 ballot), 'open' (open seat, 2026) or 'future' (a sitting seat not up
+    // this year, shown for reference). Coverage guidance only nudges the voter to
+    // fill seats they can actually vote on this year — 'now' / 'open'.
+    function _krRaceTone(race) {
+      var b = race.ballot;
+      if (!b) return /open seat/i.test(race.incumbentNote || '') ? 'open' : 'now';
+      return b.tone || 'now';
+    }
+
+    // Does the voter already have someone on their team for this race? Returns the
+    // picked pid (validated against CMP_DATA) or null. The team store is keyed by
+    // raceKey, so the lookup is direct.
+    function _krRacePick(race, selections) {
+      var pid = selections && selections[race.raceKey];
+      return (pid && typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]) ? pid : null;
+    }
+
+    // Smooth-scroll to a race card and flash it — the one-tap bridge from a
+    // coverage chip ("Senate District 6 still needs a pick") to the actual race
+    // where the voter adds someone.
+    window.keyRacesScrollToRace = function(raceKey) {
+      var el = document.getElementById('kr-race-' + raceKey);
+      if (!el) return;
+      try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+      el.classList.remove('kr-race-flash');
+      void el.offsetWidth;
+      el.classList.add('kr-race-flash');
+      setTimeout(function() { el.classList.remove('kr-race-flash'); }, 1600);
+    };
+
+    // ── Ballot-coverage overview ─────────────────────────────────────────────
+    // The guided header above every race: how many of the seats the voter can
+    // vote on this year already have someone on their team, a progress bar, and a
+    // tappable chip per seat — green = covered, pulsing gold = still a gap. This is
+    // what turns a list of districts into a clear, finishable "cover your ballot"
+    // task and makes the uncovered districts impossible to miss.
+    function _krCoverageOverview(allRaces, selections) {
+      var actionable = (allRaces || []).filter(function(r) {
+        var t = _krRaceTone(r);
+        return t === 'now' || t === 'open';
+      });
+      if (!actionable.length) return '';
+      var nTot = actionable.length;
+      var nCov = 0;
+      var chips = actionable.map(function(r) {
+        var pick = _krRacePick(r, selections);
+        var label = r.short || r.district || 'This seat';
+        if (pick) {
+          nCov++;
+          return '<button type="button" class="kr-cov-chip is-covered" onclick="window.keyRacesScrollToRace(\'' + r.raceKey + '\')" ' +
+              'aria-label="' + label + ' — ' + CMP_DATA[pick].name + ' is on your team; tap to view this race">' +
+              '<span class="kr-cov-chip-ico">✓</span>' + label + '</button>';
+        }
+        return '<button type="button" class="kr-cov-chip is-open-gap" onclick="window.keyRacesScrollToRace(\'' + r.raceKey + '\')" ' +
+            'aria-label="' + label + ' — no one added yet; tap to jump to this race and add someone">' +
+            '<span class="kr-cov-chip-ico">＋</span>' + label + '</button>';
+      }).join('');
+      var complete = nCov === nTot;
+      var pct = Math.round((nCov / nTot) * 100);
+      var gap = nTot - nCov;
+      var headIco = complete ? '🎉' : '🗳️';
+      var title = complete ? 'Your ballot is covered' : 'Build Your Ballot Team';
+      var sub;
+      if (complete) {
+        sub = 'You’ve added someone for every seat on your ballot. Compare your full team, or fine-tune any pick below.';
+      } else if (nCov === 0) {
+        sub = 'You haven’t added anyone from your districts yet. Add a pick for each seat below to build a team that covers your whole ballot — tap any gold race to jump straight to it.';
+      } else {
+        sub = 'You’ve covered <strong style="color:#fff;">' + nCov + ' of ' + nTot + '</strong> seats — ' + gap + ' still ' +
+              (gap === 1 ? 'needs' : 'need') + ' a pick. Tap a gold race below to fill the gap.';
+      }
+      var cta = (complete && nCov >= 2)
+        ? '<button type="button" class="kr-cov-cta" onclick="if(window.myteamCompareAll)window.myteamCompareAll();else{var b=document.getElementById(\'myteam-summary-box\')||document.getElementById(\'my-politicians\');if(b)b.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">⚖️ Compare your full team</button>'
+        : '';
+      return '<div class="kr-coverage-panel' + (complete ? ' is-complete' : '') + '">' +
+          '<div class="kr-cov-head">' +
+            '<span style="font-size:1.18rem;line-height:1;">' + headIco + '</span>' +
+            '<span class="kr-cov-title">' + title + '</span>' +
+            '<span class="kr-cov-count"><strong>' + nCov + '</strong> / ' + nTot + ' seats</span>' +
+          '</div>' +
+          '<p class="kr-cov-sub">' + sub + '</p>' +
+          '<div class="kr-cov-bar"><span style="width:' + pct + '%;"></span></div>' +
+          '<div class="kr-cov-chips">' + chips + '</div>' +
+          cta +
+        '</div>';
+    }
+
     window.renderKeyRaces = function() {
       try {
         var list = document.getElementById('keyraces-list');
@@ -48470,6 +48650,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // location; the selected area's district races follow underneath.
         var statewide = (typeof KEY_RACES_STATEWIDE !== 'undefined') ? KEY_RACES_STATEWIDE : [];
         var html = '';
+        // Guided coverage header: how much of this voter's ballot their team
+        // already covers, with a tappable gap chip for every uncovered seat.
+        try {
+          html += _krCoverageOverview(statewide.concat(races), (typeof _ballotLoad === 'function') ? _ballotLoad() : {});
+        } catch (e) {}
         if (statewide.length) {
           html += _krGroupHeader('🏛', 'Statewide Races', 'On every Utah voter’s ballot — these offices represent the whole state.', '#fbbf24');
           html += statewide.map(_krRaceCard).join('');
