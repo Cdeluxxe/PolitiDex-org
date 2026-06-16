@@ -16641,6 +16641,7 @@
               </div>
               <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="window._myteamGuideGo && window._myteamGuideGo('pick')" class="font-condensed text-xs text-amber-300 hover:text-amber-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-amber-500/12 border border-amber-500/30 hover:border-amber-400/55" style="background:rgba(245,158,11,0.07);" title="Jump to your next open race and keep building">➕ Add more picks</button>
+                <button onclick="window.openBallotSummary && window.openBallotSummary()" id="myteam-ballot-top-btn" class="font-condensed text-xs text-amber-200 hover:text-white tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-amber-400/45 hover:border-amber-300/70" style="background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(230,184,0,0.08));display:none;" title="See, print, or copy your full ballot">📋 My Ballot</button>
                 <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
                 <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
               </div>
@@ -42452,10 +42453,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<span class="myteam-guide-title">🎉 Your ballot team is ready</span>' +
               '<span class="myteam-guide-count">' + total + '/' + total + ' seats filled</span>' +
             '</div>' +
-            '<p class="myteam-guide-sub">Every seat is filled with someone who reflects <strong>your values</strong>, and it\'s <strong>saved on this device</strong> for election day. Compare your slate side-by-side or keep refining it.</p>' +
-            (filledCount >= 2
-              ? '<div class="myteam-guide-steps"><div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your team</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div></div>'
-              : '') +
+            '<p class="myteam-guide-sub">Every seat is filled with someone who reflects <strong>your values</strong>, and it\'s <strong>saved on this device</strong> for election day. View your finished ballot to print or share it, compare your slate, or keep refining.</p>' +
+            '<div class="myteam-guide-steps">' +
+              '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">📋</span><span class="myteam-guide-txt"><span class="myteam-guide-label">See your finished ballot</span><span class="myteam-guide-desc">Your whole slate on one card — print it or copy it to take to the polls.</span></span><button type="button" class="myteam-guide-go" onclick="window.openBallotSummary && window.openBallotSummary()">📋 My Ballot</button></div>' +
+              (filledCount >= 2
+                ? '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your team</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div>'
+                : '') +
+            '</div>' +
           '</div>';
         box.style.display = '';
         return;
@@ -42855,6 +42859,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var teamCountBadge = document.getElementById('myteam-count-badge');
       var compareBar = document.getElementById('myteam-compare-bar');
       var compareTopBtn = document.getElementById('myteam-compare-top-btn');
+      var ballotTopBtn = document.getElementById('myteam-ballot-top-btn');
       var compareCta = document.getElementById('myteam-compare-team-cta');
       var alignmentBar = document.getElementById('myteam-alignment-bar');
 
@@ -42956,6 +42961,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         if (compareBar) compareBar.style.display = filledCount >= 2 ? '' : 'none';
         if (compareTopBtn) compareTopBtn.style.display = filledCount >= 2 ? '' : 'none';
+        if (ballotTopBtn) ballotTopBtn.style.display = filledCount >= 1 ? '' : 'none';
         if (compareCta) compareCta.style.display = filledCount >= 2 ? '' : 'none';
         var hintEl = document.getElementById('myteam-compare-bar-hint');
         if (hintEl) hintEl.textContent = 'Compare ' + filledCount + ' team members side-by-side';
@@ -42964,6 +42970,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (teamStats) teamStats.style.display = 'none';
         if (compareBar) compareBar.style.display = 'none';
         if (compareTopBtn) compareTopBtn.style.display = 'none';
+        if (ballotTopBtn) ballotTopBtn.style.display = 'none';
         if (compareCta) compareCta.style.display = 'none';
         if (alignmentBar) alignmentBar.style.display = 'none';
       }
@@ -42978,7 +42985,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Build a <strong class="myteam-summary-strong">team of ' + _tot + '</strong> who actually represent you — each card below is an office you get to decide. Tap any open office to add the candidate who matches your <strong class="myteam-summary-strong">values</strong>; everything saves automatically as you go.</span>';
         } else if (filledCount >= _tot) {
           summaryLine.classList.add('is-complete');
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your team is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> picks reflect your values. Compare your team or share your slate below.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your team is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> picks reflect your values. <button type="button" onclick="window.openBallotSummary && window.openBallotSummary()" style="background:none;border:none;padding:0;font:inherit;color:#fcd34d;font-weight:800;text-decoration:underline;cursor:pointer;">See, print &amp; share your ballot →</button></span>';
         } else {
           var _open = _tot - filledCount;
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span><strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> picks chosen — just <strong class="myteam-summary-strong">' + _open + '</strong> to go. Tap an open office below to add whoever best represents what you believe.</span>';
@@ -43050,6 +43057,323 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       _mypolBuildGrid();
       if (typeof chubLaunchCompare === 'function') chubLaunchCompare();
     };
+
+    // ── "My Ballot" — the journey's capstone ───────────────────────────────────
+    // The single satisfying destination the whole guided experience points toward:
+    // a clean, printable, shareable summary of the voter's finished (or in-progress)
+    // ballot. Every other surface helps DISCOVER, EVALUATE and ADD; this is where it
+    // all comes together into one tangible artifact the voter can take to the polls.
+    // It reads the same live team state the builder uses, groups picks by ballot
+    // tier (Federal · State · Local), names the real district for each seat, and —
+    // crucially — still works mid-build: open seats become one-tap "add your pick"
+    // rows, so this doubles as a focused finish-line checklist for returning voters
+    // refining their slate. Self-contained: builds its own overlay + styles on first
+    // open so nothing else on the page needs to know it exists.
+    (function () {
+      var _bsBuilt = false;
+      function _bsEnsure() {
+        if (_bsBuilt) return;
+        _bsBuilt = true;
+        var st = document.createElement('style');
+        st.id = 'pdx-ballot-summary-styles';
+        st.textContent =
+          '.bs-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;padding:1.1rem;overflow-y:auto;background:rgba(4,7,16,0.82);backdrop-filter:blur(6px);}' +
+          '.bs-overlay.is-open{display:flex;}' +
+          '.bs-panel{position:relative;width:min(640px,100%);margin:auto;border-radius:1.25rem;overflow:hidden;background:linear-gradient(160deg,#0c1530 0%,#0a0f1e 60%,#140a18 100%);border:1px solid rgba(245,200,66,0.45);box-shadow:0 24px 70px rgba(0,0,0,0.6),0 0 36px rgba(245,158,11,0.14);animation:bsIn 0.36s cubic-bezier(0.34,1.3,0.64,1);}' +
+          '@keyframes bsIn{from{opacity:0;transform:translateY(16px) scale(0.98);}to{opacity:1;transform:none;}}' +
+          '.bs-flag{height:3px;background:linear-gradient(90deg,#c0152a,#ffffff,#1a3a6b);}' +
+          '.bs-head{padding:1.1rem 1.25rem 0.9rem;border-bottom:1px solid rgba(255,255,255,0.07);}' +
+          '.bs-head-top{display:flex;align-items:flex-start;gap:0.75rem;}' +
+          '.bs-ring{--pct:0;width:58px;height:58px;flex:none;border-radius:50%;background:conic-gradient(#f5c842 calc(var(--pct)*1%),rgba(255,255,255,0.1) 0);display:grid;place-items:center;position:relative;}' +
+          '.bs-ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:#0b1322;}' +
+          '.bs-ring.is-complete{background:conic-gradient(#4ade80 calc(var(--pct)*1%),rgba(255,255,255,0.1) 0);}' +
+          '.bs-ring-num{position:relative;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.92rem;color:#fff;}' +
+          '.bs-title-wrap{flex:1;min-width:0;}' +
+          '.bs-eyebrow{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#fad96a;}' +
+          '.bs-title{font-family:"Bebas Neue",sans-serif;font-size:1.85rem;letter-spacing:0.04em;color:#fff;line-height:1;margin:0.1rem 0 0;}' +
+          '.bs-loc{font-family:"Barlow Condensed",sans-serif;font-size:0.84rem;letter-spacing:0.02em;color:#9fb4d4;margin-top:0.15rem;}' +
+          '.bs-loc b{color:#e6eefb;font-weight:700;}' +
+          '.bs-close{flex:none;width:34px;height:34px;border-radius:0.6rem;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#9fb4d4;font-size:1.1rem;cursor:pointer;transition:all 0.18s ease;}' +
+          '.bs-close:hover{color:#fff;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);}' +
+          '.bs-progressline{font-family:"Barlow",sans-serif;font-size:0.86rem;line-height:1.45;color:#c9d6ec;margin:0.85rem 0 0;}' +
+          '.bs-progressline strong{color:#fff;}' +
+          '.bs-progressline.is-complete{color:#bbf7d0;}' +
+          '.bs-dist{display:inline-flex;align-items:center;gap:0.35rem;margin-top:0.5rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:#fcd9a0;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:999px;padding:0.25rem 0.7rem;}' +
+          '.bs-dist.is-done{color:#86efac;background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.35);}' +
+          '.bs-body{padding:0.5rem 1.25rem 1.1rem;max-height:min(56vh,560px);overflow-y:auto;}' +
+          '.bs-group{margin-top:1rem;}' +
+          '.bs-group-head{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin:0 0 0.5rem;}' +
+          '.bs-group-title{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;}' +
+          '.bs-group-frac{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.04em;text-transform:uppercase;color:#7596c0;}' +
+          '.bs-group-frac.is-done{color:#86efac;}' +
+          '.bs-seat{display:flex;align-items:center;gap:0.7rem;border-radius:0.85rem;padding:0.6rem 0.7rem;margin-bottom:0.45rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);transition:border-color 0.18s ease,background 0.18s ease;}' +
+          '.bs-seat.is-filled{border-color:rgba(74,222,128,0.32);background:linear-gradient(135deg,rgba(16,40,30,0.55),rgba(13,21,38,0.5));}' +
+          '.bs-seat.is-open{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.05);cursor:pointer;}' +
+          '.bs-seat.is-open:hover{border-color:rgba(245,158,11,0.6);background:rgba(245,158,11,0.1);}' +
+          '.bs-seat-photo{width:42px;height:42px;flex:none;border-radius:0.6rem;overflow:hidden;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#9fb4d4;}' +
+          '.bs-seat-photo img{width:100%;height:100%;object-fit:cover;}' +
+          '.bs-seat-body{flex:1;min-width:0;}' +
+          '.bs-seat-office{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;color:#8aa0c4;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}' +
+          '.bs-seat-scope{color:#647a9c;font-weight:600;letter-spacing:0.03em;}' +
+          '.bs-seat-name{font-family:"Barlow",sans-serif;font-weight:700;font-size:0.98rem;color:#fff;line-height:1.2;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.bs-seat-name.is-open{color:#fcd9a0;font-weight:600;font-size:0.9rem;}' +
+          '.bs-seat-meta{font-family:"Barlow",sans-serif;font-size:0.78rem;color:#9fb4d4;margin-top:0.05rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}' +
+          '.bs-seat-score{flex:none;text-align:center;}' +
+          '.bs-seat-score-num{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:1;}' +
+          '.bs-seat-score-lbl{font-family:"Barlow Condensed",sans-serif;font-size:0.5rem;letter-spacing:0.06em;text-transform:uppercase;color:#647a9c;}' +
+          '.bs-seat-act{flex:none;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:none;border-radius:0.6rem;padding:0.45rem 0.7rem;cursor:pointer;white-space:nowrap;}' +
+          '.bs-seat-swap{flex:none;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.04em;text-transform:uppercase;color:#9fb4d4;background:none;border:1px solid rgba(255,255,255,0.14);border-radius:0.55rem;padding:0.38rem 0.55rem;cursor:pointer;white-space:nowrap;transition:all 0.16s ease;}' +
+          '.bs-seat-swap:hover{color:#fff;border-color:rgba(255,255,255,0.3);}' +
+          '.bs-foot{padding:0.9rem 1.25rem 1.15rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-wrap:wrap;gap:0.55rem;background:rgba(5,8,18,0.4);}' +
+          '.bs-btn{display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;flex:1 1 auto;min-width:130px;min-height:44px;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;border-radius:0.75rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.18s ease,background 0.18s ease;border:1px solid transparent;}' +
+          '.bs-btn:hover{transform:translateY(-1px);}' +
+          '.bs-btn-primary{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);box-shadow:0 5px 18px rgba(245,200,66,0.32);}' +
+          '.bs-btn-blue{color:#bcd3f5;background:rgba(59,130,246,0.1);border-color:rgba(96,165,250,0.4);}' +
+          '.bs-btn-blue:hover{color:#fff;background:rgba(59,130,246,0.2);}' +
+          '.bs-btn-ghost{color:#9fb4d4;background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.14);}' +
+          '.bs-btn-ghost:hover{color:#fff;background:rgba(255,255,255,0.08);}' +
+          '.bs-toast{position:absolute;left:50%;bottom:1rem;transform:translateX(-50%);background:rgba(34,197,94,0.95);color:#06210f;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.78rem;letter-spacing:0.04em;text-transform:uppercase;padding:0.5rem 1rem;border-radius:999px;opacity:0;pointer-events:none;transition:opacity 0.25s ease;}' +
+          '.bs-toast.is-shown{opacity:1;}' +
+          '@media (max-width:520px){.bs-title{font-size:1.55rem;}.bs-btn{flex-basis:100%;}.bs-seat-swap{display:none;}}' +
+          '@media print{body.pdx-print-ballot>*:not(.bs-overlay){display:none !important;}' +
+          'body.pdx-print-ballot .bs-overlay{position:static !important;display:block !important;background:#fff !important;padding:0 !important;backdrop-filter:none !important;}' +
+          'body.pdx-print-ballot .bs-panel{box-shadow:none !important;border:none !important;background:#fff !important;width:100% !important;color:#000 !important;}' +
+          'body.pdx-print-ballot .bs-close,body.pdx-print-ballot .bs-foot,body.pdx-print-ballot .bs-seat-act,body.pdx-print-ballot .bs-seat-swap{display:none !important;}' +
+          'body.pdx-print-ballot .bs-title,body.pdx-print-ballot .bs-seat-name,body.pdx-print-ballot .bs-ring-num{color:#000 !important;}' +
+          'body.pdx-print-ballot .bs-loc,body.pdx-print-ballot .bs-seat-office,body.pdx-print-ballot .bs-seat-meta,body.pdx-print-ballot .bs-progressline,body.pdx-print-ballot .bs-group-title{color:#333 !important;}' +
+          'body.pdx-print-ballot .bs-body{max-height:none !important;overflow:visible !important;}}';
+        document.head.appendChild(st);
+
+        var ov = document.createElement('div');
+        ov.id = 'ballot-summary-overlay';
+        ov.className = 'bs-overlay';
+        ov.setAttribute('role', 'dialog');
+        ov.setAttribute('aria-modal', 'true');
+        ov.setAttribute('aria-label', 'Your ballot summary');
+        ov.addEventListener('click', function (e) { if (e.target === ov) window.closeBallotSummary(); });
+        document.body.appendChild(ov);
+      }
+
+      function _bsEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+      function _bsScoreColor(sc) {
+        if (sc === null || sc === undefined) return '#9fb4d4';
+        if (typeof _chubScoreColor === 'function') return _chubScoreColor(sc);
+        return sc >= 70 ? '#4ade80' : sc >= 50 ? '#fbbf24' : '#f87171';
+      }
+
+      // Plain-text rendering of the slate for the clipboard — the "share" path the
+      // builder copy has long promised. Mirrors the on-screen grouping so what the
+      // voter pastes reads the same as what they see.
+      function _bsPlainText() {
+        var positions = window.TEAM_POSITIONS || [];
+        var sel = (typeof _getTeamBallotSelections === 'function') ? _getTeamBallotSelections() : {};
+        var loc = window._currentVoterLocation || {};
+        var place = window._hasUserLocation ? [loc.city, loc.county, loc.state].filter(Boolean).join(', ') : '';
+        var filled = positions.filter(function (p) { return sel[p.key] && CMP_DATA[sel[p.key]]; }).length;
+        var lines = ['🗳️ MY POLITIDEX BALLOT' + (place ? ' — ' + place : ''),
+          filled + ' of ' + positions.length + ' seats filled', ''];
+        _MYTEAM_LEVELS.forEach(function (lv) {
+          var seats = positions.filter(function (p) { return _myteamSeatLevel(p.key) === lv.id; });
+          if (!seats.length) return;
+          lines.push((lv.title || lv.id).toUpperCase().replace(/[^\x00-\x7F]/g, '').trim());
+          seats.forEach(function (p) {
+            var d = sel[p.key] ? CMP_DATA[sel[p.key]] : null;
+            var scope = (typeof _myteamSeatScope === 'function') ? _myteamSeatScope(p.key) : '';
+            var lbl = p.label + (scope && scope.indexOf('District') === 0 ? ' (' + scope + ')' : '');
+            if (d) {
+              var sc = window._pdxDisplayScore ? window._pdxDisplayScore(d) : null;
+              lines.push('  [x] ' + lbl + ' — ' + d.name + (d.party ? ' (' + d.party + ')' : '') + (sc != null ? ' · ' + sc + '% promise score' : ''));
+            } else {
+              lines.push('  [ ] ' + lbl + ' — still open');
+            }
+          });
+          lines.push('');
+        });
+        lines.push('Built free & nonpartisan at politidex.org');
+        return lines.join('\n');
+      }
+
+      window.openBallotSummary = function () {
+        _bsEnsure();
+        var ov = document.getElementById('ballot-summary-overlay');
+        if (!ov) return;
+        var positions = window.TEAM_POSITIONS || [];
+        var sel = (typeof _getTeamBallotSelections === 'function') ? _getTeamBallotSelections() : {};
+        function _isOn(p) { return !!(sel[p.key] && CMP_DATA[sel[p.key]]); }
+        var total = positions.length || 6;
+        var filled = positions.filter(_isOn).length;
+        var pct = total ? Math.round(filled / total * 100) : 0;
+        var complete = filled >= total && total > 0;
+
+        var distKeys = _MYTEAM_DISTRICT_KEYS;
+        var distSeats = positions.filter(function (p) { return distKeys[p.key]; });
+        var distFilled = distSeats.filter(_isOn).length;
+        var distDone = distSeats.length > 0 && distFilled >= distSeats.length;
+
+        var loc = window._currentVoterLocation || {};
+        var place = window._hasUserLocation ? [loc.city, loc.county].filter(Boolean).join(', ') + (loc.state ? ', ' + loc.state : '') : '';
+
+        // First still-open seat — prefer the voter's own voting districts.
+        var firstOpen = null;
+        for (var i = 0; i < distSeats.length && !firstOpen; i++) if (!_isOn(distSeats[i])) firstOpen = distSeats[i];
+        if (!firstOpen) for (var j = 0; j < positions.length && !firstOpen; j++) if (!_isOn(positions[j])) firstOpen = positions[j];
+
+        function _seatHtml(p) {
+          var pid = sel[p.key];
+          var d = pid ? CMP_DATA[pid] : null;
+          var scope = (typeof _myteamSeatScope === 'function') ? _myteamSeatScope(p.key) : '';
+          var scopeHtml = scope ? '<span class="bs-seat-scope">· ' + _bsEsc(scope) + '</span>' : '';
+          if (d) {
+            var sc = window._pdxDisplayScore ? window._pdxDisplayScore(d) : null;
+            var photo = (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) ? BROWSE_PHOTOS[pid] : '';
+            var photoHtml = photo
+              ? '<span class="bs-seat-photo"><img src="' + _bsEsc(photo) + '" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + (p.icon || '🏛') + '\'"></span>'
+              : '<span class="bs-seat-photo">' + (p.icon || '🏛') + '</span>';
+            var party = (window._pdxPartyChip && d.party) ? window._pdxPartyChip(d.party) : '';
+            var scoreHtml = (sc != null)
+              ? '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:' + _bsScoreColor(sc) + ';">' + sc + '%</span><span class="bs-seat-score-lbl">Promise</span></span>'
+              : '<span class="bs-seat-score"><span class="bs-seat-score-num" style="color:#647a9c;font-size:0.8rem;">No record</span></span>';
+            return '<div class="bs-seat is-filled">' + photoHtml +
+              '<span class="bs-seat-body">' +
+                '<span class="bs-seat-office">✓ ' + _bsEsc(p.label) + ' ' + scopeHtml + '</span>' +
+                '<span class="bs-seat-name">' + _bsEsc(d.name) + '</span>' +
+                '<span class="bs-seat-meta">' + party + '</span>' +
+              '</span>' + scoreHtml +
+              '<button type="button" class="bs-seat-swap" onclick="window._bsJump(\'' + p.key + '\')">Swap</button>' +
+            '</div>';
+          }
+          return '<div class="bs-seat is-open" onclick="window._bsJump(\'' + p.key + '\')">' +
+            '<span class="bs-seat-photo">' + (p.icon || '🏛') + '</span>' +
+            '<span class="bs-seat-body">' +
+              '<span class="bs-seat-office">' + _bsEsc(p.label) + ' ' + scopeHtml + '</span>' +
+              '<span class="bs-seat-name is-open">Still open — add your pick</span>' +
+            '</span>' +
+            '<button type="button" class="bs-seat-act" onclick="event.stopPropagation();window._bsJump(\'' + p.key + '\')">➕ Add</button>' +
+          '</div>';
+        }
+
+        var groupsHtml = _MYTEAM_LEVELS.map(function (lv) {
+          var seats = positions.filter(function (p) { return _myteamSeatLevel(p.key) === lv.id; });
+          if (!seats.length) return '';
+          var c = seats.filter(_isOn).length;
+          var fracDone = c >= seats.length;
+          return '<div class="bs-group">' +
+            '<div class="bs-group-head">' +
+              '<span class="bs-group-title">' + lv.title + '</span>' +
+              '<span class="bs-group-frac' + (fracDone ? ' is-done' : '') + '">' + (fracDone ? '✓ All ' + seats.length + ' picked' : c + '/' + seats.length + ' picked') + '</span>' +
+            '</div>' + seats.map(_seatHtml).join('') +
+          '</div>';
+        }).join('');
+
+        // Motivating, state-aware progress line.
+        var progLine, progCls = '';
+        if (complete) {
+          progCls = ' is-complete';
+          progLine = '🎉 <strong>Your ballot is ready.</strong> Every seat is filled with someone who earns your vote — saved on this device for election day. Print it or copy it to take to the polls.';
+        } else if (filled === 0) {
+          progLine = 'Your ballot has <strong>' + total + ' seats</strong> to fill. Tap any open seat below to jump straight to that race and add the candidate who earns it — your slate saves as you go.';
+        } else {
+          var open = total - filled;
+          progLine = '<strong>' + filled + ' of ' + total + '</strong> seats filled' + (distDone && distSeats.length ? ', including all <strong>' + distSeats.length + '</strong> of your voting districts' : '') + ' — just <strong>' + open + '</strong> to go. Tap an open seat below to finish your ballot.';
+        }
+
+        var distChip = distSeats.length
+          ? '<span class="bs-dist' + (distDone ? ' is-done' : '') + '">📍 ' + distFilled + '/' + distSeats.length + ' voting districts</span>'
+          : '';
+
+        var footBtns = '';
+        if (!complete && firstOpen) {
+          footBtns += '<button type="button" class="bs-btn bs-btn-primary" onclick="window._bsJump(\'' + firstOpen.key + '\')">➕ Add ' + _bsEsc(firstOpen.label) + '</button>';
+        }
+        if (filled >= 2) {
+          footBtns += '<button type="button" class="bs-btn bs-btn-blue" onclick="window.closeBallotSummary();if(window.myteamCompareAll)window.myteamCompareAll();">⚖️ Compare Team</button>';
+        }
+        footBtns += '<button type="button" class="bs-btn bs-btn-ghost" onclick="window._bsCopy(this)">📋 Copy Slate</button>';
+        footBtns += '<button type="button" class="bs-btn bs-btn-ghost" onclick="window._bsPrint()">🖨️ Print</button>';
+
+        ov.innerHTML =
+          '<div class="bs-panel">' +
+            '<div class="bs-flag"></div>' +
+            '<div class="bs-head">' +
+              '<div class="bs-head-top">' +
+                '<span class="bs-ring' + (complete ? ' is-complete' : '') + '" style="--pct:' + pct + ';"><span class="bs-ring-num">' + filled + '/' + total + '</span></span>' +
+                '<span class="bs-title-wrap">' +
+                  '<span class="bs-eyebrow">' + (complete ? '✓ Ballot Complete' : 'Your Voting Team') + '</span>' +
+                  '<h2 class="bs-title">My Ballot</h2>' +
+                  (place ? '<div class="bs-loc">📍 <b>' + _bsEsc(place) + '</b></div>' : '<div class="bs-loc">Set your location to label each seat with your real district.</div>') +
+                '</span>' +
+                '<button type="button" class="bs-close" onclick="window.closeBallotSummary()" aria-label="Close">✕</button>' +
+              '</div>' +
+              '<p class="bs-progressline' + progCls + '">' + progLine + '</p>' +
+              distChip +
+            '</div>' +
+            '<div class="bs-body">' + groupsHtml + '</div>' +
+            '<div class="bs-foot">' + footBtns + '</div>' +
+            '<div class="bs-toast" id="bs-toast">✓ Copied</div>' +
+          '</div>';
+
+        ov.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      };
+
+      window.closeBallotSummary = function () {
+        var ov = document.getElementById('ballot-summary-overlay');
+        if (ov) ov.classList.remove('is-open');
+        document.body.classList.remove('pdx-print-ballot');
+        // Only release the scroll lock if no other modal still wants it.
+        var anyOpen = false;
+        try {
+          anyOpen = !!document.querySelector('.bs-overlay.is-open, .modal-overlay.is-open');
+        } catch (e) {}
+        if (!anyOpen) document.body.style.overflow = '';
+      };
+
+      // Jump from the summary into a specific race to add or swap a pick — closes the
+      // capstone and routes through the same accordion jump the rest of the site uses,
+      // so movement between "review my ballot" and "edit a race" is one tap, no hunting.
+      window._bsJump = function (key) {
+        window.closeBallotSummary();
+        setTimeout(function () { if (window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(key); }, 120);
+      };
+
+      window._bsCopy = function (btn) {
+        var txt = _bsPlainText();
+        function ok() {
+          var t = document.getElementById('bs-toast');
+          if (t) { t.classList.add('is-shown'); setTimeout(function () { t.classList.remove('is-shown'); }, 1600); }
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(ok, function () { _bsCopyFallback(txt, ok); });
+          } else { _bsCopyFallback(txt, ok); }
+        } catch (e) { _bsCopyFallback(txt, ok); }
+      };
+      function _bsCopyFallback(txt, ok) {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta); ok();
+        } catch (e) {}
+      }
+
+      window._bsPrint = function () {
+        document.body.classList.add('pdx-print-ballot');
+        setTimeout(function () {
+          try { window.print(); } catch (e) {}
+          setTimeout(function () { document.body.classList.remove('pdx-print-ballot'); }, 500);
+        }, 60);
+      };
+
+      // Close on Escape while the capstone is open.
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          var ov = document.getElementById('ballot-summary-overlay');
+          if (ov && ov.classList.contains('is-open')) window.closeBallotSummary();
+        }
+      });
+    })();
 
     function _renderMyTeamCard(pid) {
       var d = CMP_DATA[pid];
@@ -46091,8 +46415,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var _teamJumpBtn = '<button type="button" class="rel-cov-cta is-team" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">\u{1F5F3}\u{FE0F} My Voting Team' + (_covTotal ? ' (' + _covFilled + '/' + _covTotal + ')' : '') + ' ↑</button>';
         var _covMsg, _covCta = '';
         if (_covDone) {
-          _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> Head up to <strong>My Voting Team</strong> to review your slate and compare your picks side by side.';
-          _covCta = '<div class="rel-cov-actions">' + _teamJumpBtn + '</div>';
+          _covMsg = '🎉 <strong>Every one of your district seats has a pick.</strong> See your finished ballot to print or share it, or head up to review and compare your slate.';
+          _covCta = '<div class="rel-cov-actions"><button type="button" class="rel-cov-cta" onclick="window.openBallotSummary && window.openBallotSummary()">📋 See My Ballot</button>' + _teamJumpBtn + '</div>';
         } else if (_firstOpen) {
           var _foShort = _relTxt(_RELEVANT_OFFICE_SHORT[_firstOpen] || _firstOpen);
           var _foYours = _relTxt(_RELEVANT_OFFICE_YOURS[_firstOpen] || ('your ' + _foShort + ' seat'));
@@ -46205,8 +46529,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var _gNext = _covDistOpen[0] || _covOpen[0];
         var _gNextLine, _gPrimaryBtn = '';
         if (_guidedComplete) {
-          _gNextLine = '🎉 <strong>Every seat on your ballot has a pick.</strong> Head up to review your slate and compare your picks side by side.';
-          _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">🗳️ Review My Team ↑</button>';
+          _gNextLine = '🎉 <strong>Every seat on your ballot has a pick.</strong> See your finished ballot to print or share it, or review your slate up top.';
+          _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="window.openBallotSummary && window.openBallotSummary()">📋 See My Ballot</button>';
         } else if (_gNext) {
           var _gShort = _relTxt(_RELEVANT_OFFICE_SHORT[_gNext] || _gNext);
           var _gYours = _relTxt(_RELEVANT_OFFICE_YOURS[_gNext] || ('your ' + _gShort + ' seat'));
@@ -54956,7 +55280,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var nm = st.nextLabel || '';
       if (st.complete) {
         if (l1) l1.textContent = '🎉 Team complete';
-        if (l2) l2.textContent = 'Review your slate ↑';
+        if (l2) l2.textContent = 'See your ballot →';
       } else if (st.filled === 0) {
         if (l1) l1.textContent = 'Build your team';
         if (l2) l2.textContent = 'Start: ' + nm + scope + ' →';
@@ -54971,7 +55295,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // isn't full, or up to the finished team to review when it is.
     window._teamDockNext = function () {
       var st = window._teamDockState || {};
-      if (st.complete) { if (window._relevantScrollToTeam) window._relevantScrollToTeam(); return; }
+      if (st.complete) { if (window.openBallotSummary) window.openBallotSummary(); else if (window._relevantScrollToTeam) window._relevantScrollToTeam(); return; }
       if (st.nextKey && window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(st.nextKey);
       else if (window._relevantScrollToTeam) window._relevantScrollToTeam(true);
     };
