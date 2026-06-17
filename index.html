@@ -17346,6 +17346,8 @@
         .pdx-map-search-note{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;line-height:1.35;margin:0.45rem 0 0;color:#7596c0;min-height:1.05rem;}
         .pdx-map-search-note.is-error{color:#fca5a5;}
         .pdx-map-search-note.is-ok{color:#7ee7b8;}
+        .pdx-map-search-note.is-warn{color:#fad96a;}
+        .pdx-map-search-note strong{color:#cfe0f7;font-weight:700;}
         .pdx-map-search-btn .pdx-mini-spin{width:1rem;height:1rem;border-radius:999px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;animation:pdxspin 0.7s linear infinite;}
 
         /* Post-search result banner */
@@ -58098,6 +58100,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _searching  = false;
     var _searchHit  = null;                            // last geocoded {lat,lng,name}
     var _hasSearchView = false;                        // an address search is active
+    var _searchCongress = null;                        // U.S. House district for the searched point
 
     function distOf(feature){
       var p = feature && feature.properties || {};
@@ -58203,7 +58206,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (_map) return _map;
       _map = L.map('pdx-district-map', {
         zoomControl: true, attributionControl: true,
-        scrollWheelZoom: true, minZoom: 5, maxZoom: 14
+        scrollWheelZoom: true, minZoom: 5, maxZoom: 17
       }).setView([39.32, -111.55], 6);
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -58406,6 +58409,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         try { localStorage.setItem(window.KR_LOCATION_KEY || 'politidex_keyraces_location', area.id); } catch(e) {}
       }
 
+      // A live address search resolves the exact U.S. House district from the point
+      // itself — trust it over the curated area's approximate congressional mapping.
+      if (_searchCongress != null) loc.district = String(_searchCongress);
+
       window._currentVoterLocation = loc;
       window._hasUserLocation = true;
       if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
@@ -58533,9 +58540,67 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (btn) btn.disabled = busy;
       if (ico) ico.innerHTML = busy ? '<span class="pdx-mini-spin"></span>' : '🔍';
     }
-    // Geocode through OpenStreetMap Nominatim (no key required). utahBias bounds the
-    // search to Utah first; a second, nationwide pass is the fallback.
-    function geocode(q, utahBias){
+    // ── Geocoding ──────────────────────────────────────────────────────────────
+    // Two sources, best-precision-first:
+    //   1. U.S. Census geocoder (TIGER) — rooftop/interpolated coordinates with far
+    //      better rural coverage than OSM, and it returns the point's Congressional
+    //      + State Legislative (upper/lower) districts in the SAME call. Loaded via
+    //      JSONP so it works cross-origin, mirroring window._reverseGeocode.
+    //   2. OpenStreetMap Nominatim — fallback for city/ZIP-only queries and any
+    //      address the Census can't parse. Utah-bounded first, then nationwide.
+    var _jsonpSeq = 0;
+    function pdxJsonp(url, timeoutMs){
+      return new Promise(function(resolve, reject){
+        var cb = 'pdx_geo_cb_' + (++_jsonpSeq);
+        var script = document.createElement('script');
+        var timer = setTimeout(function(){ cleanup(); reject(new Error('timeout')); }, timeoutMs || 7000);
+        function cleanup(){
+          clearTimeout(timer);
+          try { delete window[cb]; } catch(e){ window[cb] = undefined; }
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+        }
+        window[cb] = function(data){ cleanup(); resolve(data); };
+        script.onerror = function(){ cleanup(); reject(new Error('load')); };
+        script.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cb;
+        document.body.appendChild(script);
+      });
+    }
+    // Pull a district number out of a Census "geographies" bucket. Keys are year-
+    // prefixed (e.g. "119th Congressional Districts", "2024 State Legislative
+    // Districts - Upper"), so match on a stable substring.
+    function censusDist(geos, needle){
+      for (var k in geos){
+        if (k.toLowerCase().indexOf(needle) !== -1 && geos[k] && geos[k].length){
+          var o = geos[k][0];
+          var raw = o.BASENAME != null ? o.BASENAME : (o.NAME || '');
+          var m = String(raw).match(/\d+/);
+          if (m) return parseInt(m[0], 10);
+        }
+      }
+      return null;
+    }
+    function geocodeCensus(q){
+      var url = 'https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&address=' +
+        encodeURIComponent(q);
+      return pdxJsonp(url, 7000).then(function(data){
+        var matches = data && data.result && data.result.addressMatches;
+        if (!matches || !matches.length) return null;
+        var m = matches[0];
+        var c = m.coordinates || {};
+        var lat = parseFloat(c.y), lng = parseFloat(c.x);
+        if (isNaN(lat) || isNaN(lng)) return null;
+        var geos = m.geographies || {};
+        return {
+          lat: lat, lng: lng,
+          name: m.matchedAddress || q,
+          precise: true, source: 'census',
+          congress: censusDist(geos, 'congressional'),
+          senate:   censusDist(geos, 'legislative districts - upper'),
+          house:    censusDist(geos, 'legislative districts - lower')
+        };
+      }).catch(function(){ return null; });
+    }
+    function geocodeNominatim(q, utahBias){
       var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&addressdetails=0&q=' +
         encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
       return fetch(url, { headers: { 'Accept': 'application/json' } })
@@ -58544,46 +58609,148 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (!arr || !arr.length) return null;
           var lat = parseFloat(arr[0].lat), lng = parseFloat(arr[0].lon);
           if (isNaN(lat) || isNaN(lng)) return null;
-          return { lat: lat, lng: lng, name: arr[0].display_name || '' };
-        });
+          // A rooftop/building hit is precise; a town/region centroid is not.
+          var rank = arr[0].place_rank != null ? parseInt(arr[0].place_rank, 10) : 0;
+          var precise = arr[0].addresstype === 'building' || arr[0].addresstype === 'house' ||
+                        arr[0].category === 'building' || rank >= 26;
+          return { lat: lat, lng: lng, name: arr[0].display_name || q, precise: !!precise, source: 'nominatim' };
+        }).catch(function(){ return null; });
+    }
+    // Best-precision-first chain. Census handles real street addresses (incl. rural);
+    // Nominatim covers city/ZIP-only queries and anything Census can't parse.
+    function resolveGeocode(q){
+      return geocodeCensus(q)
+        .then(function(hit){ return hit || geocodeNominatim(q, true); })
+        .then(function(hit){ return hit || geocodeNominatim(q, false); });
+    }
+    // Reverse Census lookup at a point — fills the Congressional + State Legislative
+    // districts for hits that didn't carry them (e.g. a Nominatim town centroid), so
+    // U.S. House detection works for every search, not just street addresses.
+    function censusAtPoint(lat, lng){
+      var url = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&x=' + lng + '&y=' + lat;
+      return pdxJsonp(url, 7000).then(function(data){
+        var geos = data && data.result && data.result.geographies;
+        if (!geos) return null;
+        return {
+          congress: censusDist(geos, 'congressional'),
+          senate:   censusDist(geos, 'legislative districts - upper'),
+          house:    censusDist(geos, 'legislative districts - lower')
+        };
+      }).catch(function(){ return null; });
+    }
+
+    // ── Marker (clearly visible, pulsing red pin on the exact point) ────────────
+    function ensurePinStyles(){
+      if (document.getElementById('pdx-pin-styles')) return;
+      var st = document.createElement('style');
+      st.id = 'pdx-pin-styles';
+      st.textContent =
+        '.pdx-pin{position:relative;width:26px;height:26px;}' +
+        '.pdx-pin-dot{position:absolute;top:50%;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#e01b32;border:2.5px solid #fff;box-shadow:0 1px 7px rgba(0,0,0,0.7),0 0 0 1px rgba(0,0,0,0.35);}' +
+        '.pdx-pin-pulse{position:absolute;top:50%;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:rgba(224,27,50,0.5);animation:pdxPinPulse 1.8s ease-out infinite;}' +
+        '@keyframes pdxPinPulse{0%{transform:scale(1);opacity:0.85;}70%{transform:scale(3.4);opacity:0;}100%{transform:scale(3.4);opacity:0;}}';
+      document.head.appendChild(st);
     }
     function placeMarker(hit){
       if (!_map) return;
       if (_marker) { _map.removeLayer(_marker); _marker = null; }
-      _marker = L.circleMarker([hit.lat, hit.lng], {
-        radius: 7, color: '#f5c842', weight: 3, fillColor: '#c0152a', fillOpacity: 0.95
-      }).addTo(_map);
+      ensurePinStyles();
+      var icon = L.divIcon({
+        className: 'pdx-pin-wrap',
+        html: '<div class="pdx-pin"><div class="pdx-pin-pulse"></div><div class="pdx-pin-dot"></div></div>',
+        iconSize: [26, 26], iconAnchor: [13, 13]
+      });
+      _marker = L.marker([hit.lat, hit.lng], { icon: icon, zIndexOffset: 1000, keyboard: false }).addTo(_map);
       var label = hit.name ? hit.name.split(',').slice(0, 2).join(',').trim() : 'Your address';
-      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1 }).openTooltip();
+      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -10] }).openTooltip();
     }
+
+    // ── Nearest-district fallback ───────────────────────────────────────────────
+    // Rough centroid (average of the first ring's vertices) of a feature — only used
+    // to pick the closest district when an exact point-in-polygon test comes up
+    // empty (e.g. a rural point that lands in a gap left by boundary simplification).
+    function featureCentroid(feature){
+      var g = feature && feature.geometry; if (!g) return null;
+      var ring = g.type === 'Polygon' ? g.coordinates[0]
+               : (g.type === 'MultiPolygon' ? g.coordinates[0][0] : null);
+      if (!ring || !ring.length) return null;
+      var sx = 0, sy = 0;
+      for (var i = 0; i < ring.length; i++){ sx += ring[i][0]; sy += ring[i][1]; }
+      return [sx / ring.length, sy / ring.length];
+    }
+    function nearestDistrict(layerType, lng, lat){
+      var geo = _geoCache[layerType];
+      if (!geo || !geo.features) return null;
+      var best = null, bestD = Infinity;
+      for (var i = 0; i < geo.features.length; i++){
+        var c = featureCentroid(geo.features[i]); if (!c) continue;
+        var dx = c[0] - lng, dy = c[1] - lat, d = dx * dx + dy * dy;
+        if (d < bestD){ bestD = d; best = distOf(geo.features[i]); }
+      }
+      return best;
+    }
+
     function onGeocoded(hit){
-      // Load BOTH boundary sets so House and Senate can be resolved in one pass.
-      Promise.all([fetchGeo('house'), fetchGeo('senate')]).then(function(){
+      // Load BOTH boundary sets so House and Senate can be resolved in one pass, and
+      // backfill the address's districts from Census if the geocoder didn't carry
+      // them (so U.S. House always resolves, even for a Nominatim town centroid).
+      var enrich = (hit.congress == null || hit.house == null || hit.senate == null)
+        ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
+      Promise.all([fetchGeo('house'), fetchGeo('senate'), enrich]).then(function(res){
+        var extra = res[2];
+        if (extra) {
+          if (hit.congress == null) hit.congress = extra.congress;
+          if (hit.house    == null) hit.house    = extra.house;
+          if (hit.senate   == null) hit.senate   = extra.senate;
+        }
         setSearchBusy(false);
         ensureMap();
-        // Neighbourhood-level view: tight enough to read the local district, wide
-        // enough to keep the surrounding seats in context.
-        _map.setView([hit.lat, hit.lng], 13);
+        // Precise (rooftop) hits earn a tight street-level view; coarse city/ZIP
+        // hits stay a little wider so the whole place stays in frame.
+        _map.setView([hit.lat, hit.lng], hit.precise ? 15 : 12);
+
+        // District detection from the exact point. Point-in-polygon against the drawn
+        // UGRC boundaries is authoritative (it's what gets highlighted); the Census-
+        // reported district is the backstop; a nearest-centroid match is the last
+        // resort so a locatable address never silently fails.
         var h = districtAt('house', hit.lng, hit.lat);
         var s = districtAt('senate', hit.lng, hit.lat);
+        var approxH = false, approxS = false;
+        if (h == null && hit.house  != null && pathForDist('house',  hit.house))  h = hit.house;
+        if (s == null && hit.senate != null && pathForDist('senate', hit.senate)) s = hit.senate;
+        if (h == null) { h = nearestDistrict('house',  hit.lng, hit.lat); approxH = h != null; }
+        if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
+
         if (h == null && s == null) {
-          _hasSearchView = false; _searchHit = null;
+          _hasSearchView = false; _searchHit = null; _searchCongress = null;
           refreshResultBanner();
           placeMarker(hit);
-          setSearchNote('That location is outside Utah’s legislative district maps. Try a Utah address.', 'is-error');
+          setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) +
+            '”, but it’s outside Utah’s legislative district maps. Try a Utah address.', 'is-error');
           return;
         }
+
         _searchHit = hit;
         _hasSearchView = true;
+        _searchCongress = hit.congress != null ? hit.congress : null;
         if (h != null) selectDistrict('house', h, pathForDist('house', h));
         if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
         showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
         placeMarker(hit);                // drawn last so it sits on top
         refreshResultBanner();
-        var done = [];
-        if (h != null) done.push('State House ' + h);
-        if (s != null) done.push('State Senate ' + s);
-        setSearchNote('✅ Found your address. Your district is highlighted below.', 'is-ok');
+
+        // Clear, explicit feedback naming every district detected for the point.
+        var seats = [];
+        if (_searchCongress != null) seats.push('U.S. House ' + _searchCongress);
+        if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
+        if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
+        var approx = approxH || approxS;
+        var lead = approx
+          ? '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:'
+          : '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
+        setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
+          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : ''),
+          approx ? 'is-warn' : 'is-ok');
       }).catch(function(){
         setSearchBusy(false);
         setSearchNote('Couldn’t load district boundaries. Please try again.', 'is-error');
@@ -58599,10 +58766,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (_searching) return;
       setSearchBusy(true);
       setSearchNote('Finding “' + escapeHtml(q) + '”…');
-      geocode(q, true)
-        .then(function(hit){ return hit || geocode(q, false); })
+      resolveGeocode(q)
         .then(function(hit){
-          if (!hit) { setSearchBusy(false); setSearchNote('No match found. Try adding a city or ZIP code.', 'is-error'); return; }
+          if (!hit) { setSearchBusy(false); setSearchNote('No match found. Add a city or ZIP (e.g. “Lapoint, UT 84039”) and try again.', 'is-error'); return; }
           onGeocoded(hit);
         })
         .catch(function(){ setSearchBusy(false); setSearchNote('Address lookup failed. Check your connection and try again.', 'is-error'); });
@@ -58640,7 +58806,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _selected[t] = null; _selPath[t] = null;
       });
       _lastPicked = null;
-      _hasSearchView = false; _searchHit = null;
+      _hasSearchView = false; _searchHit = null; _searchCongress = null;
       if (_marker && _map) { _map.removeLayer(_marker); _marker = null; }
       updateSelectionUI();
       var hint = document.getElementById('pdx-map-hint');
