@@ -16273,12 +16273,23 @@
       #start-here .sh-step b{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;border-radius:9999px;background:#fad96a;color:#0a0f1e;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;}
       #start-here .sh-arrow{color:#5b7299;font-size:0.9rem;}
       @media (max-width:640px){#start-here .sh-step{font-size:0.8rem;}#start-here .sh-arrow{display:none;}}
+      /* Dismissible close button (top-right) + smooth dismiss animation */
+      #start-here .sh-close{position:absolute;top:0.85rem;right:0.85rem;z-index:20;display:inline-flex;align-items:center;justify-content:center;width:2.75rem;height:2.75rem;border-radius:9999px;background:rgba(10,15,30,0.7);border:1px solid rgba(255,255,255,0.18);color:#cbd5e1;cursor:pointer;transition:background 0.2s ease,color 0.2s ease,border-color 0.2s ease,transform 0.15s ease;backdrop-filter:blur(6px);}
+      #start-here .sh-close:hover{background:rgba(192,21,42,0.85);border-color:rgba(255,255,255,0.35);color:#fff;}
+      #start-here .sh-close:active{transform:scale(0.92);}
+      #start-here .sh-close:focus-visible{outline:2px solid #fad96a;outline-offset:2px;}
+      #start-here .sh-close svg{width:1.35rem;height:1.35rem;}
+      @media (min-width:768px){#start-here .sh-close{top:1.25rem;right:1.25rem;}}
+      #start-here.sh-dismissing{opacity:0;transform:translateY(-1.25rem);transition:opacity 0.4s ease,transform 0.4s ease;pointer-events:none;}
     </style>
     <div class="absolute inset-0 pointer-events-none">
       <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
       <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-900/10 rounded-full blur-3xl"></div>
       <div class="absolute bottom-1/4 right-1/5 w-64 h-64 bg-crimson-600/8 rounded-full blur-3xl"></div>
     </div>
+    <button type="button" class="sh-close" aria-label="Close welcome message" onclick="pdxDismissStartHere()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
     <div class="relative max-w-5xl mx-auto z-10 text-center">
       <div class="sh-eyebrow"><span>👋 New here? Start in 2 minutes</span></div>
       <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD A TEAM THAT <span class="text-crimson-400">EARNS</span> YOUR VOTE</h2>
@@ -16326,6 +16337,29 @@
     </div>
   </section>
   <!-- /START HERE -->
+  <script>
+    // Dismissible "Start Here" welcome banner — remembers the choice across visits
+    // via localStorage so returning visitors don't see the intro again.
+    (function () {
+      var KEY = 'pdx-start-here-dismissed';
+      var el = document.getElementById('start-here');
+      if (!el) return;
+
+      // Hide instantly (no animation) if already dismissed on a prior visit.
+      try {
+        if (localStorage.getItem(KEY) === '1') { el.style.display = 'none'; }
+      } catch (e) { /* localStorage unavailable — fail open, show the banner */ }
+
+      window.pdxDismissStartHere = function () {
+        try { localStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ }
+        el.classList.add('sh-dismissing');
+        var done = function () { el.style.display = 'none'; };
+        el.addEventListener('transitionend', done, { once: true });
+        // Fallback in case the transition never fires (e.g. reduced motion).
+        setTimeout(done, 500);
+      };
+    })();
+  </script>
 
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
