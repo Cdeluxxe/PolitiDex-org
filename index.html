@@ -7884,6 +7884,24 @@
        are the sitting officeholder(s). */
     .kr-cand-empty { display: flex; align-items: flex-start; gap: 0.55rem; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: rgba(10,15,30,0.45); border: 1px dashed rgba(117,150,192,0.3); font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; line-height: 1.45; color: #9fb4d4; }
     .kr-cand-empty .kr-cand-empty-ico { font-size: 0.95rem; line-height: 1.3; flex-shrink: 0; }
+    /* ── "+N more candidates" teaser-expand link ────────────────────────────
+       Key Races is the lightweight overview, so each race shows only its top
+       one or two candidates as a teaser. When more are running, this link makes
+       the rest one tap away — it drops the voter into the same seat's full field
+       in Relevant to Me (the research section), reinforcing the overview →
+       research flow. Emerald to match the "See full list" bridge it echoes. */
+    .kr-cand-more {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+      margin-top: 0.55rem; cursor: pointer; min-height: 40px;
+      padding: 0.5rem 0.85rem; border-radius: 0.75rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.74rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #6ee7b7; background: rgba(16,185,129,0.08);
+      border: 1px dashed rgba(52,211,153,0.45);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .kr-cand-more:hover { background: rgba(16,185,129,0.16); border-color: rgba(52,211,153,0.75); color: #a7f3d0; }
+    .kr-cand-more .kr-cand-more-arrow { font-size: 0.9rem; line-height: 1; }
     /* ── Field-experience comparison rail ───────────────────────────────────
        A scannable "time in office across the whole field" strip that sits
        between the officeholder hero and the challengers, so a voter can weigh
@@ -17588,15 +17606,14 @@
               <p class="font-condensed text-xs text-steel-400 tracking-wide mt-2 mb-0" style="line-height:1.4;">Change your area to see the exact House, Senate, and Congressional races on your ballot. <span class="text-blue-300/80">Covers all 29 Utah counties using official district boundaries.</span></p>
             </div>
 
-            <!-- Best-Matches board launcher for the whole slate of key races —
-                 rank every candidate on the ballot by the visitor's issues at once. -->
-            <button type="button" onclick="if(window.openAlignBoard)window.openAlignBoard('ballot')" class="w-full mb-5 flex items-center gap-3 text-left rounded-2xl border border-purple-500/40 px-4 py-3.5 transition-all hover:border-purple-400/70 hover:scale-[1.01] active:scale-[0.99]" style="background:linear-gradient(135deg, rgba(124,58,237,0.22) 0%, rgba(30,58,138,0.12) 100%); box-shadow:0 0 24px rgba(139,92,246,0.16); cursor:pointer; min-height:60px;">
-              <span class="flex-none text-2xl" aria-hidden="true">🏆</span>
-              <span class="flex-1 min-w-0">
-                <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm sm:text-base leading-tight">Rank every race by your values</span>
-                <span class="block font-condensed text-purple-200/90 text-xs sm:text-sm leading-snug mt-0.5">See which candidates across all your key races best match the issues you care about — then add your top picks to your team.</span>
-              </span>
-              <span class="flex-none text-purple-300 text-xl" aria-hidden="true">›</span>
+            <!-- Lightweight link to the full ranked Best-Matches board. The heavy
+                 board-launcher card lives in Relevant to Me (the research section);
+                 here, where Key Races is just the quick overview, it's a slim text
+                 link so it doesn't compete with the races or duplicate the research
+                 tool's visual weight. -->
+            <button type="button" onclick="if(window.openAlignBoard)window.openAlignBoard('ballot')" class="font-condensed text-xs tracking-wider uppercase inline-flex items-center gap-1.5 mb-4 transition-colors" style="color:#c4b5fd;background:none;border:none;padding:0.2rem 0;cursor:pointer;" onmouseover="this.style.color='#ddd6fe';" onmouseout="this.style.color='#c4b5fd';">
+              <span aria-hidden="true">🏆</span> Rank every race by your values
+              <span aria-hidden="true" style="opacity:0.7;">›</span>
             </button>
 
             <!-- Race cards injected here -->
@@ -50355,9 +50372,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // people running read as "Challengers" or simply "Candidates".
       var hasRunningIncumbent = incList.length && !/retir|open seat/i.test(race.incumbentNote || '');
       var candidateMode = hasRunningIncumbent ? 'challenger' : 'candidate';
-      var candHtml = challengerPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid, candidateMode); }).join('');
+
+      // ── Teaser candidates only ───────────────────────────────────────────────
+      // Key Races is the lightweight overview, so each race surfaces just its top
+      // one or two candidates — not the whole field. The rest live one tap away in
+      // Relevant to Me (the research section) via the "+N more" link and the
+      // "See full list" bridge below. Ordering: when the voter has chosen their
+      // issues, the best-aligned candidates float up so the teaser is meaningful;
+      // their own pick (if it's a challenger) is always pinned first so it never
+      // gets hidden behind the fold.
+      var KR_TEASER_MAX = 2;
+      var orderedChallengers = challengerPids.slice();
+      var hasAlignTeaser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0 && typeof _calcAlignmentScore === 'function');
+      if (hasAlignTeaser) {
+        orderedChallengers.sort(function(a, b) {
+          var sa = _calcAlignmentScore(a); var sb = _calcAlignmentScore(b);
+          sa = (sa === null || sa === undefined) ? -1 : sa;
+          sb = (sb === null || sb === undefined) ? -1 : sb;
+          return sb - sa;
+        });
+      }
+      if (selInThisRace && orderedChallengers.indexOf(selInThisRace) > -1) {
+        orderedChallengers = [selInThisRace].concat(orderedChallengers.filter(function(p) { return p !== selInThisRace; }));
+      }
+      var teaserPids = orderedChallengers.slice(0, KR_TEASER_MAX);
+      var hiddenCount = orderedChallengers.length - teaserPids.length;
+      var candHtml = teaserPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid, candidateMode); }).join('');
 
       var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running to Replace Them · 2026' : '2026 Candidates');
+      if (hiddenCount > 0) {
+        candLabel = 'Top ' + teaserPids.length + ' of ' + orderedChallengers.length + ' ' +
+          (hasRunningIncumbent ? 'challengers · 2026' : 'candidates · 2026');
+      }
+
+      // One-tap path to the rest of the field, in the same seat's Relevant-to-Me branch.
+      var moreLink = hiddenCount > 0
+        ? '<button type="button" class="kr-cand-more" onclick="window.keyRacesViewFullList(\'' + race.raceKey + '\')" ' +
+            'aria-label="See ' + hiddenCount + ' more candidate' + (hiddenCount === 1 ? '' : 's') + ' for ' + (race.short || 'this seat') + ' in the Relevant to Me section below">' +
+            '+ ' + hiddenCount + ' more candidate' + (hiddenCount === 1 ? '' : 's') + ' — research the full field' +
+            '<span class="kr-cand-more-arrow" aria-hidden="true">↓</span>' +
+          '</button>'
+        : '';
 
       var noteHtml = race.extraNote
         ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>'
@@ -50367,6 +50422,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         candSection =
           '<div class="kr-cand-label">' + candLabel + '</div>' +
           '<div style="display:flex;flex-direction:column;gap:0.55rem;">' + candHtml + '</div>' +
+          moreLink +
           noteHtml;
       } else {
         // No one else is running yet — show a clean note instead of an empty list.
