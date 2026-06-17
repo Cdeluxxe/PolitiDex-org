@@ -7980,6 +7980,52 @@
     .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.35rem; line-height: 1; }
     @media (max-width: 380px) { .kr-fulllist-sub { font-size: 0.66rem; } .kr-fulllist-title { font-size: 0.86rem; } }
 
+    /* ── Key Races → Relevant to Me funnel — the section-level handoff. After the
+       quick overview of every race, this single prominent bridge sends the voter
+       down into the detailed, filtered Relevant to Me list to research the whole
+       field. Emerald so it reads as the same "go deeper / see everyone" step as
+       the per-race "See everyone running" buttons, just at the section scale —
+       the clear closing "where to go next" for the overview. */
+    .kr-funnel {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-top: 1.5rem; padding: 1.15rem 1.35rem; border-radius: 1.25rem;
+      background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.08) 55%, rgba(10,15,30,0.5) 100%);
+      border: 2px solid rgba(52,211,153,0.45);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.3), 0 0 26px rgba(16,185,129,0.1);
+    }
+    .kr-funnel__icon {
+      flex: 0 0 auto; width: 48px; height: 48px; border-radius: 0.9rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      background: linear-gradient(135deg, rgba(16,185,129,0.32), rgba(16,185,129,0.12));
+      border: 1px solid rgba(52,211,153,0.5);
+    }
+    .kr-funnel__body { flex: 1 1 16rem; min-width: 0; display: flex; flex-direction: column; gap: 0.18rem; }
+    .kr-funnel__eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: #6ee7b7; line-height: 1;
+    }
+    .kr-funnel__title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.02em;
+      color: #fff; line-height: 1.05;
+    }
+    .kr-funnel__sub { font-family: 'Barlow', sans-serif; font-size: 0.78rem; color: #c6e8d8; line-height: 1.4; }
+    .kr-funnel__btn {
+      flex: 0 0 auto; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.92rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #04231a;
+      background: linear-gradient(135deg, #6ee7b7, #10b981); border: none;
+      border-radius: 0.85rem; padding: 0.85rem 1.5rem; min-height: 50px;
+      box-shadow: 0 6px 22px rgba(16,185,129,0.4);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .kr-funnel__btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 10px 30px rgba(16,185,129,0.55); }
+    .kr-funnel__btn:active { transform: scale(0.99); }
+    @media (max-width: 640px) {
+      .kr-funnel { padding: 1rem 1.1rem; }
+      .kr-funnel__btn { width: 100%; justify-content: center; }
+      .kr-funnel__title { font-size: 1.35rem; }
+    }
+
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
@@ -17784,7 +17830,7 @@
                 <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Quick Overview · Your Races at a Glance</div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 22px rgba(59,130,246,0.25);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1"><strong class="text-blue-200">Quick overview</strong> of your races &amp; who holds each seat now — <strong class="text-blue-200">➕ Add to My Team</strong> drops a pick into your one team up top, or tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research &amp; compare every candidate in <strong class="text-white">Relevant to Me</strong> below.</p>
+                <p class="font-condensed text-sm text-blue-100/90 tracking-wide mt-1.5" style="line-height:1.5;">A quick look at <strong class="text-white">your districts</strong> and <strong class="text-white">who represents you right now</strong>. Dive deeper below: tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research &amp; compare the full field in <strong class="text-white">Relevant to Me</strong>.</p>
                 <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
@@ -17820,6 +17866,21 @@
             <div class="pdx-hint mt-5">
               <span class="pdx-hint-ico" aria-hidden="true">🗳️</span>
               <p class="pdx-hint-text"><strong>What to do here:</strong> these are the offices you'll actually vote on. In each race, tap <strong>⚖️ Compare these candidates</strong> to see who's running side-by-side on their record and values — then tap <strong>➕ Add to My Team</strong> to lock in your pick. Not sure yet? Tap a name to open their full profile first.</p>
+            </div>
+
+            <!-- Section-level funnel into Relevant to Me. The per-race cards each
+                 carry their own "See everyone running" bridge; this is the single
+                 closing handoff that points EVERY visitor down into the detailed,
+                 filtered candidate list once they've scanned the overview — making
+                 it obvious Key Races is the starting point, not the destination. -->
+            <div class="kr-funnel">
+              <span class="kr-funnel__icon" aria-hidden="true">🔬</span>
+              <div class="kr-funnel__body">
+                <span class="kr-funnel__eyebrow">That's your overview — now go deeper</span>
+                <span class="kr-funnel__title">Research the full field for every race</span>
+                <span class="kr-funnel__sub">See <strong>everyone running</strong> for your seats and compare them on record &amp; values in <strong>Relevant to Me</strong> — your detailed, filtered candidate list, just below.</span>
+              </div>
+              <button type="button" onclick="document.getElementById('relevant-section') && document.getElementById('relevant-section').scrollIntoView({behavior:'smooth',block:'start'})" class="kr-funnel__btn" aria-label="Jump down to Relevant to Me — your detailed, filtered candidate list">↓ See my full candidate list</button>
             </div>
 
             <p class="font-condensed text-xs text-steel-500 tracking-wide mt-5" style="line-height:1.5;">
@@ -50789,9 +50850,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
           '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
           '<span class="kr-fulllist-text">' +
-            '<span class="kr-fulllist-eyebrow">Research this race →</span>' +
+            '<span class="kr-fulllist-eyebrow">Research the full field →</span>' +
             '<span class="kr-fulllist-title">See everyone running for ' + fullListLabel + '</span>' +
-            '<span class="kr-fulllist-sub">Compare them all side-by-side in Relevant to Me below</span>' +
+            '<span class="kr-fulllist-sub">Jumps to the detailed, filtered list for this seat — compare them all in Relevant to Me below</span>' +
           '</span>' +
           '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
         '</button>';
