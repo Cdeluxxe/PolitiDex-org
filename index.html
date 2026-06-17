@@ -7773,6 +7773,40 @@
     .kr-race-compare-go { flex: 0 0 auto; color: #93c5fd; font-size: 1.2rem; line-height: 1; }
     @media (max-width: 380px) { .kr-race-compare-sub { font-size: 0.64rem; } .kr-race-compare-title { font-size: 0.78rem; } }
 
+    /* ── "See full list for this district" — the bridge from a Key Races card
+       down to the same seat's full field in Relevant to Me. Emerald so it reads
+       as a distinct "go deeper / browse everyone" step, clearly separate from the
+       blue "compare these candidates" overlay action above it. */
+    .kr-fulllist-btn {
+      width: 100%; display: flex; align-items: center; gap: 0.7rem;
+      text-align: left; cursor: pointer; min-height: 48px;
+      padding: 0.65rem 0.95rem; border-radius: 0.85rem;
+      background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(5,150,105,0.06));
+      border: 1.5px solid rgba(52,211,153,0.42);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kr-fulllist-btn:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, rgba(16,185,129,0.24), rgba(5,150,105,0.1));
+      border-color: rgba(52,211,153,0.7);
+      box-shadow: 0 6px 20px rgba(16,185,129,0.16);
+    }
+    .kr-fulllist-btn:active { transform: scale(0.99); }
+    .kr-fulllist-ico {
+      flex: 0 0 auto; width: 36px; height: 36px; border-radius: 0.6rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+      background: rgba(52,211,153,0.16); border: 1px solid rgba(52,211,153,0.4);
+    }
+    .kr-fulllist-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .kr-fulllist-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.84rem; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #a7f3d0; line-height: 1.1;
+    }
+    .kr-fulllist-sub { font-family: 'Barlow', sans-serif; font-size: 0.68rem; color: #9fc8b6; line-height: 1.3; }
+    .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.2rem; line-height: 1; }
+    @media (max-width: 380px) { .kr-fulllist-sub { font-size: 0.64rem; } .kr-fulllist-title { font-size: 0.78rem; } }
+
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
@@ -49594,15 +49628,50 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } catch (e) { return null; }
     };
 
+    // Adopt one of the curated Key Races areas as the voter's saved location.
+    // Shared by the location selector and the "see full list" card bridge so both
+    // establish location identically — mirrors window.relevantPickArea but without
+    // its forced scroll, since these callers manage their own scrolling. Sets the
+    // city/county and U.S. House district from the area's roster, then persists
+    // (which flips _hasUserLocation on and lets the Relevant-to-Me tree render).
+    function _krEstablishVoterLocation(id) {
+      try {
+        var meta = _krLocationMeta(id);
+        var races = KEY_RACES_BY_LOCATION[id] || [];
+        var houseDist = '';
+        races.forEach(function(r) {
+          if (r.raceKey === 'house') {
+            var m = String(r.district || '').match(/(\d+)\s*$/);
+            if (m) houseDist = m[1];
+          }
+        });
+        window._currentVoterLocation = {
+          state: 'Utah',
+          city: meta.city || '',
+          county: meta.county || '',
+          district: houseDist
+        };
+        if (window.saveVoterLocation) window.saveVoterLocation();
+      } catch (e) {}
+    }
+
     window.keyRacesSetLocation = function(id) {
       if (!KEY_RACES_BY_LOCATION[id]) return;
       try { localStorage.setItem(KR_LOCATION_KEY, id); } catch (e) {}
+      // Picking an area in this selector IS the voter telling us where they vote,
+      // so adopt it as their saved location. Without this the "Relevant to Me"
+      // ballot below never sees _hasUserLocation flip to true and stays stuck on
+      // its "choose your area" prompt — which made the whole section look broken
+      // even though the visitor had clearly chosen a location right here.
+      _krEstablishVoterLocation(id);
       if (window.renderKeyRaces) window.renderKeyRaces();
-      // Keep the top "Utah Voter Map" info bar in sync with the selected area.
       if (window.renderStateOverview) window.renderStateOverview();
-      // The "Relevant to Me" ballot below follows the same area selector, so it
-      // must refresh whenever the voter changes their location here.
-      if (window.renderRelevantToMe) window.renderRelevantToMe();
+      // saveVoterLocation() (inside _krEstablishVoterLocation) set _hasUserLocation,
+      // so refresh every location-aware surface. The central reaction keeps My Team,
+      // the map indicators and the personalized ballot in sync; fall back to the
+      // Relevant render alone if it isn't available yet.
+      if (window._triggerLocationReaction) window._triggerLocationReaction();
+      else if (window.renderRelevantToMe) window.renderRelevantToMe();
     };
 
     // ── "Relevant to Me" personalization helpers ───────────────────────────
@@ -50380,6 +50449,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</button>';
       }
 
+      // ── "See full list for this district" — bridge to Relevant to Me ─────────
+      // Sends the voter from this overview card down to the same seat's full field
+      // in Relevant to Me, where the deeper browse (every candidate, grouped, with
+      // values ranking and other-district exploration) lives. Always offered, so
+      // every race has a clear "show me everyone for this seat" path.
+      var fullListLabel = race.short || 'this seat';
+      var fullListBtn =
+        '<button type="button" onclick="window.keyRacesViewFullList(\'' + race.raceKey + '\')" class="kr-fulllist-btn" ' +
+          'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
+          '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
+          '<span class="kr-fulllist-text">' +
+            '<span class="kr-fulllist-title">See full list for ' + fullListLabel + '</span>' +
+            '<span class="kr-fulllist-sub">Jump to every candidate for this seat in Relevant to Me</span>' +
+          '</span>' +
+          '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
+        '</button>';
+
       return '<div id="kr-race-' + race.raceKey + '" style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);box-shadow:0 8px 30px rgba(0,0,0,0.28);">' +
         '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
           '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
@@ -50395,6 +50481,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _krExperienceField(race, incList, challengerPids) +
           candSection +
           (compareCta ? '<div style="margin-top:0.9rem;">' + compareCta + '</div>' : '') +
+          '<div style="margin-top:0.6rem;">' + fullListBtn + '</div>' +
           '<div style="margin-top:0.85rem;">' + footer + '</div>' +
         '</div>' +
       '</div>';
@@ -51434,6 +51521,43 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       void el.offsetWidth;
       el.classList.add('kr-race-flash');
       setTimeout(function() { el.classList.remove('kr-race-flash'); }, 1600);
+    };
+
+    // Maps a Key Races raceKey to the Relevant-to-Me [level, officeKey] branch that
+    // holds the same seat's full field, so a race card can jump straight to it.
+    var _KR_RACE_TO_RELEVANT = {
+      house:       ['federal', 'representative'],
+      senate:      ['federal', 'senator'],
+      president:   ['federal', 'president'],
+      governor:    ['state', 'governor'],
+      statesenate: ['state', 'state_senator'],
+      statehouse:  ['state', 'state_rep'],
+      local:       ['local', 'local']
+    };
+
+    // ── Key Races → Relevant to Me bridge ────────────────────────────────────
+    // The "See full list for this district" button on each race card. Key Races is
+    // the quick overview (current officeholder + the field at a glance); the deeper
+    // browse — every candidate, grouped, with values ranking and "explore other
+    // districts" — lives in Relevant to Me. This scrolls the voter there and opens
+    // the exact office branch for THIS seat, so the two sections read as one flow:
+    // overview up top → focused full list below.
+    window.keyRacesViewFullList = function(raceKey) {
+      try {
+        var m = _KR_RACE_TO_RELEVANT[raceKey] || ['state', 'state_rep'];
+        // The Relevant-to-Me tree only renders once a real location is set. If the
+        // visitor is still on the default area (hasn't picked one yet), adopt the
+        // currently-shown Key Races area now so the full list exists to jump to.
+        if (!window._hasUserLocation && typeof _krEstablishVoterLocation === 'function') {
+          _krEstablishVoterLocation(_krCurrentLocationId());
+        }
+        if (window.renderRelevantToMe) window.renderRelevantToMe();
+        // Let the freshly-rendered tree paint, then open the matching office branch
+        // and scroll it into view (_relevantJump handles both).
+        setTimeout(function() {
+          if (window._relevantJump) window._relevantJump(m[0], m[1]);
+        }, 70);
+      } catch (e) {}
     };
 
     // ── Ballot-coverage overview ─────────────────────────────────────────────
