@@ -43709,7 +43709,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="myteam-empty-ring" style="width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:1.9rem;margin:0.65rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
         '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Open Seat</div>' +
         '<div class="myteam-empty-desc">' + _slotBlurb(pos.key) + '</div>' +
-        '<div class="myteam-empty-find">↓ See who\'s running in <strong>Relevant to Me</strong></div>' +
+        '<div class="myteam-empty-find">👆 Tap to browse candidates for this seat in <strong>Relevant to Me</strong></div>' +
         '<div class="myteam-empty-cta">' +
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
           'Fill this seat' +
@@ -52181,6 +52181,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         selections[raceKey] = pid;
       }
       _ballotSave(selections);
+
+      // Arm the freshly-filled slot so the My Voting Team grid pulses that exact
+      // slot — both on this immediate repaint and when the voter jumps up via the
+      // toast's "See it in My Team" action. Mirrors mypolToggleAnimated so the
+      // PRIMARY add path (Relevant to Me / Key Races cards) lands on a visible,
+      // satisfying result instead of a silently-changed grid. Cleared on removal
+      // so a stale highlight never lingers.
+      if (isRemoving) {
+        window._pdxJustFilledPid = null;
+      } else {
+        window._pdxJustFilledPid = pid;
+        if (window._pdxJustFilledTimer) clearTimeout(window._pdxJustFilledTimer);
+        window._pdxJustFilledTimer = setTimeout(function() { window._pdxJustFilledPid = null; }, 6000);
+      }
+
       _ballotRender();
 
       // Premium feedback: named toast + counter pop on every team change.
@@ -52200,15 +52215,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             // so far, or hopping over to the team workspace.
             var _complete = _filled === _total;
             var _acts = [];
+            // Prefer the slot-aware scroll: it lands the voter on the slot they
+            // just filled and re-triggers its pulse, so the hand-off ends on a
+            // visible result rather than the top of the panel.
             var _viewTeam = function() {
+              if (typeof window._relevantScrollToTeam === 'function') { window._relevantScrollToTeam(); return; }
               var b = document.getElementById('myteam-summary-box') || document.getElementById('my-politicians');
               if (b && b.scrollIntoView) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
             };
+            var _compareTeam = function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); };
             if (_complete) {
-              if (_filled >= 2) _acts.push({ label: '⚖️ Compare your team', kind: 'primary', act: function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); } });
-              _acts.push({ label: '⭐ View team', kind: 'secondary', act: _viewTeam });
-            } else if (_filled >= 2) {
-              _acts.push({ label: '⚖️ Compare my picks', kind: 'secondary', act: function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); } });
+              if (_filled >= 2) _acts.push({ label: '⚖️ Compare your team', kind: 'primary', act: _compareTeam });
+              _acts.push({ label: '↑ See it in My Team', kind: 'secondary', act: _viewTeam });
+            } else {
+              // Always offer a one-tap hop up to watch the slot they just filled
+              // light up — this is what closes the discover → add → see-it-appear
+              // loop for the common single-pick add, where there was no action before.
+              _acts.push({ label: '↑ See it in My Team', kind: 'primary', act: _viewTeam });
+              if (_filled >= 2) _acts.push({ label: '⚖️ Compare my picks', kind: 'secondary', act: _compareTeam });
             }
             window._showTeamToast(pid, 'add', { count: _filled, total: _total, complete: _complete, actions: _acts });
           }
