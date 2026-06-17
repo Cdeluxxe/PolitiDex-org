@@ -6294,6 +6294,77 @@
     @media (prefers-reduced-motion: reduce) {
       .myteam-add-btn.match-strong:not(.on-team):not(:hover) { animation: none; }
     }
+    /* ── Persistent "Your Team" progress bar at the top of Relevant to Me ──────
+       A live, location-aware read on how the team is coming along, pinned right
+       where the voter is doing their research. It mirrors the My Voting Team
+       count, names the next open seat, and offers a one-tap jump UP to the
+       builder — so researching here always feels like it's feeding the one
+       team above, and progress is visible without scrolling back up. Populated
+       by window._relSyncTeamProgress() on every team change. */
+    .rel-team-progress {
+      display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
+      margin: 0 0 0.95rem; padding: 0.7rem 0.9rem; border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(245,200,66,0.05) 55%, rgba(10,15,30,0.45) 100%);
+      border: 1px solid rgba(245,158,11,0.4);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .rel-team-progress__ring {
+      flex: 0 0 auto; width: 2.9rem; height: 2.9rem; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.02em; color: #1a1206;
+      background: conic-gradient(#f5c842 calc(var(--rel-pct, 0) * 1%), rgba(245,200,66,0.16) 0);
+      position: relative;
+    }
+    .rel-team-progress__ring::after {
+      content: ''; position: absolute; inset: 4px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(26,18,6,0.92), rgba(13,21,38,0.95));
+    }
+    .rel-team-progress__ring span { position: relative; z-index: 1; color: #ffe486; font-weight: 700; }
+    .rel-team-progress__body { flex: 1 1 13rem; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .rel-team-progress__title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem;
+      letter-spacing: 0.16em; text-transform: uppercase; color: #fcd34d; line-height: 1;
+    }
+    .rel-team-progress__next {
+      font-family: 'Barlow', sans-serif; font-size: 0.84rem; line-height: 1.35; color: #e7d3a8;
+    }
+    .rel-team-progress__next strong { color: #fff; font-weight: 700; }
+    .rel-team-progress__btn {
+      flex: 0 0 auto; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.74rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #1a1206;
+      background: linear-gradient(135deg, #ffe486, #e0a82e); border: none;
+      border-radius: 0.75rem; padding: 0.55rem 1rem; min-height: 42px;
+      box-shadow: 0 5px 18px rgba(245,200,66,0.32);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .rel-team-progress__btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 9px 26px rgba(245,200,66,0.5); }
+    .rel-team-progress__btn:active { transform: scale(0.99); }
+    .rel-team-progress.is-complete { border-color: rgba(74,222,128,0.5); background: linear-gradient(135deg, rgba(74,222,128,0.16) 0%, rgba(34,197,94,0.05) 55%, rgba(10,15,30,0.45) 100%); }
+    .rel-team-progress.is-complete .rel-team-progress__ring { background: conic-gradient(#4ade80 100%, #4ade80 0); }
+    .rel-team-progress.is-complete .rel-team-progress__ring span { color: #bbf7d0; }
+    .rel-team-progress.is-complete .rel-team-progress__title { color: #86efac; }
+    @media (max-width: 560px) {
+      .rel-team-progress__btn { width: 100%; justify-content: center; }
+    }
+    /* ── Just-filled slot celebration ─────────────────────────────────────────
+       When a voter adds a pick from Relevant to Me and jumps back up, the slot
+       they just filled briefly pulses an amber halo so the hand-off lands on a
+       visible, satisfying result instead of a silently-changed grid. The class
+       is set by _renderSlotCard for window._pdxJustFilledPid and cleared shortly
+       after the animation. */
+    @keyframes myteam-slot-just-filled {
+      0%   { box-shadow: 0 0 0 0 rgba(245,200,66,0.0), 0 10px 34px rgba(0,0,0,0.42); }
+      18%  { box-shadow: 0 0 0 3px rgba(245,200,66,0.85), 0 0 34px 4px rgba(245,200,66,0.55), 0 10px 34px rgba(0,0,0,0.42); }
+      100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.0), 0 10px 34px rgba(0,0,0,0.42); }
+    }
+    .myteam-slot.myteam-slot--just-filled {
+      animation: myteam-card-in 0.45s ease both, myteam-slot-just-filled 1.9s ease-out 0.1s 1;
+      border-color: color-mix(in srgb, var(--slot-color) 75%, #fff 8%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .myteam-slot.myteam-slot--just-filled { animation: myteam-card-in 0.45s ease both; }
+    }
     /* Each filled slot is tinted with its own office color (--slot-color), so the
        six ballot positions read as visually distinct at a glance. Falls back to
        amber for any card that doesn't set the variable. */
@@ -17772,6 +17843,20 @@
             <span aria-hidden="true">🔬</span>
             <span><strong>Research candidates here</strong>, then build &amp; manage your full team above in <strong class="rel-research-guide__team">My Voting Team</strong>.</span>
           </div>
+          <!-- Persistent, live "Your Team" progress bar — pins the My Voting Team
+               count right here in the research section so building toward the one
+               team stays visible while the voter compares candidates, and offers a
+               one-tap jump back up. Populated by window._relSyncTeamProgress(). -->
+          <button type="button" id="rel-team-progress" class="rel-team-progress" style="width:100%;text-align:left;"
+                  onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))"
+                  aria-label="Go up to My Voting Team to build and finalize your team">
+            <span class="rel-team-progress__ring" id="rel-team-progress-ring" style="--rel-pct:0;"><span id="rel-team-progress-frac">0/6</span></span>
+            <span class="rel-team-progress__body">
+              <span class="rel-team-progress__title">★ Your Voting Team</span>
+              <span class="rel-team-progress__next" id="rel-team-progress-next">No picks yet — add your first candidate below and it lands in your team up top.</span>
+            </span>
+            <span class="rel-team-progress__btn" aria-hidden="true">↑ My Voting Team</span>
+          </button>
           <div class="flex items-center gap-4 flex-wrap">
             <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-xl shadow-lg flex-shrink-0" style="box-shadow:0 0 18px rgba(59,130,246,0.22);">🧭</div>
             <div class="flex-1 min-w-0">
@@ -38996,6 +39081,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._relevantScrollToTeam = function(focusOpen) {
     var panel = document.getElementById('myteam-selected-panel');
     if (!panel) { return; }
+    // If a pick was just added, scroll straight to that slot and let it pulse, so
+    // the voter lands on the satisfying result of their action rather than the top
+    // of the panel. Otherwise scroll to the panel and flash the progress block.
+    var justPid = window._pdxJustFilledPid;
+    var justSlot = justPid ? panel.querySelector('.myteam-slot[data-pid="' + justPid + '"]') : null;
+    if (justSlot) {
+      justSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Re-trigger the highlight animation in case the grid was already painted.
+      justSlot.classList.remove('myteam-slot--just-filled');
+      void justSlot.offsetWidth;
+      justSlot.classList.add('myteam-slot--just-filled');
+      return;
+    }
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var cov = document.getElementById('myteam-district-coverage');
     var flash = (cov && cov.style.display !== 'none') ? cov : panel.querySelector('#myteam-progress') || panel;
@@ -42652,6 +42750,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Smoothly bring the My Voting Team workspace into view — used by the toast's
     // "View team" action so a user can hop from exploring to managing in one tap.
     function _scrollToTeamWorkspace() {
+      // Prefer the slot-aware scroll so, right after an add, the toast's "View team"
+      // action lands on the freshly-filled slot (with its pulse) rather than the
+      // top of the panel.
+      if (typeof window._relevantScrollToTeam === 'function') { window._relevantScrollToTeam(); return; }
       var t = document.getElementById('myteam-summary-box') || document.getElementById('my-politicians');
       if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -42722,6 +42824,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         btn.classList.add('just-added');
         btn.innerHTML = '✓ Added!';
         setTimeout(function() { btn.classList.remove('just-added'); }, 600);
+      }
+      // Remember the pick just added so the team grid can pulse exactly that slot
+      // when the voter jumps back up — turning the hand-off into a visible result.
+      // Cleared on a removal so a stale highlight never lingers.
+      window._pdxJustFilledPid = wasOnTeam ? null : pid;
+      if (window._pdxJustFilledTimer) { clearTimeout(window._pdxJustFilledTimer); }
+      if (!wasOnTeam) {
+        window._pdxJustFilledTimer = setTimeout(function() { window._pdxJustFilledPid = null; }, 6000);
       }
       if (typeof window._showTeamToast === 'function') {
         if (wasOnTeam) {
@@ -43484,7 +43594,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
         ? '<div style="display:flex;justify-content:center;margin:0.1rem 0 0.5rem;" onclick="event.stopPropagation();">' + window._acctCardBadge(pid) + '</div>' : '';
 
-      return '<div class="myteam-slot" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
+      return '<div class="myteam-slot' + (window._pdxJustFilledPid === pid ? ' myteam-slot--just-filled' : '') + '" data-pid="' + pid + '" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
         '<button class="myteam-slot-clear-btn" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
         '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" title="' + _slotBlurb(pos.key) + '" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
@@ -44169,6 +44279,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       box.style.display = '';
     }
 
+    // Sync the persistent "Your Team" progress bar pinned at the top of Relevant
+    // to Me. Reads the live ballot (location-aware via TEAM_POSITIONS) and shows
+    // the filled count, a progress ring, and the single most useful next move —
+    // naming the next still-open seat, or celebrating a complete slate. Keeps the
+    // research section visibly tied to the one builder above without a scroll.
+    window._relSyncTeamProgress = function() {
+      var bar = document.getElementById('rel-team-progress');
+      if (!bar) return;
+      var positions = window.TEAM_POSITIONS || [];
+      var total = positions.length || 6;
+      var sel;
+      try { sel = (typeof _getTeamBallotSelections === 'function') ? _getTeamBallotSelections() : (window._ballotLoad ? window._ballotLoad() : {}); }
+      catch (e) { sel = {}; }
+      var filled = 0, nextOpen = null;
+      positions.forEach(function(pos) {
+        if (sel[pos.key] && (typeof CMP_DATA === 'undefined' || CMP_DATA[sel[pos.key]])) filled++;
+        else if (!nextOpen) nextOpen = pos;
+      });
+      var complete = total > 0 && filled >= total;
+      var pct = total > 0 ? Math.round(filled / total * 100) : 0;
+
+      var ring = document.getElementById('rel-team-progress-ring');
+      var frac = document.getElementById('rel-team-progress-frac');
+      var next = document.getElementById('rel-team-progress-next');
+      if (ring) ring.style.setProperty('--rel-pct', pct);
+      if (frac) frac.textContent = filled + '/' + total;
+      bar.classList.toggle('is-complete', complete);
+
+      if (next) {
+        if (complete) {
+          next.innerHTML = '🎉 <strong>All ' + total + ' seats filled.</strong> Head up to review, compare &amp; finalize your slate.';
+        } else if (filled === 0) {
+          next.innerHTML = 'No picks yet — add your first candidate below and it lands in your team up top.';
+        } else if (nextOpen) {
+          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Next open seat: <strong>' + nextOpen.label + '</strong> — add a pick below, or manage your team up top.';
+        } else {
+          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Manage your team up top.';
+        }
+      }
+    };
+
     function _mypolBuildGrid() {
       var slotsGrid = document.getElementById('myteam-slots-grid');
       var teamEmpty = document.getElementById('myteam-empty');
@@ -44366,6 +44517,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (browseSlotsBar) browseSlotsBar.style.width = Math.round(filledCount / TEAM_POSITIONS.length * 100) + '%';
 
       myteamBrowseFilter();
+
+      // Keep the persistent "Your Team" bar at the top of Relevant to Me in sync
+      // with the live count + next open seat on every team change.
+      if (typeof window._relSyncTeamProgress === 'function') { try { window._relSyncTeamProgress(); } catch (e) {} }
     }
 
     window.myteamClearSlot = function(raceKey, btn) {
@@ -48093,6 +48248,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         try { console.warn('renderRelevantToMe: recovering via safe fallback —', e); } catch (_) {}
         try { _renderRelevantToMeSafeFallback(); } catch (_) {}
       }
+      // Keep the pinned "Your Team" progress bar at the top of this section honest
+      // on every repaint (location change, team change, initial load).
+      if (typeof window._relSyncTeamProgress === 'function') { try { window._relSyncTeamProgress(); } catch (_) {} }
     };
 
     // Last-resort renderer. Builds the slate straight from the curated Key Races
