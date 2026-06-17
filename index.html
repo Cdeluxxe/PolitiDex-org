@@ -16073,16 +16073,28 @@
           max-width:46rem;margin:1.6rem auto 0;text-align:left;}
         #voter-hub .vh-c-card{border-radius:1rem;padding:0.95rem 1.05rem;border:1px solid rgba(255,255,255,0.1);
           background:rgba(10,15,30,0.55);}
-        #voter-hub .vh-c-old{border-color:rgba(120,135,160,0.22);}
+        /* "Usual way" card — deliberately de-emphasized: darker, muted, dimmed, and
+           crossed out with a translucent crimson-orange X so it reads as "the old way". */
+        #voter-hub .vh-c-old{position:relative;overflow:hidden;border-color:rgba(120,135,160,0.16);
+          background:rgba(5,8,16,0.7);opacity:0.82;}
+        /* Two crossing strokes form the X. They run long (190%) and are clipped to the
+           card's rounded box by overflow:hidden, so they hit the edges cleanly at any
+           aspect ratio. Translucent with a soft glow so text below stays readable. */
+        #voter-hub .vh-c-old::before,#voter-hub .vh-c-old::after{content:"";position:absolute;
+          top:50%;left:50%;width:190%;height:0.5rem;border-radius:0.5rem;pointer-events:none;z-index:3;
+          background:linear-gradient(90deg,rgba(166,58,34,0) 0%,rgba(166,58,34,0.6) 16%,rgba(201,82,42,0.66) 50%,rgba(166,58,34,0.6) 84%,rgba(166,58,34,0) 100%);
+          box-shadow:0 0 14px rgba(166,58,34,0.35);}
+        #voter-hub .vh-c-old::before{transform:translate(-50%,-50%) rotate(31deg);}
+        #voter-hub .vh-c-old::after{transform:translate(-50%,-50%) rotate(-31deg);}
         #voter-hub .vh-c-new{border-color:rgba(245,200,66,0.4);background:linear-gradient(135deg,rgba(245,200,66,0.1),rgba(192,21,42,0.08));
           box-shadow:0 0 26px rgba(245,200,66,0.08);}
         #voter-hub .vh-c-tag{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.14em;
           text-transform:uppercase;display:inline-flex;align-items:center;gap:0.35rem;margin-bottom:0.4rem;}
-        #voter-hub .vh-c-old .vh-c-tag{color:#8aa0c0;}
+        #voter-hub .vh-c-old .vh-c-tag{color:#74879f;}
         #voter-hub .vh-c-new .vh-c-tag{color:#fad96a;}
         #voter-hub .vh-c-q{font-family:'Barlow Condensed',sans-serif;font-size:1.18rem;font-weight:700;letter-spacing:0.01em;
           line-height:1.18;color:#e6eefb;}
-        #voter-hub .vh-c-old .vh-c-q{color:#aab9cf;}
+        #voter-hub .vh-c-old .vh-c-q{color:#94a4ba;}
         #voter-hub .vh-c-sub{font-family:'Barlow',sans-serif;font-size:0.8rem;line-height:1.4;color:#8499b6;margin-top:0.3rem;}
         #voter-hub .vh-c-new .vh-c-sub{color:#cdd9ec;}
         #voter-hub .vh-c-vs{display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;
