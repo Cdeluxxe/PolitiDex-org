@@ -17570,7 +17570,7 @@
               <div class="flex-1 min-w-0">
                 <h3 class="font-display text-3xl md:text-4xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(59,130,246,0.3);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1">A place to <strong class="text-blue-200">discover &amp; quick-add</strong> — every <strong class="text-blue-200">➕ Add to My Team</strong> here drops a pick into your one team up top.</p>
+                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1"><strong class="text-blue-200">Quick overview</strong> of your races &amp; who holds each seat now — <strong class="text-blue-200">➕ Add to My Team</strong> drops a pick into your one team up top, or tap <strong class="text-emerald-300">“See full list”</strong> on any race to research every candidate in <strong class="text-white">Relevant to Me</strong> below.</p>
                 <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
@@ -46718,7 +46718,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         html += '<span class="relevant-sw-icon">' + def.icon + '</span>';
         html += '<span class="relevant-sw-text">';
         html += '<span class="relevant-sw-name">' + def.label + '</span>';
-        if (hint) html += '<span class="relevant-sw-hint">' + esc(hint) + '</span>';
+        if (hint) html += '<span class="relevant-sw-hint">' + _relTxt(hint) + '</span>';
         html += '</span>';
         html += '<span class="relevant-sw-count">' + pids.length + '</span>';
         html += _chevronWrapped('relevant-sw-chevron-wrap', 'relevant-sw-chevron');
@@ -48155,7 +48155,49 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       Object.keys(picked).forEach(function(pid) { var g = picked[pid]; (officeGroups[g] = officeGroups[g] || []).push(pid); });
       if (relevantCountBadge) relevantCountBadge.textContent = Object.keys(picked).length;
       var ctx = { focused: true, state: 'Utah', houseDist: '', senateDist: '', lowerDist: '', levelExtras: null };
-      relevantGrid.innerHTML = (typeof _renderRelevantTree === 'function') ? _renderRelevantTree(officeGroups, ctx) : '';
+      // Try the full grouped tree first; if IT throws (the exact failure mode that
+      // once blanked the whole section), drop to a dependency-light flat grid so a
+      // located voter is GUARANTEED to see their cards rather than an empty section.
+      try {
+        relevantGrid.innerHTML = (typeof _renderRelevantTree === 'function') ? _renderRelevantTree(officeGroups, ctx) : _renderRelevantFlatGrid(officeGroups);
+      } catch (e) {
+        try { console.warn('renderRelevantToMe: tree failed in fallback, using flat grid —', e); } catch (_) {}
+        relevantGrid.innerHTML = _renderRelevantFlatGrid(officeGroups);
+      }
+    }
+
+    // Absolute last-resort renderer: a plain office-grouped card grid that leans on
+    // NONE of the tree's accordion/precision/coverage/statewide helpers — only the
+    // shared person-card shell, with every card wrapped so one bad record can't take
+    // the grid down. Guarantees the section is never left blank for a located voter.
+    function _renderRelevantFlatGrid(officeGroups) {
+      var order = ['president', 'cabinet', 'senator', 'representative', 'governor', 'state_senator', 'state_rep', 'local', 'candidate', 'other'];
+      var keys = Object.keys(officeGroups || {});
+      keys.sort(function(a, b) {
+        var ia = order.indexOf(a), ib = order.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
+      var out = '';
+      keys.forEach(function(gk) {
+        var pids = officeGroups[gk] || [];
+        if (!pids.length) return;
+        var def = (typeof _RELEVANT_OFFICE_DEFS !== 'undefined' && _RELEVANT_OFFICE_DEFS[gk]) || { label: gk, icon: '🏛' };
+        out += '<div class="browse-type-group expanded" id="relevant-browse-group-' + gk + '" style="margin-bottom:0.6rem;">';
+        out += '<div class="browse-type-header" style="cursor:default;">';
+        out += '<div class="browse-type-title">';
+        out += '<div class="browse-type-icon" style="background:' + (def.bg || 'rgba(59,130,246,0.2)') + ';">' + def.icon + '</div>';
+        out += '<span class="browse-type-name">' + def.label + '</span>';
+        out += '</div>';
+        out += '<span class="browse-type-count">' + pids.length + (pids.length === 1 ? ' option' : ' options') + '</span>';
+        out += '</div>';
+        out += '<div class="browse-type-body" style="max-height:none;"><div class="browse-type-inner">';
+        out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">';
+        (typeof _sortInOfficeFirst === 'function' ? _sortInOfficeFirst(pids) : pids).forEach(function(pid) {
+          try { out += _renderRelevantPersonCard(pid); } catch (_) {}
+        });
+        out += '</div></div></div></div>';
+      });
+      return out;
     }
 
     (function() {
