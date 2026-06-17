@@ -46105,6 +46105,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return parts.filter(Boolean).join(' ').toLowerCase();
     }
 
+    // Does this politician's NAME match every search term? Each term must be the
+    // start of some name token (case-insensitive), so "lee" matches the "Lee" in
+    // "Mike Lee" and "Trevor Lee", "mc" matches "McConnell", and "mike lee" matches
+    // both tokens in any order — but a stray "lee" buried in a bio, district or
+    // issue never counts. This token-prefix rule is what makes a name search feel
+    // precise and predictable: type a name and you get people with that name.
+    function _browseNameMatch(d, terms) {
+      if (!d || !d.name) return false;
+      var tokens = String(d.name).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+      if (!tokens.length) return false;
+      for (var i = 0; i < terms.length; i++) {
+        var term = terms[i];
+        var hit = false;
+        for (var j = 0; j < tokens.length; j++) {
+          if (tokens[j].indexOf(term) === 0) { hit = true; break; }
+        }
+        if (!hit) return false;
+      }
+      return true;
+    }
+
     // Normalize a free-form party string ('R', 'D', 'I (D caucus)', 'Ind.',
     // 'I→R', etc.) down to a single bucket the Party filter can match against.
     function _browsePartyKey(d) {
@@ -46212,20 +46233,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         pids = pids.filter(function(pid) { return _myPoliticians.has(pid); });
       }
 
+      window._browseNameScoped = false;
       if (search) {
-        // Multi-term AND search: every word the visitor types must appear
-        // somewhere in the politician's expanded search text. Lets "utah senator"
-        // or "massie second amendment" narrow precisely instead of needing an
-        // exact phrase.
+        // Name-priority search. Typing a name should surface people with that
+        // name — not everyone who merely mentions the term in a bio, district or
+        // issue. So we first look for politicians whose NAME matches every typed
+        // term (token-prefix, case-insensitive: "lee" → Mike Lee / Trevor Lee,
+        // "tre lee" → Trevor Lee). When any name matches, we scope the results to
+        // those name matches only, dropping the bio/issue/party false positives.
+        // Only when NOTHING matches by name (e.g. "utah senator", "second
+        // amendment") do we fall back to the broader multi-term AND search across
+        // every searchable field, so those descriptive queries still work.
         var terms = search.split(/\s+/).filter(Boolean);
-        pids = pids.filter(function(pid) {
-          var hay = _browseSearchHay(CMP_DATA[pid]);
-          if (!hay) return false;
-          for (var t = 0; t < terms.length; t++) {
-            if (hay.indexOf(terms[t]) === -1) return false;
-          }
-          return true;
+        var nameMatches = pids.filter(function(pid) {
+          return _browseNameMatch(CMP_DATA[pid], terms);
         });
+        if (nameMatches.length > 0) {
+          pids = nameMatches;
+          window._browseNameScoped = true;
+        } else {
+          pids = pids.filter(function(pid) {
+            var hay = _browseSearchHay(CMP_DATA[pid]);
+            if (!hay) return false;
+            for (var t = 0; t < terms.length; t++) {
+              if (hay.indexOf(terms[t]) === -1) return false;
+            }
+            return true;
+          });
+        }
       }
       if (office) pids = pids.filter(function(pid) { return _chubOfficeMatch(pid, office); });
       if (party) pids = pids.filter(function(pid) { return _browsePartyKey(CMP_DATA[pid]) === party; });
@@ -46269,7 +46304,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var _matchCue = window._alignBrowseSortActive
           ? ' · <span style="color:#5eead4;font-weight:700;">🎯 Best match for you first</span>'
           : '';
-        browseCountLabel.innerHTML = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found' + _matchCue;
+        var _nameCue = (window._browseNameScoped && search)
+          ? ' · <span style="color:#fbbf24;font-weight:700;">🔍 Name matches only</span>'
+          : '';
+        browseCountLabel.innerHTML = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found' + _nameCue + _matchCue;
       }
 
       if (pids.length > 0) {
