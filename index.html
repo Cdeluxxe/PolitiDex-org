@@ -6138,6 +6138,37 @@
       align-items: stretch;
       margin-bottom: 1rem;
     }
+    /* Compact focus label above the 6-slot grid — frames the slots as the action. */
+    .myteam-slots-focus-label {
+      display: flex; align-items: center; gap: 0.55rem;
+      margin: 0.25rem 0 0.85rem; padding: 0.5rem 0.85rem;
+      border-radius: 0.7rem; border: 1px dashed rgba(245,200,66,0.4);
+      background: rgba(245,158,11,0.06);
+    }
+    .myteam-slots-focus-ico { font-size: 1.05rem; line-height: 1; flex: none; }
+    .myteam-slots-focus-text {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem;
+      letter-spacing: 0.02em; color: #f3d9a4; line-height: 1.35;
+    }
+    .myteam-slots-focus-text strong { color: #ffe9c2; font-weight: 700; }
+    /* Labeled divider between the primary My Voting Team builder and the supporting
+       Key Races / Relevant to Me sections that feed it. */
+    .myteam-feeder-divider {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin: 0.5rem 0 1.4rem;
+    }
+    .myteam-feeder-divider__line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(245,200,66,0) 0%, rgba(245,200,66,0.35) 50%, rgba(245,200,66,0) 100%);
+    }
+    .myteam-feeder-divider__label {
+      flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #cbb574; white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .myteam-feeder-divider__label { font-size: 0.64rem; letter-spacing: 0.06em; white-space: normal; text-align: center; }
+    }
     @media (max-width: 1023px) {
       .myteam-slots-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -6174,6 +6205,28 @@
     /* "Manage full team" round-trip link on supporting discovery sections */
     .pdx-back-to-team { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.32); border-radius: 999px; padding: 0.4rem 0.85rem; min-height: 36px; transition: background 0.2s, border-color 0.2s, color 0.2s; text-decoration: none; }
     .pdx-back-to-team:hover { color: #fff; background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.55); }
+    /* Prominent, consistent variant of the "↑ Manage full team in My Voting Team"
+       link used in the Key Races and Relevant to Me section headers. A filled amber
+       pill so the path UP to the one builder is the most eye-catching CTA in each
+       supporting section — reinforcing My Voting Team as the page's main destination. */
+    .pdx-back-to-team--strong {
+      font-size: 0.8rem; padding: 0.62rem 1.2rem; min-height: 44px; color: #1a1206;
+      background: linear-gradient(135deg, #ffe486, #e7b53e); border: 1px solid rgba(245,200,66,0.6);
+      box-shadow: 0 5px 18px rgba(245,200,66,0.28);
+    }
+    .pdx-back-to-team--strong:hover { color: #1a1206; background: linear-gradient(135deg, #ffeca0, #efc257); border-color: rgba(245,200,66,0.9); transform: translateY(-1px); }
+    /* Light "set expectations" guidance banner at the top of Relevant to Me —
+       tells voters this is the research surface and the team is built above. */
+    .rel-research-guide {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      margin: 0 0 0.95rem; padding: 0.55rem 0.85rem;
+      border-radius: 0.7rem; border-left: 3px solid rgba(245,200,66,0.55);
+      background: rgba(245,158,11,0.07);
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem;
+      letter-spacing: 0.01em; color: #d6e3f5; line-height: 1.4;
+    }
+    .rel-research-guide strong { color: #fff; font-weight: 700; }
+    .rel-research-guide__team { color: #fcd34d !important; }
     /* ── "Done researching?" closing bridge — the end-of-section hand-off from
        Relevant to Me (research) back up to My Voting Team (the one builder). Amber
        to match the team theme and read as the primary next move once browsing is
@@ -15623,7 +15676,7 @@
          could run wide enough to wrap awkwardly or nudge their count badges
          off-line on a phone. Keep them bold yet contained, and let the
          header rows wrap cleanly with a little vertical gap. */
-      #myteam-selected-panel .font-display.text-3xl,
+      #myteam-selected-panel .font-display,
       #keyraces-panel .font-display,
       #relevant-section .font-display.text-2xl { line-height: 1.05 !important; overflow-wrap: anywhere; }
       #myteam-count-badge, #relevant-count-badge { white-space: nowrap; }
@@ -17492,16 +17545,21 @@
       </div>
 
       <!-- ── MY VOTING TEAM / BUILD YOUR TEAM Builder ── -->
-      <div id="my-politicians" class="mb-10 animate-on-scroll" style="transition-delay:0.08s; scroll-margin-top: 80px;">
-        <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══ -->
-        <div id="myteam-selected-panel" class="mb-6">
-          <div class="bg-gradient-to-br from-amber-900/22 via-navy-800/80 to-navy-900/90 border-2 border-amber-500/30 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(245,158,11,0.08);">
+      <div id="my-politicians" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.08s; scroll-margin-top: 80px;">
+        <!-- ═══ MY TEAM — 6-Slot Ballot Position Builder ═══
+             This is the page's PRIMARY destination — the one place voters build and
+             finalize their slate. It deliberately carries the heaviest visual weight
+             of the three sections (thickest border, strongest amber glow, a "primary"
+             ribbon), so the supporting Key Races (overview) and Relevant to Me
+             (research) panels below read as feeding into it. -->
+        <div id="myteam-selected-panel" class="mb-6 myteam-primary-hub">
+          <div class="bg-gradient-to-br from-amber-900/30 via-navy-800/85 to-navy-900/95 border-2 border-amber-500/55 rounded-3xl p-6 md:p-9" style="box-shadow: 0 18px 60px rgba(0,0,0,0.45), 0 0 60px rgba(245,158,11,0.16), inset 0 0 0 1px rgba(245,200,66,0.08);">
             <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
               <div class="flex items-center gap-3">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
                 <div>
-                  <div class="font-condensed font-700 text-xs uppercase text-amber-200/80" style="letter-spacing:0.2em;margin-bottom:3px;">★ Your Final Team · The Main Builder — Build &amp; Manage Here</div>
-                  <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
+                <div class="inline-flex items-center gap-1.5 font-condensed font-700 text-xs uppercase rounded-full px-3 py-1 mb-2" style="letter-spacing:0.16em;color:#1a1206;background:linear-gradient(135deg,#ffe486,#e7b53e);box-shadow:0 4px 14px rgba(245,200,66,0.3);">★ The Main Builder — Build &amp; Finalize Here</div>
+                  <h3 class="font-display text-4xl md:text-5xl tracking-wider text-amber-300 uppercase" style="line-height:1.05;text-shadow:0 0 36px rgba(245,158,11,0.4);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
                   <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">The one place to fill every seat on your ballot — choose the person who earns each office on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
                   <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
                 </div>
@@ -17597,7 +17655,12 @@
                  picks are made per office. Populated by _renderTeamOfficeSummary(). -->
             <div id="myteam-office-summary" class="myteam-office-summary" style="display:none;"></div>
 
-            <!-- 6-Slot Position Grid -->
+            <!-- 6-Slot Position Grid — the focal point of the whole page. A compact
+                 label marks it as the thing to fill so the slots read as the action. -->
+            <div class="myteam-slots-focus-label">
+              <span class="myteam-slots-focus-ico" aria-hidden="true">🗳️</span>
+              <span class="myteam-slots-focus-text">Your 6 ballot slots — <strong>one pick per office.</strong> Add candidates from the sections below; they land here.</span>
+            </div>
             <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
 
             <!-- Compare All + Alignment Action Bar -->
@@ -17628,18 +17691,30 @@
           </div>
         </div>
 
-        <!-- ═══ YOUR KEY RACES — personalized ballot builder (location-aware) ═══ -->
+        <!-- Separator marking the shift from the PRIMARY builder (above) to the two
+             supporting sections that feed it (below). Makes the hierarchy obvious at
+             a glance and frames Key Races + Relevant to Me as ways to fill the slots. -->
+        <div class="myteam-feeder-divider" aria-hidden="true">
+          <span class="myteam-feeder-divider__line"></span>
+          <span class="myteam-feeder-divider__label">↓ Fill your slots — find candidates below</span>
+          <span class="myteam-feeder-divider__line"></span>
+        </div>
+
+        <!-- ═══ YOUR KEY RACES — compact, location-aware overview of your ballot.
+             Deliberately lighter than My Voting Team above: thinner border, softer
+             glow, smaller header — it reads as the quick "what's on my ballot" scan,
+             not a competing builder. ═══ -->
         <div id="keyraces-panel" class="mb-6" style="scroll-margin-top:80px;">
-          <div class="rounded-3xl p-6 md:p-8" style="background:linear-gradient(135deg, rgba(30,58,138,0.20) 0%, rgba(10,15,30,0.92) 55%, rgba(30,41,59,0.85) 100%);border:2px solid rgba(96,165,250,0.30);box-shadow:0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(59,130,246,0.08);">
+          <div class="rounded-2xl p-5 md:p-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.14) 0%, rgba(10,15,30,0.9) 60%, rgba(30,41,59,0.8) 100%);border:1px solid rgba(96,165,250,0.22);box-shadow:0 6px 26px rgba(0,0,0,0.3);">
             <!-- Header -->
             <div class="flex items-start gap-3 mb-5 flex-wrap">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 32px rgba(59,130,246,0.35);">🗳️</div>
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700/60 flex items-center justify-center text-xl shadow-lg flex-shrink-0" style="box-shadow:0 0 22px rgba(59,130,246,0.28);">🗳️</div>
               <div class="flex-1 min-w-0">
-                <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Overview · Your Races at a Glance</div>
-                <h3 class="font-display text-3xl md:text-4xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(59,130,246,0.3);">Your Key Races</h3>
+                <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Quick Overview · Your Races at a Glance</div>
+                <h3 class="font-display text-2xl md:text-3xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 22px rgba(59,130,246,0.25);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
                 <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1"><strong class="text-blue-200">Quick overview</strong> of your races &amp; who holds each seat now — <strong class="text-blue-200">➕ Add to My Team</strong> drops a pick into your one team up top, or tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research &amp; compare every candidate in <strong class="text-white">Relevant to Me</strong> below.</p>
-                <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
+                <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
 
@@ -17688,12 +17763,19 @@
       <div id="relevant-section" class="mb-10 animate-on-scroll" style="scroll-margin-top:80px; transition-delay:0.1s;">
         <!-- Hidden state overview so JS updates safely -->
         <div id="state-overview-relevant" style="display:none;"></div>
-        <!-- Relevant to Me Section Header — framed as building YOUR team by values & follow-through -->
-        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.18) 0%, rgba(10,15,30,0.5) 55%, rgba(245,200,66,0.06) 100%); border:2px solid rgba(59,130,246,0.28); border-radius:1.25rem; padding:1.35rem 1.5rem; box-shadow:0 8px 34px rgba(0,0,0,0.3), 0 0 26px rgba(59,130,246,0.06);">
+        <!-- Relevant to Me Section Header — a supporting RESEARCH tool: lighter than
+             My Voting Team and clearly framed as "research & quick-add", with the path
+             back up to the one builder kept prominent. -->
+        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.1) 0%, rgba(10,15,30,0.5) 60%, rgba(245,200,66,0.04) 100%); border:1px solid rgba(59,130,246,0.2); border-radius:1.25rem; padding:1.15rem 1.35rem; box-shadow:0 5px 22px rgba(0,0,0,0.28);">
+          <!-- Light top guidance — sets expectations for the section in one line. -->
+          <div class="rel-research-guide">
+            <span aria-hidden="true">🔬</span>
+            <span><strong>Research candidates here</strong>, then build &amp; manage your full team above in <strong class="rel-research-guide__team">My Voting Team</strong>.</span>
+          </div>
           <div class="flex items-center gap-4 flex-wrap">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">🧭</div>
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-xl shadow-lg flex-shrink-0" style="box-shadow:0 0 18px rgba(59,130,246,0.22);">🧭</div>
             <div class="flex-1 min-w-0">
-              <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">② Research &amp; Compare · Your Districts</div>
+              <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">② Research Tool · Compare &amp; Quick-Add</div>
               <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
               <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
               <!-- Compact map entry point + "set via map" indicator, kept right under
@@ -17724,7 +17806,7 @@
             </div>
           </div>
           <!-- Welcoming "how it works" framing: one seat at a time, judged on values & follow-through -->
-          <p class="font-condensed text-sm text-steel-300 tracking-wide mt-4 mb-3" style="line-height:1.55;max-width:48rem;">This is your <strong class="text-white">filtered list of candidates for your specific districts</strong> — research and compare them here, then build your full team above in <strong class="text-amber-300">My Voting Team</strong>. Each office below is one seat: open a race, weigh who truly shares your values — and <strong class="text-gold-300">actually follows through</strong> — then add your pick. No rush: take it one race at a time.</p>
+          <p class="font-condensed text-sm text-steel-300 tracking-wide mt-4 mb-3" style="line-height:1.55;max-width:48rem;">Your <strong class="text-white">filtered list of candidates for your specific districts</strong>. Each office below is one seat: open a race, weigh who truly shares your values — and <strong class="text-gold-300">actually follows through</strong> — then quick-add your pick. No rush: take it one race at a time.</p>
           <div class="flex flex-wrap gap-2">
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#bcd3f5;background:rgba(59,130,246,0.1);border:1px solid rgba(96,165,250,0.28);">🏛️ One pick per office</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#a7f3d0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);">✅ Judged on record &amp; values</span>
@@ -17741,7 +17823,7 @@
             <span><strong style="color:#fcd34d;">★ My Voting Team</strong> = build &amp; finalize your slate (above)</span>
           </div>
           <p class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-top:0.5rem;margin-bottom:0;">Looking for someone outside your districts? <strong style="color:#cbd5e1;">All Politicians</strong> is the complete, unfiltered database.</p>
-          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
+          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
           <!-- Live, district-focused guided status — the section's first-glance
                "where am I, what's my single next step" element. Populated by
                renderRelevantToMe once a location is set; hidden otherwise. -->
@@ -18199,7 +18281,7 @@
                builder up top: a clear round-trip link plus a "this mirrors your
                main team" line so it never reads as a second place to build. -->
           <div style="margin:-0.2rem 0 0.95rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-            <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'})" class="pdx-back-to-team">↑ Manage your full team in My Voting Team</button>
+            <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'})" class="pdx-back-to-team pdx-back-to-team--strong">↑ Manage your full team in My Voting Team</button>
             <span class="font-condensed text-xs text-steel-500 tracking-wide">A quick-reference &amp; share view of the slate you build above.</span>
           </div>
           <!-- Empty state prompt - shown when no picks made -->
