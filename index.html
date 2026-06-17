@@ -6174,6 +6174,49 @@
     /* "Manage full team" round-trip link on supporting discovery sections */
     .pdx-back-to-team { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #fbbf24; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.32); border-radius: 999px; padding: 0.4rem 0.85rem; min-height: 36px; transition: background 0.2s, border-color 0.2s, color 0.2s; text-decoration: none; }
     .pdx-back-to-team:hover { color: #fff; background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.55); }
+    /* ── "Done researching?" closing bridge — the end-of-section hand-off from
+       Relevant to Me (research) back up to My Voting Team (the one builder). Amber
+       to match the team theme and read as the primary next move once browsing is
+       done; deliberately heavier than the inline pill links above it. */
+    .rel-done-cta {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-top: 1.75rem; padding: 1.15rem 1.35rem; border-radius: 1.25rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(245,200,66,0.07) 55%, rgba(10,15,30,0.5) 100%);
+      border: 2px solid rgba(245,158,11,0.4);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.3), 0 0 26px rgba(245,158,11,0.08);
+    }
+    .rel-done-cta__icon {
+      flex: 0 0 auto; width: 48px; height: 48px; border-radius: 0.9rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.12));
+      border: 1px solid rgba(245,158,11,0.45);
+    }
+    .rel-done-cta__body { flex: 1 1 16rem; min-width: 0; display: flex; flex-direction: column; gap: 0.18rem; }
+    .rel-done-cta__eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fcd34d; line-height: 1;
+    }
+    .rel-done-cta__title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.02em;
+      color: #fff; line-height: 1.05;
+    }
+    .rel-done-cta__sub { font-family: 'Barlow', sans-serif; font-size: 0.78rem; color: #e7d3a8; line-height: 1.4; }
+    .rel-done-cta__btn {
+      flex: 0 0 auto; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.92rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: #1a1206;
+      background: linear-gradient(135deg, #ffe486, #e0a82e); border: none;
+      border-radius: 0.85rem; padding: 0.85rem 1.5rem; min-height: 50px;
+      box-shadow: 0 6px 22px rgba(245,200,66,0.4);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .rel-done-cta__btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 10px 30px rgba(245,200,66,0.55); }
+    .rel-done-cta__btn:active { transform: scale(0.99); }
+    @media (max-width: 640px) {
+      .rel-done-cta { padding: 1rem 1.1rem; }
+      .rel-done-cta__btn { width: 100%; justify-content: center; }
+      .rel-done-cta__title { font-size: 1.35rem; }
+    }
     @keyframes myteam-card-in { from { opacity: 0; transform: translateY(16px) scale(0.94); } to { opacity: 1; transform: none; } }
     @keyframes myteam-add-success { 0%{transform:scale(1)} 25%{transform:scale(1.08)} 50%{transform:scale(0.96)} 75%{transform:scale(1.03)} 100%{transform:scale(1)} }
     @keyframes myteam-add-ripple { 0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)} 100%{box-shadow:0 0 0 18px rgba(74,222,128,0)} }
@@ -7778,34 +7821,40 @@
        as a distinct "go deeper / browse everyone" step, clearly separate from the
        blue "compare these candidates" overlay action above it. */
     .kr-fulllist-btn {
-      width: 100%; display: flex; align-items: center; gap: 0.7rem;
-      text-align: left; cursor: pointer; min-height: 48px;
-      padding: 0.65rem 0.95rem; border-radius: 0.85rem;
-      background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(5,150,105,0.06));
-      border: 1.5px solid rgba(52,211,153,0.42);
+      width: 100%; display: flex; align-items: center; gap: 0.8rem;
+      text-align: left; cursor: pointer; min-height: 56px;
+      padding: 0.8rem 1rem; border-radius: 0.95rem;
+      background: linear-gradient(135deg, rgba(16,185,129,0.24), rgba(5,150,105,0.1));
+      border: 2px solid rgba(52,211,153,0.55);
+      box-shadow: 0 4px 18px rgba(16,185,129,0.14);
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .kr-fulllist-btn:hover {
       transform: translateY(-1px);
-      background: linear-gradient(135deg, rgba(16,185,129,0.24), rgba(5,150,105,0.1));
-      border-color: rgba(52,211,153,0.7);
-      box-shadow: 0 6px 20px rgba(16,185,129,0.16);
+      background: linear-gradient(135deg, rgba(16,185,129,0.34), rgba(5,150,105,0.16));
+      border-color: rgba(52,211,153,0.85);
+      box-shadow: 0 8px 26px rgba(16,185,129,0.24);
     }
     .kr-fulllist-btn:active { transform: scale(0.99); }
     .kr-fulllist-ico {
-      flex: 0 0 auto; width: 36px; height: 36px; border-radius: 0.6rem;
-      display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
-      background: rgba(52,211,153,0.16); border: 1px solid rgba(52,211,153,0.4);
+      flex: 0 0 auto; width: 40px; height: 40px; border-radius: 0.65rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+      background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.5);
     }
-    .kr-fulllist-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .kr-fulllist-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.14rem; }
+    .kr-fulllist-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #6ee7b7; line-height: 1;
+    }
     .kr-fulllist-title {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 0.84rem; letter-spacing: 0.04em; text-transform: uppercase;
-      color: #a7f3d0; line-height: 1.1;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.95rem; letter-spacing: 0.03em; text-transform: uppercase;
+      color: #d1fae5; line-height: 1.1;
     }
-    .kr-fulllist-sub { font-family: 'Barlow', sans-serif; font-size: 0.68rem; color: #9fc8b6; line-height: 1.3; }
-    .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.2rem; line-height: 1; }
-    @media (max-width: 380px) { .kr-fulllist-sub { font-size: 0.64rem; } .kr-fulllist-title { font-size: 0.78rem; } }
+    .kr-fulllist-sub { font-family: 'Barlow', sans-serif; font-size: 0.7rem; color: #9fc8b6; line-height: 1.3; }
+    .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.35rem; line-height: 1; }
+    @media (max-width: 380px) { .kr-fulllist-sub { font-size: 0.66rem; } .kr-fulllist-title { font-size: 0.86rem; } }
 
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
@@ -17451,7 +17500,7 @@
               <div class="flex items-center gap-3">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
                 <div>
-                  <div class="font-condensed font-700 text-xs uppercase text-amber-200/80" style="letter-spacing:0.2em;margin-bottom:3px;">★ Your ballot team · build &amp; manage it all here</div>
+                  <div class="font-condensed font-700 text-xs uppercase text-amber-200/80" style="letter-spacing:0.2em;margin-bottom:3px;">★ Your Final Team · The Main Builder — Build &amp; Manage Here</div>
                   <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
                   <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">The one place to fill every seat on your ballot — choose the person who earns each office on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
                   <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
@@ -17586,9 +17635,10 @@
             <div class="flex items-start gap-3 mb-5 flex-wrap">
               <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 32px rgba(59,130,246,0.35);">🗳️</div>
               <div class="flex-1 min-w-0">
+                <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Overview · Your Races at a Glance</div>
                 <h3 class="font-display text-3xl md:text-4xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(59,130,246,0.3);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1"><strong class="text-blue-200">Quick overview</strong> of your races &amp; who holds each seat now — <strong class="text-blue-200">➕ Add to My Team</strong> drops a pick into your one team up top, or tap <strong class="text-emerald-300">“See full list”</strong> on any race to research every candidate in <strong class="text-white">Relevant to Me</strong> below.</p>
+                <p class="font-condensed text-xs text-steel-400 tracking-wide mt-1"><strong class="text-blue-200">Quick overview</strong> of your races &amp; who holds each seat now — <strong class="text-blue-200">➕ Add to My Team</strong> drops a pick into your one team up top, or tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research &amp; compare every candidate in <strong class="text-white">Relevant to Me</strong> below.</p>
                 <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
@@ -17643,7 +17693,7 @@
           <div class="flex items-center gap-4 flex-wrap">
             <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500/60 flex items-center justify-center text-2xl shadow-lg flex-shrink-0" style="box-shadow:0 0 24px rgba(59,130,246,0.25);">🧭</div>
             <div class="flex-1 min-w-0">
-              <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">Build Your Team · Your Ballot</div>
+              <div class="font-condensed font-700 text-xs uppercase text-gold-300" style="letter-spacing:0.2em;margin-bottom:2px;">② Research &amp; Compare · Your Districts</div>
               <h3 class="font-display text-2xl md:text-3xl tracking-wider text-white" style="line-height:1.1;">RELEVANT TO ME <span id="relevant-count-badge" class="font-condensed text-sm font-bold tracking-wider text-blue-400 bg-navy-700/60 border border-white/10 rounded-full px-3 py-0.5 ml-2">0</span></h3>
               <p id="relevant-location-text" class="font-condensed text-sm text-steel-300 tracking-wide mt-1">Set Your Location to see your representatives</p>
               <!-- Compact map entry point + "set via map" indicator, kept right under
@@ -17674,22 +17724,23 @@
             </div>
           </div>
           <!-- Welcoming "how it works" framing: one seat at a time, judged on values & follow-through -->
-          <p class="font-condensed text-sm text-steel-300 tracking-wide mt-4 mb-3" style="line-height:1.55;max-width:48rem;">Each office below is one seat on <strong class="text-white">your team</strong>. Open a race to see who holds it and who's running, then pick the person who truly shares your values — and <strong class="text-gold-300">actually follows through</strong> — not just whoever fills the chair. No rush: take it one race at a time.</p>
+          <p class="font-condensed text-sm text-steel-300 tracking-wide mt-4 mb-3" style="line-height:1.55;max-width:48rem;">This is your <strong class="text-white">filtered list of candidates for your specific districts</strong> — research and compare them here, then build your full team above in <strong class="text-amber-300">My Voting Team</strong>. Each office below is one seat: open a race, weigh who truly shares your values — and <strong class="text-gold-300">actually follows through</strong> — then add your pick. No rush: take it one race at a time.</p>
           <div class="flex flex-wrap gap-2">
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#bcd3f5;background:rgba(59,130,246,0.1);border:1px solid rgba(96,165,250,0.28);">🏛️ One pick per office</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#a7f3d0;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);">✅ Judged on record &amp; values</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#f5d98a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.32);">🤝 Rewards follow-through</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#cbd5e1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">👇 One race at a time</span>
           </div>
-          <!-- How the three browsing surfaces fit together, so voters know where
-               they are and where to go next. Compact, single line on wider screens. -->
-          <div class="rel-section-roles" style="margin-top:0.85rem;display:flex;flex-wrap:wrap;gap:0.4rem 0.85rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.4;">
-            <span><strong style="color:#93c5fd;">Your Key Races</strong> = quick overview of your races &amp; who holds them now</span>
-            <span aria-hidden="true" style="color:#3b4d6b;">•</span>
-            <span><strong style="color:#fff;">Relevant to Me</strong> = your full filtered list — research &amp; build your team here</span>
-            <span aria-hidden="true" style="color:#3b4d6b;">•</span>
-            <span><strong style="color:#cbd5e1;">All Politicians</strong> = the complete, unfiltered database</span>
+          <!-- How the three sections fit together as one journey, so voters always
+               know where they are and where to go next. Compact, wraps on phones. -->
+          <div class="rel-section-roles" style="margin-top:0.85rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.7rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.4;">
+            <span><strong style="color:#93c5fd;">① Key Races</strong> = quick overview</span>
+            <span aria-hidden="true" style="color:#6ee7b7;">→</span>
+            <span><strong style="color:#fff;">② Relevant to Me</strong> = research &amp; compare <em style="color:#6ee7b7;font-style:normal;">(you're here)</em></span>
+            <span aria-hidden="true" style="color:#fcd34d;">→</span>
+            <span><strong style="color:#fcd34d;">★ My Voting Team</strong> = build &amp; finalize your slate (above)</span>
           </div>
+          <p class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-top:0.5rem;margin-bottom:0;">Looking for someone outside your districts? <strong style="color:#cbd5e1;">All Politicians</strong> is the complete, unfiltered database.</p>
           <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
           <!-- Live, district-focused guided status — the section's first-glance
                "where am I, what's my single next step" element. Populated by
@@ -17773,6 +17824,19 @@
 
         <!-- Relevant cards — grouped by type & location -->
         <div id="relevant-browse-grid"></div>
+
+        <!-- End-of-section hand-off: once research is done here, send the voter back
+             up to the one builder to fill any open seats and finalize their slate.
+             The clear closing "where to go next" for the research section. -->
+        <div class="rel-done-cta">
+          <span class="rel-done-cta__icon" aria-hidden="true">⭐</span>
+          <div class="rel-done-cta__body">
+            <span class="rel-done-cta__eyebrow">Done researching?</span>
+            <span class="rel-done-cta__title">Go build &amp; finalize your full team</span>
+            <span class="rel-done-cta__sub">Every candidate you add lands in <strong>My Voting Team</strong> up top — head back to fill any open seats and review your complete 2026 slate.</span>
+          </div>
+          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="rel-done-cta__btn" aria-label="Go up to My Voting Team to build and finalize your team">↑ Go to My Voting Team</button>
+        </div>
       </div>
 
       <!-- Hidden elements for legacy JS compatibility to prevent crashes -->
@@ -50485,8 +50549,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
           '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
           '<span class="kr-fulllist-text">' +
-            '<span class="kr-fulllist-title">See full list for ' + fullListLabel + '</span>' +
-            '<span class="kr-fulllist-sub">Jump to every candidate for this seat in Relevant to Me</span>' +
+            '<span class="kr-fulllist-eyebrow">Research this race →</span>' +
+            '<span class="kr-fulllist-title">See everyone running for ' + fullListLabel + '</span>' +
+            '<span class="kr-fulllist-sub">Compare them all side-by-side in Relevant to Me below</span>' +
           '</span>' +
           '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
         '</button>';
