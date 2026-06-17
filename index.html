@@ -17664,6 +17664,15 @@
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#f5d98a;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.32);">🤝 Rewards follow-through</span>
             <span class="inline-flex items-center gap-1.5 font-condensed text-xs tracking-wide rounded-full px-3 py-1.5" style="color:#cbd5e1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);">👇 One race at a time</span>
           </div>
+          <!-- How the three browsing surfaces fit together, so voters know where
+               they are and where to go next. Compact, single line on wider screens. -->
+          <div class="rel-section-roles" style="margin-top:0.85rem;display:flex;flex-wrap:wrap;gap:0.4rem 0.85rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.4;">
+            <span><strong style="color:#93c5fd;">Your Key Races</strong> = quick overview of your races &amp; who holds them now</span>
+            <span aria-hidden="true" style="color:#3b4d6b;">•</span>
+            <span><strong style="color:#fff;">Relevant to Me</strong> = your full filtered list — research &amp; build your team here</span>
+            <span aria-hidden="true" style="color:#3b4d6b;">•</span>
+            <span><strong style="color:#cbd5e1;">All Politicians</strong> = the complete, unfiltered database</span>
+          </div>
           <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
           <!-- Live, district-focused guided status — the section's first-glance
                "where am I, what's my single next step" element. Populated by
@@ -46926,7 +46935,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         var isLevelOpen = _browseGroupState['relevant-level-' + lvl.key] !== undefined
           ? _browseGroupState['relevant-level-' + lvl.key]
-          : (ctx.focused === true && (lvl.key === 'federal' || lvl.key === 'state'));
+          : ((ctx.focused === true || ctx.defaultView === true) && (lvl.key === 'federal' || lvl.key === 'state'));
         var levelExpandedClass = isLevelOpen ? ' expanded' : '';
 
         html += '<div class="relevant-level relevant-level-' + lvl.key + levelExpandedClass + '" id="relevant-level-group-' + lvl.key + '">';
@@ -47073,6 +47082,90 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } catch (e) {}
     };
 
+    // ── Always-on default slate (no saved location) ─────────────────────────
+    // The section must NEVER disappear behind a "choose your area" wall. When the
+    // voter hasn't picked a location yet we still render a complete, organized
+    // list — every Utah race grouped Federal → State → Local — with a compact
+    // personalization banner on top inviting them to narrow it to their own
+    // districts. Built straight from the curated Key Races rosters (referenced by
+    // ID) plus a sweep of every in-state ballot office, so it can never come up
+    // empty regardless of how individual records spell their state/district.
+    window._renderRelevantDefaultSlate = function() {
+      var relevantGrid = document.getElementById('relevant-browse-grid');
+      var relevantCountBadge = document.getElementById('relevant-count-badge');
+      var relevantLocText = document.getElementById('relevant-location-text');
+      if (!relevantGrid) return;
+
+      var byLoc     = window.KEY_RACES_BY_LOCATION || {};
+      var statewide = window.KEY_RACES_STATEWIDE || [];
+
+      var picked = {};
+      function add(pid, gk) {
+        if (!pid || !CMP_DATA[pid] || picked[pid]) return;
+        picked[pid] = gk;
+      }
+      var RK = { house: 'representative', statesenate: 'state_senator', statehouse: 'state_rep', governor: 'governor', senate: 'senator', president: 'president' };
+      var addRace = function(r, defGk) {
+        var gk = RK[r.raceKey] || defGk;
+        add(r.incumbentPid, gk);
+        (r.incumbentPids || []).forEach(function(p) { add(p, gk); });
+        (r.candidates || []).forEach(function(p) { add(p, gk); });
+      };
+      statewide.forEach(function(r) { addRace(r, 'governor'); });
+      Object.keys(byLoc).forEach(function(loc) { (byLoc[loc] || []).forEach(function(r) { addRace(r, 'representative'); }); });
+
+      // Sweep every Utah ballot-level official/candidate (plus federal executives,
+      // who represent every voter) so the statewide preview is the full field, not
+      // just the curated headline names.
+      var BALLOT = { senator: 1, governor: 1, representative: 1, state_senator: 1, state_rep: 1, local: 1 };
+      Object.keys(CMP_DATA).forEach(function(pid) {
+        var t = _classifyBrowseType(pid);
+        if (t === 'president' || t === 'cabinet') { add(pid, t); return; }
+        if (_getPoliticianState(pid).toLowerCase() !== 'utah') return;
+        if (BALLOT[t]) add(pid, t);
+      });
+
+      var officeGroups = {};
+      Object.keys(picked).forEach(function(pid) { var g = picked[pid]; (officeGroups[g] = officeGroups[g] || []).push(pid); });
+      var total = Object.keys(picked).length;
+      if (relevantCountBadge) relevantCountBadge.textContent = total;
+      window._relevantLastOfficeGroups = officeGroups;
+
+      // No personalized ballot yet → hide the guided next-step banner and the
+      // "why these names" hint (both assume a focused ballot).
+      var _gEl = document.getElementById('relevant-guided-status');
+      if (_gEl) { _gEl.innerHTML = ''; _gEl.style.display = 'none'; }
+      var _relGridHint = document.getElementById('relevant-grid-hint');
+      if (_relGridHint) _relGridHint.style.display = 'none';
+
+      if (relevantLocText) {
+        relevantLocText.innerHTML = '🇺🇸 Showing <strong class="text-blue-300">every Utah race</strong> — federal, statewide &amp; state legislature, grouped by office. ' +
+          '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">Set your area</button> to focus this to your exact districts.';
+      }
+
+      // Compact personalization banner — keeps the full list visible while making
+      // "narrow this to MY districts" a one-tap action right where the list starts.
+      var _areaChips = (typeof window._relevantAreaSwitcher === 'function') ? window._relevantAreaSwitcher(null, { big: false }) : '';
+      var banner =
+        '<div style="margin-bottom:1.1rem;padding:1.05rem 1.15rem;border-radius:1.1rem;background:linear-gradient(135deg,rgba(30,58,138,0.22),rgba(245,200,66,0.05));border:1px solid rgba(59,130,246,0.38);">' +
+          '<div style="display:flex;align-items:baseline;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.35rem;">' +
+            '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.3rem;color:#fff;">📍 Make this your ballot</span>' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;letter-spacing:0.03em;color:#9fb4d4;">Optional — the full list is below either way</span>' +
+          '</div>' +
+          '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.9rem;color:#cbd9ee;line-height:1.5;margin:0 0 0.85rem;max-width:44rem;">Pick your Utah area and this list narrows to <strong style="color:#fff;">your exact U.S. House, State Senate and State House districts</strong> — the people who hold those seats today and the 2026 candidates running for them.</p>' +
+          (_areaChips ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.5rem;margin-bottom:0.75rem;">' + _areaChips + '</div>' : '') +
+          '<button type="button" onclick="window.toggleChangeLocation()" class="font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all shadow-md min-h-[44px]" style="cursor:pointer;">📍 Enter a different location</button>' +
+        '</div>';
+
+      var ctx = {
+        focused: false, defaultView: true, state: 'Utah',
+        houseDist: '', senateDist: '', lowerDist: '',
+        teamSel: (typeof _relevantTeamSelections === 'function') ? _relevantTeamSelections() : null,
+        levelExtras: null
+      };
+      relevantGrid.innerHTML = banner + ((typeof _renderRelevantTree === 'function') ? _renderRelevantTree(officeGroups, ctx) : '');
+    };
+
     // Internal implementation. The public window.renderRelevantToMe wrapper
     // (defined just below) invokes this inside a try/catch so that a single
     // unexpected error can never again leave the section silently stuck on its
@@ -47103,16 +47196,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (_relGridHint) _relGridHint.style.display = window._hasUserLocation ? 'flex' : 'none';
 
       // Until the visitor has actually chosen an area, never present a default
-      // district's ballot as if it were theirs. Show a prominent, ballot-focused
-      // prompt that lets them personalize the section in one tap.
+      // district's ballot as if it were theirs — but DO keep the section fully
+      // visible. Render a complete, organized statewide slate (every Utah race,
+      // grouped Federal → State → Local) with a compact personalization banner on
+      // top, instead of hiding the whole list behind a "choose your area" wall.
       if (!window._hasUserLocation) {
-        if (relevantCountBadge) relevantCountBadge.textContent = '0';
-        if (relevantLocText) relevantLocText.innerHTML = 'Choose your area to personalize this section to your exact ballot.';
-        var _gEl0 = document.getElementById('relevant-guided-status');
-        if (_gEl0) { _gEl0.innerHTML = ''; _gEl0.style.display = 'none'; }
-        relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function')
-          ? window._relevantLocationPrompt()
-          : '';
+        if (typeof window._renderRelevantDefaultSlate === 'function') {
+          window._renderRelevantDefaultSlate();
+        } else {
+          if (relevantCountBadge) relevantCountBadge.textContent = '0';
+          relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function') ? window._relevantLocationPrompt() : '';
+        }
         return;
       }
 
@@ -48035,6 +48129,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var _gElFb = document.getElementById('relevant-guided-status');
       if (_gElFb) { _gElFb.innerHTML = ''; _gElFb.style.display = 'none'; }
       if (!window._hasUserLocation) {
+        // Keep the section visible even on the fallback path — render the same
+        // always-on statewide slate rather than a blank "choose your area" wall.
+        if (typeof window._renderRelevantDefaultSlate === 'function') {
+          try { window._renderRelevantDefaultSlate(); return; } catch (_) {}
+        }
         if (relevantCountBadge) relevantCountBadge.textContent = '0';
         relevantGrid.innerHTML = (typeof window._relevantLocationPrompt === 'function') ? window._relevantLocationPrompt() : '';
         return;
