@@ -6138,17 +6138,21 @@
       align-items: stretch;
       margin-bottom: 1rem;
     }
-    /* Compact focus label above the 6-slot grid — frames the slots as the action. */
+    /* Compact focus label above the 6-slot grid — frames the slots as THE action
+       of the primary builder. Carries real weight (solid amber accent + filled
+       background) so the six ballot seats read as the page's focal point. */
     .myteam-slots-focus-label {
-      display: flex; align-items: center; gap: 0.55rem;
-      margin: 0.25rem 0 0.85rem; padding: 0.5rem 0.85rem;
-      border-radius: 0.7rem; border: 1px dashed rgba(245,200,66,0.4);
-      background: rgba(245,158,11,0.06);
+      display: flex; align-items: center; gap: 0.7rem;
+      margin: 0.5rem 0 1rem; padding: 0.7rem 1rem;
+      border-radius: 0.85rem; border: 1px solid rgba(245,200,66,0.45);
+      border-left: 4px solid #f5c842;
+      background: linear-gradient(135deg, rgba(245,158,11,0.16), rgba(245,158,11,0.05));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    .myteam-slots-focus-ico { font-size: 1.05rem; line-height: 1; flex: none; }
+    .myteam-slots-focus-ico { font-size: 1.25rem; line-height: 1; flex: none; }
     .myteam-slots-focus-text {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem;
-      letter-spacing: 0.02em; color: #f3d9a4; line-height: 1.35;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem;
+      letter-spacing: 0.02em; color: #f6e1b3; line-height: 1.35;
     }
     .myteam-slots-focus-text strong { color: #ffe9c2; font-weight: 700; }
     /* Labeled divider between the primary My Voting Team builder and the supporting
@@ -6458,6 +6462,15 @@
       color: #93a9cb; letter-spacing: 0.015em;
       max-width: 14rem; margin: 0 auto 0.95rem;
     }
+    /* Connection line that names the section a voter fills this seat from, so an
+       empty slot in the primary builder visibly points down to the research list
+       (Relevant to Me) instead of leaving them to find it. */
+    .myteam-empty-find {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.68rem; line-height: 1.3; letter-spacing: 0.04em;
+      color: #cbb574; margin: -0.55rem auto 0.7rem;
+    }
+    .myteam-empty-find strong { color: #fde68a; font-weight: 800; }
     .myteam-empty-cta {
       display: inline-flex; align-items: center; gap: 0.4rem;
       background: linear-gradient(135deg, color-mix(in srgb, var(--slot-color) 22%, transparent), color-mix(in srgb, var(--slot-color) 8%, transparent));
@@ -42842,7 +42855,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       if (complete) {
         if (filled >= 2) actions.push({ label: '⚖️ Compare your team', kind: 'primary', act: compareAct });
-        actions.push({ label: '⭐ View team', kind: 'secondary', act: _scrollToTeamWorkspace });
+        actions.push({ label: '↑ My Voting Team', kind: 'secondary', act: _scrollToTeamWorkspace });
       } else if (nextOpen) {
         actions.push({
           label: '➕ Add your ' + nextOpen.label,
@@ -42854,7 +42867,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         });
         actions.push(filled >= 2
           ? { label: '⚖️ Compare', kind: 'secondary', act: compareAct }
-          : { label: '⭐ Team', kind: 'secondary', act: _scrollToTeamWorkspace });
+          : { label: '↑ My Voting Team', kind: 'secondary', act: _scrollToTeamWorkspace });
       }
       return { count: filled, total: total, complete: complete, actions: actions };
     }
@@ -43694,11 +43707,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="myteam-slot-position" style="background:' + pos.color + '0f;border:1px dashed ' + pos.color + '45;color:' + pos.color + 'cc;">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div class="myteam-slot-scope">' + (typeof _myteamSeatScope === 'function' ? _myteamSeatScope(pos.key) : '') + '</div>' +
         '<div class="myteam-empty-ring" style="width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%, ' + pos.color + '18, rgba(30,53,96,0.06));border:2.5px dashed ' + pos.color + '55;font-size:1.9rem;margin:0.65rem auto 0.7rem;color:' + pos.color + 'b0;transition:all 0.3s;">' + pos.emptyIcon + '</div>' +
-        '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Find Your Match</div>' +
+        '<div class="myteam-empty-tag" style="color:' + pos.color + 'e0;">Open Seat</div>' +
         '<div class="myteam-empty-desc">' + _slotBlurb(pos.key) + '</div>' +
+        '<div class="myteam-empty-find">↓ See who\'s running in <strong>Relevant to Me</strong></div>' +
         '<div class="myteam-empty-cta">' +
           '<svg style="width:0.85rem;height:0.85rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>' +
-          'Choose Who Earns It' +
+          'Fill this seat' +
         '</div>' +
       '</div>';
     }
