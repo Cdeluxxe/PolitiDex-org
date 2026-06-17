@@ -17146,14 +17146,14 @@
             <div class="loc-modal-icon">📍</div>
             <div>
               <div id="loc-modal-title" class="loc-modal-title">Set Your Voting Location</div>
-              <div class="loc-modal-sub">Pick your state, then your city or county — we'll map your exact U.S. House, State Senate &amp; State House districts and the politicians who represent you.</div>
+              <div class="loc-modal-sub">The most accurate way is to search your address on the map — it pinpoints your exact U.S. House, State Senate &amp; State House districts, even for cities split across several seats (like Layton).</div>
             </div>
           </div>
           <div class="loc-modal-fields">
             <div class="flex flex-col gap-1.5">
             <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 1</span> · Select State / Region</label>
             <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
-              
+
                 <option value="">— Set your state —</option>
                 <option value="National">🇺🇸 National (Federal Focus)</option>
                 <option value="Alabama">Alabama</option>
@@ -17210,31 +17210,48 @@
 
             </select>
           </div>
-          
-          <div id="voter-county-wrap" class="flex flex-col gap-1.5">
-            <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 2</span> · City / County</label>
-            <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
-            <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">💡 This is how we pinpoint your districts — your city tells us which U.S. House, State Senate &amp; State House seats are on your ballot.</p>
-          </div>
 
-          <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
-            <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">U.S. House (Congressional) District <span class="text-steel-500 normal-case">(optional)</span></label>
-            <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
-            <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">Don't know your district number? Leave it blank — entering your city above lets us find it for you.</p>
-          </div>
-
-          <!-- ── Utah interactive map option ──────────────────────────────────
-               For Utah, cities like Layton straddle several legislative seats, so
-               a city name alone can't pin the exact district. This opens a visual
-               map where the voter taps their precise State House & State Senate
-               district — the most accurate way to set them. -->
-          <div id="voter-map-trigger-row" class="loc-map-trigger" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDistrictMapModal&&window.openDistrictMapModal();}">
-            <div class="loc-map-trigger-ico" aria-hidden="true">🗺️</div>
-            <div class="loc-map-trigger-text">
-              <div class="loc-map-trigger-title">Select your district on a map</div>
-              <div class="loc-map-trigger-sub">Tap your exact Utah State House &amp; Senate district — best for cities split across seats (e.g. Layton)</div>
+          <!-- ── PRIMARY: address + map ────────────────────────────────────────
+               The recommended, most accurate way to set a location. Cities such as
+               Layton straddle several legislative seats, so a city name alone can't
+               pin the exact district — the map resolves the precise State House &
+               State Senate (and U.S. House) seats from a searched address or a tap.
+               Shown for Utah (the map's coverage) or before a state is picked. -->
+          <div id="voter-map-primary" class="loc-map-primary">
+            <div class="loc-map-primary-badge"><span class="text-blue-300">Recommended</span> · Most accurate</div>
+            <div id="voter-map-trigger-row" class="loc-map-trigger" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDistrictMapModal&&window.openDistrictMapModal();}">
+              <div class="loc-map-trigger-ico" aria-hidden="true">🔍🗺️</div>
+              <div class="loc-map-trigger-text">
+                <div class="loc-map-trigger-title">Search your address on the map</div>
+                <div class="loc-map-trigger-sub">Type your address (or tap the map) to pinpoint your exact U.S. House, State Senate &amp; State House districts</div>
+              </div>
+              <div class="loc-map-trigger-arrow" aria-hidden="true">→</div>
             </div>
-            <div class="loc-map-trigger-arrow" aria-hidden="true">→</div>
+            <p class="loc-map-primary-note">🎯 Some cities are split across multiple districts — using the map gives more precise results than picking a county.</p>
+          </div>
+
+          <!-- ── SECONDARY: manual city / county selector ──────────────────────
+               Kept available for anyone who prefers it, but de-emphasized behind a
+               toggle when the map is on offer, with a note about its lower precision. -->
+          <div id="voter-manual-section" class="loc-manual is-collapsed">
+            <button type="button" id="voter-manual-toggle" class="loc-manual-toggle" onclick="window.toggleManualLocationSection()" aria-expanded="false">
+              <span class="loc-manual-toggle-label">Use city/county instead</span>
+              <span class="loc-manual-toggle-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="loc-manual-fields">
+              <p id="voter-manual-warn" class="loc-manual-warn">⚠️ County-level selection is less precise — some cities are split across several districts. The map above gives exact results.</p>
+              <div id="voter-county-wrap" class="flex flex-col gap-1.5">
+                <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 2</span> · City / County</label>
+                <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
+                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">💡 This is how we pinpoint your districts — your city tells us which U.S. House, State Senate &amp; State House seats are on your ballot.</p>
+              </div>
+
+              <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
+                <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">U.S. House (Congressional) District <span class="text-steel-500 normal-case">(optional)</span></label>
+                <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
+                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">Don't know your district number? Leave it blank — entering your city above lets us find it for you.</p>
+              </div>
+            </div>
           </div>
           </div>
           <div class="loc-modal-foot">
@@ -17267,6 +17284,26 @@
           text-transform:uppercase;color:#d7f5e4;line-height:1.15;}
         .loc-map-trigger-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#8fcfb0;line-height:1.3;margin-top:0.15rem;}
         .loc-map-trigger-arrow{font-size:1.2rem;color:#52d399;flex-shrink:0;}
+
+        /* Primary "address + map" block in the location modal */
+        .loc-map-primary{display:flex;flex-direction:column;gap:0.5rem;}
+        .loc-map-primary-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.12em;
+          text-transform:uppercase;color:#9fc7b6;}
+        .loc-map-primary-note{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#8fcfb0;
+          line-height:1.4;margin:0;}
+
+        /* Secondary "use city/county instead" collapsible selector */
+        .loc-manual{display:flex;flex-direction:column;gap:0.6rem;}
+        .loc-manual-toggle{align-self:flex-start;display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;background:none;border:none;
+          padding:0.1rem 0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.04em;
+          text-transform:uppercase;color:#7596c0;transition:color 0.2s ease;}
+        .loc-manual-toggle:hover{color:#cfe0f7;}
+        .loc-manual-toggle:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;border-radius:0.3rem;}
+        .loc-manual-toggle-caret{font-size:0.7rem;line-height:1;}
+        .loc-manual-fields{display:flex;flex-direction:column;gap:0.85rem;}
+        .loc-manual.is-collapsed .loc-manual-fields{display:none;}
+        .loc-manual-warn{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#fad96a;
+          line-height:1.4;margin:0;}
 
         /* Compact map button under the Relevant-to-Me location line */
         .rel-map-btn{cursor:pointer;color:#a7f3d0;background:rgba(16,185,129,0.1);border:1px solid rgba(52,211,153,0.34);
@@ -17438,6 +17475,10 @@
         .pdx-map-secondary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
           font-size:0.84rem;color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;transition:all 0.2s ease;}
         .pdx-map-secondary:hover{color:#fff;border-color:rgba(255,255,255,0.28);}
+        .pdx-map-manual-link{display:block;width:100%;margin-top:0.65rem;text-align:center;cursor:pointer;background:none;border:none;
+          font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:0.03em;color:#7596c0;
+          text-decoration:underline;text-underline-offset:2px;transition:color 0.2s ease;}
+        .pdx-map-manual-link:hover{color:#cfe0f7;}
         @media (max-width:560px){
           .pdx-map-box{max-height:96vh;border-radius:1rem;}
           .pdx-map-title{font-size:1.3rem;}
@@ -17460,8 +17501,8 @@
           <div class="pdx-map-head">
             <div class="pdx-map-head-ico" aria-hidden="true">🗺️</div>
             <div style="min-width:0;">
-              <div id="pdx-map-title" class="pdx-map-title">Pick Your District</div>
-              <div class="pdx-map-sub">Search your address or tap the map. We'll highlight your <strong style="color:#9fc0ef;">State House</strong> and <strong style="color:#9fc0ef;">State Senate</strong> seats — and set both.</div>
+              <div id="pdx-map-title" class="pdx-map-title">Find Your Districts</div>
+              <div class="pdx-map-sub"><strong style="color:#9fc0ef;">The most accurate way to set your location.</strong> Search your address (or tap the map) and we'll detect your exact <strong style="color:#9fc0ef;">U.S. House</strong>, <strong style="color:#9fc0ef;">State House</strong> and <strong style="color:#9fc0ef;">State Senate</strong> seats — precise even where a city is split across districts.</div>
             </div>
           </div>
           <div class="pdx-map-search">
@@ -17524,6 +17565,7 @@
               <button type="button" id="pdx-map-done" class="pdx-map-done" onclick="window.pdxMapConfirm()" disabled>Use this location</button>
               <button type="button" class="pdx-map-secondary" onclick="window.pdxMapClearSelection()">Clear</button>
             </div>
+            <button type="button" class="pdx-map-manual-link" onclick="window.openManualLocationForm && window.openManualLocationForm()">Prefer to pick by city/county? Use the manual selector</button>
           </div>
         </div>
       </div>
@@ -37766,28 +37808,146 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   };
 
-  window.openLocationModal = function() {
+  window.openLocationModal = function(opts) {
+    opts = opts || {};
+    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
+
+    // ── Map-first routing ────────────────────────────────────────────────────
+    // The address + map picker is the primary, most accurate way to set a location
+    // — it resolves the exact districts even where a city is split across several
+    // seats (like Layton). For Utah (the map's coverage) or a visitor who hasn't
+    // chosen a state yet, open it directly with the address search focused. The
+    // caller can force the manual form instead (the "use city/county instead"
+    // escape hatch, or a Leaflet load failure) via opts.forceForm.
+    if (!opts.forceForm && (!loc.state || loc.state === 'Utah') &&
+        typeof window.openDistrictMapModal === 'function' && typeof L !== 'undefined') {
+      window.openDistrictMapModal();
+      return;
+    }
+
     var form = document.getElementById('change-location-form');
     if (!form) return;
-    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var stateSel = document.getElementById('voter-state-sel');
     var countyInput = document.getElementById('voter-county-input');
-    var countyWrap = document.getElementById('voter-county-wrap');
-    var distWrap = document.getElementById('voter-district-wrap');
     var distSel = document.getElementById('voter-district-sel');
     if (stateSel) stateSel.value = loc.state || '';
     if (countyInput) countyInput.value = loc.city || loc.county || '';
-    // Always show county/city input for full national dynamic support (no Utah-only special casing)
-    if (countyWrap) countyWrap.style.display = 'flex';
-    if (distWrap) distWrap.style.display = (loc.state && loc.state !== 'National') ? 'flex' : 'none';
     if (distSel) distSel.value = loc.district || '';
-    // The interactive map covers Utah legislative districts, so only offer it when
-    // the voter is in Utah (or hasn't picked a state yet on this Utah-focused site).
-    var mapRow = document.getElementById('voter-map-trigger-row');
-    if (mapRow) mapRow.style.display = (!loc.state || loc.state === 'Utah') ? 'flex' : 'none';
+
+    // When the caller explicitly wants the manual selector (came from "use
+    // city/county instead"), expand it and remember that intent for this view so
+    // the layout sync below doesn't re-collapse it.
+    var manualSection = document.getElementById('voter-manual-section');
+    if (manualSection) {
+      if (opts.expandManual) {
+        manualSection.classList.remove('is-collapsed');
+        manualSection.dataset.userToggled = '1';
+      } else {
+        delete manualSection.dataset.userToggled;
+        manualSection.classList.add('is-collapsed');
+      }
+    }
+    window._syncLocationModalLayout();
+
     form.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    if (stateSel) { try { stateSel.focus(); } catch(e) {} }
+    if (opts.expandManual && countyInput) { try { countyInput.focus(); } catch(e) {} }
+    else if (stateSel) { try { stateSel.focus(); } catch(e) {} }
+  };
+
+  // Arrange the location form for the current state: show the primary map card and
+  // collapse the manual selector where the map is available (Utah / no state yet),
+  // or hide the map and expand the manual fields everywhere else. Centralizes the
+  // layout so openLocationModal and voterLocationStateChanged stay in sync.
+  window._syncLocationModalLayout = function() {
+    var loc = window._currentVoterLocation || {};
+    var state = loc.state || '';
+    var mapAvailable = (!state || state === 'Utah');
+
+    var mapPrimary = document.getElementById('voter-map-primary');
+    var manualSection = document.getElementById('voter-manual-section');
+    var manualToggle = document.getElementById('voter-manual-toggle');
+    var manualWarn = document.getElementById('voter-manual-warn');
+    var countyWrap = document.getElementById('voter-county-wrap');
+    var distWrap = document.getElementById('voter-district-wrap');
+
+    if (mapPrimary) mapPrimary.style.display = mapAvailable ? 'flex' : 'none';
+    if (manualToggle) manualToggle.style.display = mapAvailable ? 'inline-flex' : 'none';
+    if (manualWarn) manualWarn.style.display = mapAvailable ? 'block' : 'none';
+
+    // Field visibility mirrors the original rules: nothing until a state is picked,
+    // city only for National, city + congressional district for a real state.
+    if (!state) {
+      if (countyWrap) countyWrap.style.display = 'none';
+      if (distWrap) distWrap.style.display = 'none';
+    } else if (state === 'National') {
+      if (countyWrap) countyWrap.style.display = 'flex';
+      if (distWrap) distWrap.style.display = 'none';
+    } else {
+      if (countyWrap) countyWrap.style.display = 'flex';
+      if (distWrap) distWrap.style.display = 'flex';
+    }
+
+    // Collapse state: the manual block starts collapsed when the map is on offer
+    // (unless the user expanded it), and is always open when there's no map.
+    if (manualSection) {
+      if (mapAvailable) {
+        if (!manualSection.dataset.userToggled) manualSection.classList.add('is-collapsed');
+      } else {
+        manualSection.classList.remove('is-collapsed');
+      }
+    }
+  };
+
+  // Reveal / hide the secondary "use city/county instead" selector.
+  window.toggleManualLocationSection = function() {
+    var sec = document.getElementById('voter-manual-section');
+    if (!sec) return;
+    sec.dataset.userToggled = '1';
+    var collapsed = sec.classList.toggle('is-collapsed');
+    var caret = sec.querySelector('.loc-manual-toggle-caret');
+    var label = sec.querySelector('.loc-manual-toggle-label');
+    var toggle = document.getElementById('voter-manual-toggle');
+    if (caret) caret.textContent = collapsed ? '▾' : '▴';
+    if (label) label.textContent = collapsed ? 'Use city/county instead' : 'Hide city/county selector';
+    if (toggle) toggle.setAttribute('aria-expanded', String(!collapsed));
+    if (!collapsed) {
+      var c = document.getElementById('voter-county-input');
+      if (c) { try { c.focus(); } catch(e) {} }
+    }
+  };
+
+  // Escape hatch from the map modal: open the manual city/county form directly.
+  window.openManualLocationForm = function() {
+    if (typeof window.closeDistrictMapModal === 'function') window.closeDistrictMapModal();
+    window.openLocationModal({ forceForm: true, expandManual: true });
+  };
+
+  // One-shot welcome→ballot handoff, shared by both the location form and the map
+  // modal so a brand-new visitor who sets their location via either path is carried
+  // down to their now-personalized ballot.
+  window._pdxRunWelcomeBallotHandoff = function() {
+    if (!window._pdxWelcomeAwaitingBallot) return;
+    window._pdxWelcomeAwaitingBallot = false;
+    if (!window._hasUserLocation) return;
+    var dest = document.getElementById('voter-hub') || document.getElementById('relevant-section');
+    if (dest) {
+      setTimeout(function() {
+        try { dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { dest.scrollIntoView(); }
+      }, 120);
+    }
+  };
+
+  // Fall back to the address + map picker (its whole purpose is precise district
+  // detection) when automatic detection can't determine a location.
+  window._pdxFallbackToMap = function() {
+    setTimeout(function() {
+      if (typeof window.openDistrictMapModal === 'function' && typeof L !== 'undefined') {
+        window.openDistrictMapModal();
+      } else if (typeof window.openLocationModal === 'function') {
+        window.openLocationModal({ forceForm: true });
+      }
+    }, 350);
   };
 
   window.closeLocationModal = function() {
@@ -37795,23 +37955,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (!form) return;
     form.style.display = 'none';
     document.body.style.overflow = '';
-
-    // Welcome→location handoff: if the picker was opened from the welcome modal's
-    // "Set my location & see my ballot" action and a location is now set, carry the
-    // new visitor down to their personalized ballot so they actually see what they
-    // just unlocked. Strictly one-shot and scoped to that flow — returning users who
-    // simply tweak their location are never auto-scrolled.
-    if (window._pdxWelcomeAwaitingBallot) {
-      window._pdxWelcomeAwaitingBallot = false;
-      if (window._hasUserLocation) {
-        var dest = document.getElementById('voter-hub') || document.getElementById('relevant-section');
-        if (dest) {
-          setTimeout(function() {
-            try { dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { dest.scrollIntoView(); }
-          }, 120);
-        }
-      }
-    }
+    // Welcome→ballot handoff (strictly one-shot and scoped to that flow — returning
+    // users who simply tweak their location are never auto-scrolled).
+    window._pdxRunWelcomeBallotHandoff();
   };
 
   // Close the location modal with the Escape key.
@@ -37846,16 +37992,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
   window.voterLocationStateChanged = function() {
     var stateSel = document.getElementById('voter-state-sel');
-    var countyWrap = document.getElementById('voter-county-wrap');
-    var distWrap = document.getElementById('voter-district-wrap');
     var distSel = document.getElementById('voter-district-sel');
     if (!stateSel) return;
     var state = stateSel.value;
     window._currentVoterLocation.state = state;
-
-    // Show the Utah map option only for Utah (the map's district data is Utah-only).
-    var mapRow = document.getElementById('voter-map-trigger-row');
-    if (mapRow) mapRow.style.display = (!state || state === 'Utah') ? 'flex' : 'none';
 
     // The modal is now the source of truth for the voter's location, so drop any
     // earlier explicit "Key Races" area pick. That stale pick would otherwise keep
@@ -37868,21 +38008,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
       window._hasUserLocation = false;
       try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
-      if (countyWrap) countyWrap.style.display = 'none';
-      if (distWrap) distWrap.style.display = 'none';
     } else if (state === 'National') {
-      if (countyWrap) countyWrap.style.display = 'flex';
-      if (distWrap) distWrap.style.display = 'none';
       window._currentVoterLocation.city = '';
       window._currentVoterLocation.county = '';
       window._currentVoterLocation.district = '';
       window.saveVoterLocation();
     } else {
-      if (countyWrap) countyWrap.style.display = 'flex';
-      if (distWrap) distWrap.style.display = 'flex';
       window._currentVoterLocation.district = (distSel && distSel.value) ? distSel.value.replace(/[^0-9]/g, '') : '';
       window.saveVoterLocation();
     }
+
+    // Re-arrange the modal (map card vs. manual selector, field visibility) for the
+    // newly chosen state.
+    if (typeof window._syncLocationModalLayout === 'function') window._syncLocationModalLayout();
 
     window._triggerLocationReaction();
   };
@@ -38776,14 +38914,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
     
     if (!('geolocation' in navigator)) {
-      window._showToast('Geolocation is not supported by your browser.');
+      window._showToast('Geolocation isn’t available — search your address on the map instead.');
       if (btn) {
         btn.disabled = false;
         btn.innerHTML = oldText;
       }
+      // No browser geolocation: send the voter straight to the precise address + map picker.
+      window._pdxFallbackToMap();
       return;
     }
-    
+
     navigator.geolocation.getCurrentPosition(
       function(pos) {
         window._reverseGeocode(pos.coords.latitude, pos.coords.longitude)
@@ -38801,7 +38941,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               btn.disabled = false;
               btn.innerHTML = oldText;
             }
-            window._showToast('Could not geocode location. Try manual selection.');
+            window._showToast('Couldn’t pinpoint that automatically — search your address on the map for exact districts.');
+            // Detection couldn't resolve districts: open the address + map picker next.
+            window._pdxFallbackToMap();
           });
       },
       function(err) {
@@ -38810,7 +38952,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           btn.disabled = false;
           btn.innerHTML = oldText;
         }
-        window._showToast('Location permission denied or unavailable. Try manual selection.');
+        window._showToast('Location access was declined — search your address on the map for exact districts.');
+        // Declined / unavailable: fall back to the address + map picker rather than
+        // the less-precise county selector.
+        window._pdxFallbackToMap();
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -58778,8 +58923,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!_selected.house && !_selected.senate) return;
       applyToLocation();
       window.closeDistrictMapModal();
+      // Carry a brand-new welcome-flow visitor down to their now-personalized ballot.
+      if (typeof window._pdxRunWelcomeBallotHandoff === 'function') window._pdxRunWelcomeBallotHandoff();
       // Confirmation lands after the modal clears so the highlighted main-page
-      // surfaces are visible behind it.
+      // surfaces are visible behind it. The toast names the city + every detected
+      // district (see _pdxFlashLocationUpdated).
       setTimeout(function(){
         if (typeof window._pdxFlashLocationUpdated === 'function') window._pdxFlashLocationUpdated();
       }, 180);
@@ -58828,8 +58976,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var modal = document.getElementById('district-map-modal');
       if (!modal) return;
       if (typeof L === 'undefined') {
-        // Leaflet failed to load — fall back to the standard location picker.
-        if (typeof window.openLocationModal === 'function') window.openLocationModal();
+        // Leaflet failed to load — fall back to the manual location picker.
+        if (typeof window.openLocationModal === 'function') window.openLocationModal({ forceForm: true });
         return;
       }
       // Seed the selection from any districts already chosen on the map.
@@ -58847,6 +58995,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       setSearchNote(_selected.house || _selected.senate
         ? 'Search a new address, or tap the map to adjust your districts.'
         : 'Type an address to jump straight to your House &amp; Senate districts.');
+
+      // Address search is the primary, most accurate path — focus it on open so the
+      // voter can start typing immediately.
+      setTimeout(function(){
+        var input = document.getElementById('pdx-map-search-input');
+        if (input) { try { input.focus(); } catch(e) {} }
+      }, 120);
 
       // Build the map after the container is visible so Leaflet measures it right.
       setTimeout(function(){
