@@ -17433,10 +17433,10 @@
               <div class="flex items-center gap-3">
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
                 <div>
+                  <div class="font-condensed font-700 text-xs uppercase text-amber-200/80" style="letter-spacing:0.2em;margin-bottom:3px;">★ Your ballot team · build &amp; manage it all here</div>
                   <h3 class="font-display text-3xl md:text-4xl tracking-wider text-amber-300 uppercase" style="line-height:1.1;text-shadow:0 0 30px rgba(245,158,11,0.3);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
-                  <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Six offices shape your daily life — U.S. Senate, U.S. House, Governor, State Senate, State House Rep &amp; Local Office. Choose the person who earns each one, not just whoever's on the ballot.</p>
+                  <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">The one place to fill every seat on your ballot — choose the person who earns each office on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
                   <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
-                  <p class="font-condensed text-xs sm:text-sm text-purple-200/90 tracking-wide mt-2 flex items-start gap-1.5"><span aria-hidden="true">🎯</span><span>Build it on <strong class="text-white">record and values</strong> — who keeps their promises and matches what you believe — not the letter after their name.</span></p>
                 </div>
               </div>
               <div class="flex gap-2 items-center flex-wrap">
@@ -17450,7 +17450,7 @@
             <!-- Gentle "how to fill your team" guidance — explains the add
                  mechanic in one line so a first-time visitor knows exactly where
                  picks come from. Shown for everyone; it never gets in the way. -->
-            <div class="pdx-hint pdx-hint-amber mb-5">
+            <div id="myteam-howto-hint" class="pdx-hint pdx-hint-amber mb-5">
               <span class="pdx-hint-ico" aria-hidden="true">💡</span>
               <p class="pdx-hint-text"><strong>How to fill a seat:</strong> scroll to <strong>Your Key Races</strong> or <strong>Relevant to Me</strong> below, then tap <strong>➕ Add to My Team</strong> on the candidate who earns it. Each seat holds one pick — swap it anytime. Your team builds up right here as you go.</p>
             </div>
@@ -17468,7 +17468,7 @@
               </div>
               <div class="myteam-progress-meta">
                 <div id="myteam-progress-pips" class="myteam-progress-pips"></div>
-                <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 picks chosen</div>
+                <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 seats filled</div>
               </div>
             </div>
 
@@ -18060,7 +18060,7 @@
               </div>
             </div>
             <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
-              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Picks Chosen</span>
+              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Seats Filled</span>
               <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
                 <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
               </div>
@@ -38092,7 +38092,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var subtextEl = document.getElementById('myteam-subtext');
     if (subtextEl) {
       var slotNames = window.TEAM_POSITIONS.map(function(pos) { return pos.label; }).join(', ');
-      subtextEl.textContent = 'Fill ' + window.TEAM_POSITIONS.length + ' key ballot slots — ' + slotNames;
+      subtextEl.textContent = 'The one place to fill all ' + window.TEAM_POSITIONS.length + ' seats on your ballot — ' + slotNames + '.';
     }
 
     // Keep the Build Your Team header counts in sync with the location's slate.
@@ -43340,7 +43340,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="myteam-slot-actions">' +
           '<button class="myteam-slot-profile-btn" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">📋 Profile</button>' +
           '<button class="myteam-slot-compare-btn ' + (sel ? 'chub-added' : '') + '" onclick="event.stopPropagation();chubToggle(\'' + pid + '\')">' + (sel ? '✓ Comparing' : '⚖️ Compare') + '</button>' +
-          '<button class="myteam-slot-jump-btn" onclick="event.stopPropagation();window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Browse candidates for this position">🔍 Browse</button>' +
+          '<button class="myteam-slot-jump-btn" onclick="event.stopPropagation();window.jumpToRelevantAccordion(\'' + pos.key + '\')" title="Swap this pick — browse the other candidates running for this seat">🔄 Swap</button>' +
         '</div>' +
       '</div>';
     }
@@ -43552,12 +43552,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return;
       }
 
-      // Once the voter is clearly underway (2+ picks) but not yet finished, the
-      // full four-step checklist is just noise — they already know how this works.
-      // Collapse it to a single progress line that names the next open seat (with
-      // its real district when known) and offers a one-tap jump. This is the main
-      // de-cluttering of the builder once building is in motion.
-      if (pickDone && filledCount >= 2 && !teamComplete) {
+      // Once the voter is clearly underway, the full four-step checklist is just
+      // noise — they already know how this works. Collapse it to a single progress
+      // line that names the next open seat (with its real district when known) and
+      // offers a one-tap jump. Triggers as soon as a first pick lands once location
+      // is set (nothing important is lost — the values nudge persists above), or by
+      // the second pick regardless. This is the main de-cluttering of the builder
+      // once building is in motion.
+      if (pickDone && !teamComplete && (filledCount >= 2 || locDone)) {
         var _nextKey = (typeof _myteamFirstOpenOffice === 'function') ? _myteamFirstOpenOffice() : null;
         var _nextLabel = '';
         if (_nextKey && window.TEAM_POSITIONS) {
@@ -44059,6 +44061,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       if (slotsGrid) { slotsGrid.classList.add('is-grouped'); slotsGrid.innerHTML = slotsHtml; }
 
+      // The "how to fill a seat" primer is for first-timers only — once a single
+      // pick exists the voter has clearly found the add mechanic, so hide it to
+      // shorten the section (the biggest scroll saving is on mobile).
+      var howtoHint = document.getElementById('myteam-howto-hint');
+      if (howtoHint) howtoHint.style.display = filledCount >= 1 ? 'none' : '';
+
       // Header completion progress — fill bar + per-slot pips (filled vs open).
       var progressFill = document.getElementById('myteam-progress-fill');
       var progressPips = document.getElementById('myteam-progress-pips');
@@ -44082,8 +44090,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       if (progressLabel) {
         progressLabel.textContent = filledCount >= _teamTotal
-          ? '★ Your team is set — all ' + _teamTotal + ' picks chosen'
-          : filledCount + ' of ' + _teamTotal + ' picks chosen';
+          ? '★ Your team is set — all ' + _teamTotal + ' seats filled'
+          : filledCount + ' of ' + _teamTotal + ' seats filled';
         progressLabel.style.color = filledCount >= _teamTotal ? '#4ade80' : 'rgba(251,191,36,0.92)';
       }
 
@@ -44157,7 +44165,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your team is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> picks reflect your values. <button type="button" onclick="window.openBallotSummary && window.openBallotSummary()" style="background:none;border:none;padding:0;font:inherit;color:#fcd34d;font-weight:800;text-decoration:underline;cursor:pointer;">See, print &amp; share your ballot →</button></span>';
         } else {
           var _open = _tot - filledCount;
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span><strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> picks chosen — just <strong class="myteam-summary-strong">' + _open + '</strong> to go. Tap an open office below to add whoever best represents what you believe.</span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span><strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> seats filled — just <strong class="myteam-summary-strong">' + _open + '</strong> to go. Tap an open office below to add whoever best represents what you believe.</span>';
         }
       }
 
@@ -44182,7 +44190,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var browseSlotsLabel = document.getElementById('myteam-browse-slots-label');
       var browseSlotsBar = document.getElementById('myteam-browse-slots-bar');
-      if (browseSlotsLabel) browseSlotsLabel.textContent = filledCount + '/' + TEAM_POSITIONS.length + ' Picks Chosen';
+      if (browseSlotsLabel) browseSlotsLabel.textContent = filledCount + '/' + TEAM_POSITIONS.length + ' Seats Filled';
       if (browseSlotsBar) browseSlotsBar.style.width = Math.round(filledCount / TEAM_POSITIONS.length * 100) + '%';
 
       myteamBrowseFilter();
