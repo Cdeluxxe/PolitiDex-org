@@ -8087,6 +8087,55 @@
       .kr-funnel__title { font-size: 1.35rem; }
     }
 
+    /* ── COMPACT KEY-RACES OVERVIEW CARD ───────────────────────────────────────
+       Key Races is the lightweight "who represents me" scan that funnels down into
+       Relevant to Me, so each race renders as a slim card: a one-line header
+       (office + district + a small on-ballot pill), one compact officeholder row,
+       three core actions, and a single prominent bridge to the full field below.
+       The heavy hero / score / teaser treatment was retired here to cut vertical
+       weight — that depth now lives in Relevant to Me and the profile. */
+    .kr-race-card { border-radius: 1.1rem; overflow: hidden; border: 1px solid rgba(96,165,250,0.22); background: rgba(10,15,30,0.55); box-shadow: 0 6px 22px rgba(0,0,0,0.26); }
+    .kr-race-head { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .kr-race-chamber { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.18rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+    .kr-race-district { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.02em; color: #fff; line-height: 1; }
+    .kr-head-ballot { margin-left: auto; display: inline-flex; align-items: center; gap: 0.28rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+    .kr-head-ballot.is-now { color: #6ee7b7; background: rgba(16,185,129,0.14); border: 1px solid rgba(52,211,153,0.45); }
+    .kr-head-ballot.is-open { color: #fcd34d; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.45); }
+    .kr-head-ballot.is-future { color: #9fb4d4; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.3); }
+    .kr-race-body { padding: 0.85rem 1rem 0.95rem; }
+
+    /* Compact officeholder row — identity + tenure + the three core actions. */
+    .kr-holder { position: relative; border-radius: 0.9rem; padding: 0.7rem 0.8rem 0.78rem; background: linear-gradient(150deg, rgba(245,200,66,0.13), rgba(10,15,30,0.32)); border: 1px solid rgba(245,200,66,0.4); }
+    .kr-holder + .kr-holder { margin-top: 0.55rem; }
+    .kr-holder.is-pick { border-color: rgba(74,222,128,0.5); background: linear-gradient(150deg, rgba(74,222,128,0.13), rgba(10,15,30,0.32)); }
+    .kr-holder.is-open { border-color: rgba(148,163,184,0.34); background: rgba(30,41,59,0.4); }
+    .kr-holder-top { display: flex; align-items: center; gap: 0.7rem; }
+    .kr-holder-openavatar { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(148,163,184,0.5); background: rgba(30,53,96,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .kr-holder-meta { flex: 1; min-width: 0; }
+    .kr-holder-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; letter-spacing: 0.02em; line-height: 1.05; color: #fff; background: none; border: none; padding: 0; cursor: pointer; text-align: left; overflow-wrap: anywhere; transition: color 0.15s ease; }
+    .kr-holder-name:hover { color: #fff3d6; }
+    .kr-holder-badges { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.16rem; }
+    .kr-holder-inoffice { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1206; background: linear-gradient(135deg, #ffe884, #e0a82e); padding: 0.1rem 0.5rem; border-radius: 999px; }
+    .kr-holder-office { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #fcd34d; line-height: 1.25; margin-top: 0.2rem; font-weight: 600; }
+    .kr-holder-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.55rem; }
+    .kr-holder-status { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.62rem; letter-spacing: 0.02em; color: #cdd9ec; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.3); padding: 0.16rem 0.55rem; border-radius: 999px; }
+    .kr-holder-status.is-future { color: #9fb4d4; }
+    .kr-open-mini { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #cdd9ec; line-height: 1.3; margin-top: 0.22rem; }
+
+    /* Compact action row — Add / Compare / Profile, equal weight, thumb-sized. */
+    .kr-mini-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+    .kr-mini-btn { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 0.28rem; min-height: 40px; padding: 0 0.5rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; color: #bcd3f5; background: rgba(59,130,246,0.1); border: 1px solid rgba(96,165,250,0.32); border-radius: 0.6rem; transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease; }
+    .kr-mini-btn:hover { background: rgba(59,130,246,0.18); border-color: rgba(96,165,250,0.55); }
+    .kr-mini-btn:active { transform: scale(0.97); }
+    .kr-mini-btn.added { color: #6ee7b7; background: rgba(16,185,129,0.14); border-color: rgba(52,211,153,0.5); }
+    .kr-mini-ico, .kr-mini-btn .kr-action-ico { font-size: 0.85rem; line-height: 1; }
+    .kr-mini-add { color: #fbbf24; background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.08)); border-color: rgba(245,158,11,0.5); }
+    .kr-mini-add:hover { background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.12)); border-color: rgba(245,158,11,0.7); }
+    .kr-mini-add.is-on { color: #4ade80; background: linear-gradient(135deg, rgba(74,222,128,0.22), rgba(74,222,128,0.1)); border-color: rgba(74,222,128,0.55); }
+
+    /* Micro-copy line tying each overview card to Relevant to Me below. */
+    .kr-deeper-note { font-family: 'Barlow', sans-serif; font-size: 0.68rem; line-height: 1.4; color: #8fa6c8; margin: 0.55rem 0 0; }
+
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
@@ -15240,7 +15289,7 @@
       .modal-section-title { font-size: 1.02rem !important; }
 
       /* ── 4 · BUTTONS — consistent, thumb-friendly tap targets ──────────── */
-      .kr-action-btn, .myteam-add-btn, .myteam-remove-btn,
+      .kr-action-btn, .kr-mini-btn, .myteam-add-btn, .myteam-remove-btn,
       .chub-add-btn, .rh-reset-btn { min-height: 46px !important; }
 
       /* ── 5 · TEAM BUILDER / MY POLITICIANS — cleaner, less cramped ─────── */
@@ -17979,7 +18028,7 @@
                 <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Quick Overview · Your Races at a Glance</div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 22px rgba(59,130,246,0.25);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-sm text-blue-100/90 tracking-wide mt-1.5" style="line-height:1.5;">A quick overview of <strong class="text-white">your races and who holds them now</strong>. Tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research the full field in <strong class="text-white">Relevant to Me</strong>.</p>
+                <p class="font-condensed text-sm text-blue-100/90 tracking-wide mt-1.5" style="line-height:1.5;">A quick overview of <strong class="text-white">your races and who holds them now</strong>. Tap <strong class="text-emerald-300">“See all candidates”</strong> on any race to research the full field in <strong class="text-white">Relevant to Me</strong>.</p>
                 <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
@@ -18008,7 +18057,7 @@
             </button>
 
             <!-- Race cards injected here -->
-            <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
+            <div id="keyraces-list" class="grid grid-cols-1 gap-4"></div>
 
             <!-- Section-level funnel into Relevant to Me. The per-race cards each
                  carry their own "See everyone running" bridge; this is the single
@@ -50961,6 +51010,80 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
     }
 
+    // ── Compact overview helpers ─────────────────────────────────────────────
+    // Key Races is the lightweight "who represents me" scan that funnels into
+    // Relevant to Me, so these render a slim card instead of the rich hero: a
+    // small ballot pill for the header, one compact officeholder row, and a clean
+    // Add / Compare / Profile action row.
+
+    // Small "on-ballot" status pill for the card header — collapses the old
+    // full-width ballot banner into a single chip so the header stays one line.
+    function _krBallotPill(race) {
+      var tone = _krRaceTone(race);
+      if (tone === 'future') {
+        var b = race.ballot || {};
+        var yr = (String(b.label || race.incumbentNote || '').match(/20\d\d/) || [])[0];
+        return '<span class="kr-head-ballot is-future">🗓️ ' + (yr ? 'Next ' + yr : 'Not on 2026') + '</span>';
+      }
+      if (tone === 'open') return '<span class="kr-head-ballot is-open">🪑 Open · 2026</span>';
+      return '<span class="kr-head-ballot is-now">✓ On 2026 Ballot</span>';
+    }
+
+    // The three core actions for a compact officeholder row: Add to My Team
+    // (primary), Compare and Profile. Reuses the same pick + compare mechanisms as
+    // the rest of the site so picks land in the one 6-slot team.
+    function _krHolderActions(race, pid, d, isPick) {
+      var cmpAdded = (typeof _cmpSelected !== 'undefined' && _cmpSelected.has && _cmpSelected.has(pid));
+      var add = '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="kr-mini-btn kr-mini-add' + (isPick ? ' is-on' : '') + '" aria-label="' + (isPick ? 'Remove ' + d.name + ' from My Team' : 'Add ' + d.name + ' to My Team') + '">' +
+          '<span class="kr-mini-ico">' + (isPick ? '✓' : '➕') + '</span>' + (isPick ? 'On Team' : 'Add') +
+        '</button>';
+      var cmp = '<button onclick="window.keyRacesCompare(this,\'' + pid + '\')" class="kr-mini-btn' + (cmpAdded ? ' added' : '') + '" aria-label="Add ' + d.name + ' to the compare tool">' +
+          '<span class="kr-mini-ico">' + (cmpAdded ? '✓' : '⚖️') + '</span>' + (cmpAdded ? 'Comparing' : 'Compare') +
+        '</button>';
+      var prof = '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-mini-btn" aria-label="Open the full profile for ' + d.name + '">' +
+          '<span class="kr-mini-ico">👤</span>Profile' +
+        '</button>';
+      return '<div class="kr-mini-actions">' + add + cmp + prof + '</div>';
+    }
+
+    // Compact current-officeholder row: small photo, name (→ profile), party + an
+    // "In Office" chip, the office line, a tenure / status pill, and the actions.
+    function _krHolderCompact(race, pid, selectedPid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return '';
+      var isPick = selectedPid === pid;
+      var tenure = _krIncTenure(race, pid);
+      var note = (race.incumbentNotes && race.incumbentNotes[pid]) || race.incumbentNote || '';
+      var future = note && /not on the 2026 ballot|next election|next contested|next up|runs through/i.test(note);
+      var statusPill = note ? '<span class="kr-holder-status' + (future ? ' is-future' : '') + '">' + (future ? '🗓️ ' : '') + note + '</span>' : '';
+      var pills = (tenure || statusPill) ? '<div class="kr-holder-pills">' + tenure + statusPill + '</div>' : '';
+      return '<div class="kr-holder' + (isPick ? ' is-pick' : '') + '">' +
+          '<div class="kr-holder-top">' +
+            _krPhoto(pid, d, '#f5c842') +
+            '<div class="kr-holder-meta">' +
+              '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-holder-name">' + d.name + '</button>' +
+              '<div class="kr-holder-badges"><span class="kr-holder-inoffice">★ In Office</span>' + _krPartyBadge(d.party) + '</div>' +
+              '<div class="kr-holder-office">' + (_krCleanOffice(d.office) || 'Current officeholder') + '</div>' +
+            '</div>' +
+          '</div>' +
+          pills +
+          _krHolderActions(race, pid, d, isPick) +
+        '</div>';
+    }
+
+    // Compact open-seat row for a race with no sitting officeholder.
+    function _krOpenHolder(race) {
+      return '<div class="kr-holder is-open">' +
+          '<div class="kr-holder-top">' +
+            '<div class="kr-holder-openavatar" style="border-color:' + race.color + '88;">🪑</div>' +
+            '<div class="kr-holder-meta">' +
+              '<div class="kr-holder-badges"><span class="kr-holder-status">🪑 Open Seat · 2026</span></div>' +
+              '<div class="kr-open-mini">' + (race.incumbentNote || 'No incumbent on the 2026 ballot — this seat is decided by the candidates below.') + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
     function _krRaceCard(race) {
       var selections = (typeof _ballotLoad === 'function') ? _ballotLoad() : {};
       var selectedPid = selections[race.raceKey];
@@ -50983,7 +51106,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       } else if (_krRaceTone(race) === 'now' || _krRaceTone(race) === 'open') {
         coverStrip = '<div class="kr-cover-strip is-gap">' +
             '<span class="kr-cover-ico">🎯</span>' +
-            '<span class="kr-cover-text">You haven’t added anyone from ' + (race.short || 'this race') + ' yet — pick the officeholder or a candidate below</span>' +
+            '<span class="kr-cover-text">No one on your team for ' + (race.short || 'this race') + ' yet — add the officeholder, or see the full field in Relevant to Me</span>' +
           '</div>';
       }
 
@@ -50995,176 +51118,60 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         : (race.incumbentPid ? [race.incumbentPid] : []);
       incList = incList.filter(function(pid) { return typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]; });
 
-      var holderHtml;
-      if (incList.length) {
-        holderHtml = incList.map(function(pid) { return _krIncumbentCard(race, pid, selectedPid); }).join('');
-      } else {
-        holderHtml =
-          '<div class="kr-incumbent-panel kr-open-panel" style="border-color:' + race.color + '55;">' +
-            '<div style="display:flex;align-items:center;gap:0.9rem;">' +
-              '<div class="kr-open-avatar" style="border-color:' + race.color + '88;">🪑</div>' +
-              '<div style="flex:1;min-width:0;">' +
-                '<span class="kr-open-badge">🪑 Open Seat</span>' +
-                '<div class="font-display text-xl text-white" style="line-height:1.05;margin-top:0.45rem;">' + (race.district || 'Open Seat · 2026') + '</div>' +
-                '<div class="font-condensed" style="font-size:0.74rem;color:#9fb4d4;margin-top:0.18rem;line-height:1.4;">' + (race.incumbentNote || 'No incumbent on the 2026 ballot — this seat is decided by the candidates below.') + '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>';
-      }
+      // Key Races is the quick overview, so each officeholder renders as a compact
+      // identity row (photo + name + party + office + tenure) with the three core
+      // actions — not the rich hero. The deep record lives in Relevant to Me and
+      // the profile, one tap below.
+      var holderHtml = incList.length
+        ? incList.map(function(pid) { return _krHolderCompact(race, pid, selectedPid); }).join('')
+        : _krOpenHolder(race);
 
-      // ── Challengers — everyone running who is NOT the sitting officeholder ───
-      // The incumbent already appears (once) in the hero above, so we never list
-      // them again here. That keeps the "who's running" list clean and secondary.
-      // Only list people we actually have a record for. A candidate id with no
-      // CMP_DATA entry (e.g. a filing referenced before its profile is published)
-      // would otherwise render as an empty fragment under the challenger heading,
-      // leaving the section looking broken — so we drop it and fall back to the
-      // clean "no challengers filed yet" state instead.
+      // ── The field, for the bridge CTA ────────────────────────────────────────
+      // Key Races is the lightweight overview: it shows WHO holds the seat today
+      // and one prominent path to the full field. The challenger roster, the score
+      // strips, the experience rail and the head-to-head compare all live one tap
+      // down in Relevant to Me, so the overview card stays short and scannable. We
+      // still tally the people we have records for so the bridge can name the size
+      // of the field before the voter jumps.
       var challengerPids = race.candidates.filter(function(pid) {
         return incList.indexOf(pid) === -1 && typeof CMP_DATA !== 'undefined' && CMP_DATA[pid];
       });
-      // A "running incumbent" is one who is actually defending the seat in 2026 —
-      // not a retiring officeholder and not an open seat. This drives whether the
-      // people running read as "Challengers" or simply "Candidates".
-      var hasRunningIncumbent = incList.length && !/retir|open seat/i.test(race.incumbentNote || '');
-      var candidateMode = hasRunningIncumbent ? 'challenger' : 'candidate';
+      var fieldCount = incList.length + challengerPids.length;
 
-      // ── Teaser candidates only ───────────────────────────────────────────────
-      // Key Races is the lightweight overview, so each race surfaces just its top
-      // one or two candidates — not the whole field. The rest live one tap away in
-      // Relevant to Me (the research section) via the "+N more" link and the
-      // "See full list" bridge below. Ordering: when the voter has chosen their
-      // issues, the best-aligned candidates float up so the teaser is meaningful;
-      // their own pick (if it's a challenger) is always pinned first so it never
-      // gets hidden behind the fold.
-      var KR_TEASER_MAX = 2;
-      var orderedChallengers = challengerPids.slice();
-      var hasAlignTeaser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0 && typeof _calcAlignmentScore === 'function');
-      if (hasAlignTeaser) {
-        orderedChallengers.sort(function(a, b) {
-          var sa = _calcAlignmentScore(a); var sb = _calcAlignmentScore(b);
-          sa = (sa === null || sa === undefined) ? -1 : sa;
-          sb = (sb === null || sb === undefined) ? -1 : sb;
-          return sb - sa;
-        });
-      }
-      if (selInThisRace && orderedChallengers.indexOf(selInThisRace) > -1) {
-        orderedChallengers = [selInThisRace].concat(orderedChallengers.filter(function(p) { return p !== selInThisRace; }));
-      }
-      var teaserPids = orderedChallengers.slice(0, KR_TEASER_MAX);
-      var hiddenCount = orderedChallengers.length - teaserPids.length;
-      var candHtml = teaserPids.map(function(pid) { return _krCandidateRow(race, pid, selectedPid, candidateMode); }).join('');
-
-      var candLabel = race.candidatesLabel || (hasRunningIncumbent ? 'Challengers Running to Replace Them · 2026' : '2026 Candidates');
-      if (hiddenCount > 0) {
-        candLabel = 'Top ' + teaserPids.length + ' of ' + orderedChallengers.length + ' ' +
-          (hasRunningIncumbent ? 'challengers · 2026' : 'candidates · 2026');
-      }
-
-      // One-tap path to the rest of the field, in the same seat's Relevant-to-Me branch.
-      var moreLink = hiddenCount > 0
-        ? '<button type="button" class="kr-cand-more" onclick="window.keyRacesViewFullList(\'' + race.raceKey + '\')" ' +
-            'aria-label="See ' + hiddenCount + ' more candidate' + (hiddenCount === 1 ? '' : 's') + ' for ' + (race.short || 'this seat') + ' in the Relevant to Me section below">' +
-            '+ ' + hiddenCount + ' more candidate' + (hiddenCount === 1 ? '' : 's') + ' — research the full field' +
-            '<span class="kr-cand-more-arrow" aria-hidden="true">↓</span>' +
-          '</button>'
-        : '';
-
-      var noteHtml = race.extraNote
-        ? '<div class="font-condensed" style="font-size:0.68rem;color:#7596c0;margin-top:0.6rem;font-style:italic;">' + race.extraNote + '</div>'
-        : '';
-      var candSection;
-      if (challengerPids.length) {
-        candSection =
-          '<div class="kr-cand-label">' + candLabel + '</div>' +
-          '<div style="display:flex;flex-direction:column;gap:0.55rem;">' + candHtml + '</div>' +
-          moreLink +
-          noteHtml;
-      } else {
-        // No one else is running yet — show a clean note instead of an empty list.
-        candSection =
-          '<div class="kr-cand-empty"><span class="kr-cand-empty-ico">🗳️</span><span>' +
-            (race.extraNote || 'No 2026 challengers have filed for this seat yet — check back as the field is certified.') +
-          '</span></div>';
-      }
-
-      // Footer contextual button
-      var footer;
-      if (selInThisRace && CMP_DATA[selInThisRace]) {
-        footer =
-          '<button onclick="window.ballotPickCard(\'' + race.raceKey + '\',\'' + selInThisRace + '\')" class="w-full font-condensed font-700 text-sm tracking-wider uppercase rounded-xl transition-all cursor-pointer" style="padding:0.8rem 1rem;background:linear-gradient(135deg,rgba(74,222,128,0.20),rgba(74,222,128,0.08));border:1.5px solid rgba(74,222,128,0.5);color:#4ade80;">' +
-            '✓ Your ' + race.short + ' pick: ' + CMP_DATA[selInThisRace].name + ' — On My Team <span style="opacity:0.7;font-weight:400;">(tap to remove)</span></button>';
-      } else {
-        var hintHtml = _keyRacesHint[race.raceKey]
-          ? '<div class="font-condensed" style="font-size:0.72rem;color:#fbbf24;text-align:center;margin-top:0.5rem;">👆 Tap “Add to My Team” next to your candidate above.</div>' : '';
-        footer =
-          '<button onclick="window.keyRacesHintRace(\'' + race.raceKey + '\')" class="w-full font-condensed font-700 text-sm tracking-wider uppercase rounded-xl transition-all cursor-pointer hover:scale-[1.01]" style="padding:0.8rem 1rem;background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(245,158,11,0.08));border:1.5px solid rgba(245,158,11,0.5);color:#fbbf24;box-shadow:0 4px 18px rgba(245,158,11,0.12);">' +
-            '➕ ' + race.addLabel + '</button>' + hintHtml;
-      }
-
-      // ── "Compare these candidates" CTA — the decision bridge ─────────────────
-      // Everyone running for this seat (officeholder + challengers) that we have a
-      // profile for. When there are two or more, offer a one-tap head-to-head so
-      // the voter weighs them against each other BEFORE committing a pick. The
-      // sub-line gently points at the Alignment Tool's payoff: if they've chosen
-      // their issues we promise a values match; if not, we frame it as weighing
-      // records — and a separate nudge invites them to set issues for a personal fit.
-      var comparePids = (hasRunningIncumbent ? incList : []).concat(challengerPids).filter(function(pid) {
-        return typeof CMP_DATA !== 'undefined' && CMP_DATA[pid];
-      });
-      var compareCta = '';
-      if (comparePids.length >= 2) {
-        var nCmp = comparePids.length;
-        var hasAlign = (typeof window._alignIssueCount === 'function') && window._alignIssueCount() > 0;
-        var cmpSub = hasAlign
-          ? 'See who best matches your values, side-by-side'
-          : 'Weigh their promises &amp; records side-by-side before you pick';
-        compareCta =
-          '<button type="button" onclick="window.keyRacesCompareRace(\'' + comparePids.join(',') + '\')" class="kr-race-compare" aria-label="Compare all ' + nCmp + ' candidates running for ' + (race.short || 'this seat') + ' side by side">' +
-            '<span class="kr-race-compare-ico" aria-hidden="true">⚖️</span>' +
-            '<span class="kr-race-compare-text">' +
-              '<span class="kr-race-compare-title">Compare these ' + nCmp + ' candidates</span>' +
-              '<span class="kr-race-compare-sub">' + cmpSub + '</span>' +
-            '</span>' +
-            '<span class="kr-race-compare-go" aria-hidden="true">›</span>' +
-          '</button>';
-      }
-
-      // ── "See full list for this district" — bridge to Relevant to Me ─────────
-      // Sends the voter from this overview card down to the same seat's full field
-      // in Relevant to Me, where the deeper browse (every candidate, grouped, with
-      // values ranking and other-district exploration) lives. Always offered, so
-      // every race has a clear "show me everyone for this seat" path.
+      // ── "See full list for this district" — the prominent bridge to Relevant to
+      // Me, and this card's primary call to action. It scrolls the voter down to
+      // the same seat's full, filtered candidate list in Relevant to Me, where the
+      // deeper research lives (every candidate, scores, values ranking, compare).
+      // Labelled with the real field size so the voter knows how many candidates
+      // they'll find before they jump.
       var fullListLabel = race.short || 'this seat';
+      var fullListTitle = fieldCount > 0
+        ? 'See all ' + fieldCount + ' candidate' + (fieldCount === 1 ? '' : 's') + ' for ' + fullListLabel
+        : 'See everyone running for ' + fullListLabel;
       var fullListBtn =
         '<button type="button" onclick="window.keyRacesViewFullList(\'' + race.raceKey + '\')" class="kr-fulllist-btn" ' +
           'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
           '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
           '<span class="kr-fulllist-text">' +
-            '<span class="kr-fulllist-eyebrow">Go deeper · Relevant to Me →</span>' +
-            '<span class="kr-fulllist-title">See everyone running for ' + fullListLabel + '</span>' +
-            '<span class="kr-fulllist-sub">Opens this seat’s full candidate list in <strong>Relevant to Me</strong> below — compare them all side-by-side.</span>' +
+            '<span class="kr-fulllist-eyebrow">Go deeper · Relevant to Me ↓</span>' +
+            '<span class="kr-fulllist-title">' + fullListTitle + '</span>' +
+            '<span class="kr-fulllist-sub">Jumps to this seat’s full candidate list in <strong>Relevant to Me</strong> below — compare the whole field &amp; research each one.</span>' +
           '</span>' +
           '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
         '</button>';
 
-      return '<div id="kr-race-' + race.raceKey + '" style="border-radius:1.25rem;overflow:hidden;border:1px solid ' + race.color + '40;background:rgba(10,15,30,0.55);box-shadow:0 8px 30px rgba(0,0,0,0.28);">' +
-        '<div style="padding:0.95rem 1.2rem;background:linear-gradient(135deg,' + race.color + '26,' + race.color + '0a);border-bottom:1px solid ' + race.color + '33;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
-          '<span class="font-condensed font-700" style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;padding:0.2rem 0.62rem;border-radius:999px;">' + race.chamber + '</span>' +
-          '<span class="font-display text-xl md:text-2xl text-white tracking-wide">' + race.district + '</span>' +
+      return '<div id="kr-race-' + race.raceKey + '" class="kr-race-card" style="border-color:' + race.color + '40;">' +
+        '<div class="kr-race-head" style="background:linear-gradient(135deg,' + race.color + '22,' + race.color + '0a);border-bottom-color:' + race.color + '33;">' +
+          '<span class="kr-race-chamber" style="color:' + race.color + ';background:' + race.color + '1f;border:1px solid ' + race.color + '45;">' + race.chamber + '</span>' +
+          '<span class="kr-race-district">' + race.district + '</span>' +
+          _krBallotPill(race) +
         '</div>' +
-        _krBallotBanner(race) +
         coverStrip +
-        '<div style="padding:1.15rem 1.2rem 0.5rem;">' +
+        '<div class="kr-race-body">' +
           '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
           holderHtml +
-        '</div>' +
-        '<div style="padding:0.5rem 1.2rem 1.2rem;">' +
-          _krExperienceField(race, incList, challengerPids) +
-          candSection +
-          (compareCta ? '<div style="margin-top:0.9rem;">' + compareCta + '</div>' : '') +
-          '<div style="margin-top:0.6rem;">' + fullListBtn + '</div>' +
-          '<div style="margin-top:0.85rem;">' + footer + '</div>' +
+          '<div style="margin-top:0.75rem;">' + fullListBtn + '</div>' +
+          '<p class="kr-deeper-note">👇 More detail &amp; every candidate for this seat are in <strong style="color:#bcd3f5;">Relevant to Me</strong> below.</p>' +
         '</div>' +
       '</div>';
     }
