@@ -33620,14 +33620,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <!-- Accountability of Truth Score (purple) — the headline objective rating, shown first -->
       <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
 
-      <!-- Promise score bar -->
+      <!-- Promise score bar — the FORMAL, in-office score (votes, bills,
+           official promises), deliberately framed distinctly from the purple
+           Accountability of Truth Score (integrity / words vs. actions) above. -->
       ${scoreNum !== null ? `<div style="margin-bottom:1.25rem;">
-        <div style="display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.35rem;">
-          <span>Promise Score</span><span style="color:${scoreColor};">${scoreText}</span>
+        <div style="display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">
+          <span>📋 Promise % · In-office record</span><span style="color:${scoreColor};">${scoreText}</span>
         </div>
         <div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${scoreNum}%;background:${barColor};border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
         </div>
+        <p style="font-size:0.64rem;color:#7e92b4;line-height:1.45;margin:0.4rem 0 0;">What ${p.name ? p.name.split(' ')[0] : 'they'} did with their power — votes, bills and official promises kept. The purple <strong style="color:#c4b5fd;">Accountability Score</strong> above measures something different: whether their words match their actions.</p>
       </div>` : ''}
 
       <!-- Biography & signature quote — who they are, read early so the
@@ -34309,7 +34312,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // accountability category key). Curated news from the SPOTLIGHT_DATA map
         // and on-document entries without an impact are shown as context. Falls
         // back to a clean, honest empty state when there is nothing to show.
-        var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight</div>';
+        var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight · Accountability</div>' +
+          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality that feed the <strong style="color:#c4b5fd;">Accountability Score</strong>, separate from the in-office Promise % record above.</p>';
         var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
         var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 
@@ -44152,6 +44156,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var base = (typeof _pdxCleanOfficeLine === 'function') ? _pdxCleanOfficeLine(d, null) : (d.office || '');
       return base || (d.office || '');
     }
+    // Accountability of Truth Score for the dual-score header — the INTEGRITY
+    // read (consistency between words and actions, public conduct), distinct
+    // from the formal in-office Promise %. Returns the analysis object only when
+    // there is enough verified record to show an honest number; null otherwise,
+    // so the card can fall back to a "builds as record grows" state.
+    function _medAcctScore(id, p) {
+      var a = (p && p.accountability) || null;
+      if (!(a && typeof a.overallScore === 'number') && typeof window._acctEnsureScore === 'function') {
+        try { a = window._acctEnsureScore(id, p) || a; } catch (e) {}
+      }
+      var explainable = (typeof window._pdxScoreExplainable === 'function') ? window._pdxScoreExplainable(p, id) : true;
+      return (a && typeof a.overallScore === 'number' && explainable) ? a : null;
+    }
 
     window.openMediumModal = function(id, ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
@@ -44185,15 +44202,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── Body sections ──
       var html = '';
 
-      // Snapshot: Promise Score + accountability signal, side by side.
-      var acct = (hasScore && typeof window._acctCardBadge === 'function') ? window._acctCardBadge(id) : '';
-      html += '<div class="pdx-med-snapshot">' +
-          '<div class="pdx-med-score" style="color:' + scCol + ';">' +
-            '<span class="pdx-med-score-num" style="text-shadow:0 0 16px ' + scCol + '40;">' + (hasScore ? sc + '<span style="font-size:0.55em;">%</span>' : '—') + '</span>' +
-            '<span class="pdx-med-score-lab">' + (hasScore ? 'Promise Score' : 'No record yet') + '</span>' +
-          '</div>' +
-          (acct ? '<div class="pdx-med-acct">' + acct + '</div>' : '') +
-        '</div>';
+      // ── Dual score header — two deliberately distinct metrics ────────────
+      // Promise %      = the FORMAL, in-office record — what they did with their
+      //                  power (votes, bills, official promises). Framed gold.
+      // Accountability = the INTEGRITY read — consistency between words and
+      //                  actions and conduct beyond formal power (statements,
+      //                  rhetoric vs. reality). Framed purple. The contrasting
+      //                  color + label + one-line descriptor make it instantly
+      //                  clear the two scores measure different things.
+      var acctA = _medAcctScore(id, p);
+      var acctHasScore = !!(acctA && typeof acctA.overallScore === 'number');
+      var acctS = acctHasScore ? acctA.overallScore : null;
+      var acctRatingTxt = acctHasScore && acctA.rating ? String(acctA.rating) : '';
+      var acctCol = acctHasScore ? (acctA.color || '#c4b5fd') : '#9fb4d4';
+      var safeId = _medEsc(id);
+      html += '<div class="pdx-med-scores">' +
+          '<button type="button" class="pdx-med-sc pdx-med-sc--promise" onclick="window._mediumViewFull()" ' +
+            'title="Promise % — the formal, in-office score: what this official actually did with their power (votes, bills, official promises kept). Tap for the full record.">' +
+            '<span class="pdx-med-sc-tag">📋 In office</span>' +
+            '<span class="pdx-med-sc-num" style="color:' + scCol + ';text-shadow:0 0 16px ' + scCol + '40;">' + (hasScore ? sc + '<span class="pdx-med-sc-pct">%</span>' : '<span class="pdx-med-sc-dash">—</span>') + '</span>' +
+            '<span class="pdx-med-sc-lab">Promise %</span>' +
+            '<span class="pdx-med-sc-desc">' + (hasScore ? 'Votes, bills &amp; promises kept' : 'No voting record yet') + '</span>' +
+          '</button>' +
+          '<button type="button" class="pdx-med-sc pdx-med-sc--acct" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')" ' +
+            'title="Accountability Score — personal integrity: how consistent this official is between their words and their actions, including public statements and conduct outside formal power. Tap for the full analysis.">' +
+            '<span class="pdx-med-sc-tag">🛡️ Integrity</span>' +
+            '<span class="pdx-med-sc-num" style="color:' + acctCol + ';text-shadow:0 0 16px ' + acctCol + '40;">' + (acctHasScore ? acctS + '<span class="pdx-med-sc-pct">%</span>' : '<span class="pdx-med-sc-dash">—</span>') + '</span>' +
+            '<span class="pdx-med-sc-lab">Accountability</span>' +
+            '<span class="pdx-med-sc-desc">' + (acctHasScore ? (acctRatingTxt ? _medEsc(acctRatingTxt) + ' · words vs. actions' : 'Words vs. actions') : 'Builds as record grows') + '</span>' +
+          '</button>' +
+        '</div>' +
+        '<p class="pdx-med-scores-note"><strong>Promise %</strong> = what they did in office · <strong>Accountability</strong> = whether their words match their actions</p>';
 
       // Your Match % breakdown — reuses the shared match bar (tappable → full
       // issue-by-issue breakdown), or a "set up your match" prompt when the
@@ -44223,8 +44262,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '</div>';
       }
 
-      // Record highlights — kept / broken / pending counts plus one
-      // representative tracked promise so the record reads at a glance.
+      // Promise Track Record — the FORMAL ledger that feeds Promise %: kept /
+      // broken / pending counts plus the one or two most telling tracked
+      // promises. Summarized highlights only; the full list is one tap away.
       var proms = (p.promises && p.promises.length) ? p.promises : (Array.isArray(d.promises) ? d.promises : []);
       if (proms.length) {
         var kept = proms.filter(function(r) { return r.verdict === 'kept'; });
@@ -44235,18 +44275,55 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="pdx-med-rc is-broken">✕ ' + broken.length + ' Broken</span>' +
             '<span class="pdx-med-rc is-pending">⏳ ' + pending.length + ' Pending</span>' +
           '</div>';
-        var lead = kept[0] || broken[0] || proms[0];
-        var leadHtml = '';
-        if (lead && lead.title) {
+        // Lead with the strongest contrast available — one kept and one broken —
+        // so the record reads honestly at a glance (max two items).
+        var leads = [];
+        if (kept[0]) leads.push(kept[0]);
+        if (broken[0]) leads.push(broken[0]);
+        if (!leads.length && proms[0]) leads.push(proms[0]);
+        var leadHtml = leads.slice(0, 2).map(function(lead) {
+          if (!lead || !lead.title) return '';
           var lv = lead.verdict || 'pending';
           var lc = lv === 'kept' ? '#4ade80' : lv === 'broken' ? '#f87171' : '#f5c842';
-          leadHtml = '<div class="pdx-med-record-lead" style="border-left-color:' + lc + '88;">' +
+          var lvLab = lv === 'kept' ? '✓ Kept' : lv === 'broken' ? '✕ Broken' : '⏳ Pending';
+          return '<div class="pdx-med-record-lead" style="border-left-color:' + lc + '88;">' +
+              '<div class="pdx-med-record-lead-v" style="color:' + lc + ';">' + lvLab + '</div>' +
               '<div class="pdx-med-record-lead-t">' + _medEsc(lead.title) + '</div>' +
-              (lead.detail ? '<div class="pdx-med-record-lead-d">' + _medEsc(String(lead.detail).slice(0, 150)) + (String(lead.detail).length > 150 ? '…' : '') + '</div>' : '') +
+              (lead.detail ? '<div class="pdx-med-record-lead-d">' + _medEsc(String(lead.detail).slice(0, 130)) + (String(lead.detail).length > 130 ? '…' : '') + '</div>' : '') +
             '</div>';
-        }
+        }).join('');
         html += '<div class="pdx-med-section">' +
-            '<div class="pdx-med-sec-title">📋 Record Highlights</div>' + counts + leadHtml +
+            '<div class="pdx-med-sec-title">📋 Promise Track Record</div>' +
+            '<div class="pdx-med-sec-sub">What they did with their power, in office</div>' +
+            counts + leadHtml +
+          '</div>';
+      }
+
+      // Accountability Spotlight — the INTEGRITY read that feeds the
+      // Accountability Score. Absorbs the old standalone "In the Spotlight"
+      // section: the top flagged drivers (public statements, conduct, rhetoric
+      // vs. record), each marked as strengthening or weighing on the score.
+      // Summarized to the top three; the full analysis is one tap away.
+      var slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+      if (slDrivers.length) {
+        var slRows = slDrivers.slice(0, 3).map(function(it) {
+          var pos = it.impact === 'positive';
+          var c = pos ? '#4ade80' : '#f87171';
+          var sym = pos ? '▲' : '▼';
+          var lab = pos ? 'Strengthens' : 'Weighs on';
+          return '<div class="pdx-med-spot" style="border-left-color:' + c + ';">' +
+              '<div class="pdx-med-spot-h">' +
+                '<span class="pdx-med-spot-impact" style="color:' + c + ';background:' + c + '1a;border-color:' + c + '55;">' + sym + ' ' + lab + '</span>' +
+                (it.date ? '<span class="pdx-med-spot-date">' + _medEsc(it.date) + '</span>' : '') +
+              '</div>' +
+              '<div class="pdx-med-spot-t">' + _medEsc(it.headline) + '</div>' +
+            '</div>';
+        }).join('');
+        html += '<div class="pdx-med-section">' +
+            '<div class="pdx-med-sec-title">🛡️ Accountability Spotlight</div>' +
+            '<div class="pdx-med-sec-sub">Integrity — words vs. actions &amp; public conduct</div>' +
+            slRows +
+            '<button type="button" class="pdx-med-spot-more" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')">View full accountability analysis →</button>' +
           '</div>';
       }
 
@@ -60245,9 +60322,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   .pdx-med-score-num{ font-family:'Bebas Neue',sans-serif; font-size:2.4rem; line-height:0.9; }
   .pdx-med-score-lab{ font-family:'Barlow Condensed',sans-serif; font-size:0.55rem; letter-spacing:0.1em; text-transform:uppercase; color:#7596c0; margin-top:0.22rem; text-align:center; }
   .pdx-med-acct{ flex:1; min-width:0; display:flex; }
-  .pdx-med-section{ margin-bottom:0.95rem; }
+  /* ── Dual score header — Promise % (gold, in-office) vs Accountability
+     (purple, integrity). The contrasting frames make the two metrics read as
+     clearly different measures at a glance. ── */
+  .pdx-med-scores{ display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+  .pdx-med-sc{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:0.1rem; padding:0.7rem 0.55rem 0.75rem; border-radius:0.85rem; cursor:pointer; transition:transform 0.15s, box-shadow 0.2s, border-color 0.2s; font:inherit; }
+  .pdx-med-sc:hover{ transform:translateY(-1px); }
+  .pdx-med-sc--promise{ background:linear-gradient(160deg,rgba(245,200,66,0.14),rgba(245,158,11,0.04)); border:1.5px solid rgba(245,200,66,0.5); }
+  .pdx-med-sc--promise:hover{ box-shadow:0 8px 22px rgba(245,158,11,0.18); border-color:rgba(245,200,66,0.7); }
+  .pdx-med-sc--acct{ background:linear-gradient(160deg,rgba(139,92,246,0.18),rgba(124,58,237,0.05)); border:1.5px solid rgba(167,139,250,0.55); }
+  .pdx-med-sc--acct:hover{ box-shadow:0 8px 22px rgba(124,58,237,0.22); border-color:rgba(167,139,250,0.75); }
+  .pdx-med-sc-tag{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.52rem; letter-spacing:0.1em; text-transform:uppercase; padding:0.08rem 0.45rem; border-radius:999px; }
+  .pdx-med-sc--promise .pdx-med-sc-tag{ color:#f5c842; background:rgba(245,200,66,0.12); border:1px solid rgba(245,200,66,0.34); }
+  .pdx-med-sc--acct .pdx-med-sc-tag{ color:#c4b5fd; background:rgba(139,92,246,0.16); border:1px solid rgba(167,139,250,0.4); }
+  .pdx-med-sc-num{ font-family:'Bebas Neue',sans-serif; font-size:2.5rem; line-height:0.95; margin-top:0.18rem; }
+  .pdx-med-sc-pct{ font-size:0.5em; vertical-align:top; }
+  .pdx-med-sc-dash{ color:#9fb4d4; }
+  .pdx-med-sc-lab{ font-family:'Bebas Neue',sans-serif; font-size:0.95rem; letter-spacing:0.05em; color:#fff; line-height:1; }
+  .pdx-med-sc--promise .pdx-med-sc-lab{ color:#fde9b0; }
+  .pdx-med-sc--acct .pdx-med-sc-lab{ color:#ddd0fb; }
+  .pdx-med-sc-desc{ font-family:'Barlow Condensed',sans-serif; font-size:0.62rem; letter-spacing:0.01em; line-height:1.25; color:#9fb4d4; margin-top:0.2rem; }
+  .pdx-med-scores-note{ font-family:'Barlow Condensed',sans-serif; font-size:0.64rem; line-height:1.45; color:#8294b4; text-align:center; margin:0.55rem 0 0; }
+  .pdx-med-scores-note strong{ color:#cdd9ec; font-weight:700; }
+  .pdx-med-section{ margin:1.05rem 0 0; padding-top:1.05rem; border-top:1px solid transparent; border-image:linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.045) 60%, rgba(255,255,255,0)) 1; }
   .pdx-med-section:last-child{ margin-bottom:0; }
   .pdx-med-sec-title{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:#cdd9ec; margin-bottom:0.45rem; }
+  .pdx-med-sec-sub{ font-family:'Barlow Condensed',sans-serif; font-size:0.66rem; letter-spacing:0.01em; color:#7e92b4; line-height:1.4; margin:-0.3rem 0 0.55rem; }
+  .pdx-med-record-lead-v{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.58rem; letter-spacing:0.07em; text-transform:uppercase; margin-bottom:0.1rem; }
+  /* Accountability Spotlight rows — integrity drivers, ▲ strengthens / ▼ weighs. */
+  .pdx-med-spot{ background:rgba(10,15,30,0.5); border:1px solid rgba(255,255,255,0.06); border-left:3px solid rgba(255,255,255,0.25); border-radius:0.6rem; padding:0.55rem 0.65rem; margin-bottom:0.5rem; }
+  .pdx-med-spot-h{ display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.3rem; }
+  .pdx-med-spot-impact{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.55rem; letter-spacing:0.07em; text-transform:uppercase; padding:0.08rem 0.42rem; border-radius:999px; border:1px solid; }
+  .pdx-med-spot-date{ font-family:'Barlow Condensed',sans-serif; font-size:0.6rem; font-weight:600; color:#8294b4; }
+  .pdx-med-spot-t{ font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:0.86rem; line-height:1.3; color:#fff; }
+  .pdx-med-spot-more{ width:100%; margin-top:0.15rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; color:#c4b5fd; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.4); border-radius:0.55rem; padding:0.45rem; cursor:pointer; transition:background 0.18s; }
+  .pdx-med-spot-more:hover{ background:rgba(139,92,246,0.22); }
   .pdx-med-pills{ display:flex; flex-wrap:wrap; gap:0.35rem; }
   .pdx-med-pill{ display:inline-block; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:0.2rem 0.6rem; font-family:'Barlow Condensed',sans-serif; font-size:0.72rem; color:#9fb4d4; }
   .pdx-med-record-counts{ display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem; }
@@ -60276,6 +60385,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdx-med-overlay{ padding:0; align-items:flex-end; }
     .pdx-med-panel{ max-width:none; max-height:92vh; border-radius:1.1rem 1.1rem 0 0; border-bottom:0; }
     .pdx-med-name{ font-size:1.4rem; }
+    /* Keep the two scores side-by-side but give them room to breathe and
+       trim the number so nothing crowds on a narrow screen. */
+    .pdx-med-content{ padding:0.85rem 0.85rem 1rem; }
+    .pdx-med-scores{ gap:0.45rem; }
+    .pdx-med-sc{ padding:0.6rem 0.4rem 0.65rem; }
+    .pdx-med-sc-num{ font-size:2.1rem; }
+    .pdx-med-sc-desc{ font-size:0.58rem; }
+    .pdx-med-section{ margin-top:0.95rem; padding-top:0.95rem; }
+    .pdx-med-spot-t{ font-size:0.82rem; }
   }
 
   /* ═══════ MY VOTING TEAM — compact mobile board (≤640px) ═══════
