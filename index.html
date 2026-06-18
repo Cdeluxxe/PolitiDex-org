@@ -105,6 +105,8 @@
           }
         });
       }
+      // Drop any cached search text so the freshly-merged profiles re-index.
+      if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
       // Populate DIR_DATA
       if (typeof _populateDirData === 'function') {
         _populateDirData();
@@ -1073,6 +1075,80 @@
       min-height: 36px;
     }
     .browse-clear-btn:hover { background: rgba(248,113,113,0.18); border-color: rgba(248,113,113,0.45); }
+
+    /* ── Search autocomplete dropdown ──────────────────────────── */
+    .browse-suggest {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 60;
+      background: #0c1730;
+      border: 1px solid rgba(245,158,11,0.28);
+      border-radius: 0.85rem;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.55);
+      padding: 0.3rem;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+    .browse-suggest.open { display: block; }
+    .bss-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-radius: 0.6rem;
+      padding: 0.5rem 0.6rem;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .bss-item:hover, .bss-item.active { background: rgba(245,158,11,0.14); }
+    .bss-ico { flex: 0 0 1.4rem; font-size: 1.05rem; text-align: center; }
+    .bss-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.05rem; }
+    .bss-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bss-label b { color: #fbbf24; font-weight: 800; }
+    .bss-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: #7596c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bss-kind { flex: 0 0 auto; font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.2); border-radius: 999px; padding: 0.1rem 0.45rem; }
+    .bss-head { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #5d7ba6; padding: 0.45rem 0.6rem 0.2rem; }
+
+    /* ── Quick filter chips ────────────────────────────────────── */
+    .browse-quickchips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+    }
+    .browse-quickchips:empty { display: none; }
+    .quick-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(30,53,96,0.5);
+      border: 1px solid rgba(117,150,192,0.32);
+      color: #cbd9ee;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      min-height: 34px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .quick-chip:hover { background: rgba(30,53,96,0.85); border-color: rgba(117,150,192,0.55); color: #fff; }
+    .quick-chip:active { transform: scale(0.96); }
+    .quick-chip.qc-match { border-color: rgba(94,234,212,0.4); color: #5eead4; }
+    .quick-chip.qc-match:hover { background: rgba(13,148,136,0.22); }
+    .quick-chip.qc-loc { border-color: rgba(125,211,252,0.4); color: #7dd3fc; }
+    .quick-chip.qc-loc:hover { background: rgba(56,189,248,0.18); }
+    .quick-chip.is-on { background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.5); color: #fbbf24; }
 
     .browse-bottom-bar {
       display: flex;
@@ -18831,9 +18907,11 @@
         <div class="browse-toolbar" id="browse-toolbar">
           <div class="browse-toolbar-inner">
             <div class="flex-1 min-w-[240px]">
-              <div class="relative">
-                <input type="text" id="myteam-browse-search" oninput="myteamBrowseFilter()" placeholder="Search name, office, district, issue, party, bio…" class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" autocomplete="off" />
+              <div class="relative" id="browse-search-wrap">
+                <input type="text" id="myteam-browse-search" oninput="pdxBrowseSearchInput()" onfocus="_pdxBrowseSuggest()" onblur="pdxBrowseSuggestBlur()" onkeydown="return pdxBrowseSuggestKey(event)" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="browse-search-suggest" placeholder="Search by name, issue, district, office, or “best match for me”…" class="w-full bg-navy-950/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 font-condensed text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors" style="min-height: 44px;" autocomplete="off" />
                 <span class="absolute left-3.5 top-3.5 text-steel-500 pointer-events-none text-xs">🔍</span>
+                <!-- Autocomplete suggestions — names, topics, offices and goals as you type. Populated by _pdxBrowseSuggest(). -->
+                <div id="browse-search-suggest" class="browse-suggest" role="listbox" aria-label="Search suggestions"></div>
               </div>
             </div>
 
@@ -18891,6 +18969,13 @@
               <button onclick="myteamBrowseReset()" class="font-condensed text-xs text-steel-500 hover:text-white uppercase transition-colors px-3 py-2.5 rounded-xl border border-white/5 bg-white/5" style="min-height: 44px;">Reset</button>
             </div>
           </div>
+
+          <!-- Quick filter chips — one-tap shortcuts to the searches voters reach
+               for most: their own district, their best values matches, the most
+               accountable records, open 2026 races, and popular issue topics.
+               Populated by _pdxRenderQuickChips() so they reflect the user's
+               location / alignment state. -->
+          <div id="browse-quick-chips" class="browse-quickchips"></div>
 
           <!-- Active filter chips — show what's narrowing the list and let users
                clear any one of them (or all) with a single tap. Populated by
@@ -46407,6 +46492,142 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">Reset view</button>');
     }
 
+    // ══ Smart search engine ═══════════════════════════════════════════════
+    // Everything below turns the single browse search box into a semantic,
+    // intent-aware finder. A voter can type a topic ("guns", "education"), an
+    // office ("US House", "state senate"), a district ("district 2", "Davis
+    // County"), or a goal ("best match for me", "high promise score") and get
+    // the right people — not just literal name matches. The pieces:
+    //   • _SEARCH_SYNONYMS  — casual word → the family of related terms
+    //   • _pdxTopicIndex    — token → expansion set, built from ISSUE_MAP + above
+    //   • _pdxQueryConcepts — split a query into AND-ed concept groups (each an
+    //                          OR-set of synonyms), so "guns" reaches "firearm"
+    //                          / "2nd Amendment" without losing precision
+    //   • _pdxParseIntent   — pull office / score / status / district / sort /
+    //                          location goals out of the query as soft filters
+    //   • _pdxHay           — memoized per-politician search text (kept fast as
+    //                          the database grows)
+
+    // Casual terms a voter is likely to type, each mapped to the full family of
+    // words that should match. Layered ON TOP of ISSUE_MAP's own keyword lists
+    // so even bare/plural/colloquial words ("guns", "abortion", "cops") reach
+    // every politician with a documented position on that topic.
+    var _SEARCH_SYNONYMS = {
+      guns: ['gun', 'guns', 'firearm', 'firearms', 'second amendment', '2nd amendment', '2a', 'concealed carry', 'constitutional carry', 'nra', 'gun rights', 'gun safety', 'gun control', 'gun violence', 'red flag', 'background check', 'assault weapon'],
+      abortion: ['abortion', 'reproductive', 'pro-life', 'pro life', 'pro-choice', 'pro choice', 'roe', 'dobbs', 'planned parenthood', 'unborn', 'reproductive rights', 'reproductive freedom', 'contraception'],
+      taxes: ['tax', 'taxes', 'income tax', 'property tax', 'tax cut', 'tax relief', 'fiscal', 'deduction', 'tax credit'],
+      education: ['education', 'school', 'schools', 'teacher', 'teachers', 'student', 'students', 'voucher', 'charter', 'tuition', 'college', 'curriculum', 'classroom', 'school choice', 'public school'],
+      healthcare: ['healthcare', 'health care', 'health', 'medicaid', 'medicare', 'insurance', 'prescription', 'drug price', 'drug prices', 'aca', 'obamacare', 'mental health', 'hospital'],
+      immigration: ['immigration', 'border', 'migrant', 'deportation', 'asylum', 'visa', 'daca', 'citizenship', 'cartel', 'fentanyl', 'dreamer'],
+      economy: ['economy', 'jobs', 'wages', 'employment', 'small business', 'workers', 'manufacturing', 'inflation', 'cost of living', 'economic growth', 'minimum wage'],
+      housing: ['housing', 'rent', 'renters', 'affordable housing', 'zoning', 'mortgage', 'homeowner', 'homeless', 'homelessness', 'first-time buyer', 'property tax'],
+      climate: ['climate', 'clean energy', 'renewable', 'renewables', 'emissions', 'carbon', 'environment', 'pollution', 'solar', 'wind', 'air quality', 'great salt lake'],
+      energy: ['energy', 'oil', 'gas', 'nuclear', 'renewable', 'grid', 'drilling', 'mining', 'fossil', 'energy independence'],
+      crime: ['crime', 'police', 'cops', 'law enforcement', 'public safety', 'criminal justice', 'sentencing', 'sheriff', 'violent crime', 'incarceration'],
+      veterans: ['veteran', 'veterans', 'va', 'gi bill', 'servicemember', 'military families', 'troops', 'wounded warrior'],
+      lgbtq: ['lgbtq', 'lgbt', 'gay', 'transgender', 'marriage equality', 'pride', 'anti-discrimination'],
+      water: ['water', 'drought', 'great salt lake', 'reservoir', 'colorado river', 'water conservation', 'water storage', 'lake powell'],
+      defense: ['defense', 'military', 'national security', 'armed forces', 'pentagon', 'foreign policy', 'ndaa', 'deterrence'],
+      spending: ['spending', 'debt', 'deficit', 'budget', 'fiscal', 'waste', 'audit', 'balanced budget', 'national debt'],
+      accountability: ['accountability', 'transparency', 'ethics', 'corruption', 'stock trading', 'term limits', 'campaign finance', 'anti-corruption', 'disclosure'],
+      family: ['family', 'child care', 'childcare', 'paid leave', 'child tax credit', 'parental rights', 'pre-k', 'daycare'],
+      tech: ['tech', 'technology', 'ai', 'artificial intelligence', 'privacy', 'big tech', 'social media', 'data privacy', 'crypto'],
+      lands: ['public land', 'public lands', 'conservation', 'wilderness', 'national park', 'national monument', 'blm', 'forest', 'grazing'],
+      voting: ['voting', 'elections', 'voter id', 'election integrity', 'mail voting', 'early voting', 'ballot', 'redistricting', 'democracy']
+    };
+
+    // Word-singularizer used so "guns"/"schools"/"taxes" reach the singular
+    // forms ISSUE_MAP stores ("gun rights", "school choice", "tax cut").
+    function _pdxSingular(w) {
+      if (!w) return w;
+      if (/(ches|shes|sses|xes)$/.test(w)) return w.slice(0, -2);
+      if (/ies$/.test(w)) return w.slice(0, -3) + 'y';
+      if (/s$/.test(w) && !/ss$/.test(w) && w.length > 3) return w.slice(0, -1);
+      return w;
+    }
+
+    // Lazily-built map: a single search word → Set of every related expansion
+    // word it should pull in. Assembled once from ISSUE_MAP's keyword lists
+    // (authoritative) and the curated synonyms above, then cached.
+    var _pdxTopicIndex = null;
+    function _pdxBuildTopicIndex() {
+      if (_pdxTopicIndex) return _pdxTopicIndex;
+      var idx = {};
+      var addWordToGroup = function(word, group) {
+        if (!word || word.length < 3) return;
+        if (!idx[word]) idx[word] = {};
+        for (var i = 0; i < group.length; i++) idx[word][group[i]] = 1;
+      };
+      // From ISSUE_MAP: every keyword (and each of its individual words) indexes
+      // to the union of that issue's keyword family + its label words.
+      if (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP) {
+        Object.keys(ISSUE_MAP).forEach(function(k) {
+          var def = ISSUE_MAP[k];
+          if (!def || !def.keywords) return;
+          var bag = def.keywords.slice();
+          // fold the human label (minus emoji) into the family so "school choice"
+          // is reachable by typing the label's words too.
+          var labelWords = String(def.label || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+          bag = bag.concat(labelWords);
+          def.keywords.forEach(function(kw) {
+            var kwl = kw.toLowerCase();
+            addWordToGroup(kwl, bag);
+            kwl.split(/\s+/).forEach(function(w) { addWordToGroup(w, bag); });
+          });
+          labelWords.forEach(function(w) { addWordToGroup(w, bag); });
+        });
+      }
+      // Layer the curated synonyms on top (these win/extend for casual words).
+      Object.keys(_SEARCH_SYNONYMS).forEach(function(key) {
+        var group = _SEARCH_SYNONYMS[key];
+        addWordToGroup(key, group);
+        group.forEach(function(w) {
+          addWordToGroup(w, group);
+          w.split(/\s+/).forEach(function(part) { addWordToGroup(part, group); });
+        });
+      });
+      _pdxTopicIndex = idx;
+      return idx;
+    }
+
+    // Look up the expansion family for one query word (tries the word and its
+    // singular form). Returns an array of related words, or null if the word is
+    // not a recognized topic term.
+    function _pdxExpandWord(word) {
+      var idx = _pdxBuildTopicIndex();
+      var hit = idx[word] || idx[_pdxSingular(word)];
+      return hit ? Object.keys(hit) : null;
+    }
+
+    // Words that carry no search signal on their own — dropped from concept
+    // building so a stray "the"/"for"/"in" never becomes an AND requirement.
+    var _PDX_SEARCH_STOP = { the: 1, a: 1, an: 1, and: 1, or: 1, of: 1, for: 1, to: 1, in: 1, on: 1, with: 1, 'my': 1, me: 1, 'is': 1, are: 1, who: 1, that: 1, best: 1, most: 1, strong: 1, high: 1, low: 1, good: 1 };
+
+    // Break a (already intent-stripped) query into concept groups: each group is
+    // an OR-set of words, and a politician must satisfy EVERY group (AND) to
+    // match. A recognized topic word expands to its whole synonym family (one
+    // OR-group); an unrecognized word stays a literal single-word group. This is
+    // what lets "guns" surface firearm/2A positions while "lee guns" still means
+    // "named Lee AND talks about guns".
+    function _pdxQueryConcepts(text) {
+      var tokens = String(text || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').split(/\s+/).filter(Boolean);
+      var groups = [];
+      var hadTopic = false;
+      tokens.forEach(function(tok) {
+        if (_PDX_SEARCH_STOP[tok]) return;
+        var expanded = _pdxExpandWord(tok);
+        if (expanded && expanded.length) {
+          // ensure the literal token is also in the OR-set
+          if (expanded.indexOf(tok) === -1) expanded.push(tok);
+          groups.push(expanded);
+          hadTopic = true;
+        } else if (tok.length >= 2) {
+          groups.push([tok]);
+        }
+      });
+      return { groups: groups, hadTopic: hadTopic };
+    }
+
     // ── Browse search index ────────────────────────────────────────────
     // Builds the searchable text for one politician. Goes well beyond name +
     // office: it folds in the party (spelled out so "republican" matches "R"),
@@ -46464,6 +46685,98 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return 'I'; // any other label (Green, Libertarian, etc.) groups under Independent / Other
     }
 
+    // Memoized search text per politician. _browseSearchHay is pure for a given
+    // record, so we cache the lowercased haystack keyed by pid and reuse it
+    // across keystrokes — keeping search fast as the database grows. The cache
+    // is cleared whenever records are edited/imported via _pdxClearHayCache.
+    var _pdxHayCache = {};
+    function _pdxHay(pid) {
+      if (_pdxHayCache[pid] !== undefined) return _pdxHayCache[pid];
+      var hay = _browseSearchHay(CMP_DATA[pid]);
+      _pdxHayCache[pid] = hay;
+      return hay;
+    }
+    window._pdxClearHayCache = function() { _pdxHayCache = {}; };
+
+    // The voter's own U.S. House district number, if they've saved a location.
+    function _pdxUserDistrictNum() {
+      var loc = window._currentVoterLocation || {};
+      var n = parseInt(String(loc.district || '').replace(/[^0-9]/g, ''), 10);
+      return isNaN(n) ? null : n;
+    }
+
+    // ── Search intent parser ───────────────────────────────────────────
+    // Reads goals out of the raw query that are NOT just "find this text": an
+    // office type, a promise-score band, officeholder-vs-candidate status, a
+    // district number, a "best match for me" sort, or a "my district/near me"
+    // location scope. Each recognized phrase is pulled OUT of the text so the
+    // remaining words drive the topic/name search, and the goal is returned as a
+    // soft filter the browse pipeline applies. Returns:
+    //   { office, score, status, sortAlign, scope, district, text, notes[] }
+    function _pdxParseSearchIntent(raw) {
+      var q = ' ' + String(raw || '').toLowerCase() + ' ';
+      var out = { office: '', score: '', status: '', sortAlign: false, scope: '', district: null, text: '', notes: [] };
+      var strip = function(re) { q = q.replace(re, ' '); };
+
+      // District number ("district 2", "hd 15", "sd-3", "cd2"). Recognized as a
+      // structured filter and stripped, so it narrows by district rather than
+      // matching the literal word "district" in every district-holder's record.
+      var dm = q.match(/\bdistrict\s*(\d{1,2})\b/) || q.match(/\b(?:hd|sd|cd|ud)[-\s]?(\d{1,2})\b/);
+      if (dm) {
+        out.district = parseInt(dm[1], 10);
+        out.notes.push('District ' + out.district);
+        strip(/\bdistrict\s*\d{1,2}\b/);
+        strip(/\b(?:hd|sd|cd|ud)[-\s]?\d{1,2}\b/);
+      }
+
+      // Office type — check the more specific STATE patterns before the federal
+      // ones so "state senate" never reads as "senate".
+      var officePats = [
+        { re: /\b(state senate|state house|state legislature|state legislator|state rep(resentative)?|state senator|statehouse|legislature)\b/, key: 'state', label: 'State Legislature' },
+        { re: /\b(u\.?s\.?\s*house|us house|house of representatives|congress(man|woman|person|ional)?|representative)\b/, key: 'representative', label: 'U.S. House' },
+        { re: /\b(u\.?s\.?\s*senate|us senate|senator|senate seat)\b/, key: 'senator', label: 'U.S. Senate' },
+        { re: /\b(governor|gubernatorial|attorney general|statewide|state treasurer|state auditor|lieutenant governor|lt\.?\s*gov)\b/, key: 'governor', label: 'Statewide Executive' },
+        { re: /\b(president|presidential|white house)\b/, key: 'president', label: 'President' },
+        { re: /\b(mayor|mayoral|city council|county commission|local office)\b/, key: 'local', label: 'Local / Mayor' },
+        { re: /\b(cabinet|secretary of)\b/, key: 'cabinet', label: 'Cabinet' }
+      ];
+      for (var i = 0; i < officePats.length; i++) {
+        if (officePats[i].re.test(q)) { out.office = officePats[i].key; out.notes.push(officePats[i].label); strip(officePats[i].re); break; }
+      }
+
+      // Promise-score band.
+      if (/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|reliable|trustworthy)\b/.test(q)) {
+        out.score = 'high'; out.notes.push('High score'); strip(/\b(high(est)?\s*(promise\s*)?score|high\s*accountability|most\s*accountable|keeps?\s*(their\s*)?promises|reliable|trustworthy)\b/);
+      } else if (/\b(low(est)?\s*(promise\s*)?score|broken\s*promises|least\s*accountable)\b/.test(q)) {
+        out.score = 'low'; out.notes.push('Low score'); strip(/\b(low(est)?\s*(promise\s*)?score|broken\s*promises|least\s*accountable)\b/);
+      }
+
+      // Officeholder vs candidate status (incl. "open seats" → races with candidates).
+      if (/\b(open\s*seats?|2026\s*candidates?|candidates?|challengers?|running\s*for|on\s*the\s*ballot)\b/.test(q)) {
+        out.status = 'candidate'; out.notes.push('2026 candidates'); strip(/\b(open\s*seats?|2026\s*candidates?|candidates?|challengers?|running\s*for|on\s*the\s*ballot)\b/);
+      } else if (/\b(incumbents?|officeholders?|current(ly)?\s*in\s*office|sitting)\b/.test(q)) {
+        out.status = 'office'; out.notes.push('Current officeholders'); strip(/\b(incumbents?|officeholders?|current(ly)?\s*in\s*office|sitting)\b/);
+      }
+
+      // "Best match for me" → values-aligned sort.
+      if (/\b(best|top|closest|strong(est)?|high(est)?)\s*(match(es)?|fit|alignment)\b/.test(q) ||
+          /\bmatch(es)?\s*(me|my\s*values)\b/.test(q) || /\bfor\s*me\b/.test(q) || /\bmy\s*values\b/.test(q) ||
+          /\b(aligned|alignment)\b/.test(q)) {
+        out.sortAlign = true; out.notes.push('Best match first');
+        strip(/\b(best|top|closest|strong(est)?|high(est)?)\s*(match(es)?|fit|alignment)\b/);
+        strip(/\bmatch(es)?\s*(me|my\s*values)\b/); strip(/\bfor\s*me\b/); strip(/\bmy\s*values\b/); strip(/\b(aligned|alignment)\b/);
+      }
+
+      // Location scope ("my district", "near me", "my reps", "in my area").
+      if (/\b(my\s*district|my\s*area|near\s*me|my\s*reps?|my\s*representatives?|relevant\s*to\s*me|on\s*my\s*ballot)\b/.test(q)) {
+        out.scope = 'relevant'; out.notes.push('Your districts');
+        strip(/\b(my\s*district|my\s*area|near\s*me|my\s*reps?|my\s*representatives?|relevant\s*to\s*me|on\s*my\s*ballot)\b/);
+      }
+
+      out.text = q.replace(/\s+/g, ' ').trim();
+      return out;
+    }
+
     window.myteamBrowseFilter = function() {
       var browseGrid = document.getElementById('myteam-browse-grid');
       var browseEmpty = document.getElementById('myteam-browse-empty');
@@ -46480,13 +46793,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var show = document.getElementById('myteam-browse-show')?.value || 'all';
       var sort = document.getElementById('myteam-browse-sort')?.value || 'score-desc';
 
+      // ── Smart query parsing ─────────────────────────────────────────────
+      // Pull goals (office type, promise-score band, officeholder/candidate
+      // status, district number, "best match for me" sort, "my district" scope)
+      // out of the typed text and apply them as soft filters on top of the
+      // explicit dropdowns. Recognized phrases are stripped so the remaining
+      // words drive the topic/name search. A dropdown the voter set themselves
+      // always wins over an inferred one.
+      var _intent = search
+        ? _pdxParseSearchIntent(search)
+        : { office: '', score: '', status: '', sortAlign: false, scope: '', district: null, text: '', notes: [] };
+      var _searchText = _intent.text;
+      var effOffice = office || _intent.office;
+      var effScore  = score  || _intent.score;
+      var effStatus = statusF || _intent.status;
+      var effScope  = (_browseScope === 'relevant' || _intent.scope === 'relevant') ? 'relevant' : 'all';
+
       // When the visitor has an Alignment Signature, default the browse to "Best
       // Match for You" so the candidates that fit their values surface first while
-      // filling a slot — unless they've deliberately picked another sort. Flagging
-      // a switch back to score-desc when alignment is turned off keeps it honest.
+      // filling a slot — unless they've deliberately picked another sort. A typed
+      // "best match for me" forces it on regardless. Flagging a switch back to
+      // score-desc when alignment is turned off keeps it honest.
       var _alignActive = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
       var _sortEl = document.getElementById('myteam-browse-sort');
-      if (window._myteamBrowseSortAuto !== false) {
+      if (_intent.sortAlign && _alignActive) {
+        sort = 'align-desc';
+        if (_sortEl && _sortEl.value !== 'align-desc') _sortEl.value = 'align-desc';
+      } else if (window._myteamBrowseSortAuto !== false) {
         var _want = _alignActive ? 'align-desc' : 'score-desc';
         if (sort !== _want) { sort = _want; if (_sortEl && _sortEl.value !== _want) _sortEl.value = _want; }
       }
@@ -46549,7 +46882,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
       var pids = Object.keys(CMP_DATA);
 
-      if (_browseScope === 'relevant') {
+      if (effScope === 'relevant') {
         pids = pids.filter(function(pid) { return _isRelevantToUser(pid); });
       }
 
@@ -46560,42 +46893,63 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       window._browseNameScoped = false;
-      if (search) {
+      if (_searchText) {
         // Name-priority search. Typing a name should surface people with that
         // name — not everyone who merely mentions the term in a bio, district or
         // issue. So we first look for politicians whose NAME matches every typed
         // term (token-prefix, case-insensitive: "lee" → Mike Lee / Trevor Lee,
-        // "tre lee" → Trevor Lee). When any name matches, we scope the results to
-        // those name matches only, dropping the bio/issue/party false positives.
-        // Only when NOTHING matches by name (e.g. "utah senator", "second
-        // amendment") do we fall back to the broader multi-term AND search across
-        // every searchable field, so those descriptive queries still work.
-        var terms = search.split(/\s+/).filter(Boolean);
+        // "tre lee" → Trevor Lee). When the query is purely a name (no topic word
+        // and no structured intent), we scope results to those name matches.
+        // Otherwise we run the semantic, synonym-expanded search across every
+        // field — so "guns" reaches Second-Amendment positions, "education"
+        // reaches school-choice / teacher-pay records, and so on.
+        var rawTerms = search.split(/\s+/).filter(Boolean);
         var nameMatches = pids.filter(function(pid) {
-          return _browseNameMatch(CMP_DATA[pid], terms);
+          return _browseNameMatch(CMP_DATA[pid], rawTerms);
         });
-        if (nameMatches.length > 0) {
+        var hasStructuredIntent = !!(_intent.office || _intent.score || _intent.status ||
+          _intent.district != null || _intent.sortAlign || _intent.scope);
+        var concepts = _pdxQueryConcepts(_searchText);
+        if (nameMatches.length > 0 && !hasStructuredIntent && !concepts.hadTopic) {
           pids = nameMatches;
           window._browseNameScoped = true;
-        } else {
+        } else if (concepts.groups.length) {
           pids = pids.filter(function(pid) {
-            var hay = _browseSearchHay(CMP_DATA[pid]);
+            var hay = _pdxHay(pid);
             if (!hay) return false;
-            for (var t = 0; t < terms.length; t++) {
-              if (hay.indexOf(terms[t]) === -1) return false;
+            // Every concept group must hit (AND); within a group any synonym hits (OR).
+            for (var g = 0; g < concepts.groups.length; g++) {
+              var grp = concepts.groups[g], hit = false;
+              for (var w = 0; w < grp.length; w++) {
+                if (hay.indexOf(grp[w]) !== -1) { hit = true; break; }
+              }
+              if (!hit) return false;
             }
             return true;
           });
         }
       }
-      if (office) pids = pids.filter(function(pid) { return _chubOfficeMatch(pid, office); });
+
+      // District filter from a "district N" style query — by the politician's
+      // resolved district number, with a literal-text fallback.
+      if (_intent.district != null) {
+        pids = pids.filter(function(pid) {
+          var dn = (typeof _relevantDistNum === 'function') ? _relevantDistNum(pid) : null;
+          if (dn === _intent.district) return true;
+          var dtxt = (CMP_DATA[pid].district || '').toLowerCase();
+          return dtxt.indexOf('district ' + _intent.district) !== -1 ||
+                 new RegExp('(^|[^0-9])' + _intent.district + '([^0-9]|$)').test(dtxt);
+        });
+      }
+
+      if (effOffice) pids = pids.filter(function(pid) { return _chubOfficeMatch(pid, effOffice); });
       if (party) pids = pids.filter(function(pid) { return _browsePartyKey(CMP_DATA[pid]) === party; });
-      if (statusF) pids = pids.filter(function(pid) {
+      if (effStatus) pids = pids.filter(function(pid) {
         var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(CMP_DATA[pid]) : 'office';
-        return st === statusF;
+        return st === effStatus;
       });
       if (stateFilter) pids = pids.filter(function(pid) { return _chubStateMatch(pid, stateFilter); });
-      if (score) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, score); });
+      if (effScore) pids = pids.filter(function(pid) { return _chubScoreMatch(pid, effScore); });
 
       if (sort === 'score-desc') {
         pids.sort(function(a, b) { return (CMP_DATA[b].score ?? -1) - (CMP_DATA[a].score ?? -1); });
@@ -46607,21 +46961,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         pids.sort(function(a, b) { return (_calcAlignmentScore(b) ?? -1) - (_calcAlignmentScore(a) ?? -1); });
       }
 
+      // Location prioritization: when a search is active and the voter has saved
+      // a location, float the people who actually represent them to the top —
+      // stably, so the chosen sort order is preserved within each partition.
+      window._browseLocBoosted = 0;
+      if (_searchText && window._hasUserLocation && effScope !== 'relevant' && typeof _isRelevantToUser === 'function') {
+        var _relPids = [], _otherPids = [];
+        pids.forEach(function(pid) { (_isRelevantToUser(pid) ? _relPids : _otherPids).push(pid); });
+        if (_relPids.length && _otherPids.length) { pids = _relPids.concat(_otherPids); window._browseLocBoosted = _relPids.length; }
+      }
+
       if (browseCount) browseCount.textContent = pids.length;
-      var scopeLabel = _browseScope === 'relevant' ? ' relevant' : '';
+      var scopeLabel = effScope === 'relevant' ? ' relevant' : '';
 
       // Hand the exact filtered/sorted set to the Best-Matches board launcher so
       // "Rank these by my values" ranks precisely what the visitor is looking at.
       window._myteamLastFilteredPids = pids.slice();
       window._myteamLastFilterDesc = (function() {
         var parts = [];
-        if (statusF) parts.push(statusF === 'candidate' ? '2026 candidates' : 'officeholders');
+        if (effStatus) parts.push(effStatus === 'candidate' ? '2026 candidates' : 'officeholders');
         if (party) parts.push({ 'R': 'Republicans', 'D': 'Democrats', 'I': 'Independents' }[party] || party);
         if (stateFilter) parts.push(stateFilter);
-        var officeWord = { 'president': 'President', 'senator': 'U.S. Senators', 'representative': 'U.S. Reps', 'governor': 'statewide execs', 'state': 'state legislators', 'local': 'local offices', 'candidate': 'candidates', 'cabinet': 'cabinet' }[office];
+        var officeWord = { 'president': 'President', 'senator': 'U.S. Senators', 'representative': 'U.S. Reps', 'governor': 'statewide execs', 'state': 'state legislators', 'local': 'local offices', 'candidate': 'candidates', 'cabinet': 'cabinet' }[effOffice];
         if (officeWord) parts.push(officeWord);
         var d = parts.join(' · ');
-        if (search) d = d ? (d + ' matching “' + search + '”') : ('matching “' + search + '”');
+        if (_searchText) d = d ? (d + ' matching “' + _searchText + '”') : ('matching “' + _searchText + '”');
         return d;
       })();
       if (typeof window._alignBrowseLauncherSync === 'function') window._alignBrowseLauncherSync();
@@ -46633,25 +46997,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var _nameCue = (window._browseNameScoped && search)
           ? ' · <span style="color:#fbbf24;font-weight:700;">🔍 Name matches only</span>'
           : '';
-        browseCountLabel.innerHTML = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found' + _nameCue + _matchCue;
+        // Surface what the smart query understood ("U.S. House · High score · …")
+        // so the parsing is transparent, plus a note when local reps are floated up.
+        var _smartCue = (_intent && _intent.notes && _intent.notes.length)
+          ? ' · <span style="color:#a5b4fc;font-weight:700;">✨ ' + _intent.notes.join(' · ') + '</span>'
+          : '';
+        var _locCue = (window._browseLocBoosted > 0)
+          ? ' · <span style="color:#7dd3fc;font-weight:700;">📍 Your reps first</span>'
+          : '';
+        browseCountLabel.innerHTML = pids.length + scopeLabel + ' politician' + (pids.length !== 1 ? 's' : '') + ' found' + _nameCue + _smartCue + _matchCue + _locCue;
       }
 
       if (pids.length > 0) {
         // Start fully minimized; auto-expand all levels only while a search/filter is active so matches stay visible.
-        var _browseHasFilters = !!(search || office || party || statusF || stateFilter || score || (show && show !== 'all') || _browseScope === 'relevant');
+        var _browseHasFilters = !!(_searchText || effOffice || party || effStatus || stateFilter || effScore || _intent.district != null || (show && show !== 'all') || effScope === 'relevant');
         browseGrid.innerHTML = _renderGroupedBrowse(pids, '', { forceOpen: _browseHasFilters, defaultOpen: false });
         if (browseEmpty) browseEmpty.classList.add('hidden');
       } else {
         browseGrid.innerHTML = '';
         if (browseEmpty) {
           browseEmpty.innerHTML = _renderBrowseEmpty({
-            scope: _browseScope,
-            hasFilters: !!(search || office || party || statusF || stateFilter || score || (show && show !== 'all')),
+            scope: effScope,
+            hasFilters: !!(search || effOffice || party || effStatus || stateFilter || effScore || _intent.district != null || (show && show !== 'all')),
             search: search
           });
           browseEmpty.classList.remove('hidden');
         }
       }
+
+      if (typeof window._pdxRenderQuickChips === 'function') window._pdxRenderQuickChips();
 
       if (typeof window.renderRelevantToMe === 'function') {
         window.renderRelevantToMe();
@@ -46718,7 +47092,247 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (showEl) showEl.value = 'all';
       if (sortEl) sortEl.value = 'score-desc';
       window._myteamBrowseSortAuto = true;
+      var suggestBox = document.getElementById('browse-search-suggest');
+      if (suggestBox) { suggestBox.classList.remove('open'); suggestBox.innerHTML = ''; }
       setBrowseScope('all');
+    };
+
+    // ══ Search autocomplete ════════════════════════════════════════════════
+    // As the voter types, offer the fastest routes to what they mean: matching
+    // names, issue topics, office types, district shortcuts and value-based
+    // goals. Each suggestion just rewrites the search box to a canonical query
+    // and re-runs the (intent-aware) filter, so picking one is identical to
+    // typing it — no separate code path to keep in sync.
+    var _PDX_TOPIC_SUGGEST = [
+      { ico: '🔫', label: 'Gun policy', q: 'guns' },
+      { ico: '🎓', label: 'Education & schools', q: 'education' },
+      { ico: '🏥', label: 'Healthcare', q: 'healthcare' },
+      { ico: '💰', label: 'Taxes & spending', q: 'taxes' },
+      { ico: '🛡', label: 'Immigration & border', q: 'immigration' },
+      { ico: '🕊', label: 'Abortion', q: 'abortion' },
+      { ico: '🏠', label: 'Housing & cost of living', q: 'housing' },
+      { ico: '🌱', label: 'Climate & energy', q: 'climate' },
+      { ico: '👮', label: 'Crime & policing', q: 'crime' },
+      { ico: '🎖', label: 'Veterans', q: 'veterans' },
+      { ico: '🧹', label: 'Accountability & ethics', q: 'accountability' },
+      { ico: '🗳', label: 'Elections & voting', q: 'voting' },
+      { ico: '🏭', label: 'Jobs & economy', q: 'economy' },
+      { ico: '💧', label: 'Water', q: 'water' },
+      { ico: '🏔', label: 'Public lands', q: 'public lands' },
+      { ico: '🚀', label: 'Technology & privacy', q: 'tech' },
+      { ico: '🧸', label: 'Family & child care', q: 'family' },
+      { ico: '🏳️‍🌈', label: 'LGBTQ+ rights', q: 'lgbtq' }
+    ];
+    var _PDX_OFFICE_SUGGEST = [
+      { ico: '🏛', label: 'U.S. House', q: 'us house' },
+      { ico: '🏛', label: 'U.S. Senate', q: 'us senate' },
+      { ico: '🏛', label: 'State Senate', q: 'state senate' },
+      { ico: '🏛', label: 'State House', q: 'state house' },
+      { ico: '⭐', label: 'Governor & statewide', q: 'governor' },
+      { ico: '🦅', label: 'President', q: 'president' },
+      { ico: '🏙', label: 'Mayor & local', q: 'mayor' }
+    ];
+    var _PDX_GOAL_SUGGEST = [
+      { ico: '🎯', label: 'Best match for me', q: 'best match for me' },
+      { ico: '📈', label: 'High promise score', q: 'high promise score' },
+      { ico: '🗳️', label: 'Open 2026 seats', q: 'open seats' },
+      { ico: '📍', label: 'My district', q: 'my district' }
+    ];
+
+    function _pdxBold(label, q) {
+      if (!q) return label;
+      var i = label.toLowerCase().indexOf(q);
+      if (i === -1) return label;
+      return label.slice(0, i) + '<b>' + label.slice(i, i + q.length) + '</b>' + label.slice(i + q.length);
+    }
+
+    function _pdxBuildSuggestions(q) {
+      var out = [];
+      var push = function(arr, kind, max) {
+        var n = 0;
+        for (var i = 0; i < arr.length && n < max; i++) {
+          var it = arr[i];
+          if (!q || it.label.toLowerCase().indexOf(q) !== -1 || it.q.indexOf(q) !== -1) {
+            out.push({ ico: it.ico, label: _pdxBold(it.label, q), sub: it.sub || '', kind: kind, q: it.q });
+            n++;
+          }
+        }
+      };
+
+      // 1) Matching people by name (most specific) — only once a couple of
+      //    characters are typed, so the list isn't dominated by names up front.
+      if (q && q.length >= 2 && typeof CMP_DATA !== 'undefined') {
+        var terms = q.split(/\s+/).filter(Boolean);
+        var names = [], seen = {};
+        var ids = Object.keys(CMP_DATA);
+        for (var k = 0; k < ids.length && names.length < 4; k++) {
+          var d = CMP_DATA[ids[k]];
+          if (!d || !d.name || seen[d.name]) continue;
+          if (_browseNameMatch(d, terms)) {
+            seen[d.name] = 1;
+            var sub = [d.office, d.state].filter(Boolean).join(' · ');
+            names.push({ ico: d.icon || '👤', label: _pdxBold(d.name, q), sub: sub, kind: 'Profile', q: d.name });
+          }
+        }
+        out = out.concat(names);
+      }
+
+      // 2) Issue topics, 3) office types, 4) value goals.
+      push(_PDX_TOPIC_SUGGEST, 'Topic', q ? 4 : 4);
+      push(_PDX_OFFICE_SUGGEST, 'Office', q ? 3 : 2);
+      push(_PDX_GOAL_SUGGEST, 'For you', q ? 3 : 3);
+
+      return out.slice(0, 9);
+    }
+
+    window._pdxBrowseSuggest = function() {
+      var input = document.getElementById('myteam-browse-search');
+      var box = document.getElementById('browse-search-suggest');
+      if (!input || !box) return;
+      var q = (input.value || '').toLowerCase().trim();
+      var items = _pdxBuildSuggestions(q);
+      window._pdxSuggestState = { items: items, active: -1 };
+      if (!items.length) {
+        box.classList.remove('open'); box.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      var head = q ? '' : '<div class="bss-head">Try searching by topic, office or goal</div>';
+      box.innerHTML = head + items.map(function(it, i) {
+        return '<button type="button" role="option" class="bss-item" data-i="' + i + '" ' +
+          'onmousedown="event.preventDefault()" onclick="pdxBrowseApplySuggest(' + i + ')">' +
+          '<span class="bss-ico">' + it.ico + '</span>' +
+          '<span class="bss-main"><span class="bss-label">' + it.label + '</span>' +
+          (it.sub ? '<span class="bss-sub">' + it.sub + '</span>' : '') + '</span>' +
+          (it.kind ? '<span class="bss-kind">' + it.kind + '</span>' : '') +
+          '</button>';
+      }).join('');
+      box.classList.add('open');
+      input.setAttribute('aria-expanded', 'true');
+    };
+
+    window.pdxBrowseSearchInput = function() {
+      myteamBrowseFilter();
+      _pdxBrowseSuggest();
+    };
+
+    window.pdxBrowseApplySuggest = function(i) {
+      var st = window._pdxSuggestState;
+      if (!st || !st.items || !st.items[i]) return;
+      var input = document.getElementById('myteam-browse-search');
+      var box = document.getElementById('browse-search-suggest');
+      if (input) input.value = st.items[i].q;
+      if (box) { box.classList.remove('open'); box.innerHTML = ''; }
+      if (input) input.setAttribute('aria-expanded', 'false');
+      window._myteamBrowseSortAuto = true; // let "best match for me" etc. drive the sort
+      myteamBrowseFilter();
+    };
+
+    window.pdxBrowseSuggestBlur = function() {
+      // Delay so a click on a suggestion registers before the list hides.
+      setTimeout(function() {
+        var box = document.getElementById('browse-search-suggest');
+        var input = document.getElementById('myteam-browse-search');
+        if (box) { box.classList.remove('open'); }
+        if (input) input.setAttribute('aria-expanded', 'false');
+      }, 160);
+    };
+
+    window.pdxBrowseSuggestKey = function(e) {
+      var box = document.getElementById('browse-search-suggest');
+      var st = window._pdxSuggestState;
+      var open = box && box.classList.contains('open') && st && st.items && st.items.length;
+      if (e.key === 'Escape') { if (box) box.classList.remove('open'); return true; }
+      if (!open) return true;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        var n = st.items.length;
+        st.active = e.key === 'ArrowDown'
+          ? (st.active + 1) % n
+          : (st.active - 1 + n) % n;
+        Array.prototype.forEach.call(box.querySelectorAll('.bss-item'), function(el) {
+          el.classList.toggle('active', parseInt(el.getAttribute('data-i'), 10) === st.active);
+        });
+        return false;
+      }
+      if (e.key === 'Enter' && st.active >= 0) {
+        e.preventDefault();
+        pdxBrowseApplySuggest(st.active);
+        return false;
+      }
+      return true;
+    };
+
+    // ══ Quick filter chips ═════════════════════════════════════════════════
+    // One-tap shortcuts to the most-used searches. They read and write the same
+    // dropdowns / search box / scope as everything else, so they combine freely
+    // with manual filters and reflect the current state (highlighted when on).
+    window._pdxRenderQuickChips = function() {
+      var host = document.getElementById('browse-quick-chips');
+      if (!host) return;
+      var alignActive = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var hasLoc = !!window._hasUserLocation;
+      var scoreV = document.getElementById('myteam-browse-score') ? document.getElementById('myteam-browse-score').value : '';
+      var statusV = document.getElementById('myteam-browse-status') ? document.getElementById('myteam-browse-status').value : '';
+      var searchV = (document.getElementById('myteam-browse-search') ? document.getElementById('myteam-browse-search').value : '').toLowerCase().trim();
+
+      var chips = [
+        { cls: 'qc-match', on: !!window._alignBrowseSortActive, html: '🎯 Best match for me', act: 'match' },
+        { cls: 'qc-loc', on: (typeof _browseScope !== 'undefined' && _browseScope === 'relevant'), html: hasLoc ? '📍 My district' : '📍 Set my location', act: 'loc' },
+        { cls: '', on: scoreV === 'high', html: '📈 High promise score', act: 'score-high' },
+        { cls: '', on: statusV === 'candidate', html: '🗳️ 2026 candidates', act: 'candidates' },
+        { cls: '', on: searchV === 'guns', html: '🔫 Guns', act: 'topic:guns' },
+        { cls: '', on: searchV === 'education', html: '🎓 Education', act: 'topic:education' },
+        { cls: '', on: searchV === 'healthcare', html: '🏥 Healthcare', act: 'topic:healthcare' },
+        { cls: '', on: searchV === 'taxes', html: '💰 Taxes', act: 'topic:taxes' }
+      ];
+      host.innerHTML = chips.map(function(c) {
+        return '<button type="button" class="quick-chip ' + c.cls + (c.on ? ' is-on' : '') +
+          '" onclick="_pdxQuickChip(\'' + c.act + '\')">' + c.html + '</button>';
+      }).join('');
+    };
+
+    window._pdxQuickChip = function(act) {
+      var searchEl = document.getElementById('myteam-browse-search');
+      var sortEl = document.getElementById('myteam-browse-sort');
+      var scoreEl = document.getElementById('myteam-browse-score');
+      var statusEl = document.getElementById('myteam-browse-status');
+      var box = document.getElementById('browse-search-suggest');
+      if (box) { box.classList.remove('open'); box.innerHTML = ''; }
+
+      if (act === 'match') {
+        var alignActive = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+        if (!alignActive) { if (window._krAlignGuideToPicker) window._krAlignGuideToPicker(); return; }
+        window._myteamBrowseSortAuto = false;
+        if (sortEl) sortEl.value = window._alignBrowseSortActive ? 'score-desc' : 'align-desc';
+        myteamBrowseFilter();
+        return;
+      }
+      if (act === 'loc') {
+        if (!window._hasUserLocation) { if (window.toggleChangeLocation) window.toggleChangeLocation(); return; }
+        setBrowseScope((typeof _browseScope !== 'undefined' && _browseScope === 'relevant') ? 'all' : 'relevant');
+        return;
+      }
+      if (act === 'score-high') {
+        if (scoreEl) scoreEl.value = (scoreEl.value === 'high' ? '' : 'high');
+        myteamBrowseFilter();
+        return;
+      }
+      if (act === 'candidates') {
+        if (statusEl) statusEl.value = (statusEl.value === 'candidate' ? '' : 'candidate');
+        myteamBrowseFilter();
+        return;
+      }
+      if (act.indexOf('topic:') === 0) {
+        var topic = act.slice(6);
+        if (searchEl) {
+          var cur = (searchEl.value || '').toLowerCase().trim();
+          searchEl.value = (cur === topic) ? '' : topic;
+        }
+        window._myteamBrowseSortAuto = true;
+        myteamBrowseFilter();
+        return;
+      }
     };
 
     // Office-type card definitions (icon, color, label) for each Relevant accordion.
@@ -54377,7 +54991,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
       if (score === null || score === undefined) return '';
       var col = _alignScoreColor(score);
-      var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
@@ -54406,7 +55020,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
       if (score === null || score === undefined) return '';
       var col = _alignScoreColor(score);
-      var label = score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
+      var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 3) : '';
       return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="myteam-slot-match" title="Your match on your selected issues — tap for the issue-by-issue breakdown" style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1f;">' +
           '<span class="myteam-slot-match-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.85rem;">%</span></span>' +
