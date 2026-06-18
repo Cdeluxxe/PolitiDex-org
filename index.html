@@ -18070,6 +18070,9 @@
               <span class="myteam-slots-focus-ico" aria-hidden="true">🗳️</span>
               <span class="myteam-slots-focus-text" id="myteam-slots-focus-text">Your 6 ballot slots — <strong>one pick per office.</strong> Add candidates from the sections below; they land here.</span>
             </div>
+            <!-- Mobile-only swipe affordance — the six seats become one
+                 horizontal strip on phones, so this cues the gesture. -->
+            <div class="myteam-swipe-hint" aria-hidden="true"><span>←</span> Swipe through all your seats <span>→</span></div>
             <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
 
             <!-- Compare All + Alignment Action Bar -->
@@ -60396,25 +60399,48 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdx-med-spot-t{ font-size:0.82rem; }
   }
 
+  /* Swipe affordance shown above the mobile team strip (hidden on desktop). */
+  .myteam-swipe-hint{ display:none; }
+
   /* ═══════ MY VOTING TEAM — compact mobile board (≤640px) ═══════
-     Flatten the four office groups into one 3×2 grid so all six ballot
-     seats sit in a single glanceable view — no tall scroll — and slim each
-     seat tile to the essentials (office + district, the pick or open state,
-     the key score / Your Match). Heavier detail moves to the Medium Modal. */
+     On phones the six ballot seats become a SINGLE horizontal, swipeable
+     strip — ~2.5 seats visible at once with a peek of the next — so the whole
+     team sits in one short row instead of a tall 3×2 grid (the biggest scroll
+     saving on mobile). Each tile keeps only the essentials (tier, office +
+     district, the pick or open state, Promise % and Your Match); heavier
+     detail opens in the Medium Modal on tap. */
   @media (max-width:640px){
-    .myteam-slots-grid.is-grouped{ display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:0.4rem !important; max-width:none !important; margin-left:0 !important; margin-right:0 !important; }
+    /* The four office groups collapse into one continuous swipe track. */
+    .myteam-slots-grid.is-grouped{
+      display:flex !important; flex-wrap:nowrap !important;
+      grid-template-columns:none !important; align-items:stretch !important;
+      gap:0.6rem !important; max-width:none !important;
+      margin:0 -0.25rem 0.2rem !important; padding:0.2rem 0.25rem 0.7rem !important;
+      overflow-x:auto !important; overflow-y:hidden !important;
+      scroll-snap-type:x mandatory !important;
+      -webkit-overflow-scrolling:touch !important;
+      scrollbar-width:none !important; overscroll-behavior-x:contain !important;
+    }
+    .myteam-slots-grid.is-grouped::-webkit-scrollbar{ display:none !important; }
     .myteam-slots-grid.is-grouped .myteam-group{ display:contents !important; margin:0 !important; }
     .myteam-slots-grid.is-grouped .myteam-group-head{ display:none !important; }
     .myteam-slots-grid.is-grouped .myteam-group-grid{ display:contents !important; }
 
-    .myteam-slot, .myteam-slot-empty{ padding:0.55rem 0.35rem 0.62rem !important; min-height:0 !important; border-radius:0.7rem !important; }
-    .myteam-slot-tier{ font-size:0.4rem !important; letter-spacing:0.1em !important; margin-bottom:0.15rem !important; }
-    .myteam-slot-position{ font-size:0.5rem !important; padding:0.12rem 0.32rem !important; letter-spacing:0.02em !important; }
-    .myteam-slot-scope{ font-size:0.5rem !important; margin:0.12rem 0 !important; }
-    .myteam-slot-photo{ width:42px !important; height:42px !important; margin:0.25rem auto 0.3rem !important; }
-    .myteam-slot .font-display.text-xl{ font-size:0.8rem !important; margin-bottom:0.1rem !important; }
-    .myteam-slot .chub-score{ font-size:1.35rem !important; }
-    .myteam-slot-score-label{ font-size:0.42rem !important; }
+    /* Each seat is a fixed-width, snap-aligned tile — ~2.5 fit on screen so the
+       voter always sees a peek of the next seat as a cue to swipe. */
+    .myteam-slot, .myteam-slot-empty{
+      flex:0 0 40% !important; min-width:138px !important; max-width:200px !important;
+      scroll-snap-align:start !important;
+      padding:0.72rem 0.5rem 0.8rem !important; min-height:0 !important;
+      border-radius:0.9rem !important;
+    }
+    .myteam-slot-tier{ font-size:0.42rem !important; letter-spacing:0.12em !important; margin-bottom:0.18rem !important; }
+    .myteam-slot-position{ font-size:0.54rem !important; padding:0.13rem 0.42rem !important; letter-spacing:0.02em !important; }
+    .myteam-slot-scope{ font-size:0.56rem !important; margin:0.14rem 0 !important; color:#b9c9e4 !important; }
+    .myteam-slot-photo{ width:48px !important; height:48px !important; margin:0.3rem auto 0.32rem !important; }
+    .myteam-slot .font-display.text-xl{ font-size:0.86rem !important; margin-bottom:0.12rem !important; }
+    .myteam-slot .chub-score{ font-size:1.45rem !important; }
+    .myteam-slot-score-label{ font-size:0.46rem !important; }
     .myteam-slot-clear-btn{ width:22px !important; height:22px !important; top:0.35rem !important; right:0.35rem !important; font-size:0.8rem !important; }
 
     /* Trim the verbose blocks — they live in the Medium Modal now. */
@@ -60429,19 +60455,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .myteam-slot .align-drivers{ display:none !important; }
 
     /* Keep the Your Match band, compact. */
-    .myteam-slot .myteam-slot-match{ padding:0.3rem 0.4rem !important; margin:0.3rem 0 0 !important; gap:0.35rem !important; }
-    .myteam-slot .myteam-slot-match-num{ font-size:1.05rem !important; }
-    .myteam-slot .myteam-slot-match-label{ font-size:0.46rem !important; }
+    .myteam-slot .myteam-slot-match{ padding:0.3rem 0.42rem !important; margin:0.32rem 0 0 !important; gap:0.35rem !important; }
+    .myteam-slot .myteam-slot-match-num{ font-size:1.1rem !important; }
+    .myteam-slot .myteam-slot-match-label{ font-size:0.48rem !important; }
 
-    /* Compact empty seat — keep the prompt, drop the long copy. */
-    .myteam-slot-empty .myteam-empty-ring{ width:46px !important; height:46px !important; font-size:1.1rem !important; margin:0.35rem auto 0.4rem !important; border-width:2px !important; }
-    .myteam-slot-empty .myteam-empty-desc,
-    .myteam-slot-empty .myteam-empty-find{ display:none !important; }
-    .myteam-slot-empty .myteam-empty-tag{ font-size:0.6rem !important; }
-    .myteam-slot-empty .myteam-empty-cta{ padding:0.32rem 0.5rem !important; font-size:0.54rem !important; margin-top:0.35rem !important; }
+    /* Compact empty seat — keep an actionable "find candidates below" cue. */
+    .myteam-slot-empty{ justify-content:flex-start !important; gap:0.1rem !important; }
+    .myteam-slot-empty .myteam-empty-ring{ width:48px !important; height:48px !important; font-size:1.15rem !important; margin:0.32rem auto 0.4rem !important; border-width:2px !important; }
+    .myteam-slot-empty .myteam-empty-desc{ display:none !important; }
+    .myteam-slot-empty .myteam-empty-tag{ font-size:0.62rem !important; margin-bottom:0.18rem !important; }
+    .myteam-slot-empty .myteam-empty-find{ display:block !important; font-size:0.52rem !important; line-height:1.25 !important; margin:0 auto 0.4rem !important; max-width:13rem !important; }
+    .myteam-slot-empty .myteam-empty-cta{ padding:0.34rem 0.55rem !important; font-size:0.56rem !important; margin-top:auto !important; }
+
+    /* Swipe hint above the strip. */
+    .myteam-swipe-hint{
+      display:flex !important; align-items:center; justify-content:center; gap:0.45rem;
+      font-family:'Barlow Condensed',sans-serif; font-size:0.64rem; font-weight:700;
+      letter-spacing:0.12em; text-transform:uppercase; color:#cbb574;
+      margin:-0.15rem 0 0.55rem;
+    }
+    .myteam-swipe-hint span{ color:#fbbf24; font-size:0.85rem; line-height:1; }
 
     /* Tighten the focus label above the board on phones. */
-    .myteam-slots-focus-label{ padding:0.45rem 0.6rem !important; margin-bottom:0.7rem !important; }
+    .myteam-slots-focus-label{ padding:0.45rem 0.6rem !important; margin-bottom:0.55rem !important; }
     .myteam-slots-focus-text{ font-size:0.72rem !important; }
   }
   </style>
