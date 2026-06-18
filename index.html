@@ -6399,6 +6399,25 @@
     @media (max-width: 560px) {
       .rel-team-progress__btn { width: 100%; justify-content: center; }
     }
+    /* When a pick is added from Relevant to Me, the My Voting Team panel is
+       usually scrolled off-screen above — so this persistent bar briefly bumps
+       and glows to confirm, right where the voter is acting, that the pick just
+       landed in the team up top. Re-triggered by _relSyncTeamProgress() only on a
+       brand-new add (guarded so it never fires on unrelated repaints). */
+    @keyframes rel-team-progress-bump {
+      0%   { transform: scale(1); box-shadow: 0 4px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04); }
+      28%  { transform: scale(1.015); box-shadow: 0 0 0 2px rgba(245,200,66,0.85), 0 0 28px 4px rgba(245,200,66,0.55), inset 0 1px 0 rgba(255,255,255,0.04); }
+      100% { transform: scale(1); box-shadow: 0 4px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04); }
+    }
+    @keyframes rel-team-progress-ring-pop {
+      0% { transform: scale(1); } 45% { transform: scale(1.18); } 100% { transform: scale(1); }
+    }
+    .rel-team-progress.rel-team-progress--bump { animation: rel-team-progress-bump 1.5s ease-out 1; }
+    .rel-team-progress.rel-team-progress--bump .rel-team-progress__ring { animation: rel-team-progress-ring-pop 0.6s cubic-bezier(0.34,1.56,0.64,1) 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .rel-team-progress.rel-team-progress--bump,
+      .rel-team-progress.rel-team-progress--bump .rel-team-progress__ring { animation: none; }
+    }
     /* ── Just-filled slot celebration ─────────────────────────────────────────
        When a voter adds a pick from Relevant to Me and jumps back up, the slot
        they just filled briefly pulses an amber halo so the hand-off lands on a
@@ -38947,6 +38966,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var icon = (d && d.icon) ? d.icon : '🏛';
     var total = opts.total || 6;
 
+    // Work out which ballot seat this pick fills, so the confirmation can name
+    // the exact slot in My Voting Team it just landed in — tying the add to a
+    // concrete result up top instead of a vague "added". The caller may pass it
+    // in opts.filledLabel; otherwise read it off the freshly-saved ballot. Stays
+    // empty on a remove, or when it can't be resolved (then we fall back to the
+    // generic copy).
+    var filledLabel = opts.filledLabel || '';
+    if (action !== 'remove' && !filledLabel) {
+      try {
+        var _pos = window.TEAM_POSITIONS || [];
+        var _sel = (window._ballotLoad ? window._ballotLoad() : {}) || {};
+        for (var _i = 0; _i < _pos.length; _i++) {
+          if (_sel[_pos[_i].key] === pid) { filledLabel = _pos[_i].label; break; }
+        }
+      } catch (e) {}
+    }
+
     var avatar = document.getElementById('team-add-toast-avatar');
     var title = document.getElementById('team-add-toast-title');
     var sub = document.getElementById('team-add-toast-sub');
@@ -38971,7 +39007,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       toast.classList.add('complete');
       if (check) check.textContent = '🎉';
       if (title) title.textContent = 'Your voting team is complete!';
-      if (sub) sub.textContent = name + ' fills your final slot — all ' + total + ' picked';
+      if (sub) sub.textContent = name + (filledLabel ? ' fills your ' + filledLabel + ' seat — ' : ' fills your final slot — ') + 'all ' + total + ' picked!';
     } else if (opts.count === 1) {
       // First pick — a real milestone for a new voter. Acknowledge it warmly and
       // reassure them their slate is now saving itself, so they know they're
@@ -38979,11 +39015,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       toast.classList.add('complete');
       if (check) check.textContent = '⭐';
       if (title) title.textContent = 'That\'s your first pick! 🎉';
-      if (sub) sub.textContent = name + ' is on your team — saved automatically. ' + Math.max(0, total - 1) + ' seats to go, at your own pace.';
+      if (sub) sub.textContent = name + (filledLabel ? ' now holds your ' + filledLabel + ' seat' : ' is on your team') + ' — saved automatically. ' + Math.max(0, total - 1) + ' seats to go, at your own pace.';
     } else {
       if (check) check.textContent = '✓';
-      if (title) title.textContent = '✓ Added to My Voting Team';
-      if (sub) sub.textContent = name + (opts.count ? '  ·  now ' + opts.count + '/' + total + ' slots filled up top' : '');
+      if (title) title.textContent = filledLabel ? ('✓ ' + filledLabel + ' filled in My Voting Team') : '✓ Added to My Voting Team';
+      if (sub) sub.textContent = name + (filledLabel ? ' now holds your ' + filledLabel + ' seat' : '') + (opts.count ? '  ·  ' + opts.count + '/' + total + ' slots filled up top' : '');
     }
 
     // Contextual "what next" guidance footer. On an add, the caller supplies
@@ -44651,6 +44687,24 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         } else {
           next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Manage your team up top.';
         }
+      }
+
+      // In-view add confirmation: when a pick was just added, the My Voting Team
+      // panel is usually scrolled off-screen above, so bump this persistent bar
+      // (and pop its ring) to make the team status visibly react right where the
+      // voter is acting. Guarded by the just-added pid so it fires once per new
+      // pick — not on every unrelated repaint within the highlight window.
+      var justPid = window._pdxJustFilledPid;
+      var justOnTeam = justPid && positions.some(function(p) { return sel[p.key] === justPid; });
+      if (justOnTeam && bar._relLastBumpPid !== justPid) {
+        bar._relLastBumpPid = justPid;
+        bar.classList.remove('rel-team-progress--bump');
+        void bar.offsetWidth;
+        bar.classList.add('rel-team-progress--bump');
+        if (bar._relBumpTimer) clearTimeout(bar._relBumpTimer);
+        bar._relBumpTimer = setTimeout(function() { bar.classList.remove('rel-team-progress--bump'); }, 1600);
+      } else if (!justPid) {
+        bar._relLastBumpPid = null;
       }
     };
 
