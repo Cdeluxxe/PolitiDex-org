@@ -44173,6 +44173,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return (a && typeof a.overallScore === 'number' && explainable) ? a : null;
     }
 
+    // "Why this might fit you" — a short, plain-language read of the strongest
+    // agreements (and the sharpest disagreement) between this official's record
+    // and the visitor's own selected issues. Returned only when the visitor has
+    // built an alignment signature AND there's enough evidence to ground it;
+    // otherwise '' so the Match bar's own "set up your match" prompt covers the
+    // empty state. Keeps the medium modal's personal-fit story to one scannable
+    // sentence instead of a long list.
+    window._medWhyFit = function(id) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || !_alignIssues.size) return '';
+      if (typeof _calcAlignmentBreakdown !== 'function') return '';
+      var bd = _calcAlignmentBreakdown(id);
+      if (!bd || !bd.issues || !bd.issues.length) return '';
+      var agree = bd.issues.filter(function(i){ return i.hasEvidence && i.score >= 65; })
+                           .sort(function(a, b){ return b.score - a.score; });
+      var clash = bd.issues.filter(function(i){ return i.hasEvidence && i.score <= 35; })
+                           .sort(function(a, b){ return a.score - b.score; });
+      if (!agree.length && !clash.length) return '';
+      var labels = agree.slice(0, 3).map(function(i){ return _medEsc(i.label); });
+      var lead;
+      if (labels.length) {
+        var joined = labels.length === 1 ? '<b>' + labels[0] + '</b>'
+          : labels.length === 2 ? '<b>' + labels[0] + '</b> and <b>' + labels[1] + '</b>'
+          : '<b>' + labels[0] + '</b>, <b>' + labels[1] + '</b> and <b>' + labels[2] + '</b>';
+        var strength = bd.overall >= 85 ? 'Lines up closely with you'
+          : bd.overall >= 70 ? 'A strong fit on what you care about'
+          : 'Some common ground with you';
+        lead = strength + ' — you agree on ' + joined + '.';
+      } else {
+        lead = 'Little common ground on the issues you picked.';
+      }
+      var clashTxt = clash.length ? ' Differs on <b>' + _medEsc(clash[0].label) + '</b>.' : '';
+      return '<div class="pdx-med-whyfit"><span class="pdx-med-whyfit-ico">💡</span>' +
+        '<span class="pdx-med-whyfit-txt"><span class="pdx-med-whyfit-lead">Why this might fit you</span>' +
+        lead + clashTxt + '</span></div>';
+    };
+
     window.openMediumModal = function(id, ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
       if (!id) return;
@@ -44242,8 +44278,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // visitor hasn't picked their issues yet.
       var matchBar = (typeof window._alignCardBar === 'function') ? window._alignCardBar(id) : '';
       if (matchBar) {
+        var whyFit = (typeof window._medWhyFit === 'function') ? window._medWhyFit(id) : '';
         html += '<div class="pdx-med-section pdx-med-match">' +
-            '<div class="pdx-med-sec-title">🎯 Your Match</div>' + matchBar +
+            '<div class="pdx-med-sec-title">🎯 Your Match</div>' + matchBar + whyFit +
           '</div>';
       }
 
@@ -44295,8 +44332,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               (lead.detail ? '<div class="pdx-med-record-lead-d">' + _medEsc(String(lead.detail).slice(0, 130)) + (String(lead.detail).length > 130 ? '…' : '') + '</div>' : '') +
             '</div>';
         }).join('');
-        html += '<div class="pdx-med-section">' +
-            '<div class="pdx-med-sec-title">📋 Promise Track Record</div>' +
+        html += '<div class="pdx-med-section pdx-med-section--promise">' +
+            '<div class="pdx-med-sec-title pdx-med-sec-title--promise">📋 Promise Track Record</div>' +
             '<div class="pdx-med-sec-sub">What they did with their power, in office</div>' +
             counts + leadHtml +
           '</div>';
@@ -44322,8 +44359,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               '<div class="pdx-med-spot-t">' + _medEsc(it.headline) + '</div>' +
             '</div>';
         }).join('');
-        html += '<div class="pdx-med-section">' +
-            '<div class="pdx-med-sec-title">🛡️ Accountability Spotlight</div>' +
+        html += '<div class="pdx-med-section pdx-med-section--acct">' +
+            '<div class="pdx-med-sec-title pdx-med-sec-title--acct">🛡️ Accountability Spotlight</div>' +
             '<div class="pdx-med-sec-sub">Integrity — words vs. actions &amp; public conduct</div>' +
             slRows +
             '<button type="button" class="pdx-med-spot-more" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')">View full accountability analysis →</button>' +
@@ -44333,7 +44370,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Short bio summary — trimmed to a couple of lines.
       var bio = (p.bio && String(p.bio).trim()) || (d.bio && String(d.bio).trim()) || '';
       if (bio) {
-        var bioShort = bio.length > 240 ? bio.slice(0, 237).replace(/\s+\S*$/, '') + '…' : bio;
+        var bioShort = bio.length > 180 ? bio.slice(0, 177).replace(/\s+\S*$/, '') + '…' : bio;
         html += '<div class="pdx-med-section">' +
             '<div class="pdx-med-sec-title">👤 Bio</div>' +
             '<p class="pdx-med-bio">' + _medEsc(bioShort) + '</p>' +
@@ -60350,6 +60387,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   .pdx-med-section{ margin:1.05rem 0 0; padding-top:1.05rem; border-top:1px solid transparent; border-image:linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.045) 60%, rgba(255,255,255,0)) 1; }
   .pdx-med-section:last-child{ margin-bottom:0; }
   .pdx-med-sec-title{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:#cdd9ec; margin-bottom:0.45rem; }
+  /* Promise % (gold, in-office record) vs Accountability (purple, integrity) —
+     the section titles carry the same colour story as the dual-score header, and
+     a faint left rail groups each block, so a voter never confuses what the two
+     measure. */
+  .pdx-med-sec-title--promise{ color:#f5c842; }
+  .pdx-med-sec-title--acct{ color:#c4b5fd; }
+  .pdx-med-section--promise{ border-left:2px solid rgba(245,200,66,0.32); padding-left:0.75rem; }
+  .pdx-med-section--acct{ border-left:2px solid rgba(167,139,250,0.36); padding-left:0.75rem; }
   .pdx-med-sec-sub{ font-family:'Barlow Condensed',sans-serif; font-size:0.66rem; letter-spacing:0.01em; color:#7e92b4; line-height:1.4; margin:-0.3rem 0 0.55rem; }
   .pdx-med-record-lead-v{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.58rem; letter-spacing:0.07em; text-transform:uppercase; margin-bottom:0.1rem; }
   /* Accountability Spotlight rows — integrity drivers, ▲ strengthens / ▼ weighs. */
@@ -60384,6 +60429,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   .pdx-med-act-full:hover{ color:#fff; background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); }
   /* The shared align-card match bar drops its own bottom margin inside the modal. */
   .pdx-med-match .align-card-bar{ margin-bottom:0 !important; }
+  /* "Why this might fit you" — one scannable line summarising the strongest
+     issue agreements, teal to match the Your Match identity. */
+  .pdx-med-whyfit{ display:flex; gap:0.5rem; align-items:flex-start; margin-top:0.55rem; padding:0.6rem 0.7rem; background:linear-gradient(160deg,rgba(94,234,212,0.1),rgba(45,212,191,0.03)); border:1px solid rgba(94,234,212,0.26); border-radius:0.7rem; }
+  .pdx-med-whyfit-ico{ flex-shrink:0; font-size:0.95rem; line-height:1.35; }
+  .pdx-med-whyfit-txt{ font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; line-height:1.42; color:#c8d6ea; }
+  .pdx-med-whyfit-lead{ display:block; font-weight:700; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:#7ee7d8; margin-bottom:0.12rem; }
+  .pdx-med-whyfit-txt b{ color:#7ee7d8; font-weight:700; }
   @media (max-width:480px){
     .pdx-med-overlay{ padding:0; align-items:flex-end; }
     .pdx-med-panel{ max-width:none; max-height:92vh; border-radius:1.1rem 1.1rem 0 0; border-bottom:0; }
@@ -60395,8 +60447,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     .pdx-med-sc{ padding:0.6rem 0.4rem 0.65rem; }
     .pdx-med-sc-num{ font-size:2.1rem; }
     .pdx-med-sc-desc{ font-size:0.58rem; }
-    .pdx-med-section{ margin-top:0.95rem; padding-top:0.95rem; }
+    .pdx-med-section{ margin-top:0.85rem; padding-top:0.85rem; }
+    .pdx-med-section--promise, .pdx-med-section--acct{ padding-left:0.6rem; }
     .pdx-med-spot-t{ font-size:0.82rem; }
+    .pdx-med-whyfit{ padding:0.55rem 0.6rem; }
+    .pdx-med-whyfit-txt{ font-size:0.8rem; }
+    /* The bottom-sheet footer sat flush against the screen edge, so on phones
+       with a home indicator the action buttons crowded (and could be clipped by)
+       the gesture bar. Lift the footer clear of the safe area so Add to Team /
+       Compare / View Full Profile stay comfortable, unobstructed tap targets. */
+    .pdx-med-foot{ padding-bottom:calc(0.8rem + env(safe-area-inset-bottom, 0px)); }
   }
 
   /* Swipe affordance shown above the mobile team strip (hidden on desktop). */
