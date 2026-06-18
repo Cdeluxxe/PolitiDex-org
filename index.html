@@ -8025,40 +8025,39 @@
        as a distinct "go deeper / browse everyone" step, clearly separate from the
        blue "compare these candidates" overlay action above it. */
     .kr-fulllist-btn {
-      width: 100%; display: flex; align-items: center; gap: 0.8rem;
-      text-align: left; cursor: pointer; min-height: 56px;
-      padding: 0.8rem 1rem; border-radius: 0.95rem;
+      width: 100%; display: flex; align-items: center; gap: 0.65rem;
+      text-align: left; cursor: pointer; min-height: 46px;
+      padding: 0.55rem 0.8rem; border-radius: 0.8rem;
       background: linear-gradient(135deg, rgba(16,185,129,0.24), rgba(5,150,105,0.1));
-      border: 2px solid rgba(52,211,153,0.55);
-      box-shadow: 0 4px 18px rgba(16,185,129,0.14);
+      border: 1.5px solid rgba(52,211,153,0.6);
+      box-shadow: 0 3px 14px rgba(16,185,129,0.13);
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .kr-fulllist-btn:hover {
       transform: translateY(-1px);
       background: linear-gradient(135deg, rgba(16,185,129,0.34), rgba(5,150,105,0.16));
-      border-color: rgba(52,211,153,0.85);
-      box-shadow: 0 8px 26px rgba(16,185,129,0.24);
+      border-color: rgba(52,211,153,0.9);
+      box-shadow: 0 8px 24px rgba(16,185,129,0.22);
     }
     .kr-fulllist-btn:active { transform: scale(0.99); }
     .kr-fulllist-ico {
-      flex: 0 0 auto; width: 40px; height: 40px; border-radius: 0.65rem;
-      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+      flex: 0 0 auto; width: 32px; height: 32px; border-radius: 0.55rem;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
       background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.5);
     }
-    .kr-fulllist-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.14rem; }
+    .kr-fulllist-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.08rem; }
     .kr-fulllist-eyebrow {
       font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-      font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+      font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase;
       color: #6ee7b7; line-height: 1;
     }
     .kr-fulllist-title {
       font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-      font-size: 0.95rem; letter-spacing: 0.03em; text-transform: uppercase;
+      font-size: 0.92rem; letter-spacing: 0.03em; text-transform: uppercase;
       color: #d1fae5; line-height: 1.1;
     }
-    .kr-fulllist-sub { font-family: 'Barlow', sans-serif; font-size: 0.7rem; color: #9fc8b6; line-height: 1.3; }
-    .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.35rem; line-height: 1; }
-    @media (max-width: 380px) { .kr-fulllist-sub { font-size: 0.66rem; } .kr-fulllist-title { font-size: 0.86rem; } }
+    .kr-fulllist-go { flex: 0 0 auto; color: #6ee7b7; font-size: 1.25rem; line-height: 1; }
+    @media (max-width: 380px) { .kr-fulllist-title { font-size: 0.84rem; } }
 
     /* ── Key Races → Relevant to Me funnel — the section-level handoff. After the
        quick overview of every race, this single prominent bridge sends the voter
@@ -8113,36 +8112,39 @@
        three core actions, and a single prominent bridge to the full field below.
        The heavy hero / score / teaser treatment was retired here to cut vertical
        weight — that depth now lives in Relevant to Me and the profile. */
-    .kr-race-card { border-radius: 1.1rem; overflow: hidden; border: 1px solid rgba(96,165,250,0.22); background: rgba(10,15,30,0.55); box-shadow: 0 6px 22px rgba(0,0,0,0.26); }
-    .kr-race-head { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .kr-race-chamber { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.18rem 0.6rem; border-radius: 999px; white-space: nowrap; }
-    .kr-race-district { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.02em; color: #fff; line-height: 1; }
-    .kr-head-ballot { margin-left: auto; display: inline-flex; align-items: center; gap: 0.28rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+    .kr-race-card { border-radius: 1rem; overflow: hidden; border: 1px solid rgba(96,165,250,0.22); background: rgba(10,15,30,0.55); box-shadow: 0 5px 18px rgba(0,0,0,0.24); }
+    /* Coverage panel + group dividers span the full overview grid so the race
+       cards beneath them can sit two-up. */
+    .kr-span-all { grid-column: 1 / -1; }
+    .kr-race-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 0.5rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .kr-race-chamber { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.16rem 0.55rem; border-radius: 999px; white-space: nowrap; }
+    .kr-race-district { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.02em; color: #fff; line-height: 1; }
+    .kr-head-ballot { margin-left: auto; display: inline-flex; align-items: center; gap: 0.28rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.18rem 0.55rem; border-radius: 999px; white-space: nowrap; }
     .kr-head-ballot.is-now { color: #6ee7b7; background: rgba(16,185,129,0.14); border: 1px solid rgba(52,211,153,0.45); }
     .kr-head-ballot.is-open { color: #fcd34d; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.45); }
     .kr-head-ballot.is-future { color: #9fb4d4; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.3); }
-    .kr-race-body { padding: 0.85rem 1rem 0.95rem; }
+    .kr-race-body { padding: 0.7rem 0.85rem 0.8rem; }
 
     /* Compact officeholder row — identity + tenure + the three core actions. */
-    .kr-holder { position: relative; border-radius: 0.9rem; padding: 0.7rem 0.8rem 0.78rem; background: linear-gradient(150deg, rgba(245,200,66,0.13), rgba(10,15,30,0.32)); border: 1px solid rgba(245,200,66,0.4); }
-    .kr-holder + .kr-holder { margin-top: 0.55rem; }
+    .kr-holder { position: relative; border-radius: 0.85rem; padding: 0.6rem 0.7rem 0.65rem; background: linear-gradient(150deg, rgba(245,200,66,0.13), rgba(10,15,30,0.32)); border: 1px solid rgba(245,200,66,0.4); }
+    .kr-holder + .kr-holder { margin-top: 0.5rem; }
     .kr-holder.is-pick { border-color: rgba(74,222,128,0.5); background: linear-gradient(150deg, rgba(74,222,128,0.13), rgba(10,15,30,0.32)); }
     .kr-holder.is-open { border-color: rgba(148,163,184,0.34); background: rgba(30,41,59,0.4); }
-    .kr-holder-top { display: flex; align-items: center; gap: 0.7rem; }
-    .kr-holder-openavatar { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(148,163,184,0.5); background: rgba(30,53,96,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .kr-holder-top { display: flex; align-items: center; gap: 0.65rem; }
+    .kr-holder-openavatar { width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(148,163,184,0.5); background: rgba(30,53,96,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
     .kr-holder-meta { flex: 1; min-width: 0; }
-    .kr-holder-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; letter-spacing: 0.02em; line-height: 1.05; color: #fff; background: none; border: none; padding: 0; cursor: pointer; text-align: left; overflow-wrap: anywhere; transition: color 0.15s ease; }
+    .kr-holder-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; letter-spacing: 0.02em; line-height: 1.05; color: #fff; background: none; border: none; padding: 0; cursor: pointer; text-align: left; overflow-wrap: anywhere; transition: color 0.15s ease; }
     .kr-holder-name:hover { color: #fff3d6; }
-    .kr-holder-badges { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.16rem; }
-    .kr-holder-inoffice { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1206; background: linear-gradient(135deg, #ffe884, #e0a82e); padding: 0.1rem 0.5rem; border-radius: 999px; }
-    .kr-holder-office { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #fcd34d; line-height: 1.25; margin-top: 0.2rem; font-weight: 600; }
-    .kr-holder-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.55rem; }
-    .kr-holder-status { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.62rem; letter-spacing: 0.02em; color: #cdd9ec; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.3); padding: 0.16rem 0.55rem; border-radius: 999px; }
+    .kr-holder-badges { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.12rem; }
+    .kr-holder-inoffice { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1206; background: linear-gradient(135deg, #ffe884, #e0a82e); padding: 0.1rem 0.5rem; border-radius: 999px; }
+    .kr-holder-office { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: #fcd34d; line-height: 1.2; margin-top: 0.16rem; font-weight: 600; }
+    .kr-holder-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 0.32rem; margin-top: 0.45rem; }
+    .kr-holder-status { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.6rem; letter-spacing: 0.02em; color: #cdd9ec; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.3); padding: 0.14rem 0.5rem; border-radius: 999px; }
     .kr-holder-status.is-future { color: #9fb4d4; }
-    .kr-open-mini { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; color: #cdd9ec; line-height: 1.3; margin-top: 0.22rem; }
+    .kr-open-mini { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; color: #cdd9ec; line-height: 1.3; margin-top: 0.2rem; }
 
     /* Compact action row — Add / Compare / Profile, equal weight, thumb-sized. */
-    .kr-mini-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+    .kr-mini-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
     .kr-mini-btn { flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 0.28rem; min-height: 40px; padding: 0 0.5rem; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; color: #bcd3f5; background: rgba(59,130,246,0.1); border: 1px solid rgba(96,165,250,0.32); border-radius: 0.6rem; transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease; }
     .kr-mini-btn:hover { background: rgba(59,130,246,0.18); border-color: rgba(96,165,250,0.55); }
     .kr-mini-btn:active { transform: scale(0.97); }
@@ -8152,13 +8154,10 @@
     .kr-mini-add:hover { background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.12)); border-color: rgba(245,158,11,0.7); }
     .kr-mini-add.is-on { color: #4ade80; background: linear-gradient(135deg, rgba(74,222,128,0.22), rgba(74,222,128,0.1)); border-color: rgba(74,222,128,0.55); }
 
-    /* Micro-copy line tying each overview card to Relevant to Me below. */
-    .kr-deeper-note { font-family: 'Barlow', sans-serif; font-size: 0.68rem; line-height: 1.4; color: #8fa6c8; margin: 0.55rem 0 0; }
-
     /* ── Current officeholder (incumbent) — the elevated "hero" of each race card.
        Deliberately given stronger visual weight than the 2026 challenger rows
        below, so it's instantly clear who holds the seat today vs. who's running. */
-    .kr-incumbent-label { display: flex; align-items: center; gap: 0.45rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.6rem; }
+    .kr-incumbent-label { display: flex; align-items: center; gap: 0.42rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.45rem; }
     .kr-incumbent-label::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 9px rgba(251,191,36,0.9); flex-shrink: 0; }
     /* The current officeholder is the elevated "hero" of every race card — it gets
        a gold accent bar, stronger glow and more padding than the secondary
@@ -8425,11 +8424,11 @@
     /* Per-race coverage ribbon shown inside each race card, directly under the
        ballot banner: a clear, scannable "covered" / "needs a pick" status. */
     .kr-cover-strip {
-      display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1.2rem;
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.85rem;
       border-bottom: 1px solid rgba(255,255,255,0.06); font-family: 'Barlow Condensed', sans-serif;
     }
-    .kr-cover-strip .kr-cover-ico { font-size: 1rem; line-height: 1; flex-shrink: 0; }
-    .kr-cover-strip .kr-cover-text { font-size: 0.78rem; line-height: 1.3; font-weight: 600; min-width: 0; }
+    .kr-cover-strip .kr-cover-ico { font-size: 0.92rem; line-height: 1; flex-shrink: 0; }
+    .kr-cover-strip .kr-cover-text { font-size: 0.74rem; line-height: 1.25; font-weight: 600; min-width: 0; }
     .kr-cover-strip.is-covered { background: linear-gradient(100deg, rgba(34,197,94,0.12), transparent 70%); }
     .kr-cover-strip.is-covered .kr-cover-text { color: #9af0b8; }
     .kr-cover-strip.is-covered .kr-cover-text strong { color: #d7f7e3; }
@@ -18075,8 +18074,11 @@
               <span aria-hidden="true" style="opacity:0.7;">›</span>
             </button>
 
-            <!-- Race cards injected here -->
-            <div id="keyraces-list" class="grid grid-cols-1 gap-4"></div>
+            <!-- Race cards injected here. Two-up on wider screens so the overview
+                 stays a compact snapshot rather than a tall single column; the
+                 coverage panel and group headers span the full width (see
+                 .kr-span-all). -->
+            <div id="keyraces-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-3.5"></div>
 
             <!-- Section-level funnel into Relevant to Me. The per-race cards each
                  carry their own "See everyone running" bridge; this is the single
@@ -51207,9 +51209,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
           '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
           '<span class="kr-fulllist-text">' +
-            '<span class="kr-fulllist-eyebrow">Go deeper · Relevant to Me ↓</span>' +
+            '<span class="kr-fulllist-eyebrow">Go deeper · Relevant to Me</span>' +
             '<span class="kr-fulllist-title">' + fullListTitle + '</span>' +
-            '<span class="kr-fulllist-sub">Jumps to this seat’s full candidate list in <strong>Relevant to Me</strong> below — compare the whole field &amp; research each one.</span>' +
           '</span>' +
           '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
         '</button>';
@@ -51224,8 +51225,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="kr-race-body">' +
           '<div class="kr-incumbent-label">' + (incList.length ? (incList.length > 1 ? 'Your Current Officeholders' : 'Currently Represented By') : '2026 Open Race') + '</div>' +
           holderHtml +
-          '<div style="margin-top:0.75rem;">' + fullListBtn + '</div>' +
-          '<p class="kr-deeper-note">👇 More detail &amp; every candidate for this seat are in <strong style="color:#bcd3f5;">Relevant to Me</strong> below.</p>' +
+          '<div style="margin-top:0.6rem;">' + fullListBtn + '</div>' +
         '</div>' +
       '</div>';
     }
@@ -52225,7 +52225,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Small section divider used to group the Key Races list into
     // "Statewide Races" (always shown) and the location-specific district races.
     function _krGroupHeader(icon, title, sub, color) {
-      return '<div style="margin:0.25rem 0 -0.25rem;">' +
+      return '<div class="kr-span-all" style="margin:0.25rem 0 -0.25rem;">' +
           '<div style="display:flex;align-items:center;gap:0.6rem;">' +
             '<span style="font-size:1.05rem;line-height:1;">' + icon + '</span>' +
             '<span class="font-display text-lg md:text-xl tracking-wide" style="color:' + color + ';text-shadow:0 0 18px ' + color + '33;">' + title + '</span>' +
@@ -52347,7 +52347,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var cta = (complete && nCov >= 2)
         ? '<button type="button" class="kr-cov-cta" onclick="if(window.myteamCompareAll)window.myteamCompareAll();else{var b=document.getElementById(\'myteam-summary-box\')||document.getElementById(\'my-politicians\');if(b)b.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">⚖️ Compare your full team</button>'
         : '';
-      return '<div class="kr-coverage-panel' + (complete ? ' is-complete' : '') + '">' +
+      return '<div class="kr-coverage-panel kr-span-all' + (complete ? ' is-complete' : '') + '">' +
           '<div class="kr-cov-head">' +
             '<span style="font-size:1.18rem;line-height:1;">' + headIco + '</span>' +
             '<span class="kr-cov-title">' + title + '</span>' +
@@ -52411,7 +52411,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // for a location (e.g. data still loading or an unmapped area). Points the
         // visitor at the one control that fixes it rather than leaving dead space.
         if (!html) {
-          html = '<div style="padding:1.4rem 1.25rem;border-radius:1.1rem;background:rgba(30,58,138,0.14);border:1px solid rgba(96,165,250,0.28);text-align:center;">' +
+          html = '<div class="kr-span-all" style="padding:1.4rem 1.25rem;border-radius:1.1rem;background:rgba(30,58,138,0.14);border:1px solid rgba(96,165,250,0.28);text-align:center;">' +
             '<div style="font-size:1.8rem;line-height:1;margin-bottom:0.5rem;">🗺️</div>' +
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1.05rem;color:#e6eefb;margin-bottom:0.3rem;">No races to show for this area yet</div>' +
             '<p style="font-family:\'Barlow\',sans-serif;font-size:0.85rem;line-height:1.5;color:#9fb4d4;max-width:30rem;margin:0 auto 0.9rem;">Pick a different Utah area above and your statewide and district races will load here.</p>' +
