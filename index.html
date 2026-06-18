@@ -58817,13 +58817,34 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
              censusName(geos, 'census designated places') ||
              censusName(geos, 'places');
     }
+    // Utah bounding box (W,E,S,N in lng/lat). Used to bias geocoding to Utah and
+    // to reject out-of-state matches that would otherwise drop the pin on an
+    // identically-named street in another city/valley/state.
+    var UTAH_BBOX = { west: -114.10, east: -108.95, south: 36.95, north: 42.05 };
+    function inUtah(lat, lng){
+      return lng >= UTAH_BBOX.west && lng <= UTAH_BBOX.east &&
+             lat >= UTAH_BBOX.south && lat <= UTAH_BBOX.north;
+    }
+    // Append a Utah hint when the query names no state, so the geocoders resolve
+    // the Utah address rather than a same-named street elsewhere in the country.
+    function biasUtah(q){
+      return /\b(ut|utah)\b/i.test(q) ? q : (q + ', UT');
+    }
     function geocodeCensus(q){
       var url = 'https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&address=' +
         encodeURIComponent(q);
       return pdxJsonp(url, 7000).then(function(data){
         var matches = data && data.result && data.result.addressMatches;
         if (!matches || !matches.length) return null;
-        var m = matches[0];
+        // Prefer the first candidate whose coordinates fall inside Utah so an
+        // ambiguous match doesn't pin to another state; fall back to the top hit.
+        var m = null;
+        for (var mi = 0; mi < matches.length; mi++){
+          var mc = matches[mi].coordinates || {};
+          var mla = parseFloat(mc.y), mln = parseFloat(mc.x);
+          if (!isNaN(mla) && !isNaN(mln) && inUtah(mla, mln)) { m = matches[mi]; break; }
+        }
+        if (!m) m = matches[0];
         var c = m.coordinates || {};
         var lat = parseFloat(c.y), lng = parseFloat(c.x);
         if (isNaN(lat) || isNaN(lng)) return null;
@@ -58842,29 +58863,49 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).catch(function(){ return null; });
     }
     function geocodeNominatim(q, utahBias){
-      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&addressdetails=1&q=' +
+      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&addressdetails=1&q=' +
         encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
       return fetch(url, { headers: { 'Accept': 'application/json' } })
         .then(function(r){ if (!r.ok) throw new Error('geo'); return r.json(); })
         .then(function(arr){
           if (!arr || !arr.length) return null;
-          var lat = parseFloat(arr[0].lat), lng = parseFloat(arr[0].lon);
+          // Score candidates: a Utah hit beats an out-of-state one, and an exact
+          // street/building hit beats a town/region centroid, so the pin lands on
+          // the address rather than a far-off namesake.
+          function rankOf(o){ return o.place_rank != null ? parseInt(o.place_rank, 10) : 0; }
+          function isExact(o){
+            return o.addresstype === 'building' || o.addresstype === 'house' ||
+                   o.category === 'building' || rankOf(o) >= 26;
+          }
+          var best = null, bestScore = -1;
+          for (var i = 0; i < arr.length; i++){
+            var la = parseFloat(arr[i].lat), ln = parseFloat(arr[i].lon);
+            if (isNaN(la) || isNaN(ln)) continue;
+            var score = (inUtah(la, ln) ? 2 : 0) + (isExact(arr[i]) ? 1 : 0);
+            if (score > bestScore){ bestScore = score; best = arr[i]; }
+          }
+          if (!best) best = arr[0];
+          var lat = parseFloat(best.lat), lng = parseFloat(best.lon);
           if (isNaN(lat) || isNaN(lng)) return null;
           // A rooftop/building hit is precise; a town/region centroid is not.
-          var rank = arr[0].place_rank != null ? parseInt(arr[0].place_rank, 10) : 0;
-          var precise = arr[0].addresstype === 'building' || arr[0].addresstype === 'house' ||
-                        arr[0].category === 'building' || rank >= 26;
-          var ad = arr[0].address || {};
+          var precise = isExact(best);
+          var ad = best.address || {};
           var city = ad.city || ad.town || ad.village || ad.hamlet || ad.municipality || ad.suburb || '';
           var county = ad.county || '';
-          return { lat: lat, lng: lng, name: arr[0].display_name || q, precise: !!precise,
+          return { lat: lat, lng: lng, name: best.display_name || q, precise: !!precise,
                    source: 'nominatim', city: ('' + city).trim(), county: ('' + county).trim() };
         }).catch(function(){ return null; });
     }
     // Best-precision-first chain. Census handles real street addresses (incl. rural);
     // Nominatim covers city/ZIP-only queries and anything Census can't parse.
     function resolveGeocode(q){
-      return geocodeCensus(q)
+      // Try a Utah-biased query first so a stateless address (e.g. "1572 West
+      // Camelot Dr, Layton") resolves in Utah; fall back to the raw query so a
+      // fully-qualified address is still honoured verbatim.
+      var bq = biasUtah(q);
+      return geocodeCensus(bq)
+        .then(function(hit){ return hit || (bq !== q ? geocodeCensus(q) : null); })
+        .then(function(hit){ return hit || geocodeNominatim(bq, true); })
         .then(function(hit){ return hit || geocodeNominatim(q, true); })
         .then(function(hit){ return hit || geocodeNominatim(q, false); });
     }
@@ -58892,10 +58933,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var st = document.createElement('style');
       st.id = 'pdx-pin-styles';
       st.textContent =
-        '.pdx-pin{position:relative;width:26px;height:26px;}' +
-        '.pdx-pin-dot{position:absolute;top:50%;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:#e01b32;border:2.5px solid #fff;box-shadow:0 1px 7px rgba(0,0,0,0.7),0 0 0 1px rgba(0,0,0,0.35);}' +
-        '.pdx-pin-pulse{position:absolute;top:50%;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:rgba(224,27,50,0.5);animation:pdxPinPulse 1.8s ease-out infinite;}' +
-        '@keyframes pdxPinPulse{0%{transform:scale(1);opacity:0.85;}70%{transform:scale(3.4);opacity:0;}100%{transform:scale(3.4);opacity:0;}}';
+        '.pdx-pin{position:relative;width:30px;height:30px;}' +
+        '.pdx-pin-dot{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#e01b32;border:3px solid #fff;box-shadow:0 1px 8px rgba(0,0,0,0.75),0 0 0 1.5px rgba(0,0,0,0.4);}' +
+        '.pdx-pin-pulse{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:rgba(224,27,50,0.55);animation:pdxPinPulse 1.8s ease-out infinite;}' +
+        '@keyframes pdxPinPulse{0%{transform:scale(1);opacity:0.85;}70%{transform:scale(3.6);opacity:0;}100%{transform:scale(3.6);opacity:0;}}';
       document.head.appendChild(st);
     }
     function placeMarker(hit){
@@ -58905,11 +58946,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var icon = L.divIcon({
         className: 'pdx-pin-wrap',
         html: '<div class="pdx-pin"><div class="pdx-pin-pulse"></div><div class="pdx-pin-dot"></div></div>',
-        iconSize: [26, 26], iconAnchor: [13, 13]
+        iconSize: [30, 30], iconAnchor: [15, 15]
       });
       _marker = L.marker([hit.lat, hit.lng], { icon: icon, zIndexOffset: 1000, keyboard: false }).addTo(_map);
       var label = hit.name ? hit.name.split(',').slice(0, 2).join(',').trim() : 'Your address';
-      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -10] }).openTooltip();
+      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -12] }).openTooltip();
     }
 
     // ── Nearest-district fallback ───────────────────────────────────────────────
@@ -58954,9 +58995,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         setSearchBusy(false);
         ensureMap();
-        // Precise (rooftop) hits earn a tight street-level view; coarse city/ZIP
-        // hits stay a little wider so the whole place stays in frame.
-        _map.setView([hit.lat, hit.lng], hit.precise ? 15 : 12);
+        // Precise (rooftop) hits earn a tight street-level view so the voter can
+        // see their exact spot; coarse city/ZIP hits stay at a neighborhood level
+        // so the whole place stays in frame. Neither zooms back out to the state.
+        _map.setView([hit.lat, hit.lng], hit.precise ? 16 : 13);
 
         // District detection from the exact point. Point-in-polygon against the drawn
         // UGRC boundaries is authoritative for the geometry (it's what gets
@@ -59023,17 +59065,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
         if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
         var approx = approxH || approxS;
-        var lead = approx
-          ? '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:'
-          : '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
+        // Two independent kinds of imprecision are surfaced separately:
+        //  · approx  → the DISTRICT was a nearest-match (exact lookup unavailable)
+        //  · !precise → the PIN is a city/ZIP centroid, not a rooftop point
+        var lead;
+        if (approx) {
+          lead = '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:';
+        } else if (!hit.precise) {
+          lead = '📍 Found “' + escapeHtml(shortAddr(hit.name)) + '” — pin shows the area center. You’re in:';
+        } else {
+          lead = '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
+        }
         // Note when detection was realigned to the area's official districts so the
         // map stays in lock-step with the rest of the page.
         var corr = (corrected && !approx)
           ? '<br><span style="opacity:0.85;">Matched to your area’s districts so this agrees with Key Races and Relevant to Me.</span>'
           : '';
+        // For a coarse (city/ZIP) hit, tell the voter how to sharpen the pin.
+        var precNote = (!hit.precise && !approx)
+          ? '<br><span style="opacity:0.85;">Approximate location — add a street number for an exact pin, or tap your spot on the map.</span>'
+          : '';
         setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
-          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : corr),
-          approx ? 'is-warn' : 'is-ok');
+          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : (corr + precNote)),
+          (approx || !hit.precise) ? 'is-warn' : 'is-ok');
       }).catch(function(){
         setSearchBusy(false);
         setSearchNote('Couldn’t load district boundaries. Please try again.', 'is-error');
