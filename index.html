@@ -16080,6 +16080,64 @@
       .pdx-snap-highlight { font-size: 0.8rem; }
       .pdx-snap-highlight--quote .pdx-snap-quote-cite { font-size: 0.66rem; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE EXPERIENCE — MAIN-PAGE RHYTHM & COHESION PASS
+       The three primary surfaces a voter works through — Key Races (overview),
+       Relevant to Me (research) and My Voting Team (the builder) — each grew
+       their own paddings, section gaps and tap sizes across successive passes,
+       so on a phone they read with slightly different insets and a few controls
+       still landed just under a comfortable thumb size. This pass harmonises the
+       three panels onto one inset, evens out the gaps between the stacked
+       sections so the page neither crams them together nor leaves large empty
+       bands, and lifts the last cramped controls (the per-race Add/Compare/
+       Profile row, the research progress button and the "manage full team"
+       pills) to the 44px minimum. It deliberately leaves the compact My Voting
+       Team layout and the medium profile modal untouched. Additive and
+       phone-scoped only — no markup or JS changes — appended last so it reliably
+       wins the cascade. The dark patriotic palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* ── 1 · UNIFIED PANEL INSET ──────────────────────────────────────
+         My Voting Team sat at 24px, Key Races at 20px and the Relevant
+         header at 18/22px. Bring all three to one comfortable phone inset so
+         the sections read as one cohesive system and each wins back a little
+         content width. */
+      #myteam-selected-panel > div { padding: 1.4rem 1.15rem !important; }
+      #keyraces-panel > div { padding: 1.25rem 1.1rem !important; }
+      #relevant-header-panel { padding: 1.2rem 1.1rem !important; }
+
+      /* ── 2 · EVEN SECTION RHYTHM ──────────────────────────────────────
+         The stacked main sections used three different bottom gaps (mb-14 /
+         mb-6 / mb-10). Settle them onto one calm, consistent rhythm — the My
+         Voting Team builder no longer leaves a tall empty band before Key
+         Races, and the supporting sections sit a steady distance apart. */
+      #my-politicians { margin-bottom: 2rem; }
+      #keyraces-panel { margin-bottom: 2rem; }
+
+      /* ── 3 · CONFIDENT TAP TARGETS IN THE MAIN FLOW ───────────────────
+         The per-race Add / Compare / Profile buttons (40px), the research
+         section's progress button (42px) and the "manage full team" pills
+         (36px) were all below a comfortable thumb size; lift each to 44px. */
+      .kr-mini-btn { min-height: 44px; }
+      .rel-team-progress__btn { min-height: 44px; }
+      .pdx-back-to-team { min-height: 44px; }
+
+      /* ── 4 · A LITTLE AIR IN THE RACE CARDS ───────────────────────────
+         The compact race cards' action row and header sat a hair tight; a
+         small bump to the button gap and the header padding keeps the three
+         actions from reading as one fused block, without adding real height. */
+      .kr-mini-actions { gap: 0.5rem; }
+      .kr-race-head { padding: 0.6rem 0.85rem; }
+    }
+
+    @media (max-width: 400px) {
+      /* Narrowest phones: shave the unified inset a touch more so full-width
+         content never crowds the panel edges. */
+      #myteam-selected-panel > div { padding: 1.15rem 0.95rem !important; }
+      #keyraces-panel > div { padding: 1.1rem 0.9rem !important; }
+      #relevant-header-panel { padding: 1.05rem 0.95rem !important; }
+    }
   </style>
 
       </head>
@@ -18189,7 +18247,7 @@
         <!-- Relevant to Me Section Header — a supporting RESEARCH tool: lighter than
              My Voting Team and clearly framed as "research & quick-add", with the path
              back up to the one builder kept prominent. -->
-        <div class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.1) 0%, rgba(10,15,30,0.5) 60%, rgba(245,200,66,0.04) 100%); border:1px solid rgba(59,130,246,0.2); border-radius:1.25rem; padding:1.15rem 1.35rem; box-shadow:0 5px 22px rgba(0,0,0,0.28);">
+        <div id="relevant-header-panel" class="mb-6" style="background:linear-gradient(135deg, rgba(30,58,138,0.1) 0%, rgba(10,15,30,0.5) 60%, rgba(245,200,66,0.04) 100%); border:1px solid rgba(59,130,246,0.2); border-radius:1.25rem; padding:1.15rem 1.35rem; box-shadow:0 5px 22px rgba(0,0,0,0.28);">
           <!-- Light top guidance — sets expectations for the section in one line. -->
           <div class="rel-research-guide">
             <span aria-hidden="true">🔬</span>
