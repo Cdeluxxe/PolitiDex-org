@@ -17921,7 +17921,7 @@
                 <div class="font-condensed font-700 text-xs uppercase text-blue-300/80" style="letter-spacing:0.2em;margin-bottom:3px;">① Quick Overview · Your Races at a Glance</div>
                 <h3 class="font-display text-2xl md:text-3xl tracking-wider text-blue-200 uppercase" style="line-height:1.1;text-shadow:0 0 22px rgba(59,130,246,0.25);">Your Key Races</h3>
                 <p id="keyraces-headline" class="font-condensed text-sm md:text-base text-blue-100/90 tracking-wide mt-1.5"></p>
-                <p class="font-condensed text-sm text-blue-100/90 tracking-wide mt-1.5" style="line-height:1.5;">A quick look at <strong class="text-white">your districts</strong> and <strong class="text-white">who represents you right now</strong>. Dive deeper below: tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research &amp; compare the full field in <strong class="text-white">Relevant to Me</strong>.</p>
+                <p class="font-condensed text-sm text-blue-100/90 tracking-wide mt-1.5" style="line-height:1.5;">A quick overview of <strong class="text-white">your races and who holds them now</strong>. Tap <strong class="text-emerald-300">“See everyone running”</strong> on any race to research the full field in <strong class="text-white">Relevant to Me</strong>.</p>
                 <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.55rem;">↑ Manage full team in My Voting Team</button>
               </div>
             </div>
@@ -17951,13 +17951,6 @@
 
             <!-- Race cards injected here -->
             <div id="keyraces-list" class="grid grid-cols-1 gap-5"></div>
-
-            <!-- What this section is for + the one action to take. Kept light so it
-                 reads as a friendly nudge, not an instruction manual. -->
-            <div class="pdx-hint mt-5">
-              <span class="pdx-hint-ico" aria-hidden="true">🗳️</span>
-              <p class="pdx-hint-text"><strong>What to do here:</strong> these are the offices you'll actually vote on. In each race, tap <strong>⚖️ Compare these candidates</strong> to see who's running side-by-side on their record and values — then tap <strong>➕ Add to My Team</strong> to lock in your pick. Not sure yet? Tap a name to open their full profile first.</p>
-            </div>
 
             <!-- Section-level funnel into Relevant to Me. The per-race cards each
                  carry their own "See everyone running" bridge; this is the single
@@ -38013,6 +38006,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     if (typeof window.updateRacesAndPositions === 'function') window.updateRacesAndPositions();
     if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
     if (typeof window._mypolBuildGrid === 'function') window._mypolBuildGrid();
+    // Repaint Your Key Races too. Its area is inferred from _currentVoterLocation,
+    // so a location set via the map (or any other path) must re-render it or the
+    // overview's districts/officeholders would silently disagree with the map and
+    // the Relevant-to-Me ballot below it. Keeps all three surfaces locked together.
+    if (typeof window.renderKeyRaces === 'function') window.renderKeyRaces();
     if (typeof window.renderRelevantToMe === 'function') window.renderRelevantToMe();
     if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
     if (typeof window._renderElectionDates === 'function') window._renderElectionDates();
@@ -50701,7 +50699,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (!d) return '';
       var isPick = selectedPid === pid;
       var cells = _krScoreCells(pid, d, true);
-      var spot = (typeof _krBuildSpotlight === 'function') ? _krSpotPreviewHtml(pid, _krBuildSpotlight(pid)) : '';
+      // The officeholder hero is the "who holds this seat" focal point — kept to
+      // identity + record (photo, name, party, office, tenure, scores, your match)
+      // so it reads cleanly at a glance. The timely-news Spotlight teaser lives on
+      // the candidate rows and in the deeper Relevant-to-Me / profile views, so the
+      // hero stays compact instead of stacking yet another strip.
       var align = (typeof _krAlignInlineHtml === 'function') ? _krAlignInlineHtml(pid, d) : '';
       return '<div class="kr-incumbent-panel' + (isPick ? ' is-pick' : '') + '">' +
         '<div style="display:flex;align-items:flex-start;gap:0.9rem;">' +
@@ -50719,7 +50721,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _krIncFocus(d, pid) +
         '<div class="kr-score-strip">' + cells.promise + cells.acct + '</div>' +
         align +
-        spot +
         '<div style="margin-top:0.7rem;display:flex;justify-content:flex-end;">' + _krPickBtn(race, pid, isPick) + '</div>' +
         _krActionRow(pid, d) +
       '</div>';
@@ -51082,9 +51083,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           'aria-label="See the full candidate list for ' + fullListLabel + ' in the Relevant to Me section below">' +
           '<span class="kr-fulllist-ico" aria-hidden="true">📋</span>' +
           '<span class="kr-fulllist-text">' +
-            '<span class="kr-fulllist-eyebrow">Research the full field →</span>' +
+            '<span class="kr-fulllist-eyebrow">Go deeper · Relevant to Me →</span>' +
             '<span class="kr-fulllist-title">See everyone running for ' + fullListLabel + '</span>' +
-            '<span class="kr-fulllist-sub">Jumps to the detailed, filtered list for this seat — compare them all in Relevant to Me below</span>' +
+            '<span class="kr-fulllist-sub">Opens this seat’s full candidate list in <strong>Relevant to Me</strong> below — compare them all side-by-side.</span>' +
           '</span>' +
           '<span class="kr-fulllist-go" aria-hidden="true">↓</span>' +
         '</button>';
