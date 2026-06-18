@@ -50002,10 +50002,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     // Infer a location id from the user's real voter location, if it maps
     // to one of the supported areas. Returns '' when there is no match.
-    function _krInferLocation() {
+    // Callers (e.g. the district map after geocoding an address) may pass an
+    // explicit city/county to resolve the SAME curated area the main page would
+    // use for that place, instead of the voter's currently-saved location — this
+    // is what keeps the map's districts identical to Key Races / Relevant to Me.
+    function _krInferLocation(overrideCity, overrideCounty) {
       var loc = window._currentVoterLocation || {};
-      var county = ((window._vhCurrentCounty || loc.county || '') + '').toLowerCase();
-      var city = ((loc.city || '') + '').toLowerCase();
+      var county = ((overrideCounty != null && overrideCounty !== '' ? overrideCounty
+                     : (window._vhCurrentCounty || loc.county || '')) + '').toLowerCase();
+      var city = ((overrideCity != null && overrideCity !== '' ? overrideCity
+                   : (loc.city || '')) + '').toLowerCase();
       // City-specific matches first (so a city resolves to its own area before the
       // broader county fallback), then county-level fallbacks for anything else.
 
@@ -50121,6 +50127,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (r.raceKey === 'house') out.house = num;
           else if (r.raceKey === 'statesenate') out.senate = num;
           else if (r.raceKey === 'statehouse') out.lower = num;
+        });
+        return out;
+      } catch (e) { return null; }
+    };
+
+    // Districts the main page (Key Races / Relevant to Me) actually shows for a
+    // given curated area id — read from the SAME race data those surfaces render,
+    // so the district map can mirror them exactly instead of relying on its own
+    // point-in-polygon detection. Returns numeric {house, senate, congress} (any
+    // of which may be null), plus the area's city/county. null if id is unknown.
+    window._krDistrictsForLocation = function(id) {
+      try {
+        var races = KEY_RACES_BY_LOCATION[id];
+        if (!races) return null;
+        var meta = _krLocationMeta(id);
+        var out = { id: id, city: meta.city || '', county: meta.county || '',
+                    house: null, senate: null, congress: null };
+        races.forEach(function(r) {
+          var m = String(r.district || r.short || '').match(/(\d+)\s*$/);
+          var num = m ? parseInt(m[1], 10) : null;
+          if (r.raceKey === 'statehouse') out.house = num;
+          else if (r.raceKey === 'statesenate') out.senate = num;
+          else if (r.raceKey === 'house') out.congress = num;
         });
         return out;
       } catch (e) { return null; }
@@ -58280,6 +58309,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _searchHit  = null;                            // last geocoded {lat,lng,name}
     var _hasSearchView = false;                        // an address search is active
     var _searchCongress = null;                        // U.S. House district for the searched point
+    var _searchAreaId = null;                          // curated Key-Races area id for the searched point
 
     function distOf(feature){
       var p = feature && feature.properties || {};
@@ -58408,7 +58438,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           path.on({
             mouseover: function(){ if (_selected[layerType] !== dist) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
             mouseout:  function(){ if (_selected[layerType] !== dist) path.setStyle(baseStyle(layerType)); },
-            click:     function(){ selectDistrict(layerType, dist, path); }
+            // A manual tap is the voter overriding the searched address, so drop the
+            // search-derived area/congress and let their tapped districts drive the
+            // resolved area (and thus the U.S. House district) for full consistency.
+            click:     function(){ _searchAreaId = null; _searchCongress = null; selectDistrict(layerType, dist, path); }
           });
           // Re-highlight a previously chosen district when the layer (re)builds.
           if (_selected[layerType] === dist){ _selPath[layerType] = path; applyPathStyle(path, layerType, true); }
@@ -58557,9 +58590,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     // Resolve the curated Key-Races area that best matches the chosen districts so
     // the rest of the location system (Relevant to Me slate, ballot, voter map)
-    // updates to the right seats.
+    // updates to the right seats. An address search already pins the exact area
+    // from the geocoded city/county (_searchAreaId) — trust that directly so the
+    // committed location is the SAME area the main page resolves, rather than
+    // reverse-mapping from district numbers (which can be ambiguous).
     function resolveArea(){
       var locs = window.KEY_RACES_LOCATIONS || [];
+      if (_searchAreaId) {
+        for (var k = 0; k < locs.length; k++) { if (locs[k].id === _searchAreaId) return locs[k]; }
+      }
       var h = _selected.house, s = _selected.senate;
       var both = null, byH = null, byS = null;
       for (var i = 0; i < locs.length; i++) {
@@ -58588,8 +58627,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         try { localStorage.setItem(window.KR_LOCATION_KEY || 'politidex_keyraces_location', area.id); } catch(e) {}
       }
 
-      // A live address search resolves the exact U.S. House district from the point
-      // itself — trust it over the curated area's approximate congressional mapping.
+      // U.S. House: _searchCongress is already aligned to the curated area when an
+      // address resolved one (so it matches Key Races / Relevant to Me), and falls
+      // back to the point's exact Census district otherwise.
       if (_searchCongress != null) loc.district = String(_searchCongress);
 
       window._currentVoterLocation = loc;
@@ -58758,6 +58798,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       return null;
     }
+    // Pull a place/county NAME out of a Census "geographies" bucket (e.g. the
+    // "Counties" or "Incorporated Places" bucket), so we can resolve the curated
+    // Key-Races area for the address and mirror exactly what the main page shows.
+    function censusName(geos, needle){
+      for (var k in geos){
+        if (k.toLowerCase().indexOf(needle) !== -1 && geos[k] && geos[k].length){
+          var o = geos[k][0];
+          return ((o.BASENAME != null ? o.BASENAME : (o.NAME || '')) + '').trim();
+        }
+      }
+      return '';
+    }
+    // City BASENAMEs vary across Census buckets ("Incorporated Places",
+    // "Census Designated Places"); take whichever resolves first.
+    function censusPlaceName(geos){
+      return censusName(geos, 'incorporated places') ||
+             censusName(geos, 'census designated places') ||
+             censusName(geos, 'places');
+    }
     function geocodeCensus(q){
       var url = 'https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&address=' +
         encodeURIComponent(q);
@@ -58769,10 +58828,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var lat = parseFloat(c.y), lng = parseFloat(c.x);
         if (isNaN(lat) || isNaN(lng)) return null;
         var geos = m.geographies || {};
+        var comp = m.addressComponents || {};
         return {
           lat: lat, lng: lng,
           name: m.matchedAddress || q,
           precise: true, source: 'census',
+          city:   (comp.city || censusPlaceName(geos) || '').trim(),
+          county: censusName(geos, 'counties'),
           congress: censusDist(geos, 'congressional'),
           senate:   censusDist(geos, 'legislative districts - upper'),
           house:    censusDist(geos, 'legislative districts - lower')
@@ -58780,7 +58842,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }).catch(function(){ return null; });
     }
     function geocodeNominatim(q, utahBias){
-      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&addressdetails=0&q=' +
+      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&addressdetails=1&q=' +
         encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
       return fetch(url, { headers: { 'Accept': 'application/json' } })
         .then(function(r){ if (!r.ok) throw new Error('geo'); return r.json(); })
@@ -58792,7 +58854,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var rank = arr[0].place_rank != null ? parseInt(arr[0].place_rank, 10) : 0;
           var precise = arr[0].addresstype === 'building' || arr[0].addresstype === 'house' ||
                         arr[0].category === 'building' || rank >= 26;
-          return { lat: lat, lng: lng, name: arr[0].display_name || q, precise: !!precise, source: 'nominatim' };
+          var ad = arr[0].address || {};
+          var city = ad.city || ad.town || ad.village || ad.hamlet || ad.municipality || ad.suburb || '';
+          var county = ad.county || '';
+          return { lat: lat, lng: lng, name: arr[0].display_name || q, precise: !!precise,
+                   source: 'nominatim', city: ('' + city).trim(), county: ('' + county).trim() };
         }).catch(function(){ return null; });
     }
     // Best-precision-first chain. Census handles real street addresses (incl. rural);
@@ -58811,6 +58877,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var geos = data && data.result && data.result.geographies;
         if (!geos) return null;
         return {
+          city:     censusPlaceName(geos),
+          county:   censusName(geos, 'counties'),
           congress: censusDist(geos, 'congressional'),
           senate:   censusDist(geos, 'legislative districts - upper'),
           house:    censusDist(geos, 'legislative districts - lower')
@@ -58873,7 +58941,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Load BOTH boundary sets so House and Senate can be resolved in one pass, and
       // backfill the address's districts from Census if the geocoder didn't carry
       // them (so U.S. House always resolves, even for a Nominatim town centroid).
-      var enrich = (hit.congress == null || hit.house == null || hit.senate == null)
+      var enrich = (hit.congress == null || hit.house == null || hit.senate == null || !hit.city || !hit.county)
         ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
       Promise.all([fetchGeo('house'), fetchGeo('senate'), enrich]).then(function(res){
         var extra = res[2];
@@ -58881,6 +58949,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (hit.congress == null) hit.congress = extra.congress;
           if (hit.house    == null) hit.house    = extra.house;
           if (hit.senate   == null) hit.senate   = extra.senate;
+          if (!hit.city)   hit.city   = extra.city || '';
+          if (!hit.county) hit.county = extra.county || '';
         }
         setSearchBusy(false);
         ensureMap();
@@ -58889,9 +58959,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         _map.setView([hit.lat, hit.lng], hit.precise ? 15 : 12);
 
         // District detection from the exact point. Point-in-polygon against the drawn
-        // UGRC boundaries is authoritative (it's what gets highlighted); the Census-
-        // reported district is the backstop; a nearest-centroid match is the last
-        // resort so a locatable address never silently fails.
+        // UGRC boundaries is authoritative for the geometry (it's what gets
+        // highlighted); the Census-reported district is the backstop; a nearest-
+        // centroid match is the last resort so a locatable address never silently
+        // fails. These give the raw, point-precise districts.
         var h = districtAt('house', hit.lng, hit.lat);
         var s = districtAt('senate', hit.lng, hit.lat);
         var approxH = false, approxS = false;
@@ -58900,8 +58971,33 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (h == null) { h = nearestDistrict('house',  hit.lng, hit.lat); approxH = h != null; }
         if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
 
+        // ── Reconcile with the site's main location data ─────────────────────────
+        // The rest of the site (Key Races cards, Relevant to Me) shows the districts
+        // for the CURATED area a voter's city/county maps to — not a point-precise
+        // lookup. So resolve that same area for this address and adopt ITS districts,
+        // making the map agree with everything else for the location. This is the
+        // validation step: detected districts are double-checked against, and aligned
+        // to, the expected districts for the place. (When no curated area matches —
+        // e.g. an out-of-Utah hit — we keep the point-precise detection.)
+        var areaId = (typeof window._krInferLocation === 'function')
+          ? window._krInferLocation(hit.city, hit.county) : '';
+        var curated = (areaId && typeof window._krDistrictsForLocation === 'function')
+          ? window._krDistrictsForLocation(areaId) : null;
+        var corrected = false;
+        if (curated) {
+          if (curated.house != null && pathForDist('house', curated.house)) {
+            if (h !== curated.house) corrected = true;
+            h = curated.house; approxH = false;
+          }
+          if (curated.senate != null && pathForDist('senate', curated.senate)) {
+            if (s !== curated.senate) corrected = true;
+            s = curated.senate; approxS = false;
+          }
+        }
+        _searchAreaId = areaId || null;
+
         if (h == null && s == null) {
-          _hasSearchView = false; _searchHit = null; _searchCongress = null;
+          _hasSearchView = false; _searchHit = null; _searchCongress = null; _searchAreaId = null;
           refreshResultBanner();
           placeMarker(hit);
           setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) +
@@ -58911,7 +59007,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
         _searchHit = hit;
         _hasSearchView = true;
-        _searchCongress = hit.congress != null ? hit.congress : null;
+        // U.S. House: prefer the curated area's district so it matches Key Races /
+        // Relevant to Me exactly; fall back to the point's Census-reported district.
+        _searchCongress = (curated && curated.congress != null) ? curated.congress
+                          : (hit.congress != null ? hit.congress : null);
         if (h != null) selectDistrict('house', h, pathForDist('house', h));
         if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
         showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
@@ -58927,8 +59026,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var lead = approx
           ? '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:'
           : '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
+        // Note when detection was realigned to the area's official districts so the
+        // map stays in lock-step with the rest of the page.
+        var corr = (corrected && !approx)
+          ? '<br><span style="opacity:0.85;">Matched to your area’s districts so this agrees with Key Races and Relevant to Me.</span>'
+          : '';
         setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
-          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : ''),
+          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : corr),
           approx ? 'is-warn' : 'is-ok');
       }).catch(function(){
         setSearchBusy(false);
