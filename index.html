@@ -18068,7 +18068,7 @@
                  label marks it as the thing to fill so the slots read as the action. -->
             <div class="myteam-slots-focus-label">
               <span class="myteam-slots-focus-ico" aria-hidden="true">🗳️</span>
-              <span class="myteam-slots-focus-text">Your 6 ballot slots — <strong>one pick per office.</strong> Add candidates from the sections below; they land here.</span>
+              <span class="myteam-slots-focus-text" id="myteam-slots-focus-text">Your 6 ballot slots — <strong>one pick per office.</strong> Add candidates from the sections below; they land here.</span>
             </div>
             <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
 
@@ -27264,7 +27264,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       const btnBg = currentTab === 'integrity' ? 'rgba(74,222,128,0.85)' : 'rgba(192,21,42,0.85)';
       const btnHover = currentTab === 'integrity' ? '#22c55e' : '#d91a31';
 
-      return `<div class="dir-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" onclick="showProfile('${p.id}', event)" style="cursor:pointer;transition-delay:${rank*0.06}s;">
+      return `<div class="dir-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" onclick="openMediumModal('${p.id}', event)" style="cursor:pointer;transition-delay:${rank*0.06}s;">
         <div style="height:3px;background:${s.stripe};"></div>
         <div class="px-4 pt-4 pb-3 sm:px-5 sm:pt-5 border-b border-white/5">
           <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;align-items:flex-start;">
@@ -27744,7 +27744,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         donorsHTML += '</div>';
       });
 
-      return '<div class="dir-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" onclick="showProfile(\'' + p.id + '\', event)" style="cursor:pointer;transition-delay:' + (rank * 0.06) + 's;">' +
+      return '<div class="dir-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" onclick="openMediumModal(\'' + p.id + '\', event)" style="cursor:pointer;transition-delay:' + (rank * 0.06) + 's;">' +
         '<div style="height:3px;background:linear-gradient(90deg,#16a34a,#4ade80);"></div>' +
         '<div class="px-4 pt-4 pb-3 sm:px-5 sm:pt-5 border-b border-white/5">' +
           '<div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;align-items:flex-start;">' +
@@ -29155,6 +29155,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg>
           </button>
           <a href="#submit" onclick="closeModal()" class="ml-auto flex items-center gap-1 border border-crimson-600/45 hover:border-crimson-500 hover:bg-crimson-600/15 active:scale-95 text-crimson-300 hover:text-white font-condensed font-700 text-[0.68rem] tracking-widest uppercase px-3 rounded-lg transition-all whitespace-nowrap" style="min-height:34px;" title="Submit evidence about this politician">⚖ Evidence</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MEDIUM MODAL ═══════════════════════
+       The middle information layer between the small list cards and the
+       full profile. Tapping any politician (Relevant to Me, Key Races, My
+       Voting Team, search results) opens this focused, summarized view —
+       office + district, Promise Score, Your Match % breakdown, key
+       documented positions, a record-highlights strip and a short bio —
+       with compact actions. The full deep-dive is one tap deeper. -->
+  <div id="pdx-medium-overlay" class="pdx-med-overlay" style="display:none;" onclick="if(event.target===this)window.closeMediumModal()">
+    <div id="pdx-medium-panel" class="pdx-med-panel" role="dialog" aria-modal="true" aria-label="Candidate summary">
+      <div class="pdx-med-head">
+        <div id="pdx-med-photo-wrap" class="pdx-med-photo-wrap"></div>
+        <div class="pdx-med-id">
+          <div id="pdx-med-name" class="pdx-med-name"></div>
+          <div id="pdx-med-office" class="pdx-med-office"></div>
+          <div id="pdx-med-badges" class="pdx-med-badges"></div>
+        </div>
+        <button class="pdx-med-x" onclick="window.closeMediumModal()" aria-label="Close summary" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="pdx-medium-content" class="pdx-med-content"></div>
+      <div class="pdx-med-foot">
+        <button id="pdx-med-team-btn" type="button" class="pdx-med-act pdx-med-act-team" onclick="window._mediumToggleTeam(this)">⭐ Add to My Team</button>
+        <div class="pdx-med-foot-row">
+          <button id="pdx-med-cmp-btn" type="button" class="pdx-med-act pdx-med-act-cmp" onclick="window._mediumToggleCompare(this)">⚖️ Compare</button>
+          <button type="button" class="pdx-med-act pdx-med-act-full" onclick="window._mediumViewFull()">📋 View Full Profile</button>
         </div>
       </div>
     </div>
@@ -38603,7 +38634,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div style="display:flex;align-items:center;gap:0.6rem;">' +
           _distAvatar(pid, person, color) +
           '<div style="min-width:0;flex:1;">' +
-            '<button type="button" onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" style="display:block;text-align:left;background:none;border:none;padding:0;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.98rem;letter-spacing:0.01em;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + nm + '</button>' +
+            '<button type="button" onclick="if(typeof openMediumModal===\'function\')openMediumModal(\'' + pid + '\')" style="display:block;text-align:left;background:none;border:none;padding:0;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.98rem;letter-spacing:0.01em;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + nm + '</button>' +
             '<div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;margin-top:0.18rem;">' +
               partyChip +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;color:#9fb4d4;line-height:1.1;">' + shortTitle + '</span>' +
@@ -43806,7 +43837,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _pdxCardPhoto(pid, d, status) +
           '<div class="pdx-snap-id">' +
             '<div class="pdx-snap-nameline">' +
-              '<span class="pdx-snap-name font-display" onclick="event.stopPropagation();showProfile(\'' + pid + '\')">' + d.name + '</span>' +
+              '<span class="pdx-snap-name font-display" onclick="event.stopPropagation();openMediumModal(\'' + pid + '\')">' + d.name + '</span>' +
               (opts.controls || '') +
             '</div>' +
             '<div class="pdx-snap-office">' + _pdxCleanOfficeLine(d, resolvedDist) + '</div>' +
@@ -43836,7 +43867,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var style = 'cursor:pointer;' + (opts.cardStyle || '');
       var idAttr = opts.cardId ? ' id="' + opts.cardId + '"' : '';
       return '<div class="' + cls + '" data-pid="' + pid + '"' + idAttr +
-        ' style="' + style + '" onclick="showProfile(\'' + pid + '\')">' + inner + '</div>';
+        ' style="' + style + '" onclick="openMediumModal(\'' + pid + '\')">' + inner + '</div>';
     };
 
 
@@ -44048,29 +44079,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // Accountability of Truth chip — the integrity signal for this teammate, shown
       // front-and-center on the slot so a voter can weigh how well they keep their word.
       var acctBadgeHtml = (sc !== null && sc !== undefined && typeof window._acctCardBadge === 'function')
-        ? '<div style="display:flex;justify-content:center;margin:0.1rem 0 0.5rem;" onclick="event.stopPropagation();">' + window._acctCardBadge(pid) + '</div>' : '';
+        ? '<div class="myteam-slot-acct" style="display:flex;justify-content:center;margin:0.1rem 0 0.5rem;" onclick="event.stopPropagation();">' + window._acctCardBadge(pid) + '</div>' : '';
 
-      return '<div class="myteam-slot' + (window._pdxJustFilledPid === pid ? ' myteam-slot--just-filled' : '') + '" data-pid="' + pid + '" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="showProfile(\'' + pid + '\')">' +
+      return '<div class="myteam-slot' + (window._pdxJustFilledPid === pid ? ' myteam-slot--just-filled' : '') + '" data-pid="' + pid + '" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="openMediumModal(\'' + pid + '\')">' +
         '<button class="myteam-slot-clear-btn" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
         '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" title="' + _slotBlurb(pos.key) + '" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div class="myteam-slot-scope">' + (typeof _myteamSeatScope === 'function' ? _myteamSeatScope(pos.key) : '') + '</div>' +
         photoHtml +
         '<div class="font-display text-xl tracking-wider text-white leading-tight" style="margin-bottom:0.2rem;text-shadow:0 1px 8px rgba(0,0,0,0.3);">' + d.name + '</div>' +
-        '<p class="font-condensed text-xs text-steel-400 tracking-wide" style="font-size:0.68rem;margin-bottom:0.15rem;">' + d.icon + ' ' + d.office + '</p>' +
-        '<div style="display:flex;justify-content:center;align-items:center;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.35rem;">' + window._pdxStatusBadge(d, { size: 'sm' }) + (typeof window._pdxDepthBadge === 'function' ? window._pdxDepthBadge(d, { size: 'sm' }) : '') + (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d) ? window._pdxUnopposedBadge({ size: 'sm' }) : '') + '</div>' +
-        (partyBadge ? '<div style="margin-bottom:0.45rem;">' + partyBadge + '</div>' : '<div style="margin-bottom:0.3rem;"></div>') +
+        '<p class="myteam-slot-office font-condensed text-xs text-steel-400 tracking-wide" style="font-size:0.68rem;margin-bottom:0.15rem;">' + d.icon + ' ' + d.office + '</p>' +
+        '<div class="myteam-slot-badges" style="display:flex;justify-content:center;align-items:center;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.35rem;">' + window._pdxStatusBadge(d, { size: 'sm' }) + (typeof window._pdxDepthBadge === 'function' ? window._pdxDepthBadge(d, { size: 'sm' }) : '') + (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d) ? window._pdxUnopposedBadge({ size: 'sm' }) : '') + '</div>' +
+        (partyBadge ? '<div class="myteam-slot-party" style="margin-bottom:0.45rem;">' + partyBadge + '</div>' : '<div class="myteam-slot-party" style="margin-bottom:0.3rem;"></div>') +
         '<div class="myteam-slot-info-row">' +
           '<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">' +
             '<div class="chub-score" style="color:' + scCol + ';font-size:2rem;text-shadow:0 0 18px ' + scCol + '40;font-family:\'Bebas Neue\',sans-serif;">' + scTxt + '</div>' +
             '<div class="myteam-slot-score-label" style="color:' + (sc !== null && sc !== undefined ? scCol + 'cc' : '#7d97bd') + ';">' + (sc !== null && sc !== undefined ? 'Promise Kept' : 'No Record Yet') + '</div>' +
           '</div>' +
         '</div>' +
-        '<div style="width:88%;margin:0 auto 0.4rem;"><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
+        '<div class="myteam-slot-bar" style="width:88%;margin:0 auto 0.4rem;"><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;"><div class="' + barClass + ' progress-fill" style="height:100%;width:' + (sc || 0) + '%;border-radius:999px;"></div></div></div>' +
         acctBadgeHtml +
         matchBand +
         keptBrokenHtml +
-        '<div class="flex flex-wrap gap-1 justify-center mb-2" style="margin-top:0.4rem;">' +
+        '<div class="myteam-slot-issues flex flex-wrap gap-1 justify-center mb-2" style="margin-top:0.4rem;">' +
           (d.issues && d.issues.length
             ? d.issues.slice(0,3).map(function(i) { return '<span class="inline-block bg-navy-900/60 border border-white/5 rounded-full px-2.5 py-0.5 font-condensed text-steel-500" style="font-size:0.58rem;">' + i + '</span>'; }).join('')
             : (typeof window._pdxFocusEmptyNote === 'function' ? window._pdxFocusEmptyNote(d, { center: true }) : '')) +
@@ -44098,6 +44129,200 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>' +
       '</div>';
     }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // MEDIUM MODAL — middle information layer (small card → MEDIUM → full
+    // profile). Renders a focused, summarized read of one politician: office
+    // + district, Promise Score, Your Match % breakdown, key documented
+    // positions, a record-highlights strip and a short bio. Detail is kept
+    // deliberately light; the full deep-dive is one tap away. Lives in this
+    // scope so it can reuse the card/team helpers directly.
+    // ══════════════════════════════════════════════════════════════════════
+    function _medScoreColor(s) {
+      if (s === null || s === undefined) return '#9fb4d4';
+      return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171';
+    }
+    function _medEsc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    // Office + district line, preferring this politician's own ballot-seat scope
+    // ("District 2", "Your community", "Statewide") so the modal stays tied to
+    // the voter's actual districts.
+    function _medOfficeLine(id, d) {
+      var base = (typeof _pdxCleanOfficeLine === 'function') ? _pdxCleanOfficeLine(d, null) : (d.office || '');
+      return base || (d.office || '');
+    }
+
+    window.openMediumModal = function(id, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (!id) return;
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null;
+      // No compact record for this id — fall back to the full profile so the tap
+      // is never a dead end.
+      if (!d) { if (typeof window.openFullProfile === 'function') window.openFullProfile(id); return; }
+      var p = (window.PROFILES && window.PROFILES[id]) || {};
+      window._pdxMediumId = id;
+
+      var sc = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(d) : (typeof d.score === 'number' ? d.score : null);
+      var hasScore = (sc !== null && sc !== undefined);
+      var scCol = _medScoreColor(sc);
+
+      // ── Header (photo · name · office+district · badges) ──
+      var photoUrl = (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[id]) || '';
+      var ico = d.icon || '\u{1F3DB}\u{FE0F}';
+      var photoHtml = photoUrl
+        ? '<div class="pdx-med-photo"><img src="' + photoUrl + '" alt="' + _medEsc(d.name) + '" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'pdx-med-photo--ico\');this.parentElement.textContent=\'' + ico + '\'"></div>'
+        : '<div class="pdx-med-photo pdx-med-photo--ico">' + ico + '</div>';
+      var pw = document.getElementById('pdx-med-photo-wrap'); if (pw) pw.innerHTML = photoHtml;
+      var nameEl = document.getElementById('pdx-med-name'); if (nameEl) nameEl.textContent = d.name || '';
+      var offEl = document.getElementById('pdx-med-office'); if (offEl) offEl.textContent = _medOfficeLine(id, d);
+      var badges = '';
+      if (typeof window._pdxStatusBadge === 'function') badges += window._pdxStatusBadge(d, { size: 'sm' });
+      if (typeof window._pdxDepthBadge === 'function') badges += window._pdxDepthBadge(d, { size: 'sm' });
+      if (typeof window._pdxPartyChip === 'function' && d.party) badges += window._pdxPartyChip(d.party);
+      var badgesEl = document.getElementById('pdx-med-badges'); if (badgesEl) badgesEl.innerHTML = badges;
+
+      // ── Body sections ──
+      var html = '';
+
+      // Snapshot: Promise Score + accountability signal, side by side.
+      var acct = (hasScore && typeof window._acctCardBadge === 'function') ? window._acctCardBadge(id) : '';
+      html += '<div class="pdx-med-snapshot">' +
+          '<div class="pdx-med-score" style="color:' + scCol + ';">' +
+            '<span class="pdx-med-score-num" style="text-shadow:0 0 16px ' + scCol + '40;">' + (hasScore ? sc + '<span style="font-size:0.55em;">%</span>' : '—') + '</span>' +
+            '<span class="pdx-med-score-lab">' + (hasScore ? 'Promise Score' : 'No record yet') + '</span>' +
+          '</div>' +
+          (acct ? '<div class="pdx-med-acct">' + acct + '</div>' : '') +
+        '</div>';
+
+      // Your Match % breakdown — reuses the shared match bar (tappable → full
+      // issue-by-issue breakdown), or a "set up your match" prompt when the
+      // visitor hasn't picked their issues yet.
+      var matchBar = (typeof window._alignCardBar === 'function') ? window._alignCardBar(id) : '';
+      if (matchBar) {
+        html += '<div class="pdx-med-section pdx-med-match">' +
+            '<div class="pdx-med-sec-title">🎯 Your Match</div>' + matchBar +
+          '</div>';
+      }
+
+      // Key issue positions — the documented stances (marked against the
+      // visitor's own issues when set). Falls back to key-issue / topic pills.
+      var stances = (typeof window._pdxStanceChips === 'function') ? window._pdxStanceChips(id, d, { max: 4, label: true }) : '';
+      var issuesHtml = stances;
+      if (!issuesHtml) {
+        var ki = (p.keyIssues && p.keyIssues.length) ? p.keyIssues : (d.issues || []);
+        if (ki && ki.length) {
+          issuesHtml = '<div class="pdx-med-pills">' + ki.slice(0, 5).map(function(i) {
+            return '<span class="pdx-med-pill">' + _medEsc(i) + '</span>';
+          }).join('') + '</div>';
+        }
+      }
+      if (issuesHtml) {
+        html += '<div class="pdx-med-section">' +
+            '<div class="pdx-med-sec-title">🧭 Where They Stand</div>' + issuesHtml +
+          '</div>';
+      }
+
+      // Record highlights — kept / broken / pending counts plus one
+      // representative tracked promise so the record reads at a glance.
+      var proms = (p.promises && p.promises.length) ? p.promises : (Array.isArray(d.promises) ? d.promises : []);
+      if (proms.length) {
+        var kept = proms.filter(function(r) { return r.verdict === 'kept'; });
+        var broken = proms.filter(function(r) { return r.verdict === 'broken'; });
+        var pending = proms.filter(function(r) { return (r.verdict || 'pending') === 'pending'; });
+        var counts = '<div class="pdx-med-record-counts">' +
+            '<span class="pdx-med-rc is-kept">✓ ' + kept.length + ' Kept</span>' +
+            '<span class="pdx-med-rc is-broken">✕ ' + broken.length + ' Broken</span>' +
+            '<span class="pdx-med-rc is-pending">⏳ ' + pending.length + ' Pending</span>' +
+          '</div>';
+        var lead = kept[0] || broken[0] || proms[0];
+        var leadHtml = '';
+        if (lead && lead.title) {
+          var lv = lead.verdict || 'pending';
+          var lc = lv === 'kept' ? '#4ade80' : lv === 'broken' ? '#f87171' : '#f5c842';
+          leadHtml = '<div class="pdx-med-record-lead" style="border-left-color:' + lc + '88;">' +
+              '<div class="pdx-med-record-lead-t">' + _medEsc(lead.title) + '</div>' +
+              (lead.detail ? '<div class="pdx-med-record-lead-d">' + _medEsc(String(lead.detail).slice(0, 150)) + (String(lead.detail).length > 150 ? '…' : '') + '</div>' : '') +
+            '</div>';
+        }
+        html += '<div class="pdx-med-section">' +
+            '<div class="pdx-med-sec-title">📋 Record Highlights</div>' + counts + leadHtml +
+          '</div>';
+      }
+
+      // Short bio summary — trimmed to a couple of lines.
+      var bio = (p.bio && String(p.bio).trim()) || (d.bio && String(d.bio).trim()) || '';
+      if (bio) {
+        var bioShort = bio.length > 240 ? bio.slice(0, 237).replace(/\s+\S*$/, '') + '…' : bio;
+        html += '<div class="pdx-med-section">' +
+            '<div class="pdx-med-sec-title">👤 Bio</div>' +
+            '<p class="pdx-med-bio">' + _medEsc(bioShort) + '</p>' +
+          '</div>';
+      }
+
+      var contentEl = document.getElementById('pdx-medium-content');
+      if (contentEl) { contentEl.innerHTML = html; contentEl.scrollTop = 0; }
+
+      // Sync the action buttons to current state.
+      window._medSyncTeamBtn(id);
+      window._medSyncCmpBtn(id);
+
+      var ov = document.getElementById('pdx-medium-overlay');
+      if (ov) ov.style.setProperty('display', 'flex', 'important');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window._medSyncTeamBtn = function(id) {
+      var btn = document.getElementById('pdx-med-team-btn');
+      if (!btn) return;
+      var on = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(id);
+      btn.classList.toggle('on-team', on);
+      btn.innerHTML = on ? '✓ On Your Team' : '⭐ Add to My Team';
+    };
+    window._medSyncCmpBtn = function(id) {
+      var btn = document.getElementById('pdx-med-cmp-btn');
+      if (!btn) return;
+      var sel = (typeof _cmpSelected !== 'undefined') && _cmpSelected.has(id);
+      btn.classList.toggle('is-on', sel);
+      btn.innerHTML = sel ? '✓ Comparing' : '⚖️ Compare';
+    };
+    window._mediumToggleTeam = function(btn) {
+      var id = window._pdxMediumId; if (!id) return;
+      if (typeof window.mypolToggleAnimated === 'function') window.mypolToggleAnimated(btn, id);
+      setTimeout(function() { window._medSyncTeamBtn(id); }, 720);
+    };
+    window._mediumToggleCompare = function(btn) {
+      var id = window._pdxMediumId; if (!id) return;
+      if (typeof window.chubToggle === 'function') window.chubToggle(id);
+      window._medSyncCmpBtn(id);
+    };
+    window._mediumViewFull = function() {
+      var id = window._pdxMediumId;
+      window.closeMediumModal();
+      setTimeout(function() { if (typeof window.openFullProfile === 'function') window.openFullProfile(id); }, 180);
+    };
+    window.closeMediumModal = function() {
+      var ov = document.getElementById('pdx-medium-overlay');
+      if (ov) ov.style.setProperty('display', 'none', 'important');
+      window._pdxMediumId = null;
+      // Only release the body scroll lock if the full profile modal isn't open.
+      var full = document.getElementById('modal-overlay');
+      var fullOpen = full && window.getComputedStyle(full).display !== 'none';
+      if (!fullOpen) document.body.style.overflow = '';
+    };
+    // Alias so explicit "View Full Profile" actions (and the medium modal) reach
+    // the deep-dive profile renderer regardless of which script scope they're in.
+    window.openFullProfile = function(id, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (typeof openModal === 'function') openModal(id);
+      else if (typeof window.openModal === 'function') window.openModal(id);
+    };
+    // Escape closes the medium modal first (before the full modal / share sheet).
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      var ov = document.getElementById('pdx-medium-overlay');
+      if (ov && window.getComputedStyle(ov).display !== 'none') { e.stopPropagation(); window.closeMediumModal(); }
+    }, true);
 
     // Per-office picks summary — a compact, scannable roster that answers, at a
     // glance, how many picks the visitor has made and for which offices. Each of
@@ -44389,6 +44614,37 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       if (key === 'local') return 'Your community';
       return 'Statewide';
+    }
+
+    // Location-aware headline for the ballot board. Speaks to the voter's own
+    // place and districts ("Fill your Layton ballot", "Choose your District 2
+    // team who deserves your vote") so the section reads as personal and tied to
+    // their actual ballot — not a generic builder. Falls back to a "set your
+    // location" nudge when no place is saved, and a "team is set" line when full.
+    function _myteamFocusLine(filledCount, total) {
+      total = total || ((window.TEAM_POSITIONS && window.TEAM_POSITIONS.length) || 6);
+      var loc = window._currentVoterLocation || {};
+      var hasLoc = window._hasUserLocation && (loc.state || '').trim();
+      var city = (loc.city || '').trim();
+      var county = (loc.county || '').trim().replace(/\s*county$/i, '');
+      var state = (loc.state || '').trim();
+      var place = city || (county ? county + ' County' : '') || state;
+      var distNum = null;
+      if (typeof _myteamDistrictNum === 'function') {
+        distNum = _myteamDistrictNum('house') || _myteamDistrictNum('statehouse') || _myteamDistrictNum('statesenate');
+      }
+
+      if (!hasLoc || !place) {
+        return 'Your ' + total + ' ballot slots — <strong>one pick per office.</strong> ' +
+          '<button type="button" onclick="if(window.openLocationModal)window.openLocationModal();" style="background:none;border:none;padding:0;margin:0;cursor:pointer;color:#ffe9c2;font:inherit;text-decoration:underline;">Set your location</button> to tie them to your own districts.';
+      }
+      if (filledCount >= total) {
+        return 'Your <strong>' + place + '</strong> team is set — all ' + total + ' seats filled. Swap any pick anytime.';
+      }
+      var lead = distNum
+        ? 'Choose your <strong>District ' + distNum + '</strong> team who deserves your vote'
+        : 'Fill your <strong>' + place + '</strong> ballot';
+      return lead + ' — <strong>one pick per office.</strong> These are the ' + total + ' seats ' + place + ' voters choose; add the candidate who earns each below.';
     }
 
     // Ballot "level" for a slate seat — the tier a voter naturally reasons about:
@@ -44858,6 +45114,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       });
 
       if (slotsGrid) { slotsGrid.classList.add('is-grouped'); slotsGrid.innerHTML = slotsHtml; }
+
+      // Keep the board headline personal & location-aware (their place / district).
+      var focusTextEl = document.getElementById('myteam-slots-focus-text');
+      if (focusTextEl && typeof _myteamFocusLine === 'function') {
+        focusTextEl.innerHTML = _myteamFocusLine(filledCount, TEAM_POSITIONS.length);
+      }
 
       // The "how to fill a seat" primer is for first-timers only — once a single
       // pick exists the voter has clearly found the add mechanic, so hide it to
@@ -51355,7 +51617,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           _krPhoto(pid, d, race.color) +
           '<div style="flex:1;min-width:0;">' +
             '<div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
-              '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="font-condensed font-700 text-white" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.95rem;letter-spacing:0.01em;">' + d.name + '</button>' +
+              '<button onclick="if(typeof openMediumModal===\'function\')openMediumModal(\'' + pid + '\')" class="font-condensed font-700 text-white" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.95rem;letter-spacing:0.01em;">' + d.name + '</button>' +
               _krPartyBadge(d.party) + roleTag +
             '</div>' +
             '<div class="font-condensed" style="font-size:0.68rem;color:#9fb4d4;margin-top:0.15rem;">' + subLine + '</div>' +
@@ -51489,7 +51751,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">' +
               '<span class="kr-incumbent-badge"><span class="kr-incumbent-badge-ico">★</span>In Office</span>' + (typeof window._pdxDepthBadge === 'function' ? window._pdxDepthBadge(d, { size: 'sm' }) : '') + _krPartyBadge(d.party) +
             '</div>' +
-            '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-incumbent-name" style="display:block;margin-top:0.4rem;">' + d.name + '</button>' +
+            '<button onclick="if(typeof openMediumModal===\'function\')openMediumModal(\'' + pid + '\')" class="kr-incumbent-name" style="display:block;margin-top:0.4rem;">' + d.name + '</button>' +
             '<div class="font-condensed" style="font-size:0.76rem;color:#fcd34d;margin-top:0.16rem;line-height:1.3;font-weight:600;">' + (_krCleanOffice(d.office) || 'Current officeholder') + '</div>' +
           '</div>' +
         '</div>' +
@@ -51731,7 +51993,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div class="kr-holder-top">' +
             _krPhoto(pid, d, '#f5c842') +
             '<div class="kr-holder-meta">' +
-              '<button onclick="if(typeof showProfile===\'function\')showProfile(\'' + pid + '\')" class="kr-holder-name">' + d.name + '</button>' +
+              '<button onclick="if(typeof openMediumModal===\'function\')openMediumModal(\'' + pid + '\')" class="kr-holder-name">' + d.name + '</button>' +
               '<div class="kr-holder-badges"><span class="kr-holder-inoffice">★ In Office</span>' + _krPartyBadge(d.party) + '</div>' +
               '<div class="kr-holder-office">' + (_krCleanOffice(d.office) || 'Current officeholder') + '</div>' +
             '</div>' +
@@ -55933,7 +56195,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ? '<img src="' + p.photo + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));\\\'>🏛</div>\'">'
         : '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));">🏛</div>';
 
-      return '<div class="ftm-lb-card animate-on-scroll" onclick="showProfile(\'' + p.id + '\')" style="transition-delay:' + (i * 0.08) + 's;">' +
+      return '<div class="ftm-lb-card animate-on-scroll" onclick="openMediumModal(\'' + p.id + '\')" style="transition-delay:' + (i * 0.08) + 's;">' +
         '<div class="ftm-lb-rank">#' + (i + 1) + '</div>' +
         '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">' +
           '<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(74,222,128,0.25);">' + photoHtml + '</div>' +
@@ -59958,6 +60220,113 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
   })();
   </script>
+
+  <style id="pdx-medium-and-compact-team">
+  /* ═══════════════════════ MEDIUM MODAL ═══════════════════════
+     The middle information layer: a focused, summarized read of one
+     politician between the small list cards and the full profile. */
+  .pdx-med-overlay{ position:fixed; inset:0; z-index:80; background:rgba(3,7,18,0.82); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1rem; overscroll-behavior:contain; }
+  .pdx-med-panel{ position:relative; width:100%; max-width:30rem; max-height:88vh; display:flex; flex-direction:column; background:linear-gradient(180deg,#16233f 0%,#0d1730 100%); border:1px solid rgba(255,255,255,0.1); border-radius:1.1rem; box-shadow:0 30px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04); overflow:hidden; animation:pdxMedRise 0.26s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes pdxMedRise{ from{ opacity:0; transform:translateY(18px) scale(0.97); } to{ opacity:1; transform:none; } }
+  .pdx-med-head{ flex-shrink:0; display:flex; align-items:flex-start; gap:0.75rem; padding:1rem 1rem 0.85rem; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(8,14,30,0.5); }
+  .pdx-med-photo{ width:60px; height:60px; border-radius:50%; overflow:hidden; border:2px solid rgba(245,200,66,0.4); background:rgba(30,53,96,0.5); flex-shrink:0; }
+  .pdx-med-photo img{ width:100%; height:100%; object-fit:cover; object-position:top center; }
+  .pdx-med-photo--ico{ display:flex; align-items:center; justify-content:center; font-size:1.8rem; }
+  .pdx-med-id{ flex:1; min-width:0; }
+  .pdx-med-name{ font-family:'Bebas Neue',sans-serif; font-size:1.55rem; letter-spacing:0.02em; color:#fff; line-height:1.05; }
+  .pdx-med-office{ font-family:'Barlow Condensed',sans-serif; font-size:0.82rem; letter-spacing:0.03em; color:#9fb4d4; margin-top:0.12rem; }
+  .pdx-med-badges{ display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.42rem; }
+  .pdx-med-x{ flex-shrink:0; width:34px; height:34px; border-radius:0.6rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#9fb4d4; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.18s; }
+  .pdx-med-x:hover{ background:rgba(255,255,255,0.12); color:#fff; }
+  .pdx-med-x svg{ width:1.1rem; height:1.1rem; }
+  .pdx-med-content{ flex:1; overflow-y:auto; padding:0.95rem 1rem 1.1rem; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+  .pdx-med-snapshot{ display:flex; align-items:center; gap:0.85rem; margin-bottom:0.95rem; }
+  .pdx-med-score{ display:flex; flex-direction:column; align-items:center; line-height:1; flex-shrink:0; min-width:64px; }
+  .pdx-med-score-num{ font-family:'Bebas Neue',sans-serif; font-size:2.4rem; line-height:0.9; }
+  .pdx-med-score-lab{ font-family:'Barlow Condensed',sans-serif; font-size:0.55rem; letter-spacing:0.1em; text-transform:uppercase; color:#7596c0; margin-top:0.22rem; text-align:center; }
+  .pdx-med-acct{ flex:1; min-width:0; display:flex; }
+  .pdx-med-section{ margin-bottom:0.95rem; }
+  .pdx-med-section:last-child{ margin-bottom:0; }
+  .pdx-med-sec-title{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:#cdd9ec; margin-bottom:0.45rem; }
+  .pdx-med-pills{ display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .pdx-med-pill{ display:inline-block; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:0.2rem 0.6rem; font-family:'Barlow Condensed',sans-serif; font-size:0.72rem; color:#9fb4d4; }
+  .pdx-med-record-counts{ display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem; }
+  .pdx-med-rc{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.7rem; padding:0.22rem 0.55rem; border-radius:999px; }
+  .pdx-med-rc.is-kept{ color:#4ade80; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.28); }
+  .pdx-med-rc.is-broken{ color:#f87171; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.28); }
+  .pdx-med-rc.is-pending{ color:#f5c842; background:rgba(245,200,66,0.1); border:1px solid rgba(245,200,66,0.28); }
+  .pdx-med-record-lead{ border-left:2px solid rgba(255,255,255,0.25); padding:0.1rem 0 0.1rem 0.6rem; }
+  .pdx-med-record-lead-t{ font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:0.84rem; color:#fff; line-height:1.2; }
+  .pdx-med-record-lead-d{ font-size:0.76rem; color:#9fb4d4; line-height:1.45; margin-top:0.15rem; }
+  .pdx-med-bio{ font-size:0.82rem; color:#b8c6dd; line-height:1.5; margin:0; }
+  .pdx-med-foot{ flex-shrink:0; border-top:1px solid rgba(255,255,255,0.08); background:rgba(8,14,30,0.7); padding:0.7rem 0.85rem 0.8rem; display:flex; flex-direction:column; gap:0.5rem; }
+  .pdx-med-foot-row{ display:flex; gap:0.5rem; }
+  .pdx-med-act{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; border-radius:0.7rem; padding:0.55rem 0.7rem; cursor:pointer; transition:all 0.18s; min-height:44px; display:flex; align-items:center; justify-content:center; gap:0.3rem; }
+  .pdx-med-act-team{ width:100%; color:#fde68a; background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(245,158,11,0.16)); border:1px solid rgba(245,158,11,0.55); }
+  .pdx-med-act-team:hover{ background:linear-gradient(135deg,rgba(245,158,11,0.42),rgba(245,158,11,0.24)); }
+  .pdx-med-act-team.on-team{ color:#4ade80; background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.1)); border-color:rgba(74,222,128,0.5); }
+  .pdx-med-act-cmp{ flex:1; color:#93c5fd; background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(59,130,246,0.08)); border:1px solid rgba(59,130,246,0.4); }
+  .pdx-med-act-cmp:hover{ background:linear-gradient(135deg,rgba(59,130,246,0.28),rgba(59,130,246,0.16)); }
+  .pdx-med-act-cmp.is-on{ color:#bfdbfe; background:rgba(59,130,246,0.28); border-color:rgba(59,130,246,0.6); }
+  .pdx-med-act-full{ flex:1.35; color:#e2e8f0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); }
+  .pdx-med-act-full:hover{ color:#fff; background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); }
+  /* The shared align-card match bar drops its own bottom margin inside the modal. */
+  .pdx-med-match .align-card-bar{ margin-bottom:0 !important; }
+  @media (max-width:480px){
+    .pdx-med-overlay{ padding:0; align-items:flex-end; }
+    .pdx-med-panel{ max-width:none; max-height:92vh; border-radius:1.1rem 1.1rem 0 0; border-bottom:0; }
+    .pdx-med-name{ font-size:1.4rem; }
+  }
+
+  /* ═══════ MY VOTING TEAM — compact mobile board (≤640px) ═══════
+     Flatten the four office groups into one 3×2 grid so all six ballot
+     seats sit in a single glanceable view — no tall scroll — and slim each
+     seat tile to the essentials (office + district, the pick or open state,
+     the key score / Your Match). Heavier detail moves to the Medium Modal. */
+  @media (max-width:640px){
+    .myteam-slots-grid.is-grouped{ display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:0.4rem !important; max-width:none !important; margin-left:0 !important; margin-right:0 !important; }
+    .myteam-slots-grid.is-grouped .myteam-group{ display:contents !important; margin:0 !important; }
+    .myteam-slots-grid.is-grouped .myteam-group-head{ display:none !important; }
+    .myteam-slots-grid.is-grouped .myteam-group-grid{ display:contents !important; }
+
+    .myteam-slot, .myteam-slot-empty{ padding:0.55rem 0.35rem 0.62rem !important; min-height:0 !important; border-radius:0.7rem !important; }
+    .myteam-slot-tier{ font-size:0.4rem !important; letter-spacing:0.1em !important; margin-bottom:0.15rem !important; }
+    .myteam-slot-position{ font-size:0.5rem !important; padding:0.12rem 0.32rem !important; letter-spacing:0.02em !important; }
+    .myteam-slot-scope{ font-size:0.5rem !important; margin:0.12rem 0 !important; }
+    .myteam-slot-photo{ width:42px !important; height:42px !important; margin:0.25rem auto 0.3rem !important; }
+    .myteam-slot .font-display.text-xl{ font-size:0.8rem !important; margin-bottom:0.1rem !important; }
+    .myteam-slot .chub-score{ font-size:1.35rem !important; }
+    .myteam-slot-score-label{ font-size:0.42rem !important; }
+    .myteam-slot-clear-btn{ width:22px !important; height:22px !important; top:0.35rem !important; right:0.35rem !important; font-size:0.8rem !important; }
+
+    /* Trim the verbose blocks — they live in the Medium Modal now. */
+    .myteam-slot .myteam-slot-office,
+    .myteam-slot .myteam-slot-badges,
+    .myteam-slot .myteam-slot-party,
+    .myteam-slot .myteam-slot-bar,
+    .myteam-slot .myteam-slot-acct,
+    .myteam-slot .myteam-slot-kept-broken,
+    .myteam-slot .myteam-slot-issues,
+    .myteam-slot .myteam-slot-actions,
+    .myteam-slot .align-drivers{ display:none !important; }
+
+    /* Keep the Your Match band, compact. */
+    .myteam-slot .myteam-slot-match{ padding:0.3rem 0.4rem !important; margin:0.3rem 0 0 !important; gap:0.35rem !important; }
+    .myteam-slot .myteam-slot-match-num{ font-size:1.05rem !important; }
+    .myteam-slot .myteam-slot-match-label{ font-size:0.46rem !important; }
+
+    /* Compact empty seat — keep the prompt, drop the long copy. */
+    .myteam-slot-empty .myteam-empty-ring{ width:46px !important; height:46px !important; font-size:1.1rem !important; margin:0.35rem auto 0.4rem !important; border-width:2px !important; }
+    .myteam-slot-empty .myteam-empty-desc,
+    .myteam-slot-empty .myteam-empty-find{ display:none !important; }
+    .myteam-slot-empty .myteam-empty-tag{ font-size:0.6rem !important; }
+    .myteam-slot-empty .myteam-empty-cta{ padding:0.32rem 0.5rem !important; font-size:0.54rem !important; margin-top:0.35rem !important; }
+
+    /* Tighten the focus label above the board on phones. */
+    .myteam-slots-focus-label{ padding:0.45rem 0.6rem !important; margin-bottom:0.7rem !important; }
+    .myteam-slots-focus-text{ font-size:0.72rem !important; }
+  }
+  </style>
 
 </body>
 </html>
