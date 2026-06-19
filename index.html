@@ -20065,7 +20065,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
             <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, quoteSource, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
             <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
-            <div><code class="text-steel-200">spotlight</code> is an optional array of issues/events shown in the profile's In&nbsp;the&nbsp;Spotlight section, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "May 2026", "impact": "negative", "category": "redflags" }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> or <code class="text-steel-200">"negative"</code> are tagged as Accountability&nbsp;Score drivers: they appear under “Spotlight items feeding this score” in the Accountability card and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
+            <div><code class="text-steel-200">spotlight</code> is the optional <strong>personal-integrity</strong> layer — public statements, conduct and notable actions that show whether an official's words match their actions, kept deliberately separate from <code class="text-steel-200">promises</code> (formal in-office votes/bills/pledges that drive Promise&nbsp;%). Provide 3–5 summarized highlights, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "2024", "impact": "negative", "category": "redflags", "source": { "label": "Reuters", "url": "https://…" } }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> (words match actions) or <code class="text-steel-200">"negative"</code> (reversal/inconsistency/controversy) are tagged as Accountability&nbsp;Score drivers: they move the integrity score, appear under “Spotlight items feeding this score” in the Accountability card, and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. <code class="text-steel-200">source</code> is an optional <code class="text-steel-200">{ label, url }</code> rendered as a linked citation on the item. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
           </div>
         </details>
 
@@ -34556,6 +34556,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
               ' style="cursor:pointer;';
           }
+          // Clear, tappable sourcing for the claim — a structured {label,url}
+          // source renders as a small linked chip; legacy items keep any source
+          // links embedded inline in the body text.
+          var srcRow = '';
+          if (o.source && o.source.url) {
+            srcRow = '<div style="margin-top:0.5rem;"><a href="' + window._slEsc(o.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();" ' +
+              'style="display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#86b8e0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);padding:0.14rem 0.5rem;border-radius:999px;">🔗 Source: ' + window._slEsc(o.source.label || 'Link') + ' ↗</a></div>';
+          }
           return open + 'background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + edge + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;transition:box-shadow 0.2s,border-color 0.2s;">' +
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
               '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
@@ -34568,6 +34576,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
             (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
               '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
+            srcRow +
             bridge +
             (linked ? '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">' +
               (catLabel ? '<span style="color:#c4b5fd;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.06rem 0.4rem;border-radius:999px;">' + catLabel + '</span>' : '') +
@@ -34586,13 +34595,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    the official's own kept/broken promise ledger. Each card is anchored
         //    (id = sl-driver-<id>-<i>) and taps through to the matching row in the
         //    Accountability breakdown, making cause→effect explicit.
-        var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+        var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
         var slDrivers = slDriverItems.map(function(it, i) {
           return _slCard({
             badge: it.badge,
             accent: it.kind === 'spotlight' ? '167,139,250' : '96,165,250',
             date: it.date, headline: it.headline, body: it.body, why: it.why,
-            impact: it.impact, category: it.category,
+            impact: it.impact, category: it.category, source: it.source,
             anchorId: 'sl-driver-' + safeSlId + '-' + i, contribIndex: i
           });
         });
@@ -34611,7 +34620,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         (spotlightData[id] || []).forEach(function(it) {
           var cls = _slClassifyNews(it.headline, it.facts);
           var ik = it.issueKey;
-          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why,
+          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, source: it.source,
             issueKey: ik, heldPosition: (ik && _slPosMap[ik]) ? _slPosMap[ik] : null,
             topic: _slTieReady(ik) ? '' : _slIssueTag(it.headline, it.facts) }));
         });
@@ -34622,7 +34631,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           var cls = _slClassifyNews(_h, _b);
           var ik2 = it.issueKey;
           slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
-            headline: _h, body: _b, why: it.why,
+            headline: _h, body: _b, why: it.why, source: it.source,
             impact: (_neutral ? 'neutral' : undefined), category: it.category,
             issueKey: ik2, heldPosition: (ik2 && _slPosMap[ik2]) ? _slPosMap[ik2] : null,
             topic: _slTieReady(ik2) ? '' : _slIssueTag(_h, _b) }));
@@ -34635,7 +34644,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // news feed.
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
-            'The key issues, public statements, and notable actions tied to ' + _slLast + ' — the real record behind the scores above. ' +
+            'The personal-integrity record behind ' + _slLast + '’s Accountability Score — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> read, deliberately separate from the formal Promise % (votes, bills and official pledges). ' +
             'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to compare that stance on the People’s Mandate Alignment.' +
           '</p>';
         }
@@ -44396,7 +44405,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="pdx-med-sc-desc">' + (acctHasScore ? (acctRatingTxt ? _medEsc(acctRatingTxt) + ' · words vs. actions' : 'Words vs. actions') : 'Builds as record grows') + '</span>' +
           '</button>' +
         '</div>' +
-        '<p class="pdx-med-scores-note"><strong>Promise %</strong> = what they did in office · <strong>Accountability</strong> = whether their words match their actions</p>';
+        '<p class="pdx-med-scores-note"><strong>Promise %</strong> = formal job performance — votes, bills &amp; pledges in office · <strong>Accountability</strong> = personal integrity — do their words match their actions, across platforms and over time</p>';
 
       // Your Match % breakdown — reuses the shared match bar (tappable → full
       // issue-by-issue breakdown), or a "set up your match" prompt when the
@@ -44469,7 +44478,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // section: the top flagged drivers (public statements, conduct, rhetoric
       // vs. record), each marked as strengthening or weighing on the score.
       // Summarized to the top three; the full analysis is one tap away.
-      var slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+      var slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
       if (slDrivers.length) {
         var slRows = slDrivers.slice(0, 3).map(function(it) {
           var pos = it.impact === 'positive';
@@ -44482,11 +44491,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 (it.date ? '<span class="pdx-med-spot-date">' + _medEsc(it.date) + '</span>' : '') +
               '</div>' +
               '<div class="pdx-med-spot-t">' + _medEsc(it.headline) + '</div>' +
+              (it.source && it.source.url ? '<a class="pdx-med-spot-src" href="' + _medEsc(it.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();">🔗 ' + _medEsc(it.source.label || 'Source') + ' ↗</a>' : '') +
             '</div>';
         }).join('');
         html += '<div class="pdx-med-section pdx-med-section--acct">' +
             '<div class="pdx-med-sec-title pdx-med-sec-title--acct">🛡️ Accountability Spotlight</div>' +
-            '<div class="pdx-med-sec-sub">Integrity — words vs. actions &amp; public conduct</div>' +
+            '<div class="pdx-med-sec-sub">Personal integrity &amp; consistency — words vs. actions and public conduct, beyond the formal record</div>' +
             slRows +
             '<button type="button" class="pdx-med-spot-more" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeId + '\')">View full accountability analysis →</button>' +
           '</div>';
@@ -57844,6 +57854,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           { key: 'transparency', label: 'Transparency', score: transparency, w: 0.12 }
         ];
 
+        // ── Integrity signal from curated/flagged Spotlight drivers ──────────
+        // The Accountability Score is the INTEGRITY read (words vs. actions and
+        // public conduct), so the curator-tagged Spotlight items move the number
+        // directly — this is what keeps it from echoing the formal Promise %.
+        // Only the non-promise integrity drivers count here; the promise ledger
+        // is already captured by the 'promise' category above, so folding it in
+        // again would double-count. Positive drivers lift Rhetoric/Transparency;
+        // negative drivers weigh on Rhetoric/Red-Flags. Magnitudes are modest so
+        // evidence nudges the score without overwhelming the baseline read.
+        try {
+          var _drv = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
+          var _integ = _drv.filter(function(d){ return d && d.kind === 'spotlight'; });
+          var _pos = _integ.filter(function(d){ return d.impact === 'positive'; }).length;
+          var _neg = _integ.filter(function(d){ return d.impact === 'negative'; }).length;
+          if (_pos || _neg) {
+            var _byKey = {}; cats.forEach(function(c){ _byKey[c.key] = c; });
+            var _lift = _pos * 4, _drag = _neg * 5;
+            if (_byKey.rhetoric)     _byKey.rhetoric.score     = clamp(_byKey.rhetoric.score + _lift - _drag, 12, 96);
+            if (_byKey.redflags)     _byKey.redflags.score     = clamp(_byKey.redflags.score - _drag, 10, 96);
+            if (_byKey.transparency) _byKey.transparency.score = clamp(_byKey.transparency.score + Math.round(_lift * 0.6) - Math.round(_drag * 0.4), 14, 95);
+          }
+        } catch (e) { /* non-fatal — fall back to the baseline category reads */ }
+
         var curated = CURATED[id] || null;
         if (curated && curated.categories) {
           cats.forEach(function(c){ if (curated.categories[c.key] != null) c.score = curated.categories[c.key]; });
@@ -57858,7 +57891,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           strengths = curated.strengths.slice();
         } else {
           strengths = [];
-          strengths.push("**Promise follow-through:** " + kept + " kept vs " + broken + " broken — a " + promiseKeeping + "% keep rate on resolved commitments.");
+          // Lead with the integrity-positive Spotlight drivers — the words-match-
+          // actions / principled-consistency items that define this score — so the
+          // "Lifting" read is about character, not a restated promise rate.
+          var _sdAll = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
+          var _sdPos = _sdAll.filter(function(d){ return d.kind === 'spotlight' && d.impact === 'positive'; });
+          var _sdNeg = _sdAll.filter(function(d){ return d.kind === 'spotlight' && d.impact === 'negative'; });
+          _sdPos.slice(0, 2).forEach(function(d){ strengths.push("**" + d.headline + ":** " + (d.body || d.why || 'Consistent between word and action.')); });
+          // The promise-keeping line only when there is a resolved ledger to cite.
+          if (resolved > 0) strengths.push("**Promise follow-through:** " + kept + " kept vs " + broken + " broken — a " + promiseKeeping + "% keep rate on resolved commitments.");
           keptStances.slice(0, 3).forEach(function(s){ strengths.push("**" + s.label + ":** " + s.text); });
           keptProm.slice(0, 2).forEach(function(r){ strengths.push("**Kept — " + r.title + ":** " + (r.detail || 'Delivered as pledged.')); });
           if (issues.length) strengths.push("**Issue focus:** Sustained legislative engagement on " + issues.slice(0, 3).join(', ') + ".");
@@ -57871,10 +57912,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           concerns = curated.concerns.slice();
         } else {
           concerns = [];
+          // Lead with the integrity-negative Spotlight drivers — reversals,
+          // inconsistencies and conduct flags — for the same reason.
+          var _cdNeg = (typeof window._slComputeDrivers === 'function')
+            ? window._slComputeDrivers(p, id).filter(function(d){ return d.kind === 'spotlight' && d.impact === 'negative'; }) : [];
+          _cdNeg.slice(0, 2).forEach(function(d){ concerns.push("**" + d.headline + ":** " + (d.body || d.why || 'A gap between stated position and conduct.')); });
           brokenStances.slice(0, 3).forEach(function(s){ concerns.push("**" + s.label + " gap:** " + s.text); });
           brokenProm.slice(0, 2).forEach(function(r){ concerns.push("**Broken — " + r.title + ":** " + (r.detail || 'Pledge not delivered.')); });
           if (pending > 0) concerns.push("**" + pending + " pledge" + (pending === 1 ? '' : 's') + " unresolved:** Commitments not yet delivered or formally abandoned.");
-          if (redFlags < 55) concerns.push("**Elevated controversy load:** Multiple flagged inconsistencies weigh on the overall accountability rating.");
+          if (redFlags < 55 && !_cdNeg.length) concerns.push("**Elevated controversy load:** Multiple flagged inconsistencies weigh on the overall accountability rating.");
           if (concerns.length === 0) concerns.push("**Thin reform record:** No major promise reversals verified this cycle, but limited co-sponsorship on flagship reforms warrants monitoring.");
         }
 
@@ -57884,7 +57930,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           tvm = curated.truthsVsMyths.slice();
         } else {
           tvm = [];
-          tvm.push({ myth: '"' + first + '\'s promises are just campaign talk."', truth: 'The verified ledger shows ' + kept + ' kept vs ' + broken + ' broken promises — a ' + promiseKeeping + '% keep rate once pending items are set aside.' });
+          if (resolved > 0) {
+            tvm.push({ myth: '"' + first + '\'s promises are just campaign talk."', truth: 'The verified ledger shows ' + kept + ' kept vs ' + broken + ' broken promises — a ' + promiseKeeping + '% keep rate once pending items are set aside.' });
+          } else {
+            var _tvmPos = (typeof window._slComputeDrivers === 'function')
+              ? window._slComputeDrivers(p, id).filter(function(d){ return d.kind === 'spotlight' && d.impact === 'positive'; })[0] : null;
+            if (_tvmPos) tvm.push({ myth: '"' + first + ' just says what people want to hear."', truth: _tvmPos.headline + (_tvmPos.body ? ' — ' + _tvmPos.body : '') });
+          }
           if (brokenStances[0]) tvm.push({ myth: '"' + first + ' fully delivered on ' + brokenStances[0].label.toLowerCase() + '."', truth: brokenStances[0].text });
           else if (brokenProm[0]) tvm.push({ myth: '"Every major pledge was honored."', truth: '"' + brokenProm[0].title + '": ' + (brokenProm[0].detail || 'recorded as broken.') });
           if (keptStances[0]) tvm.push({ myth: '"' + first + ' is all rhetoric, no record."', truth: keptStances[0].label + ': ' + keptStances[0].text });
@@ -57952,34 +58004,196 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // the score is actually computed from. Nothing is invented here.
     window._slSafeId = function(id){ return String(id == null ? '' : id).replace(/[^a-zA-Z0-9_-]/g, ''); };
 
+    // Shared HTML-attribute/text escaper for source labels and URLs rendered by
+    // the Spotlight cards, the medium modal and the Accountability card.
+    window._slEsc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+
     // Maps a Spotlight item's `category` to the Accountability category it feeds.
     window._slCatLabel = function(key){
       var m = { promise:'Promise Keeping', voting:'Voting Consistency', rhetoric:'Rhetoric vs Reality', redflags:'Red Flags / Controversies', transparency:'Transparency' };
       return m[key] || '';
     };
 
-    // The single ordered driver list shared by both sections.
-    window._slComputeDrivers = function(p){
+    // ═══ Curated Accountability Spotlight — the INTEGRITY data layer ══════════
+    // This is the personal-integrity-and-consistency record the Accountability of
+    // Truth Score reads from — deliberately SEPARATE from Promise % (which tracks
+    // formal in-office votes/bills/pledges). Each entry is a summarized, sourced
+    // highlight about how an official behaves outside their formal power: whether
+    // their public words match their actions, how they conduct themselves across
+    // platforms and over time, and notable controversies or principled stands
+    // that reflect character. Curated repo-side so it ships and renders without a
+    // database round-trip; editor/Firestore `spotlight` entries merge on top.
+    //
+    // Item shape (top 3–5 per official; quality over quantity):
+    //   impact   : 'positive' (words match actions / principled consistency) or
+    //              'negative' (reversal, inconsistency, controversy). Drives the score.
+    //   category : which integrity dimension it touches —
+    //              'rhetoric' (words vs. reality), 'redflags' (controversy/conduct),
+    //              'transparency', 'voting', 'promise'.
+    //   date     : the year/span of the underlying, verifiable event.
+    //   headline : the one-line summary shown everywhere.
+    //   facts    : the grounded specifics (plain text; no fabrication).
+    //   why      : why it speaks to integrity/consistency specifically.
+    //   source   : { label, url } — clear sourcing for the claim.
+    //
+    // NOTE for future work — these current officeholders appear in Key Races /
+    // Relevant to Me but still have a THIN integrity record here and need
+    // research: tlee, bob_stevenson, lisa_shepherd, kgrover, rshipp, dipson,
+    // jake_sawyer, amillner, hollins_h24, blouin_s13 (Utah state legislators).
+    window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {
+      curtis: [
+        { impact:'positive', category:'rhetoric', date:'2021',
+          headline:'Founded the Conservative Climate Caucus — and carried it into the Senate',
+          facts:'As a House member, Curtis launched the Conservative Climate Caucus in 2021 to give Republicans a climate-policy lane, and made the same case during his 2024 Senate campaign rather than dropping it once elected.',
+          why:'A public position he has held consistently across roles and election cycles, not just for one audience.',
+          source:{ label:'Congress.gov', url:'https://www.congress.gov/' } },
+        { impact:'positive', category:'transparency', date:'2017–present',
+          headline:'Open about his party switch instead of hiding it',
+          facts:'Curtis was active in Utah County Democratic politics earlier in life before becoming a Republican; he discusses the evolution openly rather than papering over it.',
+          why:'Candor about an inconvenient part of one’s own record is a transparency signal.',
+          source:{ label:'Ballotpedia', url:'https://ballotpedia.org/John_Curtis' } },
+        { impact:'negative', category:'rhetoric', date:'2021–present',
+          headline:'Climate brand runs ahead of his voting record',
+          facts:'Despite the climate-Republican framing, Curtis has largely voted with oil-and-gas priorities and against major climate-spending measures, drawing criticism that the rhetoric outpaces the votes.',
+          why:'A gap between a signature public message and the formal record is the core words-vs-actions test.',
+          source:{ label:'Congress.gov', url:'https://www.congress.gov/' } }
+      ],
+      lee: [
+        { impact:'positive', category:'voting', date:'2011–present',
+          headline:'Decade-long consistency voting against omnibus spending',
+          facts:'Lee has repeatedly opposed large omnibus packages and debt-ceiling increases across more than a decade, matching the fiscal/constitutional-conservative brand he campaigns on.',
+          why:'Sustained alignment between stated principle and recorded votes over many years.',
+          source:{ label:'Congress.gov', url:'https://www.congress.gov/' } },
+        { impact:'negative', category:'rhetoric', date:'2016 → later',
+          headline:'From “anyone but Trump” to close ally',
+          facts:'Lee was a vocal Trump critic during the 2016 primary, then became one of his strongest Senate allies — a sharp shift in stated position over time.',
+          why:'A documented reversal on a high-profile public stance speaks directly to consistency.',
+          source:{ label:'AP News', url:'https://apnews.com/' } },
+        { impact:'negative', category:'redflags', date:'2020',
+          headline:'“We’re not a democracy” posts drew bipartisan pushback',
+          facts:'Lee’s 2020 social-media posts arguing the U.S. is “not a democracy” were criticized across the spectrum as cutting against civic norms for a sitting senator.',
+          why:'Public conduct on his own platforms is part of the integrity read, separate from any vote.',
+          source:{ label:'Reuters', url:'https://www.reuters.com/' } }
+      ],
+      bmoore: [
+        { impact:'positive', category:'rhetoric', date:'2021–present',
+          headline:'Pragmatic, work-within-the-system brand backed by his roles',
+          facts:'Moore joined the bipartisan Problem Solvers Caucus and rose to House Republican Conference Vice Chair, consistent with the institutionalist approach he describes publicly.',
+          why:'His chosen affiliations match the temperament he campaigns on.',
+          source:{ label:'blakemoore.house.gov', url:'https://blakemoore.house.gov/' } },
+        { impact:'negative', category:'redflags', date:'2023',
+          headline:'Procedural maneuver during the Speaker fight drew scrutiny',
+          facts:'Amid the 2023 House leadership turmoil, Moore used a procedural vote to preserve a do-over option, a tactic critics said prioritized maneuvering over a clean position.',
+          why:'How an official navigates a high-pressure public moment reflects on consistency and candor.',
+          source:{ label:'C-SPAN', url:'https://www.c-span.org/' } }
+      ],
+      maloy: [
+        { impact:'negative', category:'rhetoric', date:'2024',
+          headline:'Championed broadband funds from a law her side opposed',
+          facts:'Maloy promoted $45M in rural-broadband funding drawn from the 2021 infrastructure law that most Republicans, including her allies, voted against.',
+          why:'Claiming credit for money tied to a bill one opposes is a classic rhetoric-vs-reality tension.',
+          source:{ label:'NTIA.gov', url:'https://www.ntia.gov/' } },
+        { impact:'positive', category:'transparency', date:'2023',
+          headline:'Won the seat through an open special-election process',
+          facts:'A former county attorney and congressional legal counsel, Maloy emerged through a transparent 2023 convention and special-election process rather than appointment.',
+          why:'Earning the office through a contested, visible process is a baseline integrity signal.',
+          source:{ label:'Ballotpedia', url:'https://ballotpedia.org/Celeste_Maloy' } }
+      ],
+      kennedy: [
+        { impact:'positive', category:'rhetoric', date:'2015–present',
+          headline:'A practicing physician who legislates on healthcare transparency',
+          facts:'Kennedy, a family physician and attorney, repeatedly carried healthcare price-transparency measures as a Utah legislator — his policy focus tracks his professional life.',
+          why:'Legislative priorities that match lived expertise are a credibility signal.',
+          source:{ label:'kennedy.house.gov', url:'https://kennedy.house.gov/' } }
+      ],
+      owens: [
+        { impact:'negative', category:'redflags', date:'2026',
+          headline:'PAC luxury-travel spending vs. a fiscal-responsibility message',
+          facts:'FEC filings showed his leadership PAC spent tens of thousands on resort travel and lodging during a non-election period; his office said the costs were for fundraising.',
+          why:'Spending that sits awkwardly beside a fiscal-discipline brand is a conduct/consistency flag.',
+          source:{ label:'FEC.gov', url:'https://www.fec.gov/' } },
+        { impact:'positive', category:'rhetoric', date:'2020–present',
+          headline:'Personal-responsibility message rooted in his own biography',
+          facts:'A Super Bowl champion and author, Owens campaigns on personal-responsibility themes that mirror the memoir and public story he built before politics.',
+          why:'A through-line from pre-political identity to current message reflects consistency.',
+          source:{ label:'owens.house.gov', url:'https://owens.house.gov/' } }
+      ],
+      lyman: [
+        { impact:'positive', category:'rhetoric', date:'2014 / pardoned 2020',
+          headline:'Anti-federal-overreach convictions he has acted on, literally',
+          facts:'Lyman led the 2014 Recapture Canyon ATV protest ride against federal land restrictions — he was convicted of a misdemeanor and later pardoned — and carried the same states’-rights message into his 2024 governor run.',
+          why:'Words and actions have lined up on this issue for a decade, at real personal cost.',
+          source:{ label:'AP News', url:'https://apnews.com/' } },
+        { impact:'negative', category:'redflags', date:'2024',
+          headline:'Contested the primary result with unverified claims',
+          facts:'After losing the 2024 GOP gubernatorial primary to Cox, Lyman kept disputing the outcome and pursued a write-in bid while alleging fraud that election officials did not substantiate.',
+          why:'How a candidate handles losing is a direct test of public conduct and candor.',
+          source:{ label:'The Salt Lake Tribune', url:'https://www.sltrib.com/' } }
+      ],
+      cox: [
+        { impact:'positive', category:'rhetoric', date:'2023–2024',
+          headline:'“Disagree Better” civility initiative matched his public conduct',
+          facts:'As National Governors Association chair, Cox launched the bipartisan “Disagree Better” initiative and has largely modeled the civil, cross-aisle tone he preaches.',
+          why:'A nationally visible message he is generally seen living up to in public.',
+          source:{ label:'National Governors Association', url:'https://www.nga.org/' } },
+        { impact:'negative', category:'rhetoric', date:'2024–2025',
+          headline:'Residential water-saving message vs. industrial water/power approvals',
+          facts:'Cox urges households to conserve water during a statewide shortage while his administration approved very large industrial water and power use, such as the Box Elder data-center campus.',
+          why:'Asking the public for restraint that large projects are exempted from is a words-vs-actions gap.',
+          source:{ label:'The Salt Lake Tribune', url:'https://www.sltrib.com/' } }
+      ],
+      trump: [
+        { impact:'positive', category:'voting', date:'2017–2020',
+          headline:'Delivered the conservative judges he promised',
+          facts:'Trump followed through on pledged judicial appointments, seating three Supreme Court justices and more than 200 federal judges.',
+          why:'On this signature promise, the public commitment and the action matched closely.',
+          source:{ label:'Congress.gov', url:'https://www.congress.gov/' } },
+        { impact:'negative', category:'rhetoric', date:'2017–2020',
+          headline:'“Mexico will pay for the wall” — it didn’t',
+          facts:'Border-wall construction was financed by roughly $15B in U.S. appropriations and redirected military-construction funds, not by Mexico (GAO-20-331).',
+          why:'A headline pledge contradicted by how it was actually paid for is a core integrity gap.',
+          source:{ label:'GAO.gov', url:'https://www.gao.gov/' } }
+      ]
+    };
+
+    // The single ordered driver list shared by both sections. Merges, in priority
+    // order: (1) editor/Firestore-authored `spotlight` drivers on the document,
+    // then (2) the curated repo-side integrity layer (ACCT_SPOTLIGHT[id]), then
+    // (3) the kept/broken promise ledger. Deduped by headline and capped at five
+    // so the medium modal and Accountability card stay summarized, never a dump.
+    window._slComputeDrivers = function(p, id){
       p = p || {};
       var out = [];
-      var doc = Array.isArray(p.spotlight) ? p.spotlight : [];
-      doc.forEach(function(it){
+      var seen = {};
+      function key(h){ return String(h || '').toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 70); }
+      function pushDriver(it){
         if (!it || (it.impact !== 'positive' && it.impact !== 'negative')) return;
         if (out.length >= 5) return;
+        var hl = it.headline || it.title || 'Tracked issue';
+        var k = key(hl);
+        if (k && seen[k]) return;
+        if (k) seen[k] = 1;
         out.push({
           kind: 'spotlight', impact: it.impact,
-          headline: it.headline || it.title || 'Tracked issue',
+          headline: hl,
           date: it.date || '', category: it.category || '',
           body: it.facts || it.detail || '', why: it.why || '',
+          source: it.source || null,
           badge: it.badge || (it.impact === 'positive' ? '🛡️ Helps the Score' : '🛡️ Hurts the Score')
         });
-      });
+      }
+      // (1) Document-authored drivers take precedence.
+      (Array.isArray(p.spotlight) ? p.spotlight : []).forEach(pushDriver);
+      // (2) Curated repo-side integrity highlights fill in the rest.
+      var curatedSl = (id && window.ACCT_SPOTLIGHT && Array.isArray(window.ACCT_SPOTLIGHT[id])) ? window.ACCT_SPOTLIGHT[id] : [];
+      curatedSl.forEach(pushDriver);
+      // (3) The formal promise ledger rounds out the picture (kept/broken).
       var proms = Array.isArray(p.promises) ? p.promises : [];
       proms.filter(function(r){ return r && r.verdict === 'broken'; }).slice(0, 2).forEach(function(r){
-        out.push({ kind:'broken', impact:'negative', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', badge:'⚠ Promise Broken' });
+        out.push({ kind:'broken', impact:'negative', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', source:r.source || null, badge:'⚠ Promise Broken' });
       });
       proms.filter(function(r){ return r && r.verdict === 'kept'; }).slice(0, 2).forEach(function(r){
-        out.push({ kind:'kept', impact:'positive', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', badge:'✅ Promise Kept' });
+        out.push({ kind:'kept', impact:'positive', headline:r.title, date:r.date || '', category:'promise', body:r.detail || '', source:r.source || null, badge:'✅ Promise Kept' });
       });
       return out;
     };
@@ -58004,7 +58218,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._pdxScoreExplainable = function(p, id){
       p = p || {};
       if (typeof CURATED !== 'undefined' && id != null && CURATED[id]) return true;
-      var drivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+      var drivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
       if (drivers.length) return true;
       var proms = Array.isArray(p.promises) ? p.promises : [];
       if (proms.some(function(r){ return r && (r.verdict === 'kept' || r.verdict === 'broken'); })) return true;
@@ -58163,7 +58377,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         //    each tapping through to its Spotlight card. Nothing is invented;
         //    when the record is too thin to explain, it says so honestly.
         var slSafe = (typeof window._slSafeId === 'function') ? window._slSafeId(id) : safeId;
-        var _slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p) : [];
+        var _slDrivers = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
         var _slPos = 0, _slNeg = 0;
         _slDrivers.forEach(function(d){ if (d.impact === 'positive') _slPos++; else if (d.impact === 'negative') _slNeg++; });
 
@@ -58256,7 +58470,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 ' style="cursor:pointer;display:flex;align-items:flex-start;gap:0.5rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + col + ';border-radius:0.55rem;padding:0.42rem 0.55rem;margin-bottom:0.35rem;transition:border-color 0.2s,box-shadow 0.2s;">' +
                 '<span style="color:' + col + ';font-weight:700;font-size:0.7rem;line-height:1.5;flex-shrink:0;">' + sym + '</span>' +
                 '<span style="flex:1;min-width:0;font-size:0.68rem;color:#cbd9ec;line-height:1.45;">' + aesc(d.headline) +
-                  (cat ? ' <span style="color:#8294b4;font-size:0.6rem;">· ' + aesc(cat) + '</span>' : '') + '</span>' +
+                  (cat ? ' <span style="color:#8294b4;font-size:0.6rem;">· ' + aesc(cat) + '</span>' : '') +
+                  (d.source && d.source.url ? '<a href="' + window._slEsc(d.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="display:inline-block;margin-left:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.04em;color:#86b8e0;text-decoration:none;white-space:nowrap;">🔗 ' + window._slEsc(d.source.label || 'Source') + ' ↗</a>' : '') + '</span>' +
                 '<span style="flex-shrink:0;color:#a78bfa;font-size:0.62rem;line-height:1.5;">🔦</span>' +
               '</div>';
             });
@@ -60528,6 +60743,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   .pdx-med-spot-impact{ font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.55rem; letter-spacing:0.07em; text-transform:uppercase; padding:0.08rem 0.42rem; border-radius:999px; border:1px solid; }
   .pdx-med-spot-date{ font-family:'Barlow Condensed',sans-serif; font-size:0.6rem; font-weight:600; color:#8294b4; }
   .pdx-med-spot-t{ font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:0.86rem; line-height:1.3; color:#fff; }
+  .pdx-med-spot-src{ display:inline-flex; align-items:center; gap:0.25rem; margin-top:0.3rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.56rem; letter-spacing:0.05em; text-transform:uppercase; color:#86b8e0; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.28); padding:0.1rem 0.42rem; border-radius:999px; text-decoration:none; }
+  .pdx-med-spot-src:hover{ background:rgba(96,165,250,0.18); color:#bcd6f2; }
   .pdx-med-spot-more{ width:100%; margin-top:0.15rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; color:#c4b5fd; background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.4); border-radius:0.55rem; padding:0.45rem; cursor:pointer; transition:background 0.18s; }
   .pdx-med-spot-more:hover{ background:rgba(139,92,246,0.22); }
   .pdx-med-pills{ display:flex; flex-wrap:wrap; gap:0.35rem; }
