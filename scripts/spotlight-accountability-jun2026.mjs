@@ -34,10 +34,12 @@
 //   • Prioritizes current officeholders who appear in Key Races / Relevant to Me.
 //
 // STILL THIN — current officeholders in Key Races that need integrity research
-// before they can be seeded here (left untouched for now): tlee, bob_stevenson,
-// lisa_shepherd, kgrover, rshipp, dipson, jake_sawyer, amillner, hollins_h24,
-// blouin_s13 (Utah state legislators with limited verifiable public-conduct
-// records to date).
+// before they can be seeded here (left untouched for now): bob_stevenson,
+// lisa_shepherd, kgrover, rshipp, dipson, jake_sawyer, amillner (Utah state
+// legislators with limited verifiable public-conduct records to date). The
+// June 2026 pass added dhenderson, sadams, mschultz, tlee, blouin_s13 and
+// hollins_h24, deepened bmoore/kennedy/owens/cox, and added a one-line
+// `spotlightTheme` per official.
 // ---------------------------------------------------------------------------
 
 const PROJECT = 'politidex-979bd';
@@ -118,6 +120,16 @@ const PLAN = {
       facts: 'Moore joined the bipartisan Problem Solvers Caucus and rose to House Republican Conference Vice Chair, consistent with the institutionalist approach he describes publicly.',
       why: 'His chosen affiliations match the temperament he campaigns on.',
       source: { label: 'blakemoore.house.gov', url: 'https://blakemoore.house.gov/' } },
+    { impact: 'positive', category: 'transparency', date: '2021',
+      headline: 'Voted to certify the 2020 election, breaking with most of his party',
+      facts: 'Sworn in days earlier, Moore voted on Jan. 6, 2021 to certify Arizona’s and Pennsylvania’s electoral votes — a stance shared by few House Republicans (and not by Utah’s Owens or Stewart) — saying Congress has no power to overturn state-certified results.',
+      why: 'A recorded stand on principle against most of his own party, at political risk, is a direct conscience-and-consistency signal.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Counting_of_electoral_votes_(January_6-7,_2021)' } },
+    { impact: 'positive', category: 'rhetoric', date: '2021–present',
+      headline: 'Among the most legislatively productive members of his class',
+      facts: 'Moore’s office and independent trackers note he was one of the most productive freshmen — several bills enacted and a high bill-passage rank among House Republicans — matching the get-things-done message he runs on.',
+      why: 'Measurable output that tracks a “work within the system” brand is words-match-actions.',
+      source: { label: 'GovTrack', url: 'https://www.govtrack.us/congress/members/blake_moore/456851' } },
     { impact: 'negative', category: 'redflags', date: '2023',
       headline: 'Procedural maneuver during the Speaker fight drew scrutiny',
       facts: 'Amid the 2023 House leadership turmoil, Moore used a procedural vote to preserve a do-over option, a tactic critics said prioritized maneuvering over a clean position.',
@@ -142,6 +154,16 @@ const PLAN = {
       facts: 'Kennedy, a family physician and attorney, repeatedly carried healthcare price-transparency measures as a Utah legislator — his policy focus tracks his professional life.',
       why: 'Legislative priorities that match lived expertise are a credibility signal.',
       source: { label: 'kennedy.house.gov', url: 'https://kennedy.house.gov/' } },
+    { impact: 'positive', category: 'rhetoric', date: '2013–present',
+      headline: 'A single signature issue held steady across four offices',
+      facts: 'From the Utah House (2013) to a 2018 U.S. Senate run to the State Senate and now Congress, Kennedy has kept healthcare and Medicaid/Medicare reform as his central issue — the focus his medical career points to.',
+      why: 'One stable signature issue across a decade and multiple offices is strong consistency.',
+      source: { label: 'Deseret News', url: 'https://www.deseret.com/politics/2024/11/06/utah-rep-mike-kennedy-bio/' } },
+    { impact: 'positive', category: 'transparency', date: '2018',
+      headline: 'Accepted his Senate-primary loss to Romney and kept serving',
+      facts: 'Kennedy won the 2018 Utah GOP convention vote but lost the Senate primary to Mitt Romney; he accepted the result and returned to public service through a 2020 special election rather than contesting it.',
+      why: 'How a candidate handles a high-profile loss is a direct test of public conduct.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Mike_Kennedy_(Utah)' } },
   ],
   owens: [
     { impact: 'negative', category: 'redflags', date: '2026',
@@ -154,6 +176,11 @@ const PLAN = {
       facts: 'A Super Bowl champion and author, Owens campaigns on personal-responsibility themes that mirror the memoir and public story he built before politics.',
       why: 'A through-line from pre-political identity to current message reflects consistency.',
       source: { label: 'owens.house.gov', url: 'https://owens.house.gov/' } },
+    { impact: 'negative', category: 'redflags', date: '2021',
+      headline: 'Voted to object to Pennsylvania’s 2020 electoral votes',
+      facts: 'On Jan. 6, 2021, days into his first term, Owens voted to object to certifying Pennsylvania’s electoral votes — siding with a challenge to a state-certified result that courts and officials had upheld.',
+      why: 'A recorded vote against certified election results is a public-conduct and democratic-norms signal — and a direct contrast with Utah colleagues who certified.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Counting_of_electoral_votes_(January_6-7,_2021)' } },
   ],
   lyman: [
     { impact: 'positive', category: 'rhetoric', date: '2014 / pardoned 2020',
@@ -173,11 +200,93 @@ const PLAN = {
       facts: 'As National Governors Association chair, Cox launched the bipartisan “Disagree Better” initiative and has largely modeled the civil, cross-aisle tone he preaches.',
       why: 'A nationally visible message he is generally seen living up to in public.',
       source: { label: 'National Governors Association', url: 'https://www.nga.org/' } },
+    { impact: 'positive', category: 'transparency', date: '2016',
+      headline: 'Publicly apologized to the LGBTQ community after the Pulse shooting',
+      facts: 'As lieutenant governor in 2016, Cox gave a widely shared vigil speech after the Orlando Pulse massacre, apologizing for not treating gay classmates with kindness in his youth — a rare, personal admission from a sitting Republican.',
+      why: 'Owning a personal failing in public, against his political interest, is a strong character-and-candor signal.',
+      source: { label: 'NPR', url: 'https://www.npr.org/2016/06/15/482206214/my-heart-has-changed-utah-lt-gov-spencer-cox-apologizes-to-lgbt-community' } },
     { impact: 'negative', category: 'rhetoric', date: '2024–2025',
       headline: 'Residential water-saving message vs. industrial water/power approvals',
       facts: 'Cox urges households to conserve water during a statewide shortage while his administration approved very large industrial water and power use, such as the Box Elder data-center campus.',
       why: 'Asking the public for restraint that large projects are exempted from is a words-vs-actions gap.',
       source: { label: 'The Salt Lake Tribune', url: 'https://www.sltrib.com/' } },
+  ],
+  dhenderson: [
+    { impact: 'positive', category: 'transparency', date: '2021',
+      headline: 'Knocked down 2020 election-fraud claims as Utah’s chief election officer',
+      facts: 'Henderson publicly called claims that Utah voting machines were hacked or ballots inflated “absolute falsehoods” and helped stall a push for a 2020 “forensic audit,” even as some in her own party pressed for it.',
+      why: 'Defending verified facts about her own elections — against pressure from her side — is a core integrity stand.',
+      source: { label: 'Utah Lt. Governor', url: 'https://ltgovernor.utah.gov/press/gov-cox-and-lt-gov-henderson-defend-election-integrity/' } },
+    { impact: 'positive', category: 'rhetoric', date: '2024',
+      headline: 'Rebuked election deniers in her own party before the 2024 vote',
+      facts: '“‘Heads I win, tails you cheated’ is not a foundational principle of a free government,” Henderson told reporters in 2024, criticizing candidates and supporters who refuse to accept results and warning that threats endanger poll workers.',
+      why: 'Naming a problem inside her own coalition, by name, is a candor and consistency signal.',
+      source: { label: 'Utah News Dispatch', url: 'https://utahnewsdispatch.com/2024/10/03/utah-lg-deidre-henderson-on-election-fraud-vote-by-mail/' } },
+    { impact: 'positive', category: 'transparency', date: '2022',
+      headline: 'Welcomed an independent audit of Utah’s elections',
+      facts: 'After a 2022 legislative audit found no systematic problems or significant fraud, Henderson affirmed confidence in the system and has repeatedly invited citizens to observe the process firsthand.',
+      why: 'Inviting outside scrutiny rather than resisting it is a transparency signal.',
+      source: { label: 'The Salt Lake Tribune', url: 'https://www.sltrib.com/news/politics/2021/12/09/utah-lt-gov-henderson-not/' } },
+  ],
+  sadams: [
+    { impact: 'negative', category: 'transparency', date: '2024–2025',
+      headline: 'Undisclosed personal stake in a 2024 law he initiated',
+      facts: 'Adams initiated a 2024 change folded into SB213 that narrowed how some 18-year-olds can be charged; the Salt Lake Tribune later reported it figured in a relative’s plea deal. He did not disclose the connection to colleagues and refused calls to resign, saying he “did not request” the drafting.',
+      why: 'An undisclosed personal interest in legislation is a textbook conflict-of-interest and transparency question.',
+      source: { label: 'The Salt Lake Tribune', url: 'https://www.sltrib.com/news/politics/2025/08/02/utah-senate-pres-stuart-adams/' } },
+    { impact: 'positive', category: 'transparency', date: '2025',
+      headline: 'Agreed to an outside review of the policy after the controversy',
+      facts: 'Following the disclosure, Adams agreed to convene a stakeholders’ working group to review the underlying criminal-justice policy rather than only defending it.',
+      why: 'Submitting a contested decision to outside review is a partial accountability step.',
+      source: { label: 'FOX 13', url: 'https://www.fox13now.com/news/politics/utahs-house-speaker-calls-for-review-of-law-ensnaring-senate-president-in-controversy' } },
+  ],
+  mschultz: [
+    { impact: 'positive', category: 'transparency', date: '2025',
+      headline: 'Turned oversight toward his own caucus',
+      facts: 'As Speaker, Schultz publicly asked the Utah Attorney General to review allegations against a member of his own party (Rep. Trevor Lee) and called for examining the law that entangled the Senate President.',
+      why: 'Pointing scrutiny at one’s own side, not just the opposition, is a credibility signal.',
+      source: { label: 'FOX 13', url: 'https://www.fox13now.com/news/politics/trevor-lee-defends-himself-as-house-speaker-asks-utah-ag-to-investigate-allegations' } },
+    { impact: 'positive', category: 'rhetoric', date: '2024',
+      headline: 'Named his agenda up front, then delivered it',
+      facts: 'Schultz stated his 2024 priorities — the DEI rollback (HB261) and transgender-facility limits (HB257) — plainly at the session’s outset and passed both, with the governor’s office looped in “hourly” on the drafting.',
+      why: 'Setting an agenda openly and enacting it is words-match-actions, whatever one makes of the policy.',
+      source: { label: 'Utah News Dispatch', url: 'https://utahnewsdispatch.com/2024/01/09/dei-energy-transgender-facility-restrictions-what-to-expect-from-the-2024-utah-legislature/' } },
+  ],
+  tlee: [
+    { impact: 'negative', category: 'redflags', date: '2022',
+      headline: 'Rebuked over a covert anti-LGBTQ social-media account',
+      facts: 'GOP leaders rebuked Lee, then a House candidate, after he was tied to an anonymous social-media account attacking Pride Month, homosexuality and transgender people.',
+      why: 'Running an undisclosed account to attack groups is a concealment and conduct flag.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Trevor_Lee' } },
+    { impact: 'negative', category: 'redflags', date: '2025–2026',
+      headline: 'Bipartisan rebukes over “racially charged” posts',
+      facts: 'House and Senate leaders of both parties called out posts by Lee as “racially charged,” and the Speaker asked the Attorney General to review his conduct.',
+      why: 'Repeated conduct drawing rebuke from leadership across the aisle is a sustained red flag.',
+      source: { label: 'ABC4', url: 'https://www.abc4.com/news/politics/utah-leaders-call-out-racially-charged-social-media-posts-by-house-of-representatives-member/' } },
+    { impact: 'positive', category: 'transparency', date: '2025–present',
+      headline: 'Now states his positions openly rather than anonymously',
+      facts: 'In contrast to the 2022 covert account, Lee now advances the same views under his own name and in matching legislation, such as HB77 to restrict flags in schools.',
+      why: 'Holding controversial views in the open, attached to one’s name and bills, is more accountable than doing so anonymously.',
+      source: { label: 'QSaltLake', url: 'https://www.qsaltlake.com/news/2025/01/09/bill-to-ban-pride-flags-in-schools-introduced-by-rep-trevor-lee/' } },
+  ],
+  blouin_s13: [
+    { impact: 'positive', category: 'transparency', date: '2025',
+      headline: 'Pressed a disclosure standard on the chamber’s most powerful member',
+      facts: 'Blouin, a Democrat, publicly called on the Republican Senate President to resign over the undisclosed SB213 conflict, arguing the connection “merited more transparency” — while saying he did not object to the underlying policy.',
+      why: 'Holding leadership of any party to a disclosure standard, on the merits, is an integrity stand.',
+      source: { label: 'The Salt Lake Tribune', url: 'https://www.sltrib.com/news/politics/2025/08/02/utah-senate-pres-stuart-adams/' } },
+  ],
+  hollins_h24: [
+    { impact: 'positive', category: 'rhetoric', date: '2015–present',
+      headline: 'Legislates the frontline work she came from',
+      facts: 'A licensed clinical social worker, Hollins focuses her legislation on homelessness, addiction and equity — the issues she worked directly before becoming, in 2015, the first Black woman elected to the Utah Legislature.',
+      why: 'Lived expertise driving a stable policy focus is a credibility signal.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Sandra_Hollins' } },
+    { impact: 'positive', category: 'rhetoric', date: '2020',
+      headline: 'Carried a principled, on-brand public-health stand',
+      facts: 'In 2020 Hollins sponsored a first-of-its-kind Utah resolution declaring racism a public-health crisis, consistent with the equity focus she has held since first taking office.',
+      why: 'A principled stand carried publicly over years reflects consistency between message and action.',
+      source: { label: 'Ballotpedia', url: 'https://ballotpedia.org/Sandra_Hollins' } },
   ],
   trump: [
     { impact: 'positive', category: 'voting', date: '2017–2020',
@@ -191,6 +300,28 @@ const PLAN = {
       why: 'A headline pledge contradicted by how it was actually paid for is a core integrity gap.',
       source: { label: 'GAO.gov', url: 'https://www.gao.gov/' } },
   ],
+};
+
+// ── Overall Accountability theme per official (mirror of window.ACCT_THEME) ──
+// A short, balanced one-line read of the integrity picture. Written to the
+// document `spotlightTheme` field so the medium modal and Spotlight section can
+// open with a synthesis. Even-handed: names both the strength and the caveat.
+const THEME = {
+  curtis: 'Consistent on his signature climate-Republican brand across offices, but the voting record runs behind the rhetoric.',
+  lee: 'Long, genuine fiscal-constitutional consistency, paired with sharp reversals and norm-bending conduct on his own platforms.',
+  bmoore: 'A work-within-the-system institutionalist whose affiliations, output and a principled certification vote mostly match the brand — with the occasional procedural maneuver.',
+  maloy: 'A measured, process-oriented newcomer; the record is still short but shows the credit-claiming tensions common in her party.',
+  kennedy: 'Unusually consistent — a physician whose healthcare focus has held steady across four offices and who handled a high-profile loss gracefully.',
+  owens: 'A strong personal-responsibility throughline, undercut by spending and election-conduct choices that sit against the brand.',
+  lyman: 'Acts on his stated convictions at real personal cost, but handled a 2024 primary loss with unproven fraud claims.',
+  cox: 'Generally lives the civility and empathy he preaches, with a real gap between conservation rhetoric and large industrial approvals.',
+  trump: 'Highly faithful to ideological promises, but a heavy load of broken quantitative pledges and norm controversies.',
+  dhenderson: 'A consistent, fact-based defender of election integrity — including against pressure from her own party.',
+  sadams: 'An effective long-time leader, but a 2024–25 non-disclosure raised real conflict-of-interest and transparency questions.',
+  mschultz: 'States his agenda plainly and delivers it, and has turned oversight toward his own caucus when needed.',
+  tlee: 'Polarizing and combative; early concealment gave way to openly stated — and openly criticized — conduct.',
+  blouin_s13: 'A minority-party voice who presses transparency standards on the chamber’s leadership, on the merits.',
+  hollins_h24: 'Tight alignment between her social-work expertise and a steady, principled equity agenda.',
 };
 
 // ── Firestore I/O ───────────────────────────────────────────────────────────
@@ -247,6 +378,11 @@ function hasDrivers(doc) {
     const existing = Array.isArray(doc.spotlight) ? doc.spotlight : [];
     const spotlight = items.concat(existing);
     const fields = { spotlight, updatedAt: STAMP };
+    // Mirror the one-line integrity theme onto the doc (only if not already set
+    // by an editor) so the medium modal and Spotlight section open with it.
+    if (THEME[id] && !(typeof doc.spotlightTheme === 'string' && doc.spotlightTheme.trim())) {
+      fields.spotlightTheme = THEME[id];
+    }
 
     console.log(`  ${APPLY ? '✎' : '→'} ${id} (${doc.name || ''}) — ${items.length} integrity item(s)`);
     for (const it of items) {
