@@ -16138,6 +16138,73 @@
       #keyraces-panel > div { padding: 1.1rem 0.9rem !important; }
       #relevant-header-panel { padding: 1.05rem 0.95rem !important; }
     }
+
+    /* ════════════════════════════════════════════════════════════════════
+       MOBILE EXPERIENCE — KEY RACES COMPACT OVERVIEW PASS
+       Now that My Voting Team has been slimmed down, the Key Races district
+       cards at the top read as the tallest, heaviest block on a phone — more
+       vertical space than a quick "who represents me" scan needs, so a voter
+       has to scroll past the overview before reaching the research and builder
+       sections that matter more. This pass tightens the cards' internal rhythm
+       (header, coverage strip, officeholder row, action gaps and the section
+       grid gutter) so several districts fit in a glance, while deliberately
+       leaving every piece of content in place — office + district, the
+       officeholder's name and photo, the Add/Compare/Profile actions, and the
+       prominent "See all candidates" bridge into Relevant to Me, which stays a
+       full, easy thumb target. Additive and phone-scoped only — no markup or JS
+       changes — appended last so it reliably wins the cascade. The dark
+       patriotic palette is preserved throughout.
+       ════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* ── 1 · TIGHTER CARD SHELL ────────────────────────────────────────
+         Trim the header, coverage strip and body insets so the card frame
+         hugs its content instead of carrying desktop-sized padding on a
+         phone. */
+      .kr-race-head { padding: 0.45rem 0.7rem !important; }
+      .kr-cover-strip { padding: 0.4rem 0.7rem; }
+      .kr-race-body { padding: 0.55rem 0.7rem 0.6rem; }
+
+      /* ── 2 · TIGHTER OFFICEHOLDER ROW ──────────────────────────────────
+         The "Currently Represented By" label, the photo/name/office identity
+         row and its status pills sat with generous spacing built for the old
+         tall card. Pull the gaps in — the name stays bold and the 46px photo
+         stays put, so the seat's holder still reads instantly, just in less
+         height. */
+      .kr-incumbent-label { margin-bottom: 0.3rem; }
+      .kr-holder { padding: 0.5rem 0.6rem 0.55rem; }
+      .kr-holder + .kr-holder { margin-top: 0.4rem; }
+      .kr-holder-top { gap: 0.55rem; }
+      .kr-holder-name { font-size: 1.2rem; }
+      .kr-holder-office { margin-top: 0.1rem; }
+      .kr-holder-pills { margin-top: 0.3rem; }
+
+      /* ── 3 · TIGHTER ACTION RHYTHM ─────────────────────────────────────
+         Close the gap above the Add/Compare/Profile row and before the
+         "See all candidates" bridge. The buttons themselves keep their full
+         44–46px thumb height — only the surrounding air shrinks. */
+      .kr-mini-actions { margin-top: 0.4rem; }
+      .kr-race-body > div:last-child { margin-top: 0.45rem !important; }
+
+      /* ── 4 · CLEAR, EASY BRIDGE TO RELEVANT TO ME ──────────────────────
+         The "See all candidates" button is each card's primary next step, so
+         it stays prominent and a confident full-width tap target even as the
+         rest of the card tightens. */
+      .kr-fulllist-btn { min-height: 46px; padding: 0.5rem 0.75rem; }
+
+      /* ── 5 · TIGHTER SECTION GRID ──────────────────────────────────────
+         Pull the stacked district cards a little closer together so the
+         overview reads as one scannable list rather than a tall, spread-out
+         column — and so more districts land in a single glance. */
+      #keyraces-list { gap: 0.6rem !important; }
+    }
+
+    @media (max-width: 400px) {
+      /* Narrowest phones: shave the card body and officeholder insets one
+         more notch so the overview stays compact edge-to-edge. */
+      .kr-race-body { padding: 0.5rem 0.6rem 0.55rem; }
+      .kr-holder { padding: 0.45rem 0.55rem 0.5rem; }
+      .kr-holder-name { font-size: 1.14rem; }
+    }
   </style>
 
       </head>
