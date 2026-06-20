@@ -20,9 +20,25 @@ Avoid partisan-grouping language when describing someone's actions, including:
 - "her allies" / "his allies"
 - "Republicans voted against it" / "Democrats supported it"
 - "common in her party" / "like most in his party"
-- "the party line"
+- "the party line" / "votes along party lines" / "party-line voting"
+- "consistent with his party's base" / "the party's wing/faction"
 
 These phrases judge a person by association rather than by their own conduct.
+
+### Do not rank a person against a party cohort
+
+When citing an achievement, measure it neutrally rather than against the
+politician's own party — the team comparison adds nothing about the individual:
+
+- ✅ "Passed 14 bills in the 2025 session — among the most of any legislator."
+- ❌ "Passed 14 bills — more than any other Democrat."
+
+### Do not turn a vote tally into a partisan label
+
+A vote count is a fact; "on party lines" is editorializing. State the count.
+
+- ✅ "It passed the House 58-14 and was signed by the governor."
+- ❌ "It passed the House 58-14 on party lines."
 
 ### Focus on individual actions and words
 
@@ -54,6 +70,14 @@ Prefer framing the individual's own position and let the divergence be implicit
 The "Why it matters" / `why` field should explain the significance of the
 **individual's** record — consistency, candor, follow-through, rhetoric vs.
 reality — not party conflict. Tie the takeaway back to the person.
+
+Do not make a politician a proxy or "barometer" for a party, wing, or movement.
+The significance is what *their* choices reveal, not what their faction's
+fortunes are.
+
+- ✅ "Whether voters reward Edwards's coalition-building approach is a test of
+  her own appeal in a statewide race."
+- ❌ "Her bid is a barometer for how much room remains in the GOP for moderates."
 
 ## Scope
 
