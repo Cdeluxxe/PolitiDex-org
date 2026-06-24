@@ -1,0 +1,10 @@
+# Netlify build configuration.
+#
+# Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
+# client identifier (access to Firebase is controlled by Security Rules, not by
+# keeping this value secret — Google documents it as safe to include in client
+# code). Netlify's smart secret detection would otherwise flag the "AIza…" string
+# as a likely secret and fail the build, so we safelist that one value here.
+# All other secret-scanning protections remain active.
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDNkLuB8wmLuz38dfL8ZP6rvnv-efZvnyU"
