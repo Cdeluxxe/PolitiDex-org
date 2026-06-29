@@ -1,0 +1,19 @@
+{
+  "name": "politidex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PolitiDex — track political promises, money, and receipts.",
+  "type": "module",
+  "scripts": {
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@netlify/database": "^1.0.0",
+    "@netlify/functions": "^4.2.4",
+    "drizzle-orm": "beta"
+  },
+  "devDependencies": {
+    "drizzle-kit": "beta"
+  }
+}
