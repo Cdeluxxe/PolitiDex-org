@@ -254,12 +254,46 @@ async function viewerReactionsFor(
   return out;
 }
 
+// Total number of "Suggest for Review" recommendations per post (how many
+// distinct members nominated it). Read-only — purely for surfacing community
+// interest in the UI; the moderation queue still works off the raw rows.
+async function suggestionCountsFor(
+  postIds: number[]
+): Promise<Record<number, number>> {
+  const out: Record<number, number> = {};
+  if (postIds.length === 0) return out;
+  const rows = await db
+    .select({ postId: ceeSuggestions.postId, n: sql<number>`count(*)::int` })
+    .from(ceeSuggestions)
+    .where(inArray(ceeSuggestions.postId, postIds))
+    .groupBy(ceeSuggestions.postId);
+  for (const r of rows) out[r.postId] = Number(r.n);
+  return out;
+}
+
+// The set of post ids the viewer has personally suggested — lets the list render
+// an already-suggested ("Suggested ✓") state without a round-trip per card.
+async function viewerSuggestionsFor(
+  postIds: number[],
+  uid: string
+): Promise<Set<number>> {
+  const out = new Set<number>();
+  if (postIds.length === 0 || !uid) return out;
+  const rows = await db
+    .select({ postId: ceeSuggestions.postId })
+    .from(ceeSuggestions)
+    .where(and(inArray(ceeSuggestions.postId, postIds), eq(ceeSuggestions.uid, uid)));
+  for (const r of rows) out.add(r.postId);
+  return out;
+}
+
 // Shape a post row + its aggregates into the JSON the frontend renders.
 function shapePost(
   p: typeof ceePosts.$inferSelect,
   counts: Record<string, number>,
   commentCount: number,
-  viewerReactions: string[]
+  viewerReactions: string[],
+  extra: { suggestCount?: number; viewerSuggested?: boolean } = {}
 ) {
   return {
     id: p.id,
@@ -271,6 +305,8 @@ function shapePost(
     authorName: p.authorName,
     status: p.status,
     suggestedForReview: p.suggestedForReview,
+    suggestCount: extra.suggestCount || 0,
+    viewerSuggested: !!extra.viewerSuggested,
     createdAt: p.createdAt,
     reactions: counts,
     commentCount,
@@ -301,14 +337,19 @@ async function listPosts(req: Request, viewer: AuthUser | null): Promise<Respons
   if (issue) rows = rows.filter((p) => (p.issueKeys || []).includes(issue));
 
   const ids = rows.map((r) => r.id);
-  const [counts, comments, viewer$] = await Promise.all([
+  const [counts, comments, viewer$, suggCounts, viewerSugg] = await Promise.all([
     reactionCountsFor(ids),
     commentCountsFor(ids),
     viewerReactionsFor(ids, viewer?.uid || ""),
+    suggestionCountsFor(ids),
+    viewerSuggestionsFor(ids, viewer?.uid || ""),
   ]);
 
   let shaped = rows.map((p) =>
-    shapePost(p, counts[p.id] || {}, comments[p.id] || 0, viewer$[p.id] || [])
+    shapePost(p, counts[p.id] || {}, comments[p.id] || 0, viewer$[p.id] || [], {
+      suggestCount: suggCounts[p.id] || 0,
+      viewerSuggested: viewerSugg.has(p.id),
+    })
   );
 
   if (sort === "newest") {
@@ -407,8 +448,14 @@ async function getPost(
     viewerSuggested = !!s;
   }
 
+  // How many members in total have suggested this post (community interest).
+  const suggCounts = await suggestionCountsFor([id]);
+
   return ok({
-    post: shapePost(post, counts[id] || {}, commentCount[id] || 0, viewer$[id] || []),
+    post: shapePost(post, counts[id] || {}, commentCount[id] || 0, viewer$[id] || [], {
+      suggestCount: suggCounts[id] || 0,
+      viewerSuggested,
+    }),
     comments,
     viewerFlagged,
     viewerSuggested,
