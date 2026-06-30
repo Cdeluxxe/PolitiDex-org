@@ -8,3 +8,13 @@
 # All other secret-scanning protections remain active.
 [build.environment]
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDNkLuB8wmLuz38dfL8ZP6rvnv-efZvnyU"
+
+# Issue Spotlight deep-links. The whole app is a single index.html, so a clean,
+# shareable path like /issue/box-elder-stratos-data-center must serve that same
+# document (HTTP 200 rewrite, not a redirect) and let the client-side router read
+# the slug from location.pathname. Scoped to /issue/* only, so every other asset
+# (/, /css/*, /netlify/*, the Functions) keeps its normal routing.
+[[redirects]]
+  from = "/issue/*"
+  to = "/index.html"
+  status = 200
