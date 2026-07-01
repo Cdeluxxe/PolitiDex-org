@@ -87,3 +87,57 @@ Firestore) and the `ISSUE_STANCE_DATA` mirror in `index.html` (stance cards).
 4. **Layer 2026 commission candidates** onto the county tax-hike and growth fights for pledge-vs-record contrast (carried over from Batch 1).
 5. **Only open a new data-center fight if a genuinely new one appears** — Eagle Mountain (Meta/Google/QTS) is already covered in Batch 1; resist adding a thin second data-center profile just for volume.
 6. **Keep the controversy-first structure and `issueKey` vocabulary** — for the education clusters, `public_schools`, `property_tax`, `gov_waste`, and `housing_build` are the workhorses, so each ASD record drops straight into an Issue Spotlight.
+
+---
+
+# Utah County — Controversy Tracker (Batch 3, July 2026)
+
+Batch 3 closes out the remaining carried-over recommendations from Batches 1–2,
+staying strictly on controversies rather than doing a broad sweep. It **enriches
+`mmckell` with the Utah Lake "islands" repeal arc** (Batch 1 rec #2 / Batch 2 rec
+#3), **ties a 2026 commission candidate directly to the county tax-hike fight**
+(Batch 1 rec #4), and **builds the two Alpine successor-district board presidents
+who have clear, sourced positions** on the split's fiscal aftermath (Batch 2 rec
+#1). Data lives in `scripts/deep-dive-utah-county-batch3-jul2026.mjs` (full
+profiles + spotlight receipts → Firestore) and the `ISSUE_STANCE_DATA` mirror in
+`index.html` (stance cards).
+
+| Controversy | Key Officials (this batch) | Stances Added | Receipts Added | Spotlight Readiness | Status |
+|---|---|---|---|---|---|
+| **Utah Lake "islands" / Lake Restoration Solutions** (2018 law → dredge-and-build-islands plan → state rejection Oct 2022 → LRS's $3M SLAPP suit vs. BYU's Ben Abbott, dismissed Jan 2023 → LRS dissolves/bankrupt 2023 → 2024 repeal) | **Mike McKell** (`mmckell`) — chief House sponsor of HB272 (2018) **and** chief Senate sponsor of the SB242 (2024) repeal — **ENRICHED, not duplicated** | 1 | 2 | **Strong** as a self-contained arc — one legislator authored the enabling law and its repeal, with le.utah.gov bill records + a direct "clean canvas" quote (Daily Herald, SLTrib, le.utah.gov). Resolves the standing Batch 1/2 recommendation | ✅ Enriched |
+| **Utah County Commission ~48% property-tax hike → 2026 race** (the Batch 1 controversy, now litigated in the open Seat B race) | **David Spencer** (`david_spencer_utco`, Seat B GOP nominee) — **ENRICHED** with his direct on-record attack on the county's 2019 (~67%) and 2024 (~48%) hikes + commissioner pay | 1 | 1 | **Strong** — the one 2026 candidate who names the specific commission votes; Lehi Free Press debate coverage with verbatim quotes. Clean pledge-vs-record contrast with the retiring incumbents (Powers Gardner/Gordon) | ✅ Enriched |
+| **Alpine split — Lake Mountain (West) successor district** (fastest-growth district; inherits the $238M Saratoga/Eagle Mountain bond; the "schools can't charge impact fees" funding gap) | **Julie King** (Board President) | 4 | 4 | **Strong** — a specific, quoted funding-policy position (Fox13) + a clean tie to the Batch 2 $238M bond cluster; nonpartisan office | ✅ Built |
+| **Alpine split — Timpanogos successor district** (smallest enrollment; ~$20M projected deficit; ~17% potential tax increase) | **Jennifer Lyman** (Board President) | 4 | 4 | **Moderate–Strong** — a documented district-wide fiscal projection + her own candid framing (Daily Herald), honestly labeled as an *emerging* posture (no tax vote cast yet) | ✅ Built |
+
+## Totals (built this batch)
+- **Officials with new records:** 2 created (King, Lyman) + 2 enriched (McKell, Spencer)
+- **Stances added:** 10 (8 on 2 new profiles + 1 merged into McKell + 1 into Spencer)
+- **Spotlight receipts added:** 11 (8 on 2 new profiles + 2 appended to McKell + 1 to Spencer)
+- **Stance cards mirrored into `index.html`:** 10 (8 new + 1 added to McKell's array + 1 to Spencer's array)
+- **Controversies covered:** 2 enrichments (Utah Lake, commission tax-fight tie) + 2 built (Lake Mountain, Timpanogos successor boards)
+
+## Spotlight-ready controversies (sourcing strong enough now)
+1. **Utah Lake "islands"** — a rare full-arc accountability story carried by one legislator: McKell wrote the 2018 enabling law and the 2024 repeal, both on le.utah.gov, bracketing the LRS collapse and the Abbott SLAPP win. Ready as a stand-alone "how a project died and the law behind it was unwound" spotlight.
+2. **Alpine successor-district funding** — King's impact-fee argument and Lyman's inherited deficit are the *next chapter* of the Batch 2 ASD spotlight; together with Bateman/Beeson/Wilson (outgoing Alpine board) and Brammer/keith_grover (legislative), they complete a full before-and-after on the split.
+
+## Honest gaps (tracked, NOT built — no fabrication)
+- **Michelle Kaufusi (Seat A GOP nominee)** already has a record, but her fiscal messaging is a *general Provo-mayor* record ("look at my record … eight balanced budgets"), **not** a stance on the county commission's specific ~48% hike. The sourcing does not support attributing an anti-48%-hike position to her, so she was **not** enriched with one. Her opponent even attacked *her* Provo bonded-debt growth — the opposite framing.
+- **November 2026 general-election minor-party/Democratic field** — Seat A: **Jeanne Marie Bowen (D)**, **Jacob D. Oaks (Independent American)**; Seat B: **J. Allen (D)**, **David Hinkley (Forward)**. All advanced unopposed to November, but **none has any publicly sourced position** on taxes/growth/pay. Named here; **not built** (no positions invented). Data-hygiene: "J. Allen" full name and the Hinkley/Hinckley spelling are unconfirmed between outlets — verify against the official ballot before any future build.
+- **Other ~18 new-district board members + 3 superintendent hires** — procedural/unanimous with only ceremonial quotes; no accountability material. **Not built.**
+- **Asset/debt/$238M-bond division among the three districts** — ratified **unanimously (June 26, 2026)**; every named official calls it cooperative ("not about winners and losers"). **No active dispute** to build a record around.
+- A subagent draft claimed Julie King "cast the lone vote against" the Aug-2025 Alpine tax hike — **false** (the 5-2 dissenters were Peterson and Beeson; King is not named). That fabrication was caught in verification and **excluded**. King's record is built only on her sourced Fox13 funding position and her new-board role.
+
+## How Batch 3 compares to Batches 1–2
+- **Enrich-don't-duplicate, applied twice more:** McKell and Spencer both already existed, so each got appended receipts + merged stances rather than a second profile — the exact discipline Batch 1 recommended for McKell and Batch 2 applied to Brammer. (McKell's canonical Firestore doc is `mmckell`; the stance card mirrors into the aliased `mike_mckell` `ISSUE_STANCE_DATA` array.)
+- **Full-arc accountability:** the Utah Lake entry is the first Utah County record where *the same official* owns both the cause (the 2018 law) and the correction (the 2024 repeal) — a cleaner loop than a single contested vote.
+- **Candidate ↔ controversy linkage made explicit:** rather than adding thin new candidate stubs, Batch 3 wires an *existing* 2026 nominee (Spencer) straight into the Batch 1 tax-hike fight with his own verbatim numbers ("67% … 48% … killing the citizens").
+- **Emerging-record labeling, again:** Lyman's profile is honestly tagged as posture-not-yet-a-vote, mirroring Carn's "proposal in process" from Batch 2.
+
+## Recommendations for continuing Utah County efficiently (next)
+1. **Track Timpanogos and Lake Mountain to their first real money votes** — when Lyman's board actually sets a rate against the ~$20M deficit, or King's board acts on the impact-fee gap, convert the emerging posture into a recorded outcome (kept/broken vs. the framing captured here).
+2. **Only build the general-election Democrats/third-party candidates once a sourced position exists** — Bowen, Allen, Oaks, Hinkley are named but empty; wait for a fall voter guide (League of Women Voters / Utah Policy) rather than stubbing them. Confirm "J. Allen" and the Hinkley/Hinckley spelling from the official ballot first.
+3. **Do not force a county-tax-hike stance onto Kaufusi** — keep her record to her documented Provo/general-fiscal framing unless she addresses the commission's increase directly.
+4. **Assemble the ASD Issue Spotlight now** — the cluster is complete enough for one page: outgoing Alpine board (Bateman/Beeson/Wilson), legislative drivers (Brammer/HB3003, McKell-adjacent), and the two successor presidents (King/Lyman). That's the highest-value synthesis left on the board.
+5. **Watch Saratoga Springs to resolution** (carried from Batch 2) — Carn's first-since-2008 increase still needs its council vote recorded.
+6. **Keep the controversy-first discipline** — resist volume: the remaining Utah County additions are mostly *outcomes to record later*, not new officials to create now.
+
