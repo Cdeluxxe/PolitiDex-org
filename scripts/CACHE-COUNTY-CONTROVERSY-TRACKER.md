@@ -69,6 +69,64 @@ sourced individual position exists.
 
 ---
 
+## Batch 2 (July 2026) — the COUNTY + CITY tier
+
+**What changed the plan.** Batch 1 mapped only Cache County's *state-legislative* tier
+(Snider, Wilson, Sandall, Draxler, Moore) and concluded the county "started from an
+unusually strong existing base." Batch 2 research found the opposite is true one level
+down: the county's single highest-attention fight of the last two years — the
+**property-tax escalation run by the County Council and Executive** — had **zero built
+records** (verified: 0 roster hits for Daines, Erickson, Anderson, Goodlander, Zook).
+Cache County is governed by a **Council + Executive**, *not* commissioners — a structure
+Batch 1 never engaged. Batch 2 opens that tier.
+
+Data script: `scripts/deep-dive-cache-county-batch2-jul2026.mjs` (idempotent; `--emit`
+writes the `index.html` stance-card block, `--apply` writes Firestore). Stance cards for
+the three new officials are inlined in `index.html` `ISSUE_STANCE_DATA`.
+
+### Controversies added this batch
+
+| Controversy | Official(s) built (CREATE) | Receipts | Spotlight readiness |
+|---|---|---|---|
+| **The Cache County property-tax escalation (2024 → 2026)** — a proposed 20% hike in 2024 drew ~100 residents overflowing the chambers (trimmed to 12% + a 0.3% sales tax); Executive Zook resigned Sept. 2025; N. George Daines won the special election on a "protect taxpayers" pledge — then the council **unanimously** approved an **18% increase** for 2026 (~$3.7M) | **N. George Daines (R)** — County Executive; the pledge-vs-record arc (ran to protect taxpayers → inherited $7.6M gap → proposed ~$2.8M cuts incl. the library → 18% hike passed). **David L. Erickson (R)** — Council, North District; 2024 chair who told opponents to "vote us out" | 4 + 3 = 7, all HJ News / Cache Valley Daily / KSL / UPR | **High** — the best-sourced local fight in the county now that the county tier is built; one focused pass (add Goodlander + the resident/former-official opposition voices) makes it Spotlight-ready |
+| **Logan growth, housing & land use** — Logan (~50K, projected to double by 2060) turned its 2025 mayoral race into a growth referendum; a Sept. 2025 density rezone near the rec complex was denied over infrastructure | **Mark Anderson (Nonpartisan)** — Logan Mayor (sworn Jan. 6, 2026); supply-first housing ("the more supply we can create, the better the pricing"), regional water/infrastructure, communication pledge (+ an honest early stumble on protest signs) | 4, all UPR | **Moderate-High** — a strong single-official anchor; a Spotlight needs one more source pass (the denied rezone vote + a council-member counterpoint) |
+
+### New/improved records (Batch 2)
+
+- **N. George Daines** — `george_daines` — **CREATE**, Cache County Executive (R). 4 receipts, 3 stances. Flagship pledge-vs-record record.
+- **David L. Erickson** — `david_erickson_cache` — **CREATE**, Cache County Council, North District (R). 3 receipts (4 spotlight in the Firestore profile), 2 stances.
+- **Mark Anderson** — `mark_anderson_logan` — **CREATE**, Logan Mayor (Nonpartisan). 4 receipts, 3 stances.
+
+**Batch 2 totals:** 3 sitting officials created · **8 stances** · **12 spotlight receipts** /
+11 inlined stance cards. Zero fabricated positions; every quote verified against a direct
+read of the cited article.
+
+### Honest gaps left this batch (tracked, NOT stubbed)
+
+- **Council Chair Sandi Goodlander** presided over the unanimous 18% vote, but **no
+  substantive statement could be verified to her by name** in an accessible source.
+  Search-engine summaries attributed a mill-levy explanation and a "lowest revenue per
+  capita" line to her, but **neither survived a direct read** of the cited articles. She
+  is tracked, not stubbed. Same for members **Nolan Gunnell**, **Barbara Tidwell**
+  (verified: backs defunding the Logan library over "double taxation" — a single receipt,
+  below the 3–5 bar) and **Keegan Garrity** (suggested asking residents which services
+  they'd pay more for).
+- **Correction caught by verification:** the "unfunded school-resource-officer mandate"
+  line that a search summary attributed to Gunnell is actually **David Zook's** ("new
+  school safety staff that the state Legislature mandated"). It was **not** attributed to
+  Gunnell and was dropped from his (unbuilt) record.
+- **David Zook** (former Executive, resigned Sept. 8, 2025) has a clear, documentable
+  role but holds no office and is not a 2026 candidate. His verified role is captured as
+  **context inside the Daines and Erickson receipts**, not as a standalone stub.
+- **No Cache Valley data center / industrial-water controversy exists.** The data-center
+  water fights in the news are **Imperial Valley, California** — not Cache Valley, Utah.
+  That suggested focus area does **not** apply here; recorded as "no such controversy,"
+  not invented.
+- **2026 challenger fields** (the County Executive full term, council seats) are not yet
+  sourced — tracked, consistent with Batch 1.
+
+---
+
 ## Honesty notes
 
 - **Cache County did not need a from-scratch profile build.** Its central figures —
@@ -112,3 +170,18 @@ sourced individual position exists.
    `enviro_balance`, `gov_transparency`, `public_schools`, `property_tax`, and
    `healthcare` are the workhorses for Cache Valley, so each record drops straight
    into an Issue Spotlight.
+
+### Post-Batch-2 additions to the queue
+
+5. **Finish the county property-tax cast to make it Spotlight-ready.** The fight now has
+   its two anchor records (Daines, Erickson). One focused pass — verifying a direct
+   Goodlander quote, adding the resident/former-official opposition voices (Lynn Lemon,
+   Jess Bradfield), and Tidwell's "double taxation" library position — turns it into a
+   full Issue Spotlight. This is now the **most Spotlight-ready local fight** in Cache.
+6. **Build the Logan growth Spotlight around the denied Sept. 2025 rezone.** Anderson is
+   the anchor; the missing pieces are the specific rezone vote near the Outdoor Rec
+   Complex and a Logan Municipal Council member's counterpoint.
+7. **Watch the 2026 County Executive general election.** Daines is filling an unexpired
+   term through December 2026 — the full-term race is the next live county contest. Build
+   challengers only once sourced positions land.
+
