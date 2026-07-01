@@ -155,8 +155,12 @@ export const pdxSnapshots = pgTable(
   "pdx_snapshots",
   {
     id: serial().primaryKey(),
-    // Opaque user identifier supplied by the client. Real auth (verifying this
-    // against a token) lands in the next phase; for now it is trusted as-is.
+    // The authenticated user's identity: the Firebase uid taken from the verified
+    // ID token on the server (the token's `sub` claim), NOT a value the client
+    // chooses. The /api/pdx-sync Function ignores any userId in the request body
+    // and trusts only the token, so one user can never read or write another
+    // user's snapshot. (Anonymous Firebase sign-ins are rejected before they ever
+    // reach a row here — see the Function's AUTHENTICATION note.)
     userId: text("user_id").notNull(),
     // The PDXStore collection name this snapshot belongs to (e.g. "saved").
     collection: text().notNull(),
