@@ -135,3 +135,42 @@ export const ceeSuggestions = pgTable(
     postIdx: index("cee_suggestions_post_idx").on(t.postId),
   })
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cross-device account sync — PDXStore collection snapshots
+// ─────────────────────────────────────────────────────────────────────────────
+// The first server-side piece of the sync system PDXStore prepares for on the
+// client. PDXStore treats each syncable set of personal data as a "collection"
+// (e.g. 'saved') and can push the collection's full, serializable "snapshot"
+// upstream. This table is the upstream: exactly one row per (user_id,
+// collection), holding the latest snapshot verbatim.
+//
+// The design is intentionally a full-snapshot replace (an upsert keyed by
+// user_id + collection), which makes push idempotent — retrying a push is safe
+// and simply re-writes the same row. `revision` echoes the client's per-collection
+// revision counter (an ordering hint, not a lock), and `synced_at` is the
+// server's authoritative "last stored" timestamp returned to the client so it can
+// clear its dirty flag. See the REMOTE BACKEND CONTRACT doc block in index.html.
+export const pdxSnapshots = pgTable(
+  "pdx_snapshots",
+  {
+    id: serial().primaryKey(),
+    // Opaque user identifier supplied by the client. Real auth (verifying this
+    // against a token) lands in the next phase; for now it is trusted as-is.
+    userId: text("user_id").notNull(),
+    // The PDXStore collection name this snapshot belongs to (e.g. "saved").
+    collection: text().notNull(),
+    // The complete collection snapshot, stored verbatim as JSON.
+    snapshot: jsonb().notNull(),
+    // The client's revision counter at push time — a monotonic ordering hint.
+    revision: integer().notNull().default(0),
+    // Authoritative server timestamp of the last successful store, echoed back
+    // to the client so it can record when it last agreed with the server.
+    syncedAt: timestamp("synced_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    // One row per user+collection — the target of the idempotent push upsert.
+    uniq: uniqueIndex("pdx_snapshots_user_collection_unique").on(t.userId, t.collection),
+  })
+);
