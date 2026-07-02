@@ -46,9 +46,13 @@ import { pdxSnapshots } from "../../db/schema.js";
 // Kept in sync with netlify/functions/community.mts and the client firebaseConfig.
 const FIREBASE_PROJECT_ID = "politidex-979bd";
 
-// Collections a client is allowed to sync in this phase. PDXStore also defines a
-// `team` collection, but this step focuses on `saved` only.
-const ALLOWED_COLLECTIONS = new Set(["saved"]);
+// Collections a client is allowed to sync. Both personal collections now use the
+// same tombstone + watermark snapshot format (see PDXSaved / PDXTeamSync in
+// index.html), so the server treats them identically — it only stores and returns
+// opaque JSON snapshots keyed by (user_id, collection); all merge/GC logic lives
+// on the client. Adding `team` here is purely an allow-list widening: no schema
+// change, since `team` snapshots are just another row in the existing table.
+const ALLOWED_COLLECTIONS = new Set(["saved", "team"]);
 
 // A sane ceiling so a caller can't push an unbounded payload. The `saved`
 // collection is small (bookmarks + short tags/notes); 1 MB is generous headroom.
