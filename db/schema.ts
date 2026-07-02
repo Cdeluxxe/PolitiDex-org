@@ -137,6 +137,73 @@ export const ceeSuggestions = pgTable(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
+// The People's Mandate — community reform proposals ("Forging Tomorrow")
+// ─────────────────────────────────────────────────────────────────────────────
+// The participation layer for the Mandate page: anyone can submit a bold reform
+// idea, everyone can see what has been proposed, and users show support with a
+// one-click vote. This is deliberately its OWN small pair of tables (prefixed
+// `pdx_proposals`) so it stays independent of both the curated agenda cards and
+// the Firebase-backed app data, and can later be lifted into the shared PDXStore
+// sync system (like `saved` / `evidence`) without a schema rethink.
+//
+// Identity is intentionally lightweight for now: each browser mints a stable
+// random "participant key" (stored in localStorage) that is sent as
+// `submitterKey` / `voterKey`. That key is all the server needs to (a) credit a
+// submitter and (b) enforce one-support-per-participant per proposal via a unique
+// index. When real auth is wired in, the same columns simply carry the Firebase
+// uid instead — no migration required.
+
+// A single community-submitted reform proposal.
+export const pdxProposals = pgTable(
+  "pdx_proposals",
+  {
+    id: serial().primaryKey(),
+    // Short headline for the reform, e.g. "Ranked-choice voting for all federal races".
+    title: text().notNull(),
+    // The pitch: what problem it solves and how.
+    description: text().notNull(),
+    // Optional free-form category/tag slug (e.g. "term-limits"). Nullable so the
+    // form can stay approachable — a proposal without a category is still valid.
+    category: text(),
+    // Denormalised display name; defaults to "Anonymous" when none is given.
+    submitterName: text("submitter_name").notNull().default("Anonymous"),
+    // The submitter's stable participant key (client-minted today, Firebase uid
+    // later). Not shown to other users — used only for attribution/rate hooks.
+    submitterKey: text("submitter_key"),
+    // Denormalised running tally of support votes, kept in step with the
+    // pdx_proposal_votes rows so listing/sorting never needs an aggregate join.
+    supportCount: integer("support_count").notNull().default(0),
+    // active = visible; removed = hidden by a future moderator tool.
+    status: text().notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    statusIdx: index("pdx_proposals_status_idx").on(t.status),
+    supportIdx: index("pdx_proposals_support_idx").on(t.supportCount),
+    createdIdx: index("pdx_proposals_created_idx").on(t.createdAt),
+  })
+);
+
+// One support vote. The (proposal_id, voter_key) unique index is what prevents a
+// participant from supporting the same proposal twice; a repeat tap toggles the
+// support off by deleting the row (see netlify/functions/mandate-proposals.mts).
+export const pdxProposalVotes = pgTable(
+  "pdx_proposal_votes",
+  {
+    id: serial().primaryKey(),
+    proposalId: integer("proposal_id")
+      .notNull()
+      .references(() => pdxProposals.id, { onDelete: "cascade" }),
+    voterKey: text("voter_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("pdx_proposal_votes_unique").on(t.proposalId, t.voterKey),
+    proposalIdx: index("pdx_proposal_votes_proposal_idx").on(t.proposalId),
+  })
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Cross-device account sync — PDXStore collection snapshots
 // ─────────────────────────────────────────────────────────────────────────────
 // The first server-side piece of the sync system PDXStore prepares for on the
