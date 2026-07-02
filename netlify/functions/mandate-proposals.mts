@@ -20,10 +20,15 @@
 // Routes (all under /api/mandate-proposals):
 //   GET  /                     list proposals + live stats
 //                                query: sort=top|new (default top),
-//                                       key=<participantKey> (marks youSupported)
+//                                       key=<participantKey> (marks youSupported),
+//                                       politician=<id> (only proposals linked to
+//                                         that politician — powers the "Related
+//                                         Proposals" section on a profile)
 //   POST /                     submit a proposal
 //                                body: { title, description, category?,
-//                                        submitterName?, submitterKey? }
+//                                        submitterName?, submitterKey?,
+//                                        linkedPoliticianIds?: string[],
+//                                        linkedRaceIds?: string[] }
 //   POST /:id/support          toggle support for a proposal
 //                                body: { voterKey }  → { supported, supportCount }
 
@@ -40,6 +45,11 @@ const DESC_MAX = 2000;
 const NAME_MAX = 60;
 const CATEGORY_MAX = 40;
 const KEY_MAX = 128;
+// A single proposal can target a handful of politicians/races — enough to link a
+// reform to the seats it affects without turning into an unbounded tag dump. Each
+// id is itself capped so a malformed client can't store megabytes.
+const LINK_ID_MAX = 64;
+const MAX_LINKS = 12;
 // A generous page size — the Mandate grid shows everything the community has
 // proposed, but we cap the payload so a huge table can't blow up a response.
 const LIST_LIMIT = 200;
@@ -57,6 +67,24 @@ function clean(v: unknown, max: number): string {
   return v.trim().slice(0, max);
 }
 
+// Normalise an incoming list of link ids into a clean, de-duped string array:
+// only non-empty strings survive, each is trimmed + hard-capped, and the whole
+// list is capped at MAX_LINKS. Anything that isn't an array becomes []. This is
+// the sole gate for the JSON that lands in the linked_* columns.
+function cleanIdArray(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const item of v) {
+    const id = clean(item, LINK_ID_MAX);
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+    if (out.length >= MAX_LINKS) break;
+  }
+  return out;
+}
+
 // The public shape of a proposal row. `youSupported` is filled per-request from
 // the caller's participant key so the UI can render its support button as active.
 type ProposalDTO = {
@@ -68,17 +96,33 @@ type ProposalDTO = {
   supportCount: number;
   createdAt: string;
   youSupported: boolean;
+  // The people/seats this proposal targets. Empty when unlinked.
+  linkedPoliticianIds: string[];
+  linkedRaceIds: string[];
 };
 
 // ── GET / — list proposals + live stats ──────────────────────────────────────
 async function listProposals(url: URL): Promise<Response> {
   const sort = url.searchParams.get("sort") === "new" ? "new" : "top";
   const viewerKey = clean(url.searchParams.get("key"), KEY_MAX);
+  // Optional: restrict to proposals linked to one politician (their profile id).
+  // Powers the "Related Proposals" section rendered on a politician's profile.
+  const politician = clean(url.searchParams.get("politician"), LINK_ID_MAX);
+
+  // Base filter is always "active". When a politician is requested we add a jsonb
+  // containment check (`@>`) so only proposals whose linked_politician_ids array
+  // includes that id come back — a single indexed-friendly predicate, no join.
+  const where = politician
+    ? and(
+        eq(pdxProposals.status, "active"),
+        sql`${pdxProposals.linkedPoliticianIds} @> ${JSON.stringify([politician])}::jsonb`
+      )
+    : eq(pdxProposals.status, "active");
 
   const rows = await db
     .select()
     .from(pdxProposals)
-    .where(eq(pdxProposals.status, "active"))
+    .where(where)
     .orderBy(
       // "top" ranks by support then recency; "new" is purely chronological. In
       // both cases newest breaks ties so a fresh proposal is never buried.
@@ -107,6 +151,8 @@ async function listProposals(url: URL): Promise<Response> {
     supportCount: r.supportCount,
     createdAt: r.createdAt.toISOString(),
     youSupported: supportedIds.has(r.id),
+    linkedPoliticianIds: r.linkedPoliticianIds ?? [],
+    linkedRaceIds: r.linkedRaceIds ?? [],
   }));
 
   // Live headline stats: total proposals + total support votes cast across all of
@@ -135,6 +181,10 @@ async function createProposal(req: Request): Promise<Response> {
   const submitterKey = clean(body?.submitterKey, KEY_MAX) || null;
   // Empty name → "Anonymous" so the participation flow never demands a real name.
   const submitterName = clean(body?.submitterName, NAME_MAX) || "Anonymous";
+  // Optional links to the politicians/races this reform targets — both stay []
+  // when the submitter skips the (optional) picker.
+  const linkedPoliticianIds = cleanIdArray(body?.linkedPoliticianIds);
+  const linkedRaceIds = cleanIdArray(body?.linkedRaceIds);
 
   if (title.length < TITLE_MIN) {
     return json({ error: `Title must be at least ${TITLE_MIN} characters.` }, 400);
@@ -145,7 +195,7 @@ async function createProposal(req: Request): Promise<Response> {
 
   const [row] = await db
     .insert(pdxProposals)
-    .values({ title, description, category, submitterName, submitterKey })
+    .values({ title, description, category, submitterName, submitterKey, linkedPoliticianIds, linkedRaceIds })
     .returning();
 
   console.log(`mandate-proposals: new proposal #${row.id} "${title}"`);
@@ -159,6 +209,8 @@ async function createProposal(req: Request): Promise<Response> {
     supportCount: row.supportCount,
     createdAt: row.createdAt.toISOString(),
     youSupported: false,
+    linkedPoliticianIds: row.linkedPoliticianIds ?? [],
+    linkedRaceIds: row.linkedRaceIds ?? [],
   };
   return json({ ok: true, proposal: dto }, 201);
 }
