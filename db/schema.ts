@@ -165,6 +165,17 @@ export const pdxProposals = pgTable(
     // Optional free-form category/tag slug (e.g. "term-limits"). Nullable so the
     // form can stay approachable — a proposal without a category is still valid.
     category: text(),
+    // Optional links tying the proposal to specific people/seats it targets, so a
+    // reform can be surfaced on the exact profiles and races a user is tracking.
+    // Both are lightweight JSON string arrays and default to empty so linking stays
+    // entirely optional:
+    //   linkedPoliticianIds — politician profile ids (the same ids openModal() uses),
+    //     rendered as clickable chips on cards and used to power a profile's
+    //     "Related Proposals" section.
+    //   linkedRaceIds — free-form race/office identifiers (e.g. "ut-senate-d6"),
+    //     reserved for surfacing proposals in the multi-level ballot later.
+    linkedPoliticianIds: jsonb("linked_politician_ids").$type<string[]>().default([]),
+    linkedRaceIds: jsonb("linked_race_ids").$type<string[]>().default([]),
     // Denormalised display name; defaults to "Anonymous" when none is given.
     submitterName: text("submitter_name").notNull().default("Anonymous"),
     // The submitter's stable participant key (client-minted today, Firebase uid
