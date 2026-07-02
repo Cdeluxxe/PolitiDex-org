@@ -59,20 +59,24 @@ const COLLECTIONS = [
   },
   {
     // ─────────────────────────────────────────────────────────────────────────
-    // A HYPOTHETICAL THIRD COLLECTION — this is the entire onboarding cost.
-    // "evidence" tracks saved evidence receipts whose analyst-editable fields are
-    // an evidence-strength rating and a set of labels. It is tombstoned like the
-    // others and needs no singletons. That's it — four lines of config buys full
-    // tombstone-aware, watermark-GC'd, field-level-merge cross-device sync.
+    // The Evidence Locker's saved collections — now a REAL synced collection
+    // (see PDXEvidenceSync in index.html and scripts/sync-evidence-merge-sim.mjs
+    // for the full nested-store projection). Here it is driven purely as a config
+    // to prove it earns every core guarantee for free: its independently-mergeable
+    // fields are a saved receipt's `note` / `tags` (the analog of saved's) plus a
+    // collection's `name`. Tombstoned like the others; no singletons. That config
+    // is the entire onboarding cost for full tombstone-aware, watermark-GC'd,
+    // field-level-merge cross-device sync.
     // ─────────────────────────────────────────────────────────────────────────
     name: 'evidence',
     harness: { snapshotKey: 'evidence', fields: [
-      { field: 'strength', tsField: 'strengthUpdatedAt' },
-      { field: 'labels',   tsField: 'labelsUpdatedAt'   }
+      { field: 'name', tsField: 'nameUpdatedAt' },
+      { field: 'note', tsField: 'noteUpdatedAt' },
+      { field: 'tags', tsField: 'tagsUpdatedAt' }
     ] },
-    sample: { type: 'ev', key: 7, seed: { url: 'https://example.org/doc' },
-      fieldA: 'strength', a1: 'strong', a2: 'weak',
-      fieldB: 'labels',   b1: ['primary-source', 'video'] }
+    sample: { type: 'evitem', key: 'pol_42␟receipt-x', seed: { snap: { headline: 'HB 100 vote' } },
+      fieldA: 'note', a1: 'follow this receipt', a2: 'updated note',
+      fieldB: 'tags', b1: ['primary-source', 'video'] }
   }
 ];
 
