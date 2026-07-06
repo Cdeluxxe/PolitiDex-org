@@ -14,7 +14,9 @@
  * External inputs read at runtime: CMP_DATA, PROFILES, ISSUE_STANCE_DATA,
  * getProfile, window._issueVerdict, window._polPositionMap.
  *
- * Original 3-state intensity system (strong / moderate / opposed).
+ * 5-point stance system (strongly_support / support / neutral / oppose /
+ * strongly_oppose). Legacy 3-state values (strong / moderate / opposed) are
+ * migrated on load, so previously-saved Alignment Signatures keep working.
  */
   // ════════════════════════════════════════════════════════════
   // PERSONALIZED ALIGNMENT SCORE ENGINE
@@ -23,13 +25,63 @@
     var ALIGN_KEY = 'politidex_align_issues';
     var ALIGN_INT_KEY = 'politidex_align_intensity';
     var _alignIssues = new Set();
-    // Optional per-issue intensity overlay: { issueKey: 'strong' | 'opposed' }.
-    // 'moderate' is the implicit default and is never stored, so an issue with no
-    // entry here scores EXACTLY as it did before this overlay existed — that keeps
-    // every previously-saved Alignment Signature (a plain array of keys) producing
-    // identical politician match %s. 'strong' weights the issue more heavily;
-    // 'opposed' inverts the match (a candidate who holds that position scores low).
+    // Optional per-issue stance overlay: { issueKey: <5-point level> }. The five
+    // levels are strongly_support / support / neutral / oppose / strongly_oppose.
+    // 'support' is the implicit default and is never stored, so an issue with no
+    // entry here scores EXACTLY as a plain "I hold this position" pick did before —
+    // that keeps every previously-saved Alignment Signature (a plain array of keys)
+    // producing identical politician match %s. Stronger levels weight the issue more
+    // heavily; oppose/strongly_oppose invert the match (a candidate who holds that
+    // position scores low); neutral counts lightly and pulls toward the midpoint.
     var _alignIntensity = {};
+
+    // ── 5-point stance system ──────────────────────────────────────────────
+    // The exact level vocabulary, the implicit default, and the legacy migration
+    // that keeps 3-state signatures (strong / moderate / opposed) valid.
+    var ALIGN_LEVELS = ['strongly_support', 'support', 'neutral', 'oppose', 'strongly_oppose'];
+    var ALIGN_DEFAULT_LEVEL = 'support';   // implied by a bare selection; never stored
+    function _alignMigrateLevel(lvl) {
+      if (lvl === 'strong')   return 'strongly_support';
+      if (lvl === 'moderate') return 'support';
+      if (lvl === 'opposed')  return 'oppose';
+      return lvl;
+    }
+    // Scoring model for a stance level:
+    //   agree  — true = holds the position, false = rejects it, null = neutral
+    //   weight — multiplier on the issue's computed weight (stronger = heavier)
+    function _alignLevelModel(level) {
+      switch (_alignMigrateLevel(level)) {
+        case 'strongly_support': return { agree: true,  weight: 1.7 };
+        case 'neutral':          return { agree: null,  weight: 0.4 };
+        case 'oppose':           return { agree: false, weight: 1.25 };
+        case 'strongly_oppose':  return { agree: false, weight: 1.9 };
+        case 'support':
+        default:                 return { agree: true,  weight: 1.0 };
+      }
+    }
+    // Short label + icon for the per-issue stance badge and any compact readouts.
+    function _alignLevelMeta(level) {
+      switch (_alignMigrateLevel(level)) {
+        case 'strongly_support': return { icon: '💪', label: 'Strongly Support' };
+        case 'neutral':          return { icon: '😐', label: 'Neutral' };
+        case 'oppose':           return { icon: '👎', label: 'Oppose' };
+        case 'strongly_oppose':  return { icon: '✋', label: 'Strongly Oppose' };
+        case 'support':
+        default:                 return { icon: '👍', label: 'Support' };
+      }
+    }
+    // Expose the live overlay + helpers so surfaces in other <script> blocks
+    // (the "How You Compare" comparison, Key Races breakdowns) read the SAME
+    // stance vocabulary and current picks. Re-pointed whenever _alignIntensity
+    // is reassigned (see _alignExposeIntensity below).
+    function _alignExposeIntensity() { try { window._alignIntensity = _alignIntensity; } catch (e) {} }
+    _alignExposeIntensity();
+    try {
+      window.ALIGN_LEVELS = ALIGN_LEVELS;
+      window._alignMigrateLevel = _alignMigrateLevel;
+      window._alignLevelModel = _alignLevelModel;
+      window._alignLevelMeta = _alignLevelMeta;
+    } catch (e) {}
 
     // Each topic now offers SEVERAL selectable positions (checkbox style) instead
     // of a forced "this side vs that side" pair — a visitor can agree with more
@@ -71,6 +123,7 @@
       gov_services:       { label: '🏛 Invest in Public Services', chip: 'Protect Social Security, Medicaid and public services — even if it means higher taxes on top earners', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','social security','funding','social','community service','services','paid leave','minimum wage','affordable','top earners','wealth tax'] },
       social_security:    { label: '👵 Protect Social Security & Medicare', chip: 'Protect Social Security and Medicare benefits from cuts or privatization', cat: 'gov', stanceKeys: [], keywords: ['social security','medicare','retirement','seniors','senior','entitlement','earned benefits','benefits','pension','fixed income','elderly','retiree'] },
       national_debt:      { label: '📉 Tackle the National Debt', chip: 'Bring down the national debt and stop running huge yearly deficits', cat: 'gov', stanceKeys: ['debt'], keywords: ['national debt','debt','deficit','deficit spending','balanced budget','debt ceiling','fiscal responsibility','interest on the debt','overspending','spending','fiscal'] },
+      prop_tax:           { label: '🏦 Property Taxes', chip: 'Lower or cap property taxes so rising home values don’t tax families and seniors out of their homes', cat: 'gov', stanceKeys: [], keywords: ['property tax','property taxes','real estate tax','home value','assessment','tax assessment','mill levy','homestead exemption','property tax relief','property tax cap','escrow','homeowner tax','circuit breaker','seniors','fixed income'] },
 
       // ── Immigration ──
       border_security:    { label: '🛡 Strong Border & Enforcement', chip: 'Finish border barriers and deport people here illegally', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
@@ -128,9 +181,11 @@
       disaster_resilience:{ label: '🔥 Wildfire & Disaster Resilience', chip: 'Prepare for wildfires, floods and droughts and speed up disaster recovery', cat: 'enviro', stanceKeys: [], keywords: ['wildfire','fire','drought','flood','flooding','disaster','fema','emergency','resilience','mitigation','recovery','natural disaster','preparedness'] },
 
       // ── Housing & Cost of Living ──
+      housing:            { label: '🏠 Housing Affordability', chip: 'Make housing more affordable by boosting supply and lowering the cost to build and buy', cat: 'housing', stanceKeys: [], keywords: ['housing','housing affordability','affordable housing','home prices','housing cost','cost of housing','housing crisis','housing supply','home ownership','homeownership','rent','mortgage','starter home','zoning','shortage'] },
       housing_build:      { label: '🏗 Build More Housing', chip: 'Loosen zoning and permitting so more homes — including apartments — can be built', cat: 'housing', stanceKeys: [], keywords: ['housing','home building','zoning','permitting','supply','construction','development','affordable housing','housing cost','red tape','density'] },
       cost_living:        { label: '🛒 Tackle the Cost of Living', chip: 'Make lowering rent, grocery, gas and utility prices the top economic priority', cat: 'housing', stanceKeys: [], keywords: ['cost of living','inflation','affordable','rent','prices','grocery','gas prices','mortgage','family budget','wage','middle class','utilities'] },
       housing_support:    { label: '🏘 Affordable Housing & Renters', chip: 'Fund affordable housing and protect renters with assistance and limits on evictions', cat: 'housing', lean: 'D', stanceKeys: [], keywords: ['affordable housing','renter','rent','tenant','housing assistance','homeless','homelessness','public housing','housing voucher','eviction','low-income'] },
+      homeless:           { label: '🏕 Homelessness Policy', chip: 'Tackle homelessness with shelter, mental-health and addiction services, and keeping public spaces clear', cat: 'housing', stanceKeys: [], keywords: ['homeless','homelessness','unhoused','homeless encampment','encampment','homeless shelter','shelter','housing first','panhandling','vagrancy','transient','street homelessness','tent','mental health','addiction','wraparound services'] },
       property_tax:       { label: '🏡 Lower Property Taxes', chip: 'Cap property taxes so families and seniors can afford to stay in their homes', cat: 'housing', stanceKeys: [], keywords: ['property tax','property taxes','homeowner','home value','assessment','tax relief','seniors','fixed income','homestead','escrow'] },
       housing_first_time: { label: '🔑 Help First-Time Buyers', chip: 'Help first-time and young buyers afford their first home', cat: 'housing', stanceKeys: [], keywords: ['first-time buyer','first time home','down payment','starter home','young families','homeownership','home buyer','first home','american dream','mortgage rate','closing costs'] },
 
@@ -161,6 +216,7 @@
       // ── Technology & Privacy ──
       tech_innovation:    { label: '🚀 Innovation & Light Rules', chip: 'Let American tech and AI innovate with minimal red tape', cat: 'tech', lean: 'R', stanceKeys: [], keywords: ['technology','innovation','ai','artificial intelligence','deregulation','tech leadership','startup','crypto','light touch','competitiveness','semiconductor'] },
       tech_balance:       { label: '⚖️ Smart Tech Guardrails', chip: 'Let tech innovate but require data-privacy, online-safety and age-verification rules', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['technology','ai','guardrails','regulation','innovation','safety','age verification','social media','consumer protection','balanced','modernization'] },
+      aidc:               { label: '🖥 AI Data Centers', chip: 'Welcome large AI data centers for the jobs, investment and tax revenue they bring', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['data center','data centers','datacenter','datacenters','ai data center','ai data centers','ai data','artificial intelligence','server farm','hyperscale','power demand','power grid','electricity','energy demand','grid','water usage','water use','cooling','tax revenue','tax base','economic development','jobs','investment','ratepayers','utility bills','emissions','environment','environmental'] },
       privacy_rights:     { label: '🔒 Privacy & Big-Tech Accountability', chip: 'Protect personal data and hold Big Tech accountable', cat: 'tech', stanceKeys: [], keywords: ['privacy','data privacy','surveillance','fisa','section 702','big tech','data','section 230','antitrust','consumer protection','encryption','warrant'] },
 
       // ── Elections & Democracy ──
@@ -207,7 +263,7 @@
     var CORE_NATIONAL_ISSUES = [
       { key: 'economy_cost_of_living', label: '💵 Economy, Inflation & Cost of Living',
         blurb: 'Jobs, wages, inflation, taxes on households, and the price of everyday life.',
-        keys: ['cost_living','tax_middle_class','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing_build','housing_support','housing_first_time','property_tax'] },
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl'] },
@@ -225,7 +281,7 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate Change & Energy Policy',
         blurb: 'Climate action, clean and domestic energy, water, and disaster resilience.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','disaster_resilience','water','water_storage'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','aidc','disaster_resilience','water','water_storage'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform'] },
@@ -443,19 +499,22 @@
         : '<span class="align-opt-cov is-none" title="No documented positions are tagged to this exact issue yet — picking it still matches candidates from their broader record, and it sharpens as positions are added">📍 —</span>';
       // No party (R/D) badge — the option reads as a policy position, and the
       // checkbox box on the left makes the multi-select nature obvious. Once an
-      // option is checked, an intensity row (Strong / Moderate / Opposed) reveals
-      // itself so a visitor can quickly weight how strongly they hold the position.
+      // option is checked, a 5-point stance row (Strongly Support → Strongly
+      // Oppose) reveals itself, plus a live badge showing the chosen stance.
       return '<div class="align-opt-row" data-opt-row="' + key + '">' +
         '<button type="button" class="align-chip align-opt" data-align-issue="' + key + '"' +
           ' aria-pressed="false" onclick="alignToggle(this)">' +
           '<span class="align-opt-box" aria-hidden="true"></span>' +
           '<span class="align-opt-text">' + d.chip + '</span>' +
+          '<span class="align-stance-badge" data-stance-badge="' + key + '" aria-hidden="true"></span>' +
           covHtml +
         '</button>' +
-        '<div class="align-intensity" role="group" aria-label="How strongly do you hold this position?">' +
-          '<button type="button" class="align-int-btn" data-int="strong" title="This is a strong, high-priority position for me" onclick="alignSetIntensity(\'' + key + '\',\'strong\')">💪 Strong</button>' +
-          '<button type="button" class="align-int-btn" data-int="moderate" title="I hold this position, but moderately" onclick="alignSetIntensity(\'' + key + '\',\'moderate\')">◐ Moderate</button>' +
-          '<button type="button" class="align-int-btn" data-int="opposed" title="I am actually opposed to this position" onclick="alignSetIntensity(\'' + key + '\',\'opposed\')">🚫 Opposed</button>' +
+        '<div class="align-intensity" role="group" aria-label="What is your stance on this position?">' +
+          '<button type="button" class="align-int-btn" data-int="strongly_support" title="I strongly support this — a top-priority position for me" onclick="alignSetIntensity(\'' + key + '\',\'strongly_support\')">💪 Strongly Support</button>' +
+          '<button type="button" class="align-int-btn" data-int="support" title="I support this position" onclick="alignSetIntensity(\'' + key + '\',\'support\')">👍 Support</button>' +
+          '<button type="button" class="align-int-btn" data-int="neutral" title="I feel neutral / mixed on this — it counts lightly" onclick="alignSetIntensity(\'' + key + '\',\'neutral\')">😐 Neutral</button>' +
+          '<button type="button" class="align-int-btn" data-int="oppose" title="I oppose this position" onclick="alignSetIntensity(\'' + key + '\',\'oppose\')">👎 Oppose</button>' +
+          '<button type="button" class="align-int-btn" data-int="strongly_oppose" title="I strongly oppose this position" onclick="alignSetIntensity(\'' + key + '\',\'strongly_oppose\')">✋ Strongly Oppose</button>' +
         '</div>' +
       '</div>';
     }
@@ -507,15 +566,32 @@
         var on = _alignIssues.has(k);
         chip.classList.toggle('active', on);
         chip.setAttribute('aria-pressed', on ? 'true' : 'false');
-        // Reflect the per-issue intensity onto the row: highlight the chosen preset
-        // and flag the "opposed" state (which re-skins the checkbox to a red ✕).
+        // Reflect the per-issue stance onto the row: highlight the chosen level,
+        // flag oppose/strongly_oppose (which re-skins the checkbox to a red ✕), and
+        // fill the live stance badge. A bare selection implies the default 'support'.
         var row = chip.closest('.align-opt-row');
         if (row) {
-          var lvl = on ? (_alignIntensity[k] || 'moderate') : null;
-          row.classList.toggle('opposed', lvl === 'opposed');
+          var lvl = on ? _alignMigrateLevel(_alignIntensity[k] || ALIGN_DEFAULT_LEVEL) : null;
+          ALIGN_LEVELS.forEach(function(L) { row.classList.remove('lvl-' + L); });
+          row.classList.remove('opposed');
+          if (lvl) {
+            row.classList.add('lvl-' + lvl);
+            if (lvl === 'oppose' || lvl === 'strongly_oppose') row.classList.add('opposed');
+          }
           row.querySelectorAll('.align-int-btn').forEach(function(b) {
             b.classList.toggle('sel', !!lvl && b.getAttribute('data-int') === lvl);
           });
+          var badge = row.querySelector('[data-stance-badge]');
+          if (badge) {
+            if (lvl) {
+              var meta = _alignLevelMeta(lvl);
+              badge.textContent = meta.icon + ' ' + meta.label;
+              badge.style.display = 'inline-flex';
+            } else {
+              badge.textContent = '';
+              badge.style.display = 'none';
+            }
+          }
         }
       });
       var counts = {};
@@ -660,13 +736,16 @@
       });
     };
 
-    // Keep only intensity entries that point at a currently-selected, known issue
-    // and carry a real non-default level, so the overlay can never go stale.
+    // Keep only stance entries that point at a currently-selected, known issue and
+    // carry a real non-default level, so the overlay can never go stale. Legacy
+    // 3-state values are migrated in place; 'support' (the default) is dropped.
     function _alignCleanIntensity() {
       Object.keys(_alignIntensity).forEach(function(k) {
-        var lvl = _alignIntensity[k];
-        if (!ISSUE_MAP[k] || !_alignIssues.has(k) || (lvl !== 'strong' && lvl !== 'opposed')) {
+        var lvl = _alignMigrateLevel(_alignIntensity[k]);
+        if (!ISSUE_MAP[k] || !_alignIssues.has(k) || ALIGN_LEVELS.indexOf(lvl) === -1 || lvl === ALIGN_DEFAULT_LEVEL) {
           delete _alignIntensity[k];
+        } else {
+          _alignIntensity[k] = lvl;
         }
       });
     }
@@ -675,8 +754,8 @@
       var clean = {};
       if (obj && typeof obj === 'object') {
         Object.keys(obj).forEach(function(k) {
-          var lvl = obj[k];
-          if (ISSUE_MAP[k] && _alignIssues.has(k) && (lvl === 'strong' || lvl === 'opposed')) clean[k] = lvl;
+          var lvl = _alignMigrateLevel(obj[k]);
+          if (ISSUE_MAP[k] && _alignIssues.has(k) && ALIGN_LEVELS.indexOf(lvl) !== -1 && lvl !== ALIGN_DEFAULT_LEVEL) clean[k] = lvl;
         });
       }
       return clean;
@@ -696,7 +775,7 @@
       // Intensity loads after the selection so it can be intersected with it.
       try {
         var si = localStorage.getItem(ALIGN_INT_KEY);
-        if (si) _alignIntensity = _alignSanitizeIntensity(JSON.parse(si));
+        if (si) { _alignIntensity = _alignSanitizeIntensity(JSON.parse(si)); _alignExposeIntensity(); }
       } catch(e) {}
     }
 
@@ -781,6 +860,7 @@
       var same = aK.length === bK.length && aK.every(function(k, i) { return k === bK[i] && clean[k] === _alignIntensity[bK[i]]; });
       if (same) return false;
       _alignIntensity = clean;
+      _alignExposeIntensity();
       try { localStorage.setItem(ALIGN_INT_KEY, JSON.stringify(_alignIntensity)); } catch(e) {}
       return true;
     }
@@ -1065,32 +1145,34 @@
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
         }
 
-        var _intens = _alignIntensity[issueKey];
-        var _userIntensity = _intens || 'moderate';
+        var _userIntensity = _alignMigrateLevel(_alignIntensity[issueKey] || ALIGN_DEFAULT_LEVEL);
+        var _model = _alignLevelModel(_userIntensity);
         var directPos = polMap[issueKey] || null;
 
         if (directPos) {
           // The candidate has a documented position on this exact issue — the most
           // authoritative signal there is. Score it straight from that stance vs. the
-          // visitor's own view (_issueVerdict already folds in an 'opposed' pick), and
-          // give documented positions strong weight so they lead the match. A 'strong'
-          // pick still counts extra; we do NOT additionally invert for 'opposed'
-          // because the verdict already accounts for it.
+          // visitor's own view (_issueVerdict already folds oppose/neutral picks into
+          // the verdict), and give documented positions strong weight so they lead the
+          // match. The stance level then scales the weight (stronger = heavier); we do
+          // NOT additionally invert here because the verdict already accounts for it.
           var _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, directPos.stance) : 'partial';
           issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
-          issueWeight = Math.max(issueWeight, 2.6);
-          if (_intens === 'strong') issueWeight *= 1.7;
+          issueWeight = Math.max(issueWeight, 2.6) * _model.weight;
         } else {
           if (issueDef.lean) {
             issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
           }
           issueScore = Math.min(100, Math.max(0, issueScore));
-          // Apply the optional intensity overlay. Default (no entry = moderate) leaves
-          // the score and weight untouched, so signatures saved before this feature
-          // score identically. 'strong' weights the issue more; 'opposed' inverts the
-          // match (a candidate who holds the position now scores LOW for this voter).
-          if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
-          else if (_intens === 'strong') { issueWeight *= 1.7; }
+          // Apply the 5-point stance model. The default 'support' (weight 1.0, no
+          // inversion) leaves the score and weight untouched, so signatures saved
+          // before this feature score identically. oppose/strongly_oppose invert the
+          // match (a candidate who holds the position now scores LOW for this voter);
+          // neutral pulls the score toward the midpoint and counts lightly; stronger
+          // levels weight the issue more heavily.
+          if (_model.agree === false) { issueScore = 100 - issueScore; }
+          else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
+          issueWeight *= _model.weight;
         }
 
         totalWeight += issueWeight;
@@ -1214,8 +1296,8 @@
           issueScore = issueScore * (1 + Math.min(relevance, 10) * 0.025);
         }
 
-        var _intens = _alignIntensity[issueKey];
-        var _userIntensity = _intens || 'moderate';
+        var _userIntensity = _alignMigrateLevel(_alignIntensity[issueKey] || ALIGN_DEFAULT_LEVEL);
+        var _model = _alignLevelModel(_userIntensity);
         var directPos = polMap[issueKey] || null;
         var _verdict = null;
 
@@ -1224,16 +1306,16 @@
           // the visitor's view (see _calcAlignmentScore for the rationale).
           _verdict = (typeof window._issueVerdict === 'function') ? window._issueVerdict(_userIntensity, directPos.stance) : 'partial';
           issueScore = _verdict === 'match' ? 90 : _verdict === 'partial' ? 55 : 12;
-          issueWeight = Math.max(issueWeight, 2.6);
-          if (_intens === 'strong') issueWeight *= 1.7;
+          issueWeight = Math.max(issueWeight, 2.6) * _model.weight;
         } else {
           if (issueDef.lean) {
             issueScore = _alignApplyLean(issueScore, issueDef.lean, d);
           }
           issueScore = Math.min(100, Math.max(0, issueScore));
-          // Same intensity overlay as _calcAlignmentScore (kept in lock-step).
-          if (_intens === 'opposed') { issueScore = 100 - issueScore; issueWeight *= 1.25; }
-          else if (_intens === 'strong') { issueWeight *= 1.7; }
+          // Same 5-point stance model as _calcAlignmentScore (kept in lock-step).
+          if (_model.agree === false) { issueScore = 100 - issueScore; }
+          else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
+          issueWeight *= _model.weight;
         }
 
         totalWeight += issueWeight;
@@ -1243,7 +1325,7 @@
         // strongest evidence); the UI uses it to label the row honestly and to lead
         // with documented matches. `hasEvidence` stays true for those too.
         var hasEvidence = (!!directPos || relevance > 0 || stanceCount > 0 || votingCount > 0 || promiseCount > 0);
-        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _intens || 'moderate' });
+        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity });
       });
 
       if (totalWeight === 0) return null;
@@ -1522,7 +1604,8 @@
       if (!ranked.length) return '';
       var chips = ranked.slice(0, max).map(function(i) {
         var c = _alignScoreColor(i.score);
-        var strong = (i.intensity === 'strong') ? '★ ' : '';
+        var _lvl = _alignMigrateLevel(i.intensity);
+        var strong = (_lvl === 'strongly_support' || _lvl === 'strongly_oppose') ? '★ ' : '';
         return '<span class="align-driver-chip" title="' + (strong ? 'You weighted this strongly · ' : '') + 'Your match on ' + i.label + '" style="border-color:' + c + '40;background:' + c + '12;">' +
             '<span style="color:#cdd9ec;">' + strong + i.label + '</span><b style="color:' + c + ';">' + i.score + '%</b>' +
           '</span>';
@@ -1686,14 +1769,16 @@
       _alignPulse(issue);
     };
 
-    // Quick Strong / Moderate / Opposed preset for a single position. Choosing any
-    // preset implies the position is selected, so a visitor can go from nothing to a
-    // weighted "Opposed" in one tap. 'moderate' is the default and clears the overlay.
+    // Quick 5-point stance preset for a single position. Choosing any preset implies
+    // the position is selected, so a visitor can go from nothing to a weighted
+    // "Strongly Oppose" in one tap. 'support' is the default and clears the overlay;
+    // the other four levels are stored. Legacy values are migrated before storing.
     window.alignSetIntensity = function(issue, level) {
       if (!ISSUE_MAP[issue]) return;
       if (!_alignIssues.has(issue)) _alignIssues.add(issue);
-      if (level === 'moderate') delete _alignIntensity[issue];
-      else if (level === 'strong' || level === 'opposed') _alignIntensity[issue] = level;
+      var lvl = _alignMigrateLevel(level);
+      if (lvl === ALIGN_DEFAULT_LEVEL) delete _alignIntensity[issue];
+      else if (ALIGN_LEVELS.indexOf(lvl) !== -1) _alignIntensity[issue] = lvl;
       _alignSave();
       _alignRefreshAll();
       _alignPulse(issue);
@@ -1702,6 +1787,7 @@
     window.alignClearAll = function() {
       _alignIssues.clear();
       _alignIntensity = {};
+      _alignExposeIntensity();
       _alignSave();
       _alignRefreshAll();
     };
@@ -1786,6 +1872,7 @@
     window.relevantAlignClearAll = function() {
       _alignIssues.clear();
       _alignIntensity = {};
+      _alignExposeIntensity();
       _alignSave();
       _alignRefreshAll();
     };
@@ -1898,10 +1985,10 @@
     // so _alignSyncAllChips toggles their active state and alignToggle handles taps —
     // no separate state to keep in sync.
     var ALIGN_QUICK_PICKS = [
-      'term_limits', 'border_security', 'healthcare', 'gun_rights',
-      'school_choice', 'climate_action', 'cost_living', 'social_security',
-      'national_debt', 'property_tax', 'child_care', 'immigration_reform',
-      'water', 'health_mental', 'gun_safety'
+      'aidc', 'term_limits', 'border_security', 'healthcare', 'gun_rights',
+      'school_choice', 'climate_action', 'cost_living', 'housing', 'homeless',
+      'social_security', 'national_debt', 'property_tax', 'child_care',
+      'immigration_reform', 'water', 'health_mental', 'gun_safety'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
@@ -1931,33 +2018,38 @@
       if (n === 0) {
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div></div>' +
-          '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strong</b>, <b>Moderate</b> or <b>Opposed</b> to fine-tune each one. Your match score then appears on every politician card.</div>';
+          '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each one. Your match score then appears on every politician card.</div>';
         return;
       }
 
-      var strong = 0, opposed = 0;
+      // Roll the five stance levels into three readable buckets for the summary:
+      // support (support + strongly_support), neutral, and opposed (oppose +
+      // strongly_oppose). A bare selection counts as the default 'support'.
+      var support = 0, opposed = 0, neutral = 0, strong = 0;
       var catCounts = {};
       _alignIssues.forEach(function(k) {
-        var lvl = _alignIntensity[k];
-        if (lvl === 'strong') strong++;
-        else if (lvl === 'opposed') opposed++;
+        var lvl = _alignMigrateLevel(_alignIntensity[k] || ALIGN_DEFAULT_LEVEL);
+        if (lvl === 'strongly_support' || lvl === 'strongly_oppose') strong++;
+        if (lvl === 'oppose' || lvl === 'strongly_oppose') opposed++;
+        else if (lvl === 'neutral') neutral++;
+        else support++;
         var d = ISSUE_MAP[k];
         if (d && d.cat) catCounts[d.cat] = (catCounts[d.cat] || 0) + 1;
       });
-      var moderate = n - strong - opposed;
 
-      // Plain-language strength sentence, mirroring the requested phrasing.
+      // Plain-language strength sentence.
       var parts = [];
-      if (strong > 0) parts.push('<b class="s-strong">strong</b> opinions on <b>' + strong + '</b>');
-      if (moderate > 0) parts.push('<b class="s-mod">moderate</b> on <b>' + moderate + '</b>');
+      if (support > 0) parts.push('<b class="s-strong">support</b> on <b>' + support + '</b>');
+      if (neutral > 0) parts.push('<b class="s-mod">neutral</b> on <b>' + neutral + '</b>');
       if (opposed > 0) parts.push('<b class="s-opp">opposed</b> on <b>' + opposed + '</b>');
+      var strongNote = strong > 0 ? ' (<b>' + strong + '</b> held strongly)' : '';
       var sentence = parts.length
-        ? 'You have ' + (parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]) + ' of your <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.'
+        ? 'You ' + (parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]) + ' of your <b>' + n + '</b> position' + (n > 1 ? 's' : '') + strongNote + '.'
         : 'You have selected <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.';
 
-      // Proportional three-segment strength meter.
-      var sw = Math.round(strong / n * 100);
-      var mw = Math.round(moderate / n * 100);
+      // Proportional three-segment strength meter (support / neutral / opposed).
+      var sw = Math.round(support / n * 100);
+      var mw = Math.round(neutral / n * 100);
       var ow = Math.max(0, 100 - sw - mw);
       var meter = '<div class="align-strength-meter" aria-hidden="true">' +
         (sw > 0 ? '<div class="align-strength-seg strong" style="width:' + sw + '%;"></div>' : '') +
@@ -2041,7 +2133,18 @@
         var catHasMatch = false;
         cat.querySelectorAll('.align-opt-row').forEach(function(row) {
           var txt = row.textContent.toLowerCase();
-          var match = !q || headMatch || txt.indexOf(q) !== -1;
+          // Also match against the issue's hidden keyword aliases (e.g. typing
+          // "data center", "ai data", "homeless" or "property tax" surfaces the
+          // right position even when those words aren't in the visible chip text).
+          var kwHit = false;
+          if (q) {
+            var rk = row.getAttribute('data-opt-row');
+            var def = rk && ISSUE_MAP[rk];
+            if (def && def.keywords) {
+              kwHit = def.keywords.some(function(kw) { return kw.indexOf(q) !== -1 || q.indexOf(kw) !== -1; });
+            }
+          }
+          var match = !q || headMatch || txt.indexOf(q) !== -1 || kwHit;
           row.classList.toggle('align-hide', !match);
           if (match) catHasMatch = true;
         });
