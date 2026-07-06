@@ -272,16 +272,16 @@
     var CORE_NATIONAL_ISSUES = [
       { key: 'economy_cost_of_living', label: '💵 Economy, Inflation & Cost of Living',
         blurb: 'Jobs, wages, inflation, taxes on households, and the price of everyday life.',
-        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax'] },
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
-        keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl'] },
+        keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
       { key: 'healthcare', label: '🏥 Healthcare Costs & Access',
         blurb: 'Coverage, premiums, drug prices, rural care, mental health, and senior benefits.',
-        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security'] },
+        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
         blurb: 'Federal spending, the national debt, balanced budgets, and rooting out waste.',
-        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation'] },
+        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending'] },
       { key: 'abortion_repro', label: '🕊 Abortion / Reproductive Rights',
         blurb: 'Abortion access, limits and exceptions, and reproductive freedom.',
         keys: ['pro_life','repro_balance','pro_choice'] },
@@ -290,13 +290,13 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate Change & Energy Policy',
         blurb: 'Climate action, clean and domestic energy, water, and disaster resilience.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','aidc','disaster_resilience','water','water_storage'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','aidc','disaster_resilience','water','water_storage','energy_production'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
-        keys: ['back_police','justice_balance','justice_reform','cannabis_reform'] },
+        keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
       { key: 'election_integrity', label: '🗳 Election Integrity',
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
-        keys: ['election_integrity','democracy_balance','voting_access'] },
+        keys: ['election_integrity','democracy_balance','voting_access','voter_id'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
@@ -1998,7 +1998,7 @@
       'school_choice', 'climate_action', 'energy_production', 'cost_living', 'housing', 'homeless',
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
-      'voter_id', 'tough_on_crime', 'end_dei'
+      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
