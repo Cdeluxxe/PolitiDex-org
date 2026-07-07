@@ -361,4 +361,406 @@
       return '<div class="pdx-snap-stances">' + label + lead + leadMandate + '<div class="pdx-stance-chips">' + chips + more + '</div></div>';
     };
 
+  // ── Seat issue board + "How You Compare" family ────────────────────────────
+  // Moved from index.html. These read documented stances (via _polPositionMap /
+  // _resolveStanceList above) and compare them against the visitor's Alignment
+  // Tool picks, so they live beside the data and helpers they use. Cross-file
+  // dependencies (CMP_DATA, ISSUE_MAP, _alignIssues, _calcAlignmentScore, …)
+  // resolve as globals exactly as they did in index.html.
+  // ── At-a-glance issue comparison for one district seat ─────────────────────
+  // Lays a unified seat's WHOLE live field (the sitting officeholder plus every
+  // challenger for that same seat) against the SAME key issues in one compact,
+  // aligned grid: issues down the side, people across the top, every cell a
+  // color-coded ✓ supports · ✗ opposes · ~ mixed · — no-position read. This is
+  // what makes the district view answer "where does everyone in this race
+  // stand?" without opening a single profile — and, because the rows are shared
+  // issues rather than each person's own top tags, a voter can scan straight
+  // ACROSS a row to compare the field head-to-head.
+  //
+  // Everything is drawn from documented ISSUE_STANCE_DATA via _polPositionMap,
+  // so nothing is fabricated: a person with no record on an issue simply reads
+  // "—". Rows are prioritized by what actually decides the race — the visitor's
+  // own Alignment Tool issues first, then issues the field openly disagrees on
+  // (support AND oppose both present), then the most widely-held — so the few
+  // rows shown are the most distinctive and relevant. Returns '' unless at least
+  // two people in the field carry documented positions (no field, no comparison).
+  window._pdxSeatIssueBoard = function(fieldPids, opts) {
+    opts = opts || {};
+    if (typeof window._polPositionMap !== 'function' || typeof CMP_DATA === 'undefined') return '';
+
+    // Gather each person's documented position map, preserving the caller's order
+    // (the field arrives incumbent-first), so the columns mirror the cards below.
+    var people = [];
+    (fieldPids || []).forEach(function(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return;
+      var map = window._polPositionMap(pid, d) || {};
+      people.push({ pid: pid, d: d, map: map, n: Object.keys(map).length });
+    });
+    if (people.length < 2) return '';
+    // A genuine comparison needs documented positions from at least two people —
+    // otherwise the grid would be one filled column beside a wall of "—".
+    if (people.filter(function(p) { return p.n > 0; }).length < 2) return '';
+
+    var hasAlign = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+
+    // Aggregate every documented issue across the field, keyed by canonical
+    // issueKey so the same topic from different people lands on one shared row.
+    var issues = {};
+    people.forEach(function(p) {
+      Object.keys(p.map).forEach(function(k) {
+        var e = p.map[k] || {};
+        var st = String(e.stance || 'mixed').toLowerCase();
+        if (st !== 'support' && st !== 'oppose') st = 'mixed';
+        if (!issues[k]) issues[k] = { key: k, topics: [], icon: e.icon || '', byPid: {}, txt: {} };
+        issues[k].byPid[p.pid] = st;
+        issues[k].txt[p.pid] = e.text || '';
+        if (e.topic) issues[k].topics.push(String(e.topic).trim());
+        if (!issues[k].icon && e.icon) issues[k].icon = e.icon;
+      });
+    });
+
+    var arr = Object.keys(issues).map(function(k) {
+      var it = issues[k];
+      var stances = Object.keys(it.byPid).map(function(pid) { return it.byPid[pid]; });
+      var distinct = {};
+      stances.forEach(function(s) { distinct[s] = 1; });
+      it.cov = stances.length;
+      it.contested = it.cov >= 2 && distinct.support && distinct.oppose;   // open disagreement
+      it.divergent = it.cov >= 2 && Object.keys(distinct).length > 1;      // any difference
+      it.mine = !!(hasAlign && _alignIssues.has(k));
+      // Representative label: the shortest topic phrasing seen for this issue
+      // (keeps the row compact); fall back to a de-slugged key.
+      it.label = it.topics.slice().sort(function(a, b) { return a.length - b.length; })[0] ||
+        k.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+      if (!it.icon) it.icon = '📌';
+      return it;
+    });
+
+    // Most decision-relevant first: your issues → openly contested → any
+    // divergence → widest coverage → stable alphabetical.
+    arr.sort(function(a, b) {
+      return (b.mine - a.mine) || (b.contested - a.contested) || (b.divergent - a.divergent) ||
+        (b.cov - a.cov) || a.label.localeCompare(b.label);
+    });
+
+    var max = opts.max || 4;
+    var rows = arr.slice(0, max);
+    if (!rows.length) return '';
+    var moreIssues = arr.length - rows.length;
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function partyCol(party) {
+      return party === 'R' ? '#f87171' : party === 'D' ? '#60a5fa'
+        : (party === 'F' || party === 'Forward') ? '#22d3ee' : '#a78bfa';
+    }
+
+    // Person column headers — a small party-tinted avatar + first name, the same
+    // people shown as cards below, each tappable to open the full profile.
+    var headCells = people.map(function(p) {
+      var d = p.d;
+      var first = d.name ? String(d.name).split(/\s+/)[0] : '—';
+      var url = d.photo ? d.photo
+        : ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(p.pid) : ((typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[p.pid]) ? BROWSE_PHOTOS[p.pid] : ''));
+      var col = partyCol(d.party);
+      var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      var roleIco = status === 'office' ? '★' : status === 'candidate' ? '🗳' : '◷';
+      var av = url
+        ? '<span class="pdx-sib-av" style="border-color:' + col + '99;"><img src="' + esc(url) + '" alt="' + esc(d.name) + '" loading="lazy" onerror="this.style.display=\'none\'"></span>'
+        : '<span class="pdx-sib-av pdx-sib-av-ph" style="border-color:' + col + '99;color:' + col + ';">' + esc(first.slice(0, 1)) + '</span>';
+      return '<th class="pdx-sib-person" title="' + esc(d.name) + ' — open profile" ' +
+          'onclick="event.stopPropagation();showProfile(\'' + p.pid + '\')">' +
+          av +
+          '<span class="pdx-sib-name" style="color:' + col + ';">' + esc(first) + '</span>' +
+          '<span class="pdx-sib-role" aria-hidden="true">' + roleIco + '</span>' +
+        '</th>';
+    }).join('');
+
+    var DIR = {
+      support: { cls: 'is-support', ico: '✓', verb: 'Supports' },
+      oppose:  { cls: 'is-oppose',  ico: '✗', verb: 'Opposes' },
+      mixed:   { cls: 'is-mixed',   ico: '~', verb: 'Mixed record on' }
+    };
+    var bodyRows = rows.map(function(it) {
+      var cells = people.map(function(p) {
+        var st = it.byPid[p.pid];
+        if (!st) return '<td class="pdx-sib-cell is-none" title="No documented position on this issue">·</td>';
+        var m = DIR[st] || DIR.mixed;
+        var who = p.d.name ? String(p.d.name).split(/\s+/)[0] : 'They';
+        var tip = who + ' — ' + m.verb + ' ' + it.label + (it.txt[p.pid] ? ': ' + it.txt[p.pid] : '');
+        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span></td>';
+      }).join('');
+      var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : ''));
+      var flag = it.mine
+        ? '<span class="pdx-sib-flag is-mine" title="One of your Alignment Tool issues">🎯 yours</span>'
+        : (it.contested ? '<span class="pdx-sib-flag" title="The field openly disagrees here">⚡ split</span>' : '');
+      return '<tr class="' + rowCls + '">' +
+          '<th class="pdx-sib-issue" scope="row">' +
+            '<span class="pdx-sib-issue-ico" aria-hidden="true">' + (it.icon || '📌') + '</span>' +
+            '<span class="pdx-sib-issue-lbl">' + esc(it.label) + '</span>' + flag +
+          '</th>' + cells +
+        '</tr>';
+    }).join('');
+
+    var sub = moreIssues > 0
+      ? rows.length + ' of ' + arr.length + ' issues · most distinctive first'
+      : rows.length + ' issue' + (rows.length === 1 ? '' : 's') + ' across this race';
+
+    return '<div class="pdx-seat-board" onclick="event.stopPropagation();">' +
+        '<div class="pdx-seat-board-head">' +
+          '<span class="pdx-seat-board-ico" aria-hidden="true">📊</span>' +
+          '<span class="pdx-seat-board-title">Where they stand</span>' +
+          '<span class="pdx-seat-board-sub">' + sub + '</span>' +
+        '</div>' +
+        '<div class="pdx-seat-board-scroll">' +
+          '<table class="pdx-sib-grid"><thead><tr><th class="pdx-sib-corner" scope="col">Key issue</th>' +
+            headCells + '</tr></thead><tbody>' + bodyRows + '</tbody></table>' +
+        '</div>' +
+        '<div class="pdx-seat-board-legend">' +
+          '<span class="pdx-sib-lg is-support">✓ Supports</span>' +
+          '<span class="pdx-sib-lg is-oppose">✗ Opposes</span>' +
+          '<span class="pdx-sib-lg is-mixed">~ Mixed</span>' +
+          '<span class="pdx-sib-lg is-none">· No position on record</span>' +
+          (moreIssues > 0 ? '<span class="pdx-sib-lg-more">Open a profile for the full record</span>' : '') +
+        '</div>' +
+      '</div>';
+  };
+
+  // Compare one of the visitor's selected positions to the politician's stance.
+  //   userIntensity : a 5-point level — strongly_support | support | neutral |
+  //                   oppose | strongly_oppose  (legacy strong/moderate/opposed
+  //                   are migrated).  polStance : 'support' | 'oppose' | 'mixed'.
+  // Returns 'match' | 'partial' | 'mismatch'. A user who opposes a position flips
+  // the read — agreeing with a politician who rejects it too. Neutral is 'partial'.
+  function _issueVerdict(userIntensity, polStance) {
+    var lvl = (typeof window._alignMigrateLevel === 'function') ? window._alignMigrateLevel(userIntensity) : userIntensity;
+    if (polStance === 'mixed' || lvl === 'neutral') return 'partial';
+    var userAgrees = (lvl === 'support' || lvl === 'strongly_support');
+    var polHolds = polStance === 'support';
+    return (userAgrees === polHolds) ? 'match' : 'mismatch';
+  }
+  window._issueVerdict = _issueVerdict;
+
+  var _CMP_VERDICT_META = {
+    match:    { cls:'cmp-match',    ico:'✓', link:'=', label:'Match',    full:'Match'         },
+    partial:  { cls:'cmp-partial',  ico:'~', link:'≈', label:'Partial',  full:'Partial Match' },
+    mismatch: { cls:'cmp-mismatch', ico:'✗', link:'≠', label:'Mismatch', full:'Mismatch'      }
+  };
+  function _userStanceLabel(intensity) {
+    var lvl = (typeof window._alignMigrateLevel === 'function') ? window._alignMigrateLevel(intensity) : intensity;
+    if (lvl === 'strongly_support') return 'Strongly support';
+    if (lvl === 'oppose')           return 'You oppose';
+    if (lvl === 'strongly_oppose')  return 'Strongly oppose';
+    if (lvl === 'neutral')          return 'Neutral';
+    return 'You support';
+  }
+  function _polStanceLabel(stance) {
+    if (stance === 'support') return 'Supports';
+    if (stance === 'oppose')  return 'Opposes';
+    return 'Mixed record';
+  }
+  // The visitor's saved Alignment Tool stance, surfaced as a clear badge across the
+  // 5-point scale — exactly the choices offered in the tool.
+  function _userIntensityMeta(intensity) {
+    var lvl = (typeof window._alignMigrateLevel === 'function') ? window._alignMigrateLevel(intensity) : intensity;
+    if (lvl === 'strongly_support') return { cls:'lvl-strong',   icon:'💪', label:'Strongly Support', sub:'You strongly support this' };
+    if (lvl === 'neutral')          return { cls:'lvl-neutral',  icon:'😐', label:'Neutral',          sub:'You feel neutral / mixed' };
+    if (lvl === 'oppose')           return { cls:'lvl-oppose',   icon:'👎', label:'Oppose',           sub:'You oppose this' };
+    if (lvl === 'strongly_oppose')  return { cls:'lvl-opposed',  icon:'✋', label:'Strongly Oppose',   sub:'You strongly oppose this' };
+    return                                 { cls:'lvl-moderate', icon:'👍', label:'Support',          sub:'You support this' };
+  }
+  function _polStanceMeta(stance) {
+    if (stance === 'support') return { cls:'pol-support', icon:'✓', label:'Supports', sub:'Backs this position' };
+    if (stance === 'oppose')  return { cls:'pol-oppose',  icon:'✗', label:'Opposes',  sub:'Rejects this position' };
+    return                           { cls:'pol-mixed',   icon:'~', label:'Mixed',     sub:'Has a mixed record' };
+  }
+  // Expose the verdict metadata + label/meta helpers so the surfaces still using
+  // them by bare name in index.html (Stance at a Glance and friends) keep resolving
+  // to these definitions now that they live in this module's scope.
+  window._CMP_VERDICT_META = _CMP_VERDICT_META;
+  window._userStanceLabel = _userStanceLabel;
+  window._polStanceLabel = _polStanceLabel;
+  window._userIntensityMeta = _userIntensityMeta;
+  window._polStanceMeta = _polStanceMeta;
+
+  // "How You Compare" — the per-issue linkage between a visitor's saved Alignment
+  // Tool positions and this politician's documented stances. Shown whenever the
+  // visitor has any positions selected (their saved Alignment Signature loads
+  // automatically when signed in). Each comparable issue gets a side-by-side read
+  // — your view vs. theirs — with a colored match / partial / differs indicator,
+  // so it's obvious at a glance where you line up and where you don't.
+  window._renderIssueComparison = function(id, p) {
+    p = p || {};
+    var hasTool = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0
+                   && typeof ISSUE_MAP !== 'undefined');
+    var name = (p.name || 'this official');
+    var first = String(name).split(' ')[0] || 'They';
+
+    // No positions chosen yet → a friendly prompt to use the Alignment Tool. This
+    // is what most clearly ties the two features together for new visitors.
+    if (!hasTool) {
+      return '<div class="modal-section">' +
+        '<div class="modal-section-title">🤝 How You Compare</div>' +
+        '<div class="cmp-empty">' +
+          '<p style="font-size:0.82rem;color:#cbd9ec;line-height:1.6;margin:0;">Pick the positions you care about in the <b style="color:#c4b5fd;">Personalized Alignment Tool</b> and this section shows, issue by issue, where you and ' + name + ' agree — and where you part ways.</p>' +
+          '<button type="button" class="cmp-empty-cta" onclick="closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Set your alignment</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var polMap = _polPositionMap(id, p);
+    var documented = [];
+    var researching = [];
+    _alignIssues.forEach(function(key) {
+      var def = ISSUE_MAP[key];
+      if (!def) return;
+      var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[key]) || 'support';
+      if (polMap[key]) documented.push({ key:key, def:def, intensity:intensity, pos:polMap[key] });
+      else researching.push({ key:key, def:def, intensity:intensity });
+    });
+
+    if (!documented.length && !researching.length) return '';
+
+    documented.forEach(function(r) { r.verdict = _issueVerdict(r.intensity, r.pos.stance); });
+    var order = { match:0, partial:1, mismatch:2 };
+    documented.sort(function(a, b) { return order[a.verdict] - order[b.verdict]; });
+
+    var nMatch    = documented.filter(function(r){ return r.verdict === 'match'; }).length;
+    var nPartial  = documented.filter(function(r){ return r.verdict === 'partial'; }).length;
+    var nMismatch = documented.filter(function(r){ return r.verdict === 'mismatch'; }).length;
+
+    // Headline % reuses the existing alignment engine so this read can never drift
+    // from the "Personalized Alignment" bar or the card scores. Suppressed entirely
+    // when none of the visitor's issues have a documented position to stand on —
+    // a precise "% Aligned" with zero comparable positions would be misleading, so
+    // the section leads with the honest "no documented position yet" message instead.
+    var overall = (documented.length && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+    var col = (typeof _alignScoreColor === 'function') ? _alignScoreColor(overall)
+              : (overall >= 70 ? '#4ade80' : overall >= 50 ? '#f5c842' : '#f87171');
+
+    var countChip = function(n, kind, label) {
+      if (!n) return '';
+      return '<span class="cmp-count ' + kind + '">' + n + ' ' + label + '</span>';
+    };
+    var matchLine = documented.length
+      ? 'You line up with ' + first + ' on <b style="color:#4ade80;">' + nMatch + ' of ' + documented.length + '</b> shared issue' + (documented.length > 1 ? 's' : '') + '.'
+      : 'None of your selected issues have a documented position for ' + first + ' yet.';
+
+    var summary =
+      '<div class="cmp-summary">' +
+        (overall !== null
+          ? '<div class="cmp-summary-score"><span class="cmp-summary-num" style="color:' + col + ';">' + overall + '%</span><span class="cmp-summary-lab">Aligned</span></div>'
+          : '') +
+        '<div class="cmp-summary-body">' +
+          '<div class="cmp-summary-head">You vs. ' + name + '</div>' +
+          '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.25rem 0 0;">' + matchLine + '</p>' +
+          (documented.length ? '<div class="cmp-counts">' +
+            countChip(nMatch, 'cmp-match', 'match' + (nMatch === 1 ? '' : 'es')) +
+            countChip(nPartial, 'cmp-partial', 'partial') +
+            countChip(nMismatch, 'cmp-mismatch', 'mismatch' + (nMismatch === 1 ? '' : 'es')) +
+          '</div>' : '') +
+        '</div>' +
+      '</div>';
+
+    // Segmented meter + legend: the colored proportion of match / partial /
+    // mismatch is the fastest read in the whole section, and the legend spells
+    // out exactly what each color (and label) means.
+    var meterLegend = '';
+    if (documented.length) {
+      var pct = function(n) { return (n / documented.length * 100); };
+      var seg = function(n, kind) { return n ? '<div class="cmp-meter-seg ' + kind + '" style="width:' + pct(n) + '%;"></div>' : ''; };
+      meterLegend =
+        '<div class="cmp-meter">' +
+          seg(nMatch, 'cmp-match') + seg(nPartial, 'cmp-partial') + seg(nMismatch, 'cmp-mismatch') +
+        '</div>' +
+        '<div class="cmp-legend">' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-match"></span><b>Match</b>&nbsp;— you agree</span>' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-partial"></span><b>Partial</b>&nbsp;— mixed record</span>' +
+          '<span class="cmp-legend-item"><span class="cmp-legend-dot cmp-mismatch"></span><b>Mismatch</b>&nbsp;— you differ</span>' +
+        '</div>';
+    }
+
+    var rows = documented.map(function(r) {
+      var m = _CMP_VERDICT_META[r.verdict];
+      var icon = (r.def.label || '').split(' ')[0] || '🎯';
+      var labelText = (r.def.label || '').split(' ').slice(1).join(' ') || r.def.label;
+      var youM = _userIntensityMeta(r.intensity);
+      var polM = _polStanceMeta(r.pos.stance);
+      // The politician's own one-line stance, surfaced right in the comparison so
+      // the reader sees WHY it's a match without scrolling to Key Issue Stances.
+      var note = r.pos.text
+        ? '<p class="cmp-issue-note"><b>' + first + ':</b> ' + r.pos.text + '</p>'
+        : '';
+      // Direct video proof for this issue + its People's Mandate tie, so the
+      // comparison row carries the same evidence cues as Stance at a Glance.
+      var _cmpVid = (typeof window._pdxIssueVideo === 'function') ? window._pdxIssueVideo(id, p, r.key) : null;
+      var _cmpEye = (_cmpVid && typeof window._pdxVideoEye === 'function') ? window._pdxVideoEye(_cmpVid, { cls: 'sag-eye' }) : '';
+      var _cmpMandate = (r.key && typeof window._pdxMandateChip === 'function') ? window._pdxMandateChip(r.key, { compact: true }) : '';
+      return '<div class="cmp-issue ' + m.cls + '">' +
+        '<div class="cmp-issue-top">' +
+          '<span class="cmp-issue-name">' + icon + ' ' + labelText + '</span>' +
+          _cmpEye +
+          '<span class="cmp-verdict ' + m.cls + '">' + m.ico + ' ' + m.full + '</span>' +
+        '</div>' +
+        (_cmpMandate ? '<div style="margin:0.1rem 0 0.3rem;">' + _cmpMandate + '</div>' : '') +
+        '<div class="cmp-vs">' +
+          '<div class="cmp-side cmp-side-you">' +
+            '<span class="cmp-side-h">You picked</span>' +
+            '<span class="cmp-chip ' + youM.cls + '">' + youM.icon + ' ' + youM.label + '</span>' +
+            '<span class="cmp-sub">' + youM.sub + '</span>' +
+          '</div>' +
+          '<div class="cmp-vs-link ' + m.cls + '" title="' + m.full + '">' + m.link + '</div>' +
+          '<div class="cmp-side cmp-side-pol">' +
+            '<span class="cmp-side-h">' + first + '</span>' +
+            '<span class="cmp-chip ' + polM.cls + '">' + polM.icon + ' ' + polM.label + '</span>' +
+            '<span class="cmp-sub">' + polM.sub + '</span>' +
+          '</div>' +
+        '</div>' +
+        note +
+      '</div>';
+    }).join('');
+
+    // Honest read for the limited-data case: the visitor has picks but none of
+    // them line up with a documented position yet (common for new officials and
+    // 2026 candidates). Rather than a blank-looking section, explain what's
+    // happening and point back to the stated positions that ARE on record.
+    var limitedNote = '';
+    if (!documented.length) {
+      limitedNote =
+        '<div class="cmp-limited">' +
+          '<span class="cmp-limited-ico" aria-hidden="true">🌱</span>' +
+          '<p class="cmp-limited-text">This is expected for a new or 2026 candidate — ' + first + ' doesn\'t have a documented position on your specific issues <em>yet</em>. As statements and votes are verified, each one is matched here automatically. In the meantime, the <strong>Candidate Snapshot</strong> above shows the positions ' + first + ' <em>has</em> stated, so you can still get a read.</p>' +
+        '</div>';
+    }
+
+    // Selected issues we can't yet compare → listed compactly so it's clear the
+    // structure is ready and only the data is still being filled in.
+    var researchingBlock = '';
+    if (researching.length) {
+      var pills = researching.map(function(r) {
+        return '<span class="cmp-research-pill">' + r.def.label + '</span>';
+      }).join('');
+      researchingBlock =
+        '<div style="margin-top:0.7rem;">' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">' + researching.length + ' more of your issue' + (researching.length > 1 ? 's' : '') + ' — position being documented</div>' +
+          '<div class="cmp-researching">' + pills + '</div>' +
+        '</div>';
+    }
+
+    return '<div class="modal-section" id="cs-howcompare-anchor">' +
+      '<div class="modal-section-title">🤝 How You Compare</div>' +
+      '<p class="modal-section-sub">Your saved Alignment Tool picks, matched issue by issue against ' + first + '\'s documented positions.</p>' +
+      summary +
+      meterLegend +
+      limitedNote +
+      rows +
+      researchingBlock +
+      '<p class="src-note">Your saved Alignment Tool positions matched against ' + name + '\'s documented stances. Sign in to save your picks across devices — the comparison updates as more positions are verified.</p>' +
+    '</div>';
+  };
+
 })();
