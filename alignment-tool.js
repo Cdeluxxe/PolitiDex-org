@@ -123,7 +123,13 @@
       gov_services:       { label: '🏛 Invest in Public Services', chip: 'Protect Social Security, Medicaid and public services — even if it means higher taxes on top earners', cat: 'gov', lean: 'D', stanceKeys: [], keywords: ['social safety','safety net','public service','investment','medicaid','social security','funding','social','community service','services','paid leave','minimum wage','affordable','top earners','wealth tax'] },
       social_security:    { label: '👵 Protect Social Security & Medicare', chip: 'Protect Social Security and Medicare benefits from cuts or privatization', cat: 'gov', stanceKeys: [], keywords: ['social security','medicare','retirement','seniors','senior','entitlement','earned benefits','benefits','pension','fixed income','elderly','retiree'] },
       national_debt:      { label: '📉 Tackle the National Debt', chip: 'Bring down the national debt and stop running huge yearly deficits', cat: 'gov', stanceKeys: ['debt'], keywords: ['national debt','debt','deficit','deficit spending','balanced budget','debt ceiling','fiscal responsibility','interest on the debt','overspending','spending','fiscal'] },
-      prop_tax:           { label: '🏦 Property Taxes', chip: 'Lower or cap property taxes so rising home values don’t tax families and seniors out of their homes', cat: 'gov', stanceKeys: [], keywords: ['property tax','property taxes','real estate tax','home value','assessment','tax assessment','mill levy','homestead exemption','property tax relief','property tax cap','escrow','homeowner tax','circuit breaker','seniors','fixed income'] },
+      // NOTE: property taxes are intentionally listed in two places — `prop_tax`
+      // here under Taxes & Government frames it as a tax-policy question (relief &
+      // caps), while `property_tax` under Housing & Cost of Living (below) frames
+      // it as a housing-affordability question. The labels are worded distinctly so
+      // the two don't read as accidental duplicates; both feed the same
+      // economy_cost_of_living core bundle.
+      prop_tax:           { label: '🏦 Property Tax Relief', chip: 'Lower or cap property taxes so rising home values don’t tax families and seniors out of their homes', cat: 'gov', stanceKeys: [], keywords: ['property tax','property taxes','real estate tax','home value','assessment','tax assessment','mill levy','homestead exemption','property tax relief','property tax cap','escrow','homeowner tax','circuit breaker','seniors','fixed income'] },
 
       // ── Immigration ──
       border_security:    { label: '🛡 Strong Border & Enforcement', chip: 'Finish border barriers and deport people here illegally', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
@@ -190,7 +196,7 @@
       cost_living:        { label: '🛒 Tackle the Cost of Living', chip: 'Make lowering rent, grocery, gas and utility prices the top economic priority', cat: 'housing', stanceKeys: [], keywords: ['cost of living','inflation','affordable','rent','prices','grocery','gas prices','mortgage','family budget','wage','middle class','utilities'] },
       housing_support:    { label: '🏘 Affordable Housing & Renters', chip: 'Fund affordable housing and protect renters with assistance and limits on evictions', cat: 'housing', lean: 'D', stanceKeys: [], keywords: ['affordable housing','renter','rent','tenant','housing assistance','homeless','homelessness','public housing','housing voucher','eviction','low-income'] },
       homeless:           { label: '🏕 Homelessness Policy', chip: 'Tackle homelessness with shelter, mental-health and addiction services, and keeping public spaces clear', cat: 'housing', stanceKeys: [], keywords: ['homeless','homelessness','unhoused','homeless encampment','encampment','homeless shelter','shelter','housing first','panhandling','vagrancy','transient','street homelessness','tent','mental health','addiction','wraparound services'] },
-      property_tax:       { label: '🏡 Lower Property Taxes', chip: 'Cap property taxes so families and seniors can afford to stay in their homes', cat: 'housing', stanceKeys: [], keywords: ['property tax','property taxes','homeowner','home value','assessment','tax relief','seniors','fixed income','homestead','escrow'] },
+      property_tax:       { label: '🏡 Lower Property Taxes (Housing)', chip: 'Cap property taxes so families and seniors can afford to stay in their homes', cat: 'housing', stanceKeys: [], keywords: ['property tax','property taxes','homeowner','home value','assessment','tax relief','seniors','fixed income','homestead','escrow'] },
       housing_first_time: { label: '🔑 Help First-Time Buyers', chip: 'Help first-time and young buyers afford their first home', cat: 'housing', stanceKeys: [], keywords: ['first-time buyer','first time home','down payment','starter home','young families','homeownership','home buyer','first home','american dream','mortgage rate','closing costs'] },
 
       // ── Criminal Justice & Public Safety ──
@@ -210,7 +216,7 @@
       rights_balance:     { label: '⚖️ Equal Treatment for All', chip: 'Protect equal treatment in jobs and housing while protecting religious conscience', cat: 'rights', stanceKeys: [], keywords: ['civil rights','equality','equal treatment','fairness','anti-discrimination','tolerance','respect','liberty','balanced','common ground'] },
       lgbtq_rights:       { label: '🏳️‍🌈 Protect LGBTQ+ Rights', chip: 'Protect LGBTQ+ rights and anti-discrimination laws', cat: 'rights', lean: 'D', stanceKeys: [], keywords: ['lgbtq','lgbt','gay','transgender','marriage equality','respect for marriage','anti-discrimination','equality','civil rights','pride','equal protection'] },
       free_speech:        { label: '🗣 Free Speech Protections', chip: 'Protect free speech and limit government and Big Tech censorship', cat: 'rights', stanceKeys: [], keywords: ['free speech','first amendment','censorship','deplatform','viewpoint','expression','speech','big tech censorship','content moderation','silenced'] },
-      end_dei:            { label: '🚫 End DEI Programs', chip: 'End diversity, equity and inclusion mandates in government and schools in favor of merit', cat: 'rights', lean: 'R', stanceKeys: [], keywords: ['dei','dei programs','diversity equity inclusion','diversity','equity','inclusion','end dei','anti-dei','merit','merit based','meritocracy','affirmative action','colorblind'] },
+      end_dei:            { label: '🚫 End DEI Programs', chip: 'End diversity, equity and inclusion mandates in government and schools in favor of merit', cat: 'rights', lean: 'R', stanceKeys: [], keywords: ['dei','dei programs','diversity equity inclusion','diversity','equity','inclusion','end dei','anti-dei','anti dei','merit','merit based','meritocracy','affirmative action','colorblind','woke','wokeness','identity politics','critical race theory','crt'] },
 
       // ── Foreign Policy & Defense ──
       strong_defense:     { label: '🦅 Peace Through Strength', chip: 'Maintain the strongest military and stand firm abroad', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['national defense','military','defense spending','ndaa','peace through strength','national security','armed forces','deterrence','china','adversaries','strong military'] },
@@ -300,6 +306,12 @@
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
+      { key: 'civil_rights_culture', label: '⚖️ Civil Rights, Culture & DEI',
+        blurb: 'Equal treatment and civil rights, religious liberty, free speech, and the debate over DEI.',
+        keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei'] },
+      { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
+        blurb: 'National defense, alliances and diplomacy, America First priorities, and support for veterans.',
+        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 
@@ -519,6 +531,7 @@
           covHtml +
         '</button>' +
         '<div class="align-intensity" role="group" aria-label="What is your stance on this position?">' +
+          '<span class="align-int-caption" aria-hidden="true">Your stance</span>' +
           '<button type="button" class="align-int-btn" data-int="strongly_support" title="I strongly support this — a top-priority position for me" onclick="alignSetIntensity(\'' + key + '\',\'strongly_support\')">💪 Strongly Support</button>' +
           '<button type="button" class="align-int-btn" data-int="support" title="I support this position" onclick="alignSetIntensity(\'' + key + '\',\'support\')">👍 Support</button>' +
           '<button type="button" class="align-int-btn" data-int="neutral" title="I feel neutral / mixed on this — it counts lightly" onclick="alignSetIntensity(\'' + key + '\',\'neutral\')">😐 Neutral</button>' +
@@ -1998,12 +2011,19 @@
       'school_choice', 'climate_action', 'energy_production', 'cost_living', 'housing', 'homeless',
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
-      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china'
+      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
     // a visitor opens a candidate's match before picking any issues of their own.
     window._alignQuickPicks = ALIGN_QUICK_PICKS;
+
+    // The newer, high-engagement issues added in the 2026 refresh. Flagged with a
+    // small 🔥 in Quick Picks so they're easy to spot as fresh, hot-topic picks.
+    var ALIGN_HOT_ISSUES = {
+      end_dei: 1, america_first_fp: 1, tariffs_china: 1, voter_id: 1,
+      tough_on_crime: 1, deportations: 1
+    };
 
     function _alignRenderQuickPicks() {
       var el = document.getElementById('align-quickpicks');
@@ -2012,12 +2032,14 @@
         var d = ISSUE_MAP[k];
         var cov = _alignCoverage().byIssue[k] || 0;
         var covHtml = cov > 0 ? '<span class="align-quick-cov" title="' + cov + ' politician' + (cov === 1 ? '' : 's') + ' with a documented position on this issue">📍' + cov + '</span>' : '';
-        return '<button type="button" class="align-chip align-quick-chip" data-align-issue="' + k + '"' +
-          ' aria-pressed="false" title="' + d.chip + '" onclick="alignToggle(this)">' + d.label + covHtml + '</button>';
+        var hot = ALIGN_HOT_ISSUES[k] ? ' align-quick-hot' : '';
+        var hotHtml = ALIGN_HOT_ISSUES[k] ? '<span class="align-quick-flame" title="High-engagement issue added in the 2026 refresh" aria-hidden="true">🔥</span>' : '';
+        return '<button type="button" class="align-chip align-quick-chip' + hot + '" data-align-issue="' + k + '"' +
+          ' aria-pressed="false" title="' + d.chip + '" onclick="alignToggle(this)">' + hotHtml + d.label + covHtml + '</button>';
       }).join('');
       el.innerHTML =
         '<div class="align-quick-label">⚡ Quick picks ' +
-          '<span class="align-quick-hint">popular specific issues — tap to add</span></div>' +
+          '<span class="align-quick-hint">popular specific issues — tap to add · 🔥 = high engagement</span></div>' +
         '<div class="align-quick-row">' + chips + '</div>';
     }
 
@@ -2047,14 +2069,15 @@
         if (d && d.cat) catCounts[d.cat] = (catCounts[d.cat] || 0) + 1;
       });
 
-      // Plain-language strength sentence.
+      // Plain-language strength sentence. The count of strongly-held positions is
+      // pulled out into its own conviction callout below the meter (clearer than a
+      // parenthetical), so the sentence itself stays about the support/oppose mix.
       var parts = [];
       if (support > 0) parts.push('<b class="s-strong">support</b> on <b>' + support + '</b>');
       if (neutral > 0) parts.push('<b class="s-mod">neutral</b> on <b>' + neutral + '</b>');
       if (opposed > 0) parts.push('<b class="s-opp">opposed</b> on <b>' + opposed + '</b>');
-      var strongNote = strong > 0 ? ' (<b>' + strong + '</b> held strongly)' : '';
       var sentence = parts.length
-        ? 'You ' + (parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]) + ' of your <b>' + n + '</b> position' + (n > 1 ? 's' : '') + strongNote + '.'
+        ? 'You ' + (parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0]) + ' of your <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.'
         : 'You have selected <b>' + n + '</b> position' + (n > 1 ? 's' : '') + '.';
 
       // Proportional three-segment strength meter (support / neutral / opposed).
@@ -2085,6 +2108,13 @@
         ? todo.slice(0, 4).map(function(x) { return areaChip(x, true); }).join('')
         : '<span class="align-profile-empty" style="font-size:0.78rem;">Every topic covered — nice work. 🎉</span>';
 
+      // Conviction callout: how many positions are held strongly (they carry the
+      // heaviest weight in match scoring). A friendly nudge when none are yet.
+      var convHtml = strong > 0
+        ? '<div class="align-conviction"><span class="align-conviction-pill">💪 ' + strong + ' strong conviction' + (strong > 1 ? 's' : '') + '</span>' +
+            '<span class="align-conviction-note">' + strong + ' of your ' + n + ' position' + (n > 1 ? 's' : '') + ' ' + (strong > 1 ? 'are' : 'is') + ' held strongly — these weigh most in your matches.</span></div>'
+        : '<div class="align-conviction"><span class="align-conviction-note align-conviction-none">Tip: use <b>Strongly Support</b> or <b>Strongly Oppose</b> on the issues you care most about — they count extra toward your matches.</span></div>';
+
       el.innerHTML =
         '<div class="align-profile-head">' +
           '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
@@ -2092,6 +2122,7 @@
         '</div>' +
         '<div class="align-profile-strength">' + sentence + '</div>' +
         meter +
+        convHtml +
         '<div class="align-profile-cols">' +
           '<div><div class="align-profile-col-label">💪 Strongest areas</div><div class="align-area-chips">' + strongestHtml + '</div></div>' +
           '<div><div class="align-profile-col-label">🧩 Areas to explore</div><div class="align-area-chips">' + todoHtml + '</div></div>' +

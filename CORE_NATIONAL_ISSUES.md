@@ -11,11 +11,11 @@ politician "covers" a core issue when any of their documented stances or evidenc
 is keyed to one of that issue's keys. The framework is additive metadata: it never
 changes how an individual stance is written or scored.
 
-Source of truth: `CORE_NATIONAL_ISSUES` in `index.html` (published on
+Source of truth: `CORE_NATIONAL_ISSUES` in `alignment-tool.js` (published on
 `window.CORE_NATIONAL_ISSUES`, with `window.coreIssueForKey(issueKey)` for reverse
 lookup). Validated by `scripts/define-core-national-issues-jun2026.mjs`.
 
-## The ten core issues (ordered by 2026 salience)
+## The twelve core issues (ordered by 2026 salience)
 
 | # | Core National Issue | Component `ISSUE_MAP` keys |
 |---|---|---|
@@ -29,11 +29,13 @@ lookup). Validated by `scripts/define-core-national-issues-jun2026.mjs`.
 | 8 | **Crime & Public Safety** | `back_police`, `justice_balance`, `justice_reform`, `cannabis_reform` |
 | 9 | **Election Integrity** | `election_integrity`, `democracy_balance`, `voting_access` |
 | 10 | **Education & Parental Rights** | `school_choice`, `edu_balance`, `public_schools`, `edu_college_cost`, `edu_parental` |
+| 11 | **Civil Rights, Culture & DEI** | `religious_liberty`, `rights_balance`, `lgbtq_rights`, `free_speech`, `end_dei` |
+| 12 | **Foreign Policy & National Security** | `strong_defense`, `foreign_balance`, `restraint`, `america_first`, `america_first_fp`, `veterans` |
 
 ## How it surfaces
 
 - **Evidence Locker → By Politician:** the footprint summary shows an
-  `X/10 core issues` stat and a chip row naming which core national issues a
+  `X/12 core issues` stat and a chip row naming which core national issues a
   politician's record touches.
 - **Stance at a Glance / Connected Evidence:** unchanged in structure — these are
   driven automatically by `ISSUE_STANCE_DATA` and `ACCT_SPOTLIGHT`, so adding a

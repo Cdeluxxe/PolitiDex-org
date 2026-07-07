@@ -69,6 +69,10 @@ export const CORE_NATIONAL_ISSUES = [
     keys: ['election_integrity','democracy_balance','voting_access','voter_id'] },
   { key: 'education_parental', label: 'Education & Parental Rights',
     keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
+  { key: 'civil_rights_culture', label: 'Civil Rights, Culture & DEI',
+    keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei'] },
+  { key: 'foreign_policy_defense', label: 'Foreign Policy & National Security',
+    keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','veterans'] },
 ];
 
 // ── The new core-issue stances added to recent-wave House incumbents ──────────
@@ -90,9 +94,13 @@ export const CORE_DEEPEN = {
 };
 
 // ── Validate every issueKey against the live ISSUE_MAP vocabulary ─────────────
+// ISSUE_MAP and CORE_NATIONAL_ISSUES now live in alignment-tool.js (loaded by
+// index.html as an external script), so the vocabulary is read from there. The
+// slice markers `var ISSUE_MAP = {` … `try { window.ISSUE_MAP` bracket the map
+// exactly as they did when it was inlined in index.html.
 function loadIssueMapKeys() {
-  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const mapSlice = html.slice(html.indexOf('var ISSUE_MAP = {'), html.indexOf('try { window.ISSUE_MAP'));
+  const src = readFileSync(new URL('../alignment-tool.js', import.meta.url), 'utf8');
+  const mapSlice = src.slice(src.indexOf('var ISSUE_MAP = {'), src.indexOf('try { window.ISSUE_MAP'));
   // Tolerate both `key: { label:` and `key:{ label:` spacing.
   return new Set([...mapSlice.matchAll(/^\s{6}([a-z_]+):\s*\{\s*label:/gm)].map(m => m[1]));
 }
