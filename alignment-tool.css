@@ -606,9 +606,12 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 .align-opt-row { display: flex; flex-direction: column; }
 .align-intensity {
       display: none;
-      gap: 0.3rem;
+      gap: 0.36rem;
+      align-items: center;
       flex-wrap: wrap;
-      padding: 0.45rem 0.2rem 0.2rem 1.75rem;
+      padding: 0.55rem 0.3rem 0.35rem 1.75rem;
+      margin-top: 0.15rem;
+      border-top: 1px dashed rgba(139,92,246,0.16);
       animation: alignIntIn 0.24s ease;
     }
 .align-opt.active ~ .align-intensity { display: flex; }
@@ -622,13 +625,42 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
       transition: all 0.16s; white-space: nowrap;
     }
 .align-int-btn:hover { border-color: rgba(168,85,247,0.5); color: #c4b5fd; transform: translateY(-1px); }
+/* Base per-stance tints so the five choices read as support / neutral / oppose at
+   a glance even before one is picked — a faint left-edge color plus text hue.
+   The `.sel` rules below (higher specificity) still fully light up the chosen one. */
+.align-int-btn[data-int="strongly_support"],
+.align-int-btn[data-int="support"] { border-left: 3px solid rgba(74,222,128,0.55); color: #9fdcb4; }
+.align-int-btn[data-int="neutral"] { border-left: 3px solid rgba(148,163,184,0.6); color: #b9c2d0; }
+.align-int-btn[data-int="oppose"],
+.align-int-btn[data-int="strongly_oppose"] { border-left: 3px solid rgba(248,113,113,0.55); color: #e6a9a9; }
+.align-int-btn[data-int="strongly_support"]:hover { border-color: rgba(74,222,128,0.6); color: #d1fae5; }
+.align-int-btn[data-int="support"]:hover { border-color: rgba(74,222,128,0.5); color: #bbf7d0; }
+.align-int-btn[data-int="neutral"]:hover { border-color: rgba(148,163,184,0.65); color: #e2e8f0; }
+.align-int-btn[data-int="oppose"]:hover,
+.align-int-btn[data-int="strongly_oppose"]:hover { border-color: rgba(248,113,113,0.6); color: #fecaca; }
+/* "Your stance" caption that leads the intensity row. */
+.align-int-caption {
+      display: inline-flex; align-items: center; align-self: center;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #8f7fd6;
+      margin-right: 0.15rem; white-space: nowrap;
+    }
+.align-int-caption::after { content: '›'; margin-left: 0.35rem; opacity: 0.6; font-weight: 700; }
 .align-int-btn.sel[data-int="strongly_support"] { background: linear-gradient(135deg, rgba(74,222,128,0.32), rgba(34,197,94,0.2));  border-color: rgba(74,222,128,0.7); color: #d1fae5; box-shadow: 0 0 9px rgba(74,222,128,0.3); }
 .align-int-btn.sel[data-int="support"] { background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(34,197,94,0.1));  border-color: rgba(74,222,128,0.5); color: #bbf7d0; box-shadow: 0 0 8px rgba(74,222,128,0.16); }
 .align-int-btn.sel[data-int="neutral"] { background: linear-gradient(135deg, rgba(148,163,184,0.24), rgba(100,116,139,0.14));  border-color: rgba(148,163,184,0.55); color: #e2e8f0; box-shadow: 0 0 8px rgba(148,163,184,0.18); }
 .align-int-btn.sel[data-int="oppose"] { background: linear-gradient(135deg, rgba(248,113,113,0.2), rgba(220,38,38,0.1)); border-color: rgba(248,113,113,0.5); color: #fecaca; box-shadow: 0 0 8px rgba(248,113,113,0.16); }
 .align-int-btn.sel[data-int="strongly_oppose"] { background: linear-gradient(135deg, rgba(248,113,113,0.34), rgba(220,38,38,0.2)); border-color: rgba(248,113,113,0.75); color: #fee2e2; box-shadow: 0 0 9px rgba(248,113,113,0.3); }
+/* The chosen stance sits slightly proud of the row so the active pick is obvious. */
+.align-int-btn.sel { font-weight: 800; transform: translateY(-1px); }
+.align-int-btn.sel[data-int="strongly_support"],
+.align-int-btn.sel[data-int="support"] { border-left-color: rgba(74,222,128,0.85); }
+.align-int-btn.sel[data-int="neutral"] { border-left-color: rgba(148,163,184,0.85); }
+.align-int-btn.sel[data-int="oppose"],
+.align-int-btn.sel[data-int="strongly_oppose"] { border-left-color: rgba(248,113,113,0.85); }
 /* Live stance badge on a selected position (filled by _alignSyncAllChips). */
 .align-stance-badge { display: none; align-items: center; gap: 0.2rem; margin-left: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #bbf7d0; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.4); border-radius: 999px; padding: 0.04rem 0.4rem; white-space: nowrap; }
+.align-stance-badge::before { content: 'You: '; opacity: 0.72; font-weight: 700; }
 .align-opt-row.lvl-neutral .align-stance-badge { color: #e2e8f0; background: rgba(148,163,184,0.16); border-color: rgba(148,163,184,0.45); }
 .align-opt-row.lvl-oppose .align-stance-badge,
 .align-opt-row.lvl-strongly_oppose .align-stance-badge { color: #fecaca; background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.45); }
@@ -657,6 +689,23 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 .align-strength-seg.strong { background: linear-gradient(90deg, #22c55e, #4ade80); }
 .align-strength-seg.moderate { background: linear-gradient(90deg, #64748b, #94a3b8); }
 .align-strength-seg.opposed { background: linear-gradient(90deg, #dc2626, #f87171); }
+/* Conviction callout — how many positions are held strongly (heaviest weight). */
+.align-conviction { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.4rem 0.55rem; margin: -0.35rem 0 0.85rem; }
+.align-conviction-pill {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; font-weight: 800;
+      letter-spacing: 0.05em; text-transform: uppercase; color: #d1fae5;
+      background: linear-gradient(135deg, rgba(74,222,128,0.24), rgba(34,197,94,0.14));
+      border: 1px solid rgba(74,222,128,0.5); border-radius: 999px; padding: 0.12rem 0.55rem;
+      white-space: nowrap; box-shadow: 0 0 8px rgba(74,222,128,0.18);
+    }
+.align-conviction-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem; color: #a99fd0; line-height: 1.35; }
+.align-conviction-note b { font-weight: 800; color: #c8bbf2; }
+.align-conviction-none { color: #8f83be; font-style: italic; }
+/* 🔥 high-engagement flag on newer Quick Picks. */
+.align-quick-flame { margin-right: 0.28rem; font-size: 0.78rem; filter: saturate(1.1); }
+.align-quick-chip.align-quick-hot { border-color: rgba(251,146,60,0.5); }
+.align-quick-chip.align-quick-hot.active { border-color: rgba(45,212,191,0.7); }
 .align-profile-cols { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
 @media (min-width: 640px) {
   .align-profile-cols { grid-template-columns: 1fr 1fr; }
@@ -747,7 +796,19 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 @media (max-width: 768px) {
   .align-quick-chip { min-height: 40px; }
   .align-opt-list .align-chip { min-height: 44px; padding: 0.6rem 0.75rem; }
-  .align-int-btn { min-height: 36px; padding: 0.35rem 0.7rem; }
+  .align-int-btn { min-height: 38px; padding: 0.4rem 0.7rem; font-size: 0.66rem; }
   .align-tool-btn { min-height: 38px; padding: 0.4rem 0.8rem; }
   .align-cat-head { min-height: 50px; }
+  /* On touch screens give the intensity row a little more room and make the
+     chosen stance unmistakable — a ring plus a brighter lift than on desktop. */
+  .align-intensity { gap: 0.42rem; padding-left: 1.5rem; }
+  .align-int-caption { flex-basis: 100%; margin-bottom: 0.1rem; }
+  .align-int-btn.sel { outline: 2px solid rgba(255,255,255,0.22); outline-offset: 1px; transform: translateY(-1px) scale(1.02); }
+  .align-int-btn.sel[data-int="strongly_support"],
+  .align-int-btn.sel[data-int="support"] { outline-color: rgba(74,222,128,0.5); }
+  .align-int-btn.sel[data-int="neutral"] { outline-color: rgba(148,163,184,0.55); }
+  .align-int-btn.sel[data-int="oppose"],
+  .align-int-btn.sel[data-int="strongly_oppose"] { outline-color: rgba(248,113,113,0.5); }
+  .align-opt-row.active .align-chip.active,
+  .align-chip.active { box-shadow: inset 0 0 0 1px rgba(139,92,246,0.35); }
 }
