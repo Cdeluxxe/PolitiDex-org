@@ -763,4 +763,223 @@
     '</div>';
   };
 
+  // ══════════════════════════════════════════════════════════════════════
+  // Stance-at-a-Glance rendering helpers (moved from index.html)
+  // The final stance-driven rendering family: the whole-card → Evidence
+  // Locker bridges, the camera-eye video-evidence indicator, the Full Stance
+  // Record links, and the People's Mandate chip. Pure extraction — the
+  // function bodies are unchanged. A few tiny, static internals they relied on
+  // in the inline script (the eye SVG, the escapers, the js-id escaper) are
+  // duplicated here as private helpers so the moved functions stay
+  // self-contained; the originals remain in index.html for the sibling
+  // helpers there that still use them.
+  // ══════════════════════════════════════════════════════════════════════
+
+  // Bridge an Issue Position card to the Evidence Locker, keyed off the
+  // stance's own issueKey. Defers to the shared chip builder in index.html
+  // (exposed as window._pdxEvChip) so the connected-evidence cue reads the same
+  // everywhere.
+  window._pdxStanceEvidenceLink = function(id, p, s) {
+    try {
+      if (!s || !s.issueKey || typeof window._pdxIsUtahStateLegislator !== 'function' || !window._pdxIsUtahStateLegislator(p)) return '';
+      if (typeof window._issueEvidenceMap !== 'function') return '';
+      var map = window._issueEvidenceMap(id, p) || {};
+      if (!map[s.issueKey]) return '';
+      return (typeof window._pdxEvChip === 'function') ? window._pdxEvChip(id, map[s.issueKey], 'stance') : '';
+    } catch (e) { return ''; }
+  };
+
+  // Whole-card → Evidence Locker bridge for a documented stance. A Key Issue
+  // Stance card is the clickable surface (it carries role="button"), so tapping
+  // anywhere on it opens the Locker filtered to this politician + issue — the
+  // same drill-in the Locker's own stance rows offer. Taps that land on an inner
+  // control (source link, video eye, vote buttons, the connected-evidence chip)
+  // keep their own behavior; the guard below simply defers to them. pol + issue
+  // ride on data attributes so the raw, unsanitized id reaches the Locker filter.
+  window._pdxStanceCardOpen = function (el, ev) {
+    try {
+      if (!el) return;
+      if (ev && ev.target && ev.target !== el) {
+        var inner = ev.target.closest && ev.target.closest('a,button,input,select,textarea,label');
+        if (inner && inner !== el) return;   // let the inner control act
+      }
+      var pol = el.getAttribute('data-ev-pol');
+      var iss = el.getAttribute('data-ev-issue');
+      if (pol && typeof window._pdxOpenEvidenceLocker === 'function') {
+        window._pdxOpenEvidenceLocker({ pol: pol, issue: iss || '' });
+      }
+    } catch (e) {}
+  };
+
+  // ── Camera-eye · video-evidence indicator ─────────────────────────────────
+  // Private internals duplicated from index.html so _pdxVideoEye is
+  // self-contained here. Inline SVG: a video camera outline with an eye looking
+  // out of the lens — reads instantly as "video evidence available, tap to
+  // watch". Uses currentColor so the gold theme + glow come from the .pdx-eye CSS.
+  var _PDX_EYE_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">' +
+      '<rect x="2" y="7" width="20" height="13" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M8.2 7 L9.5 4.6 L14.5 4.6 L15.8 7 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<circle cx="12" cy="13.6" r="4.7" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
+      '<path d="M8.6 13.6 C10 11.9 14 11.9 15.4 13.6 C14 15.3 10 15.3 8.6 13.6 Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
+      '<circle cx="12" cy="13.6" r="1.55" fill="currentColor"/>' +
+      '<circle cx="18.4" cy="9.6" r="0.95" fill="currentColor"/>' +
+    '</svg>';
+
+  function _pdxEyeEsc(s) {
+    if (typeof window._slEsc === 'function') return window._slEsc(s);
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+    });
+  }
+
+  // Resolve a single spotlight/evidence item to a watchable video link, or null.
+  // Floor-video records keep the medium + timestamp on `media` but the URL on
+  // `source.url`; committee/other clips carry it on `media.url`. Recovers either.
+  window._pdxItemVideo = function(it) {
+    if (!it) return null;
+    var m = it.media || null;
+    var st = String(it.sourceType || '');
+    var isVideo = (m && m.type === 'video') ||
+      st === 'official_floor_video' || st === 'official_committee_video' || /video/.test(st);
+    if (!isVideo) return null;
+    var url = (m && m.url) ? m.url : (it.source && it.source.url ? it.source.url : '');
+    if (!url) return null;
+    var kind = (typeof window._slVideoKindWord === 'function') ? String(window._slVideoKindWord(m) || '').trim() : '';
+    return { url: url, timestamp: (m && m.timestamp) || '', kind: kind };
+  };
+
+  // Best video tied to one issue (for a Promise or Issue Position), or null.
+  // Supporting (positive-impact) items and ones with a pinpoint timestamp win,
+  // so the cue leads with the strongest, most precise clip.
+  window._pdxIssueVideo = function(id, p, issueKey) {
+    try {
+      if (!issueKey || typeof window._issueEvidenceMap !== 'function') return null;
+      var e = (window._issueEvidenceMap(id, p) || {})[issueKey];
+      if (!e || !Array.isArray(e.spotlight)) return null;
+      var best = null, bestScore = -1;
+      e.spotlight.forEach(function(s) {
+        var v = window._pdxItemVideo(s);
+        if (!v) return;
+        var score = (s.impact === 'positive' ? 2 : 1) + (v.timestamp ? 1 : 0);
+        if (score > bestScore) { bestScore = score; best = v; }
+      });
+      return best;
+    } catch (e) { return null; }
+  };
+
+  // Render the eye for a resolved video link, or '' when there is none.
+  //   opts.asSpan — render a <span role="link"> (for use inside a <button>, where
+  //                 a nested <a> would be invalid); it opens the video on tap.
+  //   opts.stop   — false to drop stopPropagation (default keeps it, so the icon
+  //                 never also triggers the card it sits on).
+  //   opts.cls    — extra class (e.g. 'sag-eye' for the tighter glance size).
+  window._pdxVideoEye = function(video, opts) {
+    if (!video || !video.url) return '';
+    opts = opts || {};
+    var url = _pdxEyeEsc(video.url);
+    var tip = 'Watch video evidence' + (video.timestamp ? ' — jumps to ' + _pdxEyeEsc(video.timestamp) : '');
+    var cls = 'pdx-eye' + (opts.cls ? ' ' + opts.cls : '');
+    var inner = _PDX_EYE_SVG + '<span class="pdx-eye-sr">Video proof available</span>';
+    // Open the clip in the in-app player (inline, mobile-friendly), passing the
+    // timestamp so the header shows it even before the stream resolves. The
+    // raw archive URL stays on the <a href> as a right-click / no-JS fallback.
+    var jsUrl = String(video.url).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var jsTs = String(video.timestamp || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var open = 'event.stopPropagation();event.preventDefault();window._pdxOpenVideo(\'' + jsUrl + '\',{timestamp:\'' + jsTs + '\'});';
+    if (opts.asSpan) {
+      return '<span class="' + cls + '" role="link" tabindex="0" title="' + tip + '" aria-label="' + tip +
+        '" onclick="' + open + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + open + '}">' + inner + '</span>';
+    }
+    var stop = (opts.stop === false) ? '' : 'event.stopPropagation();';
+    return '<a href="' + url + '" target="_blank" rel="noopener" onclick="' + stop + '" class="' + cls +
+      '" title="' + tip + '" aria-label="' + tip + '">' + inner + '</a>';
+  };
+
+  // ── View Full Stance Record ──────────────────────────────────────────
+  // The compact stat shown inside the CTA: how many issues the record tracks and
+  // how many of those carry real evidence. Drawn from the same cached maps the
+  // destination uses, so the promise on the button matches what opens.
+  function _pdxStanceRecordStats(id, p) {
+    p = p || {};
+    var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+    var documented = stanceList.filter(function (s) { return s && s.topic; });
+    var evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+    var depth = (typeof window._pdxEvidenceDepthForPerson === 'function') ? window._pdxEvidenceDepthForPerson(id) : null;
+    var issueSet = Object.create(null);
+    documented.forEach(function (s) { if (s.issueKey) issueSet[s.issueKey] = 1; });
+    Object.keys(evMap).forEach(function (k) { issueSet[k] = 1; });
+    if (depth) Object.keys(depth).forEach(function (k) { issueSet[k] = 1; });
+    var tracked = documented.length || (p.keyIssues ? p.keyIssues.length : 0) || Object.keys(issueSet).length;
+    // Issues that appear in the full record but have no documented stance card —
+    // the honest "gaps" surfaced only in the Full Stance Record overlay.
+    var docKeys = Object.create(null);
+    documented.forEach(function (s) { if (s.issueKey) docKeys[s.issueKey] = 1; });
+    var withEv = 0, gaps = 0;
+    Object.keys(issueSet).forEach(function (k) {
+      var e = evMap[k];
+      var connected = e && ((e.promises && e.promises.length) || (e.spotlight && e.spotlight.length));
+      var rec = depth && depth[k] && depth[k].count;
+      if (connected || rec) withEv++;
+      if (!docKeys[k]) gaps++;
+    });
+    return { tracked: tracked, withEvidence: withEv, gaps: gaps };
+  }
+  window._pdxStanceRecordStats = _pdxStanceRecordStats;
+
+  // js-id escaper (duplicated internal) — makes a raw politician id safe to embed
+  // inside a single-quoted inline handler string.
+  function _pdxEvJsId(pid) {
+    return String(pid == null ? '' : pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
+  // Secondary, quieter jump to the same Full Stance Record overlay, sized to sit
+  // inside the "Key Issue Stances" header so a reader already looking at stances
+  // can expand to the complete per-issue record (gaps included) without scrolling
+  // back up. Same cached sources as the primary CTA — no new network cost.
+  window._pdxStanceRecordMiniLink = function (id, p) {
+    try {
+      p = p || {};
+      var s = _pdxStanceRecordStats(id, p);
+      var jsId = _pdxEvJsId(id);
+      var label = s.tracked
+        ? ('See all ' + s.tracked + ' issues + gaps')
+        : 'See every issue + gaps';
+      return '<button type="button" class="pdx-fsr-mini" ' +
+        'onclick="event.stopPropagation();window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
+        'aria-label="Open the full stance record — every issue, its evidence, and what is still missing">' +
+        label + ' <span aria-hidden="true">→</span></button>';
+    } catch (e) { return ''; }
+  };
+
+  // HTML escaper for the mandate chip (duplicated internal, renamed from the
+  // inline script's local `esc` to avoid a generic module-scope name).
+  function _pdxMandateEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
+    });
+  }
+
+  // The "📜 People's Mandate" chip shown on a stance/evidence surface whose
+  // issueKey is part of the Mandate. Rendered as a role=link span so it is
+  // valid inside the <button> rows that Stance at a Glance and the Locker use,
+  // and it never triggers the row it sits on. Returns '' when the issue isn't
+  // tied to any reform, so callers can drop it in unconditionally.
+  window._pdxMandateChip = function (issueKey, opts) {
+    opts = opts || {};
+    var items = window._pdxMandateForIssue(issueKey);
+    if (!items.length) return '';
+    var primary = items[0];
+    var more = items.length - 1;
+    var jsKey = String(issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var label = primary.name + (more > 0 ? ' +' + more + ' more' : '');
+    var tip = 'Part of The People’s Mandate — citizens are voting on this reform. Tap to see it.';
+    var cls = 'pdx-mandate-chip' + (opts.compact ? ' is-compact' : '') + (opts.cls ? ' ' + opts.cls : '');
+    var open = "event.stopPropagation();event.preventDefault();window._pdxMandateFocus&&window._pdxMandateFocus('" + jsKey + "');";
+    return '<span class="' + cls + '" role="link" tabindex="0" title="' + _pdxMandateEsc(tip) + '" aria-label="People’s Mandate reform: ' + _pdxMandateEsc(label) +
+      '" onclick="' + open + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + open + '}">' +
+      '<span class="pdx-mandate-chip-ico" aria-hidden="true">📜</span>' +
+      '<span class="pdx-mandate-chip-txt">People’s Mandate: ' + _pdxMandateEsc(label) + '</span></span>';
+  };
+
 })();
