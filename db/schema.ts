@@ -256,3 +256,106 @@ export const pdxSnapshots = pgTable(
     uniq: uniqueIndex("pdx_snapshots_user_collection_unique").on(t.userId, t.collection),
   })
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Community Item Threads — inline discussion & sentiment on any app item
+// ─────────────────────────────────────────────────────────────────────────────
+// This is the shared, server-backed home for the lightweight "vote + comment"
+// row that already renders under individual items — issue stances, promises and
+// Spotlight entries (and, using the same key, evidence entries and reforms). It
+// replaces the earlier device-local (localStorage) trial so a thread is the SAME
+// living conversation for every visitor, not a private note to self.
+//
+// Every row is addressed by the stable `target_id` the client already mints:
+//   "<type>:<politicianId>:<slug>"  e.g. "issue:cory-booker:box-elder-data-center"
+// The type prefix (issue | promise | spotlight | evidence | reform | …) is the
+// bridge to the existing issueKey / category systems — nothing about the markup
+// or the id scheme changes, only where the data lives.
+//
+// Like the `cee_` post tables, these are namespaced `cee_item_` and are entirely
+// separate from the curated, Firebase-backed app data: a comment here NEVER flows
+// into the Evidence Locker automatically. Identity is the author's verified
+// Firebase Auth uid (checked server-side), with a denormalised display name.
+
+// One like/dislike per user per item. The (target_id, uid) unique index makes the
+// vote a toggle: re-tapping the same side clears it, tapping the other switches.
+export const ceeItemVotes = pgTable(
+  "cee_item_votes",
+  {
+    id: serial().primaryKey(),
+    targetId: text("target_id").notNull(),
+    uid: text().notNull(),
+    vote: text().notNull(), // 'like' | 'dislike'
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("cee_item_votes_unique").on(t.targetId, t.uid),
+    targetIdx: index("cee_item_votes_target_idx").on(t.targetId),
+  })
+);
+
+// A comment on an item. `parentId` is a nullable self-reference for one level of
+// threaded replies (top-level comment → reply). `sourceUrl` carries the required
+// citation when a comment is submitted as new evidence / a strong claim.
+export const ceeItemComments = pgTable(
+  "cee_item_comments",
+  {
+    id: serial().primaryKey(),
+    targetId: text("target_id").notNull(),
+    parentId: integer("parent_id").references((): AnyPgColumn => ceeItemComments.id, {
+      onDelete: "cascade",
+    }),
+    authorUid: text("author_uid").notNull(),
+    authorName: text("author_name").notNull().default("Community Member"),
+    body: text().notNull(),
+    // Optional citation; REQUIRED (enforced in the function) when the author marks
+    // the comment as adding new evidence or making a strong factual claim.
+    sourceUrl: text("source_url"),
+    status: text().notNull().default("active"), // active | removed
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    targetIdx: index("cee_item_comments_target_idx").on(t.targetId),
+    parentIdx: index("cee_item_comments_parent_idx").on(t.parentId),
+  })
+);
+
+// Up/down votes on individual comments — the quality signal that surfaces the
+// most useful, best-sourced contributions. One vote per user per comment.
+export const ceeItemCommentVotes = pgTable(
+  "cee_item_comment_votes",
+  {
+    id: serial().primaryKey(),
+    commentId: integer("comment_id")
+      .notNull()
+      .references(() => ceeItemComments.id, { onDelete: "cascade" }),
+    uid: text().notNull(),
+    vote: text().notNull(), // 'up' | 'down'
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("cee_item_comment_votes_unique").on(t.commentId, t.uid),
+    commentIdx: index("cee_item_comment_votes_comment_idx").on(t.commentId),
+  })
+);
+
+// Flags raised on a comment for moderator review (personal attack, misinformation,
+// spam, off-topic…). One flag per user per comment; re-flagging updates the row.
+export const ceeItemFlags = pgTable(
+  "cee_item_flags",
+  {
+    id: serial().primaryKey(),
+    commentId: integer("comment_id")
+      .notNull()
+      .references(() => ceeItemComments.id, { onDelete: "cascade" }),
+    uid: text().notNull(),
+    reason: text().notNull(), // personal_attack | misinformation | spam | off_topic | other
+    note: text().default(""),
+    status: text().notNull().default("open"), // open | resolved
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("cee_item_flags_unique").on(t.commentId, t.uid),
+    commentIdx: index("cee_item_flags_comment_idx").on(t.commentId),
+  })
+);
