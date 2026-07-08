@@ -62,7 +62,7 @@ export const CORE_NATIONAL_ISSUES = [
   { key: 'guns', label: 'Gun Rights & Gun Control',
     keys: ['gun_rights','gun_balance','gun_safety'] },
   { key: 'climate_energy', label: 'Climate Change & Energy Policy',
-    keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','disaster_resilience','water','water_storage','energy_production'] },
+    keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production'] },
   { key: 'crime_safety', label: 'Crime & Public Safety',
     keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
   { key: 'election_integrity', label: 'Election Integrity',

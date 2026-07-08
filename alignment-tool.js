@@ -229,7 +229,16 @@
       // ── Technology & Privacy ──
       tech_innovation:    { label: '🚀 Innovation & Light Rules', chip: 'Let American tech and AI innovate with minimal red tape', cat: 'tech', lean: 'R', stanceKeys: [], keywords: ['technology','innovation','ai','artificial intelligence','deregulation','tech leadership','startup','crypto','light touch','competitiveness','semiconductor'] },
       tech_balance:       { label: '⚖️ Smart Tech Guardrails', chip: 'Let tech innovate but require data-privacy, online-safety and age-verification rules', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['technology','ai','guardrails','regulation','innovation','safety','age verification','social media','consumer protection','balanced','modernization'] },
-      aidc:               { label: '🖥 AI Data Centers', chip: 'Welcome large AI data centers for the jobs, investment and tax revenue they bring', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['data center','data centers','datacenter','datacenters','ai data center','ai data centers','ai data','artificial intelligence','server farm','hyperscale','power demand','power grid','electricity','energy demand','grid','water usage','water use','cooling','tax revenue','tax base','economic development','jobs','investment','ratepayers','utility bills','emissions','environment','environmental'] },
+      // ── Data Centers & Growth (the 'dc' facet family) ──
+      // Three flat issue keys let a record be pro-growth yet water/power-skeptical
+      // at once — the tension is the data, not an editorial caveat. POLARITY: on
+      // datacenter_water and datacenter_power the chip states the PROTECTIVE /
+      // guardrail position, so issueStance:'support' = pro-safeguard, 'oppose' =
+      // "let them draw/burn/charge freely", and 'mixed' = "backs the project WITH
+      // conditions". Every card's issueStance is written relative to its chip.
+      datacenter_growth:  { label: '🖥 Data Centers & AI Growth', chip: 'Welcome data-center and AI investment for the jobs, tax base and competitiveness it brings', cat: 'dc', stanceKeys: ['dataCenters'], keywords: ['data center','data centers','datacenter','datacenters','ai data center','ai data centers','ai data','artificial intelligence','server farm','hyperscale','stratos','economic development','jobs','investment','tax revenue','tax base','competitiveness','national security'] },
+      datacenter_water:   { label: '💧 Data Centers & Water', chip: 'Require data centers to prove they won’t drain scarce water or the Great Salt Lake — closed-loop cooling and no ag-to-industrial water grabs', cat: 'dc', stanceKeys: [], keywords: ['data center','data centers','datacenter','water usage','water use','cooling','closed-loop','closed loop','great salt lake','drought','water right','water rights','ag water','agricultural water','aquifer','dust','air quality','conservation','stratos'] },
+      datacenter_power:   { label: '⚡ Data Centers, Power & Ratepayers', chip: 'Make data centers bring their own clean power and pay their own way, so they don’t raise family utility bills or worsen air pollution', cat: 'dc', stanceKeys: [], keywords: ['data center','data centers','datacenter','power demand','energy demand','grid','power grid','electricity','natural gas','baseload','nuclear','emissions','air pollution','ratepayers','utility bills','cost shift','off-grid','bring your own power','operation gigawatt','stratos'] },
       privacy_rights:     { label: '🔒 Privacy & Big-Tech Accountability', chip: 'Protect personal data and hold Big Tech accountable', cat: 'tech', stanceKeys: [], keywords: ['privacy','data privacy','surveillance','fisa','section 702','big tech','data','section 230','antitrust','consumer protection','encryption','warrant'] },
 
       // ── Elections & Democracy ──
@@ -296,7 +305,7 @@
         keys: ['gun_rights','gun_balance','gun_safety'] },
       { key: 'climate_energy', label: '🌱 Climate Change & Energy Policy',
         blurb: 'Climate action, clean and domestic energy, water, and disaster resilience.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','aidc','disaster_resilience','water','water_storage','energy_production'] },
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
@@ -334,6 +343,7 @@
       { key: 'infra',      group: 'Economy & Government',          icon: '🚧', label: 'Infrastructure & Transportation' },
       { key: 'land',       group: 'Land, Energy & Environment',    icon: '🏔', label: 'Public Lands & Energy' },
       { key: 'enviro',     group: 'Land, Energy & Environment',    icon: '💧', label: 'Water & Environment' },
+      { key: 'dc',         group: 'Land, Energy & Environment',    icon: '🖥', label: 'Data Centers & Growth' },
       { key: 'immig',      group: 'Security & Justice',            icon: '🛡', label: 'Immigration' },
       { key: 'guns',       group: 'Security & Justice',            icon: '🔫', label: 'Gun Policy' },
       { key: 'justice',    group: 'Security & Justice',            icon: '👮', label: 'Criminal Justice & Safety' },
@@ -417,7 +427,7 @@
       health: 'health_human', family: 'health_human',
       housing: 'housing',
       justice: 'safety_justice', guns: 'safety_justice', immig: 'immigration',
-      land: 'enviro_land', enviro: 'enviro_land',
+      land: 'enviro_land', enviro: 'enviro_land', dc: 'enviro_land',
       democracy: 'gov_elections', reform: 'gov_elections', rights: 'gov_elections', repro: 'gov_elections',
       infra: 'transport_infra',
       foreign: 'other', tech: 'other', other: 'other'
@@ -2007,11 +2017,11 @@
     // so _alignSyncAllChips toggles their active state and alignToggle handles taps —
     // no separate state to keep in sync.
     var ALIGN_QUICK_PICKS = [
-      'aidc', 'term_limits', 'border_security', 'deportations', 'healthcare', 'gun_rights',
+      'datacenter_water', 'term_limits', 'border_security', 'deportations', 'healthcare', 'gun_rights',
       'school_choice', 'climate_action', 'energy_production', 'cost_living', 'housing', 'homeless',
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
-      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp'
+      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp', 'datacenter_growth'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
