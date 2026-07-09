@@ -208,7 +208,7 @@
       '<div class="yb-setloc">' +
         '<div class="yb-setloc-ico">📍</div>' +
         '<div class="yb-setloc-t">See what’s on your ballot</div>' +
-        '<div class="yb-setloc-s">One step. We match your address to your real districts — U.S. Senate &amp; House, Governor, your state legislators, and local offices.</div>' +
+        '<div class="yb-setloc-s">One step, no sign-up. We match your address to your real districts — U.S. Senate &amp; House, Governor, your state legislators, and local offices.</div>' +
         '<button type="button" class="yb-btn-primary" data-yb-setloc="1">📍 Enter my address</button>' +
         '<span class="yb-setloc-note">🔒 Your address stays on your device and is only used to look up your districts. Nonpartisan by design — candidates are shown by record, never by party.</span>' +
       '</div>' +
@@ -262,8 +262,10 @@
     var total = contests.length, decided = 0;
     contests.forEach(function (c) { if (c.classList.contains('yb-decided')) decided++; });
     var pct = total ? Math.round((decided / total) * 100) : 0;
-    var hint = decided === 0 ? 'Add a pick in any race to start'
-      : (decided === total ? '🎉 Every race decided' : (total - decided) + ' race' + ((total - decided) === 1 ? '' : 's') + ' to go');
+    var complete = total > 0 && decided === total;
+    var hint = decided === 0 ? 'Start with any race — add your pick below'
+      : (complete ? '🎉 Every race decided — nicely done' : (total - decided) + ' race' + ((total - decided) === 1 ? '' : 's') + ' to go');
+    host.className = 'yb-progress' + (complete ? ' yb-complete' : '');
     host.innerHTML = '<div class="yb-progress-row">' +
       '<span class="yb-progress-lbl">You’ve decided <b>' + decided + ' of ' + total + '</b> races</span>' +
       '<span class="yb-progress-hint">' + hint + '</span>' +
@@ -347,10 +349,22 @@
       var pid = pickBtn.getAttribute('data-yb-pid');
       var f = fn('ballotPickCard');
       if (f) {
+        var wasOn = pickBtn.getAttribute('aria-pressed') === 'true';
         try { f(key, pid); } catch (err) {}
         // ballotPickCard handles save + team sync + toast; we just reflect the
         // new state locally (fast, no rebuild). pdx-team-change also fires below.
         syncPickStates();
+        // A brief, satisfying pulse on the card the moment a pick lands (adds only,
+        // not removals) — a local confirmation on top of the app's global toast.
+        if (!wasOn) {
+          var card = pickBtn.closest ? pickBtn.closest('.yb-cand') : null;
+          if (card) {
+            card.classList.remove('yb-just-picked');
+            void card.offsetWidth;
+            card.classList.add('yb-just-picked');
+            setTimeout(function () { card.classList.remove('yb-just-picked'); }, 700);
+          }
+        }
       }
       return;
     }

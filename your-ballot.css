@@ -37,6 +37,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   #your-ballot.yb-flash { animation: none; }
+  .yb-cand.yb-just-picked { animation: none; }
 }
 
 /* ── Section header ─────────────────────────────────────────────────────── */
@@ -108,7 +109,8 @@
 
 .yb-progress { max-width: 46rem; margin: 0 auto 1.9rem; }
 .yb-progress-row {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.4rem 0.75rem;
+  flex-wrap: wrap;
   font-family: 'Barlow Condensed', sans-serif; margin-bottom: 0.4rem;
 }
 .yb-progress-lbl { font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.82rem; color: #cdd8ef; }
@@ -120,6 +122,9 @@
   background: linear-gradient(90deg, #e6b800, #4ade80);
   transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* Every race decided — a calm, earned finish, not confetti. */
+.yb-progress.yb-complete .yb-progress-hint { color: #4ade80; font-weight: 600; }
+.yb-progress.yb-complete .yb-progress-fill { box-shadow: 0 0 12px rgba(74, 222, 128, 0.5); }
 
 /* ── Contest block ──────────────────────────────────────────────────────── */
 .yb-contest {
@@ -156,6 +161,13 @@
 .yb-cand.yb-picked {
   border-color: rgba(74, 222, 128, 0.6);
   background: linear-gradient(160deg, rgba(20, 44, 32, 0.6), rgba(11, 24, 20, 0.55));
+}
+/* One-shot confirmation the instant a pick lands (added via JS, then removed). */
+.yb-cand.yb-just-picked { animation: ybPick 0.7s ease-out 1; }
+@keyframes ybPick {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.0); }
+  30%  { transform: scale(1.015); box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.28); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.0); }
 }
 .yb-cand-top { display: flex; align-items: flex-start; gap: 0.7rem; }
 .yb-cand-photo {
@@ -253,3 +265,14 @@
   .yb-contest-empty { grid-column: 1 / -1; }
   .yb-morebtn { grid-column: 1 / -1; }
 }
+
+/* ── Small phones: tighten side padding and let the location bar breathe so
+      the "Change location" control never crowds the address text. ─────────── */
+@media (max-width: 400px) {
+  #your-ballot { padding: 2.4rem 0.8rem 3rem; }
+  .yb-title { font-size: 2.1rem; }
+  .yb-locbar { flex-direction: column; align-items: flex-start; gap: 0.55rem; }
+  .yb-loc-change { width: 100%; text-align: center; }
+  .yb-cand { padding: 0.75rem; }
+}
+
