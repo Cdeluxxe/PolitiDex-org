@@ -122,8 +122,8 @@
   color: #cdd8ee;
   font-size: 1.1rem;
   line-height: 1;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -206,12 +206,214 @@
 
 /* Slightly tighter on phones; the grid already reflows, this just trims padding
    so two tiles sit comfortably side by side on narrow screens. */
+/* ── streak: progress ring + caption + week dots ────────────────────────── */
+.pdx-impact-streakwrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 0;
+  margin: 0.25rem 0 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pdx-impact-streak { display: flex; align-items: center; gap: 0.75rem; flex: 1 1 auto; min-width: 0; }
+.pdx-impact-ring { position: relative; width: 64px; height: 64px; flex: 0 0 auto; }
+.pdx-impact-ring svg { transform: rotate(-90deg); display: block; }
+.pdx-ring-track { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 6; }
+.pdx-ring-fill {
+  fill: none;
+  stroke: #f5c842;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pdx-impact-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pdx-ring-num { font-size: 1.35rem; font-weight: 800; color: #ffe9a8; letter-spacing: -0.02em; }
+.pdx-impact-streak-txt { min-width: 0; }
+.pdx-impact-streak-cap { font-size: 0.98rem; font-weight: 700; color: #f4f7ff; }
+.pdx-impact-streak-cap b { color: #f5c842; }
+.pdx-impact-streak-sub { font-size: 0.8rem; color: #9fb0cc; margin-top: 0.1rem; }
+
+.pdx-impact-week { display: flex; gap: 0.3rem; flex: 0 0 auto; align-items: center; }
+.pdx-impact-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.pdx-impact-dot.on { background: #4ade80; border-color: rgba(74, 222, 128, 0.5); box-shadow: 0 0 6px rgba(74, 222, 128, 0.35); }
+.pdx-impact-dot.today { outline: 2px solid rgba(245, 200, 66, 0.55); outline-offset: 1px; }
+
+/* ── card footer link ────────────────────────────────────────────────────── */
+.pdx-impact-foot { margin-top: 0.9rem; text-align: right; }
+.pdx-impact-fulllink {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: #ffe9a8;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.55rem 0.4rem;
+  min-height: 44px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.pdx-impact-fulllink:hover { color: #fff3cf; text-decoration: underline; }
+
+/* ── full-impact modal (private detail view) ─────────────────────────────── */
+html.pdx-impact-modal-open { overflow: hidden; }
+.pdx-impact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgba(4, 8, 18, 0.72);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.pdx-impact-overlay[hidden] { display: none; }
+.pdx-impact-overlay.is-open { opacity: 1; }
+.pdx-impact-modal {
+  width: 100%;
+  max-width: 40rem;
+  max-height: 92vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, #0e1630, #0a1022);
+  border: 1px solid rgba(245, 200, 66, 0.18);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.55);
+  color: #e5e9f0;
+  font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+  transform: translateY(14px);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pdx-impact-overlay.is-open .pdx-impact-modal { transform: translateY(0); }
+.pdx-impact-modal-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.1rem 1.2rem 0.9rem;
+  background: linear-gradient(180deg, rgba(14, 22, 48, 0.98), rgba(14, 22, 48, 0.9));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pdx-impact-modal-title { font-size: 1.35rem; font-weight: 800; color: #f4f7ff; margin: 0.15rem 0 0; letter-spacing: -0.01em; }
+.pdx-impact-close {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cdd8ee;
+  font-size: 1rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.pdx-impact-close:hover { background: rgba(255, 255, 255, 0.1); }
+.pdx-impact-modal-body { padding: 1.1rem 1.2rem 0.5rem; }
+
+.pdx-impact-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pdx-impact-summary-stats { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.pdx-impact-stat { display: flex; flex-direction: column; }
+.pdx-impact-stat b { font-size: 1.5rem; font-weight: 800; color: #f5c842; line-height: 1.1; }
+.pdx-impact-stat span { font-size: 0.75rem; color: #9fb0cc; }
+
+.pdx-impact-h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #9fb4d4; margin: 1.1rem 0 0.6rem; font-weight: 800; }
+
+/* metric bars */
+.pdx-impact-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+.pdx-impact-bar-row { display: grid; grid-template-columns: 11rem 1fr 2.5rem; align-items: center; gap: 0.6rem; }
+.pdx-impact-bar-lbl { font-size: 0.85rem; color: #cdd8ee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pdx-impact-bar-track { height: 10px; background: rgba(255, 255, 255, 0.06); border-radius: 6px; overflow: hidden; }
+.pdx-impact-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(245, 200, 66, 0.55), #f5c842);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pdx-impact-bar-row:not(.has-count) .pdx-impact-bar-lbl { color: #7d8aa6; }
+.pdx-impact-bar-n { font-size: 0.95rem; font-weight: 800; color: #e5e9f0; text-align: right; }
+
+/* 30-day activity strip */
+.pdx-impact-strip { display: grid; grid-template-columns: repeat(15, 1fr); gap: 4px; }
+.pdx-impact-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pdx-impact-cell.on { background: #4ade80; border-color: rgba(74, 222, 128, 0.5); }
+.pdx-impact-cell.today { outline: 2px solid rgba(245, 200, 66, 0.55); outline-offset: 1px; }
+.pdx-impact-legend { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: #9fb0cc; margin: 0.6rem 0 0; }
+.pdx-impact-legend .pdx-impact-cell { width: 12px; height: 12px; aspect-ratio: auto; display: inline-block; }
+
+.pdx-impact-modal-foot {
+  position: sticky;
+  bottom: 0;
+  padding: 0.9rem 1.2rem 1.1rem;
+  background: linear-gradient(180deg, rgba(10, 16, 34, 0.6), rgba(10, 16, 34, 0.98));
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.pdx-impact-foot-note { font-size: 0.76rem; color: #8fa0bd; margin: 0 0 0.6rem; line-height: 1.4; }
+.pdx-impact-foot-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.pdx-impact-foot-btns .pdx-impact-btn { flex: 1 1 auto; }
+
+/* ── phone tuning ────────────────────────────────────────────────────────── */
 @media (max-width: 30rem) {
   .pdx-impact-card { padding: 1rem; border-radius: 14px; }
   .pdx-impact-grid { grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.5rem; }
   .pdx-impact-tile-n { font-size: 1.45rem; }
+  .pdx-impact-streakwrap { gap: 0.75rem; }
+  .pdx-impact-week { width: 100%; justify-content: space-between; }
+  .pdx-impact-bar-row { grid-template-columns: 7.5rem 1fr 2.2rem; gap: 0.45rem; }
+  .pdx-impact-bar-lbl { font-size: 0.78rem; }
+  .pdx-impact-summary-stats { gap: 1rem; }
 }
 
+/* Wider screens: let the modal breathe as a centered dialog, not a bottom sheet. */
+@media (min-width: 34rem) {
+  .pdx-impact-overlay { align-items: center; padding: 1.5rem; }
+  .pdx-impact-modal { border-radius: 18px; border-bottom: 1px solid rgba(245, 200, 66, 0.18); }
+}
+
+/* ── reduced motion & focus visibility (accessibility) ───────────────────── */
+.pdx-impact-fulllink:focus-visible,
+.pdx-impact-gear:focus-visible,
+.pdx-impact-close:focus-visible,
+.pdx-impact-btn:focus-visible,
+.pdx-impact-menu button:focus-visible {
+  outline: 2px solid #f5c842;
+  outline-offset: 2px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .pdx-impact-btn, .pdx-impact-tile { transition: none; }
+  .pdx-impact-btn, .pdx-impact-tile,
+  .pdx-ring-fill, .pdx-impact-bar-fill,
+  .pdx-impact-overlay, .pdx-impact-modal { transition: none; }
+  .pdx-impact-modal { transform: none; }
 }
