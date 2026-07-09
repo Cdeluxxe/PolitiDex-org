@@ -1,0 +1,217 @@
+/* ============================================================================
+   Personal Impact Tracker — styles for the private #pdx-impact widget.
+
+   Reuses the app's tokens (navy field, amber "team/you" accent, Barlow type) so
+   the card reads as native, sitting quietly beneath Your Ballot. Mobile-first:
+   the metric grid is auto-fit and collapses to two-up / one-up on small screens;
+   touch targets stay >= 44px. Nothing here is loud — this is a calm, personal
+   panel, not a call to action.
+   ========================================================================== */
+
+#pdx-impact {
+  padding: 1.5rem 1rem 2rem;
+  background: linear-gradient(180deg, rgba(10, 15, 30, 0.0) 0%, rgba(10, 15, 30, 0.35) 100%);
+}
+#pdx-impact * { box-sizing: border-box; }
+
+.pdx-impact-card {
+  max-width: 62rem;
+  margin: 0 auto;
+  background:
+    radial-gradient(900px 300px at 100% -20%, rgba(245, 200, 66, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(14, 22, 46, 0.9), rgba(10, 16, 34, 0.92));
+  border: 1px solid rgba(245, 200, 66, 0.16);
+  border-radius: 16px;
+  padding: 1.25rem 1.25rem 1.35rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  color: #e5e9f0;
+  font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+}
+
+/* ── opt-in invite (tracker off) ─────────────────────────────────────────── */
+.pdx-impact-invite {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pdx-impact-invite-ico {
+  font-size: 1.9rem;
+  line-height: 1;
+  flex: 0 0 auto;
+  filter: saturate(1.1);
+}
+.pdx-impact-invite-body { flex: 1 1 16rem; min-width: 14rem; }
+.pdx-impact-invite-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: #f4f7ff;
+}
+.pdx-impact-invite-sub {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #b8c4dc;
+}
+.pdx-impact-invite-sub em { color: #f5c842; font-style: normal; }
+
+/* ── buttons ─────────────────────────────────────────────────────────────── */
+.pdx-impact-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e9f0;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1.1rem;
+  min-height: 44px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+}
+.pdx-impact-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.pdx-impact-btn:active { transform: scale(0.98); }
+.pdx-impact-btn-primary {
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, rgba(245, 200, 66, 0.18), rgba(245, 200, 66, 0.08));
+  border-color: rgba(245, 200, 66, 0.5);
+  color: #ffe9a8;
+}
+.pdx-impact-btn-primary:hover {
+  background: linear-gradient(135deg, rgba(245, 200, 66, 0.28), rgba(245, 200, 66, 0.12));
+}
+
+/* ── dashboard head ──────────────────────────────────────────────────────── */
+.pdx-impact-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.pdx-impact-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+}
+.pdx-impact-private { color: #7fd6a3; }
+.pdx-impact-h {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #f4f7ff;
+  margin-top: 0.15rem;
+}
+.pdx-impact-h b { color: #f5c842; }
+.pdx-impact-sub {
+  font-size: 0.85rem;
+  color: #aeb9d0;
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+/* ── settings menu ───────────────────────────────────────────────────────── */
+.pdx-impact-menu-wrap { position: relative; flex: 0 0 auto; }
+.pdx-impact-gear {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cdd8ee;
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pdx-impact-gear:hover { background: rgba(255, 255, 255, 0.1); }
+.pdx-impact-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  min-width: 15rem;
+  background: #10182e;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 0.4rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+.pdx-impact-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  border: 0;
+  background: none;
+  color: #e5e9f0;
+  font: inherit;
+  padding: 0.6rem 0.6rem;
+  min-height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.pdx-impact-menu button:hover { background: rgba(255, 255, 255, 0.07); }
+.pdx-impact-menu-note {
+  font-size: 0.72rem;
+  color: #8a97b4;
+  line-height: 1.4;
+  padding: 0.4rem 0.6rem 0.3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: 0.25rem;
+}
+
+/* ── metric grid ─────────────────────────────────────────────────────────── */
+.pdx-impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.6rem;
+}
+.pdx-impact-tile {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 0.85rem 0.8rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.pdx-impact-tile.has-count {
+  background: rgba(245, 200, 66, 0.05);
+  border-color: rgba(245, 200, 66, 0.22);
+}
+.pdx-impact-tile-ico { font-size: 1.15rem; line-height: 1; }
+.pdx-impact-tile-n {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ced9f0;
+  line-height: 1.05;
+}
+.pdx-impact-tile.has-count .pdx-impact-tile-n { color: #f5c842; }
+.pdx-impact-tile-lbl {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #eaf0ff;
+}
+.pdx-impact-tile-blurb {
+  font-size: 0.72rem;
+  color: #93a2c0;
+  line-height: 1.35;
+}
+
+/* Slightly tighter on phones; the grid already reflows, this just trims padding
+   so two tiles sit comfortably side by side on narrow screens. */
+@media (max-width: 30rem) {
+  .pdx-impact-card { padding: 1rem; border-radius: 14px; }
+  .pdx-impact-grid { grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.5rem; }
+  .pdx-impact-tile-n { font-size: 1.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdx-impact-btn, .pdx-impact-tile { transition: none; }
+}
