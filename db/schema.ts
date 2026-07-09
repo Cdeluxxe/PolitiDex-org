@@ -31,17 +31,38 @@ export const ceePosts = pgTable(
     authorName: text("author_name").notNull().default("Community Member"),
     headline: text().notNull(),
     summary: text().notNull().default(""),
-    // Optional but encouraged source link.
+    // Optional but encouraged source link. REQUIRED (enforced in the function)
+    // when `kind` is "evidence" — a contribution offered as evidence must cite one.
     sourceUrl: text("source_url"),
+    // What the contribution IS, chosen by the submitter on the form:
+    //   "lead"     — a tip / topic the community should look into (no strict source bar)
+    //   "evidence" — a concrete receipt (vote, statement, record) offered for the Locker
+    // Drives the source-link requirement and how the moderator reviews it.
+    kind: text().notNull().default("lead"),
+    // Submitter's self-declared source category, aligned to EVIDENCE_STRENGTH.md so
+    // the moderator can grade it quickly. Informational only:
+    //   official | interview | statement | social | other
+    sourceType: text("source_type"),
     // One of the CORE_NATIONAL_ISSUES keys (reuses the existing category system).
     categoryKey: text("category_key"),
     // Zero or more ISSUE_MAP issue keys (reuses the existing issue tagging system).
     issueKeys: jsonb("issue_keys").$type<string[]>().default([]),
     // active = visible; removed = hidden by a moderator; imported = a moderator
-    // has manually pulled it into the Evidence Locker (Phase 3 bridge).
+    // has promoted it into the curated Evidence Locker (see cee_promoted).
     status: text().notNull().default("active"),
     // Set when at least one user has used "Suggest for Review".
     suggestedForReview: boolean("suggested_for_review").notNull().default(false),
+    // ── AI triage (non-binding) ───────────────────────────────────────────
+    // A neutral, advisory recommendation written automatically on submission (and
+    // re-runnable by a moderator). It NEVER hides or promotes anything on its own —
+    // a human moderator always decides. Stored so the queue shows it at a glance.
+    aiRecommendation: text("ai_recommendation"), // keep | review | remove | null
+    aiConfidence: integer("ai_confidence"), //     0..100
+    aiSummary: text("ai_summary"),
+    aiReasons: jsonb("ai_reasons").$type<string[]>().default([]),
+    // If the triage judged this a likely duplicate, the id of the post it matches.
+    aiDuplicateOf: integer("ai_duplicate_of"),
+    aiReviewedAt: timestamp("ai_reviewed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -133,6 +154,50 @@ export const ceeSuggestions = pgTable(
   (t) => ({
     uniq: uniqueIndex("cee_suggestions_unique").on(t.postId, t.uid),
     postIdx: index("cee_suggestions_post_idx").on(t.postId),
+  })
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Graduated contributions — the curated bridge into the Evidence Locker
+// ─────────────────────────────────────────────────────────────────────────────
+// When a moderator verifies a community post against CONTENT_STYLE.md and
+// EVIDENCE_STRENGTH.md and decides it belongs in the curated record, it is
+// "promoted": a snapshot of the verified evidence is copied into THIS table, with
+// the contributor credited by name. This keeps the two worlds cleanly separate —
+// `cee_posts` stays the raw, community-owned discussion; `cee_promoted` is the
+// curated, moderator-blessed layer that carries attribution. A community post is
+// never silently absorbed: promotion is an explicit, recorded human action, and
+// the snapshot here is what the "Graduated to the Evidence Locker" credit wall
+// renders. One promotion per source post (the unique index), so re-promoting is
+// idempotent and simply refreshes the snapshot.
+export const ceePromoted = pgTable(
+  "cee_promoted",
+  {
+    id: serial().primaryKey(),
+    // The community post this was graduated from. Nullable + ON DELETE SET NULL so
+    // the curated credit survives even if the original discussion post is removed.
+    postId: integer("post_id").references(() => ceePosts.id, { onDelete: "set null" }),
+    // A verbatim snapshot of the verified evidence at promotion time.
+    headline: text().notNull(),
+    summary: text().notNull().default(""),
+    sourceUrl: text("source_url"),
+    categoryKey: text("category_key"),
+    issueKeys: jsonb("issue_keys").$type<string[]>().default([]),
+    kind: text().notNull().default("evidence"), // lead | evidence
+    // The moderator-assigned strength grade (EVIDENCE_STRENGTH.md vocabulary).
+    strength: text().notNull().default("moderate"), // strong | moderate | limited
+    // Attribution: who contributed it. Name is shown publicly on the credit wall;
+    // the uid is kept for linking a member to their graduated contributions.
+    contributorUid: text("contributor_uid"),
+    contributorName: text("contributor_name").notNull().default("Community Member"),
+    // Which moderator promoted it (their email), and their verification note.
+    promotedBy: text("promoted_by"),
+    note: text().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    postUniq: uniqueIndex("cee_promoted_post_unique").on(t.postId),
+    createdIdx: index("cee_promoted_created_idx").on(t.createdAt),
   })
 );
 
@@ -357,5 +422,126 @@ export const ceeItemFlags = pgTable(
   (t) => ({
     uniq: uniqueIndex("cee_item_flags_unique").on(t.commentId, t.uid),
     commentIdx: index("cee_item_flags_comment_idx").on(t.commentId),
+  })
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Open Discussion Board — the free-conversation track ("pdx_forum_")
+// ─────────────────────────────────────────────────────────────────────────────
+// The second track of PolitiDex's two-track community system. Where the Community
+// Evidence Exchange (cee_*) is the VERIFIED pipeline — submissions are triaged,
+// moderated, and can graduate into the curated Evidence Locker with attribution —
+// this board is the OPEN track: anyone signed in can post freely on any topic,
+// nothing is pre-approved, and posts are Reddit-style ranked by community votes.
+//
+// The separation is structural and deliberate. These tables share NOTHING with
+// cee_* or with the curated app data, and there is NO promotion path out of the
+// forum: an open-board thread can never flow into cee_posts, cee_promoted, or the
+// Evidence Locker. The only moderation here is reactive removal of spam / abuse
+// (the civility floor), never verification. A thread may *reference* an app item
+// (a stance, reform, politician…) via a lightweight, optional deep-link, but that
+// is a one-way pointer for context — it never embeds or alters the referenced item.
+//
+// Identity is the author's verified Firebase Auth uid (checked server-side in the
+// /api/forum Function via the shared db/firebase-auth helper), with a denormalised
+// display name for cheap rendering — the same model the cee_* tables use.
+
+// A discussion thread. `score` and `replyCount` are denormalised tallies kept in
+// step with the vote/reply rows so listing and ranking never need an aggregate join.
+export const pdxForumThreads = pgTable(
+  "pdx_forum_threads",
+  {
+    id: serial().primaryKey(),
+    authorUid: text("author_uid").notNull(),
+    authorName: text("author_name").notNull().default("Community Member"),
+    title: text().notNull(),
+    body: text().notNull().default(""),
+    // Free-conversation topic bucket (general | stances | reforms | elections |
+    // money | media | meta). Validated in the Function, not trusted from the client.
+    topic: text().notNull().default("general"),
+    // Optional, lightweight reference to something in the app — context only, never
+    // an import. `linkType` is the kind of thing (politician | issue | reform |
+    // promise | spotlight | evidence | other); `linkRef` is the id/slug/hash/URL the
+    // app already uses; `linkLabel` is what to show. All nullable so linking stays
+    // entirely optional and the board never depends on the curated data.
+    linkType: text("link_type"),
+    linkRef: text("link_ref"),
+    linkLabel: text("link_label"),
+    score: integer().notNull().default(0),
+    replyCount: integer("reply_count").notNull().default(0),
+    // active = visible; removed = hidden by a moderator (spam/abuse only).
+    status: text().notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    statusIdx: index("pdx_forum_threads_status_idx").on(t.status),
+    topicIdx: index("pdx_forum_threads_topic_idx").on(t.topic),
+    scoreIdx: index("pdx_forum_threads_score_idx").on(t.score),
+    createdIdx: index("pdx_forum_threads_created_idx").on(t.createdAt),
+  })
+);
+
+// A reply. `parentId` is a nullable self-reference for one level of nested replies
+// (top-level reply → reply-to-reply), assembled into a tree on the client.
+export const pdxForumReplies = pgTable(
+  "pdx_forum_replies",
+  {
+    id: serial().primaryKey(),
+    threadId: integer("thread_id")
+      .notNull()
+      .references(() => pdxForumThreads.id, { onDelete: "cascade" }),
+    parentId: integer("parent_id").references((): AnyPgColumn => pdxForumReplies.id, {
+      onDelete: "cascade",
+    }),
+    authorUid: text("author_uid").notNull(),
+    authorName: text("author_name").notNull().default("Community Member"),
+    body: text().notNull(),
+    score: integer().notNull().default(0),
+    status: text().notNull().default("active"), // active | removed
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    threadIdx: index("pdx_forum_replies_thread_idx").on(t.threadId),
+    parentIdx: index("pdx_forum_replies_parent_idx").on(t.parentId),
+  })
+);
+
+// One up/down vote per user per target. A single table covers both threads and
+// replies via (`targetType`, `targetId`); the unique index makes the vote a toggle:
+// re-casting the same direction clears it, casting the other switches it.
+export const pdxForumVotes = pgTable(
+  "pdx_forum_votes",
+  {
+    id: serial().primaryKey(),
+    targetType: text("target_type").notNull(), // 'thread' | 'reply'
+    targetId: integer("target_id").notNull(),
+    uid: text().notNull(),
+    value: integer().notNull(), // 1 (up) | -1 (down)
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("pdx_forum_votes_unique").on(t.targetType, t.targetId, t.uid),
+    targetIdx: index("pdx_forum_votes_target_idx").on(t.targetType, t.targetId),
+  })
+);
+
+// Flags raised for moderator review (spam, hate/abuse, personal attack, off-topic…).
+// Reactive civility floor only — one flag per user per target; re-flagging updates it.
+export const pdxForumFlags = pgTable(
+  "pdx_forum_flags",
+  {
+    id: serial().primaryKey(),
+    targetType: text("target_type").notNull(), // 'thread' | 'reply'
+    targetId: integer("target_id").notNull(),
+    uid: text().notNull(),
+    reason: text().notNull(), // spam | hate | personal_attack | off_topic | other
+    note: text().default(""),
+    status: text().notNull().default("open"), // open | resolved
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("pdx_forum_flags_unique").on(t.targetType, t.targetId, t.uid),
+    targetIdx: index("pdx_forum_flags_target_idx").on(t.targetType, t.targetId),
   })
 );
