@@ -526,6 +526,65 @@ export const pdxForumVotes = pgTable(
   })
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Notifications & "What Changed" digest — per-user preferences ("pdx_notification_prefs")
+// ─────────────────────────────────────────────────────────────────────────────
+// One row per signed-in user holding their OPT-IN notification settings for the
+// "What Changed" digest. The design is intentionally quiet and user-controlled:
+// every channel defaults to a calm state (in-app on, email OFF) and the user
+// picks the topics and the email cadence. Nothing is ever sent unless the user
+// explicitly turns a channel on — this table is the authoritative record of that
+// consent, read by both the interactive digest endpoint and the scheduled email
+// job (netlify/functions/pdx-digest.mts and pdx-digest-cron.mts).
+//
+// Identity is the caller's verified Firebase Auth uid (checked server-side), the
+// same scheme every other pdx_/cee_ table uses. `email` is a denormalised copy of
+// the account email so the scheduled sender never has to reach back into Firebase.
+//
+// WHAT COUNTS AS "NEW": `lastSeenAt` is the watermark the in-app digest compares
+// against (advanced when the user opens the digest), and `lastDigestAt` is the
+// watermark the scheduled email job compares against (advanced when an email is
+// sent). Keeping the two separate means opening the app never suppresses the next
+// email, and vice-versa.
+export const pdxNotificationPrefs = pgTable(
+  "pdx_notification_prefs",
+  {
+    id: serial().primaryKey(),
+    // The verified Firebase uid (token `sub`). One row per user — the upsert target.
+    userId: text("user_id").notNull(),
+    // Denormalised account email, stored so the scheduled sender has an address
+    // without a Firebase lookup. Null until the user enables email digests.
+    email: text("email"),
+    // In-app "What Changed" digest + badge. On by default — it is passive (the
+    // user only sees it when they visit) so it is never spammy.
+    inApp: boolean("in_app").notNull().default(true),
+    // Email digests. OFF by default — email is the intrusive channel, so it is
+    // strictly opt-in and the user chooses the cadence below.
+    emailEnabled: boolean("email_enabled").notNull().default(false),
+    // Email cadence: "off" | "daily" | "weekly". Only consulted when emailEnabled.
+    frequency: text("frequency").notNull().default("weekly"),
+    // Topic toggles — the user tunes exactly what the digest may surface. Each maps
+    // to one group the digest builder produces. All on by default; turning one off
+    // removes that group from BOTH the in-app digest and the email.
+    topicEvidence: boolean("topic_evidence").notNull().default(true), // new evidence on saved people/issues
+    topicPromises: boolean("topic_promises").notNull().default(true), // promise status changes (client-detected)
+    topicCommunity: boolean("topic_community").notNull().default(true), // discussion on watched issues/people
+    topicTeam: boolean("topic_team").notNull().default(true), // changes to the saved team (client-detected)
+    // Watermark the IN-APP digest compares against; advanced when the user opens it.
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    // Watermark the SCHEDULED EMAIL job compares against; advanced when a mail is sent.
+    lastDigestAt: timestamp("last_digest_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    // One row per user — the target of the idempotent prefs upsert.
+    userUniq: uniqueIndex("pdx_notification_prefs_user_unique").on(t.userId),
+    // The scheduled sender scans by (emailEnabled, frequency); index the flag.
+    emailIdx: index("pdx_notification_prefs_email_idx").on(t.emailEnabled),
+  })
+);
+
 // Flags raised for moderator review (spam, hate/abuse, personal attack, off-topic…).
 // Reactive civility floor only — one flag per user per target; re-flagging updates it.
 export const pdxForumFlags = pgTable(
