@@ -1,0 +1,44 @@
+{
+  "name": "PolitiDex — Bound by Truth",
+  "short_name": "PolitiDex",
+  "description": "Track every promise, vote, and claim politicians make — transparent Promise % scores. No spin. No sides. Just receipts.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait-primary",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["news", "politics", "reference"],
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "My Team",
+      "short_name": "My Team",
+      "description": "Your saved ballot picks and politicians",
+      "url": "/?source=pwa#my-politicians"
+    },
+    {
+      "name": "The People's Proposals",
+      "short_name": "Proposals",
+      "description": "Community reform proposals and votes",
+      "url": "/?source=pwa#peoples-proposals"
+    }
+  ]
+}

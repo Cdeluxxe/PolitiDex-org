@@ -18,3 +18,17 @@
   from = "/issue/*"
   to = "/index.html"
   status = 200
+
+# PWA service worker must never be served stale, or clients get stuck on an
+# old worker and miss shell updates. Force revalidation on every request.
+# (The worker versions and prunes its own caches internally.)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# The web app manifest changes rarely; a short cache keeps it reasonably fresh.
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
