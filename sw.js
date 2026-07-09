@@ -27,12 +27,17 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
 // Same-origin assets that make up the bootable app shell. Kept to files we
 // know exist and ship on every deploy — dynamic endpoints are excluded.
+// NOTE: the code-split libraries (Chart.js, Leaflet) are intentionally NOT
+// precached. They load on demand via window.PDXLazy the first time a feature
+// needs them and are then kept by the stale-while-revalidate RUNTIME_CACHE
+// below, so they cost nothing on first paint and still work offline after
+// their first (online) use.
 const SHELL_ASSETS = [
   '/',
   '/css/tailwind.css',
