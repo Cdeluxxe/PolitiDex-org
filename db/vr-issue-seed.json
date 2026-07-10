@@ -1,0 +1,42 @@
+{
+  "_comment": "Curated measure→issue mappings for the Voting Record 'stance vs. record' verdict. Applied by applyCuratedIssueSeed() in netlify/lib/vr-ingest.ts. Each entry attaches to a measure ONLY when a real measure with the same (measureType, congress, chamber, canonical number) already exists — created by the seed migration or by a live Congress.gov ingest. Entries that don't match anything yet are harmless no-ops until that roll call is ingested, so nothing here can invent a measure. supportMeaning is binary: 'yea_supports' (a yea advances the issue) or 'yea_opposes' (a yea cuts against it) — see _voteEffectiveSupport in stance-helpers.js.",
+  "measures": [
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+      "issues": [
+        { "issueKey": "lower_taxes", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Extends and expands the 2017 individual and business tax cuts." },
+        { "issueKey": "cut_spending", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Enacts net spending reductions through budget reconciliation." },
+        { "issueKey": "healthcare", "weight": 60, "isPrimary": false, "supportMeaning": "yea_opposes", "rationale": "Reduces federal Medicaid spending and tightens eligibility; a yea vote cuts against expanding healthcare access." },
+        { "issueKey": "border_security", "weight": 55, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Provides new funding for border enforcement and immigration operations." },
+        { "issueKey": "lands_energy", "weight": 40, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Expands onshore and offshore oil, gas, and coal leasing on federal land." }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 29",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/29",
+      "issues": [
+        { "issueKey": "deportations", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants." },
+        { "issueKey": "border_security", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Tightens immigration enforcement." }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 22",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/22",
+      "issues": [
+        { "issueKey": "election_integrity", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "SAVE Act — requires documentary proof of U.S. citizenship to register to vote in federal elections." },
+        { "issueKey": "voter_id", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Adds a citizenship-documentation requirement to voter registration." },
+        { "issueKey": "voting_access", "weight": 60, "isPrimary": false, "supportMeaning": "yea_opposes", "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access." }
+      ]
+    }
+  ]
+}

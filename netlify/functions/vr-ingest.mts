@@ -15,9 +15,11 @@
 //   GET  /verify        integrity report (row counts + source/issue-key checks)
 //   POST /              run an ingest
 //        body: { congress?, chamber?: "house"|"senate", limit?, classifyIssues? }
+//   POST /seed-issues   apply the curated measure→issue mappings (db/vr-issue-seed.json)
+//                       onto measures that already exist — no Congress.gov key needed
 
 import type { Config } from "@netlify/functions";
-import { runIngest, verify } from "../lib/vr-ingest.js";
+import { applyCuratedIssueSeed, runIngest, verify } from "../lib/vr-ingest.js";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -47,6 +49,10 @@ export default async (req: Request): Promise<Response> => {
   try {
     if (method === "GET" && (path === "/verify" || path === "")) {
       return json(await verify());
+    }
+
+    if (method === "POST" && path === "/seed-issues") {
+      return json({ ran: true, seed: await applyCuratedIssueSeed() });
     }
 
     if (method === "POST" && (path === "" || path === "/run")) {
