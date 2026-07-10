@@ -122,7 +122,17 @@
       '.vr-empty-ico{font-size:1.6rem;display:block;margin-bottom:.4rem;opacity:.7;}',
       '.vr-more{width:100%;margin-top:.4rem;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#bfdbfe;border-radius:.6rem;padding:.55rem;font-size:.78rem;font-weight:600;cursor:pointer;}',
       '.vr-more:hover{background:rgba(96,165,250,.2);}',
-      '.vr-note{font-size:.66rem;color:#4e72a0;text-align:center;margin:.5rem 0 0;line-height:1.5;}'
+      '.vr-note{font-size:.66rem;color:#4e72a0;text-align:center;margin:.5rem 0 0;line-height:1.5;}',
+      /* Phase 5 — consistency dots on comparison boards (seat board + compare table) */
+      '.pdx-sib-vdot,.cmp-vdot{display:inline-block;margin-left:.18rem;font-size:.72rem;line-height:1;vertical-align:middle;font-weight:700;}',
+      '.pdx-sib-vdot:empty,.cmp-vdot:empty{display:none;}',
+      '.cmp-vdot{display:block;margin:.15rem auto 0;text-align:center;}',
+      '.cmp-vdot:empty{display:none;}',
+      '.vrdot-consistent{color:#6ee7a0;}',
+      '.vrdot-contradicts{color:#f89b9b;}',
+      '.vrdot-mixed{color:#93c5fd;}',
+      '.vrdot-record{color:#9fb4d4;}',
+      '.pdx-sib-lg-vdot{opacity:.85;}'
     ].join('');
     var s = document.createElement('style');
     s.id = 'pdx-vr-css';
@@ -169,7 +179,46 @@
       return promise;
     },
 
-    clearCache: function () { this._cache.clear(); }
+    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._records = {}; },
+
+    // ── Resolved per-member records (sync accessor) ─────────────────────────────
+    // A member's full, unfiltered record items, cached the moment any surface loads
+    // them (the profile section on open, or a /compare call). The Alignment Tool
+    // reads this SYNCHRONOUSLY via _alignmentVotesAdapter — it never triggers its
+    // own fetch, so there is no request storm when scoring a big field; it simply
+    // uses whatever is already warm and falls back to the legacy source otherwise.
+    _records: {},
+    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[id] = items.slice(); },
+    memberRecords: function (id) { return this._records[id] || null; },
+
+    // ── Batched side-by-side fetch for the comparison surfaces ──────────────────
+    // GET /api/voting-record/compare?members=a,b,c → { members, issue, matrix }.
+    // Cached by the sorted member list; also seeds the per-member _records cache so
+    // a later Alignment computation for any of these members is already warm.
+    _compareCache: new Map(),
+    fetchCompare: function (pids) {
+      var members = (pids || []).filter(Boolean).slice().sort();
+      if (!members.length) return Promise.resolve(null);
+      var key = members.join(',');
+      if (this._compareCache.has(key)) return this._compareCache.get(key);
+      var self = this;
+      var url = API_BASE + '/compare?members=' + encodeURIComponent(members.join(','));
+      var promise = fetch(url, { headers: { accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('compare ' + r.status); return r.json(); })
+        .then(function (data) {
+          if (data && data.matrix) {
+            Object.keys(data.matrix).forEach(function (pid) { self.noteMember(pid, data.matrix[pid]); });
+          }
+          return data;
+        })
+        .catch(function (e) {
+          self._compareCache.delete(key);
+          if (window.console && console.warn) console.warn('PDXVotingRecord.fetchCompare:', e && e.message);
+          return null;
+        });
+      this._compareCache.set(key, promise);
+      return promise;
+    }
   };
   window.PDXVotingRecord = PDXVotingRecord;
 
@@ -594,6 +643,9 @@
       }
       _state.data = data;
       _state.items = (data.items || []).slice();
+      // Warm the sync record cache so the Alignment Tool (and its consistency line)
+      // can read this member's votes without its own fetch.
+      PDXVotingRecord.noteMember(job.id, _state.items);
 
       // Build stable facets from this unfiltered set.
       var issues = {}, chambers = {}, actions = {};
@@ -630,4 +682,106 @@
       }
     });
   };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Phase 5 — shared hooks for the Comparison boards and the Alignment Tool
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Per-(member, issue) record summary from whatever is warm in the sync cache.
+  // Returns the Phase-2 engine summary (total/consistent/contradicts/netVerdict/…)
+  // or null when there's no cached record for that member. Pure + synchronous.
+  window._pdxRecordIssueSummary = function (pid, issueKey) {
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs || !window._issueRecordSummary) return null;
+    // Records on this issue only.
+    var on = recs.filter(function (it) {
+      return it && it.issues && it.issues.some(function (m) { return m.issueKey === issueKey; });
+    });
+    if (!on.length) return null;
+    var cmp = window.CMP_DATA && window.CMP_DATA[pid];
+    var pm = (window._polPositionMap && cmp) ? (window._polPositionMap(pid, cmp) || {}) : {};
+    var stance = pm[issueKey] ? pm[issueKey].stance : null;
+    return window._issueRecordSummary(issueKey, stance, on);
+  };
+
+  // Legacy-shape voting adapter for the Alignment Tool. Returns the member's votes
+  // as [{ bill, matter, alignment }] — the EXACT shape the tool already consumes —
+  // sourced from the new voting record when it's warm in cache, else falling back
+  // verbatim to the old PROFILES[].sections voting_record so behaviour is unchanged
+  // until the richer data arrives. Synchronous by design (see _records note above).
+  //   alignment mapping (per the record's primary issue's effective support):
+  //     supports the issue → 'kept'   (+1.0 in the tool)
+  //     opposes  the issue → 'broken' (+0.15)
+  //     no clear position  → 'partial'(+0.6)
+  window._alignmentVotesAdapter = function (pid) {
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (recs && recs.length) {
+      var out = [];
+      recs.forEach(function (it) {
+        var primary = (it.issues && it.issues[0]) || null;
+        var alignment = 'partial';
+        if (primary && window._voteEffectiveSupport) {
+          var eff = window._voteEffectiveSupport(it, primary.supportMeaning);
+          alignment = eff === true ? 'kept' : eff === false ? 'broken' : 'partial';
+        }
+        // Fold issue labels into `matter` so the tool's keyword matcher still lights
+        // up the right issue, exactly as it did with the curated matter text.
+        var labels = (it.issues || []).map(function (m) { return issueLabel(m.issueKey); }).join(' ');
+        out.push({ bill: it.number || '', matter: ((it.title || '') + ' ' + labels).trim(), alignment: alignment });
+      });
+      return out;
+    }
+    // Fallback: the original curated source, untouched.
+    var legacy = [];
+    var profile = window.PROFILES && window.PROFILES[pid];
+    if (profile && profile.sections) {
+      profile.sections.forEach(function (sec) {
+        if (sec.type === 'voting_record' && sec.votes) {
+          sec.votes.forEach(function (v) { legacy.push({ bill: v.bill, matter: v.matter, alignment: v.alignment }); });
+        }
+      });
+    }
+    return legacy;
+  };
+
+  // Fill any [data-vrdot="pid|issueKey"] placeholders a comparison board emitted
+  // with a small consistency dot (stance vs. actual votes). Batched: one /compare
+  // call for all members in scope. Idempotent (marks filled nodes) and safe — a
+  // failure or empty result just leaves the placeholders blank. `scope` optional.
+  var _DOT = {
+    consistent:  { ch: '✓', cls: 'vrdot-consistent', tip: 'Votes back up the stated stance' },
+    contradicts: { ch: '⚠', cls: 'vrdot-contradicts', tip: 'Votes run against the stated stance' },
+    mixed:       { ch: '~', cls: 'vrdot-mixed', tip: 'Mixed voting record on this issue' },
+    record:      { ch: '•', cls: 'vrdot-record', tip: 'Has votes on record for this issue' }
+  };
+  window._pdxHydrateVoteDots = function (scope) {
+    if (!window._issueRecordSummary) return;
+    var root = scope || document;
+    var nodes = root.querySelectorAll('[data-vrdot]:not([data-vrdone])');
+    if (!nodes.length) return;
+    var pids = {}, want = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var parts = (nodes[i].getAttribute('data-vrdot') || '').split('|');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) { nodes[i].setAttribute('data-vrdone', '1'); continue; }
+      pids[parts[0]] = true;
+      want.push({ el: nodes[i], pid: parts[0], key: parts[1] });
+    }
+    var pidList = Object.keys(pids);
+    if (!pidList.length) return;
+    PDXVotingRecord.fetchCompare(pidList).then(function () {
+      want.forEach(function (w) {
+        w.el.setAttribute('data-vrdone', '1');
+        var s = window._pdxRecordIssueSummary(w.pid, w.key);
+        if (!s || !s.total) return; // no record → leave blank
+        var meta = _DOT[s.netVerdict] || _DOT.record;
+        w.el.className = (w.el.className ? w.el.className + ' ' : '') + 'vrdot ' + meta.cls;
+        w.el.textContent = meta.ch;
+        w.el.setAttribute('title', meta.tip + ' · ' + s.total + ' vote' + (s.total === 1 ? '' : 's') + ' on record');
+      });
+    });
+  };
+
+  // Inject the stylesheet at load so the comparison-board consistency dots are
+  // styled even when a board renders before any profile has been opened.
+  try { injectStyles(); } catch (e) {}
 })();

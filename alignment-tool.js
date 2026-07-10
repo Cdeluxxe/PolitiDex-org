@@ -1128,25 +1128,22 @@
 
         var votingBonus = 0;
         var votingCount = 0;
-        if (profile && profile.sections) {
-          profile.sections.forEach(function(sec) {
-            if (sec.type === 'voting_record' && sec.votes) {
-              sec.votes.forEach(function(v) {
-                var billLow = (v.bill || '').toLowerCase();
-                var matterLow = (v.matter || '').toLowerCase();
-                var text = billLow + ' ' + matterLow;
-                var matches = issueDef.keywords.some(function(kw) { return text.indexOf(kw.toLowerCase()) !== -1; });
-                if (matches) {
-                  votingCount++;
-                  if (v.alignment === 'kept') votingBonus += 1.0;
-                  else if (v.alignment === 'partial') votingBonus += 0.6;
-                  else if (v.alignment === 'broken') votingBonus += 0.15;
-                  else votingBonus += 0.5;
-                }
-              });
-            }
-          });
-        }
+        // Voting source now flows through the adapter: the full /api/voting-record
+        // data when it's warm in cache, else the legacy PROFILES sections verbatim.
+        var _votes = (typeof window._alignmentVotesAdapter === 'function') ? (window._alignmentVotesAdapter(pid) || []) : [];
+        _votes.forEach(function(v) {
+          var billLow = (v.bill || '').toLowerCase();
+          var matterLow = (v.matter || '').toLowerCase();
+          var text = billLow + ' ' + matterLow;
+          var matches = issueDef.keywords.some(function(kw) { return text.indexOf(kw.toLowerCase()) !== -1; });
+          if (matches) {
+            votingCount++;
+            if (v.alignment === 'kept') votingBonus += 1.0;
+            else if (v.alignment === 'partial') votingBonus += 0.6;
+            else if (v.alignment === 'broken') votingBonus += 0.15;
+            else votingBonus += 0.5;
+          }
+        });
 
         var promiseBonus = 0;
         var promiseCount = 0;
@@ -1282,23 +1279,18 @@
         }
 
         var votingBonus = 0, votingCount = 0;
-        if (profile && profile.sections) {
-          profile.sections.forEach(function(sec) {
-            if (sec.type === 'voting_record' && sec.votes) {
-              sec.votes.forEach(function(v) {
-                var text = (v.bill || '').toLowerCase() + ' ' + (v.matter || '').toLowerCase();
-                var matches = issueDef.keywords.some(function(kw) { return text.indexOf(kw.toLowerCase()) !== -1; });
-                if (matches) {
-                  votingCount++;
-                  if (v.alignment === 'kept') votingBonus += 1.0;
-                  else if (v.alignment === 'partial') votingBonus += 0.6;
-                  else if (v.alignment === 'broken') votingBonus += 0.15;
-                  else votingBonus += 0.5;
-                }
-              });
-            }
-          });
-        }
+        var _bdVotes = (typeof window._alignmentVotesAdapter === 'function') ? (window._alignmentVotesAdapter(pid) || []) : [];
+        _bdVotes.forEach(function(v) {
+          var text = (v.bill || '').toLowerCase() + ' ' + (v.matter || '').toLowerCase();
+          var matches = issueDef.keywords.some(function(kw) { return text.indexOf(kw.toLowerCase()) !== -1; });
+          if (matches) {
+            votingCount++;
+            if (v.alignment === 'kept') votingBonus += 1.0;
+            else if (v.alignment === 'partial') votingBonus += 0.6;
+            else if (v.alignment === 'broken') votingBonus += 0.15;
+            else votingBonus += 0.5;
+          }
+        });
 
         var promiseBonus = 0, promiseCount = 0;
         if (profile && profile.promises) {
@@ -1370,7 +1362,10 @@
         // strongest evidence); the UI uses it to label the row honestly and to lead
         // with documented matches. `hasEvidence` stays true for those too.
         var hasEvidence = (!!directPos || relevance > 0 || stanceCount > 0 || votingCount > 0 || promiseCount > 0);
-        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity });
+        // Stance-vs-record summary for this issue (voted vs. said), when the member's
+        // votes are warm in cache — powers the consistency line in the breakdown UI.
+        var _record = (typeof window._pdxRecordIssueSummary === 'function') ? window._pdxRecordIssueSummary(pid, issueKey) : null;
+        perIssue.push({ key: issueKey, label: issueDef.label, score: Math.round(issueScore), weight: issueWeight, hasEvidence: hasEvidence, direct: !!directPos, verdict: _verdict, stance: directPos ? directPos.stance : null, topic: directPos ? directPos.topic : null, text: directPos ? directPos.text : null, intensity: _userIntensity, record: _record });
       });
 
       if (totalWeight === 0) return null;

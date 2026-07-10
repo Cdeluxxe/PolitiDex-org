@@ -776,7 +776,11 @@
         var m = DIR[st] || DIR.mixed;
         var who = p.d.name ? String(p.d.name).split(/\s+/)[0] : 'They';
         var tip = who + ' — ' + m.verb + ' ' + it.label + (it.txt[p.pid] ? ': ' + it.txt[p.pid] : '');
-        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span></td>';
+        // Consistency dot placeholder — hydrated from /api/voting-record/compare so
+        // a stated stance can be checked against how they actually voted. Blank
+        // (and invisible) until/unless a record on this issue exists.
+        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span>' +
+          '<span class="pdx-sib-vdot" data-vrdot="' + esc(p.pid) + '|' + esc(it.key) + '"></span></td>';
       }).join('');
       var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : ''));
       var flag = it.mine
@@ -794,6 +798,11 @@
       ? rows.length + ' of ' + arr.length + ' issues · most distinctive first'
       : rows.length + ' issue' + (rows.length === 1 ? '' : 's') + ' across this race';
 
+    // Hydrate the consistency dots once this board is in the DOM (macrotask).
+    if (typeof window._pdxHydrateVoteDots === 'function') {
+      setTimeout(function () { try { window._pdxHydrateVoteDots(); } catch (e) {} }, 0);
+    }
+
     return '<div class="pdx-seat-board" onclick="event.stopPropagation();">' +
         '<div class="pdx-seat-board-head">' +
           '<span class="pdx-seat-board-ico" aria-hidden="true">📊</span>' +
@@ -809,6 +818,7 @@
           '<span class="pdx-sib-lg is-oppose">✗ Opposes</span>' +
           '<span class="pdx-sib-lg is-mixed">~ Mixed</span>' +
           '<span class="pdx-sib-lg is-none">· No position on record</span>' +
+          '<span class="pdx-sib-lg pdx-sib-lg-vdot">✓/⚠ vote matches / contradicts stance</span>' +
           (moreIssues > 0 ? '<span class="pdx-sib-lg-more">Open a profile for the full record</span>' : '') +
         '</div>' +
       '</div>';
