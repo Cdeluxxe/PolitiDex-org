@@ -230,6 +230,33 @@
 }
 .yb-morebtn:hover { background: rgba(255, 255, 255, 0.09); }
 
+/* ── "Compare full race" — stages the whole seat into the side-by-side tool ─
+      A calm, full-width blue bar between the contest head and its candidate
+      cards. Blue (not the gold "pick" accent) so it reads as a research action,
+      not a commitment. Sits above the fold on every contest, and the large tap
+      target keeps it thumb-friendly on phones. */
+.yb-compare-race {
+  width: 100%; min-height: 48px; margin-bottom: 0.85rem; cursor: pointer;
+  display: flex; align-items: center; gap: 0.6rem; text-align: left;
+  padding: 0.6rem 0.8rem; border-radius: 0.7rem;
+  color: #bfdbfe; background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.32);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.yb-compare-race:hover {
+  background: rgba(59, 130, 246, 0.18); border-color: rgba(96, 165, 250, 0.6);
+  transform: translateY(-1px);
+}
+.yb-compare-race:active { transform: translateY(0); }
+.yb-compare-ico { flex: none; font-size: 1.15rem; line-height: 1; }
+.yb-compare-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+.yb-compare-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; font-size: 0.86rem; color: #e0ecff; line-height: 1.15;
+}
+.yb-compare-sub { font-family: 'Barlow', sans-serif; font-size: 0.72rem; color: #9fb4d4; line-height: 1.3; }
+.yb-compare-go { flex: none; font-size: 1.3rem; line-height: 1; color: #93c5fd; }
+
 .yb-contest-empty {
   font-family: 'Barlow', sans-serif; font-size: 0.86rem; color: #8b99b8;
   padding: 0.5rem 0.2rem; line-height: 1.5;
