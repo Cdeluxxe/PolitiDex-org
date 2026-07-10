@@ -27,7 +27,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -47,6 +47,7 @@ const SHELL_ASSETS = [
   '/stance-helpers.js',
   '/alignment-tool.js',
   '/stance-library.js',
+  '/voting-record.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'
