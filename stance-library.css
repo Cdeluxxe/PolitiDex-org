@@ -256,6 +256,25 @@
   background: rgba(30, 44, 74, 0.45); color: #a5b8da;
 }
 .sl-pol-act:hover { border-color: rgba(96, 165, 250, 0.55); color: #eaf1ff; }
+
+/* Voting-record rollup on a politician card (Phase 4). Filled in async; empty
+   for members with no votes on record, so it takes no space until populated. */
+.sl-pol-record:empty { display: none; }
+.sl-pol-record { margin-top: 0.55rem; }
+.sl-rec-line {
+  font-family: 'Barlow', sans-serif; font-size: 0.8rem; color: #b9c9e6; line-height: 1.45;
+  background: rgba(6, 12, 24, 0.5); border: 1px solid rgba(96, 165, 250, 0.14);
+  border-radius: 0.55rem; padding: 0.4rem 0.6rem; margin-bottom: 0.4rem;
+}
+.sl-rec-line b { color: #eaf1ff; font-weight: 700; }
+.sl-rec-flag {
+  display: inline-block; margin-left: 0.35rem; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; color: #fca5a5;
+  background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: 999px; padding: 0.05rem 0.45rem; white-space: nowrap;
+}
+.sl-rec-btn { border-color: rgba(127, 180, 255, 0.4); color: #bfdbfe; }
+.sl-rec-btn:hover { border-color: rgba(127, 180, 255, 0.7); color: #eaf1ff; }
 .sl-pol-party {
   font-size: 0.68rem; font-weight: 700; border-radius: 0.3rem; padding: 0.05rem 0.35rem;
   margin-left: 0.35rem; vertical-align: middle;

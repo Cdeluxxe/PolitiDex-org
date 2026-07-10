@@ -572,6 +572,11 @@
     if (!section) return;
 
     var token = ++_openToken;
+    // A caller (e.g. the Stance Library "View votes" action) can request the
+    // section open pre-filtered to one issue. Captured now (sync) so a later open
+    // can't clobber it, applied after the section reveals below.
+    var initIssue = window.__pdxVotingInitialIssue || '';
+    window.__pdxVotingInitialIssue = null;
     var positionMap = (window._polPositionMap ? window._polPositionMap(job.id, job.p) : {}) || {};
     _state = {
       id: job.id, p: job.p, positionMap: positionMap,
@@ -605,6 +610,24 @@
       renderBody();
       bindEvents(section);
       injectNavPill(data.summary.totalRecords || _state.items.length);
+
+      // Deep-link: if a caller asked to land on a specific issue and this member
+      // actually has a record on it, pre-filter and scroll the section into view,
+      // and reflect the shareable ?p=<id>#pdxsec-voting?issue=<key> URL.
+      if (initIssue && _state.facets.issues.indexOf(initIssue) !== -1) {
+        _state.filters.issue = initIssue;
+        applyFilters();
+        try {
+          history.replaceState(null, '', location.pathname + location.search +
+            '#pdxsec-voting?issue=' + encodeURIComponent(initIssue));
+        } catch (e) {}
+      }
+      if (initIssue) {
+        try {
+          if (window._pdxNavJump) window._pdxNavJump('pdxsec-voting');
+          else section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e) {}
+      }
     });
   };
 })();
