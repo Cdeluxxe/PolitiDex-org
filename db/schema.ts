@@ -604,3 +604,215 @@ export const pdxForumFlags = pgTable(
     targetIdx: index("pdx_forum_flags_target_idx").on(t.targetType, t.targetId),
   })
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Voting Record — the curated "what they actually do" layer ("vr_")
+// ─────────────────────────────────────────────────────────────────────────────
+// The factual counterpart to the curated stances (what a politician SAYS, shipped
+// as the client-side ISSUE_STANCE_DATA globals). Where a full roll-call record is
+// far too large and query-heavy to bake into a static JS bundle — a single member
+// of Congress casts hundreds of votes per session — it lives here in Postgres and
+// is served, filtered, and paginated by the read-only /api/voting-record Function.
+//
+// Everything keys back to the SAME issue vocabulary the rest of the app uses: the
+// `issueKey` values from the client's ISSUE_MAP. That single join key is what lets
+// the UI place a vote next to the matching stance and derive "stance vs. record"
+// (see netlify/functions/voting-record.mts and the strategy doc). Issue keys are
+// validated in the Function against a shipped allow-list (db/issue-keys.json) so a
+// bad key can never enter the record.
+//
+// The tables are namespaced `vr_` so they sit cleanly beside the `pdx_`/`cee_`
+// families and are never confused with the community (user-generated) layers. This
+// is CURATED PUBLIC-RECORD data: rows are ingested/seeded from official sources and
+// every returnable row carries a `source_url` (the verifiability rule — the Function
+// refuses to emit a measure/rollcall/position without one). Reads are public (a
+// roll call is public record); any future ingest/admin write path is separate and
+// authenticated.
+//
+// Shape (five tables):
+//   vr_measures        — one row per legislative object (bill, resolution,
+//                        amendment, nomination, or a litigation case)
+//   vr_measure_issues  — the many-to-many bridge to ISSUE_MAP issueKeys; the seat
+//                        of multi-issue/omnibus handling and of `supportMeaning`
+//                        (does a YEA advance or oppose the issue?)
+//   vr_rollcalls       — one recorded vote *event* (a roll call) on a measure
+//   vr_member_votes    — how one politician voted on one roll call (high-cardinality)
+//   vr_positions       — non-roll-call actions that still count as "doing"
+//                        (sponsorship, co-sponsorship, amicus/litigation, committee)
+
+// One legislative object. Bills, resolutions, amendments and nominations are the
+// usual cases; `measureType='litigation'` (with `chamber='court'`) lets a court
+// case share the same issue-keyed timeline without pretending it is a roll call
+// (its involvement is recorded via vr_positions instead of vr_member_votes).
+export const vrMeasures = pgTable(
+  "vr_measures",
+  {
+    id: serial().primaryKey(),
+    // bill | resolution | amendment | nomination | litigation
+    measureType: text("measure_type").notNull().default("bill"),
+    // e.g. 119. Null for litigation (no Congress attached).
+    congress: integer(),
+    // house | senate | joint | court (litigation)
+    chamber: text(),
+    // Display identifier: "H.R. 9311", "S.Amdt. 2145", or a case docket number.
+    number: text(),
+    title: text().notNull(),
+    shortTitle: text("short_title"),
+    summary: text().default(""),
+    // Self-reference: an amendment (or a child vote-series) points at its parent
+    // bill so the UI can nest amendment votes under the measure they amend.
+    parentId: integer("parent_id").references((): AnyPgColumn => vrMeasures.id, {
+      onDelete: "set null",
+    }),
+    introducedAt: timestamp("introduced_at", { withTimezone: true }),
+    // The sponsor's roster id (the same slug openModal()/stance data use), when known.
+    sponsorId: text("sponsor_id"),
+    // introduced | passed_house | passed_senate | enacted | failed | vetoed | pending
+    status: text().notNull().default("introduced"),
+    // VERIFIABILITY: the canonical Congress.gov (or court) URL for this measure.
+    // Required — the Function never emits a measure without a source.
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").default("Congress.gov"),
+    // Provenance / cross-references: { congressGovId, govtrackId, billSlug, docketNumber }.
+    externalIds: jsonb("external_ids").$type<Record<string, string>>().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    typeIdx: index("vr_measures_type_idx").on(t.measureType),
+    congressChamberIdx: index("vr_measures_congress_chamber_idx").on(t.congress, t.chamber),
+    numberIdx: index("vr_measures_number_idx").on(t.number),
+  })
+);
+
+// The many-to-many bridge from a measure to ISSUE_MAP issue keys — the heart of the
+// integration. A multi-issue or omnibus bill has many rows here, each weighted, so a
+// single vote can surface under every issue it touches without any one issue owning
+// a loud, misleading verdict. `supportMeaning` is the critical field: it records
+// whether a YEA vote ADVANCES or OPPOSES that issue, which is what makes the
+// stance-vs-record verdict computable even when a "yea" means opposite things on two
+// bundled provisions.
+export const vrMeasureIssues = pgTable(
+  "vr_measure_issues",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    // MUST be a valid ISSUE_MAP key — validated in the Function against the shipped
+    // allow-list (db/issue-keys.json) before any row is written or returned.
+    issueKey: text("issue_key").notNull(),
+    // 0..100 — how central this issue is to the measure (omnibus → many low weights).
+    weight: integer().notNull().default(100),
+    // Exactly one primary issue per measure is the surfacing default in the UI.
+    isPrimary: boolean("is_primary").notNull().default(false),
+    // yea_supports | yea_opposes — does a YEA advance or oppose THIS issue?
+    supportMeaning: text("support_meaning").notNull().default("yea_supports"),
+    // One-line audit trail: why this measure maps to this issue.
+    rationale: text().default(""),
+    // Optional evidence for the mapping itself.
+    sourceUrl: text("source_url"),
+  },
+  (t) => ({
+    uniq: uniqueIndex("vr_measure_issues_unique").on(t.measureId, t.issueKey),
+    issueIdx: index("vr_measure_issues_issue_idx").on(t.issueKey),
+    measureIdx: index("vr_measure_issues_measure_idx").on(t.measureId),
+  })
+);
+
+// A single recorded vote *event* (a roll call). Amendments, cloture, motions and
+// veto overrides are their own roll calls pointing at the same or a child measure;
+// `actionType` distinguishes substantive from procedural so the UI can default to
+// hiding procedural noise.
+export const vrRollcalls = pgTable(
+  "vr_rollcalls",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    chamber: text().notNull(), // house | senate
+    congress: integer(),
+    session: integer(),
+    rollNumber: integer("roll_number"), // official roll-call number
+    voteDate: timestamp("vote_date", { withTimezone: true }).notNull(),
+    // 'On Passage', 'On Amendment', 'On Motion to Recommit', 'On Cloture', …
+    question: text(),
+    // passage | amendment | cloture | motion | veto_override | nomination | procedural
+    actionType: text("action_type").notNull().default("passage"),
+    // passed | failed | agreed_to | rejected
+    result: text(),
+    // simple | two_thirds | three_fifths
+    requiredMajority: text("required_majority").default("simple"),
+    // { yea, nay, present, notVoting }
+    totals: jsonb().$type<Record<string, number>>().default({}),
+    // VERIFIABILITY: direct roll-call URL (clerk.house.gov / senate.gov / Congress.gov).
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").default("Congress.gov"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    measureIdx: index("vr_rollcalls_measure_idx").on(t.measureId),
+    dateIdx: index("vr_rollcalls_date_idx").on(t.voteDate),
+    // A roll call is uniquely identified by chamber+congress+session+number.
+    uniq: uniqueIndex("vr_rollcalls_unique").on(
+      t.chamber,
+      t.congress,
+      t.session,
+      t.rollNumber
+    ),
+  })
+);
+
+// How one politician voted on one roll call — the high-cardinality table every
+// filterable view keys off. `politicianId` is the roster slug (the same id
+// openModal() uses and stance data keys), resolved through the SAME id→alias ladder
+// the stance helpers use so votes line up with stances.
+export const vrMemberVotes = pgTable(
+  "vr_member_votes",
+  {
+    id: serial().primaryKey(),
+    rollcallId: integer("rollcall_id")
+      .notNull()
+      .references(() => vrRollcalls.id, { onDelete: "cascade" }),
+    politicianId: text("politician_id").notNull(),
+    // yea | nay | present | not_voting
+    position: text().notNull(),
+    // with_party | against_party | null — crossover flag, computed at ingest time.
+    isParty: text("is_party"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    uniq: uniqueIndex("vr_member_votes_unique").on(t.rollcallId, t.politicianId),
+    politicianIdx: index("vr_member_votes_politician_idx").on(t.politicianId),
+  })
+);
+
+// Non-roll-call actions that still count as "doing": sponsorship, co-sponsorship,
+// amicus/litigation involvement, committee votes, on-record statements. This is how
+// courts (which have no roll call) and sponsorship enter the same issue-keyed
+// timeline as floor votes.
+export const vrPositions = pgTable(
+  "vr_positions",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    politicianId: text("politician_id").notNull(),
+    // sponsor | cosponsor | amicus | plaintiff | committee_vote | statement
+    actionType: text("action_type").notNull(),
+    // Did the action advance the measure? (drives stance-vs-record like a vote does)
+    supports: boolean(),
+    actedAt: timestamp("acted_at", { withTimezone: true }),
+    // VERIFIABILITY: linkable receipt (bill page, brief, committee record).
+    sourceUrl: text("source_url").notNull(),
+    note: text().default(""),
+  },
+  (t) => ({
+    uniq: uniqueIndex("vr_positions_unique").on(t.measureId, t.politicianId, t.actionType),
+    politicianIdx: index("vr_positions_politician_idx").on(t.politicianId),
+    measureIdx: index("vr_positions_measure_idx").on(t.measureId),
+  })
+);
