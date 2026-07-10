@@ -61,6 +61,25 @@
     if (!f) return [];
     try { return f(key) || []; } catch (e) { return []; }
   }
+  // Split a seat's field into sitting officeholder(s) vs. declared challengers,
+  // using the app's own status read (window._pdxOfficeStatus), so the "Compare
+  // full race" button can describe honestly WHAT the voter will line up — a
+  // current officeholder against challengers, an open-seat field of candidates,
+  // or (for dual seats) two sitting officeholders. Former holders are reference-
+  // only and never counted as part of the live field. Mirrors the same breakdown
+  // Key Races and "Relevant to Me" use, so the language stays consistent app-wide.
+  function fieldBreakdown(field) {
+    var holders = 0, cands = 0;
+    var st = fn('_pdxOfficeStatus');
+    var rd = fn('_pdxBallotRecord');
+    (field || []).forEach(function (c) {
+      var rec = rd ? rd(c.pid) : null;
+      var s = (st && rec) ? st(rec) : 'office';
+      if (s === 'candidate') cands++;
+      else if (s !== 'former') holders++;
+    });
+    return { holders: holders, cands: cands };
+  }
   function currentSelections() {
     var f = fn('_ballotLoad');
     if (!f) return {};
@@ -179,6 +198,42 @@
       }
     }
 
+    // ── "Compare full race" — pre-load the whole seat side-by-side ──────────
+    // The single tap that turns Your Ballot from a per-candidate skim into a true
+    // head-to-head: it stages the ENTIRE field for this seat (the sitting
+    // officeholder + every 2026 challenger, exactly what candidatesFor returns)
+    // into the app's existing Compare tool and opens it. Reuses window.pdxCompareField
+    // — the same battle-tested "clear → stage this seat → open" path the "Relevant
+    // to Me" field-compare button uses — so the saved-team comparison and all its
+    // UI sync stay untouched. Only shown when there are 2+ to weigh; a lone name
+    // has nothing to compare against.
+    var compareBar = '';
+    if (field.length >= 2) {
+      var bd = fieldBreakdown(field);
+      var sub;
+      if (bd.holders && bd.cands) {
+        sub = 'The current officeholder + ' + bd.cands + ' challenger' + (bd.cands === 1 ? '' : 's') + ', side by side';
+      } else if (bd.holders && !bd.cands) {
+        sub = bd.holders === 2
+          ? 'Both current officeholders, side by side'
+          : (bd.holders > 2
+              ? 'All ' + bd.holders + ' current officeholders, side by side'
+              : 'Line up everyone in this race, side by side');
+      } else {
+        sub = 'All ' + field.length + ' candidates for this open seat, side by side';
+      }
+      compareBar =
+        '<button type="button" class="yb-compare-race" data-yb-compare="' + esc(pos.key) + '" ' +
+          'aria-label="Compare all ' + field.length + ' running for ' + esc(pos.label || pos.key) + ' side by side">' +
+          '<span class="yb-compare-ico" aria-hidden="true">⚖️</span>' +
+          '<span class="yb-compare-text">' +
+            '<span class="yb-compare-title">Compare full race · ' + field.length + '</span>' +
+            '<span class="yb-compare-sub">' + sub + '</span>' +
+          '</span>' +
+          '<span class="yb-compare-go" aria-hidden="true">›</span>' +
+        '</button>';
+    }
+
     return '' +
       '<div class="yb-contest' + (pickedInField ? ' yb-decided' : '') + (field.length ? ' yb-has-cands' : '') + '" data-key="' + esc(pos.key) + '">' +
         '<div class="yb-contest-head">' +
@@ -188,6 +243,7 @@
             statusHtml +
           '</div>' +
         '</div>' +
+        compareBar +
         '<div class="yb-cands">' + body + '</div>' +
       '</div>';
   }
@@ -376,6 +432,22 @@
       render();
       var reopened = host.querySelector('.yb-contest[data-key="' + mk + '"]');
       if (reopened && reopened.scrollIntoView) reopened.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+
+    // "Compare full race" — stage this seat's entire field into the shared Compare
+    // tool and open it. Read the field fresh at click time so it always reflects
+    // the current, location-resolved roster. Route through the app's own
+    // pdxCompareField (falling back to keyRacesCompareRace) so the existing
+    // clear/stage/sync/open behavior — and the untouched saved-team comparison —
+    // are reused verbatim rather than reimplemented here.
+    var cmpBtn = t.closest ? t.closest('[data-yb-compare]') : null;
+    if (cmpBtn) {
+      var ck = cmpBtn.getAttribute('data-yb-compare');
+      var pids = candidatesFor(ck).map(function (c) { return c.pid; }).filter(Boolean);
+      if (pids.length < 2) return;
+      var launch = fn('pdxCompareField') || fn('keyRacesCompareRace');
+      if (launch) { try { launch(pids.join(',')); } catch (err) {} }
       return;
     }
 
