@@ -1224,6 +1224,14 @@
       { topic:'Trade & American Jobs', icon:'🏭', pos:'support', issueKey:'econ_trade', issueStance:'support', text:'Favors tariffs on foreign goods to protect domestic manufacturing; raised China tariffs.', evidence:'Executive actions expanding tariffs on Chinese imports.' },
       { topic:'Climate & Clean Energy', icon:'🌱', pos:'oppose', issueKey:'climate_action', issueStance:'oppose', text:'Skeptical of climate mandates; withdrew the U.S. from the Paris Agreement and favors fossil-fuel deregulation.', evidence:'Executive Order withdrawing from the Paris Agreement.' },
       { topic:'Defense & Foreign Policy', icon:'🦅', pos:'support', issueKey:'america_first', issueStance:'support', text:'Backs a strong military paired with an "America First" stance that questions open-ended foreign aid.' },
+      // ── National coverage expansion · Tariffs facet family (July 2026, verified) ──
+      // The data-center facet style applied to tariffs: one topic, three axes, so
+      // Trump's record reads pro-tariff on industry yet cost- and authority-heavy at
+      // once — the tension is the data, not an editorial caveat. Each card's
+      // issueStance is written relative to its own chip (see the ISSUE_MAP note).
+      { topic:'Tariffs & American Industry', icon:'🏭', pos:'support', issueKey:'tariffs_growth', issueStance:'support', text:'The central architect of using tariffs to reshore manufacturing and gain trade leverage; he signed Executive Order 14257 on April 2, 2025 — a day he called "Liberation Day" — imposing a 10% baseline tariff on nearly all imports plus higher country-specific rates.', evidence:'Signed EO 14257, "Regulating Imports With a Reciprocal Tariff," April 2, 2025.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/'} },
+      { topic:'Tariffs & Household Prices', icon:'💵', pos:'oppose', issueKey:'tariffs_prices', issueStance:'oppose', text:'Imposed broad, across-the-board tariffs rather than pairing them with consumer relief, arguing short-term price increases were a worthwhile cost of reshoring industry even as importers and many economists warned the duties would raise household prices.', evidence:'The April 2025 reciprocal-tariff order set a 10% baseline on nearly all imports.', source:{label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/'} },
+      { topic:'Tariffs & Trade Authority', icon:'⚖️', pos:'oppose', issueKey:'tariffs_authority', issueStance:'oppose', text:'Became the first president to invoke the International Emergency Economic Powers Act to set tariffs, asserting broad unilateral executive authority; on February 20, 2026 the Supreme Court ruled 6–3 in Learning Resources, Inc. v. Trump that IEEPA does not authorize presidential tariffs, after which he shifted to other tariff authorities such as Section 122 of the Trade Act of 1974.', evidence:'Supreme Court decision in Learning Resources, Inc. v. Trump (No. 24-1287), Feb. 20, 2026.', source:{label:'U.S. Supreme Court', url:'https://www.supremecourt.gov/opinions/25pdf/24-1287_4gcj.pdf'} },
     ],
     cox: [
       { topic:'Water & Great Salt Lake', icon:'💧', pos:'support', issueKey:'water', issueStance:'support',
@@ -1331,6 +1339,10 @@
       { topic:'Federal Land for Housing', icon:'🏠', pos:'support', issueKey:'housing_build', issueStance:'mixed',
         text:'Added a provision to the 2025 reconciliation bill mandating sales of federal land for housing; it was stripped from the Senate bill in June 2025 after bipartisan opposition, and he later voted against the bipartisan ROAD to Housing Act as too expansive of federal involvement.',
         source:{label:'Utah News Dispatch', url:'https://utahnewsdispatch.com/2025/07/13/mike-lee-says-selling-public-lands-will-solve-the-wests-housing-crisis-past-sales-show-otherwise/'} },
+      // ── National coverage expansion · Tariffs facet (July 2026, verified) ──────
+      { topic:'Tariffs & Trade Authority', icon:'⚖️', pos:'mixed', issueKey:'tariffs_authority', issueStance:'mixed',
+        text:'A past author of the Global Trade Accountability Act, which would have required congressional approval of presidential tariffs, Lee declined to reintroduce it in 2025 and deferred to the president\'s use of delegated tariff authority — a shift from his earlier free-trade, congressional-check advocacy.',
+        source:{label:'The Dispatch', url:'https://thedispatch.com/article/mike-lee-trump-tariffs/'} },
     ],
     curtis: [
       // ── Phase 3 · Wave 2 (first-class issue records) ──────────────────────────
@@ -1371,6 +1383,10 @@
       { topic:'Election Law & Mail Voting', icon:'🗳', pos:'mixed', issueKey:'election_integrity', issueStance:'mixed',
         text:'Voiced reservations about a federal proposal to restrict mail-in voting, saying it "flies directly in the face of the way Utah does things" and could invite unnecessary federal oversight of state-run elections.',
         source:{label:'Deseret News', url:'https://www.deseret.com/politics/2026/03/19/mike-lee-continue-fight-save-act/'} },
+      // ── National coverage expansion · Tariffs facet (July 2026, verified) ──────
+      { topic:'Tariffs & Household Prices', icon:'💵', pos:'support', issueKey:'tariffs_prices', issueStance:'support',
+        text:'Backs firm tariffs on China as "warranted," but warns that broad, blanket tariffs risk inflation and harm to small businesses, urging a predictable, case-by-case approach for allies so families and Utah employers are not hit with across-the-board price increases.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/04/11/john-curtis-stay-strong-on-china-tariffs/'} },
     ],
     massie: [
       // ── Phase 3 · Wave 2 (first-class issue records) ──────────────────────────
@@ -1394,6 +1410,9 @@
       { topic:'Spending & Fiscal Restraint', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Refuses to vote for large bills he hasn\'t read; pushes to audit the Fed.', evidence:'Voted Nay on omnibus packages; co-sponsors Audit the Fed.' },
       { topic:'Federal Education Role', icon:'🎓', pos:'oppose', issueKey:'school_choice', issueStance:'support', text:'Files a one-sentence bill each Congress to abolish the Department of Education in favor of local control.', evidence:'Introduced H.R. 899 across multiple Congresses.' },
       { topic:'Defense Spending', icon:'🦅', pos:'oppose', issueKey:'strong_defense', issueStance:'oppose', text:'Opposes military spending increases and calls for a Pentagon audit instead.', evidence:'Voted Nay on the NDAA.' },
+      // ── National coverage expansion · Tariffs facet (July 2026, verified) ──────
+      { topic:'Tariffs & Household Prices', icon:'💵', pos:'support', issueKey:'tariffs_prices', issueStance:'support', text:'A free-trade advocate who argues broad tariffs function as a tax on American consumers, warning that across-the-board import duties raise everyday prices for families rather than sparing them.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Tariffs & Trade Authority', icon:'⚖️', pos:'support', issueKey:'tariffs_authority', issueStance:'support', text:'Argues the Constitution gives Congress — not the president — the power to set tariffs, and has supported returning tariff-setting authority to Congress rather than leaving it to open-ended executive action.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
     ],
     owens: [
       // ── Phase 3 · Wave 2 (first-class issue records) ──────────────────────────

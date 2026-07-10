@@ -19,7 +19,7 @@ lookup). Validated by `scripts/define-core-national-issues-jun2026.mjs`.
 
 | # | Core National Issue | Component `ISSUE_MAP` keys |
 |---|---|---|
-| 1 | **Economy, Inflation & Cost of Living** | `cost_living`, `tax_middle_class`, `econ_growth`, `econ_smallbiz`, `econ_trade`, `econ_balance`, `econ_workers`, `econ_corp_account`, `rural_ag`, `housing_build`, `housing_support`, `housing_first_time`, `property_tax` |
+| 1 | **Economy, Inflation & Cost of Living** | `cost_living`, `tax_middle_class`, `econ_growth`, `econ_smallbiz`, `econ_trade`, `econ_balance`, `econ_workers`, `econ_corp_account`, `rural_ag`, `housing_build`, `housing_support`, `housing_first_time`, `property_tax`, `tariffs_china`, `tariffs_growth`, `tariffs_prices`, `tariffs_authority` |
 | 2 | **Immigration & Border Security** | `border_security`, `immig_legal`, `immig_balance`, `immigration_reform`, `immig_fentanyl` |
 | 3 | **Healthcare Costs & Access** | `healthcare_market`, `health_drug_prices`, `health_balance`, `healthcare`, `health_mental`, `health_rural`, `medical_freedom`, `social_security` |
 | 4 | **Government Spending, Debt & Waste** | `lower_taxes`, `gov_waste`, `gov_balance`, `national_debt`, `audit_spending`, `gov_regulation` |

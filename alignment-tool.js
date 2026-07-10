@@ -171,6 +171,19 @@
       econ_smallbiz:      { label: '🏪 Help Small Businesses', chip: 'Cut the licensing fees, permits and paperwork that fall hardest on small businesses', cat: 'econ', stanceKeys: [], keywords: ['small business','main street','entrepreneur','startup','licensing','permitting','red tape','paperwork','local business','self-employed','franchise'] },
       econ_trade:         { label: '🏭 Protect American Jobs', chip: 'Use tariffs and trade rules to defend American manufacturing', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['trade','tariff','manufacturing','factory','american made','buy american','offshoring','supply chain','industry','china','jobs'] },
       tariffs_china:      { label: '🇨🇳 Tariffs on China & Unfair Trade', chip: 'Use tariffs to counter China and unfair trade practices and protect American workers', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['tariffs','tariff','china tariffs','china trade','china','trade war','unfair trade','trade deficit','offshoring','decoupling','made in america','protect american jobs'] },
+      // ── Tariffs & Trade (the 'tariffs' facet family) ──
+      // Modeled on the data-center family above: three flat keys let a record be
+      // pro-tariff yet cost- or authority-skeptical at once — the tension is the
+      // data, not an editorial caveat. POLARITY: on tariffs_prices and
+      // tariffs_authority the chip states the PROTECTIVE / guardrail position, so
+      // issueStance:'support' = pro-safeguard, 'oppose' = "impose broad tariffs
+      // regardless of household cost / by unilateral executive action", and
+      // 'mixed' = "backs tariffs WITH conditions". Every card's issueStance is
+      // written relative to its own chip. All three sit under 'econ' so they roll
+      // into the Taxes & Economy evidence Category and the Economy core issue.
+      tariffs_growth:     { label: '🏭 Tariffs & American Industry', chip: 'Use tariffs to reshore manufacturing, protect American jobs and gain leverage over unfair traders', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['tariff','tariffs','reciprocal tariff','reshoring','reshore','manufacturing','american jobs','factory','trade deficit','leverage','made in america','protect american workers','domestic industry','ieepa','liberation day'] },
+      tariffs_prices:     { label: '💵 Tariffs & Household Prices', chip: 'Shield families from tariff-driven price increases — pair any tariffs with exemptions or relief so everyday costs don’t rise', cat: 'econ', stanceKeys: [], keywords: ['tariff','tariffs','prices','price increase','inflation','cost of living','consumer prices','import costs','tax on consumers','household costs','small business costs','exemptions','carve-out','affordability'] },
+      tariffs_authority:  { label: '⚖️ Tariffs & Trade Authority', chip: 'Keep Congress’s constitutional role over tariffs rather than open-ended, unilateral executive tariff power', cat: 'econ', stanceKeys: [], keywords: ['tariff','tariffs','trade authority','congressional authority','ieepa','emergency powers','separation of powers','executive power','constitution','article i','delegation','section 122','major questions','rein in tariffs','congressional approval'] },
       econ_balance:       { label: '⚖️ Balanced Prosperity', chip: 'Support business growth but keep worker protections, overtime and benefit rules in place', cat: 'econ', stanceKeys: [], keywords: ['economy','jobs','small business','workers','wage','cost of living','middle class','manufacturing','affordable','growth','opportunity'] },
       econ_workers:       { label: '🛠 Raise Wages & Protect Workers', chip: 'Raise the minimum wage and protect workers from exploitation', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
@@ -287,7 +300,7 @@
     var CORE_NATIONAL_ISSUES = [
       { key: 'economy_cost_of_living', label: '💵 Economy, Inflation & Cost of Living',
         blurb: 'Jobs, wages, inflation, taxes on households, and the price of everyday life.',
-        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china'] },
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
@@ -2021,7 +2034,8 @@
       'school_choice', 'climate_action', 'energy_production', 'cost_living', 'housing', 'homeless',
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
-      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp', 'datacenter_growth'
+      'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp', 'datacenter_growth',
+      'tariffs_growth', 'tariffs_prices'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
@@ -2032,7 +2046,7 @@
     // small 🔥 in Quick Picks so they're easy to spot as fresh, hot-topic picks.
     var ALIGN_HOT_ISSUES = {
       end_dei: 1, america_first_fp: 1, tariffs_china: 1, voter_id: 1,
-      tough_on_crime: 1, deportations: 1
+      tough_on_crime: 1, deportations: 1, tariffs_growth: 1, tariffs_prices: 1
     };
 
     function _alignRenderQuickPicks() {
