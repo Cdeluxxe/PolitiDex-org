@@ -88,11 +88,21 @@ const keys = Object.keys(issueMap);
 if (!keys.length) throw new Error("ISSUE_MAP evaluated to zero keys — refusing to write an empty allow-list");
 keys.sort();
 
+// Also emit each issue's keywords (when present). The read path only consumes
+// `keys`, but the Phase-7 ingest's OPTIONAL keyword classifier (off by default)
+// uses this map to suggest an issue from a bill title. Additive + backward-compatible.
+const keywords = {};
+for (const k of keys) {
+  const kw = issueMap[k] && Array.isArray(issueMap[k].keywords) ? issueMap[k].keywords : [];
+  if (kw.length) keywords[k] = kw.slice();
+}
+
 const payload = {
   // A short note so anyone opening the JSON knows it is generated, not hand-edited.
   _generatedBy: "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
   count: keys.length,
   keys,
+  keywords,
 };
 
 writeFileSync(OUT, JSON.stringify(payload, null, 2) + "\n", "utf8");
