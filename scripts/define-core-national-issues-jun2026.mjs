@@ -50,7 +50,7 @@ import { readFileSync } from 'fs';
 // ── The Core National Issues framework (ordered by 2026 salience) ─────────────
 export const CORE_NATIONAL_ISSUES = [
   { key: 'economy_cost_of_living', label: 'Economy, Inflation & Cost of Living',
-    keys: ['cost_living','tax_middle_class','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing_build','housing_support','housing_first_time','property_tax','tariffs_china'] },
+    keys: ['cost_living','tax_middle_class','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing_build','housing_support','housing_first_time','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority'] },
   { key: 'immigration_border', label: 'Immigration & Border Security',
     keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
   { key: 'healthcare', label: 'Healthcare Costs & Access',
