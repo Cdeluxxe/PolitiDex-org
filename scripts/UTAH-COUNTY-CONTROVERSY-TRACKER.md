@@ -141,3 +141,52 @@ profiles + spotlight receipts → Firestore) and the `ISSUE_STANCE_DATA` mirror 
 5. **Watch Saratoga Springs to resolution** (carried from Batch 2) — Carn's first-since-2008 increase still needs its council vote recorded.
 6. **Keep the controversy-first discipline** — resist volume: the remaining Utah County additions are mostly *outcomes to record later*, not new officials to create now.
 
+---
+
+# Utah County — Controversy Tracker (Batch 4, July 2026)
+
+Batch 4 opens the one major Utah County fight the first three batches never
+touched — the **Sheriff's ICE 287(g) partnership** — and **closes the Alpine
+successor-district trio** by building the third and largest board president.
+Same controversy-first discipline: sitting officials tied to active,
+high-attention fights, 3–5 sourced receipts apiece. Data lives in
+`scripts/deep-dive-utah-county-batch4-jul2026.mjs` (full profiles + spotlight
+receipts → Firestore) and the `ISSUE_STANCE_DATA` mirror now in
+`politician-stances.js` (stance cards; extracted out of `index.html`).
+
+| Controversy | Key Officials (this batch) | Stances Added | Receipts Added | Spotlight Readiness | Status |
+|---|---|---|---|---|---|
+| **Utah County Sheriff ↔ ICE 287(g)** (July 2025 commission vote approving two accords — jail transfers to ICE at release + limited immigration authority in routine ops — over ~4 hrs of comment from **115 speakers, all opposed**; reaffirmed May 2026 as the county approved ICE cost reimbursements) | **Mike Smith** (Sheriff, R) — **CREATE**; the office that runs the agreement, GOP nominee for **re-election Nov 2026** | 3 | 4 | **Strong** — the county's highest-attention public-safety fight, with named direct quotes on both the sheriff's oversight rationale and the sustained opposition; KSL, Deseret News, Daily Herald. Live in his 2026 race | ✅ Built |
+| **Commission side of the 287(g) fight** (who authorized the sheriff) | **Skyler Beltran** (Chair — voted FOR, "a well-documented success"), **Amelia Powers Gardner** (Seat A — voted FOR, pushed a public-complaint provision) — **ENRICHED** | 2 | 2 | **Strong** — completes the "who voted / both sides" geometry with individual, quoted positions distinct from their tax-hike records; KSL, Daily Herald | ✅ Enriched |
+| **Alpine split — Aspen Peaks (Central) successor district** (the third and **largest** district, ~41.78% of Alpine's students: American Fork, Lehi, Highland, Alpine, Cedar Hills, part of Draper) | **Diane Knight** (Board President) — **CREATE** | 4 | 4 | **Strong** — completes the King/Lyman/Knight trio; a lean FY2026 startup budget + a unanimous, population-based asset/debt division she frames as "three strong districts moving forward"; Daily Herald, American Fork Citizen, Lehi Free Press, KUER. Honestly the *cooperative/procedural* counterpoint to King's advocacy and Lyman's deficit | ✅ Built |
+
+## Totals (built this batch)
+- **Officials with new records:** 2 created (Smith, Knight) + 2 enriched (Beltran, Powers Gardner)
+- **Stances added:** 9 (7 on 2 new profiles + 1 merged into Beltran + 1 into Powers Gardner)
+- **Spotlight receipts added:** 10 (8 on 2 new profiles + 1 appended to Beltran + 1 to Powers Gardner)
+- **Stance cards mirrored into `politician-stances.js`:** 10 (8 new + 1 added to Beltran's array + 1 to Powers Gardner's array)
+- **Controversies covered:** 1 built (Sheriff/ICE) + 1 enrichment cluster (commission ICE vote) + 1 built (Aspen Peaks successor board)
+
+## Spotlight-ready controversies (sourcing strong enough now)
+1. **Sheriff's ICE 287(g) partnership** — a rare Utah County record captured as a genuine two-sided fight: a sheriff arguing oversight-through-participation ("a seat at the table," "Utah County values," "no worksite raids") and a commission that authorized it, against near-unanimous public opposition (115 speakers). Ready as a stand-alone immigration/public-safety spotlight, and live in Smith's 2026 re-election.
+2. **Alpine successor-district funding, completed** — with Aspen Peaks (Knight) now built alongside Lake Mountain (King) and Timpanogos (Lyman), all three successor presidents plus the outgoing Alpine board (Bateman/Beeson/Wilson) and the legislative drivers (Brammer/HB3003, McKell-adjacent) form a complete before-and-after on Utah's largest school-district split.
+
+## Honest gaps (tracked, NOT built — no fabrication)
+- **No Utah County city mayor is on the 2026 ballot** — municipal terms are odd-year (2025/2027), so the "mayor races" in the task's scope are not a 2026 phenomenon. The mayoral tier is already covered by the existing Gray (Eagle Mountain), Carn (Saratoga Springs), and Stratton (Vineyard) records; no new mayor is created just for volume.
+- **Aspen Peaks vice president Amber Bonner and member Jason Hart** have some sourced budget/overcrowding remarks, but the president (Knight) is the accountable lead and the single cleanest record; the others are named, not stubbed.
+- **Brandon Gordon** (Seat B, retiring) also voted for the 287(g) accords, but no individual on-record quote distinguishing *his* reasoning was found, so he is **not** enriched with an ICE stance (named, not fabricated).
+- **Sheriff Smith's 2022 "Hamblin"/Leavitt-leak episode** is real and documented but is a *resolved prior-term* controversy; this batch stays on the live 287(g)/2026 fight rather than relitigating it.
+
+## How Batch 4 compares to Batches 1–3
+- **First sheriff-tier record:** Batches 1–3 covered mayors, commissioners, a county attorney, and school boards; Batch 4 adds the constitutionally independent **sheriff** — the office voters hold directly — and captures its signature fight rather than a generic bio.
+- **Both-sides-of-one-decision, applied again:** like the Alpine tax vote (Batch 2), the 287(g) record is built as a fight with the sheriff *and* the commissioners who authorized him on the same side, and sustained public opposition on the other — quoted, not paraphrased.
+- **Enrich-don't-duplicate, applied twice more:** Beltran and Powers Gardner already existed (tax-hike records), so each got one ICE receipt + one merged stance rather than a second profile — the same discipline used for McKell (Batch 3), Brammer (Batch 2), and recommended for McKell in Batch 1.
+- **Trio completed:** Aspen Peaks (Knight) closes the successor-district set opened in Batch 3, and her record is honestly labeled as *cooperative/procedural* — the counterpoint to King's impact-fee advocacy and Lyman's inherited-deficit posture — rather than forced into a contested-vote frame it doesn't have.
+
+## Recommendations for continuing Utah County efficiently (next)
+1. **Track the 287(g) partnership to its outcomes** — the reimbursement contract, any complaint-provision follow-through Powers Gardner sought, and how Smith's "no worksite raids" line holds are all *outcomes to record later*; convert them when documented.
+2. **Watch the 2026 sheriff and commission races** — Smith's re-election and the open Seat A/Seat B general-election field (Bowen, Allen, Oaks, Hinkley, still empty) are the live ballots; build challenger positions only once a fall voter guide sources them.
+3. **Track the Alpine successor districts to their first real money votes** (carried from Batch 3) — Lyman's Timpanogos deficit rate, King's Lake Mountain impact-fee push, and any Aspen Peaks levy will each convert an emerging posture into a recorded outcome.
+4. **Assemble the two spotlights now** — the ICE 287(g) fight and the completed ASD split are both sourcing-complete and ready for focused Issue Spotlight pages.
+5. **Keep the controversy-first discipline** — the remaining Utah County additions are mostly outcomes to record later, not new officials to create now.
+
