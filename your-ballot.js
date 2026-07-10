@@ -263,10 +263,10 @@
   /* ── empty state: inline address prompt (no pop-up) ───────────────────── */
   function renderEmpty(section) {
     section.innerHTML = '<div class="yb-wrap">' +
-      headerHtml('Enter your address and PolitiDex shows every contest you’ll actually vote on — with each candidate’s promise record, where they stand, and who funds them, side by side.') +
+      headerHtml('Your complete ballot in one place — every contest you’ll actually vote on, with each candidate’s promise record, where they stand, and who funds them, side by side. Set your location to fill it in.') +
       '<div class="yb-setloc">' +
         '<div class="yb-setloc-ico">📍</div>' +
-        '<div class="yb-setloc-t">See what’s on your ballot</div>' +
+        '<div class="yb-setloc-t">See your full ballot</div>' +
         '<div class="yb-setloc-s">One step, no sign-up. We match your address to your real districts — U.S. Senate &amp; House, Governor, your state legislators, and local offices.</div>' +
         '<button type="button" class="yb-btn-primary" data-yb-setloc="1">📍 Enter my address</button>' +
         '<span class="yb-setloc-note">🔒 Your address stays on your device and is only used to look up your districts. Nonpartisan by design — candidates are shown by record, never by party.</span>' +
