@@ -351,7 +351,7 @@ function hk(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(
 // ── issueKey validation against the live ISSUE_MAP vocabulary ───────────────
 function validIssueKeys() {
   try {
-    const html = readFileSync('index.html', 'utf8');
+    const html = readFileSync('alignment-tool.js', 'utf8');
     const mapSlice = html.slice(html.indexOf('var ISSUE_MAP = {'), html.indexOf('try { window.ISSUE_MAP'));
     return new Set([...mapSlice.matchAll(/^\s{6}([a-z_0-9]+):\s+\{ label:/gm)].map((m) => m[1]));
   } catch { return null; }

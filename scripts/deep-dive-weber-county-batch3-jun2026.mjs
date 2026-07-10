@@ -553,7 +553,7 @@ function emitBlock() {
 
   // Validate every issueKey against the live ISSUE_MAP vocabulary in index.html.
   try {
-    const html = readFileSync('index.html', 'utf8');
+    const html = readFileSync('alignment-tool.js', 'utf8');
     const mapSlice = html.slice(html.indexOf('var ISSUE_MAP = {'), html.indexOf('try { window.ISSUE_MAP'));
     const valid = new Set([...mapSlice.matchAll(/^\s+([a-z_0-9]+):\s+\{ label:/gm)].map((m) => m[1]));
     let bad = 0;

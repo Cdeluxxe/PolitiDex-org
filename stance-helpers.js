@@ -35,7 +35,25 @@
       // After duplicate cleanup, the richer McCay/McKell records are kept under
       // their short ids; point them at the curated name-slug stance keys so their
       // profiles still light up the curated positions.
-      dmccay:'daniel_mccay', mmckell:'mike_mckell'
+      //
+      // NOTE ON THE mmckell ALIAS CHAIN (fragile — documented so it stays intact):
+      //   • Canonical roster/Firestore doc id: `mmckell` (the record kept after a
+      //     duplicate cleanup).
+      //   • Curated stance cards live under the name-slug key `mike_mckell` in
+      //     ISSUE_STANCE_DATA — bridged by the `mmckell:'mike_mckell'` alias below.
+      //   • index.html ALSO carries browse-tier aliases for the same person
+      //     (e.g. `mmckell:['pm-tier-state', ...]` and an ACCT alias
+      //     `mmckell:'mckell_s25'`). Those are a SEPARATE mechanism (browse/ACCT),
+      //     not this stance map. When touching McKell, update all three or the
+      //     profile/cards/tier can desync. Prefer keeping the stance-card key equal
+      //     to the roster id for new records to avoid needing an alias at all.
+      dmccay:'daniel_mccay', mmckell:'mike_mckell',
+      // Batch 6 (Salt Lake County) stored curated cards under new *_slc / *_slco
+      // ids while the roster keeps the pre-existing short ids. Bridge them so the
+      // existing roster profiles light up the new curated stance cards. (Officials
+      // created fresh in Batches 5/7/8 use the SAME id in the roster and in
+      // ISSUE_STANCE_DATA, so they need no alias — the id matches directly.)
+      emendenhall:'erin_mendenhall_slc', jwilson:'jenny_wilson_slco'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 

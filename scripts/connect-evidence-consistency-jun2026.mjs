@@ -61,7 +61,7 @@ function extractObj(html, name) {
   }
   throw new Error('unbalanced ' + name);
 }
-const ISSUE_MAP = eval('(' + extractObj(readFileSync('index.html', 'utf8'), 'ISSUE_MAP') + ')');
+const ISSUE_MAP = eval('(' + extractObj(readFileSync('alignment-tool.js', 'utf8'), 'ISSUE_MAP') + ')');
 const VALID = new Set(Object.keys(ISSUE_MAP));
 
 // ── Firestore value encoder / decoder ──────────────────────────────────────
