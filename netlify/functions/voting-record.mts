@@ -34,6 +34,7 @@
 //   GET /compare                ?members=a,b,c[&issue=key] side-by-side per member
 
 import type { Config } from "@netlify/functions";
+import { getStore } from "@netlify/blobs";
 import { and, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
@@ -62,6 +63,16 @@ const MAX_COMPARE_MEMBERS = 8;
 // Roll-call action types the UI treats as procedural noise, hidden when the caller
 // passes procedural=0.
 const PROCEDURAL_TYPES = ["procedural", "motion"];
+
+// ── Offline pack (Netlify Blobs) ─────────────────────────────────────────────
+// A compact, precomputed per-member record served at /member/:id/pack. It is what
+// the PWA caches (stale-while-revalidate in the service worker) so a previously
+// viewed member's record still renders with no network. Built lazily on first
+// request and cached in Blobs; rebuilt when older than PACK_TTL_MS so it stays
+// reasonably fresh without a separate ingest job.
+const PACK_STORE = "vr-packs";
+const PACK_ITEM_CAP = 80; // plenty for offline; keeps the blob small
+const PACK_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
 // ── Small helpers ────────────────────────────────────────────────────────────
 function json(body: unknown, status = 200): Response {
@@ -370,7 +381,12 @@ function paginate<T>(items: T[], page: number, pageSize: number) {
 async function getMember(politicianId: string, url: URL): Promise<Response> {
   const f = parseFilters(url);
   if ("error" in f) return json({ error: f.error }, f.status);
+  return json(await assembleMemberPayload(politicianId, f));
+}
 
+// Run a member's record query for the given filters and shape the response object
+// (shared by GET /member/:id and the offline pack builder).
+async function assembleMemberPayload(politicianId: string, f: Filters) {
   // Roll-call votes (filtered in SQL, capped), plus this member's positions.
   const voteRows = await db
     .select(VOTE_COLUMNS)
@@ -424,7 +440,7 @@ async function getMember(politicianId: string, url: URL): Promise<Response> {
   const againstParty = votesOnly.filter((i) => i.isParty === "against_party").length;
 
   const paged = paginate(all, f.page, f.pageSize);
-  return json({
+  return {
     politicianId,
     filters: {
       issue: f.issue || null,
@@ -446,6 +462,65 @@ async function getMember(politicianId: string, url: URL): Promise<Response> {
       againstParty,
     },
     ...paged,
+  };
+}
+
+// ── GET /member/:politicianId/pack ───────────────────────────────────────────
+// Build (or reuse) the compact offline pack and serve it with an ETag so the SW
+// and browser can revalidate cheaply. The pack is the unfiltered, newest-first
+// record capped to PACK_ITEM_CAP — the same shape the client already consumes, so
+// it can drop straight in as an offline fallback for /member/:id.
+async function buildMemberPack(politicianId: string) {
+  const f: Filters = {
+    issue: "", chamber: "", actionType: "", position: "", result: "", q: "",
+    from: null, to: null, hideProcedural: false, sort: "date", page: 1, pageSize: PACK_ITEM_CAP,
+  };
+  const payload: any = await assembleMemberPayload(politicianId, f);
+  payload.pack = true;
+  payload.generatedAt = new Date().toISOString();
+  return payload;
+}
+
+async function getMemberPack(politicianId: string, req: Request): Promise<Response> {
+  let pack: any = null;
+  let store: ReturnType<typeof getStore> | null = null;
+  const key = `member:${politicianId}`;
+
+  // Try the cached blob first; fall back to building fresh if Blobs is
+  // unavailable (e.g. a misconfigured environment) so the endpoint never 500s.
+  try {
+    store = getStore(PACK_STORE);
+    const cached = (await store.get(key, { type: "json" })) as any;
+    if (cached && cached.generatedAt && Date.now() - new Date(cached.generatedAt).getTime() < PACK_TTL_MS) {
+      pack = cached;
+    }
+  } catch (_) {
+    store = null;
+  }
+
+  if (!pack) {
+    pack = await buildMemberPack(politicianId);
+    if (store) {
+      try { await store.setJSON(key, pack); } catch (_) { /* serve fresh even if the write fails */ }
+    }
+  }
+
+  // Weak ETag over the generation time + record count — cheap and good enough for
+  // revalidation (the pack only changes when it is rebuilt).
+  const etag = `W/"vrpack-${politicianId}-${pack.generatedAt}-${pack.summary?.totalRecords ?? 0}"`;
+  if ((req.headers.get("if-none-match") || "") === etag) {
+    return new Response(null, {
+      status: 304,
+      headers: { etag, "cache-control": "public, max-age=300" },
+    });
+  }
+  return new Response(JSON.stringify(pack), {
+    status: 200,
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "public, max-age=300",
+      etag,
+    },
   });
 }
 
@@ -685,6 +760,13 @@ export default async (req: Request): Promise<Response> => {
   if (method !== "GET") return json({ error: "Method not allowed" }, 405);
 
   try {
+    const packMatch = path.match(/^\/member\/([^/]+)\/pack$/);
+    if (packMatch) {
+      const id = clean(decodeURIComponent(packMatch[1]), ID_MAX);
+      if (!id) return json({ error: "Missing politician id" }, 400);
+      return await getMemberPack(id, req);
+    }
+
     const memberMatch = path.match(/^\/member\/([^/]+)$/);
     if (memberMatch) {
       const id = clean(decodeURIComponent(memberMatch[1]), ID_MAX);

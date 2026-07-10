@@ -132,7 +132,13 @@
       '.vrdot-contradicts{color:#f89b9b;}',
       '.vrdot-mixed{color:#93c5fd;}',
       '.vrdot-record{color:#9fb4d4;}',
-      '.pdx-sib-lg-vdot{opacity:.85;}'
+      '.pdx-sib-lg-vdot{opacity:.85;}',
+      /* Phase 6 — offline note + polish */
+      '.vr-offline{display:flex;align-items:center;gap:.4rem;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:#f5d77a;border-radius:.6rem;padding:.5rem .65rem;margin-bottom:.7rem;font-size:.76rem;line-height:1.4;}',
+      /* Larger tap targets on coarse pointers (mobile) */
+      '@media (pointer:coarse){.vr-chip,.vr-toggle{padding-top:.5rem;padding-bottom:.5rem;}.vr-select,.vr-date{padding-top:.5rem;padding-bottom:.5rem;}.vr-more{padding:.7rem;}}',
+      /* Respect reduced-motion: no transitions on interactive vr elements */
+      '@media (prefers-reduced-motion:reduce){#pdx-voting-record *{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}'
     ].join('');
     var s = document.createElement('style');
     s.id = 'pdx-vr-css';
@@ -179,7 +185,7 @@
       return promise;
     },
 
-    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._records = {}; },
+    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._records = {}; },
 
     // ── Resolved per-member records (sync accessor) ─────────────────────────────
     // A member's full, unfiltered record items, cached the moment any surface loads
@@ -217,6 +223,26 @@
           return null;
         });
       this._compareCache.set(key, promise);
+      return promise;
+    },
+
+    // ── Offline pack ────────────────────────────────────────────────────────────
+    // GET /member/:id/pack — the compact, SW-cached record. Fetching it while online
+    // warms the service-worker cache so the SAME member renders offline later. Used
+    // as the graceful fallback when the live /member/:id endpoint can't be reached.
+    _packCache: new Map(),
+    fetchPack: function (id) {
+      if (this._packCache.has(id)) return this._packCache.get(id);
+      var self = this;
+      var url = API_BASE + '/member/' + encodeURIComponent(id) + '/pack';
+      var promise = fetch(url, { headers: { accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('pack ' + r.status); return r.json(); })
+        .then(function (data) {
+          if (data && Array.isArray(data.items)) self.noteMember(id, data.items);
+          return data;
+        })
+        .catch(function () { self._packCache.delete(id); return null; });
+      this._packCache.set(id, promise);
       return promise;
     }
   };
@@ -503,7 +529,12 @@
       ? '<button type="button" class="vr-more" data-vr-more>Load more records</button>'
       : '';
 
+    var offlineNote = _state.offline
+      ? '<div class="vr-offline">📡 Showing a saved copy — reconnect for the latest and to filter the full record.</div>'
+      : '';
+
     root.innerHTML =
+      offlineNote +
       renderSummary({ summary: data.summary, items: _state.items }, pm) +
       renderFilters() +
       '<div id="pdx-vr-list">' + listHtml + '</div>' +
@@ -517,12 +548,15 @@
   function applyFilters() {
     var id = _state.id, token = _openToken;
     _state.page = 1;
+    // Remember the durable view preferences (sort + hide-procedural) across visits.
+    savePrefs({ sort: _state.filters.sort || '', hideProcedural: !!_state.filters.hideProcedural });
     var opts = buildOpts(1);
     var root = document.getElementById('pdx-vr-list');
     if (root) root.innerHTML = '<div class="vr-loading">Loading…</div>';
     PDXVotingRecord.fetchMember(id, opts).then(function (data) {
       if (token !== _openToken || !_state) return; // profile changed under us
       if (!data) { renderErrorInline(); return; }
+      _state.offline = false;
       _state.data = data;
       _state.items = (data.items || []).slice();
       renderBody();
@@ -613,6 +647,28 @@
   }
 
   // ── Public: hydrate after the modal HTML is in the DOM ─────────────────────────
+  // Durable view preferences (sort + hide-procedural) via the PDXStore 'votingPrefs'
+  // collection, so the section opens the way the visitor last left it. PDXStore.read/
+  // write key off the storage key (the owning collection is inferred), and no-op
+  // safely when PDXStore isn't present.
+  var PREFS_KEY = 'pdx_voting_prefs';
+  function loadPrefs() {
+    try {
+      if (window.PDXStore && typeof window.PDXStore.read === 'function') {
+        var v = window.PDXStore.read(PREFS_KEY, null);
+        if (v && typeof v === 'object') return v;
+      }
+    } catch (e) {}
+    return {};
+  }
+  function savePrefs(patch) {
+    try {
+      if (window.PDXStore && typeof window.PDXStore.write === 'function') {
+        window.PDXStore.write(PREFS_KEY, Object.assign({}, loadPrefs(), patch));
+      }
+    } catch (e) {}
+  }
+
   window._pdxInitVotingRecord = function () {
     var job = window.__pdxVotingPending;
     window.__pdxVotingPending = null;
@@ -627,15 +683,30 @@
     var initIssue = window.__pdxVotingInitialIssue || '';
     window.__pdxVotingInitialIssue = null;
     var positionMap = (window._polPositionMap ? window._polPositionMap(job.id, job.p) : {}) || {};
+    var prefs = loadPrefs();
     _state = {
       id: job.id, p: job.p, positionMap: positionMap,
-      filters: { issue: '', chamber: '', actionType: '', position: '', from: '', to: '', sort: '', hideProcedural: false },
+      filters: {
+        issue: '', chamber: '', actionType: '', position: '', from: '', to: '',
+        sort: (prefs.sort || ''), hideProcedural: !!prefs.hideProcedural
+      },
       facets: { issues: [], chambers: [], actionTypes: [] },
-      data: null, items: [], page: 1
+      data: null, items: [], page: 1, offline: false
     };
 
-    // First load is unfiltered — it both reveals the section and seeds the facets.
-    PDXVotingRecord.fetchMember(job.id, { pageSize: 100 }).then(function (data) {
+    // Warm the offline pack (fire-and-forget) so the service worker caches it and
+    // THIS member renders offline next time. Then load the section: live endpoint
+    // first, falling back to the (SW-cached) pack when the network can't be reached.
+    PDXVotingRecord.fetchPack(job.id);
+    var initOpts = { pageSize: 100 };
+    if (_state.filters.sort) initOpts.sort = _state.filters.sort;
+    if (_state.filters.hideProcedural) initOpts.hideProcedural = true;
+    PDXVotingRecord.fetchMember(job.id, initOpts).then(function (data) {
+      if (data) return data;
+      // Offline / endpoint unreachable → fall back to the cached pack.
+      _state.offline = true;
+      return PDXVotingRecord.fetchPack(job.id);
+    }).then(function (data) {
       if (token !== _openToken || !_state) return; // another profile opened
       if (!data || !data.summary || (data.summary.totalRecords || 0) === 0) {
         // No record (or offline with nothing cached): stay hidden, add no pill.
@@ -676,8 +747,9 @@
       }
       if (initIssue) {
         try {
+          var _rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           if (window._pdxNavJump) window._pdxNavJump('pdxsec-voting');
-          else section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          else section.scrollIntoView({ behavior: _rm ? 'auto' : 'smooth', block: 'start' });
         } catch (e) {}
       }
     });

@@ -19,6 +19,16 @@
   to = "/index.html"
   status = 200
 
+# Shareable roll-call deep-links. A clean path like
+# /vote/119/house/190 must serve the same single-page document (HTTP 200 rewrite)
+# so the client-side router can read the congress/chamber/roll from the path and
+# open the corresponding measure. Scoped to /vote/* only, leaving every other
+# route (assets, /api/*, the Functions) untouched.
+[[redirects]]
+  from = "/vote/*"
+  to = "/index.html"
+  status = 200
+
 # PWA service worker must never be served stale, or clients get stuck on an
 # old worker and miss shell updates. Force revalidation on every request.
 # (The worker versions and prunes its own caches internally.)

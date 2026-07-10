@@ -27,7 +27,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -117,6 +117,16 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+
+  // Voting-record offline packs are a static-ish artifact (ETagged, rebuilt at
+  // most every few hours), so — unlike the rest of /api/* — cache them
+  // stale-while-revalidate. This is what lets a previously-viewed member's voting
+  // record render with no network. Must be checked BEFORE the /api/ skip below.
+  if (url.origin === self.location.origin &&
+      /^\/api\/voting-record\/member\/[^/]+\/pack$/.test(url.pathname)) {
+    event.respondWith(handleStatic(req));
+    return;
+  }
 
   // Dynamic backend — never intercept. Keeps live data live and lets the
   // app's own offline handling deal with failures.
