@@ -334,6 +334,10 @@
       '</div>' +
       '<div class="sl-pol-sig">' + pill + '</div>' +
       texts +
+      // Voting-record rollup — filled in asynchronously by fillRecordCards once the
+      // per-issue record fetch resolves. Stays empty (and invisible) for anyone with
+      // no votes on record, so the card is unchanged when there's nothing to show.
+      '<div class="sl-pol-record" id="sl-rec-' + recSafeId(p.id) + '"></div>' +
       '<div class="sl-pol-acts">' +
         '<button type="button" class="sl-pol-act" data-sl-profile="' + jid + '">👤 Profile</button>' +
         '<button type="button" class="sl-pol-act" data-sl-evidence="' + jid + '" data-sl-ik="' + jk + '">📚 Evidence</button>' +
@@ -409,7 +413,96 @@
     state.view = 'detail'; state.issueKey = issueKey;
     host.innerHTML = '<div class="sl-detail">' + detailHtml(issueKey) + '</div>';
     loadCommunity(issueKey);
+    loadRecordRollup(issueKey);
     try { el(MOUNT).scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+  }
+
+  // ── Voting-record rollup ("what they actually DID" per issue) ─────────────
+  // For the open issue we make ONE batched call to /api/voting-record/issue/:key
+  // (every member's votes on this issue), group the returned records by member,
+  // and run the shared Phase-2 engine (window._issueRecordSummary) to derive each
+  // member's verdict + counts — the SAME logic the profile Voting Record section
+  // uses, so the two never disagree. The result fills the per-card placeholder;
+  // members with no record simply get nothing. Read-only GET, no auth, and fully
+  // additive: any failure just leaves the cards as they were.
+  var _recordRollup = {};   // issueKey → { loaded, byPol: { pid: summary } }
+
+  function recSafeId(id) { return String(id == null ? '' : id).replace(/[^a-zA-Z0-9_-]/g, '_'); }
+
+  // Map the Library's stance vocabulary (supported/opposed/mixed/none) to the
+  // engine's (support/oppose/mixed/null).
+  function engineStance(libStance) {
+    return libStance === 'supported' ? 'support'
+      : libStance === 'opposed' ? 'oppose'
+      : libStance === 'mixed' ? 'mixed' : null;
+  }
+
+  function loadRecordRollup(issueKey) {
+    if (!issueKey) return;
+    // The engine + issue vocabulary must be present for verdicts to mean anything.
+    if (typeof G('_issueRecordSummary') !== 'function' || !G('ISSUE_MAP')) return;
+    var cached = _recordRollup[issueKey];
+    if (cached && cached.loaded) { fillRecordCards(issueKey); return; }
+    var url = '/api/voting-record/issue/' + encodeURIComponent(issueKey) + '?pageSize=100';
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var byPol = {};
+        var summarize = G('_issueRecordSummary');
+        var b = _index && _index[issueKey];
+        if (data && Array.isArray(data.items) && typeof summarize === 'function') {
+          var groups = {};
+          data.items.forEach(function (it) {
+            var pid = it && it.politicianId; if (!pid) return;
+            (groups[pid] = groups[pid] || []).push(it);
+          });
+          Object.keys(groups).forEach(function (pid) {
+            var libStance = (b && b.pols[pid]) ? b.pols[pid].stance : null;
+            byPol[pid] = summarize(issueKey, engineStance(libStance), groups[pid]);
+          });
+        }
+        _recordRollup[issueKey] = { loaded: true, byPol: byPol };
+        if (state.view === 'detail' && state.issueKey === issueKey) fillRecordCards(issueKey);
+      })
+      .catch(function () { _recordRollup[issueKey] = { loaded: true, byPol: {} }; });
+  }
+
+  // Build the small rollup block (counts + contradiction flag + "View votes") for
+  // one member. Returns '' when they have no records touching this issue.
+  function rollupHtml(pid, summary, issueKey) {
+    if (!summary || !summary.total) return '';
+    var parts = [];
+    if (summary.consistent) parts.push('<b>' + summary.consistent + '</b> back it up');
+    if (summary.contradicts) parts.push('<b>' + summary.contradicts + '</b> contradict');
+    if (summary.mixed) parts.push('<b>' + summary.mixed + '</b> mixed');
+    var counts = parts.length ? ' · ' + parts.join(' · ') : '';
+    var flag = summary.hasContradiction
+      ? '<span class="sl-rec-flag" title="Votes run against the stated stance">⚠️ Contradiction</span>'
+      : '';
+    var vpid = esc(pid).replace(/'/g, ''); var vk = esc(issueKey).replace(/'/g, '');
+    return '<div class="sl-rec-line">🗳️ <b>' + summary.total + '</b> vote' +
+        (summary.total === 1 ? '' : 's') + ' on record' + counts + flag + '</div>' +
+      '<button type="button" class="sl-pol-act sl-rec-btn" data-sl-votes="' + vpid +
+        '" data-sl-vk="' + vk + '">🗳️ View votes</button>';
+  }
+
+  function fillRecordCards(issueKey) {
+    var cached = _recordRollup[issueKey]; if (!cached) return;
+    var byPol = cached.byPol || {};
+    Object.keys(byPol).forEach(function (pid) {
+      var host = el('sl-rec-' + recSafeId(pid)); if (!host) return;
+      host.innerHTML = rollupHtml(pid, byPol[pid], issueKey);
+    });
+  }
+
+  // Open a member's profile with the Voting Record section pre-filtered to this
+  // issue. voting-record.js reads window.__pdxVotingInitialIssue on init, applies
+  // the filter, and scrolls to the section — the shareable equivalent of
+  // ?p=<id>#pdxsec-voting?issue=<key>.
+  function openProfileVotes(pid, issueKey) {
+    var f = G('openModal'); if (typeof f !== 'function') return;
+    try { window.__pdxVotingInitialIssue = issueKey || ''; } catch (e) {}
+    f(pid);
   }
 
   // ── Community activity (Open Discussion threads linked to this issue) ─────
@@ -523,6 +616,8 @@
       if (t.closest && t.closest('#sl-back')) { state.view = 'browse'; renderBrowse(); return; }
       var jump = t.closest && t.closest('[data-sl-jump]');
       if (jump) { var sec = el('sl-sec-' + jump.getAttribute('data-sl-jump')); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      var votes = t.closest && t.closest('[data-sl-votes]');
+      if (votes) { openProfileVotes(votes.getAttribute('data-sl-votes'), votes.getAttribute('data-sl-vk')); return; }
       var prof = t.closest && t.closest('[data-sl-profile]');
       if (prof) { var f = G('openModal'); if (typeof f === 'function') f(prof.getAttribute('data-sl-profile')); return; }
       var ev = t.closest && t.closest('[data-sl-evidence]');

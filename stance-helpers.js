@@ -92,6 +92,272 @@
     }
     window._polPositionMap = _polPositionMap;
 
+    // ── Stance-vs-Record engine ("say vs. do") ─────────────────────────────────
+    // Pure, side-effect-free derivation that compares what a politician SAYS (their
+    // documented stance, from _polPositionMap / ISSUE_STANCE_DATA) against what they
+    // actually DID (their voting record, from the /api/voting-record Function). Both
+    // sides are keyed by the SAME ISSUE_MAP issueKey, so the comparison is one-to-one.
+    //
+    // The linchpin is the `supportMeaning` field the API attaches to every measure↔
+    // issue mapping: 'yea_supports' means a YEA vote ADVANCES that issue, 'yea_opposes'
+    // means a YEA vote CUTS AGAINST it. This is what makes verdicts correct even for
+    // multi-issue / omnibus bills, where a single vote means opposite things for
+    // different issues. Concrete example — H.R. 1 (One Big Beautiful Bill Act), on
+    // which a member votes YEA:
+    //   • issue 'lower_taxes'  mapping supportMeaning 'yea_supports'
+    //       → the YEA effectively SUPPORTS lowering taxes.
+    //   • issue 'healthcare'   mapping supportMeaning 'yea_opposes' (it cut Medicaid)
+    //       → the SAME YEA effectively OPPOSES expanding healthcare access.
+    // So a member who SAYS they support both lower taxes and healthcare access is
+    // scored 'consistent' on taxes but 'contradicts' on healthcare — from one vote,
+    // because each issue mapping carries its own supportMeaning. Without that field a
+    // naive "yea = support everything" reading would be wrong on every omnibus bill.
+    //
+    // Verdict vocabulary (per single record, per issue):
+    //   consistent   — the action matches the stated stance
+    //   contradicts  — the action runs against the stated stance
+    //   mixed        — the stance itself is 'mixed' (no single expectation)
+    //   no_position  — the member took no position on the vote (present / not voting)
+    //   no_stance    — there is no documented stance to compare against
+    // Nothing here renders anything or mutates its inputs — callers (Phase 3 UI) turn
+    // these values into badges/highlights.
+
+    // Down-weight procedural/motion votes so a messaging motion can't outweigh a
+    // substantive passage vote in the aggregate verdict.
+    var _RECORD_PROCEDURAL_FACTOR = 0.25;
+
+    var _RECORD_SUMMARY_LABEL = {
+      consistent:  'Backs it up',
+      contradicts: 'Says one thing, votes another',
+      mixed:       'Mixed record',
+      no_position: 'No clear position in votes',
+      no_stance:   'No stated stance',
+      no_record:   'No voting record yet'
+    };
+
+    // Find the issue mapping on a record item that matches `issueKey` (a record can
+    // map to several issues; we want THIS issue's mapping to read its supportMeaning
+    // and weight). Returns null when the record doesn't pertain to the issue.
+    function _findIssueMapping(item, issueKey) {
+      if (!item || !item.issues || !item.issues.length) return null;
+      for (var i = 0; i < item.issues.length; i++) {
+        if (item.issues[i] && item.issues[i].issueKey === issueKey) return item.issues[i];
+      }
+      return null;
+    }
+
+    // yea → advances the measure; nay → opposes it; present/not-voting → no position.
+    function _positionAdvances(position) {
+      if (position === 'yea') return true;
+      if (position === 'nay') return false;
+      return null; // 'present', 'not_voting', or anything unrecognised
+    }
+
+    // Does this action effectively SUPPORT the issue, given the mapping's
+    // supportMeaning? Returns true (supports), false (opposes) or null (no position).
+    //
+    // Works for both kinds of record the API returns:
+    //   • votes     — item.position is 'yea'|'nay'|'present'|'not_voting'
+    //   • positions — item.supports is true|false|null (e.g. sponsor/cosponsor/amicus)
+    // For convenience a raw position string may be passed instead of an item object.
+    // The mapping direction is applied last: 'yea_opposes' flips the effective read,
+    // which is precisely what keeps multi-issue bills correct (see block comment).
+    function _voteEffectiveSupport(itemOrPosition, supportMeaning) {
+      var advances; // did the actor push the MEASURE forward? true / false / null
+      if (typeof itemOrPosition === 'string') {
+        advances = _positionAdvances(itemOrPosition);
+      } else if (itemOrPosition && itemOrPosition.kind === 'position') {
+        // A co-sponsorship / amicus etc.: `supports` says if it advanced the measure.
+        advances = (typeof itemOrPosition.supports === 'boolean') ? itemOrPosition.supports : null;
+      } else if (itemOrPosition && typeof itemOrPosition === 'object') {
+        advances = _positionAdvances(itemOrPosition.position);
+      } else {
+        return null;
+      }
+      if (advances === null) return null;
+      // 'yea_opposes' inverts the mapping; anything else (incl. undefined) is treated
+      // as the safe default 'yea_supports'.
+      return (supportMeaning === 'yea_opposes') ? !advances : advances;
+    }
+
+    // Compare ONE stance to ONE action's effective support → a verdict token.
+    // stance ∈ 'support'|'oppose'|'mixed'|falsy; effectiveSupport ∈ true|false|null.
+    function _stanceVoteVerdict(stance, effectiveSupport) {
+      if (!stance) return 'no_stance';
+      if (effectiveSupport === null || typeof effectiveSupport === 'undefined') return 'no_position';
+      if (stance === 'mixed') return 'mixed';
+      if (stance === 'support') return effectiveSupport ? 'consistent' : 'contradicts';
+      if (stance === 'oppose')  return effectiveSupport ? 'contradicts' : 'consistent';
+      return 'mixed'; // unknown stance value — defensive
+    }
+
+    // Aggregate every record that pertains to ONE issue against the member's stance
+    // on that issue. Weighted so high-weight, substantive contradictions outrank
+    // peripheral or procedural ones. Returns counts + a single net verdict + a
+    // human label, plus the highest-weight consistent / contradicting record so the
+    // UI can cite a concrete receipt. Pure — never mutates `records`.
+    function _issueRecordSummary(issueKey, stance, records) {
+      records = Array.isArray(records) ? records : [];
+      var counts = { consistent: 0, contradicts: 0, mixed: 0, noPosition: 0 };
+      var consistentScore = 0, contradictScore = 0, total = 0;
+      var topContradiction = null, topConsistent = null, topContraW = -1, topConsW = -1;
+
+      records.forEach(function (item) {
+        var mapping = _findIssueMapping(item, issueKey);
+        if (!mapping) return; // record doesn't touch this issue
+        total++;
+        var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
+        var verdict = _stanceVoteVerdict(stance, eff);
+        var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
+        if (item && item.isProcedural) w *= _RECORD_PROCEDURAL_FACTOR;
+        if (verdict === 'consistent') {
+          counts.consistent++; consistentScore += w;
+          if (w > topConsW) { topConsW = w; topConsistent = item; }
+        } else if (verdict === 'contradicts') {
+          counts.contradicts++; contradictScore += w;
+          if (w > topContraW) { topContraW = w; topContradiction = item; }
+        } else if (verdict === 'mixed') {
+          counts.mixed++;
+        } else if (verdict === 'no_position') {
+          counts.noPosition++;
+        }
+        // 'no_stance' can't occur per-record here (stance is constant); handled below.
+      });
+
+      var netVerdict;
+      if (!stance) netVerdict = 'no_stance';
+      else if (total === 0) netVerdict = 'no_record';
+      else if (stance === 'mixed') netVerdict = 'mixed';
+      else if (consistentScore === 0 && contradictScore === 0) netVerdict = (counts.mixed > 0 ? 'mixed' : 'no_position');
+      else if (contradictScore > consistentScore) netVerdict = 'contradicts';
+      else if (consistentScore > contradictScore) netVerdict = 'consistent';
+      else netVerdict = 'mixed'; // genuine tie, both sides non-zero
+
+      return {
+        issueKey: issueKey,
+        stance: stance || null,
+        hasStance: !!stance,
+        total: total,
+        consistent: counts.consistent,
+        contradicts: counts.contradicts,
+        mixed: counts.mixed,
+        noPosition: counts.noPosition,
+        consistentScore: consistentScore,
+        contradictScore: contradictScore,
+        netVerdict: netVerdict,
+        hasContradiction: counts.contradicts > 0,
+        label: _RECORD_SUMMARY_LABEL[netVerdict] || '',
+        topContradiction: topContradiction,
+        topConsistent: topConsistent
+      };
+    }
+
+    // Build a per-issue summary map for a whole politician — the record-side
+    // counterpart to _polPositionMap. Pass the API's record items and the member's
+    // position map (from _polPositionMap(id, p)); returns { issueKey → summary } over
+    // the UNION of issues they have a record on and issues they have a stance on, so
+    // "voted but never said" and "said but never voted" are both visible.
+    //   Typical call: _polRecordMap(records, _polPositionMap(id, p))
+    function _polRecordMap(records, positionMap) {
+      records = Array.isArray(records) ? records : [];
+      positionMap = positionMap || {};
+      // Group records by each issueKey they map to (a multi-issue record lands under
+      // every one of its issues).
+      var byIssue = {};
+      records.forEach(function (item) {
+        if (!item || !item.issues) return;
+        item.issues.forEach(function (m) {
+          if (!m || !m.issueKey) return;
+          (byIssue[m.issueKey] = byIssue[m.issueKey] || []).push(item);
+        });
+      });
+      var keys = {};
+      Object.keys(byIssue).forEach(function (k) { keys[k] = true; });
+      Object.keys(positionMap).forEach(function (k) { keys[k] = true; });
+      var out = {};
+      Object.keys(keys).forEach(function (k) {
+        var stance = positionMap[k] ? positionMap[k].stance : null;
+        out[k] = _issueRecordSummary(k, stance, byIssue[k] || []);
+      });
+      return out;
+    }
+
+    window._voteEffectiveSupport = _voteEffectiveSupport;
+    window._stanceVoteVerdict = _stanceVoteVerdict;
+    window._issueRecordSummary = _issueRecordSummary;
+    window._polRecordMap = _polRecordMap;
+
+    // Runnable, dependency-free self-test for the stance-vs-record engine. Never runs
+    // on its own (pure) — call window._stanceRecordSelfTest() from the console or a
+    // node harness. Returns { passed, failed, failures[] }. The cases pin down the
+    // supportMeaning behaviour, especially the multi-issue omnibus case.
+    function _stanceRecordSelfTest() {
+      var failures = [];
+      function ok(cond, msg) { if (!cond) failures.push(msg); }
+      function eq(a, b, msg) { if (a !== b) failures.push(msg + ' (got ' + JSON.stringify(a) + ', want ' + JSON.stringify(b) + ')'); }
+
+      // ── _voteEffectiveSupport: a YEA under each supportMeaning ──
+      eq(_voteEffectiveSupport('yea', 'yea_supports'), true,  'yea+yea_supports → supports');
+      eq(_voteEffectiveSupport('yea', 'yea_opposes'),  false, 'yea+yea_opposes → opposes');
+      eq(_voteEffectiveSupport('nay', 'yea_supports'), false, 'nay+yea_supports → opposes');
+      eq(_voteEffectiveSupport('nay', 'yea_opposes'),  true,  'nay+yea_opposes → supports');
+      eq(_voteEffectiveSupport('present', 'yea_supports'), null, 'present → no position');
+      eq(_voteEffectiveSupport('not_voting', 'yea_supports'), null, 'not_voting → no position');
+      eq(_voteEffectiveSupport('yea', undefined), true, 'missing supportMeaning defaults to yea_supports');
+
+      // A position (co-sponsorship) that advances a measure whose YEA opposes the
+      // issue → effectively opposes the issue.
+      eq(_voteEffectiveSupport({ kind: 'position', supports: true }, 'yea_opposes'), false, 'cosponsor(advances)+yea_opposes → opposes');
+      eq(_voteEffectiveSupport({ kind: 'position', supports: true }, 'yea_supports'), true, 'cosponsor(advances)+yea_supports → supports');
+      eq(_voteEffectiveSupport({ kind: 'position', supports: null }, 'yea_supports'), null, 'position with null supports → no position');
+
+      // ── _stanceVoteVerdict: the truth table ──
+      eq(_stanceVoteVerdict('support', true),  'consistent',  'support + supports → consistent');
+      eq(_stanceVoteVerdict('support', false), 'contradicts', 'support + opposes → contradicts');
+      eq(_stanceVoteVerdict('oppose',  false), 'consistent',  'oppose + opposes → consistent');
+      eq(_stanceVoteVerdict('oppose',  true),  'contradicts', 'oppose + supports → contradicts');
+      eq(_stanceVoteVerdict('mixed',   true),  'mixed',       'mixed stance → mixed');
+      eq(_stanceVoteVerdict('support', null),  'no_position', 'no position taken → no_position');
+      eq(_stanceVoteVerdict(null,      true),  'no_stance',   'no stance → no_stance');
+
+      // ── Multi-issue omnibus: ONE yea, TWO opposite verdicts (the key case) ──
+      var hr1 = {
+        kind: 'vote', position: 'yea', isProcedural: false, isAmendment: false,
+        number: 'H.R. 1', title: 'One Big Beautiful Bill Act',
+        issues: [
+          { issueKey: 'lower_taxes', weight: 100, isPrimary: true,  supportMeaning: 'yea_supports' },
+          { issueKey: 'healthcare',  weight: 60,  isPrimary: false, supportMeaning: 'yea_opposes'  }
+        ]
+      };
+      // Member SAYS they support both lowering taxes and healthcare access.
+      var posMap = { lower_taxes: { stance: 'support' }, healthcare: { stance: 'support' } };
+      var recMap = _polRecordMap([hr1], posMap);
+      eq(recMap.lower_taxes.netVerdict, 'consistent',  'omnibus: yea consistent with pro-tax-cut stance');
+      eq(recMap.healthcare.netVerdict,  'contradicts', 'omnibus: SAME yea contradicts pro-healthcare stance');
+      ok(recMap.healthcare.hasContradiction, 'omnibus: healthcare flagged as contradiction');
+
+      // ── Weighting: a procedural pro vote can't outweigh a substantive con vote ──
+      var subCon = { kind: 'vote', position: 'nay', isProcedural: false, issues: [{ issueKey: 'x', weight: 100, supportMeaning: 'yea_supports' }] };
+      var procPro = { kind: 'vote', position: 'yea', isProcedural: true, issues: [{ issueKey: 'x', weight: 100, supportMeaning: 'yea_supports' }] };
+      var wSum = _issueRecordSummary('x', 'support', [subCon, procPro]);
+      // stance 'support': nay(sub) → contradicts (weight 100); yea(proc) → consistent (weight 25).
+      eq(wSum.netVerdict, 'contradicts', 'weighting: substantive con outranks procedural pro');
+      eq(wSum.consistent, 1, 'weighting: one consistent counted');
+      eq(wSum.contradicts, 1, 'weighting: one contradiction counted');
+
+      // ── Edge cases ──
+      eq(_issueRecordSummary('x', null, [subCon]).netVerdict, 'no_stance', 'no stance → no_stance');
+      eq(_issueRecordSummary('x', 'support', []).netVerdict, 'no_record', 'no records → no_record');
+      var pv = { kind: 'vote', position: 'present', issues: [{ issueKey: 'x', weight: 100, supportMeaning: 'yea_supports' }] };
+      eq(_issueRecordSummary('x', 'support', [pv]).netVerdict, 'no_position', 'only present votes → no_position');
+      // A "said but never voted" issue still appears in the map via the position side.
+      var sm = _polRecordMap([], { housing_build: { stance: 'support' } });
+      eq(sm.housing_build.netVerdict, 'no_record', 'stance with no record → no_record entry present');
+
+      return { passed: (failures.length === 0), failed: failures.length, failures: failures };
+    }
+    window._stanceRecordSelfTest = _stanceRecordSelfTest;
+
   // ── Connected-evidence map + Stance-at-a-Glance chips ──────────────────────
   // Moved from index.html. These operate on the same curated ISSUE_STANCE_DATA /
   // _resolveStanceList above, so they live beside the data and helpers they use.
@@ -510,7 +776,11 @@
         var m = DIR[st] || DIR.mixed;
         var who = p.d.name ? String(p.d.name).split(/\s+/)[0] : 'They';
         var tip = who + ' — ' + m.verb + ' ' + it.label + (it.txt[p.pid] ? ': ' + it.txt[p.pid] : '');
-        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span></td>';
+        // Consistency dot placeholder — hydrated from /api/voting-record/compare so
+        // a stated stance can be checked against how they actually voted. Blank
+        // (and invisible) until/unless a record on this issue exists.
+        return '<td class="pdx-sib-cell ' + m.cls + '" title="' + esc(tip) + '"><span class="pdx-sib-ico">' + m.ico + '</span>' +
+          '<span class="pdx-sib-vdot" data-vrdot="' + esc(p.pid) + '|' + esc(it.key) + '"></span></td>';
       }).join('');
       var rowCls = 'pdx-sib-row' + (it.mine ? ' is-mine' : (it.contested ? ' is-contested' : ''));
       var flag = it.mine
@@ -528,6 +798,11 @@
       ? rows.length + ' of ' + arr.length + ' issues · most distinctive first'
       : rows.length + ' issue' + (rows.length === 1 ? '' : 's') + ' across this race';
 
+    // Hydrate the consistency dots once this board is in the DOM (macrotask).
+    if (typeof window._pdxHydrateVoteDots === 'function') {
+      setTimeout(function () { try { window._pdxHydrateVoteDots(); } catch (e) {} }, 0);
+    }
+
     return '<div class="pdx-seat-board" onclick="event.stopPropagation();">' +
         '<div class="pdx-seat-board-head">' +
           '<span class="pdx-seat-board-ico" aria-hidden="true">📊</span>' +
@@ -543,6 +818,7 @@
           '<span class="pdx-sib-lg is-oppose">✗ Opposes</span>' +
           '<span class="pdx-sib-lg is-mixed">~ Mixed</span>' +
           '<span class="pdx-sib-lg is-none">· No position on record</span>' +
+          '<span class="pdx-sib-lg pdx-sib-lg-vdot">✓/⚠ vote matches / contradicts stance</span>' +
           (moreIssues > 0 ? '<span class="pdx-sib-lg-more">Open a profile for the full record</span>' : '') +
         '</div>' +
       '</div>';
