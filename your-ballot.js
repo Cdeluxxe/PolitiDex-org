@@ -6,7 +6,9 @@
    PolitiDex had several overlapping ways to "get started": a Welcome/tour modal,
    a separate "Build My Home Team" pop-up that fired after you set your address,
    plus the Voter Hub and the 6-slot "My Voting Team" grid. This module folds all
-   of that into ONE calm, inline flow that lives high on the page:
+   of that into ONE calm, inline flow. It mounts right AFTER the Voter Hub / team
+   builder — the Hub stays the primary teaching flow, and this is the "ready to
+   vote" consolidated view a step further down the page:
 
         set your address  →  see EVERY contest on your real ballot
         →  for each seat, weigh the candidates (Promise %, top stances,
@@ -101,7 +103,7 @@
     return where;
   }
 
-  /* ── mount the section high on the page (before Voter Hub) ────────────── */
+  /* ── mount the section AFTER the team builder (Voter Hub) ─────────────── */
   function ensureMounted() {
     if (_mounted && el(MOUNT_ID)) return el(MOUNT_ID);
     var existing = el(MOUNT_ID);
@@ -111,12 +113,13 @@
     section.id = MOUNT_ID;
     section.setAttribute('aria-label', 'Your Ballot');
 
-    // Place it as the primary "this is for me" anchor: right before the Voter Hub
-    // (which stays as the deeper explainer). Fall back to end-of-body if the hub
-    // isn't present for some reason.
+    // Your Ballot is the "when you're ready" consolidated view, not the front
+    // door. The Voter Hub / My Voting Team is the primary teaching flow, so mount
+    // this directly AFTER it (right past the team builder) rather than above it.
+    // Fall back to end-of-body if the hub isn't present for some reason.
     var anchor = el('voter-hub');
     if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(section, anchor);
+      anchor.parentNode.insertBefore(section, anchor.nextSibling);
     } else {
       document.body.appendChild(section);
     }
@@ -260,10 +263,10 @@
   /* ── empty state: inline address prompt (no pop-up) ───────────────────── */
   function renderEmpty(section) {
     section.innerHTML = '<div class="yb-wrap">' +
-      headerHtml('Enter your address and PolitiDex shows every contest you’ll actually vote on — with each candidate’s promise record, where they stand, and who funds them, side by side.') +
+      headerHtml('Your complete ballot in one place — every contest you’ll actually vote on, with each candidate’s promise record, where they stand, and who funds them, side by side. Set your location to fill it in.') +
       '<div class="yb-setloc">' +
         '<div class="yb-setloc-ico">📍</div>' +
-        '<div class="yb-setloc-t">See what’s on your ballot</div>' +
+        '<div class="yb-setloc-t">See your full ballot</div>' +
         '<div class="yb-setloc-s">One step, no sign-up. We match your address to your real districts — U.S. Senate &amp; House, Governor, your state legislators, and local offices.</div>' +
         '<button type="button" class="yb-btn-primary" data-yb-setloc="1">📍 Enter my address</button>' +
         '<span class="yb-setloc-note">🔒 Your address stays on your device and is only used to look up your districts. Nonpartisan by design — candidates are shown by record, never by party.</span>' +
