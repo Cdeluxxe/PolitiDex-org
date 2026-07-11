@@ -16,17 +16,21 @@
 //
 // EMAIL DELIVERY is pluggable and safe-by-default. Netlify has no built-in email,
 // so actual sending goes through an ESP configured by environment variables:
-//     RESEND_API_KEY     — a Resend API key (https://resend.com)
-//     DIGEST_FROM_EMAIL  — the verified From address (e.g. "PolitiDex <digest@…>")
-// When those are absent the function is a clean no-op: it logs that email delivery
-// is unconfigured and advances nothing, so enabling it later "just works" and no
-// secret is ever hard-coded. (This keeps the deploy green without a mail provider.)
+//     RESEND_API_KEY      — a Resend API key (https://resend.com)          [required]
+//     DIGEST_FROM_EMAIL   — the verified From address ("PolitiDex <digest@…>") [required]
+//     DIGEST_REPLY_TO     — optional friendly Reply-To (improves deliverability)
+//     DIGEST_UNSUB_SECRET — optional HMAC secret for unsubscribe links; defaults to
+//                           RESEND_API_KEY, so one-click unsubscribe works with no
+//                           extra config (set this only if you rotate the API key).
+// When the two required vars are absent the function is a clean no-op: it logs that
+// email delivery is unconfigured and advances nothing, so enabling it later "just
+// works" and no secret is ever hard-coded. (Keeps the deploy green with no provider.)
 
 import type { Config } from "@netlify/functions";
 import { eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { pdxNotificationPrefs } from "../../db/schema.js";
-import { buildDigest, deriveInterests, type Digest } from "../lib/digest.js";
+import { buildDigest, deriveInterests, unsubscribeUrl, type Digest } from "../lib/digest.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -49,8 +53,10 @@ function esc(s: unknown): string {
 }
 
 // Compose a calm, nonpartisan HTML email from a built digest. Neutral tone, no
-// outrage framing — just "here's what changed on what you're tracking."
-function renderEmail(digest: Digest): { subject: string; html: string; text: string } {
+// outrage framing — just "here's what changed on what you're tracking." Every email
+// carries a visible one-click unsubscribe link (and a List-Unsubscribe header, added
+// at send time) so opting out is always one tap away.
+function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html: string; text: string } {
   const total = digest.counts.total;
   const site = "https://politidex.org";
 
@@ -94,7 +100,8 @@ function renderEmail(digest: Digest): { subject: string; html: string; text: str
     `<a href="${site}/#whats-changed" style="display:inline-block;background:#c8102e;color:#fff;text-decoration:none;font-weight:700;padding:11px 22px;border-radius:8px;font-size:14px;">Open my digest →</a>` +
     `</div>` +
     `<p style="font-size:12px;color:#8a94a6;margin-top:26px;line-height:1.5;">You're getting this because you turned on email digests in PolitiDex. ` +
-    `Change the topics or cadence, or turn this off, in <a href="${site}/#whats-changed" style="color:#6b7686;">Notification settings</a>. ` +
+    `Change the topics or cadence in <a href="${site}/#whats-changed" style="color:#6b7686;">Notification settings</a>, ` +
+    `or <a href="${esc(unsubUrl)}" style="color:#6b7686;">unsubscribe from email digests</a>. ` +
     `PolitiDex is strictly nonpartisan — we send receipts, not opinions.</p>` +
     `</div>`;
 
@@ -102,22 +109,48 @@ function renderEmail(digest: Digest): { subject: string; html: string; text: str
     `PolitiDex · What Changed\n${total} update(s) on what you're tracking.\n\n` +
     digest.evidence.map((e) => `• ${e.headline}`).join("\n") +
     (digest.community.length ? "\n" + digest.community.map((c) => `• ${c.title}`).join("\n") : "") +
-    `\n\nOpen your digest: ${site}/#whats-changed`;
+    `\n\nOpen your digest: ${site}/#whats-changed` +
+    `\nUnsubscribe from email digests: ${unsubUrl}`;
 
   return { subject: `PolitiDex · ${total} update${total === 1 ? "" : "s"} on what you track`, html, text };
 }
 
 // Send one email through the configured ESP. Returns true on success. Throws on a
 // provider error so the caller can leave last_digest_at untouched and retry.
-async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
+// The List-Unsubscribe headers (RFC 2369 + RFC 8058 one-click) are what let Gmail
+// and Yahoo show a native "Unsubscribe" control and are effectively required for
+// bulk senders to stay out of spam — so every digest carries them.
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+  unsubUrl: string
+): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.DIGEST_FROM_EMAIL;
   if (!key || !from) return false; // unconfigured — caller treats as "not sent"
 
+  const payload: Record<string, unknown> = {
+    from,
+    to,
+    subject,
+    html,
+    text,
+    headers: {
+      "List-Unsubscribe": `<${unsubUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  };
+  // Optional friendly reply-to (e.g. "PolitiDex <hello@…>") — improves deliverability
+  // and gives recipients a human address to reply to. Ignored when unset.
+  const replyTo = process.env.DIGEST_REPLY_TO;
+  if (replyTo) payload.reply_to = replyTo;
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({ from, to, subject, html, text }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
@@ -133,6 +166,13 @@ export default async (): Promise<Response> => {
       "pdx-digest-cron: email delivery not configured (set RESEND_API_KEY + DIGEST_FROM_EMAIL to enable). Skipping."
     );
     return new Response("email-not-configured", { status: 200 });
+  }
+  // Fail loud, not silently: a From address Resend will reject (no "@") would 422
+  // every send. Warn once up front so a misconfiguration is obvious in the logs.
+  if (!/@/.test(String(process.env.DIGEST_FROM_EMAIL))) {
+    console.warn(
+      'pdx-digest-cron: DIGEST_FROM_EMAIL does not look like an address — expected "Name <addr@domain>" or "addr@domain".'
+    );
   }
 
   // Only opted-in rows are candidates. This is a small table (one row per user who
@@ -164,8 +204,8 @@ export default async (): Promise<Response> => {
         continue; // nothing to say → send nothing (calm by design)
       }
 
-      const { subject, html, text } = renderEmail(built);
-      const ok = await sendEmail(row.email, subject, html, text);
+      const { subject, html, text } = renderEmail(built, unsubscribeUrl(row.userId));
+      const ok = await sendEmail(row.email, subject, html, text, unsubscribeUrl(row.userId));
       if (!ok) continue;
 
       await db

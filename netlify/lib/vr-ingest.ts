@@ -25,7 +25,7 @@
 // curated mapping. It is OFF by default so the read path is never polluted with an
 // unreviewed verdict signal.
 
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
 import { db } from "../../db/index.js";
 import {
@@ -34,51 +34,42 @@ import {
   vrMemberVotes,
   vrRollcalls,
 } from "../../db/schema.js";
-import issueKeyData from "../../db/issue-keys.json" with { type: "json" };
+import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
+import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
 import { writeMemberPack } from "./vr-pack.js";
+import {
+  ISSUE_KEYS,
+  canonicalMeasureNumber,
+  crossoverFlags,
+  normalizeCongressVote,
+  originatingChamber,
+  suggestIssue,
+  type RawMemberVote,
+  type RawVote,
+} from "./vr-normalize.js";
 
-const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
-const ISSUE_KEYWORDS = (issueKeyData as { keywords?: Record<string, string[]> }).keywords || {};
+// Re-export the pure helpers/types so existing importers of this module keep working.
+export {
+  ISSUE_KEYS,
+  canonicalMeasureNumber,
+  normalizeCongressVote,
+  originatingChamber,
+} from "./vr-normalize.js";
+export type { RawMemberVote, RawVote } from "./vr-normalize.js";
+
+// Committed fallback for the bioguide→roster map. The Blobs override (vr-config /
+// member-map) wins when present, but shipping the map in the repo means the ingest
+// attributes votes correctly out of the box — no manual Blobs write required to go
+// live. Regenerate with scripts/vr-gen-member-map.mjs; push to Blobs (optional
+// override) with scripts/vr-load-member-map.mjs.
+const SEED_MEMBER_MAP: Record<string, string> =
+  (memberMapSeed as { map?: Record<string, string> }).map || {};
 
 const CONGRESS_API_BASE = "https://api.congress.gov/v3";
 const MEMBER_MAP_STORE = "vr-config";
 const MEMBER_MAP_KEY = "member-map"; // { [bioguideId]: rosterSlug }
 
 // ── Types ────────────────────────────────────────────────────────────────────
-export type RawMemberVote = {
-  bioguideId?: string;
-  name?: string;
-  state?: string;
-  party?: string; // 'R' | 'D' | 'I' | …
-  position: string; // yea | nay | present | not_voting (already normalized)
-};
-
-export type RawVote = {
-  chamber: string; // house | senate
-  congress: number;
-  session: number;
-  rollNumber: number;
-  voteDate: string; // ISO
-  question: string | null;
-  actionType: string; // passage | amendment | cloture | motion | …
-  result: string | null;
-  requiredMajority?: string;
-  totals?: Record<string, number>;
-  sourceUrl: string; // roll-call source (required — skipped if missing)
-  sourceLabel?: string;
-  measure: {
-    measureType: string; // bill | resolution | amendment | nomination
-    number: string | null;
-    title: string;
-    congress: number;
-    chamber: string;
-    sourceUrl: string; // measure source (Congress.gov) — required
-    sourceLabel?: string;
-    externalIds?: Record<string, string>;
-  };
-  memberVotes: RawMemberVote[];
-};
-
 export type IngestReport = {
   configured: boolean;
   fetched: number;
@@ -87,6 +78,8 @@ export type IngestReport = {
   memberVotesUpserted: number;
   membersUnmapped: number;
   issuesSuggested: number;
+  curatedMeasuresMatched: number;
+  curatedIssuesUpserted: number;
   packsWritten: number;
   skipped: number;
   errors: string[];
@@ -125,134 +118,19 @@ export async function fetchRollcallsFromCongress(opts: {
   }
 }
 
-// Map one Congress.gov vote object into a RawVote. Defensive: returns null when
-// the shape is unrecognisable or a required source is missing (verifiability).
-export function normalizeCongressVote(v: any): RawVote | null {
-  if (!v || typeof v !== "object") return null;
-  const chamber = String(v.chamber || v.chamberCode || "").toLowerCase();
-  if (chamber !== "house" && chamber !== "senate") return null;
-  const rollNumber = Number(v.rollCallNumber ?? v.rollNumber ?? v.number);
-  const congress = Number(v.congress);
-  const session = Number(v.sessionNumber ?? v.session ?? 1);
-  if (!Number.isFinite(rollNumber) || !Number.isFinite(congress)) return null;
-  const voteDate = v.startDate || v.date || v.updateDate;
-  if (!voteDate) return null;
-  const sourceUrl = v.url || v.sourceUrl;
-  if (!sourceUrl) return null;
-
-  const rawMembers: any[] = v.members || v.votePositions || v.positions || [];
-  const memberVotes: RawMemberVote[] = rawMembers.map((m: any) => ({
-    bioguideId: m.bioguideId || m.bioguideID || m.memberId,
-    name: m.name || m.fullName,
-    state: m.state,
-    party: m.party || m.partyCode,
-    position: normalizePosition(m.votePosition || m.position || m.vote),
-  })).filter((m) => !!m.position);
-
-  const mm = v.legislation || v.bill || v.measure || {};
-  const measureType = String(mm.type || v.legislationType || "bill").toLowerCase();
-  return {
-    chamber,
-    congress,
-    session,
-    rollNumber,
-    voteDate: new Date(voteDate).toISOString(),
-    question: v.voteQuestion || v.question || null,
-    actionType: mapActionType(v.voteType || v.question || ""),
-    result: v.result || v.voteResult || null,
-    requiredMajority: v.requiredMajority || "simple",
-    totals: normalizeTotals(v.voteTotals || v.totals),
-    sourceUrl,
-    sourceLabel: chamber === "house" ? "U.S. House Clerk" : "U.S. Senate",
-    measure: {
-      measureType: ["bill", "resolution", "amendment", "nomination"].includes(measureType) ? measureType : "bill",
-      number: mm.number ? `${mm.type || ""} ${mm.number}`.trim() : (v.legislationNumber || null),
-      title: mm.title || v.legislationTitle || v.voteQuestion || `Roll call ${rollNumber}`,
-      congress,
-      chamber,
-      sourceUrl: mm.url || `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
-      sourceLabel: "Congress.gov",
-      externalIds: mm.congressGovId ? { congressGovId: String(mm.congressGovId) } : {},
-    },
-    memberVotes,
-  };
-}
-
-function normalizePosition(p: any): string {
-  const s = String(p || "").toLowerCase().trim();
-  if (s === "yea" || s === "yes" || s === "aye") return "yea";
-  if (s === "nay" || s === "no") return "nay";
-  if (s === "present") return "present";
-  if (s.indexOf("not") !== -1 || s === "") return "not_voting";
-  return "";
-}
-
-function mapActionType(q: string): string {
-  const s = String(q || "").toLowerCase();
-  if (s.indexOf("amendment") !== -1) return "amendment";
-  if (s.indexOf("cloture") !== -1) return "cloture";
-  if (s.indexOf("passage") !== -1 || s.indexOf("concur") !== -1) return "passage";
-  if (s.indexOf("nomination") !== -1) return "nomination";
-  if (s.indexOf("veto") !== -1) return "veto_override";
-  if (s.indexOf("motion") !== -1 || s.indexOf("recommit") !== -1 || s.indexOf("quorum") !== -1) return "motion";
-  return "passage";
-}
-
-function normalizeTotals(t: any): Record<string, number> {
-  if (!t || typeof t !== "object") return {};
-  return {
-    yea: Number(t.yea ?? t.yeas ?? t.yes ?? 0) || 0,
-    nay: Number(t.nay ?? t.nays ?? t.no ?? 0) || 0,
-    present: Number(t.present ?? 0) || 0,
-    notVoting: Number(t.notVoting ?? t.not_voting ?? t.notvoting ?? 0) || 0,
-  };
-}
-
 // ── Member resolution (curated map; never guesses) ───────────────────────────
+// Blobs override (vr-config / member-map) wins when present and non-empty; otherwise
+// the committed seed map (db/vr-member-map.json) is used. Either way, a bioguide the
+// map doesn't know is skipped, never guessed.
 export async function loadMemberMap(): Promise<Record<string, string>> {
   try {
     const store = getStore(MEMBER_MAP_STORE);
     const map = (await store.get(MEMBER_MAP_KEY, { type: "json" })) as Record<string, string> | null;
-    return map && typeof map === "object" ? map : {};
+    if (map && typeof map === "object" && Object.keys(map).length) return map;
   } catch {
-    return {};
+    /* fall through to the committed seed */
   }
-}
-
-// Compute each member's party-crossover flag from the majority party position.
-function crossoverFlags(memberVotes: RawMemberVote[]): Map<RawMemberVote, string | null> {
-  const flags = new Map<RawMemberVote, string | null>();
-  const byParty: Record<string, Record<string, number>> = {};
-  memberVotes.forEach((m) => {
-    if (!m.party || (m.position !== "yea" && m.position !== "nay")) return;
-    (byParty[m.party] = byParty[m.party] || {})[m.position] = ((byParty[m.party] || {})[m.position] || 0) + 1;
-  });
-  const majority: Record<string, string> = {};
-  Object.keys(byParty).forEach((p) => {
-    majority[p] = (byParty[p].yea || 0) >= (byParty[p].nay || 0) ? "yea" : "nay";
-  });
-  memberVotes.forEach((m) => {
-    if (!m.party || (m.position !== "yea" && m.position !== "nay") || !majority[m.party]) {
-      flags.set(m, null);
-    } else {
-      flags.set(m, m.position === majority[m.party] ? "with_party" : "against_party");
-    }
-  });
-  return flags;
-}
-
-// Optional, conservative keyword classifier: suggest ONE issue for a measure when
-// exactly one ISSUE_MAP issue's keywords clearly match its title. Marked as auto
-// and never overwrites a curated mapping (onConflictDoNothing).
-function suggestIssue(title: string): string | null {
-  const t = String(title || "").toLowerCase();
-  if (!t) return null;
-  const hits: string[] = [];
-  for (const key of Object.keys(ISSUE_KEYWORDS)) {
-    const kws = ISSUE_KEYWORDS[key] || [];
-    if (kws.some((kw) => kw && t.indexOf(String(kw).toLowerCase()) !== -1)) hits.push(key);
-  }
-  return hits.length === 1 && ISSUE_KEYS.has(hits[0]) ? hits[0] : null;
+  return { ...SEED_MEMBER_MAP };
 }
 
 // Find-or-create a measure (there is no natural unique index on measures, so this
@@ -294,14 +172,97 @@ async function upsertMeasure(m: RawVote["measure"]): Promise<number> {
   return row.id;
 }
 
+// ── Curated issue mappings (editorial; keyed by natural measure identity) ─────
+// issue mappings + supportMeaning drive the stance-vs-record verdict, so they are a
+// human CURATION step, never auto-invented. This applies db/vr-issue-seed.json onto
+// measures that ALREADY EXIST (from the seed migration or a live ingest), matched by
+// (measureType, congress, chamber, canonical number). An entry that matches nothing
+// yet is a harmless no-op — it can never create a measure — so a mistyped bill number
+// simply never takes effect. Curated rows are authoritative: they overwrite an
+// earlier auto-suggestion for the same (measure, issue). Unknown issue keys are
+// rejected so the read path only ever sees allow-listed keys.
+type CuratedIssueSeed = {
+  measures: Array<{
+    measureType: string;
+    congress: number;
+    chamber: string;
+    number: string;
+    sourceUrl?: string;
+    issues: Array<{
+      issueKey: string;
+      weight?: number;
+      isPrimary?: boolean;
+      supportMeaning?: string;
+      rationale?: string;
+      sourceUrl?: string;
+    }>;
+  }>;
+};
+
+const ISSUE_SEED = (issueSeedData as CuratedIssueSeed).measures || [];
+
+export async function applyCuratedIssueSeed(
+  seed: CuratedIssueSeed["measures"] = ISSUE_SEED
+): Promise<{ measuresMatched: number; measuresSkipped: number; issuesUpserted: number; badKeys: string[]; matchedMeasureIds: number[] }> {
+  const out = { measuresMatched: 0, measuresSkipped: 0, issuesUpserted: 0, badKeys: [] as string[], matchedMeasureIds: [] as number[] };
+  for (const entry of seed) {
+    const number = canonicalMeasureNumber(entry.number);
+    const found = await db
+      .select({ id: vrMeasures.id })
+      .from(vrMeasures)
+      .where(
+        and(
+          eq(vrMeasures.measureType, entry.measureType),
+          eq(vrMeasures.congress, entry.congress),
+          eq(vrMeasures.chamber, entry.chamber),
+          number ? eq(vrMeasures.number, number) : sql`${vrMeasures.number} IS NULL`
+        )
+      )
+      .limit(1);
+    if (!found.length) { out.measuresSkipped++; continue; } // not ingested yet — no-op
+    out.measuresMatched++;
+    const measureId = found[0].id;
+    out.matchedMeasureIds.push(measureId);
+    for (const iss of entry.issues) {
+      if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
+      const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
+      const values = {
+        measureId,
+        issueKey: iss.issueKey,
+        weight: typeof iss.weight === "number" ? iss.weight : 100,
+        isPrimary: !!iss.isPrimary,
+        supportMeaning,
+        rationale: iss.rationale || "",
+        sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
+      };
+      await db
+        .insert(vrMeasureIssues)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
+          set: {
+            weight: values.weight,
+            isPrimary: values.isPrimary,
+            supportMeaning: values.supportMeaning,
+            rationale: values.rationale,
+            sourceUrl: values.sourceUrl,
+          },
+        });
+      out.issuesUpserted++;
+    }
+  }
+  return out;
+}
+
 // ── Core loader: idempotent upserts. No network — unit-testable with fixtures. ─
 export async function ingestVotes(
   rawVotes: RawVote[],
-  opts: { classifyIssues?: boolean; memberMap?: Record<string, string> } = {}
+  opts: { classifyIssues?: boolean; memberMap?: Record<string, string>; applyIssueSeed?: boolean } = {}
 ): Promise<IngestReport> {
   const report: IngestReport = {
     configured: true, fetched: rawVotes.length, measuresUpserted: 0, rollcallsUpserted: 0,
-    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, packsWritten: 0, skipped: 0, errors: [],
+    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+    curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
   };
   const memberMap = opts.memberMap || (await loadMemberMap());
   const affectedMembers = new Set<string>();
@@ -366,6 +327,30 @@ export async function ingestVotes(
     }
   }
 
+  // Apply the curated measure→issue mappings (H.R. 1 above all) onto the measures
+  // that now exist, and refresh the packs of everyone whose verdict-bearing issue
+  // data therefore changed. Idempotent; skip only when a caller opts out (unit tests).
+  if (opts.applyIssueSeed !== false) {
+    try {
+      const seedRes = await applyCuratedIssueSeed();
+      report.curatedMeasuresMatched = seedRes.measuresMatched;
+      report.curatedIssuesUpserted = seedRes.issuesUpserted;
+      if (seedRes.badKeys.length) {
+        report.errors.push(`curated issue seed had unknown keys: ${[...new Set(seedRes.badKeys)].join(", ")}`);
+      }
+      if (seedRes.matchedMeasureIds.length) {
+        const voters = await db
+          .selectDistinct({ pid: vrMemberVotes.politicianId })
+          .from(vrMemberVotes)
+          .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
+          .where(inArray(vrRollcalls.measureId, seedRes.matchedMeasureIds));
+        for (const r of voters) affectedMembers.add(r.pid);
+      }
+    } catch (e: any) {
+      report.errors.push(`curated issue seed: ${e?.message || String(e)}`);
+    }
+  }
+
   // Refresh the offline packs for everyone whose record changed.
   for (const pid of affectedMembers) {
     try { await writeMemberPack(pid); report.packsWritten++; }
@@ -385,7 +370,8 @@ export async function runIngest(opts: {
   if (!process.env.CONGRESS_GOV_API_KEY) {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
-      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, packsWritten: 0, skipped: 0,
+      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+      curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
       errors: ["CONGRESS_GOV_API_KEY not configured — ingest skipped"],
     };
   }
@@ -430,6 +416,44 @@ export async function verify(): Promise<{
   const issueRows = await db.selectDistinct({ k: vrMeasureIssues.issueKey }).from(vrMeasureIssues);
   const badKeys = issueRows.map((r) => r.k).filter((k) => !ISSUE_KEYS.has(k));
   if (badKeys.length) problems.push(`unknown issue keys in vr_measure_issues: ${badKeys.join(", ")}`);
+
+  // No two measures may share a natural identity (type, congress, chamber, number) —
+  // a duplicate means measure-number canonicalization let a bill split across rows.
+  const dups = await db
+    .select({
+      t: vrMeasures.measureType, c: vrMeasures.congress, ch: vrMeasures.chamber,
+      num: vrMeasures.number, n: sql<number>`count(*)`,
+    })
+    .from(vrMeasures)
+    .where(sql`${vrMeasures.number} is not null`)
+    .groupBy(vrMeasures.measureType, vrMeasures.congress, vrMeasures.chamber, vrMeasures.number)
+    .having(sql`count(*) > 1`);
+  counts.duplicateMeasureGroups = dups.length;
+  if (dups.length) {
+    problems.push(
+      `duplicate measures: ${dups.map((d) => `${d.num} (${d.ch}/${d.c}) ×${d.n}`).join(", ")}`
+    );
+  }
+
+  // Member-vote attribution health (visibility, not a hard failure).
+  await count(
+    "distinctMembersWithVotes",
+    db.select({ n: sql<number>`count(distinct ${vrMemberVotes.politicianId})` }).from(vrMemberVotes)
+  );
+  counts.memberMapEntries = Object.keys(SEED_MEMBER_MAP).length;
+
+  // The flagship measure must stay mapped so its verdict signal never goes dark.
+  const hr1Issues = await count(
+    "flagshipHr1Issues",
+    db
+      .select({ n: sql<number>`count(*)` })
+      .from(vrMeasureIssues)
+      .innerJoin(vrMeasures, eq(vrMeasureIssues.measureId, vrMeasures.id))
+      .where(and(eq(vrMeasures.number, "H.R. 1"), eq(vrMeasures.congress, 119)))
+  );
+  if (counts.measures > 0 && hr1Issues === 0) {
+    problems.push("flagship H.R. 1 (119) has no issue mappings");
+  }
 
   return { ok: problems.length === 0, counts, issues: problems };
 }

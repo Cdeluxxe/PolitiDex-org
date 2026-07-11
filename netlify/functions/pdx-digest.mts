@@ -30,6 +30,7 @@ import {
   authenticate,
   buildDigest,
   interestsFromSnapshots,
+  verifyUnsubToken,
   type Interests,
 } from "../lib/digest.js";
 
@@ -145,6 +146,48 @@ async function markSeen(userId: string, email: string | null): Promise<Response>
   return json({ ok: true, lastSeenAt: (row.lastSeenAt as Date).toISOString() });
 }
 
+// ── GET|POST /unsubscribe?u=<token> — one-click email opt-out, NO login ─────────
+// The signed token (see digest.ts) authorizes turning email off for exactly one
+// account, so a recipient can unsubscribe straight from the email. POST is the
+// RFC 8058 one-click path mail clients hit automatically; GET is the human click,
+// which returns a small confirmation page. Both are idempotent and only ever flip
+// email OFF — the in-app digest and every other preference are untouched.
+async function unsubscribe(req: Request, url: URL): Promise<Response> {
+  const token = url.searchParams.get("u") || url.searchParams.get("token") || "";
+  const userId = verifyUnsubToken(token);
+  const isPost = req.method.toUpperCase() === "POST";
+
+  if (!userId) {
+    if (isPost) return new Response("invalid token", { status: 400 });
+    return new Response(unsubPage(false), { status: 400, headers: { "content-type": "text/html; charset=utf-8" } });
+  }
+
+  // Only flips the flag when a row exists — never creates a spurious prefs row.
+  // We leave `frequency` intact so re-enabling later restores the user's cadence;
+  // emailEnabled=false alone fully stops the scheduled sender.
+  await db
+    .update(pdxNotificationPrefs)
+    .set({ emailEnabled: false, updatedAt: new Date() })
+    .where(eq(pdxNotificationPrefs.userId, userId));
+
+  if (isPost) return new Response("unsubscribed", { status: 200 });
+  return new Response(unsubPage(true), { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+}
+
+function unsubPage(ok: boolean): string {
+  const site = "https://politidex.org";
+  const body = ok
+    ? `<h1>You're unsubscribed</h1><p>You will no longer receive email digests from PolitiDex. The in-app “What Changed” digest is unaffected — you can re-enable email any time in Notification settings.</p>`
+    : `<h1>Link expired</h1><p>This unsubscribe link is invalid or has expired. You can turn email digests off directly in Notification settings.</p>`;
+  return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<title>PolitiDex email digests</title>` +
+    `<div style="max-width:520px;margin:12vh auto;padding:0 20px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0a0f1e;text-align:center;">` +
+    `<div style="font-size:22px;font-weight:800;">POLITI<span style="color:#c8102e;">DEX</span></div>` +
+    `<div style="margin-top:18px;font-size:16px;line-height:1.55;color:#28324a;">${body}</div>` +
+    `<p style="margin-top:24px;"><a href="${site}/#whats-changed" style="color:#c8102e;font-weight:700;text-decoration:none;">Open PolitiDex →</a></p>` +
+    `</div>`;
+}
+
 // ── POST / — build the digest ───────────────────────────────────────────────────
 async function digest(userId: string | null, email: string | null, req: Request): Promise<Response> {
   let body: any = {};
@@ -199,6 +242,13 @@ export default async (req: Request): Promise<Response> => {
   const method = req.method.toUpperCase();
 
   try {
+    // Unsubscribe is token-authorized (the signed `u` param), so it runs BEFORE the
+    // Firebase check and needs no login — that is the whole point of one-click opt-out.
+    if (path === "/unsubscribe") {
+      if (method === "GET" || method === "POST") return await unsubscribe(req, url);
+      return json({ error: "Method not allowed" }, 405);
+    }
+
     const user = await authenticate(req);
 
     if (path === "/prefs") {
