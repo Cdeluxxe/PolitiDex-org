@@ -120,6 +120,10 @@
       /* misc states */
       '.vr-loading,.vr-empty{padding:1rem;text-align:center;color:#7596c0;font-size:.82rem;}',
       '.vr-empty-ico{font-size:1.6rem;display:block;margin-bottom:.4rem;opacity:.7;}',
+      '.vr-empty-sub{display:block;margin:.3rem auto 0;max-width:22rem;font-size:.74rem;color:#5f7aa8;line-height:1.5;}',
+      '.vr-empty-btn{margin-top:.7rem;display:inline-flex;align-items:center;gap:.35rem;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#bfdbfe;border-radius:.6rem;padding:.5rem .9rem;font-size:.76rem;font-weight:600;cursor:pointer;}',
+      '.vr-empty-btn:hover{background:rgba(96,165,250,.2);}',
+      '@media (pointer:coarse){.vr-empty-btn{padding:.65rem 1rem;}}',
       '.vr-more{width:100%;margin-top:.4rem;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:#bfdbfe;border-radius:.6rem;padding:.55rem;font-size:.78rem;font-weight:600;cursor:pointer;}',
       '.vr-more:hover{background:rgba(96,165,250,.2);}',
       '.vr-note{font-size:.66rem;color:#4e72a0;text-align:center;margin:.5rem 0 0;line-height:1.5;}',
@@ -347,10 +351,42 @@
       '</div>';
   }
 
+  // ── Empty / no-match state ─────────────────────────────────────────────────
+  // Any filter narrowing the set beyond the member's full record (sort is a view
+  // preference, not a filter, so it's excluded).
+  function hasActiveFilters() {
+    if (!_state) return false;
+    var f = _state.filters;
+    return !!(f.issue || f.chamber || f.actionType || f.position || f.from || f.to || f.hideProcedural);
+  }
+
+  // "No records match these filters" — with a Clear filters affordance when the
+  // emptiness is filter-induced (so the user isn't left at a dead end).
+  function noMatchHtml() {
+    var filtered = hasActiveFilters();
+    return '<div class="vr-empty"><span class="vr-empty-ico">🔎</span>' +
+      (filtered ? 'No records match these filters.' : 'No records to show yet.') +
+      (filtered
+        ? '<span class="vr-empty-sub">Try widening or clearing the filters to see the full record.</span>' +
+          '<button type="button" class="vr-empty-btn" data-vr-clear>Clear filters</button>'
+        : '') +
+      '</div>';
+  }
+
+  // Reset every filter (but keep the sort/view preference) and repaint.
+  function clearFilters() {
+    if (!_state) return;
+    var f = _state.filters;
+    f.issue = ''; f.chamber = ''; f.actionType = '';
+    f.position = ''; f.from = ''; f.to = ''; f.hideProcedural = false;
+    savePrefs({ hideProcedural: false });
+    applyFilters();
+  }
+
   // ── Group the loaded items by their primary issue, nesting amendments ──────────
   function renderGroups(items, positionMap) {
     if (!items.length) {
-      return '<div class="vr-empty"><span class="vr-empty-ico">🔎</span>No records match these filters.</div>';
+      return noMatchHtml();
     }
 
     // Index by measureId so an amendment can find its parent card within a group.
@@ -522,7 +558,7 @@
     } else {
       listHtml = _state.items.length
         ? _state.items.map(function (it) { return cardHtml(it, pm); }).join('')
-        : '<div class="vr-empty"><span class="vr-empty-ico">🔎</span>No records match these filters.</div>';
+        : noMatchHtml();
     }
 
     var more = (data && data.hasMore)
@@ -575,7 +611,8 @@
 
   function renderErrorInline() {
     var root = document.getElementById('pdx-vr-list');
-    if (root) root.innerHTML = '<div class="vr-empty"><span class="vr-empty-ico">📡</span>Couldn’t load the voting record right now. Check your connection and try again.</div>';
+    if (root) root.innerHTML = '<div class="vr-empty"><span class="vr-empty-ico">📡</span>Couldn’t load the voting record right now. Check your connection and try again.' +
+      '<button type="button" class="vr-empty-btn" data-vr-retry>Try again</button></div>';
   }
 
   // Load the next page and append (keeps grouping coherent by re-rendering).
@@ -596,6 +633,8 @@
     section.__vrBound = true;
 
     section.addEventListener('click', function (e) {
+      if (e.target.closest('[data-vr-clear]')) { clearFilters(); return; }
+      if (e.target.closest('[data-vr-retry]')) { applyFilters(); return; }
       var chip = e.target.closest('[data-vr-issue]');
       if (chip) { _state.filters.issue = chip.getAttribute('data-vr-issue') || ''; applyFilters(); return; }
       if (e.target.closest('[data-vr-more]')) { loadMore(); return; }
