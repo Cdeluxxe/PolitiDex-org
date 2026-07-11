@@ -115,6 +115,46 @@ export async function authenticate(req: Request): Promise<AuthUser | null> {
   return { uid: payload.sub, email };
 }
 
+// ── One-click unsubscribe tokens (no login required) ──────────────────────────
+// A recipient must be able to turn off email digests straight from the email —
+// without signing in — both for basic courtesy and because bulk-mail deliverability
+// (Gmail/Yahoo one-click unsubscribe, RFC 8058) depends on it. The token is a
+// stateless HMAC over the user id, so no extra storage is needed and a link can't
+// be forged or point at a different account.
+//
+// The signing secret is DIGEST_UNSUB_SECRET when set, else the Resend key (always
+// present whenever email is actually being sent, so a live unsubscribe link is
+// always verifiable). The project id is only a last-ditch fallback for a
+// misconfigured environment; when no key is set, no email — and thus no link — is
+// ever produced, so it can never be exercised in practice.
+function unsubSecret(): string {
+  return process.env.DIGEST_UNSUB_SECRET || process.env.RESEND_API_KEY || FIREBASE_PROJECT_ID;
+}
+
+export function makeUnsubToken(userId: string): string {
+  const mac = crypto.createHmac("sha256", unsubSecret()).update(userId).digest("base64url").slice(0, 32);
+  return `${Buffer.from(userId).toString("base64url")}.${mac}`;
+}
+
+// Returns the userId when the token is authentic, else null. Constant-time compare.
+export function verifyUnsubToken(token: string): string | null {
+  const parts = String(token || "").split(".");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  let userId: string;
+  try { userId = Buffer.from(parts[0], "base64url").toString("utf8"); } catch { return null; }
+  if (!userId) return null;
+  const expected = crypto.createHmac("sha256", unsubSecret()).update(userId).digest("base64url").slice(0, 32);
+  const a = Buffer.from(parts[1]);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return null;
+  try { return crypto.timingSafeEqual(a, b) ? userId : null; } catch { return null; }
+}
+
+const SITE_URL = "https://politidex.org";
+export function unsubscribeUrl(userId: string): string {
+  return `${SITE_URL}/api/pdx-digest/unsubscribe?u=${encodeURIComponent(makeUnsubToken(userId))}`;
+}
+
 // ── Interests ────────────────────────────────────────────────────────────────
 export interface Interests {
   politicianIds: string[];
