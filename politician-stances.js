@@ -510,6 +510,118 @@
       { topic:'Teachers Near the Bottom', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Responding to a state legislative audit urging higher teacher pay, the board president acknowledged the rural district still lags: \'we\'ve been really aggressive at trying to keep up with salaries and we\'re still at the bottom.\'', source:{label:'KSL', url:'https://www.ksl.com/article/51013102/utah-legislative-auditors-recommend-that-this-rural-school-district-pay-teachers-more'} },
       { topic:'Leaning on the Legislature', icon:'🏛', pos:'mixed', issueKey:'edu_balance', issueStance:'mixed', text:'Said the district would not have reached roughly $50,000 in starting salary without a recent state \'legislative add-on\' — underscoring rural districts\' dependence on the Legislature to close pay gaps.', source:{label:'KSL', url:'https://www.ksl.com/article/51013102/utah-legislative-auditors-recommend-that-this-rural-school-district-pay-teachers-more'} },
     ],
+    // ── Rural / small counties · Batch 10 (July 2026) ─────────────────────────────
+    // Finishes Utah's smallest, most federal-land-dominated counties, controversy-first
+    // on the fight that defines each: Kane and Garfield (Grand Staircase-Escalante — the
+    // monument was shrunk again by federal order on July 13, 2026 — plus Bryce/tourism
+    // and RS 2477 roads), Morgan (Wasatch Front growth and the Wasatch Peaks Ranch resort
+    // taxing district), Rich (Bear Lake tourism and a rural sheriff-staffing squeeze),
+    // Wayne (Capitol Reef tourism and Torrey's dark-sky identity), Piute (federal-lands
+    // grazing), and Daggett (Flaming Gorge water releases vs. a tiny tourism tax base).
+    // Nuanced issues (the monument, the resort district, shrinking reservoirs) span
+    // multiple facet keys so pro-development and guardrail positions read distinctly.
+
+    // — Kane County (all-female commission) —
+    gwen_brown_kane: [ // Gwen Brown — 🏛 Kane County Commission (Chair)
+      { topic:'Utah\'s First All-Female Commission', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'A retired Postal Service worker who beat the GOP incumbent in the June 2024 primary, she was sworn in January 2025 to complete what is believed to be Utah\'s first all-female county commission: \'exciting to be the first in Utah, if that is what we are.\'', source:{label:'Salt Lake Tribune', url:'https://www.sltrib.com/news/2025/01/30/kane-countys-all-female-commission/'} },
+      { topic:'Coal & Mineral Revenue', icon:'⛏', pos:'support', issueKey:'lands_energy', issueStance:'support', text:'As chair holds the Alton Coal, Board of Equalization and mineral-lease-revenue portfolios — the extraction income that helps fund a county that is roughly 80% public land.', source:{label:'Kane County', url:'https://kane.utah.gov/217/County-Commission'} },
+      { topic:'Growth, Taxes, Tourism', icon:'📈', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Describes the commission\'s shared priorities as managing growth, controlling taxes and boosting tourism in a county whose economy leans heavily on visitors to public lands.', source:{label:'Salt Lake Tribune', url:'https://www.sltrib.com/news/2025/01/30/kane-countys-all-female-commission/'} },
+    ],
+    celeste_meyeres_kane: [ // Celeste Meyeres — 🏛 Kane County Commission
+      { topic:'Grand Staircase Multiple-Use', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Holds the county\'s public-lands portfolio — the Grand Staircase-Escalante monument advisory committee and RS 2477 road litigation — and argues the 2025 federal management rules were too restrictive and ignored the people who live nearby.', source:{label:'KUER', url:'https://www.kuer.org/business-economy/2026-01-20/utahs-national-monuments-boost-local-economies-but-remain-a-political-sore-spot'} },
+      { topic:'Tourism\'s Uneven Prosperity', icon:'⚖️', pos:'mixed', issueKey:'econ_growth', issueStance:'mixed', text:'Warns that leaning on public-lands tourism concentrates prosperity among retirees while working families leave and school enrollment falls: \'When we have some economic diversity, then there\'s more resiliency … to respond to varying market forces.\'', source:{label:'KUER', url:'https://www.kuer.org/business-economy/2026-01-20/utahs-national-monuments-boost-local-economies-but-remain-a-political-sore-spot'} },
+    ],
+    tracy_glover_kane: [ // Tracy Glover — 🛡 Kane County Sheriff
+      { topic:'"Tip of the Spear" on Roads', icon:'🤠', pos:'support', issueKey:'lands_local', issueStance:'support', text:'As Utah Sheriffs\' Association president he took the county\'s RS 2477 public-lands road fight to Congress: \'Kane County is the tip of the spear on a statewide issue … we\'re trying to get federal legislators to see how important the legal battle is here.\'', source:{label:'Southern Utah News', url:'https://www.sunews.net/post/kane-county-sheriff-reports-on-sheriff-s-association-representation-and-efforts-in-d-c-legislative'} },
+      { topic:'Career Kanab Sheriff', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'A Kanab native who has served as sheriff since 2012, he was named Western States Sheriffs\' Association Sheriff of the Year in 2025 and co-chairs its public-lands committee.', source:{label:'St. George News', url:'https://www.stgeorgeutah.com/news/highest-standard-of-public-safety-kane-countys-glover-to-lead-state-regional-sheriffs-associations/article_6d69d921-3900-4203-8a75-f53acf278358.html'} },
+    ],
+    colten_johnson_kanab: [ // T. Colten Johnson — 🏛 Mayor of Kanab
+      { topic:'Control the Way We Grow', icon:'🏗', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Warns Kanab is \'changing rapidly in a concerning direction\' with tourists prioritized over locals, and wants to revisit the general plan with public input: \'I don\'t want to restrict growth. I want to see us be able to control the way we grow to some degree.\'', source:{label:'Southern Utah News', url:'https://www.sunews.net/post/kanab-city-mayoral-candidate-profiles'} },
+      { topic:'TRT-Funded Golf Course', icon:'💧', pos:'mixed', issueKey:'water', issueStance:'mixed', text:'Gave conditional support to the water district\'s proposed golf course \'as long as it doesn\'t tie up tons of TRT money\' he sees as better spent on local projects.', source:{label:'Southern Utah News', url:'https://www.sunews.net/post/kanab-city-mayoral-candidate-profiles'} },
+    ],
+
+    // — Garfield County —
+    leland_pollock_garfield: [ // Leland Pollock — 🏛 Garfield County Commission (Chair)
+      { topic:'Grand Staircase Opposition', icon:'🏔', pos:'oppose', issueKey:'lands_energy', issueStance:'support', text:'A leading voice urging the 2017 monument reduction, he calls Grand Staircase-Escalante \'the worst thing that has ever happened to this county,\' tying his opposition to a Kaiparowits coal mine the designation blocked.', source:{label:'E&E News', url:'https://www.eenews.net/articles/grand-staircase-escalante-winners-and-losers/'} },
+      { topic:'Rhetoric on Environmentalists', icon:'🔥', pos:'oppose', issueKey:'lands_local', issueStance:'mixed', text:'At a 2023 county meeting opposing the BLM management plan he called the group SUWA the \'scum of the planet\' and likened environmental organizations to terrorists, drawing accusations that he was inciting violence.', source:{label:'Salt Lake Tribune', url:'https://www.sltrib.com/news/environment/2023/12/20/garfield-county-commissioner/'} },
+      { topic:'Move to Scrap the Plan', icon:'📜', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backed Rep. Celeste Maloy\'s 2026 Congressional Review Act resolution to nullify the Biden-era Grand Staircase-Escalante management plan.', source:{label:'Rep. Maloy (House.gov)', url:'https://maloy.house.gov/news/documentsingle.aspx?DocumentID=1910'} },
+    ],
+    david_tebbs_garfield: [ // David Tebbs — 🏛 Garfield County Commission
+      { topic:'Untapped Resort Tax', icon:'🏨', pos:'mixed', issueKey:'gov_services', issueStance:'mixed', text:'Noted towns such as Hatch, Cannonville, Henrieville and Antimony do not collect resort tax and suggested it as a revenue source worth exploring for a county where Bryce Canyon drives more than half of tourist traffic.', source:{label:'Garfield County Insider', url:'https://www.insiderutah.com/articles/garfield-county-commission-feb-24-2025/'} },
+      { topic:'"Our Citizens" Only', icon:'🔍', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'On a proposed road renaming he pushed to limit public comment to constituents, saying he was \'tired of people who aren\'t our citizens trying to intimidate us.\'', source:{label:'Garfield County Insider', url:'https://www.insiderutah.com/articles/garfield-county-commission-feb-24-2025/'} },
+    ],
+    eric_houston_garfield: [ // Eric Houston — 🛡 Garfield County Sheriff
+      { topic:'Beat a 16-Year Incumbent', icon:'🗳', pos:'support', issueKey:'back_police', issueStance:'support', text:'A former deputy, Houston challenged and defeated 16-year incumbent Danny Perkins in the 2022 sheriff\'s race and now leads the office.', source:{label:'St. George News', url:'https://www.stgeorgeutah.com/news/politics/elections-2022/incumbent-garfield-county-sheriff-danny-perkins-faces-challenge-from-former-deputy-eric-houston/article_42957407-2f2f-5e2f-a32f-94e30c93f1e6.html'} },
+    ],
+    kim_soper_panguitch: [ // Kim Soper — 🏛 Mayor of Panguitch
+      { topic:'Defending the Budget', icon:'🧾', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Presided over the 2025–2026 budget hearing in the county seat and, pressed by a resident on rising spending and a $2.4M airport allocation, defended the city\'s annual audits and state rules requiring a maintained surplus.', source:{label:'Utah Public Notice', url:'https://www.utah.gov/pmn/sitemap/notice/1002169.html'} },
+    ],
+
+    // — Morgan County (five-member commission) —
+    matt_wilson_morgan: [ // Matt Wilson — 🏛 Morgan County Commission (Chair, At Large A)
+      { topic:'Chairing Growth Pressure', icon:'🏗', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Chairs the five-member commission of a county absorbing Wasatch Front growth and the Wasatch Peaks Ranch luxury resort — the development and tax questions that dominate Morgan County governance.', source:{label:'Morgan County', url:'https://www.morgancountyutah.gov/county-council94ad6c50'} },
+    ],
+    blaine_fackrell_morgan: [ // Blaine Fackrell — 🏛 Morgan County Commission (At Large B)
+      { topic:'Wasatch Peaks Ranch District', icon:'🏔', pos:'mixed', issueKey:'property_rights', issueStance:'mixed', text:'Voted to create the Wasatch Peaks Ranch Infrastructure District — an entity that can levy property taxes on resort owners (bonded debt capped at $200M) to fund the roads, bridges and drainage the luxury development needs.', source:{label:'Standard-Examiner', url:'https://www.standard.net/news/local/2023/feb/23/morgan-commission-creates-wasatch-peaks-ranch-infrastructure-taxing-district/'} },
+      { topic:'Shield County Taxpayers', icon:'💵', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Sought assurance that county taxpayers would not be liable for the resort district\'s bonds before backing it: \'I don\'t want to have to pay those.\'', source:{label:'Standard-Examiner', url:'https://www.standard.net/news/local/2023/feb/23/morgan-commission-creates-wasatch-peaks-ranch-infrastructure-taxing-district/'} },
+      { topic:'Regional Planning Seat', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Represents Morgan County on the Wasatch Front Regional Council, tying the fast-growing county into metro-area transportation and growth planning.', source:{label:'Wasatch Front Regional Council', url:'https://wfrc.utah.gov/Committees/Committee%20Member%20Lists/2025Feb_FINAL_WFRC_CommCountyAgency2025_website-combined.pdf'} },
+    ],
+    corey_stark_morgan: [ // Corey Stark — 🛡 Morgan County Sheriff
+      { topic:'Animal-Control Shortfall', icon:'🧾', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Brought a November 2025 budget-adjustment request to the commission to cover a shortfall in the county\'s animal-control contract after an unexpected cost increase.', source:{label:'Utah Public Notice', url:'https://www.utah.gov/pmn/sitemap/notice/1038305.html'} },
+    ],
+    steve_gale_morgan: [ // Steve Gale — 🏛 Mayor of Morgan City
+      { topic:'Unopposed Re-Election', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Was certified for another four-year term after Morgan City canceled its November 2025 election, with the mayor and council candidates all running unopposed.', source:{label:'Morgan City', url:'https://www.morganutah.gov/city-recorder/page/elections'} },
+    ],
+    gaylene_adams_morgan: [ // Gaylene Adams — 🎓 Morgan School District Board (President)
+      { topic:'Board President Since 2017', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Has represented District 3 on the Morgan County school board since January 2017 and serves as board president, bringing 30+ years in public education to the role.', source:{label:'Morgan School District', url:'https://www.morgansd.org/members'} },
+    ],
+
+    // — Rich County (Bear Lake) —
+    dale_stacey_rich: [ // Dale Stacey — 🛡 Rich County Sheriff
+      { topic:'Sheriff Working Patrol', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'With only four deputies covering the county, he worked patrol shifts himself after two resigned ahead of Garden City\'s busy Raspberry Days weekend: \'We\'ll be a little shorthanded, but we\'ll just have to do some adjusting.\'', source:{label:'ABC4 / Yahoo News', url:'https://www.yahoo.com/news/articles/rich-county-sheriff-office-stretched-051014879.html'} },
+      { topic:'Pay vs. Bear Lake Prices', icon:'💵', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Said deputies starting near $29.50/hour requested a $10 raise but got $5, and pointed to ~$800,000 local home prices as a recruiting barrier: \'If someone comes here, they kind of have to want to be here.\'', source:{label:'ABC4 / Yahoo News', url:'https://www.yahoo.com/news/articles/rich-county-sheriff-office-stretched-051014879.html'} },
+    ],
+    sim_weston_rich: [ // Sim Weston — 🏛 Rich County Commission
+      { topic:'Over Bear Lake Growth', icon:'🏘', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Holds the county\'s Bear Lake Regional Commission, planning-and-zoning and public-lands portfolios — the seat directly over the short-term-rental and second-home growth reshaping the lakeshore.', source:{label:'Rich County', url:'https://www.richcounty.gov/commissioners/'} },
+    ],
+    bill_cox_rich: [ // Bill Cox — 🏛 Rich County Commission
+      { topic:'Roads & Public Health', icon:'🛠', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'The Woodruff-based commissioner carries the roads, sheriff-liaison and public-health portfolios for a ranching county stretched thin on staff and services.', source:{label:'Rich County', url:'https://www.richcounty.gov/commissioners/'} },
+    ],
+    pat_argyle_gardencity: [ // Pat Argyle — 🏛 Mayor of Garden City
+      { topic:'First Woman Mayor', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'A sitting council member, she was appointed to fill the Garden City mayoralty after Mayor Mike Leonhardt\'s death in April 2026 — the first woman to lead the fast-growing Bear Lake town.', source:{label:'Garden City', url:'https://www.gardencityutah.gov/council'} },
+    ],
+
+    // — Wayne County (Capitol Reef) —
+    dennis_blackburn_wayne: [ // Dennis Blackburn — 🏛 Wayne County Commission (Chair)
+      { topic:'Farm Roads Off Highway 24', icon:'🚜', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Named commission chair in January 2025, he backed adding the historic Tub Ditch Road to the county system to keep slow farm equipment off busy State Highway 24: \'the old timers dug all the ditches by hand with a team and horses.\'', source:{label:'The Insider', url:'https://www.insiderutah.com/articles/wayne-county-commission-jan-6-2025/'} },
+    ],
+    roger_brian_wayne: [ // Roger Brian — 🏛 Wayne County Commission (Seat C)
+      { topic:'Capitol Reef Corridor Cleanup', icon:'🏜', pos:'mixed', issueKey:'infrastructure', issueStance:'mixed', text:'Sworn in January 2025, he weighed beautifying the Highway 24 tourism corridor through Capitol Reef against removal costs, noting debris had sat there \'longer than any of us in this room have been alive.\'', source:{label:'The Insider', url:'https://www.insiderutah.com/articles/wayne-county-commission-jan-21-2025/'} },
+    ],
+    micah_gulley_wayne: [ // Micah Gulley — 🛡 Wayne County Sheriff
+      { topic:'The Caineville Case', icon:'🚔', pos:'support', issueKey:'back_police', issueStance:'support', text:'His office\'s December 2025 discovery of a body off State Route 24 broke open a multi-state homicide case: \'In less than 24 hours, the crime lab obtained confirmation that the Wayne County case was connected to the Santa Barbara case,\' aided by a NIBIN cartridge-case match.', source:{label:'KSL', url:'https://www.ksl.com/article/51423803/how-a-backroad-discovery-led-to-arrest-of-melodee-buzzards-mother-in-childs-calculated-killing'} },
+    ],
+    mickey_wright_torrey: [ // Mickey Wright — 🏛 Mayor of Torrey
+      { topic:'Guarding the Dark Sky', icon:'🌌', pos:'support', issueKey:'enviro_balance', issueStance:'support', text:'Leads Torrey, which in 2018 became Utah\'s first International Dark Sky Community — a shielded-lighting ordinance that both draws Capitol Reef stargazing tourism and constrains how new development can light up.', source:{label:'KUER', url:'https://www.kuer.org/science-environment/2024-04-23/tourism-and-growth-are-double-edged-swords-for-utahs-dark-sky-certified-places'} },
+    ],
+
+    // — Piute County —
+    marty_gleave_piute: [ // Marty Gleave — 🛡 Piute County Sheriff
+      { topic:'Grazing on Monroe Mountain', icon:'🐄', pos:'oppose', issueKey:'lands_local', issueStance:'support', text:'Became the face of the county\'s federal-lands grazing fight, telling state lawmakers he would resist Forest Service permit cuts on Monroe Mountain: \'We\'re not taking no more cuts on the Mountain\' — vowing to \'deputize every man, woman and child in the county to stop what\'s going on\' (2016).', source:{label:'Fox 13 News', url:'https://www.fox13now.com/2016/02/23/piute-county-sheriff-threatens-arrest-of-forest-service-personnel'} },
+      { topic:'Sheriff of a Tiny County', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Serves as sheriff of one of Utah\'s least-populous counties, covering Junction, Circleville, Kingston, Marysvale and the surrounding public lands.', source:{label:'Piute County', url:'https://piute.gov/your-government/elected-officials/sheriff/'} },
+    ],
+
+    // — Daggett County (Flaming Gorge) —
+    matt_tippets_daggett: [ // Matt Tippets — 🏛 Daggett County Commission (Chair)
+      { topic:'Flaming Gorge Drawdown', icon:'💧', pos:'mixed', issueKey:'water', issueStance:'mixed', text:'Sought to calm panic over the 2026 federal order releasing water from Flaming Gorge to prop up Lake Powell, while not minimizing the risk: \'It is significant. It is new. I don\'t want to sugarcoat it … it may be dire, but I don\'t believe we\'re at that point yet.\'', source:{label:'Salt Lake Magazine', url:'https://saltlakemagazine.com/flaming-gorge-shrinking/'} },
+      { topic:'Tourism Beyond the Water', icon:'🚵', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Is pushing land-based draws — mountain biking, ATV trails and a competition shooting range — to diversify a tourism economy built on a reservoir that is being drawn down.', source:{label:'Salt Lake Magazine', url:'https://saltlakemagazine.com/flaming-gorge-shrinking/'} },
+    ],
+    jack_lytle_daggett: [ // Jack Lytle — 🏛 Daggett County Commission
+      { topic:'"Open for Business"', icon:'⛵', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Reassured visitors the county \'remains open for business\' during the Flaming Gorge releases, with marinas reconfiguring docks for lower water: \'It will look different but we are not being turned into Lake Powell.\'', source:{label:'Basin Now', url:'https://www.basinnow.com/even-with-increased-flaming-gorge-releases-daggett-county-still-the-place-to-recreate-this-summer/'} },
+    ],
+    erik_bailey_daggett: [ // Erik Bailey — 🛡 Daggett County Sheriff
+      { topic:'900 Residents, 2M Visitors', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Runs a sheriff\'s office for a county of under 1,000 residents but roughly 2 million annual visitors, coordinating with federal and neighboring agencies and dispatching through a consolidated center in Vernal.', source:{label:'Daggett County', url:'https://www.daggettcounty.gov/25/Sheriff'} },
+    ],
     // ── Cache County sitting officials · Batch 2 (July 2026) ──────────────────────
     // First structured pass on Cache County's COUNTY + CITY tier (Batch 1 covered only
     // the state-legislative tier). All three are tied to the county's two defining
