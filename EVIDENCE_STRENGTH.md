@@ -45,7 +45,11 @@ item is marked with an `interview` field **only** when **all four** hold:
 2. **Attributable** — the video is clearly and verifiably the named politician:
    their own channel, or a reputable interviewer/outlet whose title names them.
    Existence and attribution are confirmed live via YouTube's oEmbed endpoint
-   (the real title + channel are returned by YouTube itself).
+   (the real title + channel are returned by YouTube itself). The
+   [`/api/yt-verify`](./netlify/functions/yt-verify.mts) Function performs this
+   check server-side and returns the true title and channel; the community
+   submission form calls it automatically so a reviewer sees the real
+   attribution before anything is graded as an interview.
 3. **Substantive** — it is a genuine policy discussion (positions, reasoning,
    record), not a soundbite, an ad, or a ceremonial appearance.
 4. **Long-form** — a town hall, podcast, news interview, debate, or extended
@@ -70,6 +74,14 @@ When `minutes` is present it must clear the long-form bar (**≥ 8 minutes**) �
 the flag can never promote a clip that is itself declared short. The badge's
 reason line reads *"In-depth direct interview (~42 min, in their own words)"* so
 the upgrade explains itself.
+
+### Timestamps deep-link
+
+A `media.timestamp` (e.g. `"24:42"` or `"1:06:47"`) earns the pinpoint-timestamp
+point *and* is now applied to the link: for a YouTube source the player and the
+video tile append YouTube's `t=<seconds>s` start parameter, so a cited moment
+actually seeks there instead of opening at 0:00. Official Utah Legislature
+floor/committee clips already seek to their marker offset via `/api/leg-video`.
 
 ## Writing standard
 
