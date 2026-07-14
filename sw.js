@@ -27,7 +27,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -43,11 +43,18 @@ const SHELL_ASSETS = [
   '/css/tailwind.css',
   '/alignment-tool.css',
   '/stance-library.css',
-  '/politician-stances.js',
+  '/say-vs-do.css',
+  // Stance data is split (see scripts/split-stances.mjs): the CORE chunk boots the
+  // app shell offline; the long-tail EXT chunk is left to the runtime cache
+  // (stale-while-revalidate) so it costs nothing on first paint but still works
+  // offline after its first load.
+  '/politician-stances-core.js',
   '/stance-helpers.js',
   '/alignment-tool.js',
   '/stance-library.js',
   '/voting-record.js',
+  '/say-vs-do.js',
+  '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

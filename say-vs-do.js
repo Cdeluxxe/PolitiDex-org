@@ -790,6 +790,8 @@
           '<a class="svd-cta-btn" href="#myteam-browse-panel">🔎 Check anyone on your ballot</a>' +
           '<div class="svd-cta-note">' + (stampCount ? stampCount + ' contradictions on record · ' : '') +
             total + ' sourced receipts and counting · nonpartisan</div>' +
+          '<div class="svd-cta-note">Coverage grows daily — thin records are marked ' +
+            '<b style="color:#cbb58a;">“not yet documented,”</b> never hidden.</div>' +
         '</div>' +
       '</div>';
 
