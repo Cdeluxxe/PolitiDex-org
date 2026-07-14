@@ -114,21 +114,31 @@ function argVal(flag) { const i = process.argv.indexOf(flag); return i !== -1 ? 
 // Authenticated writes. Once the Firestore rules require auth, unauthenticated
 // PATCHes get HTTP 403. Two ways to supply credentials, in priority order:
 //   1) --key <path-to-service-account.json>  (or env FIRESTORE_KEY_FILE) — the
-//      script mints its own OAuth2 token from the key. No gcloud, no env-var
-//      juggling. This is the simplest path, especially on Windows/PowerShell.
-//   2) FIRESTORE_ACCESS_TOKEN — a pre-minted access token (e.g. from
+//      script mints its own OAuth2 token from the key file. No gcloud, no env-var
+//      juggling. Simplest interactively, especially on Windows/PowerShell.
+//   2) FIRESTORE_SA_JSON — the service-account key JSON as an environment variable
+//      (store it as a Netlify secret). Best for automated/workspace runs: set it
+//      once and every future --apply just works, no file on disk.
+//   3) FIRESTORE_ACCESS_TOKEN — a pre-minted access token (e.g. from
 //      `gcloud auth print-access-token`).
 // A service-account token authorizes via IAM and writes through even with locked
 // rules. Reads never need it.
 const KEY_FILE = argVal('--key') || process.env.FIRESTORE_KEY_FILE || '';
+const SA_JSON = process.env.FIRESTORE_SA_JSON || '';
 let ACCESS_TOKEN = process.env.FIRESTORE_ACCESS_TOKEN || '';
 function authHeaders() { return ACCESS_TOKEN ? { Authorization: `Bearer ${ACCESS_TOKEN}` } : {}; }
 
-// Mint a Google OAuth2 access token directly from a service-account JSON key,
-// using the standard signed-JWT bearer flow (RFC 7523). Node's crypto only.
-async function mintTokenFromKey(keyFile) {
-  const key = JSON.parse(readFileSync(keyFile, 'utf8'));
-  if (!key.client_email || !key.private_key) throw new Error(`${keyFile} is not a service-account key (missing client_email/private_key)`);
+// Resolve the service-account key object from env JSON or a file (env wins).
+function loadServiceAccount() {
+  if (SA_JSON) { try { return { key: JSON.parse(SA_JSON), src: 'FIRESTORE_SA_JSON' }; } catch (e) { throw new Error(`FIRESTORE_SA_JSON is not valid JSON: ${e.message}`); } }
+  if (KEY_FILE) return { key: JSON.parse(readFileSync(KEY_FILE, 'utf8')), src: KEY_FILE };
+  return null;
+}
+
+// Mint a Google OAuth2 access token from a service-account key object, using the
+// standard signed-JWT bearer flow (RFC 7523). Node's crypto only.
+async function mintToken(key) {
+  if (!key.client_email || !key.private_key) throw new Error('not a service-account key (missing client_email/private_key)');
   const tokenUri = key.token_uri || 'https://oauth2.googleapis.com/token';
   const now = Math.floor(Date.now() / 1000);
   const b64url = (o) => Buffer.from(typeof o === 'string' ? o : JSON.stringify(o)).toString('base64url');
@@ -549,23 +559,29 @@ function applyClient() {
 
   // Firestore writes require an authenticated token once the rules are locked down
   // (public read / authenticated write). Refuse to depend on the open-write door.
-  if (APPLY && !ACCESS_TOKEN && KEY_FILE) {
-    try {
-      const { token, email } = await mintTokenFromKey(KEY_FILE);
-      ACCESS_TOKEN = token;
-      console.log(`  🔑 minted access token from key: ${email}\n`);
-    } catch (e) {
-      console.error(`\n  ✗ could not mint token from --key ${KEY_FILE}: ${e.message}`);
-      process.exit(1);
+  if (APPLY && !ACCESS_TOKEN) {
+    let sa;
+    try { sa = loadServiceAccount(); } catch (e) { console.error(`\n  ✗ ${e.message}`); process.exit(1); }
+    if (sa) {
+      try {
+        const { token, email } = await mintToken(sa.key);
+        ACCESS_TOKEN = token;
+        console.log(`  🔑 minted access token from ${sa.src}: ${email}\n`);
+      } catch (e) {
+        console.error(`\n  ✗ could not mint token from ${sa.src}: ${e.message}`);
+        process.exit(1);
+      }
     }
   }
   if (APPLY && !ACCESS_TOKEN) {
-    console.error('\n  ✗ --apply needs a credential. Simplest: pass the service-account key file:');
-    console.error('      node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply --key <path-to-key.json>');
-    console.error('    (or set FIRESTORE_ACCESS_TOKEN / FIRESTORE_KEY_FILE). Aborting without writing.');
+    console.error('\n  ✗ --apply needs a credential. Pick one:');
+    console.error('      • --key <path-to-key.json>            (interactive; simplest)');
+    console.error('      • FIRESTORE_SA_JSON=<key json>        (env/secret; best for the workspace)');
+    console.error('      • FIRESTORE_ACCESS_TOKEN=<token>      (pre-minted)');
+    console.error('    Aborting without writing.');
     process.exit(1);
   }
-  if (APPLY && !KEY_FILE) console.log('  🔑 authenticated writes enabled (FIRESTORE_ACCESS_TOKEN set)\n');
+  if (APPLY && ACCESS_TOKEN && !KEY_FILE && !SA_JSON) console.log('  🔑 authenticated writes enabled (FIRESTORE_ACCESS_TOKEN set)\n');
 
   let created = 0, enriched = 0, skipped = 0, totSpot = 0, totStance = 0;
 
