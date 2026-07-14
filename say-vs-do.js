@@ -265,6 +265,26 @@
         detail +
       '</div>';
 
+    // Next-action rail — a receipt is never a dead end. In the hero card we show
+    // the compact icon rail; the lightbox passes opts.actions === false and renders
+    // the full labelled rail itself (so it isn't shown twice).
+    var foot;
+    if (opts.actions !== false && window.PDXJourney && typeof window.PDXJourney.nextActionsHTML === 'function') {
+      foot = '<div class="svd-rc-foot">' + srcHTML(r) +
+        (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') + '</div>' +
+        window.PDXJourney.nextActionsHTML(r, 'compact');
+    } else {
+      foot = '<div class="svd-rc-foot">' + srcHTML(r) +
+        (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') +
+        '<span class="svd-rc-actions">' +
+          '<button type="button" class="svd-share-btn" data-pid="' + escAttr(r.pid) + '" ' +
+            'aria-label="Share this receipt as an image">' +
+            '<span class="svd-share-ico" aria-hidden="true">📤</span> Share</button>' +
+          '<span class="svd-rc-more">Profile →</span>' +
+        '</span>' +
+      '</div>';
+    }
+
     return '<div class="svd-receipt ' + v.cls + '" role="button" tabindex="0" ' +
         'data-pid="' + escAttr(r.pid) + '" aria-label="' + escAttr(r.name + ' — ' + v.label) + '. Open profile.">' +
         '<div class="svd-rc-head">' +
@@ -277,15 +297,7 @@
             '<div class="svd-stamp-v">' + esc(v.label) + '</div></div>' +
         '</div>' +
         issue + said + did +
-        '<div class="svd-rc-foot">' + srcHTML(r) +
-          (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') +
-          '<span class="svd-rc-actions">' +
-            '<button type="button" class="svd-share-btn" data-pid="' + escAttr(r.pid) + '" ' +
-              'aria-label="Share this receipt as an image">' +
-              '<span class="svd-share-ico" aria-hidden="true">📤</span> Share</button>' +
-            '<span class="svd-rc-more">Profile →</span>' +
-          '</span>' +
-        '</div>' +
+        foot +
       '</div>';
   }
 
@@ -864,11 +876,209 @@
     });
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // SEARCH  ·  make every receipt reachable from the one global search box
+  // ──────────────────────────────────────────────────────────────────────────
+  // The global search is the universal answer-finder: a voter types a name, an
+  // issue, or both ("lee guns", "broken promise on taxes") and lands directly on
+  // the exact say-vs-do receipt. These helpers give the search box a fast,
+  // pre-indexed view of the receipt set without duplicating any ranking logic.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function norm(s) { return String(s == null ? '' : s).toLowerCase(); }
+
+  // Per-receipt search haystacks, memoized against the same key collect() uses so
+  // they rebuild exactly once when the roster / accountability layer grows.
+  var _searchIdx = null, _searchIdxKey = '';
+  function searchIndex() {
+    var key = buildKey();
+    if (_searchIdx && key === _searchIdxKey) return _searchIdx;
+    _searchIdxKey = key;
+    _searchIdx = collect().map(function (r) {
+      var nameTokens = norm(r.name).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+      var topic = r.issue ? norm(r.issue.label) : '';
+      var hay = [
+        r.name, topic, r.issueKey, r.headline, r.facts, r.why,
+        r.verdict && r.verdict.label, r.category,
+        r.said ? (r.said.word + ' ' + r.said.text) : ''
+      ].map(norm).join(' ');
+      return { r: r, nameTokens: nameTokens, topic: topic, hay: hay };
+    });
+    return _searchIdx;
+  }
+
+  // Ranked receipt matches for a free-form query. A term counts as a NAME hit
+  // when it prefixes a name token ("lee" → Mike Lee), a TOPIC hit when it lands
+  // in the issue label, or a TEXT hit anywhere in the receipt. "name + issue"
+  // queries ("lee guns") score highest because both a name term and a topic/text
+  // term land — which is exactly the "jump straight to the receipt" case. Returns
+  // at most one receipt per (person + issue) so the list stays diverse.
+  function search(query, limit) {
+    var q = norm(query).trim();
+    if (q.length < 2) return [];
+    var terms = q.split(/\s+/).filter(Boolean);
+    var idx = searchIndex();
+    var scored = [];
+    for (var i = 0; i < idx.length; i++) {
+      var e = idx[i], ok = true, s = 0, nameHits = 0, topicHits = 0;
+      for (var t = 0; t < terms.length; t++) {
+        var term = terms[t], hit = false;
+        for (var n = 0; n < e.nameTokens.length; n++) {
+          if (e.nameTokens[n].indexOf(term) === 0) { hit = true; nameHits++; s += 40; break; }
+        }
+        if (!hit && e.topic && e.topic.indexOf(term) !== -1) { hit = true; topicHits++; s += 24; }
+        if (!hit && e.hay.indexOf(term) !== -1) { hit = true; s += 8; }
+        if (!hit) { ok = false; break; }
+      }
+      if (!ok) continue;
+      // The money case: a name term AND a topic/text term both landed → this is
+      // the precise "who said one thing and did another on X" receipt.
+      if (nameHits > 0 && (topicHits > 0 || terms.length > nameHits)) s += 60;
+      s += (e.r.score || 0) / 20; // fold in the intrinsic contradiction ranking
+      scored.push({ r: e.r, s: s });
+    }
+    scored.sort(function (a, b) { return b.s - a.s; });
+    var out = [], seen = {};
+    for (var k = 0; k < scored.length; k++) {
+      var r = scored[k].r, dk = r.pid + '::' + (r.issueKey || r.headline);
+      if (seen[dk]) continue;
+      seen[dk] = 1; out.push(r);
+      if (out.length >= (limit || 6)) break;
+    }
+    return out;
+  }
+
+  // Compact, inline verdict chip for a search suggestion row. Accepts a pid, an
+  // alias, or a receipt object; returns '' when there is no receipt on record so
+  // callers can render nothing rather than an empty badge. The label is shortened
+  // to fit a tight dropdown row; the full verdict stays in the tooltip.
+  var _shortVerdict = { contradicts: 'Contradiction', consistent: 'Kept word', flag: 'Red flag' };
+  function verdictBadge(idOrReceipt) {
+    var r = (idOrReceipt && idOrReceipt.verdict) ? idOrReceipt : forPolitician(idOrReceipt);
+    if (!r) return '';
+    var short = _shortVerdict[r.verdict.key] || r.verdict.label;
+    return '<span class="svd-badge ' + r.verdict.cls + '" title="' +
+      escAttr('Say vs. Do: ' + r.verdict.label) + '">' + r.verdict.ico +
+      ' ' + esc(short) + '</span>';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // RECEIPT LIGHTBOX  ·  the surface search lands on
+  // ──────────────────────────────────────────────────────────────────────────
+  // A focused, dismissible overlay that shows one exact receipt — say vs. do,
+  // verdict stamped, sourced — with one tap through to the full profile. This is
+  // what "name + issue jumps straight to the receipt" opens. Keyboard-navigable
+  // (Escape / backdrop to close, focus moved in and restored on close) and
+  // mobile-friendly (full-width sheet, scrollable).
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Resolve the single best receipt for a pid, honouring an optional issueKey so
+  // "Mike Lee · guns" opens the guns receipt rather than his top-ranked one.
+  function bestReceipt(pidOrReceipt, issueKey) {
+    if (pidOrReceipt && pidOrReceipt.verdict) return pidOrReceipt;
+    var pid = pidOrReceipt, all = collect();
+    var mine = all.filter(function (r) {
+      return r.pid === pid || alias(r.pid) === pid || r.pid === alias(pid);
+    });
+    if (issueKey) {
+      for (var i = 0; i < mine.length; i++) { if (mine[i].issueKey === issueKey) return mine[i]; }
+    }
+    return mine[0] || forPolitician(pid);
+  }
+
+  var _lbLastFocus = null;
+  function closeLightbox() {
+    var ov = document.getElementById('svd-lightbox');
+    if (!ov) return;
+    ov.parentNode && ov.parentNode.removeChild(ov);
+    document.body.style.overflow = '';
+    if (_lbLastFocus && _lbLastFocus.focus) { try { _lbLastFocus.focus(); } catch (e) {} }
+    _lbLastFocus = null;
+  }
+
+  function openReceipt(pidOrReceipt, issueKey) {
+    var r = bestReceipt(pidOrReceipt, issueKey);
+    if (!r) { toast('No receipt on record yet'); return; }
+    closeLightbox();
+    _lbLastFocus = document.activeElement;
+
+    // Record this stop on the guided spine so the voter can always see — and walk
+    // back — where they are in their investigation.
+    try {
+      if (window.PDXJourney && typeof window.PDXJourney.record === 'function') {
+        window.PDXJourney.record('receipt', {
+          label: r.name, icon: '🧾',
+          nav: { type: 'receipt', pid: r.pid, issue: r.issueKey || '', key: r.pid + '|' + (r.issueKey || '') }
+        });
+      }
+    } catch (e) {}
+
+    // The next-action rail — a clear, consistent set of forward moves so a receipt
+    // is never a dead end. Falls back to a plain profile link if the spine module
+    // hasn't loaded.
+    var actions = (window.PDXJourney && typeof window.PDXJourney.nextActionsHTML === 'function')
+      ? window.PDXJourney.nextActionsHTML(r, 'full')
+      : '<button type="button" class="svd-lb-profile" data-pid="' + escAttr(r.pid) + '">View full profile →</button>';
+
+    var ov = document.createElement('div');
+    ov.id = 'svd-lightbox';
+    ov.className = 'svd-lightbox';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.setAttribute('aria-label', r.name + ' — ' + r.verdict.label);
+    ov.innerHTML =
+      '<div class="svd-lb-panel" role="document">' +
+        '<div class="svd-lb-bar">' +
+          '<span class="svd-lb-eyebrow">🧾 The Receipt</span>' +
+          '<button type="button" class="svd-lb-close" aria-label="Close receipt">✕</button>' +
+        '</div>' +
+        cardHTML(r, { actions: false }) +
+        '<div class="svd-lb-actions">' + actions + '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    document.body.style.overflow = 'hidden';
+
+    // Dismissal: backdrop tap, ✕, or Escape. The card's own click handler
+    // (below) opens the profile; the "View full profile" button does the same.
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov || (e.target.closest && e.target.closest('.svd-lb-close'))) {
+        closeLightbox(); return;
+      }
+      if (e.target.closest && e.target.closest('.svd-share-btn')) return; // share handles itself
+      var prof = e.target.closest && e.target.closest('.svd-lb-profile, [data-pid]');
+      if (prof && !(e.target.closest && e.target.closest('a'))) {
+        var pid = prof.getAttribute('data-pid') || r.pid;
+        closeLightbox();
+        if (pid && typeof window.showProfile === 'function') window.showProfile(pid);
+      }
+    });
+    ov.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeLightbox(); return; }
+      // Enter / Space on the focused receipt card opens the full profile, matching
+      // the card's role="button" contract elsewhere in the app.
+      if ((e.key === 'Enter' || e.key === ' ')) {
+        var card = e.target.closest && e.target.closest('.svd-receipt');
+        if (card && !(e.target.closest && e.target.closest('.svd-share-btn, a'))) {
+          e.preventDefault();
+          closeLightbox();
+          if (typeof window.showProfile === 'function') window.showProfile(r.pid);
+        }
+      }
+    });
+    var closeBtn = ov.querySelector('.svd-lb-close');
+    if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
+  }
+
   window.PDXReceipts = {
     collect: collect,
     forPolitician: forPolitician,
     cardHTML: cardHTML,
     rowBadge: rowBadge,
+    verdictBadge: verdictBadge,
+    search: search,
+    open: openReceipt,
+    close: closeLightbox,
+    find: bestReceipt,
     mount: mount,
     refresh: refresh,
     share: share,
