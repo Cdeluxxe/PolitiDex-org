@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "politidex-979bd",
+  "private_key_id": "fbd0384b37a35551a133d9d104941323a423a457",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQD0gOWGRUHPdefe\noQagcrJm9CB9lZmF7Wd2xLzymxAU1VtF/HPdv9KGYn2IX6NPoQjgEIo06bVV9QeH\ngQOpvgkvWAVQhU7QM7LCs74JSBZ86gIwlVEaKonsphNZYZkAcEAY7xQjl5lNbxYf\nNWBZujHar3gaMh0o1vxjVZoJg2qrxZxITG8XIRzCBTN2tJMfvz27SO6CBQjap1Cg\nKP5/2DnA5ORCORIAidQV5dn1jTArk5o/HJli3QnvR7nsAJdRUiXkYRfkYzBC2rgy\ndkxyqLS0JT3KbZ14big6OiQmy9wxdc8tTlyi7k3KFPHQ9PNBBkWRRVJKCepNavm4\ny5GYOARhAgMBAAECggEAGiuCNaoLyldvwR7Z4VpJcVbTs/FrWGAB1R7nbO2vLdWs\n0mu8IJnfoBHiZxJ6fcNKGoZ2roVtyvSiMM0creJI5CP/FKBiIEuKSIf50Q9B1e6r\nm5Td1IfFUbqwYz6cpGT/XVPYo1sedeDsHJzHUm9JFwO1PpOK1rRVGRJAXaCO7jHP\n0AiD0F83Jx6MbRCbXuCOjZpPjMwv+dUJ0ruUyUPm2yV28bOrn6U+eteAgkFo6IRI\nNGVei6/Ty6a1FiVTUZ1R/qqNsMRMyExNG5zJjWCiaRuv2KmxfEKR2mLQNtntaDoj\n9kr3p3pwlvNdRfNaLuVUvwMW4a5B2XdEGcF5zEZwuQKBgQD/a0UIKPZzI+/0JSWp\nXlju8vVTXy5lBkP0htbmjHduiFOVCKCHCR+WsyTa3NhqlpuwBrluXRAyNSyLbMrK\nxpRzE+wwcSR4VpeaZC2xyY90+b9EuO45l4TWTjB3hmllAKL6jf10TULqRi/APA19\n04uUnEF0ahq+M/B3z8erP6a+uQKBgQD1D0VUsi03YUP7eXbrfVRkIrBmBu8LlbBa\nt0QkgGN8SOIIk/L+TpyDCvTOjGvwj+4AwjfErv3svpJ5xzRlLRWxiZX4Kr48QWJW\nQNiGp7kms6p9Xm2SDkgy45jF192mc24Z/QifJUJ/xWM3kILRgCC2NYDnL1HlKuVu\nbPFJCJDe6QKBgQDvtHs/sjnASyzJowcaUVoDPm5wBPakhuHFnboW+iKn0DcoucT1\nleFYa92drP9J4PhRla323k3x4KdiXgJflUgCS+Mwfy5r5VA36+ZaYMBKVoxjcW7Z\nC9L10MF5muJUkOljXVhNCqlO9fmgXnuG576qBI8FMwLQGCyINK69j2nsuQKBgA03\n4KZ74eJ91Zvn5lk3bmjkUh1+vEAkt9l8zykk37jheYe66z16YgjTe3b0rhHQwaa6\n0yVBxyKQ+PemnhXjA6uK31L+gzpe0H4Ui1lgDKWgxU5z3HcnXA+apS/uv97tlP/D\n3UYwTVD1BbAGlHfWcG1Dn4tYyxMQaEW3jKBC3QWZAoGBALYb+ifVUe1ns7YiZbAJ\nH8Zh2BfhkLri28wRa6ESumh2XaXd2cHWIRNdEbOI9wZCLB4DWAwoXLsjSNXZsIJp\n0G8hmzZBApars8Y2mWG0wZihsIcqvYNVeezqTxnWhW1LwUsuXLtsvi8jvKiZo3wb\nkZHtLJos9SuHATX1ahw3Oilj\n-----END PRIVATE KEY-----\n",
+  "client_email": "politi-dex-batch@politidex-979bd.iam.gserviceaccount.com",
+  "client_id": "116319177868767918691",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/politi-dex-batch%40politidex-979bd.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
