@@ -265,6 +265,26 @@
         detail +
       '</div>';
 
+    // Next-action rail — a receipt is never a dead end. In the hero card we show
+    // the compact icon rail; the lightbox passes opts.actions === false and renders
+    // the full labelled rail itself (so it isn't shown twice).
+    var foot;
+    if (opts.actions !== false && window.PDXJourney && typeof window.PDXJourney.nextActionsHTML === 'function') {
+      foot = '<div class="svd-rc-foot">' + srcHTML(r) +
+        (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') + '</div>' +
+        window.PDXJourney.nextActionsHTML(r, 'compact');
+    } else {
+      foot = '<div class="svd-rc-foot">' + srcHTML(r) +
+        (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') +
+        '<span class="svd-rc-actions">' +
+          '<button type="button" class="svd-share-btn" data-pid="' + escAttr(r.pid) + '" ' +
+            'aria-label="Share this receipt as an image">' +
+            '<span class="svd-share-ico" aria-hidden="true">📤</span> Share</button>' +
+          '<span class="svd-rc-more">Profile →</span>' +
+        '</span>' +
+      '</div>';
+    }
+
     return '<div class="svd-receipt ' + v.cls + '" role="button" tabindex="0" ' +
         'data-pid="' + escAttr(r.pid) + '" aria-label="' + escAttr(r.name + ' — ' + v.label) + '. Open profile.">' +
         '<div class="svd-rc-head">' +
@@ -277,15 +297,7 @@
             '<div class="svd-stamp-v">' + esc(v.label) + '</div></div>' +
         '</div>' +
         issue + said + did +
-        '<div class="svd-rc-foot">' + srcHTML(r) +
-          (r.date ? '<span class="svd-rc-date">' + esc(r.date) + '</span>' : '') +
-          '<span class="svd-rc-actions">' +
-            '<button type="button" class="svd-share-btn" data-pid="' + escAttr(r.pid) + '" ' +
-              'aria-label="Share this receipt as an image">' +
-              '<span class="svd-share-ico" aria-hidden="true">📤</span> Share</button>' +
-            '<span class="svd-rc-more">Profile →</span>' +
-          '</span>' +
-        '</div>' +
+        foot +
       '</div>';
   }
 
@@ -990,6 +1002,24 @@
     closeLightbox();
     _lbLastFocus = document.activeElement;
 
+    // Record this stop on the guided spine so the voter can always see — and walk
+    // back — where they are in their investigation.
+    try {
+      if (window.PDXJourney && typeof window.PDXJourney.record === 'function') {
+        window.PDXJourney.record('receipt', {
+          label: r.name, icon: '🧾',
+          nav: { type: 'receipt', pid: r.pid, issue: r.issueKey || '', key: r.pid + '|' + (r.issueKey || '') }
+        });
+      }
+    } catch (e) {}
+
+    // The next-action rail — a clear, consistent set of forward moves so a receipt
+    // is never a dead end. Falls back to a plain profile link if the spine module
+    // hasn't loaded.
+    var actions = (window.PDXJourney && typeof window.PDXJourney.nextActionsHTML === 'function')
+      ? window.PDXJourney.nextActionsHTML(r, 'full')
+      : '<button type="button" class="svd-lb-profile" data-pid="' + escAttr(r.pid) + '">View full profile →</button>';
+
     var ov = document.createElement('div');
     ov.id = 'svd-lightbox';
     ov.className = 'svd-lightbox';
@@ -1002,11 +1032,8 @@
           '<span class="svd-lb-eyebrow">🧾 The Receipt</span>' +
           '<button type="button" class="svd-lb-close" aria-label="Close receipt">✕</button>' +
         '</div>' +
-        cardHTML(r) +
-        '<div class="svd-lb-actions">' +
-          '<button type="button" class="svd-lb-profile" data-pid="' + escAttr(r.pid) + '">' +
-            'View full profile →</button>' +
-        '</div>' +
+        cardHTML(r, { actions: false }) +
+        '<div class="svd-lb-actions">' + actions + '</div>' +
       '</div>';
     document.body.appendChild(ov);
     document.body.style.overflow = 'hidden';
@@ -1051,6 +1078,7 @@
     search: search,
     open: openReceipt,
     close: closeLightbox,
+    find: bestReceipt,
     mount: mount,
     refresh: refresh,
     share: share,

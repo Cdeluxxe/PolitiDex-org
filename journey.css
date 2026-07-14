@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PolitiDex — Journey  ·  journey.css
+   The guided spine (sticky breadcrumb bar #pdx-journey) and the shared receipt
+   next-action rail (.pj-actions), rendered by journey.js. Prefix: pj-.
+   Dark theme, mobile-first, keyboard-friendly focus states.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── The spine: a slim, sticky breadcrumb bar at the bottom of the viewport ──*/
+.pj-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  display: none; padding: 0.4rem 0.6rem calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(9, 14, 28, 0.7), rgba(7, 11, 22, 0.97));
+  border-top: 1px solid rgba(127, 180, 255, 0.22);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+}
+.pj-bar.is-open { display: block; animation: pj-rise 0.2s ease-out; }
+@keyframes pj-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.pj-inner {
+  max-width: 60rem; margin: 0 auto; display: flex; align-items: center; gap: 0.5rem;
+}
+.pj-tag {
+  flex: 0 0 auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: #6f88ad;
+}
+.pj-trail {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 0.15rem;
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.pj-trail::-webkit-scrollbar { display: none; }
+.pj-sep { flex: 0 0 auto; color: #4e648a; font-size: 0.9rem; padding: 0 0.05rem; }
+.pj-crumb {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.28rem; cursor: pointer;
+  background: transparent; border: 1px solid transparent; border-radius: 999px;
+  padding: 0.28rem 0.5rem; min-height: 32px;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;
+  color: #9fb4d4; white-space: nowrap; transition: background 0.14s ease, color 0.14s ease;
+}
+.pj-crumb:hover { background: rgba(127, 180, 255, 0.12); color: #fff; }
+.pj-crumb:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 1px; }
+.pj-crumb.is-here { color: #fff; background: rgba(127, 180, 255, 0.16); border-color: rgba(127, 180, 255, 0.4); }
+.pj-crumb-ico { font-size: 0.92rem; }
+.pj-crumb-lb { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+
+.pj-next {
+  flex: 0 0 auto; cursor: pointer; white-space: nowrap;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.76rem;
+  letter-spacing: 0.03em; color: #0a0f1e; background: linear-gradient(90deg, #7fb4ff, #a5c8ff);
+  border: 0; border-radius: 999px; padding: 0.4rem 0.7rem; min-height: 34px; line-height: 1;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+}
+.pj-next:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(127, 180, 255, 0.4); }
+.pj-next:active { transform: translateY(0); }
+.pj-next:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
+.pj-dismiss {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; border-radius: 9999px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #9fb4d4; font-size: 0.8rem; line-height: 1; transition: background 0.14s ease;
+}
+.pj-dismiss:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.pj-dismiss:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 1px; }
+
+/* ── The next-action rail (rendered on every receipt) ────────────────────────*/
+.pj-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+.pj-act-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.pj-act {
+  display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.76rem;
+  letter-spacing: 0.03em; color: #dbe6f7;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px; padding: 0.45rem 0.75rem; min-height: 38px; line-height: 1;
+  transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.pj-act:hover { background: rgba(255, 255, 255, 0.12); color: #fff; transform: translateY(-1px); }
+.pj-act:active { transform: translateY(0); }
+.pj-act:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+.pj-act span[aria-hidden] { font-size: 0.95rem; }
+
+/* Share is the loud, primary sharing affordance (matches the app's share style). */
+.pj-act-share {
+  color: #0a0f1e; background: linear-gradient(90deg, #f5c842, #fbbf24); border-color: transparent;
+}
+.pj-act-share:hover { color: #0a0f1e; box-shadow: 0 5px 16px rgba(245, 200, 66, 0.4); }
+.pj-act-compare:hover { border-color: rgba(196, 181, 253, 0.5); }
+.pj-act-track.is-on { color: #4ade80; background: rgba(74, 222, 128, 0.14); border-color: rgba(74, 222, 128, 0.45); }
+.pj-act-keep {
+  justify-content: center; width: 100%; color: #7fb4ff;
+  background: rgba(127, 180, 255, 0.1); border-color: rgba(127, 180, 255, 0.35);
+}
+.pj-act-keep:hover { background: rgba(127, 180, 255, 0.2); color: #cfe2ff; }
+
+/* Compact variant (hero cards): icons only, tighter — labels are hidden in JS. */
+.pj-actions--compact { flex-direction: row; }
+.pj-actions--compact .pj-act { padding: 0.4rem 0.6rem; min-height: 34px; }
+
+/* Keep the on-page bar from hiding the very bottom of the page content. */
+body.pj-has-bar { padding-bottom: 3.5rem; }
+
+@media (max-width: 560px) {
+  .pj-tag { display: none; }
+  .pj-crumb-lb { max-width: 7.5rem; }
+  .pj-next .pj-next-lb { display: none; }
+  .pj-actions--full .pj-act { flex: 1 1 auto; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pj-bar.is-open { animation: none; }
+  .pj-crumb, .pj-next, .pj-act, .pj-dismiss { transition: none; }
+}

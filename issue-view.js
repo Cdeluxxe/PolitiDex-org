@@ -469,6 +469,14 @@
     if (!core) return;
     _coreKey = core.key; _fMode = 'all'; _fParty = '';
     _lastFocus = document.activeElement;
+    // Record this stop on the guided spine.
+    try {
+      if (window.PDXJourney && typeof window.PDXJourney.record === 'function') {
+        var lab = splitLabel(core.label);
+        window.PDXJourney.record('issue', { label: lab.text, icon: lab.icon,
+          nav: { type: 'issue', key: core.key } });
+      }
+    } catch (e) {}
     var ov = ensureOverlay();
     renderChrome();
     ov.classList.add('is-open');
