@@ -43,6 +43,11 @@
   var _expanded = {};           // per-contest expand state (survives pick syncs)
   var _mounted = false;
   var _retryTimer = null;
+  // True once the data-ready poll has exhausted its retries without any contests
+  // resolving for the saved location — i.e. an out-of-coverage area we don't have
+  // candidate records for yet. Drives an honest "not available" state instead of a
+  // spinner that never resolves. Reset on every fresh render (e.g. location change).
+  var _gaveUp = false;
 
   /* ── tiny helpers ─────────────────────────────────────────────────────── */
   function esc(s) {
@@ -283,6 +288,23 @@
     var anyCands = false;
     for (var i = 0; i < pos.length; i++) { if (candidatesFor(pos[i].key).length) { anyCands = true; break; } }
     if (!pos.length || !anyCands) {
+      if (_gaveUp) {
+        // The data-ready poll has run its course and still resolved no contests for
+        // this location — this is the out-of-coverage case (a state/area we don't
+        // have candidate records for yet). Show an honest, actionable state instead
+        // of a spinner that would otherwise spin forever.
+        section.innerHTML = '<div class="yb-wrap">' +
+          headerHtml('We’re still building the ballot for your area.') +
+          '<div class="yb-setloc">' +
+            '<div class="yb-setloc-ico">🗺️</div>' +
+            '<div class="yb-setloc-t">Your ballot isn’t available yet</div>' +
+            '<div class="yb-setloc-s">PolitiDex doesn’t have the contests for <b>' + esc(locationLine()) + '</b> on file yet. We add areas as their races are researched and sourced — you can still explore every politician and issue in the meantime.</div>' +
+            '<button type="button" class="yb-btn-primary" data-yb-change="1">📍 Try a different location</button>' +
+            '<span class="yb-setloc-note">Coverage is expanding — check back soon for your area.</span>' +
+          '</div>' +
+          '</div>';
+        return;
+      }
       section.innerHTML = '<div class="yb-wrap">' +
         headerHtml('Matching your address to your districts…') +
         '<div class="yb-loading">Loading the contests on your ballot…</div>' +
@@ -375,6 +397,10 @@
   function render() {
     var section = ensureMounted();
     if (!section) return;
+    // A fresh render (first paint, location change, pick sync) restarts the
+    // data-ready cycle, so clear any prior "gave up" state before deciding what
+    // to show. The retry poll re-arms this only if the data truly never lands.
+    _gaveUp = false;
     if (hasLocation()) renderBallot(section);
     else renderEmpty(section);
   }
@@ -391,7 +417,17 @@
       for (var i = 0; i < pos.length; i++) { if (candidatesFor(pos[i].key).length) { ready = true; break; } }
       if (ready || tries > 20) {
         clearInterval(_retryTimer); _retryTimer = null;
-        if (ready) render();
+        if (ready) {
+          render();
+        } else {
+          // Poll exhausted and still no contests resolved for this location — flip
+          // to the honest "not available yet" state rather than leaving the
+          // spinner up indefinitely. Paint directly (not via render(), which would
+          // reset the flag) so renderBallot reads the gave-up state.
+          _gaveUp = true;
+          var section = el(MOUNT_ID);
+          if (section) renderBallot(section);
+        }
       }
     }, 600);
   }

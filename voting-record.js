@@ -141,6 +141,10 @@
       '.vr-offline{display:flex;align-items:center;gap:.4rem;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:#f5d77a;border-radius:.6rem;padding:.5rem .65rem;margin-bottom:.7rem;font-size:.76rem;line-height:1.4;}',
       /* Larger tap targets on coarse pointers (mobile) */
       '@media (pointer:coarse){.vr-chip,.vr-toggle{padding-top:.5rem;padding-bottom:.5rem;}.vr-select,.vr-date{padding-top:.5rem;padding-bottom:.5rem;}.vr-more{padding:.7rem;}}',
+      /* Narrow phones: let the filter selects share rows evenly instead of wrapping
+         unevenly or squishing, and give the chip row a stable height so its scroll
+         padding never collapses the layout. */
+      '@media (max-width:480px){.vr-controls{gap:.4rem;}.vr-controls .vr-select,.vr-controls .vr-date{flex:1 1 8.5rem;min-width:0;}.vr-chips{scrollbar-width:none;}.vr-chips::-webkit-scrollbar{display:none;}}',
       /* Respect reduced-motion: no transitions on interactive vr elements */
       '@media (prefers-reduced-motion:reduce){#pdx-voting-record *{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}'
     ].join('');
