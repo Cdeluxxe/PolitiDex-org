@@ -281,11 +281,11 @@
     // above it always stands, so the section is never empty.
     var receiptsBlock = '';
     if (receipts.length) {
-      var tabs = '<div class="hr1-tabs" role="tablist" aria-label="Filter receipts">' +
-        '<button type="button" class="hr1-tab is-active" data-hr1-filter="all">All · ' + receipts.length + '</button>' +
-        (contradictions.length ? '<button type="button" class="hr1-tab" data-hr1-filter="contra">⚑ Contradictions · ' + contradictions.length + '</button>' : '') +
-        (yesN ? '<button type="button" class="hr1-tab" data-hr1-filter="yes">Voted YES · ' + yesN + '</button>' : '') +
-        (noN ? '<button type="button" class="hr1-tab" data-hr1-filter="no">Voted NO · ' + noN + '</button>' : '') +
+      var tabs = '<div class="hr1-tabs" role="group" aria-label="Filter receipts">' +
+        '<button type="button" class="hr1-tab is-active" data-hr1-filter="all" aria-pressed="true">All · ' + receipts.length + '</button>' +
+        (contradictions.length ? '<button type="button" class="hr1-tab" data-hr1-filter="contra" aria-pressed="false">⚑ Contradictions · ' + contradictions.length + '</button>' : '') +
+        (yesN ? '<button type="button" class="hr1-tab" data-hr1-filter="yes" aria-pressed="false">Voted YES · ' + yesN + '</button>' : '') +
+        (noN ? '<button type="button" class="hr1-tab" data-hr1-filter="no" aria-pressed="false">Voted NO · ' + noN + '</button>' : '') +
       '</div>';
       receiptsBlock =
         '<div class="hr1-block">' +
@@ -379,7 +379,11 @@
       var btn = e.target.closest ? e.target.closest('.hr1-tab') : null;
       if (!btn) return;
       var f = btn.getAttribute('data-hr1-filter');
-      tabs.querySelectorAll('.hr1-tab').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+      tabs.querySelectorAll('.hr1-tab').forEach(function (b) {
+        var on = b === btn;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
       grid.querySelectorAll('.hr1-rc').forEach(function (card) {
         var show = f === 'all'
           || (f === 'contra' && card.getAttribute('data-contra') === '1')

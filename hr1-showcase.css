@@ -179,6 +179,11 @@
 }
 #hr1-showcase .hr1-tab:hover { border-color: rgba(96,165,250,0.5); color: #eaf1ff; }
 #hr1-showcase .hr1-tab.is-active { background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.55); color: #fbe08a; }
+#hr1-showcase .hr1-tab:focus-visible { outline: 2px solid #fad96a; outline-offset: 2px; }
+/* Comfortable, thumb-friendly filter targets on touch devices. */
+@media (pointer: coarse) {
+  #hr1-showcase .hr1-tab { min-height: 44px; padding: 0.6rem 1rem; }
+}
 
 #hr1-showcase .hr1-receipts {
   display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));

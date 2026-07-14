@@ -71,6 +71,16 @@
   background: rgba(255, 255, 255, 0.2); transition: all 0.2s ease;
 }
 #say-vs-do .svd-dot.is-active { background: #f5c842; width: 1.4rem; }
+/* On touch devices grow each dot's HIT area (not the visible dot) so it clears a
+   comfortable thumb target. The colored pill stays small via content-box clip. */
+@media (pointer: coarse) {
+  #say-vs-do .svd-dots { gap: 0.1rem; }
+  #say-vs-do .svd-dot {
+    box-sizing: border-box; width: 1.75rem; height: 1.75rem; padding: 0.625rem;
+    background-clip: content-box;
+  }
+  #say-vs-do .svd-dot.is-active { width: 2.65rem; }
+}
 #say-vs-do .svd-count {
   font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; letter-spacing: 0.1em;
   text-transform: uppercase; color: #7596c0;
