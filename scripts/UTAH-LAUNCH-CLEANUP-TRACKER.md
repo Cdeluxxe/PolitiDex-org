@@ -132,3 +132,61 @@ merged pairs' evidence consolidation) should be reconciled in a follow-up
 3. **Re-source the three dropped Kaufusi/Zoltanski/Walker fact sets** so they can
    return as sourced cards.
 4. **Reconcile the Firestore evidence layer** for the new/merged records.
+
+---
+
+# Utah Launch Polish — Batch (July 2026)
+
+The follow-up polish pass, closing the last easy Davis/Salt Lake city gaps where a
+sourced controversy exists and clearing the remaining unsourced attribution stubs
+in the local tier. Script: `scripts/deep-dive-launch-polish-jul2026.mjs`
+(idempotent, dry-run by default; regenerate chunks with `split-stances.mjs`).
+
+## What this batch did
+
+| Action | Record | Result |
+|---|---|---|
+| **Enrich (source)** | `dramsey` — Dawn Ramsey (South Jordan Mayor) | Replaced 3 **unsourced** cards with 3 source-verified ones (2026 State of the City: 17,000-sq-ft senior center + ~200 units 75% affordable w/ Ivory Innovations; growth quote; Daybreak/TRAX transit). Added the missing CMP_DATA roster entry (browse node already existed). |
+| **Create** | `tamara_tran_kaysville` — Tamara "Tami" Tran (Kaysville Mayor, re-elected ~75% Nov 2025) | New sourced record: the FY2026 property-tax increase **denied by the Utah State Tax Commission** under SB202/SB29 (the same wave as Clearfield), the residential-tax-base squeeze, and the municipal power utility (~15% below Rocky Mountain Power, UAMPS). Added roster + browse node. |
+| **Sourcefix** | `anna_graff` — 2026 HD-12 Democratic challenger | Attached the verified QSaltLake source to her two endorsement-based cards; kept the honest "no first-person platform located" caveat. |
+
+## True final state for launch
+
+- **Local county/city tier: 121 officials · 350 stance cards · 100% sourced · 0
+  unsourced records.** This is the tier these Utah batches targeted, and it is now
+  fully sourced and duplicate-free.
+- **Roster:** 524 officials total; **0 duplicate-name groups** (down from 5 before
+  the cleanup batch).
+- **Davis cities built:** Layton, Clearfield, Kaysville. **Salt Lake suburbs built:**
+  West Jordan, Sandy, West Valley, Herriman, Draper, South Jordan (plus the SLC /
+  county executive / sheriff tier).
+
+## Final honest gaps (tracked, NOT built — no fabrication)
+
+- **Legislative-candidate sourcing backlog (largest remaining item): ~34 Utah
+  *legislative* records** (mostly 2026 House/Senate challenger platforms — e.g.
+  `dave_calder`, `angela_choberka`, `rosemary_lesser`, `scott_chew`, `stewart_e_barlow`)
+  still carry platform cards with **no source URL**. This is a distinct, sizable
+  body of work from the county/city launch tier — it needs per-candidate sourcing
+  (campaign sites, Ballotpedia surveys, voter guides), not a quick polish, and was
+  deliberately **not** bulk-sourced with guesses.
+- **Jeneanne Lock (HD-21):** her two cards assert a specific "UPICEC outreach
+  coordinator" role that could **not** be verified against a readable source. Left
+  as-is and flagged; verify against her official candidate filing
+  (`vote.utah.gov/wp-content/uploads/2026/01/H21-Jeneanne-Lock.pdf`) before sourcing.
+- **Bountiful (Davis):** a strong municipal-power-subsidizes-taxes + rare-property-
+  tax story exists, but new Mayor **Kate Bradshaw** took office Jan 2026 with no
+  sourced quote yet, and Bountiful is council-manager (weaker mayoral attribution).
+  Build once she is quoted. Also unbuilt in Davis: Farmington, Syracuse, Centerville,
+  Woods Cross, North Salt Lake.
+- **Dead Davis browse nodes:** `bperry`, `bscott`, `cpetersen` are Power-Map
+  `MAYORS/davis` nodes with **no roster entry, no stance cards, and no alias** —
+  they render only the honest "not yet documented" coverage state. Identify and
+  build (or remove the nodes) in the next Davis pass.
+- **Millcreek:** Mayor **Jeff Silvestrini retired** (Nov 2025); his city-center /
+  boundary-deal record belongs to a former official. Build the current Millcreek
+  mayor once the Nov 2025 special-election winner is sourced.
+- **Salt Lake County Council** beyond the two existing records, and remaining
+  suburbs (Murray, Riverton, Cottonwood Heights, Taylorsville), still open.
+- **Firestore evidence layer** for the new/enriched records (Ramsey, Tran) is not
+  written by this client-side script — reconcile in a follow-up `--apply` pass.
