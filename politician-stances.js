@@ -683,6 +683,73 @@
       { topic:'Housing for Zion Workers', icon:'🏘', pos:'support', issueKey:'housing_support', issueStance:'support', text:'Advancing a workforce/affordable-housing project — a multifamily rental development put out to RFP in late 2025 — to house people who work in Springdale and Zion National Park "as part of our community."', source:{label:'St. George News', url:'https://www.stgeorgeutah.com/news/springdale-moves-forward-with-housing-project-to-make-workers-part-of-our-community/article_2e756b2b-8263-4964-92ef-e6c232c5219c.html'} },
       { topic:'Town Won\'t Be Landlord', icon:'⚖️', pos:'mixed', issueKey:'gov_services', issueStance:'mixed', text:'Wants the housing built but says the tiny town will not build or run it: "We, the town of Springdale, do not want to build the housing," citing no housing authority or bandwidth to manage it.', source:{label:'St. George News', url:'https://www.stgeorgeutah.com/news/springdale-moves-forward-with-housing-project-to-make-workers-part-of-our-community/article_2e756b2b-8263-4964-92ef-e6c232c5219c.html'} },
     ],
+    // ── Tooele & Wasatch counties · Batch 12 (July 2026) — completes the Utah map ──
+    // The last two county governing bodies, closing statewide county-governing-body
+    // coverage. BOTH counties use a COUNTY COUNCIL, not a 3-member commission: Tooele
+    // has a 5-member council + manager, Wasatch a 7-member council + manager. Prior
+    // batches already covered the Grantsville and Heber City mayors, so this pass adds
+    // the councils, the sheriffs, and the Tooele City and Midway mayors. Controversy-
+    // first: Tooele's collision of Great Salt Lake dust and heavy industry (US
+    // Magnesium, the Clive radioactive-waste corridor) with a residential + data-center
+    // building boom; and Wasatch's fight over Jordanelle-basin resort growth and what
+    // the Heber Valley wants to become. Data-center and resort growth are modeled across
+    // facet keys so pro-revenue and guardrail/identity positions read distinctly.
+
+    // — Tooele County (5-member County Council) —
+    jared_hamner_tooele: [ // Jared Hamner — 🏛 Tooele County Council (Chair, District 4)
+      { topic:'"Gearing Up for Growth"', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'As council chair, frames the county\'s posture toward a fast-growing Tooele Valley around a long-range (2050) transportation and growth plan: "In Tooele County, we\'re gearing up for growth and improvement."', source:{label:'WFRC (Tooele Valley RPO minutes)', url:'https://wfrc.utah.gov/Committees/TooeleValleyRPO/2024/2024Mar11_TVRPO_FinalMinutes.pdf'} },
+      { topic:'Regulate Data Centers First', icon:'🖥', pos:'mixed', issueKey:'datacenter_growth', issueStance:'mixed', text:'Chairs the council that adopted Resolution 2026-18 directing staff to draft data-center land-use rules — covering an energy excise tax, development-zone overlays and infrastructure impacts — while stressing no data-center project has been approved.', source:{label:'Tooele County (Resolutions)', url:'https://tooeleco.gov/departments/administration/clerk/resolutions_and_ordinances.php'} },
+    ],
+    scott_wardle_tooele: [ // Scott Wardle — 🏛 Tooele County Council (Vice Chair, District 1)
+      { topic:'No Property-Tax-Rate Hike', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Sits on the council that approved the 2025 county budget with no increase in county property-tax rates, trimming roughly $7M in general-fund spending as the valley grows.', source:{label:'Tooele Transcript Bulletin', url:'https://www.tooeleonline.com/articles/news/tooele-county-council-approves-2025-budget/'} },
+      { topic:'City-Hall Experience', icon:'🏛', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Serves as council vice chair for District 1 after previously serving on the Tooele City Council, bringing municipal-growth experience to countywide land-use decisions.', source:{label:'Tooele County', url:'https://tooeleco.gov/council/index.php'} },
+    ],
+    kendall_thomas_tooele: [ // Kendall Thomas — 🏛 Tooele County Council (District 2)
+      { topic:'Valley Growth Planning', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Represents District 2 and has served on the Tooele Valley Regional Planning Organization, working on the transportation and growth planning a booming valley requires.', source:{label:'WFRC (Tooele Valley RPO minutes)', url:'https://wfrc.utah.gov/Committees/TooeleValleyRPO/2024/2024Mar11_TVRPO_FinalMinutes.pdf'} },
+    ],
+    tye_hoffmann_tooele: [ // Tye Hoffmann — 🏛 Tooele County Council (District 3)
+      { topic:'Industrial-Growth Guardrails', icon:'🏭', pos:'mixed', issueKey:'datacenter_growth', issueStance:'mixed', text:'One of five district council members steering how Tooele County — home to heavy industry near the Great Salt Lake — writes new rules for data centers and high-impact development before approving projects.', source:{label:'Tooele County', url:'https://tooeleco.gov/council/index.php'} },
+    ],
+    erik_stromberg_tooele: [ // Erik Stromberg — 🏛 Tooele County Council (District 5)
+      { topic:'District 5 on a 5-Member Council', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Serves District 5 on Tooele County\'s five-member council-plus-manager government, the body setting land-use and budget policy for one of the Wasatch Front\'s fastest-growing counties.', source:{label:'Tooele County', url:'https://tooeleco.gov/council/index.php'} },
+    ],
+    paul_wimmer_tooele: [ // Paul Wimmer — 🛡 Tooele County Sheriff
+      { topic:'Denied Retaliation Claim', icon:'🔍', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'Ahead of the 2026 election, a fired detective alleged retaliation over a dismissed DUI case involving a Wimmer relative; Wimmer denied influencing it — "There was nothing influenced by me that would compromise the integrity of the sheriff\'s office" — and KSL reported no evidence he influenced the dismissal.', source:{label:'KSL', url:'https://www.ksl.com/article/news/utah/police-and-courts/tooele-dui-retaliation/51590641'} },
+      { topic:'Running the County Office', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Serves as the elected Tooele County Sheriff, overseeing patrol, the county jail and corrections across a large, fast-growing county west of the Great Salt Lake.', source:{label:'Tooele County Sheriff', url:'https://tooelecountysheriff.org/'} },
+    ],
+    maresa_manzione_tooelecity: [ // Maresa Manzione — 🏛 Mayor of Tooele City
+      { topic:'Well-Managed Growth', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Elected mayor in November 2025, she ran on "well-managed growth," citing "$850 million in business development without new tax incentives" during her council tenure.', source:{label:'Tooele Transcript Bulletin', url:'https://www.tooeleonline.com/articles/news/tooele-city-candidates-2025/'} },
+      { topic:'Keep Tax Dollars Local', icon:'💵', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Frames business development as a property-tax strategy — keeping jobs and shopping local so "sales tax dollars and our property tax dollars stay here."', source:{label:'Tooele Transcript Bulletin', url:'https://www.tooeleonline.com/articles/news/tooele-city-candidates-2025/'} },
+      { topic:'Securing the Water Future', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Points to "adding two wells to secure our water future" during her council service as a model for meeting demand in a rapidly growing desert city.', source:{label:'Tooele Transcript Bulletin', url:'https://www.tooeleonline.com/articles/news/tooele-city-candidates-2025/'} },
+    ],
+
+    // — Wasatch County (7-member County Council) —
+    erik_rowland_wasatch: [ // Erik Rowland — 🏛 Wasatch County Council (Chair, Seat C)
+      { topic:'Don\'t Become "Support Staff"', icon:'🏔', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Warns the county risks losing its identity to Jordanelle-basin resort growth: "Unless we as a community come together and try and really define what Wasatch is, we will become nothing more than a grocery store and support staff for that hotel."', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-03-30/enemy-or-partner-wasatch-county-leaders-discuss-future-of-east-village'} },
+      { topic:'Stepped Up as Chair', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Moved up from vice chair to council chair in April 2026 after Chair Karl McMillan resigned for health reasons, taking the gavel amid the county\'s defining growth debate.', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2026-04-03/karl-mcmillan-resigns-from-wasatch-county-council-for-health-concerns'} },
+    ],
+    mark_nelson_wasatch: [ // Mark Nelson — 🏛 Wasatch County Council (Midway / North Fields)
+      { topic:'Resort Growth: "Cash Cow"', icon:'💰', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Takes a pragmatic revenue view of the Park City-branded Jordanelle basin: "the Jordanelle Basin is our cash cow … we\'re happy to say it\'s Park City – as long as the check\'s coming to Wasatch County, hallelujah."', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-03-30/enemy-or-partner-wasatch-county-leaders-discuss-future-of-east-village'} },
+      { topic:'Enemy, Partner or Brother?', icon:'🤝', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Frames the strategic question of the northern-county resort boom by asking whether the developments are the county\'s "enemy … partner … or brother," pressing the council to decide how to engage.', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-03-30/enemy-or-partner-wasatch-county-leaders-discuss-future-of-east-village'} },
+    ],
+    luke_searle_wasatch: [ // Luke Searle — 🏛 Wasatch County Council (Vice Chair, Seat A / at-large)
+      { topic:'Transparency on Resort Growth', icon:'🔍', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'Says residents are in the dark about the scale of Jordanelle-basin development: "People have no clue what\'s going on up there, and MIDA doesn\'t seem super interested or excited about telling it."', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-03-30/enemy-or-partner-wasatch-county-leaders-discuss-future-of-east-village'} },
+      { topic:'Finish Bonds Before New Ones', icon:'🌳', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Voiced reluctance to pursue a new open-space bond before existing bond projects are finished, citing how hard it is to ask the public for more money.', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-04-03/wasatch-open-lands-board-leverages-10m-bond-for-over-60m-worth-of-open-space'} },
+    ],
+    jared_rigby_wasatch: [ // Jared Rigby — 🛡 Wasatch County Sheriff
+      { topic:'Running for a Third Term', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'First elected in 2018 after nearly a decade as undersheriff, he announced a 2026 run for a third term, calling the sheriff\'s post "the people\'s office."', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2026-01-05/rigby-announces-2026-run-for-reelection-as-wasatch-county-sheriff'} },
+      { topic:'Faced 2025 Oversight Reviews', icon:'🔍', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'His office was the subject of two third-party investigations in 2025 — one flagged concerns including alleged absenteeism and interference, while allegations referred to the Cache County Sheriff\'s Office found no chargeable criminal conduct.', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2026-01-05/rigby-announces-2026-run-for-reelection-as-wasatch-county-sheriff'} },
+    ],
+    craig_simons_midway: [ // Craig Simons — 🏛 Mayor of Midway
+      { topic:'Preserve Midway\'s Character', icon:'🏡', pos:'mixed', issueKey:'housing_build', issueStance:'mixed', text:'Won the November 2025 Midway mayoral race as "a voice of common sense" to preserve the town\'s character amid rapid Heber Valley growth: "Midway is a beautiful place, and I want to keep it that way."', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-06-10/councilmember-craig-simons-enters-bid-for-midway-mayor'} },
+      { topic:'From Planning to Mayor', icon:'🗳', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Served on the Midway planning commission and city council before running for mayor, grounding his growth-management pitch in local land-use experience.', source:{label:'KPCW', url:'https://www.kpcw.org/wasatch-county/2025-06-10/councilmember-craig-simons-enters-bid-for-midway-mayor'} },
+    ],
+    // Piute County commission — closes the final county-governing-body gap (Batch 10
+    // covered the Piute sheriff; this adds a sitting commissioner of the 3-member board).
+    sam_steed_piute: [ // Sam Steed — 🏛 Piute County Commission
+      { topic:'Tiny-County Budget Authority', icon:'🏛', pos:'support', issueKey:'gov_balance', issueStance:'support', text:'Serves on the three-member commission that is the taxing, budgeting and appropriating authority for Piute County — one of Utah\'s smallest, with roughly 1,400 residents.', source:{label:'Piute County', url:'https://piute.gov/your-government/elected-officials/commissioners/'} },
+      { topic:'Agriculture & Rural Economy', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Governs a heavily agricultural, federal-land-dominated county where the commission promotes public/private partnerships in economic development, infrastructure and agriculture.', source:{label:'Piute County', url:'https://piute.gov/your-government/elected-officials/commissioners/'} },
+    ],
     // ── Cache County sitting officials · Batch 2 (July 2026) ──────────────────────
     // First structured pass on Cache County's COUNTY + CITY tier (Batch 1 covered only
     // the state-legislative tier). All three are tied to the county's two defining
