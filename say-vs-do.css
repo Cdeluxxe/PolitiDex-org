@@ -248,6 +248,70 @@
 .svd-eye-badge.v-consistent  { color: #4ade80; background: rgba(74, 222, 128, 0.14); border: 1px solid rgba(74, 222, 128, 0.4); }
 .svd-eye-badge.v-flag        { color: #fbbf24; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.4); }
 
+/* ── Share controls ─────────────────────────────────────────────────────────*/
+.svd-rc-actions { display: inline-flex; align-items: center; gap: 0.7rem; }
+.svd-share-btn {
+  display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.74rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #0a0f1e;
+  background: linear-gradient(90deg, #f5c842, #fbbf24); border: 0;
+  border-radius: 9999px; padding: 0.32rem 0.75rem; line-height: 1;
+  box-shadow: 0 3px 12px rgba(245, 200, 66, 0.28); transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.svd-share-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(245, 200, 66, 0.45); }
+.svd-share-btn:active { transform: translateY(0); }
+.svd-share-btn.is-busy { filter: saturate(0.5) brightness(0.9); cursor: progress; }
+.svd-share-btn .svd-share-ico { font-size: 0.9rem; }
+
+/* Mini card — a small round share button pinned top-right. */
+.svd-mini-share {
+  position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; cursor: pointer;
+  width: 1.7rem; height: 1.7rem; border-radius: 9999px; padding: 0; line-height: 1;
+  font-size: 0.9rem; color: #0a0f1e; background: linear-gradient(90deg, #f5c842, #fbbf24);
+  border: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.55; transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.svd-mini:hover .svd-mini-share { opacity: 1; }
+.svd-mini-share:hover { transform: scale(1.08); opacity: 1; }
+.svd-mini-share.is-busy { cursor: progress; }
+
+/* Fallback destination menu (desktop / no file-share support). */
+.svd-share-menu {
+  position: fixed; z-index: 2147483000; width: 240px; padding: 0.55rem;
+  background: linear-gradient(180deg, rgba(17, 25, 44, 0.99), rgba(11, 17, 32, 0.99));
+  border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 0.9rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px);
+  animation: svdMenuIn 0.14s ease-out;
+}
+@keyframes svdMenuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.svd-share-menu .svd-sm-head {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #f5c842; padding: 0.2rem 0.35rem 0.15rem;
+}
+.svd-share-menu .svd-sm-note {
+  font-family: 'Barlow', sans-serif; font-size: 0.72rem; color: #9fd8a0; line-height: 1.35;
+  padding: 0 0.35rem 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 0.4rem;
+}
+.svd-share-menu button {
+  display: flex; align-items: center; gap: 0.55rem; width: 100%; cursor: pointer; text-align: left;
+  font-family: 'Barlow', sans-serif; font-size: 0.9rem; color: #e7eefb;
+  background: transparent; border: 0; border-radius: 0.55rem; padding: 0.55rem 0.55rem;
+  transition: background 0.12s ease;
+}
+.svd-share-menu button:hover { background: rgba(96, 165, 250, 0.14); }
+
+/* Toast */
+.svd-toast {
+  position: fixed; left: 50%; bottom: 1.4rem; transform: translate(-50%, 1.5rem);
+  z-index: 2147483000; max-width: 90vw; opacity: 0;
+  font-family: 'Barlow', sans-serif; font-size: 0.9rem; color: #eef4ff;
+  background: rgba(17, 25, 44, 0.98); border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.7rem; padding: 0.7rem 1.1rem; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.svd-toast.is-in { opacity: 1; transform: translate(-50%, 0); }
+
 /* ── Responsive ─────────────────────────────────────────────────────────────*/
 @media (max-width: 640px) {
   #say-vs-do { padding: 2.4rem 0.85rem 2.6rem; }
@@ -260,4 +324,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .svd-receipt, .svd-mini, #say-vs-do .svd-nav, #say-vs-do .svd-cta-btn { transition: none; }
+  .svd-share-menu { animation: none; }
 }
