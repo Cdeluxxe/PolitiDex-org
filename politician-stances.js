@@ -3873,13 +3873,9 @@
       { topic:'Veterans\' Mental Health', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support',
         text:'Promised to prioritize VA mental-health funding and expand veteran suicide-prevention programs.' },
     ],
-    carlos_moreno: [
-      { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support',
-        text:'Would stand up a west-side public-safety committee and work closely with law enforcement to build trust in underserved neighborhoods.' },
-      { topic:'Fiscal Responsibility', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support',
-        text:'Commits to fiscal responsibility and efficient delivery of county services.' },
-      { topic:'Small Business', icon:'🏪', pos:'support', issueKey:'econ_smallbiz', issueStance:'support',
-        text:'A West Jordan small-business owner who centers small-business access and the county\'s west-side communities.' },
+    carlos_moreno: [ // Carlos Moreno — 🏛 Salt Lake County Council (District 2)
+      { topic:'Lone No on the Tax Hike', icon:'🚫', pos:'oppose', issueKey:'property_tax', issueStance:'oppose', text:'Cast the only vote against the county\'s 8-1, 14.65% property-tax increase (~$36.5M), saying the county \'didn\'t do enough to make cuts to combat the rising costs.\'', source:{label:'KSL', url:'https://www.ksl.com/article/51417043/salt-lake-county-council-approves-property-tax-increase-of-roughly-14'} },
+      { topic:'Cut Deeper Before Taxing', icon:'✂️', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Argued the council should have found deeper savings before asking residents to pay more amid inflation — a stance that drew a public rebuke from the chair.', source:{label:'ABC4', url:'https://www.abc4.com/news/wasatch-front/salt-lake-county-council-votes-property-tax-increase/'} },
     ],
     dakota_wurth: [
       { topic:'Housing Supply', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support',
@@ -4553,12 +4549,10 @@
       { topic:'Guardianship & Disability Protections', icon:'🛡', pos:'support', issueKey:'health_mental', issueStance:'support', text:'Strengthened guardianship protections for adults with severe intellectual disabilities, tightening the safeguards around who makes decisions for vulnerable Utahns.', evidence:'Sponsored SB 199 (2025).', source:{label:'le.utah.gov — SB0199 (2025)', url:'https://le.utah.gov/~2025/bills/static/SB0199.html'} },
       { topic:'Solid-Waste & Landfill Standards', icon:'♻️', pos:'support', issueKey:'enviro_balance', issueStance:'support', text:'Floor-sponsored updated state standards for solid-waste landfills, a practical-stewardship measure on how Utah manages disposal sites.' },
     ],
-    laurie_stringham: [ // Laurie Stringham
-      { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'As council chair she championed a $507M jail-consolidation and Justice and Accountability Center bond, referred to voters in 2024.' },
-      { topic:'Mental Health & Justice Reform', icon:'🧠', pos:'support', issueKey:'health_mental', issueStance:'support', text:'A longtime advocate who frames the county jail as the state\'s largest de facto mental-health facility and backs treatment-oriented criminal-justice reform.' },
-      { topic:'Fiscal Restraint', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'States a priority of keeping county taxes and fees low while funding homelessness, human-services, and opioid-response needs.' },
-      { topic:'Parks, Recreation & Wellness', icon:'🏞', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Champions Park Rx Utah and parks-and-recreation access after 21 years on the Kearns-Oquirrh Recreation and Parks District board.' },
-      { topic:'Civility & Responsive Governance', icon:'🤝', pos:'support', issueKey:'reform_balance', issueStance:'support', text:'Made "encouraging and requiring civility" a central theme while serving as Council Chair in 2022 and 2024.' },
+    laurie_stringham: [ // Laurie Stringham — 🏛 Salt Lake County Council (At-Large A)
+      { topic:'Yes on Hike, But Cut First', icon:'🏡', pos:'mixed', issueKey:'property_tax', issueStance:'mixed', text:'Backed the 14.65% property-tax increase but pushed for spending cuts first and warned fixed-income seniors — a fast-growing share of the county — are hit hardest.', source:{label:'ABC4', url:'https://www.abc4.com/news/wasatch-front/salt-lake-county-council-close-slc-senior-center/'} },
+      { topic:'Jail as Mental-Health Fallback', icon:'⚖️', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Calls the county jail \'the largest mental health facility in the state\' and champions a justice-bond \'step-down approach\' to cut recidivism — engaging the reform side of the cluster.', source:{label:'The Daily Utah Chronicle', url:'https://dailyutahchronicle.com/2024/10/25/salt-lake-county-mayors-budget-proposal-expands-projects/'} },
+      { topic:'Closed a Senior Center to Save', icon:'✂️', pos:'mixed', issueKey:'gov_services', issueStance:'mixed', text:'Supported closing an underused SLC senior center, saying its members had care nearby and the funds should maintain other facilities — a cut applied in practice.', source:{label:'ABC4', url:'https://www.abc4.com/news/wasatch-front/salt-lake-county-council-close-slc-senior-center/'} },
     ],
     leah_hansen: [ // Leah Hansen
       { topic:'Limiting DEI Programs', icon:'🚫', pos:'support', issueKey:'end_dei', issueStance:'support', text:'Publicly supported HB 261, the 2024 law restricting diversity, equity and inclusion programs in Utah government and higher education.', source:{label:'le.utah.gov', url:'https://le.utah.gov'} },
@@ -4677,10 +4671,10 @@
       { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'Modernized the membership of Utah\'s Peace Officer Standards and Training (POST) Council.', evidence:'Sponsored HB 94 (2022), signed.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2022/bills/static/HB0094.html'} },
       { topic:'Economic Development', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'As House Transportation Committee vice-chair he focused on economic development, workforce, and transportation.' },
     ],
-    natalie_pinkney: [ // Natalie Pinkney
-      { topic:'Public Safety & Crime', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'As a candidate she supported Salt Lake County\'s $507 million Justice and Accountability bond to fund a new jail and a lower-security accountability center.' },
-      { topic:'Child Care', icon:'🧸', pos:'support', issueKey:'child_care', issueStance:'support', text:'Has worked to defend affordable child care for families.' },
-      { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to expand affordable housing across the county.' },
+    natalie_pinkney: [ // Natalie Pinkney — 🏛 Salt Lake County Council (At-Large C)
+      { topic:'Justice & Accountability Bond', icon:'🔄', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Backed the county\'s bipartisan Justice & Accountability bond (8 of 9 council members): \'a compassionate approach to homelessness and to criminal justice,\' tied to a re-entry center.', source:{label:'KSL NewsRadio', url:'https://kslnewsradio.com/elections-politics-government/elections/natalie-pinkney-salt-lake-county-council/2146059/'} },
+      { topic:'Housing as Opportunity', icon:'🏚', pos:'support', issueKey:'housing_support', issueStance:'support', text:'Frames housing as wealth-building and shelter, and would add supply using county- and city-owned land and city partnerships to revitalize underused parcels.', source:{label:'KSL NewsRadio', url:'https://kslnewsradio.com/elections-politics-government/elections/natalie-pinkney-salt-lake-county-council/2146059/'} },
+      { topic:'First Black Countywide Official', icon:'🗳', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Began her At-Large term in Jan. 2025 as the first Black person elected countywide in SL County, after five years on the South Salt Lake City Council, centering housing, homelessness and childcare.', source:{label:'Salt Lake County', url:'https://www.saltlakecounty.gov/council/contact/natalie-pinkney/'} },
     ],
     nelson_abbott: [ // Nelson Abbott
       { topic:'Criminal Competency Reform', icon:'🏛', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Continued a multi-session reform of how courts handle defendants with mental-health competency questions.', evidence:'Sponsored HB 207 (2026), signed.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2026/bills/static/HB0207.html'} },
@@ -5101,6 +5095,11 @@
       { topic:'Property-Tax Increase Denied', icon:'💵', pos:'mixed', issueKey:'property_tax', issueStance:'mixed', text:'Kaysville\'s FY2026 property-tax increase was denied by the Utah State Tax Commission under the strict new law (SB202/SB29); Tran said the city had followed a transparent, well-documented truth-in-taxation process and was disappointed the increase for essential services could not move forward.', source:{label:'Kaysville City Council (Oct 2, 2025)', url:'https://www.utah.gov/pmn/files/1347097.pdf'} },
       { topic:'Residential Tax Base', icon:'🏛', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Ties the budget squeeze to Kaysville\'s identity as a residential community with limited commercial development and reluctance toward high-density housing — a mix she says preserves the city\'s appeal but narrows the commercial tax base and shifts more of the burden onto residents.', source:{label:'Kaysville City Council (Oct 2, 2025)', url:'https://www.utah.gov/pmn/files/1347097.pdf'} },
       { topic:'Municipal Power Utility', icon:'⚡', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Kaysville runs its own municipal electric utility, delivering power at roughly 15% below Rocky Mountain Power rates as a UAMPS participant — with no investor return or income taxes — a structural cost advantage the residential city leans on.', source:{label:'Kaysville City (Taxes & Fees)', url:'https://www.kaysville.gov/172/Taxes-Fees'} },
+    ],
+    aimee_winder_newton: [ // Aimee Winder Newton — 🏛 Salt Lake County Council (Chair, District 3)
+      { topic:'Trimmed Tax Hike to 14.65%', icon:'🏡', pos:'mixed', issueKey:'property_tax', issueStance:'mixed', text:'As 2026 chair, led the 8-1 vote cutting Mayor Wilson\'s ~19.63% proposal to a 14.65% increase (~$36.5M; ~$64.92/yr on a $638k home) — the county\'s first hike since 2019.', source:{label:'KSL', url:'https://www.ksl.com/article/51417043/salt-lake-county-council-approves-property-tax-increase-of-roughly-14'} },
+      { topic:'\'Working Our Tails Off\' on Cuts', icon:'✂️', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Defended the hike as a last resort after a $12.4M structural-cost cut — frozen elected-official salaries, limited raises, fewer mayor\'s-office positions: \'working our tails off trying to find those cuts.\'', source:{label:'KSL', url:'https://www.ksl.com/article/51417043/salt-lake-county-council-approves-property-tax-increase-of-roughly-14'} },
+      { topic:'\'Work Horses, Not Show Horses\'', icon:'🐴', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'Clashed with the lone dissenter, asking why he never proposed \'a single\' cut in negotiations and saying the county needs \'work horses, not show horses.\'', source:{label:'ABC4', url:'https://www.abc4.com/news/wasatch-front/salt-lake-county-council-votes-property-tax-increase/'} },
     ],
     };
 

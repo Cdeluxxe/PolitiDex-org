@@ -19,24 +19,24 @@
 // from four distinct, individually-sourced council lenses, so the SAME decision Batch 6
 // recorded through the county mayor is now visible through the legislative body too.
 //
-//   • aimee_winder_newton_slco — Council CHAIR 2026 (R, District 3). Defended the
+//   • aimee_winder_newton — Council CHAIR 2026 (R, District 3). Defended the
 //     trimmed hike as unavoidable after "working our tails off" to find cuts (froze
 //     elected-official salaries, reduced mayor's-office positions); "work horses, not
 //     show horses."                                                       → CREATE
-//   • carlos_moreno_slco       — (R, District 2). The lone 8-1 dissenter; said the
+//   • carlos_moreno       — (R, District 2). The lone 8-1 dissenter; said the
 //     county "didn't do enough to make cuts." The both-sides counterpart to the chair
-//     on the very same vote.                                              → CREATE
-//   • laurie_stringham_slco    — At-Large A (R), GOP caucus leader, former chair.
+//     on the very same vote.                                    → ENRICH (existing stub)
+//   • laurie_stringham    — At-Large A (R), GOP caucus leader, former chair.
 //     Voted yes but pushed spending cuts and warned fixed-income seniors are hit
 //     hardest; frames the jail as "the largest mental health facility in the state"
-//     and backs the justice/homelessness "step-down" bond.               → CREATE
-//   • natalie_pinkney_slco     — At-Large C (D); first Black person elected countywide
+//     and backs the justice/homelessness "step-down" bond.     → ENRICH (existing stub)
+//   • natalie_pinkney     — At-Large C (D); first Black person elected countywide
 //     in SL County. A homelessness/housing/criminal-justice-reform lens; backed the
-//     bipartisan Justice & Accountability bond and a "compassionate approach."→ CREATE
-//   • dawn_ramsey_sjordan      — South Jordan Mayor (nonpartisan); the largest SL
-//     County suburb still missing a record. Growth from ~60k to ~100k, the Daybreak
-//     HRTZ tax-reinvestment/affordable-housing bet, "economic development that will
-//     keep taxes low."                                                    → CREATE
+//     bipartisan Justice & Accountability bond and a "compassionate approach." → ENRICH (existing stub)
+//   • Dawn Ramsey (South Jordan Mayor) is NOT built here: she already exists as the
+//     canonical `dramsey` (Firestore doc + roster + browse + sourced stance cards).
+//     An earlier draft of this batch created a duplicate `dawn_ramsey_sjordan`; it was
+//     removed so no second Dawn Ramsey record is produced.               → SKIPPED (dup)
 //
 // FACET / NUANCE MODELING (pos:'mixed' where genuinely two-sided): Winder Newton's
 // raise-but-only-after-cuts posture; Stringham's yes-vote-with-a-cuts-crusade and
@@ -83,21 +83,46 @@
 //   • Attribution discipline: the 8-1 vote, 14.65%, $36.5M and $64.92/home figures are
 //     plain facts; the 74%-of-budget and $507M-bond context is carried over from the
 //     county's own framing; the referendum was residents', not any council member's.
-//   • Idempotent & non-destructive: re-fetches each live doc; CREATE only where nothing
-//     exists (skips any id already present).
+//   • Idempotent & non-destructive: re-fetches each live doc; CREATEs only the new
+//     member (Winder Newton) and ENRICHes the three pre-existing stubs (Moreno,
+//     Stringham, Pinkney) by patching only the fields it authors.
 //
 //   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs            # dry run
 //   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --emit     # write stance block to /tmp
-//   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply    # write to Firestore
+//   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --client   # write stance cards + CMP_DATA roster into the repo (no Firestore)
+//   FIRESTORE_ACCESS_TOKEN=... node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply   # create Firestore docs (authenticated)
+//
+// Recommended order for a clean sync:
+//   1) node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --client
+//   2) node scripts/split-stances.mjs
+//   3) export FIRESTORE_ACCESS_TOKEN="$(gcloud auth print-access-token)"   # service-account token
+//   4) node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply
 // ---------------------------------------------------------------------------
 
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 
 const PROJECT = 'politidex-979bd';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/politicians`;
 const APPLY = process.argv.includes('--apply');
 const EMIT  = process.argv.includes('--emit');
+const CLIENT = process.argv.includes('--client');
 const STAMP = '2026-07-14T00:00:00.000Z';
+// Authenticated writes. Once the Firestore rules require auth (public read /
+// authenticated write only), unauthenticated PATCHes get HTTP 403. Provide a
+// Google OAuth2 access token for a service account (or `gcloud auth
+// print-access-token`) via FIRESTORE_ACCESS_TOKEN; a service-account token uses
+// IAM and writes through even with locked-down rules. Reads never need it.
+const TOKEN = process.env.FIRESTORE_ACCESS_TOKEN || '';
+const AUTH_HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {};
+
+// Short roster issue labels for the CMP_DATA entries written by --client
+// (the app's keyIssues are longer; these mirror the Batch 6 suburb-mayor style).
+const ROSTER_ISSUES = {
+  aimee_winder_newton: ['Property Taxes', 'Public Safety', 'Local Accountability'],
+  carlos_moreno:       ['Property Taxes', 'Government Spending', 'Local Accountability'],
+  laurie_stringham:    ['Property Taxes', 'Mental Health & Jail', 'Public Safety'],
+  natalie_pinkney:     ['Homelessness & Housing', 'Justice Reform', 'Property Taxes'],
+};
 
 // Shared sources (verified during research).
 const SRC = {
@@ -123,7 +148,7 @@ const SRC = {
 // ── Curated, sourced deep-dive data (keyed by Firestore doc id) ──────────────
 const DATA = {
   // ══════════ Aimee Winder Newton — SL County Council Chair 2026 (R, District 3) ══════════
-  aimee_winder_newton_slco: {
+  aimee_winder_newton: {
     create: true,
     name: 'Aimee Winder Newton',
     office: '🏛 Salt Lake County Council (Chair, District 3)',
@@ -164,7 +189,8 @@ const DATA = {
   },
 
   // ══════════ Carlos Moreno — SL County Council (R, District 2), lone dissenter ══════════
-  carlos_moreno_slco: {
+  carlos_moreno: {
+    enrich: true,  // pre-existing unsourced stub → upgrade with sourced cards
     create: true,
     name: 'Carlos Moreno',
     office: '🏛 Salt Lake County Council (District 2)',
@@ -199,7 +225,8 @@ const DATA = {
   },
 
   // ══════════ Laurie Stringham — SL County Council At-Large A (R) ══════════
-  laurie_stringham_slco: {
+  laurie_stringham: {
+    enrich: true,  // pre-existing unsourced stub → upgrade with sourced cards
     create: true,
     name: 'Laurie Stringham',
     office: '🏛 Salt Lake County Council (At-Large A)',
@@ -240,7 +267,8 @@ const DATA = {
   },
 
   // ══════════ Natalie Pinkney — SL County Council At-Large C (D) ══════════
-  natalie_pinkney_slco: {
+  natalie_pinkney: {
+    enrich: true,  // pre-existing unsourced stub → upgrade with sourced cards
     create: true,
     name: 'Natalie Pinkney',
     office: '🏛 Salt Lake County Council (At-Large C)',
@@ -279,47 +307,6 @@ const DATA = {
       { topic: 'First Black Countywide Official', icon: '🗳', pos: 'support', issueKey: 'gov_services', issueStance: 'support', text: "Began her At-Large term in Jan. 2025 as the first Black person elected countywide in SL County, after five years on the South Salt Lake City Council, centering housing, homelessness and childcare.", source: SRC.slco_pinkney },
     ],
   },
-
-  // ══════════ Dawn Ramsey — South Jordan Mayor (growth / taxes / Daybreak) ══════════
-  dawn_ramsey_sjordan: {
-    create: true,
-    name: 'Dawn Ramsey',
-    office: '🏛 South Jordan (Mayor)',
-    party: 'Nonpartisan', state: 'Utah', icon: '🏛',
-    candidacyStatus: 'office',
-    score: 60,
-    keyIssues: ['Growth, Housing & Land Use', 'Property Taxes & County Budget', 'Local Government Transparency & Accountability'],
-    bio: "Dawn Ramsey has been mayor of South Jordan since 2018 and was on the ballot again in the 2025 municipal race. Under her tenure the city has grown from about 60,000 residents to more than 100,000, anchored by the Larry H. Miller Company's Downtown Daybreak build-out and a state-designated Housing and Transit Reinvestment Zone. She frames aggressive economic development as the way to hold residential taxes down. South Jordan's mayor is a nonpartisan office.",
-    acctSummary: "Ramsey is the growth-and-taxes mayor of one of Salt Lake County's fastest-expanding suburbs — from roughly 60,000 residents to over 100,000 in about seven years. Her governing thesis is that a strong 'micro-economy' and a 'business-friendly' posture let the city keep taxes low while maintaining service levels: economic development, she argues, 'will keep taxes low as we maintain our high service levels and ensure our continued quality of life.' The centerpiece is Downtown Daybreak, whose place inside a state Housing and Transit Reinvestment Zone (HRTZ) lets South Jordan redirect a share of incremental property, sales and use-tax growth into the district — funding affordable housing (a proposal for 4,724 multifamily units, 500 at 60-80% AMI), density, and structured parking — alongside marquee additions like the Salt Lake Bees' new ballpark and a Megaplex. 'This is not just a development, but a destination,' she said at one opening. Her record is a pro-growth, tax-increment bet: fast development meant to expand the base rather than the rate, with the tradeoff that it leans on tax-increment financing and rising density.",
-    theme: "South Jordan's mayor bets that fast growth — 60k to 100k residents and the Daybreak HRTZ tax-reinvestment district — expands the tax base so rates stay low, pairing a ballpark-and-density boom with an affordable-housing set-aside.",
-    spotlight: [
-      { impact: 'neutral', category: 'rhetoric', date: '2025', tags: ['Public Statements'], issueKey: 'property_tax',
-        headline: "Casts economic development as a way to 'keep taxes low'",
-        facts: "At her 2025 State of the City, Ramsey said South Jordan's 'micro-economy is strong and we are committed to our promise of being a business-friendly city, allowing for economic development that will keep taxes low as we maintain our high service levels and ensure our continued quality of life,' calling it 'an exciting and transformative time in South Jordan's history.'",
-        why: "Her core fiscal thesis — grow the base, not the rate — the standard her budgets can be measured against.",
-        source: SRC.sjj_sotc },
-      { impact: 'neutral', category: 'voting', date: '2025', tags: ['Notable Actions'], issueKey: 'housing_build',
-        headline: "Anchors growth on the Daybreak HRTZ tax-reinvestment zone",
-        facts: "Downtown Daybreak sits inside a state Housing and Transit Reinvestment Zone awarded by the Governor's Office of Economic Opportunity, letting South Jordan redirect a share of incremental property, sales and use-tax growth into the district for affordable housing, density, and structured parking. The South Jordan/LHM proposal calls for 4,724 multifamily units, about 500 of them at 60-80% of area median income — a large density increase over a market-only plan.",
-        why: "The concrete mechanism behind her growth model — tax-increment financing tied to an affordable-housing set-aside.",
-        source: SRC.bsl_daybreak },
-      { impact: 'neutral', category: 'rhetoric', date: '2025', tags: ['Public Statements'], issueKey: 'housing_build',
-        headline: "Presides over growth from ~60k to over 100k residents",
-        facts: "Since Ramsey became mayor in 2018, South Jordan's population has grown from about 60,000 to more than 100,000, with the Larry H. Miller Company building out Downtown Daybreak — including the Salt Lake Bees' new ballpark and a Megaplex entertainment center. At one opening she said, 'This is not just a development, but a destination.'",
-        why: "The scale of the growth her policies are managing — and the marquee investments she points to as proof of the model.",
-        source: SRC.sjj_growth },
-    ],
-    stances: {
-      'Growth, Housing & Land Use': "Anchors South Jordan's growth (60k to 100k residents) on the Daybreak HRTZ, redirecting incremental tax growth into affordable housing (500 units at 60-80% AMI), density and parking.",
-      'Property Taxes & County Budget': "Argues 'business-friendly' economic development 'will keep taxes low' by expanding the base rather than the rate, while maintaining service levels.",
-      'Local Government Transparency & Accountability': "Casts Daybreak's ballpark-and-density boom as a 'destination' that pays for itself — a pro-growth bet that leans on tax-increment financing.",
-    },
-    stanceCards: [
-      { topic: 'Grow the Base, Not the Rate', icon: '📈', pos: 'support', issueKey: 'property_tax', issueStance: 'support', text: "Says 'business-friendly' economic development 'will keep taxes low' while maintaining service levels — betting fast growth expands the tax base rather than the rate.", source: SRC.sjj_sotc },
-      { topic: 'Daybreak HRTZ Tax Reinvestment', icon: '🏗', pos: 'mixed', issueKey: 'housing_build', issueStance: 'mixed', text: "Anchors growth on the Daybreak Housing & Transit Reinvestment Zone — redirecting incremental tax growth into affordable housing (500 units at 60-80% AMI), density and parking.", source: SRC.bsl_daybreak },
-      { topic: '60k → 100k Growth Boom', icon: '🏟', pos: 'mixed', issueKey: 'housing_build', issueStance: 'mixed', text: "Presided over growth from ~60k to 100k+ residents anchored by Daybreak's new Bees ballpark and Megaplex: 'not just a development, but a destination.'", source: SRC.sjj_growth },
-    ],
-  },
 };
 
 // ── Firestore value encode/decode ────────────────────────────────────────────
@@ -345,7 +332,7 @@ function dec(v) {
 
 // ── Firestore I/O ───────────────────────────────────────────────────────────
 async function getDoc(id) {
-  const r = await fetch(`${BASE}/${id}`);
+  const r = await fetch(`${BASE}/${id}`, { headers: { ...AUTH_HEADERS } });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`fetch ${id}: HTTP ${r.status}`);
   const j = await r.json();
@@ -358,7 +345,7 @@ async function patch(id, fields, { mask = true } = {}) {
   const body = { fields: {} };
   for (const [k, v] of Object.entries(fields)) body.fields[k] = enc(v);
   const r = await fetch(`${BASE}/${id}${qs}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    method: 'PATCH', headers: { 'Content-Type': 'application/json', ...AUTH_HEADERS }, body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(`patch ${id}: HTTP ${r.status} — ${(await r.text()).slice(0, 200)}`);
 }
@@ -391,35 +378,117 @@ function buildNewDoc(plan) {
   return fields;
 }
 
-// ── Emit the politician-stances.js ISSUE_STANCE_DATA block (CREATE records only) ─
+// Enrichment field set — only the content this batch authors. Deliberately OMITS
+// promises and kept/broken/pending tallies (and the full accountability map) so a
+// masked PATCH upgrades an existing stub WITHOUT clobbering any promise data or
+// verdict tallies it already carries.
+function buildEnrichDoc(plan) {
+  return {
+    office: plan.office,
+    keyIssues: plan.keyIssues,
+    stances: plan.stances,
+    spotlight: plan.spotlight,
+    spotlightTheme: plan.theme,
+    score: plan.score,
+    tier: tierForScore(plan.score),
+    profileStatus: 'full',
+    updatedAt: STAMP,
+  };
+}
+
+// ── Emit ISSUE_STANCE_DATA blocks. Aimee is a new CREATE; Moreno / Stringham /
+// Laurie Stringham / Pinkney are ENRICH (they already exist as unsourced stubs and
+// are upgraded to these sourced cards). Dawn Ramsey is NOT here — she already exists
+// as the canonical `dramsey`, so no duplicate is created. ─────────────────────────
 function esc(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+function emitRecord(id, plan) {
+  const out = [`    ${id}: [ // ${plan.name} — ${plan.office}`];
+  for (const c of plan.stanceCards) {
+    const parts = [`topic:'${esc(c.topic)}'`, `icon:'${c.icon}'`, `pos:'${c.pos}'`, `issueKey:'${c.issueKey}'`, `issueStance:'${c.issueStance}'`, `text:'${esc(c.text)}'`];
+    if (c.source) parts.push(`source:{label:'${esc(c.source.label)}', url:'${esc(c.source.url)}'}`);
+    out.push(`      { ${parts.join(', ')} },`);
+  }
+  out.push('    ],');
+  return out.join('\n');
+}
 function emitBlock() {
   const out = [];
-  out.push('    // ── Salt Lake County Council + South Jordan · Batch 7 (July 2026) ──────────────');
-  out.push('    // Follows Batch 6 (county mayor/sheriff/city mayors) with the COUNCIL that voted on');
-  out.push('    // the tax hike, tied to the same tax<->jail<->homelessness cluster: the 8-1 Dec. 2025');
-  out.push('    // vote trimming Mayor Wilson\'s proposal to 14.65% — chair Winder Newton (defended,');
-  out.push('    // cuts-first), Moreno (lone no), Stringham (yes-but-cut + jail-as-mental-health), and');
-  out.push('    // Pinkney (homelessness/justice-reform lens) — plus South Jordan\'s Ramsey (growth/');
-  out.push('    // Daybreak HRTZ). (Council records suzanne_harrison / rosalba_dominguez, and suburb');
-  out.push('    // mayors Burton/Walker/Hales/Buroker, already exist and are NOT rebuilt.)');
+  out.push('    // ── Salt Lake County Council · Batch 7 (July 2026) ─────────────────────────────');
+  out.push('    // The COUNCIL that cast the 8-1 Dec. 2025 vote trimming Mayor Wilson\'s tax hike to');
+  out.push('    // 14.65% — tied to the same tax<->jail<->homelessness cluster as Batch 6. Winder');
+  out.push('    // Newton (chair, cuts-first), Moreno (lone no), Stringham (yes-but-cut / jail-as-');
+  out.push('    // mental-health), Pinkney (homelessness/justice-reform). Moreno/Stringham/Pinkney');
+  out.push('    // upgrade pre-existing unsourced stubs; Winder Newton is new. (Dawn Ramsey already');
+  out.push('    // exists as `dramsey`; suburb mayors Burton/Walker already built — none rebuilt.)');
   for (const [id, plan] of Object.entries(DATA)) {
-    if (plan.enrich) continue;
-    if (!plan.create || !plan.stanceCards || !plan.stanceCards.length) continue;
-    out.push(`    ${id}: [ // ${plan.name} — ${plan.office}`);
-    for (const c of plan.stanceCards) {
-      const parts = [`topic:'${esc(c.topic)}'`, `icon:'${c.icon}'`, `pos:'${c.pos}'`, `issueKey:'${c.issueKey}'`, `issueStance:'${c.issueStance}'`, `text:'${esc(c.text)}'`];
-      if (c.source) parts.push(`source:{label:'${esc(c.source.label)}', url:'${esc(c.source.url)}'}`);
-      out.push(`      { ${parts.join(', ')} },`);
-    }
-    out.push('    ],');
+    if (!plan.stanceCards || !plan.stanceCards.length) continue;
+    out.push(emitRecord(id, plan));
   }
   return out.join('\n');
 }
 
+// ── Client-side integration (no Firestore) — stance cards + CMP_DATA roster ───
+// Writes the four council records into the shipped source of truth so the client
+// and Firestore stay consistent. Idempotent; run `node scripts/split-stances.mjs`
+// afterwards to regenerate the -core/-ext chunks. Browse-tree nodes are NOT added
+// (SL county-council members, like the Batch 6 records, live in the roster/stance
+// surfaces, not the curated Power-Map subset).
+function applyClient() {
+  const partyShort = { Republican: 'R', Democrat: 'D', Nonpartisan: '' };
+  const ids = Object.keys(DATA).filter((id) => DATA[id].stanceCards && DATA[id].stanceCards.length);
+
+  // 1) stance cards → politician-stances.js. Replace an existing (unsourced-stub)
+  //    block in place; insert a new block before the object close otherwise. Skip
+  //    a record whose block already carries a source (idempotent).
+  const SF = 'politician-stances.js';
+  let stances = readFileSync(SF, 'utf8');
+  let replaced = 0, inserted = 0, skipped = 0;
+  for (const id of ids) {
+    const lines = stances.split('\n');
+    const start = lines.findIndex((l) => new RegExp(`^    ${id}: \\[`).test(l));
+    if (start !== -1) {
+      let end = -1;
+      for (let i = start + 1; i < lines.length; i++) if (lines[i] === '    ],') { end = i; break; }
+      if (end === -1) { console.error(`  ✗ ${id}: unterminated block`); continue; }
+      const block = lines.slice(start, end + 1).join('\n');
+      if (/source:\s*\{/.test(block)) { skipped++; continue; }          // already sourced → leave it
+      lines.splice(start, end - start + 1, emitRecord(id, DATA[id]));    // replace unsourced stub
+      stances = lines.join('\n');
+      replaced++;
+    } else {
+      const anchor = '\n    };\n\n})();';
+      if (!stances.includes(anchor)) { console.error('  ✗ stance-object anchor not found; aborting --client.'); process.exit(1); }
+      stances = stances.replace(anchor, '\n' + emitRecord(id, DATA[id]) + anchor);
+      inserted++;
+    }
+  }
+  writeFileSync(SF, stances);
+  console.log(`  ✎ stance cards → ${SF}: ${inserted} inserted, ${replaced} upgraded (stub→sourced), ${skipped} already sourced`);
+
+  // 2) CMP_DATA roster rows → index.html (add where the id has no roster entry)
+  const IF = 'index.html';
+  let html = readFileSync(IF, 'utf8');
+  const rosterAnchor = "    mark_shepherd_clearfield: { name:'Mark Shepherd', office:'Mayor, Clearfield', state:'Utah', party:'', score:59, kept:0, broken:0, pending:0, icon:'🏛', issues:['Property Taxes','Housing & Redevelopment','Growth'] },";
+  const need = ids.filter((id) => !new RegExp(`\\n\\s+${id}:\\s*\\{ name:`).test(html));
+  if (!need.length) console.log('  · CMP_DATA roster rows already present — skipping');
+  else if (!html.includes(rosterAnchor)) console.log('  ⚠ CMP_DATA anchor not found — add roster rows by hand.');
+  else {
+    const rows = '\n    // July 2026 — Salt Lake County Council (Batch 7), tax/jail/homelessness cluster\n' +
+      need.map((id) => {
+        const p = DATA[id];
+        const office = p.office.replace(/^\S+\s+/, '');
+        const issues = (ROSTER_ISSUES[id] || p.keyIssues.slice(0, 3)).map((i) => `'${i.replace(/'/g, "\\'")}'`).join(',');
+        return `    ${id}: { name:'${p.name}', office:'${office}', state:'Utah', party:'${partyShort[p.party] ?? ''}', score:${p.score}, kept:0, broken:0, pending:0, icon:'${p.icon}', issues:[${issues}] },`;
+      }).join('\n');
+    html = html.replace(rosterAnchor, rosterAnchor + rows);
+    writeFileSync(IF, html);
+    console.log(`  ✎ added ${need.length} CMP_DATA roster row(s) → ${IF}`);
+  }
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 (async () => {
-  console.log(`PolitiDex — Salt Lake County deep dive (batch 7: county council + South Jordan)  [${APPLY ? 'APPLY' : EMIT ? 'EMIT' : 'DRY RUN'}]\n`);
+  console.log(`PolitiDex — Salt Lake County deep dive (batch 7: county council)  [${APPLY ? 'APPLY' : CLIENT ? 'CLIENT' : EMIT ? 'EMIT' : 'DRY RUN'}]\n`);
 
   // Validate every issueKey against the live ISSUE_MAP vocabulary (now in alignment-tool.js).
   try {
@@ -441,24 +510,46 @@ function emitBlock() {
     console.log(`Wrote ISSUE_STANCE_DATA block → ${f}\n`);
   }
 
-  let created = 0, existed = 0, totSpot = 0, totStance = 0;
+  if (CLIENT) {
+    applyClient();
+    console.log('\nClient files updated. NEXT: node scripts/split-stances.mjs  (regenerate chunks).');
+    if (!APPLY) return;
+  }
+
+  // Firestore writes require an authenticated token once the rules are locked down
+  // (public read / authenticated write). Refuse to depend on the open-write door.
+  if (APPLY && !TOKEN) {
+    console.error('\n  ✗ --apply needs FIRESTORE_ACCESS_TOKEN (a service-account OAuth token).');
+    console.error('    Locked-down rules reject unauthenticated writes. Set it, e.g.:');
+    console.error('      export FIRESTORE_ACCESS_TOKEN="$(gcloud auth print-access-token)"');
+    console.error('    then re-run with --apply. Aborting without writing.');
+    process.exit(1);
+  }
+  if (APPLY) console.log('  🔑 authenticated writes enabled (FIRESTORE_ACCESS_TOKEN set)\n');
+
+  let created = 0, enriched = 0, skipped = 0, totSpot = 0, totStance = 0;
 
   for (const [id, plan] of Object.entries(DATA)) {
     let doc;
     try { doc = await getDoc(id); } catch (e) { console.log(`  ✗ ${id}: ${e.message}`); continue; }
 
-    if (doc) {
-      console.log(`  · ${id} (${plan.name}): already exists — skipping create (this batch CREATEs new officials only)`);
-      existed++;
+    if (plan.enrich) {
+      // pre-existing unsourced stub → upgrade its record with the sourced fields.
+      if (!doc) { console.log(`  ⚠ ${id} (${plan.name}): expected to exist for enrichment but not found — skipping`); skipped++; continue; }
+      totSpot += plan.spotlight.length; totStance += Object.keys(plan.stances).length;
+      console.log(`  ${APPLY ? '✎' : '→'} ENRICH ${id} (${plan.name}) · ${plan.office} · +${plan.spotlight.length} receipt(s), ${Object.keys(plan.stances).length} stance(s), score→${plan.score}`);
+      if (APPLY) await patch(id, buildEnrichDoc(plan), { mask: true });   // patch only authored fields; preserve promises/tallies
+      enriched++;
       continue;
     }
-    totSpot += plan.spotlight.length;
-    totStance += Object.keys(plan.stances).length;
+    // CREATE — only where nothing exists.
+    if (doc) { console.log(`  · ${id} (${plan.name}): already exists — skipping create`); skipped++; continue; }
+    totSpot += plan.spotlight.length; totStance += Object.keys(plan.stances).length;
     console.log(`  ${APPLY ? '✎' : '→'} CREATE ${id} (${plan.name}) · ${plan.party} · ${plan.office} · score ${plan.score} · +${plan.spotlight.length} receipt(s), +${Object.keys(plan.stances).length} stance(s)`);
     if (APPLY) await patch(id, buildNewDoc(plan), { mask: false });
     created++;
   }
 
-  console.log(`\n${APPLY ? 'Applied' : 'Would apply'}: ${created} created (${existed} already existed) · ${totSpot} receipt(s), ${totStance} stance(s).`);
-  if (!APPLY) console.log('\nRe-run with --emit to write the stance block, --apply to write Firestore.');
+  console.log(`\n${APPLY ? 'Applied' : 'Would apply'}: ${created} created, ${enriched} enriched (${skipped} skipped) · ${totSpot} receipt(s), ${totStance} stance(s).`);
+  if (!APPLY && !CLIENT) console.log('\nRun --client to write client files, or --apply (with FIRESTORE_ACCESS_TOKEN) to write Firestore.');
 })();
