@@ -90,16 +90,17 @@
 //   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs            # dry run
 //   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --emit     # write stance block to /tmp
 //   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --client   # write stance cards + CMP_DATA roster into the repo (no Firestore)
-//   FIRESTORE_ACCESS_TOKEN=... node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply   # create Firestore docs (authenticated)
+//   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply --key C:\path\to\key.json   # SIMPLEST: mints its own token from the key
+//   FIRESTORE_ACCESS_TOKEN=... node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply   # or use a pre-minted token
 //
-// Recommended order for a clean sync:
-//   1) node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --client
-//   2) node scripts/split-stances.mjs
-//   3) export FIRESTORE_ACCESS_TOKEN="$(gcloud auth print-access-token)"   # service-account token
-//   4) node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply
+// Simplest clean sync (Windows/PowerShell friendly — one command for Firestore):
+//   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --client
+//   node scripts/split-stances.mjs
+//   node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply --key "C:\keys\politi-dex-batch.json"
 // ---------------------------------------------------------------------------
 
 import { writeFileSync, readFileSync } from 'fs';
+import crypto from 'crypto';
 
 const PROJECT = 'politidex-979bd';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/politicians`;
@@ -107,13 +108,43 @@ const APPLY = process.argv.includes('--apply');
 const EMIT  = process.argv.includes('--emit');
 const CLIENT = process.argv.includes('--client');
 const STAMP = '2026-07-14T00:00:00.000Z';
-// Authenticated writes. Once the Firestore rules require auth (public read /
-// authenticated write only), unauthenticated PATCHes get HTTP 403. Provide a
-// Google OAuth2 access token for a service account (or `gcloud auth
-// print-access-token`) via FIRESTORE_ACCESS_TOKEN; a service-account token uses
-// IAM and writes through even with locked-down rules. Reads never need it.
-const TOKEN = process.env.FIRESTORE_ACCESS_TOKEN || '';
-const AUTH_HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {};
+// read a `--flag value` argument
+function argVal(flag) { const i = process.argv.indexOf(flag); return i !== -1 ? process.argv[i + 1] : ''; }
+
+// Authenticated writes. Once the Firestore rules require auth, unauthenticated
+// PATCHes get HTTP 403. Two ways to supply credentials, in priority order:
+//   1) --key <path-to-service-account.json>  (or env FIRESTORE_KEY_FILE) — the
+//      script mints its own OAuth2 token from the key. No gcloud, no env-var
+//      juggling. This is the simplest path, especially on Windows/PowerShell.
+//   2) FIRESTORE_ACCESS_TOKEN — a pre-minted access token (e.g. from
+//      `gcloud auth print-access-token`).
+// A service-account token authorizes via IAM and writes through even with locked
+// rules. Reads never need it.
+const KEY_FILE = argVal('--key') || process.env.FIRESTORE_KEY_FILE || '';
+let ACCESS_TOKEN = process.env.FIRESTORE_ACCESS_TOKEN || '';
+function authHeaders() { return ACCESS_TOKEN ? { Authorization: `Bearer ${ACCESS_TOKEN}` } : {}; }
+
+// Mint a Google OAuth2 access token directly from a service-account JSON key,
+// using the standard signed-JWT bearer flow (RFC 7523). Node's crypto only.
+async function mintTokenFromKey(keyFile) {
+  const key = JSON.parse(readFileSync(keyFile, 'utf8'));
+  if (!key.client_email || !key.private_key) throw new Error(`${keyFile} is not a service-account key (missing client_email/private_key)`);
+  const tokenUri = key.token_uri || 'https://oauth2.googleapis.com/token';
+  const now = Math.floor(Date.now() / 1000);
+  const b64url = (o) => Buffer.from(typeof o === 'string' ? o : JSON.stringify(o)).toString('base64url');
+  const header = b64url({ alg: 'RS256', typ: 'JWT' });
+  const claim = b64url({ iss: key.client_email, scope: 'https://www.googleapis.com/auth/datastore', aud: tokenUri, iat: now, exp: now + 3600 });
+  const signature = crypto.createSign('RSA-SHA256').update(`${header}.${claim}`).sign(key.private_key).toString('base64url');
+  const assertion = `${header}.${claim}.${signature}`;
+  const r = await fetch(tokenUri, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token) throw new Error(`token exchange failed: HTTP ${r.status} — ${JSON.stringify(j).slice(0, 200)}`);
+  return { token: j.access_token, email: key.client_email };
+}
 
 // Short roster issue labels for the CMP_DATA entries written by --client
 // (the app's keyIssues are longer; these mirror the Batch 6 suburb-mayor style).
@@ -332,7 +363,7 @@ function dec(v) {
 
 // ── Firestore I/O ───────────────────────────────────────────────────────────
 async function getDoc(id) {
-  const r = await fetch(`${BASE}/${id}`, { headers: { ...AUTH_HEADERS } });
+  const r = await fetch(`${BASE}/${id}`, { headers: { ...authHeaders() } });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`fetch ${id}: HTTP ${r.status}`);
   const j = await r.json();
@@ -345,7 +376,7 @@ async function patch(id, fields, { mask = true } = {}) {
   const body = { fields: {} };
   for (const [k, v] of Object.entries(fields)) body.fields[k] = enc(v);
   const r = await fetch(`${BASE}/${id}${qs}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json', ...AUTH_HEADERS }, body: JSON.stringify(body),
+    method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(`patch ${id}: HTTP ${r.status} — ${(await r.text()).slice(0, 200)}`);
 }
@@ -518,14 +549,23 @@ function applyClient() {
 
   // Firestore writes require an authenticated token once the rules are locked down
   // (public read / authenticated write). Refuse to depend on the open-write door.
-  if (APPLY && !TOKEN) {
-    console.error('\n  ✗ --apply needs FIRESTORE_ACCESS_TOKEN (a service-account OAuth token).');
-    console.error('    Locked-down rules reject unauthenticated writes. Set it, e.g.:');
-    console.error('      export FIRESTORE_ACCESS_TOKEN="$(gcloud auth print-access-token)"');
-    console.error('    then re-run with --apply. Aborting without writing.');
+  if (APPLY && !ACCESS_TOKEN && KEY_FILE) {
+    try {
+      const { token, email } = await mintTokenFromKey(KEY_FILE);
+      ACCESS_TOKEN = token;
+      console.log(`  🔑 minted access token from key: ${email}\n`);
+    } catch (e) {
+      console.error(`\n  ✗ could not mint token from --key ${KEY_FILE}: ${e.message}`);
+      process.exit(1);
+    }
+  }
+  if (APPLY && !ACCESS_TOKEN) {
+    console.error('\n  ✗ --apply needs a credential. Simplest: pass the service-account key file:');
+    console.error('      node scripts/deep-dive-salt-lake-county-batch7-jul2026.mjs --apply --key <path-to-key.json>');
+    console.error('    (or set FIRESTORE_ACCESS_TOKEN / FIRESTORE_KEY_FILE). Aborting without writing.');
     process.exit(1);
   }
-  if (APPLY) console.log('  🔑 authenticated writes enabled (FIRESTORE_ACCESS_TOKEN set)\n');
+  if (APPLY && !KEY_FILE) console.log('  🔑 authenticated writes enabled (FIRESTORE_ACCESS_TOKEN set)\n');
 
   let created = 0, enriched = 0, skipped = 0, totSpot = 0, totStance = 0;
 
