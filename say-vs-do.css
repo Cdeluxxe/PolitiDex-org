@@ -345,6 +345,65 @@
 }
 .pdx-cov-callout .pdx-cov-text { font-family: 'Barlow', sans-serif; font-size: 0.85rem; color: #9fb4d4; line-height: 1.5; margin: 0; }
 
+/* ── Inline verdict badge (global search suggestions) ───────────────────────*/
+/* Compact chip shown inline in the search dropdown next to a person / receipt so
+   the say-vs-do verdict is legible before anything is opened. */
+.svd-badge {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.22rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.58rem;
+  letter-spacing: 0.04em; text-transform: uppercase; padding: 0.12rem 0.4rem;
+  border-radius: 0.35rem; white-space: nowrap; line-height: 1.2;
+}
+.svd-badge.v-contradicts { color: #f87171; background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.4); }
+.svd-badge.v-consistent  { color: #4ade80; background: rgba(74, 222, 128, 0.14); border: 1px solid rgba(74, 222, 128, 0.4); }
+.svd-badge.v-flag        { color: #fbbf24; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+/* ── Receipt lightbox (what "name + issue" search lands on) ─────────────────*/
+.svd-lightbox {
+  position: fixed; inset: 0; z-index: 2147482000;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: max(3vh, 1rem) 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(4, 8, 18, 0.78); backdrop-filter: blur(6px);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: svd-lb-fade 0.18s ease-out;
+}
+@keyframes svd-lb-fade { from { opacity: 0; } to { opacity: 1; } }
+.svd-lb-panel {
+  width: 100%; max-width: 34rem; margin: auto 0;
+  animation: svd-lb-rise 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes svd-lb-rise { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.svd-lb-bar {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;
+}
+.svd-lb-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #f5c842;
+}
+.svd-lb-close {
+  display: flex; align-items: center; justify-content: center;
+  width: 2.1rem; height: 2.1rem; border-radius: 9999px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #dbe6f7; font-size: 0.95rem; line-height: 1; transition: background 0.15s ease, transform 0.15s ease;
+}
+.svd-lb-close:hover { background: rgba(255, 255, 255, 0.16); transform: scale(1.05); }
+.svd-lb-close:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
+.svd-lb-actions { margin-top: 0.85rem; display: flex; justify-content: center; }
+.svd-lb-profile {
+  width: 100%; cursor: pointer; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.82rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #dbe6f7;
+  background: rgba(30, 53, 96, 0.55); border: 1px solid rgba(117, 150, 192, 0.4);
+  border-radius: 0.85rem; padding: 0.8rem 1rem; min-height: 44px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.svd-lb-profile:hover { background: rgba(30, 53, 96, 0.85); border-color: rgba(117, 150, 192, 0.65); color: #fff; }
+.svd-lb-profile:active { transform: scale(0.98); }
+.svd-lb-profile:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
+/* Inside the lightbox the receipt card is the focus, not a hover-lift teaser. */
+.svd-lightbox .svd-receipt { cursor: pointer; }
+.svd-lightbox .svd-receipt:hover { transform: none; }
+
 /* ── Responsive ─────────────────────────────────────────────────────────────*/
 @media (max-width: 640px) {
   #say-vs-do { padding: 2.4rem 0.85rem 2.6rem; }
