@@ -7,9 +7,13 @@
 
      • APP SHELL  — index.html + the static JS/CSS/icons are precached on
                     install so the app boots with no network at all.
-     • NAVIGATION — network-first (always try to serve the freshest page),
-                    falling back to the cached shell, then to a tiny inline
-                    "you're offline" page as a last resort.
+     • NAVIGATION — stale-while-revalidate: serve the cached shell INSTANTLY when
+                    we have it (repeat visits skip re-downloading the large HTML
+                    document) and refresh it in the background so the next load is
+                    fresh; fall back to the network on first visit, then to a tiny
+                    inline "you're offline" page. The page already reloads once when
+                    a new worker takes over (see the registration in index.html), so
+                    shipped shell updates still reach users promptly.
      • STATIC     — stale-while-revalidate: serve instantly from cache and
                     refresh in the background, so repeat loads are fast and
                     self-healing.
@@ -27,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -146,7 +150,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Full-page navigations: network-first with shell + offline fallback.
+  // Full-page navigations: stale-while-revalidate with offline fallback.
   if (req.mode === 'navigate') {
     event.respondWith(handleNavigate(req));
     return;
@@ -156,23 +160,34 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(handleStatic(req));
 });
 
-// Network-first for navigations. On success, refresh the cached shell so the
-// next offline boot serves the newest page. On failure, fall back to cache.
+// Stale-while-revalidate for navigations. Repeat visits are the common case on
+// phones, so serve the cached app shell immediately (no waiting on the large HTML
+// document over a slow mobile connection) and refresh the cache in the background
+// for the next load. Only the first visit — or a visit after the cache was pruned —
+// pays the network cost; if that also fails we show the inline offline page.
 async function handleNavigate(req) {
   const cache = await caches.open(SHELL_CACHE);
-  try {
-    const res = await fetch(req);
-    // Cache the canonical shell entry so '/' and deep links boot offline.
-    if (res && res.ok) cache.put('/', res.clone());
+  const cached = (await cache.match(req)) || (await cache.match('/'));
+
+  const network = fetch(req).then((res) => {
+    // Refresh the canonical shell entry so '/' and deep links boot with the
+    // newest page next time.
+    if (res && res.ok) cache.put('/', res.clone()).catch(() => {});
     return res;
-  } catch (_) {
-    const cached = (await cache.match(req)) || (await cache.match('/'));
-    if (cached) return cached;
-    return new Response(OFFLINE_FALLBACK, {
-      status: 200,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
-    });
+  }).catch(() => null);
+
+  if (cached) {
+    network; // fire-and-forget background refresh
+    return cached;
   }
+
+  const res = await network;
+  if (res) return res;
+
+  return new Response(OFFLINE_FALLBACK, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
 }
 
 // Stale-while-revalidate: return cache immediately when present, and update

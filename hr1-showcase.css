@@ -218,6 +218,13 @@
 #hr1-showcase .hr1-rc-badge.is-yes { color: #fbe08a; background: rgba(245,200,66,0.14); border-color: rgba(245,200,66,0.45); }
 #hr1-showcase .hr1-rc-badge.is-no { color: #93c5fd; background: rgba(96,165,250,0.14); border-color: rgba(96,165,250,0.42); }
 #hr1-showcase .hr1-rc-badge.is-contra { color: #fca5a5; background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.45); }
+/* "Your rep" marker — teal, matching the app's local/relevant accent, shown on the
+   cards for the visitor's own members of Congress once a location is set. */
+#hr1-showcase .hr1-rc-badge.is-rep { color: #5eead4; background: rgba(45,212,191,0.14); border-color: rgba(45,212,191,0.5); }
+/* The card for one of the visitor's own reps gets a subtle teal frame so the
+   "geared to you" cards stand out at a glance in the grid. */
+#hr1-showcase .hr1-rc.is-rep { border-color: rgba(45,212,191,0.45); box-shadow: 0 0 0 1px rgba(45,212,191,0.14), 0 8px 24px rgba(0,0,0,0.28); }
+#hr1-showcase .hr1-tab.is-rep.is-active { background: rgba(45,212,191,0.16); border-color: rgba(45,212,191,0.55); color: #7ff0dd; }
 #hr1-showcase .hr1-rc-facts { margin: 0; font: 400 0.83rem/1.5 'Barlow', sans-serif; color: #c2d0e6; }
 
 /* ── Footer CTAs ──────────────────────────────────────────────────────────── */

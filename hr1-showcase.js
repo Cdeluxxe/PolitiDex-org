@@ -190,9 +190,20 @@
       if (best && (best.dir || best.contra)) out.push(best);
     });
 
-    // Contradictions first, then Yes, then No; alpha within each for stability.
+    // Put the visitor's OWN members of Congress first — a Utah voter sees their two
+    // U.S. Senators and their district's House member ahead of the rest of Congress —
+    // then fall back to the general ordering: contradictions first, then Yes, then No,
+    // alpha within each for stability. Relevance is flagged on each receipt so the
+    // card can mark it, and _pdxIsLocalToUser returns false when no location is set,
+    // so with no location the grid keeps its original nationwide order.
+    var isRel = function (id) {
+      try { return !!(typeof window._pdxIsLocalToUser === 'function' && window._pdxIsLocalToUser(id)); }
+      catch (e) { return false; }
+    };
+    out.forEach(function (r) { r.rel = isRel(r.id); });
     var rank = function (r) { return r.contra ? 0 : (r.dir === 'yes' ? 1 : 2); };
     out.sort(function (a, b) {
+      if (a.rel !== b.rel) return a.rel ? -1 : 1;
       var ra = rank(a), rb = rank(b);
       if (ra !== rb) return ra - rb;
       return nameFor(a.id).localeCompare(nameFor(b.id));
@@ -249,9 +260,11 @@
             ? '<span class="hr1-rc-badge is-no">Voted NO</span>'
             : '<span class="hr1-rc-badge">On record</span>');
     var idJs = escAttr(String(r.id).replace(/'/g, "\\'"));
-    return '<article class="hr1-rc" role="button" tabindex="0" ' +
+    var repBadge = r.rel ? '<span class="hr1-rc-badge is-rep">📍 Your rep</span>' : '';
+    return '<article class="hr1-rc' + (r.rel ? ' is-rep' : '') + '" role="button" tabindex="0" ' +
         'data-hr1-pid="' + escAttr(r.id) + '" ' +
         'data-vote="' + escAttr(r.dir || '') + '" data-contra="' + (r.contra ? '1' : '0') + '" ' +
+        'data-rel="' + (r.rel ? '1' : '0') + '" ' +
         'onclick="window.PDXHR1&&window.PDXHR1.open(\'' + idJs + '\')" ' +
         'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.PDXHR1&&window.PDXHR1.open(\'' + idJs + '\');}" ' +
         'title="' + escAttr('See ' + name + '’s full record') + '">' +
@@ -259,6 +272,7 @@
           '<span class="hr1-rc-avatar' + (photo ? '' : ' is-fallback') + '" style="--tint:' + avatarTint(name) + ';">' + av + '<span class="hr1-rc-ini">' + fallbackText + '</span></span>' +
           '<span class="hr1-rc-id">' +
             '<span class="hr1-rc-name">' + esc(name) + (pc ? ' <span class="hr1-rc-party" style="color:' + pc.color + ';border-color:' + pc.color + '55;">' + esc(pc.label) + '</span>' : '') + '</span>' +
+            repBadge +
             voteBadge +
           '</span>' +
         '</div>' +
@@ -276,25 +290,39 @@
     var contradictions = receipts.filter(function (r) { return r.contra; });
     var yesN = receipts.filter(function (r) { return !r.contra && r.dir === 'yes'; }).length;
     var noN = receipts.filter(function (r) { return !r.contra && r.dir === 'no'; }).length;
+    var relN = receipts.filter(function (r) { return r.rel; }).length;
 
     // Receipts block only renders when we actually have sourced votes; the story
     // above it always stands, so the section is never empty.
     var receiptsBlock = '';
     if (receipts.length) {
+      // When the visitor's area is known, default the grid to THEIR members of
+      // Congress ("Your reps"), with "All" one tap away — so the section opens
+      // geared to them instead of on the full nationwide roster.
+      var defFilter = relN > 0 ? 'rep' : 'all';
+      var tabBtn = function (f, label) {
+        var on = f === defFilter;
+        return '<button type="button" class="hr1-tab' + (on ? ' is-active' : '') + (f === 'rep' ? ' is-rep' : '') +
+          '" data-hr1-filter="' + f + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + label + '</button>';
+      };
       var tabs = '<div class="hr1-tabs" role="group" aria-label="Filter receipts">' +
-        '<button type="button" class="hr1-tab is-active" data-hr1-filter="all" aria-pressed="true">All · ' + receipts.length + '</button>' +
-        (contradictions.length ? '<button type="button" class="hr1-tab" data-hr1-filter="contra" aria-pressed="false">⚑ Contradictions · ' + contradictions.length + '</button>' : '') +
-        (yesN ? '<button type="button" class="hr1-tab" data-hr1-filter="yes" aria-pressed="false">Voted YES · ' + yesN + '</button>' : '') +
-        (noN ? '<button type="button" class="hr1-tab" data-hr1-filter="no" aria-pressed="false">Voted NO · ' + noN + '</button>' : '') +
+        (relN ? tabBtn('rep', '📍 Your reps · ' + relN) : '') +
+        tabBtn('all', 'All · ' + receipts.length) +
+        (contradictions.length ? tabBtn('contra', '⚑ Contradictions · ' + contradictions.length) : '') +
+        (yesN ? tabBtn('yes', 'Voted YES · ' + yesN) : '') +
+        (noN ? tabBtn('no', 'Voted NO · ' + noN) : '') +
       '</div>';
+      var lead = relN
+        ? 'Your own members of Congress are shown first — tap <strong>All</strong> to see every recorded vote. Each card is a member’s own action on H.R.1, linked to its source.'
+        : 'Every card is a member’s own recorded action on H.R.1, with a link to its original source. Tap any card for the full profile.';
       receiptsBlock =
         '<div class="hr1-block">' +
           '<div class="hr1-block-h"><span class="hr1-kicker">🧾 The receipts</span>' +
             '<h3>How they actually voted — straight from the record</h3>' +
-            '<p>Every card is a member’s own recorded action on H.R.1, with a link to its original source. Tap any card for the full profile.</p>' +
+            '<p>' + lead + '</p>' +
           '</div>' +
           tabs +
-          '<div class="hr1-receipts">' + receipts.map(receiptCard).join('') + '</div>' +
+          '<div class="hr1-receipts" data-hr1-default="' + defFilter + '">' + receipts.map(receiptCard).join('') + '</div>' +
           '<p class="hr1-note">Nonpartisan by design — a vote is a fact. We show the count and the source, and let the record speak.</p>' +
         '</div>';
     }
@@ -375,6 +403,16 @@
     var tabs = host.querySelector('.hr1-tabs');
     var grid = host.querySelector('.hr1-receipts');
     if (!tabs || !grid) return;
+    function applyFilter(f) {
+      grid.querySelectorAll('.hr1-rc').forEach(function (card) {
+        var show = f === 'all'
+          || (f === 'rep' && card.getAttribute('data-rel') === '1')
+          || (f === 'contra' && card.getAttribute('data-contra') === '1')
+          || (f === 'yes' && card.getAttribute('data-contra') !== '1' && card.getAttribute('data-vote') === 'yes')
+          || (f === 'no' && card.getAttribute('data-contra') !== '1' && card.getAttribute('data-vote') === 'no');
+        card.classList.toggle('hr1-hide', !show);
+      });
+    }
     tabs.addEventListener('click', function (e) {
       var btn = e.target.closest ? e.target.closest('.hr1-tab') : null;
       if (!btn) return;
@@ -384,14 +422,11 @@
         b.classList.toggle('is-active', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      grid.querySelectorAll('.hr1-rc').forEach(function (card) {
-        var show = f === 'all'
-          || (f === 'contra' && card.getAttribute('data-contra') === '1')
-          || (f === 'yes' && card.getAttribute('data-contra') !== '1' && card.getAttribute('data-vote') === 'yes')
-          || (f === 'no' && card.getAttribute('data-contra') !== '1' && card.getAttribute('data-vote') === 'no');
-        card.classList.toggle('hr1-hide', !show);
-      });
+      applyFilter(f);
     });
+    // Apply the initially-active filter — defaults to the visitor's own reps when a
+    // location is set — so the grid opens geared to them, with All one tap away.
+    applyFilter(grid.getAttribute('data-hr1-default') || 'all');
   }
 
   function open(id) {
