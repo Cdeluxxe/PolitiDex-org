@@ -220,6 +220,28 @@
 #hr1-showcase .hr1-rc-badge.is-contra { color: #fca5a5; background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.45); }
 #hr1-showcase .hr1-rc-facts { margin: 0; font: 400 0.83rem/1.5 'Barlow', sans-serif; color: #c2d0e6; }
 
+/* ── Personalized ordering — the voter's own reps lead the list ─────────────── */
+/* Let the name row wrap so the relevance pill never overflows a narrow card. */
+#hr1-showcase .hr1-rc-name { flex-wrap: wrap; }
+#hr1-showcase .hr1-personal {
+  margin: 0.55rem auto 0; max-width: 44rem;
+  font: 600 0.86rem/1.5 'Barlow', sans-serif; color: #fbe08a;
+}
+#hr1-showcase .hr1-rc.is-mine {
+  border-color: rgba(245,200,66,0.55);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(245,200,66,0.22);
+  background: linear-gradient(180deg, rgba(40,33,12,0.66), rgba(13,20,38,0.72));
+}
+#hr1-showcase .hr1-rc.is-mine:hover { border-color: rgba(245,200,66,0.8); }
+#hr1-showcase .hr1-rc-mine {
+  flex: 0 0 auto; font: 800 0.58rem/1 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.16rem 0.44rem; border-radius: 9999px; white-space: nowrap;
+  color: #0a0f1e; background: linear-gradient(135deg, #fad96a, #e6b800); border: 1px solid rgba(245,200,66,0.9);
+}
+#hr1-showcase .hr1-rc-mine.is-local {
+  color: #cfe0f5; background: rgba(96,165,250,0.16); border: 1px solid rgba(96,165,250,0.45);
+}
+
 /* ── Footer CTAs ──────────────────────────────────────────────────────────── */
 #hr1-showcase .hr1-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; margin-top: 2.6rem; }
 #hr1-showcase .hr1-foot-btn {

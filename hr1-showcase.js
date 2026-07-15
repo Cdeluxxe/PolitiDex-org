@@ -81,6 +81,13 @@
     for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
     return 'hsl(' + h + ',45%,42%)';
   }
+  // The voter's set state, for the "local" relevance pill. Falls back to a
+  // generic label when the state name isn't readable.
+  function myStateLabel() {
+    var s = '';
+    try { s = String((window._currentVoterLocation && window._currentVoterLocation.state) || '').trim(); } catch (e) {}
+    return s || 'Your state';
+  }
 
   /* ── curated, sourced story data ─────────────────────────────────────────── */
   // Plain-language facts about what H.R.1 bundles, each tagged with the promise a
@@ -190,9 +197,47 @@
       if (best && (best.dir || best.contra)) out.push(best);
     });
 
-    // Contradictions first, then Yes, then No; alpha within each for stability.
+    // ── Personalized ordering ────────────────────────────────────────────────
+    // When the voter has set a location, lead with the members who actually
+    // represent THEM — their own congressional delegation first, then other
+    // same-state (local) members — before the rest of the national field, so the
+    // roll call reads as "your representatives, then everyone else" instead of a
+    // flat list. With no location set we fall back to the original order untouched.
+    var hasLoc = false, userState = '', repSet = Object.create(null);
+    try {
+      hasLoc = !!window._hasUserLocation;
+      if (hasLoc) {
+        userState = String((window._currentVoterLocation && window._currentVoterLocation.state) || '').toLowerCase().trim();
+        if (typeof window._pdxMyRepIds === 'function') {
+          (window._pdxMyRepIds() || []).forEach(function (id) { if (id) repSet[id] = 1; });
+        }
+      }
+    } catch (e) { hasLoc = false; }
+
+    function relTier(id) {
+      if (!hasLoc) return 0;      // no location → neutral, keep default order
+      if (repSet[id]) return 0;   // one of the voter's own representatives
+      if (!userState) return 2;
+      var ps = '';
+      try { ps = String((typeof window._pdxPolState === 'function' ? window._pdxPolState(id) : '') || '').toLowerCase(); } catch (e) {}
+      if (ps && ps !== 'national' &&
+          (ps === userState || ps.indexOf(userState) !== -1 || userState.indexOf(ps) !== -1)) return 1; // same-state / local
+      return 2;                   // national / out-of-state
+    }
+
+    // Tag each receipt so cards can flag the voter's own reps, and cache the tier.
+    out.forEach(function (r) {
+      r._tier = relTier(r.id);
+      r._mine = hasLoc && !!repSet[r.id];
+      r._local = hasLoc && !r._mine && r._tier === 1;
+    });
+
+    // Relevance tier first (own reps → local → national), then the existing
+    // teaching order within each tier (contradictions, recorded YES, then NO);
+    // alpha by name for stability.
     var rank = function (r) { return r.contra ? 0 : (r.dir === 'yes' ? 1 : 2); };
     out.sort(function (a, b) {
+      if (a._tier !== b._tier) return a._tier - b._tier;
       var ra = rank(a), rb = rank(b);
       if (ra !== rb) return ra - rb;
       return nameFor(a.id).localeCompare(nameFor(b.id));
@@ -249,7 +294,13 @@
             ? '<span class="hr1-rc-badge is-no">Voted NO</span>'
             : '<span class="hr1-rc-badge">On record</span>');
     var idJs = escAttr(String(r.id).replace(/'/g, "\\'"));
-    return '<article class="hr1-rc" role="button" tabindex="0" ' +
+    // Personalized relevance marker: the voter's own reps get a gold "Your rep"
+    // pill; other same-state members get a subtle location pill. Absent when no
+    // location is set (r._mine / r._local are only true once personalized).
+    var relTag = r._mine
+      ? '<span class="hr1-rc-mine">★ Your rep</span>'
+      : (r._local ? '<span class="hr1-rc-mine is-local">📍 ' + esc(myStateLabel()) + '</span>' : '');
+    return '<article class="hr1-rc' + (r._mine ? ' is-mine' : '') + '" role="button" tabindex="0" ' +
         'data-hr1-pid="' + escAttr(r.id) + '" ' +
         'data-vote="' + escAttr(r.dir || '') + '" data-contra="' + (r.contra ? '1' : '0') + '" ' +
         'onclick="window.PDXHR1&&window.PDXHR1.open(\'' + idJs + '\')" ' +
@@ -258,7 +309,7 @@
         '<div class="hr1-rc-head">' +
           '<span class="hr1-rc-avatar' + (photo ? '' : ' is-fallback') + '" style="--tint:' + avatarTint(name) + ';">' + av + '<span class="hr1-rc-ini">' + fallbackText + '</span></span>' +
           '<span class="hr1-rc-id">' +
-            '<span class="hr1-rc-name">' + esc(name) + (pc ? ' <span class="hr1-rc-party" style="color:' + pc.color + ';border-color:' + pc.color + '55;">' + esc(pc.label) + '</span>' : '') + '</span>' +
+            '<span class="hr1-rc-name">' + esc(name) + (pc ? ' <span class="hr1-rc-party" style="color:' + pc.color + ';border-color:' + pc.color + '55;">' + esc(pc.label) + '</span>' : '') + relTag + '</span>' +
             voteBadge +
           '</span>' +
         '</div>' +
@@ -276,6 +327,19 @@
     var contradictions = receipts.filter(function (r) { return r.contra; });
     var yesN = receipts.filter(function (r) { return !r.contra && r.dir === 'yes'; }).length;
     var noN = receipts.filter(function (r) { return !r.contra && r.dir === 'no'; }).length;
+    var mineN = receipts.filter(function (r) { return r._mine; }).length;
+    var localN = receipts.filter(function (r) { return r._local; }).length;
+
+    // When we could personalize (the voter's own reps and/or same-state members
+    // are in the list), say so up front so the ordering reads as intentional.
+    var personalNote = '';
+    if (mineN) {
+      personalNote = 'Your representatives are pinned to the top'
+        + (localN ? ', followed by other ' + esc(myStateLabel()) + ' members,' : '')
+        + ' then the rest of the national field.';
+    } else if (localN) {
+      personalNote = esc(myStateLabel()) + ' members are listed first, then the rest of the national field.';
+    }
 
     // Receipts block only renders when we actually have sourced votes; the story
     // above it always stands, so the section is never empty.
@@ -292,6 +356,7 @@
           '<div class="hr1-block-h"><span class="hr1-kicker">🧾 The receipts</span>' +
             '<h3>How they actually voted — straight from the record</h3>' +
             '<p>Every card is a member’s own recorded action on H.R.1, with a link to its original source. Tap any card for the full profile.</p>' +
+            (personalNote ? '<p class="hr1-personal">📍 ' + personalNote + '</p>' : '') +
           '</div>' +
           tabs +
           '<div class="hr1-receipts">' + receipts.map(receiptCard).join('') + '</div>' +
