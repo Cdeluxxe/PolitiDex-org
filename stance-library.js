@@ -380,6 +380,13 @@
       (c.mixed ? ' · <strong>' + c.mixed + '</strong> mixed' : '');
 
     var hasLocker = typeof G('_pdxOpenEvidenceLocker') === 'function';
+    // Reverse "connecting the dots" link: if an Issue Spotlight covers this issue,
+    // offer a jump into it (library → spotlight).
+    var spot = null;
+    try {
+      var SA = G('PDXSpotlight');
+      if (SA && typeof SA.forIssueKey === 'function') spot = (SA.forIssueKey(issueKey) || [])[0] || null;
+    } catch (e) { spot = null; }
     return '' +
       '<button type="button" class="sl-back" id="sl-back">← All issues</button>' +
       '<div class="sl-dhead">' +
@@ -392,7 +399,8 @@
           '</div>' +
         '</div>' +
         '<div class="sl-dactions">' +
-          (hasLocker ? '<button type="button" class="sl-btn sl-btn--gold" data-sl-evidence-all="' + esc(issueKey) + '">📚 Evidence Library</button>' : '') +
+          (spot ? '<button type="button" class="sl-btn sl-btn--gold" data-sl-spotlight="' + esc(spot.slug) + '">🔦 Read the Spotlight</button>' : '') +
+          (hasLocker ? '<button type="button" class="sl-btn" data-sl-evidence-all="' + esc(issueKey) + '">📚 Evidence Library</button>' : '') +
           '<button type="button" class="sl-btn" id="sl-discuss">💬 Discuss this issue</button>' +
         '</div>' +
       '</div>' +
@@ -624,6 +632,8 @@
       if (ev) { var o = G('_pdxOpenEvidenceLocker'); if (typeof o === 'function') o({ pol: ev.getAttribute('data-sl-evidence'), issue: ev.getAttribute('data-sl-ik') }); return; }
       var evAll = t.closest && t.closest('[data-sl-evidence-all]');
       if (evAll) { var o2 = G('_pdxOpenEvidenceLocker'); if (typeof o2 === 'function') o2({ issue: evAll.getAttribute('data-sl-evidence-all') }); return; }
+      var spot = t.closest && t.closest('[data-sl-spotlight]');
+      if (spot) { var SP = G('PDXSpotlight'); if (SP && typeof SP.open === 'function') SP.open(spot.getAttribute('data-sl-spotlight')); return; }
       if ((t.closest && (t.closest('#sl-discuss') || t.closest('#sl-discuss-2')))) { discuss(state.issueKey); return; }
       var th = t.closest && t.closest('[data-sl-thread]');
       if (th) { var F = G('PDXForum'); if (F && typeof F.openForTopic === 'function') F.openForTopic('stances'); else { try { location.hash = '#open-forum'; } catch (e2) {} } return; }
