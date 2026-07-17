@@ -241,6 +241,7 @@
 
       // ── Technology & Privacy ──
       tech_innovation:    { label: '🚀 Innovation & Light Rules', chip: 'Let American tech and AI innovate with minimal red tape', cat: 'tech', lean: 'R', stanceKeys: [], keywords: ['technology','innovation','ai','artificial intelligence','deregulation','tech leadership','startup','crypto','light touch','competitiveness','semiconductor'] },
+      crypto_cbdc:        { label: '🪙 Cryptocurrency Rules & Digital Dollar', chip: 'Create clear rules for digital assets while protecting consumers and financial privacy', cat: 'tech', stanceKeys: [], keywords: ['cryptocurrency','crypto','bitcoin','digital asset','stablecoin','genius act','clarity act','blockchain','central bank digital currency','cbdc','digital dollar','financial privacy'] },
       tech_balance:       { label: '⚖️ Smart Tech Guardrails', chip: 'Let tech innovate but require data-privacy, online-safety and age-verification rules', cat: 'tech', stanceKeys: ['dataCenters'], keywords: ['technology','ai','guardrails','regulation','innovation','safety','age verification','social media','consumer protection','balanced','modernization'] },
       // ── Data Centers & Growth (the 'dc' facet family) ──
       // Three flat issue keys let a record be pro-growth yet water/power-skeptical
@@ -300,7 +301,7 @@
     var CORE_NATIONAL_ISSUES = [
       { key: 'economy_cost_of_living', label: '💵 Economy, Inflation & Cost of Living',
         blurb: 'Jobs, wages, inflation, taxes on households, and the price of everyday life.',
-        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority'] },
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
