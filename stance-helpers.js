@@ -1276,4 +1276,92 @@
       '<span class="pdx-mandate-chip-txt">People’s Mandate: ' + _pdxMandateEsc(label) + '</span></span>';
   };
 
+  // ── "Connect the dots" cross-links for a stance ────────────────────────────
+  // A documented Key Issue Stance is keyed by an issueKey — the same shared
+  // vocabulary the topic view, the Issue Spotlights and the People's Mandate all
+  // speak. This row surfaces those connections right on the stance card so the
+  // stated position is never a dead end: from one card a visitor can jump to
+  // where every politician stands on the issue, read the sourced Spotlight, and
+  // see the citizen-backed reform tied to it. Each link is offered only when it
+  // genuinely exists, so the row stays empty (returns '') rather than promising
+  // a destination that isn't there.
+
+  // Drop the leading emoji from a Core National Issue label ("🔫 Gun Rights &
+  // Gun Control" → "Gun Rights & Gun Control") for inline use inside a chip.
+  function _pdxConnectLabel(label) {
+    label = String(label || '').trim();
+    var sp = label.indexOf(' ');
+    if (sp > 0 && /[^\x00-\x7F]/.test(label.slice(0, sp))) return label.slice(sp + 1).trim();
+    return label;
+  }
+  function _pdxConnectTrim(s, n) {
+    s = String(s == null ? '' : s).trim();
+    return s.length > n ? s.slice(0, n - 1).replace(/\s+$/, '') + '…' : s;
+  }
+  // The single most relevant Issue Spotlight for a stance: one tied to this
+  // issueKey, preferring a Spotlight that also features THIS politician so the
+  // link lands on a page where their name actually appears. Null when none.
+  function _pdxSpotlightForStance(id, issueKey) {
+    try {
+      if (!issueKey || !window.PDXSpotlight || typeof window.PDXSpotlight.forIssueKey !== 'function') return null;
+      var byIssue = window.PDXSpotlight.forIssueKey(issueKey) || [];
+      if (!byIssue.length) return null;
+      var mine = Object.create(null);
+      try {
+        if (typeof window.PDXSpotlight.forPolitician === 'function') {
+          (window.PDXSpotlight.forPolitician(id) || []).forEach(function (sp) { if (sp && sp.slug) mine[sp.slug] = 1; });
+        }
+      } catch (e) {}
+      var featured = byIssue.filter(function (sp) { return sp && sp.slug && mine[sp.slug]; });
+      return featured[0] || byIssue[0] || null;
+    } catch (e) { return null; }
+  }
+
+  window._pdxStanceConnectRow = function (id, p, s) {
+    try {
+      if (!s || !s.issueKey) return '';
+      var key = s.issueKey;
+      var jsKey = String(key).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var chips = [];
+
+      // 1) Topic → the issue-first ranked view ("who actually backs this up?"),
+      //    but only when the issue maps to a curated Core National Issue. Without
+      //    that guard PDXIssueView.open() would silently fall back to an
+      //    unrelated issue, so we simply omit the link instead.
+      var core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(key) : null;
+      if (core && window.PDXIssueView && typeof window.PDXIssueView.open === 'function') {
+        var coreTxt = _pdxConnectLabel(core.label);
+        var openIV = "event.stopPropagation();event.preventDefault();window.PDXIssueView&&window.PDXIssueView.open('" + jsKey + "');";
+        chips.push('<span class="pdx-connect-chip is-topic" role="link" tabindex="0" ' +
+          'title="' + _pdxMandateEsc('See where every tracked politician stands on ' + coreTxt) + '" ' +
+          'aria-label="' + _pdxMandateEsc('Where everyone stands on ' + coreTxt) + '" ' +
+          'onclick="' + openIV + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + openIV + '}">' +
+          '<span class="pdx-connect-chip-ico" aria-hidden="true">🧭</span>' +
+          '<span class="pdx-connect-chip-txt">Where all stand: ' + _pdxMandateEsc(_pdxConnectTrim(coreTxt, 30)) + '</span></span>');
+      }
+
+      // 2) Issue Spotlight → a neutral, sourced deep-dive on this issue, opened as
+      //    the shareable /issue/<slug> page.
+      var sp = _pdxSpotlightForStance(id, key);
+      if (sp && sp.slug && window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') {
+        var jsSlug = String(sp.slug).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        var openSP = "event.stopPropagation();event.preventDefault();window.PDXSpotlight&&window.PDXSpotlight.open('" + jsSlug + "');";
+        chips.push('<span class="pdx-connect-chip is-spotlight" role="link" tabindex="0" ' +
+          'title="' + _pdxMandateEsc('Open the Issue Spotlight: ' + (sp.title || '')) + '" ' +
+          'aria-label="' + _pdxMandateEsc('Issue Spotlight: ' + (sp.title || '')) + '" ' +
+          'onclick="' + openSP + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + openSP + '}">' +
+          '<span class="pdx-connect-chip-ico" aria-hidden="true">📌</span>' +
+          '<span class="pdx-connect-chip-txt">Spotlight: ' + _pdxMandateEsc(_pdxConnectTrim(sp.title || 'Issue Spotlight', 34)) + '</span></span>');
+      }
+
+      // 3) People's Mandate → the citizen-backed reform(s) tied to this issue.
+      //    Reuses the existing chip, which already returns '' when nothing maps.
+      var mandate = (typeof window._pdxMandateChip === 'function') ? window._pdxMandateChip(key, { compact: true }) : '';
+      if (mandate) chips.push(mandate);
+
+      if (!chips.length) return '';
+      return '<div class="pdx-stance-connect">' + chips.join('') + '</div>';
+    } catch (e) { return ''; }
+  };
+
 })();
