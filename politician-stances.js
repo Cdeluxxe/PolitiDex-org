@@ -2448,9 +2448,6 @@
         detail:'Ordered a department-wide review of fitness and combat standards and directed that combat-role standards be made sex-neutral.',
         evidence:'Directed sex-neutral combat fitness standards (2025).',
         source:{label:'defense.gov', url:'https://www.defense.gov'} },
-      { topic:'DEI in the Military', icon:'🪖', pos:'oppose',
-        text:'Moved to eliminate diversity, equity, and inclusion programs, offices, and training across the armed forces, calling them a distraction from warfighting.',
-        evidence:'Ordered the military to end DEI programs and offices (2025).' },
       { topic:'COVID-Vaccine Discharges & Medical Freedom', icon:'🩺', pos:'support', issueKey:'medical_freedom', issueStance:'support',
         text:'Backs reinstating service members discharged for refusing the COVID-19 vaccine — with back pay — and opposes such mandates.',
         evidence:'Directed reinstatement of COVID-vaccine-discharged troops with back pay (2025).' },
@@ -2463,6 +2460,9 @@
       { topic:'Veterans', icon:'🎖', pos:'support', issueKey:'veterans', issueStance:'support',
         text:'An Iraq combat veteran and former veterans-advocacy leader who centers servicemember and veteran welfare in his agenda.',
         detail:'Led the advocacy group Concerned Veterans for America before his Fox News career and appointment as Secretary of Defense.' },
+      { topic:'Israel & Iran', icon:'🇮🇱', pos:'support', issueKey:'foreign_balance', issueStance:'support', text:'As Defense secretary, Hegseth has directed strong U.S. military support for Israel — weapons deliveries and regional force posture — and a hard line against Iran and its proxies.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
+      { topic:'Ukraine & Russia', icon:'🕊', pos:'mixed', issueKey:'strong_defense', issueStance:'mixed', text:'Backs pressure on Russia and greater burden-sharing by European allies while supporting the administration\'s push for a negotiated end to the war and scrutinizing open-ended U.S. aid.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
+      { topic:'China & the Indo-Pacific', icon:'🇨🇳', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Frames China as the primary threat and has moved to shift military focus, posture, and resources toward deterring it in the Indo-Pacific.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
     ],
 
     // ── Utah State Legislature & 2026 races ───────────────────────────────
@@ -3708,7 +3708,7 @@
         text:'A leading opponent of open-ended foreign aid who repeatedly voted against additional military funding for Ukraine.',
         detail:'Argues U.S. resources are better spent at home and is skeptical of long-running foreign military commitments.',
         source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Matt_Gaetz'} },
-      { topic:'DOJ & FBI Oversight', icon:'⚖️', pos:'support',
+      { topic:'DOJ & FBI Oversight', icon:'⚖️', pos:'support', issueKey:'gov_transparency', issueStance:'support',
         text:'One of Congress\'s most aggressive critics of the Justice Department and FBI, alleging political "weaponization" and demanding sweeping oversight.',
         detail:'As a House Judiciary Committee member he pressed for investigations into federal law-enforcement leadership.',
         source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Matt_Gaetz'} },
