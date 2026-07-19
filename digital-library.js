@@ -57,7 +57,8 @@
     spotlight: { icon: '📌', label: 'Spotlight', plural: 'Spotlights' },
     receipt:   { icon: '🧾', label: 'Say vs. Do', plural: 'Say vs. Do' },
     mandate:   { icon: '✊', label: 'Mandate', plural: 'Mandates' },
-    bill:      { icon: '🏛️', label: 'Bill', plural: 'Bills' }
+    bill:      { icon: '🏛️', label: 'Bill', plural: 'Bills' },
+    contract:  { icon: '💰', label: 'Contract', plural: 'Contracts' }
   };
 
   // ── Build the unified archive index from the client-side collections ────────
@@ -147,6 +148,28 @@
       }
     } catch (e) {}
 
+    // Government contracts — the Federal Spending Tracker records (window.PDXContracts).
+    // Curated, sourced federal awards, folded into the archive so a search for a
+    // company, agency or program surfaces the money alongside the spotlights and
+    // votes. Each card opens the tracker focused on that recipient.
+    try {
+      var gc = G('PDXContracts');
+      if (gc && typeof gc.list === 'function') {
+        gc.list().forEach(function (c) {
+          if (!c || !c.id) return;
+          var id = 'gc:' + c.id;
+          items.push({
+            id: id, type: 'contract', title: c.recipient,
+            sub: (c.agencyShort || c.agency || '') + (c.stateLabel ? ' · ' + c.stateLabel : ''),
+            blurb: c.description || '', issueKeys: (c.issueKeys || []).slice(),
+            hay: ((c.recipient || '') + ' ' + (c.agency || '') + ' ' + (c.stateLabel || '') + ' ' +
+              (c.description || '') + ' ' + (c.issueKeys || []).map(issueLabel).join(' ') + ' government contract federal spending').toLowerCase()
+          });
+          _openMap[id] = (function (rec) { return function () { gc.open({ recipient: rec }); }; })(c.recipient);
+        });
+      }
+    } catch (e) {}
+
     return items;
   }
 
@@ -159,6 +182,7 @@
     var mdN = 0; try { mdN = (G('_pdxMandateItems') || []).length; } catch (e) {}
     var rcN = 0; try { rcN = (G('PDXReceipts').collect() || []).length; } catch (e) {}
     var stN = 0; try { stN = Object.keys(G('ISSUE_STANCE_DATA') || {}).length; } catch (e) {}
+    var gcN = 0; try { gcN = (G('PDXContracts').list() || []).length; } catch (e) {}
 
     push('📂', 'Evidence Locker', 'Every sourced receipt — video, records & posts.', null,
       function () { if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({}); else location.hash = '#evidence-locker'; });
@@ -168,6 +192,8 @@
       function () { if (window.PDXStanceLibrary && window.PDXStanceLibrary.open) window.PDXStanceLibrary.open(); else location.hash = '#stance-library'; });
     push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null,
       function () { if (window.PDXIssueView && window.PDXIssueView.open) location.hash = '#issue-front-door'; else location.hash = '#issue-front-door'; });
+    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN,
+      function () { if (window.PDXContracts && window.PDXContracts.open) window.PDXContracts.open(); else location.hash = '#digital-library'; });
     push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN,
       function () { location.hash = '#say-vs-do'; });
     push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN,
@@ -208,7 +234,7 @@
     if (!wrap || !_index) return;
     var counts = {}; _index.forEach(function (it) { counts[it.type] = (counts[it.type] || 0) + 1; });
     var chips = [{ key: 'all', label: 'Everything', n: _index.length }];
-    ['spotlight', 'receipt', 'mandate', 'bill'].forEach(function (t) {
+    ['spotlight', 'receipt', 'mandate', 'bill', 'contract'].forEach(function (t) {
       if (counts[t]) chips.push({ key: t, label: TYPES[t].icon + ' ' + TYPES[t].plural, n: counts[t] });
     });
     wrap.innerHTML = chips.map(function (c) {
@@ -433,12 +459,14 @@
       '.dlib-card.dlib-t-receipt{border-left-color:rgba(245,200,66,.7);}' +
       '.dlib-card.dlib-t-mandate{border-left-color:rgba(192,132,252,.7);}' +
       '.dlib-card.dlib-t-bill{border-left-color:rgba(74,222,128,.7);}' +
+      '.dlib-card.dlib-t-contract{border-left-color:rgba(126,224,192,.7);}' +
       '.dlib-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
       '.dlib-badge{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
         'border-radius:.4rem;padding:.22rem .45rem;color:#bcd0f0;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);white-space:nowrap;}' +
       '.dlib-b-receipt{color:#f6d873;background:rgba(245,200,66,.14);border-color:rgba(245,200,66,.4);}' +
       '.dlib-b-mandate{color:#dcc3fb;background:rgba(192,132,252,.14);border-color:rgba(192,132,252,.4);}' +
       '.dlib-b-bill{color:#9ff0bd;background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.35);}' +
+      '.dlib-b-contract{color:#a5ecd6;background:rgba(126,224,192,.12);border-color:rgba(126,224,192,.35);}' +
       '.dlib-card-sub{font:600 .64rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
       '.dlib-card-title{font:700 .98rem/1.22 "Barlow Condensed",sans-serif;color:#fff;}' +
       '.dlib-card-blurb{font:500 .78rem/1.42 "Barlow",sans-serif;color:#9fb4d4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}' +
@@ -465,7 +493,7 @@
     grid.querySelectorAll('.dlib-card[data-id]').forEach(function (b) {
       var id = b.getAttribute('data-id') || '';
       var pfx = id.split(':')[0];
-      var t = pfx === 'sp' ? 'spotlight' : pfx === 'rc' ? 'receipt' : pfx === 'md' ? 'mandate' : pfx === 'bill' ? 'bill' : '';
+      var t = pfx === 'sp' ? 'spotlight' : pfx === 'rc' ? 'receipt' : pfx === 'md' ? 'mandate' : pfx === 'bill' ? 'bill' : pfx === 'gc' ? 'contract' : '';
       if (t) b.classList.add('dlib-t-' + t);
     });
   }
