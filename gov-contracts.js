@@ -299,6 +299,23 @@
       .sort(function (a, b) { return (b.amount || 0) - (a.amount || 0); });
   }
 
+  // Top contractors by combined dollar volume. Aggregates every tracked award to
+  // its recipient (so a company with multiple rows is summed once), then returns
+  // the biggest `n` with a representative category (their largest single award's
+  // category) for accent color. Powers the Spotlight's "Top Contractors" visual.
+  function topRecipients(n) {
+    var byRec = {};
+    CONTRACTS.forEach(function (c) {
+      var r = byRec[c.recipient] || (byRec[c.recipient] = { recipient: c.recipient, amount: 0, count: 0, category: c.category, _top: 0 });
+      r.amount += (c.amount || 0);
+      r.count += 1;
+      if ((c.amount || 0) >= r._top) { r._top = c.amount || 0; r.category = c.category; }
+    });
+    return Object.keys(byRec).map(function (k) { return byRec[k]; })
+      .sort(function (a, b) { return b.amount - a.amount; })
+      .slice(0, n || 5);
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // The filterable tracker overlay
   // ─────────────────────────────────────────────────────────────────────────────
@@ -563,10 +580,39 @@
   // Self-gating: returns '' when the roster state has no tracked contracts, so it
   // adds zero noise to profiles it can't enrich. Renders synchronously (data is
   // client-side) into the same .modal-section shell the rest of the profile uses.
+  // The panel is COLLAPSIBLE (native <details>) so, like the Evidence Locker, a
+  // reader can fold it away — it stays open by default so the context is visible.
   // ─────────────────────────────────────────────────────────────────────────────
+  // One-time styles for the collapsible profile panel. Idempotent and injected on
+  // first render, so the panel is styled even if the tracker overlay never opened.
+  function injectProfileCss() {
+    if (document.getElementById('gcx-prof-css')) return;
+    var css =
+      'details.gcx-prof{margin:0;}' +
+      '.gcx-prof-sum{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;' +
+        'padding:.15rem 0 .1rem;border-radius:.5rem;}' +
+      '.gcx-prof-sum::-webkit-details-marker{display:none;}' +
+      '.gcx-prof-sum:focus-visible{outline:2px solid rgba(96,165,250,.55);outline-offset:3px;}' +
+      '.gcx-prof-h{font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:.08em;color:#9fb4d4;}' +
+      '.gcx-prof-badge{font-family:\'Barlow Condensed\',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;' +
+        'text-transform:uppercase;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.28);color:#9ec8ff;' +
+        'padding:.1rem .45rem;border-radius:999px;white-space:nowrap;}' +
+      '.gcx-prof-chev{margin-left:auto;flex-shrink:0;color:#7596c0;font-size:.7rem;transition:transform .3s cubic-bezier(.4,0,.2,1);}' +
+      'details.gcx-prof[open] .gcx-prof-chev{transform:rotate(180deg);}' +
+      '.gcx-prof-hint{font-family:\'Barlow Condensed\',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;' +
+        'text-transform:uppercase;color:#6d84a8;}' +
+      'details.gcx-prof[open] .gcx-prof-hint{display:none;}' +
+      '.gcx-prof-body{margin-top:.6rem;}';
+    var st = document.createElement('style');
+    st.id = 'gcx-prof-css';
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  }
+
   function renderProfileSection(id, p) {
     try {
       if (!p) return '';
+      injectProfileCss();
       var abbr = toAbbr(p.state);
       if (!abbr) return '';
       var rows = byState(abbr);
@@ -574,6 +620,15 @@
       var label = stateLabel(abbr);
       var top = rows.slice(0, 4);
       var total = rows.reduce(function (s, c) { return s + (c.amount || 0); }, 0);
+      // A compact category read of the state's tracked awards, for a premium
+      // at-a-glance summary line (e.g. "🛡️ Defense · 💻 IT"). Order by dollars.
+      var catTotals = {};
+      rows.forEach(function (c) { catTotals[c.category] = (catTotals[c.category] || 0) + (c.amount || 0); });
+      var catSummary = Object.keys(catTotals)
+        .sort(function (a, b) { return catTotals[b] - catTotals[a]; })
+        .slice(0, 3)
+        .map(function (k) { return catMeta(k).icon + ' ' + catMeta(k).label; })
+        .join('  ·  ');
 
       var cards = top.map(function (c) {
         var cm = catMeta(c.category);
@@ -588,19 +643,30 @@
       }).join('');
 
       var moreN = rows.length - top.length;
+      var moreLine = moreN > 0
+        ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7596c0;margin-top:.5rem;">+ ' + moreN + ' more ' + esc(label) + ' contract' + (moreN === 1 ? '' : 's') + ' in the tracker</div>'
+        : '';
+
       return '' +
       '<span id="pdxsec-contracts" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<div class="modal-section" style="margin-top:1rem;">' +
-        '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem;">' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:.08em;color:#9fb4d4;">💰 Major Federal Contracts in ' + esc(label) + '</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.28);color:#9ec8ff;padding:.1rem .45rem;border-radius:999px;white-space:nowrap;">' + rows.length + ' tracked · ' + money(total) + '</span>' +
-        '</div>' +
-        '<div style="font-family:\'Barlow\',sans-serif;font-size:.74rem;line-height:1.5;color:#8aa0c4;margin-bottom:.6rem;">Major federal contracts where the work or company is based in ' + esc(label) + '. This is geographic context — it shows the federal money flowing through this official’s state, not a claim that they steered or benefited from any award. Figures are approximate; sources are linked in the tracker.</div>' +
-        '<div style="display:grid;gap:.5rem;">' + cards + '</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;">' +
-          '<button type="button" onclick="window.PDXContracts&&window.PDXContracts.open({state:\'' + esc(abbr) + '\'})" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border:0;border-radius:999px;padding:.5rem .9rem;">Explore all ' + esc(label) + ' contracts →</button>' +
-          '<button type="button" onclick="window.PDXSpotlight&&window.PDXSpotlight.open?window.PDXSpotlight.open(\'' + SP_SPOTLIGHT + '\'):(location.href=\'/issue/' + SP_SPOTLIGHT + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#9ec8ff;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.32);border-radius:999px;padding:.5rem .9rem;">📌 Contracting &amp; Waste Spotlight</button>' +
-        '</div>' +
+        '<details class="gcx-prof" open>' +
+          '<summary class="gcx-prof-sum">' +
+            '<span class="gcx-prof-h">💰 Major Federal Contracts in ' + esc(label) + '</span>' +
+            '<span class="gcx-prof-badge">' + rows.length + ' tracked · ' + money(total) + '</span>' +
+            (catSummary ? '<span class="gcx-prof-hint">' + catSummary + '</span>' : '') +
+            '<span class="gcx-prof-chev" aria-hidden="true">▼</span>' +
+          '</summary>' +
+          '<div class="gcx-prof-body">' +
+            '<div style="font-family:\'Barlow\',sans-serif;font-size:.74rem;line-height:1.5;color:#8aa0c4;margin-bottom:.6rem;">Major federal contracts where the work or company is based in ' + esc(label) + '. This is geographic context — it shows the federal money flowing through this official’s state, <b style="color:#a9bdd9;">not</b> a claim that they steered, caused, or personally profited from any award. Figures are approximate; sources are linked in the tracker.</div>' +
+            '<div style="display:grid;gap:.5rem;">' + cards + '</div>' +
+            moreLine +
+            '<div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;">' +
+              '<button type="button" onclick="window.PDXContracts&&window.PDXContracts.open({state:\'' + esc(abbr) + '\'})" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border:0;border-radius:999px;padding:.55rem 1rem;box-shadow:0 2px 10px rgba(127,180,255,.25);">🔍 View All ' + esc(label) + ' Contracts →</button>' +
+              '<button type="button" onclick="window.PDXSpotlight&&window.PDXSpotlight.open?window.PDXSpotlight.open(\'' + SP_SPOTLIGHT + '\'):(location.href=\'/issue/' + SP_SPOTLIGHT + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#9ec8ff;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.32);border-radius:999px;padding:.5rem .9rem;">📌 Contracting &amp; Waste Spotlight</button>' +
+            '</div>' +
+          '</div>' +
+        '</details>' +
       '</div>';
     } catch (e) { return ''; }
   }
@@ -611,6 +677,9 @@
     get: get,
     facets: facets,
     byState: byState,
+    topRecipients: topRecipients,
+    money: money,
+    catMeta: catMeta,
     toAbbr: toAbbr,
     stateLabel: stateLabel,
     open: open,
