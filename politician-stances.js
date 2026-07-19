@@ -2248,6 +2248,8 @@
       { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support', text:'Holds a consistent pro-life record.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
       // ── Recent action (Batch 16, July 2026, verified) ──
       { topic:'Opposed the AI Moratorium', icon:'🤖', pos:'support', issueKey:'gov_regulation', issueStance:'support', text:'Broke with party leadership to oppose a proposed decade-long pause on state artificial-intelligence laws during the 2025 budget debate, arguing states should keep the power to protect consumers and children; the Senate stripped the moratorium on a 99–1 vote.', evidence:'Senate voted 99–1 to remove the AI-moratorium provision, July 1, 2025.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Capping Credit-Card Interest', icon:'💳', pos:'support', issueKey:'econ_workers', issueStance:'support', text:'Teamed with Sen. Bernie Sanders in 2025 on a bipartisan bill to cap credit-card interest rates at 10%, an unusual left-right alliance reflecting his populist break with free-market orthodoxy on consumer finance.', evidence:'Introduced a bipartisan 10% credit-card interest-rate cap with Sen. Sanders (2025).', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
     ],
     murkowski: [ // Lisa Murkowski — 🏛 U.S. Senator (R-AK)
       { topic:'Independent Swing Vote', icon:'⚖️', pos:'mixed', issueKey:'democracy_balance', issueStance:'mixed', text:'One of the Senate\'s key swing votes, willing to break with her party — she voted to convict in the 2021 impeachment trial and against some administration nominees.', source:{label:'murkowski.senate.gov', url:'https://www.murkowski.senate.gov'} },
@@ -2265,6 +2267,8 @@
       { topic:'Housing Supply', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Authored major legislation to build millions of affordable housing units and lower rents by expanding supply.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
       // ── Recent action (Batch 16, July 2026, verified) ──
       { topic:'Opposing the GENIUS Act', icon:'🪙', pos:'oppose', issueKey:'crypto_cbdc', issueStance:'oppose', text:'Opposed the 2025 GENIUS Act establishing a federal framework for stablecoins, arguing it lacked adequate consumer-protection, anti-money-laundering and conflict-of-interest safeguards; the law was enacted over her objections.', evidence:'The GENIUS Act was signed into law, July 2025.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Defending the CFPB', icon:'🏦', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Led the fight to save the Consumer Financial Protection Bureau she designed after the administration moved in 2025 to halt much of its work and shrink its staff, arguing the agency is an essential check against financial abuses.', evidence:'Opposed the 2025 effort to wind down CFPB operations.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
     ],
     fetterman: [ // John Fetterman — 🏛 U.S. Senator (D-PA)
       { topic:'Independent Streak', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'A Democrat who has broken with his party on several votes and nominations, positioning himself as pragmatic and hard to pigeonhole.', source:{label:'fetterman.senate.gov', url:'https://www.fetterman.senate.gov'} },
@@ -2502,6 +2506,8 @@
       { topic:'China & the Indo-Pacific', icon:'🇨🇳', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Frames China as the primary threat and has moved to shift military focus, posture, and resources toward deterring it in the Indo-Pacific.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
       // ── Recent action (Batch 16, July 2026, verified) ──
       { topic:'"Department of War" Rebranding', icon:'🪖', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Embraced a September 2025 executive order directing the Pentagon to adopt "Department of War" as a secondary name and "Secretary of War" as a title, casting the change as a return to a warfighting focus; a permanent renaming would require an act of Congress.', evidence:'Executive order on the "Department of War" secondary title, Sept. 5, 2025.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Restoring Base Names', icon:'🎖', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Reversed the renaming of Army posts such as Fort Bragg and Fort Benning, restoring the names by designating new namesakes who share the surnames — a step he cast as honoring military heritage and that critics said sidestepped a law barring Confederate honorees.', evidence:'Restored Fort Bragg (Feb. 2025) and Fort Benning under new namesakes.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
     ],
 
     // ── Utah State Legislature & 2026 races ───────────────────────────────
@@ -3476,6 +3482,11 @@
       { topic:'"Fighting Oligarchy" Tour', icon:'📢', pos:'support', issueKey:'econ_workers', issueStance:'support',
         text:'Headlined a nationwide "Fighting Oligarchy" rally tour through 2025, often alongside Rep. Alexandria Ocasio-Cortez, drawing some of the largest crowds of his career against what he calls the outsized political power of billionaires and large corporations.',
         source:{label:'sanders.senate.gov', url:'https://www.sanders.senate.gov'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Blocking Arms Sales to Israel', icon:'🕊', pos:'support', issueKey:'restraint', issueStance:'support',
+        text:'Forced Senate votes on resolutions to block certain U.S. weapons sales to Israel over the conduct of the war in Gaza, arguing Washington should not arm what he calls a humanitarian catastrophe; the resolutions were defeated.',
+        evidence:'Forced Senate votes on Joint Resolutions of Disapproval on Israel arms sales (2024–2025).',
+        source:{label:'sanders.senate.gov', url:'https://www.sanders.senate.gov'} },
     ],
     nhaley: [
       { topic:'Foreign Policy', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support',
@@ -3602,6 +3613,11 @@
       { topic:'2016 Election-Intelligence Review', icon:'📂', pos:'support', issueKey:'gov_transparency', issueStance:'support',
         text:'In July 2025 released declassified documents and announced criminal referrals of former Obama-administration officials, alleging the 2016 assessment of Russian election interference was politicized; supporters called it accountability while critics disputed her characterization of the underlying intelligence.',
         evidence:'Released the 2016-assessment documents and announced referrals, July 2025.',
+        source:{label:'dni.gov', url:'https://www.dni.gov'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Downsizing the ODNI', icon:'✂️', pos:'support', issueKey:'gov_waste', issueStance:'support',
+        text:'Launched an "ODNI 2.0" restructuring to shrink the Office of the Director of National Intelligence — cutting its workforce and budget — arguing the intelligence bureaucracy had grown bloated and duplicative since its post-9/11 creation.',
+        evidence:'Announced the ODNI 2.0 downsizing (2025).',
         source:{label:'dni.gov', url:'https://www.dni.gov'} },
     ],
     sreyes: [
@@ -5200,6 +5216,8 @@
       { topic:'Food-Industry Regulation', icon:'🏭', pos:'mixed', issueKey:'health_balance', issueStance:'mixed', text:'Wants tighter scrutiny of food chemicals and pesticides and more say for consumers, blending deregulatory rhetoric with new restrictions on additives — a mix that crosses traditional lines.', source:{label:'HHS — Make America Healthy Again', url:'https://www.hhs.gov/'} },
       // ── Recent action (Batch 16, July 2026, verified) ──
       { topic:'Overhauling Vaccine Advisers', icon:'💉', pos:'oppose', issueKey:'medical_freedom', issueStance:'oppose', text:'In June 2025 removed all 17 members of the CDC\'s Advisory Committee on Immunization Practices and named new appointees, after HHS narrowed COVID-19 vaccine recommendations for healthy children and pregnant women — steps he framed as restoring trust and that many medical and public-health groups warned break with established vaccine science.', evidence:'Replaced the entire ACIP vaccine-advisory panel, June 2025.', source:{label:'hhs.gov', url:'https://www.hhs.gov/'} },
+      // ── Recent action (Batch 17, July 2026, verified) ──
+      { topic:'Restructuring HHS', icon:'🏛', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Launched a sweeping HHS reorganization in March 2025 — cutting roughly 20,000 positions and consolidating agencies into a new "Administration for a Healthy America" — cast as streamlining a bloated bureaucracy, while critics warned it could weaken federal public-health capacity.', evidence:'Announced the HHS restructuring and ~20,000-position reduction, March 2025.', source:{label:'hhs.gov', url:'https://www.hhs.gov/'} },
     ],
     mccormick: [ // Dave McCormick — ⚡ U.S. Senator (R-PA)
       { topic:'Pennsylvania Energy Production', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Champions expanded natural-gas and nuclear production in Pennsylvania as jobs and energy security, opposing drilling and pipeline limits he says raise costs and cede ground to rivals.', evidence:'Convened a July 2025 Pennsylvania Energy & Innovation Summit at Carnegie Mellon pairing energy build-out with AI investment.', source:{label:'mccormick.senate.gov', url:'https://www.mccormick.senate.gov/'} },
