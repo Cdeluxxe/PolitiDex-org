@@ -2079,6 +2079,8 @@
       { topic:'Cost of Living & Housing', icon:'💵', pos:'support', issueKey:'cost_living', issueStance:'support', text:'Centers her agenda on the cost of living for working families — rent and housing, health care and child care — arguing federal policy should ease those pressures rather than cut the safety net.', source:{label:'ocasio-cortez.house.gov', url:'https://ocasio-cortez.house.gov'} },
       { topic:'Taxing Extreme Wealth', icon:'📈', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Argues the ultra-wealthy and large corporations should pay higher taxes to fund health care, housing and climate programs — the message behind her "tax the rich" advocacy.', source:{label:'ocasio-cortez.house.gov', url:'https://ocasio-cortez.house.gov'} },
       { topic:'Immigration', icon:'🛡', pos:'support', issueKey:'immigration_reform', issueStance:'support', text:'Supports a path to legal status for undocumented immigrants and opposes mass deportation and expanded detention, a consistent position since her first term.', source:{label:'ocasio-cortez.house.gov', url:'https://ocasio-cortez.house.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'"Fighting Oligarchy" Tour', icon:'📢', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Co-headlined a nationwide "Fighting Oligarchy" rally tour with Sen. Bernie Sanders through 2025, drawing large crowds around a message that concentrated corporate and billionaire wealth is distorting American politics.', source:{label:'ocasio-cortez.house.gov', url:'https://ocasio-cortez.house.gov'} },
     ],
     // ── National / federal figures · Batch 9 · Top of the federal ticket (July 2026) ──
     // Top-down completion of the federal org chart: Cabinet leadership (AG, DHS,
@@ -2156,6 +2158,8 @@
       { topic:'Free Speech & Big Tech', icon:'🗣', pos:'support', issueKey:'free_speech', issueStance:'support', text:'Has made alleged government pressure on social-media platforms a signature investigation, framing it as a First Amendment and censorship concern.', source:{label:'judiciary.house.gov', url:'https://judiciary.house.gov'} },
       { topic:'Spending & Debt', icon:'📈', pos:'support', issueKey:'national_debt', issueStance:'support', text:'A founder of the House Freedom Caucus who has consistently pressed for deeper spending cuts and voted against bipartisan budget deals he views as insufficient.', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
       { topic:'Second Amendment', icon:'🔫', pos:'support', issueKey:'gun_rights', issueStance:'support', text:'A Second Amendment supporter who opposes new federal firearms restrictions.', source:{label:'judiciary.house.gov', url:'https://judiciary.house.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'Limiting Nationwide Injunctions', icon:'⚖️', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Advanced the No Rogue Rulings Act through his Judiciary Committee to curb the power of individual federal district judges to issue nationwide injunctions; the House passed it in April 2025 largely along party lines.', evidence:'House passed the No Rogue Rulings Act (H.R. 1526), April 2025.', source:{label:'judiciary.house.gov', url:'https://judiciary.house.gov'} },
     ],
     jason_smith: [ // Jason Smith — 💵 House Ways & Means Committee Chair (R-MO)
       { topic:'Chief Author of H.R.1 Tax Title', icon:'💵', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'As chairman of the tax-writing Ways and Means Committee, was the lead House author of the One Big Beautiful Bill Act\'s tax provisions, making the 2017 individual rates permanent; it passed the House 218–214.', evidence:'H.R. 1 passed the House 218–214, Roll Call 190, July 3, 2025.', source:{label:'House Clerk', url:'https://clerk.house.gov/Votes/2025190'} },
@@ -2232,6 +2236,8 @@
       { topic:'Budget Chair & Deficits', icon:'📈', pos:'mixed', issueKey:'national_debt', issueStance:'mixed', text:'As Senate Budget Committee chairman, steered the 2025 reconciliation framework; a self-described deficit hawk who nonetheless backed the tax-and-spending law.', source:{label:'budget.senate.gov', url:'https://www.budget.senate.gov'} },
       { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'A longtime border-security advocate whose approach has swung between comprehensive-reform efforts and hardline enforcement.', source:{label:'lgraham.senate.gov', url:'https://www.lgraham.senate.gov'} },
       { topic:'Judicial Confirmations', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'As former Judiciary Committee chairman, shepherded three Supreme Court confirmations to the floor.', source:{label:'lgraham.senate.gov', url:'https://www.lgraham.senate.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'Backing Strikes on Iran', icon:'🎯', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Strongly supported the June 2025 U.S. military strikes on Iran\'s nuclear facilities, having long urged a hard line against Tehran\'s nuclear program and its regional proxies.', evidence:'Backed the June 2025 U.S. strikes on Iranian nuclear sites.', source:{label:'lgraham.senate.gov', url:'https://www.lgraham.senate.gov'} },
     ],
     hawley: [ // Josh Hawley — 🏛 U.S. Senator (R-MO)
       { topic:'Big Tech & Antitrust', icon:'🖥', pos:'support', issueKey:'gov_regulation', issueStance:'support', text:'A populist conservative who breaks with free-market orthodoxy to back antitrust action and tighter regulation of large technology companies.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
@@ -2240,6 +2246,8 @@
       { topic:'China & Manufacturing', icon:'🏭', pos:'support', issueKey:'tariffs_growth', issueStance:'support', text:'Backs tariffs and economic decoupling from China to rebuild American manufacturing and protect domestic industry.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
       { topic:'Border Security', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'A hardliner on immigration enforcement and border security.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
       { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support', text:'Holds a consistent pro-life record.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'Opposed the AI Moratorium', icon:'🤖', pos:'support', issueKey:'gov_regulation', issueStance:'support', text:'Broke with party leadership to oppose a proposed decade-long pause on state artificial-intelligence laws during the 2025 budget debate, arguing states should keep the power to protect consumers and children; the Senate stripped the moratorium on a 99–1 vote.', evidence:'Senate voted 99–1 to remove the AI-moratorium provision, July 1, 2025.', source:{label:'hawley.senate.gov', url:'https://www.hawley.senate.gov'} },
     ],
     murkowski: [ // Lisa Murkowski — 🏛 U.S. Senator (R-AK)
       { topic:'Independent Swing Vote', icon:'⚖️', pos:'mixed', issueKey:'democracy_balance', issueStance:'mixed', text:'One of the Senate\'s key swing votes, willing to break with her party — she voted to convict in the 2021 impeachment trial and against some administration nominees.', source:{label:'murkowski.senate.gov', url:'https://www.murkowski.senate.gov'} },
@@ -2255,6 +2263,8 @@
       { topic:'Prescription Drug Prices', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Backs Medicare drug-price negotiation and lower health costs, and opposed the 2025 law\'s Medicaid reductions.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
       { topic:'Student Debt', icon:'🎓', pos:'support', issueKey:'edu_college_cost', issueStance:'support', text:'A leading advocate for canceling student debt and lowering the cost of college.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
       { topic:'Housing Supply', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Authored major legislation to build millions of affordable housing units and lower rents by expanding supply.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'Opposing the GENIUS Act', icon:'🪙', pos:'oppose', issueKey:'crypto_cbdc', issueStance:'oppose', text:'Opposed the 2025 GENIUS Act establishing a federal framework for stablecoins, arguing it lacked adequate consumer-protection, anti-money-laundering and conflict-of-interest safeguards; the law was enacted over her objections.', evidence:'The GENIUS Act was signed into law, July 2025.', source:{label:'warren.senate.gov', url:'https://www.warren.senate.gov'} },
     ],
     fetterman: [ // John Fetterman — 🏛 U.S. Senator (D-PA)
       { topic:'Independent Streak', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'A Democrat who has broken with his party on several votes and nominations, positioning himself as pragmatic and hard to pigeonhole.', source:{label:'fetterman.senate.gov', url:'https://www.fetterman.senate.gov'} },
@@ -2490,6 +2500,8 @@
       { topic:'Israel & Iran', icon:'🇮🇱', pos:'support', issueKey:'foreign_balance', issueStance:'support', text:'As Defense secretary, Hegseth has directed strong U.S. military support for Israel — weapons deliveries and regional force posture — and a hard line against Iran and its proxies.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
       { topic:'Ukraine & Russia', icon:'🕊', pos:'mixed', issueKey:'strong_defense', issueStance:'mixed', text:'Backs pressure on Russia and greater burden-sharing by European allies while supporting the administration\'s push for a negotiated end to the war and scrutinizing open-ended U.S. aid.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
       { topic:'China & the Indo-Pacific', icon:'🇨🇳', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Frames China as the primary threat and has moved to shift military focus, posture, and resources toward deterring it in the Indo-Pacific.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'"Department of War" Rebranding', icon:'🪖', pos:'support', issueKey:'strong_defense', issueStance:'support', text:'Embraced a September 2025 executive order directing the Pentagon to adopt "Department of War" as a secondary name and "Secretary of War" as a title, casting the change as a return to a warfighting focus; a permanent renaming would require an act of Congress.', evidence:'Executive order on the "Department of War" secondary title, Sept. 5, 2025.', source:{label:'defense.gov', url:'https://www.defense.gov'} },
     ],
 
     // ── Utah State Legislature & 2026 races ───────────────────────────────
@@ -3460,6 +3472,10 @@
         text:'Voted against the One Big Beautiful Bill Act, calling its Medicaid and SNAP reductions a transfer from working families to the wealthy; it passed the Senate 50–50 only on the Vice President\'s tie-breaking vote.',
         evidence:'Recorded a Nay vote on H.R. 1, Senate Roll Call Vote 372, July 1, 2025.',
         source:{label:'U.S. Senate', url:'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.htm'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'"Fighting Oligarchy" Tour', icon:'📢', pos:'support', issueKey:'econ_workers', issueStance:'support',
+        text:'Headlined a nationwide "Fighting Oligarchy" rally tour through 2025, often alongside Rep. Alexandria Ocasio-Cortez, drawing some of the largest crowds of his career against what he calls the outsized political power of billionaires and large corporations.',
+        source:{label:'sanders.senate.gov', url:'https://www.sanders.senate.gov'} },
     ],
     nhaley: [
       { topic:'Foreign Policy', icon:'🦅', pos:'support', issueKey:'strong_defense', issueStance:'support',
@@ -3581,6 +3597,11 @@
       { topic:'Government Weaponization', icon:'🗣', pos:'support', issueKey:'free_speech', issueStance:'support',
         text:'Frames her declassification push as ending the use of government power against ordinary citizens, releasing records she says labeled COVID-19 vaccine-mandate opponents "domestic violent extremists."',
         evidence:'DIG declassification of Biden-era domestic-labeling documents (2025).',
+        source:{label:'dni.gov', url:'https://www.dni.gov'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'2016 Election-Intelligence Review', icon:'📂', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'In July 2025 released declassified documents and announced criminal referrals of former Obama-administration officials, alleging the 2016 assessment of Russian election interference was politicized; supporters called it accountability while critics disputed her characterization of the underlying intelligence.',
+        evidence:'Released the 2016-assessment documents and announced referrals, July 2025.',
         source:{label:'dni.gov', url:'https://www.dni.gov'} },
     ],
     sreyes: [
@@ -5177,6 +5198,8 @@
       { topic:'Prescription Drug Prices', icon:'💊', pos:'support', issueKey:'health_drug_prices', issueStance:'support', text:'Has criticized high U.S. drug prices and pharmaceutical marketing, backing transparency and price efforts, while feuding publicly with parts of the industry.', source:{label:'U.S. Dept. of Health & Human Services', url:'https://www.hhs.gov/about/leadership/robert-f-kennedy-jr.html'} },
       { topic:'Vaccine Policy', icon:'💉', pos:'oppose', issueKey:'medical_freedom', issueStance:'oppose', text:'A longtime critic of vaccine safety review who has reshaped federal vaccine advisory panels and emphasized "informed consent" — a record public-health groups warn undermines established vaccine science, and that he frames as restoring trust.', source:{label:'U.S. Dept. of Health & Human Services', url:'https://www.hhs.gov/about/leadership/robert-f-kennedy-jr.html'} },
       { topic:'Food-Industry Regulation', icon:'🏭', pos:'mixed', issueKey:'health_balance', issueStance:'mixed', text:'Wants tighter scrutiny of food chemicals and pesticides and more say for consumers, blending deregulatory rhetoric with new restrictions on additives — a mix that crosses traditional lines.', source:{label:'HHS — Make America Healthy Again', url:'https://www.hhs.gov/'} },
+      // ── Recent action (Batch 16, July 2026, verified) ──
+      { topic:'Overhauling Vaccine Advisers', icon:'💉', pos:'oppose', issueKey:'medical_freedom', issueStance:'oppose', text:'In June 2025 removed all 17 members of the CDC\'s Advisory Committee on Immunization Practices and named new appointees, after HHS narrowed COVID-19 vaccine recommendations for healthy children and pregnant women — steps he framed as restoring trust and that many medical and public-health groups warned break with established vaccine science.', evidence:'Replaced the entire ACIP vaccine-advisory panel, June 2025.', source:{label:'hhs.gov', url:'https://www.hhs.gov/'} },
     ],
     mccormick: [ // Dave McCormick — ⚡ U.S. Senator (R-PA)
       { topic:'Pennsylvania Energy Production', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Champions expanded natural-gas and nuclear production in Pennsylvania as jobs and energy security, opposing drilling and pipeline limits he says raise costs and cede ground to rivals.', evidence:'Convened a July 2025 Pennsylvania Energy & Innovation Summit at Carnegie Mellon pairing energy build-out with AI investment.', source:{label:'mccormick.senate.gov', url:'https://www.mccormick.senate.gov/'} },
