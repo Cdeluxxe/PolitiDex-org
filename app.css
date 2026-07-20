@@ -18154,3 +18154,16 @@
 /* drops the double-tap-zoom wait on buttons/links so taps register instantly   */
 /* (viewport already removes the 300ms delay). Allows normal scroll/pan/pinch.  */
 button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulation; }
+
+
+/* ── Photo-audit: consistent, polished fallback avatar (used wherever a photo */
+/* is missing or fails to load — cards, roster, search, profile hero). Additive */
+/* base rule; the .profile-hero-photo .ph-fallback rule above still layers size. */
+.ph-fallback {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #24345c 0%, #16223f 55%, #0e1730 100%);
+  color: #9db8dd; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.02em; line-height: 1;
+  overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
