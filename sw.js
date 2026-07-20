@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v14';
+const CACHE_VERSION = 'v15';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -59,6 +59,11 @@ const SHELL_ASSETS = [
   // (stale-while-revalidate) so it costs nothing on first paint but still works
   // offline after its first load.
   '/politician-stances-core.js',
+  // Tiny on-demand data loader (Run 3 perf). Precached because it is the boot
+  // path that fetches the large Spotlight / accountability / cmp-detail modules
+  // when they are actually needed; those modules themselves stay on the runtime
+  // stale-while-revalidate cache so they cost nothing on first paint.
+  '/pdx-lazy-data.js',
   // Roster data (Run 2 perf: extracted from index.html). Precached because the
   // home directory/search needs it to boot; the larger Spotlight/accountability
   // data modules are left to the runtime stale-while-revalidate cache.

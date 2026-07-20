@@ -564,4 +564,11 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { boot(0); });
   } else { boot(0); }
+
+  // Run 3 perf: the Spotlight registry now loads on demand (pdx-lazy-data.js).
+  // Rebuild the archive the moment it arrives, in case the visitor scrolled the
+  // Digital Library into view after the boot() retry window closed.
+  document.addEventListener('pdx:data:spotlights', function () {
+    try { _built = false; render(); } catch (e) {}
+  });
 })();
