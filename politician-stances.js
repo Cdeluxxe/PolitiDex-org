@@ -7217,6 +7217,55 @@
       { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes violent-crime, fentanyl, and human-trafficking prosecution.', source:{label:'scag.gov', url:'https://www.scag.gov/'} },
       { topic:'Election Integrity', icon:'🗳', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Backs election-security measures and defended the state’s election laws.', source:{label:'scag.gov', url:'https://www.scag.gov/'} },
     ],
+    // ── National — state Attorneys General (AL · OK · ND · MS · MD · OR · NM · DE) · AG wave 2 (Jul 2026) ─
+    steve_marshall: [ // Steve Marshall — ⚖️ Alabama Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'A leader among Republican attorneys general, Marshall has organized and joined multistate suits against federal rules and backed Trump-administration legal positions.', evidence:'Alabama Attorney General since 2017; a former chair of the Republican Attorneys General Association.', source:{label:'alabamaag.gov', url:'https://www.alabamaag.gov/'} },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support', text:'Defends Alabama’s near-total abortion ban enacted after the Dobbs decision.', source:{label:'alabamaag.gov', url:'https://www.alabamaag.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes violent-crime and fentanyl prosecution and defends the state’s death penalty.', source:{label:'alabamaag.gov', url:'https://www.alabamaag.gov/'} },
+      { topic:'Energy', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Challenges federal environmental and energy rules affecting Alabama industry.', source:{label:'alabamaag.gov', url:'https://www.alabamaag.gov/'} },
+    ],
+    gentner_drummond: [ // Gentner Drummond — ⚖️ Oklahoma Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules while at times breaking with the party’s right flank on individual cases.', evidence:'Oklahoma Attorney General since 2023; a 2026 candidate for governor.', source:{label:'oag.ok.gov', url:'https://www.oag.ok.gov/'} },
+      { topic:'Energy', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Defends Oklahoma oil and gas against federal limits.', source:{label:'oag.ok.gov', url:'https://www.oag.ok.gov/'} },
+      { topic:'Criminal Justice', icon:'⚖️', pos:'mixed', issueKey:'justice_reform', issueStance:'mixed', text:'Drew national attention by urging courts to vacate Richard Glossip’s murder conviction over prosecutorial errors — an unusual move for a Republican AG.', source:{label:'oag.ok.gov', url:'https://www.oag.ok.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Prioritizes violent-crime and drug-trafficking enforcement.', source:{label:'oag.ok.gov', url:'https://www.oag.ok.gov/'} },
+    ],
+    drew_wrigley: [ // Drew Wrigley — ⚖️ North Dakota Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal environmental and energy rules.', evidence:'North Dakota Attorney General since 2022; a former U.S. Attorney and lieutenant governor.', source:{label:'attorneygeneral.nd.gov', url:'https://attorneygeneral.nd.gov/'} },
+      { topic:'Energy', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Defends North Dakota oil, gas, and coal against federal restrictions.', source:{label:'attorneygeneral.nd.gov', url:'https://attorneygeneral.nd.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Has pushed for tougher sentencing, including for fentanyl-related deaths.', source:{label:'attorneygeneral.nd.gov', url:'https://attorneygeneral.nd.gov/'} },
+      { topic:'Abortion', icon:'🕊', pos:'mixed', issueKey:'pro_life', issueStance:'mixed', text:'Enforced North Dakota’s abortion restrictions, though a state court struck down the near-total ban in 2025.', source:{label:'attorneygeneral.nd.gov', url:'https://attorneygeneral.nd.gov/'} },
+    ],
+    lynn_fitch: [ // Lynn Fitch — ⚖️ Mississippi Attorney General (R)
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support', text:'Brought and defended Mississippi’s 15-week abortion ban in Dobbs v. Jackson Women’s Health Organization — the case in which the Supreme Court overturned Roe v. Wade.', evidence:'Mississippi Attorney General since 2020; the first woman elected to the office.', source:{label:'ago.ms.gov', url:'https://www.ago.ms.gov/'} },
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules.', source:{label:'ago.ms.gov', url:'https://www.ago.ms.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Continues Mississippi’s opioid and consumer-protection enforcement.', source:{label:'ago.ms.gov', url:'https://www.ago.ms.gov/'} },
+      { topic:'Human Trafficking', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Made human-trafficking and child-protection prosecution a signature priority.', source:{label:'ago.ms.gov', url:'https://www.ago.ms.gov/'} },
+    ],
+    anthony_brown: [ // Anthony Brown — ⚖️ Maryland Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined multistate suits challenging Trump-administration actions on federal funding and immigration.', evidence:'Maryland Attorney General since 2023; a former U.S. Representative and lieutenant governor, and the first Black person elected Maryland AG.', source:{label:'marylandattorneygeneral.gov', url:'https://www.marylandattorneygeneral.gov/'} },
+      { topic:'Civil Rights', icon:'⚖️', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Built out a civil-rights unit and pursued police-accountability and equity cases.', source:{label:'marylandattorneygeneral.gov', url:'https://www.marylandattorneygeneral.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Defends Maryland’s firearm laws in court.', source:{label:'marylandattorneygeneral.gov', url:'https://www.marylandattorneygeneral.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection and environmental enforcement.', source:{label:'marylandattorneygeneral.gov', url:'https://www.marylandattorneygeneral.gov/'} },
+    ],
+    dan_rayfield: [ // Dan Rayfield — ⚖️ Oregon Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Since taking office in 2025 has joined numerous multistate suits challenging Trump-administration funding freezes and policy changes.', evidence:'Oregon Attorney General since 2025; a former Speaker of the Oregon House.', source:{label:'doj.oregon.gov', url:'https://www.doj.state.or.us/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Continues Oregon’s consumer-protection and antitrust work.', source:{label:'doj.oregon.gov', url:'https://www.doj.state.or.us/'} },
+      { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Defends Oregon’s abortion-access protections.', source:{label:'doj.oregon.gov', url:'https://www.doj.state.or.us/'} },
+      { topic:'Environment', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Backs Oregon’s environmental and climate enforcement.', source:{label:'doj.oregon.gov', url:'https://www.doj.state.or.us/'} },
+    ],
+    raul_torrez: [ // Raúl Torrez — ⚖️ New Mexico Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined multistate suits over federal funding and immigration actions affecting New Mexico.', evidence:'New Mexico Attorney General since 2023; a former Bernalillo County district attorney.', source:{label:'nmag.gov', url:'https://nmag.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'mixed', issueKey:'tough_on_crime', issueStance:'mixed', text:'Balances violent-crime and cartel/fentanyl enforcement with juvenile-justice reform in a state with high crime rates.', source:{label:'nmag.gov', url:'https://nmag.gov/'} },
+      { topic:'Child Safety', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Sued major social-media companies over child-safety and addictive-design harms.', source:{label:'nmag.gov', url:'https://nmag.gov/'} },
+      { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Defends New Mexico’s abortion-access protections, including against local ordinances.', source:{label:'nmag.gov', url:'https://nmag.gov/'} },
+    ],
+    kathy_jennings: [ // Kathy Jennings — ⚖️ Delaware Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins multistate suits challenging federal actions and defends Delaware statutes in court.', evidence:'Delaware Attorney General since 2019.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Uses Delaware’s corporate-law prominence to pursue consumer-protection and fraud cases.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Defends Delaware’s gun-safety laws, including its ban on assault-style weapons.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
+      { topic:'Criminal Justice', icon:'⚖️', pos:'mixed', issueKey:'justice_reform', issueStance:'mixed', text:'Backs some criminal-justice reforms while maintaining violent-crime enforcement.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
+    ],
     };
 
 })();

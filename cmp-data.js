@@ -8,6 +8,143 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Attorneys General (AG wave 2, July 2026)
+ "steve_marshall": {
+  "name": "Steve Marshall",
+  "office": "State Attorney General",
+  "state": "Alabama",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Public Safety",
+   "Energy"
+  ]
+ },
+ "gentner_drummond": {
+  "name": "Gentner Drummond",
+  "office": "State Attorney General",
+  "state": "Oklahoma",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Criminal Justice",
+   "Public Safety"
+  ]
+ },
+ "drew_wrigley": {
+  "name": "Drew Wrigley",
+  "office": "State Attorney General",
+  "state": "North Dakota",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Public Safety",
+   "Abortion"
+  ]
+ },
+ "lynn_fitch": {
+  "name": "Lynn Fitch",
+  "office": "State Attorney General",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Abortion",
+   "Federal Pushback",
+   "Consumer Protection",
+   "Human Trafficking"
+  ]
+ },
+ "anthony_brown": {
+  "name": "Anthony Brown",
+  "office": "State Attorney General",
+  "state": "Maryland",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Civil Rights",
+   "Gun Safety",
+   "Consumer Protection"
+  ]
+ },
+ "dan_rayfield": {
+  "name": "Dan Rayfield",
+  "office": "State Attorney General",
+  "state": "Oregon",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Abortion Rights",
+   "Environment"
+  ]
+ },
+ "raul_torrez": {
+  "name": "Raúl Torrez",
+  "office": "State Attorney General",
+  "state": "New Mexico",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Public Safety",
+   "Child Safety",
+   "Abortion Rights"
+  ]
+ },
+ "kathy_jennings": {
+  "name": "Kathy Jennings",
+  "office": "State Attorney General",
+  "state": "Delaware",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Criminal Justice"
+  ]
+ },
 // National — state Attorneys General (AG wave 1, July 2026)
  "william_tong": {
   "name": "William Tong",
