@@ -8,6 +8,143 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — Lieutenant Governors (Lt. Gov wave 1, July 2026)
+ "garlin_gilchrist": {
+  "name": "Garlin Gilchrist",
+  "office": "Lieutenant Governor",
+  "state": "Michigan",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Economic Mobility",
+   "Infrastructure",
+   "Housing",
+   "Check on D.C."
+  ]
+ },
+ "austin_davis": {
+  "name": "Austin Davis",
+  "office": "Lieutenant Governor",
+  "state": "Pennsylvania",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Labor",
+   "Gun Safety",
+   "Transit",
+   "Community Safety"
+  ]
+ },
+ "eleni_kounalakis": {
+  "name": "Eleni Kounalakis",
+  "office": "Lieutenant Governor",
+  "state": "California",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Climate",
+   "Housing",
+   "Higher Education",
+   "Trade"
+  ]
+ },
+ "peggy_flanagan": {
+  "name": "Peggy Flanagan",
+  "office": "Lieutenant Governor",
+  "state": "Minnesota",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Children & Families",
+   "Tribal Affairs",
+   "Paid Leave",
+   "Health Care"
+  ]
+ },
+ "burt_jones": {
+  "name": "Burt Jones",
+  "office": "Lieutenant Governor",
+  "state": "Georgia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Tax Cuts",
+   "Public Safety",
+   "School Choice",
+   "Elections"
+  ]
+ },
+ "delbert_hosemann": {
+  "name": "Delbert Hosemann",
+  "office": "Lieutenant Governor",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 54,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Education Funding",
+   "Fiscal Restraint",
+   "Health Care",
+   "Infrastructure"
+  ]
+ },
+ "matt_pinnell": {
+  "name": "Matt Pinnell",
+  "office": "Lieutenant Governor",
+  "state": "Oklahoma",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Tourism & Small Business",
+   "School Choice",
+   "Taxes",
+   "Workforce"
+  ]
+ },
+ "jim_tressel": {
+  "name": "Jim Tressel",
+  "office": "Lieutenant Governor",
+  "state": "Ohio",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Workforce & Education",
+   "Economic Development",
+   "Public Service",
+   "Higher Education"
+  ]
+ },
 // National — state Secretaries of State (SoS wave 2, July 2026)
  "shirley_weber": {
   "name": "Shirley Weber",
