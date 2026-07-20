@@ -298,6 +298,13 @@
 
   function relatedSection(m, issues) {
     var parts = [];
+    // Link back into the central discovery hub: searching the bill number in the
+    // All-Seeing Eye surfaces this bill alongside every related politician, issue and
+    // Spotlight in one place. Always available (a bill always has a number).
+    if (m && m.number) {
+      parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Find everything connected</div>' +
+        '<button type="button" class="bd-btn bd-eye" data-eye="' + escAttr(m.number) + '">🔍 Search this in the All-Seeing Eye</button></div>');
+    }
     // Explore-these-issues jump chips + a link back into the Legislation library,
     // filtered to this bill's primary issue. Always available when the bill has issues.
     if (issues && issues.length) {
@@ -411,6 +418,14 @@
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
       if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
+      var eb = e.target.closest ? e.target.closest('[data-eye]') : null;
+      if (eb) {
+        var num = eb.getAttribute('data-eye');
+        close();
+        if (window.PDXEye && typeof window.PDXEye.search === 'function') window.PDXEye.search(num);
+        else if (window.PDXEye && typeof window.PDXEye.focus === 'function') window.PDXEye.focus();
+        return;
+      }
       var fb = e.target.closest ? e.target.closest('[data-bd-follow]') : null;
       if (fb) { toggleFollow(fb); return; }
       var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
@@ -566,6 +581,7 @@
       '.bd-omni-link:hover{color:#9ec8ff;text-decoration-color:#9ec8ff;}' +
       '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
       '.bd-legis{margin-top:.6rem;display:inline-block;}' +
+      '.bd-eye{margin-top:.2rem;display:inline-block;}' +
       '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +
