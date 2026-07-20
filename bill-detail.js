@@ -199,6 +199,37 @@
     return '<section class="bd-sec"><h3 class="bd-h">✍️ Sponsors &amp; cosponsors</h3><div class="bd-people">' + chips + '</div></section>';
   }
 
+  // Key member actions that aren't roll-call votes or sponsorships: on-record
+  // statements, committee votes, amicus briefs, litigation. Surfaces vr_positions the
+  // sponsors section doesn't (e.g., the bipartisan authors of an amendment), each with
+  // its note and source. Degrades to nothing when there are none.
+  var ACTION_LABEL = {
+    statement: 'On record', committee_vote: 'Committee vote', amicus: 'Amicus brief',
+    plaintiff: 'Plaintiff', cosponsor: 'Cosponsor', sponsor: 'Sponsor'
+  };
+  function memberActionsSection(m, positions) {
+    var rows = (positions || []).filter(function (p) {
+      return p.actionType && p.actionType !== 'sponsor' && p.actionType !== 'cosponsor';
+    });
+    if (!rows.length) return '';
+    var html = rows.map(function (p) {
+      var eff = (p.supports === true)
+        ? '<span class="bd-eff bd-eff-adv">Supported</span>'
+        : (p.supports === false ? '<span class="bd-eff bd-eff-opp">Opposed</span>' : '');
+      var src = (p.source && p.source.url)
+        ? '<a class="bd-src" href="' + escAttr(p.source.url) + '" target="_blank" rel="noopener">🔗 source</a>' : '';
+      return '<div class="bd-omni-row">' +
+        '<div class="bd-omni-head">' +
+          '<button type="button" class="bd-vote-name" data-pid="' + escAttr(p.politicianId) + '">' + esc(nameFor(p.politicianId)) + '</button>' +
+          '<span class="bd-prov-tag">' + esc(ACTION_LABEL[p.actionType] || p.actionType) + '</span>' + eff +
+        '</div>' +
+        (p.note ? '<div class="bd-omni-why">' + esc(p.note) + ' ' + src + '</div>' : (src ? '<div class="bd-omni-why">' + src + '</div>' : '')) +
+      '</div>';
+    }).join('');
+    return '<section class="bd-sec"><h3 class="bd-h">🧭 Key member actions</h3>' +
+      '<p class="bd-lead">On-record actions by members on this measure beyond a floor roll call.</p>' + html + '</section>';
+  }
+
   var STAGE_LABEL = {
     introduced: 'Introduced', referred_committee: 'Referred to committee',
     reported_committee: 'Reported from committee', passed_house: 'Passed House',
@@ -325,6 +356,7 @@
       provisionsSection(m, data.provisions) +
       rollcallsSection(m, issues, data.rollcalls) +
       sponsorsSection(m, data.positions) +
+      memberActionsSection(m, data.positions) +
       timelineSection(m, data.rollcalls, data.actions) +
       relatedSection(m, issues);
   }

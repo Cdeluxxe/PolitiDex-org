@@ -95,5 +95,12 @@ window.PDX_BILLS_INDEX = [
     primaryIssue: 'climate_action',
     issueKeys: ['climate_action', 'energy_production', 'gov_regulation'], isOmnibus: true,
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-joint-resolution/89', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 7567', title: 'Farm, Food, and National Security Act (2026 Farm Bill, House)', shortTitle: '2026 Farm Bill (House)',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'introduced',
+    primaryIssue: 'rural_ag',
+    issueKeys: ['rural_ag', 'family_support', 'enviro_balance', 'econ_corp_account', 'property_rights'], isOmnibus: true,
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/7567', label: 'Congress.gov' }
   }
 ];

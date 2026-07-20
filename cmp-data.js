@@ -8,6 +8,24 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — complete Chellie Pingree (July 2026)
+ "chellie_pingree": {
+  "name": "Chellie Pingree",
+  "office": "U.S. Representative",
+  "state": "Maine",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🌾",
+  "issues": [
+   "Agriculture",
+   "Environment",
+   "Appropriations",
+   "Organic Farming"
+  ]
+ },
 // National — Lieutenant Governors (Lt. Gov wave 1, July 2026)
  "garlin_gilchrist": {
   "name": "Garlin Gilchrist",
