@@ -13,6 +13,10 @@
 //
 // WHAT IT INGESTS (objective, verifiable facts only):
 //   • measures   — the bill / amendment a vote is on
+//   • actions    — the legislative-action timeline (vr_measure_actions): milestone
+//                  steps (introduced → passed a chamber → enacted/vetoed/…), each
+//                  dated and citable. Additive + idempotent; never clobbers a curated
+//                  seed timeline. On for live runs, off for fixture-fed unit tests.
 //   • rollcalls  — the recorded vote event (idempotent by chamber+congress+session+number)
 //   • memberVotes— how each member voted, ONLY when the member id resolves via the
 //                  curated bioguide→roster map (see loadMemberMap). Unmapped members
@@ -29,7 +33,9 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
 import { db } from "../../db/index.js";
 import {
+  vrMeasureActions,
   vrMeasureIssues,
+  vrMeasureProvisions,
   vrMeasures,
   vrMemberVotes,
   vrRollcalls,
@@ -41,9 +47,12 @@ import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
   crossoverFlags,
+  normalizeCongressActions,
   normalizeCongressVote,
   originatingChamber,
+  splitMeasureNumber,
   suggestIssue,
+  type RawAction,
   type RawMemberVote,
   type RawVote,
 } from "./vr-normalize.js";
@@ -78,6 +87,7 @@ export type IngestReport = {
   memberVotesUpserted: number;
   membersUnmapped: number;
   issuesSuggested: number;
+  actionsUpserted: number;
   curatedMeasuresMatched: number;
   curatedIssuesUpserted: number;
   packsWritten: number;
@@ -116,6 +126,81 @@ export async function fetchRollcallsFromCongress(opts: {
     console.warn("vr-ingest: fetch failed —", e?.message || String(e));
     return [];
   }
+}
+
+// ── Legislative actions fetcher (the "how it moved" timeline) ────────────────
+// Pulls a measure's action history from Congress.gov and reduces it to milestone
+// rows for vr_measure_actions. Key-gated + defensive: returns [] (never throws) when
+// unconfigured, on a non-bill number (nominations have no bill-actions endpoint), or
+// on any upstream error, so a flaky call never breaks an ingest run.
+export async function fetchMeasureActions(m: {
+  measureType: string;
+  congress: number;
+  number: string | null;
+}): Promise<RawAction[]> {
+  const apiKey = process.env.CONGRESS_GOV_API_KEY;
+  if (!apiKey) return [];
+  const parts = splitMeasureNumber(m.number);
+  if (!parts) return []; // e.g. a nomination label — no bill-actions endpoint
+  const billPage = `https://www.congress.gov/bill/${m.congress}th-congress/${
+    { hr: "house-bill", s: "senate-bill", hres: "house-resolution", sres: "senate-resolution",
+      hjres: "house-joint-resolution", sjres: "senate-joint-resolution",
+      hconres: "house-concurrent-resolution", sconres: "senate-concurrent-resolution" }[parts.billType] ||
+    "house-bill"
+  }/${parts.num}/all-actions`;
+  const url =
+    `${CONGRESS_API_BASE}/bill/${m.congress}/${parts.billType}/${parts.num}/actions` +
+    `?format=json&limit=250&api_key=${encodeURIComponent(apiKey)}`;
+  try {
+    const res = await fetch(url, { headers: { accept: "application/json" } });
+    if (!res.ok) return [];
+    const data: any = await res.json();
+    return normalizeCongressActions(data?.actions || [], { fallbackSourceUrl: billPage });
+  } catch (e: any) {
+    console.warn("vr-ingest: actions fetch failed —", e?.message || String(e));
+    return [];
+  }
+}
+
+// Idempotent upsert of a measure's action timeline. vr_measure_actions has no natural
+// unique index (a measure can legitimately have two same-stage rows historically), so
+// idempotency is a per-(measure, stage, date) existence check: a stage already present
+// with the same date is left untouched. Additive — never deletes an existing row (so
+// curated seed timelines are never clobbered by a later live pull).
+export async function upsertMeasureActions(measureId: number, actions: RawAction[]): Promise<number> {
+  let written = 0;
+  for (const a of actions) {
+    if (!a.sourceUrl) continue;
+    const dateVal = a.actionDate ? new Date(a.actionDate) : null;
+    const existing = await db
+      .select({ id: vrMeasureActions.id })
+      .from(vrMeasureActions)
+      .where(
+        and(
+          eq(vrMeasureActions.measureId, measureId),
+          eq(vrMeasureActions.stage, a.stage),
+          dateVal ? eq(vrMeasureActions.actionDate, dateVal) : sql`${vrMeasureActions.actionDate} IS NULL`
+        )
+      )
+      .limit(1);
+    if (existing.length) continue;
+    await db.insert(vrMeasureActions).values({
+      measureId,
+      stage: a.stage,
+      chamber: a.chamber,
+      actionDate: dateVal,
+      text: a.text || "",
+      sourceUrl: a.sourceUrl,
+      sourceLabel: a.sourceLabel || "Congress.gov",
+      sortOrder: ({
+        introduced: 10, referred_committee: 15, reported_committee: 20, passed_house: 30,
+        passed_senate: 40, resolving_differences: 50, to_president: 60, enacted: 70,
+        vetoed: 71, veto_overridden: 72, failed: 80,
+      } as Record<string, number>)[a.stage] ?? 90,
+    });
+    written++;
+  }
+  return written;
 }
 
 // ── Member resolution (curated map; never guesses) ───────────────────────────
@@ -257,11 +342,11 @@ export async function applyCuratedIssueSeed(
 // ── Core loader: idempotent upserts. No network — unit-testable with fixtures. ─
 export async function ingestVotes(
   rawVotes: RawVote[],
-  opts: { classifyIssues?: boolean; memberMap?: Record<string, string>; applyIssueSeed?: boolean } = {}
+  opts: { classifyIssues?: boolean; memberMap?: Record<string, string>; applyIssueSeed?: boolean; ingestActions?: boolean } = {}
 ): Promise<IngestReport> {
   const report: IngestReport = {
     configured: true, fetched: rawVotes.length, measuresUpserted: 0, rollcallsUpserted: 0,
-    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+    memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
     curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
   };
   const memberMap = opts.memberMap || (await loadMemberMap());
@@ -273,6 +358,20 @@ export async function ingestVotes(
 
       const measureId = await upsertMeasure(v.measure);
       report.measuresUpserted++;
+
+      // Optional: backfill the legislative-action timeline from Congress.gov for this
+      // measure (idempotent + additive; never clobbers a curated seed timeline). On by
+      // default for live runs, off for fixture-fed unit tests (no network).
+      if (opts.ingestActions) {
+        try {
+          const acts = await fetchMeasureActions({
+            measureType: v.measure.measureType, congress: v.measure.congress, number: v.measure.number,
+          });
+          if (acts.length) report.actionsUpserted += await upsertMeasureActions(measureId, acts);
+        } catch (e: any) {
+          report.errors.push(`actions ${v.measure.number ?? measureId}: ${e?.message || String(e)}`);
+        }
+      }
 
       // Optional issue suggestion (never overwrites a curated mapping).
       if (opts.classifyIssues) {
@@ -370,13 +469,13 @@ export async function runIngest(opts: {
   if (!process.env.CONGRESS_GOV_API_KEY) {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
-      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0,
+      memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
       curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
       errors: ["CONGRESS_GOV_API_KEY not configured — ingest skipped"],
     };
   }
   const raw = await fetchRollcallsFromCongress(opts);
-  return ingestVotes(raw, { classifyIssues: opts.classifyIssues });
+  return ingestVotes(raw, { classifyIssues: opts.classifyIssues, ingestActions: true });
 }
 
 // ── Verification: an integrity report over the vr_* tables ────────────────────
@@ -397,6 +496,8 @@ export async function verify(): Promise<{
   await count("rollcalls", db.select({ n: sql<number>`count(*)` }).from(vrRollcalls));
   await count("memberVotes", db.select({ n: sql<number>`count(*)` }).from(vrMemberVotes));
   await count("measureIssues", db.select({ n: sql<number>`count(*)` }).from(vrMeasureIssues));
+  await count("measureActions", db.select({ n: sql<number>`count(*)` }).from(vrMeasureActions));
+  await count("measureProvisions", db.select({ n: sql<number>`count(*)` }).from(vrMeasureProvisions));
 
   // Verifiability: no measure/rollcall may lack a source (schema enforces NOT NULL,
   // but empty strings would slip through — check for those too).
@@ -411,6 +512,12 @@ export async function verify(): Promise<{
     db.select({ n: sql<number>`count(*)` }).from(vrRollcalls).where(sql`coalesce(${vrRollcalls.sourceUrl}, '') = ''`)
   );
   if (unsourcedRollcalls > 0) problems.push(`${unsourcedRollcalls} rollcalls with no source URL`);
+
+  const unsourcedActions = await count(
+    "unsourcedActions",
+    db.select({ n: sql<number>`count(*)` }).from(vrMeasureActions).where(sql`coalesce(${vrMeasureActions.sourceUrl}, '') = ''`)
+  );
+  if (unsourcedActions > 0) problems.push(`${unsourcedActions} measure actions with no source URL`);
 
   // Every mapped issue key must be in the shipped allow-list.
   const issueRows = await db.selectDistinct({ k: vrMeasureIssues.issueKey }).from(vrMeasureIssues);

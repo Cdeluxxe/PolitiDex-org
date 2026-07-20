@@ -96,6 +96,32 @@ eq(flags.get(nv.memberVotes[2]), "with_party", "crossover: sole D-nay → with o
 ok(N.ISSUE_KEYS.has("border_security"), "issue-keys: allow-list loaded");
 ok(N.suggestIssue("A bill with no recognizable policy words xyzzy") === null, "suggest: no hit → null");
 
+// ── splitMeasureNumber: bill types split, nomination labels reject ────────────
+eq(N.splitMeasureNumber("H.R. 25"), { billType: "hr", num: "25" }, "split: H.R. 25 → hr/25");
+eq(N.splitMeasureNumber("S. 1582"), { billType: "s", num: "1582" }, "split: S. 1582 → s/1582");
+eq(N.splitMeasureNumber("H.J.Res. 25"), { billType: "hjres", num: "25" }, "split: H.J.Res. 25 → hjres/25");
+ok(N.splitMeasureNumber("Patel — FBI") === null, "split: nomination label → null");
+ok(N.splitMeasureNumber(null) === null, "split: null → null");
+
+// ── mapCongressActionToStage + normalizeCongressActions: milestone-only, ordered ─
+eq(N.mapCongressActionToStage({ text: "Introduced in House", type: "IntroReferral" }), "introduced", "stage: introduced");
+eq(N.mapCongressActionToStage({ text: "Passed/agreed to in House: On passage Passed by recorded vote." }), "passed_house", "stage: passed_house");
+eq(N.mapCongressActionToStage({ text: "Became Public Law No: 119-1." }), "enacted", "stage: enacted");
+ok(N.mapCongressActionToStage({ text: "Motion to reconsider laid on the table Agreed to without objection." }) === null, "stage: procedural noise → null");
+const acts = N.normalizeCongressActions(
+  [
+    { text: "Became Public Law No: 119-1.", actionDate: "2025-01-29", sourceSystem: { code: 9 } },
+    { text: "Introduced in House", type: "IntroReferral", actionDate: "2025-01-03", sourceSystem: { code: 2 } },
+    { text: "Passed/agreed to in Senate", actionDate: "2025-01-20", sourceSystem: { code: 3 } },
+    { text: "Motion to reconsider laid on the table.", actionDate: "2025-01-29" },
+    { text: "Passed/agreed to in House: On passage Passed.", actionDate: "2025-01-07", sourceSystem: { code: 2 } },
+  ],
+  { fallbackSourceUrl: "https://www.congress.gov/bill/119th-congress/house-bill/29/all-actions" }
+);
+eq(acts.map((a) => a.stage), ["introduced", "passed_house", "passed_senate", "enacted"], "actions: milestones only, in travel order");
+ok(acts.every((a) => a.sourceUrl.includes("all-actions")), "actions: every row carries the citable source");
+ok(acts[0].chamber === "house" && acts[2].chamber === "senate", "actions: chamber resolved from source system");
+
 // ── Committed seed integrity ──────────────────────────────────────────────────
 const memberMap = JSON.parse(readFileSync(join(ROOT, "db/vr-member-map.json"), "utf8"));
 const slugs = Object.values(memberMap.map);

@@ -37,6 +37,29 @@
         { "issueKey": "voter_id", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Adds a citizenship-documentation requirement to voter registration." },
         { "issueKey": "voting_access", "weight": 60, "isPrimary": false, "supportMeaning": "yea_opposes", "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access." }
       ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Con.Res. 14",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14",
+      "issues": [
+        { "issueKey": "national_debt", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes." },
+        { "issueKey": "cut_spending", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Directs committees to find net spending reductions through reconciliation." },
+        { "issueKey": "lower_taxes", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Reserves reconciliation room to extend and expand the 2017 tax cuts." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 25",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/25",
+      "issues": [
+        { "issueKey": "gov_regulation", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Congressional Review Act resolution repealing the IRS reporting rule for decentralized-finance brokers; a yea rolls back the mandate." },
+        { "issueKey": "tech_innovation", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Supporters framed the rule as unworkable for decentralized software and a drag on U.S. crypto development." }
+      ]
     }
   ]
 }

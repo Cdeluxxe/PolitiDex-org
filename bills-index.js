@@ -39,5 +39,26 @@ window.PDX_BILLS_INDEX = [
     primaryIssue: 'gov_services',
     issueKeys: ['gov_services', 'strong_defense', 'cut_spending', 'national_debt'], isOmnibus: true,
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1968', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 22', title: 'Safeguard American Voter Eligibility (SAVE) Act', shortTitle: 'SAVE Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'election_integrity',
+    issueKeys: ['election_integrity', 'voter_id', 'voting_access'], isOmnibus: true,
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/22', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.Con.Res. 14', title: 'Establishing the congressional budget for fiscal year 2025', shortTitle: 'FY2025 Budget Resolution (reconciliation)',
+    measureType: 'resolution', chamber: 'house', congress: 119, status: 'passed_senate',
+    primaryIssue: 'national_debt',
+    issueKeys: ['national_debt', 'cut_spending', 'lower_taxes'], isOmnibus: true,
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.J.Res. 25', title: 'Congressional disapproval of the IRS digital-asset broker reporting rule', shortTitle: 'CRA — repeal IRS DeFi broker rule',
+    measureType: 'resolution', chamber: 'house', congress: 119, status: 'enacted',
+    primaryIssue: 'gov_regulation',
+    issueKeys: ['gov_regulation', 'tech_innovation'], isOmnibus: true,
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-joint-resolution/25', label: 'Congress.gov' }
   }
 ];
