@@ -8,6 +8,143 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Attorneys General (AG wave 1, July 2026)
+ "william_tong": {
+  "name": "William Tong",
+  "office": "State Attorney General",
+  "state": "Connecticut",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "phil_weiser": {
+  "name": "Phil Weiser",
+  "office": "State Attorney General",
+  "state": "Colorado",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Antitrust",
+   "Multistate Litigation",
+   "Opioids",
+   "Gun Safety"
+  ]
+ },
+ "nick_brown": {
+  "name": "Nick Brown",
+  "office": "State Attorney General",
+  "state": "Washington",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Immigration",
+   "Abortion Rights"
+  ]
+ },
+ "andrea_joy_campbell": {
+  "name": "Andrea Joy Campbell",
+  "office": "State Attorney General",
+  "state": "Massachusetts",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Housing",
+   "Gun Safety"
+  ]
+ },
+ "todd_rokita": {
+  "name": "Todd Rokita",
+  "office": "State Attorney General",
+  "state": "Indiana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Big Tech",
+   "Election Integrity"
+  ]
+ },
+ "tim_griffin": {
+  "name": "Tim Griffin",
+  "office": "State Attorney General",
+  "state": "Arkansas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Public Safety",
+   "Abortion"
+  ]
+ },
+ "austin_knudsen": {
+  "name": "Austin Knudsen",
+  "office": "State Attorney General",
+  "state": "Montana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Gun Rights",
+   "Energy",
+   "Abortion"
+  ]
+ },
+ "alan_wilson": {
+  "name": "Alan Wilson",
+  "office": "State Attorney General",
+  "state": "South Carolina",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Public Safety",
+   "Election Integrity"
+  ]
+ },
  "jimmie_hughes_stg": {
   "name": "Jimmie Hughes",
   "office": "Mayor, St. George",
