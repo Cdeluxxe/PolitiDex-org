@@ -92,13 +92,15 @@
     return null;
   }
 
-  // Phase 1 "open": surface the measure's canonical record. A card carries its own
-  // source (Congress.gov); when only a numeric id is known we resolve the source
-  // from /measure/:id. Always emits pdx:bill:open so a Phase-2 detail panel can hook
-  // in later without changing any caller.
+  // Open a bill. Phase 2: prefer the rich in-app detail panel (PDXBillDetail) when
+  // it's loaded; fall back to the Phase-1 behavior (open the canonical source in a
+  // new tab) when it isn't. Always emits pdx:bill:open for any other listener.
   function open(ref) {
     var card = findCard(ref);
     try { document.dispatchEvent(new CustomEvent('pdx:bill:open', { detail: { ref: ref, card: card } })); } catch (e) {}
+    if (window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
+      return window.PDXBillDetail.open(ref);
+    }
     if (card && card.source && card.source.url) { window.open(card.source.url, '_blank', 'noopener'); return true; }
     if (/^\d+$/.test(String(ref))) {
       get(ref).then(function (d) {
