@@ -2,7 +2,8 @@
 // Voting Record — scheduled ingest cron · Phase 7
 // ─────────────────────────────────────────────────────────────────────────────
 // Runs on a schedule and pulls the latest roll calls from Congress.gov into the
-// vr_* tables, then refreshes the affected members' offline packs. It lives
+// vr_* tables — including each affected measure's legislative-action timeline
+// (vr_measure_actions) — then refreshes the affected members' offline packs. It lives
 // entirely OFF the read path: the UI serves the curated seed regardless, and this
 // job simply layers more records on over time.
 //

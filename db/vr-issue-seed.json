@@ -37,6 +37,89 @@
         { "issueKey": "voter_id", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Adds a citizenship-documentation requirement to voter registration." },
         { "issueKey": "voting_access", "weight": 60, "isPrimary": false, "supportMeaning": "yea_opposes", "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access." }
       ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Con.Res. 14",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14",
+      "issues": [
+        { "issueKey": "national_debt", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes." },
+        { "issueKey": "cut_spending", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Directs committees to find net spending reductions through reconciliation." },
+        { "issueKey": "lower_taxes", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Reserves reconciliation room to extend and expand the 2017 tax cuts." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 25",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/25",
+      "issues": [
+        { "issueKey": "gov_regulation", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Congressional Review Act resolution repealing the IRS reporting rule for decentralized-finance brokers; a yea rolls back the mandate." },
+        { "issueKey": "tech_innovation", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Supporters framed the rule as unworkable for decentralized software and a drag on U.S. crypto development." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 37",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37",
+      "issues": [
+        { "issueKey": "tariffs_authority", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Reasserts congressional authority over tariffs by ending the emergency used to impose them; a yea rolls back the executive tariff action." },
+        { "issueKey": "econ_trade", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Removes the duties on Canadian imports; a yea favors lower trade barriers with a top trading partner." },
+        { "issueKey": "tariffs_prices", "weight": 55, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Supporters argued the tariffs raise costs for U.S. consumers and businesses; a yea removes them." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 59",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59",
+      "issues": [
+        { "issueKey": "restraint", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Requires congressional authorization before military action against Iran; a yea favors restraint and a congressional check on war-making." },
+        { "issueKey": "america_first_fp", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "A yea presses against open-ended involvement in a new Middle East conflict." },
+        { "issueKey": "strong_defense", "weight": 55, "isPrimary": false, "supportMeaning": "yea_opposes", "rationale": "Opponents held that constraining the commander-in-chief would weaken deterrence; a yea cuts against that view." }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 129",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/129",
+      "issues": [
+        { "issueKey": "tax_middle_class", "weight": 100, "isPrimary": true, "supportMeaning": "yea_supports", "rationale": "Exempts qualified tip income from federal income tax for tipped workers." },
+        { "issueKey": "cost_living", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Aims to raise take-home pay for service and hospitality workers." },
+        { "issueKey": "lower_taxes", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Reduces the federal tax burden on a category of earned income." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 88",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/88",
+      "issues": [
+        { "issueKey": "climate_action", "weight": 100, "isPrimary": true, "supportMeaning": "yea_opposes", "rationale": "Repeals the waiver behind California's EV sales mandate; a yea rolls back a major state climate rule." },
+        { "issueKey": "energy_production", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Supporters framed it as protecting consumer choice and gasoline-vehicle access." },
+        { "issueKey": "gov_regulation", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule." }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 89",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/89",
+      "issues": [
+        { "issueKey": "climate_action", "weight": 100, "isPrimary": true, "supportMeaning": "yea_opposes", "rationale": "Repeals the waiver behind California's zero-emission truck mandate; a yea rolls back a major state climate rule." },
+        { "issueKey": "energy_production", "weight": 70, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Supporters framed it as easing costs on trucking and freight." },
+        { "issueKey": "gov_regulation", "weight": 60, "isPrimary": false, "supportMeaning": "yea_supports", "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule." }
+      ]
     }
   ]
 }

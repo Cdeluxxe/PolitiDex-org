@@ -194,6 +194,128 @@ export function crossoverFlags(memberVotes: RawMemberVote[]): Map<RawMemberVote,
   return flags;
 }
 
+// ── Legislative actions (the "how it moved" timeline) ────────────────────────
+// A milestone step on a measure's path, normalized from a Congress.gov bill-actions
+// row into the vr_measure_actions shape. Purely factual: date, stage, chamber, a
+// plain-language line, and a citable source. Fed by fetchMeasureActions() in
+// vr-ingest.ts; this module stays dependency-free so the mapping is unit-testable.
+export type RawAction = {
+  stage: string;
+  chamber: string | null;
+  actionDate: string | null; // ISO or null
+  text: string;
+  sourceUrl: string;
+  sourceLabel?: string;
+};
+
+// Canonical timeline stages, in the order a bill travels. Used to order and de-dupe.
+export const ACTION_STAGE_ORDER: Record<string, number> = {
+  introduced: 10,
+  referred_committee: 15,
+  reported_committee: 20,
+  passed_house: 30,
+  passed_senate: 40,
+  resolving_differences: 50,
+  to_president: 60,
+  enacted: 70,
+  vetoed: 71,
+  veto_overridden: 72,
+  failed: 80,
+  other: 90,
+};
+
+// Which chamber does this Congress.gov action belong to? Prefers the explicit
+// sourceSystem code (1/2 = House, 3 = Senate) and falls back to the action text.
+export function chamberFromCongressAction(action: any): string | null {
+  const code = Number(action?.sourceSystem?.code);
+  if (code === 1 || code === 2) return "house";
+  if (code === 3) return "senate";
+  const t = String(action?.text || "").toLowerCase();
+  if (t.includes("house")) return "house";
+  if (t.includes("senate")) return "senate";
+  return null;
+}
+
+// Map one Congress.gov action to one of our milestone stages, or null to DROP it
+// (we keep only the milestones a timeline should show, never every procedural line).
+// Conservative and text-driven so an unexpected shape simply yields no milestone.
+export function mapCongressActionToStage(action: any): string | null {
+  const t = String(action?.text || "").toLowerCase();
+  const type = String(action?.type || "").toLowerCase();
+  if (!t) return null;
+  if (t.includes("became public law") || t.includes("signed by president")) return "enacted";
+  if (t.includes("passed over president") || t.includes("veto overridden")) return "veto_overridden";
+  if (t.includes("vetoed by president")) return "vetoed";
+  if (t.includes("presented to president")) return "to_president";
+  if (t.includes("resolving differences") || (t.includes("agreed to") && t.includes("amendment") && (t.includes("house") || t.includes("senate")) && !t.includes("passed"))) return "resolving_differences";
+  if (t.includes("passed/agreed to in house") || t.includes("passed house") || (t.includes("on passage") && t.includes("house") && t.includes("passed"))) return "passed_house";
+  if (t.includes("passed/agreed to in senate") || t.includes("passed senate") || (t.includes("on passage") && t.includes("senate") && t.includes("passed"))) return "passed_senate";
+  if (t.includes("failed of passage") || t.includes("failed to pass") || t.includes("motion to proceed") && t.includes("rejected")) return "failed";
+  if (t.includes("reported by") || t.includes("ordered to be reported") || t.includes("reported (") ) return "reported_committee";
+  if (type === "introreferral" || t.startsWith("introduced") || t.includes("introduced in")) return "introduced";
+  if (t.includes("referred to") && type === "committee") return "referred_committee";
+  return null; // not a milestone — dropped
+}
+
+// Normalize a Congress.gov `actions` array into an ordered, de-duplicated set of
+// milestone RawActions. One row per stage (the earliest dated occurrence wins for a
+// stage that repeats, e.g. multiple "referred" lines). Every row carries a source:
+// the individual action rarely has its own URL, so `fallbackSourceUrl` (the bill's
+// all-actions page) is used, which is always citable.
+export function normalizeCongressActions(
+  rawActions: any[],
+  opts: { fallbackSourceUrl: string; sourceLabel?: string }
+): RawAction[] {
+  if (!Array.isArray(rawActions) || !opts?.fallbackSourceUrl) return [];
+  const byStage = new Map<string, RawAction>();
+  for (const a of rawActions) {
+    const stage = mapCongressActionToStage(a);
+    if (!stage) continue;
+    const dateRaw = a?.actionDate || a?.date || null;
+    let actionDate: string | null = null;
+    if (dateRaw) {
+      const d = new Date(dateRaw);
+      if (!Number.isNaN(d.getTime())) actionDate = d.toISOString();
+    }
+    const row: RawAction = {
+      stage,
+      chamber: chamberFromCongressAction(a),
+      actionDate,
+      text: String(a?.text || "").slice(0, 500),
+      sourceUrl: opts.fallbackSourceUrl,
+      sourceLabel: opts.sourceLabel || "Congress.gov",
+    };
+    const prev = byStage.get(stage);
+    // Keep the earliest dated occurrence of a stage (a stage is a first-crossing).
+    if (!prev) { byStage.set(stage, row); continue; }
+    const pt = prev.actionDate ? new Date(prev.actionDate).getTime() : Infinity;
+    const nt = row.actionDate ? new Date(row.actionDate).getTime() : Infinity;
+    if (nt < pt) byStage.set(stage, row);
+  }
+  return [...byStage.values()].sort(
+    (x, y) => (ACTION_STAGE_ORDER[x.stage] ?? 99) - (ACTION_STAGE_ORDER[y.stage] ?? 99)
+  );
+}
+
+// Split a canonical measure number ("H.R. 25", "S. 1582", "H.J.Res. 25") into the
+// Congress.gov bill-type slug and numeric part, or null when it isn't a bill/
+// resolution/amendment number (e.g. a nomination label like "Patel — FBI").
+const NUMBER_TO_SLUG: Record<string, string> = {
+  "h.r.": "hr", "s.": "s",
+  "h.res.": "hres", "s.res.": "sres",
+  "h.j.res.": "hjres", "s.j.res.": "sjres",
+  "h.con.res.": "hconres", "s.con.res.": "sconres",
+  "h.amdt.": "hamdt", "s.amdt.": "samdt",
+};
+export function splitMeasureNumber(canonical: string | null | undefined): { billType: string; num: string } | null {
+  if (!canonical) return null;
+  const m = String(canonical).trim().match(/^([A-Za-z.]+)\s*(\d+)$/);
+  if (!m) return null;
+  const slug = NUMBER_TO_SLUG[m[1].toLowerCase()];
+  if (!slug) return null;
+  return { billType: slug, num: m[2] };
+}
+
 // Conservative keyword classifier: suggest ONE issue for a measure when exactly one
 // issue's keywords clearly match its title. Callers mark the row as auto-suggested
 // and never let it overwrite a curated mapping.

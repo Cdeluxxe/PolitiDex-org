@@ -88,16 +88,29 @@
   // ── section builders ────────────────────────────────────────────────────────
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
-    var lead = issues.length >= 2
-      ? 'This bill bundles <strong>' + issues.length + ' issues</strong> into one vote — so a single Yea or Nay is really a decision on each of these.'
+    // Primary first, then heaviest-weighted, so the breakdown reads in order of import.
+    var ordered = issues.slice().sort(function (a, b) {
+      return (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0) || (b.weight || 0) - (a.weight || 0);
+    });
+    var adv = 0, opp = 0;
+    ordered.forEach(function (it) { if (it.supportMeaning === 'yea_opposes') opp++; else adv++; });
+    var lead = ordered.length >= 2
+      ? 'This bill bundles <strong>' + ordered.length + ' issues</strong> into one vote — so a single Yea or Nay is really a decision on each of these.'
       : 'This is a single-issue measure.';
-    var rows = issues.map(function (it) {
+    // At-a-glance summary of which way a Yea cuts across the bundle.
+    var summary = ordered.length >= 2
+      ? '<div class="bd-omni-summary">' +
+          '<span class="bd-eff bd-eff-adv">▲ Advances ' + adv + '</span>' +
+          (opp ? '<span class="bd-eff bd-eff-opp">▼ Cuts against ' + opp + '</span>' : '') +
+        '</div>'
+      : '';
+    var rows = ordered.map(function (it) {
       var opposes = it.supportMeaning === 'yea_opposes';
       var effCls = opposes ? 'bd-eff-opp' : 'bd-eff-adv';
       var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
-      return '<div class="bd-omni-row">' +
+      return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '">' +
         '<div class="bd-omni-head">' +
-          '<span class="bd-omni-issue">' + esc(issueLabel(it.issueKey)) + '</span>' +
+          '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
           (it.isPrimary ? '<span class="bd-omni-primary">Primary</span>' : '') +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
@@ -105,7 +118,7 @@
       '</div>';
     }).join('');
     return '<section class="bd-sec"><h3 class="bd-h">📦 What’s inside this vote</h3>' +
-      '<p class="bd-lead">' + lead + '</p>' + rows + '</section>';
+      '<p class="bd-lead">' + lead + '</p>' + summary + rows + '</section>';
   }
 
   function rollcallsSection(m, issues, rollcalls) {
@@ -186,6 +199,37 @@
     return '<section class="bd-sec"><h3 class="bd-h">✍️ Sponsors &amp; cosponsors</h3><div class="bd-people">' + chips + '</div></section>';
   }
 
+  // Key member actions that aren't roll-call votes or sponsorships: on-record
+  // statements, committee votes, amicus briefs, litigation. Surfaces vr_positions the
+  // sponsors section doesn't (e.g., the bipartisan authors of an amendment), each with
+  // its note and source. Degrades to nothing when there are none.
+  var ACTION_LABEL = {
+    statement: 'On record', committee_vote: 'Committee vote', amicus: 'Amicus brief',
+    plaintiff: 'Plaintiff', cosponsor: 'Cosponsor', sponsor: 'Sponsor'
+  };
+  function memberActionsSection(m, positions) {
+    var rows = (positions || []).filter(function (p) {
+      return p.actionType && p.actionType !== 'sponsor' && p.actionType !== 'cosponsor';
+    });
+    if (!rows.length) return '';
+    var html = rows.map(function (p) {
+      var eff = (p.supports === true)
+        ? '<span class="bd-eff bd-eff-adv">Supported</span>'
+        : (p.supports === false ? '<span class="bd-eff bd-eff-opp">Opposed</span>' : '');
+      var src = (p.source && p.source.url)
+        ? '<a class="bd-src" href="' + escAttr(p.source.url) + '" target="_blank" rel="noopener">🔗 source</a>' : '';
+      return '<div class="bd-omni-row">' +
+        '<div class="bd-omni-head">' +
+          '<button type="button" class="bd-vote-name" data-pid="' + escAttr(p.politicianId) + '">' + esc(nameFor(p.politicianId)) + '</button>' +
+          '<span class="bd-prov-tag">' + esc(ACTION_LABEL[p.actionType] || p.actionType) + '</span>' + eff +
+        '</div>' +
+        (p.note ? '<div class="bd-omni-why">' + esc(p.note) + ' ' + src + '</div>' : (src ? '<div class="bd-omni-why">' + src + '</div>' : '')) +
+      '</div>';
+    }).join('');
+    return '<section class="bd-sec"><h3 class="bd-h">🧭 Key member actions</h3>' +
+      '<p class="bd-lead">On-record actions by members on this measure beyond a floor roll call.</p>' + html + '</section>';
+  }
+
   var STAGE_LABEL = {
     introduced: 'Introduced', referred_committee: 'Referred to committee',
     reported_committee: 'Reported from committee', passed_house: 'Passed House',
@@ -254,7 +298,20 @@
 
   function relatedSection(m, issues) {
     var parts = [];
-    // Issue Spotlights tied to any of this bill's component issues.
+    // Explore-these-issues jump chips + a link back into the Legislation library,
+    // filtered to this bill's primary issue. Always available when the bill has issues.
+    if (issues && issues.length) {
+      var primaryKey = (issues.find(function (i) { return i.isPrimary; }) || issues[0] || {}).issueKey || '';
+      var chips = issues.slice(0, 8).map(function (it) {
+        return '<button type="button" class="bd-person bd-issuejump" data-issue="' + escAttr(it.issueKey) + '">' +
+          '<span class="bd-person-name">🔎 ' + esc(issueLabel(it.issueKey)) + '</span>' +
+          '<span class="bd-person-role">Issue spotlight</span></button>';
+      }).join('');
+      parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Explore these issues</div><div class="bd-people">' + chips + '</div>' +
+        (primaryKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(primaryKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
+      '</div>');
+    }
+    // Issue Spotlights tied to any of this bill's component issues (when available).
     try {
       var sp = G('PDXSpotlight');
       if (sp && typeof sp.forIssueKey === 'function') {
@@ -275,7 +332,18 @@
       }
     } catch (e) {}
     if (!parts.length) return '';
-    return '<section class="bd-sec"><h3 class="bd-h">🔗 Related</h3>' + parts.join('') + '</section>';
+    return '<section class="bd-sec"><h3 class="bd-h">🔗 Related &amp; explore</h3>' + parts.join('') + '</section>';
+  }
+
+  // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
+  function openIssue(key) {
+    if (!key) return;
+    try { if (window.PDXIssueView && window.PDXIssueView.open) { close(); window.PDXIssueView.open(key); return; } } catch (e) {}
+    try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'library', issue: key }); return; } } catch (e) {}
+  }
+  // Jump into the Legislation library filtered by an issue.
+  function browseLegislation(key) {
+    try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'legislation', issue: key || '' }); return; } } catch (e) {}
   }
 
   // ── render ──────────────────────────────────────────────────────────────────
@@ -312,6 +380,7 @@
       provisionsSection(m, data.provisions) +
       rollcallsSection(m, issues, data.rollcalls) +
       sponsorsSection(m, data.positions) +
+      memberActionsSection(m, data.positions) +
       timelineSection(m, data.rollcalls, data.actions) +
       relatedSection(m, issues);
   }
@@ -338,6 +407,10 @@
       if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
+      var ib = e.target.closest ? e.target.closest('[data-issue]') : null;
+      if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
+      var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
+      if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
       var fb = e.target.closest ? e.target.closest('[data-bd-follow]') : null;
       if (fb) { toggleFollow(fb); return; }
       var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
@@ -357,11 +430,38 @@
     btn.innerHTML = on ? '★ Following' : '☆ Follow this bill';
   }
 
-  // Copy a stable, shareable deep link to this bill (congress + number).
+  // A stable, shareable deep link to this bill (congress + number).
+  function shareUrl() {
+    if (!_current) return location.href;
+    return location.origin + location.pathname +
+      '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+  }
+  // Reflect the open bill in the URL without triggering the hashchange handler
+  // (history.replaceState does not fire hashchange), so a shared/refreshed link
+  // reopens the panel while ordinary opens stay loop-free.
+  function syncHash() {
+    if (!_current) return;
+    try {
+      var h = '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+      if (location.hash !== h) history.replaceState(null, '', location.pathname + location.search + h);
+    } catch (e) {}
+  }
+  function clearHash() {
+    try { if (/^#bill\//.test(location.hash || '')) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  }
+
+  // Share the bill: use the native share sheet on touch devices, and fall back to
+  // copying the deep link to the clipboard (with a prompt of last resort).
   function share(btn) {
     if (!_current) return;
-    var url = location.origin + location.pathname +
-      '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+    var url = shareUrl();
+    var title = _current.number ? (_current.number + ' — ' + _current.title) : (_current.title || 'Bill');
+    var coarse = false;
+    try { coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches; } catch (e) {}
+    if (navigator.share && coarse) {
+      try { navigator.share({ title: title, text: title, url: url }).catch(function () {}); return; }
+      catch (e) {}
+    }
     var done = function () { var t = btn.innerHTML; btn.innerHTML = '✓ Link copied'; setTimeout(function () { btn.innerHTML = t; }, 1600); };
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); return; }
@@ -380,6 +480,7 @@
     var ov = document.getElementById('pdx-bd-overlay');
     if (ov) ov.hidden = true;
     document.documentElement.classList.remove('bd-lock');
+    clearHash();
   }
 
   function renderLoading() { show('<div class="bd-loading"><span class="bd-spin"></span> Loading bill…</div>'); }
@@ -402,7 +503,7 @@
     resolveId(ref, bills).then(function (id) {
       if (id == null) { renderError(findByNumber((bills.listSync ? bills.listSync().items : []), ref)); return; }
       bills.get(id).then(function (data) {
-        if (data && data.measure) show(bodyHtml(data));
+        if (data && data.measure) { show(bodyHtml(data)); syncHash(); }
         else renderError(null);
       });
     });
@@ -457,8 +558,14 @@
       '.bd-lead{font:500 .86rem/1.5 "Barlow",sans-serif;color:#9fb4d4;margin:0 0 .8rem;}' +
       '.bd-empty,.bd-note{font:500 .82rem/1.5 "Barlow",sans-serif;color:#8aa0c4;}' +
       '.bd-omni-row{border:1px solid rgba(159,180,212,.12);border-left:3px solid rgba(96,165,250,.5);border-radius:.6rem;padding:.6rem .7rem;margin-bottom:.5rem;background:rgba(255,255,255,.02);}' +
+      '.bd-omni-opp{border-left-color:rgba(251,146,60,.55);}' +
+      '.bd-omni-summary{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .8rem;}' +
       '.bd-omni-head{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;}' +
       '.bd-omni-issue{font:700 .9rem/1.2 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
+      '.bd-omni-link{background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(126,180,255,.35);text-underline-offset:2px;}' +
+      '.bd-omni-link:hover{color:#9ec8ff;text-decoration-color:#9ec8ff;}' +
+      '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
+      '.bd-legis{margin-top:.6rem;display:inline-block;}' +
       '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +
@@ -509,7 +616,11 @@
       '.bd-tl-label{font:600 .86rem/1.3 "Barlow",sans-serif;color:#e6eefc;}' +
       '.bd-tl-label a{color:#9ec8ff;text-decoration:none;}.bd-tl-label a:hover{text-decoration:underline;}' +
       '.bd-tl-sub{font:500 .72rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
-      '@media (max-width:640px){.bd-panel{width:100vw;max-height:100vh;margin:0;border-radius:0;}.bd-scroll{padding:1.1rem 1rem 2rem;}}' +
+      '@media (max-width:640px){.bd-panel{width:100vw;max-height:100vh;margin:0;border-radius:0;}.bd-scroll{padding:1.1rem 1rem 2rem;}' +
+        '.bd-actions{gap:.4rem;}.bd-actions .bd-btn{flex:1 1 auto;text-align:center;}' +
+        '.bd-rc{padding:.6rem .6rem;}.bd-rc-head{flex-direction:column;align-items:flex-start;gap:.15rem;}' +
+        '.bd-vote-row,.bd-vote-sum{flex-wrap:wrap;}.bd-pos{margin-left:auto;}' +
+        '.bd-svd-mini{margin-left:0;flex-basis:100%;}.bd-title{font-size:1.35rem;}}' +
       // Phase 3: follow/share actions + provision tag.
       '.bd-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0 .2rem;}' +
       '.bd-btn{cursor:pointer;font:700 .74rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;' +
@@ -535,6 +646,10 @@
     if (!m) return;
     var congress = decodeURIComponent(m[1] || '');
     var number = decodeURIComponent(m[2] || '');
+    // Already showing this bill (e.g. we just set the hash on open) — do nothing.
+    var ov = document.getElementById('pdx-bd-overlay');
+    if (ov && !ov.hidden && _current && _current.number === number &&
+        String(_current.congress || '') === String(congress || '')) return;
     var bills = G('PDXBills');
     if (!bills || !bills.list) { return; }
     bills.list({ pageSize: 100, congress: congress || undefined }).then(function (d) {

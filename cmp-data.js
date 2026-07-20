@@ -8,6 +8,984 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — complete Chellie Pingree (July 2026)
+ "chellie_pingree": {
+  "name": "Chellie Pingree",
+  "office": "U.S. Representative",
+  "state": "Maine",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🌾",
+  "issues": [
+   "Agriculture",
+   "Environment",
+   "Appropriations",
+   "Organic Farming"
+  ]
+ },
+// National — Lieutenant Governors (Lt. Gov wave 1, July 2026)
+ "garlin_gilchrist": {
+  "name": "Garlin Gilchrist",
+  "office": "Lieutenant Governor",
+  "state": "Michigan",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Economic Mobility",
+   "Infrastructure",
+   "Housing",
+   "Check on D.C."
+  ]
+ },
+ "austin_davis": {
+  "name": "Austin Davis",
+  "office": "Lieutenant Governor",
+  "state": "Pennsylvania",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Labor",
+   "Gun Safety",
+   "Transit",
+   "Community Safety"
+  ]
+ },
+ "eleni_kounalakis": {
+  "name": "Eleni Kounalakis",
+  "office": "Lieutenant Governor",
+  "state": "California",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Climate",
+   "Housing",
+   "Higher Education",
+   "Trade"
+  ]
+ },
+ "peggy_flanagan": {
+  "name": "Peggy Flanagan",
+  "office": "Lieutenant Governor",
+  "state": "Minnesota",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Children & Families",
+   "Tribal Affairs",
+   "Paid Leave",
+   "Health Care"
+  ]
+ },
+ "burt_jones": {
+  "name": "Burt Jones",
+  "office": "Lieutenant Governor",
+  "state": "Georgia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Tax Cuts",
+   "Public Safety",
+   "School Choice",
+   "Elections"
+  ]
+ },
+ "delbert_hosemann": {
+  "name": "Delbert Hosemann",
+  "office": "Lieutenant Governor",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 54,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Education Funding",
+   "Fiscal Restraint",
+   "Health Care",
+   "Infrastructure"
+  ]
+ },
+ "matt_pinnell": {
+  "name": "Matt Pinnell",
+  "office": "Lieutenant Governor",
+  "state": "Oklahoma",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Tourism & Small Business",
+   "School Choice",
+   "Taxes",
+   "Workforce"
+  ]
+ },
+ "jim_tressel": {
+  "name": "Jim Tressel",
+  "office": "Lieutenant Governor",
+  "state": "Ohio",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🏛",
+  "issues": [
+   "Workforce & Education",
+   "Economic Development",
+   "Public Service",
+   "Higher Education"
+  ]
+ },
+// National — state Secretaries of State (SoS wave 2, July 2026)
+ "shirley_weber": {
+  "name": "Shirley Weber",
+  "office": "Secretary of State",
+  "state": "California",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "jena_griswold": {
+  "name": "Jena Griswold",
+  "office": "Secretary of State",
+  "state": "Colorado",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Security",
+   "Election Workers",
+   "Democracy"
+  ]
+ },
+ "steve_hobbs": {
+  "name": "Steve Hobbs",
+  "office": "Secretary of State",
+  "state": "Washington",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Election Security",
+   "Voting Access",
+   "Disinformation"
+  ]
+ },
+ "maggie_toulouse_oliver": {
+  "name": "Maggie Toulouse Oliver",
+  "office": "Secretary of State",
+  "state": "New Mexico",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Transparency",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "jane_nelson_tx": {
+  "name": "Jane Nelson",
+  "office": "Secretary of State",
+  "state": "Texas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Voter Rolls",
+   "Election Integrity",
+   "Business"
+  ]
+ },
+ "diego_morales": {
+  "name": "Diego Morales",
+  "office": "Secretary of State",
+  "state": "Indiana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID",
+   "Business"
+  ]
+ },
+ "michael_watson_ms": {
+  "name": "Michael Watson",
+  "office": "Secretary of State",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Voter ID",
+   "Election Integrity",
+   "Access Debate"
+  ]
+ },
+ "michael_adams_ky": {
+  "name": "Michael Adams",
+  "office": "Secretary of State",
+  "state": "Kentucky",
+  "party": "R",
+  "score": 54,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Bipartisan Access",
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID"
+  ]
+ },
+// National — state Attorneys General (AG wave 5, completes all 50, July 2026)
+ "marty_jackley": {
+  "name": "Marty Jackley",
+  "office": "State Attorney General",
+  "state": "South Dakota",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection",
+   "Abortion"
+  ]
+ },
+ "jay_jones": {
+  "name": "Jay Jones",
+  "office": "State Attorney General",
+  "state": "Virginia",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Abortion Rights",
+   "Criminal Justice"
+  ]
+ },
+// National — state Secretaries of State (SoS wave 1, July 2026)
+ "jocelyn_benson": {
+  "name": "Jocelyn Benson",
+  "office": "Secretary of State",
+  "state": "Michigan",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "adrian_fontes": {
+  "name": "Adrian Fontes",
+  "office": "Secretary of State",
+  "state": "Arizona",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Voting Access",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "cisco_aguilar": {
+  "name": "Cisco Aguilar",
+  "office": "Secretary of State",
+  "state": "Nevada",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Workers",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "steve_simon": {
+  "name": "Steve Simon",
+  "office": "Secretary of State",
+  "state": "Minnesota",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "brad_raffensperger": {
+  "name": "Brad Raffensperger",
+  "office": "Secretary of State",
+  "state": "Georgia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "2020 Certification",
+   "Voter ID",
+   "Election Integrity",
+   "Voter Rolls"
+  ]
+ },
+ "frank_larose": {
+  "name": "Frank LaRose",
+  "office": "Secretary of State",
+  "state": "Ohio",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter ID",
+   "Election Integrity",
+   "Ballot Measures",
+   "Voter Rolls"
+  ]
+ },
+ "al_schmidt": {
+  "name": "Al Schmidt",
+  "office": "Secretary of State",
+  "state": "Pennsylvania",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "2020 Defense",
+   "Election Integrity",
+   "Voting Access",
+   "Bipartisanship"
+  ]
+ },
+ "wes_allen": {
+  "name": "Wes Allen",
+  "office": "Secretary of State",
+  "state": "Alabama",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID",
+   "Access Debate"
+  ]
+ },
+// National — state Attorneys General (AG wave 4, July 2026)
+ "ken_paxton": {
+  "name": "Ken Paxton",
+  "office": "State Attorney General",
+  "state": "Texas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Immigration",
+   "Abortion",
+   "Energy"
+  ]
+ },
+ "matthew_platkin": {
+  "name": "Matthew Platkin",
+  "office": "State Attorney General",
+  "state": "New Jersey",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Gun Safety",
+   "Consumer Protection",
+   "Civil Rights"
+  ]
+ },
+ "treg_taylor": {
+  "name": "Treg Taylor",
+  "office": "State Attorney General",
+  "state": "Alaska",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy & Lands",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
+ "derek_brown_ut": {
+  "name": "Derek Brown",
+  "office": "State Attorney General",
+  "state": "Utah",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Lands",
+   "Public Safety",
+   "Tech & Kids"
+  ]
+ },
+ "catherine_hanaway": {
+  "name": "Catherine Hanaway",
+  "office": "State Attorney General",
+  "state": "Missouri",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Abortion",
+   "Consumer Protection"
+  ]
+ },
+ "bridget_hill": {
+  "name": "Bridget Hill",
+  "office": "State Attorney General",
+  "state": "Wyoming",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Energy & Lands",
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
+// National — state Attorneys General (AG wave 3, July 2026)
+ "russell_coleman": {
+  "name": "Russell Coleman",
+  "office": "State Attorney General",
+  "state": "Kentucky",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Abortion",
+   "Consumer Protection"
+  ]
+ },
+ "mike_hilgers": {
+  "name": "Mike Hilgers",
+  "office": "State Attorney General",
+  "state": "Nebraska",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Energy & Ag",
+   "Public Safety"
+  ]
+ },
+ "john_formella": {
+  "name": "John Formella",
+  "office": "State Attorney General",
+  "state": "New Hampshire",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection",
+   "Elections"
+  ]
+ },
+ "jb_mccuskey": {
+  "name": "JB McCuskey",
+  "office": "State Attorney General",
+  "state": "West Virginia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Energy",
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
+ "peter_neronha": {
+  "name": "Peter Neronha",
+  "office": "State Attorney General",
+  "state": "Rhode Island",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Health Care",
+   "Gun Safety",
+   "Environment"
+  ]
+ },
+ "charity_clark": {
+  "name": "Charity Clark",
+  "office": "State Attorney General",
+  "state": "Vermont",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "aaron_frey": {
+  "name": "Aaron Frey",
+  "office": "State Attorney General",
+  "state": "Maine",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "anne_lopez": {
+  "name": "Anne Lopez",
+  "office": "State Attorney General",
+  "state": "Hawaii",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Gun Safety",
+   "Consumer Protection",
+   "Environment"
+  ]
+ },
+// National — state Attorneys General (AG wave 2, July 2026)
+ "steve_marshall": {
+  "name": "Steve Marshall",
+  "office": "State Attorney General",
+  "state": "Alabama",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Public Safety",
+   "Energy"
+  ]
+ },
+ "gentner_drummond": {
+  "name": "Gentner Drummond",
+  "office": "State Attorney General",
+  "state": "Oklahoma",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Criminal Justice",
+   "Public Safety"
+  ]
+ },
+ "drew_wrigley": {
+  "name": "Drew Wrigley",
+  "office": "State Attorney General",
+  "state": "North Dakota",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Public Safety",
+   "Abortion"
+  ]
+ },
+ "lynn_fitch": {
+  "name": "Lynn Fitch",
+  "office": "State Attorney General",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Abortion",
+   "Federal Pushback",
+   "Consumer Protection",
+   "Human Trafficking"
+  ]
+ },
+ "anthony_brown": {
+  "name": "Anthony Brown",
+  "office": "State Attorney General",
+  "state": "Maryland",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Civil Rights",
+   "Gun Safety",
+   "Consumer Protection"
+  ]
+ },
+ "dan_rayfield": {
+  "name": "Dan Rayfield",
+  "office": "State Attorney General",
+  "state": "Oregon",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Abortion Rights",
+   "Environment"
+  ]
+ },
+ "raul_torrez": {
+  "name": "Raúl Torrez",
+  "office": "State Attorney General",
+  "state": "New Mexico",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Public Safety",
+   "Child Safety",
+   "Abortion Rights"
+  ]
+ },
+ "kathy_jennings": {
+  "name": "Kathy Jennings",
+  "office": "State Attorney General",
+  "state": "Delaware",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Criminal Justice"
+  ]
+ },
+// National — state Attorneys General (AG wave 1, July 2026)
+ "william_tong": {
+  "name": "William Tong",
+  "office": "State Attorney General",
+  "state": "Connecticut",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "phil_weiser": {
+  "name": "Phil Weiser",
+  "office": "State Attorney General",
+  "state": "Colorado",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Antitrust",
+   "Multistate Litigation",
+   "Opioids",
+   "Gun Safety"
+  ]
+ },
+ "nick_brown": {
+  "name": "Nick Brown",
+  "office": "State Attorney General",
+  "state": "Washington",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Immigration",
+   "Abortion Rights"
+  ]
+ },
+ "andrea_joy_campbell": {
+  "name": "Andrea Joy Campbell",
+  "office": "State Attorney General",
+  "state": "Massachusetts",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Housing",
+   "Gun Safety"
+  ]
+ },
+ "todd_rokita": {
+  "name": "Todd Rokita",
+  "office": "State Attorney General",
+  "state": "Indiana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Big Tech",
+   "Election Integrity"
+  ]
+ },
+ "tim_griffin": {
+  "name": "Tim Griffin",
+  "office": "State Attorney General",
+  "state": "Arkansas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy",
+   "Public Safety",
+   "Abortion"
+  ]
+ },
+ "austin_knudsen": {
+  "name": "Austin Knudsen",
+  "office": "State Attorney General",
+  "state": "Montana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Gun Rights",
+   "Energy",
+   "Abortion"
+  ]
+ },
+ "alan_wilson": {
+  "name": "Alan Wilson",
+  "office": "State Attorney General",
+  "state": "South Carolina",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Public Safety",
+   "Election Integrity"
+  ]
+ },
  "jimmie_hughes_stg": {
   "name": "Jimmie Hughes",
   "office": "Mayor, St. George",
