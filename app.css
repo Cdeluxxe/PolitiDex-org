@@ -18148,3 +18148,9 @@
 .card-holo { content-visibility: auto; contain-intrinsic-size: auto 360px; }
 .vr-row { content-visibility: auto; contain-intrinsic-size: auto 76px; }
 .chub-card, .el-issue-card { content-visibility: auto; contain-intrinsic-size: auto 300px; }
+
+
+/* ── Run 4 smoothness: snappier taps on controls. touch-action:manipulation */
+/* drops the double-tap-zoom wait on buttons/links so taps register instantly   */
+/* (viewport already removes the 300ms delay). Allows normal scroll/pan/pinch.  */
+button, [role="button"], a, .btn, summary, label[for] { touch-action: manipulation; }
