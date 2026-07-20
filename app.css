@@ -18138,3 +18138,13 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 700px;
 }
+
+
+/* ── Run 3 perf: PER-CARD/ROW containment (extends Run 1 container-level). */
+/* content-visibility:auto lets the browser skip layout+paint for OFF-SCREEN */
+/* cards/rows inside a long on-screen list (the paint-level form of windowing). */
+/* Visible cards render normally; contain-intrinsic-size (auto+fallback) keeps  */
+/* the scrollbar stable. Purely additive and reversible — no DOM/JS change.     */
+.card-holo { content-visibility: auto; contain-intrinsic-size: auto 360px; }
+.vr-row { content-visibility: auto; contain-intrinsic-size: auto 76px; }
+.chub-card, .el-issue-card { content-visibility: auto; contain-intrinsic-size: auto 300px; }
