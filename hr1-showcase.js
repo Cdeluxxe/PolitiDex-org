@@ -85,13 +85,24 @@
   /* ── curated, sourced story data ─────────────────────────────────────────── */
   // Plain-language facts about what H.R.1 bundles, each tagged with the promise a
   // "yes" tends to KEEP (kept) or CUT AGAINST (broken). This is the omnibus split
-  // the contradiction engine encodes — shown, not just asserted.
+  // the contradiction engine encodes — shown, not just asserted. Each provision now
+  // also carries `keys`: the exact ISSUE_MAP issue keys this provision maps to in the
+  // Voting Record (vr_measure_issues), so the curated story here uses the SAME
+  // vocabulary as the per-issue say-vs-do breakdown a member's profile shows — the
+  // showcase and the record can never drift apart.
+  var OMNI_ISSUE_LABEL = {
+    lower_taxes: 'Lower taxes', tax_middle_class: 'Middle-class taxes', cut_spending: 'Cut spending',
+    healthcare: 'Healthcare access', border_security: 'Border security', deportations: 'Deportations',
+    national_debt: 'National debt', climate_action: 'Climate action', energy_production: 'Energy production',
+    lands_energy: 'Federal-land energy', family_support: 'Family support', strong_defense: 'Defense',
+    school_choice: 'School choice', edu_college_cost: 'College costs'
+  };
   var OMNIBUS = [
-    { ico: '💵', title: 'Tax cuts extended', dir: 'kept',
+    { ico: '💵', title: 'Tax cuts extended', dir: 'kept', keys: ['lower_taxes', 'tax_middle_class'],
       body: 'Makes the 2017 individual income-tax rates and other expiring tax provisions permanent.',
       keeps: 'A “yes” delivers on a cut-taxes promise.',
       src: { label: 'Congress.gov · H.R.1', url: 'https://www.congress.gov/bill/119th-congress/house-bill/1' } },
-    { ico: '🏥', title: 'Medicaid funding cut', dir: 'broken',
+    { ico: '🏥', title: 'Medicaid funding cut', dir: 'broken', keys: ['healthcare'],
       body: 'Reduces federal Medicaid spending and adds new eligibility and work requirements.',
       keeps: 'A “yes” cuts against a protect-health-care promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
@@ -99,16 +110,16 @@
       body: 'Narrows SNAP eligibility and shifts more of the cost onto the states.',
       keeps: 'A “yes” cuts against a protect-food-assistance promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
-    { ico: '🛂', title: 'Border enforcement funded', dir: 'kept',
+    { ico: '🛂', title: 'Border enforcement funded', dir: 'kept', keys: ['border_security', 'deportations'],
       body: 'Adds major funding for border security and immigration enforcement.',
       keeps: 'A “yes” delivers on a secure-the-border promise.',
       src: { label: 'Congress.gov · H.R.1', url: 'https://www.congress.gov/bill/119th-congress/house-bill/1' } },
-    { ico: '📈', title: '≈ $3.8T added to deficits', dir: 'broken',
+    { ico: '📈', title: '≈ $3.8T added to deficits', dir: 'broken', keys: ['national_debt'],
       body: 'CBO estimated the package would add roughly $3.8 trillion to federal deficits over ten years.',
       keeps: 'A “yes” cuts against a fiscal-hawk / cut-the-debt promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
-    { ico: '⚡', title: 'Clean-energy credits rolled back', dir: 'mixed',
-      body: 'Phases out several clean-energy tax credits enacted in 2022.',
+    { ico: '⚡', title: 'Clean-energy credits rolled back', dir: 'mixed', keys: ['climate_action', 'energy_production'],
+      body: 'Phases out several clean-energy tax credits enacted in 2022 while expanding fossil-fuel leasing.',
       keeps: 'A “yes” keeps or breaks a promise depending on where the member stood.',
       src: { label: 'Congress.gov · H.R.1', url: 'https://www.congress.gov/bill/119th-congress/house-bill/1' } }
   ];
@@ -223,10 +234,20 @@
       : p.dir === 'broken'
         ? '<span class="hr1-omni-tag is-cut">▼ Cuts against a promise</span>'
         : '<span class="hr1-omni-tag is-mix">◆ Depends on the member</span>';
+    // Issue chips tie this provision to the exact issues it becomes a say-vs-do
+    // verdict on in each member's Voting Record — same vocabulary, connected dots.
+    var chips = (Array.isArray(p.keys) && p.keys.length)
+      ? '<div class="hr1-omni-keys" style="display:flex;flex-wrap:wrap;gap:.3rem;margin:.1rem 0 .45rem;">' +
+          p.keys.map(function (k) {
+            return '<span style="font:600 .6rem/1.1 \'Barlow Condensed\',sans-serif;letter-spacing:.03em;color:#9fb4d4;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:.14rem .5rem;">#' + esc(OMNI_ISSUE_LABEL[k] || k) + '</span>';
+          }).join('') +
+        '</div>'
+      : '';
     return '<div class="hr1-omni-card hr1-' + p.dir + '">' +
         '<div class="hr1-omni-top"><span class="hr1-omni-ico" aria-hidden="true">' + p.ico + '</span>' + badge + '</div>' +
         '<div class="hr1-omni-title">' + esc(p.title) + '</div>' +
         '<p class="hr1-omni-body">' + esc(p.body) + '</p>' +
+        chips +
         '<p class="hr1-omni-keeps">' + esc(p.keeps) + '</p>' +
         (p.src ? '<a class="hr1-src" href="' + escAttr(p.src.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 ' + esc(p.src.label) + '</a>' : '') +
       '</div>';
@@ -350,6 +371,9 @@
             '<p>Six different promises, decided together. That’s why a single “yea” lands as consistent on one issue and a contradiction on the next.</p>' +
           '</div>' +
           '<div class="hr1-omni-grid">' + OMNIBUS.map(omniCard).join('') + '</div>' +
+          '<p class="hr1-omni-foot" style="margin-top:.7rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
+            'Each #tag above is a real issue in the Voting Record. In a member’s profile, their one Yea or Nay on H.R.1 becomes a <strong style="color:#cbd9ec;">separate say-vs-do verdict on every one of these issues</strong> — matching their stated stance on some, contradicting it on others.' +
+          '</p>' +
         '</div>' +
 
         // ── Contradiction engine diagram ──
