@@ -18,7 +18,10 @@
   var FILES = {
     spotlights:    { src: '/spotlights-data.js' },
     acctSpotlight: { src: '/acct-spotlight-data.js' },
-    cmpDetail:     { src: '/cmp-data-detail.js' }
+    cmpDetail:     { src: '/cmp-data-detail.js' },
+    // Legislation browse (Phase 1): the light inline bill index, fetched the first
+    // time the Digital Library's Legislation tab opens.
+    bills:         { src: '/bills-index.js' }
   };
 
   function ensure(key) {
