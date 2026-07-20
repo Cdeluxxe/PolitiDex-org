@@ -7346,6 +7346,62 @@
       { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Oversees Wyoming’s public-safety and drug-enforcement efforts.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
       { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
     ],
+    // ── National — state Secretaries of State (MI · AZ · NV · MN · GA · OH · PA · AL) · SoS wave 1 (Jul 2026) ─
+    jocelyn_benson: [ // Jocelyn Benson — 🗳 Michigan Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Expanded early voting, automatic and online registration, and mail-ballot access under Michigan’s Proposal 2 voter-rights amendment.', evidence:'Michigan Secretary of State since 2019; a 2026 candidate for governor and author of a book on the office.', source:{label:'michigan.gov/sos', url:'https://www.michigan.gov/sos'} },
+      { topic:'Election Administration', icon:'⚙️', pos:'mixed', issueKey:'election_integrity', issueStance:'mixed', text:'Ran Michigan’s 2020, 2022, and 2024 elections and defended their integrity against fraud claims, while opponents challenged some of her guidance in court.', source:{label:'michigan.gov/sos', url:'https://www.michigan.gov/sos'} },
+      { topic:'Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Modernized branch/records services and published detailed election data and audits.', source:{label:'michigan.gov/sos', url:'https://www.michigan.gov/sos'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Became a national voice for election-worker safety after post-2020 threats.', source:{label:'michigan.gov/sos', url:'https://www.michigan.gov/sos'} },
+    ],
+    adrian_fontes: [ // Adrian Fontes — 🗳 Arizona Secretary of State (D)
+      { topic:'Election Administration', icon:'⚙️', pos:'mixed', issueKey:'election_integrity', issueStance:'mixed', text:'Oversees Arizona elections in a top battleground, defending results and procedures amid intense scrutiny and litigation.', evidence:'Arizona Secretary of State since 2023; a former Maricopa County Recorder and U.S. Marine.', source:{label:'azsos.gov', url:'https://azsos.gov/'} },
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Backs accessible voting and has opposed measures he views as narrowing the franchise.', source:{label:'azsos.gov', url:'https://azsos.gov/'} },
+      { topic:'Election Security', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes election-worker security and cyber and procedural safeguards.', source:{label:'azsos.gov', url:'https://azsos.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'mixed', issueKey:'democracy_balance', issueStance:'mixed', text:'Clashed with the Republican legislature over the state Elections Procedures Manual, a dispute resolved partly in court.', source:{label:'azsos.gov', url:'https://azsos.gov/'} },
+    ],
+    cisco_aguilar: [ // Cisco Aguilar — 🗳 Nevada Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Defends Nevada’s universal mail-ballot system and expanded access.', evidence:'Nevada Secretary of State since 2023; a former attorney and foundation executive.', source:{label:'nvsos.gov', url:'https://www.nvsos.gov/'} },
+      { topic:'Election Workers', icon:'🛡', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Championed a Nevada law making harassment and intimidation of election workers a crime.', source:{label:'nvsos.gov', url:'https://www.nvsos.gov/'} },
+      { topic:'Election Security', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Backs paper-ballot records and post-election audits.', source:{label:'nvsos.gov', url:'https://www.nvsos.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Ran on restoring trust in Nevada elections after 2020 denialism.', source:{label:'nvsos.gov', url:'https://www.nvsos.gov/'} },
+    ],
+    steve_simon: [ // Steve Simon — 🗳 Minnesota Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Oversaw expansions including restoring voting rights to people who have completed felony sentences and automatic registration.', evidence:'Minnesota Secretary of State since 2015.', source:{label:'sos.mn.gov', url:'https://www.sos.mn.gov/'} },
+      { topic:'Election Administration', icon:'⚙️', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Runs Minnesota’s elections, consistently among the nation’s highest-turnout states.', source:{label:'sos.mn.gov', url:'https://www.sos.mn.gov/'} },
+      { topic:'Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Publishes detailed election data and defends the process publicly.', source:{label:'sos.mn.gov', url:'https://www.sos.mn.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'A frequent defender of election integrity against unfounded fraud claims.', source:{label:'sos.mn.gov', url:'https://www.sos.mn.gov/'} },
+    ],
+    brad_raffensperger: [ // Brad Raffensperger — 🗳 Georgia Secretary of State (R)
+      { topic:'2020 Certification', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Refused President Trump’s request to “find 11,780 votes” and certified Georgia’s 2020 result, drawing national attention and party backlash.', evidence:'Georgia Secretary of State since 2019.', source:{label:'sos.ga.gov', url:'https://sos.ga.gov/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backed Georgia’s SB 202, which added ID requirements for absentee voting among other changes.', source:{label:'sos.ga.gov', url:'https://sos.ga.gov/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes citizenship checks, voter-roll maintenance, and post-election audits.', source:{label:'sos.ga.gov', url:'https://sos.ga.gov/'} },
+      { topic:'Voter Access', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Calls Georgia’s system “secure and accessible” and notes record turnout; critics argue SB 202 narrowed access.', source:{label:'sos.ga.gov', url:'https://sos.ga.gov/'} },
+    ],
+    frank_larose: [ // Frank LaRose — 🗳 Ohio Secretary of State (R)
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backed Ohio’s photo-ID law and tighter absentee-ballot rules.', evidence:'Ohio Secretary of State since 2019.', source:{label:'ohiosos.gov', url:'https://www.ohiosos.gov/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes voter-roll maintenance and referred alleged noncitizen registrations for prosecution.', source:{label:'ohiosos.gov', url:'https://www.ohiosos.gov/'} },
+      { topic:'Ballot Measures', icon:'🏛', pos:'mixed', issueKey:'democracy_balance', issueStance:'mixed', text:'Led the 2023 Issue 1 effort to raise the threshold for constitutional amendments, which voters rejected before approving an abortion-rights amendment.', source:{label:'ohiosos.gov', url:'https://www.ohiosos.gov/'} },
+      { topic:'Voter Access', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Says Ohio makes it “easy to vote and hard to cheat”; critics say recent changes narrowed access.', source:{label:'ohiosos.gov', url:'https://www.ohiosos.gov/'} },
+    ],
+    al_schmidt: [ // Al Schmidt — 🗳 Pennsylvania Secretary of the Commonwealth (R)
+      { topic:'2020 Defense', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'As a Philadelphia city commissioner, Schmidt — a Republican — publicly rejected 2020 fraud claims and defended the count, drawing threats.', evidence:'Pennsylvania Secretary of the Commonwealth since 2023, appointed by Democratic Governor Josh Shapiro.', source:{label:'dos.pa.gov', url:'https://www.pa.gov/agencies/dos.html'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Runs Pennsylvania elections in a top battleground, emphasizing accuracy and public confidence.', source:{label:'dos.pa.gov', url:'https://www.pa.gov/agencies/dos.html'} },
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Oversaw the rollout of automatic voter registration in Pennsylvania.', source:{label:'dos.pa.gov', url:'https://www.pa.gov/agencies/dos.html'} },
+      { topic:'Bipartisanship', icon:'🤝', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'A Republican serving a Democratic governor, frequently cited as a model of nonpartisan election administration.', source:{label:'dos.pa.gov', url:'https://www.pa.gov/agencies/dos.html'} },
+    ],
+    wes_allen: [ // Wes Allen — 🗳 Alabama Secretary of State (R)
+      { topic:'Voter Rolls', icon:'📋', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Withdrew Alabama from ERIC, the multistate voter-roll cross-check system, and stood up a state list-maintenance program.', evidence:'Alabama Secretary of State since 2023; a former state representative and probate judge.', source:{label:'sos.alabama.gov', url:'https://www.sos.alabama.gov/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes citizenship verification and voter-roll accuracy.', source:{label:'sos.alabama.gov', url:'https://www.sos.alabama.gov/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backs Alabama’s photo-ID requirement to vote.', source:{label:'sos.alabama.gov', url:'https://www.sos.alabama.gov/'} },
+      { topic:'Access Debate', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Critics say his roll purges and ERIC withdrawal risk removing eligible voters; he says they protect integrity.', source:{label:'sos.alabama.gov', url:'https://www.sos.alabama.gov/'} },
+    ],
+    // ── National — state Attorneys General (SD · VA) · AG wave 5, completes all 50 (Jul 2026) ─
+    jay_jones: [ // Jay Jones — ⚖️ Virginia Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Took office in 2026 and signaled Virginia would rejoin Democratic-led multistate suits challenging federal actions.', evidence:'Virginia Attorney General since January 2026; a former member of the Virginia House of Delegates who defeated incumbent Jason Miyares in 2025.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pledged to prioritize consumer- and worker-protection enforcement.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
+      { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Backs protecting abortion access in Virginia.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
+      { topic:'Criminal Justice', icon:'⚖️', pos:'mixed', issueKey:'justice_reform', issueStance:'mixed', text:'As a delegate he worked on criminal-justice measures; as AG he balances reform with public-safety enforcement.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
+    ],
     };
 
 })();

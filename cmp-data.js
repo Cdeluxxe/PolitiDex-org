@@ -8,6 +8,178 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Attorneys General (AG wave 5, completes all 50, July 2026)
+ "marty_jackley": {
+  "name": "Marty Jackley",
+  "office": "State Attorney General",
+  "state": "South Dakota",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection",
+   "Abortion"
+  ]
+ },
+ "jay_jones": {
+  "name": "Jay Jones",
+  "office": "State Attorney General",
+  "state": "Virginia",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Abortion Rights",
+   "Criminal Justice"
+  ]
+ },
+// National — state Secretaries of State (SoS wave 1, July 2026)
+ "jocelyn_benson": {
+  "name": "Jocelyn Benson",
+  "office": "Secretary of State",
+  "state": "Michigan",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "adrian_fontes": {
+  "name": "Adrian Fontes",
+  "office": "Secretary of State",
+  "state": "Arizona",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Voting Access",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "cisco_aguilar": {
+  "name": "Cisco Aguilar",
+  "office": "Secretary of State",
+  "state": "Nevada",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Workers",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "steve_simon": {
+  "name": "Steve Simon",
+  "office": "Secretary of State",
+  "state": "Minnesota",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "brad_raffensperger": {
+  "name": "Brad Raffensperger",
+  "office": "Secretary of State",
+  "state": "Georgia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "2020 Certification",
+   "Voter ID",
+   "Election Integrity",
+   "Voter Rolls"
+  ]
+ },
+ "frank_larose": {
+  "name": "Frank LaRose",
+  "office": "Secretary of State",
+  "state": "Ohio",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter ID",
+   "Election Integrity",
+   "Ballot Measures",
+   "Voter Rolls"
+  ]
+ },
+ "al_schmidt": {
+  "name": "Al Schmidt",
+  "office": "Secretary of State",
+  "state": "Pennsylvania",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "2020 Defense",
+   "Election Integrity",
+   "Voting Access",
+   "Bipartisanship"
+  ]
+ },
+ "wes_allen": {
+  "name": "Wes Allen",
+  "office": "Secretary of State",
+  "state": "Alabama",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID",
+   "Access Debate"
+  ]
+ },
 // National — state Attorneys General (AG wave 4, July 2026)
  "ken_paxton": {
   "name": "Ken Paxton",
