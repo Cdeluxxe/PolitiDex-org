@@ -112,11 +112,80 @@
     return false;
   }
 
+  // ── Follow / unfollow (Phase 3) ─────────────────────────────────────────────
+  // Local-first, additive. Followed bills persist through PDXStore's `bills`
+  // collection when available (which gives free account sync for signed-in users
+  // via the same machinery My Team uses) and fall back to plain localStorage
+  // otherwise. Bills are keyed by their stable natural key (congress + number), not
+  // the DB serial id, so a follow survives across environments and reseeds. Each
+  // stored entry keeps enough to render the Followed view without a fetch.
+  var FOLLOW_KEY = 'politidex_followed_bills';
+
+  function followKeyOf(cardOrRef) {
+    if (cardOrRef && typeof cardOrRef === 'object') {
+      return String(cardOrRef.congress || '') + '|' + String(cardOrRef.number || cardOrRef.id || '');
+    }
+    return '|' + String(cardOrRef); // bare ref (id or number) — best effort
+  }
+
+  function readFollowed() {
+    try {
+      if (window.PDXStore && typeof window.PDXStore.read === 'function') {
+        var v = window.PDXStore.read(FOLLOW_KEY, []);
+        if (Array.isArray(v)) return v;
+      }
+    } catch (e) {}
+    try { var a = JSON.parse(localStorage.getItem(FOLLOW_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function writeFollowed(arr) {
+    var ok = false;
+    try {
+      if (window.PDXStore && typeof window.PDXStore.write === 'function') {
+        window.PDXStore.write(FOLLOW_KEY, arr); // marks dirty → syncs when signed in
+        ok = true;
+      }
+    } catch (e) {}
+    if (!ok) { try { localStorage.setItem(FOLLOW_KEY, JSON.stringify(arr)); } catch (e) {} }
+    try { document.dispatchEvent(new CustomEvent('pdx:bills:followed-changed')); } catch (e) {}
+  }
+
+  function followed() { return readFollowed(); }
+  function isFollowed(cardOrRef) {
+    var k = followKeyOf(cardOrRef);
+    return readFollowed().some(function (b) { return b.key === k; });
+  }
+  // Toggle follow for a card (needs number/congress/title). Returns the new state.
+  function toggleFollow(card) {
+    var k = followKeyOf(card);
+    var arr = readFollowed();
+    var i = -1;
+    for (var j = 0; j < arr.length; j++) { if (arr[j].key === k) { i = j; break; } }
+    if (i >= 0) { arr.splice(i, 1); writeFollowed(arr); return false; }
+    arr.push({
+      key: k,
+      id: (card && card.id != null) ? card.id : null,
+      number: (card && card.number) || '',
+      congress: (card && card.congress) || '',
+      title: (card && (card.shortTitle || card.title)) || (card && card.number) || 'Bill',
+      status: (card && card.status) || '',
+      chamber: (card && card.chamber) || '',
+      followedAt: null
+    });
+    writeFollowed(arr);
+    return true;
+  }
+
   window.PDXBills = {
     listSync: listSync,
     list: list,
     get: get,
     open: open,
-    ensureIndex: ensureIndex
+    ensureIndex: ensureIndex,
+    // follow
+    followed: followed,
+    isFollowed: isFollowed,
+    toggleFollow: toggleFollow,
+    followKeyOf: followKeyOf
   };
 })();

@@ -32,6 +32,8 @@
   function escAttr(s) { return esc(s); }
   function G(n) { try { return window[n]; } catch (e) { return null; } }
 
+  var _current = null; // the bill currently shown (for follow + share)
+
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(k); if (l) return l; } } catch (e) {}
     return String(k || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
@@ -184,32 +186,70 @@
     return '<section class="bd-sec"><h3 class="bd-h">✍️ Sponsors &amp; cosponsors</h3><div class="bd-people">' + chips + '</div></section>';
   }
 
-  // A lightweight, sourced timeline synthesized from the data we already have:
-  // introduction, each roll call (chamber + result), and the current status. A
-  // dedicated actions table can enrich this in Phase 3 without changing callers.
-  function timelineSection(m, rollcalls) {
+  var STAGE_LABEL = {
+    introduced: 'Introduced', referred_committee: 'Referred to committee',
+    reported_committee: 'Reported from committee', passed_house: 'Passed House',
+    passed_senate: 'Passed Senate', resolving_differences: 'Resolving differences',
+    to_president: 'To the President', enacted: 'Enacted', vetoed: 'Vetoed',
+    veto_overridden: 'Veto overridden', failed: 'Failed', other: 'Action'
+  };
+
+  // The real legislative timeline from vr_measure_actions when present; otherwise a
+  // lightweight timeline synthesized from introduction + roll calls + status (so a
+  // bill with no actions rows still reads sensibly). Phase 3 replaces the old
+  // always-synthesized version with the sourced table.
+  function timelineSection(m, rollcalls, actions) {
     var events = [];
-    if (m.introducedAt) events.push({ date: m.introducedAt, label: 'Introduced', sub: chamberLabel(m.chamber) });
-    (rollcalls || []).forEach(function (rc) {
-      events.push({
-        date: rc.voteDate,
-        label: (chamberLabel(rc.chamber) ? chamberLabel(rc.chamber) + ' — ' : '') + (rc.question || 'Vote'),
-        sub: [rc.result ? statusLabelResult(rc.result) : '', rc.totals && rc.totals.yea != null ? (rc.totals.yea + '–' + (rc.totals.nay != null ? rc.totals.nay : '?')) : ''].filter(Boolean).join(' · '),
-        url: rc.source && rc.source.url
+    if (actions && actions.length) {
+      events = actions.map(function (a) {
+        return {
+          date: a.actionDate,
+          label: (STAGE_LABEL[a.stage] || a.stage) + (a.chamber && a.stage !== 'introduced' && a.stage.indexOf('passed_') !== 0 ? '' : ''),
+          sub: a.text || '',
+          url: a.source && a.source.url
+        };
       });
-    });
-    if (m.status && ['enacted', 'vetoed', 'failed'].indexOf(m.status) !== -1) {
-      events.push({ date: null, label: statusLabel(m.status), sub: 'Final status' });
+    } else {
+      if (m.introducedAt) events.push({ date: m.introducedAt, label: 'Introduced', sub: chamberLabel(m.chamber) });
+      (rollcalls || []).forEach(function (rc) {
+        events.push({
+          date: rc.voteDate,
+          label: (chamberLabel(rc.chamber) ? chamberLabel(rc.chamber) + ' — ' : '') + (rc.question || 'Vote'),
+          sub: [rc.result ? statusLabelResult(rc.result) : '', rc.totals && rc.totals.yea != null ? (rc.totals.yea + '–' + (rc.totals.nay != null ? rc.totals.nay : '?')) : ''].filter(Boolean).join(' · '),
+          url: rc.source && rc.source.url
+        });
+      });
+      if (m.status && ['enacted', 'vetoed', 'failed'].indexOf(m.status) !== -1) {
+        events.push({ date: null, label: statusLabel(m.status), sub: 'Final status' });
+      }
+      events.sort(function (a, b) { return (a.date ? new Date(a.date).getTime() : Infinity) - (b.date ? new Date(b.date).getTime() : Infinity); });
     }
     if (events.length < 2) return '';
-    events.sort(function (a, b) { return (a.date ? new Date(a.date).getTime() : Infinity) - (b.date ? new Date(b.date).getTime() : Infinity); });
     var items = events.map(function (e) {
       return '<li class="bd-tl-item"><span class="bd-tl-dot" aria-hidden="true"></span>' +
         '<div class="bd-tl-body"><span class="bd-tl-date">' + (e.date ? esc(fmtDate(e.date)) : '') + '</span>' +
         '<span class="bd-tl-label">' + (e.url ? '<a href="' + escAttr(e.url) + '" target="_blank" rel="noopener">' + esc(e.label) + '</a>' : esc(e.label)) + '</span>' +
         (e.sub ? '<span class="bd-tl-sub">' + esc(e.sub) + '</span>' : '') + '</div></li>';
     }).join('');
-    return '<section class="bd-sec"><h3 class="bd-h">🕒 Key actions</h3><ul class="bd-tl">' + items + '</ul></section>';
+    return '<section class="bd-sec"><h3 class="bd-h">🕒 How it moved</h3><ul class="bd-tl">' + items + '</ul></section>';
+  }
+
+  // Named omnibus provisions (vr_measure_provisions) — one level finer than the
+  // component issues, each with which way a Yea cuts and a source.
+  function provisionsSection(m, provisions) {
+    if (!provisions || !provisions.length) return '';
+    var rows = provisions.map(function (p) {
+      var opposes = p.supportMeaning === 'yea_opposes';
+      var eff = '<span class="bd-eff ' + (opposes ? 'bd-eff-opp' : 'bd-eff-adv') + '">' + (opposes ? 'A Yea cuts against this' : 'A Yea advances this') + '</span>';
+      var tag = p.issueKey ? '<span class="bd-prov-tag">' + esc(issueLabel(p.issueKey)) + '</span>' : '';
+      var src = (p.source && p.source.url) ? '<a class="bd-src" href="' + escAttr(p.source.url) + '" target="_blank" rel="noopener">🔗 source</a>' : '';
+      return '<div class="bd-omni-row">' +
+        '<div class="bd-omni-head"><span class="bd-omni-issue">' + esc(p.label) + '</span>' + tag + eff + '</div>' +
+        (p.description ? '<div class="bd-omni-why">' + esc(p.description) + ' ' + src + '</div>' : (src ? '<div class="bd-omni-why">' + src + '</div>' : '')) +
+      '</div>';
+    }).join('');
+    return '<section class="bd-sec"><h3 class="bd-h">🧩 Key provisions</h3>' +
+      '<p class="bd-lead">The named pieces bundled into this measure, and which way a Yea cuts on each.</p>' + rows + '</section>';
   }
 
   function relatedSection(m, issues) {
@@ -242,22 +282,37 @@
   function bodyHtml(data) {
     var m = data.measure || {};
     var issues = data.issues || [];
+    _current = {
+      id: (m.id != null) ? m.id : null, number: m.number || '', congress: m.congress || '',
+      title: m.shortTitle || m.title || m.number || 'Bill', status: m.status || '', chamber: m.chamber || '',
+      source: m.source || null
+    };
     var status = m.status ? '<span class="bd-status bd-s-' + esc(m.status) + '">' + esc(statusLabel(m.status)) + '</span>' : '';
     var omni = issues.length >= 2 ? '<span class="bd-omnibadge">📦 Omnibus · ' + issues.length + ' issues</span>' : '';
     var meta = [chamberLabel(m.chamber), m.congress ? (m.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
     var src = (m.source && m.source.url)
       ? '<a class="bd-src bd-src-top" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc(m.source.label || 'Official record') + '</a>' : '';
+    var following = false;
+    try { following = !!(G('PDXBills') && G('PDXBills').isFollowed && G('PDXBills').isFollowed(_current)); } catch (e) {}
+    var actionsBar =
+      '<div class="bd-actions">' +
+        '<button type="button" class="bd-btn bd-follow' + (following ? ' is-on' : '') + '" data-bd-follow aria-pressed="' + following + '">' +
+          (following ? '★ Following' : '☆ Follow this bill') + '</button>' +
+        '<button type="button" class="bd-btn bd-share" data-bd-share>🔗 Share</button>' +
+      '</div>';
     return '<div class="bd-head">' +
         '<div class="bd-head-top"><span class="bd-num">' + esc(m.number || 'Measure') + '</span>' + status + omni + '</div>' +
         '<h2 class="bd-title">' + esc(m.title || '') + '</h2>' +
         (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
+        actionsBar +
         (m.summary ? '<p class="bd-summary">' + esc(m.summary) + '</p>' : '') +
         src +
       '</div>' +
       omnibusSection(m, issues) +
+      provisionsSection(m, data.provisions) +
       rollcallsSection(m, issues, data.rollcalls) +
       sponsorsSection(m, data.positions) +
-      timelineSection(m, data.rollcalls) +
+      timelineSection(m, data.rollcalls, data.actions) +
       relatedSection(m, issues);
   }
 
@@ -282,10 +337,36 @@
       var pb = e.target.closest ? e.target.closest('[data-pid]') : null;
       if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
-      if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } }
+      if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
+      var fb = e.target.closest ? e.target.closest('[data-bd-follow]') : null;
+      if (fb) { toggleFollow(fb); return; }
+      var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
+      if (shb) { share(shb); return; }
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !ov.hidden) close(); });
     return ov;
+  }
+
+  // Toggle follow for the bill on screen and reflect it on the button.
+  function toggleFollow(btn) {
+    var bills = G('PDXBills');
+    if (!bills || !bills.toggleFollow || !_current) return;
+    var on = bills.toggleFollow(_current);
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    btn.innerHTML = on ? '★ Following' : '☆ Follow this bill';
+  }
+
+  // Copy a stable, shareable deep link to this bill (congress + number).
+  function share(btn) {
+    if (!_current) return;
+    var url = location.origin + location.pathname +
+      '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+    var done = function () { var t = btn.innerHTML; btn.innerHTML = '✓ Link copied'; setTimeout(function () { btn.innerHTML = t; }, 1600); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(done, function () { window.prompt('Copy this link', url); }); return; }
+    } catch (e) {}
+    window.prompt('Copy this link', url);
   }
 
   function show(html) {
@@ -428,7 +509,15 @@
       '.bd-tl-label{font:600 .86rem/1.3 "Barlow",sans-serif;color:#e6eefc;}' +
       '.bd-tl-label a{color:#9ec8ff;text-decoration:none;}.bd-tl-label a:hover{text-decoration:underline;}' +
       '.bd-tl-sub{font:500 .72rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
-      '@media (max-width:640px){.bd-panel{width:100vw;max-height:100vh;margin:0;border-radius:0;}.bd-scroll{padding:1.1rem 1rem 2rem;}}';
+      '@media (max-width:640px){.bd-panel{width:100vw;max-height:100vh;margin:0;border-radius:0;}.bd-scroll{padding:1.1rem 1rem 2rem;}}' +
+      // Phase 3: follow/share actions + provision tag.
+      '.bd-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0 .2rem;}' +
+      '.bd-btn{cursor:pointer;font:700 .74rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;' +
+        'color:#cbd9ec;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.5rem .9rem;transition:background .15s,border-color .15s,color .15s;}' +
+      '.bd-btn:hover{background:rgba(159,180,212,.16);color:#fff;}' +
+      '.bd-follow.is-on{color:#f6d873;background:rgba(245,200,66,.14);border-color:rgba(245,200,66,.45);}' +
+      '.bd-prov-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;' +
+        'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.16rem .45rem;}';
     var st = document.createElement('style');
     st.id = 'bd-css';
     st.textContent = css;
@@ -436,4 +525,28 @@
   }
 
   window.PDXBillDetail = { open: open, close: close };
+
+  // ── Deep-link routing ───────────────────────────────────────────────────────
+  // A shareable link is #bill/<congress>/<number>. Open the panel when such a hash
+  // is present on load or changes, resolving the natural key to a measure id.
+  function openFromHash() {
+    var h = String(location.hash || '');
+    var m = h.match(/^#bill\/([^/]*)\/(.+)$/);
+    if (!m) return;
+    var congress = decodeURIComponent(m[1] || '');
+    var number = decodeURIComponent(m[2] || '');
+    var bills = G('PDXBills');
+    if (!bills || !bills.list) { return; }
+    bills.list({ pageSize: 100, congress: congress || undefined }).then(function (d) {
+      var items = (d && d.items) || [];
+      var hit = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i] && items[i].number === number && (!congress || String(items[i].congress) === String(congress))) { hit = items[i]; break; }
+      }
+      if (hit) open(hit.id != null ? hit.id : hit.number);
+    }).catch(function () {});
+  }
+  window.addEventListener('hashchange', openFromHash);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openFromHash);
+  else openFromHash();
 })();

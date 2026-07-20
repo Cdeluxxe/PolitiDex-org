@@ -37,7 +37,9 @@ import type { Config } from "@netlify/functions";
 import { and, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
+  vrMeasureActions,
   vrMeasureIssues,
+  vrMeasureProvisions,
   vrMeasures,
   vrMemberVotes,
   vrPositions,
@@ -609,6 +611,19 @@ async function getMeasure(measureId: number): Promise<Response> {
     .from(vrPositions)
     .where(eq(vrPositions.measureId, measureId));
 
+  // Phase 3: the real legislative action timeline and any named omnibus provisions.
+  const actions = await db
+    .select()
+    .from(vrMeasureActions)
+    .where(eq(vrMeasureActions.measureId, measureId))
+    .orderBy(vrMeasureActions.sortOrder);
+
+  const provisionRows = await db
+    .select()
+    .from(vrMeasureProvisions)
+    .where(eq(vrMeasureProvisions.measureId, measureId))
+    .orderBy(vrMeasureProvisions.sortOrder);
+
   return json({
     measure: {
       id: measure.id,
@@ -652,6 +667,21 @@ async function getMeasure(measureId: number): Promise<Response> {
         note: p.note,
         source: { url: p.sourceUrl, label: measure.sourceLabel },
       })),
+    actions: actions.map((a) => ({
+      stage: a.stage,
+      chamber: a.chamber,
+      actionDate: a.actionDate ? a.actionDate.toISOString() : null,
+      text: a.text,
+      source: { url: a.sourceUrl, label: a.sourceLabel },
+    })),
+    provisions: provisionRows.map((p) => ({
+      label: p.label,
+      description: p.description,
+      // Only surface a valid issue key so the panel can safely link/tag it.
+      issueKey: p.issueKey && assertIssueKey(p.issueKey) ? p.issueKey : null,
+      supportMeaning: p.supportMeaning,
+      source: p.sourceUrl ? { url: p.sourceUrl, label: measure.sourceLabel } : null,
+    })),
   });
 }
 
