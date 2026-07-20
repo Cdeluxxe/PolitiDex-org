@@ -111,6 +111,15 @@
       '.vr-src:hover{text-decoration:underline;}',
       '.vr-stance-note{font-size:.74rem;color:#9fb4d4;margin-top:.35rem;line-height:1.45;}',
       '.vr-stance-note b{color:#cbd9ec;}',
+      /* omnibus component breakdown — one vote, many per-issue verdicts */
+      '.vr-omni{margin-top:.5rem;border-top:1px dashed rgba(255,255,255,.09);padding-top:.45rem;}',
+      '.vr-omni-lead{font-family:"Barlow Condensed",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8ea4c6;margin-bottom:.35rem;}',
+      '.vr-omni-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.2rem 0;font-size:.75rem;color:#cbd9ec;line-height:1.4;}',
+      '.vr-omni-issue{font-weight:600;color:#e6eefc;}',
+      '.vr-omni-eff{font-size:.64rem;letter-spacing:.03em;border-radius:999px;padding:.06rem .4rem;white-space:nowrap;}',
+      '.vr-omni-eff-adv{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);}',
+      '.vr-omni-eff-opp{background:rgba(251,146,60,.14);color:#fdba74;border:1px solid rgba(251,146,60,.32);}',
+      '.vr-omni-v{font-size:.62rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.06rem .4rem;white-space:nowrap;}',
       /* amendments (collapsible) */
       '.vr-amends{margin:.1rem 0 .5rem .6rem;border-left:2px solid rgba(255,255,255,.08);padding-left:.6rem;}',
       '.vr-amends>summary{cursor:pointer;color:#8ea4c6;font-size:.75rem;padding:.15rem 0;list-style:none;}',
@@ -309,6 +318,42 @@
     }
   }
 
+  // ── Omnibus component breakdown for one record ─────────────────────────────
+  // When a single measure maps to two or more issues (an omnibus / multi-issue
+  // bill), one vote is really a verdict on each bundled policy. This renders that
+  // split inline: every component issue, whether THIS vote advances or cuts against
+  // it, and — when the member has a stated stance on that issue — the per-issue
+  // say-vs-do verdict. So the same "yea" can read "✓ matches" on the issues the
+  // member campaigned for and "⚠ against" on the ones it undercuts. Built entirely
+  // from the shared, tested _measureComponentBreakdown primitive; empty for
+  // single-issue records so ordinary votes are unchanged.
+  var _OMNI_VERDICT = {
+    consistent:  { cls: 'vr-v-consistent',  label: '✓ matches stance' },
+    contradicts: { cls: 'vr-v-contradicts', label: '⚠ against stance' },
+    mixed:       { cls: 'vr-v-mixed',        label: 'mixed stance' },
+    no_position: { cls: 'vr-v-neutral',      label: 'no position' }
+  };
+  function componentBreakdownHtml(item, positionMap) {
+    if (typeof window._measureComponentBreakdown !== 'function') return '';
+    var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
+    if (!brk.isOmnibus) return ''; // single-issue vote → nothing extra to show
+    var rows = brk.components.map(function (c) {
+      var eff = '';
+      if (c.effect === 'advances') eff = '<span class="vr-omni-eff vr-omni-eff-adv">this vote advances it</span>';
+      else if (c.effect === 'opposes') eff = '<span class="vr-omni-eff vr-omni-eff-opp">this vote cuts against it</span>';
+      var v = c.hasStance && _OMNI_VERDICT[c.verdict]
+        ? '<span class="vr-omni-v ' + _OMNI_VERDICT[c.verdict].cls + '">' + esc(_OMNI_VERDICT[c.verdict].label) + '</span>'
+        : '';
+      return '<div class="vr-omni-row">' +
+        '<span class="vr-omni-issue">' + esc(c.label) + '</span>' + eff + v +
+      '</div>';
+    }).join('');
+    return '<div class="vr-omni">' +
+      '<div class="vr-omni-lead">This one vote touches ' + brk.count + ' issues</div>' +
+      rows +
+    '</div>';
+  }
+
   // ── One vote / position card ──────────────────────────────────────────────────
   function cardHtml(item, positionMap) {
     var num = item.number ? '<span class="vr-num">' + esc(item.number) + '</span>' : '';
@@ -351,7 +396,7 @@
       '<div class="vr-card-top"><div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">' + num + date + '</div>' + verdictHtml + '</div>' +
       (item.title ? '<div class="vr-card-title">' + esc(item.title) + '</div>' : '') +
       '<div class="vr-meta">' + meta.join('') + '</div>' +
-      note + src +
+      note + componentBreakdownHtml(item, positionMap) + src +
       '</div>';
   }
 

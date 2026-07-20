@@ -287,6 +287,55 @@
     window._issueRecordSummary = _issueRecordSummary;
     window._polRecordMap = _polRecordMap;
 
+    // ── Omnibus component breakdown (the reusable primitive) ───────────────────
+    // Break ONE record (a floor vote or a non-roll-call position) into its component
+    // issues. An omnibus bill maps to many issues via vr_measure_issues, so this is
+    // how a SINGLE vote yields MANY say-vs-do verdicts at once — "consistent" on the
+    // issues the vote advances that the member campaigned for, "contradicts" on the
+    // ones it cuts against. For each component it reports:
+    //   effect  — does THIS action advance ('advances') or oppose ('opposes') the
+    //             issue, per the mapping's supportMeaning (null position → 'none'),
+    //   verdict — the say-vs-do token vs the member's stated stance, when there is
+    //             one ('consistent' | 'contradicts' | 'mixed' | 'no_position' |
+    //             'no_stance'), reusing the exact same engine the aggregate uses.
+    // Pure; never mutates its inputs. Any surface (the Voting Record cards, the H.R.1
+    // Showcase, a profile) can render the same breakdown from this one function.
+    //   item        — API record item: { issues:[{issueKey,weight,isPrimary,
+    //                 supportMeaning,rationale,sourceUrl}], position|supports, isProcedural }
+    //   positionMap — _polPositionMap(id,p): { issueKey -> { stance } }   (optional)
+    //   opts.labelFn(issueKey) -> display label                            (optional)
+    // Returns { isOmnibus, count, components:[…] } sorted primary-first, then weight.
+    function _measureComponentBreakdown(item, positionMap, opts) {
+      opts = opts || {};
+      positionMap = positionMap || {};
+      var labelFn = (typeof opts.labelFn === 'function') ? opts.labelFn : function (k) { return k; };
+      var issues = (item && Array.isArray(item.issues)) ? item.issues : [];
+      var comps = issues.map(function (m) {
+        var eff = _voteEffectiveSupport(item, m.supportMeaning); // true | false | null
+        var pm = positionMap[m.issueKey];
+        var stance = pm ? pm.stance : null;
+        return {
+          issueKey: m.issueKey,
+          label: labelFn(m.issueKey),
+          weight: (typeof m.weight === 'number') ? m.weight : 100,
+          isPrimary: !!m.isPrimary,
+          supportMeaning: m.supportMeaning || 'yea_supports',
+          rationale: m.rationale || '',
+          sourceUrl: m.sourceUrl || null,
+          effect: eff === true ? 'advances' : eff === false ? 'opposes' : 'none',
+          hasStance: !!stance,
+          stance: stance || null,
+          verdict: _stanceVoteVerdict(stance, eff) // 'no_stance' when stance is falsy
+        };
+      });
+      comps.sort(function (a, b) {
+        if (b.isPrimary !== a.isPrimary) return a.isPrimary ? -1 : 1;
+        return b.weight - a.weight;
+      });
+      return { isOmnibus: comps.length >= 2, count: comps.length, components: comps };
+    }
+    window._measureComponentBreakdown = _measureComponentBreakdown;
+
     // Runnable, dependency-free self-test for the stance-vs-record engine. Never runs
     // on its own (pure) — call window._stanceRecordSelfTest() from the console or a
     // node harness. Returns { passed, failed, failures[] }. The cases pin down the
@@ -353,6 +402,25 @@
       // A "said but never voted" issue still appears in the map via the position side.
       var sm = _polRecordMap([], { housing_build: { stance: 'support' } });
       eq(sm.housing_build.netVerdict, 'no_record', 'stance with no record → no_record entry present');
+
+      // ── _measureComponentBreakdown: one vote → many per-issue verdicts ──
+      // Reuse the omnibus fixture: a YEA on H.R. 1 by a member who says they back
+      // both lower taxes and healthcare access — one action, two opposite verdicts.
+      var brk = _measureComponentBreakdown(hr1, posMap, { labelFn: function (k) { return k.toUpperCase(); } });
+      eq(brk.isOmnibus, true, 'breakdown: multi-issue measure flagged omnibus');
+      eq(brk.count, 2, 'breakdown: two components');
+      eq(brk.components[0].issueKey, 'lower_taxes', 'breakdown: primary sorts first');
+      eq(brk.components[0].label, 'LOWER_TAXES', 'breakdown: labelFn applied');
+      eq(brk.components[0].effect, 'advances', 'breakdown: yea advances lower_taxes');
+      eq(brk.components[0].verdict, 'consistent', 'breakdown: consistent on taxes');
+      eq(brk.components[1].effect, 'opposes', 'breakdown: SAME yea opposes healthcare');
+      eq(brk.components[1].verdict, 'contradicts', 'breakdown: contradicts on healthcare');
+      // No stance on an issue → no_stance verdict but the component is still listed.
+      var brk2 = _measureComponentBreakdown(hr1, {});
+      eq(brk2.components[0].verdict, 'no_stance', 'breakdown: no stance → no_stance token');
+      eq(brk2.isOmnibus, true, 'breakdown: omnibus regardless of stance coverage');
+      // A single-issue vote is not flagged omnibus.
+      eq(_measureComponentBreakdown(subCon, {}).isOmnibus, false, 'breakdown: single-issue not omnibus');
 
       return { passed: (failures.length === 0), failed: failures.length, failures: failures };
     }

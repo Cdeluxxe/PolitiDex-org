@@ -816,3 +816,63 @@ export const vrPositions = pgTable(
     measureIdx: index("vr_positions_measure_idx").on(t.measureId),
   })
 );
+
+// The legislative action timeline for a measure — how it actually moved. One row per
+// stage (introduced, referred/reported from committee, passed a chamber, sent to the
+// President, enacted / vetoed / failed, …). This replaces the timeline the client
+// used to synthesize from roll calls alone: every step is dated, attributed to a
+// chamber where relevant, and carries its own citable source. Purely additive —
+// nothing existing reads or writes this table.
+export const vrMeasureActions = pgTable(
+  "vr_measure_actions",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    // introduced | referred_committee | reported_committee | passed_house |
+    // passed_senate | resolving_differences | to_president | enacted | vetoed |
+    // veto_overridden | failed | other
+    stage: text().notNull(),
+    chamber: text(), // house | senate | joint | null
+    actionDate: timestamp("action_date", { withTimezone: true }),
+    // Plain-language description of the step ("House passed, 218–214").
+    text: text().notNull().default(""),
+    // VERIFIABILITY: the canonical action/roll-call/bill-page URL. Required.
+    sourceUrl: text("source_url").notNull(),
+    sourceLabel: text("source_label").default("Congress.gov"),
+    // Stable ordering when two actions share a date (or a date is unknown).
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    measureIdx: index("vr_measure_actions_measure_idx").on(t.measureId),
+    dateIdx: index("vr_measure_actions_date_idx").on(t.actionDate),
+  })
+);
+
+// Named sub-units of a true omnibus / megabill — one level finer than
+// vr_measure_issues. Where measure↔issue tags are the taxonomy, a provision is the
+// human-named piece ("Medicaid work requirements"), optionally mapped to an issue
+// key + support_meaning so the panel can show exactly what got bundled and which way
+// each part cuts. Optional and additive; only the handful of real megabills need it.
+export const vrMeasureProvisions = pgTable(
+  "vr_measure_provisions",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    label: text().notNull(),
+    description: text().default(""),
+    // Optional ISSUE_MAP key (validated in the Function against db/issue-keys.json).
+    issueKey: text("issue_key"),
+    // yea_supports | yea_opposes — how a yea vote cuts on THIS provision.
+    supportMeaning: text("support_meaning").default("yea_supports"),
+    sourceUrl: text("source_url"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => ({
+    measureIdx: index("vr_measure_provisions_measure_idx").on(t.measureId),
+  })
+);

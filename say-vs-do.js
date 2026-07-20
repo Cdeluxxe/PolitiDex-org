@@ -1102,4 +1102,8 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+
+  // Run 3 perf: ACCT_SPOTLIGHT now loads on demand (pdx-lazy-data.js). Rebuild the
+  // receipts once it arrives, covering a load that lands after the poll window.
+  document.addEventListener('pdx:data:acctSpotlight', function () { try { refresh(); } catch (e) {} });
 })();

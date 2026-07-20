@@ -37,7 +37,9 @@ import type { Config } from "@netlify/functions";
 import { and, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
+  vrMeasureActions,
   vrMeasureIssues,
+  vrMeasureProvisions,
   vrMeasures,
   vrMemberVotes,
   vrPositions,
@@ -609,6 +611,19 @@ async function getMeasure(measureId: number): Promise<Response> {
     .from(vrPositions)
     .where(eq(vrPositions.measureId, measureId));
 
+  // Phase 3: the real legislative action timeline and any named omnibus provisions.
+  const actions = await db
+    .select()
+    .from(vrMeasureActions)
+    .where(eq(vrMeasureActions.measureId, measureId))
+    .orderBy(vrMeasureActions.sortOrder);
+
+  const provisionRows = await db
+    .select()
+    .from(vrMeasureProvisions)
+    .where(eq(vrMeasureProvisions.measureId, measureId))
+    .orderBy(vrMeasureProvisions.sortOrder);
+
   return json({
     measure: {
       id: measure.id,
@@ -652,6 +667,21 @@ async function getMeasure(measureId: number): Promise<Response> {
         note: p.note,
         source: { url: p.sourceUrl, label: measure.sourceLabel },
       })),
+    actions: actions.map((a) => ({
+      stage: a.stage,
+      chamber: a.chamber,
+      actionDate: a.actionDate ? a.actionDate.toISOString() : null,
+      text: a.text,
+      source: { url: a.sourceUrl, label: a.sourceLabel },
+    })),
+    provisions: provisionRows.map((p) => ({
+      label: p.label,
+      description: p.description,
+      // Only surface a valid issue key so the panel can safely link/tag it.
+      issueKey: p.issueKey && assertIssueKey(p.issueKey) ? p.issueKey : null,
+      supportMeaning: p.supportMeaning,
+      source: p.sourceUrl ? { url: p.sourceUrl, label: measure.sourceLabel } : null,
+    })),
   });
 }
 
@@ -722,6 +752,158 @@ async function getCompare(url: URL): Promise<Response> {
   return json({ members, issue: issue || null, matrix });
 }
 
+// ── GET /measures ────────────────────────────────────────────────────────────
+// The Legislation / Bill library browse endpoint (Phase 1): a filterable, paginated
+// list of measures rendered as compact cards. Per-measure detail (component issues +
+// roll calls + votes) stays at /measure/:id. Verifiability is preserved: a measure
+// without a source_url is never surfaced. Issue keys are validated against the same
+// ISSUE_MAP allow-list every other route uses.
+//   Query params: congress, chamber, type, status, issue, q, sort, page, pageSize.
+async function getMeasures(url: URL): Promise<Response> {
+  const congressRaw = clean(url.searchParams.get("congress"), 8);
+  const congress = congressRaw ? parseInt(congressRaw, 10) : null;
+  if (congressRaw && !Number.isFinite(congress as number)) {
+    return json({ error: `Invalid congress: ${congressRaw}` }, 400);
+  }
+
+  const chamber = clean(url.searchParams.get("chamber"), 16).toLowerCase();
+  if (chamber && !["house", "senate", "joint", "court"].includes(chamber)) {
+    return json({ error: `Invalid chamber: ${chamber}` }, 400);
+  }
+
+  const measureType = clean(url.searchParams.get("type"), 24).toLowerCase();
+  if (measureType && !["bill", "resolution", "amendment", "nomination", "litigation"].includes(measureType)) {
+    return json({ error: `Invalid type: ${measureType}` }, 400);
+  }
+
+  const status = clean(url.searchParams.get("status"), 24).toLowerCase();
+
+  const issue = clean(url.searchParams.get("issue"), ID_MAX);
+  if (issue && !assertIssueKey(issue)) return json({ error: `Unknown issue key: ${issue}` }, 400);
+
+  const q = clean(url.searchParams.get("q"), Q_MAX);
+
+  const sortParam = clean(url.searchParams.get("sort"), 16).toLowerCase();
+  const sort = ["recent", "number", "congress"].includes(sortParam) ? sortParam : "recent";
+
+  let pageSize = parseInt(clean(url.searchParams.get("pageSize"), 8), 10);
+  if (!Number.isFinite(pageSize) || pageSize <= 0) pageSize = PAGE_SIZE_DEFAULT;
+  pageSize = Math.min(pageSize, PAGE_SIZE_MAX);
+  let page = parseInt(clean(url.searchParams.get("page"), 8), 10);
+  if (!Number.isFinite(page) || page < 1) page = 1;
+
+  // Issue filter → restrict to measures carrying that issue key (the bridge table).
+  let issueMeasureIds: number[] | null = null;
+  if (issue) {
+    const rows = await db
+      .select({ measureId: vrMeasureIssues.measureId })
+      .from(vrMeasureIssues)
+      .where(eq(vrMeasureIssues.issueKey, issue));
+    issueMeasureIds = [...new Set(rows.map((r) => r.measureId))];
+    if (!issueMeasureIds.length) {
+      return json({ items: [], page, pageSize, total: 0, totalPages: 1, hasMore: false });
+    }
+  }
+
+  const conds: any[] = [];
+  if (congress != null) conds.push(eq(vrMeasures.congress, congress));
+  if (chamber) conds.push(eq(vrMeasures.chamber, chamber));
+  if (measureType) conds.push(eq(vrMeasures.measureType, measureType));
+  if (status) conds.push(eq(vrMeasures.status, status));
+  if (issueMeasureIds) conds.push(inArray(vrMeasures.id, issueMeasureIds));
+  if (q) {
+    const like = `%${q}%`;
+    conds.push(or(ilike(vrMeasures.number, like), ilike(vrMeasures.title, like), ilike(vrMeasures.summary, like)));
+  }
+
+  let rows = await db
+    .select()
+    .from(vrMeasures)
+    .where(conds.length ? and(...conds) : undefined)
+    .limit(FETCH_CAP);
+
+  // Verifiability: never list a measure with no citable source.
+  rows = rows.filter((m) => !!m.sourceUrl);
+
+  // Sort in JS — the measure set is small, so one code path covers every sort.
+  rows.sort((a, b) => {
+    if (sort === "number") {
+      return (a.number ?? "").localeCompare(b.number ?? "", undefined, { numeric: true });
+    }
+    if (sort === "congress") {
+      return (b.congress ?? 0) - (a.congress ?? 0) ||
+        (a.number ?? "").localeCompare(b.number ?? "", undefined, { numeric: true });
+    }
+    // recent (default): most-recently-updated first, then newest introduced.
+    const upd = (b.updatedAt?.getTime?.() ?? 0) - (a.updatedAt?.getTime?.() ?? 0);
+    if (upd !== 0) return upd;
+    return (b.introducedAt?.getTime?.() ?? 0) - (a.introducedAt?.getTime?.() ?? 0);
+  });
+
+  const pageResult = paginate(rows, page, pageSize);
+  const pageRows = pageResult.items;
+  const pageIds = pageRows.map((m) => m.id);
+
+  // Batch the per-card enrichments for just this page: issue tags, and roll-call /
+  // recorded-vote counts (so a card can show "3 roll calls · 431 votes").
+  const issuesByMeasure = await loadIssuesByMeasure(pageIds);
+
+  const rollcalls = pageIds.length
+    ? await db
+        .select({ id: vrRollcalls.id, measureId: vrRollcalls.measureId })
+        .from(vrRollcalls)
+        .where(inArray(vrRollcalls.measureId, pageIds))
+    : [];
+  const rollcallCount: Record<number, number> = {};
+  const rcToMeasure: Record<number, number> = {};
+  for (const rc of rollcalls) {
+    rollcallCount[rc.measureId] = (rollcallCount[rc.measureId] ?? 0) + 1;
+    rcToMeasure[rc.id] = rc.measureId;
+  }
+  const rcIds = rollcalls.map((r) => r.id);
+  const voteRows = rcIds.length
+    ? await db.select({ rollcallId: vrMemberVotes.rollcallId }).from(vrMemberVotes).where(inArray(vrMemberVotes.rollcallId, rcIds))
+    : [];
+  const voteCount: Record<number, number> = {};
+  for (const v of voteRows) {
+    const mid = rcToMeasure[v.rollcallId];
+    if (mid != null) voteCount[mid] = (voteCount[mid] ?? 0) + 1;
+  }
+
+  const items = pageRows.map((m) => {
+    const issues = issuesByMeasure.get(m.id) ?? [];
+    const primary = issues.find((i) => i.isPrimary) ?? issues[0] ?? null;
+    return {
+      id: m.id,
+      measureType: m.measureType,
+      number: m.number,
+      title: m.title,
+      shortTitle: m.shortTitle,
+      summary: m.summary,
+      status: m.status,
+      chamber: m.chamber,
+      congress: m.congress,
+      introducedAt: m.introducedAt ? m.introducedAt.toISOString() : null,
+      primaryIssue: primary ? primary.issueKey : null,
+      issueKeys: issues.map((i) => i.issueKey),
+      isOmnibus: issues.length >= 2,
+      rollcallCount: rollcallCount[m.id] ?? 0,
+      voteCount: voteCount[m.id] ?? 0,
+      externalIds: m.externalIds,
+      source: { url: m.sourceUrl, label: m.sourceLabel },
+    };
+  });
+
+  return json({
+    items,
+    page: pageResult.page,
+    pageSize: pageResult.pageSize,
+    total: pageResult.total,
+    totalPages: pageResult.totalPages,
+    hasMore: pageResult.hasMore,
+  });
+}
+
 // ── Router ───────────────────────────────────────────────────────────────────
 export default async (req: Request): Promise<Response> => {
   const url = new URL(req.url);
@@ -750,6 +932,10 @@ export default async (req: Request): Promise<Response> => {
       const key = clean(decodeURIComponent(issueMatch[1]), ID_MAX);
       if (!key) return json({ error: "Missing issue key" }, 400);
       return await getIssue(key, url);
+    }
+
+    if (path === "/measures") {
+      return await getMeasures(url);
     }
 
     const measureMatch = path.match(/^\/measure\/(\d+)$/);

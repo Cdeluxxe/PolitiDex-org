@@ -198,8 +198,8 @@
       function () { location.hash = '#say-vs-do'; });
     push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN,
       function () { location.hash = '#agenda'; });
-    push('🏛️', 'Major Bills', 'H.R.1 and the omnibus packages, vote by vote.', null,
-      function () { if (window.PDXHR1 && window.PDXHR1.open) window.PDXHR1.open(); else location.hash = '#hr1-showcase'; });
+    push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null,
+      function () { if (typeof window._pdxDlibSetMode === 'function') { window._pdxDlibSetMode('legislation'); var h = document.getElementById('digital-library'); if (h && h.scrollIntoView) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else if (window.PDXHR1 && window.PDXHR1.open) { window.PDXHR1.open(); } else { location.hash = '#hr1-showcase'; } });
     push('❤️', 'Community', 'Leads, evidence and debate from the community.', null,
       function () { location.hash = '#community-exchange'; });
     return out;
@@ -390,6 +390,12 @@
     _state.shown = PAGE;
     var clear = document.getElementById('dlib-search-clear');
     if (clear) clear.hidden = !_state.q;
+    if (_state.mode === 'legislation') {
+      var jump = document.getElementById('dlib-jump');
+      if (jump) { jump.hidden = true; jump.innerHTML = ''; }
+      applyBills();
+      return;
+    }
     runJump(_state.q);
     applyBrowse();
   }
@@ -478,6 +484,34 @@
       '.dlib-more{cursor:pointer;font:700 .8rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
         'color:#9ec8ff;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);border-radius:999px;padding:.65rem 1.4rem;transition:background .15s,border-color .15s;}' +
       '.dlib-more:hover{background:rgba(96,165,250,.2);border-color:rgba(96,165,250,.6);}' +
+      // Legislation mode (Phase 1): mode tabs, bill facet bar, bill card chrome.
+      '.dlib-modes{display:flex;gap:.4rem;justify-content:center;margin:.2rem auto 1.4rem;flex-wrap:wrap;}' +
+      '.dlib-mode{cursor:pointer;font:700 .78rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
+        'color:#a9bbd6;background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.55rem 1.1rem;' +
+        'transition:background .15s,border-color .15s,color .15s;}' +
+      '.dlib-mode:hover{background:rgba(159,180,212,.14);color:#e6eefc;}' +
+      '.dlib-mode.is-active{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5);color:#9ff0bd;}' +
+      '.dlib-billfacets{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.6rem;}' +
+      '.dlib-billfacets label{font:700 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;display:inline-flex;align-items:center;gap:.45rem;}' +
+      '.dlib-billfacets select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
+      '.dlib-billcard{border-left-color:rgba(74,222,128,.7);}' +
+      '.dlib-bill-meta{font:600 .66rem/1.25 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
+      '.dlib-bill-status{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;border-radius:.4rem;' +
+        'padding:.22rem .45rem;white-space:nowrap;color:#9ff0bd;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.35);}' +
+      '.dlib-bs-failed,.dlib-bs-vetoed{color:#fca5a5;background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4);}' +
+      '.dlib-bs-introduced,.dlib-bs-pending{color:#cbd9ec;background:rgba(159,180,212,.12);border-color:rgba(159,180,212,.3);}' +
+      '.dlib-bill-omni{font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#f6d873;' +
+        'background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.35);border-radius:999px;padding:.2rem .45rem;}' +
+      // Follow star on bill cards + the "Followed" facet toggle.
+      '.dlib-bill-follow{margin-left:auto;cursor:pointer;font-size:1.05rem;line-height:1;color:#8aa0c4;padding:0 .1rem;user-select:none;transition:color .15s,transform .12s;}' +
+      '.dlib-bill-follow:hover{color:#f6d873;transform:scale(1.15);}' +
+      '.dlib-bill-follow.is-on{color:#f6d873;}' +
+      '.dlib-bf-follow{cursor:pointer;}' +
+      '.dlib-bf-follow input{vertical-align:-1px;margin-right:.2rem;}' +
+      // In Legislation mode, hide the Explore-only chrome; the facet bar shows instead.
+      '.dlib-mode-legislation #dlib-head-collections,.dlib-mode-legislation #dlib-collections,' +
+        '.dlib-mode-legislation #dlib-type-chips,.dlib-mode-legislation .dlib-filters,' +
+        '.dlib-mode-legislation #dlib-jump{display:none !important;}' +
       '@media (max-width:640px){.dlib-grid{grid-template-columns:1fr;}.dlib-collections{grid-template-columns:1fr;}}';
     var st = document.createElement('style');
     st.id = 'dlib-css';
@@ -498,6 +532,200 @@
     });
   }
 
+  // ═══ Legislation mode (Phase 1) ═══════════════════════════════════════════
+  // A second browse mode over window.PDXBills (the Voting Record /measures route).
+  // Reuses the shared search box, grid, count, empty state and "show more"; adds a
+  // bill-specific card and a congress/chamber/status/issue facet bar. The whole
+  // library is unchanged while mode === 'library'.
+  var BILL_STATUS = {
+    introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate',
+    enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending'
+  };
+  var _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false };
+  var _bills = null;          // full loaded bill set (filtered client-side for snap)
+  var _billsLoading = false;
+
+  function billStatusLabel(s) { return BILL_STATUS[s] || (s ? String(s).replace(/_/g, ' ') : ''); }
+  function billChamberLabel(c) {
+    return c === 'house' ? 'House' : c === 'senate' ? 'Senate' : c === 'joint' ? 'Joint' : c === 'court' ? 'Court' : (c || '');
+  }
+
+  // Load the bill set once — inline light index for instant paint, then the live
+  // list (which replaces it). Facet/search changes filter this set client-side.
+  function loadBills() {
+    var bills = G('PDXBills');
+    if (!bills) { _bills = _bills || []; renderBillFacets(); applyBills(); return; }
+    if (!_bills) {
+      bills.ensureIndex().then(function () {
+        if (_state.mode !== 'legislation' || _bills) return;
+        _bills = (bills.listSync().items) || [];
+        renderBillFacets(); applyBills();
+      });
+    }
+    if (!_billsLoading) {
+      _billsLoading = true;
+      bills.list({ pageSize: 100, sort: 'recent' }).then(function (d) {
+        _billsLoading = false;
+        _bills = (d && d.items) ? d.items : (_bills || []);
+        if (_state.mode === 'legislation') { renderBillFacets(); applyBills(); }
+      });
+    } else {
+      applyBills();
+    }
+  }
+
+  function billIsFollowed(b) {
+    try { var api = G('PDXBills'); return !!(api && api.isFollowed && api.isFollowed(b)); } catch (e) { return false; }
+  }
+  function billMatches(b) {
+    if (_billFilters.followed && !billIsFollowed(b)) return false;
+    if (_billFilters.congress && String(b.congress) !== String(_billFilters.congress)) return false;
+    if (_billFilters.chamber && b.chamber !== _billFilters.chamber) return false;
+    if (_billFilters.status && b.status !== _billFilters.status) return false;
+    if (_billFilters.issue && (b.issueKeys || []).indexOf(_billFilters.issue) < 0) return false;
+    if (_state.q) {
+      var hay = ((b.number || '') + ' ' + (b.title || '') + ' ' + (b.shortTitle || '') + ' ' +
+        (b.summary || '') + ' ' + (b.issueKeys || []).map(issueLabel).join(' ')).toLowerCase();
+      var terms = _state.q.toLowerCase().split(/\s+/).filter(Boolean);
+      for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return false;
+    }
+    return true;
+  }
+
+  function billCardHtml(b) {
+    var ref = (b.id != null) ? b.id : b.number;
+    var followed = billIsFollowed(b);
+    var star = '<span class="dlib-bill-follow' + (followed ? ' is-on' : '') + '" data-follow="' + esc(String(ref)) + '" role="button" tabindex="0" ' +
+      'aria-pressed="' + followed + '" aria-label="' + (followed ? 'Unfollow' : 'Follow') + ' this bill" title="' + (followed ? 'Following — click to unfollow' : 'Follow this bill') + '">' + (followed ? '★' : '☆') + '</span>';
+    var status = b.status ? '<span class="dlib-bill-status dlib-bs-' + esc(b.status) + '">' + esc(billStatusLabel(b.status)) + '</span>' : '';
+    var meta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : '',
+      b.voteCount ? (b.voteCount + ' recorded votes') : ''].filter(Boolean).join(' · ');
+    var omni = b.isOmnibus ? '<span class="dlib-bill-omni" title="Bundles multiple issues into one vote">📦 Omnibus</span>' : '';
+    var tags = (b.issueKeys || []).slice(0, 4).map(function (k) {
+      return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
+    }).join('');
+    var tagRow = (omni || tags) ? '<span class="dlib-card-tags">' + omni + tags + '</span>' : '';
+    return '<div class="dlib-card dlib-billcard" data-bill="' + esc(String(ref)) + '" role="button" tabindex="0" aria-label="Open bill: ' + esc(b.title) + '">' +
+      '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
+      '<span class="dlib-card-title">' + esc(b.shortTitle || b.title) + '</span>' +
+      (meta ? '<span class="dlib-bill-meta">' + esc(meta) + '</span>' : '') +
+      (b.summary ? '<span class="dlib-card-blurb">' + esc(b.summary) + '</span>' : '') +
+      tagRow +
+    '</div>';
+  }
+
+  function renderBillFacets() {
+    var wrap = document.getElementById('dlib-bill-facets');
+    if (!wrap) return;
+    var bills = _bills || [];
+    function distinct(fn) { var s = {}; bills.forEach(function (b) { var v = fn(b); if (v != null && v !== '') s[v] = 1; }); return Object.keys(s); }
+    var congresses = distinct(function (b) { return b.congress; }).sort(function (a, b) { return b - a; });
+    var chambers = distinct(function (b) { return b.chamber; }).sort();
+    var statuses = distinct(function (b) { return b.status; }).sort();
+    var issues = {}; bills.forEach(function (b) { (b.issueKeys || []).forEach(function (k) { if (k) issues[k] = (issues[k] || 0) + 1; }); });
+    var issueKeys = Object.keys(issues).sort(function (a, b) { return issueLabel(a).localeCompare(issueLabel(b)); });
+    var followN = 0; try { var api = G('PDXBills'); followN = (api && api.followed) ? (api.followed() || []).length : 0; } catch (e) {}
+    function opts(list, cur, labelFn) {
+      return '<option value="">All</option>' + list.map(function (v) {
+        return '<option value="' + esc(String(v)) + '"' + (String(cur) === String(v) ? ' selected' : '') + '>' + esc(labelFn(v)) + '</option>';
+      }).join('');
+    }
+    wrap.innerHTML =
+      '<label>Congress <select data-bf="congress">' + opts(congresses, _billFilters.congress, function (v) { return v + 'th'; }) + '</select></label>' +
+      '<label>Chamber <select data-bf="chamber">' + opts(chambers, _billFilters.chamber, billChamberLabel) + '</select></label>' +
+      '<label>Status <select data-bf="status">' + opts(statuses, _billFilters.status, billStatusLabel) + '</select></label>' +
+      '<label>Issue <select data-bf="issue">' + opts(issueKeys, _billFilters.issue, function (k) { return issueLabel(k) + ' (' + issues[k] + ')'; }) + '</select></label>' +
+      '<label class="dlib-bf-follow"><input type="checkbox" data-bf-followed' + (_billFilters.followed ? ' checked' : '') + '> ★ Followed' + (followN ? ' (' + followN + ')' : '') + '</label>';
+    wrap.querySelectorAll('[data-bf]').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        _billFilters[sel.getAttribute('data-bf')] = sel.value || '';
+        _state.shown = PAGE; applyBills();
+      });
+    });
+    var fchk = wrap.querySelector('[data-bf-followed]');
+    if (fchk) fchk.addEventListener('change', function () { _billFilters.followed = fchk.checked; _state.shown = PAGE; applyBills(); });
+  }
+
+  function applyBills() {
+    var grid = document.getElementById('dlib-grid');
+    var count = document.getElementById('dlib-count');
+    var empty = document.getElementById('dlib-empty');
+    var more = document.getElementById('dlib-more');
+    if (!grid) return;
+    if (!_bills) { grid.innerHTML = '<div class="dlib-empty" style="grid-column:1/-1;">Loading legislation…</div>'; if (more) more.hidden = true; return; }
+    var list = _bills.filter(billMatches);
+    var slice = list.slice(0, _state.shown);
+    grid.innerHTML = slice.map(billCardHtml).join('');
+    grid.querySelectorAll('[data-bill]').forEach(function (b) {
+      var go = function () { var api = G('PDXBills'); if (api && api.open) api.open(b.getAttribute('data-bill')); };
+      b.addEventListener('click', function (e) {
+        // A click on the follow star is handled separately (below); ignore it here.
+        if (e.target && e.target.closest && e.target.closest('[data-follow]')) return;
+        go();
+      });
+      b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    grid.querySelectorAll('[data-follow]').forEach(function (star) {
+      var toggle = function (e) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
+        var api = G('PDXBills'); if (!api || !api.toggleFollow) return;
+        var ref = star.getAttribute('data-follow');
+        // Find the full card object so the stored entry has number/congress/title.
+        var card = null; for (var i = 0; i < _bills.length; i++) { var bb = _bills[i]; if (String(bb.id) === ref || bb.number === ref) { card = bb; break; } }
+        if (!card) return;
+        var on = api.toggleFollow(card);
+        star.classList.toggle('is-on', on); star.textContent = on ? '★' : '☆'; star.setAttribute('aria-pressed', String(on));
+        if (_billFilters.followed) applyBills(); // fell out of / into the filtered set
+      };
+      star.addEventListener('click', toggle);
+      star.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggle(e); });
+    });
+    if (count) count.textContent = list.length ? ('Showing ' + slice.length + ' of ' + list.length + ' bill' + (list.length !== 1 ? 's' : '')) : '';
+    if (empty) {
+      empty.hidden = list.length !== 0;
+      if (!list.length) {
+        empty.textContent = _billFilters.followed
+          ? 'You’re not following any bills yet. Open a bill and tap ☆ Follow to save it here.'
+          : 'No legislation matches those filters yet. Clear a facet or broaden your search.';
+      }
+    }
+    if (more) more.hidden = list.length <= _state.shown;
+  }
+
+  function renderModes() {
+    var wrap = document.getElementById('dlib-modes');
+    if (!wrap) return;
+    var modes = [{ k: 'library', label: '📚 Explore' }, { k: 'legislation', label: '🏛️ Legislation' }];
+    wrap.innerHTML = modes.map(function (m) {
+      return '<button type="button" role="tab" class="dlib-mode' + (_state.mode === m.k ? ' is-active' : '') +
+        '" data-mode="' + m.k + '" aria-selected="' + (_state.mode === m.k) + '">' + m.label + '</button>';
+    }).join('');
+    wrap.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); });
+    });
+  }
+
+  function setMode(mode) {
+    if (mode !== 'legislation') mode = 'library';
+    if (_state.mode === mode && (mode !== 'legislation' || _bills)) { /* still refresh chrome below */ }
+    _state.mode = mode;
+    _state.shown = PAGE;
+    var host = document.getElementById('digital-library');
+    if (host) host.classList.toggle('dlib-mode-legislation', mode === 'legislation');
+    var facets = document.getElementById('dlib-bill-facets');
+    if (facets) facets.hidden = (mode !== 'legislation');
+    renderModes();
+    var browseHead = document.getElementById('dlib-head-browse');
+    if (browseHead) {
+      var h3 = browseHead.querySelector('h3'), sp = browseHead.querySelector('span');
+      if (mode === 'legislation') { if (h3) h3.textContent = 'Legislation'; if (sp) sp.textContent = 'Bills & measures — filter by congress, chamber, status or issue'; }
+      else { if (h3) h3.textContent = 'Browse the archive'; if (sp) sp.textContent = 'Filter by type or issue'; }
+    }
+    if (mode === 'legislation') loadBills();
+    else applyBrowse();
+  }
+  window._pdxDlibSetMode = setMode; // small hook for the collection tile + focus()
+
   function render() {
     var host = document.getElementById('digital-library');
     if (!host) return false;
@@ -508,6 +736,7 @@
     injectCss();
     _index = buildIndex();
     renderCollections();
+    renderModes();
     renderTypeChips();
     renderIssueFilter();
 
@@ -528,7 +757,7 @@
     var more = document.getElementById('dlib-more');
     if (more && !more._dlibWired) {
       more._dlibWired = true;
-      more.addEventListener('click', function () { _state.shown += PAGE; applyBrowse(); });
+      more.addEventListener('click', function () { _state.shown += PAGE; if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
     }
     applyBrowse();
     _built = true;
@@ -552,6 +781,7 @@
     focus: function (opts) {
       opts = opts || {};
       if (!_built) render();
+      if (opts.mode) { setMode(opts.mode); }
       if (opts.type) { _state.type = opts.type; syncChips(); }
       if (typeof opts.issue === 'string') { _state.issue = opts.issue; var sel = document.getElementById('dlib-issue-filter'); if (sel) sel.value = opts.issue; }
       if (typeof opts.q === 'string') { var input = document.getElementById('dlib-search'); if (input) input.value = opts.q; onSearch(opts.q); }
@@ -564,4 +794,17 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { boot(0); });
   } else { boot(0); }
+
+  // Run 3 perf: the Spotlight registry now loads on demand (pdx-lazy-data.js).
+  // Rebuild the archive the moment it arrives, in case the visitor scrolled the
+  // Digital Library into view after the boot() retry window closed.
+  document.addEventListener('pdx:data:spotlights', function () {
+    try { _built = false; render(); } catch (e) {}
+  });
+
+  // Phase 3: when a bill is followed/unfollowed anywhere (e.g. from the detail
+  // panel), refresh the Legislation view so stars + the Followed facet stay in sync.
+  document.addEventListener('pdx:bills:followed-changed', function () {
+    if (_state.mode === 'legislation') { try { renderBillFacets(); applyBills(); } catch (e) {} }
+  });
 })();
