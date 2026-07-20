@@ -480,6 +480,16 @@
       '.dlib-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;' +
         'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
       '.dlib-empty{text-align:center;color:#8aa0c4;font:500 .9rem/1.5 "Barlow",sans-serif;padding:2rem 1rem;}' +
+      '.dlib-empty:not([hidden]){display:flex;flex-direction:column;align-items:center;gap:.9rem;}' +
+      '.dlib-clear-filters{cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
+        'color:#9ec8ff;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);border-radius:999px;padding:.55rem 1.1rem;transition:background .15s,border-color .15s;}' +
+      '.dlib-clear-filters:hover{background:rgba(96,165,250,.2);border-color:rgba(96,165,250,.6);}' +
+      // Loading skeleton for the Legislation grid (shown before the bill set resolves).
+      '.dlib-skel{border:1px solid rgba(159,180,212,.12);border-left:3px solid rgba(74,222,128,.35);border-radius:.7rem;padding:.85rem .9rem;background:rgba(10,15,30,.35);display:flex;flex-direction:column;gap:.55rem;overflow:hidden;}' +
+      '.dlib-skel-bar{height:.7rem;border-radius:.35rem;background:linear-gradient(90deg,rgba(159,180,212,.08),rgba(159,180,212,.18),rgba(159,180,212,.08));background-size:200% 100%;animation:dlib-shimmer 1.3s ease-in-out infinite;}' +
+      '.dlib-skel-bar.w40{width:40%;}.dlib-skel-bar.w60{width:60%;}.dlib-skel-bar.w85{width:85%;height:1rem;}' +
+      '@keyframes dlib-shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}' +
+      '@media (prefers-reduced-motion:reduce){.dlib-skel-bar{animation:none;}}' +
       '.dlib-more-wrap{text-align:center;margin-top:1.2rem;}' +
       '.dlib-more{cursor:pointer;font:700 .8rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
         'color:#9ec8ff;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);border-radius:999px;padding:.65rem 1.4rem;transition:background .15s,border-color .15s;}' +
@@ -512,7 +522,9 @@
       '.dlib-mode-legislation #dlib-head-collections,.dlib-mode-legislation #dlib-collections,' +
         '.dlib-mode-legislation #dlib-type-chips,.dlib-mode-legislation .dlib-filters,' +
         '.dlib-mode-legislation #dlib-jump{display:none !important;}' +
-      '@media (max-width:640px){.dlib-grid{grid-template-columns:1fr;}.dlib-collections{grid-template-columns:1fr;}}';
+      '@media (max-width:640px){.dlib-grid{grid-template-columns:1fr;}.dlib-collections{grid-template-columns:1fr;}' +
+        '.dlib-billfacets{gap:.5rem;}.dlib-billfacets label{width:100%;justify-content:space-between;}' +
+        '.dlib-billfacets select{flex:1;min-width:0;max-width:60%;}.dlib-bf-follow{width:auto !important;}}';
     var st = document.createElement('style');
     st.id = 'dlib-css';
     st.textContent = css;
@@ -646,13 +658,39 @@
     if (fchk) fchk.addEventListener('change', function () { _billFilters.followed = fchk.checked; _state.shown = PAGE; applyBills(); });
   }
 
+  // A shimmer skeleton grid shown while the bill set is still resolving, so the tab
+  // never flashes an empty or bare "loading" line on open.
+  function billSkeletonHtml(n) {
+    var one = '<div class="dlib-skel" aria-hidden="true">' +
+      '<span class="dlib-skel-bar w40"></span><span class="dlib-skel-bar w85"></span>' +
+      '<span class="dlib-skel-bar w60"></span><span class="dlib-skel-bar w40"></span></div>';
+    var out = ''; for (var i = 0; i < (n || 6); i++) out += one; return out;
+  }
+
+  // Reset every bill facet + the search box back to the default view.
+  function clearBillFilters() {
+    _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false };
+    _state.q = '';
+    var input = document.getElementById('dlib-search');
+    if (input) input.value = '';
+    _state.shown = PAGE;
+    renderBillFacets();
+    applyBills();
+  }
+
   function applyBills() {
     var grid = document.getElementById('dlib-grid');
     var count = document.getElementById('dlib-count');
     var empty = document.getElementById('dlib-empty');
     var more = document.getElementById('dlib-more');
     if (!grid) return;
-    if (!_bills) { grid.innerHTML = '<div class="dlib-empty" style="grid-column:1/-1;">Loading legislation…</div>'; if (more) more.hidden = true; return; }
+    if (!_bills) {
+      grid.innerHTML = billSkeletonHtml(6);
+      if (count) count.textContent = 'Loading legislation…';
+      if (empty) empty.hidden = true;
+      if (more) more.hidden = true;
+      return;
+    }
     var list = _bills.filter(billMatches);
     var slice = list.slice(0, _state.shown);
     grid.innerHTML = slice.map(billCardHtml).join('');
@@ -680,13 +718,21 @@
       star.addEventListener('click', toggle);
       star.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggle(e); });
     });
-    if (count) count.textContent = list.length ? ('Showing ' + slice.length + ' of ' + list.length + ' bill' + (list.length !== 1 ? 's' : '')) : '';
+    if (count) count.textContent = list.length
+      ? ('Showing ' + slice.length + ' of ' + list.length + ' bill' + (list.length !== 1 ? 's' : '') + (_billsLoading ? ' · updating…' : ''))
+      : '';
     if (empty) {
       empty.hidden = list.length !== 0;
       if (!list.length) {
-        empty.textContent = _billFilters.followed
+        var hasFilter = !!(_billFilters.congress || _billFilters.chamber || _billFilters.status ||
+          _billFilters.issue || _billFilters.followed || _state.q);
+        var msg = _billFilters.followed
           ? 'You’re not following any bills yet. Open a bill and tap ☆ Follow to save it here.'
           : 'No legislation matches those filters yet. Clear a facet or broaden your search.';
+        empty.innerHTML = '<div>' + msg + '</div>' +
+          (hasFilter ? '<button type="button" class="dlib-clear-filters" data-clear-bills>Clear filters</button>' : '');
+        var cb = empty.querySelector('[data-clear-bills]');
+        if (cb) cb.addEventListener('click', clearBillFilters);
       }
     }
     if (more) more.hidden = list.length <= _state.shown;
