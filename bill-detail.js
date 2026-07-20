@@ -110,7 +110,7 @@
       var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
       return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '">' +
         '<div class="bd-omni-head">' +
-          '<span class="bd-omni-issue">' + esc(issueLabel(it.issueKey)) + '</span>' +
+          '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
           (it.isPrimary ? '<span class="bd-omni-primary">Primary</span>' : '') +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
@@ -298,7 +298,20 @@
 
   function relatedSection(m, issues) {
     var parts = [];
-    // Issue Spotlights tied to any of this bill's component issues.
+    // Explore-these-issues jump chips + a link back into the Legislation library,
+    // filtered to this bill's primary issue. Always available when the bill has issues.
+    if (issues && issues.length) {
+      var primaryKey = (issues.find(function (i) { return i.isPrimary; }) || issues[0] || {}).issueKey || '';
+      var chips = issues.slice(0, 8).map(function (it) {
+        return '<button type="button" class="bd-person bd-issuejump" data-issue="' + escAttr(it.issueKey) + '">' +
+          '<span class="bd-person-name">🔎 ' + esc(issueLabel(it.issueKey)) + '</span>' +
+          '<span class="bd-person-role">Issue spotlight</span></button>';
+      }).join('');
+      parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Explore these issues</div><div class="bd-people">' + chips + '</div>' +
+        (primaryKey ? '<button type="button" class="bd-btn bd-legis" data-legis="' + escAttr(primaryKey) + '">🏛️ Browse related bills in the Legislation library</button>' : '') +
+      '</div>');
+    }
+    // Issue Spotlights tied to any of this bill's component issues (when available).
     try {
       var sp = G('PDXSpotlight');
       if (sp && typeof sp.forIssueKey === 'function') {
@@ -319,7 +332,18 @@
       }
     } catch (e) {}
     if (!parts.length) return '';
-    return '<section class="bd-sec"><h3 class="bd-h">🔗 Related</h3>' + parts.join('') + '</section>';
+    return '<section class="bd-sec"><h3 class="bd-h">🔗 Related &amp; explore</h3>' + parts.join('') + '</section>';
+  }
+
+  // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
+  function openIssue(key) {
+    if (!key) return;
+    try { if (window.PDXIssueView && window.PDXIssueView.open) { close(); window.PDXIssueView.open(key); return; } } catch (e) {}
+    try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'library', issue: key }); return; } } catch (e) {}
+  }
+  // Jump into the Legislation library filtered by an issue.
+  function browseLegislation(key) {
+    try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'legislation', issue: key || '' }); return; } } catch (e) {}
   }
 
   // ── render ──────────────────────────────────────────────────────────────────
@@ -383,6 +407,10 @@
       if (pb) { var pid = pb.getAttribute('data-pid'); if (pid && typeof window.showProfile === 'function') { close(); window.showProfile(pid); } return; }
       var sb = e.target.closest ? e.target.closest('[data-slug]') : null;
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
+      var ib = e.target.closest ? e.target.closest('[data-issue]') : null;
+      if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
+      var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
+      if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
       var fb = e.target.closest ? e.target.closest('[data-bd-follow]') : null;
       if (fb) { toggleFollow(fb); return; }
       var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
@@ -534,6 +562,10 @@
       '.bd-omni-summary{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .8rem;}' +
       '.bd-omni-head{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;}' +
       '.bd-omni-issue{font:700 .9rem/1.2 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
+      '.bd-omni-link{background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(126,180,255,.35);text-underline-offset:2px;}' +
+      '.bd-omni-link:hover{color:#9ec8ff;text-decoration-color:#9ec8ff;}' +
+      '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
+      '.bd-legis{margin-top:.6rem;display:inline-block;}' +
       '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +

@@ -504,6 +504,24 @@
       '.dlib-billfacets{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.6rem;}' +
       '.dlib-billfacets label{font:700 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;display:inline-flex;align-items:center;gap:.45rem;}' +
       '.dlib-billfacets select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
+      // Quick-jump pills row + the facet/sort row below it.
+      '.dlib-jumps{display:flex;flex-wrap:wrap;gap:.4rem;width:100%;margin-bottom:.55rem;}' +
+      '.dlib-facet-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;width:100%;}' +
+      '.dlib-jump{cursor:pointer;font:700 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
+        'color:#cbd9ec;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.42rem .8rem;' +
+        'display:inline-flex;align-items:center;gap:.35rem;transition:background .15s,border-color .15s,color .15s;}' +
+      '.dlib-jump:hover{background:rgba(159,180,212,.16);color:#fff;}' +
+      '.dlib-jump.is-on{color:#9ff0bd;background:rgba(74,222,128,.16);border-color:rgba(74,222,128,.5);}' +
+      '.dlib-jump-n{font-size:.9em;opacity:.8;background:rgba(0,0,0,.2);border-radius:999px;padding:.05rem .35rem;}' +
+      '.dlib-sortsel select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
+      // Section-breakdown chips on bill cards (each links to an Issue Spotlight).
+      '.dlib-sec-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:auto;padding-top:.4rem;font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7d97bd;}' +
+      '.dlib-sec-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem;}' +
+      '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#9ec8ff;' +
+        'background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.28);border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s;}' +
+      '.dlib-sec-chip:hover{background:rgba(96,165,250,.22);border-color:rgba(96,165,250,.6);}' +
+      '.dlib-sec-chip.is-primary{color:#0a0f1e;background:#7fb4ff;border-color:#7fb4ff;}' +
+      '.dlib-sec-more{font:600 .58rem/1 "Barlow Condensed",sans-serif;color:#8aa0c4;align-self:center;}' +
       '.dlib-billcard{border-left-color:rgba(74,222,128,.7);}' +
       '.dlib-bill-meta{font:600 .66rem/1.25 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
       '.dlib-bill-status{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;border-radius:.4rem;' +
@@ -553,9 +571,44 @@
     introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate',
     enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending'
   };
-  var _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false };
+  var _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false, phase: '' };
+  var _billSort = 'recent';   // recent | oldest | number | status
   var _bills = null;          // full loaded bill set (filtered client-side for snap)
   var _billsLoading = false;
+
+  // Quick-jump presets over the same set: "phase" of a bill's life. Active = still
+  // moving; Upcoming = introduced/pending (not yet through a chamber); Enacted = law.
+  var BILL_MOVING = { introduced: 1, passed_house: 1, passed_senate: 1, pending: 1 };
+  var BILL_UPCOMING = { introduced: 1, pending: 1 };
+  function billInPhase(b, phase) {
+    if (phase === 'active') return !!BILL_MOVING[b.status];
+    if (phase === 'upcoming') return !!BILL_UPCOMING[b.status];
+    if (phase === 'enacted') return b.status === 'enacted';
+    return true;
+  }
+  // Sort helpers. `introducedAt` (ISO) arrives on the live list; fall back to congress.
+  function billDateVal(b) {
+    var t = b.introducedAt ? Date.parse(b.introducedAt) : NaN;
+    if (!isNaN(t)) return t;
+    return (Number(b.congress) || 0) * 1e10; // coarse fallback keeps newer congresses first
+  }
+  function billNumberVal(b) {
+    var m = String(b.number || '').match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : Number.MAX_SAFE_INTEGER;
+  }
+  // Progress rank for the "Status" sort — furthest-along first.
+  var BILL_PROGRESS = { enacted: 6, passed_senate: 5, passed_house: 4, pending: 3, introduced: 2, failed: 1, vetoed: 1 };
+  function billSortCmp(a, b) {
+    if (_billSort === 'number') {
+      return billNumberVal(a) - billNumberVal(b) || String(a.number || '').localeCompare(String(b.number || ''));
+    }
+    if (_billSort === 'status') {
+      return (BILL_PROGRESS[b.status] || 0) - (BILL_PROGRESS[a.status] || 0) || billDateVal(b) - billDateVal(a);
+    }
+    var d = billDateVal(b) - billDateVal(a); // recent (newest first) by default
+    if (_billSort === 'oldest') d = -d;
+    return d || String(a.number || '').localeCompare(String(b.number || ''), undefined, { numeric: true });
+  }
 
   function billStatusLabel(s) { return BILL_STATUS[s] || (s ? String(s).replace(/_/g, ' ') : ''); }
   function billChamberLabel(c) {
@@ -591,6 +644,7 @@
   }
   function billMatches(b) {
     if (_billFilters.followed && !billIsFollowed(b)) return false;
+    if (_billFilters.phase && !billInPhase(b, _billFilters.phase)) return false;
     if (_billFilters.congress && String(b.congress) !== String(_billFilters.congress)) return false;
     if (_billFilters.chamber && b.chamber !== _billFilters.chamber) return false;
     if (_billFilters.status && b.status !== _billFilters.status) return false;
@@ -612,17 +666,36 @@
     var status = b.status ? '<span class="dlib-bill-status dlib-bs-' + esc(b.status) + '">' + esc(billStatusLabel(b.status)) + '</span>' : '';
     var meta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : '',
       b.voteCount ? (b.voteCount + ' recorded votes') : ''].filter(Boolean).join(' · ');
-    var omni = b.isOmnibus ? '<span class="dlib-bill-omni" title="Bundles multiple issues into one vote">📦 Omnibus</span>' : '';
-    var tags = (b.issueKeys || []).slice(0, 4).map(function (k) {
-      return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
-    }).join('');
-    var tagRow = (omni || tags) ? '<span class="dlib-card-tags">' + omni + tags + '</span>' : '';
+
+    // Section breakdown: each of the bill's issue categories becomes a chip that jumps
+    // to that Issue Spotlight. For a true omnibus we lead with a count so the bundled
+    // nature reads at a glance.
+    var keys = (b.issueKeys || []).filter(Boolean);
+    var primary = b.primaryIssue || keys[0] || '';
+    // Primary issue first, then the rest, de-duplicated.
+    var ordered = [];
+    (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
+    var shownKeys = ordered.slice(0, 6);
+    var extra = ordered.length - shownKeys.length;
+    var chips = shownKeys.map(function (k, i) {
+      return '<button type="button" class="dlib-sec-chip' + (i === 0 && k === primary ? ' is-primary' : '') +
+        '" data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
+        esc(issueLabel(k)) + '</button>';
+    }).join('') + (extra > 0 ? '<span class="dlib-sec-more">+' + extra + '</span>' : '');
+    var omni = ordered.length >= 2
+      ? '<span class="dlib-bill-omni" title="This bill bundles multiple issues into one vote">📦 ' + ordered.length + ' sections</span>'
+      : '';
+    var breakdown = ordered.length
+      ? '<span class="dlib-sec-head">' + (ordered.length >= 2 ? 'Breaks into:' : 'Focus:') + omni + '</span>' +
+        '<span class="dlib-sec-chips">' + chips + '</span>'
+      : '';
+
     return '<div class="dlib-card dlib-billcard" data-bill="' + esc(String(ref)) + '" role="button" tabindex="0" aria-label="Open bill: ' + esc(b.title) + '">' +
       '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
       '<span class="dlib-card-title">' + esc(b.shortTitle || b.title) + '</span>' +
       (meta ? '<span class="dlib-bill-meta">' + esc(meta) + '</span>' : '') +
       (b.summary ? '<span class="dlib-card-blurb">' + esc(b.summary) + '</span>' : '') +
-      tagRow +
+      breakdown +
     '</div>';
   }
 
@@ -642,20 +715,55 @@
         return '<option value="' + esc(String(v)) + '"' + (String(cur) === String(v) ? ' selected' : '') + '>' + esc(labelFn(v)) + '</option>';
       }).join('');
     }
+    // Quick-jump pills: phase presets + Followed, plus a live count on each.
+    var counts = { active: 0, upcoming: 0, enacted: 0 };
+    bills.forEach(function (b) {
+      if (billInPhase(b, 'active')) counts.active++;
+      if (billInPhase(b, 'upcoming')) counts.upcoming++;
+      if (b.status === 'enacted') counts.enacted++;
+    });
+    var isAll = !_billFilters.phase && !_billFilters.followed;
+    function jump(key, label, on, n) {
+      return '<button type="button" class="dlib-jump' + (on ? ' is-on' : '') + '" data-jump="' + key + '">' +
+        label + (n != null ? ' <span class="dlib-jump-n">' + n + '</span>' : '') + '</button>';
+    }
+    var jumps = '<div class="dlib-jumps" role="group" aria-label="Quick jumps">' +
+      jump('all', 'All', isAll) +
+      jump('active', '🟢 Currently Active', _billFilters.phase === 'active', counts.active) +
+      jump('upcoming', '🔜 Upcoming', _billFilters.phase === 'upcoming', counts.upcoming) +
+      jump('enacted', '✅ Enacted', _billFilters.phase === 'enacted', counts.enacted) +
+      jump('followed', '★ Followed', _billFilters.followed, followN) +
+    '</div>';
+    var sortSel = '<label class="dlib-sortsel">Sort <select data-bill-sort>' +
+      [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['number', 'Bill number'], ['status', 'Furthest along']]
+        .map(function (o) { return '<option value="' + o[0] + '"' + (_billSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+      '</select></label>';
     wrap.innerHTML =
-      '<label>Congress <select data-bf="congress">' + opts(congresses, _billFilters.congress, function (v) { return v + 'th'; }) + '</select></label>' +
-      '<label>Chamber <select data-bf="chamber">' + opts(chambers, _billFilters.chamber, billChamberLabel) + '</select></label>' +
-      '<label>Status <select data-bf="status">' + opts(statuses, _billFilters.status, billStatusLabel) + '</select></label>' +
-      '<label>Issue <select data-bf="issue">' + opts(issueKeys, _billFilters.issue, function (k) { return issueLabel(k) + ' (' + issues[k] + ')'; }) + '</select></label>' +
-      '<label class="dlib-bf-follow"><input type="checkbox" data-bf-followed' + (_billFilters.followed ? ' checked' : '') + '> ★ Followed' + (followN ? ' (' + followN + ')' : '') + '</label>';
+      jumps +
+      '<div class="dlib-facet-row">' +
+        '<label>Congress <select data-bf="congress">' + opts(congresses, _billFilters.congress, function (v) { return v + 'th'; }) + '</select></label>' +
+        '<label>Chamber <select data-bf="chamber">' + opts(chambers, _billFilters.chamber, billChamberLabel) + '</select></label>' +
+        '<label>Status <select data-bf="status">' + opts(statuses, _billFilters.status, billStatusLabel) + '</select></label>' +
+        '<label>Issue <select data-bf="issue">' + opts(issueKeys, _billFilters.issue, function (k) { return issueLabel(k) + ' (' + issues[k] + ')'; }) + '</select></label>' +
+        sortSel +
+      '</div>';
     wrap.querySelectorAll('[data-bf]').forEach(function (sel) {
       sel.addEventListener('change', function () {
         _billFilters[sel.getAttribute('data-bf')] = sel.value || '';
         _state.shown = PAGE; applyBills();
       });
     });
-    var fchk = wrap.querySelector('[data-bf-followed]');
-    if (fchk) fchk.addEventListener('change', function () { _billFilters.followed = fchk.checked; _state.shown = PAGE; applyBills(); });
+    var sortEl = wrap.querySelector('[data-bill-sort]');
+    if (sortEl) sortEl.addEventListener('change', function () { _billSort = sortEl.value || 'recent'; _state.shown = PAGE; applyBills(); });
+    wrap.querySelectorAll('[data-jump]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var j = btn.getAttribute('data-jump');
+        if (j === 'all') { _billFilters.phase = ''; _billFilters.followed = false; }
+        else if (j === 'followed') { _billFilters.followed = !_billFilters.followed; }
+        else { _billFilters.phase = (_billFilters.phase === j) ? '' : j; }
+        _state.shown = PAGE; renderBillFacets(); applyBills();
+      });
+    });
   }
 
   // A shimmer skeleton grid shown while the bill set is still resolving, so the tab
@@ -667,9 +775,23 @@
     var out = ''; for (var i = 0; i < (n || 6); i++) out += one; return out;
   }
 
+  // Cross-navigation: open the Issue Spotlight / Issue View for a key. Falls back to
+  // filtering the Legislation list by that issue so a click always does something.
+  function openIssueSpotlight(key) {
+    if (!key) return;
+    try {
+      if (window.PDXIssueView && typeof window.PDXIssueView.open === 'function') {
+        window.PDXIssueView.open(key); return;
+      }
+    } catch (e) {}
+    _billFilters.issue = key; _state.shown = PAGE;
+    renderBillFacets(); applyBills();
+  }
+
   // Reset every bill facet + the search box back to the default view.
   function clearBillFilters() {
-    _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false };
+    _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false, phase: '' };
+    _billSort = 'recent';
     _state.q = '';
     var input = document.getElementById('dlib-search');
     if (input) input.value = '';
@@ -691,17 +813,24 @@
       if (more) more.hidden = true;
       return;
     }
-    var list = _bills.filter(billMatches);
+    var list = _bills.filter(billMatches).sort(billSortCmp);
     var slice = list.slice(0, _state.shown);
     grid.innerHTML = slice.map(billCardHtml).join('');
     grid.querySelectorAll('[data-bill]').forEach(function (b) {
       var go = function () { var api = G('PDXBills'); if (api && api.open) api.open(b.getAttribute('data-bill')); };
       b.addEventListener('click', function (e) {
-        // A click on the follow star is handled separately (below); ignore it here.
-        if (e.target && e.target.closest && e.target.closest('[data-follow]')) return;
+        // Clicks on the follow star or a section chip are handled separately; ignore here.
+        if (e.target && e.target.closest && (e.target.closest('[data-follow]') || e.target.closest('[data-issue]'))) return;
         go();
       });
       b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    // Section chips → jump to that Issue Spotlight (falls back to filtering the list).
+    grid.querySelectorAll('[data-issue]').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        e.stopPropagation(); e.preventDefault();
+        openIssueSpotlight(chip.getAttribute('data-issue'));
+      });
     });
     grid.querySelectorAll('[data-follow]').forEach(function (star) {
       var toggle = function (e) {
@@ -725,7 +854,7 @@
       empty.hidden = list.length !== 0;
       if (!list.length) {
         var hasFilter = !!(_billFilters.congress || _billFilters.chamber || _billFilters.status ||
-          _billFilters.issue || _billFilters.followed || _state.q);
+          _billFilters.issue || _billFilters.followed || _billFilters.phase || _state.q);
         var msg = _billFilters.followed
           ? 'You’re not following any bills yet. Open a bill and tap ☆ Follow to save it here.'
           : 'No legislation matches those filters yet. Clear a facet or broaden your search.';
@@ -828,6 +957,18 @@
       opts = opts || {};
       if (!_built) render();
       if (opts.mode) { setMode(opts.mode); }
+      // Legislation-mode deep link: filter the bill hub by issue / phase / sort.
+      if (opts.mode === 'legislation') {
+        if (typeof opts.issue === 'string') _billFilters.issue = opts.issue;
+        if (typeof opts.phase === 'string') _billFilters.phase = opts.phase;
+        if (typeof opts.sort === 'string') _billSort = opts.sort;
+        if (opts.followed === true) _billFilters.followed = true;
+        _state.shown = PAGE;
+        loadBills();
+        var lhost = document.getElementById('digital-library');
+        if (lhost && lhost.scrollIntoView) lhost.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       if (opts.type) { _state.type = opts.type; syncChips(); }
       if (typeof opts.issue === 'string') { _state.issue = opts.issue; var sel = document.getElementById('dlib-issue-filter'); if (sel) sel.value = opts.issue; }
       if (typeof opts.q === 'string') { var input = document.getElementById('dlib-search'); if (input) input.value = opts.q; onSearch(opts.q); }
