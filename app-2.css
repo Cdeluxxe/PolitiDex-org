@@ -1,0 +1,1570 @@
+
+    /* Scoped Evidence Locker styles — self-contained so the section never
+       depends on a Tailwind utility that may have been purged from the build. */
+    #evidence-locker .el-shell { max-width: 80rem; margin: 0 auto; }
+    .el-toolbar {
+      background: rgba(13,21,38,0.6); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem; padding: 1rem 1.1rem; margin-bottom: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+    .el-controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+    .el-field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1 1 12rem; min-width: 11rem; }
+    .el-field label {
+      font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #7e93b4; font-weight: 700;
+    }
+    .el-field select, .el-search input {
+      width: 100%; background: rgba(7,11,22,0.85); color: #e7eefb;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.6rem;
+      padding: 0.55rem 0.7rem; font-size: 0.85rem; appearance: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .el-field select:focus, .el-search input:focus {
+      outline: none; border-color: rgba(96,165,250,0.6);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+    .el-search { flex: 2 1 16rem; }
+    /* Prominent, full-width search bar that sits above the filter/sort row. */
+    .el-searchbar {
+      position: relative; display: flex; align-items: center;
+      background: rgba(7,11,22,0.9); border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.8rem; padding: 0 0.9rem; margin-bottom: 0.95rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .el-searchbar:focus-within {
+      border-color: rgba(96,165,250,0.6); box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+    .el-search-icon { font-size: 0.95rem; opacity: 0.7; margin-right: 0.6rem; line-height: 1; }
+    .el-searchbar input {
+      flex: 1; min-width: 0; background: transparent; border: none; color: #e7eefb;
+      padding: 0.85rem 0.2rem; font-size: 0.95rem; outline: none; appearance: none;
+    }
+    .el-searchbar input::placeholder { color: #6f84a6; }
+    .el-searchbar input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+    .el-search-clear {
+      flex: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      color: #cdd9ef; width: 1.55rem; height: 1.55rem; border-radius: 50%;
+      font-size: 1.05rem; line-height: 1; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: all 0.15s ease; padding: 0;
+    }
+    .el-search-clear:hover { background: rgba(240,128,154,0.2); color: #ff9db2; border-color: rgba(240,128,154,0.45); }
+    /* Give the filter/sort selects a visible chevron now that appearance is reset. */
+    .el-field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237e93b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.65rem center; background-size: 0.7rem;
+      padding-right: 1.9rem; cursor: pointer;
+    }
+    .el-types { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+    /* One-line Category explainer that sits under the filter row — orients a
+       first-time visitor to what the Category dropdown does without adding a
+       modal or taking much space. Intentionally quiet. */
+    .el-cat-hint {
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      margin-top: 0.75rem; font-size: 0.74rem; line-height: 1.45; color: #8aa0c2;
+    }
+    .el-cat-hint strong { color: #cfe0fb; font-weight: 700; }
+    .el-cat-hint-ico { flex: none; color: #60a5fa; font-size: 0.82rem; line-height: 1.45; }
+    .el-chip {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+      color: #9fb4d4; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 999px;
+      padding: 0.34rem 0.78rem; cursor: pointer; white-space: nowrap;
+      transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .el-chip:hover { border-color: rgba(96,165,250,0.5); color: #cfe0fb; }
+    .el-chip.is-active {
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border-color: rgba(245,200,66,0.9);
+    }
+    .el-meta-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;
+      margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .el-count { font-size: 0.8rem; color: #9fb4d4; }
+    .el-count strong { color: #fff; }
+    .el-reset {
+      margin-left: auto; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      color: #f0809a; background: none; border: none; cursor: pointer; padding: 0.2rem 0;
+      text-transform: uppercase;
+    }
+    .el-reset:hover { color: #ff9db2; text-decoration: underline; }
+    .el-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+      gap: 1rem;
+    }
+    .el-grid > .el-card { animation: el-fade 0.22s ease both; }
+    @keyframes el-fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    /* Compact density — additive, toggled on #el-results via the toolbar density
+       switch. Packs more evidence per screen to cut long scrolls, without
+       altering card content or the default comfortable layout. */
+    .el-grid.is-compact { grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr)); gap: 0.6rem; }
+    .el-grid.is-compact > .el-card { padding: 0.7rem 0.78rem; gap: 0.4rem; border-radius: 0.7rem; }
+    .el-grid.is-compact .el-headline { font-size: 0.82rem; line-height: 1.32; }
+    .el-grid.is-compact .el-facts { -webkit-line-clamp: 2; font-size: 0.72rem; }
+    .el-grid.is-compact .el-actions { gap: 0.35rem; padding-top: 0.3rem; }
+    .el-grid.is-compact .el-btn { padding: 0.34rem 0.56rem; font-size: 0.68rem; }
+    .el-density { display: inline-flex; align-items: center; gap: 0; border: 1px solid rgba(159,180,212,0.24); border-radius: 999px; overflow: hidden; }
+    .el-density-btn {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+      color: #9fb4d4; background: none; border: none; cursor: pointer; padding: 0.32rem 0.62rem; transition: background 0.15s, color 0.15s;
+    }
+    .el-density-btn:hover { color: #e6eefc; }
+    .el-density-btn.is-active { background: rgba(245,200,66,0.16); color: #f5d77a; }
+    .el-card {
+      display: flex; flex-direction: column; gap: 0.6rem;
+      background: linear-gradient(160deg, rgba(18,28,48,0.85), rgba(11,18,33,0.92));
+      border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid rgba(96,165,250,0.5);
+      border-radius: 0.9rem; padding: 1rem 1.05rem;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .el-card:hover {
+      transform: translateY(-2px); border-color: rgba(96,165,250,0.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .el-card.el-video { border-left-color: rgba(245,200,66,0.75); }
+    .el-card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+    .el-badge {
+      font-size: 0.64rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 0.4rem; padding: 0.2rem 0.5rem; display: inline-flex; align-items: center; gap: 0.28rem;
+      color: #bcd0f0; background: rgba(96,165,250,0.14); border: 1px solid rgba(96,165,250,0.3);
+    }
+    .el-badge.t-video { color: #f6d873; background: rgba(245,200,66,0.14); border-color: rgba(245,200,66,0.4); }
+    .el-badge.t-x { color: #e7eefb; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+    .el-badge.t-facebook { color: #8ab4f8; background: rgba(59,89,152,0.22); border-color: rgba(96,165,250,0.4); }
+    .el-issue {
+      font-size: 0.66rem; font-weight: 700; color: #9fb4d4;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; padding: 0.2rem 0.5rem;
+    }
+    /* Documented/inferred stance pill on an evidence card — same green/red/amber
+       language as the By-Politician stance rows, so a card communicates the
+       politician's position on its issue at a glance. The trailing "~" marks a
+       headline-inferred read (not a documented position). */
+    /* Stance chip — the at-a-glance "where they stand" pill on every card. Made
+       deliberately prominent (filled tint, brighter text, a leading colour-coded
+       icon dot) so a Support / Oppose / Mixed read jumps out while scanning the
+       grid, without crowding the rest of the card-top row. */
+    .el-cstance {
+      display: inline-flex; align-items: center; gap: 0.32rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 0.22rem 0.58rem; border-radius: 999px; white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .el-cstance .el-cstance-ico { font-weight: 900; line-height: 1; font-size: 0.74rem; }
+    .el-cstance .el-cstance-inf { opacity: 0.6; font-weight: 700; }
+    .el-cstance.is-support { color: #b6f7cf; background: rgba(52,211,153,0.2);  border-color: rgba(52,211,153,0.55); }
+    .el-cstance.is-oppose  { color: #ffc0c8; background: rgba(248,113,113,0.2); border-color: rgba(248,113,113,0.55); }
+    .el-cstance.is-mixed   { color: #ffe08a; background: rgba(245,200,66,0.2);  border-color: rgba(245,200,66,0.55); }
+    /* Broad Category pill — a softly tinted blue pill with a leading icon so
+       it reads as the higher-level bucket and is easy to catch at a glance,
+       especially on mobile. It carries more weight than the squarer, muted
+       specific-Issue tag beside it, giving a clear two-tier hierarchy:
+       Category (broad topic) noticeable, Issue (precise label) secondary. */
+    .el-cat {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.03em;
+      color: #cfe0fb; background: rgba(96,165,250,0.16);
+      border: 1px solid rgba(96,165,250,0.4); border-radius: 999px;
+      padding: 0.24rem 0.62rem 0.24rem 0.5rem; display: inline-flex;
+      align-items: center; gap: 0.32rem; white-space: nowrap;
+    }
+    .el-cat .el-cat-ico { font-size: 0.86rem; line-height: 1; }
+    /* Subtle, optional bridge from an evidence item to community discussion.
+       Hidden until the issue is confirmed to have posts (see _enhanceCommunityLinks).
+       Gold-tinted to match the Community Exchange's own accent language. */
+    .el-cee-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      margin-top: 0.6rem; padding: 0.32rem 0.62rem;
+      font-family: inherit; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.01em;
+      line-height: 1.2; color: #e7cf93; background: rgba(245,200,66,0.08);
+      border: 1px solid rgba(245,200,66,0.28); border-radius: 0.55rem; cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .el-cee-link:hover { background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.5); color: #f5dca0; }
+    .el-cee-link[hidden] { display: none !important; }
+    .el-cee-link-modal { width: 100%; justify-content: center; margin-top: 0.9rem; padding: 0.55rem 0.7rem; font-size: 0.8rem; }
+    /* Discussion-volume hint, rendered as a small subtle pill so the level of
+       community activity is scannable at a glance without competing with the
+       link itself. Only ever shown when real posts exist (see
+       _enhanceCommunityLinks), so the curated grid stays uncluttered. */
+    .el-cee-count {
+      display: inline-flex; align-items: center; line-height: 1;
+      font-weight: 700; font-size: 0.62rem; letter-spacing: 0.02em;
+      color: #f7e2ad; background: rgba(245,200,66,0.16);
+      border: 1px solid rgba(245,200,66,0.42); border-radius: 999px;
+      padding: 0.14rem 0.44rem; margin-left: 0.12rem;
+    }
+    .el-cee-link:hover .el-cee-count { background: rgba(245,200,66,0.26); border-color: rgba(245,200,66,0.58); }
+    /* In the wider modal link the pill is nudged up a touch to match the larger type. */
+    .el-cee-link-modal .el-cee-count { font-size: 0.66rem; padding: 0.16rem 0.48rem; }
+    .el-cee-count[hidden] { display: none !important; }
+    /* Compact community-activity tag — the same muted gold pill language as the
+       discussion-count above, surfaced inline among an item's metadata so a
+       browser scanning many curated cards/issues can instantly spot the ones
+       with lively discussion attached. A quiet contextual hint, never a primary
+       CTA. Hidden until the issue is confirmed to have posts (revealed by the
+       same single cached read in _enhanceCommunityLinks — no extra network). */
+    .el-cee-tag {
+      display: inline-flex; align-items: center; gap: 0.26rem; line-height: 1;
+      font-family: inherit; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.02em;
+      color: #f7e2ad; background: rgba(245,200,66,0.16);
+      border: 1px solid rgba(245,200,66,0.42); border-radius: 999px;
+      padding: 0.14rem 0.44rem; white-space: nowrap;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .el-cee-tag .el-cee-tag-ico { font-size: 0.66rem; line-height: 1; }
+    /* The evidence-card tag is a button that jumps to the Exchange; give it the
+       same hover lift as the established gold link. The issue-gateway tag is a
+       static span that simply inherits its card's click, so it needs no hover. */
+    button.el-cee-tag { cursor: pointer; }
+    button.el-cee-tag:hover { background: rgba(245,200,66,0.26); border-color: rgba(245,200,66,0.58); color: #fff0c8; }
+    .el-cee-tag[hidden] { display: none !important; }
+    .el-date { margin-left: auto; font-size: 0.68rem; color: #7e93b4; font-weight: 600; white-space: nowrap; }
+    .el-pol {
+      font-size: 0.82rem; font-weight: 700; color: #fff; line-height: 1.25;
+    }
+    .el-pol .el-office { display: block; font-size: 0.68rem; font-weight: 500; color: #8aa0c2; margin-top: 0.1rem; }
+    .el-headline { font-size: 0.9rem; line-height: 1.4; color: #dce6f7; font-weight: 600; }
+    .el-facts {
+      font-size: 0.78rem; line-height: 1.5; color: #93a7c7;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .el-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; padding-top: 0.4rem; }
+    .el-btn {
+      font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
+      border-radius: 0.55rem; padding: 0.45rem 0.7rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none;
+      transition: all 0.15s ease; border: 1px solid transparent;
+    }
+    .el-btn-src {
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border-color: rgba(245,200,66,0.9);
+    }
+    .el-btn-src:hover { filter: brightness(1.08); }
+    .el-btn-src.is-plain { color: #bcd0f0; background: rgba(96,165,250,0.14); border-color: rgba(96,165,250,0.35); }
+    .el-btn-src.is-plain:hover { background: rgba(96,165,250,0.22); }
+    .el-btn-prof {
+      color: #cdd9ef; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.14);
+    }
+    .el-btn-prof:hover { background: rgba(255,255,255,0.09); color: #fff; }
+    .el-status, .el-empty {
+      text-align: center; color: #8aa0c2; font-size: 0.9rem; padding: 2.5rem 1rem;
+    }
+    .el-spin {
+      width: 1.4rem; height: 1.4rem; border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.15); border-top-color: #60a5fa;
+      display: inline-block; animation: el-spin 0.7s linear infinite; vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    @keyframes el-spin { to { transform: rotate(360deg); } }
+    /* Error + retry state for the library loader — shown if evidence can't be
+       fetched (offline / flaky network) or the load takes too long. */
+    .el-status.is-error { color: #f6d2d2; }
+    .el-err-ico { font-size: 2.3rem; line-height: 1; margin-bottom: 0.5rem; }
+    .el-err-title { font-size: 1.05rem; font-weight: 700; color: #fcdcdc; margin-bottom: 0.3rem; }
+    .el-err-sub { font-size: 0.84rem; color: #b89aa2; margin-bottom: 1.1rem; line-height: 1.5; }
+    .el-retry {
+      font-size: 0.82rem; font-weight: 700; letter-spacing: 0.02em; color: #0a0f1e;
+      background: linear-gradient(135deg,#fad96a,#e6b800); border: none; border-radius: 0.55rem;
+      padding: 0.6rem 1.3rem; cursor: pointer; transition: filter 0.15s ease;
+    }
+    .el-retry:hover { filter: brightness(1.08); }
+    .el-retry:focus-visible { outline: 2px solid rgba(96,165,250,0.8); outline-offset: 2px; }
+    @media (max-width: 600px) {
+      .el-grid { grid-template-columns: 1fr; }
+      .el-field { flex-basis: 100%; }
+    }
+
+    /* ── Evidence detail modal ─────────────────────────────────────────────
+       Clicking a card opens this overlay with the full item plus everything
+       PolitiDex has connected to it on the same issue (Promises + evidence). */
+    .el-card { cursor: pointer; }
+    .el-card:focus-visible { outline: 2px solid rgba(96,165,250,0.7); outline-offset: 2px; }
+    .el-card-hint {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #6f86ac; display: inline-flex; align-items: center; gap: 0.3rem;
+      margin-left: auto; white-space: nowrap; transition: color 0.15s ease;
+    }
+    .el-card:hover .el-card-hint { color: #9fc1f7; }
+
+    .el-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 4vh 1rem; overflow-y: auto;
+      background: rgba(4,7,15,0.78); backdrop-filter: blur(6px);
+      opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .el-modal-overlay.is-open { opacity: 1; visibility: visible; }
+    .el-modal {
+      position: relative; width: 100%; max-width: 44rem; margin: auto;
+      background: linear-gradient(165deg, rgba(20,31,54,0.98), rgba(11,18,33,0.99));
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 1.1rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      transform: translateY(14px) scale(0.985); transition: transform 0.22s ease;
+    }
+    .el-modal-overlay.is-open .el-modal { transform: none; }
+    .el-modal-inner { padding: 1.6rem 1.5rem 1.7rem; }
+    @media (max-width: 600px) { .el-modal-inner { padding: 1.25rem 1.1rem 1.4rem; } }
+    .el-modal-close {
+      position: absolute; top: 0.85rem; right: 0.85rem; z-index: 2;
+      width: 2.1rem; height: 2.1rem; border-radius: 50%;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16);
+      color: #cdd9ef; font-size: 1.25rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+      transition: all 0.15s ease;
+    }
+    .el-modal-close:hover { background: rgba(240,128,154,0.2); color: #ff9db2; border-color: rgba(240,128,154,0.45); }
+    .el-modal-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding-right: 2.4rem; margin-bottom: 0.9rem; }
+    .el-modal-pol { font-size: 0.95rem; font-weight: 800; color: #fff; line-height: 1.3; }
+    .el-modal-pol .el-office { display: block; font-size: 0.72rem; font-weight: 500; color: #8aa0c2; margin-top: 0.12rem; }
+    .el-modal-headline { font-size: 1.18rem; line-height: 1.35; color: #fff; font-weight: 700; margin: 0.55rem 0 0.6rem; }
+    .el-modal-summary { font-size: 0.92rem; line-height: 1.6; color: #b9c8e2; }
+    .el-modal-src-wrap { margin-top: 1.15rem; }
+    .el-modal-src {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.02em;
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border: 1px solid rgba(245,200,66,0.9); border-radius: 0.6rem;
+      padding: 0.6rem 1rem; text-decoration: none; transition: filter 0.15s ease;
+    }
+    .el-modal-src:hover { filter: brightness(1.08); }
+    .el-modal-src.is-plain { color: #dbe7fb; background: rgba(96,165,250,0.16); border-color: rgba(96,165,250,0.4); }
+    .el-modal-src.is-plain:hover { background: rgba(96,165,250,0.26); filter: none; }
+    .el-modal-srcmeta { display: block; margin-top: 0.5rem; font-size: 0.72rem; color: #7e93b4; }
+
+    .el-connected {
+      margin-top: 1.6rem; padding-top: 1.35rem; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .el-connected-title {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #9fb4d4; display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.3rem;
+    }
+    .el-connected-sub { font-size: 0.8rem; color: #7e93b4; line-height: 1.5; margin-bottom: 1rem; }
+    .el-connected-sub strong { color: #cdd9ef; font-weight: 700; }
+    .el-subhead {
+      font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #7e93b4; margin: 1.1rem 0 0.6rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .el-subhead:first-of-type { margin-top: 0.2rem; }
+    .el-subhead .el-subcount {
+      font-weight: 700; color: #9fb4d4; background: rgba(255,255,255,0.06);
+      border-radius: 999px; padding: 0.05rem 0.45rem; font-size: 0.62rem; letter-spacing: 0.04em;
+    }
+
+    .el-prom {
+      display: flex; gap: 0.65rem; align-items: flex-start;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.7rem; padding: 0.7rem 0.8rem; margin-bottom: 0.55rem;
+    }
+    .el-prom-dot { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-top: 0.32rem; }
+    .el-prom-dot.kept { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.5); }
+    .el-prom-dot.broken { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.5); }
+    .el-prom-dot.pending { background: #f5c842; box-shadow: 0 0 6px rgba(245,200,66,0.45); }
+    .el-prom-body { flex: 1; min-width: 0; }
+    .el-prom-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem; }
+    .el-prom-title { font-size: 0.85rem; font-weight: 700; color: #e7eefb; line-height: 1.35; }
+    .el-prom-verdict {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 0.35rem; padding: 0.12rem 0.42rem; white-space: nowrap;
+    }
+    .el-prom-verdict.kept { color: #4ade80; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); }
+    .el-prom-verdict.broken { color: #f87171; background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.3); }
+    .el-prom-verdict.pending { color: #f5c842; background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.3); }
+    .el-prom-detail { font-size: 0.78rem; line-height: 1.5; color: #93a7c7; margin-top: 0.3rem; }
+
+    .el-rel {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%; text-align: left;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.7rem; padding: 0.6rem 0.7rem; margin-bottom: 0.5rem; cursor: pointer;
+      color: inherit; font: inherit; transition: all 0.15s ease;
+    }
+    .el-rel:hover { border-color: rgba(96,165,250,0.45); background: rgba(96,165,250,0.07); }
+    .el-rel-icon {
+      flex: none; width: 1.9rem; height: 1.9rem; border-radius: 0.5rem;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+      background: rgba(96,165,250,0.14); border: 1px solid rgba(96,165,250,0.3); color: #bcd0f0;
+    }
+    .el-rel-icon.t-video { background: rgba(245,200,66,0.14); border-color: rgba(245,200,66,0.4); color: #f6d873; }
+    .el-rel-body { flex: 1; min-width: 0; }
+    .el-rel-type { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8aa0c2; }
+    .el-rel-head {
+      font-size: 0.82rem; font-weight: 600; color: #dce6f7; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .el-rel-arrow { flex: none; color: #6f86ac; font-size: 0.95rem; transition: color 0.15s ease; }
+    .el-rel:hover .el-rel-arrow { color: #9fc1f7; }
+    .el-connected-empty { font-size: 0.82rem; color: #7e93b4; line-height: 1.55; font-style: italic; }
+    .el-modal-prof { margin-top: 1.5rem; }
+    .el-modal-prof .el-btn-prof { font-size: 0.78rem; }
+
+    /* ── Phase 4 · Evidence Strength indicators ───────────────────────────
+       A small, transparent quality cue on every card + in the modal. Three
+       levels — Strong / Moderate / Limited — coloured green / amber / slate.
+       The bars (●●●, ●●○, ●○○) carry the meaning at a glance; the title attr
+       lists the plain-language reasons so it never reads as a black box. */
+    .el-strength {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      border-radius: 0.4rem; padding: 0.18rem 0.45rem; white-space: nowrap; cursor: help;
+      border: 1px solid transparent;
+    }
+    .el-strength .el-str-bars { letter-spacing: 0.05em; font-size: 0.62rem; line-height: 1; }
+    .el-strength.is-strong   { color: #5fe6a4; background: rgba(52,211,153,0.13); border-color: rgba(52,211,153,0.34); }
+    .el-strength.is-moderate { color: #f5c842; background: rgba(245,200,66,0.13); border-color: rgba(245,200,66,0.34); }
+    .el-strength.is-limited  { color: #9fb4d4; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.14); }
+    .el-modal-top .el-strength { font-size: 0.64rem; }
+
+    /* A subtle, always-visible legend so the strength badges explain themselves
+       at a glance — keeps the scoring transparent without a modal or tooltip. */
+    .el-legend {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.7rem;
+      font-size: 0.66rem; color: #7e93b4; line-height: 1.4;
+    }
+    .el-legend-lab {
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8aa0c2;
+    }
+    .el-legend-item { display: inline-flex; align-items: center; gap: 0.28rem; white-space: nowrap; }
+    .el-legend-bars { font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1; }
+    .el-legend-item.is-strong .el-legend-bars   { color: #5fe6a4; }
+    .el-legend-item.is-moderate .el-legend-bars { color: #f5c842; }
+    .el-legend-item.is-limited .el-legend-bars  { color: #9fb4d4; }
+
+    /* ── Phase 4 · Save / bookmark control on cards ───────────────────────── */
+    .el-bm {
+      flex: none; margin-left: 0.1rem; width: 1.85rem; height: 1.85rem; border-radius: 0.5rem;
+      display: inline-flex; align-items: center; justify-content: center; padding: 0;
+      font-size: 0.95rem; line-height: 1; cursor: pointer;
+      color: #9fb4d4; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      transition: all 0.15s ease;
+    }
+    .el-bm:hover { color: #f6d873; border-color: rgba(245,200,66,0.5); background: rgba(245,200,66,0.1); }
+    .el-bm.is-saved { color: #f6d873; background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.55); }
+    .el-card-top .el-bm { margin-left: auto; }
+    .el-card-top .el-date + .el-bm { margin-left: 0.35rem; }
+    .el-modal-top .el-bm { width: 2rem; height: 2rem; font-size: 1.02rem; }
+
+    /* ── Phase 4 · All Evidence / My Evidence tab toggle ──────────────────── */
+    .el-tabs {
+      display: inline-flex; gap: 0.25rem; padding: 0.28rem; margin: 0 auto 1.4rem;
+      background: rgba(13,21,38,0.6); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.85rem; backdrop-filter: blur(8px);
+    }
+    .el-tab {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4;
+      background: none; border: none; cursor: pointer; border-radius: 0.6rem;
+      padding: 0.5rem 1.05rem; display: inline-flex; align-items: center; gap: 0.45rem;
+      transition: all 0.15s ease;
+    }
+    .el-tab:hover { color: #cfe0fb; }
+    .el-tab.is-active { color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800); }
+    .el-tab .el-tab-count {
+      font-size: 0.66rem; font-weight: 800; border-radius: 999px; padding: 0.02rem 0.42rem;
+      background: rgba(255,255,255,0.12); color: inherit;
+    }
+    .el-tab.is-active .el-tab-count { background: rgba(10,15,30,0.18); }
+
+    /* ── By Issue · Issue Gateway Cards ───────────────────────────────────────
+       A third browse lens: instead of starting from a politician or the whole
+       library, a voter starts from an issue. Each card is an entry point that
+       names the issue, counts who's on record, sketches the stance split, and
+       drills into the SAME issue-filtered All Evidence grid via the established
+       deep-link path. Evidence-blue surfaces, gold accents, stance green/red/amber. */
+    .el-issueview { margin-top: 0.5rem; }
+    .el-issue-search {
+      position: relative; display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(7,11,22,0.7); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.7rem; padding: 0.1rem 0.85rem; margin-bottom: 1.4rem; max-width: 30rem;
+    }
+    .el-issue-search:focus-within { border-color: rgba(96,165,250,0.55); box-shadow: 0 0 0 3px rgba(96,165,250,0.13); }
+    .el-issue-search input {
+      flex: 1; min-width: 0; background: none; border: none; outline: none;
+      color: #e7eefb; font-size: 0.86rem; padding: 0.62rem 0;
+    }
+    .el-issue-search .el-search-icon { font-size: 0.9rem; opacity: 0.7; }
+    .el-issue-status { display: flex; align-items: center; gap: 0.6rem; color: #9fb4d4; font-size: 0.85rem; padding: 1.2rem 0; }
+    .el-issue-empty { text-align: center; padding: 2.4rem 1rem; color: #8aa0c2; }
+    .el-issue-empty-ico { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8; }
+    .el-issue-empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 700; color: #cfe0fb; letter-spacing: 0.03em; }
+    .el-issue-empty-sub { font-size: 0.82rem; line-height: 1.5; margin-top: 0.3rem; }
+    .el-issue-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr)); gap: 1rem;
+    }
+    .el-issue-card {
+      display: flex; flex-direction: column; gap: 0.7rem; text-align: left; cursor: pointer;
+      background: linear-gradient(160deg, rgba(22,32,55,0.92), rgba(12,19,36,0.95));
+      border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid rgba(96,165,250,0.55);
+      border-radius: 0.85rem; padding: 1.05rem 1.1rem 1rem; color: inherit; font: inherit;
+      animation: el-fade 0.24s ease both; transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease;
+    }
+    @media (hover: hover) {
+      .el-issue-card:hover {
+        border-color: rgba(245,200,66,0.45); border-left-color: rgba(245,200,66,0.85);
+        background: linear-gradient(160deg, rgba(28,38,64,0.95), rgba(14,21,40,0.96));
+        transform: translateY(-2px);
+      }
+      .el-issue-card:hover .el-ig-cta { color: #f5c842; }
+      .el-issue-card:hover .el-ig-go { transform: translate(2px,-2px); }
+    }
+    .el-issue-card:focus-visible { outline: 2px solid rgba(245,200,66,0.7); outline-offset: 2px; }
+    .el-ig-top { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .el-ig-ico { font-size: 1.35rem; line-height: 1.1; flex: none; }
+    .el-ig-head { min-width: 0; }
+    .el-ig-title {
+      display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 1.08rem; font-weight: 700;
+      letter-spacing: 0.02em; color: #fff; line-height: 1.2;
+    }
+    .el-ig-cat {
+      display: block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #7e93b4; margin-top: 0.18rem;
+    }
+    .el-ig-stat { font-size: 0.78rem; color: #9fb4d4; line-height: 1.45; }
+    .el-ig-stat strong { color: #e7eefb; font-weight: 800; }
+    .el-ig-stances { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
+    .el-ig-st {
+      display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.7rem; font-weight: 800;
+      letter-spacing: 0.01em; border-radius: 999px; padding: 0.18rem 0.55rem;
+      border: 1px solid transparent;
+    }
+    .el-ig-st.is-support { color: #b6f7cf; background: rgba(74,222,128,0.18); border-color: rgba(74,222,128,0.5); }
+    .el-ig-st.is-oppose  { color: #ffc0c8; background: rgba(248,113,113,0.18); border-color: rgba(248,113,113,0.5); }
+    .el-ig-st.is-mixed   { color: #ffe08a; background: rgba(245,200,66,0.18); border-color: rgba(245,200,66,0.5); }
+    .el-ig-st.is-rec     { color: #9fb4d4; background: rgba(159,180,212,0.1); border-color: rgba(159,180,212,0.3); }
+    .el-ig-cta {
+      display: flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; font-weight: 800;
+      letter-spacing: 0.04em; text-transform: uppercase; color: #cbd9ec; margin-top: 0.15rem;
+      padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); transition: color 0.16s ease;
+    }
+    .el-ig-go { margin-left: auto; color: inherit; transition: transform 0.16s ease; }
+
+    /* ── By Issue · Stance-grouped focus ──────────────────────────────────────
+       Tapping a gateway card opens this focused breakdown for one issue: the
+       politicians on record, bucketed by where they stand (Supports / Opposes /
+       Mixed / On Record). Each entry reuses the Locker's stance chip (green/red/
+       amber) and gold power badge, shows an evidence count, and links straight to
+       that person's evidence on the issue. Same surfaces and colour language as
+       the rest of the Locker. */
+    .el-issue-focus { margin-top: 0.5rem; animation: el-fade 0.22s ease both; }
+    .el-if-head {
+      display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;
+      padding-bottom: 1rem; margin-bottom: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .el-if-head-main { display: flex; align-items: flex-start; gap: 0.7rem; min-width: 0; flex: 1; }
+    .el-if-head-ico { font-size: 1.7rem; line-height: 1; flex: none; }
+    .el-if-head-titles { min-width: 0; }
+    .el-if-eyebrow { font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: #f5c842; font-weight: 800; display: block; margin-bottom: 0.2rem; }
+    .el-if-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.5rem;
+      letter-spacing: 0.01em; color: #fff; line-height: 1.1;
+    }
+    .el-if-sub { font-size: 0.8rem; color: #9fb4d4; margin-top: 0.25rem; }
+    .el-if-sub strong { color: #e7eefb; font-weight: 800; }
+    .el-if-actions { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+    .el-if-back, .el-if-viewall {
+      display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+      font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
+      border-radius: 0.55rem; padding: 0.46rem 0.8rem; transition: all 0.15s ease;
+    }
+    .el-if-back { color: #cbd9ec; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); }
+    .el-if-back:hover { border-color: rgba(96,165,250,0.5); color: #fff; background: rgba(96,165,250,0.12); }
+    .el-if-viewall { color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800); border: 1px solid rgba(245,200,66,0.9); }
+    .el-if-viewall:hover { filter: brightness(1.08); }
+
+    /* Stance jump-nav — one chip per bucket, counts visible, dimmed when empty. */
+    .el-if-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.4rem; }
+    .el-if-navchip {
+      display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+      font-size: 0.76rem; font-weight: 800; letter-spacing: 0.01em;
+      border-radius: 999px; padding: 0.34rem 0.75rem; border: 1px solid transparent;
+      background: rgba(255,255,255,0.04); transition: filter 0.15s ease, transform 0.12s ease;
+    }
+    .el-if-navchip:hover { transform: translateY(-1px); filter: brightness(1.12); }
+    .el-if-navchip:focus-visible { outline: 2px solid rgba(245,200,66,0.7); outline-offset: 2px; }
+    .el-if-navchip .el-if-navn {
+      font-size: 0.68rem; font-weight: 900; border-radius: 999px; padding: 0.02rem 0.42rem;
+      background: rgba(0,0,0,0.28);
+    }
+    /* Canonical four-state colours (shared with window.PDXStance): Supported teal,
+       Opposed orange-red, Mixed amber, No Clear Position gray. */
+    .el-if-navchip.is-support  { color: #4fd6b3; border-color: rgba(45,212,164,0.5);  background: rgba(45,212,164,0.14); }
+    .el-if-navchip.is-oppose   { color: #ff9d84; border-color: rgba(248,113,90,0.5);  background: rgba(248,113,90,0.14); }
+    .el-if-navchip.is-mixed    { color: #f3cb5c; border-color: rgba(245,193,66,0.5);  background: rgba(245,193,66,0.14); }
+    .el-if-navchip.is-tracking { color: #a4b4cc; border-color: rgba(140,156,182,0.4); background: rgba(140,156,182,0.12); }
+    .el-if-navchip.is-empty { opacity: 0.4; pointer-events: none; }
+
+    /* Stance sections */
+    .el-if-sec { margin-bottom: 1.6rem; scroll-margin-top: 1rem; }
+    .el-if-sec-head {
+      display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .el-if-sec-dot { font-weight: 900; font-size: 0.95rem; line-height: 1; }
+    /* Canonical four-state colours (shared with window.PDXStance). */
+    .el-if-sec.is-support  .el-if-sec-dot { color: #4fd6b3; }
+    .el-if-sec.is-oppose   .el-if-sec-dot { color: #ff9d84; }
+    .el-if-sec.is-mixed    .el-if-sec-dot { color: #f3cb5c; }
+    .el-if-sec.is-tracking .el-if-sec-dot { color: #a4b4cc; }
+    .el-if-sec-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.08rem;
+      letter-spacing: 0.04em; text-transform: uppercase; color: #e7eefb;
+    }
+    .el-if-sec-n {
+      font-size: 0.64rem; font-weight: 800; color: #9fb4d4; background: rgba(255,255,255,0.06);
+      border-radius: 999px; padding: 0.1rem 0.5rem; letter-spacing: 0.04em;
+    }
+    .el-if-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 0.85rem;
+    }
+    .el-if-pol {
+      display: flex; flex-direction: column; gap: 0.6rem;
+      background: linear-gradient(160deg, rgba(22,32,55,0.9), rgba(12,19,36,0.94));
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 0.8rem; padding: 0.85rem 0.9rem;
+    }
+    .el-if-pol-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
+    .el-if-pol-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.05rem; color: #fff; line-height: 1.15; }
+    .el-if-pol-office { font-size: 0.72rem; color: #9fb4d4; margin-top: 0.15rem; }
+    .el-if-pol-sig { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    /* Quiet "inferred" caption beside the pill — a headline-derived read, never a
+       documented one. Calm gray so it never competes with the canonical stance. */
+    .el-if-inf {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #8ea3c4; opacity: 0.9;
+    }
+    .el-if-pol-foot {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+      padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .el-if-pol-count { font-size: 0.74rem; color: #9fb4d4; }
+    .el-if-pol-count b { color: #e7eefb; font-weight: 800; }
+    .el-if-pol-ev {
+      display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; white-space: nowrap;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: #8ab4f8;
+      background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 0.5rem; padding: 0.34rem 0.62rem; transition: all 0.15s ease;
+    }
+    .el-if-pol-ev:hover { color: #eaf2ff; border-color: rgba(96,165,250,0.6); background: rgba(96,165,250,0.2); }
+
+    /* Inline expand toggle — chevron + label, sits opposite the receipt count. */
+    .el-if-pol.is-open { border-color: rgba(96,165,250,0.4); }
+    .el-if-pol-toggle {
+      display: inline-flex; align-items: center; gap: 0.34rem; cursor: pointer; white-space: nowrap;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: #8ab4f8;
+      background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 0.5rem; padding: 0.34rem 0.62rem; transition: all 0.15s ease;
+    }
+    .el-if-pol-toggle:hover { color: #eaf2ff; border-color: rgba(96,165,250,0.6); background: rgba(96,165,250,0.2); }
+    .el-if-pol-toggle:focus-visible { outline: 2px solid rgba(96,165,250,0.7); outline-offset: 2px; }
+    .el-if-pol-chev { font-size: 0.66rem; line-height: 1; }
+
+    /* Expanded receipts list for one politician. */
+    .el-if-pol-evwrap {
+      display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.2rem;
+      padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07);
+      animation: el-fade 0.18s ease both;
+    }
+    .el-if-pol-evwrap[hidden] { display: none; }
+    .el-if-pol-evwrap .el-if-pol-ev { align-self: flex-start; }
+    .el-if-ev {
+      display: flex; flex-direction: column; gap: 0.4rem;
+      background: rgba(8,14,28,0.55); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.6rem; padding: 0.6rem 0.65rem;
+    }
+    .el-if-ev-head { font-size: 0.82rem; line-height: 1.32; color: #e7eefb; font-weight: 600; }
+    .el-if-ev-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+    .el-if-ev-date { font-size: 0.68rem; color: #9fb4d4; font-weight: 600; }
+    .el-if-ev-open {
+      align-self: flex-start; cursor: pointer; white-space: nowrap;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em; color: #8ab4f8;
+      background: none; border: none; padding: 0.1rem 0; transition: color 0.15s ease;
+    }
+    .el-if-ev-open:hover { color: #eaf2ff; text-decoration: underline; }
+    .el-if-ev-open:focus-visible { outline: 2px solid rgba(96,165,250,0.7); outline-offset: 2px; border-radius: 0.3rem; }
+    .el-cstance.is-tracking { color: #cbd9ec; background: rgba(159,180,212,0.16); border-color: rgba(159,180,212,0.4); }
+    @media (max-width: 540px) {
+      .el-if-title { font-size: 1.3rem; }
+      .el-if-actions { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
+    }
+
+    /* ── Phase 4 · My Evidence panel + collections ────────────────────────── */
+    .el-myev { margin-top: 0.5rem; }
+    .el-myev-head {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .el-myev-head h3 {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 1.15rem; font-weight: 700;
+      letter-spacing: 0.04em; color: #fff; margin: 0;
+    }
+    .el-myev-newcol {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.74rem; font-weight: 700; letter-spacing: 0.03em;
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border: 1px solid rgba(245,200,66,0.9); border-radius: 0.55rem;
+      padding: 0.5rem 0.85rem; cursor: pointer; transition: filter 0.15s ease;
+    }
+    .el-myev-newcol:hover { filter: brightness(1.08); }
+    .el-myev-signin {
+      font-size: 0.78rem; color: #9fb4d4; line-height: 1.55; background: rgba(96,165,250,0.08);
+      border: 1px solid rgba(96,165,250,0.22); border-radius: 0.7rem; padding: 0.7rem 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+    .el-myev-signin button {
+      color: #8ab4f8; background: none; border: none; cursor: pointer; font-weight: 700;
+      padding: 0; text-decoration: underline; font-size: 0.78rem;
+    }
+    .el-coll { margin-bottom: 1.6rem; }
+    .el-coll-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;
+      padding-bottom: 0.6rem; margin-bottom: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .el-coll-name {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 1.02rem; font-weight: 700;
+      letter-spacing: 0.03em; color: #f6d873; display: inline-flex; align-items: center; gap: 0.45rem;
+    }
+    .el-coll-count {
+      font-size: 0.64rem; font-weight: 800; color: #9fb4d4; background: rgba(255,255,255,0.06);
+      border-radius: 999px; padding: 0.08rem 0.5rem; letter-spacing: 0.04em;
+    }
+    .el-coll-tools { margin-left: auto; display: inline-flex; gap: 0.4rem; }
+    .el-coll-tool {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #8aa0c2; background: none; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.45rem; padding: 0.28rem 0.55rem; cursor: pointer; transition: all 0.15s ease;
+    }
+    .el-coll-tool:hover { color: #cfe0fb; border-color: rgba(96,165,250,0.45); }
+    .el-coll-tool.is-danger:hover { color: #ff9db2; border-color: rgba(240,128,154,0.45); }
+    .el-coll-empty {
+      font-size: 0.82rem; color: #7e93b4; font-style: italic; padding: 0.4rem 0 0.2rem;
+    }
+    .el-card .el-btn-remove {
+      color: #f0809a; background: rgba(240,128,154,0.1); border-color: rgba(240,128,154,0.3);
+    }
+    .el-card .el-btn-remove:hover { background: rgba(240,128,154,0.2); color: #ff9db2; }
+
+    /* ── Phase 4 · Save-to-collection mini modal ──────────────────────────── */
+    .el-save-overlay {
+      position: fixed; inset: 0; z-index: 1100;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 8vh 1rem; overflow-y: auto;
+      background: rgba(4,7,15,0.78); backdrop-filter: blur(6px);
+      opacity: 0; visibility: hidden; transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+    .el-save-overlay.is-open { opacity: 1; visibility: visible; }
+    .el-save {
+      position: relative; width: 100%; max-width: 26rem; margin: auto;
+      background: linear-gradient(165deg, rgba(20,31,54,0.99), rgba(11,18,33,0.99));
+      border: 1px solid rgba(255,255,255,0.13); border-radius: 1rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6); padding: 1.4rem 1.3rem 1.3rem;
+      transform: translateY(12px) scale(0.985); transition: transform 0.2s ease;
+    }
+    .el-save-overlay.is-open .el-save { transform: none; }
+    .el-save-title {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #9fb4d4; margin-bottom: 0.3rem;
+    }
+    .el-save-head {
+      font-size: 0.92rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 1rem;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .el-save-list { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1rem; max-height: 15rem; overflow-y: auto; }
+    .el-save-opt {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%; text-align: left;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.6rem; padding: 0.6rem 0.7rem; cursor: pointer; color: inherit;
+      font: inherit; transition: all 0.15s ease;
+    }
+    .el-save-opt:hover { border-color: rgba(96,165,250,0.45); background: rgba(96,165,250,0.06); }
+    .el-save-opt.is-in { border-color: rgba(245,200,66,0.5); background: rgba(245,200,66,0.08); }
+    .el-save-check {
+      flex: none; width: 1.25rem; height: 1.25rem; border-radius: 0.35rem;
+      border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; color: #0a0f1e; background: transparent; transition: all 0.15s ease;
+    }
+    .el-save-opt.is-in .el-save-check { background: linear-gradient(135deg,#fad96a,#e6b800); border-color: rgba(245,200,66,0.9); }
+    .el-save-opt-body { flex: 1; min-width: 0; }
+    .el-save-opt-name { font-size: 0.85rem; font-weight: 700; color: #e7eefb; }
+    .el-save-opt-meta { font-size: 0.68rem; color: #7e93b4; margin-top: 0.1rem; }
+    .el-save-empty { font-size: 0.8rem; color: #7e93b4; font-style: italic; padding: 0.2rem 0 0.6rem; }
+    .el-save-new { display: flex; gap: 0.45rem; margin-top: 0.2rem; }
+    .el-save-new input {
+      flex: 1; min-width: 0; background: rgba(7,11,22,0.85); color: #e7eefb;
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 0.55rem;
+      padding: 0.55rem 0.7rem; font-size: 0.82rem; outline: none;
+    }
+    .el-save-new input:focus { border-color: rgba(96,165,250,0.6); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .el-save-new button {
+      flex: none; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.03em;
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border: 1px solid rgba(245,200,66,0.9); border-radius: 0.55rem; padding: 0 0.85rem; cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .el-save-new button:hover { filter: brightness(1.08); }
+    .el-save-foot { display: flex; align-items: center; gap: 0.6rem; margin-top: 1.1rem; }
+    .el-save-note { font-size: 0.68rem; color: #7e93b4; line-height: 1.45; flex: 1; }
+    .el-save-done {
+      flex: none; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.03em;
+      color: #cdd9ef; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 0.55rem; padding: 0.5rem 0.95rem; cursor: pointer; transition: all 0.15s ease;
+    }
+    .el-save-done:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       Discovery layer — Explore by Category, Featured Evidence and Recently
+       Added. These sit above the filter toolbar and turn the locker's default
+       (unfiltered) state into a curated, magazine-style browse. They render
+       once the library loads and quietly step aside the moment a visitor
+       starts filtering, so focused searches stay clean.
+       ════════════════════════════════════════════════════════════════════ */
+    .el-section-head {
+      display: flex; align-items: baseline; gap: 0.55rem 0.75rem;
+      flex-wrap: wrap; margin: 0 0 0.95rem;
+    }
+    .el-section-title {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 1.18rem; font-weight: 700;
+      letter-spacing: 0.05em; color: #fff; display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .el-section-title .el-sec-eye { color: #f5c842; filter: drop-shadow(0 0 6px rgba(245,200,66,0.45)); }
+    .el-section-sub { font-size: 0.78rem; color: #8aa0c2; line-height: 1.4; }
+    .el-section-sub strong { color: #cfe0fb; font-weight: 700; }
+
+    /* ── Explore by Category — quick topic chips ──────────────────────────── */
+    .el-quickcats { margin-bottom: 1.7rem; }
+    .el-qc-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .el-qc {
+      display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.01em; color: var(--elc, #cfe0fb);
+      background: var(--elc-tint, rgba(96,165,250,0.1)); border: 1px solid var(--elc-border, rgba(96,165,250,0.28));
+      border-radius: 999px; padding: 0.5rem 0.9rem; transition: all 0.15s ease;
+    }
+    .el-qc:hover { filter: brightness(1.12); border-color: var(--elc, rgba(96,165,250,0.55)); transform: translateY(-1px); }
+    .el-qc.is-active { color: #0a0f1e; background: var(--elc, #e6b800); border-color: var(--elc, rgba(245,200,66,0.9)); }
+    .el-qc-ico { font-size: 1rem; line-height: 1; }
+    .el-qc-n {
+      font-size: 0.64rem; font-weight: 800; opacity: 0.85; letter-spacing: 0.02em;
+      background: rgba(255,255,255,0.12); border-radius: 999px; padding: 0.04rem 0.42rem;
+    }
+    .el-qc.is-active .el-qc-n { background: rgba(10,15,30,0.22); opacity: 1; }
+
+    /* ── Showcase wrapper (Featured + Recently Added) ─────────────────────── */
+    .el-showcase { margin-bottom: 2rem; }
+    .el-feat-block { margin-bottom: 2.1rem; }
+    .el-feat-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr)); gap: 1rem;
+    }
+    .el-feat-grid > .el-card { animation: el-fade 0.24s ease both; }
+
+    /* Featured cards lead with a gold accent and richer media. */
+    .el-card.is-featured {
+      border-left-color: rgba(245,200,66,0.8);
+      background: linear-gradient(160deg, rgba(28,37,62,0.9), rgba(13,20,38,0.95));
+    }
+    .el-card.is-featured:hover { border-color: rgba(245,200,66,0.45); }
+    .el-feat-flag {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border-radius: 0.4rem; padding: 0.16rem 0.46rem; display: inline-flex; align-items: center; gap: 0.28rem;
+    }
+
+    /* ── Video thumbnail tile ─────────────────────────────────────────────── */
+    .el-thumb {
+      position: relative; display: block; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 0.7rem; overflow: hidden; text-decoration: none;
+      background: radial-gradient(120% 120% at 30% 20%, #1d2c4c 0%, #0c1426 70%);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+    .el-thumb::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 9px),
+        linear-gradient(180deg, rgba(8,12,24,0.05), rgba(8,12,24,0.62));
+    }
+    .el-thumb-img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0.92; transition: transform 0.3s ease, opacity 0.2s ease;
+    }
+    .el-thumb:hover .el-thumb-img { transform: scale(1.045); opacity: 1; }
+    .el-thumb-play {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 2;
+      width: 3.3rem; height: 3.3rem; border-radius: 50%;
+      background: radial-gradient(circle at 50% 45%, #fbe07a, #e6b800);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.5), 0 0 0 6px rgba(245,200,66,0.14);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .el-thumb:hover .el-thumb-play {
+      transform: translate(-50%,-50%) scale(1.09);
+      box-shadow: 0 9px 30px rgba(0,0,0,0.55), 0 0 0 9px rgba(245,200,66,0.22);
+    }
+    .el-thumb-play svg { width: 1.3rem; height: 1.3rem; fill: #0a0f1e; margin-left: 0.16rem; }
+    .el-thumb-tag {
+      position: absolute; top: 0.55rem; left: 0.6rem; z-index: 2;
+      font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+      color: #f6d873; background: rgba(8,12,24,0.74); border: 1px solid rgba(245,200,66,0.4);
+      border-radius: 0.4rem; padding: 0.18rem 0.46rem; display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .el-thumb-ts {
+      position: absolute; bottom: 0.55rem; right: 0.6rem; z-index: 2;
+      font-size: 0.66rem; font-weight: 800; letter-spacing: 0.02em; color: #fff;
+      background: rgba(8,12,24,0.8); border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 0.4rem; padding: 0.16rem 0.45rem;
+    }
+    .el-thumb-cap {
+      position: absolute; left: 0.6rem; right: 0.6rem; bottom: 0.55rem; z-index: 2;
+      font-size: 0.66rem; font-weight: 600; color: #dbe7fb; line-height: 1.3;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .el-thumb-ts + .el-thumb-cap { right: 4.2rem; }
+
+    /* ── Compact in-card video bar ─────────────────────────────────────────
+       Inside an evidence card the recorded-video preview is deliberately
+       small: a slim media strip with a leading type label, a duration badge
+       and a compact play disc tucked to the right — so the issue chip and the
+       politician lead each card instead of a big central poster. The full
+       cinematic 16/9 tile is untouched in the detail modal, because that
+       thumb lives under `.el-modal-media`, not as a direct child of a card. */
+    .el-card > .el-thumb {
+      aspect-ratio: auto; height: 2.85rem; width: 100%;
+      border-radius: 0.5rem; display: flex; align-items: center;
+    }
+    .el-card > .el-thumb .el-thumb-img { opacity: 0.5; }
+    .el-card > .el-thumb:hover .el-thumb-img { opacity: 0.62; transform: none; }
+    .el-card > .el-thumb::after {
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 9px),
+        linear-gradient(90deg, rgba(8,12,24,0.8), rgba(8,12,24,0.5));
+    }
+    .el-card > .el-thumb .el-thumb-play {
+      top: 50%; left: auto; right: 0.45rem; transform: translateY(-50%);
+      width: 1.7rem; height: 1.7rem; box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+    }
+    .el-card > .el-thumb:hover .el-thumb-play {
+      transform: translateY(-50%) scale(1.08);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5), 0 0 0 4px rgba(245,200,66,0.18);
+    }
+    .el-card > .el-thumb .el-thumb-play svg { width: 0.78rem; height: 0.78rem; margin-left: 0.08rem; }
+    .el-card > .el-thumb .el-thumb-tag {
+      position: static; transform: none; margin-right: auto;
+      background: transparent; border: none; padding: 0 0 0 0.65rem;
+      font-size: 0.62rem;
+    }
+    .el-card > .el-thumb .el-thumb-ts {
+      top: 50%; bottom: auto; right: 2.5rem; transform: translateY(-50%);
+      font-size: 0.62rem; padding: 0.1rem 0.4rem;
+    }
+    .el-card > .el-thumb .el-thumb-cap {
+      position: static; transform: none; left: auto; right: auto; bottom: auto;
+      font-size: 0.62rem; padding: 0 2.4rem 0 0.65rem; -webkit-line-clamp: 1;
+    }
+
+    /* ── In-card issue chip — promoted ─────────────────────────────────────
+       The precise-issue tag now carries the card's category colour (a glowing
+       dot + tinted pill), so the actual topic of the evidence is the most
+       eye-catching cue in the meta row. Scoped to cards so the modal chip and
+       the browse-bar filters keep their own look. */
+    .el-card .el-issue {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.01em;
+      color: var(--elc, #cfe0fb);
+      background: var(--elc-tint, rgba(96,165,250,0.16));
+      border: 1px solid var(--elc-border, rgba(96,165,250,0.5));
+      border-radius: 999px; padding: 0.26rem 0.7rem 0.26rem 0.6rem;
+      display: inline-flex; align-items: center; gap: 0.36rem;
+    }
+    .el-card .el-issue::before {
+      content: ''; width: 0.42rem; height: 0.42rem; border-radius: 50%;
+      background: var(--elc, #60a5fa); flex: none;
+      box-shadow: 0 0 6px var(--elc-border, rgba(96,165,250,0.6));
+    }
+    .el-card .el-issue-btn:hover {
+      filter: brightness(1.12);
+      color: var(--elc, #cfe0fb);
+      border-color: var(--elc, rgba(96,165,250,0.7));
+      background: var(--elc-tint, rgba(96,165,250,0.22));
+    }
+
+    /* ── In-card politician — raised in the hierarchy ──────────────────────
+       Bigger, bolder name with a brighter office/district line, so the person
+       and their seat read clearly now that the video no longer dominates. */
+    .el-card .el-pol {
+      font-size: 0.95rem; font-weight: 800; color: #fff; line-height: 1.22;
+      letter-spacing: 0.01em;
+    }
+    .el-card .el-pol .el-office {
+      font-size: 0.72rem; font-weight: 600; color: #aebfdb; margin-top: 0.14rem;
+    }
+
+    /* ── In-card actions — quieter, smaller footprint ──────────────────────
+       Keep View source / View profile fully functional but visually subordinate
+       to the issue + politician, so a card reads as content-first. */
+    .el-card .el-actions { gap: 0.4rem; padding-top: 0.15rem; }
+    .el-card .el-btn {
+      font-size: 0.68rem; font-weight: 700; padding: 0.34rem 0.62rem;
+      border-radius: 0.5rem;
+    }
+
+
+    /* ── X / statement pull-quote preview ─────────────────────────────────── */
+    .el-quote {
+      position: relative; margin: 0; padding: 0.65rem 0.8rem 0.65rem 1.75rem;
+      background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.09);
+      border-left: 3px solid rgba(140,180,248,0.55); border-radius: 0.6rem;
+      font-size: 0.86rem; line-height: 1.5; color: #dce6f7; font-style: italic;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .el-quote::before {
+      content: '\201C'; position: absolute; left: 0.4rem; top: 0.05rem;
+      font-family: Georgia, 'Times New Roman', serif; font-size: 1.7rem; font-style: normal;
+      color: rgba(140,180,248,0.55); line-height: 1;
+    }
+    .el-card.t-x-tint { border-left-color: rgba(255,255,255,0.35); }
+
+    /* ── Recently Added horizontal rail ───────────────────────────────────── */
+    .el-recent-rail {
+      display: flex; gap: 1rem; overflow-x: auto; padding: 0.2rem 0.1rem 1rem;
+      scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent;
+    }
+    .el-recent-rail::-webkit-scrollbar { height: 8px; }
+    .el-recent-rail::-webkit-scrollbar-track { background: transparent; }
+    .el-recent-rail::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 4px; }
+    .el-recent-rail::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24); }
+    .el-recent-rail > .el-card { scroll-snap-align: start; flex: 0 0 19rem; }
+    @media (max-width: 600px) { .el-recent-rail > .el-card { flex-basis: 84vw; } }
+    .el-new-badge {
+      font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #5fe6a4; background: rgba(52,211,153,0.14); border: 1px solid rgba(52,211,153,0.34);
+      border-radius: 0.4rem; padding: 0.16rem 0.44rem; display: inline-flex; align-items: center; gap: 0.26rem;
+    }
+    .el-rail-hint {
+      font-size: 0.68rem; color: #6f86ac; font-weight: 600; letter-spacing: 0.02em;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       Follow-up polish pass — camera+eye brandmark, per-type card identity,
+       stronger bill/statement treatment, a richer Recently Added rail, a more
+       premium detail modal, and better empty/loading states.
+       ════════════════════════════════════════════════════════════════════ */
+
+    /* Camera-with-an-eye brandmark — the locker's signature mark, reused so the
+       cue that flags video proof on a profile also signs the library here. */
+    .el-eyebrow-mark { color: #f5c842; display: inline-flex; align-items: center;
+      filter: drop-shadow(0 0 5px rgba(245,200,66,0.5)); }
+    .el-brandmark { width: 1.05em; height: 1.05em; vertical-align: -0.16em; }
+    .el-section-title .el-sec-eye .el-brandmark { width: 1.05em; height: 1.05em; }
+
+    /* ── Per-type card identity — a distinct left-edge accent so a bill, a
+       statement and an X post never read as the same blue card. ───────────── */
+    .el-card.el-t-x_post     { border-left-color: rgba(255,255,255,0.42); }
+    .el-card.el-t-facebook   { border-left-color: rgba(91,141,239,0.72); }
+    .el-card.el-t-bill       { border-left-color: rgba(212,169,107,0.85); }
+    .el-card.el-t-statement  { border-left-color: rgba(79,209,197,0.72); }
+    .el-card.el-t-audio      { border-left-color: rgba(183,148,246,0.72); }
+
+    .el-badge.t-bill      { color: #e7c79a; background: rgba(212,169,107,0.16); border-color: rgba(212,169,107,0.42); }
+    .el-badge.t-statement { color: #7fe3d8; background: rgba(79,209,197,0.14); border-color: rgba(79,209,197,0.4); }
+    .el-badge.t-audio     { color: #c9b6f7; background: rgba(183,148,246,0.16); border-color: rgba(183,148,246,0.42); }
+
+    /* ── Category colour system ───────────────────────────────────────────────
+       Category is now the card's primary organising layer, so each broad topic
+       carries its own tasteful accent — a tinted header, a coloured left edge
+       and a matching browse chip — letting a visitor read the locker as
+       colour-coded by subject at a glance. Tones stay muted to sit comfortably
+       inside the dark-patriotic palette. The three custom properties are set on
+       any element carrying an `el-cat-c-<key>` class and consumed by the card,
+       the category header and the Explore-by-Category chips alike, so the colour
+       for a topic is defined in exactly one place. The fallback values keep the
+       original blue for any card that somehow lacks a category class. */
+    .el-cat-c-taxes_economy   { --elc:#f5c842; --elc-tint:rgba(245,200,66,0.13);  --elc-border:rgba(245,200,66,0.55); }
+    .el-cat-c-education       { --elc:#b794f6; --elc-tint:rgba(183,148,246,0.14); --elc-border:rgba(183,148,246,0.5);  }
+    .el-cat-c-health_human    { --elc:#4fd1c5; --elc-tint:rgba(79,209,197,0.13);  --elc-border:rgba(79,209,197,0.5);   }
+    .el-cat-c-housing         { --elc:#f0936b; --elc-tint:rgba(240,147,107,0.14); --elc-border:rgba(240,147,107,0.5);  }
+    .el-cat-c-safety_justice  { --elc:#8b95f6; --elc-tint:rgba(139,149,246,0.14); --elc-border:rgba(139,149,246,0.5);  }
+    .el-cat-c-immigration     { --elc:#60a5fa; --elc-tint:rgba(96,165,250,0.14);  --elc-border:rgba(96,165,250,0.5);   }
+    .el-cat-c-enviro_land     { --elc:#68c97a; --elc-tint:rgba(104,201,122,0.13); --elc-border:rgba(104,201,122,0.5);  }
+    .el-cat-c-gov_elections   { --elc:#f0809a; --elc-tint:rgba(240,128,154,0.14); --elc-border:rgba(240,128,154,0.5);  }
+    .el-cat-c-transport_infra { --elc:#5fb0c9; --elc-tint:rgba(95,176,201,0.14);  --elc-border:rgba(95,176,201,0.5);   }
+    .el-cat-c-other           { --elc:#9fb4d4; --elc-tint:rgba(159,180,212,0.12); --elc-border:rgba(159,180,212,0.45); }
+
+    /* Category drives the card's left edge. Declared after the per-type accent
+       block above so, at equal specificity, the category colour wins. */
+    .el-card[class*="el-cat-c-"] { border-left-color: var(--elc-border, rgba(96,165,250,0.5)); }
+    .el-card[class*="el-cat-c-"]:hover {
+      border-color: var(--elc-border, rgba(96,165,250,0.4));
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 3px 0 0 -1px var(--elc, #60a5fa);
+    }
+
+    /* Primary category header — the most prominent label on every card. A bold
+       condensed topic name in the category colour, on a soft tint of the same
+       hue, with the leading topic icon and (on cards) the save control. */
+    .el-cat-head {
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.4rem 0.55rem; border-radius: 0.6rem;
+      background: var(--elc-tint, rgba(96,165,250,0.12));
+      border: 1px solid var(--elc-border, rgba(96,165,250,0.4));
+    }
+    .el-cat-head-ico { font-size: 1.02rem; line-height: 1; flex: none; }
+    .el-cat-head-label {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.92rem; letter-spacing: 0.045em; text-transform: uppercase;
+      color: var(--elc, #cfe0fb); line-height: 1.12; min-width: 0;
+    }
+    .el-cat-head .el-bm { margin-left: auto; }
+    /* Tagging-quality dot — sits at the right edge, just left of the save
+       control, only on auto-tagged or still-generic items (well-tagged items
+       show no dot). Blue = auto-tagged from keywords, amber = loosely tagged,
+       grey = untagged / Other. */
+    .el-tagq {
+      width: 0.5rem; height: 0.5rem; border-radius: 50%; flex: none;
+      margin-left: auto; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,0.22);
+    }
+    .el-tagq + .el-bm { margin-left: 0.45rem; }
+    .el-tagq.is-auto  { background: #60a5fa; }
+    .el-tagq.is-loose { background: #fbbf24; }
+    .el-tagq.is-none  { background: #94a3b8; }
+    /* The type tag now reads as the secondary line beneath the category. */
+    .el-card .el-card-top { margin-top: 0.05rem; }
+    /* In the detail modal the category header leads, then the type/strength row. */
+    .el-cat-head + .el-modal-top { margin-top: 0.75rem; }
+    /* Keep the modal's category header (and its save control) clear of the
+       absolutely-positioned close button in the top-right corner. */
+    .el-modal-inner > .el-cat-head { padding-right: 2.7rem; }
+
+    /* ── Bill "official record" tile — gives a sponsored action the same visual
+       weight as a recorded clip: ledger-lined parchment, a wax-seal glyph. ─── */
+    .el-bill-tile {
+      position: relative; display: flex; align-items: center; gap: 0.7rem;
+      border-radius: 0.7rem; padding: 0.7rem 0.85rem; overflow: hidden;
+      background:
+        repeating-linear-gradient(0deg, rgba(212,169,107,0.045) 0 1.35rem, rgba(212,169,107,0.1) 1.35rem 1.38rem),
+        linear-gradient(150deg, rgba(60,48,28,0.55), rgba(28,22,14,0.6));
+      border: 1px solid rgba(212,169,107,0.3); border-left: 3px solid rgba(212,169,107,0.7);
+    }
+    .el-bill-ico { flex: none; font-size: 1.5rem; line-height: 1; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
+    .el-bill-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+    .el-bill-tag {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: #e7c79a;
+    }
+    .el-bill-src { font-size: 0.76rem; font-weight: 600; color: #c8b691; }
+    .el-bill-seal { flex: none; font-size: 1.15rem; opacity: 0.5; color: #e7c79a; }
+
+    /* Tinted pull-quote variants so statement / facebook / audio quotes carry
+       their own colour family rather than the default blue. */
+    .el-quote.is-statement { border-left-color: rgba(79,209,197,0.6); }
+    .el-quote.is-statement::before { color: rgba(79,209,197,0.6); }
+    .el-quote.is-facebook  { border-left-color: rgba(91,141,239,0.65); }
+    .el-quote.is-facebook::before  { color: rgba(91,141,239,0.65); }
+    .el-quote.is-audio     { border-left-color: rgba(183,148,246,0.6); }
+    .el-quote.is-audio::before     { color: rgba(183,148,246,0.6); }
+
+    /* ── Recently Added — bigger, lifted rail cards + honest freshness flags ── */
+    .el-recent-rail > .el-card {
+      flex-basis: 20.5rem; box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+    }
+    @media (max-width: 600px) { .el-recent-rail > .el-card { flex-basis: 86vw; } }
+    .el-new-badge.is-fresh  { color: #5fe6a4; background: rgba(52,211,153,0.16); border-color: rgba(52,211,153,0.42); }
+    .el-new-badge.is-recent { color: #8ab4f8; background: rgba(96,165,250,0.14); border-color: rgba(96,165,250,0.36); }
+    .el-new-badge.is-older  { color: #9fb4d4; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.16); }
+
+    /* "See all newest" terminal card on the rail. */
+    .el-recent-cta {
+      flex: 0 0 13.5rem; scroll-snap-align: start; align-self: stretch;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.4rem; text-align: center; cursor: pointer;
+      border-radius: 0.9rem; border: 1px dashed rgba(96,165,250,0.42);
+      background: rgba(96,165,250,0.06); color: #cfe0fb; font: inherit;
+      font-weight: 700; font-size: 0.88rem; padding: 1.2rem 1rem; transition: all 0.18s ease;
+    }
+    .el-recent-cta:hover {
+      background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.7);
+      transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .el-recent-cta-ico {
+      font-size: 1.45rem; line-height: 1; color: #8ab4f8; transition: transform 0.18s ease;
+    }
+    .el-recent-cta:hover .el-recent-cta-ico { transform: translateX(3px); }
+    .el-recent-cta-sub { font-size: 0.68rem; font-weight: 600; color: #8aa0c2; line-height: 1.35; }
+    @media (max-width: 600px) { .el-recent-cta { flex-basis: 64vw; } }
+
+    /* ── More premium detail modal — hero media + a touch more polish. ─────── */
+    .el-modal-media { margin: 1rem 0 1.05rem; }
+    .el-modal-media .el-thumb { aspect-ratio: 16 / 9; border-radius: 0.8rem; }
+    .el-modal-media .el-bill-tile { padding: 0.9rem 1rem; }
+    .el-modal-media .el-bill-ico { font-size: 1.75rem; }
+    .el-quote-lg {
+      font-size: 1rem; line-height: 1.62; padding: 1rem 1.1rem 1rem 2.15rem;
+      -webkit-line-clamp: unset;
+    }
+    .el-quote-lg::before { font-size: 2.1rem; top: 0.15rem; }
+    .el-modal-headline { letter-spacing: 0.005em; }
+    .el-modal { box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,200,66,0.06); }
+    .el-modal-top { padding-bottom: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    /* ── Better empty + loading states. ───────────────────────────────────── */
+    .el-empty-ico { font-size: 2.3rem; opacity: 0.55; margin-bottom: 0.4rem; }
+    .el-empty-title { font-size: 1.05rem; font-weight: 700; color: #cfe0fb; margin-bottom: 0.25rem; }
+    .el-empty-sub { font-size: 0.84rem; color: #8aa0c2; margin-bottom: 1.1rem; line-height: 1.5; }
+    .el-empty-reset {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; color: #0a0f1e;
+      background: linear-gradient(135deg,#fad96a,#e6b800); border: none; border-radius: 0.55rem;
+      padding: 0.55rem 1.1rem; cursor: pointer; transition: filter 0.15s ease;
+    }
+    .el-empty-reset:hover { filter: brightness(1.08); }
+    .el-loading-mark {
+      display: block; width: 2.4rem; height: 2.4rem; margin: 0 auto 0.8rem; color: #f5c842;
+      filter: drop-shadow(0 0 8px rgba(245,200,66,0.45)); animation: el-mark-pulse 1.8s ease-in-out infinite;
+    }
+    .el-loading-mark .el-brandmark { width: 2.4rem; height: 2.4rem; }
+    @keyframes el-mark-pulse { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+    .el-skel {
+      height: 11.5rem; border-radius: 0.9rem; border: 1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(100deg, rgba(18,28,48,0.6) 28%, rgba(40,55,85,0.55) 50%, rgba(18,28,48,0.6) 72%);
+      background-size: 200% 100%; animation: el-shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes el-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .el-skel, .el-loading-mark { animation: none; }
+    }
+
+    /* ── "Digital Library" identity — a quiet archival sub-mark under the title,
+       a gold catalog subtitle (Evidence-blue + gold language), and a faint
+       embossed touch on the browse chips so the section reads as a real
+       destination rather than a generic tab. Purely additive; no layout impact. */
+    .el-lib-sub {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      margin: 0 auto 0.95rem; max-width: 100%;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.86rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #f3d27f;
+    }
+    .el-lib-sub::before, .el-lib-sub::after {
+      content: ''; flex: none; width: 1.7rem; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(245,200,66,0.55));
+    }
+    .el-lib-sub::after { background: linear-gradient(90deg, rgba(245,200,66,0.55), transparent); }
+    .el-lib-sub strong { color: #ffe6a3; font-weight: 800; }
+    .el-lib-sub-ico { font-size: 0.95rem; letter-spacing: 0; filter: drop-shadow(0 0 6px rgba(245,200,66,0.4)); }
+    @media (max-width: 480px) { .el-lib-sub { font-size: 0.76rem; letter-spacing: 0.14em; } .el-lib-sub::before, .el-lib-sub::after { width: 0.9rem; } }
+    /* Quiet "card-catalog" emboss on the browse + filter chips. */
+    .el-qc, .el-chip { box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+
+    /* ═══════════════ Politician View — a dedicated, footprint-first lens ═════
+       A third Evidence Locker view that turns the library inside-out: instead of
+       browsing every member's receipts, a visitor picks one or more politicians
+       and reads only their evidence collection, grouped logically. Built from
+       the SAME `_items` index and the SAME card markup as All Evidence, so every
+       interaction (open detail, save to My Evidence, jump to profile) is carried
+       over for free. Scoped `.el-pol*` classes, dark-patriotic palette to match. */
+    .el-polview { animation: el-fade 0.22s ease both; }
+
+    /* Picker — the prominent "who do you want to see?" surface. */
+    .el-polpick {
+      background: linear-gradient(160deg, rgba(18,28,48,0.7), rgba(11,18,33,0.78));
+      border: 1px solid rgba(96,165,250,0.22); border-radius: 1.1rem;
+      padding: 1.15rem 1.2rem 1.25rem; margin-bottom: 1.3rem;
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.04), 0 18px 40px -28px rgba(0,0,0,0.8);
+    }
+    .el-polpick-head { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.85rem; }
+    .el-polpick-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1.02rem; letter-spacing: 0.04em; color: #f5f9ff;
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+    .el-polpick-sub { font-size: 0.82rem; line-height: 1.45; color: #9fb4d4; }
+    .el-polpick-bar {
+      position: relative; display: flex; align-items: center; gap: 0.55rem;
+      background: rgba(7,11,22,0.92); border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.8rem; padding: 0 0.9rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .el-polpick-bar:focus-within { border-color: rgba(96,165,250,0.6); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .el-polpick-bar .el-polpick-ico { font-size: 0.95rem; opacity: 0.7; }
+    .el-polpick-bar input {
+      flex: 1; min-width: 0; background: transparent; border: none; color: #e7eefb;
+      padding: 0.8rem 0.1rem; font-size: 0.95rem; outline: none; appearance: none;
+    }
+    .el-polpick-bar input::placeholder { color: #6f84a6; }
+    .el-polpick-bar input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+    /* Type-ahead dropdown of addable politicians. */
+    .el-polpick-menu {
+      position: absolute; top: calc(100% + 0.4rem); left: 0; right: 0; z-index: 30;
+      max-height: 19rem; overflow-y: auto;
+      background: rgba(10,16,30,0.98); border: 1px solid rgba(96,165,250,0.32);
+      border-radius: 0.8rem; padding: 0.35rem; box-shadow: 0 22px 50px -20px rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+    }
+    .el-polpick-opt {
+      display: flex; align-items: center; gap: 0.65rem; width: 100%; text-align: left;
+      background: none; border: none; border-radius: 0.55rem; cursor: pointer;
+      padding: 0.5rem 0.6rem; color: #dbe6f7; transition: background 0.12s ease;
+    }
+    .el-polpick-opt:hover, .el-polpick-opt.is-active { background: rgba(96,165,250,0.14); }
+    .el-polpick-opt .el-po-name { font-weight: 700; font-size: 0.86rem; color: #f3f7ff; }
+    .el-polpick-opt .el-po-office { font-size: 0.72rem; color: #8aa0c2; }
+    .el-polpick-opt .el-po-meta { margin-left: auto; display: flex; align-items: center; gap: 0.45rem; flex: none; }
+    .el-polpick-opt .el-po-n {
+      font-size: 0.7rem; font-weight: 700; color: #cfe0fb;
+      background: rgba(96,165,250,0.16); border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 999px; padding: 0.1rem 0.5rem;
+    }
+    .el-po-fed {
+      font-size: 0.56rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800);
+      border-radius: 4px; padding: 0.12rem 0.34rem;
+    }
+    .el-polpick-empty { padding: 0.7rem 0.6rem; font-size: 0.82rem; color: #8aa0c2; }
+
+    /* Selected-politician chips + suggestions. */
+    .el-pol-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.9rem; }
+    .el-pol-chips:empty { display: none; }
+    .el-pol-chip {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(96,165,250,0.18), rgba(96,165,250,0.08));
+      border: 1px solid rgba(96,165,250,0.45); border-radius: 999px;
+      padding: 0.34rem 0.4rem 0.34rem 0.75rem; color: #eaf2ff; font-size: 0.82rem; font-weight: 600;
+    }
+    .el-pol-chip .el-pol-chip-n { font-size: 0.7rem; color: #bcd2f3; opacity: 0.9; }
+    .el-pol-chip-rm {
+      width: 1.25rem; height: 1.25rem; border-radius: 50%; flex: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+      color: #d7e3f6; font-size: 0.95rem; line-height: 1; padding: 0; transition: all 0.13s ease;
+    }
+    .el-pol-chip-rm:hover { background: rgba(240,128,154,0.22); color: #ff9db2; border-color: rgba(240,128,154,0.5); }
+    .el-pol-suggest { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.9rem; }
+    .el-pol-suggest:empty { display: none; }
+    .el-pol-suggest-lab { font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: #7e93b4; font-weight: 700; margin-right: 0.15rem; }
+    .el-pol-suggest .el-pol-add-chip {
+      display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px; padding: 0.3rem 0.7rem; color: #b9c9e3; font-size: 0.78rem; font-weight: 600;
+      transition: all 0.14s ease;
+    }
+    .el-pol-add-chip:hover { border-color: rgba(96,165,250,0.55); color: #eaf2ff; background: rgba(96,165,250,0.1); }
+    .el-pol-add-chip .el-pac-plus { color: #60a5fa; font-weight: 800; }
+    .el-pol-add-chip .el-pac-n { font-size: 0.68rem; opacity: 0.7; }
+
+    /* Footprint summary band — the "this is N's collection" header. */
+    .el-pol-summary {
+      background: linear-gradient(135deg, rgba(20,30,52,0.85), rgba(12,19,35,0.9));
+      border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid #f5c842;
+      border-radius: 0.95rem; padding: 1rem 1.15rem; margin-bottom: 1.15rem;
+    }
+    .el-pol-sum-main { display: flex; align-items: flex-start; gap: 1rem; }
+    .el-pol-sum-titles { flex: 1; min-width: 0; }
+    .el-pol-sum-eyebrow { font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: #f5c842; font-weight: 800; display: block; margin-bottom: 0.15rem; }
+    .el-pol-sum-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.4rem; letter-spacing: 0.01em; color: #fff; line-height: 1.1; }
+    .el-pol-sum-office { font-size: 0.8rem; color: #9fb4d4; margin-top: 0.2rem; }
+    .el-pol-back {
+      flex: none; cursor: pointer; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #cfe0fb; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.14); border-radius: 0.55rem; padding: 0.45rem 0.7rem;
+      transition: all 0.14s ease; white-space: nowrap;
+    }
+    .el-pol-back:hover { border-color: rgba(96,165,250,0.5); color: #fff; background: rgba(96,165,250,0.12); }
+    .el-pol-stats { display: flex; flex-wrap: wrap; gap: 0.45rem 0.55rem; margin-top: 0.85rem; }
+    .el-pol-stat {
+      font-size: 0.74rem; color: #b7c7e0; background: rgba(7,11,22,0.55);
+      border: 1px solid rgba(255,255,255,0.09); border-radius: 0.5rem; padding: 0.32rem 0.6rem;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .el-pol-stat b { color: #fff; font-weight: 800; font-size: 0.84rem; }
+    .el-pol-stat.is-gold b { color: #fad96a; }
+    .el-pol-stat.is-core { border-color: rgba(96,165,250,0.35); background: rgba(30,58,110,0.35); }
+    .el-pol-stat.is-core b { color: #93c5fd; }
+    /* Core National Issues chip row — the priority-framework readout under the stats. */
+    .el-pol-core { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .el-pol-core-lab { font-size: 0.6rem; letter-spacing: 0.13em; text-transform: uppercase; color: #93c5fd; font-weight: 800; margin-right: 0.15rem; }
+    /* Category header button (clickable filter) */
+    .el-cat-head-btn {
+      all: unset;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      border-radius: 0.375rem;
+      padding: 0.1rem 0.35rem;
+      margin: -0.1rem -0.35rem;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .el-cat-head-btn:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .el-cat-head-btn:active {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Issue chip rendered as a clickable button — keep the .el-issue pill look */
+    .el-issue-btn { font-family: inherit; cursor: pointer; line-height: 1.1; transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease; }
+    .el-issue-btn:hover { color: #dce8fb; border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.09); }
+
+    /* Interactive Core National Issue chips */
+    .el-pol-core-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.25);
+      color: #f5c842;
+      font-size: 0.72rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .el-pol-core-chip:hover {
+      background: rgba(245,200,66,0.18);
+      border-color: rgba(245,200,66,0.4);
+    }
+    .el-pol-core-chip.active {
+      background: #f5c842;
+      color: #0d1526;
+      border-color: #f5c842;
+      font-weight: 600;
+    }
+
+    /* Clear control for core chips */
+    .el-pol-core-clear {
+      all: unset;
+      font-size: 0.65rem;
+      color: #9fb4d4;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .el-pol-core-clear:hover {
+      background: rgba(159,180,212,0.1);
+      color: #c5d4e8;
+    }
+
+    /* Full Stances & Positions — the deep, complete companion to the core chips.
+       A gold toggle expands a clean list of every issue the footprint has
+       evidence on, each row carrying the documented position and a one-tap jump
+       into that issue's evidence. Matches the dark theme + gold accent language. */
+    .el-pol-stances-wrap { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .el-pol-stances-btn {
+      all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 0.5rem;
+      cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.78rem; color: #f5c842;
+      background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 0.55rem; padding: 0.5rem 0.85rem; transition: all 0.15s ease;
+    }
+    .el-pol-stances-btn:hover { background: rgba(245,200,66,0.18); border-color: rgba(245,200,66,0.5); }
+    .el-pol-stances-btn.is-open { background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.45); }
+    .el-pol-stances-btn .el-pss-n {
+      font-family: inherit; background: rgba(245,200,66,0.22); color: #fad96a;
+      border-radius: 999px; padding: 0.02rem 0.42rem; font-size: 0.72rem; line-height: 1.4;
+    }
+    .el-pol-stances-btn .el-pss-caret { font-size: 0.68rem; transition: transform 0.15s ease; }
+    .el-pol-stances-btn.is-open .el-pss-caret { transform: rotate(90deg); }
+
+    .el-pol-stances { margin-top: 0.7rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .el-pss-head { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: #9fb4d4; font-weight: 800; margin-bottom: 0.15rem; }
+    .el-pss-row {
+      all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 0.7rem;
+      cursor: pointer; background: rgba(7,11,22,0.6); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.55rem; padding: 0.55rem 0.8rem; transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .el-pss-row:hover { border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.06); }
+    .el-pss-row.active { border-color: #f5c842; background: rgba(245,200,66,0.12); }
+    .el-pss-issue { flex: 1; min-width: 0; color: #e7eefb; font-size: 0.85rem; font-weight: 600; line-height: 1.25; }
+    /* The stance signal now leads each row via the shared window.PDXStance pill.
+       Compacted here (the "STANCE" caption hidden) so the calm list stays tight. */
+    .el-pss-row .pdxis-stance { flex: 0 0 auto; padding: 0.28rem 0.55rem; font-size: 0.74rem; gap: 0.34rem; border-radius: 0.5rem; }
+    .el-pss-row .pdxis-stance-k { display: none; }
+    /* Quiet "inferred" caption — a headline-derived read, never a documented one. */
+    .el-pss-inf {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #8ea3c4; margin-left: 0.4rem; opacity: 0.9;
+    }
+    .el-pss-count { flex-shrink: 0; font-size: 0.72rem; color: #9fb4d4; font-variant-numeric: tabular-nums; }
+    .el-pss-empty { font-size: 0.78rem; color: #9fb4d4; padding: 0.5rem 0.2rem; }
+
+    .el-pol-issue-active {
+      display: flex; width: -moz-fit-content; width: fit-content; align-items: center; gap: 0.5rem; margin-top: 0.6rem;
+      background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3);
+      border-radius: 999px; padding: 0.25rem 0.55rem 0.25rem 0.7rem;
+    }
+    .el-pia-lab { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #93c5fd; font-weight: 800; }
+    .el-pia-issue { font-size: 0.78rem; color: #dce8fb; font-weight: 600; }
+
+    /* Controls — within-results search + group-by segmented buttons. */
+    .el-pol-controls { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-bottom: 1.1rem; }
+    .el-pol-controls .el-pol-search {
+      flex: 1 1 15rem; min-width: 12rem; display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(7,11,22,0.85); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.65rem; padding: 0 0.75rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .el-pol-controls .el-pol-search:focus-within { border-color: rgba(96,165,250,0.6); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .el-pol-controls .el-pol-search input {
+      flex: 1; min-width: 0; background: transparent; border: none; color: #e7eefb;
+      padding: 0.55rem 0.1rem; font-size: 0.85rem; outline: none; appearance: none;
+    }
+    .el-pol-controls .el-pol-search input::placeholder { color: #6f84a6; }
+    .el-polgroup { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+    .el-polgroup-lab { font-size: 0.64rem; letter-spacing: 0.13em; text-transform: uppercase; color: #7e93b4; font-weight: 700; margin-right: 0.3rem; }
+    .el-polgroup-btn {
+      cursor: pointer; font-size: 0.76rem; font-weight: 700; color: #9fb4d4;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; padding: 0.34rem 0.78rem; transition: all 0.14s ease;
+    }
+    .el-polgroup-btn:hover { border-color: rgba(96,165,250,0.5); color: #cfe0fb; }
+    .el-polgroup-btn.is-active { color: #0a0f1e; background: linear-gradient(135deg,#fad96a,#e6b800); border-color: rgba(245,200,66,0.9); }
+
+    /* Grouped sections. */
+    .el-polgrp { margin-bottom: 1.6rem; }
+    .el-polgrp-head {
+      display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .el-polgrp-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.02rem;
+      letter-spacing: 0.02em; color: #eaf2ff; display: flex; align-items: center; gap: 0.45rem;
+    }
+    .el-polgrp-ico { font-size: 1rem; }
+    .el-polgrp-n {
+      font-size: 0.72rem; font-weight: 700; color: #cfe0fb;
+      background: rgba(96,165,250,0.14); border: 1px solid rgba(96,165,250,0.28);
+      border-radius: 999px; padding: 0.12rem 0.55rem;
+    }
+    .el-polgrp.is-strong .el-polgrp-title { color: #7ee0a8; }
+    .el-polgrp.is-moderate .el-polgrp-title { color: #f5d06a; }
+    .el-polgrp.is-limited .el-polgrp-title { color: #f0a6b8; }
+
+    /* Empty prompt when no politician is selected. */
+    .el-pol-empty {
+      text-align: center; padding: 2.5rem 1.25rem; color: #9fb4d4;
+      border: 1px dashed rgba(255,255,255,0.12); border-radius: 1rem; background: rgba(10,16,30,0.4);
+    }
+    .el-pol-empty-ico { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8; }
+    .el-pol-empty-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.15rem; color: #e7eefb; margin-bottom: 0.3rem; }
+    .el-pol-empty-sub { font-size: 0.85rem; line-height: 1.5; max-width: 30rem; margin: 0 auto; }
+
+    @media (max-width: 640px) {
+      .el-pol-sum-title { font-size: 1.2rem; }
+      .el-pol-controls .el-pol-search { flex-basis: 100%; }
+    }
+
+    /* ── Mobile polish · Evidence Locker drill-ins ──────────────────────────
+       The evidence connections recently threaded across the site — the card
+       evidence rows ("Watch" + "See Evidence N"), the per-issue / popover
+       "See the evidence" jumps, and the Compare → Locker drill-ins — were
+       tuned on desktop, where a few of their tap targets sat under a
+       comfortable thumb size and a lone wrapped button could read as cramped.
+       Lift them to ~40px and let the card evidence buttons fill the row when
+       they wrap (mirrors the existing .pdx-evb modal-banner treatment).
+       Additive and phone-scoped only — desktop is untouched. */
+    @media (max-width: 640px) {
+      .pdx-evrow { gap: 0.5rem; }
+      .pdx-evrow-watch, .pdx-evrow-see { flex: 1 1 auto; justify-content: center; min-height: 40px; }
+      .sag-pop-jump { min-height: 40px; }
+      .kraq-ev-link { min-height: 36px; }
+      .ht-locker-link { min-height: 36px; }
+      .cmp-issue-allev { min-height: 34px; }
+      /* Profile + Spotlight "See the evidence" cue — a single non-wrapping flex
+         row whose trailing "in the Locker ↗" could push past a narrow card edge.
+         Let it wrap so the cue never forces horizontal scroll. */
+      .stance-ev-cue { flex-wrap: wrap; }
+    }
+  
