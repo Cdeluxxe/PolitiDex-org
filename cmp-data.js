@@ -8,6 +8,143 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Secretaries of State (SoS wave 2, July 2026)
+ "shirley_weber": {
+  "name": "Shirley Weber",
+  "office": "Secretary of State",
+  "state": "California",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Administration",
+   "Transparency",
+   "Democracy"
+  ]
+ },
+ "jena_griswold": {
+  "name": "Jena Griswold",
+  "office": "Secretary of State",
+  "state": "Colorado",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Election Security",
+   "Election Workers",
+   "Democracy"
+  ]
+ },
+ "steve_hobbs": {
+  "name": "Steve Hobbs",
+  "office": "Secretary of State",
+  "state": "Washington",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Election Security",
+   "Voting Access",
+   "Disinformation"
+  ]
+ },
+ "maggie_toulouse_oliver": {
+  "name": "Maggie Toulouse Oliver",
+  "office": "Secretary of State",
+  "state": "New Mexico",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voting Access",
+   "Transparency",
+   "Election Security",
+   "Democracy"
+  ]
+ },
+ "jane_nelson_tx": {
+  "name": "Jane Nelson",
+  "office": "Secretary of State",
+  "state": "Texas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Election Administration",
+   "Voter Rolls",
+   "Election Integrity",
+   "Business"
+  ]
+ },
+ "diego_morales": {
+  "name": "Diego Morales",
+  "office": "Secretary of State",
+  "state": "Indiana",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID",
+   "Business"
+  ]
+ },
+ "michael_watson_ms": {
+  "name": "Michael Watson",
+  "office": "Secretary of State",
+  "state": "Mississippi",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Voter Rolls",
+   "Voter ID",
+   "Election Integrity",
+   "Access Debate"
+  ]
+ },
+ "michael_adams_ky": {
+  "name": "Michael Adams",
+  "office": "Secretary of State",
+  "state": "Kentucky",
+  "party": "R",
+  "score": 54,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "🗳",
+  "issues": [
+   "Bipartisan Access",
+   "Voter Rolls",
+   "Election Integrity",
+   "Voter ID"
+  ]
+ },
 // National — state Attorneys General (AG wave 5, completes all 50, July 2026)
  "marty_jackley": {
   "name": "Marty Jackley",

@@ -7402,6 +7402,55 @@
       { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Backs protecting abortion access in Virginia.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
       { topic:'Criminal Justice', icon:'⚖️', pos:'mixed', issueKey:'justice_reform', issueStance:'mixed', text:'As a delegate he worked on criminal-justice measures; as AG he balances reform with public-safety enforcement.', source:{label:'oag.state.va.us', url:'https://www.oag.state.va.us/'} },
     ],
+    // ── National — state Secretaries of State (CA · CO · WA · NM · TX · IN · MS · KY) · SoS wave 2 (Jul 2026) ─
+    shirley_weber: [ // Shirley Weber — 🗳 California Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Oversees California’s all-mail-ballot elections and broad voter-access rules for the nation’s largest electorate.', evidence:'California Secretary of State since 2021; a former assemblymember who authored the state’s reparations study task force.', source:{label:'sos.ca.gov', url:'https://www.sos.ca.gov/'} },
+      { topic:'Election Administration', icon:'⚙️', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Runs elections for the most populous state and defends their integrity against fraud claims.', source:{label:'sos.ca.gov', url:'https://www.sos.ca.gov/'} },
+      { topic:'Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Oversees campaign-finance disclosure (Cal-Access) and business filings.', source:{label:'sos.ca.gov', url:'https://www.sos.ca.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Defends election workers and the process against intimidation and disinformation.', source:{label:'sos.ca.gov', url:'https://www.sos.ca.gov/'} },
+    ],
+    jena_griswold: [ // Jena Griswold — 🗳 Colorado Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Defends Colorado’s mail-ballot model, often cited as a national gold standard for access.', evidence:'Colorado Secretary of State since 2019.', source:{label:'coloradosos.gov', url:'https://www.coloradosos.gov/'} },
+      { topic:'Election Security', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Backs risk-limiting audits and acted against a county clerk over a voting-system breach.', source:{label:'coloradosos.gov', url:'https://www.coloradosos.gov/'} },
+      { topic:'Election Workers', icon:'🛡', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'A national voice on election-worker safety and countering threats after 2020.', source:{label:'coloradosos.gov', url:'https://www.coloradosos.gov/'} },
+      { topic:'Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Publishes detailed election and campaign-finance data.', source:{label:'coloradosos.gov', url:'https://www.coloradosos.gov/'} },
+    ],
+    steve_hobbs: [ // Steve Hobbs — 🗳 Washington Secretary of State (D)
+      { topic:'Election Administration', icon:'⚙️', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Runs Washington’s all-mail elections and defends their accuracy.', evidence:'Washington Secretary of State since 2021 (appointed, then elected); a National Guard officer.', source:{label:'sos.wa.gov', url:'https://www.sos.wa.gov/'} },
+      { topic:'Election Security', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Created a state office to counter election-related disinformation and cyber threats.', source:{label:'sos.wa.gov', url:'https://www.sos.wa.gov/'} },
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Maintains Washington’s automatic registration and universal mail-ballot access.', source:{label:'sos.wa.gov', url:'https://www.sos.wa.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'Defends the process publicly against fraud claims.', source:{label:'sos.wa.gov', url:'https://www.sos.wa.gov/'} },
+    ],
+    maggie_toulouse_oliver: [ // Maggie Toulouse Oliver — 🗳 New Mexico Secretary of State (D)
+      { topic:'Voting Access', icon:'🗳', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Championed New Mexico’s Voting Rights Act expanding automatic registration and access.', evidence:'New Mexico Secretary of State since 2016.', source:{label:'sos.nm.gov', url:'https://www.sos.nm.gov/'} },
+      { topic:'Transparency', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Modernized campaign-finance disclosure and lobbying-transparency systems.', source:{label:'sos.nm.gov', url:'https://www.sos.nm.gov/'} },
+      { topic:'Election Security', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Backs paper-ballot audits and election-security funding.', source:{label:'sos.nm.gov', url:'https://www.sos.nm.gov/'} },
+      { topic:'Democracy', icon:'🏛', pos:'support', issueKey:'democracy_balance', issueStance:'support', text:'A national voice for election administration and defending results.', source:{label:'sos.nm.gov', url:'https://www.sos.nm.gov/'} },
+    ],
+    jane_nelson_tx: [ // Jane Nelson — 🗳 Texas Secretary of State (R)
+      { topic:'Election Administration', icon:'⚙️', pos:'mixed', issueKey:'election_integrity', issueStance:'mixed', text:'Serves as Texas’s chief election officer, implementing the state’s election laws and defending results in the nation’s second-largest state.', evidence:'Texas Secretary of State since 2023, appointed by Governor Greg Abbott; a former long-serving state senator and Finance Committee chair.', source:{label:'sos.texas.gov', url:'https://www.sos.texas.gov/'} },
+      { topic:'Voter Rolls', icon:'📋', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Oversees Texas’s voter-roll maintenance and citizenship-verification efforts.', source:{label:'sos.texas.gov', url:'https://www.sos.texas.gov/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Administers Texas’s photo-ID voting requirement.', source:{label:'sos.texas.gov', url:'https://www.sos.texas.gov/'} },
+      { topic:'Access Debate', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Texas’s tightened voting rules (SB 1) are defended by the state as securing elections and criticized by opponents as narrowing access.', source:{label:'sos.texas.gov', url:'https://www.sos.texas.gov/'} },
+    ],
+    diego_morales: [ // Diego Morales — 🗳 Indiana Secretary of State (R)
+      { topic:'Voter Rolls', icon:'📋', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Prioritizes voter-roll maintenance and citizenship checks as Indiana’s chief election officer.', evidence:'Indiana Secretary of State since 2023.', source:{label:'sos.in.gov', url:'https://www.in.gov/sos/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backs Indiana’s photo-ID requirement, among the earliest in the nation.', source:{label:'sos.in.gov', url:'https://www.in.gov/sos/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes election-security measures and public confidence.', source:{label:'sos.in.gov', url:'https://www.in.gov/sos/'} },
+      { topic:'Access Debate', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Indiana’s ID and registration rules are defended as securing elections and criticized as limiting access.', source:{label:'sos.in.gov', url:'https://www.in.gov/sos/'} },
+    ],
+    michael_watson_ms: [ // Michael Watson — 🗳 Mississippi Secretary of State (R)
+      { topic:'Voter Rolls', icon:'📋', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Runs Mississippi’s voter-roll maintenance and election administration.', evidence:'Mississippi Secretary of State since 2020; a former state senator.', source:{label:'sos.ms.gov', url:'https://www.sos.ms.gov/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backs Mississippi’s photo-ID requirement to vote.', source:{label:'sos.ms.gov', url:'https://www.sos.ms.gov/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Emphasizes election-security and citizenship-verification measures.', source:{label:'sos.ms.gov', url:'https://www.sos.ms.gov/'} },
+      { topic:'Access Debate', icon:'🗳', pos:'mixed', issueKey:'voting_access', issueStance:'mixed', text:'Drew criticism for comments opposing broader mail voting; defends Mississippi’s in-person-focused rules as secure.', source:{label:'sos.ms.gov', url:'https://www.sos.ms.gov/'} },
+    ],
+    michael_adams_ky: [ // Michael Adams — 🗳 Kentucky Secretary of State (R)
+      { topic:'Bipartisan Access', icon:'🤝', pos:'support', issueKey:'voting_access', issueStance:'support', text:'Won bipartisan praise for expanding early voting in Kentucky while adding an ID requirement — a rare access-and-integrity compromise, backed by both parties.', evidence:'Kentucky Secretary of State since 2020; re-elected in 2023 with the widest margin of any statewide candidate.', source:{label:'sos.ky.gov', url:'https://www.sos.ky.gov/'} },
+      { topic:'Voter Rolls', icon:'📋', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Ran a major voter-roll cleanup, removing hundreds of thousands of outdated registrations.', source:{label:'sos.ky.gov', url:'https://www.sos.ky.gov/'} },
+      { topic:'Election Integrity', icon:'🔒', pos:'support', issueKey:'election_integrity', issueStance:'support', text:'Defends Kentucky’s elections and pushed back on fraud claims within his own party.', source:{label:'sos.ky.gov', url:'https://www.sos.ky.gov/'} },
+      { topic:'Voter ID', icon:'🪪', pos:'support', issueKey:'voter_id', issueStance:'support', text:'Backed Kentucky’s photo-ID law, paired with free IDs and expanded early voting.', source:{label:'sos.ky.gov', url:'https://www.sos.ky.gov/'} },
+    ],
     };
 
 })();
