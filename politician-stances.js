@@ -7266,6 +7266,55 @@
       { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Defends Delaware’s gun-safety laws, including its ban on assault-style weapons.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
       { topic:'Criminal Justice', icon:'⚖️', pos:'mixed', issueKey:'justice_reform', issueStance:'mixed', text:'Backs some criminal-justice reforms while maintaining violent-crime enforcement.', source:{label:'attorneygeneral.delaware.gov', url:'https://attorneygeneral.delaware.gov/'} },
     ],
+    // ── National — state Attorneys General (KY · NE · NH · WV · RI · VT · ME · HI) · AG wave 3 (Jul 2026) ─
+    russell_coleman: [ // Russell Coleman — ⚖️ Kentucky Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules.', evidence:'Kentucky Attorney General since 2024; a former U.S. Attorney for the Western District of Kentucky.', source:{label:'ag.ky.gov', url:'https://www.ag.ky.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Made fentanyl, drug trafficking, and violent crime a central focus.', source:{label:'ag.ky.gov', url:'https://www.ag.ky.gov/'} },
+      { topic:'Abortion', icon:'🕊', pos:'mixed', issueKey:'pro_life', issueStance:'mixed', text:'Defends Kentucky’s abortion restrictions, though state voters rejected a 2022 anti-abortion constitutional amendment, constraining how far the law can go.', source:{label:'ag.ky.gov', url:'https://www.ag.ky.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Directs opioid-settlement funds and pursues consumer-protection cases.', source:{label:'ag.ky.gov', url:'https://www.ag.ky.gov/'} },
+    ],
+    mike_hilgers: [ // Mike Hilgers — ⚖️ Nebraska Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal environmental and regulatory actions.', evidence:'Nebraska Attorney General since 2023; a former Speaker of the Nebraska Legislature.', source:{label:'ago.nebraska.gov', url:'https://ago.nebraska.gov/'} },
+      { topic:'Abortion', icon:'🕊', pos:'support', issueKey:'pro_life', issueStance:'support', text:'Defends Nebraska’s 12-week abortion ban.', source:{label:'ago.nebraska.gov', url:'https://ago.nebraska.gov/'} },
+      { topic:'Energy & Agriculture', icon:'🌽', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Backs Nebraska agriculture and energy interests against federal limits.', source:{label:'ago.nebraska.gov', url:'https://ago.nebraska.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes fentanyl and violent-crime enforcement.', source:{label:'ago.nebraska.gov', url:'https://ago.nebraska.gov/'} },
+    ],
+    john_formella: [ // John Formella — ⚖️ New Hampshire Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins multistate suits selectively, reflecting New Hampshire’s independent streak.', evidence:'New Hampshire Attorney General since 2021.', source:{label:'doj.nh.gov', url:'https://www.doj.nh.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Prioritizes the state’s fentanyl and drug-trafficking response.', source:{label:'doj.nh.gov', url:'https://www.doj.nh.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection and antitrust enforcement.', source:{label:'doj.nh.gov', url:'https://www.doj.nh.gov/'} },
+      { topic:'Elections', icon:'🗳', pos:'mixed', issueKey:'election_integrity', issueStance:'mixed', text:'Oversees enforcement of New Hampshire’s election laws and defends them in court.', source:{label:'doj.nh.gov', url:'https://www.doj.nh.gov/'} },
+    ],
+    jb_mccuskey: [ // JB McCuskey — ⚖️ West Virginia Attorney General (R)
+      { topic:'Energy', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'A vocal defender of West Virginia coal and gas, backing challenges to federal energy and environmental rules.', evidence:'West Virginia Attorney General since 2025; a former state auditor.', source:{label:'ago.wv.gov', url:'https://ago.wv.gov/'} },
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Continues West Virginia’s tradition of leading multistate suits against federal regulations.', source:{label:'ago.wv.gov', url:'https://ago.wv.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Focuses on the opioid crisis and fentanyl enforcement.', source:{label:'ago.wv.gov', url:'https://ago.wv.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Directs opioid-settlement funds toward treatment and recovery.', source:{label:'ago.wv.gov', url:'https://ago.wv.gov/'} },
+    ],
+    peter_neronha: [ // Peter Neronha — ⚖️ Rhode Island Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'An outspoken litigator, Neronha has joined dozens of multistate suits challenging Trump-administration actions on funding, health, and the environment.', evidence:'Rhode Island Attorney General since 2019; a former U.S. Attorney.', source:{label:'riag.ri.gov', url:'https://riag.ri.gov/'} },
+      { topic:'Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Pushed hospital-oversight and health-care-access enforcement, including scrutiny of hospital mergers and financial distress.', source:{label:'riag.ri.gov', url:'https://riag.ri.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Backs and defends Rhode Island’s gun-safety laws.', source:{label:'riag.ri.gov', url:'https://riag.ri.gov/'} },
+      { topic:'Environment', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Pursued climate and environmental enforcement, including litigation against fossil-fuel companies.', source:{label:'riag.ri.gov', url:'https://riag.ri.gov/'} },
+    ],
+    charity_clark: [ // Charity Clark — ⚖️ Vermont Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined multistate suits challenging federal funding cuts and policy changes.', evidence:'Vermont Attorney General since 2023; the first woman elected Vermont AG.', source:{label:'ago.vermont.gov', url:'https://ago.vermont.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Emphasizes consumer-protection and data-privacy enforcement.', source:{label:'ago.vermont.gov', url:'https://ago.vermont.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Defends Vermont’s gun-safety measures.', source:{label:'ago.vermont.gov', url:'https://ago.vermont.gov/'} },
+      { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Defends Vermont’s abortion-access protections.', source:{label:'ago.vermont.gov', url:'https://ago.vermont.gov/'} },
+    ],
+    aaron_frey: [ // Aaron Frey — ⚖️ Maine Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined multistate suits over federal funding and policy affecting Maine.', evidence:'Maine Attorney General since 2019.', source:{label:'maine.gov/ag', url:'https://www.maine.gov/ag/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection and antitrust cases.', source:{label:'maine.gov/ag', url:'https://www.maine.gov/ag/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'mixed', issueKey:'gun_safety', issueStance:'mixed', text:'Enforces Maine’s gun laws; after the 2023 Lewiston shooting, backed new safety measures in a traditionally gun-friendly state.', source:{label:'maine.gov/ag', url:'https://www.maine.gov/ag/'} },
+      { topic:'Abortion Rights', icon:'⚖️', pos:'support', issueKey:'pro_choice', issueStance:'support', text:'Defends Maine’s abortion-access protections.', source:{label:'maine.gov/ag', url:'https://www.maine.gov/ag/'} },
+    ],
+    anne_lopez: [ // Anne Lopez — ⚖️ Hawaii Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined multistate suits challenging federal actions affecting Hawaii.', evidence:'Hawaii Attorney General since 2023.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Defends Hawaii’s firearm laws, among the nation’s strictest, in post-Bruen litigation.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
+      { topic:'Environment', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Backs Hawaii’s climate litigation and environmental protections.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
+    ],
     };
 
 })();

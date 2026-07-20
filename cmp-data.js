@@ -8,6 +8,143 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Attorneys General (AG wave 3, July 2026)
+ "russell_coleman": {
+  "name": "Russell Coleman",
+  "office": "State Attorney General",
+  "state": "Kentucky",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Abortion",
+   "Consumer Protection"
+  ]
+ },
+ "mike_hilgers": {
+  "name": "Mike Hilgers",
+  "office": "State Attorney General",
+  "state": "Nebraska",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Abortion",
+   "Energy & Ag",
+   "Public Safety"
+  ]
+ },
+ "john_formella": {
+  "name": "John Formella",
+  "office": "State Attorney General",
+  "state": "New Hampshire",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection",
+   "Elections"
+  ]
+ },
+ "jb_mccuskey": {
+  "name": "JB McCuskey",
+  "office": "State Attorney General",
+  "state": "West Virginia",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Energy",
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
+ "peter_neronha": {
+  "name": "Peter Neronha",
+  "office": "State Attorney General",
+  "state": "Rhode Island",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Health Care",
+   "Gun Safety",
+   "Environment"
+  ]
+ },
+ "charity_clark": {
+  "name": "Charity Clark",
+  "office": "State Attorney General",
+  "state": "Vermont",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "aaron_frey": {
+  "name": "Aaron Frey",
+  "office": "State Attorney General",
+  "state": "Maine",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Consumer Protection",
+   "Gun Safety",
+   "Abortion Rights"
+  ]
+ },
+ "anne_lopez": {
+  "name": "Anne Lopez",
+  "office": "State Attorney General",
+  "state": "Hawaii",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Gun Safety",
+   "Consumer Protection",
+   "Environment"
+  ]
+ },
 // National — state Attorneys General (AG wave 2, July 2026)
  "steve_marshall": {
   "name": "Steve Marshall",
