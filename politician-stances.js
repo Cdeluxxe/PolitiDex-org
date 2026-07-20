@@ -7315,6 +7315,37 @@
       { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
       { topic:'Environment', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Backs Hawaii’s climate litigation and environmental protections.', source:{label:'ag.hawaii.gov', url:'https://ag.hawaii.gov/'} },
     ],
+    // ── National — state Attorneys General (TX · NJ · AK · UT · MO · WY) · AG wave 4 (Jul 2026) ─
+    matthew_platkin: [ // Matthew Platkin — ⚖️ New Jersey Attorney General (D)
+      { topic:'Multistate Litigation', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Has joined or led numerous multistate suits challenging Trump-administration actions on federal funding, immigration, and health.', evidence:'New Jersey Attorney General since 2022.', source:{label:'njoag.gov', url:'https://www.njoag.gov/'} },
+      { topic:'Gun Safety', icon:'🦺', pos:'support', issueKey:'gun_safety', issueStance:'support', text:'Aggressively defends New Jersey’s strict gun laws and has sued firearms manufacturers and sellers.', source:{label:'njoag.gov', url:'https://www.njoag.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursued consumer-protection, environmental, and corporate-accountability cases.', source:{label:'njoag.gov', url:'https://www.njoag.gov/'} },
+      { topic:'Civil Rights', icon:'⚖️', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Expanded police-accountability and civil-rights enforcement statewide.', source:{label:'njoag.gov', url:'https://www.njoag.gov/'} },
+    ],
+    treg_taylor: [ // Treg Taylor — ⚖️ Alaska Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits and fights federal restrictions on Alaska resource development.', evidence:'Alaska Attorney General since 2021.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
+      { topic:'Energy & Public Lands', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Central to Alaska’s legal fights over ANWR drilling, oil and gas, and federal land-management rules.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Prioritizes rural public safety and combating drug trafficking.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement across the state.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
+    ],
+    derek_brown_ut: [ // Derek Brown — ⚖️ Utah Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules.', evidence:'Utah Attorney General since 2025; a former Utah legislator and state Republican Party chair.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
+      { topic:'Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backs Utah’s effort to assert state control over federal public lands, including a challenge over unappropriated lands.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes fentanyl and violent-crime enforcement.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
+      { topic:'Tech & Kids', icon:'💻', pos:'support', issueKey:'tech_balance', issueStance:'support', text:'Continues Utah’s prominent push to regulate social media and protect minors online.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
+    ],
+    catherine_hanaway: [ // Catherine Hanaway — ⚖️ Missouri Attorney General (R)
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Continues Missouri’s tradition of leading Republican multistate suits against federal rules.', evidence:'Missouri Attorney General since 2025; a former U.S. Attorney and the first woman to serve as Speaker of the Missouri House.', source:{label:'ago.mo.gov', url:'https://ago.mo.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Prioritizes violent-crime and fentanyl enforcement, including in St. Louis and Kansas City.', source:{label:'ago.mo.gov', url:'https://ago.mo.gov/'} },
+      { topic:'Abortion', icon:'🕊', pos:'mixed', issueKey:'pro_life', issueStance:'mixed', text:'Defends Missouri’s abortion restrictions, though Missouri voters approved an abortion-rights amendment in 2024, constraining the law.', source:{label:'ago.mo.gov', url:'https://ago.mo.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement.', source:{label:'ago.mo.gov', url:'https://ago.mo.gov/'} },
+    ],
+    bridget_hill: [ // Bridget Hill — ⚖️ Wyoming Attorney General (R)
+      { topic:'Energy & Public Lands', icon:'🛢', pos:'support', issueKey:'energy_production', issueStance:'support', text:'Leads Wyoming’s legal defense of coal, oil, gas, and federal-lands access against federal restrictions.', evidence:'Wyoming Attorney General since 2019, appointed by Governor Mark Gordon.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
+      { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal environmental and regulatory actions.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
+      { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Oversees Wyoming’s public-safety and drug-enforcement efforts.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
+      { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement.', source:{label:'attorneygeneral.wyo.gov', url:'https://attorneygeneral.wyo.gov/'} },
+    ],
     };
 
 })();

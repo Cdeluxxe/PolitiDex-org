@@ -8,6 +8,109 @@
 // creates, before DOMContentLoaded.
 Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 {
+// National — state Attorneys General (AG wave 4, July 2026)
+ "ken_paxton": {
+  "name": "Ken Paxton",
+  "office": "State Attorney General",
+  "state": "Texas",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Immigration",
+   "Abortion",
+   "Energy"
+  ]
+ },
+ "matthew_platkin": {
+  "name": "Matthew Platkin",
+  "office": "State Attorney General",
+  "state": "New Jersey",
+  "party": "D",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Multistate Litigation",
+   "Gun Safety",
+   "Consumer Protection",
+   "Civil Rights"
+  ]
+ },
+ "treg_taylor": {
+  "name": "Treg Taylor",
+  "office": "State Attorney General",
+  "state": "Alaska",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Energy & Lands",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
+ "derek_brown_ut": {
+  "name": "Derek Brown",
+  "office": "State Attorney General",
+  "state": "Utah",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Lands",
+   "Public Safety",
+   "Tech & Kids"
+  ]
+ },
+ "catherine_hanaway": {
+  "name": "Catherine Hanaway",
+  "office": "State Attorney General",
+  "state": "Missouri",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Federal Pushback",
+   "Public Safety",
+   "Abortion",
+   "Consumer Protection"
+  ]
+ },
+ "bridget_hill": {
+  "name": "Bridget Hill",
+  "office": "State Attorney General",
+  "state": "Wyoming",
+  "party": "R",
+  "score": 53,
+  "kept": 0,
+  "broken": 0,
+  "pending": 0,
+  "icon": "⚖️",
+  "issues": [
+   "Energy & Lands",
+   "Federal Pushback",
+   "Public Safety",
+   "Consumer Protection"
+  ]
+ },
 // National — state Attorneys General (AG wave 3, July 2026)
  "russell_coleman": {
   "name": "Russell Coleman",
