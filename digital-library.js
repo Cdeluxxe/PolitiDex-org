@@ -39,6 +39,11 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  // Attribute-safe escape. Mirrors the helper every other module ships in its own
+  // IIFE; its absence here (billCardHtml called it) threw a ReferenceError that
+  // silently broke the entire Legislation grid — cards never rendered and every
+  // topic/facet click failed, leaving the stale Explore cards on screen.
+  function escAttr(s) { return esc(s).replace(/`/g, '&#96;'); }
   function G(name) { try { return window[name]; } catch (e) { return null; } }
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(k); if (l) return l; } } catch (e) {}
@@ -177,7 +182,7 @@
   // ── Collection tiles — the front doors to every source, bounded or not ──────
   function collections() {
     var out = [];
-    function push(icon, label, desc, count, go) { out.push({ icon: icon, label: label, desc: desc, count: count, go: go }); }
+    function push(icon, label, desc, count, color, go) { out.push({ icon: icon, label: label, desc: desc, count: count, color: color, go: go }); }
 
     var spN = 0; try { spN = (G('PDXSpotlight').list() || []).length; } catch (e) {}
     var mdN = 0; try { mdN = (G('_pdxMandateItems') || []).length; } catch (e) {}
@@ -185,23 +190,25 @@
     var stN = 0; try { stN = Object.keys(G('ISSUE_STANCE_DATA') || {}).length; } catch (e) {}
     var gcN = 0; try { gcN = (G('PDXContracts').list() || []).length; } catch (e) {}
 
-    push('📂', 'Evidence Locker', 'Every sourced receipt — video, records & posts.', null,
+    // Each collection carries its own accent color so the front-door grid scans by
+    // color, not just icon — matching the category-colored energy of the bill cards.
+    push('📂', 'Evidence Locker', 'Every sourced receipt — video, records & posts.', null, '#9ec8ff',
       function () { if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({}); else location.hash = '#evidence-locker'; });
-    push('📌', 'Issue Spotlights', 'Neutral, sourced deep-dives on the big fights.', spN,
+    push('📌', 'Issue Spotlights', 'Neutral, sourced deep-dives on the big fights.', spN, '#f5c842',
       function () { if (window.PDXSpotlightHub && window.PDXSpotlightHub.focus) window.PDXSpotlightHub.focus(); else location.hash = '#all-spotlights'; });
-    push('🎯', 'Stances & Positions', 'Where every politician stands, issue by issue.', stN,
+    push('🎯', 'Stances & Positions', 'Where every politician stands, issue by issue.', stN, '#f472b6',
       function () { if (window.PDXStanceLibrary && window.PDXStanceLibrary.open) window.PDXStanceLibrary.open(); else location.hash = '#stance-library'; });
-    push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null,
+    push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null, '#a78bfa',
       function () { if (window.PDXIssueView && window.PDXIssueView.open) location.hash = '#issue-front-door'; else location.hash = '#issue-front-door'; });
-    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN,
+    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN, '#4ade80',
       function () { if (window.PDXContracts && window.PDXContracts.open) window.PDXContracts.open(); else location.hash = '#digital-library'; });
-    push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN,
+    push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN, '#f6d873',
       function () { location.hash = '#say-vs-do'; });
-    push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN,
+    push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN, '#c084fc',
       function () { location.hash = '#agenda'; });
-    push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null,
+    push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null, '#5eead4',
       function () { if (typeof window._pdxDlibSetMode === 'function') { window._pdxDlibSetMode('legislation'); var h = document.getElementById('digital-library'); if (h && h.scrollIntoView) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else if (window.PDXHR1 && window.PDXHR1.open) { window.PDXHR1.open(); } else { location.hash = '#hr1-showcase'; } });
-    push('❤️', 'Community', 'Leads, evidence and debate from the community.', null,
+    push('❤️', 'Community', 'Leads, evidence and debate from the community.', null, '#fca5a5',
       function () { location.hash = '#community-exchange'; });
     return out;
   }
@@ -212,7 +219,7 @@
     var cols = collections();
     wrap.innerHTML = cols.map(function (c, i) {
       var badge = (c.count != null && c.count > 0) ? '<span class="dlib-col-n">' + c.count + '</span>' : '';
-      return '<button type="button" class="dlib-col" data-col="' + i + '" aria-label="' + esc(c.label) + '">' +
+      return '<button type="button" class="dlib-col" data-col="' + i + '" style="--cat:' + (c.color || '#9ec8ff') + '" aria-label="' + esc(c.label) + '">' +
         '<span class="dlib-col-ico" aria-hidden="true">' + c.icon + '</span>' +
         '<span class="dlib-col-body">' +
           '<span class="dlib-col-top"><span class="dlib-col-label">' + esc(c.label) + '</span>' + badge + '</span>' +
@@ -273,24 +280,38 @@
   }
 
   // ── The archive card ──────────────────────────────────────────────────────────
+  // Topic category for an archive item, derived from its issue keys via the SAME
+  // ISSUE_CAT palette the Legislation bill cards use — so a topic reads identically
+  // across the whole Digital Library (economy=green, health=pink, energy=cyan, …).
+  function archiveCategory(it) {
+    var keys = (it.issueKeys || []).filter(Boolean);
+    var c = null;
+    for (var i = 0; i < keys.length && !c; i++) c = issueCatOf(keys[i]);
+    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon, color: ISSUE_CAT[c].color } : null;
+  }
+
   function cardHtml(it) {
     var tm = TYPES[it.type] || { icon: '📄', label: it.type };
     var badge = '<span class="dlib-badge dlib-b-' + it.type + '">' + tm.icon + ' ' + esc(tm.label) + '</span>';
-    var verdict = '';
-    if (it.type === 'receipt' && it.verdict) {
-      try {
-        var rc = G('PDXReceipts');
-        // Reuse the receipt verdict wording if available; otherwise a plain chip.
-      } catch (e) {}
-    }
+    var cat = archiveCategory(it);
+    var catChip = cat ? '<span class="dlib-cat-chip" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tags = (it.issueKeys || []).slice(0, 2).map(function (k) {
       return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
     }).join('');
-    return '<button type="button" class="dlib-card" data-id="' + esc(it.id) + '" aria-label="Open: ' + esc(it.title) + '">' +
+    // A per-type call to action, mirroring the Spotlight Hub / collection tiles so the
+    // archive card reads as an obvious, themed doorway rather than a flat block.
+    var CTA = { spotlight: 'View Spotlight', receipt: 'See the receipt', mandate: 'Open reform', bill: 'Open bill', contract: 'See contract' };
+    var cta = (CTA[it.type] || 'Open') + ' →';
+    var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
+    return '<button type="button" class="dlib-card' + (cat ? ' dlib-cat' : '') + '" data-id="' + esc(it.id) + '"' + catStyle + ' aria-label="Open: ' + esc(it.title) + '">' +
       '<span class="dlib-card-top">' + badge + (it.sub ? '<span class="dlib-card-sub">' + esc(it.sub) + '</span>' : '') + '</span>' +
+      catChip +
       '<span class="dlib-card-title">' + esc(it.title) + '</span>' +
       (it.blurb ? '<span class="dlib-card-blurb">' + esc(it.blurb) + '</span>' : '') +
-      (tags ? '<span class="dlib-card-tags">' + tags + '</span>' : '') +
+      '<span class="dlib-card-foot">' +
+        (tags ? '<span class="dlib-card-tags">' + tags + '</span>' : '<span></span>') +
+        '<span class="dlib-card-cta">' + cta + '</span>' +
+      '</span>' +
     '</button>';
   }
 
@@ -435,17 +456,19 @@
       '.dlib-collections{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));}' +
       '.dlib-col{display:flex;align-items:center;gap:.75rem;text-align:left;width:100%;cursor:pointer;' +
         'background:linear-gradient(150deg,rgba(19,29,52,.9),rgba(13,21,38,.92));border:1px solid rgba(159,180,212,.16);' +
+        'border-left:3px solid var(--cat,rgba(159,180,212,.4));' +
         'border-radius:.85rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
-      '.dlib-col:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45);box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
+      '.dlib-col:hover{transform:translateY(-2px);border-color:var(--cat,rgba(96,165,250,.45));box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
       '.dlib-col:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;}' +
-      '.dlib-col-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}' +
+      '.dlib-col-ico{font-size:1.35rem;line-height:1;flex-shrink:0;width:2.6rem;height:2.6rem;display:inline-flex;align-items:center;justify-content:center;' +
+        'border-radius:.7rem;background:rgba(255,255,255,.03);border:1px solid var(--cat,rgba(159,180,212,.25));}' +
       '.dlib-col-body{flex:1;min-width:0;}' +
       '.dlib-col-top{display:flex;align-items:center;gap:.45rem;}' +
       '.dlib-col-label{font:700 .95rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#fff;}' +
-      '.dlib-col-n{font:800 .6rem/1 "Barlow Condensed",sans-serif;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.15rem .4rem;}' +
+      '.dlib-col-n{font:800 .6rem/1 "Barlow Condensed",sans-serif;color:#0a0f1e;background:var(--cat,#7fb4ff);border-radius:999px;padding:.15rem .4rem;}' +
       '.dlib-col-desc{display:block;font:500 .76rem/1.35 "Barlow",sans-serif;color:#9fb4d4;margin-top:.15rem;}' +
       '.dlib-col-go{color:#5f7da6;font-size:1.1rem;flex-shrink:0;transition:transform .15s,color .15s;}' +
-      '.dlib-col:hover .dlib-col-go{color:#7fb4ff;transform:translateX(3px);}' +
+      '.dlib-col:hover .dlib-col-go{color:var(--cat,#7fb4ff);transform:translateX(3px);}' +
       '.dlib-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem;}' +
       '.dlib-chip{display:inline-flex;align-items:center;gap:.32rem;cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;' +
         'letter-spacing:.03em;color:#a9bbd6;background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.2);' +
@@ -460,13 +483,20 @@
       '.dlib-grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));}' +
       '.dlib-card{display:flex;flex-direction:column;gap:.4rem;text-align:left;width:100%;height:100%;cursor:pointer;' +
         'background:linear-gradient(160deg,rgba(18,28,48,.85),rgba(11,18,33,.92));border:1px solid rgba(159,180,212,.14);' +
-        'border-left:3px solid rgba(96,165,250,.5);border-radius:.8rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
+        'border-left:4px solid rgba(96,165,250,.5);border-radius:.8rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
       '.dlib-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.4);box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
       '.dlib-card:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;}' +
       '.dlib-card.dlib-t-receipt{border-left-color:rgba(245,200,66,.7);}' +
       '.dlib-card.dlib-t-mandate{border-left-color:rgba(192,132,252,.7);}' +
       '.dlib-card.dlib-t-bill{border-left-color:rgba(74,222,128,.7);}' +
       '.dlib-card.dlib-t-contract{border-left-color:rgba(126,224,192,.7);}' +
+      // Category-colored spine + chip (same ISSUE_CAT palette as the bill cards); the
+      // category accent wins over the type accent when an item has a topic.
+      '.dlib-card.dlib-cat{border-left-color:var(--cat);}' +
+      '.dlib-card.dlib-cat:hover{border-color:var(--cat);}' +
+      '.dlib-cat-chip{align-self:flex-start;display:inline-flex;align-items:center;gap:.25rem;font:700 .56rem/1 "Barlow Condensed",sans-serif;' +
+        'letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);' +
+        'border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.2rem .5rem;}' +
       '.dlib-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
       '.dlib-badge{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
         'border-radius:.4rem;padding:.22rem .45rem;color:#bcd0f0;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);white-space:nowrap;}' +
@@ -477,9 +507,13 @@
       '.dlib-card-sub{font:600 .64rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
       '.dlib-card-title{font:700 .98rem/1.22 "Barlow Condensed",sans-serif;color:#fff;}' +
       '.dlib-card-blurb{font:500 .78rem/1.42 "Barlow",sans-serif;color:#9fb4d4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}' +
-      '.dlib-card-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:auto;padding-top:.15rem;}' +
+      '.dlib-card-tags{display:flex;flex-wrap:wrap;gap:.3rem;min-width:0;}' +
       '.dlib-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;' +
         'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
+      // Footer: issue tags on the left, a category-colored "Open →" CTA on the right,
+      // pinned to the card bottom — the same doorway pattern as the Spotlight cards.
+      '.dlib-card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.5rem;}' +
+      '.dlib-card-cta{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);white-space:nowrap;flex-shrink:0;}' +
       '.dlib-empty{text-align:center;color:#8aa0c4;font:500 .9rem/1.5 "Barlow",sans-serif;padding:2rem 1rem;}' +
       '.dlib-empty:not([hidden]){display:flex;flex-direction:column;align-items:center;gap:.9rem;}' +
       '.dlib-clear-filters{cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
@@ -503,6 +537,11 @@
       '.dlib-mode:hover{background:rgba(159,180,212,.14);color:#e6eefc;}' +
       '.dlib-mode.is-active{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5);color:#9ff0bd;}' +
       '.dlib-billfacets{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.6rem;}' +
+      // The facet bar is bill-only chrome; make the `hidden` attribute (set by setMode
+      // in Explore mode) actually win over the display:flex above, so the Legislation
+      // phase pills / topic chips / Congress-Chamber-Status filters never leak into the
+      // Explore tab. Higher specificity than the rule above → no !important needed.
+      '.dlib-billfacets[hidden]{display:none;}' +
       '.dlib-billfacets label{font:700 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;display:inline-flex;align-items:center;gap:.45rem;}' +
       '.dlib-billfacets select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
       // Quick-jump pills row + the facet/sort row below it.
@@ -516,14 +555,55 @@
       '.dlib-jump-n{font-size:.9em;opacity:.8;background:rgba(0,0,0,.2);border-radius:999px;padding:.05rem .35rem;}' +
       '.dlib-sortsel select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
       // Section-breakdown chips on bill cards (each links to an Issue Spotlight).
-      '.dlib-sec-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:auto;padding-top:.4rem;font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7d97bd;}' +
+      '.dlib-sec-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding-top:.1rem;font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7d97bd;}' +
       '.dlib-sec-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem;}' +
-      '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#9ec8ff;' +
-        'background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.28);border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s;}' +
-      '.dlib-sec-chip:hover{background:rgba(96,165,250,.22);border-color:rgba(96,165,250,.6);}' +
-      '.dlib-sec-chip.is-primary{color:#0a0f1e;background:#7fb4ff;border-color:#7fb4ff;}' +
+      '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--cat,#9ec8ff);' +
+        'background:rgba(96,165,250,.08);border:1px solid var(--cat,rgba(96,165,250,.28));border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s,filter .15s;}' +
+      '.dlib-sec-chip:hover{filter:brightness(1.15);background:rgba(96,165,250,.16);}' +
+      '.dlib-sec-chip.is-primary{color:#0a0f1e;background:var(--cat,#7fb4ff);border-color:var(--cat,#7fb4ff);}' +
       '.dlib-sec-more{font:600 .58rem/1 "Barlow Condensed",sans-serif;color:#8aa0c4;align-self:center;}' +
-      '.dlib-billcard{border-left-color:rgba(74,222,128,.7);}' +
+      // Category-colored spine so the grid is scannable by topic at a glance; the
+      // omnibus/megabill tiers override this below with their gold accent.
+      '.dlib-billcard{border-left-width:4px;border-left-color:var(--cat,rgba(74,222,128,.7));}' +
+      // Inline expander + the detail it reveals (summary, breakdown, open link).
+      '.dlib-bill-expand{align-self:flex-start;display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;margin-top:.15rem;' +
+        'font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#9ec8ff;' +
+        'background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.24);border-radius:999px;padding:.3rem .6rem;transition:background .15s,border-color .15s;}' +
+      '.dlib-bill-expand:hover{background:rgba(96,165,250,.16);border-color:rgba(96,165,250,.5);color:#cfe2ff;}' +
+      '.dlib-bill-expand-ic{font-size:.8em;transition:transform .18s ease;}' +
+      '.dlib-billcard.is-expanded .dlib-bill-expand-ic{transform:rotate(180deg);}' +
+      '.dlib-bill-detail{display:flex;flex-direction:column;gap:.45rem;margin-top:.15rem;padding-top:.5rem;border-top:1px dashed rgba(159,180,212,.18);}' +
+      '.dlib-bill-summary{margin:0;font:500 .8rem/1.5 "Barlow",sans-serif;color:#b9c9e2;}' +
+      // Beginner "why this matters" note — a soft-highlighted callout at the top of the expand.
+      '.dlib-bill-why{margin:0;font:500 .78rem/1.5 "Barlow",sans-serif;color:#dbe6f6;background:rgba(96,165,250,.08);' +
+        'border-left:2px solid rgba(96,165,250,.5);border-radius:.35rem;padding:.4rem .55rem;}' +
+      // "At a glance" plain-English status line on the card face.
+      '.dlib-bill-glance{font:700 .74rem/1.25 "Barlow",sans-serif;color:#cfe0f5;}' +
+      '.dlib-glance-enacted{color:#9ff0bd;}.dlib-glance-failed,.dlib-glance-vetoed{color:#fca5a5;}' +
+      // Compact, color-coded 3-stage progress track (wraps on small screens).
+      '.dlib-timeline{display:flex;align-items:flex-start;flex-wrap:nowrap;gap:.15rem;margin:.1rem 0 .05rem;}' +
+      '.dlib-tl-node{display:flex;flex-direction:column;align-items:center;gap:.22rem;flex:1 1 0;min-width:0;text-align:center;}' +
+      '.dlib-tl-dot{width:.62rem;height:.62rem;border-radius:50%;border:2px solid rgba(159,180,212,.35);background:rgba(13,21,38,.9);flex-shrink:0;}' +
+      '.dlib-tl-lb{font:700 .52rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#7d97bd;}' +
+      '.dlib-tl-bar{height:2px;flex:1 1 auto;margin-top:.28rem;background:rgba(159,180,212,.25);border-radius:2px;min-width:.6rem;}' +
+      '.dlib-tl-node.dlib-tl-done .dlib-tl-dot{background:#4ade80;border-color:#4ade80;}' +
+      '.dlib-tl-node.dlib-tl-done .dlib-tl-lb{color:#9ff0bd;}' +
+      '.dlib-tl-bar.dlib-tl-done{background:#4ade80;}' +
+      '.dlib-tl-node.dlib-tl-now .dlib-tl-dot{background:var(--cat,#f6d873);border-color:var(--cat,#f6d873);box-shadow:0 0 0 3px rgba(245,200,66,.18);}' +
+      '.dlib-tl-node.dlib-tl-now .dlib-tl-lb{color:var(--cat,#f6d873);}' +
+      '.dlib-tl-bar.dlib-tl-now{background:var(--cat,#f6d873);}' +
+      '.dlib-tl-node.dlib-tl-bad .dlib-tl-dot{background:#f87171;border-color:#f87171;}' +
+      '.dlib-tl-node.dlib-tl-bad .dlib-tl-lb{color:#fca5a5;}' +
+      '.dlib-tl-bar.dlib-tl-bad{background:#f87171;}' +
+      // Plain key-stats strip on the card face.
+      '.dlib-bill-stats{display:flex;flex-wrap:wrap;gap:.3rem;}' +
+      '.dlib-stat{font:600 .6rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#a9bbd6;' +
+        'background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .5rem;white-space:nowrap;}' +
+      '.dlib-bill-detail .dlib-sec{display:flex;flex-direction:column;gap:.15rem;}' +
+      '.dlib-bill-open{align-self:flex-start;cursor:pointer;margin-top:.1rem;font:800 .64rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;' +
+        'text-transform:uppercase;color:#9ff0bd;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4);' +
+        'border-radius:999px;padding:.42rem .9rem;transition:background .15s,border-color .15s;}' +
+      '.dlib-bill-open:hover{background:rgba(74,222,128,.22);border-color:rgba(74,222,128,.7);color:#c9ffdd;}' +
       '.dlib-bill-meta{font:600 .66rem/1.25 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
       '.dlib-bill-status{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;border-radius:.4rem;' +
         'padding:.22rem .45rem;white-space:nowrap;color:#9ff0bd;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.35);}' +
@@ -614,12 +694,36 @@
   }
   // Progress rank for the "Status" sort — furthest-along first.
   var BILL_PROGRESS = { enacted: 6, passed_senate: 5, passed_house: 4, pending: 3, introduced: 2, failed: 1, vetoed: 1 };
+  // Reader-friendly sort scores. All derived from fields already on the list item
+  // (issue count, roll calls, recorded votes, status) — no new data or network.
+  function billIssueCount(b) { return (b.issueKeys || []).filter(Boolean).length; }
+  // "Beginner friendly": focused, explained, self-contained bills first (lower = simpler).
+  function billComplexity(b) {
+    var t = billTier(b);
+    return billIssueCount(b) + (t === 'mega' ? 8 : t === 'omni' ? 4 : 0) + (b.summary ? 0 : 3);
+  }
+  // "Most controversial": more recorded roll calls / bundled issues / a failed-or-vetoed
+  // ending = more legislative conflict. A transparent proxy — the browse list carries no
+  // vote margins, so this ranks by how much fighting a bill generated, not the tally.
+  function billContested(b) {
+    var s = b.status;
+    return (b.rollcallCount || 0) * 3 + (b.voteCount || 0) / 25 + billIssueCount(b) + ((s === 'failed' || s === 'vetoed') ? 6 : 0);
+  }
   function billSortCmp(a, b) {
     if (_billSort === 'number') {
       return billNumberVal(a) - billNumberVal(b) || String(a.number || '').localeCompare(String(b.number || ''));
     }
     if (_billSort === 'status') {
       return (BILL_PROGRESS[b.status] || 0) - (BILL_PROGRESS[a.status] || 0) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'controversial') {
+      return billContested(b) - billContested(a) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'beginner') {
+      return billComplexity(a) - billComplexity(b) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'bundled') {
+      return billIssueCount(b) - billIssueCount(a) || billDateVal(b) - billDateVal(a);
     }
     var d = billDateVal(b) - billDateVal(a); // recent (newest first) by default
     if (_billSort === 'oldest') d = -d;
@@ -675,12 +779,15 @@
     return s;
   }
   // Omnibus / flagship classification for special styling. 'mega' = flagship megabill
-  // (H.R. 1) or a bill bundling 6+ issues; 'omni' = any multi-issue bill; '' = focused.
+  // (H.R. 1) or a bill bundling 6+ issues; 'omni' = a genuinely bundled bill (flagged
+  // omnibus AND touching 3+ issues, or 4+ issues on its own); '' = focused.
+  // The 3-issue floor keeps the badge meaningful: the seed data flags many focused
+  // bills isOmnibus, so a count threshold is what earns the "OMNIBUS" label.
   function billTier(b) {
     var n = (b.issueKeys || []).filter(Boolean).length;
     var isFlagship = /^h\.?\s*r\.?\s*1$/i.test(String(b.number || '').trim()) || b.flagship === true;
     if (isFlagship || n >= 6) return 'mega';
-    if (b.isOmnibus || n >= 2) return 'omni';
+    if ((b.isOmnibus && n >= 3) || n >= 4) return 'omni';
     return '';
   }
 
@@ -728,30 +835,76 @@
     return true;
   }
 
+  // Plain-English one-line status ("at a glance") — no jargon.
+  function billGlance(b) {
+    switch (b.status) {
+      case 'enacted': return '✅ Signed into law';
+      case 'passed_house': return '🏛️ Passed the House — not yet law';
+      case 'passed_senate': return '🏛️ Passed the Senate — not yet law';
+      case 'vetoed': return '⛔ Vetoed after clearing Congress';
+      case 'failed': return '✖️ Failed to pass';
+      case 'pending': return '🕒 Pending — in committee';
+      default: return '🕒 Introduced — awaiting a vote';
+    }
+  }
+  // Neutral, templated "why this matters" note for first-time readers. Says only what
+  // the bill's shape/status already implies — no editorializing about the policy.
+  function billWhy(b) {
+    var n = billIssueCount(b);
+    var t = billTier(b);
+    var cat = billCategory(b);
+    var topic = cat ? cat.label.toLowerCase() : 'this area';
+    if (t === 'mega') return 'Why it matters: a megabill like this rolls many separate decisions into a single vote — one yes or no can affect all ' + n + ' issues it touches at once.';
+    if (t === 'omni') return 'Why it matters: this bill bundles ' + n + ' issues, so a vote on it is really a vote on several topics together.';
+    if (b.status === 'enacted') return 'Why it matters: this one already became law, so it is shaping ' + topic + ' policy now.';
+    if (b.status === 'failed' || b.status === 'vetoed') return 'Why it matters: this one did not make it into law — a marker of where lawmakers drew the line on ' + topic + '.';
+    return 'Why it matters: a focused bill on ' + topic + ', still working its way through Congress.';
+  }
+  // A tiny 3-stage, color-coded progress track (Introduced → passed a chamber → law).
+  // Derived only from `status`; states: done (green) · now (highlight) · todo (muted) ·
+  // bad (red, for failed/vetoed). Compact so it wraps cleanly on phones.
+  function billTimelineHtml(b) {
+    var s = b.status || 'introduced', nodes;
+    if (s === 'enacted') nodes = [['Introduced', 'done'], ['Passed Congress', 'done'], ['Signed into law', 'done']];
+    else if (s === 'passed_house') nodes = [['Introduced', 'done'], ['Passed the House', 'now'], ['Signed into law', 'todo']];
+    else if (s === 'passed_senate') nodes = [['Introduced', 'done'], ['Passed the Senate', 'now'], ['Signed into law', 'todo']];
+    else if (s === 'vetoed') nodes = [['Introduced', 'done'], ['Passed Congress', 'done'], ['Vetoed', 'bad']];
+    else if (s === 'failed') nodes = [['Introduced', 'done'], ['Failed', 'bad'], ['Signed into law', 'todo']];
+    else if (s === 'pending') nodes = [['Introduced', 'done'], ['In committee', 'now'], ['Signed into law', 'todo']];
+    else nodes = [['Introduced', 'now'], ['A chamber vote', 'todo'], ['Signed into law', 'todo']];
+    var html = nodes.map(function (nd, i) {
+      var bar = i > 0 ? '<span class="dlib-tl-bar dlib-tl-' + nodes[i - 1][1] + '"></span>' : '';
+      return bar + '<span class="dlib-tl-node dlib-tl-' + nd[1] + '"><span class="dlib-tl-dot" aria-hidden="true"></span>' +
+        '<span class="dlib-tl-lb">' + esc(nd[0]) + '</span></span>';
+    }).join('');
+    return '<span class="dlib-timeline" role="img" aria-label="Progress: ' +
+      escAttr(nodes.map(function (n) { return n[0]; }).join(' then ')) + '">' + html + '</span>';
+  }
+
   function billCardHtml(b) {
     var ref = (b.id != null) ? b.id : b.number;
     var followed = billIsFollowed(b);
-    var star = '<span class="dlib-bill-follow' + (followed ? ' is-on' : '') + '" data-follow="' + esc(String(ref)) + '" role="button" tabindex="0" ' +
+    var star = '<span class="dlib-bill-follow' + (followed ? ' is-on' : '') + '" data-follow="' + escAttr(String(ref)) + '" role="button" tabindex="0" ' +
       'aria-pressed="' + followed + '" aria-label="' + (followed ? 'Unfollow' : 'Follow') + ' this bill" title="' + (followed ? 'Following — click to unfollow' : 'Follow this bill') + '">' + (followed ? '★' : '☆') + '</span>';
     var status = b.status ? '<span class="dlib-bill-status dlib-bs-' + esc(b.status) + '">' + esc(billStatusLabel(b.status)) + '</span>' : '';
-    var meta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : '',
-      b.voteCount ? (b.voteCount + ' recorded votes') : ''].filter(Boolean).join(' · ');
 
     // Section breakdown: each of the bill's issue categories becomes a chip that jumps
-    // to that Issue Spotlight. For a true omnibus we lead with a count so the bundled
-    // nature reads at a glance.
+    // to that Issue Spotlight. Chips carry their topic-category color so the bundle
+    // reads at a glance. These live in the expand now, so we can afford to show more.
     var keys = (b.issueKeys || []).filter(Boolean);
     var primary = b.primaryIssue || keys[0] || '';
     // Primary issue first, then the rest, de-duplicated.
     var ordered = [];
     (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
-    var shownKeys = ordered.slice(0, 5);
+    var shownKeys = ordered.slice(0, 8);
     var extra = ordered.length - shownKeys.length;
     var chips = shownKeys.map(function (k, i) {
       var ic = issueCatOf(k);
       var cico = ic ? ISSUE_CAT[ic].icon + ' ' : '';
+      var ccol = ic ? ISSUE_CAT[ic].color : '';
       return '<button type="button" class="dlib-sec-chip' + (i === 0 && k === primary ? ' is-primary' : '') +
-        '" data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
+        '" data-issue="' + escAttr(k) + '"' + (ccol ? ' style="--cat:' + ccol + '"' : '') +
+        ' title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
         cico + esc(issueLabel(k)) + '</button>';
     }).join('') + (extra > 0 ? '<span class="dlib-sec-more">+' + extra + ' more</span>' : '');
 
@@ -767,18 +920,50 @@
     var catChip = cat ? '<span class="dlib-bill-cat" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tagrow = (catChip || tierBadge) ? '<span class="dlib-bill-tagrow">' + catChip + tierBadge + '</span>' : '';
 
-    var breakdown = ordered.length
-      ? '<span class="dlib-sec-head">' + (ordered.length >= 2 ? 'Breaks into' : 'Focus') + '</span>' +
-        '<span class="dlib-sec-chips">' + chips + '</span>'
+    // "At a glance" line + color-coded progress track + a plain key-stats strip, all on
+    // the card face so a first-timer can read status and scale without opening anything.
+    var glance = '<span class="dlib-bill-glance dlib-glance-' + esc(b.status || 'introduced') + '">' + billGlance(b) + '</span>';
+    var timeline = billTimelineHtml(b);
+    var statList = [];
+    var chMeta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
+    if (chMeta) statList.push('🏛️ ' + chMeta);
+    if (ordered.length) statList.push('🧩 ' + ordered.length + ' issue' + (ordered.length !== 1 ? 's' : ''));
+    if (b.voteCount) statList.push('🗳️ ' + b.voteCount + ' recorded votes');
+    else if (b.rollcallCount) statList.push('🗳️ ' + b.rollcallCount + ' roll call' + (b.rollcallCount !== 1 ? 's' : ''));
+    var stats = statList.length
+      ? '<span class="dlib-bill-stats">' + statList.map(function (s) { return '<span class="dlib-stat">' + esc(s) + '</span>'; }).join('') + '</span>'
       : '';
 
-    return '<div class="dlib-card dlib-billcard' + (tier ? ' dlib-billcard--' + tier : '') + '" data-bill="' + esc(String(ref)) + '" role="button" tabindex="0" aria-label="Open bill: ' + esc(b.title) + '">' +
+    // The summary, the beginner "why this matters" note and the full issue breakdown
+    // live behind an inline "What's inside" expander so the list stays scannable;
+    // "View full record" opens the rich detail panel.
+    var why = '<p class="dlib-bill-why">' + esc(billWhy(b)) + '</p>';
+    var summaryFull = b.summary ? '<p class="dlib-bill-summary">' + esc(b.summary) + '</p>' : '';
+    var breakdown = ordered.length
+      ? '<div class="dlib-sec">' +
+          '<span class="dlib-sec-head">' + (ordered.length >= 2 ? 'Breaks into ' + ordered.length + ' issues' : 'Focus') + '</span>' +
+          '<span class="dlib-sec-chips">' + chips + '</span>' +
+        '</div>'
+      : '';
+    var detail =
+      '<div class="dlib-bill-detail" hidden>' + why + summaryFull + breakdown +
+        '<button type="button" class="dlib-bill-open" data-open="' + escAttr(String(ref)) + '">View full record →</button>' +
+      '</div>';
+    var expander =
+      '<button type="button" class="dlib-bill-expand" data-expand aria-expanded="false" aria-label="Show what’s inside this bill">' +
+        '<span class="dlib-bill-expand-lb">What’s inside &amp; why it matters</span>' +
+        '<span class="dlib-bill-expand-ic" aria-hidden="true">▾</span></button>';
+    var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
+
+    return '<div class="dlib-card dlib-billcard' + (tier ? ' dlib-billcard--' + tier : '') + '" data-bill="' + escAttr(String(ref)) + '"' + catStyle + ' role="button" tabindex="0" aria-label="Open bill: ' + escAttr(b.title) + '">' +
       '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
       tagrow +
       '<span class="dlib-card-title">' + esc(b.shortTitle || b.title) + '</span>' +
-      (meta ? '<span class="dlib-bill-meta">' + esc(meta) + '</span>' : '') +
-      (b.summary ? '<span class="dlib-card-blurb">' + esc(b.summary) + '</span>' : '') +
-      breakdown +
+      glance +
+      timeline +
+      stats +
+      expander +
+      detail +
     '</div>';
   }
 
@@ -833,7 +1018,9 @@
         '</div>'
       : '';
     var sortSel = '<label class="dlib-sortsel">Sort <select data-bill-sort>' +
-      [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['number', 'Bill number'], ['status', 'Furthest along']]
+      [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['status', 'Furthest along'],
+       ['controversial', '🔥 Most controversial'], ['beginner', '🌱 Beginner friendly'], ['bundled', '📦 Most bundled'],
+       ['number', 'Bill number']]
         .map(function (o) { return '<option value="' + o[0] + '"' + (_billSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
       '</select></label>';
     wrap.innerHTML =
@@ -931,12 +1118,39 @@
     grid.innerHTML = slice.map(billCardHtml).join('');
     grid.querySelectorAll('[data-bill]').forEach(function (b) {
       var go = function () { var api = G('PDXBills'); if (api && api.open) api.open(b.getAttribute('data-bill')); };
+      // Controls that live inside the card handle their own clicks; a click on any of
+      // them must not also open the bill.
+      var isControl = function (t) { return t && t.closest && !!t.closest('[data-follow],[data-issue],[data-expand],[data-open]'); };
       b.addEventListener('click', function (e) {
-        // Clicks on the follow star or a section chip are handled separately; ignore here.
-        if (e.target && e.target.closest && (e.target.closest('[data-follow]') || e.target.closest('[data-issue]'))) return;
+        if (isControl(e.target)) return;
         go();
       });
-      b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+      b.addEventListener('keydown', function (e) {
+        if (isControl(e.target)) return; // let the inner control handle its own key
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+      });
+    });
+    // Inline "What's inside" expander — reveals the summary + full issue breakdown
+    // without leaving the list, keeping the default card short and punchy.
+    grid.querySelectorAll('[data-expand]').forEach(function (btn) {
+      var toggle = function (e) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
+        var card = btn.closest('.dlib-billcard'); if (!card) return;
+        var det = card.querySelector('.dlib-bill-detail'); if (!det) return;
+        var opening = det.hasAttribute('hidden');
+        if (opening) det.removeAttribute('hidden'); else det.setAttribute('hidden', '');
+        btn.setAttribute('aria-expanded', String(opening));
+        card.classList.toggle('is-expanded', opening);
+      };
+      btn.addEventListener('click', toggle);
+      btn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') toggle(e); });
+    });
+    // "View full record →" inside the expanded detail → the rich bill detail panel.
+    grid.querySelectorAll('[data-open]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation(); e.preventDefault();
+        var api = G('PDXBills'); if (api && api.open) api.open(btn.getAttribute('data-open'));
+      });
     });
     // Section chips → jump to that Issue Spotlight (falls back to filtering the list).
     grid.querySelectorAll('[data-issue]').forEach(function (chip) {

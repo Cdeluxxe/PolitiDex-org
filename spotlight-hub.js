@@ -71,6 +71,25 @@
     return { key: key, icon: '🏷️', label: key === 'other' ? 'Other' : key };
   }
 
+  // Per-category accent color. Deliberately reuses the Legislation library's
+  // ISSUE_CAT palette (see digital-library.js) so a topic reads the same across the
+  // whole Digital Library: economy=green, education=blue, health=pink, etc. Keyed by
+  // the broad Evidence Category key (_pdxEvidenceCategory), with a safe blue fallback
+  // so a brand-new category still gets a spine and colored chip.
+  var CAT_COLOR = {
+    taxes_economy:   '#4ade80',
+    education:       '#60a5fa',
+    health_human:    '#f472b6',
+    housing:         '#fbbf24',
+    safety_justice:  '#fca5a5',
+    immigration:     '#fb923c',
+    enviro_land:     '#22d3ee',
+    gov_elections:   '#a78bfa',
+    transport_infra: '#38bdf8',
+    other:           '#9ec8ff'
+  };
+  function catColor(key) { return CAT_COLOR[key] || '#9ec8ff'; }
+
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(k); if (l) return l; } } catch (e) {}
     return String(k || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
@@ -91,6 +110,7 @@
     var scope = scopeOf(sp);
     var cat = catOf(sp);
     var cm = catMeta(cat);
+    var col = catColor(cat);
     var tags = tagsFor(sp).map(function (k) {
       return '<span class="shub-tag">' + esc(issueLabel(k)) + '</span>';
     }).join('');
@@ -101,17 +121,18 @@
       : '<span class="shub-scope shub-scope-local">📍 Local</span>';
     return '<button type="button" class="shub-card" data-slug="' + esc(sp.slug) + '" ' +
         'data-scope="' + scope + '" data-cat="' + esc(cat) + '" data-hay="' + esc(hay) + '" ' +
+        'style="--cat:' + col + '" ' +
         'aria-label="Open the ' + esc(sp.title) + ' Issue Spotlight">' +
       '<span class="shub-card-top">' + scopeChip +
         '<span class="shub-doc shub-doc-' + esc(s.level) + '" title="' +
           esc((s.sources || 0) + ' sourced events · ' + (s.receipts || 0) + ' receipts') + '">📑 ' + esc(s.label) + '</span>' +
       '</span>' +
+      '<span class="shub-catpill" style="--cat:' + col + '"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' + esc(cm.label) + '</span>' +
       '<span class="shub-title">' + esc(sp.title) + '</span>' +
       (sp.place ? '<span class="shub-place">📍 ' + esc(sp.place) + '</span>' : '') +
       (blurb ? '<span class="shub-blurb">' + esc(blurb) + '</span>' : '') +
       (tags ? '<span class="shub-tags">' + tags + '</span>' : '') +
       '<span class="shub-foot">' +
-        '<span class="shub-cat"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' + esc(cm.label) + '</span>' +
         '<span class="shub-cta">View Spotlight →</span>' +
       '</span>' +
     '</button>';
@@ -152,17 +173,33 @@
     catHtml += catKeys.map(function (k) {
       var cm = catMeta(k);
       return '<button type="button" class="shub-chip shub-chip-cat' + (_state.cat === k ? ' is-active' : '') +
-        '" data-cat="' + esc(k) + '"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' +
+        '" data-cat="' + esc(k) + '" style="--cat:' + catColor(k) + '"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' +
         esc(cm.label) + ' <span class="shub-chip-n">' + catCounts[k] + '</span></button>';
     }).join('');
     catWrap.innerHTML = catHtml;
 
     scopeWrap.querySelectorAll('[data-scope]').forEach(function (b) {
-      b.addEventListener('click', function () { _state.scope = b.getAttribute('data-scope') || 'all'; syncChips(); applyFilter(); });
+      b.addEventListener('click', function () { _state.scope = b.getAttribute('data-scope') || 'all'; syncChips(); applyFilter(); scrollToResults(); });
     });
     catWrap.querySelectorAll('[data-cat]').forEach(function (b) {
-      b.addEventListener('click', function () { _state.cat = b.getAttribute('data-cat') || ''; syncChips(); applyFilter(); });
+      b.addEventListener('click', function () { _state.cat = b.getAttribute('data-cat') || ''; syncChips(); applyFilter(); scrollToResults(); });
     });
+  }
+
+  // Nudge the freshly filtered results into view after a chip tap. block:'nearest'
+  // keeps it gentle — no jump when the grid is already on screen (desktop), but on a
+  // long mobile page it brings the new set up so the filter feels like a real jump.
+  function scrollToResults() {
+    var count = document.getElementById('shub-count');
+    if (count && count.scrollIntoView) { try { count.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {} }
+  }
+
+  // Reset every filter (scope, topic, search) back to "show everything".
+  function clearFilters() {
+    _state.scope = 'all'; _state.cat = ''; _state.q = '';
+    var input = document.getElementById('sh-search');
+    if (input) input.value = '';
+    syncChips(); applyFilter();
   }
 
   function syncChips() {
@@ -218,7 +255,12 @@
       '.shub-chip:hover{background:rgba(159,180,212,.14);border-color:rgba(159,180,212,.4);color:#e6eefc;}' +
       '.shub-chip:active{transform:scale(.97);}' +
       '.shub-chip.is-active{background:rgba(245,200,66,.16);border-color:rgba(245,200,66,.55);color:#f5d77a;}' +
-      '.shub-chip-cat.is-active{background:rgba(96,165,250,.16);border-color:rgba(96,165,250,.55);color:#9ec8ff;}' +
+      // Category chips wear their topic color — a light tint at rest, a solid fill
+      // when active — so the topic rail scans the same way the Legislation topics do.
+      '.shub-chip-cat{color:var(--cat,#a9bbd6);background:rgba(159,180,212,.06);border-color:var(--cat,rgba(159,180,212,.22));}' +
+      '.shub-chip-cat:hover{filter:brightness(1.12);color:var(--cat,#e6eefc);border-color:var(--cat,rgba(159,180,212,.4));}' +
+      '.shub-chip-cat.is-active{background:var(--cat,#7fb4ff);border-color:var(--cat,#7fb4ff);color:#0a0f1e;}' +
+      '.shub-chip-cat.is-active .shub-chip-n{opacity:.85;}' +
       '.shub-chip-n{font-size:.62rem;opacity:.7;font-weight:800;}' +
       '.shub-searchbar{display:flex;align-items:center;gap:.5rem;max-width:30rem;margin:0 auto;width:100%;' +
         'background:rgba(10,15,30,.6);border:1px solid rgba(159,180,212,.24);border-radius:.8rem;padding:.55rem .85rem;}' +
@@ -231,9 +273,10 @@
       '.shub-grid{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fill,minmax(16.5rem,1fr));}' +
       '.shub-card{display:flex;flex-direction:column;gap:.4rem;text-align:left;width:100%;cursor:pointer;height:100%;' +
         'background:linear-gradient(160deg,rgba(19,29,52,.85),rgba(13,21,38,.9));border:1px solid rgba(159,180,212,.16);' +
+        'border-left:4px solid var(--cat,rgba(245,200,66,.5));' +
         'border-radius:.9rem;padding:.95rem 1rem;color:inherit;' +
         'transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;}' +
-      '.shub-card:hover{transform:translateY(-3px);border-color:rgba(245,200,66,.45);box-shadow:0 10px 28px rgba(0,0,0,.35);}' +
+      '.shub-card:hover{transform:translateY(-3px);border-color:var(--cat,rgba(245,200,66,.45));box-shadow:0 10px 28px rgba(0,0,0,.35);}' +
       '.shub-card:focus-visible{outline:2px solid #f5c842;outline-offset:2px;}' +
       '.shub-card.shub-hidden{display:none;}' +
       '.shub-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
@@ -253,11 +296,23 @@
       '.shub-tags{display:flex;flex-wrap:wrap;gap:.3rem;}' +
       '.shub-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;' +
         'color:#8aa0c4;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
-      '.shub-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.5rem;}' +
-      '.shub-cat{font:700 .6rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#7d97bd;}' +
+      '.shub-foot{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding-top:.5rem;}' +
+      // Prominent top category chip (moved up from the footer for stronger hierarchy,
+      // mirroring the Legislation bill cards); the old footer .shub-cat style is kept
+      // harmlessly for any cached markup.
+      '.shub-catpill{align-self:flex-start;display:inline-flex;align-items:center;gap:.28rem;font:700 .58rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.05em;' +
+        'text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);' +
+        'border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.22rem .55rem;}' +
+      '.shub-cat{display:inline-flex;align-items:center;gap:.28rem;font:700 .58rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.04em;' +
+        'text-transform:uppercase;color:var(--cat,#7d97bd);background:rgba(159,180,212,.06);' +
+        'border:1px solid var(--cat,rgba(159,180,212,.28));border-radius:999px;padding:.24rem .55rem;}' +
       '.shub-cta{font:700 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#f5d77a;white-space:nowrap;}' +
       '.shub-empty{display:none;text-align:center;color:#8aa0c4;font:500 .9rem/1.5 "Barlow",sans-serif;padding:2rem 1rem;}' +
-      '.shub-empty.is-on{display:block;}' +
+      '.shub-empty.is-on{display:flex;flex-direction:column;align-items:center;gap:.9rem;}' +
+      '.shub-empty-reset{cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
+        'color:#f5d77a;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.4);border-radius:999px;padding:.5rem 1.1rem;' +
+        'transition:background .15s,border-color .15s;}' +
+      '.shub-empty-reset:hover{background:rgba(245,200,66,.22);border-color:rgba(245,200,66,.65);}' +
       '.shub-crossnav{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;justify-content:center;margin-top:1.6rem;' +
         'padding-top:1.2rem;border-top:1px dashed rgba(159,180,212,.18);}' +
       '.shub-crossnav-lab{font:700 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#7d97bd;}' +
@@ -297,6 +352,15 @@
     if (input && !input._shWired) {
       input._shWired = true;
       input.addEventListener('input', function () { _state.q = input.value || ''; applyFilter(); });
+    }
+    // Give the empty state a one-tap way back to the full collection.
+    var empty = document.getElementById('shub-empty');
+    if (empty && !empty._shEnhanced) {
+      empty._shEnhanced = true;
+      empty.innerHTML = '<div class="shub-empty-msg">No spotlights match that filter yet. Try a broader topic or clear the search.</div>' +
+        '<button type="button" class="shub-empty-reset" id="shub-empty-reset">↺ Reset filters</button>';
+      var rb = document.getElementById('shub-empty-reset');
+      if (rb) rb.addEventListener('click', clearFilters);
     }
     applyFilter();
     _built = true;

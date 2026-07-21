@@ -123,5 +123,94 @@ window.PDX_BILLS_INDEX = [
       'failure to warn state preemption local preemption sections 10205 10206 10207 pingree luna massie ' +
       'bipartisan amendment reauthorization',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/7567', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 471', title: 'Fix Our Forests Act', shortTitle: 'Fix Our Forests Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'disaster_resilience',
+    issueKeys: ['disaster_resilience', 'lands_balance', 'gov_regulation', 'enviro_balance'], isOmnibus: false,
+    keywords: 'fix our forests act wildfire forest management fireshed hazardous fuels thinning nepa environmental review ' +
+      'litigation public lands forest service westerman catastrophic wildfire prevention',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/471', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1526', title: 'No Rogue Rulings Act of 2025', shortTitle: 'No Rogue Rulings Act (NORRA)',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'gov_balance',
+    issueKeys: ['gov_balance', 'reform_balance', 'democracy_balance'], isOmnibus: false,
+    keywords: 'no rogue rulings act norra nationwide injunction universal injunction activist judges district court ' +
+      'separation of powers three judge panel issa executive power courts',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1526', label: 'Congress.gov' }
+  },
+  {
+    number: 'S. 331', title: 'Halt All Lethal Trafficking of Fentanyl Act', shortTitle: 'HALT Fentanyl Act',
+    measureType: 'bill', chamber: 'senate', congress: 119, status: 'enacted',
+    primaryIssue: 'immig_fentanyl',
+    issueKeys: ['immig_fentanyl', 'tough_on_crime', 'health_mental'], isOmnibus: false,
+    keywords: 'halt fentanyl act schedule I controlled substances fentanyl related substances analogues overdose ' +
+      'mandatory minimum cassidy grassley heinrich public law 119-26 drug enforcement opioid',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/senate-bill/331', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 82', title: 'Social Security Fairness Act of 2023', shortTitle: 'Social Security Fairness Act',
+    measureType: 'bill', chamber: 'house', congress: 118, status: 'enacted',
+    primaryIssue: 'social_security',
+    issueKeys: ['social_security', 'cost_living', 'national_debt'], isOmnibus: false,
+    keywords: 'social security fairness act wep gpo windfall elimination provision government pension offset ' +
+      'teachers firefighters police public sector retirees benefits repeal collins graves spanberger enacted',
+    source: { url: 'https://www.congress.gov/bill/118th-congress/house-bill/82', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1048', title: 'DETERRENT Act', shortTitle: 'DETERRENT Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'gov_transparency',
+    issueKeys: ['gov_transparency', 'america_first', 'edu_balance', 'free_speech'], isOmnibus: false,
+    keywords: 'deterrent act foreign gifts universities higher education section 117 disclosure china iran ' +
+      'north korea russia endowment title iv baumgartner campus foreign influence transparency',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1048', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1919', title: 'Anti-CBDC Surveillance State Act', shortTitle: 'Anti-CBDC Surveillance State Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'privacy_rights',
+    issueKeys: ['privacy_rights', 'gov_balance', 'tech_balance'], isOmnibus: false,
+    keywords: 'anti cbdc surveillance state act central bank digital currency federal reserve digital dollar ' +
+      'financial privacy emmer crypto week retail accounts',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1919', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 3633', title: 'Digital Asset Market Clarity Act of 2025', shortTitle: 'CLARITY Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'tech_innovation',
+    issueKeys: ['tech_innovation', 'gov_regulation', 'econ_growth'], isOmnibus: false,
+    keywords: 'clarity act digital asset market structure crypto cryptocurrency cftc sec regulation ' +
+      'french hill thompson crypto week blockchain digital commodity',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/3633', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 3838', title: 'National Defense Authorization Act for Fiscal Year 2026', shortTitle: 'FY2026 NDAA',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
+    primaryIssue: 'strong_defense',
+    issueKeys: ['strong_defense', 'veterans', 'national_debt'], isOmnibus: true,
+    keywords: 'ndaa national defense authorization act fiscal year 2026 pentagon military pay raise ' +
+      'weapons acquisition defense spending armed services compromise enacted',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/3838', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1949', title: 'Unlocking our Domestic LNG Potential Act of 2025', shortTitle: 'Unlocking Domestic LNG Potential Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'energy_production',
+    issueKeys: ['energy_production', 'gov_regulation', 'econ_trade'], isOmnibus: false,
+    keywords: 'lng liquefied natural gas export import ferc department of energy approval natural gas act ' +
+      'energy dominance pfluger permitting terminals',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1949', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 276', title: 'Gulf of America Act of 2025', shortTitle: 'Gulf of America Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'america_first',
+    issueKeys: ['america_first'], isOmnibus: false,
+    keywords: 'gulf of america act rename gulf of mexico marjorie taylor greene mtg executive order codify maps',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/276', label: 'Congress.gov' }
   }
 ];
