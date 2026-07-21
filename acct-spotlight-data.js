@@ -5339,3 +5339,145 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
     T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 4 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 through wave-3 blocks above: purely
+   additive, negative-impact, sourced, neutrally-worded accountability records
+   CONCAT-MERGED onto window.ACCT_SPOTLIGHT so nothing existing is replaced.
+   Balanced 5 Democrats / 5 Republicans; each issueKey maps to an ISSUE_MAP topic
+   for the Issue Spotlight link. Say-vs-do items use category:'rhetoric' + tag
+   'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    noem: [
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements','Accountability'], issueKey:'',
+        headline:'Wrote in her memoir that she shot and killed her family dog',
+        facts:`In her 2024 memoir, Noem recounted shooting a 14-month-old dog named Cricket, which she called "untrainable" and aggressive after it ruined a hunt and killed a neighbor's chickens, along with a goat, in a gravel pit. The passage drew bipartisan backlash; Noem did not back down, saying South Dakota law allowed putting down a dog that attacked livestock. The episode was widely seen as damaging her vice-presidential prospects.`,
+        why:`A self-described act she recounted in her own book that drew widespread condemnation.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/politics/2024/04/27/kristi-noem-dog-shooting/' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Publisher pulled a Kim Jong Un anecdote from her book after accuracy questions',
+        facts:`The same memoir claimed Noem had met North Korean leader Kim Jong Un — "I'm sure he underestimated me." After reporters found no record of any such meeting, her publisher said it would remove the passage at her request, and her office said Kim "shouldn't have been" included. In interviews, Noem repeatedly declined to say whether the meeting occurred.`,
+        why:`A vivid claim about a world leader that was retracted after its accuracy could not be supported.`,
+        source:{ label:'The Hill', url:'https://thehill.com/blogs/blog-briefing-room/4645807-kristi-noem-north-korea-kim-jong-un-meeting-book/' } }
+    ],
+    rubio: [
+      { impact:'negative', category:'rhetoric', date:'2015', tags:['Rhetoric vs Reality'], issueKey:'immigration_reform',
+        headline:'Co-wrote the 2013 immigration overhaul, then said it was "never meant to pass"',
+        facts:`Rubio was a lead author of the 2013 bipartisan "Gang of Eight" immigration bill, which offered a path to citizenship and passed the Senate. As he ran for president in 2016, he distanced himself from it, saying it was never intended to become law and that a comprehensive approach "can't be done." Critics including President Obama said he was "running away" from his own bill.`,
+        why:`He retreated from the signature legislative achievement he had personally championed.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/2016-election/rubio-gang-8-bill-never-intended-become-law-n518936' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Called Trump a "con artist," then became his Secretary of State',
+        facts:`During the 2016 primary Rubio called Trump a "con artist" who couldn't be trusted with the nuclear codes and mocked him personally. He endorsed Trump months later while saying he stood by "everything" he'd said, and over the following years became a loyal ally — culminating in his 2024 nomination as Secretary of State.`,
+        why:`One of the era's sharpest critic-to-ally reversals, in his own earlier words.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/11/17/1213718584/from-trump-opponent-to-trump-loyalist-the-evolution-of-marco-rubio' } }
+    ],
+    rand_paul: [
+      { impact:'negative', category:'voting', date:'2019', tags:['Notable Actions'], issueKey:'',
+        headline:'Blocked fast-track passage of the 9/11 Victim Compensation Fund',
+        facts:`In July 2019 Paul objected to swiftly passing a bill to keep the September 11th Victim Compensation Fund solvent, citing the federal debt and demanding offsetting spending cuts. Comedian and first-responder advocate Jon Stewart called the move "outrageous." Paul said he only wanted a vote on an amendment; the bill ultimately passed.`,
+        why:`A high-profile use of one senator's power to delay funding for 9/11 first responders.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/jon-stewart-slams-rand-paul-for-blocking-911-victim-compensation-funding-bill-as-another-first-responder-dies/' } },
+      { impact:'negative', category:'voting', date:'2022', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Single-handedly delayed $40B in Ukraine aid',
+        facts:`In May 2022 Paul blocked the Senate from fast-tracking a $40 billion Ukraine aid package, insisting on adding an inspector general to oversee the spending. Leaders of both parties urged quick passage and offered him a separate vote on his amendment, which he refused; the delay held up the aid for days before it passed. Paul said his oath was to U.S. national security, not "any foreign nation."`,
+        why:`His objection stalled broadly bipartisan wartime aid on stated fiscal-oversight grounds.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2022/05/12/politics/rand-paul-blocks-ukraine-aid/index.html' } }
+    ],
+    stefanik: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions','Accountability'], issueKey:'democracy_balance',
+        headline:'Objected to certifying the 2020 election and repeated false fraud claims',
+        facts:`Stefanik voted against certifying Pennsylvania's electoral votes on January 6–7, 2021, and told constituents she would object to four states' results. A CNN fact-check found her claims false, including an assertion that "more than 140,000 votes came from underage, deceased and otherwise unauthorized voters" in Fulton County, Georgia. She has continued to promote 2020 fraud claims.`,
+        why:`A recorded objection to certification paired with statements fact-checkers rated false.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/05/06/politics/fact-check-stefanik-big-lie-election-trump' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Recast herself from moderate to staunch Trump ally',
+        facts:`Elected in 2015 as one of the House's more moderate Republicans, Stefanik pivoted sharply after Trump's 2020 loss, joining the effort to object to certification and rising to the fourth-ranking House GOP leadership post. Former colleagues and mentors said the shift surprised them; she said in 2024 she "would not have done what Mike Pence did."`,
+        why:`A rapid ideological realignment that former allies and mentors publicly questioned.`,
+        source:{ label:'TIME', url:'https://time.com/6046674/elise-stefanik-liz-cheney-republican/' } }
+    ],
+    mike_johnson: [
+      { impact:'negative', category:'voting', date:'2020', tags:['Notable Actions','Accountability'], issueKey:'democracy_balance',
+        headline:'Organized the House amicus brief backing a suit to overturn the 2020 election',
+        facts:`Before becoming Speaker, Johnson rounded up more than 100 House Republicans to sign an amicus brief supporting Texas's lawsuit asking the Supreme Court to invalidate Biden's wins in four states — emailing colleagues that Trump was "anxiously awaiting the final list." The Court quickly rejected the suit, and Johnson voted against certifying the results after the Capitol was stormed.`,
+        why:`He led a central legal effort to overturn the 2020 result, which courts rejected.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/the-new-u-s-house-speaker-tried-to-help-overturn-the-2020-election-raising-concerns-about-2024' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'privacy_rights',
+        headline:'Backed warrantless-surveillance renewal he had earlier opposed',
+        facts:`As a rank-and-file member Johnson had supported warrant requirements to rein in FISA Section 702 surveillance. As Speaker he pushed to reauthorize the program without a broad warrant mandate, prompting fellow Republicans to note it reversed "the position that the speaker used to hold." An initial version collapsed when 20 Republicans joined Democrats to defeat it.`,
+        why:`A reversal on warrantless surveillance that his own conservative colleagues flagged.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2026/04/24/nx-s1-5797964/after-2-failed-votes-mike-johnson-unveils-new-plan-to-extend-key-u-s-spy-powers' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    warren: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Native American ancestry claims and a DNA test drew backlash and an apology',
+        facts:`After years of citing Native American heritage as "family lore" — and amid Trump's "Pocahontas" taunts — Warren released a 2018 DNA test suggesting a distant ancestor. The Cherokee Nation called using DNA to claim tribal connection "inappropriate and wrong." Warren apologized to the tribe in 2019, saying "tribes and only tribes determine tribal citizenship." She says she never used the claim to advance her career.`,
+        why:`A long-running identity controversy that she ultimately apologized for handling insensitively.`,
+        source:{ label:'FactCheck.org', url:'https://www.factcheck.org/2018/10/the-facts-on-elizabeth-warrens-dna-test/' } },
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Listed her race as "American Indian" on a 1986 Texas Bar card',
+        facts:`In 2019 the Washington Post reported that Warren had handwritten "American Indian" as her race on a 1986 State Bar of Texas registration card — the first such document in her own hand. Her team did not dispute it; Warren said it reflected family stories and apologized for "furthering confusion about tribal citizenship," extending her apology to having identified as Native American at Harvard and Penn.`,
+        why:`A documented instance of the heritage claim she later acknowledged was a mistake.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2019/02/05/politics/warren-american-indian-texas-bar' } }
+    ],
+    warnock: [
+      { impact:'negative', category:'rhetoric', date:'2022', tags:['Rhetoric vs Reality','Accountability'], issueKey:'housing',
+        headline:'A church-affiliated building pursued evictions as he decried evictions',
+        facts:`During his 2022 campaign, reporting showed that a low-income Atlanta apartment building 99%-owned by Warnock's Ebenezer Baptist Church — which pays him a housing allowance — filed eviction actions against tenants over debts as small as $28.55, with two court-ordered removals during the pandemic. Warnock said "there have been no evictions, full stop," and called the story a political attack.`,
+        why:`Court records of the church-linked evictions sat awkwardly against his public anti-eviction stance.`,
+        source:{ label:'WTVM', url:'https://www.wtvm.com/2022/10/18/raphael-warnock-his-church-accused-evicting-low-income-tenants/' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Accountability'], issueKey:'',
+        headline:'Faced campaign scrutiny over a dispute with his ex-wife and a custody fight',
+        facts:`In a March 2020 dispute, Warnock's ex-wife told police he ran over her foot with his car; responding officers found no injury and no charges were filed. In 2022 she asked a court to hold him in contempt over their custody agreement, and a judge ordered mediation. Warnock denied wrongdoing; the couple later moved to seal the custody records.`,
+        why:`Personal-conduct allegations that surfaced in his campaigns, though police found no evidence of the foot claim.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2022/sep/08/fact-checking-herschel-walker-attack-ad-about-raph/' } }
+    ],
+    wes_moore: [
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Claimed a Bronze Star on a 2006 application he had not been awarded',
+        facts:`A 2024 New York Times report found that on his 2006 White House Fellowship application Moore wrote he had been awarded the Bronze Star, which he had not received. Moore said a superior officer had told him to list it and called it "an honest mistake," taking "full accountability." He was formally awarded a Bronze Star in 2024, 18 years after his Afghanistan deployment.`,
+        why:`He stated a military honor on an official application before it had been awarded.`,
+        source:{ label:'The Baltimore Banner', url:'https://www.thebanner.com/politics-power/state-government/wes-moore-bronze-star-mistake-E2N3DU62XFDNTBYY3ZK2LBNQOU/' } },
+      { impact:'negative', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'justice_balance',
+        headline:'Vetoed a reparations study bill, drawing backlash and an override',
+        facts:`In May 2025 Moore — the nation's only Black governor — vetoed a bill to create a commission studying reparations for descendants of enslaved people, saying it was "time to focus on the work itself" rather than another study. The veto drew sharp backlash from supporters, and in December 2025 the Democratic-led legislature overrode it to create the commission.`,
+        why:`A veto at odds with much of his party that lawmakers ultimately reversed.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/dc-md-va/2025/05/16/wes-moore-reparations-vetoe-maryland/' } }
+    ],
+    zohran_mamdani: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'foreign_balance',
+        headline:'Repeatedly declined to condemn the phrase "globalize the intifada"',
+        facts:`As a 2025 mayoral candidate, Mamdani repeatedly declined to condemn the slogan "globalize the intifada," saying a mayor's role is not "to police speech" and noting "intifada" can mean struggle. Fellow Democrats including Rep. Ritchie Torres said every official should condemn it. Mamdani later told business leaders he would "discourage" the phrase, while still not denouncing it.`,
+        why:`His refusal to condemn a slogan many consider a call to violence drew criticism from within his own party.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/07/16/politics/mamdani-business-leaders-meeting-new-york' } },
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'back_police',
+        headline:'Called to "defund" and "dismantle" the NYPD, then reversed as a candidate',
+        facts:`In 2020 Mamdani called the NYPD "wicked & corrupt" and urged "Defund it. Dismantle it." Running for mayor in 2025, after a deadly shooting that killed an NYPD officer, he said "I am not defunding the police," attributing the earlier rhetoric to "frustration" and "growth," and proposed a new Department of Community Safety instead.`,
+        why:`A sharp reversal from police abolition to "not defunding," which critics called opportunistic.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/07/31/politics/mamdani-defund-police-shooting' } }
+    ],
+    fetterman: [
+      { impact:'negative', category:'redflags', date:'2013', tags:['Accountability'], issueKey:'justice_balance',
+        headline:'As mayor, chased and detained an unarmed Black jogger with a shotgun',
+        facts:`In 2013, as mayor of Braddock, Fetterman heard what he thought was gunfire, pursued Christopher Miyares — an unarmed Black man in exercise clothes — in his truck and detained him with a shotgun until police arrived. Miyares said Fetterman aimed the gun at his chest; Fetterman denied pointing it or knowing the man's race and did not apologize, saying he "may have broken the law."`,
+        why:`A documented armed confrontation with an unarmed man that resurfaced during his Senate run.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/factchecks/2022/sep/12/american-leadership-action/ad-dissects-john-fettermans-2013-armed-chase-black/' } },
+      { impact:'negative', category:'redflags', date:'2025', tags:['Notable Actions'], issueKey:'',
+        headline:'Became the first Senate Democrat to meet Trump at Mar-a-Lago, angering his base',
+        facts:`In January 2025 Fetterman became the first sitting Senate Democrat to visit President-elect Trump at Mar-a-Lago, later calling him "kind" and "cordial," and went on to back several Trump nominees, including the lone Democratic vote to confirm Pam Bondi. Pennsylvania Democrats protested that he'd gone "to kiss the ring"; Fetterman said engaging was his job and he would not switch parties.`,
+        why:`His outreach to Trump drew sustained backlash from Democrats even as he insisted he remained one.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/sen-john-fetterman-trumps-executive-actions-visiting-mar/story?id=117934834' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
