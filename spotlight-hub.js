@@ -127,12 +127,12 @@
         '<span class="shub-doc shub-doc-' + esc(s.level) + '" title="' +
           esc((s.sources || 0) + ' sourced events · ' + (s.receipts || 0) + ' receipts') + '">📑 ' + esc(s.label) + '</span>' +
       '</span>' +
+      '<span class="shub-catpill" style="--cat:' + col + '"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' + esc(cm.label) + '</span>' +
       '<span class="shub-title">' + esc(sp.title) + '</span>' +
       (sp.place ? '<span class="shub-place">📍 ' + esc(sp.place) + '</span>' : '') +
       (blurb ? '<span class="shub-blurb">' + esc(blurb) + '</span>' : '') +
       (tags ? '<span class="shub-tags">' + tags + '</span>' : '') +
       '<span class="shub-foot">' +
-        '<span class="shub-cat"><span aria-hidden="true">' + esc(cm.icon) + '</span> ' + esc(cm.label) + '</span>' +
         '<span class="shub-cta">View Spotlight →</span>' +
       '</span>' +
     '</button>';
@@ -296,7 +296,13 @@
       '.shub-tags{display:flex;flex-wrap:wrap;gap:.3rem;}' +
       '.shub-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;' +
         'color:#8aa0c4;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
-      '.shub-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.5rem;}' +
+      '.shub-foot{margin-top:auto;display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding-top:.5rem;}' +
+      // Prominent top category chip (moved up from the footer for stronger hierarchy,
+      // mirroring the Legislation bill cards); the old footer .shub-cat style is kept
+      // harmlessly for any cached markup.
+      '.shub-catpill{align-self:flex-start;display:inline-flex;align-items:center;gap:.28rem;font:700 .58rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.05em;' +
+        'text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);' +
+        'border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.22rem .55rem;}' +
       '.shub-cat{display:inline-flex;align-items:center;gap:.28rem;font:700 .58rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.04em;' +
         'text-transform:uppercase;color:var(--cat,#7d97bd);background:rgba(159,180,212,.06);' +
         'border:1px solid var(--cat,rgba(159,180,212,.28));border-radius:999px;padding:.24rem .55rem;}' +

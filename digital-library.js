@@ -182,7 +182,7 @@
   // ── Collection tiles — the front doors to every source, bounded or not ──────
   function collections() {
     var out = [];
-    function push(icon, label, desc, count, go) { out.push({ icon: icon, label: label, desc: desc, count: count, go: go }); }
+    function push(icon, label, desc, count, color, go) { out.push({ icon: icon, label: label, desc: desc, count: count, color: color, go: go }); }
 
     var spN = 0; try { spN = (G('PDXSpotlight').list() || []).length; } catch (e) {}
     var mdN = 0; try { mdN = (G('_pdxMandateItems') || []).length; } catch (e) {}
@@ -190,23 +190,25 @@
     var stN = 0; try { stN = Object.keys(G('ISSUE_STANCE_DATA') || {}).length; } catch (e) {}
     var gcN = 0; try { gcN = (G('PDXContracts').list() || []).length; } catch (e) {}
 
-    push('📂', 'Evidence Locker', 'Every sourced receipt — video, records & posts.', null,
+    // Each collection carries its own accent color so the front-door grid scans by
+    // color, not just icon — matching the category-colored energy of the bill cards.
+    push('📂', 'Evidence Locker', 'Every sourced receipt — video, records & posts.', null, '#9ec8ff',
       function () { if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({}); else location.hash = '#evidence-locker'; });
-    push('📌', 'Issue Spotlights', 'Neutral, sourced deep-dives on the big fights.', spN,
+    push('📌', 'Issue Spotlights', 'Neutral, sourced deep-dives on the big fights.', spN, '#f5c842',
       function () { if (window.PDXSpotlightHub && window.PDXSpotlightHub.focus) window.PDXSpotlightHub.focus(); else location.hash = '#all-spotlights'; });
-    push('🎯', 'Stances & Positions', 'Where every politician stands, issue by issue.', stN,
+    push('🎯', 'Stances & Positions', 'Where every politician stands, issue by issue.', stN, '#f472b6',
       function () { if (window.PDXStanceLibrary && window.PDXStanceLibrary.open) window.PDXStanceLibrary.open(); else location.hash = '#stance-library'; });
-    push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null,
+    push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null, '#a78bfa',
       function () { if (window.PDXIssueView && window.PDXIssueView.open) location.hash = '#issue-front-door'; else location.hash = '#issue-front-door'; });
-    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN,
+    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN, '#4ade80',
       function () { if (window.PDXContracts && window.PDXContracts.open) window.PDXContracts.open(); else location.hash = '#digital-library'; });
-    push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN,
+    push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN, '#f6d873',
       function () { location.hash = '#say-vs-do'; });
-    push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN,
+    push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN, '#c084fc',
       function () { location.hash = '#agenda'; });
-    push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null,
+    push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null, '#5eead4',
       function () { if (typeof window._pdxDlibSetMode === 'function') { window._pdxDlibSetMode('legislation'); var h = document.getElementById('digital-library'); if (h && h.scrollIntoView) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else if (window.PDXHR1 && window.PDXHR1.open) { window.PDXHR1.open(); } else { location.hash = '#hr1-showcase'; } });
-    push('❤️', 'Community', 'Leads, evidence and debate from the community.', null,
+    push('❤️', 'Community', 'Leads, evidence and debate from the community.', null, '#fca5a5',
       function () { location.hash = '#community-exchange'; });
     return out;
   }
@@ -217,7 +219,7 @@
     var cols = collections();
     wrap.innerHTML = cols.map(function (c, i) {
       var badge = (c.count != null && c.count > 0) ? '<span class="dlib-col-n">' + c.count + '</span>' : '';
-      return '<button type="button" class="dlib-col" data-col="' + i + '" aria-label="' + esc(c.label) + '">' +
+      return '<button type="button" class="dlib-col" data-col="' + i + '" style="--cat:' + (c.color || '#9ec8ff') + '" aria-label="' + esc(c.label) + '">' +
         '<span class="dlib-col-ico" aria-hidden="true">' + c.icon + '</span>' +
         '<span class="dlib-col-body">' +
           '<span class="dlib-col-top"><span class="dlib-col-label">' + esc(c.label) + '</span>' + badge + '</span>' +
@@ -278,21 +280,28 @@
   }
 
   // ── The archive card ──────────────────────────────────────────────────────────
+  // Topic category for an archive item, derived from its issue keys via the SAME
+  // ISSUE_CAT palette the Legislation bill cards use — so a topic reads identically
+  // across the whole Digital Library (economy=green, health=pink, energy=cyan, …).
+  function archiveCategory(it) {
+    var keys = (it.issueKeys || []).filter(Boolean);
+    var c = null;
+    for (var i = 0; i < keys.length && !c; i++) c = issueCatOf(keys[i]);
+    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon, color: ISSUE_CAT[c].color } : null;
+  }
+
   function cardHtml(it) {
     var tm = TYPES[it.type] || { icon: '📄', label: it.type };
     var badge = '<span class="dlib-badge dlib-b-' + it.type + '">' + tm.icon + ' ' + esc(tm.label) + '</span>';
-    var verdict = '';
-    if (it.type === 'receipt' && it.verdict) {
-      try {
-        var rc = G('PDXReceipts');
-        // Reuse the receipt verdict wording if available; otherwise a plain chip.
-      } catch (e) {}
-    }
+    var cat = archiveCategory(it);
+    var catChip = cat ? '<span class="dlib-cat-chip" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tags = (it.issueKeys || []).slice(0, 2).map(function (k) {
       return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
     }).join('');
-    return '<button type="button" class="dlib-card" data-id="' + esc(it.id) + '" aria-label="Open: ' + esc(it.title) + '">' +
+    var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
+    return '<button type="button" class="dlib-card' + (cat ? ' dlib-cat' : '') + '" data-id="' + esc(it.id) + '"' + catStyle + ' aria-label="Open: ' + esc(it.title) + '">' +
       '<span class="dlib-card-top">' + badge + (it.sub ? '<span class="dlib-card-sub">' + esc(it.sub) + '</span>' : '') + '</span>' +
+      catChip +
       '<span class="dlib-card-title">' + esc(it.title) + '</span>' +
       (it.blurb ? '<span class="dlib-card-blurb">' + esc(it.blurb) + '</span>' : '') +
       (tags ? '<span class="dlib-card-tags">' + tags + '</span>' : '') +
@@ -440,17 +449,19 @@
       '.dlib-collections{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));}' +
       '.dlib-col{display:flex;align-items:center;gap:.75rem;text-align:left;width:100%;cursor:pointer;' +
         'background:linear-gradient(150deg,rgba(19,29,52,.9),rgba(13,21,38,.92));border:1px solid rgba(159,180,212,.16);' +
+        'border-left:3px solid var(--cat,rgba(159,180,212,.4));' +
         'border-radius:.85rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
-      '.dlib-col:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.45);box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
+      '.dlib-col:hover{transform:translateY(-2px);border-color:var(--cat,rgba(96,165,250,.45));box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
       '.dlib-col:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;}' +
-      '.dlib-col-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}' +
+      '.dlib-col-ico{font-size:1.35rem;line-height:1;flex-shrink:0;width:2.6rem;height:2.6rem;display:inline-flex;align-items:center;justify-content:center;' +
+        'border-radius:.7rem;background:rgba(255,255,255,.03);border:1px solid var(--cat,rgba(159,180,212,.25));}' +
       '.dlib-col-body{flex:1;min-width:0;}' +
       '.dlib-col-top{display:flex;align-items:center;gap:.45rem;}' +
       '.dlib-col-label{font:700 .95rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#fff;}' +
-      '.dlib-col-n{font:800 .6rem/1 "Barlow Condensed",sans-serif;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.15rem .4rem;}' +
+      '.dlib-col-n{font:800 .6rem/1 "Barlow Condensed",sans-serif;color:#0a0f1e;background:var(--cat,#7fb4ff);border-radius:999px;padding:.15rem .4rem;}' +
       '.dlib-col-desc{display:block;font:500 .76rem/1.35 "Barlow",sans-serif;color:#9fb4d4;margin-top:.15rem;}' +
       '.dlib-col-go{color:#5f7da6;font-size:1.1rem;flex-shrink:0;transition:transform .15s,color .15s;}' +
-      '.dlib-col:hover .dlib-col-go{color:#7fb4ff;transform:translateX(3px);}' +
+      '.dlib-col:hover .dlib-col-go{color:var(--cat,#7fb4ff);transform:translateX(3px);}' +
       '.dlib-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem;}' +
       '.dlib-chip{display:inline-flex;align-items:center;gap:.32rem;cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;' +
         'letter-spacing:.03em;color:#a9bbd6;background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.2);' +
@@ -472,6 +483,13 @@
       '.dlib-card.dlib-t-mandate{border-left-color:rgba(192,132,252,.7);}' +
       '.dlib-card.dlib-t-bill{border-left-color:rgba(74,222,128,.7);}' +
       '.dlib-card.dlib-t-contract{border-left-color:rgba(126,224,192,.7);}' +
+      // Category-colored spine + chip (same ISSUE_CAT palette as the bill cards); the
+      // category accent wins over the type accent when an item has a topic.
+      '.dlib-card.dlib-cat{border-left-color:var(--cat);}' +
+      '.dlib-card.dlib-cat:hover{border-color:var(--cat);}' +
+      '.dlib-cat-chip{align-self:flex-start;display:inline-flex;align-items:center;gap:.25rem;font:700 .56rem/1 "Barlow Condensed",sans-serif;' +
+        'letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);' +
+        'border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.2rem .5rem;}' +
       '.dlib-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
       '.dlib-badge{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
         'border-radius:.4rem;padding:.22rem .45rem;color:#bcd0f0;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);white-space:nowrap;}' +
