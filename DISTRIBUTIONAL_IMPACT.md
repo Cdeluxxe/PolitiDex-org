@@ -100,10 +100,40 @@ imply intent or wrongdoing.
   evidence badges, a "Why this reading" disclosure, and a "Verify at source" link on
   every figure. Rendered by `impact-ledger.js` (`window.PDXImpactLedger`), styled by
   `impact-ledger.css` (`.pdx-il-*`).
+- **Promise Tracker → "Say vs. Do" for claimed beneficiaries** — see below.
+
+## Promise Tracker integration (Say vs. Do)
+
+A tracked promise may carry two OPTIONAL fields (both additive; absence changes
+nothing):
+
+- `claimedBeneficiary` — a cohort key (the same five keys above) naming who the
+  promise *says* it helps. This is the "Say".
+- `impactMeasureId` — the `vr_measures` id whose Distributional Impact Ledger is the
+  receipt for the promise. This unlocks the "Do".
+
+Where a promise names a `claimedBeneficiary`, the Promise Tracker shows a
+"🗣️ Says this helps: <cohort>" line. Where it *also* links an `impactMeasureId`, a
+compact summary is filled in beside it: the **net direction and top sourced figure**
+that nonpartisan scorekeepers estimate for that *same* cohort on the linked measure,
+with an evidence badge and a "Verify at source" link. The stated beneficiary and the
+scored effect sit side by side.
+
+This deliberately stops short of a verdict. It never labels the promise "kept" or
+"broken" on the distributional axis (that verdict field stays admin-assigned); it
+shows the claim and the sourced estimate and lets the reader see whether they line up.
+A standing note repeats that the summary describes **distribution, not motive**.
+
+Implementation: the promise row calls the optional global
+`window._pdxPromiseImpactHTML(id, profile, promise)` (defined in `impact-ledger.js`,
+same pattern as the existing `_pdxPromiseVideo` / `_pdxPromiseEvidenceLink` helpers).
+It emits a placeholder that a self-wiring hydrator fills asynchronously, reusing the
+already-cached `PDXBills.get(measureId)` measure fetch (no new API). The cohort's
+figures come straight from the measure's `impacts`, so the same sourcing and
+evidence-strength rules apply unchanged.
 
 Future, additive surfaces (not yet built): a Follow-the-Money side-by-side (who funds
-them vs. who their record affects), a promise `claimedBeneficiary` Say-vs-Do check,
-and issue-level rollups.
+them vs. who their record affects), and issue-level rollups.
 
 ## Adding or refreshing data
 

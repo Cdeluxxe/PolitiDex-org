@@ -225,9 +225,152 @@
     return true;
   }
 
+  /* ════════════════════════════════════════════════════════════════════════
+     Promise Tracker integration — "Say vs. Do" for a claimed beneficiary.
+     ────────────────────────────────────────────────────────────────────────
+     A promise may carry an optional `claimedBeneficiary` (a cohort key — who the
+     promise SAYS it helps) and an optional `impactMeasureId` (the measure whose
+     distributional ledger is the receipt). Where both exist, the Promise Tracker
+     shows the stated beneficiary beside what nonpartisan scorekeepers estimate for
+     that same group on the linked measure — the two facts side by side, no verdict.
+     ════════════════════════════════════════════════════════════════════════ */
+
+  // Most representative impact for a cohort: strongest evidence first, then a
+  // quantified (%-of-income) figure, then whatever remains.
+  function pickTopImpact(list) {
+    var order = { strong: 0, moderate: 1, limited: 2 };
+    return list.slice().sort(function (a, b) {
+      var s = (order[a.evidenceStrength] == null ? 1 : order[a.evidenceStrength]) -
+              (order[b.evidenceStrength] == null ? 1 : order[b.evidenceStrength]);
+      if (s) return s;
+      return (quantPct(a) ? 0 : 1) - (quantPct(b) ? 0 : 1);
+    })[0];
+  }
+
+  // The compact "Do" line for one cohort, given a measure's full impacts array.
+  function renderPromiseSummaryHTML(cohortKey, impacts) {
+    var list = (impacts || []).filter(function (im) { return im.cohort === cohortKey; });
+    if (!list.length) {
+      return '<span class="pdx-ilp-none">No scored effect for this group in the linked measure.</span>';
+    }
+    var net = netDirection(list);
+    var nd = DIR[net] || DIR.mixed;
+    var netLabel = net === 'benefit' ? 'net benefit' : net === 'cost' ? 'net cost' : net === 'mixed' ? 'mixed' : 'neutral';
+    var top = pickTopImpact(list);
+    var st = STRENGTH[top.evidenceStrength] || STRENGTH.moderate;
+    var mag = magnitudeText(top);
+    var src = (top.source && top.source.url)
+      ? '<a class="pdx-ilp-src" href="' + escAttr(top.source.url) + '" target="_blank" rel="noopener">🔗 Verify at ' + esc(top.source.label || 'source') + '</a>'
+      : '';
+    return '<span class="pdx-ilp-dolab">Independent estimate for this group</span> ' +
+      '<span class="pdx-ilp-dir ' + nd.cls + '">' + nd.arrow + ' ' + esc(netLabel) + '</span>' +
+      (mag ? ' <span class="pdx-ilp-mag">' + esc(mag) + '</span>' : '') +
+      ' <span class="pdx-ilp-strength ' + st.cls + '">' + esc(st.label) + '</span>' +
+      (src ? ' ' + src : '');
+  }
+
+  // The optional per-promise helper the Promise Tracker calls (as
+  // window._pdxPromiseImpactHTML). Returns '' unless the promise names a valid
+  // claimedBeneficiary. When it also links a measure, a placeholder is emitted and
+  // filled asynchronously by the hydrator below.
+  function promiseImpactHTML(polId, profile, promise) {
+    var r = promise || {};
+    var cohortKey = r.claimedBeneficiary;
+    if (!cohortKey || !COHORT_BY_KEY[cohortKey]) return '';
+    injectCss();
+    var meta = COHORT_BY_KEY[cohortKey];
+    var mid = r.impactMeasureId;
+    var hasMeasure = mid != null && mid !== '' && !isNaN(parseInt(mid, 10));
+    var doBlock = hasMeasure
+      ? '<div class="pdx-ilp-do" data-il-promise-measure="' + escAttr(String(parseInt(mid, 10))) +
+          '" data-il-promise-cohort="' + escAttr(cohortKey) + '"><span class="pdx-ilp-loading">Loading independent estimate…</span></div>'
+      : '';
+    return '<div class="pdx-ilp">' +
+        '<div class="pdx-ilp-say"><span class="pdx-ilp-lab">🗣️ Says this helps</span> ' +
+          '<span class="pdx-ilp-cohort">' + meta.icon + ' ' + esc(meta.name) + '</span></div>' +
+        doBlock +
+        (hasMeasure ? '<div class="pdx-ilp-note">Stated beneficiary vs. nonpartisan scorekeeper estimates — distribution, not motive or a verdict.</div>' : '') +
+      '</div>';
+  }
+
+  // ── async hydration ─────────────────────────────────────────────────────────
+  // Reuse PDXBills.get (already cached, returns the measure payload incl. impacts);
+  // fall back to a direct fetch when that module isn't present.
+  var _measureCache = {};
+  function fetchMeasure(id) {
+    if (_measureCache[id]) return _measureCache[id];
+    var pb = window.PDXBills;
+    var p;
+    if (pb && typeof pb.get === 'function') {
+      p = Promise.resolve(pb.get(id)).catch(function () { return null; });
+    } else {
+      p = fetch('/api/voting-record/measure/' + encodeURIComponent(id), { headers: { accept: 'application/json' } })
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+    }
+    _measureCache[id] = p;
+    return p;
+  }
+
+  function hydratePromiseSummaries(root) {
+    root = root || document;
+    var nodes;
+    try { nodes = root.querySelectorAll('[data-il-promise-measure]:not([data-il-done])'); } catch (e) { return; }
+    if (!nodes || !nodes.length) return;
+    var byMeasure = {};
+    Array.prototype.forEach.call(nodes, function (el) {
+      el.setAttribute('data-il-done', '1'); // claim immediately — avoids re-entrancy
+      var mid = el.getAttribute('data-il-promise-measure');
+      (byMeasure[mid] || (byMeasure[mid] = [])).push(el);
+    });
+    Object.keys(byMeasure).forEach(function (mid) {
+      fetchMeasure(mid).then(function (data) {
+        var impacts = (data && data.impacts) ? data.impacts : [];
+        byMeasure[mid].forEach(function (el) {
+          var cohort = el.getAttribute('data-il-promise-cohort');
+          try { el.innerHTML = renderPromiseSummaryHTML(cohort, impacts); } catch (e) { el.innerHTML = ''; }
+        });
+      });
+    });
+  }
+
+  var _hydrateScheduled = false;
+  function scheduleHydrate() {
+    if (_hydrateScheduled) return;
+    _hydrateScheduled = true;
+    setTimeout(function () { _hydrateScheduled = false; hydratePromiseSummaries(document); }, 60);
+  }
+  function bootHydrate() {
+    hydratePromiseSummaries(document);
+    try {
+      var mo = new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var added = muts[i].addedNodes; if (!added) continue;
+          for (var j = 0; j < added.length; j++) {
+            var n = added[j]; if (!n || n.nodeType !== 1) continue;
+            if ((n.matches && n.matches('[data-il-promise-measure]:not([data-il-done])')) ||
+                (n.querySelector && n.querySelector('[data-il-promise-measure]:not([data-il-done])'))) {
+              scheduleHydrate(); return;
+            }
+          }
+        }
+      });
+      mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootHydrate);
+  else bootHydrate();
+
+  // The app calls this optional global from the Promise Tracker row (same pattern as
+  // window._pdxPromiseVideo / _pdxPromiseEvidenceLink).
+  window._pdxPromiseImpactHTML = promiseImpactHTML;
+
   window.PDXImpactLedger = {
     renderHTML: renderHTML,
     mountInto: mountInto,
+    renderPromiseSummaryHTML: renderPromiseSummaryHTML,
+    promiseImpactHTML: promiseImpactHTML,
+    hydratePromiseSummaries: hydratePromiseSummaries,
     COHORTS: COHORTS
   };
 })();

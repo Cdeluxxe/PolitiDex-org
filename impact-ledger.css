@@ -129,3 +129,49 @@
 @media (max-width: 640px) {
   .pdx-il-strength { margin-left: 0; }
 }
+
+/* ── Promise Tracker "Say vs. Do" summary (.pdx-ilp-*) ─────────────────────
+   Compact block shown under a tracked promise that names a claimed beneficiary.
+   Inherits the profile-modal surface; same non-partisan teal/amber palette. */
+.pdx-ilp {
+  margin-top: .5rem;
+  border: 1px solid rgba(159, 180, 212, .14);
+  border-left: 3px solid rgba(96, 165, 250, .5);
+  border-radius: .55rem;
+  padding: .5rem .6rem;
+  background: rgba(96, 165, 250, .05);
+}
+.pdx-ilp-say { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.pdx-ilp-lab, .pdx-ilp-dolab {
+  font: 700 .6rem/1.1 "Barlow Condensed", sans-serif;
+  letter-spacing: .06em; text-transform: uppercase; color: #7f93b3;
+}
+.pdx-ilp-cohort { font: 600 .8rem/1.2 "Barlow", sans-serif; color: #eaf1fb; }
+.pdx-ilp-do {
+  margin-top: .4rem; padding-top: .4rem;
+  border-top: 1px dashed rgba(159, 180, 212, .16);
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+  font: 500 .78rem/1.4 "Barlow", sans-serif; color: #cdd9ec;
+}
+.pdx-ilp-loading { color: #7f93b3; font-style: italic; font-size: .74rem; }
+.pdx-ilp-none { color: #8ea3c2; font-size: .76rem; }
+.pdx-ilp-dir {
+  font: 700 .68rem/1 "Barlow Condensed", sans-serif; letter-spacing: .04em;
+  text-transform: uppercase; padding: .16rem .42rem; border-radius: .35rem; white-space: nowrap;
+}
+.pdx-ilp-mag { font-weight: 600; color: #eaf1fb; }
+.pdx-ilp-strength {
+  font: 700 .6rem/1 "Barlow Condensed", sans-serif; letter-spacing: .05em;
+  text-transform: uppercase; padding: .16rem .4rem; border-radius: .3rem;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.pdx-ilp-src {
+  font: 700 .7rem/1 "Barlow Condensed", sans-serif; letter-spacing: .03em;
+  color: #7be0cf; text-decoration: none;
+}
+.pdx-ilp-src:hover { text-decoration: underline; }
+.pdx-ilp-note {
+  margin-top: .4rem; font: 500 .66rem/1.4 "Barlow", sans-serif;
+  color: #7f93b3; font-style: italic;
+}
+
