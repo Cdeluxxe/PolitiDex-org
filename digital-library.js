@@ -46,6 +46,7 @@
   }
 
   var PAGE = 18;                       // grid items per page
+  var LEG_PAGE = 12;                   // Legislation mode: lazy-load in smaller batches
   var RECEIPT_CAP = 60;                // top receipts folded into the archive
   var _state = { q: '', type: 'all', issue: '', shown: PAGE };
   var _index = null;                   // built archive items
@@ -387,7 +388,7 @@
 
   function onSearch(q) {
     _state.q = String(q || '').trim();
-    _state.shown = PAGE;
+    _state.shown = (_state.mode === 'legislation') ? LEG_PAGE : PAGE;
     var clear = document.getElementById('dlib-search-clear');
     if (clear) clear.hidden = !_state.q;
     if (_state.mode === 'legislation') {
@@ -845,30 +846,37 @@
         '<label>Issue <select data-bf="issue">' + opts(issueKeys, _billFilters.issue, function (k) { return issueLabel(k) + ' (' + issues[k] + ')'; }) + '</select></label>' +
         sortSel +
       '</div>';
-    wrap.querySelectorAll('[data-topic]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var t = btn.getAttribute('data-topic') || '';
-        _billFilters.category = (_billFilters.category === t) ? '' : t;
-        _state.shown = PAGE; renderBillFacets(); applyBills();
+    // Delegated facet interactions — attached ONCE to the persistent facet-bar
+    // container so they keep working across every innerHTML rebuild. (Re-binding a
+    // listener to each freshly-rendered chip is what left topic clicks doing nothing;
+    // delegation on the stable parent never misses a click.)
+    if (!wrap._dlibFacetWired) {
+      wrap._dlibFacetWired = true;
+      wrap.addEventListener('click', function (e) {
+        var t = e.target.closest ? e.target.closest('[data-topic]') : null;
+        if (t) {
+          var c = t.getAttribute('data-topic') || '';
+          _billFilters.category = (_billFilters.category === c) ? '' : c;
+          _state.shown = LEG_PAGE; renderBillFacets(); applyBills();
+          return;
+        }
+        var j = e.target.closest ? e.target.closest('[data-jump]') : null;
+        if (j) {
+          var jk = j.getAttribute('data-jump');
+          if (jk === 'all') { _billFilters.phase = ''; _billFilters.followed = false; }
+          else if (jk === 'followed') { _billFilters.followed = !_billFilters.followed; }
+          else { _billFilters.phase = (_billFilters.phase === jk) ? '' : jk; }
+          _state.shown = LEG_PAGE; renderBillFacets(); applyBills();
+          return;
+        }
       });
-    });
-    wrap.querySelectorAll('[data-bf]').forEach(function (sel) {
-      sel.addEventListener('change', function () {
-        _billFilters[sel.getAttribute('data-bf')] = sel.value || '';
-        _state.shown = PAGE; applyBills();
+      wrap.addEventListener('change', function (e) {
+        var bf = e.target.closest ? e.target.closest('[data-bf]') : null;
+        if (bf) { _billFilters[bf.getAttribute('data-bf')] = bf.value || ''; _state.shown = LEG_PAGE; applyBills(); return; }
+        var sr = e.target.closest ? e.target.closest('[data-bill-sort]') : null;
+        if (sr) { _billSort = sr.value || 'recent'; _state.shown = LEG_PAGE; applyBills(); return; }
       });
-    });
-    var sortEl = wrap.querySelector('[data-bill-sort]');
-    if (sortEl) sortEl.addEventListener('change', function () { _billSort = sortEl.value || 'recent'; _state.shown = PAGE; applyBills(); });
-    wrap.querySelectorAll('[data-jump]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var j = btn.getAttribute('data-jump');
-        if (j === 'all') { _billFilters.phase = ''; _billFilters.followed = false; }
-        else if (j === 'followed') { _billFilters.followed = !_billFilters.followed; }
-        else { _billFilters.phase = (_billFilters.phase === j) ? '' : j; }
-        _state.shown = PAGE; renderBillFacets(); applyBills();
-      });
-    });
+    }
   }
 
   // A shimmer skeleton grid shown while the bill set is still resolving, so the tab
@@ -889,7 +897,7 @@
         window.PDXIssueView.open(key); return;
       }
     } catch (e) {}
-    _billFilters.issue = key; _state.shown = PAGE;
+    _billFilters.issue = key; _state.shown = LEG_PAGE;
     renderBillFacets(); applyBills();
   }
 
@@ -900,7 +908,7 @@
     _state.q = '';
     var input = document.getElementById('dlib-search');
     if (input) input.value = '';
-    _state.shown = PAGE;
+    _state.shown = LEG_PAGE;
     renderBillFacets();
     applyBills();
   }
@@ -959,7 +967,7 @@
       empty.hidden = list.length !== 0;
       if (!list.length) {
         var hasFilter = !!(_billFilters.congress || _billFilters.chamber || _billFilters.status ||
-          _billFilters.issue || _billFilters.followed || _billFilters.phase || _state.q);
+          _billFilters.issue || _billFilters.category || _billFilters.followed || _billFilters.phase || _state.q);
         var msg = _billFilters.followed
           ? 'You’re not following any bills yet. Open a bill and tap ☆ Follow to save it here.'
           : 'No legislation matches those filters yet. Clear a facet or broaden your search.';
@@ -989,7 +997,7 @@
     if (mode !== 'legislation') mode = 'library';
     if (_state.mode === mode && (mode !== 'legislation' || _bills)) { /* still refresh chrome below */ }
     _state.mode = mode;
-    _state.shown = PAGE;
+    _state.shown = (mode === 'legislation') ? LEG_PAGE : PAGE;
     var host = document.getElementById('digital-library');
     if (host) host.classList.toggle('dlib-mode-legislation', mode === 'legislation');
     var facets = document.getElementById('dlib-bill-facets');
@@ -1037,7 +1045,7 @@
     var more = document.getElementById('dlib-more');
     if (more && !more._dlibWired) {
       more._dlibWired = true;
-      more.addEventListener('click', function () { _state.shown += PAGE; if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
+      more.addEventListener('click', function () { _state.shown += (_state.mode === 'legislation' ? LEG_PAGE : PAGE); if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
     }
     applyBrowse();
     _built = true;
@@ -1069,7 +1077,7 @@
         if (typeof opts.phase === 'string') _billFilters.phase = opts.phase;
         if (typeof opts.sort === 'string') _billSort = opts.sort;
         if (opts.followed === true) _billFilters.followed = true;
-        _state.shown = PAGE;
+        _state.shown = LEG_PAGE;
         loadBills();
         var lhost = document.getElementById('digital-library');
         if (lhost && lhost.scrollIntoView) lhost.scrollIntoView({ behavior: 'smooth', block: 'start' });
