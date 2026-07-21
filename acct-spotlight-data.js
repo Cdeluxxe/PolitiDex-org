@@ -5481,3 +5481,145 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
     T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 5 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 through wave-4 blocks above: purely
+   additive, negative-impact, sourced, neutrally-worded accountability records
+   CONCAT-MERGED onto window.ACCT_SPOTLIGHT so nothing existing is replaced.
+   Balanced 5 Democrats / 5 Republicans; each issueKey maps to an ISSUE_MAP topic
+   for the Issue Spotlight link. Say-vs-do items use category:'rhetoric' + tag
+   'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    patel: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements','Accountability'], issueKey:'gov_transparency',
+        headline:'His book "Government Gangsters" included a 60-name "deep state" list',
+        facts:`Before becoming FBI Director, Patel's book "Government Gangsters" listed 60 people he labeled members of the "Executive Branch Deep State," and he said on a podcast, "We will go out and find the conspirators, not just in government, but in the media." Critics called it an enemies list; Patel rejected that term at his confirmation hearing. Several people named later faced federal scrutiny.`,
+        why:`A published target list from the person now leading the FBI raised concerns about politicized investigations.`,
+        source:{ label:'Roll Call', url:'https://rollcall.com/2024/12/09/trumps-pick-to-lead-fbi-identified-government-gangsters/' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality','Accountability'], issueKey:'gov_transparency',
+        headline:'Used the FBI jet for personal trips after criticizing his predecessor for the same',
+        facts:`In 2025 Patel drew scrutiny for using an FBI jet for personal travel, including a trip to see his girlfriend perform at a wrestling event and to Nashville where she lives, prompting a House Democratic probe. Patel said directors must fly government aircraft and reimburse personal use — but in 2023 he had said FBI Director Christopher Wray's "private jet that he pays for with taxpayer dollars" should be "grounded."`,
+        why:`His personal jet use directly echoed conduct he had publicly condemned in his predecessor.`,
+        source:{ label:'AOL', url:'https://www.aol.com/articles/kash-patel-scrambled-government-jet-183549057.html' } }
+    ],
+    ron_johnson: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements','Accountability'], issueKey:'healthcare',
+        headline:'Promoted unproven COVID treatments and vaccine doubts',
+        facts:`Johnson repeatedly promoted unproven COVID treatments such as ivermectin and hydroxychloroquine and cast doubt on vaccines; YouTube twice suspended his account for misinformation. In a December 2021 town hall he suggested gargling mouthwash could help against the virus, a claim so widely debunked that Listerine's maker publicly rejected it.`,
+        why:`Sustained promotion of discredited medical claims by a senator during a public-health emergency.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/health/2021/12/09/ron-johnson-mouthwash-covid/' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'His office tried to hand fake elector slates to Pence on Jan. 6',
+        facts:`The January 6 committee revealed that minutes before the certification, a Johnson aide texted Pence's office that the senator "needs to hand something to VPOTUS" — an "alternate slate of electors" for Michigan and Wisconsin — and Pence's staff replied, "Do not give that to him." Johnson first denied involvement, then said the fake slates came from Rep. Mike Kelly's office and he was merely a conduit.`,
+        why:`A documented attempt to route fraudulent elector slates into the certification.`,
+        source:{ label:'Forbes', url:'https://www.forbes.com/sites/nicholasreimann/2022/06/21/jan-6-hearings-wisconsin-sen-johnson-tried-to-give-pence-fake-slates-of-electors-committee-says/' } }
+    ],
+    ernst: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'healthcare',
+        headline:'Answered a Medicaid-cuts warning with "we all are going to die"',
+        facts:`At a May 2025 town hall, when an attendee shouted that people would die under proposed Medicaid cuts, Ernst replied, "Well, we all are going to die. For heaven's sakes, folks." Amid backlash she posted a sarcastic "apology" video filmed in what appeared to be a cemetery, deepening the criticism. She later said she is "very compassionate."`,
+        why:`A dismissive response — and mocking follow-up — to constituents' concerns about health-coverage cuts.`,
+        source:{ label:'The Gazette', url:'https://www.thegazette.com/government-politics/iowa-sen-joni-ernst-posts-sarcastic-apology-video-over-comment-on-medicaid-cuts/' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'healthcare',
+        headline:'Suggested COVID death counts were inflated for money',
+        facts:`In September 2020, agreeing with a constituent skeptical of the toll, Ernst said she was "so skeptical" of official COVID numbers and suggested providers were "reimbursed at a higher rate if COVID is tied to it." Fact-checkers noted the extra Medicare reimbursement — which Ernst herself had voted for 96-0 — was standard pandemic support, not fraud, and the death toll was likely undercounted.`,
+        why:`A sitting senator lending credence to a debunked conspiracy about the pandemic death toll.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/politics/skeptical-ernst-suggests-covid-numbers-are-inflated/2020/09/02/64b2d66a-ed3c-11ea-bd08-1b10132b458f_story.html' } }
+    ],
+    scalise: [
+      { impact:'negative', category:'redflags', date:'2002', tags:['Accountability'], issueKey:'',
+        headline:'Spoke in 2002 to a white-nationalist group founded by David Duke',
+        facts:`In 2014 it emerged that Scalise, then a Louisiana state legislator, had spoken in 2002 to the European-American Unity and Rights Organization (EURO), a white-nationalist group founded by former KKK leader David Duke. A former Duke aide reportedly recalled Scalise describing himself as "David Duke without the baggage." Scalise said he did not know the group's nature and "detest[s] any kind of hate group"; he kept his leadership post.`,
+        why:`A documented appearance before a white-nationalist organization by a top House Republican.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/house-majority-whip-admits-he-addressed-white-supremacist-group/' } },
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Voted to object to certifying the 2020 election',
+        facts:`As House Republican Whip, Scalise voted to sustain objections to both Arizona's and Pennsylvania's electoral votes on January 6–7, 2021, after the Capitol was stormed; both objections were rejected. He argued some states had not followed their own election laws, and he has continued to decline to acknowledge the 2020 result as legitimate.`,
+        why:`A recorded vote against certification, part of the January 6 electoral-count fight.`,
+        source:{ label:'Ballotpedia', url:'https://ballotpedia.org/Steve_Scalise' } }
+    ],
+    cotton: [
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'',
+        headline:'His "Send in the Troops" op-ed triggered a New York Times upheaval',
+        facts:`During the 2020 George Floyd protests, the New York Times published Cotton's op-ed urging Trump to deploy active-duty military to quell unrest. Times staff revolted, saying it endangered Black colleagues, and the opinion editor — who admitted he hadn't read it before publication — resigned. Cotton said he meant the military only as a backstop against rioting.`,
+        why:`A call to send troops against protesters that set off one of the era's biggest newsroom controversies.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2020/06/07/871751084/nyt-editorial-page-editor-resigns-after-op-ed-backlash' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'',
+        headline:'Described slavery as a "necessary evil" while promoting a bill',
+        facts:`Promoting a bill to defund schools teaching the 1619 Project, Cotton said the Founders viewed slavery as "the necessary evil upon which the union was built." The remark drew sharp criticism, including from Rep. Hakeem Jeffries, who called slavery "a crime against humanity." Cotton said he was describing the Founders' views, not his own.`,
+        why:`Widely criticized framing of slavery from a sitting senator, tied to his fight over how history is taught.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/tom-cotton-slavery-necessary-evil-1619-project/' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    jeffries: [
+      { impact:'negative', category:'redflags', date:'2017', tags:['Public Statements'], issueKey:'democracy_balance',
+        headline:'Called Trump’s 2016 win a "hoax" and referred to the "so-called" president',
+        facts:`From 2017 into 2018, Jeffries repeatedly questioned the legitimacy of Trump's 2016 victory — tweeting his election "may" have been a "hoax" and calling him the "so-called" president — citing Russian interference. Republicans later cited the comments to brand him an "election denier," a label news analyses called misleading since he did not dispute the vote counts.`,
+        why:`Statements from the future Democratic leader questioning a president's legitimacy that opponents turned back on him.`,
+        source:{ label:'TIME', url:'https://time.com/6238239/republicans-attack-hakeem-jeffries-misleading/' } },
+      { impact:'negative', category:'redflags', date:'1992', tags:['Public Statements','Accountability'], issueKey:'',
+        headline:'As a student, defended his uncle amid an antisemitism controversy',
+        facts:`A 1992 college editorial surfaced in which Jeffries, then a Binghamton student, defended his uncle Leonard Jeffries — a professor condemned for antisemitic remarks — and Nation of Islam leader Louis Farrakhan, questioning why a "ruling elite" would promote critics. CNN's reporting undercut Jeffries' later claim of only a "vague recollection" of the episode. He says he does not share his uncle's views, "not now, not ever."`,
+        why:`His own contemporaneous writing complicated his account of a family antisemitism controversy.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/04/12/politics/kfile-hakeem-jeffries-college-editorial-defending-uncle-from-antisemitism' } }
+    ],
+    gillibrand: [
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'immigration_reform',
+        headline:'Reversed her earlier hardline gun and immigration positions',
+        facts:`As an upstate House member (2007–09), Gillibrand was a Blue Dog with an NRA "A" rating who opposed "amnesty" and sanctuary cities. After being appointed to the Senate she moved sharply left on both guns and immigration. She has acknowledged the shift, saying her earlier views were wrong; critics on the left and right have called her a "flip-flopper."`,
+        why:`A pronounced reversal on signature issues that she herself has acknowledged.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2019/02/04/these-are-presidential-hopeful-kirsten-gillibrands-top-campaign-issues.html' } },
+      { impact:'negative', category:'redflags', date:'2017', tags:['Notable Actions'], issueKey:'',
+        headline:'Led the push for Al Franken to resign, a call some later questioned',
+        facts:`In December 2017 Gillibrand became the first senator to call for fellow Democrat Al Franken to resign over groping allegations, and dozens followed. Some Democrats, including Sen. Patrick Leahy, later expressed regret for not awaiting an ethics review, and Franken said he regretted resigning. Gillibrand has said she does not regret it and that female senators were unfairly blamed.`,
+        why:`Her role in ending a colleague's career without an ethics finding drew lasting second-guessing within her party.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/minnesota/news/kirsten-gillibrand-female-senators-unfairly-blamed-for-al-frankens-senate-exit/' } }
+    ],
+    whitehouse: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'A racial-justice champion, he kept membership in an allegedly all-white club',
+        facts:`Whitehouse, a vocal advocate for racial and economic justice, faced scrutiny in 2021 over his family's decades-long membership in Bailey's Beach Club, an exclusive Newport club a local outlet described as all-white. Asked about it, he said "the people who are running the place are still working on that" and that it was "not my position" to change it. The club disputed that its membership was whites-only.`,
+        why:`His membership in an exclusionary club sat awkwardly against his public racial-justice advocacy.`,
+        source:{ label:'The Hill', url:'https://thehill.com/homenews/senate/560400-the-weird-story-behind-sheldon-whitehouses-beach-club-furor/' } },
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'campaign_finance',
+        headline:'The Senate’s top "dark money" critic faced his own hypocrisy charges',
+        facts:`Whitehouse built a brand crusading against undisclosed "dark money," especially around judicial nominations. Critics noted liberal groups such as Demand Justice — part of a large undisclosed-donor network — spent heavily on his side, and that he said he would accept such money. Whitehouse argues he seeks universal disclosure rules that would apply to all sides, which is the point of his legislation.`,
+        why:`His acceptance of the same undisclosed spending he condemns drew persistent hypocrisy criticism.`,
+        source:{ label:'RealClearPolitics', url:'https://www.realclearpolitics.com/articles/2020/07/21/sen_whitehouses_dark-money_dilemma_143758.html' } }
+    ],
+    sanders: [
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'The anti-millionaire champion owns three homes and became a millionaire',
+        facts:`Sanders, a fierce critic of millionaires and billionaires, bought a roughly $575,000 lakefront summer home in 2016 — his third property, alongside homes in Burlington and Washington — and later became a millionaire largely through book sales. At a 2020 debate, Michael Bloomberg called him "a millionaire with three houses"; Sanders said one is a "summer camp" and that he doesn't "give a damn" about money.`,
+        why:`A recurring tension between his anti-wealth message and his own finances.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/news/2016/08/10/bernie-sanders-buys-summer-home/' } },
+      { impact:'negative', category:'legal', date:'2017', tags:['Accountability'], issueKey:'',
+        headline:'His wife’s Burlington College loan drew a years-long FBI inquiry',
+        facts:`Jane Sanders, as president of Burlington College, obtained a roughly $10 million loan in 2010; she was later accused of inflating pledged donations to secure it, and the college closed in 2016. An FBI investigation — begun after a complaint by a Vermont Trump-campaign official — examined the loan and whether Bernie Sanders's office intervened. The couple hired lawyers; the probe closed without charges. Sanders called it a "pathetic" political attack.`,
+        why:`A federal inquiry touching the senator's family and office, which ended without charges.`,
+        source:{ label:'The Times of Israel', url:'https://www.timesofisrael.com/bernie-sanders-and-wife-hire-lawyers-as-fbi-probes-10m-loan/' } }
+    ],
+    jayapal: [
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Rhetoric vs Reality'], issueKey:'foreign_balance',
+        headline:'Called Israel a "racist state," then walked it back',
+        facts:`At a July 2023 progressive conference, responding to protesters, Jayapal — chair of the Progressive Caucus — said "Israel is a racist state." More than 40 House Democrats condemned the remark and the House passed a pro-Israel resolution. Jayapal apologized "to those who I have hurt," clarifying she does not believe "the idea of Israel as a nation is racist" but that Netanyahu's government had pursued "racist policies."`,
+        why:`A charged characterization she retracted within days after bipartisan criticism.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/rep-pramila-jayapal-walks-back-comments-calling-israel-racist-state-rcna94600' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Her caucus’s Ukraine-diplomacy letter was retracted a day after release',
+        facts:`In October 2022 Jayapal's Progressive Caucus released a letter urging President Biden to pursue "direct diplomacy" with Russia over Ukraine. After furious backlash from Democrats who felt blindsided weeks before the midterms, Jayapal withdrew it the next day, saying it had been "drafted several months ago" but "released by staff without vetting." Even some signatories said they didn't know why it went out.`,
+        why:`A high-profile foreign-policy misfire the caucus reversed within 24 hours.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2022/10/25/politics/pramila-jayapal-ukraine-letter-democratic-backlash/index.html' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
