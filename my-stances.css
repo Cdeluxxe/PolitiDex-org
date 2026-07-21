@@ -1,0 +1,243 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MY STANCES  ·  the visitor's own positions on the issues
+   ────────────────────────────────────────────────────────────────────────────
+   The mirror image of the Stance Library: that surface shows where POLITICIANS
+   stand, this is where YOU stand. All markup is injected by my-stances.js into
+   #ms-body. Styles deliberately mirror the Stance Library's `.sl-` look (dark
+   navy panels, blue primary #60a5fa, gold active) so the two read as siblings.
+   Position colors reuse the app's four-state stance vocabulary — green support,
+   red oppose, amber mixed. Prefix: `.ms-` (My Stances).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#my-stances {
+  padding: 4rem 1rem 5rem;
+  background: linear-gradient(180deg, rgba(10, 15, 30, 0.96) 0%, rgba(13, 21, 38, 0.92) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  scroll-margin-top: 80px;
+}
+.ms-shell { max-width: 74rem; margin: 0 auto; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.ms-head { text-align: center; margin-bottom: 1.6rem; }
+.ms-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 999px; padding: 0.35rem 0.9rem; margin-bottom: 0.85rem;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
+  letter-spacing: 0.18em; text-transform: uppercase; color: #fcd34d;
+}
+.ms-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: 0.04em;
+  line-height: 1.02; margin: 0 0 0.55rem; color: #eef4ff;
+}
+.ms-title span { color: #fcd34d; }
+.ms-lede {
+  max-width: 46rem; margin: 0 auto; color: #9fb4d4;
+  font-family: 'Barlow', sans-serif; font-size: 0.98rem; line-height: 1.6;
+}
+.ms-lede strong { color: #e7ecf6; }
+
+.ms-status { text-align: center; color: #6f83a6; padding: 2rem 0; font-family: 'Barlow', sans-serif; }
+
+.ms-wrap { font-family: 'Barlow', sans-serif; }
+
+/* ── Account banner ─────────────────────────────────────────────────────── */
+.ms-acct {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: rgba(13, 21, 38, 0.6); border: 1px solid rgba(96, 165, 250, 0.16);
+  border-radius: 0.7rem; padding: 0.65rem 0.9rem; margin-bottom: 1.1rem;
+  color: #a9bdda; font-size: 0.88rem;
+}
+.ms-acct.is-in { border-color: rgba(74, 222, 128, 0.2); }
+.ms-acct-ic { font-size: 1rem; flex: none; }
+.ms-acct strong { color: #e7ecf6; }
+
+.ms-link {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: #60a5fa; font: inherit; font-weight: 600; text-decoration: underline;
+}
+.ms-link:hover { color: #93c5fd; }
+
+/* ── Summary of current stances ─────────────────────────────────────────── */
+.ms-summary {
+  background: rgba(13, 21, 38, 0.55); border: 1px solid rgba(96, 165, 250, 0.14);
+  border-radius: 1rem; padding: 1.05rem 1.1rem; margin-bottom: 1.1rem;
+}
+.ms-summary.is-empty { text-align: center; }
+.ms-sum-emptytitle { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; letter-spacing: 0.02em; color: #cfe0fb; margin-bottom: 0.35rem; }
+.ms-sum-emptybody { color: #90a4c4; font-size: 0.92rem; line-height: 1.55; max-width: 40rem; margin: 0 auto; }
+.ms-sum-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+.ms-sum-head h3 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 1.15rem; letter-spacing: 0.03em; text-transform: uppercase; color: #eef4ff; }
+.ms-sum-count {
+  display: inline-flex; min-width: 1.4rem; justify-content: center; margin-left: 0.35rem;
+  background: rgba(250, 204, 21, 0.16); color: #fcd34d; border-radius: 999px;
+  padding: 0.05rem 0.5rem; font-size: 0.85rem; font-weight: 700;
+}
+.ms-sum-clear { font-size: 0.82rem; }
+.ms-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ms-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px; padding: 0.35rem 0.7rem; color: #d6e2f5; font-size: 0.85rem;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.ms-chip:hover { transform: translateY(-1px); }
+.ms-chip.is-support { border-color: rgba(74, 222, 128, 0.45); }
+.ms-chip.is-oppose { border-color: rgba(248, 113, 113, 0.45); }
+.ms-chip.is-mixed { border-color: rgba(250, 204, 21, 0.45); }
+.ms-chip-prio { color: #fcd34d; }
+
+/* ── "What your stances power" ──────────────────────────────────────────── */
+.ms-powers {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.08), rgba(250, 204, 21, 0.05));
+  border: 1px solid rgba(96, 165, 250, 0.18); border-radius: 1rem;
+  padding: 1.05rem 1.1rem; margin-bottom: 1.1rem;
+}
+.ms-powers.is-live { border-color: rgba(250, 204, 21, 0.3); }
+.ms-pow-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.05em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.4rem; }
+.ms-pow-body { color: #a9bdda; font-size: 0.92rem; line-height: 1.55; margin: 0 0 0.85rem; }
+.ms-pow-body strong { color: #fcd34d; }
+.ms-pow-body em { color: #e7ecf6; font-style: normal; font-weight: 600; }
+.ms-pow-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ms-pow-btn {
+  cursor: pointer; background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.28);
+  border-radius: 0.6rem; padding: 0.5rem 0.85rem; color: #cfe0fb; font: inherit; font-size: 0.86rem; font-weight: 600;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.ms-pow-btn:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.5); transform: translateY(-1px); }
+
+/* ── Showcase / public toggle ───────────────────────────────────────────── */
+.ms-showcase {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  background: rgba(13, 21, 38, 0.55); border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem; padding: 0.95rem 1.1rem; margin-bottom: 1.4rem;
+}
+.ms-showcase.is-on { border-color: rgba(74, 222, 128, 0.28); }
+.ms-show-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.03em; color: #eef4ff; margin-bottom: 0.2rem; }
+.ms-show-desc { color: #90a4c4; font-size: 0.86rem; line-height: 1.5; max-width: 46rem; }
+.ms-show-note { color: #fcd34d; font-size: 0.8rem; margin-top: 0.35rem; }
+
+.ms-toggle { position: relative; flex: none; display: inline-block; cursor: pointer; }
+.ms-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ms-toggle-track {
+  display: block; width: 3.1rem; height: 1.7rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.16s, border-color 0.16s;
+}
+.ms-toggle-thumb {
+  position: absolute; top: 0.22rem; left: 0.24rem; width: 1.26rem; height: 1.26rem;
+  border-radius: 50%; background: #e7ecf6; transition: transform 0.16s;
+}
+.ms-toggle input:checked + .ms-toggle-track { background: rgba(74, 222, 128, 0.55); border-color: rgba(74, 222, 128, 0.7); }
+.ms-toggle input:checked + .ms-toggle-track .ms-toggle-thumb { transform: translateX(1.38rem); }
+.ms-toggle input:disabled + .ms-toggle-track { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Browse ─────────────────────────────────────────────────────────────── */
+.ms-browse-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.85rem; }
+.ms-browse-title { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; letter-spacing: 0.03em; text-transform: uppercase; color: #eef4ff; }
+.ms-search {
+  display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 12rem; max-width: 20rem;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 0.7rem; padding: 0.45rem 0.75rem;
+}
+.ms-search:focus-within { border-color: rgba(96, 165, 250, 0.55); }
+.ms-search-ic { opacity: 0.7; }
+.ms-search-in { flex: 1; background: transparent; border: 0; outline: none; color: #eaf1ff; font: inherit; font-size: 0.92rem; }
+.ms-search-in::placeholder { color: #6f83a6; }
+
+.ms-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.1rem; }
+.ms-fchip {
+  cursor: pointer; background: rgba(6, 12, 24, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px; padding: 0.3rem 0.7rem; color: #a9bdda; font: inherit; font-size: 0.82rem;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.ms-fchip:hover { border-color: rgba(96, 165, 250, 0.4); color: #cfe0fb; }
+.ms-fchip.is-on { background: rgba(250, 204, 21, 0.16); border-color: rgba(250, 204, 21, 0.5); color: #fcd34d; }
+
+.ms-groups { display: flex; flex-direction: column; gap: 0.6rem; }
+.ms-group { background: rgba(13, 21, 38, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 0.85rem; overflow: hidden; }
+.ms-group-head {
+  width: 100%; display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
+  background: transparent; border: 0; padding: 0.85rem 1rem; color: #dbe6f7; font: inherit;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 1.02rem; letter-spacing: 0.02em; text-align: left;
+}
+.ms-group-head:hover { background: rgba(96, 165, 250, 0.06); }
+.ms-group-lbl { flex: 1; }
+.ms-group-badge {
+  flex: none; background: rgba(250, 204, 21, 0.16); color: #fcd34d; border-radius: 999px;
+  padding: 0.05rem 0.5rem; font-size: 0.8rem; font-weight: 700; font-family: 'Barlow', sans-serif;
+}
+.ms-group-caret { flex: none; color: #6f83a6; transition: transform 0.16s; }
+.ms-group.is-open .ms-group-caret { transform: rotate(180deg); }
+.ms-group-body { display: none; padding: 0 0.7rem 0.7rem; }
+.ms-group.is-open .ms-group-body { display: block; }
+
+.ms-noresult { color: #6f83a6; text-align: center; padding: 1.5rem 0; }
+
+/* ── One issue row ──────────────────────────────────────────────────────── */
+.ms-issue {
+  background: rgba(6, 12, 24, 0.55); border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid transparent; border-radius: 0.7rem; padding: 0.75rem 0.85rem;
+  margin-top: 0.55rem; transition: border-color 0.15s, background 0.4s;
+}
+.ms-issue.is-active.is-support { border-left-color: #4ade80; }
+.ms-issue.is-active.is-oppose { border-left-color: #f87171; }
+.ms-issue.is-active.is-mixed { border-left-color: #facc15; }
+.ms-issue.ms-flash { background: rgba(96, 165, 250, 0.16); }
+.ms-issue-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.ms-issue-text { flex: 1; min-width: 13rem; }
+.ms-issue-lbl { color: #eef4ff; font-weight: 600; font-size: 0.98rem; }
+.ms-issue-chip { color: #90a4c4; font-size: 0.85rem; line-height: 1.45; margin-top: 0.15rem; }
+
+.ms-pos-group { display: flex; gap: 0.35rem; flex: none; }
+.ms-pos {
+  display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+  background: rgba(13, 21, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.55rem; padding: 0.4rem 0.6rem; color: #9fb4d4; font: inherit; font-size: 0.82rem; font-weight: 600;
+  transition: all 0.12s;
+}
+.ms-pos:hover { color: #e7ecf6; border-color: rgba(255, 255, 255, 0.28); }
+.ms-pos-ic { font-size: 0.9rem; }
+.ms-pos.is-support.is-on { background: rgba(74, 222, 128, 0.18); border-color: #4ade80; color: #bbf7d0; }
+.ms-pos.is-oppose.is-on { background: rgba(248, 113, 113, 0.18); border-color: #f87171; color: #fecaca; }
+.ms-pos.is-mixed.is-on { background: rgba(250, 204, 21, 0.18); border-color: #facc15; color: #fde68a; }
+
+/* Active-row controls */
+.ms-row-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.7rem; padding-top: 0.65rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); }
+.ms-prio { display: inline-flex; align-items: center; gap: 0.4rem; color: #90a4c4; font-size: 0.82rem; }
+.ms-prio select {
+  background: rgba(13, 21, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 0.5rem;
+  color: #dbe6f7; font: inherit; font-size: 0.82rem; padding: 0.3rem 0.5rem; cursor: pointer;
+}
+.ms-notebtn {
+  cursor: pointer; background: rgba(13, 21, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.5rem; padding: 0.3rem 0.6rem; color: #a9bdda; font: inherit; font-size: 0.8rem;
+}
+.ms-notebtn:hover { color: #cfe0fb; border-color: rgba(96, 165, 250, 0.4); }
+.ms-notebtn.has-note { color: #fcd34d; border-color: rgba(250, 204, 21, 0.35); }
+.ms-remove {
+  margin-left: auto; cursor: pointer; background: transparent; border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 0.5rem; padding: 0.28rem 0.55rem; color: #f87171; font: inherit; font-size: 0.85rem; line-height: 1;
+}
+.ms-remove:hover { background: rgba(248, 113, 113, 0.14); }
+
+.ms-note-wrap { display: none; margin-top: 0.6rem; }
+.ms-note-wrap.is-open { display: block; }
+.ms-note {
+  width: 100%; min-height: 3.2rem; resize: vertical; box-sizing: border-box;
+  background: rgba(13, 21, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.55rem;
+  color: #eaf1ff; font: inherit; font-size: 0.88rem; padding: 0.5rem 0.65rem;
+}
+.ms-note:focus { outline: none; border-color: rgba(96, 165, 250, 0.5); }
+.ms-note-hint { display: block; color: #6f83a6; font-size: 0.76rem; margin-top: 0.3rem; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #my-stances { padding: 2.8rem 0.75rem 3.5rem; }
+  .ms-issue-main { flex-direction: column; }
+  .ms-pos-group { width: 100%; }
+  .ms-pos { flex: 1; justify-content: center; }
+  .ms-showcase { flex-direction: column; align-items: flex-start; }
+}
