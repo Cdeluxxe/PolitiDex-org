@@ -580,6 +580,130 @@ async function getIssue(issueKey: string, url: URL): Promise<Response> {
   return json({ issueKey, byPolitician, ...paginate(items, f.page, f.pageSize) });
 }
 
+// ── GET /member/:politicianId/impacts ────────────────────────────────────────
+// Read-only. The measures this member has a recorded vote or position on that ALSO
+// carry Distributional Impact Ledger rows — the "who their key votes affect" side of
+// the Follow-the-Money pairing on a profile. Additive; reuses the same source +
+// cohort/direction/strength guards as GET /measure/:id, so it never emits an impact
+// without a source. Returns only measures that actually have ledger data.
+async function getMemberImpacts(politicianId: string): Promise<Response> {
+  // Measures this member has a recorded vote on (keep the rollcall action type so a
+  // passage vote is preferred for the displayed position), plus non-roll-call positions.
+  const voteRows = await db
+    .select({
+      measureId: vrRollcalls.measureId,
+      position: vrMemberVotes.position,
+      actionType: vrRollcalls.actionType,
+    })
+    .from(vrMemberVotes)
+    .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
+    .where(eq(vrMemberVotes.politicianId, politicianId))
+    .limit(FETCH_CAP);
+
+  const posRows = await db
+    .select({ measureId: vrPositions.measureId, actionType: vrPositions.actionType })
+    .from(vrPositions)
+    .where(eq(vrPositions.politicianId, politicianId))
+    .limit(FETCH_CAP);
+
+  const measureIds = [
+    ...new Set([...voteRows.map((r) => r.measureId), ...posRows.map((r) => r.measureId)]),
+  ];
+  if (!measureIds.length) return json({ politicianId, measures: [], cohortSummary: {} });
+
+  const impactRows = await db
+    .select()
+    .from(vrDistributionalImpacts)
+    .where(inArray(vrDistributionalImpacts.measureId, measureIds))
+    .orderBy(vrDistributionalImpacts.sortOrder);
+  if (!impactRows.length) return json({ politicianId, measures: [], cohortSummary: {} });
+
+  const impactedIds = [...new Set(impactRows.map((r) => r.measureId))];
+  const measureMeta = await db
+    .select({
+      id: vrMeasures.id,
+      number: vrMeasures.number,
+      title: vrMeasures.title,
+      shortTitle: vrMeasures.shortTitle,
+      sourceUrl: vrMeasures.sourceUrl,
+      sourceLabel: vrMeasures.sourceLabel,
+    })
+    .from(vrMeasures)
+    .where(inArray(vrMeasures.id, impactedIds));
+  const metaById = new Map(measureMeta.map((m) => [m.id, m]));
+
+  // The member's displayed action per measure: prefer a passage vote, then any vote,
+  // then a mapped non-roll-call position. Neutral, factual labels only.
+  const VOTE_LABEL: Record<string, string> = {
+    yea: "Voted Yea",
+    nay: "Voted Nay",
+    present: "Voted Present",
+    not_voting: "Did not vote",
+  };
+  const POS_LABEL: Record<string, string> = {
+    sponsor: "Sponsored",
+    cosponsor: "Cosponsored",
+    amicus: "Filed amicus brief",
+    plaintiff: "Party to the case",
+    committee_vote: "Committee vote",
+    statement: "On-record statement",
+  };
+  const actionByMeasure = new Map<number, string>();
+  for (const v of voteRows) {
+    if (!metaById.has(v.measureId)) continue;
+    const label = VOTE_LABEL[v.position] || "Voted " + v.position;
+    if (v.actionType === "passage" || !actionByMeasure.has(v.measureId)) {
+      actionByMeasure.set(v.measureId, label);
+    }
+  }
+  for (const p of posRows) {
+    if (!metaById.has(p.measureId)) continue;
+    if (!actionByMeasure.has(p.measureId)) {
+      actionByMeasure.set(p.measureId, POS_LABEL[p.actionType] || "On record");
+    }
+  }
+
+  // Impacts grouped by measure — source-guarded and value-validated exactly like getMeasure.
+  const byMeasure = new Map<number, any[]>();
+  const cohortSummary: Record<string, { benefit: number; cost: number; mixed: number; neutral: number }> = {};
+  for (const r of impactRows) {
+    if (!r.sourceUrl || !r.sourceLabel || !IMPACT_COHORTS.has(r.cohort)) continue;
+    const direction = IMPACT_DIRECTIONS.has(r.direction) ? r.direction : "mixed";
+    const item = {
+      cohort: r.cohort,
+      direction,
+      magnitudeValue: r.magnitudeValue == null ? null : Number(r.magnitudeValue),
+      magnitudeUnit: r.magnitudeUnit,
+      magnitudeLabel: r.magnitudeLabel,
+      metric: r.metric,
+      evidenceStrength: IMPACT_STRENGTHS.has(r.evidenceStrength) ? r.evidenceStrength : "moderate",
+      asOf: r.asOf ? r.asOf.toISOString() : null,
+      source: { url: r.sourceUrl, label: r.sourceLabel },
+    };
+    let arr = byMeasure.get(r.measureId);
+    if (!arr) { arr = []; byMeasure.set(r.measureId, arr); }
+    arr.push(item);
+    const c = (cohortSummary[r.cohort] ||= { benefit: 0, cost: 0, mixed: 0, neutral: 0 });
+    (c as any)[direction]++;
+  }
+
+  const measures = impactedIds
+    .filter((id) => byMeasure.get(id) && byMeasure.get(id)!.length)
+    .map((id) => {
+      const meta = metaById.get(id);
+      return {
+        measureId: id,
+        number: meta ? meta.number : null,
+        title: meta ? meta.shortTitle || meta.title || meta.number : "Measure " + id,
+        memberAction: actionByMeasure.get(id) || null,
+        source: meta && meta.sourceUrl ? { url: meta.sourceUrl, label: meta.sourceLabel } : null,
+        impacts: byMeasure.get(id),
+      };
+    });
+
+  return json({ politicianId, measures, cohortSummary });
+}
+
 // ── GET /measure/:measureId ──────────────────────────────────────────────────
 async function getMeasure(measureId: number): Promise<Response> {
   const [measure] = await db.select().from(vrMeasures).where(eq(vrMeasures.id, measureId));
@@ -967,6 +1091,13 @@ export default async (req: Request): Promise<Response> => {
       const id = clean(decodeURIComponent(packMatch[1]), ID_MAX);
       if (!id) return json({ error: "Missing politician id" }, 400);
       return await getMemberPack(id, req);
+    }
+
+    const memberImpactsMatch = path.match(/^\/member\/([^/]+)\/impacts$/);
+    if (memberImpactsMatch) {
+      const id = clean(decodeURIComponent(memberImpactsMatch[1]), ID_MAX);
+      if (!id) return json({ error: "Missing politician id" }, 400);
+      return await getMemberImpacts(id);
     }
 
     const memberMatch = path.match(/^\/member\/([^/]+)$/);

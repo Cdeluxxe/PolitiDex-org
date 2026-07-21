@@ -132,8 +132,39 @@ already-cached `PDXBills.get(measureId)` measure fetch (no new API). The cohort'
 figures come straight from the measure's `impacts`, so the same sourcing and
 evidence-strength rules apply unchanged.
 
-Future, additive surfaces (not yet built): a Follow-the-Money side-by-side (who funds
-them vs. who their record affects), and issue-level rollups.
+## Follow the Money — Side by Side (profile)
+
+On a politician profile, a dedicated section pairs the two public-record facts the
+platform already tracks:
+
+- **Who funds them** — a compact recap of the existing Constituents-First finance
+  signal (`window._pdxFinanceSignal(id)`): the 0–100 score, its level, and the
+  small-dollar vs. large-individual+PAC shares. Nothing is recomputed; it restates the
+  signal object, with a "Full finance breakdown →" link to Follow the Money.
+- **Who their key votes affect** — the measures this official has a recorded vote or
+  position on that *also* carry Distributional Impact Ledger rows, each shown with the
+  official's own recorded action (e.g. "Voted Yea") and a per-cohort net-direction chip
+  row, plus a "Verify" link to the measure's source.
+
+The section renders only when a finance signal exists, and the distributional column
+fills asynchronously from a new **read-only** route,
+`GET /api/voting-record/member/:id/impacts`, which returns only the member's measures
+that have ledger data (same source + cohort/direction/strength guards as
+`/measure/:id`). If the official has no ledger-scored votes, the section hides itself
+rather than showing an empty pairing.
+
+A standing disclaimer makes the boundary explicit: the pairing shows **financial
+access and distributional effect — not corruption, motive, or causation**. This is the
+same posture as the finance signal itself: co-occurrence of funding and distributional
+effect is a matter of public record, and does not, on its own, imply a quid pro quo.
+The section computes no "aligned/misaligned" verdict; it places the two sourced facts
+side by side and lets the reader draw the connection.
+
+Implementation: `impact-ledger.js` defines `window._pdxMemberImpactsSideBySide(id, sig)`
+(the section) and the async hydrator; the profile calls it with the same optional-global
+pattern used elsewhere. No new write paths.
+
+Future, additive surfaces (not yet built): issue-level rollups of distributional effect.
 
 ## Adding or refreshing data
 

@@ -334,22 +334,150 @@
     });
   }
 
+  /* ════════════════════════════════════════════════════════════════════════
+     Follow the Money — side by side (profile).
+     ────────────────────────────────────────────────────────────────────────
+     Pairs the existing Constituents-First finance signal (who funds them) with a
+     distributional summary of the measures they have a recorded vote/position on
+     (who their key votes affect). The "Do" side is filled asynchronously from the
+     read-only /api/voting-record/member/:id/impacts route.
+     ════════════════════════════════════════════════════════════════════════ */
+
+  var SXS_DISCLAIMER =
+    'Pairs <strong>who funds</strong> this official with <strong>who their record’s costs and benefits fall on</strong> — ' +
+    'both are matters of public record. It shows financial access and distributional effect, ' +
+    'not corruption, motive, or causation.';
+
+  var _memberImpactsCache = {};
+  function fetchMemberImpacts(id) {
+    if (_memberImpactsCache[id]) return _memberImpactsCache[id];
+    var p = fetch('/api/voting-record/member/' + encodeURIComponent(id) + '/impacts', { headers: { accept: 'application/json' } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .catch(function () { return null; });
+    _memberImpactsCache[id] = p;
+    return p;
+  }
+
+  // Compact, faithful recap of the finance signal for the left column (does not
+  // recompute anything — just restates the already-computed signal object).
+  function financeRecapHTML(sig) {
+    if (!sig) return '';
+    var color = sig.color || '#9fb4d4';
+    var shares = sig.shares || {};
+    var sd = shares.smallDollar == null ? null : shares.smallDollar;
+    var conc = shares.concentrated == null ? null : shares.concentrated;
+    var barGrass = sd == null ? '' :
+      '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">Small-dollar</span>' +
+        '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' + Math.max(2, sd) + '%;background:#4ade80;"></span></span>' +
+        '<span class="pdx-ilx-fbar-pct" style="color:#4ade80;">' + sd + '%</span></div>';
+    var barConc = conc == null ? '' :
+      '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">Large indiv + PAC</span>' +
+        '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' + Math.max(2, conc) + '%;background:#f5c842;"></span></span>' +
+        '<span class="pdx-ilx-fbar-pct" style="color:#f5c842;">' + conc + '%</span></div>';
+    return '<div class="pdx-ilx-col">' +
+        '<div class="pdx-ilx-lab">Who funds them</div>' +
+        '<div class="pdx-ilx-fscore" style="border-color:' + color + '55;">' +
+          '<span class="pdx-ilx-fnum" style="color:' + color + ';">' + esc(String(sig.score)) + '</span>' +
+          '<span class="pdx-ilx-flabel">' + esc(sig.label || '') + '</span>' +
+        '</div>' +
+        barGrass + barConc +
+        (sig.cycle ? '<div class="pdx-ilx-fnote">Itemized public filings' + (sig.cycle ? ' · ' + esc(String(sig.cycle)) : '') + '</div>' : '') +
+        '<a class="pdx-ilx-morelink" href="#follow-the-money">Full finance breakdown →</a>' +
+      '</div>';
+  }
+
+  // The "Do" column — the member's measures that carry ledger data.
+  function renderMemberImpactsHTML(data) {
+    var measures = (data && data.measures) ? data.measures : [];
+    if (!measures.length) {
+      return '<p class="pdx-ilx-empty">No scored distributional analysis is tied to this official’s recorded votes yet.</p>';
+    }
+    return measures.map(function (m) {
+      var byCohort = {};
+      (m.impacts || []).forEach(function (im) { (byCohort[im.cohort] || (byCohort[im.cohort] = [])).push(im); });
+      var chips = COHORTS.filter(function (c) { return byCohort[c.key] && byCohort[c.key].length; }).map(function (c) {
+        var net = netDirection(byCohort[c.key]);
+        var nd = DIR[net] || DIR.mixed;
+        var netLabel = net === 'benefit' ? 'net benefit' : net === 'cost' ? 'net cost' : net === 'mixed' ? 'mixed' : 'neutral';
+        return '<span class="pdx-ilx-chip ' + nd.cls + '" title="' + escAttr(c.name + ': ' + netLabel) + '">' +
+          c.icon + ' ' + esc(c.name) + ' <b>' + nd.arrow + '</b></span>';
+      }).join('');
+      var act = m.memberAction ? '<span class="pdx-ilx-act">' + esc(m.memberAction) + '</span>' : '';
+      var src = (m.source && m.source.url)
+        ? '<a class="pdx-ilx-verify" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 Verify</a>' : '';
+      return '<div class="pdx-ilx-measure">' +
+          '<div class="pdx-ilx-mhead">' +
+            (m.number ? '<span class="pdx-ilx-mnum">' + esc(m.number) + '</span>' : '') +
+            '<span class="pdx-ilx-mtitle">' + esc(m.title || 'Measure') + '</span>' + act +
+          '</div>' +
+          '<div class="pdx-ilx-chips">' + chips + '</div>' +
+          (src ? '<div class="pdx-ilx-mfoot">' + src + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  // Public: build the whole side-by-side section for a profile. `sig` is the finance
+  // signal object (window._pdxFinanceSignal(id)); returns '' when there's no signal to
+  // pair against. The distributional column fills asynchronously; the section hides
+  // itself if the official has no ledger-scored votes, so it never adds empty noise.
+  function memberSideBySideHTML(id, sig) {
+    if (!id || !sig) return '';
+    injectCss();
+    return '<div class="modal-section pdx-ilx" data-il-sxs="' + escAttr(String(id)) + '" style="display:none;">' +
+        '<div class="modal-section-title">💰 Follow the Money — Side by Side</div>' +
+        '<p class="pdx-ilx-disclaimer">' + SXS_DISCLAIMER + '</p>' +
+        '<div class="pdx-ilx-grid">' +
+          financeRecapHTML(sig) +
+          '<div class="pdx-ilx-col">' +
+            '<div class="pdx-ilx-lab">Who their key votes affect</div>' +
+            '<div class="pdx-ilx-do" data-il-member-impacts="' + escAttr(String(id)) + '">' +
+              '<span class="pdx-ilp-loading">Loading their key votes…</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function hydrateMemberImpacts(root) {
+    root = root || document;
+    var nodes;
+    try { nodes = root.querySelectorAll('[data-il-member-impacts]:not([data-il-done])'); } catch (e) { return; }
+    if (!nodes || !nodes.length) return;
+    Array.prototype.forEach.call(nodes, function (el) {
+      el.setAttribute('data-il-done', '1');
+      var id = el.getAttribute('data-il-member-impacts');
+      fetchMemberImpacts(id).then(function (data) {
+        var measures = (data && data.measures) ? data.measures : [];
+        var section = el.closest ? el.closest('[data-il-sxs]') : null;
+        // Nothing scored for this official → don't show an empty pairing.
+        if (!measures.length) { if (section) section.style.display = 'none'; return; }
+        try { el.innerHTML = renderMemberImpactsHTML(data); } catch (e) { el.innerHTML = ''; }
+        if (section) section.style.display = '';
+      });
+    });
+  }
+
+  function hydrateAll(root) {
+    hydratePromiseSummaries(root);
+    hydrateMemberImpacts(root);
+  }
+
   var _hydrateScheduled = false;
   function scheduleHydrate() {
     if (_hydrateScheduled) return;
     _hydrateScheduled = true;
-    setTimeout(function () { _hydrateScheduled = false; hydratePromiseSummaries(document); }, 60);
+    setTimeout(function () { _hydrateScheduled = false; hydrateAll(document); }, 60);
   }
   function bootHydrate() {
-    hydratePromiseSummaries(document);
+    hydrateAll(document);
     try {
+      var SEL = '[data-il-promise-measure]:not([data-il-done]), [data-il-member-impacts]:not([data-il-done])';
       var mo = new MutationObserver(function (muts) {
         for (var i = 0; i < muts.length; i++) {
           var added = muts[i].addedNodes; if (!added) continue;
           for (var j = 0; j < added.length; j++) {
             var n = added[j]; if (!n || n.nodeType !== 1) continue;
-            if ((n.matches && n.matches('[data-il-promise-measure]:not([data-il-done])')) ||
-                (n.querySelector && n.querySelector('[data-il-promise-measure]:not([data-il-done])'))) {
+            if ((n.matches && n.matches(SEL)) || (n.querySelector && n.querySelector(SEL))) {
               scheduleHydrate(); return;
             }
           }
@@ -361,16 +489,20 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootHydrate);
   else bootHydrate();
 
-  // The app calls this optional global from the Promise Tracker row (same pattern as
-  // window._pdxPromiseVideo / _pdxPromiseEvidenceLink).
+  // The app calls these optional globals (same pattern as window._pdxPromiseVideo /
+  // _pdxFinanceSignalHTML): one from the Promise Tracker row, one from the profile.
   window._pdxPromiseImpactHTML = promiseImpactHTML;
+  window._pdxMemberImpactsSideBySide = memberSideBySideHTML;
 
   window.PDXImpactLedger = {
     renderHTML: renderHTML,
     mountInto: mountInto,
     renderPromiseSummaryHTML: renderPromiseSummaryHTML,
     promiseImpactHTML: promiseImpactHTML,
+    renderMemberImpactsHTML: renderMemberImpactsHTML,
+    memberSideBySideHTML: memberSideBySideHTML,
     hydratePromiseSummaries: hydratePromiseSummaries,
+    hydrateMemberImpacts: hydrateMemberImpacts,
     COHORTS: COHORTS
   };
 })();
