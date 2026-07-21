@@ -4911,3 +4911,715 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
       ]
     }
 );
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — high-profile federal & state figures (Jul 2026)
+   ────────────────────────────────────────────────────────────────────────────
+   Purely additive: each item is a negative-impact, sourced, neutrally-worded
+   accountability record so it surfaces in the profile "Biggest Controversies"
+   section (controversies.js) and the Say-vs-Do engine. Entries are CONCAT-MERGED
+   onto window.ACCT_SPOTLIGHT so any politician who already has items (e.g. the
+   existing schumer/booker arrays above) keeps them and simply gains these — no
+   existing content is replaced. Balanced across parties; each `issueKey` maps to
+   an ISSUE_MAP topic so the card links to the matching Issue Spotlight. Items
+   framed as say-vs-do use category:'rhetoric' / tag 'Rhetoric vs Reality' so the
+   verdict stamp reads "Says One Thing · Does Another"; others read as red flags.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    schiff: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Accountability','Notable Actions'], issueKey:'gov_transparency',
+        headline:'Censured by the House over his Trump-Russia investigation claims',
+        facts:`On June 21, 2023, the House voted 213–209, largely along party lines, to censure Schiff — then a Senate candidate and former Intelligence Committee chair — over statements he made while leading investigations into the Trump campaign's contacts with Russia; the resolution argued he misled the public because later probes did not establish a criminal conspiracy. Schiff rejected the premise, telling Republicans, "You honor me with your enmity."`,
+        why:`A formal House censure is one of the chamber's most serious rebukes and is a matter of public record, though Schiff and his party dispute that his statements were false.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2023/06/21/1183564794/schiff-censure-house-republicans' } },
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'gov_transparency',
+        headline:'Fact-checked "Four Pinocchios" over a whistleblower claim',
+        facts:`In September 2019 Schiff said on MSNBC that his committee "had not spoken directly with the whistleblower" behind the Trump-Ukraine complaint. After reporting showed the whistleblower had contacted committee staff before filing, The Washington Post's Fact Checker rated the statement false — its worst, "Four Pinocchios" rating. His office said the answer "should have been more carefully phrased."`,
+        why:`Independent fact-checkers judged a public statement by the lead impeachment investigator to be false — a direct check on his own words.`,
+        source:{ label:'Washington Post Fact Checker (Seattle Times)', url:'https://www.seattletimes.com/nation-world/nation-politics/schiffs-4-pinocchio-claim-that-his-committee-had-not-spoken-to-the-whistleblower/' } }
+    ],
+    klobuchar: [
+      { impact:'negative', category:'redflags', date:'2019', tags:['Accountability'], issueKey:'econ_workers',
+        headline:'Faced reports of mistreating staff and record office turnover',
+        facts:`As she launched her 2020 presidential bid in February 2019, multiple outlets reported that former aides described Klobuchar berating staff, throwing objects and impeding their job moves, and LegiStorm data showed her Senate office had among the highest staff-turnover rates in Congress. Klobuchar responded that she has "high expectations" and can be tough, but disputed being abusive.`,
+        why:`On-the-record accounts from former employees about how she runs her office, which she has publicly contested.`,
+        source:{ label:'Yahoo News', url:'https://www.yahoo.com/news/amy-klobuchar-newest-presidential-candidate-faces-questions-temperament-treatment-staff-165813668.html' } },
+      { impact:'negative', category:'legal', date:'2020', tags:['Rhetoric vs Reality','Accountability'], issueKey:'justice_reform',
+        headline:'Scrutiny over a teen murder case she prosecuted as county attorney',
+        facts:`As Hennepin County Attorney, Klobuchar oversaw the 2003 prosecution of 16-year-old Myon Burrell and later cited the case as proof of her commitment to justice. A 2020 Associated Press investigation found the case rested on a single, shifting eyewitness with no gun, DNA or fingerprints; Klobuchar then called for an independent review, and Burrell's sentence was commuted that December.`,
+        why:`A case she publicly touted was later found by reporters to have serious evidentiary flaws — a check on a central part of her prosecutorial record.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2020/feb/24/explaining-amy-klobuchars-role-newly-investigated-/' } }
+    ],
+    schumer: [
+      { impact:'negative', category:'redflags', date:'2020', tags:['Notable Actions'], issueKey:'scotus_reform',
+        headline:'Rebuked by Chief Justice Roberts for a "pay the price" remark',
+        facts:`At a March 2020 abortion-rights rally outside the Supreme Court, Schumer said Justices Gorsuch and Kavanaugh had "released the whirlwind" and would "pay the price" for certain rulings. Chief Justice John Roberts called the comments "dangerous," and the next day Schumer said he "shouldn't have used the words I did" but denied making a threat.`,
+        why:`A rare public rebuke of a Senate leader by the Chief Justice, over remarks Schumer himself walked back.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/03/04/politics/schumer-roberts-threats-supreme-court' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality'], issueKey:'national_debt',
+        headline:'Backlash for helping advance a GOP funding bill he called "very bad"',
+        facts:`In March 2025 Schumer described a Republican six-month funding bill as "very bad," then voted to help it clear the 60-vote filibuster to avert a shutdown, while not voting for final passage. Many Democrats, especially in the House, publicly criticized the move; Schumer said a shutdown would have handed Trump even more power.`,
+        why:`Schumer's cloture vote after condemning the bill became a flashpoint over his leadership within his own party.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2025/03/13/g-s1-53495/senate-democrats-funding-bill-government-shutdown' } }
+    ],
+    booker: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'His "I am Spartacus" document release proved less defiant than claimed',
+        facts:`During Brett Kavanaugh's September 2018 confirmation hearing, Booker said he would release "committee confidential" documents knowing he risked expulsion — an "I am Spartacus" moment. Republicans then noted the documents had already been cleared for public release beforehand; Booker said he had technically broken the rules the night before and stood by his broader point.`,
+        why:`A dramatic, widely covered claim of rule-breaking that the record showed was largely already permitted.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2018/09/06/cory-bookers-kavanaugh-document-release-not-as-defiant-as-it-seemed.html' } },
+      { impact:'negative', category:'rhetoric', date:'2013', tags:['Rhetoric vs Reality'], issueKey:'justice_reform',
+        headline:'A long-told "T-Bone" drug-dealer story was acknowledged as a composite',
+        facts:`For years Booker recounted a vivid friendship with a Newark drug dealer named "T-Bone." After a 2013 report questioned the account, a mentor said Booker had conceded T-Bone was a "composite" of people he met; Booker had earlier called the figure an "archetype." His campaign dismissed the renewed scrutiny as partisan.`,
+        why:`A signature personal anecdote used in speeches for years was acknowledged not to be a single real person.`,
+        source:{ label:'RealClearPolitics', url:'https://www.realclearpolitics.com/articles/2013/08/29/booker_accused_of_inventing_oft-cited_drug_dealer_119763.html' } }
+    ],
+    gavin_newsom: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'medical_freedom',
+        headline:'Attended the French Laundry dinner while urging Californians to stay home',
+        facts:`On November 6, 2020, Newsom attended a lobbyist's birthday dinner at the French Laundry restaurant as his administration urged Californians to avoid gatherings amid a COVID surge. Photos showed a sizable, unmasked indoor group larger than state guidance advised. Newsom apologized, saying he "made a bad mistake" and should have "walked back."`,
+        why:`A words-vs-actions moment in which the governor's own conduct conflicted with the public-health rules he was promoting.`,
+        source:{ label:'FOX 11 Los Angeles', url:'https://www.foxla.com/news/fox-11-obtains-exclusive-photos-of-gov-newsom-at-french-restaurant-allegedly-not-following-covid-19-protocols' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Accountability'], issueKey:'gov_waste',
+        headline:'Presided over an estimated $20B in pandemic unemployment fraud',
+        facts:`During the pandemic California's EDD paid out an estimated $20 billion in fraudulent jobless claims — the State Auditor confirmed roughly $10.4 billion in likely-improper payments — while a Bank of America debit-card freeze also cut off many legitimate workers. Newsom's administration later launched a modernization effort, EDDNext.`,
+        why:`State auditors documented large-scale fraud and mismanagement in an agency under the governor's administration.`,
+        source:{ label:'California State Auditor', url:'https://information.auditor.ca.gov/reports/2020-628.2/summary.html' } }
+    ],
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    cassidy: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Voted to convict Trump in 2021 and was censured by his state party',
+        facts:`Cassidy was one of seven Republican senators who voted to convict Trump in the February 2021 impeachment trial over January 6, saying "our Constitution and our country is more important than any one person" and that Trump "is guilty." The Louisiana Republican Party unanimously censured him the same day.`,
+        why:`A high-profile break with his party that drew a formal censure from his home-state GOP.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/02/13/politics/bill-cassidy-louisiana-republican-party-censure' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality'], issueKey:'healthcare',
+        headline:'Confirmed RFK Jr. despite vaccine concerns, then said promises were broken',
+        facts:`A physician and HELP Committee chair, Cassidy voiced deep reservations about Robert F. Kennedy Jr.'s vaccine record but cast a pivotal vote to confirm him as HHS Secretary in 2025 after securing assurances. He later said "the commitments that were made to me have been violated" as Kennedy changed vaccine guidance; Kennedy said he kept his promises.`,
+        why:`By Cassidy's own account, the conditions he set for his decisive yes vote were not kept — a direct say-vs-do.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/gop-sen-bill-cassidy-wavered-confirming-rfk-jr-says-lived-promises-vac-rcna206882' } }
+    ],
+    luna: [
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Rhetoric vs Reality'], issueKey:'gov_transparency',
+        headline:'Family and records disputed parts of her life story',
+        facts:`A February 2023 Washington Post investigation reported that relatives and genealogical records disputed Rep. Luna's accounts of a Jewish/Messianic upbringing and an impoverished, isolated childhood, and that her grandfather had served in the Nazi Wehrmacht. Luna called the questions "bizarre" and cast the reporting as an attack on a "conservative minority."`,
+        why:`Independent reporting and family members contradicted biographical claims she had made publicly.`,
+        source:{ label:'The Times of Israel', url:'https://www.timesofisrael.com/grandfather-of-gop-lawmaker-claiming-jewish-heritage-fought-for-nazis-report/' } },
+      { impact:'negative', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'family_support',
+        headline:'Clashed with Speaker Johnson and left the Freedom Caucus over proxy voting',
+        facts:`In 2025 Luna forced a floor fight to let new parents vote by proxy, using a discharge petition that succeeded when nine Republicans broke with leadership. She left the House Freedom Caucus during the standoff, accusing members of a "betrayal," before striking a "vote-pairing" deal with Speaker Mike Johnson.`,
+        why:`A high-profile rupture with her own party's leadership and caucus over House rules.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/anna-paulina-luna-mike-johnson-proxy-voting-new-parents/' } }
+    ],
+    donalds: [
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Criticized for comments on Black families during the Jim Crow era',
+        facts:`At a June 2024 Trump-outreach event, Donalds said "during Jim Crow, the Black family was together" and that more Black Americans then voted conservatively, drawing sharp criticism from Democrats including Rep. Hakeem Jeffries. Donalds said his remarks were mischaracterized and that he never called the Jim Crow era better for Black Americans.`,
+        why:`Widely covered remarks that prompted bipartisan pushback; PolitiFact noted his account omitted key context.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2024/jun/10/fact-checking-byron-donalds-jim-crow-comments/' } },
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Objected to certifying 2020 electoral votes after the Capitol riot',
+        facts:`On January 6–7, 2021, Donalds voted to object to certifying Biden's electoral votes from Arizona and Pennsylvania, proceeding after the Capitol was stormed; both objections were rejected by the House. He said he was raising "legitimate questions" about how some states ran their elections and has since said he does not consider Biden's win legitimate.`,
+        why:`A recorded vote against certification, part of the January 6 electoral-count fight.`,
+        source:{ label:'Ballotpedia', url:'https://ballotpedia.org/Byron_Donalds' } }
+    ],
+    chip_roy: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Criticized for a "rope … tall oak tree" remark at an anti-Asian-violence hearing',
+        facts:`At a March 2021 House Judiciary hearing on anti-Asian violence, days after the Atlanta spa shootings, Roy invoked "old sayings in Texas about find all the rope … and get a tall oak tree" while talking about justice for criminals. After criticism that he appeared to reference lynching, Roy said "I meant it" and "no apologies," saying he was defending free speech and the rule of law.`,
+        why:`Widely covered remarks at a hearing on hate crimes that drew bipartisan objection.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/chip-roy-lynching-comments-house-hearing/' } },
+      { impact:'negative', category:'voting', date:'2019', tags:['Notable Actions'], issueKey:'disaster_resilience',
+        headline:'Single-handedly delayed a $19B disaster-aid bill',
+        facts:`In May 2019 Roy objected to passing a bipartisan $19.1 billion disaster-relief package — which the Senate had cleared 85–8 — by unanimous consent, delaying it because members were out of town and it lacked border funding and offsets. Critics including Speaker Pelosi called it obstruction; Roy said members should be present to vote on billions in spending.`,
+        why:`A high-profile use of one member's power to delay disaster aid, on stated fiscal-process grounds.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2019/05/24/726600378/disaster-aid-bill-stalled-after-republican-blocks-house-vote' } }
+    ],
+    brian_kemp: [
+      { impact:'negative', category:'transparency', date:'2018', tags:['Accountability'], issueKey:'voting_access',
+        headline:'Oversaw his own 2018 election as Georgia Secretary of State',
+        facts:`Running for governor in 2018, Kemp remained Secretary of State — Georgia's chief elections officer — while facing Democrat Stacey Abrams. Civil-rights groups, Rep. John Lewis and the NAACP called on him to resign or recuse over the conflict of interest; Kemp declined, saying his office administered elections fairly.`,
+        why:`Serving as the referee of his own contest drew bipartisan calls to step aside and multiple lawsuits.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/politics-news/georgia-sued-placing-thousands-voter-registrations-hold-election-n919526' } },
+      { impact:'negative', category:'redflags', date:'2018', tags:['Accountability'], issueKey:'voting_access',
+        headline:'"Exact match" left about 53,000 voter registrations pending before the vote',
+        facts:`Weeks before the 2018 election, the Associated Press reported that roughly 53,000 voter-registration applications — about 70% from Black Georgians — were on hold under the "exact match" policy Kemp's office enforced, which flagged minor data mismatches. Officials noted affected voters could still vote with photo ID, and Georgia later scaled the policy back after litigation.`,
+        why:`A specific, documented effect of an elections policy he administered while on the ballot.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/georgia-black-voter-registration/' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 2 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 block above: purely additive, negative-
+   impact, sourced, neutrally-worded accountability records CONCAT-MERGED onto
+   window.ACCT_SPOTLIGHT so nothing existing is replaced. Balanced 5 Democrats /
+   5 Republicans; each issueKey maps to an ISSUE_MAP topic for the Issue Spotlight
+   link. Say-vs-do items use category:'rhetoric' + tag 'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    ron_desantis: [
+      { impact:'negative', category:'legal', date:'2022', tags:['Notable Actions','Accountability'], issueKey:'immigration_reform',
+        headline:'Flew migrants to Martha’s Vineyard, drawing a lawsuit and a criminal inquiry',
+        facts:`In September 2022 DeSantis used Florida funds to fly about 50 mostly Venezuelan migrants from Texas to Martha's Vineyard, Massachusetts. A Texas sheriff opened a criminal inquiry and migrants sued, alleging they were lured with false promises; a federal judge later wrote the migrants were "exploit[ed] ... in a scheme to boost the national profile of Defendant DeSantis." DeSantis said the migrants went voluntarily and the flights were lawful.`,
+        why:`The flights prompted litigation and a sheriff's investigation and remain a defining test of the tactic's legality and ethics.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/04/01/1242131130/migrants-lawsuit-flown-marthas-vineyard-texas-florida-governor-ron-desantis' } },
+      { impact:'negative', category:'redflags', date:'2023', tags:['Notable Actions'], issueKey:'free_speech',
+        headline:'Stripped Disney’s self-governing district after it opposed a state law',
+        facts:`After Disney publicly criticized Florida's 2022 Parental Rights in Education law (the "Don't Say Gay" law), DeSantis and the Legislature dissolved the company's decades-old Reedy Creek district and replaced its board with his appointees. Disney sued, alleging First Amendment retaliation for protected speech; a judge dismissed the suit and the parties settled in 2024. DeSantis called the changes ordinary regulation.`,
+        why:`Disney and free-press groups argued the takeover punished protected speech; DeSantis framed it as lawful oversight.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2024/03/27/disney-and-florida-settle-lawsuits-over-desantis-special-district-fight-dont-say-gay-bill.html' } }
+    ],
+    greg_abbott: [
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions','Accountability'], issueKey:'immigration_reform',
+        headline:'Bused tens of thousands of migrants to Democratic-run cities',
+        facts:`Starting in April 2022, Abbott's Operation Lone Star bused migrants from the Texas border to Washington, New York, Chicago and other Democratic-led cities — more than 100,000 people at a cost the Texas Newsroom reported exceeded $148 million in taxpayer funds by early 2024. Receiving mayors called it a political stunt that strained shelters; Abbott said Washington had left border states to shoulder the burden alone.`,
+        why:`A high-cost, high-profile tactic that drew bipartisan criticism over its expense and its use of migrants for political leverage.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/02/20/1232651088/texas-has-spent-over-148-million-busing-migrants-to-other-parts-of-the-country' } },
+      { impact:'negative', category:'legal', date:'2023', tags:['Notable Actions'], issueKey:'border_security',
+        headline:'Sued by the DOJ over Rio Grande buoys and razor wire',
+        facts:`In July 2023 Abbott installed a floating buoy barrier and razor wire in the Rio Grande near Eagle Pass. The Justice Department sued, saying the barrier violated the Rivers and Harbors Act and raised humanitarian and diplomatic concerns, and a state trooper alleged migrants were pushed back into the river. Abbott refused to remove it, saying, "Texas will see you in court."`,
+        why:`The barrier triggered federal litigation, a separate humanitarian inquiry, and objections from Mexico.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2023/07/24/1189732169/gov-abbott-refuses-to-remove-floating-border-wall-tells-biden-see-you-in-court' } }
+    ],
+    ken_paxton: [
+      { impact:'negative', category:'legal', date:'2015', tags:['Accountability'], issueKey:'gov_transparency',
+        headline:'Charged with felony securities fraud, resolved years later without a conviction',
+        facts:`Paxton was indicted in 2015 on felony securities-fraud charges for soliciting investors in tech firm Servergy without disclosing he was being paid to promote it. The nine-year case was resolved in 2024 just before trial: prosecutors dropped the counts after he agreed to pay restitution, do community service and take legal-ethics classes, without admitting guilt. Paxton said, "There will never be a conviction in this case nor am I guilty."`,
+        why:`A felony indictment against the state's top lawyer that hung over most of his tenure before a no-admission settlement.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/texas-attorney-general-ken-paxton-makes-deal-to-end-securities-charges-weeks-before-trial' } },
+      { impact:'negative', category:'legal', date:'2023', tags:['Accountability','Notable Actions'], issueKey:'gov_transparency',
+        headline:'Impeached by the Texas House, then acquitted by the Senate',
+        facts:`In May 2023 the Republican-led Texas House impeached Paxton 121–23 on articles including bribery, abuse of office and retaliating against whistleblowers tied to donor Nate Paul. He was suspended, then the Texas Senate acquitted him on all articles that September along party lines; his wife, a state senator, was present but recused from voting. Paxton called the impeachment a politically motivated "sham."`,
+        why:`A bipartisan House impeachment of a sitting attorney general — only the third impeachment of a Texas official in history.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/election-triumphs-series-scandals-dot-ken-paxtons-political/story?id=133341950' } }
+    ],
+    tommy_tuberville: [
+      { impact:'negative', category:'voting', date:'2023', tags:['Notable Actions','Accountability'], issueKey:'strong_defense',
+        headline:'Blocked hundreds of military promotions for most of a year',
+        facts:`From February to December 2023 Tuberville held up more than 400 senior military promotions in protest of a Pentagon policy reimbursing travel for service members seeking abortions. Defense Secretary Lloyd Austin called it a "clear risk to U.S. military readiness," and fellow Republicans including Dan Sullivan criticized it before Tuberville relented, releasing most holds in December.`,
+        why:`An unprecedented, months-long blanket hold that drew objections from his own party over military readiness.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/sen-tommy-tuberville-says-hes-ending-his-blockade-of-military-nominations' } },
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements'], issueKey:'strong_defense',
+        headline:'Said of white nationalists in the military, "I call them Americans"',
+        facts:`Asked in a May 2023 interview whether white nationalists should serve in the military, Tuberville said, "They call them that. I call them Americans." The remark drew bipartisan criticism; Tuberville's office said he was skeptical that the problem exists and he later said he is "110% against racism" and was pushing back on Democrats labeling Trump supporters.`,
+        why:`Widely covered comments that Senate colleagues, including Democrats, condemned as appearing to minimize white nationalism.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/05/11/politics/tommy-tuberville-white-nationalist-military-comments/index.html' } }
+    ],
+    mcconnell: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'Blocked Garland in 2016, then confirmed Barrett weeks before the 2020 vote',
+        facts:`In 2016 McConnell refused to hold a hearing on Merrick Garland, saying a Supreme Court seat should not be filled in an election year, and the seat stayed open eight months. In 2020 he moved quickly to confirm Amy Coney Barrett just before the election, days after Justice Ginsburg's death. Critics called it a reversal; McConnell said the difference was that the same party controlled the Senate and presidency.`,
+        why:`A widely cited example of an election-year standard applied one way in 2016 and the opposite way in 2020.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/09/18/politics/merrick-garland-senate-republicans-timeline' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Voted to acquit Trump, then called him "morally responsible" for Jan. 6',
+        facts:`Minutes after voting to acquit Trump in the February 2021 impeachment trial, McConnell said on the Senate floor that "there is no question President Trump is practically and morally responsible for provoking the events" of January 6, calling it "a disgraceful dereliction of duty." He said he voted to acquit only because he believed convicting a former president was unconstitutional.`,
+        why:`A striking gap between his stated judgment of Trump's conduct and his not-guilty vote.`,
+        source:{ label:'U.S. News & World Report', url:'https://www.usnews.com/news/politics/articles/2021-02-14/read-mcconnell-speech-after-trumps-impeachment-trial-acquittal' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    tim_walz: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Said he carried "weapons of war, that I carried in war" — his campaign later conceded he misspoke',
+        facts:`In a 2018 gun-control video, Walz — a 24-year National Guard veteran — referred to "those weapons of war, that I carried in war." After JD Vance accused him of "stolen valor" in 2024, the Harris campaign said Walz "misspoke," as he retired before his unit deployed to Iraq and never served in a combat zone. Fact-checkers found Vance's related "abandoned his unit" charge misleading on the timeline.`,
+        why:`His own campaign acknowledged the "in war" phrasing was inaccurate, a direct check on how he described his service.`,
+        source:{ label:'FactCheck.org', url:'https://www.factcheck.org/2024/08/attacks-on-walzs-military-record/' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Campaign bio overstated his retirement rank',
+        facts:`The Harris-Walz site initially called Walz a "retired Command Sergeant Major." Records show he was reduced to master sergeant for retirement pay because he had not completed the required coursework; the campaign then revised the wording to say he "served as" a command sergeant major. Guardsmen who served with him defended his 24-year record as sound.`,
+        why:`A stated credential was corrected after it did not match his official record.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/tim-walz-military-record/' } }
+    ],
+    gretchen_whitmer: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'medical_freedom',
+        headline:'Her husband invoked her name to get their boat launched amid her stay-home guidance',
+        facts:`Over Memorial Day weekend 2020, a dock company said Whitmer's husband asked whether being "married to the governor" would move his boat up the queue — just after she urged Michiganders not to travel to northern Michigan during COVID restrictions. Whitmer said he made "a failed attempt at humor" that she did not find funny.`,
+        why:`A words-vs-actions moment involving the travel and gathering guidance she was promoting.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/05/27/politics/gretchen-whitmer-boat-dock-controversy' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality','Accountability'], issueKey:'medical_freedom',
+        headline:'Took a private-jet trip to Florida while discouraging travel',
+        facts:`In March 2021 Whitmer flew to Florida to visit her ailing father, weeks before publicly advising Michiganders against traveling there as cases surged. She initially declined to say who paid; her office later disclosed a nonprofit chartered the $27,521 flight on a jet co-owned by donor families with business before the state. Whitmer called the criticism "maddening," saying she was helping family.`,
+        why:`Both the travel — against her own advisory — and the donor-linked jet raised hypocrisy and ethics questions.`,
+        source:{ label:'Bridge Michigan', url:'https://bridgemi.com/michigan-government/gov-whitmer-says-florida-trip-wasnt-gift-stays-mum-who-paid-plane/' } }
+    ],
+    kathy_hochul: [
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'transit',
+        headline:'Paused NYC congestion pricing weeks before launch after championing it',
+        facts:`After long backing the nation's first congestion-pricing toll — telling a summit weeks earlier that transit investment is "what cities are meant to do" — Hochul abruptly put it on an "indefinite pause" in June 2024, days before its planned start, citing costs to New Yorkers. The reversal drew a rare rebuke from business, transit and environmental groups and left the MTA facing a $15 billion capital-plan gap; the toll ultimately launched in 2025.`,
+        why:`An eleventh-hour flip on a policy she had publicly championed, with major fiscal consequences.`,
+        source:{ label:'Governing', url:'https://www.governing.com/transportation/hochuls-reversal-on-congestion-pricing-draws-blowback' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Accountability'], issueKey:'campaign_finance',
+        headline:'Her hand-picked lieutenant governor was arrested on bribery charges',
+        facts:`Hochul chose Brian Benjamin as lieutenant governor in 2021; in April 2022 he was arrested and resigned over a federal scheme alleging he steered a $50,000 state grant in exchange for campaign donations and falsified vetting forms. The charges were dismissed, reinstated on appeal, then dropped by prosecutors in 2025. Hochul said New Yorkers "deserve absolute confidence in their government."`,
+        why:`The vetting and selection of her second-in-command, who was charged months later, drew scrutiny of her judgment.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2022/04/12/ny-lt-gov-brian-benjamin-arrested-in-campaign-finance-fraud-case-sources.html' } }
+    ],
+    tlaib: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements','Accountability'], issueKey:'foreign_balance',
+        headline:'Censured by the House over her Israel-Hamas war rhetoric',
+        facts:`On November 7, 2023, the House voted 234–188 — with 22 Democrats joining most Republicans — to censure Tlaib, the only Palestinian American in Congress, over her comments on the war, including sharing a video featuring the "from the river to the sea" chant that many Jewish groups call a call to eliminate Israel. Tlaib said the phrase is "an aspirational call for freedom ... not death, destruction, or hate."`,
+        why:`A formal House censure — a rebuke one step below expulsion — over contested wartime rhetoric.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/house-vote-censure-rashida-tlaib-israel-hamas-palestine-remarks-rcna124005' } },
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Public Statements'], issueKey:'foreign_balance',
+        headline:'Accused Biden of "supporting the genocide" of Palestinians',
+        facts:`In a November 3, 2023 video, Tlaib said President Biden "supported the genocide of the Palestinian people" and warned, "We will remember in 2024," pressing him to call for a cease-fire. She had also blamed Israel for the al-Ahli hospital blast, contrary to the U.S. assessment that a Palestinian rocket was likely responsible, and declined to retract it, calling for an independent investigation.`,
+        why:`Sharp accusations against a president of her own party that drew criticism, including from fellow Democrats.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/11/03/politics/tlaib-biden-palestinian-genocide/index.html' } }
+    ],
+    omar: [
+      { impact:'negative', category:'redflags', date:'2019', tags:['Public Statements','Accountability'], issueKey:'foreign_balance',
+        headline:'Drew bipartisan rebuke for "all about the Benjamins" AIPAC tweet',
+        facts:`In February 2019 Omar tweeted that congressional support for Israel was "all about the Benjamins," naming AIPAC when asked who was paying. The comments were widely condemned as invoking an antisemitic trope, including by Speaker Pelosi; the House later passed a broad anti-hate resolution. Omar apologized, saying she never meant to offend Jewish Americans.`,
+        why:`Comments her own party leadership rebuked, prompting a House resolution and an apology.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/republicans-oust-rep-ilhan-omar-foreign-affairs-committee-rcna68701' } },
+      { impact:'negative', category:'voting', date:'2023', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Removed from the Foreign Affairs Committee over past comments',
+        facts:`In February 2023 the Republican-led House voted 218–211 along party lines to remove Omar from the Foreign Affairs Committee, citing her past remarks about Israel. Democrats called it partisan retaliation, and she was reassigned to the Budget Committee; Omar said she would not be silenced.`,
+        why:`A rare removal of a member from a major committee, rooted in her prior statements on Israel.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/watch-house-republicans-vote-to-oust-democrat-omar-from-foreign-affairs-committee' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 3 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 and wave-2 blocks above: purely additive,
+   negative-impact, sourced, neutrally-worded accountability records CONCAT-MERGED
+   onto window.ACCT_SPOTLIGHT so nothing existing is replaced. Balanced 5 Democrats
+   / 5 Republicans; each issueKey maps to an ISSUE_MAP topic for the Issue Spotlight
+   link. Say-vs-do items use category:'rhetoric' + tag 'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    vance: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'family_support',
+        headline:'Called Democrats "childless cat ladies," a remark he later regretted',
+        facts:`In a 2021 Fox News interview, Vance said the country was run by "childless cat ladies who are miserable at their own lives," naming Kamala Harris, Pete Buttigieg and AOC. The comment resurfaced when he joined the 2024 ticket; he first defended it as sarcasm, then wrote in a later memoir that it was "one of the dumbest things I ever said" and "a boneheaded comment."`,
+        why:`Widely covered remarks about people without children that he ultimately acknowledged were a mistake.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/jd-vance/vance-cat-ladies-comment-dumbest-things-book-rcna349325' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Once privately called Trump "America’s Hitler," then became his running mate',
+        facts:`In 2016 Vance, then a self-described "Never Trump guy," privately messaged that Trump might be "America's Hitler" and publicly called him "reprehensible," a "moral disaster" and an "idiot." He later said his view had changed, endorsed Trump and became his 2024 running mate and vice president. The old messages resurfaced repeatedly.`,
+        why:`One of the era's starkest critic-to-ally reversals, in his own earlier words.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/vance-trump-hitler-quote/' } }
+    ],
+    rick_scott: [
+      { impact:'negative', category:'legal', date:'1997', tags:['Accountability'], issueKey:'healthcare',
+        headline:'Led the hospital chain behind a record Medicare-fraud settlement',
+        facts:`Scott was CEO of Columbia/HCA when it became the target of the largest health-care fraud investigation in U.S. history; the company pleaded guilty to 14 felonies and paid more than $1.7 billion in fines for overbilling Medicare and Medicaid. Scott resigned in 1997 and was never personally charged; in a later civil deposition he invoked the Fifth Amendment 75 times. He says he was unfairly targeted.`,
+        why:`He now chairs the Senate Aging Committee, which oversees the programs his former company was found to have defrauded.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/factchecks/2014/mar/03/florida-democratic-party/rick-scott-rick-scott-oversaw-largest-medicare-fra/' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions'], issueKey:'social_security',
+        headline:'Proposed sunsetting all federal laws every 5 years — including Social Security',
+        facts:`Scott's 2022 "11-Point Plan to Rescue America" said "all federal legislation sunsets in 5 years," which critics warned would put Social Security and Medicare at risk, and called for all Americans to pay some income tax. Fellow Republican Mitch McConnell publicly rejected it, saying it would not be part of the GOP agenda. Scott later revised the plan to exempt those programs.`,
+        why:`A signature agenda item his own party leader disavowed over its threat to entitlement programs.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/mcconnell-knocks-gop-sen-rick-scotts-plan-sunset-federal-programs-spar-rcna70065' } }
+    ],
+    graham: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'Said "use my words against me" on election-year seats, then confirmed Barrett',
+        facts:`In 2016 and again in 2018 Graham vowed that a Supreme Court vacancy in a president's election year should be left to the next president, saying, "Use my words against me." After Justice Ginsburg died weeks before the 2020 election, Graham — as Judiciary chair — moved to confirm Amy Coney Barrett, saying the rules had "changed" after the Kavanaugh fight.`,
+        why:`He explicitly invited the public to hold him to a standard he then reversed.`,
+        source:{ label:'NPR', url:'https://www.npr.org/sections/death-of-ruth-bader-ginsburg/2020/09/19/914774433/use-my-words-against-me-lindsey-graham-s-shifting-position-on-court-vacancies' } },
+      { impact:'negative', category:'rhetoric', date:'2015', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Called Trump a "race-baiting, xenophobic bigot," then became a top ally',
+        facts:`As a 2016 rival, Graham said "you know how you make America great again? Tell Donald Trump to go to hell" and called him a "race-baiting, xenophobic, religious bigot." After Trump won, Graham became one of his closest allies and golf partners and defended him against accusations of racism, saying he had never heard Trump make a racist statement.`,
+        why:`A striking about-face from one of Trump's harshest 2016 critics to a leading defender.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/lindsey-graham-trump-bigot/' } }
+    ],
+    hawley: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'First senator to announce he would object to certifying the 2020 election',
+        facts:`On December 30, 2020, Hawley became the first senator to say he would object to certifying Biden's Electoral College win, forcing a floor debate that GOP leaders had hoped to avoid. He cited Pennsylvania's election procedures and alleged big-tech interference; no credible evidence of decisive fraud was presented, and the objections were rejected by both chambers on January 6.`,
+        why:`His objection helped trigger the contested certification vote at the center of January 6.`,
+        source:{ label:'NPR', url:'https://www.npr.org/sections/biden-transition-updates/2020/12/30/951430323/gop-sen-hawley-will-object-to-electoral-college-certification' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Raised a fist to the Jan. 6 crowd, then was filmed fleeing the mob',
+        facts:`On January 6, 2021, Hawley raised a fist in solidarity toward protesters outside the Capitol — a gesture a Capitol Police officer testified "riled up the crowd." Hours later, Jan. 6 committee footage showed him running through the Capitol to escape the same rioters. Hawley said he did not regret his actions and called the footage a political stunt.`,
+        why:`The contrast between the salute and the flight became one of the day's most-replayed images.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/josh-hawley-seen-fleeing-trump-mob-riled-newly-released-jan-6-footage-rcna39490' } }
+    ],
+    cruz: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'disaster_resilience',
+        headline:'Flew to Cancún as Texans froze in a deadly winter storm',
+        facts:`During the February 2021 winter storm that left millions of Texans without power and killed dozens, Cruz flew to Cancún for a family trip — days after urging residents to "stay home." He returned amid backlash and calls to resign, calling the trip "obviously a mistake." He had previously mocked Democratic officials who broke their own COVID guidance as "hypocrites."`,
+        why:`A vivid words-vs-actions episode: he told Texans to stay home, then left the state during the crisis.`,
+        source:{ label:'The Texas Tribune', url:'https://www.texastribune.org/2021/02/18/ted-cruz-cancun-power-outage/' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Told the 2016 convention to "vote your conscience," then endorsed Trump',
+        facts:`At the 2016 Republican convention, Cruz pointedly declined to endorse Trump — who had insulted his wife and father — telling delegates to "vote your conscience" and drawing loud boos. He had called Trump a "pathological liar." Weeks later Cruz endorsed him, and he went on to become one of Trump's staunchest Senate allies.`,
+        why:`A public refusal to endorse, reversed within weeks, from a former rival.`,
+        source:{ label:'ABC News', url:'https://abcnews.go.com/Politics/ted-cruz-booed-failing-endorse-donald-trump-vote/story?id=40755265' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    letitia_james: [
+      { impact:'negative', category:'redflags', date:'2018', tags:['Public Statements'], issueKey:'gov_transparency',
+        headline:'Campaigned on a promise to investigate Trump',
+        facts:`After her 2018 election as New York attorney general, James said she would "use every area of the law to investigate President Trump and his business transactions and that of his family." She later won a civil fraud judgment against Trump; he cited her campaign statements to argue the case was a politically motivated "witch hunt."`,
+        why:`Pledging to investigate a specific person became central to accusations that her office acted politically.`,
+        source:{ label:'Spectrum News NY1', url:'https://ny1.com/nyc/all-boroughs/politics/2018/12/24/how-letitia-james-says-she-plans-to-investigate-president-donald-trump-once-new-york-attorney-general' } },
+      { impact:'negative', category:'legal', date:'2025', tags:['Accountability'], issueKey:'gov_transparency',
+        headline:'Indicted for mortgage fraud in a case that later collapsed',
+        facts:`In 2025 a Trump-administration referral led to a federal mortgage-fraud indictment alleging James misstated a Virginia property's use to get better loan terms. James pleaded not guilty, called it "a tool of revenge," and the prosecution unraveled: a judge dismissed the initial charges over an unlawfully appointed prosecutor, and a grand jury later declined to return a new indictment.`,
+        why:`A criminal case against a sitting attorney general — one critics on both sides scrutinized, and that courts and grand jurors rejected.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/10/10/politics/letitia-james-case-explained' } }
+    ],
+    jb_pritzker: [
+      { impact:'negative', category:'legal', date:'2018', tags:['Accountability'], issueKey:'property_tax',
+        headline:'Removed a mansion’s toilets in a property-tax break a watchdog called "a scheme to defraud"',
+        facts:`A Cook County inspector-general report found the Pritzkers had toilets removed from a vacant Gold Coast mansion to make it "uninhabitable" and win a lower assessment, yielding about $331,000 in tax breaks — which the report called part of "a scheme to defraud." Amid his 2018 campaign, Pritzker repaid the money; a later FBI inquiry brought no charges.`,
+        why:`A watchdog found the tax maneuver improper, and Pritzker repaid the savings.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2018/10/03/654201077/illinois-gov-candidate-removed-mansions-toilets-to-dodge-taxes-report-finds' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Pledged to veto politician-drawn maps, then signed a Democratic gerrymander',
+        facts:`As a 2018 candidate, Pritzker pledged to veto any legislative map "drawn by politicians" and said he "100% opposed gerrymandering." In 2021 he signed Democratic-drawn legislative maps that a mapmaker acknowledged considered "partisan advantage." Pritzker said the maps complied with voting-rights law; Republicans and reform groups accused him of breaking his promise, and the legislative map was later redrawn after a court challenge.`,
+        why:`He signed the kind of politician-drawn map he had explicitly promised to veto.`,
+        source:{ label:'Chicago Sun-Times', url:'https://chicago.suntimes.com/2021/6/4/22519290/pritzker-signs-new-legislative-maps-remap-boundaries-redistricting-census-democrat-republican' } }
+    ],
+    maxine_waters: [
+      { impact:'negative', category:'redflags', date:'2018', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Urged supporters to confront Trump officials in public',
+        facts:`Amid the 2018 family-separation controversy, Waters told a Los Angeles rally that if supporters saw Trump cabinet officials "in a restaurant, in a department store, at a gasoline station, you get out and you create a crowd and you push back on them." The remarks drew criticism from Republicans and some Democrats, including Chuck Schumer; Waters said she was not calling for violence.`,
+        why:`Calls to confront officials in public drew bipartisan pushback over civility and safety.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2018/06/25/politics/maxine-waters-trump-officials' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'"Get more confrontational" remark during the Chauvin trial drew a judge’s warning',
+        facts:`Before the Derek Chauvin verdict in April 2021, Waters told protesters to "get more confrontational" if there was no conviction. The trial judge called the comments "abhorrent" and said they could give the defense grounds for appeal, though he denied a mistrial and Chauvin was convicted. A GOP censure effort failed; Waters said she meant nonviolent confrontation in the civil-rights tradition.`,
+        why:`A judge in a high-profile murder trial said her comments could jeopardize the verdict on appeal.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/04/19/politics/judge-derek-chauvin-maxine-waters-mistrial-appeal/index.html' } }
+    ],
+    aoc: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'econ_corp_account',
+        headline:'Wore a "Tax the Rich" dress to the elite Met Gala, later found to breach gift rules',
+        facts:`Ocasio-Cortez wore a "Tax the Rich" gown to the 2021 Met Gala, where tickets run at least $30,000. After a years-long inquiry, the House Ethics Committee found in 2025 that she failed to fully comply with gift rules — accepting free admission for her partner and underpaying for some items — and ordered nearly $3,000 in additional payments, though it found no intent to underpay.`,
+        why:`An ethics panel found gift-rule violations tied to an appearance she framed as an anti-wealth statement.`,
+        source:{ label:'NBC New York', url:'https://www.nbcnewyork.com/news/local/aoc-met-gala-dress-house-ethics-panel/6348690/' } },
+      { impact:'negative', category:'redflags', date:'2019', tags:['Notable Actions'], issueKey:'econ_growth',
+        headline:'Helped scuttle Amazon’s HQ2 deal in Queens',
+        facts:`In 2019 Ocasio-Cortez was a prominent opponent of Amazon's planned Long Island City headquarters and its ~$3 billion in incentives; when Amazon pulled out, she celebrated the reversal. Critics blamed her for the loss of a project projected at 25,000+ jobs, though other officials also opposed it and the site was outside her district. She has said "we were right."`,
+        why:`Her opposition to a major jobs deal remains a debated mark on her economic record.`,
+        source:{ label:'TIME', url:'https://time.com/5530386/aoc-amazon-new-york-hq2/' } }
+    ],
+    crockett: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Called Gov. Abbott "Governor Hot Wheels," drawing censure threats',
+        facts:`At a March 2025 Human Rights Campaign dinner, Crockett referred to Texas Gov. Greg Abbott — who has used a wheelchair for 40 years — as "Governor Hot Wheels." Republicans and disability advocates condemned the remark, and a censure motion was drafted. Crockett said she was mocking Abbott's migrant-busing policies, not his disability.`,
+        why:`Widely criticized comments about a governor's disability that prompted a censure effort.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/rep-jasmine-crockett-defends-governor-hot-wheels-comments/story?id=120167133' } },
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'"Bleach blonde bad built butch body" jab at a colleague drew mixed backlash',
+        facts:`During a heated May 2024 House Oversight hearing, after Rep. Marjorie Taylor Greene mocked her "fake eyelashes," Crockett referred to "somebody's bleach blonde bad built butch body." The exchange went viral; her campaign moved to trademark the phrase and sold merchandise. Some LGBTQ advocates criticized the word "butch," and Crockett later said she meant no harm to the community.`,
+        why:`A viral personal insult on the House floor that even some allies criticized.`,
+        source:{ label:'The Hill', url:'https://thehill.com/blogs/in-the-know/4677117-jasmine-crockett-trademark-bleach-blonde-bad-built-butch-body-marjorie-taylor-greene/' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 4 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 through wave-3 blocks above: purely
+   additive, negative-impact, sourced, neutrally-worded accountability records
+   CONCAT-MERGED onto window.ACCT_SPOTLIGHT so nothing existing is replaced.
+   Balanced 5 Democrats / 5 Republicans; each issueKey maps to an ISSUE_MAP topic
+   for the Issue Spotlight link. Say-vs-do items use category:'rhetoric' + tag
+   'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    noem: [
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements','Accountability'], issueKey:'',
+        headline:'Wrote in her memoir that she shot and killed her family dog',
+        facts:`In her 2024 memoir, Noem recounted shooting a 14-month-old dog named Cricket, which she called "untrainable" and aggressive after it ruined a hunt and killed a neighbor's chickens, along with a goat, in a gravel pit. The passage drew bipartisan backlash; Noem did not back down, saying South Dakota law allowed putting down a dog that attacked livestock. The episode was widely seen as damaging her vice-presidential prospects.`,
+        why:`A self-described act she recounted in her own book that drew widespread condemnation.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/politics/2024/04/27/kristi-noem-dog-shooting/' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Publisher pulled a Kim Jong Un anecdote from her book after accuracy questions',
+        facts:`The same memoir claimed Noem had met North Korean leader Kim Jong Un — "I'm sure he underestimated me." After reporters found no record of any such meeting, her publisher said it would remove the passage at her request, and her office said Kim "shouldn't have been" included. In interviews, Noem repeatedly declined to say whether the meeting occurred.`,
+        why:`A vivid claim about a world leader that was retracted after its accuracy could not be supported.`,
+        source:{ label:'The Hill', url:'https://thehill.com/blogs/blog-briefing-room/4645807-kristi-noem-north-korea-kim-jong-un-meeting-book/' } }
+    ],
+    rubio: [
+      { impact:'negative', category:'rhetoric', date:'2015', tags:['Rhetoric vs Reality'], issueKey:'immigration_reform',
+        headline:'Co-wrote the 2013 immigration overhaul, then said it was "never meant to pass"',
+        facts:`Rubio was a lead author of the 2013 bipartisan "Gang of Eight" immigration bill, which offered a path to citizenship and passed the Senate. As he ran for president in 2016, he distanced himself from it, saying it was never intended to become law and that a comprehensive approach "can't be done." Critics including President Obama said he was "running away" from his own bill.`,
+        why:`He retreated from the signature legislative achievement he had personally championed.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/2016-election/rubio-gang-8-bill-never-intended-become-law-n518936' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Called Trump a "con artist," then became his Secretary of State',
+        facts:`During the 2016 primary Rubio called Trump a "con artist" who couldn't be trusted with the nuclear codes and mocked him personally. He endorsed Trump months later while saying he stood by "everything" he'd said, and over the following years became a loyal ally — culminating in his 2024 nomination as Secretary of State.`,
+        why:`One of the era's sharpest critic-to-ally reversals, in his own earlier words.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/11/17/1213718584/from-trump-opponent-to-trump-loyalist-the-evolution-of-marco-rubio' } }
+    ],
+    rand_paul: [
+      { impact:'negative', category:'voting', date:'2019', tags:['Notable Actions'], issueKey:'',
+        headline:'Blocked fast-track passage of the 9/11 Victim Compensation Fund',
+        facts:`In July 2019 Paul objected to swiftly passing a bill to keep the September 11th Victim Compensation Fund solvent, citing the federal debt and demanding offsetting spending cuts. Comedian and first-responder advocate Jon Stewart called the move "outrageous." Paul said he only wanted a vote on an amendment; the bill ultimately passed.`,
+        why:`A high-profile use of one senator's power to delay funding for 9/11 first responders.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/jon-stewart-slams-rand-paul-for-blocking-911-victim-compensation-funding-bill-as-another-first-responder-dies/' } },
+      { impact:'negative', category:'voting', date:'2022', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Single-handedly delayed $40B in Ukraine aid',
+        facts:`In May 2022 Paul blocked the Senate from fast-tracking a $40 billion Ukraine aid package, insisting on adding an inspector general to oversee the spending. Leaders of both parties urged quick passage and offered him a separate vote on his amendment, which he refused; the delay held up the aid for days before it passed. Paul said his oath was to U.S. national security, not "any foreign nation."`,
+        why:`His objection stalled broadly bipartisan wartime aid on stated fiscal-oversight grounds.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2022/05/12/politics/rand-paul-blocks-ukraine-aid/index.html' } }
+    ],
+    stefanik: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions','Accountability'], issueKey:'democracy_balance',
+        headline:'Objected to certifying the 2020 election and repeated false fraud claims',
+        facts:`Stefanik voted against certifying Pennsylvania's electoral votes on January 6–7, 2021, and told constituents she would object to four states' results. A CNN fact-check found her claims false, including an assertion that "more than 140,000 votes came from underage, deceased and otherwise unauthorized voters" in Fulton County, Georgia. She has continued to promote 2020 fraud claims.`,
+        why:`A recorded objection to certification paired with statements fact-checkers rated false.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/05/06/politics/fact-check-stefanik-big-lie-election-trump' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Recast herself from moderate to staunch Trump ally',
+        facts:`Elected in 2015 as one of the House's more moderate Republicans, Stefanik pivoted sharply after Trump's 2020 loss, joining the effort to object to certification and rising to the fourth-ranking House GOP leadership post. Former colleagues and mentors said the shift surprised them; she said in 2024 she "would not have done what Mike Pence did."`,
+        why:`A rapid ideological realignment that former allies and mentors publicly questioned.`,
+        source:{ label:'TIME', url:'https://time.com/6046674/elise-stefanik-liz-cheney-republican/' } }
+    ],
+    mike_johnson: [
+      { impact:'negative', category:'voting', date:'2020', tags:['Notable Actions','Accountability'], issueKey:'democracy_balance',
+        headline:'Organized the House amicus brief backing a suit to overturn the 2020 election',
+        facts:`Before becoming Speaker, Johnson rounded up more than 100 House Republicans to sign an amicus brief supporting Texas's lawsuit asking the Supreme Court to invalidate Biden's wins in four states — emailing colleagues that Trump was "anxiously awaiting the final list." The Court quickly rejected the suit, and Johnson voted against certifying the results after the Capitol was stormed.`,
+        why:`He led a central legal effort to overturn the 2020 result, which courts rejected.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/the-new-u-s-house-speaker-tried-to-help-overturn-the-2020-election-raising-concerns-about-2024' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'privacy_rights',
+        headline:'Backed warrantless-surveillance renewal he had earlier opposed',
+        facts:`As a rank-and-file member Johnson had supported warrant requirements to rein in FISA Section 702 surveillance. As Speaker he pushed to reauthorize the program without a broad warrant mandate, prompting fellow Republicans to note it reversed "the position that the speaker used to hold." An initial version collapsed when 20 Republicans joined Democrats to defeat it.`,
+        why:`A reversal on warrantless surveillance that his own conservative colleagues flagged.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2026/04/24/nx-s1-5797964/after-2-failed-votes-mike-johnson-unveils-new-plan-to-extend-key-u-s-spy-powers' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    warren: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Native American ancestry claims and a DNA test drew backlash and an apology',
+        facts:`After years of citing Native American heritage as "family lore" — and amid Trump's "Pocahontas" taunts — Warren released a 2018 DNA test suggesting a distant ancestor. The Cherokee Nation called using DNA to claim tribal connection "inappropriate and wrong." Warren apologized to the tribe in 2019, saying "tribes and only tribes determine tribal citizenship." She says she never used the claim to advance her career.`,
+        why:`A long-running identity controversy that she ultimately apologized for handling insensitively.`,
+        source:{ label:'FactCheck.org', url:'https://www.factcheck.org/2018/10/the-facts-on-elizabeth-warrens-dna-test/' } },
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'Listed her race as "American Indian" on a 1986 Texas Bar card',
+        facts:`In 2019 the Washington Post reported that Warren had handwritten "American Indian" as her race on a 1986 State Bar of Texas registration card — the first such document in her own hand. Her team did not dispute it; Warren said it reflected family stories and apologized for "furthering confusion about tribal citizenship," extending her apology to having identified as Native American at Harvard and Penn.`,
+        why:`A documented instance of the heritage claim she later acknowledged was a mistake.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2019/02/05/politics/warren-american-indian-texas-bar' } }
+    ],
+    warnock: [
+      { impact:'negative', category:'rhetoric', date:'2022', tags:['Rhetoric vs Reality','Accountability'], issueKey:'housing',
+        headline:'A church-affiliated building pursued evictions as he decried evictions',
+        facts:`During his 2022 campaign, reporting showed that a low-income Atlanta apartment building 99%-owned by Warnock's Ebenezer Baptist Church — which pays him a housing allowance — filed eviction actions against tenants over debts as small as $28.55, with two court-ordered removals during the pandemic. Warnock said "there have been no evictions, full stop," and called the story a political attack.`,
+        why:`Court records of the church-linked evictions sat awkwardly against his public anti-eviction stance.`,
+        source:{ label:'WTVM', url:'https://www.wtvm.com/2022/10/18/raphael-warnock-his-church-accused-evicting-low-income-tenants/' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Accountability'], issueKey:'',
+        headline:'Faced campaign scrutiny over a dispute with his ex-wife and a custody fight',
+        facts:`In a March 2020 dispute, Warnock's ex-wife told police he ran over her foot with his car; responding officers found no injury and no charges were filed. In 2022 she asked a court to hold him in contempt over their custody agreement, and a judge ordered mediation. Warnock denied wrongdoing; the couple later moved to seal the custody records.`,
+        why:`Personal-conduct allegations that surfaced in his campaigns, though police found no evidence of the foot claim.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2022/sep/08/fact-checking-herschel-walker-attack-ad-about-raph/' } }
+    ],
+    wes_moore: [
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Claimed a Bronze Star on a 2006 application he had not been awarded',
+        facts:`A 2024 New York Times report found that on his 2006 White House Fellowship application Moore wrote he had been awarded the Bronze Star, which he had not received. Moore said a superior officer had told him to list it and called it "an honest mistake," taking "full accountability." He was formally awarded a Bronze Star in 2024, 18 years after his Afghanistan deployment.`,
+        why:`He stated a military honor on an official application before it had been awarded.`,
+        source:{ label:'The Baltimore Banner', url:'https://www.thebanner.com/politics-power/state-government/wes-moore-bronze-star-mistake-E2N3DU62XFDNTBYY3ZK2LBNQOU/' } },
+      { impact:'negative', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'justice_balance',
+        headline:'Vetoed a reparations study bill, drawing backlash and an override',
+        facts:`In May 2025 Moore — the nation's only Black governor — vetoed a bill to create a commission studying reparations for descendants of enslaved people, saying it was "time to focus on the work itself" rather than another study. The veto drew sharp backlash from supporters, and in December 2025 the Democratic-led legislature overrode it to create the commission.`,
+        why:`A veto at odds with much of his party that lawmakers ultimately reversed.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/dc-md-va/2025/05/16/wes-moore-reparations-vetoe-maryland/' } }
+    ],
+    zohran_mamdani: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'foreign_balance',
+        headline:'Repeatedly declined to condemn the phrase "globalize the intifada"',
+        facts:`As a 2025 mayoral candidate, Mamdani repeatedly declined to condemn the slogan "globalize the intifada," saying a mayor's role is not "to police speech" and noting "intifada" can mean struggle. Fellow Democrats including Rep. Ritchie Torres said every official should condemn it. Mamdani later told business leaders he would "discourage" the phrase, while still not denouncing it.`,
+        why:`His refusal to condemn a slogan many consider a call to violence drew criticism from within his own party.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/07/16/politics/mamdani-business-leaders-meeting-new-york' } },
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'back_police',
+        headline:'Called to "defund" and "dismantle" the NYPD, then reversed as a candidate',
+        facts:`In 2020 Mamdani called the NYPD "wicked & corrupt" and urged "Defund it. Dismantle it." Running for mayor in 2025, after a deadly shooting that killed an NYPD officer, he said "I am not defunding the police," attributing the earlier rhetoric to "frustration" and "growth," and proposed a new Department of Community Safety instead.`,
+        why:`A sharp reversal from police abolition to "not defunding," which critics called opportunistic.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/07/31/politics/mamdani-defund-police-shooting' } }
+    ],
+    fetterman: [
+      { impact:'negative', category:'redflags', date:'2013', tags:['Accountability'], issueKey:'justice_balance',
+        headline:'As mayor, chased and detained an unarmed Black jogger with a shotgun',
+        facts:`In 2013, as mayor of Braddock, Fetterman heard what he thought was gunfire, pursued Christopher Miyares — an unarmed Black man in exercise clothes — in his truck and detained him with a shotgun until police arrived. Miyares said Fetterman aimed the gun at his chest; Fetterman denied pointing it or knowing the man's race and did not apologize, saying he "may have broken the law."`,
+        why:`A documented armed confrontation with an unarmed man that resurfaced during his Senate run.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/factchecks/2022/sep/12/american-leadership-action/ad-dissects-john-fettermans-2013-armed-chase-black/' } },
+      { impact:'negative', category:'redflags', date:'2025', tags:['Notable Actions'], issueKey:'',
+        headline:'Became the first Senate Democrat to meet Trump at Mar-a-Lago, angering his base',
+        facts:`In January 2025 Fetterman became the first sitting Senate Democrat to visit President-elect Trump at Mar-a-Lago, later calling him "kind" and "cordial," and went on to back several Trump nominees, including the lone Democratic vote to confirm Pam Bondi. Pennsylvania Democrats protested that he'd gone "to kiss the ring"; Fetterman said engaging was his job and he would not switch parties.`,
+        why:`His outreach to Trump drew sustained backlash from Democrats even as he insisted he remained one.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/sen-john-fetterman-trumps-executive-actions-visiting-mar/story?id=117934834' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 5 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 through wave-4 blocks above: purely
+   additive, negative-impact, sourced, neutrally-worded accountability records
+   CONCAT-MERGED onto window.ACCT_SPOTLIGHT so nothing existing is replaced.
+   Balanced 5 Democrats / 5 Republicans; each issueKey maps to an ISSUE_MAP topic
+   for the Issue Spotlight link. Say-vs-do items use category:'rhetoric' + tag
+   'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    patel: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements','Accountability'], issueKey:'gov_transparency',
+        headline:'His book "Government Gangsters" included a 60-name "deep state" list',
+        facts:`Before becoming FBI Director, Patel's book "Government Gangsters" listed 60 people he labeled members of the "Executive Branch Deep State," and he said on a podcast, "We will go out and find the conspirators, not just in government, but in the media." Critics called it an enemies list; Patel rejected that term at his confirmation hearing. Several people named later faced federal scrutiny.`,
+        why:`A published target list from the person now leading the FBI raised concerns about politicized investigations.`,
+        source:{ label:'Roll Call', url:'https://rollcall.com/2024/12/09/trumps-pick-to-lead-fbi-identified-government-gangsters/' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality','Accountability'], issueKey:'gov_transparency',
+        headline:'Used the FBI jet for personal trips after criticizing his predecessor for the same',
+        facts:`In 2025 Patel drew scrutiny for using an FBI jet for personal travel, including a trip to see his girlfriend perform at a wrestling event and to Nashville where she lives, prompting a House Democratic probe. Patel said directors must fly government aircraft and reimburse personal use — but in 2023 he had said FBI Director Christopher Wray's "private jet that he pays for with taxpayer dollars" should be "grounded."`,
+        why:`His personal jet use directly echoed conduct he had publicly condemned in his predecessor.`,
+        source:{ label:'AOL', url:'https://www.aol.com/articles/kash-patel-scrambled-government-jet-183549057.html' } }
+    ],
+    ron_johnson: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements','Accountability'], issueKey:'healthcare',
+        headline:'Promoted unproven COVID treatments and vaccine doubts',
+        facts:`Johnson repeatedly promoted unproven COVID treatments such as ivermectin and hydroxychloroquine and cast doubt on vaccines; YouTube twice suspended his account for misinformation. In a December 2021 town hall he suggested gargling mouthwash could help against the virus, a claim so widely debunked that Listerine's maker publicly rejected it.`,
+        why:`Sustained promotion of discredited medical claims by a senator during a public-health emergency.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/health/2021/12/09/ron-johnson-mouthwash-covid/' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'His office tried to hand fake elector slates to Pence on Jan. 6',
+        facts:`The January 6 committee revealed that minutes before the certification, a Johnson aide texted Pence's office that the senator "needs to hand something to VPOTUS" — an "alternate slate of electors" for Michigan and Wisconsin — and Pence's staff replied, "Do not give that to him." Johnson first denied involvement, then said the fake slates came from Rep. Mike Kelly's office and he was merely a conduit.`,
+        why:`A documented attempt to route fraudulent elector slates into the certification.`,
+        source:{ label:'Forbes', url:'https://www.forbes.com/sites/nicholasreimann/2022/06/21/jan-6-hearings-wisconsin-sen-johnson-tried-to-give-pence-fake-slates-of-electors-committee-says/' } }
+    ],
+    ernst: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'healthcare',
+        headline:'Answered a Medicaid-cuts warning with "we all are going to die"',
+        facts:`At a May 2025 town hall, when an attendee shouted that people would die under proposed Medicaid cuts, Ernst replied, "Well, we all are going to die. For heaven's sakes, folks." Amid backlash she posted a sarcastic "apology" video filmed in what appeared to be a cemetery, deepening the criticism. She later said she is "very compassionate."`,
+        why:`A dismissive response — and mocking follow-up — to constituents' concerns about health-coverage cuts.`,
+        source:{ label:'The Gazette', url:'https://www.thegazette.com/government-politics/iowa-sen-joni-ernst-posts-sarcastic-apology-video-over-comment-on-medicaid-cuts/' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'healthcare',
+        headline:'Suggested COVID death counts were inflated for money',
+        facts:`In September 2020, agreeing with a constituent skeptical of the toll, Ernst said she was "so skeptical" of official COVID numbers and suggested providers were "reimbursed at a higher rate if COVID is tied to it." Fact-checkers noted the extra Medicare reimbursement — which Ernst herself had voted for 96-0 — was standard pandemic support, not fraud, and the death toll was likely undercounted.`,
+        why:`A sitting senator lending credence to a debunked conspiracy about the pandemic death toll.`,
+        source:{ label:'The Washington Post', url:'https://www.washingtonpost.com/politics/skeptical-ernst-suggests-covid-numbers-are-inflated/2020/09/02/64b2d66a-ed3c-11ea-bd08-1b10132b458f_story.html' } }
+    ],
+    scalise: [
+      { impact:'negative', category:'redflags', date:'2002', tags:['Accountability'], issueKey:'',
+        headline:'Spoke in 2002 to a white-nationalist group founded by David Duke',
+        facts:`In 2014 it emerged that Scalise, then a Louisiana state legislator, had spoken in 2002 to the European-American Unity and Rights Organization (EURO), a white-nationalist group founded by former KKK leader David Duke. A former Duke aide reportedly recalled Scalise describing himself as "David Duke without the baggage." Scalise said he did not know the group's nature and "detest[s] any kind of hate group"; he kept his leadership post.`,
+        why:`A documented appearance before a white-nationalist organization by a top House Republican.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/house-majority-whip-admits-he-addressed-white-supremacist-group/' } },
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Voted to object to certifying the 2020 election',
+        facts:`As House Republican Whip, Scalise voted to sustain objections to both Arizona's and Pennsylvania's electoral votes on January 6–7, 2021, after the Capitol was stormed; both objections were rejected. He argued some states had not followed their own election laws, and he has continued to decline to acknowledge the 2020 result as legitimate.`,
+        why:`A recorded vote against certification, part of the January 6 electoral-count fight.`,
+        source:{ label:'Ballotpedia', url:'https://ballotpedia.org/Steve_Scalise' } }
+    ],
+    cotton: [
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'',
+        headline:'His "Send in the Troops" op-ed triggered a New York Times upheaval',
+        facts:`During the 2020 George Floyd protests, the New York Times published Cotton's op-ed urging Trump to deploy active-duty military to quell unrest. Times staff revolted, saying it endangered Black colleagues, and the opinion editor — who admitted he hadn't read it before publication — resigned. Cotton said he meant the military only as a backstop against rioting.`,
+        why:`A call to send troops against protesters that set off one of the era's biggest newsroom controversies.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2020/06/07/871751084/nyt-editorial-page-editor-resigns-after-op-ed-backlash' } },
+      { impact:'negative', category:'redflags', date:'2020', tags:['Public Statements'], issueKey:'',
+        headline:'Described slavery as a "necessary evil" while promoting a bill',
+        facts:`Promoting a bill to defund schools teaching the 1619 Project, Cotton said the Founders viewed slavery as "the necessary evil upon which the union was built." The remark drew sharp criticism, including from Rep. Hakeem Jeffries, who called slavery "a crime against humanity." Cotton said he was describing the Founders' views, not his own.`,
+        why:`Widely criticized framing of slavery from a sitting senator, tied to his fight over how history is taught.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/tom-cotton-slavery-necessary-evil-1619-project/' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    jeffries: [
+      { impact:'negative', category:'redflags', date:'2017', tags:['Public Statements'], issueKey:'democracy_balance',
+        headline:'Called Trump’s 2016 win a "hoax" and referred to the "so-called" president',
+        facts:`From 2017 into 2018, Jeffries repeatedly questioned the legitimacy of Trump's 2016 victory — tweeting his election "may" have been a "hoax" and calling him the "so-called" president — citing Russian interference. Republicans later cited the comments to brand him an "election denier," a label news analyses called misleading since he did not dispute the vote counts.`,
+        why:`Statements from the future Democratic leader questioning a president's legitimacy that opponents turned back on him.`,
+        source:{ label:'TIME', url:'https://time.com/6238239/republicans-attack-hakeem-jeffries-misleading/' } },
+      { impact:'negative', category:'redflags', date:'1992', tags:['Public Statements','Accountability'], issueKey:'',
+        headline:'As a student, defended his uncle amid an antisemitism controversy',
+        facts:`A 1992 college editorial surfaced in which Jeffries, then a Binghamton student, defended his uncle Leonard Jeffries — a professor condemned for antisemitic remarks — and Nation of Islam leader Louis Farrakhan, questioning why a "ruling elite" would promote critics. CNN's reporting undercut Jeffries' later claim of only a "vague recollection" of the episode. He says he does not share his uncle's views, "not now, not ever."`,
+        why:`His own contemporaneous writing complicated his account of a family antisemitism controversy.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/04/12/politics/kfile-hakeem-jeffries-college-editorial-defending-uncle-from-antisemitism' } }
+    ],
+    gillibrand: [
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'immigration_reform',
+        headline:'Reversed her earlier hardline gun and immigration positions',
+        facts:`As an upstate House member (2007–09), Gillibrand was a Blue Dog with an NRA "A" rating who opposed "amnesty" and sanctuary cities. After being appointed to the Senate she moved sharply left on both guns and immigration. She has acknowledged the shift, saying her earlier views were wrong; critics on the left and right have called her a "flip-flopper."`,
+        why:`A pronounced reversal on signature issues that she herself has acknowledged.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2019/02/04/these-are-presidential-hopeful-kirsten-gillibrands-top-campaign-issues.html' } },
+      { impact:'negative', category:'redflags', date:'2017', tags:['Notable Actions'], issueKey:'',
+        headline:'Led the push for Al Franken to resign, a call some later questioned',
+        facts:`In December 2017 Gillibrand became the first senator to call for fellow Democrat Al Franken to resign over groping allegations, and dozens followed. Some Democrats, including Sen. Patrick Leahy, later expressed regret for not awaiting an ethics review, and Franken said he regretted resigning. Gillibrand has said she does not regret it and that female senators were unfairly blamed.`,
+        why:`Her role in ending a colleague's career without an ethics finding drew lasting second-guessing within her party.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/minnesota/news/kirsten-gillibrand-female-senators-unfairly-blamed-for-al-frankens-senate-exit/' } }
+    ],
+    whitehouse: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'A racial-justice champion, he kept membership in an allegedly all-white club',
+        facts:`Whitehouse, a vocal advocate for racial and economic justice, faced scrutiny in 2021 over his family's decades-long membership in Bailey's Beach Club, an exclusive Newport club a local outlet described as all-white. Asked about it, he said "the people who are running the place are still working on that" and that it was "not my position" to change it. The club disputed that its membership was whites-only.`,
+        why:`His membership in an exclusionary club sat awkwardly against his public racial-justice advocacy.`,
+        source:{ label:'The Hill', url:'https://thehill.com/homenews/senate/560400-the-weird-story-behind-sheldon-whitehouses-beach-club-furor/' } },
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'campaign_finance',
+        headline:'The Senate’s top "dark money" critic faced his own hypocrisy charges',
+        facts:`Whitehouse built a brand crusading against undisclosed "dark money," especially around judicial nominations. Critics noted liberal groups such as Demand Justice — part of a large undisclosed-donor network — spent heavily on his side, and that he said he would accept such money. Whitehouse argues he seeks universal disclosure rules that would apply to all sides, which is the point of his legislation.`,
+        why:`His acceptance of the same undisclosed spending he condemns drew persistent hypocrisy criticism.`,
+        source:{ label:'RealClearPolitics', url:'https://www.realclearpolitics.com/articles/2020/07/21/sen_whitehouses_dark-money_dilemma_143758.html' } }
+    ],
+    sanders: [
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'',
+        headline:'The anti-millionaire champion owns three homes and became a millionaire',
+        facts:`Sanders, a fierce critic of millionaires and billionaires, bought a roughly $575,000 lakefront summer home in 2016 — his third property, alongside homes in Burlington and Washington — and later became a millionaire largely through book sales. At a 2020 debate, Michael Bloomberg called him "a millionaire with three houses"; Sanders said one is a "summer camp" and that he doesn't "give a damn" about money.`,
+        why:`A recurring tension between his anti-wealth message and his own finances.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/news/2016/08/10/bernie-sanders-buys-summer-home/' } },
+      { impact:'negative', category:'legal', date:'2017', tags:['Accountability'], issueKey:'',
+        headline:'His wife’s Burlington College loan drew a years-long FBI inquiry',
+        facts:`Jane Sanders, as president of Burlington College, obtained a roughly $10 million loan in 2010; she was later accused of inflating pledged donations to secure it, and the college closed in 2016. An FBI investigation — begun after a complaint by a Vermont Trump-campaign official — examined the loan and whether Bernie Sanders's office intervened. The couple hired lawyers; the probe closed without charges. Sanders called it a "pathetic" political attack.`,
+        why:`A federal inquiry touching the senator's family and office, which ended without charges.`,
+        source:{ label:'The Times of Israel', url:'https://www.timesofisrael.com/bernie-sanders-and-wife-hire-lawyers-as-fbi-probes-10m-loan/' } }
+    ],
+    jayapal: [
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Rhetoric vs Reality'], issueKey:'foreign_balance',
+        headline:'Called Israel a "racist state," then walked it back',
+        facts:`At a July 2023 progressive conference, responding to protesters, Jayapal — chair of the Progressive Caucus — said "Israel is a racist state." More than 40 House Democrats condemned the remark and the House passed a pro-Israel resolution. Jayapal apologized "to those who I have hurt," clarifying she does not believe "the idea of Israel as a nation is racist" but that Netanyahu's government had pursued "racist policies."`,
+        why:`A charged characterization she retracted within days after bipartisan criticism.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/rep-pramila-jayapal-walks-back-comments-calling-israel-racist-state-rcna94600' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Her caucus’s Ukraine-diplomacy letter was retracted a day after release',
+        facts:`In October 2022 Jayapal's Progressive Caucus released a letter urging President Biden to pursue "direct diplomacy" with Russia over Ukraine. After furious backlash from Democrats who felt blindsided weeks before the midterms, Jayapal withdrew it the next day, saying it had been "drafted several months ago" but "released by staff without vetting." Even some signatories said they didn't know why it went out.`,
+        why:`A high-profile foreign-policy misfire the caucus reversed within 24 hours.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2022/10/25/politics/pramila-jayapal-ukraine-letter-democratic-backlash/index.html' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
