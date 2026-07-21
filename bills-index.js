@@ -168,5 +168,23 @@ window.PDX_BILLS_INDEX = [
     keywords: 'deterrent act foreign gifts universities higher education section 117 disclosure china iran ' +
       'north korea russia endowment title iv baumgartner campus foreign influence transparency',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1048', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1919', title: 'Anti-CBDC Surveillance State Act', shortTitle: 'Anti-CBDC Surveillance State Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'privacy_rights',
+    issueKeys: ['privacy_rights', 'gov_balance', 'tech_balance'], isOmnibus: false,
+    keywords: 'anti cbdc surveillance state act central bank digital currency federal reserve digital dollar ' +
+      'financial privacy emmer crypto week retail accounts',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1919', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 3633', title: 'Digital Asset Market Clarity Act of 2025', shortTitle: 'CLARITY Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'tech_innovation',
+    issueKeys: ['tech_innovation', 'gov_regulation', 'econ_growth'], isOmnibus: false,
+    keywords: 'clarity act digital asset market structure crypto cryptocurrency cftc sec regulation ' +
+      'french hill thompson crypto week blockchain digital commodity',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/3633', label: 'Congress.gov' }
   }
 ];
