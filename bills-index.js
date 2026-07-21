@@ -10,6 +10,11 @@
 // intentionally omitted here (serial ids are DB-assigned and only known from the
 // live response); cards from this inline set open via their canonical `source.url`.
 // Fields and issue tags match the seed migrations exactly, so the chips are correct.
+//
+// `keywords` is an additive, search-only field (not rendered on the card). It feeds
+// the All-Seeing-Eye haystack so a bill is reachable by the plain-language terms
+// people actually type — topics, nicknames, key people, and provisions — beyond its
+// formal title and issue tags. Nothing reads it except the search index build.
 window.PDX_BILLS_INDEX = [
   {
     number: 'H.R. 1', title: 'One Big Beautiful Bill Act', shortTitle: 'One Big Beautiful Bill Act',
@@ -19,18 +24,21 @@ window.PDX_BILLS_INDEX = [
       'climate_action', 'tax_middle_class', 'deportations', 'lands_energy', 'strong_defense',
       'energy_production', 'family_support', 'edu_college_cost', 'school_choice'],
     isOmnibus: true,
+    keywords: 'obbba one big beautiful bill reconciliation taxes tax cuts spending megabill omnibus budget medicaid border energy',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1', label: 'Congress.gov' }
   },
   {
     number: 'H.R. 29', title: 'Laken Riley Act', shortTitle: 'Laken Riley Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
     primaryIssue: 'deportations', issueKeys: ['deportations', 'border_security'], isOmnibus: true,
+    keywords: 'laken riley immigration detention deportation border ICE crime immigrant',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/29', label: 'Congress.gov' }
   },
   {
     number: 'H.R. 26', title: 'Protecting American Energy Production Act', shortTitle: 'Protecting American Energy Production Act',
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'enviro_energy', issueKeys: ['enviro_energy', 'energy_production'], isOmnibus: true,
+    keywords: 'fracking hydraulic fracturing oil gas drilling energy production moratorium',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/26', label: 'Congress.gov' }
   },
   {
@@ -38,6 +46,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
     primaryIssue: 'gov_services',
     issueKeys: ['gov_services', 'strong_defense', 'cut_spending', 'national_debt'], isOmnibus: true,
+    keywords: 'continuing resolution CR government shutdown funding appropriations spending FY2025 stopgap',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1968', label: 'Congress.gov' }
   },
   {
@@ -45,6 +54,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
     primaryIssue: 'election_integrity',
     issueKeys: ['election_integrity', 'voter_id', 'voting_access'], isOmnibus: true,
+    keywords: 'save act voter registration proof of citizenship noncitizen voting elections voter id',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/22', label: 'Congress.gov' }
   },
   {
@@ -52,6 +62,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'house', congress: 119, status: 'passed_senate',
     primaryIssue: 'national_debt',
     issueKeys: ['national_debt', 'cut_spending', 'lower_taxes'], isOmnibus: true,
+    keywords: 'budget resolution reconciliation fiscal year 2025 deficit debt spending instructions',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14', label: 'Congress.gov' }
   },
   {
@@ -59,6 +70,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'house', congress: 119, status: 'enacted',
     primaryIssue: 'gov_regulation',
     issueKeys: ['gov_regulation', 'tech_innovation'], isOmnibus: true,
+    keywords: 'crypto defi digital asset broker irs reporting cra congressional review act regulation blockchain',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-joint-resolution/25', label: 'Congress.gov' }
   },
   {
@@ -66,6 +78,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'passed_senate',
     primaryIssue: 'tariffs_authority',
     issueKeys: ['tariffs_authority', 'econ_trade', 'tariffs_prices'], isOmnibus: true,
+    keywords: 'tariffs canada trade emergency ieepa import taxes prices trade war',
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37', label: 'Congress.gov' }
   },
   {
@@ -73,6 +86,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'senate', congress: 119, status: 'failed',
     primaryIssue: 'restraint',
     issueKeys: ['restraint', 'america_first_fp', 'strong_defense'], isOmnibus: true,
+    keywords: 'iran war powers military force authorization foreign policy middle east strikes',
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59', label: 'Congress.gov' }
   },
   {
@@ -80,6 +94,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'bill', chamber: 'senate', congress: 119, status: 'passed_senate',
     primaryIssue: 'tax_middle_class',
     issueKeys: ['tax_middle_class', 'cost_living', 'lower_taxes'], isOmnibus: true,
+    keywords: 'no tax on tips tipped workers service workers taxes deduction wages cost of living',
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-bill/129', label: 'Congress.gov' }
   },
   {
@@ -87,6 +102,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'house', congress: 119, status: 'enacted',
     primaryIssue: 'climate_action',
     issueKeys: ['climate_action', 'energy_production', 'gov_regulation'], isOmnibus: true,
+    keywords: 'ev mandate electric vehicles california clean cars epa waiver emissions cra congressional review',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-joint-resolution/88', label: 'Congress.gov' }
   },
   {
@@ -94,6 +110,7 @@ window.PDX_BILLS_INDEX = [
     measureType: 'resolution', chamber: 'house', congress: 119, status: 'enacted',
     primaryIssue: 'climate_action',
     issueKeys: ['climate_action', 'energy_production', 'gov_regulation'], isOmnibus: true,
+    keywords: 'clean trucks california epa waiver diesel emissions trucking cra congressional review',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-joint-resolution/89', label: 'Congress.gov' }
   },
   {
@@ -101,6 +118,10 @@ window.PDX_BILLS_INDEX = [
     measureType: 'bill', chamber: 'house', congress: 119, status: 'introduced',
     primaryIssue: 'rural_ag',
     issueKeys: ['rural_ag', 'family_support', 'enviro_balance', 'econ_corp_account', 'property_rights'], isOmnibus: true,
+    keywords: 'farm bill 2026 farm food and national security act agriculture farmers crop insurance commodity ' +
+      'reference prices snap nutrition food stamps conservation rural pesticide liability pesticide shield ' +
+      'failure to warn state preemption local preemption sections 10205 10206 10207 pingree luna massie ' +
+      'bipartisan amendment reauthorization',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/7567', label: 'Congress.gov' }
   }
 ];

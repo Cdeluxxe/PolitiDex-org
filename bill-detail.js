@@ -298,6 +298,13 @@
 
   function relatedSection(m, issues) {
     var parts = [];
+    // Link back into the central discovery hub: searching the bill number in the
+    // All-Seeing Eye surfaces this bill alongside every related politician, issue and
+    // Spotlight in one place. Always available (a bill always has a number).
+    if (m && m.number) {
+      parts.push('<div class="bd-rel-group"><div class="bd-rel-lab">Find everything connected</div>' +
+        '<button type="button" class="bd-btn bd-eye" data-eye="' + escAttr(m.number) + '">🔍 Search this in the All-Seeing Eye</button></div>');
+    }
     // Explore-these-issues jump chips + a link back into the Legislation library,
     // filtered to this bill's primary issue. Always available when the bill has issues.
     if (issues && issues.length) {
@@ -347,6 +354,24 @@
   }
 
   // ── render ──────────────────────────────────────────────────────────────────
+  // A compact "at a glance" strip of stat chips under the header — the shape of the
+  // bill in one scannable row (how many issues it bundles, how much of a record it
+  // has, where it stands). Purely presentational; everything is data already loaded.
+  function glanceStrip(m, issues, data) {
+    var chips = [];
+    if (issues && issues.length >= 2) chips.push('<span class="bd-glance bd-glance-omni">📦 ' + issues.length + ' issues bundled</span>');
+    var rcs = (data.rollcalls || []);
+    if (rcs.length) chips.push('<span class="bd-glance">🗳️ ' + rcs.length + ' roll call' + (rcs.length !== 1 ? 's' : '') + '</span>');
+    var votes = 0; rcs.forEach(function (r) { votes += (r.votes || []).length; });
+    if (votes) chips.push('<span class="bd-glance">👥 ' + votes + ' recorded votes</span>');
+    var prov = (data.provisions || []).length;
+    if (prov) chips.push('<span class="bd-glance">🧩 ' + prov + ' key provision' + (prov !== 1 ? 's' : '') + '</span>');
+    var pos = (data.positions || []).length;
+    if (pos) chips.push('<span class="bd-glance">👤 ' + pos + ' member action' + (pos !== 1 ? 's' : '') + '</span>');
+    if (m.status) chips.push('<span class="bd-glance">🚦 ' + esc(statusLabel(m.status)) + '</span>');
+    return chips.length ? '<div class="bd-glance-row">' + chips.join('') + '</div>' : '';
+  }
+
   function bodyHtml(data) {
     var m = data.measure || {};
     var issues = data.issues || [];
@@ -376,6 +401,7 @@
         (m.summary ? '<p class="bd-summary">' + esc(m.summary) + '</p>' : '') +
         src +
       '</div>' +
+      glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
       provisionsSection(m, data.provisions) +
       rollcallsSection(m, issues, data.rollcalls) +
@@ -411,6 +437,14 @@
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
       if (lb) { browseLegislation(lb.getAttribute('data-legis')); return; }
+      var eb = e.target.closest ? e.target.closest('[data-eye]') : null;
+      if (eb) {
+        var num = eb.getAttribute('data-eye');
+        close();
+        if (window.PDXEye && typeof window.PDXEye.search === 'function') window.PDXEye.search(num);
+        else if (window.PDXEye && typeof window.PDXEye.focus === 'function') window.PDXEye.focus();
+        return;
+      }
       var fb = e.target.closest ? e.target.closest('[data-bd-follow]') : null;
       if (fb) { toggleFollow(fb); return; }
       var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
@@ -490,23 +524,81 @@
       (src ? ' <a class="bd-src" href="' + escAttr(src) + '" target="_blank" rel="noopener">Open the official record →</a>' : '') + '</div>');
   }
 
+  // Minimal _current from a card, so follow / share / deep-link keep working in the
+  // lite fallback below.
+  function liteCurrent(card) {
+    return {
+      id: (card && card.id != null) ? card.id : null, number: (card && card.number) || '',
+      congress: (card && card.congress) || '', title: (card && (card.shortTitle || card.title || card.number)) || 'Bill',
+      status: (card && card.status) || '', chamber: (card && card.chamber) || '', source: (card && card.source) || null
+    };
+  }
+  // Fallback detail rendered entirely from the card we already have — used whenever
+  // the live measure (roll calls, sponsors, timeline) can't be fetched: the Voting
+  // Record API is momentarily unavailable, or the card came from the inline light
+  // index (which carries no DB id to resolve). A click then always opens something
+  // useful and fully sourced — the header, summary, the issue breakdown (each issue
+  // links to its Spotlight) and the official record — instead of a dead end.
+  function liteBodyHtml(card) {
+    var status = card.status ? '<span class="bd-status bd-s-' + esc(card.status) + '">' + esc(statusLabel(card.status)) + '</span>' : '';
+    var keys = (card.issueKeys || []).filter(Boolean);
+    var primary = card.primaryIssue || keys[0] || '';
+    var ordered = [];
+    (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
+    var omni = ordered.length >= 2 ? '<span class="bd-omnibadge">📦 ' + ordered.length + ' issues</span>' : '';
+    var meta = [chamberLabel(card.chamber), card.congress ? (card.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
+    var src = (card.source && card.source.url)
+      ? '<a class="bd-src bd-src-top" href="' + escAttr(card.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc((card.source && card.source.label) || 'Official record') + '</a>' : '';
+    var chips = ordered.map(function (k) {
+      return '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' + esc(issueLabel(k)) + '</button>';
+    }).join('');
+    var breakdown = ordered.length
+      ? '<section class="bd-sec"><h3 class="bd-h">📦 What’s inside this vote</h3>' +
+          '<p class="bd-lead">' + (ordered.length >= 2
+            ? 'This bill bundles <strong>' + ordered.length + ' issues</strong> into one vote — open any Spotlight to see where people stand.'
+            : 'Open the Spotlight to see where people stand.') + '</p>' +
+          '<div class="bd-lite-chips">' + chips + '</div></section>'
+      : '';
+    return '<div class="bd-head">' +
+        '<div class="bd-head-top"><span class="bd-num">' + esc(card.number || 'Measure') + '</span>' + status + omni + '</div>' +
+        '<h2 class="bd-title">' + esc(card.title || card.shortTitle || '') + '</h2>' +
+        (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
+        (card.summary ? '<p class="bd-summary">' + esc(card.summary) + '</p>' : '') +
+        src +
+      '</div>' +
+      breakdown +
+      '<section class="bd-sec"><p class="bd-empty">Live roll-call votes and sponsors aren’t available right now. ' +
+        (card.source && card.source.url ? 'Open the official record above for the full text.' : 'Please try again in a moment.') + '</p></section>';
+  }
+  // Show the lite panel for a card (sets _current + hash). Returns true when it could.
+  function showLite(card) {
+    if (!card) return false;
+    _current = liteCurrent(card);
+    show(liteBodyHtml(card));
+    syncHash();
+    return true;
+  }
+
   // Resolve a card ref (numeric id, or a bill number like "H.R. 1") to a measure id,
-  // then fetch + render. Falls back to the canonical source when detail can't load.
+  // then fetch + render. Falls back to a card-only lite panel whenever the live detail
+  // can't be loaded, so a click never dead-ends.
   function open(ref) {
     var bills = G('PDXBills');
-    if (!bills || typeof bills.get !== 'function') { // no client module → best-effort source
-      var c = bills && bills.listSync ? findByNumber(bills.listSync().items, ref) : null;
-      if (c && c.source && c.source.url) window.open(c.source.url, '_blank', 'noopener');
+    var inlineCard = (bills && bills.listSync) ? findByNumber(bills.listSync().items, ref) : null;
+    if (!bills || typeof bills.get !== 'function') { // no client module → best-effort
+      if (showLite(inlineCard)) return true;
+      if (inlineCard && inlineCard.source && inlineCard.source.url) window.open(inlineCard.source.url, '_blank', 'noopener');
       return false;
     }
     renderLoading();
     resolveId(ref, bills).then(function (id) {
-      if (id == null) { renderError(findByNumber((bills.listSync ? bills.listSync().items : []), ref)); return; }
+      var card = inlineCard || findByNumber((bills.listSync ? bills.listSync().items : []), ref);
+      if (id == null) { if (!showLite(card)) renderError(card); return; }
       bills.get(id).then(function (data) {
         if (data && data.measure) { show(bodyHtml(data)); syncHash(); }
-        else renderError(null);
-      });
-    });
+        else if (!showLite(card)) renderError(null);
+      }).catch(function () { if (!showLite(card)) renderError(card); });
+    }).catch(function () { if (!showLite(inlineCard)) renderError(inlineCard); });
     return true;
   }
 
@@ -564,8 +656,13 @@
       '.bd-omni-issue{font:700 .9rem/1.2 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
       '.bd-omni-link{background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(126,180,255,.35);text-underline-offset:2px;}' +
       '.bd-omni-link:hover{color:#9ec8ff;text-decoration-color:#9ec8ff;}' +
+      '.bd-lite-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.3rem;}' +
+      '.bd-glance-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 1.1rem;}' +
+      '.bd-glance{display:inline-flex;align-items:center;gap:.3rem;font:700 .64rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.32rem .62rem;}' +
+      '.bd-glance-omni{color:#f6d873;background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.38);}' +
       '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
       '.bd-legis{margin-top:.6rem;display:inline-block;}' +
+      '.bd-eye{margin-top:.2rem;display:inline-block;}' +
       '.bd-omni-primary{font:800 .54rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border-radius:999px;padding:.14rem .4rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
       '.bd-eff-adv{color:#93c5fd;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);}' +

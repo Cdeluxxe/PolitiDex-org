@@ -1,5 +1,12 @@
 # Netlify build configuration.
 #
+# Deploy note: a prior preview deploy hit a transient upload-stage error
+# (HTTP 422 "no records matched" during onPostBuild → tryUpload) — a deploy
+# file-digest/manifest mismatch on the incremental upload, unrelated to the app
+# code or the database migrations (which applied cleanly). Touching this config
+# forces a clean full deploy, so the file set is re-uploaded from scratch rather
+# than reconciled against a stale prior-deploy manifest.
+#
 # Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
 # client identifier (access to Firebase is controlled by Security Rules, not by
 # keeping this value secret — Google documents it as safe to include in client

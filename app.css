@@ -12700,6 +12700,54 @@
       user-select: none;
     }
     #mobileMenu .mnav-group-label:first-child { margin-top: 0; padding-top: 0.2rem; }
+    /* Accent variants let a group label carry the color of its section — money
+       gold, education blue — so the two feedback-driven groups read as distinct
+       destinations rather than blending into the long list. */
+    #mobileMenu .mnav-group-label--money { color: #e9b949; }
+    #mobileMenu .mnav-group-label--edu { color: #93b4d6; }
+    /* A "lead" row is a hub: a bolder, card-like entry with a one-line blurb,
+       used to make the Education section read as a real front door. */
+    #mobileMenu a.mnav-lead {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.15rem;
+      background: linear-gradient(160deg, rgba(59,130,246,0.12), rgba(59,130,246,0));
+      border: 1px solid rgba(147,180,214,0.24);
+      border-radius: 0.75rem;
+      padding: 0.85rem 0.9rem;
+      margin: 0.2rem 0 0.4rem;
+    }
+    #mobileMenu a.mnav-lead .mnav-lead-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #cfe0f5;
+    }
+    #mobileMenu a.mnav-lead .mnav-lead-sub {
+      font-family: 'Barlow', sans-serif;
+      font-weight: 500;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: #8aa0c0;
+    }
+    /* Indented jump-links that dive straight into a sub-section (e.g. a single
+       Academy track). The ↘ cue signals "jumps you into the page". */
+    #mobileMenu a.mnav-sub {
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
+      padding-left: 1.85rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      color: #9fb6d4;
+    }
+    #mobileMenu a.mnav-sub::after {
+      content: "↘";
+      margin-left: auto;
+      opacity: 0.45;
+      font-size: 0.85rem;
+    }
     @keyframes mobileMenuSlide {
       from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }

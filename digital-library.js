@@ -46,6 +46,7 @@
   }
 
   var PAGE = 18;                       // grid items per page
+  var LEG_PAGE = 12;                   // Legislation mode: lazy-load in smaller batches
   var RECEIPT_CAP = 60;                // top receipts folded into the archive
   var _state = { q: '', type: 'all', issue: '', shown: PAGE };
   var _index = null;                   // built archive items
@@ -387,7 +388,7 @@
 
   function onSearch(q) {
     _state.q = String(q || '').trim();
-    _state.shown = PAGE;
+    _state.shown = (_state.mode === 'legislation') ? LEG_PAGE : PAGE;
     var clear = document.getElementById('dlib-search-clear');
     if (clear) clear.hidden = !_state.q;
     if (_state.mode === 'legislation') {
@@ -530,6 +531,21 @@
       '.dlib-bs-introduced,.dlib-bs-pending{color:#cbd9ec;background:rgba(159,180,212,.12);border-color:rgba(159,180,212,.3);}' +
       '.dlib-bill-omni{font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#f6d873;' +
         'background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.35);border-radius:999px;padding:.2rem .45rem;}' +
+      // Category label + omnibus / megabill tier badges + tiered card accents.
+      '.dlib-bill-tagrow{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;}' +
+      '.dlib-bill-cat{display:inline-flex;align-items:center;gap:.25rem;font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.22rem .55rem;}' +
+      '.dlib-bill-tier{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:.4rem;padding:.24rem .5rem;white-space:nowrap;}' +
+      '.dlib-tier-omni{color:#f6d873;background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.4);}' +
+      '.dlib-tier-mega{color:#0a0f1e;background:linear-gradient(90deg,#fbbf24,#f6d873);border:1px solid rgba(245,200,66,.65);box-shadow:0 0 10px rgba(245,200,66,.3);}' +
+      '.dlib-billcard--omni{border-left-color:#f6d873;}' +
+      '.dlib-billcard--mega{border-left-color:#fbbf24;background:linear-gradient(160deg,rgba(46,37,12,.55),rgba(11,18,33,.92));box-shadow:inset 0 0 0 1px rgba(245,200,66,.18),0 10px 26px rgba(0,0,0,.3);}' +
+      '.dlib-billcard--mega:hover{border-color:rgba(245,200,66,.5);}' +
+      // Topic quick-filter chips (facet bar).
+      '.dlib-topics{display:flex;flex-wrap:wrap;gap:.4rem;width:100%;margin-bottom:.55rem;}' +
+      '.dlib-topic{cursor:pointer;font:700 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#cbd9ec;background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.4rem .75rem;display:inline-flex;align-items:center;gap:.3rem;transition:background .15s,border-color .15s,color .15s;}' +
+      '.dlib-topic:hover{background:rgba(159,180,212,.15);color:#fff;}' +
+      '.dlib-topic.is-on{color:#0a0f1e;background:var(--cat,#7fb4ff);border-color:var(--cat,#7fb4ff);}' +
+      '.dlib-topic-n{font-size:.85em;opacity:.75;background:rgba(0,0,0,.15);border-radius:999px;padding:.03rem .32rem;}' +
       // Follow star on bill cards + the "Followed" facet toggle.
       '.dlib-bill-follow{margin-left:auto;cursor:pointer;font-size:1.05rem;line-height:1;color:#8aa0c4;padding:0 .1rem;user-select:none;transition:color .15s,transform .12s;}' +
       '.dlib-bill-follow:hover{color:#f6d873;transform:scale(1.15);}' +
@@ -571,7 +587,7 @@
     introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate',
     enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending'
   };
-  var _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false, phase: '' };
+  var _billFilters = { congress: '', chamber: '', status: '', issue: '', category: '', followed: false, phase: '' };
   var _billSort = 'recent';   // recent | oldest | number | status
   var _bills = null;          // full loaded bill set (filtered client-side for snap)
   var _billsLoading = false;
@@ -615,6 +631,59 @@
     return c === 'house' ? 'House' : c === 'senate' ? 'Senate' : c === 'joint' ? 'Joint' : c === 'court' ? 'Court' : (c || '');
   }
 
+  // ── Topic categories ────────────────────────────────────────────────────────
+  // Group the fine-grained issue keys into a handful of scannable topics, each with
+  // an icon + accent color. Powers the card category label and the one-tap topic
+  // filter. Additive: a key not listed here simply has no category (no chip shown).
+  var ISSUE_CAT = {
+    economy:    { label: 'Economy & Taxes', icon: '💰', color: '#4ade80', keys: ['lower_taxes', 'tax_middle_class', 'cost_living', 'econ_workers', 'econ_corp_account', 'econ_trade', 'econ_balance', 'econ_growth', 'econ_smallbiz', 'tariffs_authority', 'tariffs_prices', 'tariffs_china', 'tariffs_growth', 'prop_tax', 'property_tax'] },
+    spending:   { label: 'Spending & Debt', icon: '🏛️', color: '#f6d873', keys: ['national_debt', 'cut_spending', 'gov_services', 'gov_waste', 'audit_spending'] },
+    health:     { label: 'Health Care', icon: '🩺', color: '#f472b6', keys: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_mental', 'health_balance', 'health_rural', 'medical_freedom'] },
+    immigration:{ label: 'Immigration', icon: '🛂', color: '#fb923c', keys: ['border_security', 'deportations', 'immigration_reform', 'immig_fentanyl', 'immig_balance', 'immig_legal'] },
+    energy:     { label: 'Energy & Environment', icon: '⚡', color: '#22d3ee', keys: ['energy_production', 'enviro_energy', 'climate_action', 'enviro_balance', 'lands_energy', 'lands_balance', 'lands_keep_public', 'lands_local', 'lands_preserve', 'water', 'water_storage', 'disaster_resilience'] },
+    defense:    { label: 'Defense & Foreign', icon: '🛡️', color: '#93b4d6', keys: ['strong_defense', 'restraint', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans'] },
+    elections:  { label: 'Elections & Democracy', icon: '🗳️', color: '#a78bfa', keys: ['election_integrity', 'voter_id', 'voting_access', 'democracy_balance', 'gov_balance', 'campaign_finance', 'term_limits'] },
+    government: { label: 'Government & Reform', icon: '⚖️', color: '#9ec8ff', keys: ['gov_regulation', 'reform_balance', 'end_dei', 'stock_trading_ban', 'scotus_reform', 'gov_transparency'] },
+    education:  { label: 'Education', icon: '🎓', color: '#60a5fa', keys: ['public_schools', 'edu_balance', 'edu_college_cost', 'school_choice', 'edu_parental'] },
+    tech:       { label: 'Technology', icon: '💻', color: '#5eead4', keys: ['tech_balance', 'tech_innovation', 'privacy_rights', 'free_speech', 'broadband', 'datacenter_growth', 'datacenter_power', 'datacenter_water'] },
+    justice:    { label: 'Justice & Crime', icon: '🚔', color: '#fca5a5', keys: ['tough_on_crime', 'back_police', 'justice_reform', 'justice_balance', 'gun_rights', 'gun_safety', 'gun_balance', 'cannabis_reform'] },
+    social:     { label: 'Family & Rights', icon: '👪', color: '#fbbf24', keys: ['family_support', 'child_care', 'paid_leave', 'housing', 'housing_build', 'housing_first_time', 'housing_support', 'homeless', 'pro_life', 'pro_choice', 'repro_balance', 'lgbtq_rights', 'religious_liberty', 'rights_balance', 'property_rights'] },
+    rural:      { label: 'Agriculture & Rural', icon: '🌾', color: '#a3e635', keys: ['rural_ag'] }
+  };
+  var ISSUE_CAT_ORDER = ['economy', 'spending', 'health', 'immigration', 'energy', 'defense', 'elections', 'government', 'education', 'tech', 'justice', 'social', 'rural'];
+  var _issueCatIndex = null;
+  function issueCatOf(key) {
+    if (!key) return null;
+    if (!_issueCatIndex) {
+      _issueCatIndex = {};
+      ISSUE_CAT_ORDER.forEach(function (c) { ISSUE_CAT[c].keys.forEach(function (k) { if (!_issueCatIndex[k]) _issueCatIndex[k] = c; }); });
+    }
+    return _issueCatIndex[key] || null;
+  }
+  // The bill's headline category (from its primary issue), for the card label.
+  function billCategory(b) {
+    var keys = (b.issueKeys || []).filter(Boolean);
+    var c = issueCatOf(b.primaryIssue || keys[0] || '');
+    for (var i = 0; i < keys.length && !c; i++) c = issueCatOf(keys[i]);
+    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon, color: ISSUE_CAT[c].color } : null;
+  }
+  // Every category a bill touches — for the topic filter.
+  function billCatSet(b) {
+    var s = {};
+    (b.issueKeys || []).forEach(function (k) { var c = issueCatOf(k); if (c) s[c] = 1; });
+    var p = issueCatOf(b.primaryIssue); if (p) s[p] = 1;
+    return s;
+  }
+  // Omnibus / flagship classification for special styling. 'mega' = flagship megabill
+  // (H.R. 1) or a bill bundling 6+ issues; 'omni' = any multi-issue bill; '' = focused.
+  function billTier(b) {
+    var n = (b.issueKeys || []).filter(Boolean).length;
+    var isFlagship = /^h\.?\s*r\.?\s*1$/i.test(String(b.number || '').trim()) || b.flagship === true;
+    if (isFlagship || n >= 6) return 'mega';
+    if (b.isOmnibus || n >= 2) return 'omni';
+    return '';
+  }
+
   // Load the bill set once — inline light index for instant paint, then the live
   // list (which replaces it). Facet/search changes filter this set client-side.
   function loadBills() {
@@ -649,6 +718,7 @@
     if (_billFilters.chamber && b.chamber !== _billFilters.chamber) return false;
     if (_billFilters.status && b.status !== _billFilters.status) return false;
     if (_billFilters.issue && (b.issueKeys || []).indexOf(_billFilters.issue) < 0) return false;
+    if (_billFilters.category && !billCatSet(b)[_billFilters.category]) return false;
     if (_state.q) {
       var hay = ((b.number || '') + ' ' + (b.title || '') + ' ' + (b.shortTitle || '') + ' ' +
         (b.summary || '') + ' ' + (b.issueKeys || []).map(issueLabel).join(' ')).toLowerCase();
@@ -675,23 +745,36 @@
     // Primary issue first, then the rest, de-duplicated.
     var ordered = [];
     (primary ? [primary] : []).concat(keys).forEach(function (k) { if (k && ordered.indexOf(k) < 0) ordered.push(k); });
-    var shownKeys = ordered.slice(0, 6);
+    var shownKeys = ordered.slice(0, 5);
     var extra = ordered.length - shownKeys.length;
     var chips = shownKeys.map(function (k, i) {
+      var ic = issueCatOf(k);
+      var cico = ic ? ISSUE_CAT[ic].icon + ' ' : '';
       return '<button type="button" class="dlib-sec-chip' + (i === 0 && k === primary ? ' is-primary' : '') +
         '" data-issue="' + escAttr(k) + '" title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
-        esc(issueLabel(k)) + '</button>';
-    }).join('') + (extra > 0 ? '<span class="dlib-sec-more">+' + extra + '</span>' : '');
-    var omni = ordered.length >= 2
-      ? '<span class="dlib-bill-omni" title="This bill bundles multiple issues into one vote">📦 ' + ordered.length + ' sections</span>'
-      : '';
+        cico + esc(issueLabel(k)) + '</button>';
+    }).join('') + (extra > 0 ? '<span class="dlib-sec-more">+' + extra + ' more</span>' : '');
+
+    // Omnibus / flagship badge — makes the bundled, high-stakes bills read at a glance.
+    var tier = billTier(b);
+    var tierBadge = tier === 'mega'
+      ? '<span class="dlib-bill-tier dlib-tier-mega" title="A flagship megabill bundling many issues into a single vote">★ MEGABILL</span>'
+      : tier === 'omni'
+        ? '<span class="dlib-bill-tier dlib-tier-omni" title="An omnibus bill bundling ' + ordered.length + ' issues into one vote">📦 OMNIBUS · ' + ordered.length + '</span>'
+        : '';
+    // Headline topic category (icon + label), for instant visual grouping.
+    var cat = billCategory(b);
+    var catChip = cat ? '<span class="dlib-bill-cat" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
+    var tagrow = (catChip || tierBadge) ? '<span class="dlib-bill-tagrow">' + catChip + tierBadge + '</span>' : '';
+
     var breakdown = ordered.length
-      ? '<span class="dlib-sec-head">' + (ordered.length >= 2 ? 'Breaks into:' : 'Focus:') + omni + '</span>' +
+      ? '<span class="dlib-sec-head">' + (ordered.length >= 2 ? 'Breaks into' : 'Focus') + '</span>' +
         '<span class="dlib-sec-chips">' + chips + '</span>'
       : '';
 
-    return '<div class="dlib-card dlib-billcard" data-bill="' + esc(String(ref)) + '" role="button" tabindex="0" aria-label="Open bill: ' + esc(b.title) + '">' +
+    return '<div class="dlib-card dlib-billcard' + (tier ? ' dlib-billcard--' + tier : '') + '" data-bill="' + esc(String(ref)) + '" role="button" tabindex="0" aria-label="Open bill: ' + esc(b.title) + '">' +
       '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
+      tagrow +
       '<span class="dlib-card-title">' + esc(b.shortTitle || b.title) + '</span>' +
       (meta ? '<span class="dlib-bill-meta">' + esc(meta) + '</span>' : '') +
       (b.summary ? '<span class="dlib-card-blurb">' + esc(b.summary) + '</span>' : '') +
@@ -734,12 +817,28 @@
       jump('enacted', '✅ Enacted', _billFilters.phase === 'enacted', counts.enacted) +
       jump('followed', '★ Followed', _billFilters.followed, followN) +
     '</div>';
+    // Topic chips — one-tap filter by broad issue category (scannable + mobile-friendly),
+    // complementing the precise Issue dropdown below. A bill matches a topic if any of
+    // its issues falls under it, so "Immigration" surfaces every immigration-touching bill.
+    var catCounts = {};
+    bills.forEach(function (b) { var s = billCatSet(b); Object.keys(s).forEach(function (c) { catCounts[c] = (catCounts[c] || 0) + 1; }); });
+    var catList = ISSUE_CAT_ORDER.filter(function (c) { return catCounts[c]; });
+    var topics = catList.length
+      ? '<div class="dlib-topics" role="group" aria-label="Filter by topic">' +
+          '<button type="button" class="dlib-topic dlib-topic-all' + (!_billFilters.category ? ' is-on' : '') + '" data-topic="">🧭 All topics</button>' +
+          catList.map(function (c) {
+            return '<button type="button" class="dlib-topic' + (_billFilters.category === c ? ' is-on' : '') + '" data-topic="' + c + '" style="--cat:' + ISSUE_CAT[c].color + '">' +
+              ISSUE_CAT[c].icon + ' ' + esc(ISSUE_CAT[c].label) + ' <span class="dlib-topic-n">' + catCounts[c] + '</span></button>';
+          }).join('') +
+        '</div>'
+      : '';
     var sortSel = '<label class="dlib-sortsel">Sort <select data-bill-sort>' +
       [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['number', 'Bill number'], ['status', 'Furthest along']]
         .map(function (o) { return '<option value="' + o[0] + '"' + (_billSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
       '</select></label>';
     wrap.innerHTML =
       jumps +
+      topics +
       '<div class="dlib-facet-row">' +
         '<label>Congress <select data-bf="congress">' + opts(congresses, _billFilters.congress, function (v) { return v + 'th'; }) + '</select></label>' +
         '<label>Chamber <select data-bf="chamber">' + opts(chambers, _billFilters.chamber, billChamberLabel) + '</select></label>' +
@@ -747,23 +846,37 @@
         '<label>Issue <select data-bf="issue">' + opts(issueKeys, _billFilters.issue, function (k) { return issueLabel(k) + ' (' + issues[k] + ')'; }) + '</select></label>' +
         sortSel +
       '</div>';
-    wrap.querySelectorAll('[data-bf]').forEach(function (sel) {
-      sel.addEventListener('change', function () {
-        _billFilters[sel.getAttribute('data-bf')] = sel.value || '';
-        _state.shown = PAGE; applyBills();
+    // Delegated facet interactions — attached ONCE to the persistent facet-bar
+    // container so they keep working across every innerHTML rebuild. (Re-binding a
+    // listener to each freshly-rendered chip is what left topic clicks doing nothing;
+    // delegation on the stable parent never misses a click.)
+    if (!wrap._dlibFacetWired) {
+      wrap._dlibFacetWired = true;
+      wrap.addEventListener('click', function (e) {
+        var t = e.target.closest ? e.target.closest('[data-topic]') : null;
+        if (t) {
+          var c = t.getAttribute('data-topic') || '';
+          _billFilters.category = (_billFilters.category === c) ? '' : c;
+          _state.shown = LEG_PAGE; renderBillFacets(); applyBills();
+          return;
+        }
+        var j = e.target.closest ? e.target.closest('[data-jump]') : null;
+        if (j) {
+          var jk = j.getAttribute('data-jump');
+          if (jk === 'all') { _billFilters.phase = ''; _billFilters.followed = false; }
+          else if (jk === 'followed') { _billFilters.followed = !_billFilters.followed; }
+          else { _billFilters.phase = (_billFilters.phase === jk) ? '' : jk; }
+          _state.shown = LEG_PAGE; renderBillFacets(); applyBills();
+          return;
+        }
       });
-    });
-    var sortEl = wrap.querySelector('[data-bill-sort]');
-    if (sortEl) sortEl.addEventListener('change', function () { _billSort = sortEl.value || 'recent'; _state.shown = PAGE; applyBills(); });
-    wrap.querySelectorAll('[data-jump]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var j = btn.getAttribute('data-jump');
-        if (j === 'all') { _billFilters.phase = ''; _billFilters.followed = false; }
-        else if (j === 'followed') { _billFilters.followed = !_billFilters.followed; }
-        else { _billFilters.phase = (_billFilters.phase === j) ? '' : j; }
-        _state.shown = PAGE; renderBillFacets(); applyBills();
+      wrap.addEventListener('change', function (e) {
+        var bf = e.target.closest ? e.target.closest('[data-bf]') : null;
+        if (bf) { _billFilters[bf.getAttribute('data-bf')] = bf.value || ''; _state.shown = LEG_PAGE; applyBills(); return; }
+        var sr = e.target.closest ? e.target.closest('[data-bill-sort]') : null;
+        if (sr) { _billSort = sr.value || 'recent'; _state.shown = LEG_PAGE; applyBills(); return; }
       });
-    });
+    }
   }
 
   // A shimmer skeleton grid shown while the bill set is still resolving, so the tab
@@ -784,18 +897,18 @@
         window.PDXIssueView.open(key); return;
       }
     } catch (e) {}
-    _billFilters.issue = key; _state.shown = PAGE;
+    _billFilters.issue = key; _state.shown = LEG_PAGE;
     renderBillFacets(); applyBills();
   }
 
   // Reset every bill facet + the search box back to the default view.
   function clearBillFilters() {
-    _billFilters = { congress: '', chamber: '', status: '', issue: '', followed: false, phase: '' };
+    _billFilters = { congress: '', chamber: '', status: '', issue: '', category: '', followed: false, phase: '' };
     _billSort = 'recent';
     _state.q = '';
     var input = document.getElementById('dlib-search');
     if (input) input.value = '';
-    _state.shown = PAGE;
+    _state.shown = LEG_PAGE;
     renderBillFacets();
     applyBills();
   }
@@ -854,7 +967,7 @@
       empty.hidden = list.length !== 0;
       if (!list.length) {
         var hasFilter = !!(_billFilters.congress || _billFilters.chamber || _billFilters.status ||
-          _billFilters.issue || _billFilters.followed || _billFilters.phase || _state.q);
+          _billFilters.issue || _billFilters.category || _billFilters.followed || _billFilters.phase || _state.q);
         var msg = _billFilters.followed
           ? 'You’re not following any bills yet. Open a bill and tap ☆ Follow to save it here.'
           : 'No legislation matches those filters yet. Clear a facet or broaden your search.';
@@ -884,7 +997,7 @@
     if (mode !== 'legislation') mode = 'library';
     if (_state.mode === mode && (mode !== 'legislation' || _bills)) { /* still refresh chrome below */ }
     _state.mode = mode;
-    _state.shown = PAGE;
+    _state.shown = (mode === 'legislation') ? LEG_PAGE : PAGE;
     var host = document.getElementById('digital-library');
     if (host) host.classList.toggle('dlib-mode-legislation', mode === 'legislation');
     var facets = document.getElementById('dlib-bill-facets');
@@ -932,7 +1045,7 @@
     var more = document.getElementById('dlib-more');
     if (more && !more._dlibWired) {
       more._dlibWired = true;
-      more.addEventListener('click', function () { _state.shown += PAGE; if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
+      more.addEventListener('click', function () { _state.shown += (_state.mode === 'legislation' ? LEG_PAGE : PAGE); if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
     }
     applyBrowse();
     _built = true;
@@ -960,10 +1073,11 @@
       // Legislation-mode deep link: filter the bill hub by issue / phase / sort.
       if (opts.mode === 'legislation') {
         if (typeof opts.issue === 'string') _billFilters.issue = opts.issue;
+        if (typeof opts.category === 'string') _billFilters.category = opts.category;
         if (typeof opts.phase === 'string') _billFilters.phase = opts.phase;
         if (typeof opts.sort === 'string') _billSort = opts.sort;
         if (opts.followed === true) _billFilters.followed = true;
-        _state.shown = PAGE;
+        _state.shown = LEG_PAGE;
         loadBills();
         var lhost = document.getElementById('digital-library');
         if (lhost && lhost.scrollIntoView) lhost.scrollIntoView({ behavior: 'smooth', block: 'start' });
