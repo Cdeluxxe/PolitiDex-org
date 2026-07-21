@@ -457,9 +457,109 @@
     });
   }
 
+  /* ════════════════════════════════════════════════════════════════════════
+     Issue-level distributional summary (Stance Library + Issue Spotlights).
+     ────────────────────────────────────────────────────────────────────────
+     Net cohort read for an ISSUE as a whole, from the read-only
+     /api/voting-record/issue/:key/impacts route. Any surface can drop a
+     placeholder (window._pdxIssueImpactsPlaceholder(issueKey)) and the self-wiring
+     hydrator fills it — or hides it when the issue has no scored measures.
+     ════════════════════════════════════════════════════════════════════════ */
+
+  var _issueImpactsCache = {};
+  function fetchIssueImpacts(key) {
+    if (_issueImpactsCache[key]) return _issueImpactsCache[key];
+    var p = fetch('/api/voting-record/issue/' + encodeURIComponent(key) + '/impacts', { headers: { accept: 'application/json' } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .catch(function () { return null; });
+    _issueImpactsCache[key] = p;
+    return p;
+  }
+
+  function renderIssueImpactsHTML(data) {
+    var cohorts = (data && data.cohorts) ? data.cohorts : [];
+    if (!cohorts.length) return '';
+    var order = {}; COHORTS.forEach(function (c, i) { order[c.key] = i; });
+    cohorts = cohorts.slice().sort(function (a, b) {
+      return (order[a.cohort] == null ? 99 : order[a.cohort]) - (order[b.cohort] == null ? 99 : order[b.cohort]);
+    });
+    var chips = cohorts.map(function (c) {
+      var meta = COHORT_BY_KEY[c.cohort] || { icon: '•', name: c.cohort };
+      var nd = DIR[c.net] || DIR.mixed;
+      var netLabel = c.net === 'benefit' ? 'net benefit' : c.net === 'cost' ? 'net cost' : c.net === 'mixed' ? 'mixed' : 'neutral';
+      var n = (c.benefit || 0) + (c.cost || 0) + (c.mixed || 0) + (c.neutral || 0);
+      return '<span class="pdx-ili-chip ' + nd.cls + '" title="' + escAttr(meta.name + ': ' + netLabel + ' across ' + n + ' scored effect' + (n !== 1 ? 's' : '')) + '">' +
+        meta.icon + ' ' + esc(meta.name) + ' <b>' + nd.arrow + '</b></span>';
+    }).join('');
+    var measures = (data && data.measures) ? data.measures : [];
+    var mlist = measures.map(function (m) { return m.number || m.title; }).filter(Boolean);
+    var nSrc = data && data.sources ? data.sources : 0;
+    return '<div class="pdx-ili-inner">' +
+        '<div class="pdx-ili-head">⚖️ Who this issue’s measures affect</div>' +
+        '<p class="pdx-ili-lead">Net distributional read across ' + measures.length + ' scored measure' + (measures.length !== 1 ? 's' : '') +
+          ' tagged to this issue, by economic group. Sourced and directional — not a verdict.</p>' +
+        '<div class="pdx-ili-chips">' + chips + '</div>' +
+        (mlist.length ? '<div class="pdx-ili-foot">Based on: ' + esc(mlist.join(' · ')) + (nSrc ? ' · ' + nSrc + ' source' + (nSrc !== 1 ? 's' : '') : '') + '</div>' : '') +
+        '<div class="pdx-ili-note">Distribution and access — not motive or causation. Open a bill for the full “Who It Affects” breakdown.</div>' +
+      '</div>';
+  }
+
+  // Placeholder a surface drops where it wants the summary. `issueKey` may be a
+  // single ISSUE_MAP key or a comma-joined list (a core issue's component keys),
+  // which the hydrator merges into one card. Hidden until data lands, so an issue
+  // with no scored measures shows nothing (no empty flash).
+  function issueImpactsPlaceholder(issueKey) {
+    if (!issueKey) return '';
+    injectCss();
+    return '<div class="pdx-ili" data-il-issue="' + escAttr(issueKey) + '" style="display:none;"></div>';
+  }
+
+  // Merge several issue payloads into one (for a core issue spanning many keys):
+  // sum cohort counts, recompute net, and union the contributing measures.
+  function mergeIssueData(list) {
+    var cohortSummary = {}, measures = {}, ok = false;
+    list.forEach(function (d) {
+      if (!d || !d.cohorts) return;
+      ok = true;
+      d.cohorts.forEach(function (c) {
+        var s = (cohortSummary[c.cohort] || (cohortSummary[c.cohort] = { benefit: 0, cost: 0, mixed: 0, neutral: 0 }));
+        s.benefit += c.benefit || 0; s.cost += c.cost || 0; s.mixed += c.mixed || 0; s.neutral += c.neutral || 0;
+      });
+      (d.measures || []).forEach(function (m) { if (m && m.measureId != null) measures[m.measureId] = m; });
+    });
+    if (!ok) return null;
+    var cohorts = Object.keys(cohortSummary).map(function (k) {
+      var s = cohortSummary[k];
+      var net = (s.benefit && s.cost) ? 'mixed' : s.benefit ? 'benefit' : s.cost ? 'cost' : s.mixed ? 'mixed' : 'neutral';
+      return { cohort: k, net: net, benefit: s.benefit, cost: s.cost, mixed: s.mixed, neutral: s.neutral };
+    });
+    return { cohorts: cohorts, measures: Object.keys(measures).map(function (id) { return measures[id]; }), sources: 0 };
+  }
+
+  function hydrateIssueImpacts(root) {
+    root = root || document;
+    var nodes;
+    try { nodes = root.querySelectorAll('[data-il-issue]:not([data-il-done])'); } catch (e) { return; }
+    if (!nodes || !nodes.length) return;
+    Array.prototype.forEach.call(nodes, function (el) {
+      el.setAttribute('data-il-done', '1');
+      var raw = el.getAttribute('data-il-issue') || '';
+      var keys = raw.split(',').map(function (k) { return k.trim(); }).filter(Boolean);
+      if (!keys.length) { el.style.display = 'none'; return; }
+      Promise.all(keys.map(fetchIssueImpacts)).then(function (results) {
+        var data = keys.length === 1 ? results[0] : mergeIssueData(results);
+        var html = data ? renderIssueImpactsHTML(data) : '';
+        if (!html) { el.style.display = 'none'; return; }
+        el.innerHTML = html;
+        el.style.display = '';
+      });
+    });
+  }
+
   function hydrateAll(root) {
     hydratePromiseSummaries(root);
     hydrateMemberImpacts(root);
+    hydrateIssueImpacts(root);
   }
 
   var _hydrateScheduled = false;
@@ -471,7 +571,7 @@
   function bootHydrate() {
     hydrateAll(document);
     try {
-      var SEL = '[data-il-promise-measure]:not([data-il-done]), [data-il-member-impacts]:not([data-il-done])';
+      var SEL = '[data-il-promise-measure]:not([data-il-done]), [data-il-member-impacts]:not([data-il-done]), [data-il-issue]:not([data-il-done])';
       var mo = new MutationObserver(function (muts) {
         for (var i = 0; i < muts.length; i++) {
           var added = muts[i].addedNodes; if (!added) continue;
@@ -493,6 +593,7 @@
   // _pdxFinanceSignalHTML): one from the Promise Tracker row, one from the profile.
   window._pdxPromiseImpactHTML = promiseImpactHTML;
   window._pdxMemberImpactsSideBySide = memberSideBySideHTML;
+  window._pdxIssueImpactsPlaceholder = issueImpactsPlaceholder;
 
   window.PDXImpactLedger = {
     renderHTML: renderHTML,
@@ -501,8 +602,11 @@
     promiseImpactHTML: promiseImpactHTML,
     renderMemberImpactsHTML: renderMemberImpactsHTML,
     memberSideBySideHTML: memberSideBySideHTML,
+    renderIssueImpactsHTML: renderIssueImpactsHTML,
+    issueImpactsPlaceholder: issueImpactsPlaceholder,
     hydratePromiseSummaries: hydratePromiseSummaries,
     hydrateMemberImpacts: hydrateMemberImpacts,
+    hydrateIssueImpacts: hydrateIssueImpacts,
     COHORTS: COHORTS
   };
 })();

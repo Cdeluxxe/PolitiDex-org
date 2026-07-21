@@ -405,6 +405,10 @@
         '</div>' +
       '</div>' +
       '<div class="sl-jnav">' + jnav + '</div>' +
+      // Issue-level distributional summary ("who this issue's measures affect").
+      // Self-hydrating placeholder; hidden until data lands, so issues with no
+      // ledger-scored measures show nothing. Additive — degrades to '' if absent.
+      (typeof G('_pdxIssueImpactsPlaceholder') === 'function' ? G('_pdxIssueImpactsPlaceholder')(issueKey) : '') +
       (sections || '<div class="sl-empty"><div class="sl-empty-ico">🎯</div><div class="sl-empty-title">No documented stances yet</div></div>') +
       '<div class="sl-block" id="sl-community">' +
         '<div class="sl-block-title">🗣 Community activity</div>' +

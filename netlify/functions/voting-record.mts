@@ -511,11 +511,83 @@ async function getMemberPack(politicianId: string, req: Request): Promise<Respon
   });
 }
 
+// ── GET /issue/:issueKey/impacts ─────────────────────────────────────────────
+// Read-only. Net distributional summary for an ISSUE as a whole: aggregates the
+// Distributional Impact Ledger rows that concern this issue, by cohort. An impact
+// concerns the issue when its provision is tagged to the issue key, or (for a
+// whole-measure impact with no provision) when the measure's PRIMARY issue is this
+// key — so a bundled megabill contributes each impact only to the issue it actually
+// touches, never to every issue it spans. Additive; same source + cohort guards as
+// /measure/:id.
+async function getIssueImpacts(issueKey: string): Promise<Response> {
+  if (!assertIssueKey(issueKey)) return json({ error: `Unknown issue key: ${issueKey}` }, 400);
+
+  // The ledger table is small; fetch all rows joined to their provision's issue key,
+  // then attribute precisely in code.
+  const rows = await db
+    .select({
+      measureId: vrDistributionalImpacts.measureId,
+      provisionId: vrDistributionalImpacts.provisionId,
+      cohort: vrDistributionalImpacts.cohort,
+      direction: vrDistributionalImpacts.direction,
+      sourceLabel: vrDistributionalImpacts.sourceLabel,
+      sourceUrl: vrDistributionalImpacts.sourceUrl,
+      provIssue: vrMeasureProvisions.issueKey,
+    })
+    .from(vrDistributionalImpacts)
+    .leftJoin(vrMeasureProvisions, eq(vrDistributionalImpacts.provisionId, vrMeasureProvisions.id));
+
+  const primaries = await db
+    .select({ measureId: vrMeasureIssues.measureId, issueKey: vrMeasureIssues.issueKey })
+    .from(vrMeasureIssues)
+    .where(eq(vrMeasureIssues.isPrimary, true));
+  const primaryByMeasure = new Map<number, string>();
+  for (const p of primaries) primaryByMeasure.set(p.measureId, p.issueKey);
+
+  // Only impacts that concern THIS issue, source-guarded + cohort-validated.
+  const relevant = rows.filter((r) => {
+    if (!r.sourceUrl || !r.sourceLabel || !IMPACT_COHORTS.has(r.cohort)) return false;
+    if (r.provisionId != null) return r.provIssue === issueKey;
+    return primaryByMeasure.get(r.measureId) === issueKey;
+  });
+  if (!relevant.length) {
+    return json({ issueKey, cohortSummary: {}, cohorts: [], measures: [], sources: 0 });
+  }
+
+  const cohortSummary: Record<string, { benefit: number; cost: number; mixed: number; neutral: number }> = {};
+  const measureSet = new Set<number>();
+  const srcSet = new Set<string>();
+  for (const r of relevant) {
+    const dir = IMPACT_DIRECTIONS.has(r.direction) ? r.direction : "mixed";
+    const c = (cohortSummary[r.cohort] ||= { benefit: 0, cost: 0, mixed: 0, neutral: 0 });
+    (c as any)[dir]++;
+    measureSet.add(r.measureId);
+    srcSet.add(r.sourceLabel);
+  }
+  // Net direction per cohort: benefit vs cost tally (mixed when both, else the sole side).
+  const cohorts = Object.keys(cohortSummary).map((k) => {
+    const s = cohortSummary[k];
+    let net: string;
+    if (s.benefit && s.cost) net = "mixed";
+    else if (s.benefit) net = "benefit";
+    else if (s.cost) net = "cost";
+    else net = s.mixed ? "mixed" : "neutral";
+    return { cohort: k, net, benefit: s.benefit, cost: s.cost, mixed: s.mixed, neutral: s.neutral };
+  });
+
+  const measureIds = [...measureSet];
+  const meta = await db
+    .select({ id: vrMeasures.id, number: vrMeasures.number, title: vrMeasures.title, shortTitle: vrMeasures.shortTitle })
+    .from(vrMeasures)
+    .where(inArray(vrMeasures.id, measureIds));
+  const measures = meta.map((m) => ({ measureId: m.id, number: m.number, title: m.shortTitle || m.title || m.number }));
+
+  return json({ issueKey, cohortSummary, cohorts, measures, sources: srcSet.size });
+}
+
 // ── GET /issue/:issueKey ─────────────────────────────────────────────────────
 // Every member's votes/positions on one issue — powers the Stance Library rollup.
 async function getIssue(issueKey: string, url: URL): Promise<Response> {
-  // 400 (not 404) for an unknown key: it is a client error, it matches how the
-  // /member `issue=` filter is validated, and — unlike a 404 — it does not trigger
   // Netlify's function-404 fallthrough to the static/SPA routes.
   if (!assertIssueKey(issueKey)) return json({ error: `Unknown issue key: ${issueKey}` }, 400);
   const f = parseFilters(url);
@@ -1105,6 +1177,13 @@ export default async (req: Request): Promise<Response> => {
       const id = clean(decodeURIComponent(memberMatch[1]), ID_MAX);
       if (!id) return json({ error: "Missing politician id" }, 400);
       return await getMember(id, url);
+    }
+
+    const issueImpactsMatch = path.match(/^\/issue\/([^/]+)\/impacts$/);
+    if (issueImpactsMatch) {
+      const key = clean(decodeURIComponent(issueImpactsMatch[1]), ID_MAX);
+      if (!key) return json({ error: "Missing issue key" }, 400);
+      return await getIssueImpacts(key);
     }
 
     const issueMatch = path.match(/^\/issue\/([^/]+)$/);

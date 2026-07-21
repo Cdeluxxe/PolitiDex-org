@@ -224,4 +224,29 @@
 .pdx-ilx-verify { font: 700 .68rem/1 "Barlow Condensed", sans-serif; letter-spacing: .03em; color: #7be0cf; text-decoration: none; }
 .pdx-ilx-verify:hover { text-decoration: underline; }
 
+/* ── Issue-level distributional summary (.pdx-ili-*) ───────────────────────
+   Shown in the Stance Library issue detail and Issue Spotlights. */
+.pdx-ili {
+  margin: .9rem 0;
+  border: 1px solid rgba(159, 180, 212, .16);
+  border-radius: .8rem;
+  padding: .85rem .9rem;
+  background: rgba(45, 212, 191, .05);
+}
+.pdx-ili-head {
+  font: 700 .95rem/1.15 "Barlow Condensed", sans-serif;
+  letter-spacing: .03em; text-transform: uppercase; color: #fff; margin-bottom: .35rem;
+}
+.pdx-ili-lead { font: 500 .8rem/1.5 "Barlow", sans-serif; color: #9fb4d4; margin: 0 0 .65rem; }
+.pdx-ili-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pdx-ili-chip {
+  font: 600 .74rem/1.25 "Barlow", sans-serif;
+  padding: .26rem .55rem; border-radius: 999px;
+  border: 1px solid rgba(159, 180, 212, .18);
+}
+.pdx-ili-chip b { font-weight: 700; margin-left: .1rem; }
+.pdx-ili-foot { font: 500 .72rem/1.5 "Barlow", sans-serif; color: #8ea3c2; margin-top: .6rem; }
+.pdx-ili-note { font: 500 .68rem/1.45 "Barlow", sans-serif; color: #7f93b3; font-style: italic; margin-top: .4rem; }
+
+
 

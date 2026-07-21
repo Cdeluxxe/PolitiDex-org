@@ -164,6 +164,28 @@ Implementation: `impact-ledger.js` defines `window._pdxMemberImpactsSideBySide(i
 (the section) and the async hydrator; the profile calls it with the same optional-global
 pattern used elsewhere. No new write paths.
 
+## Issue-level summary (Stance Library + Issue Spotlights)
+
+Each tracked issue gets a net, cohort-level read of the measures that concern it. The
+**Stance Library** issue detail and the **Issue Spotlight** overlay both drop a
+self-hydrating placeholder — `window._pdxIssueImpactsPlaceholder(issueKey)` — that
+fills from a new **read-only** route, `GET /api/voting-record/issue/:issueKey/impacts`.
+
+Attribution is precise, not broad: an impact counts toward an issue only when its
+provision is tagged to that issue key, or (for a whole-measure impact with no
+provision) when the measure's *primary* issue is that key. So a bundled megabill
+contributes each impact only to the issue it actually touches — H.R. 1's Medicaid
+provision shows under Healthcare, its clean-energy provision under Climate, never
+under every issue the bill spans. The route aggregates the matching rows by cohort
+into a net direction (benefit / cost / mixed) and lists the contributing measures.
+
+The Stance Library passes a single issue key; the Issue Spotlight passes a core
+issue's component keys (comma-joined), which the hydrator merges into one card. Both
+placeholders stay hidden until data lands, so an issue with no ledger-scored measures
+shows nothing. The card is directional and sourced, repeats the "distribution and
+access — not motive or causation" note, and points to the bill panel for the full
+breakdown. No new write paths.
+
 Future, additive surfaces (not yet built): issue-level rollups of distributional effect.
 
 ## Adding or refreshing data

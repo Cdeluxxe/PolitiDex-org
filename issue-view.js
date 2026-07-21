@@ -383,7 +383,16 @@
         ' more tracked, not yet documented here</span>' : '') +
       ' · consistency is measured from sourced say-vs-do receipts.</div>';
 
-    host.innerHTML = coverage + listHTML;
+    // Issue-area distributional summary ("who this issue's measures affect"),
+    // merged across the core issue's component keys. Self-hydrating placeholder;
+    // hidden until data lands, so it adds nothing when no measure is scored.
+    var impactPh = '';
+    try {
+      var _ph = window._pdxIssueImpactsPlaceholder;
+      if (typeof _ph === 'function') impactPh = _ph((core.keys || []).join(',')) || '';
+    } catch (e) { impactPh = ''; }
+
+    host.innerHTML = coverage + impactPh + listHTML;
   }
 
   function renderChrome() {
