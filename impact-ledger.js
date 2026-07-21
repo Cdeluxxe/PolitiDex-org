@@ -457,6 +457,73 @@
     });
   }
 
+  /* ── Top-level "Who It Affects" overview card (profile) ─────────────────────
+     A compact headline card near the top of a profile: the net per-cohort read
+     across the measures on the official's record that carry ledger data. Reuses the
+     SAME cached member-impacts fetch as the side-by-side (its cohortSummary), so it
+     adds no request. It describes the measures on their record — not a claim about
+     their vote — and links down to the vote-by-vote breakdown. */
+
+  function netFromCounts(s) {
+    if (!s) return 'neutral';
+    if (s.benefit && s.cost) return 'mixed';
+    if (s.benefit) return 'benefit';
+    if (s.cost) return 'cost';
+    return s.mixed ? 'mixed' : 'neutral';
+  }
+
+  function renderMemberOverviewHTML(data) {
+    var summary = (data && data.cohortSummary) ? data.cohortSummary : {};
+    var measures = (data && data.measures) ? data.measures : [];
+    var present = COHORTS.filter(function (c) {
+      var s = summary[c.key];
+      return s && (s.benefit || s.cost || s.mixed || s.neutral);
+    });
+    if (!present.length || !measures.length) return '';
+    var chips = present.map(function (c) {
+      var s = summary[c.key];
+      var net = netFromCounts(s);
+      var nd = DIR[net] || DIR.mixed;
+      var netLabel = net === 'benefit' ? 'net benefit' : net === 'cost' ? 'net cost' : net === 'mixed' ? 'mixed' : 'neutral';
+      var n = (s.benefit || 0) + (s.cost || 0) + (s.mixed || 0) + (s.neutral || 0);
+      return '<span class="pdx-ilo-chip ' + nd.cls + '" title="' + escAttr(c.name + ': ' + netLabel + ' across ' + n + ' scored effect' + (n !== 1 ? 's' : '')) + '">' +
+        c.icon + ' ' + esc(c.name) + ' <b>' + nd.arrow + '</b></span>';
+    }).join('');
+    var n = measures.length;
+    return '<div class="pdx-ilo-inner">' +
+        '<div class="pdx-ilo-head">⚖️ Who It Affects</div>' +
+        '<p class="pdx-ilo-lead">Across ' + n + ' measure' + (n !== 1 ? 's' : '') + ' on this official’s record with nonpartisan distributional analysis, who the measures’ costs and benefits fall on — by economic group.</p>' +
+        '<div class="pdx-ilo-chips">' + chips + '</div>' +
+        '<button type="button" class="pdx-ilo-link" onclick="var s=document.querySelector(\'[data-il-sxs]\');if(s){s.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the vote-by-vote breakdown ↓</button>' +
+        '<div class="pdx-ilo-note">Describes the scored effects of the measures on their record — distribution and access, not motive, causation, or a claim about how they voted. Vote-by-vote detail is in the breakdown.</div>' +
+      '</div>';
+  }
+
+  // Placeholder for the top-level card. Hidden until data lands; hides itself when
+  // the official has no ledger-scored measures.
+  function memberOverviewPlaceholder(id) {
+    if (!id) return '';
+    injectCss();
+    return '<div class="modal-block pdx-ilo" data-il-member-overview="' + escAttr(String(id)) + '" style="display:none;"></div>';
+  }
+
+  function hydrateMemberOverview(root) {
+    root = root || document;
+    var nodes;
+    try { nodes = root.querySelectorAll('[data-il-member-overview]:not([data-il-done])'); } catch (e) { return; }
+    if (!nodes || !nodes.length) return;
+    Array.prototype.forEach.call(nodes, function (el) {
+      el.setAttribute('data-il-done', '1');
+      var id = el.getAttribute('data-il-member-overview');
+      fetchMemberImpacts(id).then(function (data) {
+        var html = data ? renderMemberOverviewHTML(data) : '';
+        if (!html) { el.style.display = 'none'; return; }
+        el.innerHTML = html;
+        el.style.display = '';
+      });
+    });
+  }
+
   /* ════════════════════════════════════════════════════════════════════════
      Issue-level distributional summary (Stance Library + Issue Spotlights).
      ────────────────────────────────────────────────────────────────────────
@@ -559,6 +626,7 @@
   function hydrateAll(root) {
     hydratePromiseSummaries(root);
     hydrateMemberImpacts(root);
+    hydrateMemberOverview(root);
     hydrateIssueImpacts(root);
   }
 
@@ -571,7 +639,7 @@
   function bootHydrate() {
     hydrateAll(document);
     try {
-      var SEL = '[data-il-promise-measure]:not([data-il-done]), [data-il-member-impacts]:not([data-il-done]), [data-il-issue]:not([data-il-done])';
+      var SEL = '[data-il-promise-measure]:not([data-il-done]), [data-il-member-impacts]:not([data-il-done]), [data-il-member-overview]:not([data-il-done]), [data-il-issue]:not([data-il-done])';
       var mo = new MutationObserver(function (muts) {
         for (var i = 0; i < muts.length; i++) {
           var added = muts[i].addedNodes; if (!added) continue;
@@ -593,6 +661,7 @@
   // _pdxFinanceSignalHTML): one from the Promise Tracker row, one from the profile.
   window._pdxPromiseImpactHTML = promiseImpactHTML;
   window._pdxMemberImpactsSideBySide = memberSideBySideHTML;
+  window._pdxMemberImpactsOverview = memberOverviewPlaceholder;
   window._pdxIssueImpactsPlaceholder = issueImpactsPlaceholder;
 
   window.PDXImpactLedger = {
@@ -602,10 +671,13 @@
     promiseImpactHTML: promiseImpactHTML,
     renderMemberImpactsHTML: renderMemberImpactsHTML,
     memberSideBySideHTML: memberSideBySideHTML,
+    renderMemberOverviewHTML: renderMemberOverviewHTML,
+    memberOverviewPlaceholder: memberOverviewPlaceholder,
     renderIssueImpactsHTML: renderIssueImpactsHTML,
     issueImpactsPlaceholder: issueImpactsPlaceholder,
     hydratePromiseSummaries: hydratePromiseSummaries,
     hydrateMemberImpacts: hydrateMemberImpacts,
+    hydrateMemberOverview: hydrateMemberOverview,
     hydrateIssueImpacts: hydrateIssueImpacts,
     COHORTS: COHORTS
   };

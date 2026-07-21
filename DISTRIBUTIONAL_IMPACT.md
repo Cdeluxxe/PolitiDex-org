@@ -164,6 +164,27 @@ Implementation: `impact-ledger.js` defines `window._pdxMemberImpactsSideBySide(i
 (the section) and the async hydrator; the profile calls it with the same optional-global
 pattern used elsewhere. No new write paths.
 
+## Top-level "Who It Affects" overview card (profile)
+
+Near the top of every profile, a compact overview card gives the net per-cohort read
+across the measures on the official's record that carry ledger data — the headline
+version of the side-by-side's distributional column. It reuses the **same cached**
+`/api/voting-record/member/:id/impacts` fetch (its `cohortSummary`), so it adds no
+request, and it hides itself when the official has no ledger-scored votes.
+
+Framing is deliberately measures-first: it describes the scored effects of the
+measures on the official's record — **not** a claim about how they voted or an
+attribution of those effects to their choice. A "See the vote-by-vote breakdown ↓"
+link scrolls to the Follow-the-Money side-by-side, where each measure carries the
+official's own recorded action (Voted Yea/Nay) and its cohort effects, so the reader
+gets the vote-level detail rather than a causal aggregate. The standing "distribution
+and access — not motive or causation" note is repeated.
+
+Implementation: `impact-ledger.js` defines `window._pdxMemberImpactsOverview(id)` (a
+hidden placeholder) and `renderMemberOverviewHTML(data)`; the profile drops the
+placeholder high in the modal via the usual optional-global pattern. No new write
+paths, no new endpoint.
+
 ## Issue-level summary (Stance Library + Issue Spotlights)
 
 Each tracked issue gets a net, cohort-level read of the measures that concern it. The
