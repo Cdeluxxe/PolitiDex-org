@@ -354,6 +354,24 @@
   }
 
   // ── render ──────────────────────────────────────────────────────────────────
+  // A compact "at a glance" strip of stat chips under the header — the shape of the
+  // bill in one scannable row (how many issues it bundles, how much of a record it
+  // has, where it stands). Purely presentational; everything is data already loaded.
+  function glanceStrip(m, issues, data) {
+    var chips = [];
+    if (issues && issues.length >= 2) chips.push('<span class="bd-glance bd-glance-omni">📦 ' + issues.length + ' issues bundled</span>');
+    var rcs = (data.rollcalls || []);
+    if (rcs.length) chips.push('<span class="bd-glance">🗳️ ' + rcs.length + ' roll call' + (rcs.length !== 1 ? 's' : '') + '</span>');
+    var votes = 0; rcs.forEach(function (r) { votes += (r.votes || []).length; });
+    if (votes) chips.push('<span class="bd-glance">👥 ' + votes + ' recorded votes</span>');
+    var prov = (data.provisions || []).length;
+    if (prov) chips.push('<span class="bd-glance">🧩 ' + prov + ' key provision' + (prov !== 1 ? 's' : '') + '</span>');
+    var pos = (data.positions || []).length;
+    if (pos) chips.push('<span class="bd-glance">👤 ' + pos + ' member action' + (pos !== 1 ? 's' : '') + '</span>');
+    if (m.status) chips.push('<span class="bd-glance">🚦 ' + esc(statusLabel(m.status)) + '</span>');
+    return chips.length ? '<div class="bd-glance-row">' + chips.join('') + '</div>' : '';
+  }
+
   function bodyHtml(data) {
     var m = data.measure || {};
     var issues = data.issues || [];
@@ -383,6 +401,7 @@
         (m.summary ? '<p class="bd-summary">' + esc(m.summary) + '</p>' : '') +
         src +
       '</div>' +
+      glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
       provisionsSection(m, data.provisions) +
       rollcallsSection(m, issues, data.rollcalls) +
@@ -638,6 +657,9 @@
       '.bd-omni-link{background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(126,180,255,.35);text-underline-offset:2px;}' +
       '.bd-omni-link:hover{color:#9ec8ff;text-decoration-color:#9ec8ff;}' +
       '.bd-lite-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.3rem;}' +
+      '.bd-glance-row{display:flex;flex-wrap:wrap;gap:.4rem;margin:.1rem 0 1.1rem;}' +
+      '.bd-glance{display:inline-flex;align-items:center;gap:.3rem;font:700 .64rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.32rem .62rem;}' +
+      '.bd-glance-omni{color:#f6d873;background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.38);}' +
       '.bd-issuejump .bd-person-name{color:#9ec8ff;}' +
       '.bd-legis{margin-top:.6rem;display:inline-block;}' +
       '.bd-eye{margin-top:.2rem;display:inline-block;}' +
