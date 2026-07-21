@@ -296,6 +296,18 @@
       '<p class="bd-lead">The named pieces bundled into this measure, and which way a Yea cuts on each.</p>' + rows + '</section>';
   }
 
+  // Distributional Impact Ledger ("Who It Affects"). Fully delegated to the standalone
+  // PDXImpactLedger module so the neutral cohort bar / reasons / evidence badges live in
+  // one place and can be reused elsewhere. Degrades to nothing when the module or the
+  // sourced data is absent — this panel never fabricates an impact.
+  function impactLedgerSection(data) {
+    try {
+      var il = G('PDXImpactLedger');
+      if (il && typeof il.renderHTML === 'function') return il.renderHTML(data) || '';
+    } catch (e) {}
+    return '';
+  }
+
   function relatedSection(m, issues) {
     var parts = [];
     // Link back into the central discovery hub: searching the bill number in the
@@ -404,6 +416,7 @@
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
       provisionsSection(m, data.provisions) +
+      impactLedgerSection(data) +
       rollcallsSection(m, issues, data.rollcalls) +
       sponsorsSection(m, data.positions) +
       memberActionsSection(m, data.positions) +
