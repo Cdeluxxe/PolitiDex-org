@@ -5198,3 +5198,144 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
     T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 3 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 and wave-2 blocks above: purely additive,
+   negative-impact, sourced, neutrally-worded accountability records CONCAT-MERGED
+   onto window.ACCT_SPOTLIGHT so nothing existing is replaced. Balanced 5 Democrats
+   / 5 Republicans; each issueKey maps to an ISSUE_MAP topic for the Issue Spotlight
+   link. Say-vs-do items use category:'rhetoric' + tag 'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    vance: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'family_support',
+        headline:'Called Democrats "childless cat ladies," a remark he later regretted',
+        facts:`In a 2021 Fox News interview, Vance said the country was run by "childless cat ladies who are miserable at their own lives," naming Kamala Harris, Pete Buttigieg and AOC. The comment resurfaced when he joined the 2024 ticket; he first defended it as sarcasm, then wrote in a later memoir that it was "one of the dumbest things I ever said" and "a boneheaded comment."`,
+        why:`Widely covered remarks about people without children that he ultimately acknowledged were a mistake.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/jd-vance/vance-cat-ladies-comment-dumbest-things-book-rcna349325' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Once privately called Trump "America’s Hitler," then became his running mate',
+        facts:`In 2016 Vance, then a self-described "Never Trump guy," privately messaged that Trump might be "America's Hitler" and publicly called him "reprehensible," a "moral disaster" and an "idiot." He later said his view had changed, endorsed Trump and became his 2024 running mate and vice president. The old messages resurfaced repeatedly.`,
+        why:`One of the era's starkest critic-to-ally reversals, in his own earlier words.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/vance-trump-hitler-quote/' } }
+    ],
+    rick_scott: [
+      { impact:'negative', category:'legal', date:'1997', tags:['Accountability'], issueKey:'healthcare',
+        headline:'Led the hospital chain behind a record Medicare-fraud settlement',
+        facts:`Scott was CEO of Columbia/HCA when it became the target of the largest health-care fraud investigation in U.S. history; the company pleaded guilty to 14 felonies and paid more than $1.7 billion in fines for overbilling Medicare and Medicaid. Scott resigned in 1997 and was never personally charged; in a later civil deposition he invoked the Fifth Amendment 75 times. He says he was unfairly targeted.`,
+        why:`He now chairs the Senate Aging Committee, which oversees the programs his former company was found to have defrauded.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/factchecks/2014/mar/03/florida-democratic-party/rick-scott-rick-scott-oversaw-largest-medicare-fra/' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions'], issueKey:'social_security',
+        headline:'Proposed sunsetting all federal laws every 5 years — including Social Security',
+        facts:`Scott's 2022 "11-Point Plan to Rescue America" said "all federal legislation sunsets in 5 years," which critics warned would put Social Security and Medicare at risk, and called for all Americans to pay some income tax. Fellow Republican Mitch McConnell publicly rejected it, saying it would not be part of the GOP agenda. Scott later revised the plan to exempt those programs.`,
+        why:`A signature agenda item his own party leader disavowed over its threat to entitlement programs.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/mcconnell-knocks-gop-sen-rick-scotts-plan-sunset-federal-programs-spar-rcna70065' } }
+    ],
+    graham: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'Said "use my words against me" on election-year seats, then confirmed Barrett',
+        facts:`In 2016 and again in 2018 Graham vowed that a Supreme Court vacancy in a president's election year should be left to the next president, saying, "Use my words against me." After Justice Ginsburg died weeks before the 2020 election, Graham — as Judiciary chair — moved to confirm Amy Coney Barrett, saying the rules had "changed" after the Kavanaugh fight.`,
+        why:`He explicitly invited the public to hold him to a standard he then reversed.`,
+        source:{ label:'NPR', url:'https://www.npr.org/sections/death-of-ruth-bader-ginsburg/2020/09/19/914774433/use-my-words-against-me-lindsey-graham-s-shifting-position-on-court-vacancies' } },
+      { impact:'negative', category:'rhetoric', date:'2015', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Called Trump a "race-baiting, xenophobic bigot," then became a top ally',
+        facts:`As a 2016 rival, Graham said "you know how you make America great again? Tell Donald Trump to go to hell" and called him a "race-baiting, xenophobic, religious bigot." After Trump won, Graham became one of his closest allies and golf partners and defended him against accusations of racism, saying he had never heard Trump make a racist statement.`,
+        why:`A striking about-face from one of Trump's harshest 2016 critics to a leading defender.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/lindsey-graham-trump-bigot/' } }
+    ],
+    hawley: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'First senator to announce he would object to certifying the 2020 election',
+        facts:`On December 30, 2020, Hawley became the first senator to say he would object to certifying Biden's Electoral College win, forcing a floor debate that GOP leaders had hoped to avoid. He cited Pennsylvania's election procedures and alleged big-tech interference; no credible evidence of decisive fraud was presented, and the objections were rejected by both chambers on January 6.`,
+        why:`His objection helped trigger the contested certification vote at the center of January 6.`,
+        source:{ label:'NPR', url:'https://www.npr.org/sections/biden-transition-updates/2020/12/30/951430323/gop-sen-hawley-will-object-to-electoral-college-certification' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Raised a fist to the Jan. 6 crowd, then was filmed fleeing the mob',
+        facts:`On January 6, 2021, Hawley raised a fist in solidarity toward protesters outside the Capitol — a gesture a Capitol Police officer testified "riled up the crowd." Hours later, Jan. 6 committee footage showed him running through the Capitol to escape the same rioters. Hawley said he did not regret his actions and called the footage a political stunt.`,
+        why:`The contrast between the salute and the flight became one of the day's most-replayed images.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/josh-hawley-seen-fleeing-trump-mob-riled-newly-released-jan-6-footage-rcna39490' } }
+    ],
+    cruz: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'disaster_resilience',
+        headline:'Flew to Cancún as Texans froze in a deadly winter storm',
+        facts:`During the February 2021 winter storm that left millions of Texans without power and killed dozens, Cruz flew to Cancún for a family trip — days after urging residents to "stay home." He returned amid backlash and calls to resign, calling the trip "obviously a mistake." He had previously mocked Democratic officials who broke their own COVID guidance as "hypocrites."`,
+        why:`A vivid words-vs-actions episode: he told Texans to stay home, then left the state during the crisis.`,
+        source:{ label:'The Texas Tribune', url:'https://www.texastribune.org/2021/02/18/ted-cruz-cancun-power-outage/' } },
+      { impact:'negative', category:'rhetoric', date:'2016', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Told the 2016 convention to "vote your conscience," then endorsed Trump',
+        facts:`At the 2016 Republican convention, Cruz pointedly declined to endorse Trump — who had insulted his wife and father — telling delegates to "vote your conscience" and drawing loud boos. He had called Trump a "pathological liar." Weeks later Cruz endorsed him, and he went on to become one of Trump's staunchest Senate allies.`,
+        why:`A public refusal to endorse, reversed within weeks, from a former rival.`,
+        source:{ label:'ABC News', url:'https://abcnews.go.com/Politics/ted-cruz-booed-failing-endorse-donald-trump-vote/story?id=40755265' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    letitia_james: [
+      { impact:'negative', category:'redflags', date:'2018', tags:['Public Statements'], issueKey:'gov_transparency',
+        headline:'Campaigned on a promise to investigate Trump',
+        facts:`After her 2018 election as New York attorney general, James said she would "use every area of the law to investigate President Trump and his business transactions and that of his family." She later won a civil fraud judgment against Trump; he cited her campaign statements to argue the case was a politically motivated "witch hunt."`,
+        why:`Pledging to investigate a specific person became central to accusations that her office acted politically.`,
+        source:{ label:'Spectrum News NY1', url:'https://ny1.com/nyc/all-boroughs/politics/2018/12/24/how-letitia-james-says-she-plans-to-investigate-president-donald-trump-once-new-york-attorney-general' } },
+      { impact:'negative', category:'legal', date:'2025', tags:['Accountability'], issueKey:'gov_transparency',
+        headline:'Indicted for mortgage fraud in a case that later collapsed',
+        facts:`In 2025 a Trump-administration referral led to a federal mortgage-fraud indictment alleging James misstated a Virginia property's use to get better loan terms. James pleaded not guilty, called it "a tool of revenge," and the prosecution unraveled: a judge dismissed the initial charges over an unlawfully appointed prosecutor, and a grand jury later declined to return a new indictment.`,
+        why:`A criminal case against a sitting attorney general — one critics on both sides scrutinized, and that courts and grand jurors rejected.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2025/10/10/politics/letitia-james-case-explained' } }
+    ],
+    jb_pritzker: [
+      { impact:'negative', category:'legal', date:'2018', tags:['Accountability'], issueKey:'property_tax',
+        headline:'Removed a mansion’s toilets in a property-tax break a watchdog called "a scheme to defraud"',
+        facts:`A Cook County inspector-general report found the Pritzkers had toilets removed from a vacant Gold Coast mansion to make it "uninhabitable" and win a lower assessment, yielding about $331,000 in tax breaks — which the report called part of "a scheme to defraud." Amid his 2018 campaign, Pritzker repaid the money; a later FBI inquiry brought no charges.`,
+        why:`A watchdog found the tax maneuver improper, and Pritzker repaid the savings.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2018/10/03/654201077/illinois-gov-candidate-removed-mansions-toilets-to-dodge-taxes-report-finds' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Pledged to veto politician-drawn maps, then signed a Democratic gerrymander',
+        facts:`As a 2018 candidate, Pritzker pledged to veto any legislative map "drawn by politicians" and said he "100% opposed gerrymandering." In 2021 he signed Democratic-drawn legislative maps that a mapmaker acknowledged considered "partisan advantage." Pritzker said the maps complied with voting-rights law; Republicans and reform groups accused him of breaking his promise, and the legislative map was later redrawn after a court challenge.`,
+        why:`He signed the kind of politician-drawn map he had explicitly promised to veto.`,
+        source:{ label:'Chicago Sun-Times', url:'https://chicago.suntimes.com/2021/6/4/22519290/pritzker-signs-new-legislative-maps-remap-boundaries-redistricting-census-democrat-republican' } }
+    ],
+    maxine_waters: [
+      { impact:'negative', category:'redflags', date:'2018', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Urged supporters to confront Trump officials in public',
+        facts:`Amid the 2018 family-separation controversy, Waters told a Los Angeles rally that if supporters saw Trump cabinet officials "in a restaurant, in a department store, at a gasoline station, you get out and you create a crowd and you push back on them." The remarks drew criticism from Republicans and some Democrats, including Chuck Schumer; Waters said she was not calling for violence.`,
+        why:`Calls to confront officials in public drew bipartisan pushback over civility and safety.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2018/06/25/politics/maxine-waters-trump-officials' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'"Get more confrontational" remark during the Chauvin trial drew a judge’s warning',
+        facts:`Before the Derek Chauvin verdict in April 2021, Waters told protesters to "get more confrontational" if there was no conviction. The trial judge called the comments "abhorrent" and said they could give the defense grounds for appeal, though he denied a mistrial and Chauvin was convicted. A GOP censure effort failed; Waters said she meant nonviolent confrontation in the civil-rights tradition.`,
+        why:`A judge in a high-profile murder trial said her comments could jeopardize the verdict on appeal.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/04/19/politics/judge-derek-chauvin-maxine-waters-mistrial-appeal/index.html' } }
+    ],
+    aoc: [
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'econ_corp_account',
+        headline:'Wore a "Tax the Rich" dress to the elite Met Gala, later found to breach gift rules',
+        facts:`Ocasio-Cortez wore a "Tax the Rich" gown to the 2021 Met Gala, where tickets run at least $30,000. After a years-long inquiry, the House Ethics Committee found in 2025 that she failed to fully comply with gift rules — accepting free admission for her partner and underpaying for some items — and ordered nearly $3,000 in additional payments, though it found no intent to underpay.`,
+        why:`An ethics panel found gift-rule violations tied to an appearance she framed as an anti-wealth statement.`,
+        source:{ label:'NBC New York', url:'https://www.nbcnewyork.com/news/local/aoc-met-gala-dress-house-ethics-panel/6348690/' } },
+      { impact:'negative', category:'redflags', date:'2019', tags:['Notable Actions'], issueKey:'econ_growth',
+        headline:'Helped scuttle Amazon’s HQ2 deal in Queens',
+        facts:`In 2019 Ocasio-Cortez was a prominent opponent of Amazon's planned Long Island City headquarters and its ~$3 billion in incentives; when Amazon pulled out, she celebrated the reversal. Critics blamed her for the loss of a project projected at 25,000+ jobs, though other officials also opposed it and the site was outside her district. She has said "we were right."`,
+        why:`Her opposition to a major jobs deal remains a debated mark on her economic record.`,
+        source:{ label:'TIME', url:'https://time.com/5530386/aoc-amazon-new-york-hq2/' } }
+    ],
+    crockett: [
+      { impact:'negative', category:'redflags', date:'2025', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Called Gov. Abbott "Governor Hot Wheels," drawing censure threats',
+        facts:`At a March 2025 Human Rights Campaign dinner, Crockett referred to Texas Gov. Greg Abbott — who has used a wheelchair for 40 years — as "Governor Hot Wheels." Republicans and disability advocates condemned the remark, and a censure motion was drafted. Crockett said she was mocking Abbott's migrant-busing policies, not his disability.`,
+        why:`Widely criticized comments about a governor's disability that prompted a censure effort.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/rep-jasmine-crockett-defends-governor-hot-wheels-comments/story?id=120167133' } },
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'"Bleach blonde bad built butch body" jab at a colleague drew mixed backlash',
+        facts:`During a heated May 2024 House Oversight hearing, after Rep. Marjorie Taylor Greene mocked her "fake eyelashes," Crockett referred to "somebody's bleach blonde bad built butch body." The exchange went viral; her campaign moved to trademark the phrase and sold merchandise. Some LGBTQ advocates criticized the word "butch," and Crockett later said she meant no harm to the community.`,
+        why:`A viral personal insult on the House floor that even some allies criticized.`,
+        source:{ label:'The Hill', url:'https://thehill.com/blogs/in-the-know/4677117-jasmine-crockett-trademark-bleach-blonde-bad-built-butch-body-marjorie-taylor-greene/' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
