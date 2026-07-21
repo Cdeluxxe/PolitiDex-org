@@ -14,6 +14,7 @@ import {
   serial,
   text,
   integer,
+  numeric,
   boolean,
   jsonb,
   timestamp,
@@ -874,5 +875,67 @@ export const vrMeasureProvisions = pgTable(
   },
   (t) => ({
     measureIdx: index("vr_measure_provisions_measure_idx").on(t.measureId),
+  })
+);
+
+// Distributional Impact Ledger ("Who It Affects") — the class/economic transparency
+// layer. One row records ONE cohort's sourced, directional exposure to a measure (or,
+// when set, a single named provision of it). It is the third sibling of the Evidence
+// Locker's _strength() and the Follow-the-Money _financeSignal(): a transparent,
+// reasons-listed, SOURCED structural read of WHO a policy's costs and benefits fall on
+// — never a verdict on whether the policy is good or bad. Fully additive; nothing
+// existing reads or writes this table.
+//
+// NEUTRALITY (enforced in the Function and DISTRIBUTIONAL_IMPACT.md):
+//   • Every row carries a NOT NULL source_url from a named scorekeeper (CBO, JCT,
+//     Treasury OTA, GAO/CRS, or a labelled independent model). The Function refuses
+//     to emit any row without one, exactly like every other vr_* record.
+//   • `direction` describes WHO is affected and which way — it is not a value
+//     judgement. Both cost and benefit rows are expected for a real measure.
+//   • Divergent estimates are stored as separate rows (different source_label), so
+//     the panel can show disagreement rather than hide it.
+export const vrDistributionalImpacts = pgTable(
+  "vr_distributional_impacts",
+  {
+    id: serial().primaryKey(),
+    measureId: integer("measure_id")
+      .notNull()
+      .references(() => vrMeasures.id, { onDelete: "cascade" }),
+    // Optional: pin the impact to one named provision of a megabill. Null = whole measure.
+    provisionId: integer("provision_id").references(() => vrMeasureProvisions.id, {
+      onDelete: "set null",
+    }),
+    // Which population bears the cost / gets the benefit. One of the defined cohorts:
+    // working_middle | small_biz_contractors | large_corporations |
+    // high_income_wealth | government_insiders. Anchored to how official scorekeepers
+    // slice the data (income quintiles, filer type, etc.) — never a rhetorical label.
+    cohort: text().notNull(),
+    // benefit | cost | mixed | neutral — direction of the effect for THIS cohort.
+    direction: text().notNull().default("mixed"),
+    // Optional quantified magnitude, e.g. +2.9 with unit 'pct_after_tax_income'.
+    // Stored as numeric so the client can size a bar; null when only qualitative.
+    magnitudeValue: numeric("magnitude_value"),
+    magnitudeUnit: text("magnitude_unit"), // pct_after_tax_income | usd_10yr | ...
+    // Human-readable magnitude when no clean number applies ("~11M fewer insured").
+    magnitudeLabel: text("magnitude_label"),
+    // What is being measured ("Change in after-tax income, 2027").
+    metric: text().notNull().default(""),
+    // VERIFIABILITY: the scorekeeper and a direct, citable link. Both required — the
+    // Function never emits an impact row that lacks a source.
+    sourceLabel: text("source_label").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    // One-line methodology / caveat note shown under the figure.
+    methodology: text().default(""),
+    // How verifiable this figure is: strong (official CBO/JCT distributional table) |
+    // moderate (single named independent model) | limited (directional inference).
+    evidenceStrength: text("evidence_strength").notNull().default("moderate"),
+    // As-of date of the underlying estimate, so freshness is always visible.
+    asOf: timestamp("as_of", { withTimezone: true }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    measureIdx: index("vr_distributional_impacts_measure_idx").on(t.measureId),
+    cohortIdx: index("vr_distributional_impacts_cohort_idx").on(t.cohort),
   })
 );
