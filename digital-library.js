@@ -574,6 +574,31 @@
       '.dlib-billcard.is-expanded .dlib-bill-expand-ic{transform:rotate(180deg);}' +
       '.dlib-bill-detail{display:flex;flex-direction:column;gap:.45rem;margin-top:.15rem;padding-top:.5rem;border-top:1px dashed rgba(159,180,212,.18);}' +
       '.dlib-bill-summary{margin:0;font:500 .8rem/1.5 "Barlow",sans-serif;color:#b9c9e2;}' +
+      // Beginner "why this matters" note — a soft-highlighted callout at the top of the expand.
+      '.dlib-bill-why{margin:0;font:500 .78rem/1.5 "Barlow",sans-serif;color:#dbe6f6;background:rgba(96,165,250,.08);' +
+        'border-left:2px solid rgba(96,165,250,.5);border-radius:.35rem;padding:.4rem .55rem;}' +
+      // "At a glance" plain-English status line on the card face.
+      '.dlib-bill-glance{font:700 .74rem/1.25 "Barlow",sans-serif;color:#cfe0f5;}' +
+      '.dlib-glance-enacted{color:#9ff0bd;}.dlib-glance-failed,.dlib-glance-vetoed{color:#fca5a5;}' +
+      // Compact, color-coded 3-stage progress track (wraps on small screens).
+      '.dlib-timeline{display:flex;align-items:flex-start;flex-wrap:nowrap;gap:.15rem;margin:.1rem 0 .05rem;}' +
+      '.dlib-tl-node{display:flex;flex-direction:column;align-items:center;gap:.22rem;flex:1 1 0;min-width:0;text-align:center;}' +
+      '.dlib-tl-dot{width:.62rem;height:.62rem;border-radius:50%;border:2px solid rgba(159,180,212,.35);background:rgba(13,21,38,.9);flex-shrink:0;}' +
+      '.dlib-tl-lb{font:700 .52rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#7d97bd;}' +
+      '.dlib-tl-bar{height:2px;flex:1 1 auto;margin-top:.28rem;background:rgba(159,180,212,.25);border-radius:2px;min-width:.6rem;}' +
+      '.dlib-tl-node.dlib-tl-done .dlib-tl-dot{background:#4ade80;border-color:#4ade80;}' +
+      '.dlib-tl-node.dlib-tl-done .dlib-tl-lb{color:#9ff0bd;}' +
+      '.dlib-tl-bar.dlib-tl-done{background:#4ade80;}' +
+      '.dlib-tl-node.dlib-tl-now .dlib-tl-dot{background:var(--cat,#f6d873);border-color:var(--cat,#f6d873);box-shadow:0 0 0 3px rgba(245,200,66,.18);}' +
+      '.dlib-tl-node.dlib-tl-now .dlib-tl-lb{color:var(--cat,#f6d873);}' +
+      '.dlib-tl-bar.dlib-tl-now{background:var(--cat,#f6d873);}' +
+      '.dlib-tl-node.dlib-tl-bad .dlib-tl-dot{background:#f87171;border-color:#f87171;}' +
+      '.dlib-tl-node.dlib-tl-bad .dlib-tl-lb{color:#fca5a5;}' +
+      '.dlib-tl-bar.dlib-tl-bad{background:#f87171;}' +
+      // Plain key-stats strip on the card face.
+      '.dlib-bill-stats{display:flex;flex-wrap:wrap;gap:.3rem;}' +
+      '.dlib-stat{font:600 .6rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#a9bbd6;' +
+        'background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .5rem;white-space:nowrap;}' +
       '.dlib-bill-detail .dlib-sec{display:flex;flex-direction:column;gap:.15rem;}' +
       '.dlib-bill-open{align-self:flex-start;cursor:pointer;margin-top:.1rem;font:800 .64rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;' +
         'text-transform:uppercase;color:#9ff0bd;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4);' +
@@ -669,12 +694,36 @@
   }
   // Progress rank for the "Status" sort — furthest-along first.
   var BILL_PROGRESS = { enacted: 6, passed_senate: 5, passed_house: 4, pending: 3, introduced: 2, failed: 1, vetoed: 1 };
+  // Reader-friendly sort scores. All derived from fields already on the list item
+  // (issue count, roll calls, recorded votes, status) — no new data or network.
+  function billIssueCount(b) { return (b.issueKeys || []).filter(Boolean).length; }
+  // "Beginner friendly": focused, explained, self-contained bills first (lower = simpler).
+  function billComplexity(b) {
+    var t = billTier(b);
+    return billIssueCount(b) + (t === 'mega' ? 8 : t === 'omni' ? 4 : 0) + (b.summary ? 0 : 3);
+  }
+  // "Most controversial": more recorded roll calls / bundled issues / a failed-or-vetoed
+  // ending = more legislative conflict. A transparent proxy — the browse list carries no
+  // vote margins, so this ranks by how much fighting a bill generated, not the tally.
+  function billContested(b) {
+    var s = b.status;
+    return (b.rollcallCount || 0) * 3 + (b.voteCount || 0) / 25 + billIssueCount(b) + ((s === 'failed' || s === 'vetoed') ? 6 : 0);
+  }
   function billSortCmp(a, b) {
     if (_billSort === 'number') {
       return billNumberVal(a) - billNumberVal(b) || String(a.number || '').localeCompare(String(b.number || ''));
     }
     if (_billSort === 'status') {
       return (BILL_PROGRESS[b.status] || 0) - (BILL_PROGRESS[a.status] || 0) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'controversial') {
+      return billContested(b) - billContested(a) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'beginner') {
+      return billComplexity(a) - billComplexity(b) || billDateVal(b) - billDateVal(a);
+    }
+    if (_billSort === 'bundled') {
+      return billIssueCount(b) - billIssueCount(a) || billDateVal(b) - billDateVal(a);
     }
     var d = billDateVal(b) - billDateVal(a); // recent (newest first) by default
     if (_billSort === 'oldest') d = -d;
@@ -786,14 +835,58 @@
     return true;
   }
 
+  // Plain-English one-line status ("at a glance") — no jargon.
+  function billGlance(b) {
+    switch (b.status) {
+      case 'enacted': return '✅ Signed into law';
+      case 'passed_house': return '🏛️ Passed the House — not yet law';
+      case 'passed_senate': return '🏛️ Passed the Senate — not yet law';
+      case 'vetoed': return '⛔ Vetoed after clearing Congress';
+      case 'failed': return '✖️ Failed to pass';
+      case 'pending': return '🕒 Pending — in committee';
+      default: return '🕒 Introduced — awaiting a vote';
+    }
+  }
+  // Neutral, templated "why this matters" note for first-time readers. Says only what
+  // the bill's shape/status already implies — no editorializing about the policy.
+  function billWhy(b) {
+    var n = billIssueCount(b);
+    var t = billTier(b);
+    var cat = billCategory(b);
+    var topic = cat ? cat.label.toLowerCase() : 'this area';
+    if (t === 'mega') return 'Why it matters: a megabill like this rolls many separate decisions into a single vote — one yes or no can affect all ' + n + ' issues it touches at once.';
+    if (t === 'omni') return 'Why it matters: this bill bundles ' + n + ' issues, so a vote on it is really a vote on several topics together.';
+    if (b.status === 'enacted') return 'Why it matters: this one already became law, so it is shaping ' + topic + ' policy now.';
+    if (b.status === 'failed' || b.status === 'vetoed') return 'Why it matters: this one did not make it into law — a marker of where lawmakers drew the line on ' + topic + '.';
+    return 'Why it matters: a focused bill on ' + topic + ', still working its way through Congress.';
+  }
+  // A tiny 3-stage, color-coded progress track (Introduced → passed a chamber → law).
+  // Derived only from `status`; states: done (green) · now (highlight) · todo (muted) ·
+  // bad (red, for failed/vetoed). Compact so it wraps cleanly on phones.
+  function billTimelineHtml(b) {
+    var s = b.status || 'introduced', nodes;
+    if (s === 'enacted') nodes = [['Introduced', 'done'], ['Passed Congress', 'done'], ['Signed into law', 'done']];
+    else if (s === 'passed_house') nodes = [['Introduced', 'done'], ['Passed the House', 'now'], ['Signed into law', 'todo']];
+    else if (s === 'passed_senate') nodes = [['Introduced', 'done'], ['Passed the Senate', 'now'], ['Signed into law', 'todo']];
+    else if (s === 'vetoed') nodes = [['Introduced', 'done'], ['Passed Congress', 'done'], ['Vetoed', 'bad']];
+    else if (s === 'failed') nodes = [['Introduced', 'done'], ['Failed', 'bad'], ['Signed into law', 'todo']];
+    else if (s === 'pending') nodes = [['Introduced', 'done'], ['In committee', 'now'], ['Signed into law', 'todo']];
+    else nodes = [['Introduced', 'now'], ['A chamber vote', 'todo'], ['Signed into law', 'todo']];
+    var html = nodes.map(function (nd, i) {
+      var bar = i > 0 ? '<span class="dlib-tl-bar dlib-tl-' + nodes[i - 1][1] + '"></span>' : '';
+      return bar + '<span class="dlib-tl-node dlib-tl-' + nd[1] + '"><span class="dlib-tl-dot" aria-hidden="true"></span>' +
+        '<span class="dlib-tl-lb">' + esc(nd[0]) + '</span></span>';
+    }).join('');
+    return '<span class="dlib-timeline" role="img" aria-label="Progress: ' +
+      escAttr(nodes.map(function (n) { return n[0]; }).join(' then ')) + '">' + html + '</span>';
+  }
+
   function billCardHtml(b) {
     var ref = (b.id != null) ? b.id : b.number;
     var followed = billIsFollowed(b);
     var star = '<span class="dlib-bill-follow' + (followed ? ' is-on' : '') + '" data-follow="' + escAttr(String(ref)) + '" role="button" tabindex="0" ' +
       'aria-pressed="' + followed + '" aria-label="' + (followed ? 'Unfollow' : 'Follow') + ' this bill" title="' + (followed ? 'Following — click to unfollow' : 'Follow this bill') + '">' + (followed ? '★' : '☆') + '</span>';
     var status = b.status ? '<span class="dlib-bill-status dlib-bs-' + esc(b.status) + '">' + esc(billStatusLabel(b.status)) + '</span>' : '';
-    var meta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : '',
-      b.voteCount ? (b.voteCount + ' recorded votes') : ''].filter(Boolean).join(' · ');
 
     // Section breakdown: each of the bill's issue categories becomes a chip that jumps
     // to that Issue Spotlight. Chips carry their topic-category color so the bundle
@@ -827,9 +920,24 @@
     var catChip = cat ? '<span class="dlib-bill-cat" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tagrow = (catChip || tierBadge) ? '<span class="dlib-bill-tagrow">' + catChip + tierBadge + '</span>' : '';
 
-    // Punchy by default: number, status, category + tier, title, one meta line. The
-    // summary and the full issue breakdown live behind an inline "What's inside"
-    // expander so the list scans fast; "View full record" opens the rich detail panel.
+    // "At a glance" line + color-coded progress track + a plain key-stats strip, all on
+    // the card face so a first-timer can read status and scale without opening anything.
+    var glance = '<span class="dlib-bill-glance dlib-glance-' + esc(b.status || 'introduced') + '">' + billGlance(b) + '</span>';
+    var timeline = billTimelineHtml(b);
+    var statList = [];
+    var chMeta = [billChamberLabel(b.chamber), b.congress ? (b.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
+    if (chMeta) statList.push('🏛️ ' + chMeta);
+    if (ordered.length) statList.push('🧩 ' + ordered.length + ' issue' + (ordered.length !== 1 ? 's' : ''));
+    if (b.voteCount) statList.push('🗳️ ' + b.voteCount + ' recorded votes');
+    else if (b.rollcallCount) statList.push('🗳️ ' + b.rollcallCount + ' roll call' + (b.rollcallCount !== 1 ? 's' : ''));
+    var stats = statList.length
+      ? '<span class="dlib-bill-stats">' + statList.map(function (s) { return '<span class="dlib-stat">' + esc(s) + '</span>'; }).join('') + '</span>'
+      : '';
+
+    // The summary, the beginner "why this matters" note and the full issue breakdown
+    // live behind an inline "What's inside" expander so the list stays scannable;
+    // "View full record" opens the rich detail panel.
+    var why = '<p class="dlib-bill-why">' + esc(billWhy(b)) + '</p>';
     var summaryFull = b.summary ? '<p class="dlib-bill-summary">' + esc(b.summary) + '</p>' : '';
     var breakdown = ordered.length
       ? '<div class="dlib-sec">' +
@@ -837,24 +945,23 @@
           '<span class="dlib-sec-chips">' + chips + '</span>' +
         '</div>'
       : '';
-    var hasDetail = !!(summaryFull || breakdown);
-    var detail = hasDetail
-      ? '<div class="dlib-bill-detail" hidden>' + summaryFull + breakdown +
-          '<button type="button" class="dlib-bill-open" data-open="' + escAttr(String(ref)) + '">View full record →</button>' +
-        '</div>'
-      : '';
-    var expander = hasDetail
-      ? '<button type="button" class="dlib-bill-expand" data-expand aria-expanded="false" aria-label="Show what’s inside this bill">' +
-          '<span class="dlib-bill-expand-lb">What’s inside</span>' +
-          '<span class="dlib-bill-expand-ic" aria-hidden="true">▾</span></button>'
-      : '';
+    var detail =
+      '<div class="dlib-bill-detail" hidden>' + why + summaryFull + breakdown +
+        '<button type="button" class="dlib-bill-open" data-open="' + escAttr(String(ref)) + '">View full record →</button>' +
+      '</div>';
+    var expander =
+      '<button type="button" class="dlib-bill-expand" data-expand aria-expanded="false" aria-label="Show what’s inside this bill">' +
+        '<span class="dlib-bill-expand-lb">What’s inside &amp; why it matters</span>' +
+        '<span class="dlib-bill-expand-ic" aria-hidden="true">▾</span></button>';
     var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
 
     return '<div class="dlib-card dlib-billcard' + (tier ? ' dlib-billcard--' + tier : '') + '" data-bill="' + escAttr(String(ref)) + '"' + catStyle + ' role="button" tabindex="0" aria-label="Open bill: ' + escAttr(b.title) + '">' +
       '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
       tagrow +
       '<span class="dlib-card-title">' + esc(b.shortTitle || b.title) + '</span>' +
-      (meta ? '<span class="dlib-bill-meta">' + esc(meta) + '</span>' : '') +
+      glance +
+      timeline +
+      stats +
       expander +
       detail +
     '</div>';
@@ -911,7 +1018,9 @@
         '</div>'
       : '';
     var sortSel = '<label class="dlib-sortsel">Sort <select data-bill-sort>' +
-      [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['number', 'Bill number'], ['status', 'Furthest along']]
+      [['recent', 'Most recent → oldest'], ['oldest', 'Oldest → most recent'], ['status', 'Furthest along'],
+       ['controversial', '🔥 Most controversial'], ['beginner', '🌱 Beginner friendly'], ['bundled', '📦 Most bundled'],
+       ['number', 'Bill number']]
         .map(function (o) { return '<option value="' + o[0] + '"' + (_billSort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
       '</select></label>';
     wrap.innerHTML =
