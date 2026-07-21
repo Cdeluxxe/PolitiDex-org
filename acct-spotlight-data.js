@@ -4911,3 +4911,149 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
       ]
     }
 );
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — high-profile federal & state figures (Jul 2026)
+   ────────────────────────────────────────────────────────────────────────────
+   Purely additive: each item is a negative-impact, sourced, neutrally-worded
+   accountability record so it surfaces in the profile "Biggest Controversies"
+   section (controversies.js) and the Say-vs-Do engine. Entries are CONCAT-MERGED
+   onto window.ACCT_SPOTLIGHT so any politician who already has items (e.g. the
+   existing schumer/booker arrays above) keeps them and simply gains these — no
+   existing content is replaced. Balanced across parties; each `issueKey` maps to
+   an ISSUE_MAP topic so the card links to the matching Issue Spotlight. Items
+   framed as say-vs-do use category:'rhetoric' / tag 'Rhetoric vs Reality' so the
+   verdict stamp reads "Says One Thing · Does Another"; others read as red flags.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    schiff: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Accountability','Notable Actions'], issueKey:'gov_transparency',
+        headline:'Censured by the House over his Trump-Russia investigation claims',
+        facts:`On June 21, 2023, the House voted 213–209, largely along party lines, to censure Schiff — then a Senate candidate and former Intelligence Committee chair — over statements he made while leading investigations into the Trump campaign's contacts with Russia; the resolution argued he misled the public because later probes did not establish a criminal conspiracy. Schiff rejected the premise, telling Republicans, "You honor me with your enmity."`,
+        why:`A formal House censure is one of the chamber's most serious rebukes and is a matter of public record, though Schiff and his party dispute that his statements were false.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2023/06/21/1183564794/schiff-censure-house-republicans' } },
+      { impact:'negative', category:'rhetoric', date:'2019', tags:['Rhetoric vs Reality'], issueKey:'gov_transparency',
+        headline:'Fact-checked "Four Pinocchios" over a whistleblower claim',
+        facts:`In September 2019 Schiff said on MSNBC that his committee "had not spoken directly with the whistleblower" behind the Trump-Ukraine complaint. After reporting showed the whistleblower had contacted committee staff before filing, The Washington Post's Fact Checker rated the statement false — its worst, "Four Pinocchios" rating. His office said the answer "should have been more carefully phrased."`,
+        why:`Independent fact-checkers judged a public statement by the lead impeachment investigator to be false — a direct check on his own words.`,
+        source:{ label:'Washington Post Fact Checker (Seattle Times)', url:'https://www.seattletimes.com/nation-world/nation-politics/schiffs-4-pinocchio-claim-that-his-committee-had-not-spoken-to-the-whistleblower/' } }
+    ],
+    klobuchar: [
+      { impact:'negative', category:'redflags', date:'2019', tags:['Accountability'], issueKey:'econ_workers',
+        headline:'Faced reports of mistreating staff and record office turnover',
+        facts:`As she launched her 2020 presidential bid in February 2019, multiple outlets reported that former aides described Klobuchar berating staff, throwing objects and impeding their job moves, and LegiStorm data showed her Senate office had among the highest staff-turnover rates in Congress. Klobuchar responded that she has "high expectations" and can be tough, but disputed being abusive.`,
+        why:`On-the-record accounts from former employees about how she runs her office, which she has publicly contested.`,
+        source:{ label:'Yahoo News', url:'https://www.yahoo.com/news/amy-klobuchar-newest-presidential-candidate-faces-questions-temperament-treatment-staff-165813668.html' } },
+      { impact:'negative', category:'legal', date:'2020', tags:['Rhetoric vs Reality','Accountability'], issueKey:'justice_reform',
+        headline:'Scrutiny over a teen murder case she prosecuted as county attorney',
+        facts:`As Hennepin County Attorney, Klobuchar oversaw the 2003 prosecution of 16-year-old Myon Burrell and later cited the case as proof of her commitment to justice. A 2020 Associated Press investigation found the case rested on a single, shifting eyewitness with no gun, DNA or fingerprints; Klobuchar then called for an independent review, and Burrell's sentence was commuted that December.`,
+        why:`A case she publicly touted was later found by reporters to have serious evidentiary flaws — a check on a central part of her prosecutorial record.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2020/feb/24/explaining-amy-klobuchars-role-newly-investigated-/' } }
+    ],
+    schumer: [
+      { impact:'negative', category:'redflags', date:'2020', tags:['Notable Actions'], issueKey:'scotus_reform',
+        headline:'Rebuked by Chief Justice Roberts for a "pay the price" remark',
+        facts:`At a March 2020 abortion-rights rally outside the Supreme Court, Schumer said Justices Gorsuch and Kavanaugh had "released the whirlwind" and would "pay the price" for certain rulings. Chief Justice John Roberts called the comments "dangerous," and the next day Schumer said he "shouldn't have used the words I did" but denied making a threat.`,
+        why:`A rare public rebuke of a Senate leader by the Chief Justice, over remarks Schumer himself walked back.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/03/04/politics/schumer-roberts-threats-supreme-court' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality'], issueKey:'national_debt',
+        headline:'Backlash for helping advance a GOP funding bill he called "very bad"',
+        facts:`In March 2025 Schumer described a Republican six-month funding bill as "very bad," then voted to help it clear the 60-vote filibuster to avert a shutdown, while not voting for final passage. Many Democrats, especially in the House, publicly criticized the move; Schumer said a shutdown would have handed Trump even more power.`,
+        why:`Schumer's cloture vote after condemning the bill became a flashpoint over his leadership within his own party.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2025/03/13/g-s1-53495/senate-democrats-funding-bill-government-shutdown' } }
+    ],
+    booker: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'His "I am Spartacus" document release proved less defiant than claimed',
+        facts:`During Brett Kavanaugh's September 2018 confirmation hearing, Booker said he would release "committee confidential" documents knowing he risked expulsion — an "I am Spartacus" moment. Republicans then noted the documents had already been cleared for public release beforehand; Booker said he had technically broken the rules the night before and stood by his broader point.`,
+        why:`A dramatic, widely covered claim of rule-breaking that the record showed was largely already permitted.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2018/09/06/cory-bookers-kavanaugh-document-release-not-as-defiant-as-it-seemed.html' } },
+      { impact:'negative', category:'rhetoric', date:'2013', tags:['Rhetoric vs Reality'], issueKey:'justice_reform',
+        headline:'A long-told "T-Bone" drug-dealer story was acknowledged as a composite',
+        facts:`For years Booker recounted a vivid friendship with a Newark drug dealer named "T-Bone." After a 2013 report questioned the account, a mentor said Booker had conceded T-Bone was a "composite" of people he met; Booker had earlier called the figure an "archetype." His campaign dismissed the renewed scrutiny as partisan.`,
+        why:`A signature personal anecdote used in speeches for years was acknowledged not to be a single real person.`,
+        source:{ label:'RealClearPolitics', url:'https://www.realclearpolitics.com/articles/2013/08/29/booker_accused_of_inventing_oft-cited_drug_dealer_119763.html' } }
+    ],
+    gavin_newsom: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'medical_freedom',
+        headline:'Attended the French Laundry dinner while urging Californians to stay home',
+        facts:`On November 6, 2020, Newsom attended a lobbyist's birthday dinner at the French Laundry restaurant as his administration urged Californians to avoid gatherings amid a COVID surge. Photos showed a sizable, unmasked indoor group larger than state guidance advised. Newsom apologized, saying he "made a bad mistake" and should have "walked back."`,
+        why:`A words-vs-actions moment in which the governor's own conduct conflicted with the public-health rules he was promoting.`,
+        source:{ label:'FOX 11 Los Angeles', url:'https://www.foxla.com/news/fox-11-obtains-exclusive-photos-of-gov-newsom-at-french-restaurant-allegedly-not-following-covid-19-protocols' } },
+      { impact:'negative', category:'redflags', date:'2021', tags:['Accountability'], issueKey:'gov_waste',
+        headline:'Presided over an estimated $20B in pandemic unemployment fraud',
+        facts:`During the pandemic California's EDD paid out an estimated $20 billion in fraudulent jobless claims — the State Auditor confirmed roughly $10.4 billion in likely-improper payments — while a Bank of America debit-card freeze also cut off many legitimate workers. Newsom's administration later launched a modernization effort, EDDNext.`,
+        why:`State auditors documented large-scale fraud and mismanagement in an agency under the governor's administration.`,
+        source:{ label:'California State Auditor', url:'https://information.auditor.ca.gov/reports/2020-628.2/summary.html' } }
+    ],
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    cassidy: [
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Voted to convict Trump in 2021 and was censured by his state party',
+        facts:`Cassidy was one of seven Republican senators who voted to convict Trump in the February 2021 impeachment trial over January 6, saying "our Constitution and our country is more important than any one person" and that Trump "is guilty." The Louisiana Republican Party unanimously censured him the same day.`,
+        why:`A high-profile break with his party that drew a formal censure from his home-state GOP.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2021/02/13/politics/bill-cassidy-louisiana-republican-party-censure' } },
+      { impact:'negative', category:'rhetoric', date:'2025', tags:['Rhetoric vs Reality'], issueKey:'healthcare',
+        headline:'Confirmed RFK Jr. despite vaccine concerns, then said promises were broken',
+        facts:`A physician and HELP Committee chair, Cassidy voiced deep reservations about Robert F. Kennedy Jr.'s vaccine record but cast a pivotal vote to confirm him as HHS Secretary in 2025 after securing assurances. He later said "the commitments that were made to me have been violated" as Kennedy changed vaccine guidance; Kennedy said he kept his promises.`,
+        why:`By Cassidy's own account, the conditions he set for his decisive yes vote were not kept — a direct say-vs-do.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/gop-sen-bill-cassidy-wavered-confirming-rfk-jr-says-lived-promises-vac-rcna206882' } }
+    ],
+    luna: [
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Rhetoric vs Reality'], issueKey:'gov_transparency',
+        headline:'Family and records disputed parts of her life story',
+        facts:`A February 2023 Washington Post investigation reported that relatives and genealogical records disputed Rep. Luna's accounts of a Jewish/Messianic upbringing and an impoverished, isolated childhood, and that her grandfather had served in the Nazi Wehrmacht. Luna called the questions "bizarre" and cast the reporting as an attack on a "conservative minority."`,
+        why:`Independent reporting and family members contradicted biographical claims she had made publicly.`,
+        source:{ label:'The Times of Israel', url:'https://www.timesofisrael.com/grandfather-of-gop-lawmaker-claiming-jewish-heritage-fought-for-nazis-report/' } },
+      { impact:'negative', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'family_support',
+        headline:'Clashed with Speaker Johnson and left the Freedom Caucus over proxy voting',
+        facts:`In 2025 Luna forced a floor fight to let new parents vote by proxy, using a discharge petition that succeeded when nine Republicans broke with leadership. She left the House Freedom Caucus during the standoff, accusing members of a "betrayal," before striking a "vote-pairing" deal with Speaker Mike Johnson.`,
+        why:`A high-profile rupture with her own party's leadership and caucus over House rules.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/anna-paulina-luna-mike-johnson-proxy-voting-new-parents/' } }
+    ],
+    donalds: [
+      { impact:'negative', category:'redflags', date:'2024', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Criticized for comments on Black families during the Jim Crow era',
+        facts:`At a June 2024 Trump-outreach event, Donalds said "during Jim Crow, the Black family was together" and that more Black Americans then voted conservatively, drawing sharp criticism from Democrats including Rep. Hakeem Jeffries. Donalds said his remarks were mischaracterized and that he never called the Jim Crow era better for Black Americans.`,
+        why:`Widely covered remarks that prompted bipartisan pushback; PolitiFact noted his account omitted key context.`,
+        source:{ label:'PolitiFact', url:'https://www.politifact.com/article/2024/jun/10/fact-checking-byron-donalds-jim-crow-comments/' } },
+      { impact:'negative', category:'voting', date:'2021', tags:['Notable Actions'], issueKey:'democracy_balance',
+        headline:'Objected to certifying 2020 electoral votes after the Capitol riot',
+        facts:`On January 6–7, 2021, Donalds voted to object to certifying Biden's electoral votes from Arizona and Pennsylvania, proceeding after the Capitol was stormed; both objections were rejected by the House. He said he was raising "legitimate questions" about how some states ran their elections and has since said he does not consider Biden's win legitimate.`,
+        why:`A recorded vote against certification, part of the January 6 electoral-count fight.`,
+        source:{ label:'Ballotpedia', url:'https://ballotpedia.org/Byron_Donalds' } }
+    ],
+    chip_roy: [
+      { impact:'negative', category:'redflags', date:'2021', tags:['Public Statements'], issueKey:'justice_balance',
+        headline:'Criticized for a "rope … tall oak tree" remark at an anti-Asian-violence hearing',
+        facts:`At a March 2021 House Judiciary hearing on anti-Asian violence, days after the Atlanta spa shootings, Roy invoked "old sayings in Texas about find all the rope … and get a tall oak tree" while talking about justice for criminals. After criticism that he appeared to reference lynching, Roy said "I meant it" and "no apologies," saying he was defending free speech and the rule of law.`,
+        why:`Widely covered remarks at a hearing on hate crimes that drew bipartisan objection.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/chip-roy-lynching-comments-house-hearing/' } },
+      { impact:'negative', category:'voting', date:'2019', tags:['Notable Actions'], issueKey:'disaster_resilience',
+        headline:'Single-handedly delayed a $19B disaster-aid bill',
+        facts:`In May 2019 Roy objected to passing a bipartisan $19.1 billion disaster-relief package — which the Senate had cleared 85–8 — by unanimous consent, delaying it because members were out of town and it lacked border funding and offsets. Critics including Speaker Pelosi called it obstruction; Roy said members should be present to vote on billions in spending.`,
+        why:`A high-profile use of one member's power to delay disaster aid, on stated fiscal-process grounds.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2019/05/24/726600378/disaster-aid-bill-stalled-after-republican-blocks-house-vote' } }
+    ],
+    brian_kemp: [
+      { impact:'negative', category:'transparency', date:'2018', tags:['Accountability'], issueKey:'voting_access',
+        headline:'Oversaw his own 2018 election as Georgia Secretary of State',
+        facts:`Running for governor in 2018, Kemp remained Secretary of State — Georgia's chief elections officer — while facing Democrat Stacey Abrams. Civil-rights groups, Rep. John Lewis and the NAACP called on him to resign or recuse over the conflict of interest; Kemp declined, saying his office administered elections fairly.`,
+        why:`Serving as the referee of his own contest drew bipartisan calls to step aside and multiple lawsuits.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/politics-news/georgia-sued-placing-thousands-voter-registrations-hold-election-n919526' } },
+      { impact:'negative', category:'redflags', date:'2018', tags:['Accountability'], issueKey:'voting_access',
+        headline:'"Exact match" left about 53,000 voter registrations pending before the vote',
+        facts:`Weeks before the 2018 election, the Associated Press reported that roughly 53,000 voter-registration applications — about 70% from Black Georgians — were on hold under the "exact match" policy Kemp's office enforced, which flagged minor data mismatches. Officials noted affected voters could still vote with photo ID, and Georgia later scaled the policy back after litigation.`,
+        why:`A specific, documented effect of an elections policy he administered while on the ballot.`,
+        source:{ label:'Snopes', url:'https://www.snopes.com/fact-check/georgia-black-voter-registration/' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
