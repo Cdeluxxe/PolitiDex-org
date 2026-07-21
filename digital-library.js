@@ -298,13 +298,20 @@
     var tags = (it.issueKeys || []).slice(0, 2).map(function (k) {
       return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
     }).join('');
+    // A per-type call to action, mirroring the Spotlight Hub / collection tiles so the
+    // archive card reads as an obvious, themed doorway rather than a flat block.
+    var CTA = { spotlight: 'View Spotlight', receipt: 'See the receipt', mandate: 'Open reform', bill: 'Open bill', contract: 'See contract' };
+    var cta = (CTA[it.type] || 'Open') + ' →';
     var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
     return '<button type="button" class="dlib-card' + (cat ? ' dlib-cat' : '') + '" data-id="' + esc(it.id) + '"' + catStyle + ' aria-label="Open: ' + esc(it.title) + '">' +
       '<span class="dlib-card-top">' + badge + (it.sub ? '<span class="dlib-card-sub">' + esc(it.sub) + '</span>' : '') + '</span>' +
       catChip +
       '<span class="dlib-card-title">' + esc(it.title) + '</span>' +
       (it.blurb ? '<span class="dlib-card-blurb">' + esc(it.blurb) + '</span>' : '') +
-      (tags ? '<span class="dlib-card-tags">' + tags + '</span>' : '') +
+      '<span class="dlib-card-foot">' +
+        (tags ? '<span class="dlib-card-tags">' + tags + '</span>' : '<span></span>') +
+        '<span class="dlib-card-cta">' + cta + '</span>' +
+      '</span>' +
     '</button>';
   }
 
@@ -476,7 +483,7 @@
       '.dlib-grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));}' +
       '.dlib-card{display:flex;flex-direction:column;gap:.4rem;text-align:left;width:100%;height:100%;cursor:pointer;' +
         'background:linear-gradient(160deg,rgba(18,28,48,.85),rgba(11,18,33,.92));border:1px solid rgba(159,180,212,.14);' +
-        'border-left:3px solid rgba(96,165,250,.5);border-radius:.8rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
+        'border-left:4px solid rgba(96,165,250,.5);border-radius:.8rem;padding:.85rem .9rem;transition:transform .15s,border-color .15s,box-shadow .15s;}' +
       '.dlib-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.4);box-shadow:0 10px 26px rgba(0,0,0,.32);}' +
       '.dlib-card:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;}' +
       '.dlib-card.dlib-t-receipt{border-left-color:rgba(245,200,66,.7);}' +
@@ -500,9 +507,13 @@
       '.dlib-card-sub{font:600 .64rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
       '.dlib-card-title{font:700 .98rem/1.22 "Barlow Condensed",sans-serif;color:#fff;}' +
       '.dlib-card-blurb{font:500 .78rem/1.42 "Barlow",sans-serif;color:#9fb4d4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}' +
-      '.dlib-card-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:auto;padding-top:.15rem;}' +
+      '.dlib-card-tags{display:flex;flex-wrap:wrap;gap:.3rem;min-width:0;}' +
       '.dlib-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;' +
         'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.2rem .45rem;}' +
+      // Footer: issue tags on the left, a category-colored "Open →" CTA on the right,
+      // pinned to the card bottom — the same doorway pattern as the Spotlight cards.
+      '.dlib-card-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.5rem;}' +
+      '.dlib-card-cta{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);white-space:nowrap;flex-shrink:0;}' +
       '.dlib-empty{text-align:center;color:#8aa0c4;font:500 .9rem/1.5 "Barlow",sans-serif;padding:2rem 1rem;}' +
       '.dlib-empty:not([hidden]){display:flex;flex-direction:column;align-items:center;gap:.9rem;}' +
       '.dlib-clear-filters{cursor:pointer;font:700 .72rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;' +
@@ -526,6 +537,11 @@
       '.dlib-mode:hover{background:rgba(159,180,212,.14);color:#e6eefc;}' +
       '.dlib-mode.is-active{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.5);color:#9ff0bd;}' +
       '.dlib-billfacets{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:.6rem;}' +
+      // The facet bar is bill-only chrome; make the `hidden` attribute (set by setMode
+      // in Explore mode) actually win over the display:flex above, so the Legislation
+      // phase pills / topic chips / Congress-Chamber-Status filters never leak into the
+      // Explore tab. Higher specificity than the rule above → no !important needed.
+      '.dlib-billfacets[hidden]{display:none;}' +
       '.dlib-billfacets label{font:700 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;display:inline-flex;align-items:center;gap:.45rem;}' +
       '.dlib-billfacets select{background:rgba(10,15,30,.7);color:#e6eefc;border:1px solid rgba(159,180,212,.24);border-radius:.55rem;padding:.4rem .6rem;font:500 .82rem/1 "Barlow",sans-serif;}' +
       // Quick-jump pills row + the facet/sort row below it.
