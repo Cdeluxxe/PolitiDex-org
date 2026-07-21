@@ -180,3 +180,17 @@ Impacts are seeded via roll-forward migrations in `netlify/database/migrations/`
 
 Never invent, round beyond the source, or overstate a figure. When in doubt, grade it
 `limited` and say why in the methodology note.
+
+## Seeded coverage
+
+The ledger is data-driven: any measure with `vr_distributional_impacts` rows lights up
+the bill panel, the Promise Tracker "Say vs. Do", and the profile side-by-side with no
+code change. Seeded so far (all additive, roll-forward migrations):
+
+- **H.R. 1 — One Big Beautiful Bill Act** (CBO, JCT, Tax Policy Center)
+- **S. 129 — No Tax on Tips Act** (The Budget Lab at Yale)
+- **H.R. 82 — Social Security Fairness Act** (CBO)
+- **H.R. 6703 — Lower Health Care Premiums for All Americans Act** (CBO / JCT)
+
+Each carries both benefit and cost rows and spans the relevant cohorts, so no measure
+reads one-sided.
