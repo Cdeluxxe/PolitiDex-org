@@ -150,5 +150,23 @@ window.PDX_BILLS_INDEX = [
     keywords: 'halt fentanyl act schedule I controlled substances fentanyl related substances analogues overdose ' +
       'mandatory minimum cassidy grassley heinrich public law 119-26 drug enforcement opioid',
     source: { url: 'https://www.congress.gov/bill/119th-congress/senate-bill/331', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 82', title: 'Social Security Fairness Act of 2023', shortTitle: 'Social Security Fairness Act',
+    measureType: 'bill', chamber: 'house', congress: 118, status: 'enacted',
+    primaryIssue: 'social_security',
+    issueKeys: ['social_security', 'cost_living', 'national_debt'], isOmnibus: false,
+    keywords: 'social security fairness act wep gpo windfall elimination provision government pension offset ' +
+      'teachers firefighters police public sector retirees benefits repeal collins graves spanberger enacted',
+    source: { url: 'https://www.congress.gov/bill/118th-congress/house-bill/82', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1048', title: 'DETERRENT Act', shortTitle: 'DETERRENT Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'gov_transparency',
+    issueKeys: ['gov_transparency', 'america_first', 'edu_balance', 'free_speech'], isOmnibus: false,
+    keywords: 'deterrent act foreign gifts universities higher education section 117 disclosure china iran ' +
+      'north korea russia endowment title iv baumgartner campus foreign influence transparency',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1048', label: 'Congress.gov' }
   }
 ];
