@@ -5057,3 +5057,144 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
     T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIVE controversy layer — WAVE 2 · high-profile federal & state figures
+   (Jul 2026). Same rules as the wave-1 block above: purely additive, negative-
+   impact, sourced, neutrally-worded accountability records CONCAT-MERGED onto
+   window.ACCT_SPOTLIGHT so nothing existing is replaced. Balanced 5 Democrats /
+   5 Republicans; each issueKey maps to an ISSUE_MAP topic for the Issue Spotlight
+   link. Say-vs-do items use category:'rhetoric' + tag 'Rhetoric vs Reality'.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var _add = {
+    // ─────────────────────────── REPUBLICANS ───────────────────────────
+    ron_desantis: [
+      { impact:'negative', category:'legal', date:'2022', tags:['Notable Actions','Accountability'], issueKey:'immigration_reform',
+        headline:'Flew migrants to Martha’s Vineyard, drawing a lawsuit and a criminal inquiry',
+        facts:`In September 2022 DeSantis used Florida funds to fly about 50 mostly Venezuelan migrants from Texas to Martha's Vineyard, Massachusetts. A Texas sheriff opened a criminal inquiry and migrants sued, alleging they were lured with false promises; a federal judge later wrote the migrants were "exploit[ed] ... in a scheme to boost the national profile of Defendant DeSantis." DeSantis said the migrants went voluntarily and the flights were lawful.`,
+        why:`The flights prompted litigation and a sheriff's investigation and remain a defining test of the tactic's legality and ethics.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/04/01/1242131130/migrants-lawsuit-flown-marthas-vineyard-texas-florida-governor-ron-desantis' } },
+      { impact:'negative', category:'redflags', date:'2023', tags:['Notable Actions'], issueKey:'free_speech',
+        headline:'Stripped Disney’s self-governing district after it opposed a state law',
+        facts:`After Disney publicly criticized Florida's 2022 Parental Rights in Education law (the "Don't Say Gay" law), DeSantis and the Legislature dissolved the company's decades-old Reedy Creek district and replaced its board with his appointees. Disney sued, alleging First Amendment retaliation for protected speech; a judge dismissed the suit and the parties settled in 2024. DeSantis called the changes ordinary regulation.`,
+        why:`Disney and free-press groups argued the takeover punished protected speech; DeSantis framed it as lawful oversight.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2024/03/27/disney-and-florida-settle-lawsuits-over-desantis-special-district-fight-dont-say-gay-bill.html' } }
+    ],
+    greg_abbott: [
+      { impact:'negative', category:'redflags', date:'2022', tags:['Notable Actions','Accountability'], issueKey:'immigration_reform',
+        headline:'Bused tens of thousands of migrants to Democratic-run cities',
+        facts:`Starting in April 2022, Abbott's Operation Lone Star bused migrants from the Texas border to Washington, New York, Chicago and other Democratic-led cities — more than 100,000 people at a cost the Texas Newsroom reported exceeded $148 million in taxpayer funds by early 2024. Receiving mayors called it a political stunt that strained shelters; Abbott said Washington had left border states to shoulder the burden alone.`,
+        why:`A high-cost, high-profile tactic that drew bipartisan criticism over its expense and its use of migrants for political leverage.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2024/02/20/1232651088/texas-has-spent-over-148-million-busing-migrants-to-other-parts-of-the-country' } },
+      { impact:'negative', category:'legal', date:'2023', tags:['Notable Actions'], issueKey:'border_security',
+        headline:'Sued by the DOJ over Rio Grande buoys and razor wire',
+        facts:`In July 2023 Abbott installed a floating buoy barrier and razor wire in the Rio Grande near Eagle Pass. The Justice Department sued, saying the barrier violated the Rivers and Harbors Act and raised humanitarian and diplomatic concerns, and a state trooper alleged migrants were pushed back into the river. Abbott refused to remove it, saying, "Texas will see you in court."`,
+        why:`The barrier triggered federal litigation, a separate humanitarian inquiry, and objections from Mexico.`,
+        source:{ label:'NPR', url:'https://www.npr.org/2023/07/24/1189732169/gov-abbott-refuses-to-remove-floating-border-wall-tells-biden-see-you-in-court' } }
+    ],
+    ken_paxton: [
+      { impact:'negative', category:'legal', date:'2015', tags:['Accountability'], issueKey:'gov_transparency',
+        headline:'Charged with felony securities fraud, resolved years later without a conviction',
+        facts:`Paxton was indicted in 2015 on felony securities-fraud charges for soliciting investors in tech firm Servergy without disclosing he was being paid to promote it. The nine-year case was resolved in 2024 just before trial: prosecutors dropped the counts after he agreed to pay restitution, do community service and take legal-ethics classes, without admitting guilt. Paxton said, "There will never be a conviction in this case nor am I guilty."`,
+        why:`A felony indictment against the state's top lawyer that hung over most of his tenure before a no-admission settlement.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/texas-attorney-general-ken-paxton-makes-deal-to-end-securities-charges-weeks-before-trial' } },
+      { impact:'negative', category:'legal', date:'2023', tags:['Accountability','Notable Actions'], issueKey:'gov_transparency',
+        headline:'Impeached by the Texas House, then acquitted by the Senate',
+        facts:`In May 2023 the Republican-led Texas House impeached Paxton 121–23 on articles including bribery, abuse of office and retaliating against whistleblowers tied to donor Nate Paul. He was suspended, then the Texas Senate acquitted him on all articles that September along party lines; his wife, a state senator, was present but recused from voting. Paxton called the impeachment a politically motivated "sham."`,
+        why:`A bipartisan House impeachment of a sitting attorney general — only the third impeachment of a Texas official in history.`,
+        source:{ label:'ABC News', url:'https://abcnews.com/Politics/election-triumphs-series-scandals-dot-ken-paxtons-political/story?id=133341950' } }
+    ],
+    tommy_tuberville: [
+      { impact:'negative', category:'voting', date:'2023', tags:['Notable Actions','Accountability'], issueKey:'strong_defense',
+        headline:'Blocked hundreds of military promotions for most of a year',
+        facts:`From February to December 2023 Tuberville held up more than 400 senior military promotions in protest of a Pentagon policy reimbursing travel for service members seeking abortions. Defense Secretary Lloyd Austin called it a "clear risk to U.S. military readiness," and fellow Republicans including Dan Sullivan criticized it before Tuberville relented, releasing most holds in December.`,
+        why:`An unprecedented, months-long blanket hold that drew objections from his own party over military readiness.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/sen-tommy-tuberville-says-hes-ending-his-blockade-of-military-nominations' } },
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements'], issueKey:'strong_defense',
+        headline:'Said of white nationalists in the military, "I call them Americans"',
+        facts:`Asked in a May 2023 interview whether white nationalists should serve in the military, Tuberville said, "They call them that. I call them Americans." The remark drew bipartisan criticism; Tuberville's office said he was skeptical that the problem exists and he later said he is "110% against racism" and was pushing back on Democrats labeling Trump supporters.`,
+        why:`Widely covered comments that Senate colleagues, including Democrats, condemned as appearing to minimize white nationalism.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/05/11/politics/tommy-tuberville-white-nationalist-military-comments/index.html' } }
+    ],
+    mcconnell: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'scotus_reform',
+        headline:'Blocked Garland in 2016, then confirmed Barrett weeks before the 2020 vote',
+        facts:`In 2016 McConnell refused to hold a hearing on Merrick Garland, saying a Supreme Court seat should not be filled in an election year, and the seat stayed open eight months. In 2020 he moved quickly to confirm Amy Coney Barrett just before the election, days after Justice Ginsburg's death. Critics called it a reversal; McConnell said the difference was that the same party controlled the Senate and presidency.`,
+        why:`A widely cited example of an election-year standard applied one way in 2016 and the opposite way in 2020.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/09/18/politics/merrick-garland-senate-republicans-timeline' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality'], issueKey:'democracy_balance',
+        headline:'Voted to acquit Trump, then called him "morally responsible" for Jan. 6',
+        facts:`Minutes after voting to acquit Trump in the February 2021 impeachment trial, McConnell said on the Senate floor that "there is no question President Trump is practically and morally responsible for provoking the events" of January 6, calling it "a disgraceful dereliction of duty." He said he voted to acquit only because he believed convicting a former president was unconstitutional.`,
+        why:`A striking gap between his stated judgment of Trump's conduct and his not-guilty vote.`,
+        source:{ label:'U.S. News & World Report', url:'https://www.usnews.com/news/politics/articles/2021-02-14/read-mcconnell-speech-after-trumps-impeachment-trial-acquittal' } }
+    ],
+    // ─────────────────────────── DEMOCRATS ───────────────────────────
+    tim_walz: [
+      { impact:'negative', category:'rhetoric', date:'2018', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Said he carried "weapons of war, that I carried in war" — his campaign later conceded he misspoke',
+        facts:`In a 2018 gun-control video, Walz — a 24-year National Guard veteran — referred to "those weapons of war, that I carried in war." After JD Vance accused him of "stolen valor" in 2024, the Harris campaign said Walz "misspoke," as he retired before his unit deployed to Iraq and never served in a combat zone. Fact-checkers found Vance's related "abandoned his unit" charge misleading on the timeline.`,
+        why:`His own campaign acknowledged the "in war" phrasing was inaccurate, a direct check on how he described his service.`,
+        source:{ label:'FactCheck.org', url:'https://www.factcheck.org/2024/08/attacks-on-walzs-military-record/' } },
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'veterans',
+        headline:'Campaign bio overstated his retirement rank',
+        facts:`The Harris-Walz site initially called Walz a "retired Command Sergeant Major." Records show he was reduced to master sergeant for retirement pay because he had not completed the required coursework; the campaign then revised the wording to say he "served as" a command sergeant major. Guardsmen who served with him defended his 24-year record as sound.`,
+        why:`A stated credential was corrected after it did not match his official record.`,
+        source:{ label:'CBS News', url:'https://www.cbsnews.com/news/tim-walz-military-record/' } }
+    ],
+    gretchen_whitmer: [
+      { impact:'negative', category:'rhetoric', date:'2020', tags:['Rhetoric vs Reality'], issueKey:'medical_freedom',
+        headline:'Her husband invoked her name to get their boat launched amid her stay-home guidance',
+        facts:`Over Memorial Day weekend 2020, a dock company said Whitmer's husband asked whether being "married to the governor" would move his boat up the queue — just after she urged Michiganders not to travel to northern Michigan during COVID restrictions. Whitmer said he made "a failed attempt at humor" that she did not find funny.`,
+        why:`A words-vs-actions moment involving the travel and gathering guidance she was promoting.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2020/05/27/politics/gretchen-whitmer-boat-dock-controversy' } },
+      { impact:'negative', category:'rhetoric', date:'2021', tags:['Rhetoric vs Reality','Accountability'], issueKey:'medical_freedom',
+        headline:'Took a private-jet trip to Florida while discouraging travel',
+        facts:`In March 2021 Whitmer flew to Florida to visit her ailing father, weeks before publicly advising Michiganders against traveling there as cases surged. She initially declined to say who paid; her office later disclosed a nonprofit chartered the $27,521 flight on a jet co-owned by donor families with business before the state. Whitmer called the criticism "maddening," saying she was helping family.`,
+        why:`Both the travel — against her own advisory — and the donor-linked jet raised hypocrisy and ethics questions.`,
+        source:{ label:'Bridge Michigan', url:'https://bridgemi.com/michigan-government/gov-whitmer-says-florida-trip-wasnt-gift-stays-mum-who-paid-plane/' } }
+    ],
+    kathy_hochul: [
+      { impact:'negative', category:'rhetoric', date:'2024', tags:['Rhetoric vs Reality'], issueKey:'transit',
+        headline:'Paused NYC congestion pricing weeks before launch after championing it',
+        facts:`After long backing the nation's first congestion-pricing toll — telling a summit weeks earlier that transit investment is "what cities are meant to do" — Hochul abruptly put it on an "indefinite pause" in June 2024, days before its planned start, citing costs to New Yorkers. The reversal drew a rare rebuke from business, transit and environmental groups and left the MTA facing a $15 billion capital-plan gap; the toll ultimately launched in 2025.`,
+        why:`An eleventh-hour flip on a policy she had publicly championed, with major fiscal consequences.`,
+        source:{ label:'Governing', url:'https://www.governing.com/transportation/hochuls-reversal-on-congestion-pricing-draws-blowback' } },
+      { impact:'negative', category:'redflags', date:'2022', tags:['Accountability'], issueKey:'campaign_finance',
+        headline:'Her hand-picked lieutenant governor was arrested on bribery charges',
+        facts:`Hochul chose Brian Benjamin as lieutenant governor in 2021; in April 2022 he was arrested and resigned over a federal scheme alleging he steered a $50,000 state grant in exchange for campaign donations and falsified vetting forms. The charges were dismissed, reinstated on appeal, then dropped by prosecutors in 2025. Hochul said New Yorkers "deserve absolute confidence in their government."`,
+        why:`The vetting and selection of her second-in-command, who was charged months later, drew scrutiny of her judgment.`,
+        source:{ label:'CNBC', url:'https://www.cnbc.com/2022/04/12/ny-lt-gov-brian-benjamin-arrested-in-campaign-finance-fraud-case-sources.html' } }
+    ],
+    tlaib: [
+      { impact:'negative', category:'redflags', date:'2023', tags:['Public Statements','Accountability'], issueKey:'foreign_balance',
+        headline:'Censured by the House over her Israel-Hamas war rhetoric',
+        facts:`On November 7, 2023, the House voted 234–188 — with 22 Democrats joining most Republicans — to censure Tlaib, the only Palestinian American in Congress, over her comments on the war, including sharing a video featuring the "from the river to the sea" chant that many Jewish groups call a call to eliminate Israel. Tlaib said the phrase is "an aspirational call for freedom ... not death, destruction, or hate."`,
+        why:`A formal House censure — a rebuke one step below expulsion — over contested wartime rhetoric.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/house-vote-censure-rashida-tlaib-israel-hamas-palestine-remarks-rcna124005' } },
+      { impact:'negative', category:'rhetoric', date:'2023', tags:['Public Statements'], issueKey:'foreign_balance',
+        headline:'Accused Biden of "supporting the genocide" of Palestinians',
+        facts:`In a November 3, 2023 video, Tlaib said President Biden "supported the genocide of the Palestinian people" and warned, "We will remember in 2024," pressing him to call for a cease-fire. She had also blamed Israel for the al-Ahli hospital blast, contrary to the U.S. assessment that a Palestinian rocket was likely responsible, and declined to retract it, calling for an independent investigation.`,
+        why:`Sharp accusations against a president of her own party that drew criticism, including from fellow Democrats.`,
+        source:{ label:'CNN', url:'https://www.cnn.com/2023/11/03/politics/tlaib-biden-palestinian-genocide/index.html' } }
+    ],
+    omar: [
+      { impact:'negative', category:'redflags', date:'2019', tags:['Public Statements','Accountability'], issueKey:'foreign_balance',
+        headline:'Drew bipartisan rebuke for "all about the Benjamins" AIPAC tweet',
+        facts:`In February 2019 Omar tweeted that congressional support for Israel was "all about the Benjamins," naming AIPAC when asked who was paying. The comments were widely condemned as invoking an antisemitic trope, including by Speaker Pelosi; the House later passed a broad anti-hate resolution. Omar apologized, saying she never meant to offend Jewish Americans.`,
+        why:`Comments her own party leadership rebuked, prompting a House resolution and an apology.`,
+        source:{ label:'NBC News', url:'https://www.nbcnews.com/politics/congress/republicans-oust-rep-ilhan-omar-foreign-affairs-committee-rcna68701' } },
+      { impact:'negative', category:'voting', date:'2023', tags:['Notable Actions'], issueKey:'foreign_balance',
+        headline:'Removed from the Foreign Affairs Committee over past comments',
+        facts:`In February 2023 the Republican-led House voted 218–211 along party lines to remove Omar from the Foreign Affairs Committee, citing her past remarks about Israel. Democrats called it partisan retaliation, and she was reassigned to the Budget Committee; Omar said she would not be silenced.`,
+        why:`A rare removal of a member from a major committee, rooted in her prior statements on Israel.`,
+        source:{ label:'PBS NewsHour', url:'https://www.pbs.org/newshour/politics/watch-house-republicans-vote-to-oust-democrat-omar-from-foreign-affairs-committee' } }
+    ]
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
