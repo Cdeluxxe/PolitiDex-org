@@ -186,5 +186,31 @@ window.PDX_BILLS_INDEX = [
     keywords: 'clarity act digital asset market structure crypto cryptocurrency cftc sec regulation ' +
       'french hill thompson crypto week blockchain digital commodity',
     source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/3633', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 3838', title: 'National Defense Authorization Act for Fiscal Year 2026', shortTitle: 'FY2026 NDAA',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'enacted',
+    primaryIssue: 'strong_defense',
+    issueKeys: ['strong_defense', 'veterans', 'national_debt'], isOmnibus: true,
+    keywords: 'ndaa national defense authorization act fiscal year 2026 pentagon military pay raise ' +
+      'weapons acquisition defense spending armed services compromise enacted',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/3838', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 1949', title: 'Unlocking our Domestic LNG Potential Act of 2025', shortTitle: 'Unlocking Domestic LNG Potential Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'energy_production',
+    issueKeys: ['energy_production', 'gov_regulation', 'econ_trade'], isOmnibus: false,
+    keywords: 'lng liquefied natural gas export import ferc department of energy approval natural gas act ' +
+      'energy dominance pfluger permitting terminals',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/1949', label: 'Congress.gov' }
+  },
+  {
+    number: 'H.R. 276', title: 'Gulf of America Act of 2025', shortTitle: 'Gulf of America Act',
+    measureType: 'bill', chamber: 'house', congress: 119, status: 'passed_house',
+    primaryIssue: 'america_first',
+    issueKeys: ['america_first'], isOmnibus: false,
+    keywords: 'gulf of america act rename gulf of mexico marjorie taylor greene mtg executive order codify maps',
+    source: { url: 'https://www.congress.gov/bill/119th-congress/house-bill/276', label: 'Congress.gov' }
   }
 ];
