@@ -234,6 +234,13 @@ code change. Seeded so far (all additive, roll-forward migrations):
 - **S. 129 — No Tax on Tips Act** (The Budget Lab at Yale)
 - **H.R. 82 — Social Security Fairness Act** (CBO)
 - **H.R. 6703 — Lower Health Care Premiums for All Americans Act** (CBO / JCT)
+- **H.R. 4 — Rescissions Act of 2025** (CBO)
+- **H.R. 7567 — 2026 Farm Bill, House** (CBPP, CRS / CBO baseline)
+- **H.R. 3838 — FY2026 NDAA** (CBO)
+- **S.J.Res. 37 — Terminate the Canada tariff emergency** (The Budget Lab at Yale)
 
-Each carries both benefit and cost rows and spans the relevant cohorts, so no measure
-reads one-sided.
+Each carries both benefit and cost rows where the measure genuinely cuts both ways,
+and spans the relevant cohorts, so no measure reads one-sided. Where a measure is
+genuinely a cut (a rescission) or genuinely relief (ending a regressive tariff), the
+rows reflect that and state the fiscal trade-off in the methodology note rather than
+forcing a false balance.
