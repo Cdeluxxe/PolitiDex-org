@@ -336,3 +336,38 @@
 .ms-you-chip.is-oppose { background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.5); color: #fecaca; }
 .ms-you-chip.is-mixed { background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.5); color: #fde68a; }
 .ms-you-star { color: #fcd34d; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SHARING  ·  one-tap options + generated-image buttons
+   ═══════════════════════════════════════════════════════════════════════════ */
+.ms-share { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
+.ms-share-primary { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ms-sh-btn {
+  cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.28);
+  border-radius: 0.6rem; padding: 0.5rem 0.85rem; color: #cfe0fb; font: inherit; font-size: 0.86rem; font-weight: 600;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.ms-sh-btn:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.5); transform: translateY(-1px); }
+.ms-sh-primary {
+  background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e; border-color: rgba(245, 200, 66, 0.9);
+}
+.ms-sh-primary:hover { filter: brightness(1.05); background: linear-gradient(135deg, #fad96a, #e6b800); }
+
+.ms-share-nets { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.ms-sh-ic {
+  cursor: pointer; width: 2.35rem; height: 2.35rem; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 0.55rem;
+  color: #e7ecf6; font-size: 1.05rem; line-height: 1; transition: transform 0.12s, border-color 0.12s, background 0.12s;
+}
+.ms-sh-ic:hover { transform: translateY(-1px); }
+.ms-sh-x:hover { background: rgba(255, 255, 255, 0.12); border-color: #fff; }
+.ms-sh-facebook { font-family: Georgia, 'Times New Roman', serif; font-weight: 800; color: #93c5fd; }
+.ms-sh-facebook:hover { background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+.ms-sh-reddit:hover { background: rgba(255, 69, 0, 0.18); border-color: #ff4500; }
+.ms-sh-whatsapp:hover { background: rgba(37, 211, 102, 0.18); border-color: #25d366; }
+.ms-sh-bluesky:hover { background: rgba(10, 122, 255, 0.18); border-color: #0a7aff; }
+.ms-sh-email:hover { background: rgba(148, 163, 184, 0.2); border-color: #94a3b8; }
+
+/* Share row inside the visitor overlay */
+.ms-ov-share { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }

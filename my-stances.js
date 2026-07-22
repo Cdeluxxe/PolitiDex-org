@@ -141,17 +141,9 @@
   }
   function copyShareLink() {
     var s = load();
-    if (!s.settings.public) return;
     var url = shareUrl(s);
     if (!url) return;
-    function done(ok) { toast(ok ? '🔗 Share link copied — anyone who opens it sees your public views.' : 'Couldn’t copy — here’s your link: ' + url); }
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); }); return; }
-    } catch (e) {}
-    try {
-      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(true);
-    } catch (e2) { done(false); }
+    copyText(url);
   }
   function toast(msg) {
     var t = el('ms-toast');
@@ -160,6 +152,168 @@
     t.classList.add('is-show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { t.classList.remove('is-show'); }, 3200);
+  }
+
+  // ── One-tap sharing: intents, native share, generated image ─────────────────
+  // Pack a name + item list into a ?views= token (shared with publicToken).
+  function encodeViews(name, items) {
+    var payload = { v: 1, n: (name || 'A PolitiDex member').toString().slice(0, 60), s: (items || []).map(function (r) {
+      return { i: r.issueKey, p: r.position.charAt(0), r: r.priority.charAt(0) };
+    }) };
+    return b64urlEncode(JSON.stringify(payload));
+  }
+  // A share context (url + neutral text) for a given name/items, or the owner's
+  // current stances when none are passed.
+  function shareCtx(name, items, token) {
+    var list = items || activeItems();
+    var n = list.length;
+    var tok = token || encodeViews(name || displayName(), list);
+    var url = location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    var text = 'Here’s where I stand on ' + n + ' issue' + (n !== 1 ? 's' : '') + ' — see how politicians line up on PolitiDex:';
+    return { url: url, text: text, title: 'My Stances · PolitiDex', name: name || displayName(), items: list };
+  }
+  // Prefilled one-tap share intents (no API keys, open in a new tab).
+  function intentUrl(net, ctx) {
+    var u = encodeURIComponent(ctx.url);
+    var t = encodeURIComponent(ctx.text);
+    var tu = encodeURIComponent(ctx.text + ' ' + ctx.url);
+    switch (net) {
+      case 'x': return 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+      case 'facebook': return 'https://www.facebook.com/sharer/sharer.php?u=' + u;
+      case 'reddit': return 'https://www.reddit.com/submit?url=' + u + '&title=' + encodeURIComponent(ctx.title);
+      case 'whatsapp': return 'https://wa.me/?text=' + tu;
+      case 'bluesky': return 'https://bsky.app/intent/compose?text=' + tu;
+      case 'email': return 'mailto:?subject=' + encodeURIComponent(ctx.title) + '&body=' + tu;
+    }
+    return '';
+  }
+  function copyText(url) {
+    if (!url) return;
+    function done(ok) { toast(ok ? '🔗 Link copied — anyone who opens it sees these views.' : 'Couldn’t copy — ' + url); }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); }); return; } } catch (e) {}
+    try {
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(true);
+    } catch (e2) { done(false); }
+  }
+
+  var NETS = [
+    { key: 'x', ic: '𝕏', label: 'X' },
+    { key: 'facebook', ic: 'f', label: 'Facebook' },
+    { key: 'reddit', ic: '👽', label: 'Reddit' },
+    { key: 'whatsapp', ic: '🟢', label: 'WhatsApp' },
+    { key: 'bluesky', ic: '🦋', label: 'Bluesky' },
+    { key: 'email', ic: '✉', label: 'Email' }
+  ];
+  // One-tap share controls. `image` true adds the generated-image buttons.
+  function shareButtonsHtml(opts) {
+    opts = opts || {};
+    var hasShare = false, hasFiles = false;
+    try { hasShare = !!(navigator.share); hasFiles = !!(navigator.canShare); } catch (e) {}
+    var primary = '';
+    if (hasShare) primary += '<button type="button" class="ms-sh-btn ms-sh-primary" data-ms-share="native">📤 Share…</button>';
+    if (opts.image !== false) primary += '<button type="button" class="ms-sh-btn" data-ms-share="image">🖼 ' + (hasFiles ? 'Share image' : 'Save image') + '</button>';
+    primary += '<button type="button" class="ms-sh-btn" data-ms-share="copy">🔗 Copy link</button>';
+    var nets = NETS.map(function (nw) {
+      return '<button type="button" class="ms-sh-ic ms-sh-' + nw.key + '" data-ms-share="' + nw.key + '" title="Share to ' + nw.label + '" aria-label="Share to ' + nw.label + '">' + nw.ic + '</button>';
+    }).join('');
+    return '<div class="ms-share"><div class="ms-share-primary">' + primary + '</div>' +
+      '<div class="ms-share-nets">' + nets + '</div></div>';
+  }
+  function handleShare(net, ctx) {
+    ctx = ctx || shareCtx();
+    if (net === 'copy') { copyText(ctx.url); return; }
+    if (net === 'save') { saveImage(ctx); return; }
+    if (net === 'image') { shareImage(ctx); return; }
+    if (net === 'native') { try { if (navigator.share) navigator.share({ title: ctx.title, text: ctx.text, url: ctx.url }).catch(function () {}); } catch (e) {} return; }
+    var u = intentUrl(net, ctx);
+    if (u) { try { window.open(u, '_blank', 'noopener,noreferrer'); } catch (e) { try { location.href = u; } catch (e2) {} } }
+  }
+
+  // ── Generated share image (client-side canvas → PNG) ────────────────────────
+  function trunc(s, n) { s = String(s == null ? '' : s); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  // Draw a 1200×630 branded "My Views" card. Resolves to a canvas once web fonts
+  // are ready (so the Bebas/Barlow type renders, with safe fallbacks either way).
+  function buildShareCanvas(name, items) {
+    return new Promise(function (resolve) {
+      function draw() {
+        var W = 1200, H = 630;
+        var c = document.createElement('canvas'); c.width = W; c.height = H;
+        var g = c.getContext('2d');
+        var grad = g.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#0a0f1e'); grad.addColorStop(1, '#0d1526');
+        g.fillStyle = grad; g.fillRect(0, 0, W, H);
+        g.fillStyle = '#f5c842'; g.fillRect(0, 0, W, 8);
+        g.textBaseline = 'alphabetic';
+        g.fillStyle = '#fcd34d'; g.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+        g.fillText('MY STANCES · POLITIDEX', 80, 98);
+        g.fillStyle = '#eef4ff'; g.font = '700 84px "Bebas Neue","Arial Narrow",Arial,sans-serif';
+        g.fillText(trunc(name || 'My Views', 22), 78, 188);
+        var n = items.length;
+        g.fillStyle = '#9fb4d4'; g.font = '400 32px "Barlow",Arial,sans-serif';
+        g.fillText(n + ' issue' + (n !== 1 ? 's' : '') + ' on the record', 80, 236);
+        var show = items.slice(0, 8);
+        var colX = [80, 630], rowY = 300, lh = 54;
+        show.forEach(function (it, i) {
+          var col = i % 2, row = Math.floor(i / 2);
+          var x = colX[col], y = rowY + row * lh;
+          var color = it.position === 'support' ? '#4ade80' : it.position === 'oppose' ? '#f87171' : '#facc15';
+          g.fillStyle = color; g.beginPath(); g.arc(x + 10, y - 7, 10, 0, Math.PI * 2); g.fill();
+          var lbl = (issueMap()[it.issueKey] && issueMap()[it.issueKey].label) || it.issueKey;
+          if (it.priority === 'high') lbl += '  ⭐';
+          g.fillStyle = '#e7ecf6'; g.font = '600 28px "Barlow",Arial,sans-serif';
+          g.fillText(trunc(lbl, 24), x + 32, y);
+        });
+        if (items.length > 8) { g.fillStyle = '#7f93b6'; g.font = '400 26px "Barlow",Arial,sans-serif'; g.fillText('+ ' + (items.length - 8) + ' more', 80, rowY + 4 * lh); }
+        g.fillStyle = '#7f93b6'; g.font = '400 27px "Barlow",Arial,sans-serif';
+        g.fillText('See how politicians line up on your positions.', 80, 576);
+        g.fillStyle = '#e7ecf6'; g.font = '700 28px "Barlow Condensed",Arial,sans-serif'; g.textAlign = 'right';
+        g.fillText('politidex.fyi', 1120, 576); g.textAlign = 'left';
+        resolve(c);
+      }
+      try { if (document.fonts && document.fonts.ready && document.fonts.ready.then) { document.fonts.ready.then(draw, draw); return; } } catch (e) {}
+      draw();
+    });
+  }
+  function canvasBlob(c) {
+    return new Promise(function (res) {
+      try { if (c.toBlob) { c.toBlob(function (b) { res(b); }, 'image/png'); return; } } catch (e) {}
+      res(null);
+    });
+  }
+  function downloadBlob(blob, filename) {
+    try {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = filename || 'my-stances.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+      return true;
+    } catch (e) { return false; }
+  }
+  function saveImage(ctx) {
+    var c = ctx || shareCtx();
+    buildShareCanvas(c.name, c.items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved to your device.' : 'Couldn’t save the image.');
+    });
+  }
+  function shareImage(ctx) {
+    var c = ctx || shareCtx();
+    buildShareCanvas(c.name, c.items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      var file = null;
+      try { file = new File([blob], 'my-stances.png', { type: 'image/png' }); } catch (e) { file = null; }
+      var canFiles = false;
+      try { canFiles = !!(file && navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { canFiles = false; }
+      if (canFiles) {
+        try {
+          navigator.share({ files: [file], title: c.title, text: c.text, url: c.url }).catch(function () {});
+          return;
+        } catch (e) {}
+      }
+      // No file-share support → save the PNG so they can attach it themselves.
+      toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved — attach it to your post.' : 'Couldn’t share the image.');
+    });
   }
 
   // ── State model ───────────────────────────────────────────────────────────
@@ -615,7 +769,7 @@
       preview = '<div class="ms-views-preview" data-ms-viewscard="1">' +
         renderViewsCard(items, { name: displayName(), owner: true }) +
         '<div class="ms-views-actions">' +
-        '<button type="button" class="ms-pow-btn ms-copy" data-ms-copylink="1">🔗 Copy share link</button>' +
+        shareButtonsHtml({ image: true }) +
         '<span class="ms-views-hint">Anyone with the link sees this card — never your notes.</span>' +
         '</div>' +
         '</div>';
@@ -673,6 +827,7 @@
 
   function showViewsOverlay(decoded) {
     if (!decoded) return;
+    var ovCtx = shareCtx(decoded.name, decoded.items);
     var host = document.createElement('div');
     host.className = 'ms-ov';
     host.setAttribute('role', 'dialog');
@@ -683,6 +838,7 @@
       '<div class="ms-ov-panel">' +
       '<button type="button" class="ms-ov-x" data-ms-ovclose="1" aria-label="Close">✕</button>' +
       renderViewsCard(decoded.items, { name: decoded.name, owner: false }) +
+      '<div class="ms-ov-share">' + shareButtonsHtml({ image: true }) + '</div>' +
       '<div class="ms-ov-cta">' +
       '<div class="ms-ov-cta-txt">Where do <em>you</em> stand? Build your own record and see which politicians actually match you.</div>' +
       '<button type="button" class="ms-ov-cta-btn" data-ms-ovbuild="1">🎯 Build my stances</button>' +
@@ -697,8 +853,9 @@
       setTimeout(function () { if (host.parentNode) host.parentNode.removeChild(host); }, 220);
     }
     host.addEventListener('click', function (e) {
-      var t = e.target;
+      var t = e.target, b;
       if (t.closest && t.closest('[data-ms-ovclose]')) { close(); return; }
+      if (t.closest && (b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), ovCtx); return; }
       if (t.closest && t.closest('[data-ms-ovbuild]')) { close(); if (window.PDXStances && PDXStances.open) PDXStances.open(); }
     });
     document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc2); } });
@@ -829,6 +986,7 @@
     if ((b = t.closest('[data-ms-goto]'))) { gotoIssue(b.getAttribute('data-ms-goto')); return; }
     if ((b = t.closest('[data-ms-clearall]'))) { clearAll(); return; }
     if ((b = t.closest('[data-ms-copylink]'))) { copyShareLink(); return; }
+    if ((b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), shareCtx()); return; }
     if ((b = t.closest('[data-ms-signin]'))) { openSignIn(); return; }
     if ((b = t.closest('[data-ms-act]'))) { powerAction(b.getAttribute('data-ms-act')); return; }
   }
@@ -1059,6 +1217,9 @@
     // public showcase / My Views
     shareUrl: function () { return shareUrl(load()); },
     copyShareLink: copyShareLink,
+    saveImage: function () { saveImage(shareCtx()); },
+    shareImage: function () { shareImage(shareCtx()); },
+    share: function (net) { handleShare(net || 'native', shareCtx()); },
     showViews: function (token) { var d = token ? decodeViews(token) : { name: displayName(), items: activeItems() }; showViewsOverlay(d); },
     // integration
     positionToLevel: positionToLevel,
