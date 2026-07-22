@@ -82,6 +82,86 @@
   function coreIssues() { return Array.isArray(window.CORE_NATIONAL_ISSUES) ? window.CORE_NATIONAL_ISSUES : []; }
   function knownIssue(k) { return !!issueMap()[k]; }
 
+  // ── Public share link (self-contained, no backend) ─────────────────────────
+  // The showcase is made viewable by OTHERS the same way My Team sharing works:
+  // the notes-free public summary is packed into a URL token, so anyone who opens
+  // the link sees a read-only "My Views" card. This deliberately needs no server
+  // and no cross-user database read — it can't leak anything the owner didn't put
+  // in the link, and NOTES ARE NEVER INCLUDED. `?views=` carries the token.
+  var SHARE_PARAM = 'views';
+  function b64urlEncode(str) {
+    try { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+    catch (e) { return ''; }
+  }
+  function b64urlDecode(tok) {
+    try {
+      var b64 = String(tok).replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      return decodeURIComponent(escape(atob(b64)));
+    } catch (e) { return ''; }
+  }
+  // The signed-in member's display name (or a neutral fallback). Only ever used as
+  // a label on the public card — never an email address or uid.
+  function displayName() {
+    var u = fbUser();
+    if (u) return (u.displayName || (u.email ? u.email.split('@')[0] : '') || 'A PolitiDex member').toString().slice(0, 60);
+    return 'A PolitiDex member';
+  }
+  // Compact public payload: position → first letter, priority → first letter, and
+  // NO note field at all. { v, n:name, s:[{i:issueKey, p:'s|o|m', r:'h|m|l'}] }
+  function publicToken(s) {
+    s = s || load();
+    var payload = { v: 1, n: displayName(), s: activeItems(s).map(function (r) {
+      return { i: r.issueKey, p: r.position.charAt(0), r: r.priority.charAt(0) };
+    }) };
+    return b64urlEncode(JSON.stringify(payload));
+  }
+  function decodeViews(tok) {
+    var raw = b64urlDecode(tok);
+    if (!raw) return null;
+    var obj;
+    try { obj = JSON.parse(raw); } catch (e) { return null; }
+    if (!obj || typeof obj !== 'object') return null;
+    var posMap = { s: 'support', o: 'oppose', m: 'mixed' };
+    var priMap = { h: 'high', m: 'medium', l: 'low' };
+    var arr = Array.isArray(obj.s) ? obj.s : [];
+    var items = [];
+    arr.forEach(function (it) {
+      if (!it || !knownIssue(it.i)) return;
+      var pos = posMap[it.p] || it.position;
+      if (pos !== 'support' && pos !== 'oppose' && pos !== 'mixed') return;
+      items.push({ issueKey: it.i, position: pos, priority: priMap[it.r] || 'medium' });
+    });
+    return { name: (obj.n || 'A PolitiDex member').toString().slice(0, 60), items: items };
+  }
+  function shareUrl(s) {
+    var tok = publicToken(s);
+    if (!tok) return '';
+    return location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+  }
+  function copyShareLink() {
+    var s = load();
+    if (!s.settings.public) return;
+    var url = shareUrl(s);
+    if (!url) return;
+    function done(ok) { toast(ok ? '🔗 Share link copied — anyone who opens it sees your public views.' : 'Couldn’t copy — here’s your link: ' + url); }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); }); return; }
+    } catch (e) {}
+    try {
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(true);
+    } catch (e2) { done(false); }
+  }
+  function toast(msg) {
+    var t = el('ms-toast');
+    if (!t) { t = document.createElement('div'); t.id = 'ms-toast'; t.className = 'ms-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('is-show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove('is-show'); }, 3200);
+  }
+
   // ── State model ───────────────────────────────────────────────────────────
   // { version, updatedAt, settings:{public, publicUpdatedAt},
   //   items: { issueKey: {issueKey, position, priority, note, createdAt, updatedAt} },
@@ -486,20 +566,113 @@
   function renderShowcase(s, items) {
     var on = !!s.settings.public;
     var n = items.length;
-    var desc = on
-      ? 'Your positions can appear on your public profile. Your private notes are never shared — only the issue and your Support / Oppose / Mixed direction.'
-      : 'Your stances are private. Turn this on to let your positions appear on your public profile (your notes always stay private).';
-    return '<div class="ms-showcase' + (on ? ' is-on' : '') + '">' +
+    var toggleRow =
+      '<div class="ms-show-row">' +
       '<div class="ms-show-main">' +
-      '<div class="ms-show-title">' + (on ? '🌐 Public showcase' : '🔒 Private') + '</div>' +
-      '<div class="ms-show-desc">' + desc + '</div>' +
-      (on && !isSignedIn() ? '<div class="ms-show-note">Sign in to actually publish this beyond your device.</div>' : '') +
+      '<div class="ms-show-title">' + (on ? '🌐 Showcasing publicly' : '🔒 Private') + '</div>' +
+      '<div class="ms-show-desc">' + (on
+        ? 'Your <strong>My Views</strong> card below is what others see. Only the issue and your Support / Oppose / Mixed direction are shared — <strong>your notes are never included</strong>.'
+        : 'Your stances are private to you. Turn on <strong>Showcase publicly</strong> to build a shareable <strong>My Views</strong> card (your notes always stay private).') + '</div>' +
+      (on && !isSignedIn() ? '<div class="ms-show-note">You’re not signed in, so this link works from bundled data on this device. Sign in to attach it to your account.</div>' : '') +
       '</div>' +
-      '<label class="ms-toggle" title="Show your stances on your public profile">' +
+      '<label class="ms-toggle" title="Showcase your stances publicly">' +
       '<input type="checkbox" data-ms-public="1"' + (on ? ' checked' : '') + (n ? '' : ' disabled') + ' />' +
       '<span class="ms-toggle-track"><span class="ms-toggle-thumb"></span></span>' +
       '</label>' +
       '</div>';
+
+    var preview = '';
+    if (on && n) {
+      preview = '<div class="ms-views-preview" data-ms-viewscard="1">' +
+        renderViewsCard(items, { name: displayName(), owner: true }) +
+        '<div class="ms-views-actions">' +
+        '<button type="button" class="ms-pow-btn ms-copy" data-ms-copylink="1">🔗 Copy share link</button>' +
+        '<span class="ms-views-hint">Anyone with the link sees this card — never your notes.</span>' +
+        '</div>' +
+        '</div>';
+    }
+
+    return '<div class="ms-showcase' + (on ? ' is-on' : '') + '">' + toggleRow + preview + '</div>';
+  }
+
+  // Shared, read-only renderer for a set of public stances. Used both for the
+  // owner's own preview (owner:true) and for a visitor viewing a shared link. It
+  // renders ONLY issue label + direction + a High-priority star — never notes.
+  function renderViewsCard(list, opts) {
+    opts = opts || {};
+    var groups = { support: [], oppose: [], mixed: [] };
+    (list || []).forEach(function (r) { if (groups[r.position]) groups[r.position].push(r); });
+    var body = POSITIONS.map(function (p) {
+      var arr = groups[p.key];
+      if (!arr || !arr.length) return '';
+      var chips = arr.map(function (r) {
+        var d = issueMap()[r.issueKey] || {};
+        var star = r.priority === 'high' ? '<span class="mv-star" title="High priority for them">⭐</span>' : '';
+        return '<span class="mv-chip">' + esc(d.label || r.issueKey) + star + '</span>';
+      }).join('');
+      return '<div class="mv-group ' + p.cls + '">' +
+        '<div class="mv-group-head"><span class="mv-group-ic">' + p.icon + '</span>' + p.label +
+        '<span class="mv-group-n">' + arr.length + '</span></div>' +
+        '<div class="mv-chips">' + chips + '</div></div>';
+    }).join('');
+    if (!body) body = '<div class="mv-empty">No public positions yet.</div>';
+    var who = opts.owner ? 'My Views' : esc(opts.name || 'A PolitiDex member') + '’s Views';
+    var sub = opts.owner
+      ? 'How your public card looks to everyone else'
+      : 'Public positions on PolitiDex · notes kept private';
+    return '<div class="mv-card">' +
+      '<div class="mv-head"><div class="mv-title">🎯 ' + who + '</div>' +
+      '<div class="mv-sub">' + sub + '</div></div>' +
+      '<div class="mv-groups">' + body + '</div>' +
+      '</div>';
+  }
+
+  // ── Visitor overlay: someone opened a ?views= share link ────────────────────
+  function checkSharedViewsInUrl() {
+    var tok = null;
+    try { tok = new URLSearchParams(location.search).get(SHARE_PARAM); } catch (e) { tok = null; }
+    if (!tok) return;
+    // Strip the param immediately so a refresh doesn't re-open and it isn't
+    // carried into onward navigation (mirrors the ?team= share flow).
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    var decoded = decodeViews(tok);
+    if (!decoded || !decoded.items.length) return;
+    // Defer until the issue vocabulary is present so labels resolve.
+    if (!Object.keys(issueMap()).length) { setTimeout(function () { showViewsOverlay(decoded); }, 400); return; }
+    showViewsOverlay(decoded);
+  }
+
+  function showViewsOverlay(decoded) {
+    if (!decoded) return;
+    var host = document.createElement('div');
+    host.className = 'ms-ov';
+    host.setAttribute('role', 'dialog');
+    host.setAttribute('aria-modal', 'true');
+    host.setAttribute('aria-label', esc(decoded.name) + ' — public views');
+    host.innerHTML =
+      '<div class="ms-ov-backdrop" data-ms-ovclose="1"></div>' +
+      '<div class="ms-ov-panel">' +
+      '<button type="button" class="ms-ov-x" data-ms-ovclose="1" aria-label="Close">✕</button>' +
+      renderViewsCard(decoded.items, { name: decoded.name, owner: false }) +
+      '<div class="ms-ov-cta">' +
+      '<div class="ms-ov-cta-txt">Where do <em>you</em> stand? Build your own record and see which politicians actually match you.</div>' +
+      '<button type="button" class="ms-ov-cta-btn" data-ms-ovbuild="1">🎯 Build my stances</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(host);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { host.classList.add('is-open'); });
+    function close() {
+      host.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (host.parentNode) host.parentNode.removeChild(host); }, 220);
+    }
+    host.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.closest && t.closest('[data-ms-ovclose]')) { close(); return; }
+      if (t.closest && t.closest('[data-ms-ovbuild]')) { close(); if (window.PDXStances && PDXStances.open) PDXStances.open(); }
+    });
+    document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc2); } });
   }
 
   function renderBrowse(s, byKey) {
@@ -626,6 +799,7 @@
     if ((b = t.closest('[data-ms-filter]'))) { uiState.filter = b.getAttribute('data-ms-filter') || ''; render(); return; }
     if ((b = t.closest('[data-ms-goto]'))) { gotoIssue(b.getAttribute('data-ms-goto')); return; }
     if ((b = t.closest('[data-ms-clearall]'))) { clearAll(); return; }
+    if ((b = t.closest('[data-ms-copylink]'))) { copyShareLink(); return; }
     if ((b = t.closest('[data-ms-signin]'))) { openSignIn(); return; }
     if ((b = t.closest('[data-ms-act]'))) { powerAction(b.getAttribute('data-ms-act')); return; }
   }
@@ -721,6 +895,10 @@
   }
 
   function setup() {
+    // A visitor may have arrived on a ?views= share link — show the read-only
+    // "My Views" overlay regardless of whether the section itself is mounted.
+    try { checkSharedViewsInUrl(); } catch (e) {}
+
     // Data-layer coherence runs regardless of whether the section is ever viewed,
     // so cross-device stances light up match % everywhere immediately.
     try { reconcileWithAlignment(); } catch (e) {}
@@ -769,11 +947,24 @@
     set: function (issueKey, position, priority, note) { var r = setStance(issueKey, position, priority, note); afterMutate(); return r; },
     remove: function (issueKey) { removeStance(issueKey); afterMutate(); },
     setPublic: function (on) { setPublic(on); if (_inited) render(); },
+    // public showcase / My Views
+    shareUrl: function () { return shareUrl(load()); },
+    copyShareLink: copyShareLink,
+    showViews: function (token) { var d = token ? decodeViews(token) : { name: displayName(), items: activeItems() }; showViewsOverlay(d); },
     // integration
     positionToLevel: positionToLevel,
     syncToAlignment: reconcileWithAlignment,
     // navigation / render
     open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
+    // Jump to the section and highlight the My Views showcase card (account menu).
+    openViews: function () {
+      init(); scrollTo('my-stances');
+      setTimeout(function () {
+        var card = el(MOUNT) && el(MOUNT).querySelector('[data-ms-viewscard]');
+        var target = card || (el(MOUNT) && el(MOUNT).querySelector('.ms-showcase'));
+        if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); target.classList.add('ms-flash'); setTimeout(function () { target.classList.remove('ms-flash'); }, 1200); }
+      }, 80);
+    },
     render: function () { if (_inited) render(); }
   };
 })();

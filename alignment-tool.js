@@ -2069,7 +2069,8 @@
       var n = _alignIssues.size;
       if (n === 0) {
         el.innerHTML =
-          '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div></div>' +
+          '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
           '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each one. Your match score then appears on every politician card.</div>';
         return;
       }
@@ -2139,6 +2140,7 @@
         '<div class="align-profile-head">' +
           '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<span class="align-count-pill">' + n + ' position' + (n > 1 ? 's' : '') + '</span>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances</button>' +
         '</div>' +
         '<div class="align-profile-strength">' + sentence + '</div>' +
         meter +
