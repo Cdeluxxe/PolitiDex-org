@@ -1,0 +1,197 @@
+/* ============================================================================
+   profile-connect.css  ·  "Connecting the Dots" profile synthesis card
+   ----------------------------------------------------------------------------
+   Additive styles for the overview spine rendered by profile-connect.js. Tuned
+   to the app's existing profile look (navy panels, steel text, Bebas/Barlow
+   type) and neutral by design — per-step accents are feature-coded, never
+   ideological. Reads cleanly on both mobile and desktop from a single column.
+   ========================================================================== */
+
+.pcd-card {
+  margin-bottom: 1.25rem;
+  padding: 1.05rem 1.05rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(96, 165, 250, 0.08), transparent 60%),
+    linear-gradient(180deg, rgba(17, 26, 45, 0.92), rgba(11, 17, 32, 0.92));
+  box-shadow: 0 12px 34px -20px rgba(0, 0, 0, 0.7);
+  contain: layout style;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.pcd-head { margin-bottom: 0.9rem; }
+.pcd-eyebrow {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f5c842;
+  background: rgba(245, 200, 66, 0.1);
+  border: 1px solid rgba(245, 200, 66, 0.24);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+}
+.pcd-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+  color: #f4f8ff;
+  line-height: 1.05;
+  margin-top: 0.5rem;
+}
+.pcd-summary {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #93a7c7;
+  max-width: 46rem;
+}
+
+/* ── Chain ──────────────────────────────────────────────────────────────── */
+.pcd-chain { display: flex; flex-direction: column; }
+
+.pcd-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr auto;
+  align-items: start;
+  gap: 0.35rem 0.55rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  padding: 0.7rem 0.6rem;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  min-height: 56px; /* comfortable tap target */
+}
+.pcd-step:hover,
+.pcd-step:focus-visible {
+  background: rgba(96, 165, 250, 0.06);
+  border-color: rgba(148, 163, 184, 0.22);
+  outline: none;
+}
+.pcd-step:focus-visible { box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5); }
+.pcd-step:active { transform: translateY(1px); }
+
+/* Rail with the dot and the connector line to the next step. */
+.pcd-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+}
+.pcd-dot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+  background: rgba(11, 17, 32, 0.95);
+  border: 2px solid var(--pcd-accent, #60a5fa);
+  box-shadow: 0 0 0 4px rgba(11, 17, 32, 0.6), 0 0 14px -4px var(--pcd-accent, #60a5fa);
+}
+/* Connector: a thin line dropping from this dot toward the next one. Suppressed
+   on the last visible step (class set by the hydrator). */
+.pcd-rail::after {
+  content: "";
+  position: absolute;
+  top: 2rem;
+  bottom: -0.95rem;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, var(--pcd-accent, #60a5fa) 0%, rgba(148, 163, 184, 0.25) 100%);
+  opacity: 0.5;
+}
+.pcd-step.pcd-last .pcd-rail::after { display: none; }
+
+.pcd-main { min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; padding-top: 0.05rem; }
+.pcd-lead {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--pcd-accent, #60a5fa);
+}
+.pcd-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  color: #eaf1ff;
+  line-height: 1.15;
+}
+.pcd-desc {
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #8296b5;
+}
+
+.pcd-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  padding-top: 0.15rem;
+}
+.pcd-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #cdd9ec;
+  background: rgba(148, 163, 184, 0.14);              /* fallback */
+  background: color-mix(in srgb, var(--pcd-accent, #60a5fa) 16%, transparent);
+  border: 1px solid rgba(148, 163, 184, 0.3);          /* fallback */
+  border: 1px solid color-mix(in srgb, var(--pcd-accent, #60a5fa) 34%, transparent);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+.pcd-badge:empty { display: none; }
+.pcd-chev { color: #6f83a6; flex: none; transition: transform 0.16s ease, color 0.16s ease; }
+.pcd-step:hover .pcd-chev,
+.pcd-step:focus-visible .pcd-chev { color: var(--pcd-accent, #60a5fa); transform: translateX(2px); }
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .pcd-card { padding: 0.9rem 0.8rem 0.7rem; }
+  .pcd-title { font-size: 1.3rem; }
+  .pcd-summary { font-size: 0.8rem; }
+  .pcd-step { grid-template-columns: 2.3rem 1fr; padding: 0.65rem 0.45rem; }
+  .pcd-dot { width: 1.8rem; height: 1.8rem; font-size: 0.85rem; }
+  .pcd-rail::after { top: 1.8rem; }
+  /* Move the badge/chevron under the text so nothing is cramped on narrow
+     screens; the whole row stays one tap target. */
+  .pcd-meta {
+    grid-column: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    margin-top: 0.15rem;
+  }
+  .pcd-chev { margin-left: auto; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pcd-step, .pcd-chev { transition: none; }
+  .pcd-step:active { transform: none; }
+}
