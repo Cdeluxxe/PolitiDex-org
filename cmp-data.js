@@ -10546,5 +10546,426 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Audit Reform",
    "Taxpayer Protection"
   ]
+ },
+// ── STATE SENATE wave 1 — California, Texas, New York, Florida (July 2026).
+//    (Hughes, McGuire, Albritton and Stewart-Cousins already exist in the roster
+//     under bryan_hughes / mike_mcguire / ben_albritton / stewart_cousins and are
+//     enriched via cmp-data-detail.js + their existing stance arrays instead.) ──
+ "limon_ca": {
+  "name": "Monique Limón", "office": "California State Senator", "state": "California",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Leadership", "Consumer Finance", "Housing", "Santa Barbara"]
+ },
+ "wiener_ca": {
+  "name": "Scott Wiener", "office": "California State Senator", "state": "California",
+  "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["AI Safety (SB 1047)", "Housing (YIMBY)", "Transit", "San Francisco"]
+ },
+ "bjones_ca": {
+  "name": "Brian Jones", "office": "California State Senator", "state": "California",
+  "district": "SD 40", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Cost of Living", "Public Safety", "San Diego"]
+ },
+ "bettencourt_tx": {
+  "name": "Paul Bettencourt", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Property Taxes", "Higher Education", "Taxpayer Watchdog", "Houston"]
+ },
+ "paxton_tx": {
+  "name": "Angela Paxton", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Economic Development", "Securities (SB 860)", "Education", "Collin County"]
+ },
+ "gutierrez_tx": {
+  "name": "Roland Gutiérrez", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Gun Safety", "Uvalde", "Health Access", "San Antonio"]
+ },
+ "gianaris_ny": {
+  "name": "Michael Gianaris", "office": "New York State Senator", "state": "New York",
+  "district": "SD 12", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Amazon HQ2 Fight", "Bail Reform", "Queens", "Retiring 2026"]
+ },
+ "ortt_ny": {
+  "name": "Rob Ortt", "office": "New York State Senator", "state": "New York",
+  "district": "SD 62", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Affordability", "Public Safety", "Western NY"]
+ },
+ "pizzo_fl": {
+  "name": "Jason Pizzo", "office": "Florida State Senator", "state": "Florida",
+  "district": "SD 37", "party": "I", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Left Democratic Party", "Independent Gov Run", "Public Safety", "Miami-Dade"]
+ },
+ "passidomo_fl": {
+  "name": "Kathleen Passidomo", "office": "Florida State Senator", "state": "Florida",
+  "district": "SD 28", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Live Local Act", "Housing", "Insurance", "Naples"]
+ },
+// ── STATE SENATE wave 2 — Pennsylvania, Illinois, Ohio (July 2026).
+//    (Kim Ward, Jay Costa, Don Harmon and Rob McColley already exist under
+//     kim_ward / jay_costa / don_harmon / rob_mccolley and are enriched via
+//     cmp-data-detail.js + their existing stance arrays instead.) ──
+ "joe_pittman": {
+  "name": "Joe Pittman", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Energy", "State Budget", "Indiana County"]
+ },
+ "doug_mastriano": {
+  "name": "Doug Mastriano", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 33", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["2020 Election Denial", "Jan. 6", "2022 Gov Nominee", "Franklin / Adams"]
+ },
+ "sharif_street": {
+  "name": "Sharif Street", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 3", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["PA Dem Party Chair", "Cannabis Legalization", "Justice Reform", "Philadelphia"]
+ },
+ "kimberly_lightford": {
+  "name": "Kimberly Lightford", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 4", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "SAFE-T Act", "$15 Minimum Wage", "West Suburbs"]
+ },
+ "john_curran_il": {
+  "name": "John Curran", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Public Safety", "Ethics Reform", "DuPage County"]
+ },
+ "robert_peters_il": {
+  "name": "Robert Peters", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 13", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Running for Congress", "Justice Reform", "Labor", "Chicago"]
+ },
+ "theresa_gavarone": {
+  "name": "Theresa Gavarone", "office": "Ohio State Senator", "state": "Ohio",
+  "district": "SD 2", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Voter ID", "Taxes", "NW Ohio"]
+ },
+ "nickie_antonio": {
+  "name": "Nickie Antonio", "office": "Ohio State Senator", "state": "Ohio",
+  "district": "SD 23", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Minority Leader", "First LGBTQ Legislator", "Health", "Cleveland Area"]
+ },
+// ── STATE SENATE wave 3 — Georgia, North Carolina, Michigan (July 2026).
+//    (Winnie Brinks, Phil Berger and Mallory McMorrow already have curated
+//     stances; Brinks & Berger already have roster entries and are enriched via
+//     cmp-data-detail.js, while McMorrow gains a roster entry + bio here and keeps
+//     her existing stance array.) ──
+ "larry_walker_ga": {
+  "name": "Larry Walker III", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "School Choice", "Taxes", "Perry / Middle GA"]
+ },
+ "jason_anavitarte": {
+  "name": "Jason Anavitarte", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 31", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Kids' Online Safety", "Gun Rights", "Paulding County"]
+ },
+ "harold_jones_ga": {
+  "name": "Harold Jones II", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 22", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Justice Reform", "Medicaid Expansion", "Augusta"]
+ },
+ "michael_lee_nc": {
+  "name": "Michael Lee", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "School Vouchers", "Income-Tax Cuts", "Wilmington"]
+ },
+ "sydney_batch": {
+  "name": "Sydney Batch", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 17", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Abortion Rights", "Health & Family", "Wake County"]
+ },
+ "ralph_hise": {
+  "name": "Ralph Hise", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 47", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Redistricting Architect", "Deputy Pro Tem", "Taxes", "Western NC"]
+ },
+ "aric_nesbitt": {
+  "name": "Aric Nesbitt", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Running for Governor", "Taxes & Roads", "SW Michigan"]
+ },
+ "jeremy_moss": {
+  "name": "Jeremy Moss", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 7", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "First Openly Gay MI Senator", "Transparency", "Southfield"]
+ },
+ "mallory_mcmorrow": {
+  "name": "Mallory McMorrow", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Majority Whip", "2022 Viral Speech", "Ran for U.S. Senate", "Oakland County"]
+ },
+// ── STATE SENATE wave 4 — New Jersey, Virginia, Arizona, Washington (July 2026).
+//    (Nicholas Scutari and Warren Petersen already exist with curated stances and
+//     are enriched via cmp-data-detail.js instead of being duplicated here.) ──
+ "teresa_ruiz": {
+  "name": "Teresa Ruiz", "office": "New Jersey State Senator", "state": "New Jersey",
+  "district": "LD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Education Reform", "Working Families", "Newark"]
+ },
+ "anthony_bucco": {
+  "name": "Anthony Bucco", "office": "New Jersey State Senator", "state": "New Jersey",
+  "district": "LD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Property Taxes", "Public Safety", "Morris County"]
+ },
+ "louise_lucas": {
+  "name": "Louise Lucas", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["FBI Search Warrant", "President pro Tem", "Finance Chair", "Portsmouth"]
+ },
+ "scott_surovell": {
+  "name": "Scott Surovell", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 34", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Justice Reform", "Clean Energy", "Fairfax"]
+ },
+ "ryan_mcdougle": {
+  "name": "Ryan McDougle", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 26", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Abortion", "Hanover County"]
+ },
+ "priya_sundareshan": {
+  "name": "Priya Sundareshan", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Water & Drought", "Abortion Rights", "Tucson"]
+ },
+ "wendy_rogers": {
+  "name": "Wendy Rogers", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Censure (2022)", "Election Denial", "Border", "Northern AZ"]
+ },
+ "jake_hoffman": {
+  "name": "Jake Hoffman", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 15", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Indicted 'Fake Elector'", "Freedom Caucus Chair", "Border", "Gilbert"]
+ },
+ "jamie_pedersen": {
+  "name": "Jamie Pedersen", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 43", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Marriage Equality", "Housing Supply", "Seattle"]
+ },
+ "john_braun": {
+  "name": "John Braun", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Running for Congress", "Taxes", "SW Washington"]
+ },
+ "manka_dhingra": {
+  "name": "Manka Dhingra", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Behavioral Health", "Deputy Majority Leader", "Justice Reform", "Redmond"]
+ },
+// ── STATE SENATE wave 5 — Massachusetts, Wisconsin, Minnesota, Colorado (July 2026).
+//    (Karen Spilka, Erin Murphy and James Coleman already exist with curated
+//     stances and are enriched via cmp-data-detail.js instead of being duplicated.) ──
+ "cynthia_creem": {
+  "name": "Cynthia Creem", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "district": "Norfolk & Middlesex", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Climate Law", "Civil Rights", "Newton"]
+ },
+ "bruce_tarr": {
+  "name": "Bruce Tarr", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "district": "First Essex & Middlesex", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Commercial Fishing", "Gloucester"]
+ },
+ "mary_felzkowski": {
+  "name": "Mary Felzkowski", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Tax Cuts", "Medical Marijuana", "Northern WI"]
+ },
+ "devin_lemahieu": {
+  "name": "Devin LeMahieu", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Retiring 2026", "Flat Tax", "Sheboygan"]
+ },
+ "dianne_hesselbein": {
+  "name": "Dianne Hesselbein", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 27", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Public Schools", "Abortion Rights", "Dane County"]
+ },
+ "bobby_joe_champion": {
+  "name": "Bobby Joe Champion", "office": "Minnesota State Senator", "state": "Minnesota",
+  "district": "SD 59", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["First Black Senate President", "Economic Opportunity", "Family & Equity", "North Minneapolis"]
+ },
+ "mark_johnson_mn": {
+  "name": "Mark Johnson", "office": "Minnesota State Senator", "state": "Minnesota",
+  "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Agriculture", "NW Minnesota"]
+ },
+ "robert_rodriguez_co": {
+  "name": "Robert Rodriguez", "office": "Colorado State Senator", "state": "Colorado",
+  "district": "SD 32", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Data Privacy", "Workers & Labor", "Denver"]
+ },
+ "cleave_simpson": {
+  "name": "Cleave Simpson", "office": "Colorado State Senator", "state": "Colorado",
+  "district": "SD 6", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Water & Drought", "Agriculture", "San Luis Valley"]
+ },
+// ── STATE SENATE wave 6 — Tennessee, Indiana, Missouri, Maryland (July 2026).
+//    (Bill Ferguson already exists with curated stances and is enriched via
+//     cmp-data-detail.js instead of being duplicated here.) ──
+ "randy_mcnally": {
+  "name": "Randy McNally", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 5", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Lt. Gov / Senate Speaker", "Retiring 2026", "Fiscal Hawk", "Oak Ridge"]
+ },
+ "jack_johnson_tn": {
+  "name": "Jack Johnson", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Taxes", "School Choice", "Franklin"]
+ },
+ "raumesh_akbari": {
+  "name": "Raumesh Akbari", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Health Care", "Justice Reform", "Memphis"]
+ },
+ "rodric_bray": {
+  "name": "Rodric Bray", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 37", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Defied Trump on Maps", "Fiscal Restraint", "Martinsville"]
+ },
+ "chris_garten": {
+  "name": "Chris Garten", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 45", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Quit Leadership 2026", "Trump-Aligned", "Veterans", "Southern Indiana"]
+ },
+ "shelli_yoder": {
+  "name": "Shelli Yoder", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 40", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Abortion Rights", "Public Schools", "Bloomington"]
+ },
+ "cindy_olaughlin": {
+  "name": "Cindy O'Laughlin", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 18", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["First Woman to Lead Senate", "School Choice", "Taxes", "Shelbina"]
+ },
+ "tony_luetkemeyer": {
+  "name": "Tony Luetkemeyer", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 34", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Public Safety", "Taxes", "Parkville"]
+ },
+ "doug_beck": {
+  "name": "Doug Beck", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 1", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Labor & Workers", "Health Care", "Affton"]
+ },
+ "nancy_king": {
+  "name": "Nancy King", "office": "Maryland State Senator", "state": "Maryland",
+  "district": "SD 39", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Public Schools", "Health Care", "Montgomery County"]
+ },
+ "steve_hershey": {
+  "name": "Steve Hershey", "office": "Maryland State Senator", "state": "Maryland",
+  "district": "SD 36", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Eastern Shore", "Agriculture"]
+ },
+// ── STATE SENATE wave 7 — Nevada, New Hampshire, Kentucky, Louisiana (July 2026).
+//    (Nicole Cannizzaro, Sharon Carson and Robert Stivers already exist with
+//     curated stances and are enriched via cmp-data-detail.js instead of duplicated.) ──
+ "robin_titus": {
+  "name": "Robin Titus", "office": "Nevada State Senator", "state": "Nevada",
+  "district": "SD 17", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Rural Health Care", "Taxes", "Lyon County"]
+ },
+ "marilyn_dondero_loop": {
+  "name": "Marilyn Dondero Loop", "office": "Nevada State Senator", "state": "Nevada",
+  "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Public Education", "Health & Families", "Las Vegas"]
+ },
+ "regina_birdsell": {
+  "name": "Regina Birdsell", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "district": "SD 19", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "No Income Tax", "Election Law", "Hampstead"]
+ },
+ "rebecca_perkins_kwoka": {
+  "name": "Rebecca Perkins Kwoka", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "district": "SD 21", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "LGBTQ Leader", "Housing", "Portsmouth"]
+ },
+ "max_wise": {
+  "name": "Max Wise", "office": "Kentucky State Senator", "state": "Kentucky",
+  "district": "SD 16", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "School Safety", "Veterans", "Campbellsville"]
+ },
+ "gerald_neal": {
+  "name": "Gerald Neal", "office": "Kentucky State Senator", "state": "Kentucky",
+  "district": "SD 33", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Civil Rights", "Voting Access", "Louisville"]
+ },
+ "cameron_henry": {
+  "name": "Cameron Henry", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Budget & Tax Overhaul", "Landry Ally", "Metairie"]
+ },
+ "jeremy_stine": {
+  "name": "Jeremy Stine", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Insurance Crisis", "Energy", "Lake Charles"]
+ },
+ "royce_duplessis": {
+  "name": "Royce Duplessis", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 5", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Taking On Insurers", "Justice Reform", "Minority Voice", "New Orleans"]
+ },
+// ── STATE SENATE wave 8 — Oregon, South Carolina, Alabama, Connecticut (July 2026). ──
+ "rob_wagner": {
+  "name": "Rob Wagner", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Public Education", "Housing", "Lake Oswego"]
+ },
+ "kayse_jama": {
+  "name": "Kayse Jama", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "First African-Born Senator", "Housing", "East Portland"]
+ },
+ "bruce_starr": {
+  "name": "Bruce Starr", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Measure 113 Fallout", "Taxes", "Yamhill County"]
+ },
+ "thomas_alexander": {
+  "name": "Thomas Alexander", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Energy & Utilities", "Taxes", "Oconee County"]
+ },
+ "shane_massey": {
+  "name": "Shane Massey", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Abortion-Ban Push", "Taxes", "Edgefield"]
+ },
+ "margie_bright_matthews": {
+  "name": "Margie Bright Matthews", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["'Sister Senator'", "Profile in Courage", "Rural Health", "Lowcountry"]
+ },
+ "garlan_gudger": {
+  "name": "Garlan Gudger", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 4", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Small Business", "Taxes", "Cullman"]
+ },
+ "steve_livingston": {
+  "name": "Steve Livingston", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Rural Broadband", "Taxes", "Scottsboro"]
+ },
+ "bobby_singleton": {
+  "name": "Bobby Singleton", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Civil Rights", "Rural Health", "Black Belt"]
+ },
+ "martin_looney": {
+  "name": "Martin Looney", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Retiring 2026", "Police Accountability", "New Haven"]
+ },
+ "bob_duff": {
+  "name": "Bob Duff", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 25", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Climate & Energy", "Gun Safety", "Norwalk"]
+ },
+ "stephen_harding": {
+  "name": "Stephen Harding", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 30", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Cost of Living", "Brookfield"]
  }
 });

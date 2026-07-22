@@ -565,6 +565,21 @@
       scrollbar-width: thin;
       -webkit-overflow-scrolling: touch;
     }
+    /* Plain-language scope note under the state tabs. Neutral, quiet, full-width;
+       makes "you are viewing All States / just California" unmistakable. */
+    .browse-scope-note {
+      margin-top: 0.55rem;
+      font-family: 'Barlow', 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #93a7c7;
+      padding: 0.4rem 0.65rem;
+      border-left: 3px solid rgba(96, 165, 250, 0.5);
+      background: rgba(96, 165, 250, 0.06);
+      border-radius: 0.35rem;
+    }
+    .browse-scope-note b { color: #dce7f7; font-weight: 700; }
+    @media (max-width: 640px) { .browse-scope-note { font-size: 0.74rem; } }
     .browse-state-tabs::-webkit-scrollbar { height: 5px; }
     .browse-state-tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 999px; }
     .state-tab {

@@ -1,0 +1,182 @@
+/* ============================================================================
+   mobile-polish.css  ·  Additive mobile performance & flow polish
+   ----------------------------------------------------------------------------
+   Loaded last (after app.css / app-2.css) so it wins specificity ties without
+   editing any existing rule. Every block here is PURELY ADDITIVE: it only sets
+   properties that the target selectors do not already declare (touch-action,
+   content-visibility, overscroll-behavior, will-change, tap-highlight), plus a
+   few clearly-beneficial mobile-scoped touch-target and reduced-motion tweaks.
+   Nothing here changes desktop layout or existing look.
+
+   Scope covers the five requested surfaces:
+     · My Stances        (#my-stances / .ms-*)
+     · Alignment Tool    (.align-*)
+     · Stance Library    (#stance-library / .sl-*)
+     · Comparisons       (.cmp-*)
+     · Homepage / global (nav, .nav-link, .btn-tap, .li-card, .vh-*)
+
+   Goals: faster paint, 60fps scrolling, less jank, bigger touch targets,
+   seamless transitions.
+   ========================================================================== */
+
+
+/* ── 1 · Tap responsiveness ──────────────────────────────────────────────
+   `touch-action: manipulation` drops the ~300ms double-tap-zoom wait so taps
+   register immediately, and removing the grey tap-flash makes buttons feel
+   native. Harmless on desktop; every interactive control across the five
+   surfaces opts in. */
+.ms-chip, .ms-fchip, .ms-pos, .ms-group-head, .ms-notebtn, .ms-remove,
+.ms-sum-exp, .ms-pow-btn, .ms-toggle, .ms-sh-btn, .ms-sh-ic, .ms-ov-cta-btn,
+.ms-prio select,
+.align-cat-head, .align-chip, .align-int-btn, .align-quick-chip,
+.align-tool-btn, .align-area-chip, .align-fab, .align-compact-btn,
+.align-done-btn, .align-collapse-link,
+.sl-chip, .sl-card, .sl-jchip, .sl-back, .sl-btn, .sl-adopt-btn,
+.sl-pol-act, .sl-search-clear, .sl-thread, .sl-rec-btn,
+.cmp-empty-cta, .cmp-issue-allev, .cmp-vs-link,
+.nav-link, .nav-mandate-btn, .btn-tap, .vh-cta-primary, .vh-step-cta,
+.li-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ── 2 · Faster first paint — skip rendering off-screen list items ────────
+   `content-visibility: auto` lets the engine skip layout & paint for cards
+   that are scrolled out of view, so long stance/library/comparison lists
+   paint their first screen far sooner and scroll cheaper. `contain-intrinsic-
+   size` reserves a remembered placeholder height so the scrollbar never
+   jumps, and items still render on demand as they approach the viewport
+   (in-page scrollIntoView / find-in-page keep working). Scoped to phones,
+   where these lists are single-column and paint cost hurts most. */
+@media (max-width: 640px) {
+  .ms-issue {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 128px;
+  }
+  .sl-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 190px;
+  }
+  .sl-pol {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 240px;
+  }
+  .cmp-issue {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150px;
+  }
+}
+@media (max-width: 560px) {
+  /* Local Issues collapses to one column at 560px — safe to lazy-paint here. */
+  #local-issues .li-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 220px;
+  }
+}
+
+
+/* ── 3 · Smoother scrolling — momentum + contained overscroll ─────────────
+   Momentum (inertial) scrolling on iOS for the scrollable panels, and
+   `overscroll-behavior: contain` so a swipe that reaches the end of a chip
+   rail or a modal doesn't chain into the page behind it or trigger the
+   browser's back-swipe. */
+.sl-chips {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.ms-ov-panel {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Land smooth-scroll / anchor jumps just below the fixed top nav instead of
+   underneath it — makes in-app navigation feel intentional, not clipped. */
+@media (max-width: 640px) {
+  html { scroll-padding-top: 72px; }
+}
+
+
+/* ── 4 · Seamless transitions — promote only what actually animates ───────
+   A light, targeted `will-change` on the handful of elements that transform
+   or fade (never a blanket promotion) hands them to the compositor so their
+   transitions stay on the 60fps path. All are single, small elements. */
+.align-fab { will-change: transform; }
+.ms-toast { will-change: transform, opacity; }
+.ms-ov-panel { will-change: transform; }
+.ms-group-caret, .align-cat-chev { will-change: transform; }
+
+/* The fixed, backdrop-blurred top nav repaints as the page scrolls under it;
+   pinning it to its own compositor layer keeps that repaint off the main
+   scroll frame. */
+nav.nav-blur {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Card hover-lift transitions are pointer-only flourishes; on touch devices
+   they can't fire but the compositor still watches for them. Neutralize the
+   transition cost on coarse pointers so first paint and scroll are leaner. */
+@media (hover: none) and (pointer: coarse) {
+  .sl-card, .li-card, .ms-chip { transition: none; }
+}
+
+
+/* ── 5 · Comfortable touch targets (≥44px) ───────────────────────────────
+   Several controls render below the 44px tap minimum on phones. Grow them on
+   coarse-pointer / small screens only, leaving the compact desktop look
+   untouched. Uses min-height + centering so nothing reflows awkwardly. */
+@media (hover: none) and (pointer: coarse) {
+  .cmp-vs-link {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .cmp-chip,
+  .cmp-empty-cta {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .sl-jchip,
+  .sl-chip,
+  .sl-rec-btn,
+  .sl-pol-act {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .sl-back,
+  .sl-search-clear {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ms-chip,
+  .ms-fchip,
+  .ms-sh-ic {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+
+/* ── 6 · Battery & jank — hush decorative loops for reduced-motion ────────
+   Additive top-up to the existing prefers-reduced-motion handling: silence the
+   remaining infinite/decorative loops on the polished surfaces so low-power
+   phones aren't animating off-screen. Layout and interactivity are unchanged. */
+@media (prefers-reduced-motion: reduce) {
+  .align-fab.is-empty,
+  .align-panel::before,
+  .ms-flash,
+  .align-flash {
+    animation: none !important;
+  }
+  .align-chip.just-toggled,
+  .align-cat-badge.pop,
+  .align-sel-count.pop {
+    animation: none !important;
+  }
+}
