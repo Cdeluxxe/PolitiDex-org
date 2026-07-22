@@ -1426,7 +1426,21 @@
    "healthcare": "N/A — focuses on auditing",
    "audit": "State auditor — champions government transparency"
   }
- }
+ },
+ "limon_ca": { "bio": "Monique Limón is a Democratic California state senator representing the Santa Barbara–Ventura coast (District 19) and the Senate's incoming President pro Tempore for 2026. A former chair of the Banking and Financial Institutions Committee, she is known for work on consumer financial protection." },
+ "mike_mcguire": { "bio": "Mike McGuire is a Democratic California state senator for the North Coast (District 2) who served as Senate President pro Tempore from 2024 to 2025. Termed out of the Senate, he is running for the U.S. House in California's 1st District." },
+ "wiener_ca": { "bio": "Scott Wiener is a Democratic California state senator from San Francisco (District 11), known nationally for pro-housing 'YIMBY' laws, public-transit funding, and SB 1047 — a landmark AI-safety bill the Legislature passed in 2024 before Gov. Newsom vetoed it." },
+ "bjones_ca": { "bio": "Brian Jones is a Republican California state senator from East San Diego County (District 40) and the Senate Republican Leader, focused on cost of living, taxes, and public safety." },
+ "bryan_hughes": { "bio": "Bryan Hughes is a Republican Texas state senator from Northeast Texas (District 1) and chair of the Senate State Affairs Committee. He authored Senate Bill 8, the 2021 'Heartbeat Act,' and Senate Bill 1, the 2021 election law." },
+ "bettencourt_tx": { "bio": "Paul Bettencourt is a Republican Texas state senator from Houston (District 7), a former Harris County Tax Assessor-Collector known as the Senate's lead voice on property-tax cuts, and the 2026 chair of the Higher Education Committee." },
+ "paxton_tx": { "bio": "Angela Paxton is a Republican Texas state senator from Collin County (District 8) and the 2026 chair of the Economic Development Committee. A former school counselor, she filed for divorce from Texas Attorney General Ken Paxton in 2025." },
+ "gutierrez_tx": { "bio": "Roland Gutiérrez is a Democratic Texas state senator from San Antonio (District 19) who represents Uvalde and became a prominent gun-safety advocate after the 2022 Robb Elementary shooting; he ran for U.S. Senate in 2024." },
+ "stewart_cousins": { "bio": "Andrea Stewart-Cousins is a Democratic New York state senator from Yonkers (District 35) and, since 2019, Senate Majority Leader — the first woman to lead a legislative conference in New York State history." },
+ "gianaris_ny": { "bio": "Michael Gianaris is a Democratic New York state senator from Queens (District 12) and Deputy Majority Leader who led the 2019 opposition to Amazon's HQ2 and helped write the state's bail-reform law. He plans to retire at the end of 2026." },
+ "ortt_ny": { "bio": "Rob Ortt is a Republican New York state senator from western New York (District 62) and, since 2020, Senate Minority Leader, focused on affordability, taxes, and public safety." },
+ "ben_albritton": { "bio": "Ben Albritton is a Republican Florida state senator from Wauchula (District 27) and, since November 2024, President of the Florida Senate. A citrus grower, he has centered agriculture and rural Florida." },
+ "pizzo_fl": { "bio": "Jason Pizzo is a Florida state senator representing parts of Miami-Dade and Broward (District 37). The former Senate Democratic Leader, he left the Democratic Party in 2025 to register with no party affiliation and is running for Governor in 2026 as an independent." },
+ "passidomo_fl": { "bio": "Kathleen Passidomo is a Republican Florida state senator from Naples (District 28) who served as Senate President from 2022 to 2024 and championed the 2023 'Live Local Act' on affordable and workforce housing." }
 };
   Object.keys(X).forEach(function (k) {
     var src = X[k], dst = D[k] || (D[k] = {});

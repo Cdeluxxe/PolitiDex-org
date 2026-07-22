@@ -10546,5 +10546,59 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Audit Reform",
    "Taxpayer Protection"
   ]
+ },
+// ── STATE SENATE wave 1 — California, Texas, New York, Florida (July 2026).
+//    (Hughes, McGuire, Albritton and Stewart-Cousins already exist in the roster
+//     under bryan_hughes / mike_mcguire / ben_albritton / stewart_cousins and are
+//     enriched via cmp-data-detail.js + their existing stance arrays instead.) ──
+ "limon_ca": {
+  "name": "Monique Limón", "office": "California State Senator", "state": "California",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Leadership", "Consumer Finance", "Housing", "Santa Barbara"]
+ },
+ "wiener_ca": {
+  "name": "Scott Wiener", "office": "California State Senator", "state": "California",
+  "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["AI Safety (SB 1047)", "Housing (YIMBY)", "Transit", "San Francisco"]
+ },
+ "bjones_ca": {
+  "name": "Brian Jones", "office": "California State Senator", "state": "California",
+  "district": "SD 40", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Cost of Living", "Public Safety", "San Diego"]
+ },
+ "bettencourt_tx": {
+  "name": "Paul Bettencourt", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Property Taxes", "Higher Education", "Taxpayer Watchdog", "Houston"]
+ },
+ "paxton_tx": {
+  "name": "Angela Paxton", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Economic Development", "Securities (SB 860)", "Education", "Collin County"]
+ },
+ "gutierrez_tx": {
+  "name": "Roland Gutiérrez", "office": "Texas State Senator", "state": "Texas",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Gun Safety", "Uvalde", "Health Access", "San Antonio"]
+ },
+ "gianaris_ny": {
+  "name": "Michael Gianaris", "office": "New York State Senator", "state": "New York",
+  "district": "SD 12", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Amazon HQ2 Fight", "Bail Reform", "Queens", "Retiring 2026"]
+ },
+ "ortt_ny": {
+  "name": "Rob Ortt", "office": "New York State Senator", "state": "New York",
+  "district": "SD 62", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Affordability", "Public Safety", "Western NY"]
+ },
+ "pizzo_fl": {
+  "name": "Jason Pizzo", "office": "Florida State Senator", "state": "Florida",
+  "district": "SD 37", "party": "I", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Left Democratic Party", "Independent Gov Run", "Public Safety", "Miami-Dade"]
+ },
+ "passidomo_fl": {
+  "name": "Kathleen Passidomo", "office": "Florida State Senator", "state": "Florida",
+  "district": "SD 28", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Live Local Act", "Housing", "Insurance", "Naples"]
  }
 });
