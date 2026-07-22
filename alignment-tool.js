@@ -1058,13 +1058,17 @@
 
     // Fold the Accountability Score into a raw issue-alignment value, returning the
     // detail (so callers can both use the adjusted number AND explain the nudge).
+    //
+    // ── SCORING CLEANUP (simplified system) ─────────────────────────────────────
+    // Your Match is now PURELY issue-fit: the Accountability composite no longer
+    // nudges it. This is a deliberate pass-through — it keeps the return shape
+    // (base/acct/delta/adjusted) so every caller and the breakdown modal keep
+    // working unchanged, but the adjustment is always zero. The underlying
+    // accountability data is untouched; it simply no longer bends the match.
     function _acctMatchInfo(pid, base) {
-      var acct = _acctMatchScore(pid);
-      if (base === null || base === undefined) return { base: base, acct: acct, delta: 0, adjusted: base };
-      if (acct === null) return { base: Math.round(base), acct: null, delta: 0, adjusted: Math.round(base) };
-      var raw = base + (acct - ACCT_MATCH_NEUTRAL) * ACCT_MATCH_WEIGHT;
-      var adjusted = Math.round(Math.min(100, Math.max(0, raw)));
-      return { base: Math.round(base), acct: acct, delta: adjusted - Math.round(base), adjusted: adjusted };
+      if (base === null || base === undefined) return { base: base, acct: null, delta: 0, adjusted: base };
+      var rounded = Math.round(base);
+      return { base: rounded, acct: null, delta: 0, adjusted: rounded };
     }
     window._acctMatchInfo = _acctMatchInfo;
 
@@ -1947,13 +1951,7 @@
       var col = _alignScoreColor(score);
       var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
-      // Note when the Accountability Score is part of this match, so a voter sees
-      // both dimensions — issue fit AND integrity — feeding the number at a glance.
-      var _acctForMatch = (typeof window._acctMatchScore === 'function') ? window._acctMatchScore(pid) : null;
-      var _acctSub = (typeof _acctForMatch === 'number')
-        ? ' · <span style="color:#c4b5fd;">🛡️ incl. accountability ' + _acctForMatch + '</span>'
-        : '';
-      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues, including their accountability score. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
             '<span class="align-card-titlerow">' +
@@ -1961,7 +1959,7 @@
               '<span class="align-card-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
             '</span>' +
             '<span class="align-card-mini"><div style="width:' + score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
-            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b>' + _acctSub + ' · tap for breakdown</span>' +
+            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
         '</button>' + _alignConsistencyBar(pid) + drivers;
