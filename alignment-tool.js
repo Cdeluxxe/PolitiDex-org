@@ -1072,6 +1072,20 @@
     function _applyAcctToMatch(pid, base) { return _acctMatchInfo(pid, base).adjusted; }
     window._applyAcctToMatch = _applyAcctToMatch;
 
+    // Optional bridge to My Stances: the voter's per-issue importance weighting.
+    // Returns a positive multiplier (default 1.0 when My Stances isn't present or
+    // the voter set no priority for this issue), so the scorer stays fully
+    // functional on its own — this only ever scales weight, never direction.
+    function _msPriorityMul(issueKey) {
+      try {
+        if (typeof window._msPriorityWeight === 'function') {
+          var w = window._msPriorityWeight(issueKey);
+          if (typeof w === 'number' && isFinite(w) && w > 0) return w;
+        }
+      } catch (e) {}
+      return 1;
+    }
+
     function _calcAlignmentScore(pid) {
       if (_alignIssues.size === 0) return null;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
@@ -1218,6 +1232,12 @@
           issueWeight *= _model.weight;
         }
 
+        // My Stances priority multiplier: the voter's own importance weighting on
+        // this issue (High counts more, Low less; 1.0 when they set no priority or
+        // only used the Alignment Tool). Applied uniformly to both branches so a
+        // documented-position match and an inferred one weight priority the same.
+        issueWeight *= _msPriorityMul(issueKey);
+
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
       });
@@ -1355,6 +1375,10 @@
           else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
           issueWeight *= _model.weight;
         }
+
+        // My Stances priority multiplier (kept in lock-step with _calcAlignmentScore).
+        var _prioMul = _msPriorityMul(issueKey);
+        issueWeight *= _prioMul;
 
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;

@@ -298,3 +298,41 @@
 .align-mystances-link:hover { background: rgba(250, 204, 21, 0.2); border-color: rgba(250, 204, 21, 0.55); }
 .cmp-guide-link { cursor: pointer; background: rgba(250, 204, 21, 0.12); border: 1px solid rgba(250, 204, 21, 0.35); color: #fcd34d; font: inherit; font-weight: 700; padding: 0.05rem 0.4rem; border-radius: 0.4rem; white-space: nowrap; }
 .cmp-guide-link:hover { background: rgba(250, 204, 21, 0.22); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   YOUR STANCE vs THEIR RECORD  ·  profile + comparison integration
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The reusable block (profile modals). */
+.msvs { font-family: 'Barlow', sans-serif; }
+.msvs-head { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: #eef4ff; margin-bottom: 0.6rem; }
+.msvs-head span { color: #8f9bb3; }
+.msvs-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.msvs-row { background: rgba(6, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 0.6rem; padding: 0.55rem 0.7rem; }
+.msvs-issue { color: #e7ecf6; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem; }
+.msvs-topic { display: block; color: #8298b8; font-weight: 400; font-size: 0.76rem; margin-top: 0.1rem; }
+.msvs-cells { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.msvs-side { display: inline-flex; align-items: center; gap: 0.3rem; }
+.msvs-side-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7f93b6; }
+.msvs-vs { color: #6f83a6; font-size: 0.72rem; font-style: italic; }
+.msvs-pill { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; }
+.msvs-pill.is-support { background: rgba(74, 222, 128, 0.16); border-color: rgba(74, 222, 128, 0.45); color: #bbf7d0; }
+.msvs-pill.is-oppose { background: rgba(248, 113, 113, 0.16); border-color: rgba(248, 113, 113, 0.45); color: #fecaca; }
+.msvs-pill.is-mixed { background: rgba(250, 204, 21, 0.16); border-color: rgba(250, 204, 21, 0.45); color: #fde68a; }
+.msvs-pill.msvs-none { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); color: #9fb4d4; }
+.msvs-star { color: #fcd34d; font-size: 0.72rem; }
+.msvs-verdict { margin-left: auto; display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 0.45rem; padding: 0.15rem 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.msvs-verdict.is-agree { background: rgba(74, 222, 128, 0.16); color: #86efac; }
+.msvs-verdict.is-partial { background: rgba(250, 204, 21, 0.16); color: #fde047; }
+.msvs-verdict.is-differ { background: rgba(248, 113, 113, 0.16); color: #fca5a5; }
+.msvs-verdict.is-solo { background: rgba(255, 255, 255, 0.08); color: #9fb4d4; }
+.msvs-foot { margin-top: 0.65rem; color: #8298b8; font-size: 0.78rem; line-height: 1.45; }
+
+/* Compare table "You: 👍 Support" chip in the issue label column. */
+.cmp-issue-you { margin-top: 0.3rem; }
+.ms-you-chip { display: inline-flex; align-items: center; gap: 0.28rem; border-radius: 999px; padding: 0.12rem 0.5rem; font-size: 0.74rem; font-weight: 700; border: 1px solid transparent; }
+.ms-you-chip .ms-you-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; letter-spacing: 0.07em; text-transform: uppercase; opacity: 0.85; margin-right: 0.12rem; }
+.ms-you-chip.is-support { background: rgba(74, 222, 128, 0.15); border-color: rgba(74, 222, 128, 0.5); color: #bbf7d0; }
+.ms-you-chip.is-oppose { background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.5); color: #fecaca; }
+.ms-you-chip.is-mixed { background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.5); color: #fde68a; }
+.ms-you-star { color: #fcd34d; }

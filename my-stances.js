@@ -244,14 +244,39 @@
   function count(s) { return activeItems(s).length; }
 
   // ── Alignment Signature projection ──────────────────────────────────────────
-  // The single point where My Stances feeds the scoring engine. A High-priority
-  // Support/Oppose becomes a "strongly" intensity; Mixed becomes Neutral (the
-  // engine's "I care but hold no directional expectation" state).
-  function positionToLevel(position, priority) {
+  // My Stances feeds the scoring engine through TWO clean, separable channels:
+  //
+  //   1. DIRECTION → the Alignment level. A position maps to a direction only:
+  //      Support → 'support', Oppose → 'oppose', Mixed → 'neutral'. This is what
+  //      decides whether a politician who holds the position scores HIGH (you
+  //      agree) or LOW (you oppose) for you.
+  //   2. PRIORITY → a weight multiplier applied by the scorer (see priorityWeight
+  //      + window._msPriorityWeight below). High counts more, Low counts less.
+  //
+  // Keeping direction out of the priority and priority out of the direction means
+  // all three priority levels move the match score distinctly, with no double
+  // counting against the engine's own 5-point conviction weights (which still
+  // work for anyone tuning the Alignment Tool directly).
+  function positionToLevel(position /*, priority */) {
     if (position === 'mixed') return 'neutral';
-    if (position === 'support') return priority === 'high' ? 'strongly_support' : 'support';
-    if (position === 'oppose') return priority === 'high' ? 'strongly_oppose' : 'oppose';
+    if (position === 'oppose') return 'oppose';
     return 'support';
+  }
+  // How much a My Stances priority scales an issue's weight in the match score.
+  // Neutral (1.0) at "medium", heavier at "high", lighter at "low" — so the
+  // issues a voter says matter most pull the score hardest, and the ones they
+  // flagged only lightly barely nudge it. Purely an importance weight; it never
+  // changes the DIRECTION of the match (that's the level above).
+  var PRIORITY_WEIGHT = { high: 1.6, medium: 1.0, low: 0.55 };
+  function priorityWeight(issueKey) {
+    try {
+      var s = load();
+      var r = s.items[issueKey];
+      if (!r) return 1;
+      var t = s.tombstones[issueKey] || 0;
+      if (t && t >= (r.updatedAt || 0)) return 1; // deleted → no weight
+      return PRIORITY_WEIGHT[r.priority] || 1;
+    } catch (e) { return 1; }
   }
   // The reverse: read an existing Alignment intensity back into a position+priority
   // so an Alignment Signature built directly in the Alignment Tool shows up here.
@@ -265,6 +290,10 @@
     }
     return null;
   }
+
+  // Expose the priority weight so the Alignment scorer can consult it (one-way,
+  // optional dependency — the scorer treats a missing hook as weight 1.0).
+  try { window._msPriorityWeight = priorityWeight; } catch (e) {}
 
   function alignHas(issueKey) {
     try { return !!(window._alignIssues && typeof window._alignIssues.has === 'function' && window._alignIssues.has(issueKey)); }
@@ -556,7 +585,7 @@
     return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
       '<div class="ms-pow-title">What your stances power</div>' +
       '<p class="ms-pow-body">' + (live
-        ? 'PolitiDex is now scoring every profile, card and your voting team against <strong>' + n + '</strong> position' + (n > 1 ? 's' : '') + '. A match % that reflects <em>your</em> positions — not a party label — shows up wherever a politician appears.'
+        ? 'PolitiDex is now scoring every profile, card and your voting team against <strong>' + n + '</strong> position' + (n > 1 ? 's' : '') + '. A match % that reflects <em>your</em> positions — not a party label — shows up wherever a politician appears. <strong>High-priority</strong> positions count more toward that score; <strong>Low</strong> count less.'
         : 'Once you take a position, PolitiDex scores every politician against it — turning your values into an accountability yardstick you can point at anyone’s record.') +
       '</p>' +
       (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
@@ -934,6 +963,86 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
   else setup();
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // "YOUR STANCE vs THEIR RECORD" — a neutral, reusable comparison view
+  // ══════════════════════════════════════════════════════════════════════════
+  // Resolve the voter's OWN direction + priority for an issue: the explicit My
+  // Stances record wins; otherwise fall back to a position they set directly in
+  // the Alignment Tool (direction read from its intensity level). Returns null
+  // when the voter has taken no position on this issue at all.
+  function userDirectionFor(issueKey) {
+    if (!issueKey) return null;
+    var s = load();
+    var r = s.items[issueKey];
+    var t = s.tombstones[issueKey] || 0;
+    if (r && !(t && t >= (r.updatedAt || 0))) return { position: r.position, priority: r.priority, source: 'stance' };
+    var lvl = alignLevelOf(issueKey);
+    if (lvl) { var pp = levelToPosition(lvl); if (pp) { pp.source = 'align'; return pp; } }
+    return null;
+  }
+
+  function posPill(position, cls) {
+    var p = null;
+    for (var i = 0; i < POSITIONS.length; i++) { if (POSITIONS[i].key === position) { p = POSITIONS[i]; break; } }
+    if (!p) return '<span class="msvs-pill msvs-none">No clear position</span>';
+    return '<span class="msvs-pill ' + p.cls + (cls ? ' ' + cls : '') + '">' + p.icon + ' ' + p.label + '</span>';
+  }
+
+  // Compact "You: 👍 Support ⭐" chip — used by the comparison table's label cell.
+  function myStanceChipHtml(issueKey) {
+    var dir = userDirectionFor(issueKey);
+    if (!dir) return '';
+    var p = null;
+    for (var i = 0; i < POSITIONS.length; i++) { if (POSITIONS[i].key === dir.position) { p = POSITIONS[i]; break; } }
+    if (!p) return '';
+    var star = dir.priority === 'high' ? ' <span class="ms-you-star" title="High priority for you">⭐</span>' : '';
+    return '<span class="ms-you-chip ' + p.cls + '"><span class="ms-you-lbl">You</span>' + p.icon + ' ' + p.label + star + '</span>';
+  }
+
+  // Full "Your Stance vs Their Record" block for a politician, built from the
+  // Alignment breakdown (kept in lock-step with the match %). Lists only issues
+  // where the politician has a DOCUMENTED position (an honest "record"), each with
+  // your direction, their direction, and an Agree / Partial / Differ verdict. It
+  // reports the record neutrally — it never editorializes either side.
+  var VS_VERDICT = {
+    match: { cls: 'is-agree', ico: '✓', lbl: 'Agree' },
+    partial: { cls: 'is-partial', ico: '~', lbl: 'Partial' },
+    mismatch: { cls: 'is-differ', ico: '✗', lbl: 'Differ' }
+  };
+  function vsRecordHtml(pid, opts) {
+    opts = opts || {};
+    if (!pid || typeof window._calcAlignmentBreakdown !== 'function') return '';
+    var bd;
+    try { bd = window._calcAlignmentBreakdown(pid); } catch (e) { return ''; }
+    if (!bd || !bd.issues || !bd.issues.length) return '';
+    var rows = bd.issues.filter(function (i) { return i.direct && i.stance; });
+    if (!rows.length) return '';
+    rows = rows.slice(0, opts.max || 8);
+    var body = rows.map(function (i) {
+      var dir = userDirectionFor(i.key);
+      var youPos = dir ? dir.position
+        : (i.intensity === 'oppose' || i.intensity === 'strongly_oppose') ? 'oppose'
+        : (i.intensity === 'neutral') ? 'mixed' : 'support';
+      var youPrio = dir ? dir.priority : ((i.intensity === 'strongly_support' || i.intensity === 'strongly_oppose') ? 'high' : 'medium');
+      var vm = VS_VERDICT[i.verdict] || { cls: 'is-solo', ico: '•', lbl: 'On record' };
+      var star = youPrio === 'high' ? '<span class="msvs-star" title="High priority for you">⭐</span>' : '';
+      return '<div class="msvs-row">' +
+        '<div class="msvs-issue">' + esc(i.label) + (i.topic ? '<span class="msvs-topic">' + esc(i.topic) + '</span>' : '') + '</div>' +
+        '<div class="msvs-cells">' +
+        '<span class="msvs-side"><span class="msvs-side-lbl">You</span>' + posPill(youPos) + star + '</span>' +
+        '<span class="msvs-vs">vs</span>' +
+        '<span class="msvs-side"><span class="msvs-side-lbl">Them</span>' + posPill(i.stance) + '</span>' +
+        '<span class="msvs-verdict ' + vm.cls + '">' + vm.ico + ' ' + vm.lbl + '</span>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+    return '<div class="msvs">' +
+      (opts.heading === false ? '' : '<div class="msvs-head">🤝 Your Stance <span>vs</span> Their Record</div>') +
+      '<div class="msvs-list">' + body + '</div>' +
+      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';">Manage in My Stances</button></div>') +
+      '</div>';
+  }
+
   // ── Public API ───────────────────────────────────────────────────────────
   window.PDXStances = {
     KEY: KEY,
@@ -953,6 +1062,10 @@
     showViews: function (token) { var d = token ? decodeViews(token) : { name: displayName(), items: activeItems() }; showViewsOverlay(d); },
     // integration
     positionToLevel: positionToLevel,
+    priorityWeight: priorityWeight,
+    myDirection: userDirectionFor,
+    myStanceChip: myStanceChipHtml,
+    vsRecordHtml: vsRecordHtml,
     syncToAlignment: reconcileWithAlignment,
     // navigation / render
     open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
