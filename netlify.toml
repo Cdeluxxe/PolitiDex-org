@@ -7,6 +7,22 @@
 # forces a clean full deploy, so the file set is re-uploaded from scratch rather
 # than reconciled against a stale prior-deploy manifest.
 #
+# Follow-up (state-senate wave 9): a preview then failed at the Netlify Database
+# setup stage — "createSiteDatabaseBranch" returned HTTP 500 "internal error"
+# while provisioning the deploy's branch database. This is a server-side failure
+# of Netlify's managed-database provisioning API, not a repo defect:
+#   • Wave 9 added no migrations, schema, or db/ changes — only a client-side
+#     stance-data file (state-senate-stances-w9.js) and one <script> tag.
+#   • The full migration set (50 files) loaded and listed cleanly. It was audited
+#     after this failure: none were edited after being applied, there are no
+#     duplicate timestamp prefixes, every create is guarded (IF NOT EXISTS /
+#     NOT EXISTS sentinels), ordering satisfies all table dependencies, and no
+#     SQL string literal is unbalanced. Nothing in it fails deterministically.
+# Each deploy already provisions a brand-new branch (branch_id = agent-<deployId>),
+# so this is not a stale/half-created-branch problem and no config change alters
+# the provisioning path — the resolution is simply to re-run the deploy, which the
+# platform does automatically on the next build. This block is documentation only.
+#
 # Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
 # client identifier (access to Firebase is controlled by Security Rules, not by
 # keeping this value secret — Google documents it as safe to include in client
