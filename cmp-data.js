@@ -10800,5 +10800,63 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Cleave Simpson", "office": "Colorado State Senator", "state": "Colorado",
   "district": "SD 6", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Water & Drought", "Agriculture", "San Luis Valley"]
+ },
+// ── STATE SENATE wave 6 — Tennessee, Indiana, Missouri, Maryland (July 2026).
+//    (Bill Ferguson already exists with curated stances and is enriched via
+//     cmp-data-detail.js instead of being duplicated here.) ──
+ "randy_mcnally": {
+  "name": "Randy McNally", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 5", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Lt. Gov / Senate Speaker", "Retiring 2026", "Fiscal Hawk", "Oak Ridge"]
+ },
+ "jack_johnson_tn": {
+  "name": "Jack Johnson", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Taxes", "School Choice", "Franklin"]
+ },
+ "raumesh_akbari": {
+  "name": "Raumesh Akbari", "office": "Tennessee State Senator", "state": "Tennessee",
+  "district": "SD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Health Care", "Justice Reform", "Memphis"]
+ },
+ "rodric_bray": {
+  "name": "Rodric Bray", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 37", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Defied Trump on Maps", "Fiscal Restraint", "Martinsville"]
+ },
+ "chris_garten": {
+  "name": "Chris Garten", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 45", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Quit Leadership 2026", "Trump-Aligned", "Veterans", "Southern Indiana"]
+ },
+ "shelli_yoder": {
+  "name": "Shelli Yoder", "office": "Indiana State Senator", "state": "Indiana",
+  "district": "SD 40", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Abortion Rights", "Public Schools", "Bloomington"]
+ },
+ "cindy_olaughlin": {
+  "name": "Cindy O'Laughlin", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 18", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["First Woman to Lead Senate", "School Choice", "Taxes", "Shelbina"]
+ },
+ "tony_luetkemeyer": {
+  "name": "Tony Luetkemeyer", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 34", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Public Safety", "Taxes", "Parkville"]
+ },
+ "doug_beck": {
+  "name": "Doug Beck", "office": "Missouri State Senator", "state": "Missouri",
+  "district": "SD 1", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Labor & Workers", "Health Care", "Affton"]
+ },
+ "nancy_king": {
+  "name": "Nancy King", "office": "Maryland State Senator", "state": "Maryland",
+  "district": "SD 39", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Public Schools", "Health Care", "Montgomery County"]
+ },
+ "steve_hershey": {
+  "name": "Steve Hershey", "office": "Maryland State Senator", "state": "Maryland",
+  "district": "SD 36", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Eastern Shore", "Agriculture"]
  }
 });
