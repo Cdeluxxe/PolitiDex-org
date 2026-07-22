@@ -371,3 +371,14 @@
 
 /* Share row inside the visitor overlay */
 .ms-ov-share { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+/* ── Export / Backup (summary header actions) ───────────────────────────── */
+.ms-sum-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.ms-sum-exp {
+  cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.28);
+  border-radius: 0.55rem; padding: 0.3rem 0.65rem; color: #cfe0fb;
+  font: inherit; font-size: 0.8rem; font-weight: 600;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.ms-sum-exp:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.5); transform: translateY(-1px); }

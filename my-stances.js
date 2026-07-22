@@ -316,6 +316,115 @@
     });
   }
 
+  // ── Export / Backup ─────────────────────────────────────────────────────────
+  // Two one-tap, fully client-side exports of the visitor's own stances:
+  //   • JSON  — the complete, human-readable backup: every issue with its label,
+  //             direction, priority, private note and timestamps. Nothing leaves
+  //             the browser; it's just a file download.
+  //   • Image — a nice, full visual summary card (all positions grouped by
+  //             Support / Oppose / Mixed). Notes are omitted from the picture;
+  //             the JSON is the complete record.
+  function dateStamp() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'export'; } }
+
+  function exportJson() {
+    var items = activeItems();
+    if (!items.length) { toast('No stances to export yet — take a position first.'); return; }
+    var s = load();
+    var payload = {
+      app: 'PolitiDex',
+      kind: 'my-stances-backup',
+      schema: 1,
+      exportedAt: (function () { try { return new Date().toISOString(); } catch (e) { return ''; } })(),
+      count: items.length,
+      public: !!s.settings.public,
+      stances: items.map(function (r) {
+        var d = issueMap()[r.issueKey] || {};
+        return {
+          issue: r.issueKey,
+          label: d.label || r.issueKey,
+          position: r.position,
+          priority: r.priority,
+          note: r.note || '',
+          createdAt: r.createdAt || 0,
+          updatedAt: r.updatedAt || 0
+        };
+      })
+    };
+    var blob = null;
+    try { blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }); } catch (e) { blob = null; }
+    if (!blob) { toast('Couldn’t build the backup file on this browser.'); return; }
+    toast(downloadBlob(blob, 'my-stances-backup-' + dateStamp() + '.json') ? '⬇ Backup downloaded (JSON).' : 'Couldn’t download the backup.');
+  }
+
+  function exportImage() {
+    var items = activeItems();
+    if (!items.length) { toast('No stances to export yet — take a position first.'); return; }
+    var who = isSignedIn() ? displayName() : 'My Stances';
+    buildSummaryCanvas(who, items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      toast(downloadBlob(blob, 'my-stances-' + dateStamp() + '.png') ? '🖼 Image summary saved to your device.' : 'Couldn’t save the image.');
+    });
+  }
+
+  // A full, self-sizing summary card: header + every stance grouped by direction.
+  // Height grows to fit all positions (unlike the punchy 8-issue share card).
+  function buildSummaryCanvas(name, items) {
+    return new Promise(function (resolve) {
+      function draw() {
+        var W = 1200, PAD = 80;
+        var groups = [
+          { key: 'support', label: 'Support', color: '#4ade80' },
+          { key: 'oppose', label: 'Oppose', color: '#f87171' },
+          { key: 'mixed', label: 'Mixed', color: '#facc15' }
+        ];
+        var byPos = { support: [], oppose: [], mixed: [] };
+        items.forEach(function (r) { if (byPos[r.position]) byPos[r.position].push(r); });
+        // Layout pass — assign a y to each section header and row, so the canvas
+        // is sized to exactly fit however many stances there are.
+        var ROW = 46, SEC = 58, GAP = 22;
+        var y = 300, first = true, ops = [];
+        groups.forEach(function (g) {
+          var list = byPos[g.key]; if (!list.length) return;
+          if (!first) y += GAP; first = false;
+          ops.push({ t: 'sec', g: g, n: list.length, y: y }); y += SEC;
+          list.forEach(function (it) { ops.push({ t: 'row', it: it, y: y }); y += ROW; });
+        });
+        var H = Math.max(500, y + 70);
+        var c = document.createElement('canvas'); c.width = W; c.height = H;
+        var g2 = c.getContext('2d');
+        var grad = g2.createLinearGradient(0, 0, W, H); grad.addColorStop(0, '#0a0f1e'); grad.addColorStop(1, '#0d1526');
+        g2.fillStyle = grad; g2.fillRect(0, 0, W, H);
+        g2.fillStyle = '#f5c842'; g2.fillRect(0, 0, W, 8);
+        g2.textBaseline = 'alphabetic';
+        g2.fillStyle = '#fcd34d'; g2.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+        g2.fillText('MY STANCES · POLITIDEX', PAD, 98);
+        g2.fillStyle = '#eef4ff'; g2.font = '700 84px "Bebas Neue","Arial Narrow",Arial,sans-serif';
+        g2.fillText(trunc(name || 'My Stances', 24), PAD - 2, 184);
+        var n = items.length;
+        g2.fillStyle = '#9fb4d4'; g2.font = '400 30px "Barlow",Arial,sans-serif';
+        g2.fillText(n + ' position' + (n !== 1 ? 's' : '') + ' on the record', PAD, 232);
+        ops.forEach(function (op) {
+          if (op.t === 'sec') {
+            g2.fillStyle = op.g.color; g2.beginPath(); g2.arc(PAD + 9, op.y - 10, 9, 0, Math.PI * 2); g2.fill();
+            g2.fillStyle = op.g.color; g2.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+            g2.fillText(op.g.label.toUpperCase() + '  ·  ' + op.n, PAD + 30, op.y);
+          } else {
+            var it = op.it;
+            var lbl = (issueMap()[it.issueKey] && issueMap()[it.issueKey].label) || it.issueKey;
+            if (it.priority === 'high') lbl += '   ⭐';
+            g2.fillStyle = '#cbd9ec'; g2.font = '500 28px "Barlow",Arial,sans-serif';
+            g2.fillText('•  ' + trunc(lbl, 62), PAD + 8, op.y);
+          }
+        });
+        g2.fillStyle = '#7f93b6'; g2.font = '400 26px "Barlow",Arial,sans-serif';
+        g2.fillText('Exported from politidex.fyi · My Stances backup', PAD, H - 44);
+        resolve(c);
+      }
+      try { if (document.fonts && document.fonts.ready && document.fonts.ready.then) { document.fonts.ready.then(draw, draw); return; } } catch (e) {}
+      draw();
+    });
+  }
+
   // ── State model ───────────────────────────────────────────────────────────
   // { version, updatedAt, settings:{public, publicUpdatedAt},
   //   items: { issueKey: {issueKey, position, priority, note, createdAt, updatedAt} },
@@ -721,7 +830,11 @@
     }).join('');
     return '<div class="ms-summary">' +
       '<div class="ms-sum-head"><h3>Your stances <span class="ms-sum-count">' + n + '</span></h3>' +
-      '<button type="button" class="ms-link ms-sum-clear" data-ms-clearall="1">Clear all</button></div>' +
+      '<div class="ms-sum-actions">' +
+      '<button type="button" class="ms-sum-exp" data-ms-export="json" title="Download your full stance set as a JSON backup">⬇ Backup</button>' +
+      '<button type="button" class="ms-sum-exp" data-ms-export="image" title="Download a nice image summary of your stances">🖼 Image</button>' +
+      '<button type="button" class="ms-link ms-sum-clear" data-ms-clearall="1">Clear all</button>' +
+      '</div></div>' +
       '<div class="ms-chips">' + chips + '</div>' +
       '</div>';
   }
@@ -985,6 +1098,7 @@
     if ((b = t.closest('[data-ms-filter]'))) { uiState.filter = b.getAttribute('data-ms-filter') || ''; render(); return; }
     if ((b = t.closest('[data-ms-goto]'))) { gotoIssue(b.getAttribute('data-ms-goto')); return; }
     if ((b = t.closest('[data-ms-clearall]'))) { clearAll(); return; }
+    if ((b = t.closest('[data-ms-export]'))) { if (b.getAttribute('data-ms-export') === 'image') exportImage(); else exportJson(); return; }
     if ((b = t.closest('[data-ms-copylink]'))) { copyShareLink(); return; }
     if ((b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), shareCtx()); return; }
     if ((b = t.closest('[data-ms-signin]'))) { openSignIn(); return; }
@@ -1219,6 +1333,8 @@
     copyShareLink: copyShareLink,
     saveImage: function () { saveImage(shareCtx()); },
     shareImage: function () { shareImage(shareCtx()); },
+    exportJson: exportJson,
+    exportImage: exportImage,
     share: function (net) { handleShare(net || 'native', shareCtx()); },
     showViews: function (token) { var d = token ? decodeViews(token) : { name: displayName(), items: activeItems() }; showViewsOverlay(d); },
     // integration
