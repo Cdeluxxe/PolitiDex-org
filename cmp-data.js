@@ -10858,5 +10858,53 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Steve Hershey", "office": "Maryland State Senator", "state": "Maryland",
   "district": "SD 36", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Eastern Shore", "Agriculture"]
+ },
+// ── STATE SENATE wave 7 — Nevada, New Hampshire, Kentucky, Louisiana (July 2026).
+//    (Nicole Cannizzaro, Sharon Carson and Robert Stivers already exist with
+//     curated stances and are enriched via cmp-data-detail.js instead of duplicated.) ──
+ "robin_titus": {
+  "name": "Robin Titus", "office": "Nevada State Senator", "state": "Nevada",
+  "district": "SD 17", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Rural Health Care", "Taxes", "Lyon County"]
+ },
+ "marilyn_dondero_loop": {
+  "name": "Marilyn Dondero Loop", "office": "Nevada State Senator", "state": "Nevada",
+  "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Public Education", "Health & Families", "Las Vegas"]
+ },
+ "regina_birdsell": {
+  "name": "Regina Birdsell", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "district": "SD 19", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "No Income Tax", "Election Law", "Hampstead"]
+ },
+ "rebecca_perkins_kwoka": {
+  "name": "Rebecca Perkins Kwoka", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "district": "SD 21", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "LGBTQ Leader", "Housing", "Portsmouth"]
+ },
+ "max_wise": {
+  "name": "Max Wise", "office": "Kentucky State Senator", "state": "Kentucky",
+  "district": "SD 16", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "School Safety", "Veterans", "Campbellsville"]
+ },
+ "gerald_neal": {
+  "name": "Gerald Neal", "office": "Kentucky State Senator", "state": "Kentucky",
+  "district": "SD 33", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Civil Rights", "Voting Access", "Louisville"]
+ },
+ "cameron_henry": {
+  "name": "Cameron Henry", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Budget & Tax Overhaul", "Landry Ally", "Metairie"]
+ },
+ "jeremy_stine": {
+  "name": "Jeremy Stine", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Insurance Crisis", "Energy", "Lake Charles"]
+ },
+ "royce_duplessis": {
+  "name": "Royce Duplessis", "office": "Louisiana State Senator", "state": "Louisiana",
+  "district": "SD 5", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Taking On Insurers", "Justice Reform", "Minority Voice", "New Orleans"]
  }
 });
