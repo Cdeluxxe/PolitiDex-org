@@ -10906,5 +10906,66 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Royce Duplessis", "office": "Louisiana State Senator", "state": "Louisiana",
   "district": "SD 5", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Taking On Insurers", "Justice Reform", "Minority Voice", "New Orleans"]
+ },
+// ── STATE SENATE wave 8 — Oregon, South Carolina, Alabama, Connecticut (July 2026). ──
+ "rob_wagner": {
+  "name": "Rob Wagner", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Public Education", "Housing", "Lake Oswego"]
+ },
+ "kayse_jama": {
+  "name": "Kayse Jama", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "First African-Born Senator", "Housing", "East Portland"]
+ },
+ "bruce_starr": {
+  "name": "Bruce Starr", "office": "Oregon State Senator", "state": "Oregon",
+  "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Measure 113 Fallout", "Taxes", "Yamhill County"]
+ },
+ "thomas_alexander": {
+  "name": "Thomas Alexander", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Energy & Utilities", "Taxes", "Oconee County"]
+ },
+ "shane_massey": {
+  "name": "Shane Massey", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Abortion-Ban Push", "Taxes", "Edgefield"]
+ },
+ "margie_bright_matthews": {
+  "name": "Margie Bright Matthews", "office": "South Carolina State Senator", "state": "South Carolina",
+  "district": "SD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["'Sister Senator'", "Profile in Courage", "Rural Health", "Lowcountry"]
+ },
+ "garlan_gudger": {
+  "name": "Garlan Gudger", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 4", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Small Business", "Taxes", "Cullman"]
+ },
+ "steve_livingston": {
+  "name": "Steve Livingston", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Rural Broadband", "Taxes", "Scottsboro"]
+ },
+ "bobby_singleton": {
+  "name": "Bobby Singleton", "office": "Alabama State Senator", "state": "Alabama",
+  "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Civil Rights", "Rural Health", "Black Belt"]
+ },
+ "martin_looney": {
+  "name": "Martin Looney", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "Retiring 2026", "Police Accountability", "New Haven"]
+ },
+ "bob_duff": {
+  "name": "Bob Duff", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 25", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Climate & Energy", "Gun Safety", "Norwalk"]
+ },
+ "stephen_harding": {
+  "name": "Stephen Harding", "office": "Connecticut State Senator", "state": "Connecticut",
+  "district": "SD 30", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Cost of Living", "Brookfield"]
  }
 });
