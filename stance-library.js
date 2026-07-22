@@ -345,6 +345,67 @@
     '</div>';
   }
 
+  // ── "Adopt this stance" — quick-add into My Stances ──────────────────────
+  // The Stance Library is issue-first, so each issue maps 1:1 to an ISSUE_MAP key
+  // — exactly what My Stances stores. This lets a reader turn "here's where THEY
+  // stand" into "here's where I stand" in one tap, without leaving the page.
+  // Purely additive: it only appears when My Stances is present and the issue is a
+  // known ISSUE_MAP key, and it stays neutral (it offers all three directions and
+  // never preselects one).
+  var ADOPT_OPTS = [
+    { key: 'support', ic: '👍', label: 'Support', cls: 'is-support' },
+    { key: 'oppose', ic: '👎', label: 'Oppose', cls: 'is-oppose' },
+    { key: 'mixed', ic: '⚖️', label: 'Mixed', cls: 'is-mixed' }
+  ];
+  function adoptPosition(issueKey) {
+    try {
+      var PS = G('PDXStances');
+      if (PS && typeof PS.get === 'function') { var r = PS.get(issueKey); return r ? r.position : null; }
+    } catch (e) {}
+    return null;
+  }
+  function adoptHtml(issueKey) {
+    var PS = G('PDXStances');
+    if (!PS || typeof PS.set !== 'function') return '';   // My Stances not available
+    var MAP = G('ISSUE_MAP');
+    if (!MAP || !MAP[issueKey]) return '';                // only real ISSUE_MAP issues
+    var cur = adoptPosition(issueKey);
+    var btns = ADOPT_OPTS.map(function (o) {
+      var on = cur === o.key;
+      return '<button type="button" class="sl-adopt-btn ' + o.cls + (on ? ' is-on' : '') + '" ' +
+        'data-sl-adopt="' + o.key + '" data-sl-ik="' + esc(issueKey) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        o.ic + ' ' + o.label + '</button>';
+    }).join('');
+    var status = cur
+      ? '<span class="sl-adopt-status is-set">✓ Saved to <button type="button" class="sl-adopt-link" data-sl-adopt-open="' + esc(issueKey) + '">My Stances</button> · tap your pick again to remove</span>'
+      : '<span class="sl-adopt-status">One tap saves it to your <button type="button" class="sl-adopt-link" data-sl-adopt-open="' + esc(issueKey) + '">My Stances</button> and scores every politician against it.</span>';
+    return '<div class="sl-adopt' + (cur ? ' is-set' : '') + '" data-sl-adoptwrap="' + esc(issueKey) + '">' +
+      '<div class="sl-adopt-lead"><span class="sl-adopt-eyebrow">🎯 Adopt this stance</span>' +
+      '<span class="sl-adopt-q">Where do <em>you</em> stand?</span></div>' +
+      '<div class="sl-adopt-btns">' + btns + '</div>' + status +
+      '</div>';
+  }
+  // Replace just the widget in place after a change, so the page never jumps.
+  function refreshAdopt(issueKey) {
+    if (!issueKey) return;
+    var wrap = document.querySelector('[data-sl-adoptwrap="' + issueKey + '"]');
+    if (wrap) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = adoptHtml(issueKey);
+      if (tmp.firstChild) wrap.parentNode.replaceChild(tmp.firstChild, wrap);
+    }
+  }
+  function adoptStance(issueKey, pos) {
+    var PS = G('PDXStances');
+    if (!PS) return;
+    var cur = adoptPosition(issueKey);
+    try {
+      if (cur === pos && typeof PS.remove === 'function') PS.remove(issueKey);      // tap the active pick → remove
+      else if (typeof PS.set === 'function') PS.set(issueKey, pos, 'medium');       // adopt / switch
+    } catch (e) {}
+    refreshAdopt(issueKey);   // immediate feedback (pdx-stances-change also refreshes)
+  }
+
   function detailHtml(issueKey) {
     var b = _index[issueKey]; var m = issueMeta(issueKey);
     var c = b.counts;
@@ -404,6 +465,7 @@
           '<button type="button" class="sl-btn" id="sl-discuss">💬 Discuss this issue</button>' +
         '</div>' +
       '</div>' +
+      adoptHtml(issueKey) +
       '<div class="sl-jnav">' + jnav + '</div>' +
       // Issue-level distributional summary ("who this issue's measures affect").
       // Self-hydrating placeholder; hidden until data lands, so issues with no
@@ -625,6 +687,15 @@
       }
       var card = t.closest && t.closest('.sl-card');
       if (card) { renderDetail(card.getAttribute('data-issue')); return; }
+      var adopt = t.closest && t.closest('[data-sl-adopt]');
+      if (adopt) { adoptStance(adopt.getAttribute('data-sl-ik'), adopt.getAttribute('data-sl-adopt')); return; }
+      var adoptOpen = t.closest && t.closest('[data-sl-adopt-open]');
+      if (adoptOpen) {
+        var PS = G('PDXStances');
+        if (PS && typeof PS.open === 'function') PS.open(adoptOpen.getAttribute('data-sl-adopt-open'));
+        else { try { location.hash = '#my-stances'; } catch (e3) {} }
+        return;
+      }
       if (t.closest && t.closest('#sl-back')) { state.view = 'browse'; renderBrowse(); return; }
       var jump = t.closest && t.closest('[data-sl-jump]');
       if (jump) { var sec = el('sl-sec-' + jump.getAttribute('data-sl-jump')); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
@@ -662,6 +733,14 @@
     if (initialized) return; initialized = true;
     wireOnce();
     render();
+    // Keep the "Adopt this stance" widget in step with My Stances even when a
+    // change happens elsewhere (e.g. the reader removes it from the My Stances
+    // section, or a stance syncs in from another device) while a detail is open.
+    try {
+      window.addEventListener('pdx-stances-change', function () {
+        if (state.view === 'detail' && state.issueKey) refreshAdopt(state.issueKey);
+      });
+    } catch (e) {}
     // PROFILES streams in from the backend AFTER first paint. Only the DETAIL
     // view shows politician names/offices/photos, so we re-render just that (and
     // only while it's open) once fresh profiles land — browsing/search is never

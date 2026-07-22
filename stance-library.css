@@ -313,3 +313,50 @@
   .sl-dactions { flex-direction: row; flex-wrap: wrap; width: 100%; }
   .sl-btn { flex: 1; text-align: center; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADOPT THIS STANCE  ·  quick-add an issue position into My Stances
+   ────────────────────────────────────────────────────────────────────────────
+   Sits under the issue detail header. Turns "where THEY stand" into "where YOU
+   stand" in one tap. Position colors reuse the app's four-state vocabulary.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.sl-adopt {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.08), rgba(96, 165, 250, 0.05));
+  border: 1px solid rgba(250, 204, 21, 0.28); border-radius: 0.9rem;
+  padding: 0.9rem 1rem; margin: 0 0 1.25rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.9rem;
+}
+.sl-adopt.is-set { border-color: rgba(74, 222, 128, 0.4); background: linear-gradient(135deg, rgba(74, 222, 128, 0.09), rgba(13, 21, 38, 0.4)); }
+.sl-adopt-lead { display: flex; flex-direction: column; gap: 0.1rem; margin-right: 0.35rem; }
+.sl-adopt-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #fcd34d;
+}
+.sl-adopt-q { font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; color: #eef4ff; }
+.sl-adopt-q em { font-style: normal; color: #fcd34d; }
+.sl-adopt-btns { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+.sl-adopt-btn {
+  cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;
+  background: rgba(13, 21, 38, 0.85); border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.6rem; padding: 0.45rem 0.8rem; color: #cbd9ec;
+  font-family: 'Barlow', sans-serif; font-size: 0.9rem; font-weight: 600;
+  transition: transform 0.12s, border-color 0.12s, background 0.12s, color 0.12s;
+}
+.sl-adopt-btn:hover { transform: translateY(-1px); color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+.sl-adopt-btn.is-support.is-on { background: rgba(74, 222, 128, 0.2); border-color: #4ade80; color: #bbf7d0; }
+.sl-adopt-btn.is-oppose.is-on { background: rgba(248, 113, 113, 0.2); border-color: #f87171; color: #fecaca; }
+.sl-adopt-btn.is-mixed.is-on { background: rgba(250, 204, 21, 0.2); border-color: #facc15; color: #fde68a; }
+.sl-adopt-btn.is-support:hover { border-color: rgba(74, 222, 128, 0.55); }
+.sl-adopt-btn.is-oppose:hover { border-color: rgba(248, 113, 113, 0.55); }
+.sl-adopt-btn.is-mixed:hover { border-color: rgba(250, 204, 21, 0.55); }
+.sl-adopt-status { flex: 1 1 100%; color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.45; }
+.sl-adopt-status.is-set { color: #a7d8b6; }
+.sl-adopt-link {
+  background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 700;
+  color: #60a5fa; text-decoration: underline;
+}
+.sl-adopt-link:hover { color: #93c5fd; }
+@media (max-width: 640px) {
+  .sl-adopt-btn { flex: 1; justify-content: center; }
+  .sl-adopt-btns { width: 100%; }
+}
