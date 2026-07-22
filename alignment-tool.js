@@ -1438,6 +1438,112 @@
     }
     window._calcTeamAlignment = _calcTeamAlignment;
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CONSISTENCY (Say-vs-Do) SCORE — the second, additive score.
+       ---------------------------------------------------------------------
+       Stance Match (_calcAlignmentScore) asks "do their STATED positions line
+       up with my values?". This asks the complementary question: "for the
+       issues where they've stated a position, does their RECORD actually back
+       it up?" — pure integrity, independent of whether the visitor agrees.
+
+       It reuses _calcAlignmentBreakdown, which already attaches a per-issue
+       `record` summary (window._pdxRecordIssueSummary → _issueRecordSummary)
+       AND a per-issue `weight` (the same intensity × My-Stances-priority weight
+       the match uses). Deriving from that keeps the two scores in perfect
+       lock-step and adds no parallel scoring math.
+
+       Per stated issue with a voting record, the record's own weighted verdict
+       gives a 0..1 value:  consistentScore / (consistentScore + contradictScore).
+       Records that are purely mixed/no-position count as 0.5 (genuinely split),
+       never as a fake win. The score is the weight-averaged value × 100.
+
+       Honesty rules (no invented numbers):
+         • A stated position with NO votes on record → counted as "limited",
+           excluded from the score (never scored as 0 or 50).
+         • Records not yet warm in the sync cache → `pending:true`; the caller
+           kicks a batched fetch (fetchCompare) and re-renders when it lands.
+         • Nothing stated on the visitor's issues → score null (nothing to check).
+       Returns null only when there are no selected issues / no record at all. */
+    function _consistFromRecord(rec) {
+      if (!rec || !rec.total) return null;                 // no votes on this issue
+      var pos = rec.consistentScore || 0, neg = rec.contradictScore || 0;
+      if (pos + neg <= 0) return 0.5;                      // only mixed / no-position votes
+      return pos / (pos + neg);
+    }
+
+    function _calcConsistencyScore(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return null;
+      var bd = (typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(pid) : null;
+      if (!bd || !bd.issues) return null;
+
+      var warm = !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function'
+                    && window.PDXVotingRecord.memberRecords(pid));
+      var totalW = 0, totalV = 0;
+      var rated = 0, limited = 0, stated = 0, contra = 0, consist = 0;
+      var issues = [];
+
+      bd.issues.forEach(function (it) {
+        if (!it.direct) return;            // Say-vs-Do needs a stated position (the "say")
+        stated++;
+        var val = _consistFromRecord(it.record);
+        if (val === null) { limited++; return; }   // stated but no record → honest "limited"
+        rated++;
+        var nv = it.record.netVerdict;
+        if (nv === 'contradicts') contra++;
+        else if (nv === 'consistent') consist++;
+        var w = it.weight || 1;
+        totalW += w; totalV += val * w;
+        issues.push({ key: it.key, label: it.label, netVerdict: nv, total: it.record.total, val: val });
+      });
+
+      // Pending only when the visitor's issues include stated positions we could
+      // check, but this member's votes simply aren't loaded yet (and we haven't
+      // already tried). Otherwise "no record" is the honest, final answer.
+      var pending = (stated > 0 && rated === 0 && !warm && !_consistTried[pid]);
+      var score = totalW > 0 ? Math.round(100 * totalV / totalW) : null;
+      issues.sort(function (a, b) { return b.total - a.total; });
+      return {
+        score: score, rated: rated, limited: limited, stated: stated,
+        contradictions: contra, consistentIssues: consist,
+        pending: pending, warm: warm, issues: issues
+      };
+    }
+    window._calcConsistencyScore = _calcConsistencyScore;
+
+    // ── Batched, debounced voting-record warmer for the Consistency score ───────
+    // The card bars render synchronously for a whole field of politicians, so we
+    // never fetch per card. When a bar finds itself `pending`, it registers the
+    // pid here; a short debounce coalesces the field into ONE /compare request
+    // (which seeds PDXVotingRecord's sync cache for every member), then refreshes
+    // the alignment surfaces so the real Consistency scores fill in. _consistTried
+    // marks settled pids so a member with genuinely no record shows an honest
+    // "limited record" state instead of re-fetching forever.
+    var _consistTried = {};   // pid → true once a warm attempt has settled
+    var _consistReq = {};     // pid → true while queued / in flight
+    var _consistQueue = [];
+    var _consistTimer = null;
+
+    function _alignFlushConsistWarm() {
+      _consistTimer = null;
+      if (!(window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function')) { _consistQueue = []; return; }
+      var batch = _consistQueue.splice(0, 24);   // bound the request size
+      if (!batch.length) return;
+      var settle = function () {
+        batch.forEach(function (p) { _consistTried[p] = true; delete _consistReq[p]; });
+      };
+      window.PDXVotingRecord.fetchCompare(batch).then(function () {
+        settle();
+        if (typeof _alignRefreshAll === 'function') { try { _alignRefreshAll(); } catch (e) {} }
+        if (_consistQueue.length && !_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
+      }, function () { settle(); });
+    }
+    function _alignQueueConsistWarm(pid) {
+      if (!pid || _consistTried[pid] || _consistReq[pid]) return;
+      if (!(window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function')) return;
+      _consistReq[pid] = true; _consistQueue.push(pid);
+      if (!_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
+    }
+
     // Rich "Team Alignment Overview" rendered into #myteam-alignment-bar. Gives the
     // visitor a plain-language read on how aligned their current team is, a per-member
     // breakdown, and — crucially — which of their selected issues are driving the
@@ -1684,6 +1790,84 @@
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
     }
 
+    // ── Consistency (Say-vs-Do) readout — the SECOND score, rendered as a compact
+    // sibling directly beneath the "Your Match" bar so the two read together at a
+    // glance. Match = do their stated positions fit my values; Consistency = does
+    // their record back up what they say. Honest states (never a fake number):
+    //   • pending  → "checking voting record…" while a batched fetch warms
+    //   • limited  → "Limited record" when they state positions but have few/no votes
+    //   • omitted  → nothing to check (no stated positions on the visitor's issues)
+    // Neutral by design: it measures integrity, not agreement, and is colour-coded
+    // on the same green/amber/red scale as everything else in the tool.
+    function _consistLabel(s) {
+      return s >= 80 ? 'Backs it up' : s >= 60 ? 'Mostly consistent' : s >= 40 ? 'Mixed record' : 'Often contradicts';
+    }
+    function _consistShellHtml(pid, kind, c) {
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      if (kind === 'checking') {
+        return '<div class="align-consist-bar is-muted" aria-label="Say-vs-Do consistency: checking voting record">' +
+            '<span class="align-consist-ico">⚖️</span>' +
+            '<span class="align-consist-main"><span class="align-consist-title">Say-vs-Do</span>' +
+            '<span class="align-consist-sub">Checking their voting record…</span></span>' +
+          '</div>';
+      }
+      // limited
+      var det = c && c.limited
+        ? c.limited + ' stated ' + (c.limited === 1 ? 'position has' : 'positions have') + ' no votes yet to check'
+        : 'No voting record yet to check against their stated positions';
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-muted" title="They\'ve stated positions, but there\'s little or no voting record to verify them yet" aria-label="Say-vs-Do consistency: limited record">' +
+          '<span class="align-consist-ico">⚖️</span>' +
+          '<span class="align-consist-main"><span class="align-consist-title">Say-vs-Do · <b>Limited record</b></span>' +
+          '<span class="align-consist-sub">' + det + '</span></span>' +
+        '</button>';
+    }
+    function _alignConsistencyBar(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      if (!c) return '';
+      if (c.pending) { _alignQueueConsistWarm(pid); return _consistShellHtml(pid, 'checking'); }
+      if (c.score === null) {
+        // Stated positions but no record to check → honest "limited". Nothing
+        // stated at all → omit (the Match bar already stands on its own).
+        return c.stated > 0 ? _consistShellHtml(pid, 'limited', c) : '';
+      }
+      var col = _alignScoreColor(c.score);
+      var label = _consistLabel(c.score);
+      var contraNote = c.contradictions > 0
+        ? ' · <span style="color:#f87171;">' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '</span>'
+        : '';
+      var limNote = c.limited > 0 ? ' · ' + c.limited + ' limited' : '';
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar" aria-label="Say-vs-Do consistency: ' + c.score + ' percent — ' + label + ', from ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
+          '<span class="align-consist-num" style="color:' + col + ';text-shadow:0 0 10px ' + col + '55;">' + c.score + '<span style="font-size:0.8rem;">%</span></span>' +
+          '<span class="align-consist-main">' +
+            '<span class="align-consist-titlerow">' +
+              '<span class="align-consist-title" style="color:' + col + ';">⚖️ Say-vs-Do</span>' +
+              '<span class="align-consist-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
+            '</span>' +
+            '<span class="align-consist-track"><div style="width:' + c.score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
+            '<span class="align-consist-sub">Record backs ' + c.rated + ' of ' + c.stated + ' stated position' + (c.stated === 1 ? '' : 's') + limNote + contraNote + '</span>' +
+          '</span>' +
+        '</button>';
+    }
+    window._alignConsistencyBar = _alignConsistencyBar;
+
+    // Compact inline consistency chip, the sibling of the small "Your Match" badge
+    // (used in dense contexts like the compare table). Same honest states, one line.
+    function _alignConsistencyBadge(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      if (!c) return '';
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking voting record…">⚖️ Say-vs-Do …</span>'; }
+      if (c.score === null) {
+        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, little or no voting record to verify yet">⚖️ Limited record</span>' : '';
+      }
+      var col = _alignScoreColor(c.score);
+      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Say-vs-Do consistency: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">⚖️ Say-vs-Do ' + c.score + '%</button>';
+    }
+    window._alignConsistencyBadge = _alignConsistencyBadge;
+
     // Prominent, tappable "Your Match" bar used on the browse / database / candidate
     // card lists. Unlike the small corner ring, this reads as a core feature: a big
     // teal score, a plain-language "Your Match: NN%" label, a colour-coded
@@ -1730,7 +1914,7 @@
             '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b>' + _acctSub + ' · tap for breakdown</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
-        '</button>' + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers;
     }
     window._alignCardBar = _alignCardBar;
 
@@ -1754,7 +1938,7 @@
             '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
             '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
           '</span>' +
-        '</button>' + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers;
     }
     window._slotMatchBand = _slotMatchBand;
 
@@ -1792,7 +1976,7 @@
       // card list — not just a static number.
       var _openBd = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (size === 'small') {
-        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>';
+        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>' + _alignConsistencyBadge(pid);
       }
 
       if (usePurpleTheme) {

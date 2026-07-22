@@ -812,3 +812,50 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
   .align-opt-row.active .align-chip.active,
   .align-chip.active { box-shadow: inset 0 0 0 1px rgba(139,92,246,0.35); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONSISTENCY (Say-vs-Do) SCORE — the second score, rendered as a compact
+   sibling directly beneath the "Your Match" bar/band so the two read together.
+   Neutral integrity read: does the record back up the stated positions. Uses a
+   distinct violet frame so it's clearly a *different* dimension from the teal
+   "Your Match", while the score number itself keeps the shared green/amber/red.
+   Mobile-first: full-width, stacks under the match bar.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.align-consist-bar {
+  width: 100%; display: flex; align-items: center; gap: 0.55rem; margin-top: 0.4rem;
+  padding: 0.4rem 0.6rem; border-radius: 0.6rem; cursor: pointer; text-align: left;
+  background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.02));
+  border: 1px solid rgba(139,92,246,0.4); font: inherit;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.align-consist-bar:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.03)); }
+.align-consist-bar:active { transform: scale(0.99); }
+.align-consist-bar.is-muted { cursor: default; border-color: rgba(139,92,246,0.22); background: rgba(139,92,246,0.06); }
+.align-consist-bar.is-muted:hover { transform: none; }
+.align-consist-ico { flex-shrink: 0; font-size: 1rem; opacity: 0.85; width: 1.6rem; text-align: center; }
+.align-consist-num { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1.45rem; line-height: 0.9; flex-shrink: 0; min-width: 2.4rem; }
+.align-consist-main { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 0.16rem; }
+.align-consist-titlerow { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.align-consist-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; font-size: 0.7rem; color: #c4b5fd; }
+.align-consist-title b { font-weight: 700; }
+.align-consist-badge { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.52rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.06rem 0.42rem; border-radius: 999px; white-space: nowrap; line-height: 1.3; }
+.align-consist-track { height: 5px; border-radius: 999px; background: rgba(10,15,30,0.7); overflow: hidden; }
+.align-consist-track > div { height: 100%; border-radius: 999px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+.align-consist-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.55rem; letter-spacing: 0.04em; color: #9a8fc4; text-transform: uppercase; line-height: 1.25; }
+
+/* compact inline chip (dense contexts, sibling of .align-score-badge) */
+.align-consist-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem; margin-left: 0.35rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.04em; text-transform: uppercase; padding: 0.14rem 0.5rem;
+  border-radius: 999px; border: 1px solid rgba(139,92,246,0.4); white-space: nowrap;
+}
+.align-consist-chip.is-muted { color: #9a8fc4; background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.22); }
+
+@media (max-width: 480px) {
+  .align-consist-num { font-size: 1.25rem; min-width: 2.1rem; }
+  .align-consist-title { font-size: 0.64rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .align-consist-bar, .align-consist-track > div { transition: none; }
+}
