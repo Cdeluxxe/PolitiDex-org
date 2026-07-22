@@ -87,6 +87,7 @@
 .ms-chip.is-support { border-color: rgba(74, 222, 128, 0.45); }
 .ms-chip.is-oppose { border-color: rgba(248, 113, 113, 0.45); }
 .ms-chip.is-mixed { border-color: rgba(250, 204, 21, 0.45); }
+.ms-chip.is-priority { box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.45), 0 0 10px rgba(250, 204, 21, 0.15); background: rgba(250, 204, 21, 0.08); }
 .ms-chip-prio { color: #fcd34d; }
 
 /* ── "What your stances power" ──────────────────────────────────────────── */
@@ -185,7 +186,22 @@
 .ms-issue.is-active.is-support { border-left-color: #4ade80; }
 .ms-issue.is-active.is-oppose { border-left-color: #f87171; }
 .ms-issue.is-active.is-mixed { border-left-color: #facc15; }
-.ms-issue.ms-flash { background: rgba(96, 165, 250, 0.16); }
+/* High-priority active row — a stronger, gold-tinged accent so the issues that
+   weigh most in matches read as such at a glance. */
+.ms-issue.is-priority { box-shadow: inset 3px 0 0 rgba(250, 204, 21, 0.55), 0 0 0 1px rgba(250, 204, 21, 0.14); }
+.ms-issue-pri {
+  display: inline-block; margin-left: 0.5rem; vertical-align: middle;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #fcd34d; background: rgba(250, 204, 21, 0.14); border: 1px solid rgba(250, 204, 21, 0.4);
+  border-radius: 999px; padding: 0.05rem 0.45rem;
+}
+/* Update feedback: a brief gold pulse on the chip/row that just changed. */
+@keyframes msFlash {
+  0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55); }
+  100% { box-shadow: 0 0 0 8px rgba(250, 204, 21, 0); }
+}
+.ms-flash { animation: msFlash 0.9s ease-out; border-color: rgba(250, 204, 21, 0.7) !important; }
+.ms-issue.ms-flash { background: rgba(250, 204, 21, 0.1); }
 .ms-issue-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .ms-issue-text { flex: 1; min-width: 13rem; }
 .ms-issue-lbl { color: #eef4ff; font-weight: 600; font-size: 0.98rem; }
@@ -327,6 +343,7 @@
 /* Quick-link buttons injected into other surfaces */
 .align-mystances-link { margin-left: auto; cursor: pointer; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.32); color: #fcd34d; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 0.5rem; transition: background 0.12s, border-color 0.12s; }
 .align-mystances-link:hover { background: rgba(250, 204, 21, 0.2); border-color: rgba(250, 204, 21, 0.55); }
+.align-ms-n { display: inline-flex; align-items: center; justify-content: center; min-width: 1.1rem; margin-left: 0.35rem; padding: 0 0.3rem; border-radius: 999px; background: rgba(250, 204, 21, 0.9); color: #0a0f1e; font-size: 0.7rem; font-weight: 800; }
 .cmp-guide-link { cursor: pointer; background: rgba(250, 204, 21, 0.12); border: 1px solid rgba(250, 204, 21, 0.35); color: #fcd34d; font: inherit; font-weight: 700; padding: 0.05rem 0.4rem; border-radius: 0.4rem; white-space: nowrap; }
 .cmp-guide-link:hover { background: rgba(250, 204, 21, 0.22); }
 
@@ -336,16 +353,43 @@
 
 /* The reusable block (profile modals). */
 .msvs { font-family: 'Barlow', sans-serif; }
-.msvs-head { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: #eef4ff; margin-bottom: 0.6rem; }
-.msvs-head span { color: #8f9bb3; }
+.msvs-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.msvs-head-t { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: #eef4ff; }
+.msvs-head-t span { color: #8f9bb3; }
+.msvs-tally { display: inline-flex; gap: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; }
+.msvs-tally .is-agree { color: #86efac; }
+.msvs-tally .is-partial { color: #fde047; }
+.msvs-tally .is-differ { color: #fca5a5; }
 .msvs-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.msvs-row { background: rgba(6, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 0.6rem; padding: 0.55rem 0.7rem; }
+.msvs-row {
+  background: rgba(6, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(255, 255, 255, 0.14); border-radius: 0.6rem; padding: 0.55rem 0.7rem;
+  transition: transform 0.14s, border-color 0.14s, background 0.14s;
+}
+.msvs-row:hover { transform: translateX(2px); background: rgba(9, 16, 30, 0.7); }
+.msvs-row.is-agree { border-left-color: #4ade80; }
+.msvs-row.is-partial { border-left-color: #facc15; }
+.msvs-row.is-differ { border-left-color: #f87171; }
+.msvs-row.is-priority { box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.16); }
 .msvs-issue { color: #e7ecf6; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem; }
+.msvs-pri {
+  display: inline-block; margin-right: 0.4rem; vertical-align: middle;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #fcd34d; background: rgba(250, 204, 21, 0.14); border: 1px solid rgba(250, 204, 21, 0.4);
+  border-radius: 999px; padding: 0.05rem 0.45rem;
+}
 .msvs-topic { display: block; color: #8298b8; font-weight: 400; font-size: 0.76rem; margin-top: 0.1rem; }
 .msvs-cells { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .msvs-side { display: inline-flex; align-items: center; gap: 0.3rem; }
 .msvs-side-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7f93b6; }
-.msvs-vs { color: #6f83a6; font-size: 0.72rem; font-style: italic; }
+.msvs-arrow {
+  display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem;
+  border-radius: 50%; font-size: 0.8rem; font-weight: 700; flex: none;
+}
+.msvs-arrow.is-agree { background: rgba(74, 222, 128, 0.18); color: #86efac; }
+.msvs-arrow.is-partial { background: rgba(250, 204, 21, 0.18); color: #fde047; }
+.msvs-arrow.is-differ { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }
+.msvs-arrow.is-solo { background: rgba(255, 255, 255, 0.08); color: #9fb4d4; }
 .msvs-pill { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; }
 .msvs-pill.is-support { background: rgba(74, 222, 128, 0.16); border-color: rgba(74, 222, 128, 0.45); color: #bbf7d0; }
 .msvs-pill.is-oppose { background: rgba(248, 113, 113, 0.16); border-color: rgba(248, 113, 113, 0.45); color: #fecaca; }

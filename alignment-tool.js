@@ -2160,11 +2160,13 @@
             '<span class="align-conviction-note">' + strong + ' of your ' + n + ' position' + (n > 1 ? 's' : '') + ' ' + (strong > 1 ? 'are' : 'is') + ' held strongly — these weigh most in your matches.</span></div>'
         : '<div class="align-conviction"><span class="align-conviction-note align-conviction-none">Tip: use <b>Strongly Support</b> or <b>Strongly Oppose</b> on the issues you care most about — they count extra toward your matches.</span></div>';
 
+      var _msSaved = 0;
+      try { if (window.PDXStances && typeof window.PDXStances.count === 'function') _msSaved = window.PDXStances.count() || 0; } catch (e) {}
       el.innerHTML =
         '<div class="align-profile-head">' +
           '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<span class="align-count-pill">' + n + ' position' + (n > 1 ? 's' : '') + '</span>' +
-          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances</button>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances' + (_msSaved ? '<span class="align-ms-n">' + _msSaved + '</span>' : '') + '</button>' +
         '</div>' +
         '<div class="align-profile-strength">' + sentence + '</div>' +
         meter +

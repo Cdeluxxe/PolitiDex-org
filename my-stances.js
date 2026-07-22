@@ -783,6 +783,9 @@
 
   function isSignedIn() { return !!fbUser(); }
 
+  // Issue key to visually flash on the next render (set by an edit handler), so a
+  // saved change draws the eye to exactly what moved instead of silently redrawing.
+  var _flash = null;
   function render() {
     var mount = el(MOUNT);
     if (!mount) return;
@@ -799,6 +802,18 @@
     html += renderBrowse(s, byKey);
     html += '</div>';
     mount.innerHTML = html;
+
+    // Post-render highlight: pulse the just-changed issue's summary chip and its
+    // browse row so the update is felt, not just applied.
+    if (_flash) {
+      var fk = _flash; _flash = null;
+      try {
+        ['[data-ms-goto="' + cssEsc(fk) + '"]', '[data-ms-row="' + cssEsc(fk) + '"]'].forEach(function (sel) {
+          var node = mount.querySelector(sel);
+          if (node) { node.classList.add('ms-flash'); setTimeout(function () { node.classList.remove('ms-flash'); }, 900); }
+        });
+      } catch (e) {}
+    }
   }
 
   function renderAccount(s) {
@@ -821,11 +836,11 @@
     var chips = items.map(function (r) {
       var d = issueMap()[r.issueKey] || {};
       var pos = POSITIONS.filter(function (p) { return p.key === r.position; })[0] || POSITIONS[0];
-      var prioIc = r.priority === 'high' ? '⭐' : '';
-      return '<button type="button" class="ms-chip ' + pos.cls + '" data-ms-goto="' + esc(r.issueKey) + '" title="Edit your position">' +
+      var isHigh = r.priority === 'high';
+      return '<button type="button" class="ms-chip ' + pos.cls + (isHigh ? ' is-priority' : '') + '" data-ms-goto="' + esc(r.issueKey) + '" title="' + (isHigh ? 'High priority · ' : '') + 'Edit your position">' +
         '<span class="ms-chip-pos">' + pos.icon + '</span>' +
         '<span class="ms-chip-lbl">' + esc(d.label || r.issueKey) + '</span>' +
-        (prioIc ? '<span class="ms-chip-prio">' + prioIc + '</span>' : '') +
+        (isHigh ? '<span class="ms-chip-prio" aria-label="High priority">⭐</span>' : '') +
         '</button>';
     }).join('');
     return '<div class="ms-summary">' +
@@ -1094,9 +1109,10 @@
         '</div>';
     }
 
-    return '<div class="ms-issue' + (active ? ' is-active ' + posClass(rec.position) : '') + '" data-ms-row="' + esc(k) + '">' +
+    return '<div class="ms-issue' + (active ? ' is-active ' + posClass(rec.position) + (rec.priority === 'high' ? ' is-priority' : '') : '') + '" data-ms-row="' + esc(k) + '">' +
       '<div class="ms-issue-main">' +
-      '<div class="ms-issue-text"><div class="ms-issue-lbl">' + esc(d.label || k) + '</div>' +
+      '<div class="ms-issue-text"><div class="ms-issue-lbl">' + esc(d.label || k) +
+      (active && rec.priority === 'high' ? '<span class="ms-issue-pri" title="High priority — counts more toward your matches">⭐ Priority</span>' : '') + '</div>' +
       (d.chip ? '<div class="ms-issue-chip">' + esc(d.chip) + '</div>' : '') + '</div>' +
       '<div class="ms-pos-group" role="group" aria-label="Your position on ' + esc(d.label || k) + '">' + posBtns + '</div>' +
       '</div>' +
@@ -1120,6 +1136,7 @@
       // Clicking the position you already hold clears it (a natural toggle-off).
       if (cur && cur.position === pos && !(load().tombstones[key] >= (cur.updatedAt || 0))) removeStance(key);
       else setStance(key, pos, cur ? cur.priority : 'medium', cur ? cur.note : '');
+      _flash = key;
       afterMutate();
       return;
     }
@@ -1151,7 +1168,7 @@
     if (t.matches && t.matches('[data-ms-prio]')) {
       var key = t.getAttribute('data-issue');
       var cur = load().items[key];
-      if (cur) { setStance(key, cur.position, t.value, cur.note); afterMutate(); }
+      if (cur) { setStance(key, cur.position, t.value, cur.note); _flash = key; afterMutate(); }
       return;
     }
     if (t.matches && t.matches('[data-ms-public]')) { setPublic(t.checked); render(); return; }
@@ -1207,6 +1224,10 @@
       if (typeof window.myteamCompareAll === 'function') { try { window.myteamCompareAll(); return; } catch (e) {} }
       scrollTo('my-politicians');
     } else if (act === 'align') {
+      // Open the Alignment Tool AND glide to it, so the two surfaces read as one
+      // continuous flow rather than two disconnected places.
+      var panel = el('alignment-panel');
+      if (panel) { try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
       if (typeof window.alignTogglePanel === 'function') { try { window.alignTogglePanel(true); return; } catch (e) {} }
     } else if (act === 'library') {
       if (window.PDXStanceLibrary && typeof window.PDXStanceLibrary.open === 'function') { try { window.PDXStanceLibrary.open(); return; } catch (e) {} }
@@ -1329,27 +1350,47 @@
     if (!bd || !bd.issues || !bd.issues.length) return '';
     var rows = bd.issues.filter(function (i) { return i.direct && i.stance; });
     if (!rows.length) return '';
-    rows = rows.slice(0, opts.max || 8);
-    var body = rows.map(function (i) {
+    // Resolve each row's "you" side + priority up front so we can lead with the
+    // issues the reader cares most about (high priority first), then keep the
+    // breakdown's own strength order within each tier.
+    rows = rows.map(function (i) {
       var dir = userDirectionFor(i.key);
       var youPos = dir ? dir.position
         : (i.intensity === 'oppose' || i.intensity === 'strongly_oppose') ? 'oppose'
         : (i.intensity === 'neutral') ? 'mixed' : 'support';
       var youPrio = dir ? dir.priority : ((i.intensity === 'strongly_support' || i.intensity === 'strongly_oppose') ? 'high' : 'medium');
+      return { i: i, youPos: youPos, youPrio: youPrio };
+    });
+    rows.sort(function (a, b) { return (b.youPrio === 'high' ? 1 : 0) - (a.youPrio === 'high' ? 1 : 0); });
+    var shown = rows.slice(0, opts.max || 8);
+
+    // Neutral agreement tally across the shown rows (agreement WITH the reader, not
+    // a party read) — a quick headline before the row-by-row detail.
+    var tally = { match: 0, partial: 0, mismatch: 0 };
+    shown.forEach(function (r) { if (tally[r.i.verdict] != null) tally[r.i.verdict]++; });
+    var head = (opts.heading === false) ? '' :
+      '<div class="msvs-head"><span class="msvs-head-t">🤝 Your Stance <span>vs</span> Their Record</span>' +
+      '<span class="msvs-tally">' +
+      (tally.match ? '<span class="is-agree">✓ ' + tally.match + '</span>' : '') +
+      (tally.partial ? '<span class="is-partial">~ ' + tally.partial + '</span>' : '') +
+      (tally.mismatch ? '<span class="is-differ">✗ ' + tally.mismatch + '</span>' : '') +
+      '</span></div>';
+
+    var body = shown.map(function (r) {
+      var i = r.i;
       var vm = VS_VERDICT[i.verdict] || { cls: 'is-solo', ico: '•', lbl: 'On record' };
-      var star = youPrio === 'high' ? '<span class="msvs-star" title="High priority for you">⭐</span>' : '';
-      return '<div class="msvs-row">' +
-        '<div class="msvs-issue">' + esc(i.label) + (i.topic ? '<span class="msvs-topic">' + esc(i.topic) + '</span>' : '') + '</div>' +
+      var pri = r.youPrio === 'high' ? '<span class="msvs-pri" title="High priority for you">⭐ Priority</span>' : '';
+      return '<div class="msvs-row ' + vm.cls + (r.youPrio === 'high' ? ' is-priority' : '') + '">' +
+        '<div class="msvs-issue">' + pri + esc(i.label) + (i.topic ? '<span class="msvs-topic">' + esc(i.topic) + '</span>' : '') + '</div>' +
         '<div class="msvs-cells">' +
-        '<span class="msvs-side"><span class="msvs-side-lbl">You</span>' + posPill(youPos) + star + '</span>' +
-        '<span class="msvs-vs">vs</span>' +
-        '<span class="msvs-side"><span class="msvs-side-lbl">Them</span>' + posPill(i.stance) + '</span>' +
-        '<span class="msvs-verdict ' + vm.cls + '">' + vm.ico + ' ' + vm.lbl + '</span>' +
+        '<span class="msvs-side msvs-you"><span class="msvs-side-lbl">You</span>' + posPill(r.youPos) + '</span>' +
+        '<span class="msvs-arrow ' + vm.cls + '" aria-hidden="true">' + vm.ico + '</span>' +
+        '<span class="msvs-side msvs-them"><span class="msvs-side-lbl">Them</span>' + posPill(i.stance) + '</span>' +
+        '<span class="msvs-verdict ' + vm.cls + '">' + vm.lbl + '</span>' +
         '</div>' +
         '</div>';
     }).join('');
-    return '<div class="msvs">' +
-      (opts.heading === false ? '' : '<div class="msvs-head">🤝 Your Stance <span>vs</span> Their Record</div>') +
+    return '<div class="msvs">' + head +
       '<div class="msvs-list">' + body + '</div>' +
       (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';">Manage in My Stances</button></div>') +
       '</div>';
