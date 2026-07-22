@@ -10752,5 +10752,53 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Manka Dhingra", "office": "Washington State Senator", "state": "Washington",
   "district": "LD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Behavioral Health", "Deputy Majority Leader", "Justice Reform", "Redmond"]
+ },
+// ── STATE SENATE wave 5 — Massachusetts, Wisconsin, Minnesota, Colorado (July 2026).
+//    (Karen Spilka, Erin Murphy and James Coleman already exist with curated
+//     stances and are enriched via cmp-data-detail.js instead of being duplicated.) ──
+ "cynthia_creem": {
+  "name": "Cynthia Creem", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "district": "Norfolk & Middlesex", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Climate Law", "Civil Rights", "Newton"]
+ },
+ "bruce_tarr": {
+  "name": "Bruce Tarr", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "district": "First Essex & Middlesex", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Commercial Fishing", "Gloucester"]
+ },
+ "mary_felzkowski": {
+  "name": "Mary Felzkowski", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President", "Tax Cuts", "Medical Marijuana", "Northern WI"]
+ },
+ "devin_lemahieu": {
+  "name": "Devin LeMahieu", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Retiring 2026", "Flat Tax", "Sheboygan"]
+ },
+ "dianne_hesselbein": {
+  "name": "Dianne Hesselbein", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "district": "SD 27", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Public Schools", "Abortion Rights", "Dane County"]
+ },
+ "bobby_joe_champion": {
+  "name": "Bobby Joe Champion", "office": "Minnesota State Senator", "state": "Minnesota",
+  "district": "SD 59", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["First Black Senate President", "Economic Opportunity", "Family & Equity", "North Minneapolis"]
+ },
+ "mark_johnson_mn": {
+  "name": "Mark Johnson", "office": "Minnesota State Senator", "state": "Minnesota",
+  "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Agriculture", "NW Minnesota"]
+ },
+ "robert_rodriguez_co": {
+  "name": "Robert Rodriguez", "office": "Colorado State Senator", "state": "Colorado",
+  "district": "SD 32", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Data Privacy", "Workers & Labor", "Denver"]
+ },
+ "cleave_simpson": {
+  "name": "Cleave Simpson", "office": "Colorado State Senator", "state": "Colorado",
+  "district": "SD 6", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Water & Drought", "Agriculture", "San Luis Valley"]
  }
 });
