@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v15';
+const CACHE_VERSION = 'v16';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -51,6 +51,8 @@ const SHELL_ASSETS = [
   '/app-2.css',
   '/alignment-tool.css',
   '/stance-library.css',
+  // Additive mobile performance & flow polish layer.
+  '/mobile-polish.css',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
