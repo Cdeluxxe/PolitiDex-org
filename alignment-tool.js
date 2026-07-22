@@ -666,8 +666,8 @@
       document.querySelectorAll('.align-sel-count').forEach(function(el) {
         var prev = el.getAttribute('data-n');
         el.innerHTML = (n === 0)
-          ? 'No positions selected yet'
-          : '<b>' + n + '</b> position' + (n > 1 ? 's' : '') + ' selected';
+          ? 'No stances set yet'
+          : '<b>' + n + '</b> stance' + (n > 1 ? 's' : '') + ' set';
         if (String(n) !== prev) {
           el.setAttribute('data-n', String(n));
           if (n > 0) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
@@ -677,17 +677,17 @@
       var cs = document.getElementById('align-compact-status');
       if (cs) {
         cs.innerHTML = (n === 0)
-          ? 'No positions selected yet'
-          : "You've aligned on <b>" + n + "</b> issue" + (n > 1 ? 's' : '');
+          ? 'No stances set yet'
+          : "You've set <b>" + n + "</b> stance" + (n > 1 ? 's' : '');
       }
       var cbl = document.getElementById('align-compact-btn-label');
-      if (cbl) cbl.textContent = (n === 0) ? 'Start Matching Politicians' : 'Adjust My Alignment';
+      if (cbl) cbl.textContent = (n === 0) ? 'Set your stances' : 'Adjust my stances';
       // Once the visitor has picks, reframe the tagline around acting on the results
       // and reveal the forward actions that jump to their best-match candidates.
       var ct = document.getElementById('align-compact-tagline');
       if (ct) ct.textContent = (n === 0)
-        ? 'Pick the issues you care about, then compare the candidates running in your district and add your best matches to your team.'
-        : 'Your Match % now shows on every candidate — see who fits you best and add your top picks to your team.';
+        ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your team.'
+        : '🎯 Your Match and ⚖️ Say-vs-Do now show on every candidate — see who fits and whether they back it up, then add your top picks to your team.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
       var dn = document.getElementById('align-done-btn');
@@ -1058,13 +1058,17 @@
 
     // Fold the Accountability Score into a raw issue-alignment value, returning the
     // detail (so callers can both use the adjusted number AND explain the nudge).
+    //
+    // ── SCORING CLEANUP (simplified system) ─────────────────────────────────────
+    // Your Match is now PURELY issue-fit: the Accountability composite no longer
+    // nudges it. This is a deliberate pass-through — it keeps the return shape
+    // (base/acct/delta/adjusted) so every caller and the breakdown modal keep
+    // working unchanged, but the adjustment is always zero. The underlying
+    // accountability data is untouched; it simply no longer bends the match.
     function _acctMatchInfo(pid, base) {
-      var acct = _acctMatchScore(pid);
-      if (base === null || base === undefined) return { base: base, acct: acct, delta: 0, adjusted: base };
-      if (acct === null) return { base: Math.round(base), acct: null, delta: 0, adjusted: Math.round(base) };
-      var raw = base + (acct - ACCT_MATCH_NEUTRAL) * ACCT_MATCH_WEIGHT;
-      var adjusted = Math.round(Math.min(100, Math.max(0, raw)));
-      return { base: Math.round(base), acct: acct, delta: adjusted - Math.round(base), adjusted: adjusted };
+      if (base === null || base === undefined) return { base: base, acct: null, delta: 0, adjusted: base };
+      var rounded = Math.round(base);
+      return { base: rounded, acct: null, delta: 0, adjusted: rounded };
     }
     window._acctMatchInfo = _acctMatchInfo;
 
@@ -1438,6 +1442,112 @@
     }
     window._calcTeamAlignment = _calcTeamAlignment;
 
+    /* ─────────────────────────────────────────────────────────────────────
+       CONSISTENCY (Say-vs-Do) SCORE — the second, additive score.
+       ---------------------------------------------------------------------
+       Stance Match (_calcAlignmentScore) asks "do their STATED positions line
+       up with my values?". This asks the complementary question: "for the
+       issues where they've stated a position, does their RECORD actually back
+       it up?" — pure integrity, independent of whether the visitor agrees.
+
+       It reuses _calcAlignmentBreakdown, which already attaches a per-issue
+       `record` summary (window._pdxRecordIssueSummary → _issueRecordSummary)
+       AND a per-issue `weight` (the same intensity × My-Stances-priority weight
+       the match uses). Deriving from that keeps the two scores in perfect
+       lock-step and adds no parallel scoring math.
+
+       Per stated issue with a voting record, the record's own weighted verdict
+       gives a 0..1 value:  consistentScore / (consistentScore + contradictScore).
+       Records that are purely mixed/no-position count as 0.5 (genuinely split),
+       never as a fake win. The score is the weight-averaged value × 100.
+
+       Honesty rules (no invented numbers):
+         • A stated position with NO votes on record → counted as "limited",
+           excluded from the score (never scored as 0 or 50).
+         • Records not yet warm in the sync cache → `pending:true`; the caller
+           kicks a batched fetch (fetchCompare) and re-renders when it lands.
+         • Nothing stated on the visitor's issues → score null (nothing to check).
+       Returns null only when there are no selected issues / no record at all. */
+    function _consistFromRecord(rec) {
+      if (!rec || !rec.total) return null;                 // no votes on this issue
+      var pos = rec.consistentScore || 0, neg = rec.contradictScore || 0;
+      if (pos + neg <= 0) return 0.5;                      // only mixed / no-position votes
+      return pos / (pos + neg);
+    }
+
+    function _calcConsistencyScore(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return null;
+      var bd = (typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(pid) : null;
+      if (!bd || !bd.issues) return null;
+
+      var warm = !!(window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function'
+                    && window.PDXVotingRecord.memberRecords(pid));
+      var totalW = 0, totalV = 0;
+      var rated = 0, limited = 0, stated = 0, contra = 0, consist = 0;
+      var issues = [];
+
+      bd.issues.forEach(function (it) {
+        if (!it.direct) return;            // Say-vs-Do needs a stated position (the "say")
+        stated++;
+        var val = _consistFromRecord(it.record);
+        if (val === null) { limited++; return; }   // stated but no record → honest "limited"
+        rated++;
+        var nv = it.record.netVerdict;
+        if (nv === 'contradicts') contra++;
+        else if (nv === 'consistent') consist++;
+        var w = it.weight || 1;
+        totalW += w; totalV += val * w;
+        issues.push({ key: it.key, label: it.label, netVerdict: nv, total: it.record.total, val: val });
+      });
+
+      // Pending only when the visitor's issues include stated positions we could
+      // check, but this member's votes simply aren't loaded yet (and we haven't
+      // already tried). Otherwise "no record" is the honest, final answer.
+      var pending = (stated > 0 && rated === 0 && !warm && !_consistTried[pid]);
+      var score = totalW > 0 ? Math.round(100 * totalV / totalW) : null;
+      issues.sort(function (a, b) { return b.total - a.total; });
+      return {
+        score: score, rated: rated, limited: limited, stated: stated,
+        contradictions: contra, consistentIssues: consist,
+        pending: pending, warm: warm, issues: issues
+      };
+    }
+    window._calcConsistencyScore = _calcConsistencyScore;
+
+    // ── Batched, debounced voting-record warmer for the Consistency score ───────
+    // The card bars render synchronously for a whole field of politicians, so we
+    // never fetch per card. When a bar finds itself `pending`, it registers the
+    // pid here; a short debounce coalesces the field into ONE /compare request
+    // (which seeds PDXVotingRecord's sync cache for every member), then refreshes
+    // the alignment surfaces so the real Consistency scores fill in. _consistTried
+    // marks settled pids so a member with genuinely no record shows an honest
+    // "limited record" state instead of re-fetching forever.
+    var _consistTried = {};   // pid → true once a warm attempt has settled
+    var _consistReq = {};     // pid → true while queued / in flight
+    var _consistQueue = [];
+    var _consistTimer = null;
+
+    function _alignFlushConsistWarm() {
+      _consistTimer = null;
+      if (!(window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function')) { _consistQueue = []; return; }
+      var batch = _consistQueue.splice(0, 24);   // bound the request size
+      if (!batch.length) return;
+      var settle = function () {
+        batch.forEach(function (p) { _consistTried[p] = true; delete _consistReq[p]; });
+      };
+      window.PDXVotingRecord.fetchCompare(batch).then(function () {
+        settle();
+        if (typeof _alignRefreshAll === 'function') { try { _alignRefreshAll(); } catch (e) {} }
+        if (_consistQueue.length && !_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
+      }, function () { settle(); });
+    }
+    function _alignQueueConsistWarm(pid) {
+      if (!pid || _consistTried[pid] || _consistReq[pid]) return;
+      if (!(window.PDXVotingRecord && typeof window.PDXVotingRecord.fetchCompare === 'function')) return;
+      _consistReq[pid] = true; _consistQueue.push(pid);
+      if (!_consistTimer) _consistTimer = setTimeout(_alignFlushConsistWarm, 140);
+    }
+
     // Rich "Team Alignment Overview" rendered into #myteam-alignment-bar. Gives the
     // visitor a plain-language read on how aligned their current team is, a per-member
     // breakdown, and — crucially — which of their selected issues are driving the
@@ -1684,6 +1794,172 @@
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
     }
 
+    // ── Consistency (Say-vs-Do) readout — the SECOND score, rendered as a compact
+    // sibling directly beneath the "Your Match" bar so the two read together at a
+    // glance. Match = do their stated positions fit my values; Consistency = does
+    // their record back up what they say. Honest states (never a fake number):
+    //   • pending  → "checking voting record…" while a batched fetch warms
+    //   • limited  → "Limited record" when they state positions but have few/no votes
+    //   • omitted  → nothing to check (no stated positions on the visitor's issues)
+    // Neutral by design: it measures integrity, not agreement, and is colour-coded
+    // on the same green/amber/red scale as everything else in the tool.
+    // Plain-language label for the 0–100 consistency score. Neutral wording that
+    // describes the RECORD-vs-WORDS relationship, never a political judgment.
+    function _consistLabel(s) {
+      return s >= 80 ? 'Backs it up' : s >= 60 ? 'Mostly consistent' : s >= 40 ? 'Mixed record' : 'Often contradicts';
+    }
+    // A short verb phrase used in aria/tooltips so the number reads as a sentence.
+    function _consistPhrase(s) {
+      return s >= 80 ? 'their record backs up what they say'
+           : s >= 60 ? 'their record mostly backs up what they say'
+           : s >= 40 ? 'their record is a mixed match for what they say'
+           : 'their record often runs against what they say';
+    }
+    // Neutral, visible contradiction flag — shown only when contradictions exist.
+    // It states a fact (record ran against the stated position), not a verdict.
+    function _consistFlag(c, compact) {
+      if (!c || !c.contradictions) return '';
+      var n = c.contradictions;
+      return '<span class="align-consist-flag" title="On '
+        + n + ' of their stated positions, the voting record runs the other way">⚑ ' + n
+        + (compact ? '' : ' contradiction' + (n === 1 ? '' : 's')) + '</span>';
+    }
+    function _consistShellHtml(pid, kind, c) {
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      if (kind === 'checking') {
+        return '<div class="align-consist-bar is-checking" aria-label="Say-vs-Do consistency: checking the voting record" role="status">' +
+            '<span class="align-consist-ico"><span class="align-consist-spin"></span></span>' +
+            '<span class="align-consist-main"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
+            '<span class="align-consist-sub">Checking their voting record…</span></span>' +
+          '</div>';
+      }
+      // limited — states positions, but little/no voting record to verify them yet
+      var det = (c && c.limited)
+        ? c.limited + ' stated ' + (c.limited === 1 ? 'position has' : 'positions have') + ' no votes on record yet'
+        : 'No voting record yet to check against their stated positions';
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-limited" title="They\'ve stated positions, but there\'s little or no voting record to verify them against yet" aria-label="Say-vs-Do consistency: limited voting record — nothing to score yet. Tap for details.">' +
+          '<span class="align-consist-ico">⚖️</span>' +
+          '<span class="align-consist-main"><span class="align-consist-titlerow"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
+          '<span class="align-consist-badge is-limited">Limited record</span></span>' +
+          '<span class="align-consist-sub">' + det + '</span></span>' +
+        '</button>';
+    }
+    function _alignConsistencyBar(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      if (!c) return '';
+      if (c.pending) { _alignQueueConsistWarm(pid); return _consistShellHtml(pid, 'checking'); }
+      if (c.score === null) {
+        // Stated positions but no record to check → honest "limited". Nothing
+        // stated at all → omit (the Match bar already stands on its own).
+        return c.stated > 0 ? _consistShellHtml(pid, 'limited', c) : '';
+      }
+      var col = _alignScoreColor(c.score);
+      var label = _consistLabel(c.score);
+      var hasContra = c.contradictions > 0;
+      var flag = _consistFlag(c);
+      var limNote = c.limited > 0 ? ' · ' + c.limited + ' with no record yet' : '';
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar' + (hasContra ? ' is-contra' : '') + '" aria-label="Say-vs-Do consistency: ' + c.score + ' percent — ' + label + '; ' + _consistPhrase(c.score) + ', across ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record' + (hasContra ? ', including ' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') : '') + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
+          '<span class="align-consist-num" style="color:' + col + ';text-shadow:0 0 10px ' + col + '55;">' + c.score + '<span style="font-size:0.8rem;">%</span></span>' +
+          '<span class="align-consist-main">' +
+            '<span class="align-consist-titlerow">' +
+              '<span class="align-consist-title" style="color:' + col + ';">⚖️ Say-vs-Do</span>' +
+              '<span class="align-consist-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
+              flag +
+            '</span>' +
+            '<span class="align-consist-track"><div style="width:' + c.score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
+            '<span class="align-consist-sub">Record backs <b style="color:' + col + ';">' + c.rated + ' of ' + c.stated + '</b> stated position' + (c.stated === 1 ? '' : 's') + limNote + ' · tap for detail</span>' +
+          '</span>' +
+        '</button>';
+    }
+    window._alignConsistencyBar = _alignConsistencyBar;
+
+    // Compact inline consistency chip, the sibling of the small "Your Match" badge
+    // (used in dense contexts like the compare table). Same honest states, one line.
+    function _alignConsistencyBadge(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      if (!c) return '';
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking their voting record…">⚖️ Say-vs-Do <span class="align-consist-spin"></span></span>'; }
+      if (c.score === null) {
+        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, but little or no voting record to verify them against yet">⚖️ Limited record</span>' : '';
+      }
+      var col = _alignScoreColor(c.score);
+      var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' stated position' + (c.contradictions === 1 ? '' : 's') + ' the record runs against">⚑' + c.contradictions + '</span>' : '';
+      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Say-vs-Do consistency: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">⚖️ ' + c.score + '%' + flag + '</button>';
+    }
+    window._alignConsistencyBadge = _alignConsistencyBadge;
+
+    // ── Compact DUAL readout — both scores in one tight, tappable unit ──────────
+    // For surfaces where politicians appear but no full match bar fits (Your Ballot
+    // cards, My Profile team cards, other dense lists). Renders the Match % and the
+    // Say-vs-Do % side by side with the SAME icons/labels/colours as the full bars,
+    // so the two numbers read identically everywhere. Returns '' when the visitor
+    // hasn't set up alignment or the person can't be scored — never a fake number.
+    function _alignDualMini(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var m = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (m === null || m === undefined) return '';
+      var mCol = _alignScoreColor(m);
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+
+      var consCell;
+      if (c && c.pending) { _alignQueueConsistWarm(pid); consCell = '<span class="align-dm-v is-muted">⚖️ <span class="align-consist-spin"></span></span>'; }
+      else if (!c || c.score === null) { consCell = c && c.stated > 0 ? '<span class="align-dm-v is-muted" title="States positions; no voting record to verify yet">⚖️ Ltd</span>' : '<span class="align-dm-v is-muted" title="No stated positions on your issues to check">⚖️ —</span>'; }
+      else {
+        var cCol = _alignScoreColor(c.score);
+        var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '">⚑' + c.contradictions + '</span>' : '';
+        consCell = '<span class="align-dm-v" style="color:' + cCol + ';">⚖️ ' + c.score + '%' + flag + '</span>';
+      }
+      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="🎯 Your Match — how well their stated positions fit the issues you care about. ⚖️ Say-vs-Do — whether their voting record backs up what they say. Tap for the issue-by-issue breakdown." aria-label="Your match ' + m + ' percent — how well their stated positions fit your issues' + (c && typeof c.score === 'number' ? '; Say-vs-Do ' + c.score + ' percent — whether their record backs up what they say' : '') + '. Tap for details.">' +
+          '<span class="align-dm-v" style="color:' + mCol + ';">🎯 ' + m + '%</span>' +
+          '<span class="align-dm-sep">·</span>' +
+          consCell +
+        '</button>';
+    }
+    window._alignDualMini = _alignDualMini;
+
+    // ── Canonical descriptions for the three scores ─────────────────────────────
+    // ONE source of truth so every surface (cards, compare, ballot, profile, the
+    // Alignment Tool and Issue Comparison) labels and explains the trio identically
+    // — the numbers always read like the same system. `short` is the plain "what it
+    // means"; `calc` is the honest "how it's figured" a voter needs to trust it.
+    // `pairFrame` is the shared heading for the two follow-through scores.
+    var PDX_SCORE_INFO = {
+      match:   { icon: '🎯', label: 'Your Match',
+                 short: 'How well their stated positions fit the issues you care about.',
+                 calc:  'Built from your saved stances vs. their documented positions — personal to you, not a party label.' },
+      saydo:   { icon: '⚖️', label: 'Say-vs-Do',
+                 short: 'Whether their voting record backs up the positions they claim.',
+                 calc:  'Their votes checked against their own stated positions, issue by issue. Agreement-neutral; shows “Limited record” when there isn\'t enough voting record to judge.' },
+      promise: { icon: '🤝', label: 'Promise Follow-Through',
+                 short: 'Of the promises they made, how many they\'ve kept.',
+                 calc:  'Kept ÷ (kept + broken) of tracked promises. Pending promises don\'t count until they resolve.' },
+      pairFrame: 'Do they keep their word?'
+    };
+    window.PDXScoreInfo = PDX_SCORE_INFO;
+
+    // Reusable, mobile-first legend that explains the three scores in one place.
+    // Pass { only: ['saydo','promise'] } to show a subset, or { pair: true } to add
+    // the "Do they keep their word?" heading above the two follow-through scores.
+    function _pdxScoreLegendHtml(opts) {
+      opts = opts || {};
+      var keys = opts.only || ['match', 'saydo', 'promise'];
+      var head = opts.pair ? '<div class="pdx-scoreleg-head">' + PDX_SCORE_INFO.pairFrame + '</div>' : '';
+      var items = keys.map(function (k) {
+        var s = PDX_SCORE_INFO[k];
+        if (!s) return '';
+        return '<div class="pdx-scoreleg-item"><span class="pdx-scoreleg-ico" aria-hidden="true">' + s.icon + '</span>'
+          + '<span class="pdx-scoreleg-txt"><b>' + s.label + '</b> — ' + s.short
+          + '<span class="pdx-scoreleg-calc">' + s.calc + '</span></span></div>';
+      }).join('');
+      return '<div class="pdx-scoreleg">' + head + items + '</div>';
+    }
+    window._pdxScoreLegendHtml = _pdxScoreLegendHtml;
+
     // Prominent, tappable "Your Match" bar used on the browse / database / candidate
     // card lists. Unlike the small corner ring, this reads as a core feature: a big
     // teal score, a plain-language "Your Match: NN%" label, a colour-coded
@@ -1702,8 +1978,8 @@
         return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView){window.keyRacesAlignQuickView(\'' + pid + '\');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}" class="align-card-bar setup" aria-label="See the issues this politician has positions on and build your personalized match — judge them by your values, not their party">' +
             '<span class="align-card-num" style="color:#5eead4;font-size:1.15rem;">🎯</span>' +
             '<span class="align-card-main" style="gap:0.1rem;">' +
-              '<span class="align-card-title">See Your Personal Match</span>' +
-              '<span class="align-card-sub">Judge them by your values, not their party</span>' +
+              '<span class="align-card-title">Set your stances to see your match</span>' +
+              '<span class="align-card-sub">What you stand for → who matches you</span>' +
             '</span>' +
             '<span class="align-card-chev">›</span>' +
           '</button>';
@@ -1713,13 +1989,7 @@
       var col = _alignScoreColor(score);
       var label = score >= 85 ? '⭐ Best Match for You' : score >= 70 ? 'Strong match' : score >= 50 ? 'Partial match' : 'Weak match';
       var drivers = (typeof _alignDriverChips === 'function') ? _alignDriverChips(pid, 2) : '';
-      // Note when the Accountability Score is part of this match, so a voter sees
-      // both dimensions — issue fit AND integrity — feeding the number at a glance.
-      var _acctForMatch = (typeof window._acctMatchScore === 'function') ? window._acctMatchScore(pid) : null;
-      var _acctSub = (typeof _acctForMatch === 'number')
-        ? ' · <span style="color:#c4b5fd;">🛡️ incl. accountability ' + _acctForMatch + '</span>'
-        : '';
-      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues, including their accountability score. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
+      return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');" class="align-card-bar" aria-label="Your match: ' + score + ' percent — ' + label + ' on your selected issues. Tap for the issue-by-issue breakdown." style="border-color:' + col + '66;box-shadow:inset 0 0 0 1px ' + col + '22;">' +
           '<span class="align-card-num" style="color:' + col + ';text-shadow:0 0 12px ' + col + '55;">' + score + '<span style="font-size:0.95rem;">%</span></span>' +
           '<span class="align-card-main">' +
             '<span class="align-card-titlerow">' +
@@ -1727,10 +1997,10 @@
               '<span class="align-card-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
             '</span>' +
             '<span class="align-card-mini"><div style="width:' + score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
-            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b>' + _acctSub + ' · tap for breakdown</span>' +
+            '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
-        '</button>' + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers;
     }
     window._alignCardBar = _alignCardBar;
 
@@ -1754,7 +2024,7 @@
             '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
             '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
           '</span>' +
-        '</button>' + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers;
     }
     window._slotMatchBand = _slotMatchBand;
 
@@ -1792,22 +2062,24 @@
       // card list — not just a static number.
       var _openBd = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (size === 'small') {
-        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>';
+        return '<button type="button" onclick="' + _openBd + '" class="align-score-badge" title="Your match on your selected issues — tap for the breakdown" style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🎯 Your Match ' + score + '%</button>' + _alignConsistencyBadge(pid);
       }
 
       if (usePurpleTheme) {
-        return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
+        return '<span class="align-ring-wrap">' +
+          '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
           '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
             '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
             '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">🎯 Your Match</div>' +
           '</div>' +
-        '</button>';
+        '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
       }
 
-      return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
+      return '<span class="align-ring-wrap">' +
+        '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
         '<div class="align-score-ring ' + cls + '" style="border-color:' + col + '99;color:' + col + ';background:' + col + '14;box-shadow:0 0 14px ' + col + '22;">' + score + '%</div>' +
         '<div class="align-pct-label" style="color:' + col + '99;">🎯 Your Match</div>' +
-      '</button>';
+      '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
     }
 
     // Brief pulse on every chip that represents an issue, wherever it's mounted.
@@ -2095,7 +2367,7 @@
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
-          '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each one. Your match score then appears on every politician card.</div>';
+          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b> — plus <b>⚖️ Say-vs-Do</b>, whether their record backs it up.</div>';
         return;
       }
 

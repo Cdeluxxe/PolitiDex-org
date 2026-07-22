@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MY PROFILE  ·  the signed-in visitor's personal civic hub
+   ---------------------------------------------------------------------------
+   A read-only view that composes the existing personal systems (My Stances,
+   Personal Impact Tracker, My Voting Team, Evidence/Receipts) and the finance
+   layer into one page. Purely additive — owns no data. Mobile-first: single
+   column by default, widening at the site's 640 / 1024 breakpoints.
+   Matches the site palette: navy #0a0f1e, gold #fcd34d, signal green #4ade80 /
+   amber #f5c842 / red #f87171, Bebas Neue + Barlow type.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#my-profile {
+  padding: 3.25rem 1rem 4rem;
+  background: linear-gradient(180deg, rgba(10, 15, 30, 0.96) 0%, rgba(13, 21, 38, 0.92) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  scroll-margin-top: 80px;
+}
+
+.mp-shell { max-width: 74rem; margin: 0 auto; }
+
+/* ── page head ─────────────────────────────────────────────────────────── */
+.mp-head { text-align: center; margin-bottom: 1.5rem; }
+.mp-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(250, 204, 21, 0.1);
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 999px; padding: 0.32rem 0.9rem; margin-bottom: 0.8rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: #fcd34d;
+}
+.mp-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: 0.04em; line-height: 1.02;
+  margin: 0 0 0.5rem; color: #eef4ff;
+}
+.mp-title span { color: #fcd34d; }
+.mp-lede {
+  max-width: 46rem; margin: 0 auto; color: #9fb4d4;
+  font-family: 'Barlow', sans-serif; font-size: 0.98rem; line-height: 1.6;
+}
+
+/* ── generic card + section scaffolding ───────────────────────────────── */
+.mp-card {
+  background: rgba(13, 21, 38, 0.55);
+  border: 1px solid rgba(96, 165, 250, 0.14);
+  border-radius: 1rem; padding: 1.1rem 1.15rem; margin-bottom: 1.1rem;
+}
+.mp-sec-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 0.75rem; margin-bottom: 0.85rem;
+}
+.mp-sec-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.02rem; letter-spacing: 0.08em; text-transform: uppercase; color: #e7ecf6;
+  margin: 0; display: flex; align-items: center; gap: 0.5rem;
+}
+.mp-sec-link {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #7fb4ff;
+  text-decoration: none; white-space: nowrap; transition: color 0.12s;
+}
+.mp-sec-link:hover { color: #cfe0fb; }
+.mp-sub { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.86rem; line-height: 1.5; }
+
+/* ── identity header ───────────────────────────────────────────────────── */
+.mp-id { display: flex; align-items: center; gap: 0.95rem; flex-wrap: wrap; }
+.mp-avatar {
+  width: 58px; height: 58px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.7rem; color: #0a0f1e;
+  background: linear-gradient(135deg, #fad96a, #e6b800);
+  box-shadow: 0 0 16px rgba(245, 200, 66, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.mp-id-main { flex: 1; min-width: 0; }
+.mp-id-name {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.3rem;
+  color: #eef4ff; margin: 0; line-height: 1.1;
+}
+.mp-id-meta { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.85rem; margin-top: 0.15rem; }
+.mp-id-cta { margin-left: auto; }
+.mp-btn {
+  cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.28);
+  border-radius: 0.6rem; padding: 0.5rem 0.85rem; color: #cfe0fb;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.mp-btn:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.5); transform: translateY(-1px); }
+.mp-btn--gold { background: linear-gradient(135deg, #fad96a, #e6b800); color: #0a0f1e; border-color: rgba(245, 200, 66, 0.9); }
+.mp-btn--gold:hover { filter: brightness(1.06); }
+
+/* ── footprint stat grid ───────────────────────────────────────────────── */
+.mp-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+.mp-stat {
+  background: rgba(6, 12, 24, 0.55); border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem; padding: 0.8rem 0.85rem; text-align: left;
+}
+.mp-stat-num {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.85rem;
+  line-height: 1; color: #fcd34d; letter-spacing: 0.02em;
+}
+.mp-stat-num.is-warn { color: #f87171; }
+.mp-stat-lbl {
+  display: block; margin-top: 0.25rem; color: #a9bdda;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.mp-stat-ico { font-size: 0.85rem; opacity: 0.85; margin-right: 0.25rem; }
+
+/* ── stance rows ───────────────────────────────────────────────────────── */
+.mp-stance { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.mp-stance:last-child { border-bottom: 0; }
+.mp-stance-issue { flex: 1; min-width: 0; color: #dbe6f7; font-family: 'Barlow', sans-serif; font-size: 0.92rem; }
+.mp-pos {
+  flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 999px;
+}
+.mp-pos.is-support { color: #86efac; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.3); }
+.mp-pos.is-oppose  { color: #fca5a5; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); }
+.mp-pos.is-mixed   { color: #fcd34d; background: rgba(245, 200, 66, 0.12); border: 1px solid rgba(245, 200, 66, 0.3); }
+.mp-prio { flex-shrink: 0; font-size: 0.68rem; color: #6f83a6; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ── team grid ─────────────────────────────────────────────────────────── */
+.mp-team { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+.mp-pol {
+  display: flex; align-items: center; gap: 0.6rem; text-align: left; cursor: pointer;
+  background: rgba(6, 12, 24, 0.5); border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem; padding: 0.6rem 0.7rem; color: inherit; width: 100%;
+  font: inherit; transition: border-color 0.12s, transform 0.12s, background 0.12s;
+}
+.mp-pol:hover { border-color: rgba(96, 165, 250, 0.45); transform: translateY(-1px); background: rgba(96, 165, 250, 0.08); }
+.mp-pol-photo {
+  width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; object-fit: cover;
+  background: rgba(96, 165, 250, 0.12); display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: #7fb4ff; font-size: 1rem;
+}
+.mp-pol-main { min-width: 0; }
+.mp-pol-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.92rem; color: #eef4ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-pol-office { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-pol-tag { display: inline-block; margin-top: 0.15rem; font-size: 0.62rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; color: #6f83a6; }
+
+/* ── money tree ────────────────────────────────────────────────────────── */
+.mp-money-note { color: #7596c0; font-family: 'Barlow', sans-serif; font-size: 0.78rem; line-height: 1.5; margin-top: 0.85rem; }
+.mp-money-summary {
+  background: rgba(6, 12, 24, 0.6); border: 1px solid rgba(245, 200, 66, 0.18);
+  border-radius: 0.85rem; padding: 0.9rem 1rem; margin-bottom: 1rem;
+}
+.mp-money-figs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 0.85rem; }
+.mp-fig-num { font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.5rem; line-height: 1; color: #fcd34d; }
+.mp-fig-lbl { display: block; margin-top: 0.2rem; color: #a9bdda; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* stacked funding-mix bar (reused for team blend and per-node) */
+.mp-mix { display: flex; height: 12px; border-radius: 4px; overflow: hidden; background: rgba(10, 15, 30, 0.6); }
+.mp-mix-seg { height: 100%; }
+.mp-mix-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; margin-top: 0.5rem; }
+.mp-mix-key { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; color: #90a4c4; }
+.mp-mix-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.mp-sectors { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.35rem; }
+.mp-chip {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.04em; padding: 0.2rem 0.55rem; border-radius: 999px;
+  background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.22); color: #bcd3f5;
+}
+
+/* per-politician money branch */
+.mp-branch {
+  border-left: 2px solid rgba(245, 200, 66, 0.3); padding: 0.15rem 0 0.15rem 0.85rem;
+  margin: 0 0 0.9rem 0.35rem;
+}
+.mp-branch:last-child { margin-bottom: 0; }
+.mp-branch-head { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.5rem; }
+.mp-branch-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; color: #eef4ff; }
+.mp-branch-office { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.72rem; }
+.mp-signal {
+  margin-left: auto; flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem;
+  font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px;
+}
+.mp-donors { margin: 0.5rem 0 0; padding: 0; list-style: none; }
+.mp-donors li { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.18rem 0; color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.8rem; }
+.mp-donors li span:last-child { color: #9fb4d4; white-space: nowrap; }
+.mp-branch-gov { margin-top: 0.5rem; color: #7596c0; font-family: 'Barlow', sans-serif; font-size: 0.76rem; line-height: 1.45; }
+.mp-branch-gov strong { color: #bcd3f5; font-weight: 600; }
+
+/* ── empty states ──────────────────────────────────────────────────────── */
+.mp-empty { text-align: center; padding: 1.4rem 0.75rem; }
+.mp-empty-ico { font-size: 1.7rem; opacity: 0.7; }
+.mp-empty-txt { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.9rem; line-height: 1.55; margin: 0.5rem auto 0.9rem; max-width: 30rem; }
+.mp-status { text-align: center; color: #6f83a6; padding: 2.5rem 0; font-family: 'Barlow', sans-serif; }
+
+/* ── guided flow band ──────────────────────────────────────────────────── */
+.mp-guide {
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(245, 200, 66, 0.10), transparent 60%),
+    rgba(13, 21, 38, 0.6);
+  border-color: rgba(245, 200, 66, 0.24);
+}
+.mp-steps { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.mp-step {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.32rem 0.7rem;
+  border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(6, 12, 24, 0.5);
+}
+.mp-step-ico { font-size: 0.8rem; }
+.mp-step-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #90a4c4;
+}
+.mp-step.is-done { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.1); }
+.mp-step.is-done .mp-step-ico { color: #4ade80; }
+.mp-step.is-done .mp-step-lbl { color: #86efac; }
+.mp-step.is-current { border-color: rgba(245, 200, 66, 0.6); background: rgba(245, 200, 66, 0.12); box-shadow: 0 0 12px rgba(245, 200, 66, 0.18); }
+.mp-step.is-current .mp-step-lbl { color: #fcd34d; }
+.mp-step.is-todo { opacity: 0.6; }
+.mp-step-join { flex: 1; min-width: 12px; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.18), rgba(255,255,255,0.05)); }
+.mp-guide-eyebrow {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+  font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.35rem;
+}
+.mp-guide-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.25rem;
+  color: #eef4ff; margin: 0 0 0.4rem; line-height: 1.15;
+}
+.mp-guide-text { color: #bcd3f5; font-family: 'Barlow', sans-serif; font-size: 0.92rem; line-height: 1.55; margin: 0 0 0.9rem; max-width: 44rem; }
+.mp-guide-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+.mp-note { color: #6f83a6; font-family: 'Barlow', sans-serif; font-size: 0.76rem; font-style: italic; margin: 0.75rem 0 0; }
+
+/* two-way link notes (stances ⇄ team) */
+.mp-link-notes { margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; flex-direction: column; gap: 0.45rem; }
+.mp-link-note { color: #9fb4d4; font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.45; }
+.mp-inline-btn {
+  cursor: pointer; background: none; border: none; padding: 0; font: inherit;
+  color: #7fb4ff; font-weight: 600; text-decoration: underline; text-underline-offset: 2px;
+}
+.mp-inline-btn:hover { color: #cfe0fb; }
+
+/* per-teammate alignment badges */
+.mp-pol-align { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+.mp-align {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 999px; white-space: nowrap;
+}
+.mp-align.is-agree { color: #86efac; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.3); }
+.mp-align.is-differ { color: #fca5a5; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); }
+.mp-align.is-neutral { color: #a9bdda; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.28); }
+
+/* ── money tree · expanded ─────────────────────────────────────────────── */
+.mp-lean {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 999px; margin-bottom: 0.75rem;
+}
+.mp-lean.is-grass { color: #86efac; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); }
+.mp-lean.is-large { color: #fcd34d; background: rgba(245, 200, 66, 0.12); border: 1px solid rgba(245, 200, 66, 0.35); }
+.mp-lean.is-mixed { color: #cfe0fb; background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.32); }
+.mp-money-plain { color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.86rem; line-height: 1.5; margin: 0 0 0.65rem; }
+.mp-money-plain strong { color: #eef4ff; }
+
+/* grouped grassroots-vs-big bar */
+.mp-mix2 { display: flex; height: 16px; border-radius: 5px; overflow: hidden; background: rgba(10, 15, 30, 0.6); }
+.mp-mix2-seg { height: 100%; }
+
+.mp-money-block { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.mp-block-h {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #a9bdda; margin: 0 0 0.5rem;
+}
+.mp-src-type {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #7596c0; background: rgba(117, 150, 192, 0.14);
+  padding: 0.05rem 0.35rem; border-radius: 999px; margin-left: 0.3rem; vertical-align: middle;
+}
+
+/* money ↔ your issues */
+.mp-ispend-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.6rem; align-items: baseline;
+  padding: 0.4rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mp-ispend-row:last-of-type { border-bottom: 0; }
+.mp-ispend-issue { color: #dbe6f7; font-family: 'Barlow', sans-serif; font-size: 0.86rem; font-weight: 600; }
+.mp-ispend-amt { color: #fcd34d; font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.05rem; text-align: right; }
+.mp-ispend-top { grid-column: 1 / -1; color: #7596c0; font-family: 'Barlow', sans-serif; font-size: 0.74rem; }
+.mp-branch-sectors { margin-top: 0.5rem; }
+
+/* ── responsive ────────────────────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .mp-stats { grid-template-columns: repeat(4, 1fr); gap: 0.7rem; }
+  .mp-team { grid-template-columns: repeat(3, 1fr); }
+  .mp-money-figs { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1024px) {
+  #my-profile { padding: 4rem 1rem 5rem; }
+  .mp-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1.1rem; align-items: start; }
+  .mp-cols > .mp-card { margin-bottom: 0; }
+}
+@media (max-width: 400px) {
+  .mp-stats { grid-template-columns: repeat(2, 1fr); }
+  .mp-team { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-btn, .mp-pol { transition: none; }
+}
+
+/* Dual alignment readout (Your Match + Say-vs-Do) on team cards */
+.mp-pol-dual { margin-top: 0.4rem; display: flex; }
+.mp-pol { text-align: left; }

@@ -155,6 +155,10 @@
     var party = fn('_pdxPartyChip') ? window._pdxPartyChip(rec.party) : '';
     var stances = fn('_pdxStanceChips') ? window._pdxStanceChips(pid, rec, { max: 3 }) : '';
     var funding = fn('_pdxFundingChip') ? window._pdxFundingChip(pid) : '';
+    // Dual alignment readout (Your Match + Say-vs-Do consistency) when the visitor
+    // has set up alignment — same compact component and visual language as the rest
+    // of the app. Returns '' when there's nothing to score, so cards stay clean.
+    var dual = fn('_alignDualMini') ? window._alignDualMini(pid) : '';
 
     var office = c.office || rec.office || '';
 
@@ -168,6 +172,7 @@
             '<button type="button" class="yb-cand-name" data-yb-profile="' + esc(pid) + '">' + esc(c.name || rec.name || pid) + '</button>' +
             (office ? '<div class="yb-cand-office">' + esc(office) + '</div>' : '') +
             '<div class="yb-cand-tags">' + scoreHtml + party + '</div>' +
+            (dual ? '<div class="yb-cand-align">' + dual + '</div>' : '') +
           '</div>' +
         '</div>' +
         (stances ? '<div class="yb-stances">' + stances + '</div>' : '') +

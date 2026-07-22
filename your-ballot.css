@@ -303,3 +303,6 @@
   .yb-cand { padding: 0.75rem; }
 }
 
+
+/* Dual alignment readout (Your Match + Say-vs-Do) on candidate cards */
+.yb-cand-align { margin-top: 0.4rem; }
