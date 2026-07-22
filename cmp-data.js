@@ -10694,5 +10694,63 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Mallory McMorrow", "office": "Michigan State Senator", "state": "Michigan",
   "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Majority Whip", "2022 Viral Speech", "Ran for U.S. Senate", "Oakland County"]
+ },
+// ── STATE SENATE wave 4 — New Jersey, Virginia, Arizona, Washington (July 2026).
+//    (Nicholas Scutari and Warren Petersen already exist with curated stances and
+//     are enriched via cmp-data-detail.js instead of being duplicated here.) ──
+ "teresa_ruiz": {
+  "name": "Teresa Ruiz", "office": "New Jersey State Senator", "state": "New Jersey",
+  "district": "LD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Education Reform", "Working Families", "Newark"]
+ },
+ "anthony_bucco": {
+  "name": "Anthony Bucco", "office": "New Jersey State Senator", "state": "New Jersey",
+  "district": "LD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Property Taxes", "Public Safety", "Morris County"]
+ },
+ "louise_lucas": {
+  "name": "Louise Lucas", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["FBI Search Warrant", "President pro Tem", "Finance Chair", "Portsmouth"]
+ },
+ "scott_surovell": {
+  "name": "Scott Surovell", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 34", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Justice Reform", "Clean Energy", "Fairfax"]
+ },
+ "ryan_mcdougle": {
+  "name": "Ryan McDougle", "office": "Virginia State Senator", "state": "Virginia",
+  "district": "SD 26", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Taxes", "Abortion", "Hanover County"]
+ },
+ "priya_sundareshan": {
+  "name": "Priya Sundareshan", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Water & Drought", "Abortion Rights", "Tucson"]
+ },
+ "wendy_rogers": {
+  "name": "Wendy Rogers", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Censure (2022)", "Election Denial", "Border", "Northern AZ"]
+ },
+ "jake_hoffman": {
+  "name": "Jake Hoffman", "office": "Arizona State Senator", "state": "Arizona",
+  "district": "LD 15", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Indicted 'Fake Elector'", "Freedom Caucus Chair", "Border", "Gilbert"]
+ },
+ "jamie_pedersen": {
+  "name": "Jamie Pedersen", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 43", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Marriage Equality", "Housing Supply", "Seattle"]
+ },
+ "john_braun": {
+  "name": "John Braun", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Running for Congress", "Taxes", "SW Washington"]
+ },
+ "manka_dhingra": {
+  "name": "Manka Dhingra", "office": "Washington State Senator", "state": "Washington",
+  "district": "LD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Behavioral Health", "Deputy Majority Leader", "Justice Reform", "Redmond"]
  }
 });
