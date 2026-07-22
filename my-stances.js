@@ -896,14 +896,62 @@
   // renders ONLY issue label + direction + a High-priority star — never notes.
   function renderViewsCard(list, opts) {
     opts = opts || {};
+    list = list || [];
     var groups = { support: [], oppose: [], mixed: [] };
-    (list || []).forEach(function (r) { if (groups[r.position]) groups[r.position].push(r); });
+    list.forEach(function (r) { if (groups[r.position]) groups[r.position].push(r); });
+
+    var who = opts.owner ? 'My Views' : esc(opts.name || 'A PolitiDex member') + '’s Views';
+    var sub = opts.owner
+      ? 'How your public card looks to everyone else'
+      : 'Public positions on PolitiDex · notes kept private';
+    // Owner card leads with the target glyph; a visitor card gets an initial, so
+    // it reads a little more like a personal profile.
+    var badge = opts.owner ? '🎯' : esc((String(opts.name || 'P').trim().charAt(0) || 'P').toUpperCase());
+    var head = '<div class="mv-head">' +
+      '<div class="mv-badge">' + badge + '</div>' +
+      '<div class="mv-headtext"><div class="mv-title">' + who + '</div><div class="mv-sub">' + sub + '</div></div>' +
+      '</div>';
+
+    var n = list.length;
+    if (!n) return '<div class="mv-card">' + head + '<div class="mv-empty">No public positions yet.</div></div>';
+
+    // ── Neutral, at-a-glance stats ──────────────────────────────────────────
+    // Purely descriptive counts — total positions, how much of the platform's
+    // core-issue map they cover, and how many they flagged high-priority. No
+    // partisan lean is computed or shown.
+    var counts = { support: groups.support.length, oppose: groups.oppose.length, mixed: groups.mixed.length };
+    var high = 0, cores = {};
+    list.forEach(function (r) {
+      if (r.priority === 'high') high++;
+      try { var ci = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(r.issueKey) : null; if (ci && ci.key) cores[ci.key] = 1; } catch (e) {}
+    });
+    var coreCount = Object.keys(cores).length;
+    var coreTotal = (Array.isArray(window.CORE_NATIONAL_ISSUES) && window.CORE_NATIONAL_ISSUES.length) ? window.CORE_NATIONAL_ISSUES.length : 12;
+    function tile(num, label, cls) {
+      return '<div class="mv-stat' + (cls ? ' ' + cls : '') + '"><div class="mv-stat-n">' + num + '</div><div class="mv-stat-l">' + label + '</div></div>';
+    }
+    var stats = '<div class="mv-stats">' +
+      tile(n, n === 1 ? 'position' : 'positions', '') +
+      (coreCount ? tile(coreCount, 'of ' + coreTotal + ' core issues', 'is-core') : '') +
+      (high ? tile(high, high === 1 ? 'top priority' : 'top priorities', 'is-prio') : '') +
+      '</div>';
+
+    // ── Composition meter (share of Support / Oppose / Mixed) ───────────────
+    function seg(k, col) { var v = counts[k]; return v ? '<span class="mv-seg" style="flex:' + v + ';background:' + col + ';"></span>' : ''; }
+    function leg(k, col, label) { return '<span class="mv-leg"><i style="background:' + col + '"></i>' + label + ' <b>' + counts[k] + '</b></span>'; }
+    var meter = '<div class="mv-meter" role="img" aria-label="' + counts.support + ' support, ' + counts.oppose + ' oppose, ' + counts.mixed + ' mixed">' +
+      seg('support', '#4ade80') + seg('oppose', '#f87171') + seg('mixed', '#facc15') + '</div>' +
+      '<div class="mv-legend">' +
+      leg('support', '#4ade80', 'Support') + leg('oppose', '#f87171', 'Oppose') + leg('mixed', '#facc15', 'Mixed') +
+      '</div>';
+
+    // ── Grouped chips (unchanged four-state vocabulary) ─────────────────────
     var body = POSITIONS.map(function (p) {
       var arr = groups[p.key];
       if (!arr || !arr.length) return '';
       var chips = arr.map(function (r) {
         var d = issueMap()[r.issueKey] || {};
-        var star = r.priority === 'high' ? '<span class="mv-star" title="High priority for them">⭐</span>' : '';
+        var star = r.priority === 'high' ? '<span class="mv-star" title="High priority">⭐</span>' : '';
         return '<span class="mv-chip">' + esc(d.label || r.issueKey) + star + '</span>';
       }).join('');
       return '<div class="mv-group ' + p.cls + '">' +
@@ -911,16 +959,8 @@
         '<span class="mv-group-n">' + arr.length + '</span></div>' +
         '<div class="mv-chips">' + chips + '</div></div>';
     }).join('');
-    if (!body) body = '<div class="mv-empty">No public positions yet.</div>';
-    var who = opts.owner ? 'My Views' : esc(opts.name || 'A PolitiDex member') + '’s Views';
-    var sub = opts.owner
-      ? 'How your public card looks to everyone else'
-      : 'Public positions on PolitiDex · notes kept private';
-    return '<div class="mv-card">' +
-      '<div class="mv-head"><div class="mv-title">🎯 ' + who + '</div>' +
-      '<div class="mv-sub">' + sub + '</div></div>' +
-      '<div class="mv-groups">' + body + '</div>' +
-      '</div>';
+
+    return '<div class="mv-card">' + head + stats + meter + '<div class="mv-groups">' + body + '</div></div>';
   }
 
   // ── Visitor overlay: someone opened a ?views= share link ────────────────────
