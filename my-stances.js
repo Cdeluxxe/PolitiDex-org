@@ -830,7 +830,7 @@
     if (!n) {
       return '<div class="ms-summary is-empty">' +
         '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
-        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong>. As you do, PolitiDex starts scoring every politician by how well they match <em>you</em>.</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you, and whether their record backs it up. Set stances → see matches → build your team.</div>' +
         '</div>';
     }
     var chips = items.map(function (r) {
@@ -867,8 +867,8 @@
     return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
       '<div class="ms-pow-title">What your stances power</div>' +
       '<p class="ms-pow-body">' + (live
-        ? 'PolitiDex is now scoring every profile, card and your voting team against <strong>' + n + '</strong> position' + (n > 1 ? 's' : '') + '. A match % that reflects <em>your</em> positions — not a party label — shows up wherever a politician appears. <strong>High-priority</strong> positions count more toward that score; <strong>Low</strong> count less.'
-        : 'Once you take a position, PolitiDex scores every politician against it — turning your values into an accountability yardstick you can point at anyone’s record.') +
+        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their record backs it up), wherever they appear. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
+        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and whether their record backs it up — turning your values into a yardstick you can point at anyone’s record.') +
       '</p>' +
       (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
       '</div>';

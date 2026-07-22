@@ -906,3 +906,20 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 .align-dm-v { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 0.15rem; }
 .align-dm-v.is-muted { color: #8ea2c0; font-weight: 700; }
 .align-dm-sep { color: #55617a; font-weight: 700; }
+
+/* ── Shared three-score legend (window._pdxScoreLegendHtml) ─────────────────
+   One consistent, mobile-first explainer for 🎯 Your Match / ⚖️ Say-vs-Do /
+   🤝 Promise Follow-Through, reused across surfaces so the trio reads as one
+   system. `short` sits inline; `calc` is the quieter "how it's figured" note. */
+.pdx-scoreleg { display: flex; flex-direction: column; gap: 0.5rem; }
+.pdx-scoreleg-head {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 0.09em; text-transform: uppercase; color: #cbd9ec;
+}
+.pdx-scoreleg-item { display: flex; align-items: flex-start; gap: 0.5rem; }
+.pdx-scoreleg-ico { flex-shrink: 0; font-size: 0.95rem; line-height: 1.3; width: 1.3rem; text-align: center; }
+.pdx-scoreleg-txt {
+  font-family: 'Barlow', sans-serif; font-size: 0.78rem; line-height: 1.45; color: #b9cae3; min-width: 0;
+}
+.pdx-scoreleg-txt b { color: #eef4ff; font-weight: 700; }
+.pdx-scoreleg-calc { display: block; margin-top: 0.1rem; font-size: 0.68rem; color: #8ea2c0; line-height: 1.4; }

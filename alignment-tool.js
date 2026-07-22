@@ -666,8 +666,8 @@
       document.querySelectorAll('.align-sel-count').forEach(function(el) {
         var prev = el.getAttribute('data-n');
         el.innerHTML = (n === 0)
-          ? 'No positions selected yet'
-          : '<b>' + n + '</b> position' + (n > 1 ? 's' : '') + ' selected';
+          ? 'No stances set yet'
+          : '<b>' + n + '</b> stance' + (n > 1 ? 's' : '') + ' set';
         if (String(n) !== prev) {
           el.setAttribute('data-n', String(n));
           if (n > 0) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
@@ -677,17 +677,17 @@
       var cs = document.getElementById('align-compact-status');
       if (cs) {
         cs.innerHTML = (n === 0)
-          ? 'No positions selected yet'
-          : "You've aligned on <b>" + n + "</b> issue" + (n > 1 ? 's' : '');
+          ? 'No stances set yet'
+          : "You've set <b>" + n + "</b> stance" + (n > 1 ? 's' : '');
       }
       var cbl = document.getElementById('align-compact-btn-label');
-      if (cbl) cbl.textContent = (n === 0) ? 'Start Matching Politicians' : 'Adjust My Alignment';
+      if (cbl) cbl.textContent = (n === 0) ? 'Set your stances' : 'Adjust my stances';
       // Once the visitor has picks, reframe the tagline around acting on the results
       // and reveal the forward actions that jump to their best-match candidates.
       var ct = document.getElementById('align-compact-tagline');
       if (ct) ct.textContent = (n === 0)
-        ? 'Pick the issues you care about, then compare the candidates running in your district and add your best matches to your team.'
-        : 'Your Match % now shows on every candidate — see who fits you best and add your top picks to your team.';
+        ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your team.'
+        : '🎯 Your Match and ⚖️ Say-vs-Do now show on every candidate — see who fits and whether they back it up, then add your top picks to your team.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
       var dn = document.getElementById('align-done-btn');
@@ -1914,13 +1914,51 @@
         var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '">⚑' + c.contradictions + '</span>' : '';
         consCell = '<span class="align-dm-v" style="color:' + cCol + ';">⚖️ ' + c.score + '%' + flag + '</span>';
       }
-      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="Your Match vs. Say-vs-Do consistency — tap for the issue-by-issue breakdown" aria-label="Your match ' + m + ' percent' + (c && typeof c.score === 'number' ? '; Say-vs-Do consistency ' + c.score + ' percent' : '') + '. Tap for details.">' +
+      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="🎯 Your Match — how well their stated positions fit the issues you care about. ⚖️ Say-vs-Do — whether their voting record backs up what they say. Tap for the issue-by-issue breakdown." aria-label="Your match ' + m + ' percent — how well their stated positions fit your issues' + (c && typeof c.score === 'number' ? '; Say-vs-Do ' + c.score + ' percent — whether their record backs up what they say' : '') + '. Tap for details.">' +
           '<span class="align-dm-v" style="color:' + mCol + ';">🎯 ' + m + '%</span>' +
           '<span class="align-dm-sep">·</span>' +
           consCell +
         '</button>';
     }
     window._alignDualMini = _alignDualMini;
+
+    // ── Canonical descriptions for the three scores ─────────────────────────────
+    // ONE source of truth so every surface (cards, compare, ballot, profile, the
+    // Alignment Tool and Issue Comparison) labels and explains the trio identically
+    // — the numbers always read like the same system. `short` is the plain "what it
+    // means"; `calc` is the honest "how it's figured" a voter needs to trust it.
+    // `pairFrame` is the shared heading for the two follow-through scores.
+    var PDX_SCORE_INFO = {
+      match:   { icon: '🎯', label: 'Your Match',
+                 short: 'How well their stated positions fit the issues you care about.',
+                 calc:  'Built from your saved stances vs. their documented positions — personal to you, not a party label.' },
+      saydo:   { icon: '⚖️', label: 'Say-vs-Do',
+                 short: 'Whether their voting record backs up the positions they claim.',
+                 calc:  'Their votes checked against their own stated positions, issue by issue. Agreement-neutral; shows “Limited record” when there isn\'t enough voting record to judge.' },
+      promise: { icon: '🤝', label: 'Promise Follow-Through',
+                 short: 'Of the promises they made, how many they\'ve kept.',
+                 calc:  'Kept ÷ (kept + broken) of tracked promises. Pending promises don\'t count until they resolve.' },
+      pairFrame: 'Do they keep their word?'
+    };
+    window.PDXScoreInfo = PDX_SCORE_INFO;
+
+    // Reusable, mobile-first legend that explains the three scores in one place.
+    // Pass { only: ['saydo','promise'] } to show a subset, or { pair: true } to add
+    // the "Do they keep their word?" heading above the two follow-through scores.
+    function _pdxScoreLegendHtml(opts) {
+      opts = opts || {};
+      var keys = opts.only || ['match', 'saydo', 'promise'];
+      var head = opts.pair ? '<div class="pdx-scoreleg-head">' + PDX_SCORE_INFO.pairFrame + '</div>' : '';
+      var items = keys.map(function (k) {
+        var s = PDX_SCORE_INFO[k];
+        if (!s) return '';
+        return '<div class="pdx-scoreleg-item"><span class="pdx-scoreleg-ico" aria-hidden="true">' + s.icon + '</span>'
+          + '<span class="pdx-scoreleg-txt"><b>' + s.label + '</b> — ' + s.short
+          + '<span class="pdx-scoreleg-calc">' + s.calc + '</span></span></div>';
+      }).join('');
+      return '<div class="pdx-scoreleg">' + head + items + '</div>';
+    }
+    window._pdxScoreLegendHtml = _pdxScoreLegendHtml;
 
     // Prominent, tappable "Your Match" bar used on the browse / database / candidate
     // card lists. Unlike the small corner ring, this reads as a core feature: a big
@@ -1940,8 +1978,8 @@
         return '<button type="button" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView){window.keyRacesAlignQuickView(\'' + pid + '\');}else if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}" class="align-card-bar setup" aria-label="See the issues this politician has positions on and build your personalized match — judge them by your values, not their party">' +
             '<span class="align-card-num" style="color:#5eead4;font-size:1.15rem;">🎯</span>' +
             '<span class="align-card-main" style="gap:0.1rem;">' +
-              '<span class="align-card-title">See Your Personal Match</span>' +
-              '<span class="align-card-sub">Judge them by your values, not their party</span>' +
+              '<span class="align-card-title">Set your stances to see your match</span>' +
+              '<span class="align-card-sub">What you stand for → who matches you</span>' +
             '</span>' +
             '<span class="align-card-chev">›</span>' +
           '</button>';
@@ -2329,7 +2367,7 @@
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
-          '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each one. Your match score then appears on every politician card.</div>';
+          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b> — plus <b>⚖️ Say-vs-Do</b>, whether their record backs it up.</div>';
         return;
       }
 

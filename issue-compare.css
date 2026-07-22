@@ -178,3 +178,6 @@
   .ic-btn, .ic-seg, .ic-act, .ic-stance-chip, .ic-opt { transition: none; }
   .ic-spin { animation: none; }
 }
+
+/* Shared three-score legend wrapper inside the results head */
+.ic-legend { background: rgba(6, 12, 24, 0.4); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 0.7rem; padding: 0.7rem 0.8rem; margin: 0 0 0.9rem; }

@@ -404,6 +404,8 @@
       + '<span class="ic-results-count">' + rows.length + ' politician' + (rows.length === 1 ? '' : 's') + ' on ' + esc(issueLabel(_state.issueKey)) + '</span>'
       + '<button type="button" class="ic-btn ic-btn--compare" onclick="window.PDXIssueCompare.compareField()" title="Open the full side-by-side comparison with this field">⚔ Head-to-head</button>'
       + '</div>'
+      + '<p class="ic-note">Grouped by their <b>stated position</b> on this issue. The <b>⚖️ Say-vs-Do</b> read on each shows whether their voting record backs it up.</p>'
+      + (typeof window._pdxScoreLegendHtml === 'function' ? '<div class="ic-legend">' + window._pdxScoreLegendHtml({ only: ['saydo'] }) + '</div>' : '')
       + (pendingCount ? '<div class="ic-note">⚖️ Checking voting records for ' + pendingCount + ' politician' + (pendingCount === 1 ? '' : 's') + '… consistency fills in automatically.</div>' : '');
 
     var body = BUCKET_ORDER.map(function (b) {
