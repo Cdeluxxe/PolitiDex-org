@@ -190,6 +190,98 @@
 .mp-empty-txt { color: #90a4c4; font-family: 'Barlow', sans-serif; font-size: 0.9rem; line-height: 1.55; margin: 0.5rem auto 0.9rem; max-width: 30rem; }
 .mp-status { text-align: center; color: #6f83a6; padding: 2.5rem 0; font-family: 'Barlow', sans-serif; }
 
+/* ── guided flow band ──────────────────────────────────────────────────── */
+.mp-guide {
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(245, 200, 66, 0.10), transparent 60%),
+    rgba(13, 21, 38, 0.6);
+  border-color: rgba(245, 200, 66, 0.24);
+}
+.mp-steps { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.mp-step {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.32rem 0.7rem;
+  border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(6, 12, 24, 0.5);
+}
+.mp-step-ico { font-size: 0.8rem; }
+.mp-step-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #90a4c4;
+}
+.mp-step.is-done { border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.1); }
+.mp-step.is-done .mp-step-ico { color: #4ade80; }
+.mp-step.is-done .mp-step-lbl { color: #86efac; }
+.mp-step.is-current { border-color: rgba(245, 200, 66, 0.6); background: rgba(245, 200, 66, 0.12); box-shadow: 0 0 12px rgba(245, 200, 66, 0.18); }
+.mp-step.is-current .mp-step-lbl { color: #fcd34d; }
+.mp-step.is-todo { opacity: 0.6; }
+.mp-step-join { flex: 1; min-width: 12px; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.18), rgba(255,255,255,0.05)); }
+.mp-guide-eyebrow {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+  font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.35rem;
+}
+.mp-guide-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.25rem;
+  color: #eef4ff; margin: 0 0 0.4rem; line-height: 1.15;
+}
+.mp-guide-text { color: #bcd3f5; font-family: 'Barlow', sans-serif; font-size: 0.92rem; line-height: 1.55; margin: 0 0 0.9rem; max-width: 44rem; }
+.mp-guide-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+.mp-note { color: #6f83a6; font-family: 'Barlow', sans-serif; font-size: 0.76rem; font-style: italic; margin: 0.75rem 0 0; }
+
+/* two-way link notes (stances ⇄ team) */
+.mp-link-notes { margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; flex-direction: column; gap: 0.45rem; }
+.mp-link-note { color: #9fb4d4; font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.45; }
+.mp-inline-btn {
+  cursor: pointer; background: none; border: none; padding: 0; font: inherit;
+  color: #7fb4ff; font-weight: 600; text-decoration: underline; text-underline-offset: 2px;
+}
+.mp-inline-btn:hover { color: #cfe0fb; }
+
+/* per-teammate alignment badges */
+.mp-pol-align { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+.mp-align {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 999px; white-space: nowrap;
+}
+.mp-align.is-agree { color: #86efac; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.3); }
+.mp-align.is-differ { color: #fca5a5; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); }
+.mp-align.is-neutral { color: #a9bdda; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.28); }
+
+/* ── money tree · expanded ─────────────────────────────────────────────── */
+.mp-lean {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 999px; margin-bottom: 0.75rem;
+}
+.mp-lean.is-grass { color: #86efac; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); }
+.mp-lean.is-large { color: #fcd34d; background: rgba(245, 200, 66, 0.12); border: 1px solid rgba(245, 200, 66, 0.35); }
+.mp-lean.is-mixed { color: #cfe0fb; background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.32); }
+.mp-money-plain { color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.86rem; line-height: 1.5; margin: 0 0 0.65rem; }
+.mp-money-plain strong { color: #eef4ff; }
+
+/* grouped grassroots-vs-big bar */
+.mp-mix2 { display: flex; height: 16px; border-radius: 5px; overflow: hidden; background: rgba(10, 15, 30, 0.6); }
+.mp-mix2-seg { height: 100%; }
+
+.mp-money-block { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.mp-block-h {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #a9bdda; margin: 0 0 0.5rem;
+}
+.mp-src-type {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #7596c0; background: rgba(117, 150, 192, 0.14);
+  padding: 0.05rem 0.35rem; border-radius: 999px; margin-left: 0.3rem; vertical-align: middle;
+}
+
+/* money ↔ your issues */
+.mp-ispend-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.6rem; align-items: baseline;
+  padding: 0.4rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mp-ispend-row:last-of-type { border-bottom: 0; }
+.mp-ispend-issue { color: #dbe6f7; font-family: 'Barlow', sans-serif; font-size: 0.86rem; font-weight: 600; }
+.mp-ispend-amt { color: #fcd34d; font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.05rem; text-align: right; }
+.mp-ispend-top { grid-column: 1 / -1; color: #7596c0; font-family: 'Barlow', sans-serif; font-size: 0.74rem; }
+.mp-branch-sectors { margin-top: 0.5rem; }
+
 /* ── responsive ────────────────────────────────────────────────────────── */
 @media (min-width: 640px) {
   .mp-stats { grid-template-columns: repeat(4, 1fr); gap: 0.7rem; }
