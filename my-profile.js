@@ -580,11 +580,18 @@
           ? '<img class="mp-pol-photo" src="' + esc(p.photo) + '" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'mp-pol-photo\',textContent:\'' + jsAttr(initials(p.name)) + '\'}))">'
           : '<div class="mp-pol-photo">' + esc(initials(p.name)) + '</div>';
         var badge = a && a.byPid[pid] ? alignBadge(a.byPid[pid]) : '';
-        return '<button type="button" class="mp-pol" onclick="window.showProfile&&window.showProfile(\'' + jsAttr(pid) + '\')" title="Open ' + esc(p.name) + '">'
+        // Dual alignment readout (Your Match + Say-vs-Do), same component as the
+        // rest of the app. It's a tappable button that opens the breakdown, so the
+        // card is a div[role=button] (not a <button>) to keep the nesting valid;
+        // the inner control stops propagation so each target opens the right thing.
+        var dual = (typeof window._alignDualMini === 'function') ? window._alignDualMini(pid) : '';
+        var openProfile = 'window.showProfile&&window.showProfile(\'' + jsAttr(pid) + '\')';
+        return '<div class="mp-pol" role="button" tabindex="0" onclick="' + openProfile + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + openProfile + ';}" title="Open ' + esc(p.name) + '">'
           + face + '<div class="mp-pol-main"><div class="mp-pol-name">' + esc(p.name) + '</div>'
           + '<div class="mp-pol-office">' + esc(p.office || '—') + '</div>'
           + (badge ? '<div class="mp-pol-align">' + badge + '</div>' : (financeSignal(pid) ? '<span class="mp-pol-tag">💰 money on file</span>' : ''))
-          + '</div></button>';
+          + (dual ? '<div class="mp-pol-dual">' + dual + '</div>' : '')
+          + '</div></div>';
       }).join('') + '</div>';
       if (pids.length > 9) body += '<p class="mp-sub" style="margin-top:0.7rem">+ ' + (pids.length - 9) + ' more on your team.</p>';
       if (!ctx.stanceCount) {

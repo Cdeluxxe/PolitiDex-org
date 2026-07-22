@@ -1799,25 +1799,44 @@
     //   • omitted  → nothing to check (no stated positions on the visitor's issues)
     // Neutral by design: it measures integrity, not agreement, and is colour-coded
     // on the same green/amber/red scale as everything else in the tool.
+    // Plain-language label for the 0–100 consistency score. Neutral wording that
+    // describes the RECORD-vs-WORDS relationship, never a political judgment.
     function _consistLabel(s) {
       return s >= 80 ? 'Backs it up' : s >= 60 ? 'Mostly consistent' : s >= 40 ? 'Mixed record' : 'Often contradicts';
+    }
+    // A short verb phrase used in aria/tooltips so the number reads as a sentence.
+    function _consistPhrase(s) {
+      return s >= 80 ? 'their record backs up what they say'
+           : s >= 60 ? 'their record mostly backs up what they say'
+           : s >= 40 ? 'their record is a mixed match for what they say'
+           : 'their record often runs against what they say';
+    }
+    // Neutral, visible contradiction flag — shown only when contradictions exist.
+    // It states a fact (record ran against the stated position), not a verdict.
+    function _consistFlag(c, compact) {
+      if (!c || !c.contradictions) return '';
+      var n = c.contradictions;
+      return '<span class="align-consist-flag" title="On '
+        + n + ' of their stated positions, the voting record runs the other way">⚑ ' + n
+        + (compact ? '' : ' contradiction' + (n === 1 ? '' : 's')) + '</span>';
     }
     function _consistShellHtml(pid, kind, c) {
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (kind === 'checking') {
-        return '<div class="align-consist-bar is-muted" aria-label="Say-vs-Do consistency: checking voting record">' +
-            '<span class="align-consist-ico">⚖️</span>' +
-            '<span class="align-consist-main"><span class="align-consist-title">Say-vs-Do</span>' +
+        return '<div class="align-consist-bar is-checking" aria-label="Say-vs-Do consistency: checking the voting record" role="status">' +
+            '<span class="align-consist-ico"><span class="align-consist-spin"></span></span>' +
+            '<span class="align-consist-main"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
             '<span class="align-consist-sub">Checking their voting record…</span></span>' +
           '</div>';
       }
-      // limited
-      var det = c && c.limited
-        ? c.limited + ' stated ' + (c.limited === 1 ? 'position has' : 'positions have') + ' no votes yet to check'
+      // limited — states positions, but little/no voting record to verify them yet
+      var det = (c && c.limited)
+        ? c.limited + ' stated ' + (c.limited === 1 ? 'position has' : 'positions have') + ' no votes on record yet'
         : 'No voting record yet to check against their stated positions';
-      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-muted" title="They\'ve stated positions, but there\'s little or no voting record to verify them yet" aria-label="Say-vs-Do consistency: limited record">' +
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-limited" title="They\'ve stated positions, but there\'s little or no voting record to verify them against yet" aria-label="Say-vs-Do consistency: limited voting record — nothing to score yet. Tap for details.">' +
           '<span class="align-consist-ico">⚖️</span>' +
-          '<span class="align-consist-main"><span class="align-consist-title">Say-vs-Do · <b>Limited record</b></span>' +
+          '<span class="align-consist-main"><span class="align-consist-titlerow"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
+          '<span class="align-consist-badge is-limited">Limited record</span></span>' +
           '<span class="align-consist-sub">' + det + '</span></span>' +
         '</button>';
     }
@@ -1833,20 +1852,20 @@
       }
       var col = _alignScoreColor(c.score);
       var label = _consistLabel(c.score);
-      var contraNote = c.contradictions > 0
-        ? ' · <span style="color:#f87171;">' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '</span>'
-        : '';
-      var limNote = c.limited > 0 ? ' · ' + c.limited + ' limited' : '';
+      var hasContra = c.contradictions > 0;
+      var flag = _consistFlag(c);
+      var limNote = c.limited > 0 ? ' · ' + c.limited + ' with no record yet' : '';
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
-      return '<button type="button" onclick="' + open + '" class="align-consist-bar" aria-label="Say-vs-Do consistency: ' + c.score + ' percent — ' + label + ', from ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar' + (hasContra ? ' is-contra' : '') + '" aria-label="Say-vs-Do consistency: ' + c.score + ' percent — ' + label + '; ' + _consistPhrase(c.score) + ', across ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record' + (hasContra ? ', including ' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') : '') + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
           '<span class="align-consist-num" style="color:' + col + ';text-shadow:0 0 10px ' + col + '55;">' + c.score + '<span style="font-size:0.8rem;">%</span></span>' +
           '<span class="align-consist-main">' +
             '<span class="align-consist-titlerow">' +
               '<span class="align-consist-title" style="color:' + col + ';">⚖️ Say-vs-Do</span>' +
               '<span class="align-consist-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
+              flag +
             '</span>' +
             '<span class="align-consist-track"><div style="width:' + c.score + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></span>' +
-            '<span class="align-consist-sub">Record backs ' + c.rated + ' of ' + c.stated + ' stated position' + (c.stated === 1 ? '' : 's') + limNote + contraNote + '</span>' +
+            '<span class="align-consist-sub">Record backs <b style="color:' + col + ';">' + c.rated + ' of ' + c.stated + '</b> stated position' + (c.stated === 1 ? '' : 's') + limNote + ' · tap for detail</span>' +
           '</span>' +
         '</button>';
     }
@@ -1859,14 +1878,45 @@
       var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
       if (!c) return '';
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
-      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking voting record…">⚖️ Say-vs-Do …</span>'; }
+      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking their voting record…">⚖️ Say-vs-Do <span class="align-consist-spin"></span></span>'; }
       if (c.score === null) {
-        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, little or no voting record to verify yet">⚖️ Limited record</span>' : '';
+        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, but little or no voting record to verify them against yet">⚖️ Limited record</span>' : '';
       }
       var col = _alignScoreColor(c.score);
-      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Say-vs-Do consistency: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">⚖️ Say-vs-Do ' + c.score + '%</button>';
+      var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' stated position' + (c.contradictions === 1 ? '' : 's') + ' the record runs against">⚑' + c.contradictions + '</span>' : '';
+      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Say-vs-Do consistency: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">⚖️ ' + c.score + '%' + flag + '</button>';
     }
     window._alignConsistencyBadge = _alignConsistencyBadge;
+
+    // ── Compact DUAL readout — both scores in one tight, tappable unit ──────────
+    // For surfaces where politicians appear but no full match bar fits (Your Ballot
+    // cards, My Profile team cards, other dense lists). Renders the Match % and the
+    // Say-vs-Do % side by side with the SAME icons/labels/colours as the full bars,
+    // so the two numbers read identically everywhere. Returns '' when the visitor
+    // hasn't set up alignment or the person can't be scored — never a fake number.
+    function _alignDualMini(pid) {
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var m = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (m === null || m === undefined) return '';
+      var mCol = _alignScoreColor(m);
+      var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
+      var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
+
+      var consCell;
+      if (c && c.pending) { _alignQueueConsistWarm(pid); consCell = '<span class="align-dm-v is-muted">⚖️ <span class="align-consist-spin"></span></span>'; }
+      else if (!c || c.score === null) { consCell = c && c.stated > 0 ? '<span class="align-dm-v is-muted" title="States positions; no voting record to verify yet">⚖️ Ltd</span>' : '<span class="align-dm-v is-muted" title="No stated positions on your issues to check">⚖️ —</span>'; }
+      else {
+        var cCol = _alignScoreColor(c.score);
+        var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '">⚑' + c.contradictions + '</span>' : '';
+        consCell = '<span class="align-dm-v" style="color:' + cCol + ';">⚖️ ' + c.score + '%' + flag + '</span>';
+      }
+      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="Your Match vs. Say-vs-Do consistency — tap for the issue-by-issue breakdown" aria-label="Your match ' + m + ' percent' + (c && typeof c.score === 'number' ? '; Say-vs-Do consistency ' + c.score + ' percent' : '') + '. Tap for details.">' +
+          '<span class="align-dm-v" style="color:' + mCol + ';">🎯 ' + m + '%</span>' +
+          '<span class="align-dm-sep">·</span>' +
+          consCell +
+        '</button>';
+    }
+    window._alignDualMini = _alignDualMini;
 
     // Prominent, tappable "Your Match" bar used on the browse / database / candidate
     // card lists. Unlike the small corner ring, this reads as a core feature: a big
@@ -1980,18 +2030,20 @@
       }
 
       if (usePurpleTheme) {
-        return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
+        return '<span class="align-ring-wrap">' +
+          '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.1rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
           '<div style="text-align:center;background:rgba(10,15,30,0.65);border:1px solid rgba(139,92,246,0.45);border-radius:0.75rem;padding:0.45rem 0.8rem;box-shadow:0 4px 16px rgba(139,92,246,0.22), inset 0 1px 0 rgba(255,255,255,0.02);display:inline-block;min-width:78px;">' +
             '<div style="color:#c084fc;font-size:2.2rem;text-shadow:0 0 12px rgba(139,92,246,0.4);font-family:\'Bebas Neue\',sans-serif;line-height:1;font-weight:900;">' + score + '%</div>' +
             '<div class="font-condensed text-xs text-purple-300 tracking-wider uppercase text-center font-bold" style="font-size:0.55rem;margin-top:0.15rem;letter-spacing:0.05em;">🎯 Your Match</div>' +
           '</div>' +
-        '</button>';
+        '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
       }
 
-      return '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
+      return '<span class="align-ring-wrap">' +
+        '<button type="button" onclick="' + _openBd + '" title="Your match: ' + score + '% — tap for the issue-by-issue breakdown" style="display:inline-flex;flex-direction:column;align-items:center;gap:0.15rem;flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;">' +
         '<div class="align-score-ring ' + cls + '" style="border-color:' + col + '99;color:' + col + ';background:' + col + '14;box-shadow:0 0 14px ' + col + '22;">' + score + '%</div>' +
         '<div class="align-pct-label" style="color:' + col + '99;">🎯 Your Match</div>' +
-      '</button>';
+      '</button>' + (typeof _alignConsistencyBadge === 'function' ? _alignConsistencyBadge(pid) : '') + '</span>';
     }
 
     // Brief pulse on every chip that represents an issue, wherever it's mounted.

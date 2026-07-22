@@ -300,3 +300,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mp-btn, .mp-pol { transition: none; }
 }
+
+/* Dual alignment readout (Your Match + Say-vs-Do) on team cards */
+.mp-pol-dual { margin-top: 0.4rem; display: flex; }
+.mp-pol { text-align: left; }

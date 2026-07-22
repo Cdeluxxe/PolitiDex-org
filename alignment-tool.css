@@ -859,3 +859,50 @@ body[style*="overflow: hidden"] .align-fab { opacity: 0; pointer-events: none; t
 @media (prefers-reduced-motion: reduce) {
   .align-consist-bar, .align-consist-track > div { transition: none; }
 }
+
+/* ── dual-score polish: pairing, contradictions, states, compact mini ──────── */
+/* The consistency bar reads as the "record" leg paired under the match bar:
+   a violet left accent groups the two without a heavy container. */
+.align-consist-bar { border-left-width: 3px; border-left-color: rgba(139,92,246,0.6); }
+.align-consist-badge.is-limited { color: #b9add9; background: rgba(139,92,246,0.14); border: 1px dashed rgba(139,92,246,0.5); }
+
+/* Contradictions — made visible (neutral fact, not a verdict): a warm-red frame
+   + accent on the bar and a small flag pill. Tone stays factual. */
+.align-consist-bar.is-contra { border-left-color: #f87171; }
+.align-consist-flag {
+  display: inline-flex; align-items: center; gap: 0.2rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.52rem;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #fca5a5;
+  background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.45);
+  padding: 0.05rem 0.4rem; border-radius: 999px; white-space: nowrap; line-height: 1.3;
+}
+.align-consist-flag.compact { font-size: 0.5rem; padding: 0.02rem 0.28rem; margin-left: 0.15rem; }
+
+/* limited / checking states */
+.align-consist-bar.is-limited { cursor: pointer; border-style: dashed; border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.05); }
+.align-consist-bar.is-limited:hover { transform: translateY(-1px); }
+.align-consist-bar.is-checking { cursor: default; border-color: rgba(139,92,246,0.22); background: rgba(139,92,246,0.06); }
+.align-consist-bar.is-checking:hover { transform: none; }
+.align-consist-spin {
+  display: inline-block; width: 0.7em; height: 0.7em; vertical-align: middle;
+  border: 2px solid rgba(196,181,253,0.35); border-top-color: #c4b5fd; border-radius: 50%;
+  animation: alignConsistSpin 0.7s linear infinite;
+}
+@keyframes alignConsistSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .align-consist-spin { animation: none; } }
+
+/* ring companion wrapper (keeps ring + consistency chip centred as one unit) */
+.align-ring-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+.align-ring-wrap .align-consist-chip { margin-left: 0; }
+
+/* compact DUAL mini — both scores in one tight, tappable pill (dense surfaces) */
+.align-dual-mini {
+  display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font: inherit;
+  padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap;
+  background: rgba(10,15,30,0.55); border: 1px solid rgba(148,163,184,0.28);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+.align-dual-mini:hover { border-color: rgba(148,163,184,0.5); background: rgba(10,15,30,0.75); transform: translateY(-1px); }
+.align-dm-v { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 0.15rem; }
+.align-dm-v.is-muted { color: #8ea2c0; font-weight: 700; }
+.align-dm-sep { color: #55617a; font-weight: 700; }
