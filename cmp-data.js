@@ -10644,5 +10644,55 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Nickie Antonio", "office": "Ohio State Senator", "state": "Ohio",
   "district": "SD 23", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Minority Leader", "First LGBTQ Legislator", "Health", "Cleveland Area"]
+ },
+// ── STATE SENATE wave 3 — Georgia, North Carolina, Michigan (July 2026).
+//    (Winnie Brinks, Phil Berger and Mallory McMorrow already have curated
+//     stances; Brinks & Berger already have roster entries and are enriched via
+//     cmp-data-detail.js, while McMorrow gains a roster entry + bio here and keeps
+//     her existing stance array.) ──
+ "larry_walker_ga": {
+  "name": "Larry Walker III", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "School Choice", "Taxes", "Perry / Middle GA"]
+ },
+ "jason_anavitarte": {
+  "name": "Jason Anavitarte", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 31", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Kids' Online Safety", "Gun Rights", "Paulding County"]
+ },
+ "harold_jones_ga": {
+  "name": "Harold Jones II", "office": "Georgia State Senator", "state": "Georgia",
+  "district": "SD 22", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Justice Reform", "Medicaid Expansion", "Augusta"]
+ },
+ "michael_lee_nc": {
+  "name": "Michael Lee", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "School Vouchers", "Income-Tax Cuts", "Wilmington"]
+ },
+ "sydney_batch": {
+  "name": "Sydney Batch", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 17", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Democratic Leader", "Abortion Rights", "Health & Family", "Wake County"]
+ },
+ "ralph_hise": {
+  "name": "Ralph Hise", "office": "North Carolina State Senator", "state": "North Carolina",
+  "district": "SD 47", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Redistricting Architect", "Deputy Pro Tem", "Taxes", "Western NC"]
+ },
+ "aric_nesbitt": {
+  "name": "Aric Nesbitt", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Running for Governor", "Taxes & Roads", "SW Michigan"]
+ },
+ "jeremy_moss": {
+  "name": "Jeremy Moss", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 7", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate President pro Tem", "First Openly Gay MI Senator", "Transparency", "Southfield"]
+ },
+ "mallory_mcmorrow": {
+  "name": "Mallory McMorrow", "office": "Michigan State Senator", "state": "Michigan",
+  "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Majority Whip", "2022 Viral Speech", "Ran for U.S. Senate", "Oakland County"]
  }
 });
