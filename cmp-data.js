@@ -10600,5 +10600,49 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Kathleen Passidomo", "office": "Florida State Senator", "state": "Florida",
   "district": "SD 28", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Live Local Act", "Housing", "Insurance", "Naples"]
+ },
+// ── STATE SENATE wave 2 — Pennsylvania, Illinois, Ohio (July 2026).
+//    (Kim Ward, Jay Costa, Don Harmon and Rob McColley already exist under
+//     kim_ward / jay_costa / don_harmon / rob_mccolley and are enriched via
+//     cmp-data-detail.js + their existing stance arrays instead.) ──
+ "joe_pittman": {
+  "name": "Joe Pittman", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Energy", "State Budget", "Indiana County"]
+ },
+ "doug_mastriano": {
+  "name": "Doug Mastriano", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 33", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["2020 Election Denial", "Jan. 6", "2022 Gov Nominee", "Franklin / Adams"]
+ },
+ "sharif_street": {
+  "name": "Sharif Street", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "district": "SD 3", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["PA Dem Party Chair", "Cannabis Legalization", "Justice Reform", "Philadelphia"]
+ },
+ "kimberly_lightford": {
+  "name": "Kimberly Lightford", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 4", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "SAFE-T Act", "$15 Minimum Wage", "West Suburbs"]
+ },
+ "john_curran_il": {
+  "name": "John Curran", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate GOP Leader", "Public Safety", "Ethics Reform", "DuPage County"]
+ },
+ "robert_peters_il": {
+  "name": "Robert Peters", "office": "Illinois State Senator", "state": "Illinois",
+  "district": "SD 13", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Running for Congress", "Justice Reform", "Labor", "Chicago"]
+ },
+ "theresa_gavarone": {
+  "name": "Theresa Gavarone", "office": "Ohio State Senator", "state": "Ohio",
+  "district": "SD 2", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Majority Leader", "Voter ID", "Taxes", "NW Ohio"]
+ },
+ "nickie_antonio": {
+  "name": "Nickie Antonio", "office": "Ohio State Senator", "state": "Ohio",
+  "district": "SD 23", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Senate Minority Leader", "First LGBTQ Legislator", "Health", "Cleveland Area"]
  }
 });
