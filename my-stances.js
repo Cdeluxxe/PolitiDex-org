@@ -1,0 +1,1441 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// My Stances — the signed-in visitor's OWN positions on the issues
+// ─────────────────────────────────────────────────────────────────────────────
+// The mirror image of the Stance Library: that surface shows where POLITICIANS
+// stand; this one is where YOU stand. A voter browses the exact same issue
+// vocabulary every other PolitiDex surface uses (window.ISSUE_MAP, grouped by
+// window.CORE_NATIONAL_ISSUES), takes a Support / Oppose / Mixed position, sets a
+// priority, and can leave a private note.
+//
+// DESIGN — additive, and deeply wired into what already exists:
+//   • It OWNS its data as a first-class personal collection ('stances') on
+//     window.PDXStore, so it is local-first and syncs to the visitor's Firebase
+//     account through the same /api/pdx-sync backend as My Team, Saved evidence,
+//     Evidence collections and the Impact Tracker. No new table — a snapshot is
+//     one opaque JSON row keyed by (uid, collection).
+//   • Every saved stance PROJECTS into the Alignment Signature the scoring engine
+//     already reads (window.alignSetIntensity / window.alignToggleIssue). That is
+//     the whole integration in one move: the moment you set a stance, every
+//     politician's match %, the "Compare My Team" table, the Relevant-to-Me grid
+//     and the on-profile comparison update — because they all already read that
+//     signature. My Stances is a richer editing surface + record ON TOP of it.
+//   • It ADOPTS an existing Alignment Signature on first load, so a voter who
+//     already tuned the Alignment Tool sees those positions here as real stances,
+//     and the two can never silently diverge.
+//   • Setting a position on a fresh issue records a private civic action in the
+//     Personal Impact Tracker (window.PDXImpact.record('issues', key)).
+//   • Private by default. An explicit, user-controlled toggle publishes a
+//     notes-free summary to the account's Firestore user doc for future public
+//     showcasing; flipping it back off clears that snapshot.
+//
+// NEUTRALITY — this file writes NO editorial content. It renders the issue's own
+// label and plain-language description (the ISSUE_MAP `chip`), and records only
+// what the user chose. Nothing here nudges a direction.
+//
+// Public API: window.PDXStances (see the assignment at the bottom).
+(function () {
+  'use strict';
+  if (window.PDXStances) return; // idempotent — never redefine
+
+  // ── Constants ─────────────────────────────────────────────────────────────
+  var KEY = 'pdx_my_stances_v1';   // localStorage key this collection owns
+  var COLLECTION = 'stances';      // PDXStore / pdx-sync collection name
+  var MOUNT = 'ms-body';           // the #ms-body container inside #my-stances
+  var VERSION = 1;
+
+  // Firestore fields on users/{uid} for the optional public showcase. Notes are
+  // NEVER included — only the direction/priority summary the user chose to share.
+  var FS_PUBLIC_FLAG = 'stancesPublic';
+  var FS_PUBLIC_DATA = 'publicStances';
+  var FS_PUBLIC_AT = 'publicStancesUpdatedAt';
+
+  // The three positions a voter can take, in the order they render. `pol` is the
+  // matching value in a politician's documented `issueStance`, so the two speak
+  // the same four-state vocabulary the rest of the app uses.
+  var POSITIONS = [
+    { key: 'support', label: 'Support', icon: '👍', cls: 'is-support' },
+    { key: 'oppose', label: 'Oppose', icon: '👎', cls: 'is-oppose' },
+    { key: 'mixed', label: 'Mixed', icon: '⚖️', cls: 'is-mixed' }
+  ];
+  var POSITION_LABEL = { support: 'Support', oppose: 'Oppose', mixed: 'Mixed' };
+
+  // Priority is the voter's own weighting. It maps onto the Alignment engine's
+  // 5-point intensity scale: a High-priority Support becomes "Strongly Support",
+  // so it counts more heavily in every match %.
+  var PRIORITIES = [
+    { key: 'high', label: 'High priority', short: 'High', icon: '⭐' },
+    { key: 'medium', label: 'Normal priority', short: 'Normal', icon: '•' },
+    { key: 'low', label: 'Low priority', short: 'Low', icon: '·' }
+  ];
+  var PRIORITY_LABEL = { high: 'High', medium: 'Normal', low: 'Low' };
+
+  // ── Small utilities ─────────────────────────────────────────────────────────
+  function now() { return Date.now(); }
+  function el(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function store() { return (typeof window !== 'undefined' && window.PDXStore) ? window.PDXStore : null; }
+  function issueMap() { return (window.ISSUE_MAP && typeof window.ISSUE_MAP === 'object') ? window.ISSUE_MAP : {}; }
+  function coreIssues() { return Array.isArray(window.CORE_NATIONAL_ISSUES) ? window.CORE_NATIONAL_ISSUES : []; }
+  function knownIssue(k) { return !!issueMap()[k]; }
+
+  // ── Public share link (self-contained, no backend) ─────────────────────────
+  // The showcase is made viewable by OTHERS the same way My Team sharing works:
+  // the notes-free public summary is packed into a URL token, so anyone who opens
+  // the link sees a read-only "My Views" card. This deliberately needs no server
+  // and no cross-user database read — it can't leak anything the owner didn't put
+  // in the link, and NOTES ARE NEVER INCLUDED. `?views=` carries the token.
+  var SHARE_PARAM = 'views';
+  function b64urlEncode(str) {
+    try { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+    catch (e) { return ''; }
+  }
+  function b64urlDecode(tok) {
+    try {
+      var b64 = String(tok).replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      return decodeURIComponent(escape(atob(b64)));
+    } catch (e) { return ''; }
+  }
+  // The signed-in member's display name (or a neutral fallback). Only ever used as
+  // a label on the public card — never an email address or uid.
+  function displayName() {
+    var u = fbUser();
+    if (u) return (u.displayName || (u.email ? u.email.split('@')[0] : '') || 'A PolitiDex member').toString().slice(0, 60);
+    return 'A PolitiDex member';
+  }
+  // Compact public payload: position → first letter, priority → first letter, and
+  // NO note field at all. { v, n:name, s:[{i:issueKey, p:'s|o|m', r:'h|m|l'}] }
+  function publicToken(s) {
+    s = s || load();
+    var payload = { v: 1, n: displayName(), s: activeItems(s).map(function (r) {
+      return { i: r.issueKey, p: r.position.charAt(0), r: r.priority.charAt(0) };
+    }) };
+    return b64urlEncode(JSON.stringify(payload));
+  }
+  function decodeViews(tok) {
+    var raw = b64urlDecode(tok);
+    if (!raw) return null;
+    var obj;
+    try { obj = JSON.parse(raw); } catch (e) { return null; }
+    if (!obj || typeof obj !== 'object') return null;
+    var posMap = { s: 'support', o: 'oppose', m: 'mixed' };
+    var priMap = { h: 'high', m: 'medium', l: 'low' };
+    var arr = Array.isArray(obj.s) ? obj.s : [];
+    var items = [];
+    arr.forEach(function (it) {
+      if (!it || !knownIssue(it.i)) return;
+      var pos = posMap[it.p] || it.position;
+      if (pos !== 'support' && pos !== 'oppose' && pos !== 'mixed') return;
+      items.push({ issueKey: it.i, position: pos, priority: priMap[it.r] || 'medium' });
+    });
+    return { name: (obj.n || 'A PolitiDex member').toString().slice(0, 60), items: items };
+  }
+  function shareUrl(s) {
+    var tok = publicToken(s);
+    if (!tok) return '';
+    return location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+  }
+  function copyShareLink() {
+    var s = load();
+    var url = shareUrl(s);
+    if (!url) return;
+    copyText(url);
+  }
+  function toast(msg) {
+    var t = el('ms-toast');
+    if (!t) { t = document.createElement('div'); t.id = 'ms-toast'; t.className = 'ms-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('is-show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove('is-show'); }, 3200);
+  }
+
+  // ── One-tap sharing: intents, native share, generated image ─────────────────
+  // Pack a name + item list into a ?views= token (shared with publicToken).
+  function encodeViews(name, items) {
+    var payload = { v: 1, n: (name || 'A PolitiDex member').toString().slice(0, 60), s: (items || []).map(function (r) {
+      return { i: r.issueKey, p: r.position.charAt(0), r: r.priority.charAt(0) };
+    }) };
+    return b64urlEncode(JSON.stringify(payload));
+  }
+  // A share context (url + neutral text) for a given name/items, or the owner's
+  // current stances when none are passed.
+  function shareCtx(name, items, token) {
+    var list = items || activeItems();
+    var n = list.length;
+    var tok = token || encodeViews(name || displayName(), list);
+    var url = location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    var text = 'Here’s where I stand on ' + n + ' issue' + (n !== 1 ? 's' : '') + ' — see how politicians line up on PolitiDex:';
+    return { url: url, text: text, title: 'My Stances · PolitiDex', name: name || displayName(), items: list };
+  }
+  // Prefilled one-tap share intents (no API keys, open in a new tab).
+  function intentUrl(net, ctx) {
+    var u = encodeURIComponent(ctx.url);
+    var t = encodeURIComponent(ctx.text);
+    var tu = encodeURIComponent(ctx.text + ' ' + ctx.url);
+    switch (net) {
+      case 'x': return 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+      case 'facebook': return 'https://www.facebook.com/sharer/sharer.php?u=' + u;
+      case 'reddit': return 'https://www.reddit.com/submit?url=' + u + '&title=' + encodeURIComponent(ctx.title);
+      case 'whatsapp': return 'https://wa.me/?text=' + tu;
+      case 'bluesky': return 'https://bsky.app/intent/compose?text=' + tu;
+      case 'email': return 'mailto:?subject=' + encodeURIComponent(ctx.title) + '&body=' + tu;
+    }
+    return '';
+  }
+  function copyText(url) {
+    if (!url) return;
+    function done(ok) { toast(ok ? '🔗 Link copied — anyone who opens it sees these views.' : 'Couldn’t copy — ' + url); }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); }); return; } } catch (e) {}
+    try {
+      var ta = document.createElement('textarea'); ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(true);
+    } catch (e2) { done(false); }
+  }
+
+  var NETS = [
+    { key: 'x', ic: '𝕏', label: 'X' },
+    { key: 'facebook', ic: 'f', label: 'Facebook' },
+    { key: 'reddit', ic: '👽', label: 'Reddit' },
+    { key: 'whatsapp', ic: '🟢', label: 'WhatsApp' },
+    { key: 'bluesky', ic: '🦋', label: 'Bluesky' },
+    { key: 'email', ic: '✉', label: 'Email' }
+  ];
+  // One-tap share controls. `image` true adds the generated-image buttons.
+  function shareButtonsHtml(opts) {
+    opts = opts || {};
+    var hasShare = false, hasFiles = false;
+    try { hasShare = !!(navigator.share); hasFiles = !!(navigator.canShare); } catch (e) {}
+    var primary = '';
+    if (hasShare) primary += '<button type="button" class="ms-sh-btn ms-sh-primary" data-ms-share="native">📤 Share…</button>';
+    if (opts.image !== false) primary += '<button type="button" class="ms-sh-btn" data-ms-share="image">🖼 ' + (hasFiles ? 'Share image' : 'Save image') + '</button>';
+    primary += '<button type="button" class="ms-sh-btn" data-ms-share="copy">🔗 Copy link</button>';
+    var nets = NETS.map(function (nw) {
+      return '<button type="button" class="ms-sh-ic ms-sh-' + nw.key + '" data-ms-share="' + nw.key + '" title="Share to ' + nw.label + '" aria-label="Share to ' + nw.label + '">' + nw.ic + '</button>';
+    }).join('');
+    return '<div class="ms-share"><div class="ms-share-primary">' + primary + '</div>' +
+      '<div class="ms-share-nets">' + nets + '</div></div>';
+  }
+  function handleShare(net, ctx) {
+    ctx = ctx || shareCtx();
+    if (net === 'copy') { copyText(ctx.url); return; }
+    if (net === 'save') { saveImage(ctx); return; }
+    if (net === 'image') { shareImage(ctx); return; }
+    if (net === 'native') { try { if (navigator.share) navigator.share({ title: ctx.title, text: ctx.text, url: ctx.url }).catch(function () {}); } catch (e) {} return; }
+    var u = intentUrl(net, ctx);
+    if (u) { try { window.open(u, '_blank', 'noopener,noreferrer'); } catch (e) { try { location.href = u; } catch (e2) {} } }
+  }
+
+  // ── Generated share image (client-side canvas → PNG) ────────────────────────
+  function trunc(s, n) { s = String(s == null ? '' : s); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  // Draw a 1200×630 branded "My Views" card. Resolves to a canvas once web fonts
+  // are ready (so the Bebas/Barlow type renders, with safe fallbacks either way).
+  function buildShareCanvas(name, items) {
+    return new Promise(function (resolve) {
+      function draw() {
+        var W = 1200, H = 630;
+        var c = document.createElement('canvas'); c.width = W; c.height = H;
+        var g = c.getContext('2d');
+        var grad = g.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#0a0f1e'); grad.addColorStop(1, '#0d1526');
+        g.fillStyle = grad; g.fillRect(0, 0, W, H);
+        g.fillStyle = '#f5c842'; g.fillRect(0, 0, W, 8);
+        g.textBaseline = 'alphabetic';
+        g.fillStyle = '#fcd34d'; g.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+        g.fillText('MY STANCES · POLITIDEX', 80, 98);
+        g.fillStyle = '#eef4ff'; g.font = '700 84px "Bebas Neue","Arial Narrow",Arial,sans-serif';
+        g.fillText(trunc(name || 'My Views', 22), 78, 188);
+        var n = items.length;
+        g.fillStyle = '#9fb4d4'; g.font = '400 32px "Barlow",Arial,sans-serif';
+        g.fillText(n + ' issue' + (n !== 1 ? 's' : '') + ' on the record', 80, 236);
+        var show = items.slice(0, 8);
+        var colX = [80, 630], rowY = 300, lh = 54;
+        show.forEach(function (it, i) {
+          var col = i % 2, row = Math.floor(i / 2);
+          var x = colX[col], y = rowY + row * lh;
+          var color = it.position === 'support' ? '#4ade80' : it.position === 'oppose' ? '#f87171' : '#facc15';
+          g.fillStyle = color; g.beginPath(); g.arc(x + 10, y - 7, 10, 0, Math.PI * 2); g.fill();
+          var lbl = (issueMap()[it.issueKey] && issueMap()[it.issueKey].label) || it.issueKey;
+          if (it.priority === 'high') lbl += '  ⭐';
+          g.fillStyle = '#e7ecf6'; g.font = '600 28px "Barlow",Arial,sans-serif';
+          g.fillText(trunc(lbl, 24), x + 32, y);
+        });
+        if (items.length > 8) { g.fillStyle = '#7f93b6'; g.font = '400 26px "Barlow",Arial,sans-serif'; g.fillText('+ ' + (items.length - 8) + ' more', 80, rowY + 4 * lh); }
+        g.fillStyle = '#7f93b6'; g.font = '400 27px "Barlow",Arial,sans-serif';
+        g.fillText('See how politicians line up on your positions.', 80, 576);
+        g.fillStyle = '#e7ecf6'; g.font = '700 28px "Barlow Condensed",Arial,sans-serif'; g.textAlign = 'right';
+        g.fillText('politidex.fyi', 1120, 576); g.textAlign = 'left';
+        resolve(c);
+      }
+      try { if (document.fonts && document.fonts.ready && document.fonts.ready.then) { document.fonts.ready.then(draw, draw); return; } } catch (e) {}
+      draw();
+    });
+  }
+  function canvasBlob(c) {
+    return new Promise(function (res) {
+      try { if (c.toBlob) { c.toBlob(function (b) { res(b); }, 'image/png'); return; } } catch (e) {}
+      res(null);
+    });
+  }
+  function downloadBlob(blob, filename) {
+    try {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = filename || 'my-stances.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+      return true;
+    } catch (e) { return false; }
+  }
+  function saveImage(ctx) {
+    var c = ctx || shareCtx();
+    buildShareCanvas(c.name, c.items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved to your device.' : 'Couldn’t save the image.');
+    });
+  }
+  function shareImage(ctx) {
+    var c = ctx || shareCtx();
+    buildShareCanvas(c.name, c.items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      var file = null;
+      try { file = new File([blob], 'my-stances.png', { type: 'image/png' }); } catch (e) { file = null; }
+      var canFiles = false;
+      try { canFiles = !!(file && navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { canFiles = false; }
+      if (canFiles) {
+        try {
+          navigator.share({ files: [file], title: c.title, text: c.text, url: c.url }).catch(function () {});
+          return;
+        } catch (e) {}
+      }
+      // No file-share support → save the PNG so they can attach it themselves.
+      toast(downloadBlob(blob, 'my-stances.png') ? '🖼 Image saved — attach it to your post.' : 'Couldn’t share the image.');
+    });
+  }
+
+  // ── Export / Backup ─────────────────────────────────────────────────────────
+  // Two one-tap, fully client-side exports of the visitor's own stances:
+  //   • JSON  — the complete, human-readable backup: every issue with its label,
+  //             direction, priority, private note and timestamps. Nothing leaves
+  //             the browser; it's just a file download.
+  //   • Image — a nice, full visual summary card (all positions grouped by
+  //             Support / Oppose / Mixed). Notes are omitted from the picture;
+  //             the JSON is the complete record.
+  function dateStamp() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'export'; } }
+
+  function exportJson() {
+    var items = activeItems();
+    if (!items.length) { toast('No stances to export yet — take a position first.'); return; }
+    var s = load();
+    var payload = {
+      app: 'PolitiDex',
+      kind: 'my-stances-backup',
+      schema: 1,
+      exportedAt: (function () { try { return new Date().toISOString(); } catch (e) { return ''; } })(),
+      count: items.length,
+      public: !!s.settings.public,
+      stances: items.map(function (r) {
+        var d = issueMap()[r.issueKey] || {};
+        return {
+          issue: r.issueKey,
+          label: d.label || r.issueKey,
+          position: r.position,
+          priority: r.priority,
+          note: r.note || '',
+          createdAt: r.createdAt || 0,
+          updatedAt: r.updatedAt || 0
+        };
+      })
+    };
+    var blob = null;
+    try { blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }); } catch (e) { blob = null; }
+    if (!blob) { toast('Couldn’t build the backup file on this browser.'); return; }
+    toast(downloadBlob(blob, 'my-stances-backup-' + dateStamp() + '.json') ? '⬇ Backup downloaded (JSON).' : 'Couldn’t download the backup.');
+  }
+
+  function exportImage() {
+    var items = activeItems();
+    if (!items.length) { toast('No stances to export yet — take a position first.'); return; }
+    var who = isSignedIn() ? displayName() : 'My Stances';
+    buildSummaryCanvas(who, items).then(canvasBlob).then(function (blob) {
+      if (!blob) { toast('Couldn’t build the image on this browser.'); return; }
+      toast(downloadBlob(blob, 'my-stances-' + dateStamp() + '.png') ? '🖼 Image summary saved to your device.' : 'Couldn’t save the image.');
+    });
+  }
+
+  // A full, self-sizing summary card: header + every stance grouped by direction.
+  // Height grows to fit all positions (unlike the punchy 8-issue share card).
+  function buildSummaryCanvas(name, items) {
+    return new Promise(function (resolve) {
+      function draw() {
+        var W = 1200, PAD = 80;
+        var groups = [
+          { key: 'support', label: 'Support', color: '#4ade80' },
+          { key: 'oppose', label: 'Oppose', color: '#f87171' },
+          { key: 'mixed', label: 'Mixed', color: '#facc15' }
+        ];
+        var byPos = { support: [], oppose: [], mixed: [] };
+        items.forEach(function (r) { if (byPos[r.position]) byPos[r.position].push(r); });
+        // Layout pass — assign a y to each section header and row, so the canvas
+        // is sized to exactly fit however many stances there are.
+        var ROW = 46, SEC = 58, GAP = 22;
+        var y = 300, first = true, ops = [];
+        groups.forEach(function (g) {
+          var list = byPos[g.key]; if (!list.length) return;
+          if (!first) y += GAP; first = false;
+          ops.push({ t: 'sec', g: g, n: list.length, y: y }); y += SEC;
+          list.forEach(function (it) { ops.push({ t: 'row', it: it, y: y }); y += ROW; });
+        });
+        var H = Math.max(500, y + 70);
+        var c = document.createElement('canvas'); c.width = W; c.height = H;
+        var g2 = c.getContext('2d');
+        var grad = g2.createLinearGradient(0, 0, W, H); grad.addColorStop(0, '#0a0f1e'); grad.addColorStop(1, '#0d1526');
+        g2.fillStyle = grad; g2.fillRect(0, 0, W, H);
+        g2.fillStyle = '#f5c842'; g2.fillRect(0, 0, W, 8);
+        g2.textBaseline = 'alphabetic';
+        g2.fillStyle = '#fcd34d'; g2.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+        g2.fillText('MY STANCES · POLITIDEX', PAD, 98);
+        g2.fillStyle = '#eef4ff'; g2.font = '700 84px "Bebas Neue","Arial Narrow",Arial,sans-serif';
+        g2.fillText(trunc(name || 'My Stances', 24), PAD - 2, 184);
+        var n = items.length;
+        g2.fillStyle = '#9fb4d4'; g2.font = '400 30px "Barlow",Arial,sans-serif';
+        g2.fillText(n + ' position' + (n !== 1 ? 's' : '') + ' on the record', PAD, 232);
+        ops.forEach(function (op) {
+          if (op.t === 'sec') {
+            g2.fillStyle = op.g.color; g2.beginPath(); g2.arc(PAD + 9, op.y - 10, 9, 0, Math.PI * 2); g2.fill();
+            g2.fillStyle = op.g.color; g2.font = '700 30px "Barlow Condensed",Arial,sans-serif';
+            g2.fillText(op.g.label.toUpperCase() + '  ·  ' + op.n, PAD + 30, op.y);
+          } else {
+            var it = op.it;
+            var lbl = (issueMap()[it.issueKey] && issueMap()[it.issueKey].label) || it.issueKey;
+            if (it.priority === 'high') lbl += '   ⭐';
+            g2.fillStyle = '#cbd9ec'; g2.font = '500 28px "Barlow",Arial,sans-serif';
+            g2.fillText('•  ' + trunc(lbl, 62), PAD + 8, op.y);
+          }
+        });
+        g2.fillStyle = '#7f93b6'; g2.font = '400 26px "Barlow",Arial,sans-serif';
+        g2.fillText('Exported from politidex.fyi · My Stances backup', PAD, H - 44);
+        resolve(c);
+      }
+      try { if (document.fonts && document.fonts.ready && document.fonts.ready.then) { document.fonts.ready.then(draw, draw); return; } } catch (e) {}
+      draw();
+    });
+  }
+
+  // ── State model ───────────────────────────────────────────────────────────
+  // { version, updatedAt, settings:{public, publicUpdatedAt},
+  //   items: { issueKey: {issueKey, position, priority, note, createdAt, updatedAt} },
+  //   tombstones: { issueKey: deletedAtMs } }
+  function blank() {
+    return { version: VERSION, updatedAt: 0, settings: { public: false, publicUpdatedAt: 0 }, items: {}, tombstones: {} };
+  }
+
+  function normalize(raw) {
+    var s = blank();
+    if (!raw || typeof raw !== 'object') return s;
+    s.updatedAt = (typeof raw.updatedAt === 'number' && raw.updatedAt > 0) ? raw.updatedAt : 0;
+    if (raw.settings && typeof raw.settings === 'object') {
+      s.settings.public = !!raw.settings.public;
+      s.settings.publicUpdatedAt = (typeof raw.settings.publicUpdatedAt === 'number') ? raw.settings.publicUpdatedAt : 0;
+    }
+    var items = (raw.items && typeof raw.items === 'object') ? raw.items : {};
+    Object.keys(items).forEach(function (k) {
+      var r = items[k] || {};
+      if (!k) return;
+      var pos = (r.position === 'support' || r.position === 'oppose' || r.position === 'mixed') ? r.position : null;
+      if (!pos) return; // an item with no position is not a stance
+      var prio = (r.priority === 'high' || r.priority === 'medium' || r.priority === 'low') ? r.priority : 'medium';
+      s.items[k] = {
+        issueKey: k,
+        position: pos,
+        priority: prio,
+        note: typeof r.note === 'string' ? r.note.slice(0, 2000) : '',
+        createdAt: (typeof r.createdAt === 'number' && r.createdAt > 0) ? r.createdAt : (r.updatedAt || 0),
+        updatedAt: (typeof r.updatedAt === 'number' && r.updatedAt > 0) ? r.updatedAt : 0
+      };
+    });
+    var tombs = (raw.tombstones && typeof raw.tombstones === 'object') ? raw.tombstones : {};
+    Object.keys(tombs).forEach(function (k) {
+      var t = tombs[k];
+      if (typeof t === 'number' && t > 0) s.tombstones[k] = t;
+    });
+    return s;
+  }
+
+  function load() {
+    var st = store();
+    if (st && typeof st.read === 'function') return normalize(st.read(KEY, null));
+    try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return blank(); }
+  }
+
+  // Persist. dirty !== false marks the collection for a sync push; a merge coming
+  // down from another device writes with dirty:false so it doesn't re-push itself.
+  function save(s, dirty) {
+    s.version = VERSION;
+    var st = store();
+    if (st && typeof st.write === 'function') {
+      st.write(KEY, s, { collection: COLLECTION, dirty: dirty !== false });
+    } else {
+      try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    }
+  }
+
+  // ── Live, sanitized list of the visitor's stances (only issues that still
+  //    exist in ISSUE_MAP and aren't tombstoned newer than they were edited). ──
+  function activeItems(s) {
+    s = s || load();
+    var out = [];
+    Object.keys(s.items).forEach(function (k) {
+      if (!knownIssue(k)) return;
+      var t = s.tombstones[k] || 0;
+      var it = s.items[k];
+      if (t && t >= (it.updatedAt || 0)) return; // deleted after last edit
+      out.push(it);
+    });
+    // Highest priority first, then most recently touched.
+    var rank = { high: 0, medium: 1, low: 2 };
+    out.sort(function (a, b) {
+      var d = (rank[a.priority] || 1) - (rank[b.priority] || 1);
+      if (d) return d;
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    });
+    return out;
+  }
+  function count(s) { return activeItems(s).length; }
+
+  // ── Alignment Signature projection ──────────────────────────────────────────
+  // My Stances feeds the scoring engine through TWO clean, separable channels:
+  //
+  //   1. DIRECTION → the Alignment level. A position maps to a direction only:
+  //      Support → 'support', Oppose → 'oppose', Mixed → 'neutral'. This is what
+  //      decides whether a politician who holds the position scores HIGH (you
+  //      agree) or LOW (you oppose) for you.
+  //   2. PRIORITY → a weight multiplier applied by the scorer (see priorityWeight
+  //      + window._msPriorityWeight below). High counts more, Low counts less.
+  //
+  // Keeping direction out of the priority and priority out of the direction means
+  // all three priority levels move the match score distinctly, with no double
+  // counting against the engine's own 5-point conviction weights (which still
+  // work for anyone tuning the Alignment Tool directly).
+  function positionToLevel(position /*, priority */) {
+    if (position === 'mixed') return 'neutral';
+    if (position === 'oppose') return 'oppose';
+    return 'support';
+  }
+  // How much a My Stances priority scales an issue's weight in the match score.
+  // Neutral (1.0) at "medium", heavier at "high", lighter at "low" — so the
+  // issues a voter says matter most pull the score hardest, and the ones they
+  // flagged only lightly barely nudge it. Purely an importance weight; it never
+  // changes the DIRECTION of the match (that's the level above).
+  var PRIORITY_WEIGHT = { high: 1.6, medium: 1.0, low: 0.55 };
+  function priorityWeight(issueKey) {
+    try {
+      var s = load();
+      var r = s.items[issueKey];
+      if (!r) return 1;
+      var t = s.tombstones[issueKey] || 0;
+      if (t && t >= (r.updatedAt || 0)) return 1; // deleted → no weight
+      return PRIORITY_WEIGHT[r.priority] || 1;
+    } catch (e) { return 1; }
+  }
+  // The reverse: read an existing Alignment intensity back into a position+priority
+  // so an Alignment Signature built directly in the Alignment Tool shows up here.
+  function levelToPosition(level) {
+    switch (level) {
+      case 'strongly_support': return { position: 'support', priority: 'high' };
+      case 'support': return { position: 'support', priority: 'medium' };
+      case 'neutral': return { position: 'mixed', priority: 'medium' };
+      case 'oppose': return { position: 'oppose', priority: 'medium' };
+      case 'strongly_oppose': return { position: 'oppose', priority: 'high' };
+    }
+    return null;
+  }
+
+  // Expose the priority weight so the Alignment scorer can consult it (one-way,
+  // optional dependency — the scorer treats a missing hook as weight 1.0).
+  try { window._msPriorityWeight = priorityWeight; } catch (e) {}
+
+  function alignHas(issueKey) {
+    try { return !!(window._alignIssues && typeof window._alignIssues.has === 'function' && window._alignIssues.has(issueKey)); }
+    catch (e) { return false; }
+  }
+  function alignLevelOf(issueKey) {
+    // Membership implies the default 'support' level unless an explicit intensity
+    // overlay is stored (this mirrors the Alignment Tool's own contract).
+    if (!alignHas(issueKey)) return null;
+    try {
+      var ov = window._alignIntensity && window._alignIntensity[issueKey];
+      return ov || 'support';
+    } catch (e) { return 'support'; }
+  }
+
+  // Push one stance up into the Alignment Signature (adds the issue + sets its
+  // intensity + persists + refreshes every alignment-aware surface). Only fires
+  // when the target level actually differs, so we never trigger needless re-renders.
+  function projectOne(rec) {
+    if (!rec || !knownIssue(rec.issueKey)) return;
+    if (typeof window.alignSetIntensity !== 'function') return;
+    var desired = positionToLevel(rec.position, rec.priority);
+    var current = alignLevelOf(rec.issueKey);
+    if (current === desired) return;
+    try { window.alignSetIntensity(rec.issueKey, desired); } catch (e) {}
+  }
+  // Remove an issue from the Alignment Signature when its stance is deleted here.
+  function unprojectOne(issueKey) {
+    if (!alignHas(issueKey)) return;
+    if (typeof window.alignToggleIssue !== 'function') return;
+    try { window.alignToggleIssue(issueKey); } catch (e) {}
+  }
+
+  // Keep the two stores coherent without churn. Runs on load and after any
+  // cross-device pull:
+  //   1. Adopt Alignment-only issues as real stances here (no writes back up).
+  //   2. Project any stance whose Alignment level drifted (rare on the device that
+  //      authored both; only bites genuinely-new cross-device items).
+  function reconcileWithAlignment() {
+    var s = load();
+    var changed = false;
+    // 1) adopt
+    try {
+      if (window._alignIssues && typeof window._alignIssues.forEach === 'function') {
+        window._alignIssues.forEach(function (k) {
+          if (!knownIssue(k)) return;
+          var t = s.tombstones[k] || 0;
+          var existing = s.items[k];
+          var live = existing && !(t && t >= (existing.updatedAt || 0));
+          if (live) return; // already a stance here
+          var lvl = alignLevelOf(k);
+          var pp = levelToPosition(lvl);
+          if (!pp) return;
+          var ts = now();
+          s.items[k] = { issueKey: k, position: pp.position, priority: pp.priority, note: (existing && existing.note) || '', createdAt: (existing && existing.createdAt) || ts, updatedAt: ts };
+          if (s.tombstones[k]) delete s.tombstones[k];
+          changed = true;
+        });
+      }
+    } catch (e) {}
+    if (changed) { s.updatedAt = now(); save(s, false); }
+    // 2) project drift (does not write our own store, only the alignment store)
+    activeItems(s).forEach(function (rec) { projectOne(rec); });
+  }
+
+  // ── Mutations ───────────────────────────────────────────────────────────────
+  function setStance(issueKey, position, priority, note) {
+    if (!knownIssue(issueKey)) return null;
+    if (position !== 'support' && position !== 'oppose' && position !== 'mixed') return null;
+    var s = load();
+    var prev = s.items[issueKey];
+    var isNew = !prev || (s.tombstones[issueKey] && s.tombstones[issueKey] >= (prev.updatedAt || 0));
+    var ts = now();
+    var rec = {
+      issueKey: issueKey,
+      position: position,
+      priority: (priority === 'high' || priority === 'medium' || priority === 'low') ? priority : (prev && prev.priority) || 'medium',
+      note: typeof note === 'string' ? note.slice(0, 2000) : (prev ? prev.note : ''),
+      createdAt: (prev && !isNew && prev.createdAt) ? prev.createdAt : ts,
+      updatedAt: ts
+    };
+    s.items[issueKey] = rec;
+    if (s.tombstones[issueKey]) delete s.tombstones[issueKey];
+    s.updatedAt = ts;
+    save(s, true);
+    projectOne(rec);
+    if (isNew) recordImpact(issueKey);
+    if (s.settings.public) pushPublicSnapshot(s); // keep a live public showcase fresh
+    return rec;
+  }
+
+  function setNote(issueKey, note) {
+    var s = load();
+    var rec = s.items[issueKey];
+    if (!rec) return;
+    rec.note = typeof note === 'string' ? note.slice(0, 2000) : '';
+    rec.updatedAt = now();
+    s.updatedAt = rec.updatedAt;
+    save(s, true);
+    // Notes never leave the device except locally + private account sync; they are
+    // intentionally excluded from the public snapshot, so no public push here.
+  }
+
+  function removeStance(issueKey) {
+    var s = load();
+    if (!s.items[issueKey] && !s.tombstones[issueKey]) return;
+    var ts = now();
+    delete s.items[issueKey];
+    s.tombstones[issueKey] = ts;
+    s.updatedAt = ts;
+    save(s, true);
+    unprojectOne(issueKey);
+    if (s.settings.public) pushPublicSnapshot(s);
+  }
+
+  function setPublic(on) {
+    var s = load();
+    s.settings.public = !!on;
+    s.settings.publicUpdatedAt = now();
+    s.updatedAt = s.settings.publicUpdatedAt;
+    save(s, true);
+    if (on) pushPublicSnapshot(s); else clearPublicSnapshot();
+  }
+
+  // ── Personal Impact Tracker bridge ──────────────────────────────────────────
+  function recordImpact(issueKey) {
+    try { if (window.PDXImpact && typeof window.PDXImpact.record === 'function') window.PDXImpact.record('issues', issueKey); } catch (e) {}
+  }
+
+  // ── Firebase account: optional public showcase snapshot ─────────────────────
+  // Reuses the same users/{uid} doc the app already writes (team, location,
+  // Alignment Signature). Notes are deliberately omitted — a public showcase is a
+  // direction/priority summary only.
+  function fbUser() {
+    try {
+      var a = (typeof auth !== 'undefined' && auth) ? auth : (window.firebase && window.firebase.auth ? window.firebase.auth() : null);
+      var u = a && a.currentUser;
+      return (u && !u.isAnonymous) ? u : null;
+    } catch (e) { return null; }
+  }
+  function fbDb() {
+    try {
+      if (typeof db !== 'undefined' && db && typeof db.collection === 'function') return db;
+      if (typeof firestore !== 'undefined' && firestore && typeof firestore.collection === 'function') return firestore;
+      if (window.firebase && typeof window.firebase.firestore === 'function') return window.firebase.firestore();
+    } catch (e) {}
+    return null;
+  }
+  function publicPayload(s) {
+    return activeItems(s).map(function (r) {
+      var d = issueMap()[r.issueKey] || {};
+      return { issue: r.issueKey, label: (d.label || r.issueKey), position: r.position, priority: r.priority };
+    });
+  }
+  function pushPublicSnapshot(s) {
+    var u = fbUser(), d = fbDb();
+    if (!u || !d) return; // logged-out / offline → stays local-only, no-op
+    var payload = {};
+    payload[FS_PUBLIC_FLAG] = true;
+    payload[FS_PUBLIC_DATA] = publicPayload(s);
+    payload[FS_PUBLIC_AT] = now();
+    try { d.collection('users').doc(u.uid).set(payload, { merge: true }); } catch (e) {}
+  }
+  function clearPublicSnapshot() {
+    var u = fbUser(), d = fbDb();
+    if (!u || !d) return;
+    var payload = {};
+    payload[FS_PUBLIC_FLAG] = false;
+    payload[FS_PUBLIC_DATA] = [];
+    payload[FS_PUBLIC_AT] = now();
+    try { d.collection('users').doc(u.uid).set(payload, { merge: true }); } catch (e) {}
+  }
+
+  // ── PDXStore collection registration (runs at parse time) ────────────────────
+  // Registered synchronously so the snapshot provider + reconciler exist before
+  // the account-sync startup pull/push (which fires ~2.5s after sign-in).
+  (function registerCollection() {
+    var st = store();
+    if (!st) return;
+    try { if (typeof st.defineCollection === 'function') st.defineCollection(COLLECTION, { keys: [KEY], label: 'Your saved stances on the issues' }); } catch (e) {}
+    try { if (typeof st.registerSnapshot === 'function') st.registerSnapshot(COLLECTION, function () { return load(); }); } catch (e) {}
+    try {
+      if (typeof st.registerReconciler === 'function') {
+        st.registerReconciler(COLLECTION, function (serverSnap, meta) {
+          if (!serverSnap || typeof serverSnap !== 'object') return { changed: false };
+          var local = load();
+          var server = normalize(serverSnap);
+          var merged = blank();
+          // Union tombstones (max delete time wins).
+          var tk;
+          for (tk in local.tombstones) merged.tombstones[tk] = local.tombstones[tk];
+          for (tk in server.tombstones) merged.tombstones[tk] = Math.max(merged.tombstones[tk] || 0, server.tombstones[tk]);
+          // Union item keys; per key, the newer edit wins.
+          var keys = {};
+          Object.keys(local.items).forEach(function (k) { keys[k] = 1; });
+          Object.keys(server.items).forEach(function (k) { keys[k] = 1; });
+          Object.keys(keys).forEach(function (k) {
+            var a = local.items[k], b = server.items[k];
+            var winner = (!a) ? b : (!b) ? a : ((b.updatedAt || 0) > (a.updatedAt || 0) ? b : a);
+            if (!winner) return;
+            var t = merged.tombstones[k] || 0;
+            if (t && t >= (winner.updatedAt || 0)) return; // deleted after this edit
+            merged.items[k] = winner;
+          });
+          // Settings (public flag): newer publicUpdatedAt wins.
+          merged.settings = (server.settings.publicUpdatedAt > local.settings.publicUpdatedAt) ? server.settings : local.settings;
+          merged.updatedAt = Math.max(local.updatedAt || 0, server.updatedAt || 0);
+          // Keep dirty if we had un-pushed local edits so the union pushes back up.
+          save(merged, !!(meta && meta.dirty));
+          // Re-render + re-project after a pull brings changes down.
+          try { window.dispatchEvent(new CustomEvent('pdx-stances-change', { detail: { source: 'pull' } })); } catch (e) {}
+          return { changed: true };
+        });
+      }
+    } catch (e) {}
+  })();
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // RENDERING
+  // ══════════════════════════════════════════════════════════════════════════
+  var _inited = false;
+  var _noteTimers = {};
+  var uiState = { query: '', filter: '', open: {} }; // filter = core-issue key or ''
+
+  function isSignedIn() { return !!fbUser(); }
+
+  // Issue key to visually flash on the next render (set by an edit handler), so a
+  // saved change draws the eye to exactly what moved instead of silently redrawing.
+  var _flash = null;
+  function render() {
+    var mount = el(MOUNT);
+    if (!mount) return;
+    var s = load();
+    var items = activeItems(s);
+    var byKey = {};
+    items.forEach(function (r) { byKey[r.issueKey] = r; });
+
+    var html = '<div class="ms-wrap">';
+    html += renderAccount(s, items);
+    html += renderSummary(s, items);
+    html += renderPowers(items);
+    html += renderShowcase(s, items);
+    html += renderBrowse(s, byKey);
+    html += '</div>';
+    mount.innerHTML = html;
+
+    // Post-render highlight: pulse the just-changed issue's summary chip and its
+    // browse row so the update is felt, not just applied.
+    if (_flash) {
+      var fk = _flash; _flash = null;
+      try {
+        ['[data-ms-goto="' + cssEsc(fk) + '"]', '[data-ms-row="' + cssEsc(fk) + '"]'].forEach(function (sel) {
+          var node = mount.querySelector(sel);
+          if (node) { node.classList.add('ms-flash'); setTimeout(function () { node.classList.remove('ms-flash'); }, 900); }
+        });
+      } catch (e) {}
+    }
+  }
+
+  function renderAccount(s) {
+    if (isSignedIn()) {
+      return '<div class="ms-acct is-in"><span class="ms-acct-ic">🔒</span>' +
+        '<span>Your stances are <strong>private</strong> and saved to your account — synced across your devices.</span></div>';
+    }
+    return '<div class="ms-acct"><span class="ms-acct-ic">💾</span>' +
+      '<span>Saved <strong>on this device</strong>. <button type="button" class="ms-link" data-ms-signin="1">Sign in</button> to keep your stances synced across devices.</span></div>';
+  }
+
+  function renderSummary(s, items) {
+    var n = items.length;
+    if (!n) {
+      return '<div class="ms-summary is-empty">' +
+        '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong>. As you do, PolitiDex starts scoring every politician by how well they match <em>you</em>.</div>' +
+        '</div>';
+    }
+    var chips = items.map(function (r) {
+      var d = issueMap()[r.issueKey] || {};
+      var pos = POSITIONS.filter(function (p) { return p.key === r.position; })[0] || POSITIONS[0];
+      var isHigh = r.priority === 'high';
+      return '<button type="button" class="ms-chip ' + pos.cls + (isHigh ? ' is-priority' : '') + '" data-ms-goto="' + esc(r.issueKey) + '" title="' + (isHigh ? 'High priority · ' : '') + 'Edit your position">' +
+        '<span class="ms-chip-pos">' + pos.icon + '</span>' +
+        '<span class="ms-chip-lbl">' + esc(d.label || r.issueKey) + '</span>' +
+        (isHigh ? '<span class="ms-chip-prio" aria-label="High priority">⭐</span>' : '') +
+        '</button>';
+    }).join('');
+    return '<div class="ms-summary">' +
+      '<div class="ms-sum-head"><h3>Your stances <span class="ms-sum-count">' + n + '</span></h3>' +
+      '<div class="ms-sum-actions">' +
+      '<button type="button" class="ms-sum-exp" data-ms-export="json" title="Download your full stance set as a JSON backup">⬇ Backup</button>' +
+      '<button type="button" class="ms-sum-exp" data-ms-export="image" title="Download a nice image summary of your stances">🖼 Image</button>' +
+      '<button type="button" class="ms-link ms-sum-clear" data-ms-clearall="1">Clear all</button>' +
+      '</div></div>' +
+      '<div class="ms-chips">' + chips + '</div>' +
+      '</div>';
+  }
+
+  function renderPowers(items) {
+    var n = items.length;
+    var live = n > 0;
+    var actions = '';
+    if (live) {
+      actions =
+        '<button type="button" class="ms-pow-btn" data-ms-act="team">⚖️ Compare my team by match</button>' +
+        '<button type="button" class="ms-pow-btn" data-ms-act="align">🎯 Open the Alignment Tool</button>' +
+        '<button type="button" class="ms-pow-btn" data-ms-act="library">📚 See where politicians stand</button>';
+    }
+    return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
+      '<div class="ms-pow-title">What your stances power</div>' +
+      '<p class="ms-pow-body">' + (live
+        ? 'PolitiDex is now scoring every profile, card and your voting team against <strong>' + n + '</strong> position' + (n > 1 ? 's' : '') + '. A match % that reflects <em>your</em> positions — not a party label — shows up wherever a politician appears. <strong>High-priority</strong> positions count more toward that score; <strong>Low</strong> count less.'
+        : 'Once you take a position, PolitiDex scores every politician against it — turning your values into an accountability yardstick you can point at anyone’s record.') +
+      '</p>' +
+      (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
+      '</div>';
+  }
+
+  function renderShowcase(s, items) {
+    var on = !!s.settings.public;
+    var n = items.length;
+    var toggleRow =
+      '<div class="ms-show-row">' +
+      '<div class="ms-show-main">' +
+      '<div class="ms-show-title">' + (on ? '🌐 Showcasing publicly' : '🔒 Private') + '</div>' +
+      '<div class="ms-show-desc">' + (on
+        ? 'Your <strong>My Views</strong> card below is what others see. Only the issue and your Support / Oppose / Mixed direction are shared — <strong>your notes are never included</strong>.'
+        : 'Your stances are private to you. Turn on <strong>Showcase publicly</strong> to build a shareable <strong>My Views</strong> card (your notes always stay private).') + '</div>' +
+      (on && !isSignedIn() ? '<div class="ms-show-note">You’re not signed in, so this link works from bundled data on this device. Sign in to attach it to your account.</div>' : '') +
+      '</div>' +
+      '<label class="ms-toggle" title="Showcase your stances publicly">' +
+      '<input type="checkbox" data-ms-public="1"' + (on ? ' checked' : '') + (n ? '' : ' disabled') + ' />' +
+      '<span class="ms-toggle-track"><span class="ms-toggle-thumb"></span></span>' +
+      '</label>' +
+      '</div>';
+
+    var preview = '';
+    if (on && n) {
+      preview = '<div class="ms-views-preview" data-ms-viewscard="1">' +
+        renderViewsCard(items, { name: displayName(), owner: true }) +
+        '<div class="ms-views-actions">' +
+        shareButtonsHtml({ image: true }) +
+        '<span class="ms-views-hint">Anyone with the link sees this card — never your notes.</span>' +
+        '</div>' +
+        '</div>';
+    }
+
+    return '<div class="ms-showcase' + (on ? ' is-on' : '') + '">' + toggleRow + preview + '</div>';
+  }
+
+  // Shared, read-only renderer for a set of public stances. Used both for the
+  // owner's own preview (owner:true) and for a visitor viewing a shared link. It
+  // renders ONLY issue label + direction + a High-priority star — never notes.
+  function renderViewsCard(list, opts) {
+    opts = opts || {};
+    list = list || [];
+    var groups = { support: [], oppose: [], mixed: [] };
+    list.forEach(function (r) { if (groups[r.position]) groups[r.position].push(r); });
+
+    var who = opts.owner ? 'My Views' : esc(opts.name || 'A PolitiDex member') + '’s Views';
+    var sub = opts.owner
+      ? 'How your public card looks to everyone else'
+      : 'Public positions on PolitiDex · notes kept private';
+    // Owner card leads with the target glyph; a visitor card gets an initial, so
+    // it reads a little more like a personal profile.
+    var badge = opts.owner ? '🎯' : esc((String(opts.name || 'P').trim().charAt(0) || 'P').toUpperCase());
+    var head = '<div class="mv-head">' +
+      '<div class="mv-badge">' + badge + '</div>' +
+      '<div class="mv-headtext"><div class="mv-title">' + who + '</div><div class="mv-sub">' + sub + '</div></div>' +
+      '</div>';
+
+    var n = list.length;
+    if (!n) return '<div class="mv-card">' + head + '<div class="mv-empty">No public positions yet.</div></div>';
+
+    // ── Neutral, at-a-glance stats ──────────────────────────────────────────
+    // Purely descriptive counts — total positions, how much of the platform's
+    // core-issue map they cover, and how many they flagged high-priority. No
+    // partisan lean is computed or shown.
+    var counts = { support: groups.support.length, oppose: groups.oppose.length, mixed: groups.mixed.length };
+    var high = 0, cores = {};
+    list.forEach(function (r) {
+      if (r.priority === 'high') high++;
+      try { var ci = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(r.issueKey) : null; if (ci && ci.key) cores[ci.key] = 1; } catch (e) {}
+    });
+    var coreCount = Object.keys(cores).length;
+    var coreTotal = (Array.isArray(window.CORE_NATIONAL_ISSUES) && window.CORE_NATIONAL_ISSUES.length) ? window.CORE_NATIONAL_ISSUES.length : 12;
+    function tile(num, label, cls) {
+      return '<div class="mv-stat' + (cls ? ' ' + cls : '') + '"><div class="mv-stat-n">' + num + '</div><div class="mv-stat-l">' + label + '</div></div>';
+    }
+    var stats = '<div class="mv-stats">' +
+      tile(n, n === 1 ? 'position' : 'positions', '') +
+      (coreCount ? tile(coreCount, 'of ' + coreTotal + ' core issues', 'is-core') : '') +
+      (high ? tile(high, high === 1 ? 'top priority' : 'top priorities', 'is-prio') : '') +
+      '</div>';
+
+    // ── Composition meter (share of Support / Oppose / Mixed) ───────────────
+    function seg(k, col) { var v = counts[k]; return v ? '<span class="mv-seg" style="flex:' + v + ';background:' + col + ';"></span>' : ''; }
+    function leg(k, col, label) { return '<span class="mv-leg"><i style="background:' + col + '"></i>' + label + ' <b>' + counts[k] + '</b></span>'; }
+    var meter = '<div class="mv-meter" role="img" aria-label="' + counts.support + ' support, ' + counts.oppose + ' oppose, ' + counts.mixed + ' mixed">' +
+      seg('support', '#4ade80') + seg('oppose', '#f87171') + seg('mixed', '#facc15') + '</div>' +
+      '<div class="mv-legend">' +
+      leg('support', '#4ade80', 'Support') + leg('oppose', '#f87171', 'Oppose') + leg('mixed', '#facc15', 'Mixed') +
+      '</div>';
+
+    // ── Grouped chips (unchanged four-state vocabulary) ─────────────────────
+    var body = POSITIONS.map(function (p) {
+      var arr = groups[p.key];
+      if (!arr || !arr.length) return '';
+      var chips = arr.map(function (r) {
+        var d = issueMap()[r.issueKey] || {};
+        var star = r.priority === 'high' ? '<span class="mv-star" title="High priority">⭐</span>' : '';
+        return '<span class="mv-chip">' + esc(d.label || r.issueKey) + star + '</span>';
+      }).join('');
+      return '<div class="mv-group ' + p.cls + '">' +
+        '<div class="mv-group-head"><span class="mv-group-ic">' + p.icon + '</span>' + p.label +
+        '<span class="mv-group-n">' + arr.length + '</span></div>' +
+        '<div class="mv-chips">' + chips + '</div></div>';
+    }).join('');
+
+    return '<div class="mv-card">' + head + stats + meter + '<div class="mv-groups">' + body + '</div></div>';
+  }
+
+  // ── Visitor overlay: someone opened a ?views= share link ────────────────────
+  function checkSharedViewsInUrl() {
+    var tok = null;
+    try { tok = new URLSearchParams(location.search).get(SHARE_PARAM); } catch (e) { tok = null; }
+    if (!tok) return;
+    // Strip the param immediately so a refresh doesn't re-open and it isn't
+    // carried into onward navigation (mirrors the ?team= share flow).
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    var decoded = decodeViews(tok);
+    if (!decoded || !decoded.items.length) return;
+    // Defer until the issue vocabulary is present so labels resolve.
+    if (!Object.keys(issueMap()).length) { setTimeout(function () { showViewsOverlay(decoded); }, 400); return; }
+    showViewsOverlay(decoded);
+  }
+
+  function showViewsOverlay(decoded) {
+    if (!decoded) return;
+    var ovCtx = shareCtx(decoded.name, decoded.items);
+    var host = document.createElement('div');
+    host.className = 'ms-ov';
+    host.setAttribute('role', 'dialog');
+    host.setAttribute('aria-modal', 'true');
+    host.setAttribute('aria-label', esc(decoded.name) + ' — public views');
+    host.innerHTML =
+      '<div class="ms-ov-backdrop" data-ms-ovclose="1"></div>' +
+      '<div class="ms-ov-panel">' +
+      '<button type="button" class="ms-ov-x" data-ms-ovclose="1" aria-label="Close">✕</button>' +
+      renderViewsCard(decoded.items, { name: decoded.name, owner: false }) +
+      '<div class="ms-ov-share">' + shareButtonsHtml({ image: true }) + '</div>' +
+      '<div class="ms-ov-cta">' +
+      '<div class="ms-ov-cta-txt">Where do <em>you</em> stand? Build your own record and see which politicians actually match you.</div>' +
+      '<button type="button" class="ms-ov-cta-btn" data-ms-ovbuild="1">🎯 Build my stances</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(host);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { host.classList.add('is-open'); });
+    function close() {
+      host.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (host.parentNode) host.parentNode.removeChild(host); }, 220);
+    }
+    host.addEventListener('click', function (e) {
+      var t = e.target, b;
+      if (t.closest && t.closest('[data-ms-ovclose]')) { close(); return; }
+      if (t.closest && (b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), ovCtx); return; }
+      if (t.closest && t.closest('[data-ms-ovbuild]')) { close(); if (window.PDXStances && PDXStances.open) PDXStances.open(); }
+    });
+    document.addEventListener('keydown', function esc2(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc2); } });
+  }
+
+  function renderBrowse(s, byKey) {
+    var q = (uiState.query || '').trim().toLowerCase();
+    var filter = uiState.filter || '';
+    var cores = coreIssues();
+
+    // Filter chips (the 12 core national issues + All).
+    var filterChips = '<button type="button" class="ms-fchip' + (filter === '' ? ' is-on' : '') + '" data-ms-filter="">All issues</button>';
+    cores.forEach(function (ci) {
+      filterChips += '<button type="button" class="ms-fchip' + (filter === ci.key ? ' is-on' : '') + '" data-ms-filter="' + esc(ci.key) + '">' + esc(ci.label) + '</button>';
+    });
+
+    var groupsHtml = '';
+    var anyShown = false;
+    cores.forEach(function (ci) {
+      if (filter && filter !== ci.key) return;
+      var rows = '';
+      var shownInGroup = 0, activeInGroup = 0;
+      ci.keys.forEach(function (k) {
+        if (!knownIssue(k)) return;
+        var d = issueMap()[k];
+        if (q) {
+          var hay = ((d.label || '') + ' ' + (d.chip || '') + ' ' + (d.keywords || []).join(' ')).toLowerCase();
+          if (hay.indexOf(q) === -1) return;
+        }
+        shownInGroup++;
+        if (byKey[k]) activeInGroup++;
+        rows += renderIssueRow(k, d, byKey[k]);
+      });
+      if (!shownInGroup) return;
+      anyShown = true;
+      // Open a group when it's the active filter, when searching, when it holds a
+      // stance, or when the user expanded it.
+      var open = !!filter || !!q || activeInGroup > 0 || !!uiState.open[ci.key];
+      groupsHtml += '<div class="ms-group' + (open ? ' is-open' : '') + '" data-ms-group="' + esc(ci.key) + '">' +
+        '<button type="button" class="ms-group-head" data-ms-toggle="' + esc(ci.key) + '">' +
+        '<span class="ms-group-lbl">' + esc(ci.label) + '</span>' +
+        (activeInGroup ? '<span class="ms-group-badge">' + activeInGroup + '</span>' : '') +
+        '<span class="ms-group-caret">▾</span>' +
+        '</button>' +
+        '<div class="ms-group-body">' + rows + '</div>' +
+        '</div>';
+    });
+    if (!anyShown) groupsHtml = '<div class="ms-noresult">No issues match “' + esc(uiState.query) + '”.</div>';
+
+    return '<div class="ms-browse">' +
+      '<div class="ms-browse-head">' +
+      '<h3 class="ms-browse-title">Browse issues &amp; set your position</h3>' +
+      '<div class="ms-search"><span class="ms-search-ic">🔎</span>' +
+      '<input type="search" class="ms-search-in" placeholder="Search issues…" value="' + esc(uiState.query) + '" data-ms-search="1" aria-label="Search issues" /></div>' +
+      '</div>' +
+      '<div class="ms-filters">' + filterChips + '</div>' +
+      '<div class="ms-groups">' + groupsHtml + '</div>' +
+      '</div>';
+  }
+
+  function renderIssueRow(k, d, rec) {
+    var active = !!rec;
+    var posBtns = POSITIONS.map(function (p) {
+      var on = active && rec.position === p.key;
+      return '<button type="button" class="ms-pos ' + p.cls + (on ? ' is-on' : '') + '" data-ms-set="' + p.key + '" data-issue="' + esc(k) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        '<span class="ms-pos-ic">' + p.icon + '</span>' + p.label + '</button>';
+    }).join('');
+
+    var controls = '';
+    if (active) {
+      var prioOpts = PRIORITIES.map(function (p) {
+        return '<option value="' + p.key + '"' + (rec.priority === p.key ? ' selected' : '') + '>' + p.short + '</option>';
+      }).join('');
+      var hasNote = rec.note && rec.note.length;
+      controls = '<div class="ms-row-controls">' +
+        '<label class="ms-prio"><span>Priority</span><select data-ms-prio="1" data-issue="' + esc(k) + '" aria-label="Priority">' + prioOpts + '</select></label>' +
+        '<button type="button" class="ms-notebtn' + (hasNote ? ' has-note' : '') + '" data-ms-notetoggle="' + esc(k) + '">' + (hasNote ? '📝 Note' : '＋ Add note') + '</button>' +
+        '<button type="button" class="ms-remove" data-ms-remove="' + esc(k) + '" title="Remove this stance">✕</button>' +
+        '</div>' +
+        '<div class="ms-note-wrap' + (hasNote ? ' is-open' : '') + '" data-ms-notewrap="' + esc(k) + '">' +
+        '<textarea class="ms-note" data-ms-note="' + esc(k) + '" maxlength="2000" placeholder="Why this matters to you (private)…" aria-label="Private note">' + esc(rec.note) + '</textarea>' +
+        '<span class="ms-note-hint">🔒 Private — never shared, even when your stances are public.</span>' +
+        '</div>';
+    }
+
+    return '<div class="ms-issue' + (active ? ' is-active ' + posClass(rec.position) + (rec.priority === 'high' ? ' is-priority' : '') : '') + '" data-ms-row="' + esc(k) + '">' +
+      '<div class="ms-issue-main">' +
+      '<div class="ms-issue-text"><div class="ms-issue-lbl">' + esc(d.label || k) +
+      (active && rec.priority === 'high' ? '<span class="ms-issue-pri" title="High priority — counts more toward your matches">⭐ Priority</span>' : '') + '</div>' +
+      (d.chip ? '<div class="ms-issue-chip">' + esc(d.chip) + '</div>' : '') + '</div>' +
+      '<div class="ms-pos-group" role="group" aria-label="Your position on ' + esc(d.label || k) + '">' + posBtns + '</div>' +
+      '</div>' +
+      controls +
+      '</div>';
+  }
+  function posClass(position) {
+    return position === 'support' ? 'is-support' : position === 'oppose' ? 'is-oppose' : 'is-mixed';
+  }
+
+  // ── Event delegation ────────────────────────────────────────────────────────
+  function onClick(e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var b;
+
+    if ((b = t.closest('[data-ms-set]'))) {
+      var pos = b.getAttribute('data-ms-set');
+      var key = b.getAttribute('data-issue');
+      var cur = load().items[key];
+      // Clicking the position you already hold clears it (a natural toggle-off).
+      if (cur && cur.position === pos && !(load().tombstones[key] >= (cur.updatedAt || 0))) removeStance(key);
+      else setStance(key, pos, cur ? cur.priority : 'medium', cur ? cur.note : '');
+      _flash = key;
+      afterMutate();
+      return;
+    }
+    if ((b = t.closest('[data-ms-remove]'))) { removeStance(b.getAttribute('data-ms-remove')); afterMutate(); return; }
+    if ((b = t.closest('[data-ms-notetoggle]'))) {
+      var wrap = el(MOUNT).querySelector('[data-ms-notewrap="' + cssEsc(b.getAttribute('data-ms-notetoggle')) + '"]');
+      if (wrap) { wrap.classList.toggle('is-open'); var ta = wrap.querySelector('textarea'); if (ta && wrap.classList.contains('is-open')) ta.focus(); }
+      return;
+    }
+    if ((b = t.closest('[data-ms-toggle]'))) {
+      var gk = b.getAttribute('data-ms-toggle');
+      var grp = b.closest('.ms-group');
+      if (grp) { var isOpen = grp.classList.toggle('is-open'); uiState.open[gk] = isOpen; }
+      return;
+    }
+    if ((b = t.closest('[data-ms-filter]'))) { uiState.filter = b.getAttribute('data-ms-filter') || ''; render(); return; }
+    if ((b = t.closest('[data-ms-goto]'))) { gotoIssue(b.getAttribute('data-ms-goto')); return; }
+    if ((b = t.closest('[data-ms-clearall]'))) { clearAll(); return; }
+    if ((b = t.closest('[data-ms-export]'))) { if (b.getAttribute('data-ms-export') === 'image') exportImage(); else exportJson(); return; }
+    if ((b = t.closest('[data-ms-copylink]'))) { copyShareLink(); return; }
+    if ((b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), shareCtx()); return; }
+    if ((b = t.closest('[data-ms-signin]'))) { openSignIn(); return; }
+    if ((b = t.closest('[data-ms-act]'))) { powerAction(b.getAttribute('data-ms-act')); return; }
+  }
+
+  function onChange(e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.matches && t.matches('[data-ms-prio]')) {
+      var key = t.getAttribute('data-issue');
+      var cur = load().items[key];
+      if (cur) { setStance(key, cur.position, t.value, cur.note); _flash = key; afterMutate(); }
+      return;
+    }
+    if (t.matches && t.matches('[data-ms-public]')) { setPublic(t.checked); render(); return; }
+  }
+
+  function onInput(e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.matches && t.matches('[data-ms-search]')) {
+      uiState.query = t.value || '';
+      // Re-render but keep focus + caret in the search box.
+      render();
+      var box = el(MOUNT) && el(MOUNT).querySelector('[data-ms-search]');
+      if (box) { box.focus(); try { var v = box.value.length; box.setSelectionRange(v, v); } catch (e2) {} }
+      return;
+    }
+    if (t.matches && t.matches('[data-ms-note]')) {
+      var key = t.getAttribute('data-ms-note');
+      var val = t.value;
+      clearTimeout(_noteTimers[key]);
+      _noteTimers[key] = setTimeout(function () { setNote(key, val); }, 500);
+      return;
+    }
+  }
+
+  function cssEsc(s) { try { return (window.CSS && CSS.escape) ? CSS.escape(s) : String(s).replace(/"/g, '\\"'); } catch (e) { return s; } }
+
+  function afterMutate() {
+    render();
+    try { window.dispatchEvent(new CustomEvent('pdx-stances-change', { detail: { source: 'edit' } })); } catch (e) {}
+  }
+
+  function clearAll() {
+    var items = activeItems();
+    if (!items.length) return;
+    if (!window.confirm('Remove all ' + items.length + ' of your saved stances? This can’t be undone.')) return;
+    items.forEach(function (r) { removeStance(r.issueKey); });
+    afterMutate();
+  }
+
+  function gotoIssue(k) {
+    var d = issueMap()[k];
+    var ci = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(k) : null;
+    if (ci) { uiState.filter = ''; uiState.open[ci.key] = true; }
+    uiState.query = '';
+    render();
+    var row = el(MOUNT) && el(MOUNT).querySelector('[data-ms-row="' + cssEsc(k) + '"]');
+    if (row) { row.scrollIntoView({ behavior: 'smooth', block: 'center' }); row.classList.add('ms-flash'); setTimeout(function () { row.classList.remove('ms-flash'); }, 1200); }
+  }
+
+  function powerAction(act) {
+    if (act === 'team') {
+      if (typeof window.myteamCompareAll === 'function') { try { window.myteamCompareAll(); return; } catch (e) {} }
+      scrollTo('my-politicians');
+    } else if (act === 'align') {
+      // Open the Alignment Tool AND glide to it, so the two surfaces read as one
+      // continuous flow rather than two disconnected places.
+      var panel = el('alignment-panel');
+      if (panel) { try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
+      if (typeof window.alignTogglePanel === 'function') { try { window.alignTogglePanel(true); return; } catch (e) {} }
+    } else if (act === 'library') {
+      if (window.PDXStanceLibrary && typeof window.PDXStanceLibrary.open === 'function') { try { window.PDXStanceLibrary.open(); return; } catch (e) {} }
+      scrollTo('stance-library');
+    }
+  }
+  function scrollTo(id) { var n = el(id); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+  function openSignIn() {
+    // Reuse whatever sign-in entry point the app exposes; fall back to the nav.
+    var fns = ['openAuthModal', 'openSignInModal', 'showLogin', 'pdxOpenAuth'];
+    for (var i = 0; i < fns.length; i++) { if (typeof window[fns[i]] === 'function') { try { window[fns[i]](); return; } catch (e) {} } }
+    var btn = document.querySelector('#nav-auth-desktop button, #nav-auth-mobile button, [data-auth-signin]');
+    if (btn) btn.click();
+  }
+
+  // ── Boot / lazy mount ─────────────────────────────────────────────────────
+  function init() {
+    if (_inited) return;
+    var mount = el(MOUNT);
+    if (!mount) return;
+    _inited = true;
+    render();
+    mount.addEventListener('click', onClick);
+    mount.addEventListener('change', onChange);
+    mount.addEventListener('input', onInput);
+  }
+
+  function setup() {
+    // A visitor may have arrived on a ?views= share link — show the read-only
+    // "My Views" overlay regardless of whether the section itself is mounted.
+    try { checkSharedViewsInUrl(); } catch (e) {}
+
+    // Data-layer coherence runs regardless of whether the section is ever viewed,
+    // so cross-device stances light up match % everywhere immediately.
+    try { reconcileWithAlignment(); } catch (e) {}
+
+    // Re-render on our own change events and when auth flips (sign-in/out changes
+    // the account banner and enables the public push path).
+    window.addEventListener('pdx-stances-change', function (ev) {
+      if (ev && ev.detail && ev.detail.source === 'pull') { try { reconcileWithAlignment(); } catch (e) {} }
+      if (_inited) render();
+    });
+    try {
+      var a = (typeof auth !== 'undefined' && auth) ? auth : (window.firebase && window.firebase.auth ? window.firebase.auth() : null);
+      if (a && typeof a.onAuthStateChanged === 'function') a.onAuthStateChanged(function () { if (_inited) render(); });
+    } catch (e) {}
+
+    var host = el('my-stances');
+    if (!host) return;
+    // Deep-link straight to the section → mount now.
+    if (location.hash === '#my-stances') { init(); return; }
+    // Otherwise mount lazily when it scrolls into view (keeps first paint light).
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { init(); io.disconnect(); } });
+      }, { rootMargin: '400px 0px' });
+      io.observe(host);
+    } else {
+      init();
+    }
+    // Also honor a later hash change to the section.
+    window.addEventListener('hashchange', function () { if (location.hash === '#my-stances') init(); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // "YOUR STANCE vs THEIR RECORD" — a neutral, reusable comparison view
+  // ══════════════════════════════════════════════════════════════════════════
+  // Resolve the voter's OWN direction + priority for an issue: the explicit My
+  // Stances record wins; otherwise fall back to a position they set directly in
+  // the Alignment Tool (direction read from its intensity level). Returns null
+  // when the voter has taken no position on this issue at all.
+  function userDirectionFor(issueKey) {
+    if (!issueKey) return null;
+    var s = load();
+    var r = s.items[issueKey];
+    var t = s.tombstones[issueKey] || 0;
+    if (r && !(t && t >= (r.updatedAt || 0))) return { position: r.position, priority: r.priority, source: 'stance' };
+    var lvl = alignLevelOf(issueKey);
+    if (lvl) { var pp = levelToPosition(lvl); if (pp) { pp.source = 'align'; return pp; } }
+    return null;
+  }
+
+  function posPill(position, cls) {
+    var p = null;
+    for (var i = 0; i < POSITIONS.length; i++) { if (POSITIONS[i].key === position) { p = POSITIONS[i]; break; } }
+    if (!p) return '<span class="msvs-pill msvs-none">No clear position</span>';
+    return '<span class="msvs-pill ' + p.cls + (cls ? ' ' + cls : '') + '">' + p.icon + ' ' + p.label + '</span>';
+  }
+
+  // Compact "You: 👍 Support ⭐" chip — used by the comparison table's label cell.
+  function myStanceChipHtml(issueKey) {
+    var dir = userDirectionFor(issueKey);
+    if (!dir) return '';
+    var p = null;
+    for (var i = 0; i < POSITIONS.length; i++) { if (POSITIONS[i].key === dir.position) { p = POSITIONS[i]; break; } }
+    if (!p) return '';
+    var star = dir.priority === 'high' ? ' <span class="ms-you-star" title="High priority for you">⭐</span>' : '';
+    return '<span class="ms-you-chip ' + p.cls + '"><span class="ms-you-lbl">You</span>' + p.icon + ' ' + p.label + star + '</span>';
+  }
+
+  // Full "Your Stance vs Their Record" block for a politician, built from the
+  // Alignment breakdown (kept in lock-step with the match %). Lists only issues
+  // where the politician has a DOCUMENTED position (an honest "record"), each with
+  // your direction, their direction, and an Agree / Partial / Differ verdict. It
+  // reports the record neutrally — it never editorializes either side.
+  var VS_VERDICT = {
+    match: { cls: 'is-agree', ico: '✓', lbl: 'Agree' },
+    partial: { cls: 'is-partial', ico: '~', lbl: 'Partial' },
+    mismatch: { cls: 'is-differ', ico: '✗', lbl: 'Differ' }
+  };
+  function vsRecordHtml(pid, opts) {
+    opts = opts || {};
+    if (!pid || typeof window._calcAlignmentBreakdown !== 'function') return '';
+    var bd;
+    try { bd = window._calcAlignmentBreakdown(pid); } catch (e) { return ''; }
+    if (!bd || !bd.issues || !bd.issues.length) return '';
+    var rows = bd.issues.filter(function (i) { return i.direct && i.stance; });
+    if (!rows.length) return '';
+    // Resolve each row's "you" side + priority up front so we can lead with the
+    // issues the reader cares most about (high priority first), then keep the
+    // breakdown's own strength order within each tier.
+    rows = rows.map(function (i) {
+      var dir = userDirectionFor(i.key);
+      var youPos = dir ? dir.position
+        : (i.intensity === 'oppose' || i.intensity === 'strongly_oppose') ? 'oppose'
+        : (i.intensity === 'neutral') ? 'mixed' : 'support';
+      var youPrio = dir ? dir.priority : ((i.intensity === 'strongly_support' || i.intensity === 'strongly_oppose') ? 'high' : 'medium');
+      return { i: i, youPos: youPos, youPrio: youPrio };
+    });
+    rows.sort(function (a, b) { return (b.youPrio === 'high' ? 1 : 0) - (a.youPrio === 'high' ? 1 : 0); });
+    var shown = rows.slice(0, opts.max || 8);
+
+    // Neutral agreement tally across the shown rows (agreement WITH the reader, not
+    // a party read) — a quick headline before the row-by-row detail.
+    var tally = { match: 0, partial: 0, mismatch: 0 };
+    shown.forEach(function (r) { if (tally[r.i.verdict] != null) tally[r.i.verdict]++; });
+    var head = (opts.heading === false) ? '' :
+      '<div class="msvs-head"><span class="msvs-head-t">🤝 Your Stance <span>vs</span> Their Record</span>' +
+      '<span class="msvs-tally">' +
+      (tally.match ? '<span class="is-agree">✓ ' + tally.match + '</span>' : '') +
+      (tally.partial ? '<span class="is-partial">~ ' + tally.partial + '</span>' : '') +
+      (tally.mismatch ? '<span class="is-differ">✗ ' + tally.mismatch + '</span>' : '') +
+      '</span></div>';
+
+    var body = shown.map(function (r) {
+      var i = r.i;
+      var vm = VS_VERDICT[i.verdict] || { cls: 'is-solo', ico: '•', lbl: 'On record' };
+      var pri = r.youPrio === 'high' ? '<span class="msvs-pri" title="High priority for you">⭐ Priority</span>' : '';
+      return '<div class="msvs-row ' + vm.cls + (r.youPrio === 'high' ? ' is-priority' : '') + '">' +
+        '<div class="msvs-issue">' + pri + esc(i.label) + (i.topic ? '<span class="msvs-topic">' + esc(i.topic) + '</span>' : '') + '</div>' +
+        '<div class="msvs-cells">' +
+        '<span class="msvs-side msvs-you"><span class="msvs-side-lbl">You</span>' + posPill(r.youPos) + '</span>' +
+        '<span class="msvs-arrow ' + vm.cls + '" aria-hidden="true">' + vm.ico + '</span>' +
+        '<span class="msvs-side msvs-them"><span class="msvs-side-lbl">Them</span>' + posPill(i.stance) + '</span>' +
+        '<span class="msvs-verdict ' + vm.cls + '">' + vm.lbl + '</span>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+    return '<div class="msvs">' + head +
+      '<div class="msvs-list">' + body + '</div>' +
+      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';">Manage in My Stances</button></div>') +
+      '</div>';
+  }
+
+  // ── Public API ───────────────────────────────────────────────────────────
+  window.PDXStances = {
+    KEY: KEY,
+    COLLECTION: COLLECTION,
+    // reads
+    all: function () { return activeItems(); },
+    get: function (issueKey) { var s = load(); var r = s.items[issueKey]; return (r && !(s.tombstones[issueKey] >= (r.updatedAt || 0))) ? r : null; },
+    count: function () { return count(); },
+    isPublic: function () { return !!load().settings.public; },
+    // mutations
+    set: function (issueKey, position, priority, note) { var r = setStance(issueKey, position, priority, note); afterMutate(); return r; },
+    remove: function (issueKey) { removeStance(issueKey); afterMutate(); },
+    setPublic: function (on) { setPublic(on); if (_inited) render(); },
+    // public showcase / My Views
+    shareUrl: function () { return shareUrl(load()); },
+    copyShareLink: copyShareLink,
+    saveImage: function () { saveImage(shareCtx()); },
+    shareImage: function () { shareImage(shareCtx()); },
+    exportJson: exportJson,
+    exportImage: exportImage,
+    share: function (net) { handleShare(net || 'native', shareCtx()); },
+    showViews: function (token) { var d = token ? decodeViews(token) : { name: displayName(), items: activeItems() }; showViewsOverlay(d); },
+    // integration
+    positionToLevel: positionToLevel,
+    priorityWeight: priorityWeight,
+    myDirection: userDirectionFor,
+    myStanceChip: myStanceChipHtml,
+    vsRecordHtml: vsRecordHtml,
+    syncToAlignment: reconcileWithAlignment,
+    // navigation / render
+    open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
+    // Jump to the section and highlight the My Views showcase card (account menu).
+    openViews: function () {
+      init(); scrollTo('my-stances');
+      setTimeout(function () {
+        var card = el(MOUNT) && el(MOUNT).querySelector('[data-ms-viewscard]');
+        var target = card || (el(MOUNT) && el(MOUNT).querySelector('.ms-showcase'));
+        if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); target.classList.add('ms-flash'); setTimeout(function () { target.classList.remove('ms-flash'); }, 1200); }
+      }, 80);
+    },
+    render: function () { if (_inited) render(); }
+  };
+})();

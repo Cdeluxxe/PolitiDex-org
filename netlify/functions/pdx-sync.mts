@@ -53,7 +53,7 @@ const FIREBASE_PROJECT_ID = "politidex-979bd";
 // merge/GC logic lives on the client. Adding a collection here is purely an
 // allow-list widening: no schema change, since every snapshot is just another row
 // in the existing table.
-const ALLOWED_COLLECTIONS = new Set(["saved", "team", "evidence", "impact"]);
+const ALLOWED_COLLECTIONS = new Set(["saved", "team", "evidence", "impact", "stances"]);
 
 // A sane ceiling so a caller can't push an unbounded payload. The `saved`
 // collection is small (bookmarks + short tags/notes); 1 MB is generous headroom.

@@ -1072,6 +1072,20 @@
     function _applyAcctToMatch(pid, base) { return _acctMatchInfo(pid, base).adjusted; }
     window._applyAcctToMatch = _applyAcctToMatch;
 
+    // Optional bridge to My Stances: the voter's per-issue importance weighting.
+    // Returns a positive multiplier (default 1.0 when My Stances isn't present or
+    // the voter set no priority for this issue), so the scorer stays fully
+    // functional on its own — this only ever scales weight, never direction.
+    function _msPriorityMul(issueKey) {
+      try {
+        if (typeof window._msPriorityWeight === 'function') {
+          var w = window._msPriorityWeight(issueKey);
+          if (typeof w === 'number' && isFinite(w) && w > 0) return w;
+        }
+      } catch (e) {}
+      return 1;
+    }
+
     function _calcAlignmentScore(pid) {
       if (_alignIssues.size === 0) return null;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
@@ -1218,6 +1232,12 @@
           issueWeight *= _model.weight;
         }
 
+        // My Stances priority multiplier: the voter's own importance weighting on
+        // this issue (High counts more, Low less; 1.0 when they set no priority or
+        // only used the Alignment Tool). Applied uniformly to both branches so a
+        // documented-position match and an inferred one weight priority the same.
+        issueWeight *= _msPriorityMul(issueKey);
+
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
       });
@@ -1355,6 +1375,10 @@
           else if (_model.agree === null) { issueScore = issueScore * 0.35 + 50 * 0.65; }
           issueWeight *= _model.weight;
         }
+
+        // My Stances priority multiplier (kept in lock-step with _calcAlignmentScore).
+        var _prioMul = _msPriorityMul(issueKey);
+        issueWeight *= _prioMul;
 
         totalWeight += issueWeight;
         totalScore += issueScore * issueWeight;
@@ -2069,7 +2093,8 @@
       var n = _alignIssues.size;
       if (n === 0) {
         el.innerHTML =
-          '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div></div>' +
+          '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
           '<div class="align-profile-empty">You haven\'t picked any positions yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each one. Your match score then appears on every politician card.</div>';
         return;
       }
@@ -2135,10 +2160,13 @@
             '<span class="align-conviction-note">' + strong + ' of your ' + n + ' position' + (n > 1 ? 's' : '') + ' ' + (strong > 1 ? 'are' : 'is') + ' held strongly — these weigh most in your matches.</span></div>'
         : '<div class="align-conviction"><span class="align-conviction-note align-conviction-none">Tip: use <b>Strongly Support</b> or <b>Strongly Oppose</b> on the issues you care most about — they count extra toward your matches.</span></div>';
 
+      var _msSaved = 0;
+      try { if (window.PDXStances && typeof window.PDXStances.count === 'function') _msSaved = window.PDXStances.count() || 0; } catch (e) {}
       el.innerHTML =
         '<div class="align-profile-head">' +
           '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<span class="align-count-pill">' + n + ' position' + (n > 1 ? 's' : '') + '</span>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances' + (_msSaved ? '<span class="align-ms-n">' + _msSaved + '</span>' : '') + '</button>' +
         '</div>' +
         '<div class="align-profile-strength">' + sentence + '</div>' +
         meter +
