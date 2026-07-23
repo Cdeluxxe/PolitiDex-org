@@ -687,7 +687,7 @@
       var ct = document.getElementById('align-compact-tagline');
       if (ct) ct.textContent = (n === 0)
         ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your team.'
-        : '🎯 Your Match and ⚖️ Say-vs-Do now show on every candidate — see who fits and whether they back it up, then add your top picks to your team.';
+        : '🎯 Your Match and ⚖️ Say-vs-Do now show on every candidate — see who fits, then tap “Add to my team” or “See the receipts” right on each card.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
       var dn = document.getElementById('align-done-btn');
@@ -1789,6 +1789,122 @@
     }
     window._alignDriverChips = _alignDriverChips;
 
+    // ── Match → team / receipts hand-off ────────────────────────────────────────
+    // Closes the "this person matches me → do something about it" loop right on the
+    // result card. Two one-tap primary actions, mobile-first, additive: they sit
+    // beneath the Your Match bar and reuse the app's existing team-toggle, Say-vs-Do
+    // and Issue Comparison primitives — no new data, no new navigation surface.
+
+    // The visitor's own selected issue this candidate scores highest on — the same
+    // ranking the driver chips use, so "See the receipts" opens the issue the voter
+    // literally sees driving the match. '' when there's no grounded issue to lead with.
+    function _alignTopDriverKey(pid) {
+      try {
+        if (typeof _calcAlignmentBreakdown !== 'function') return '';
+        var bd = _calcAlignmentBreakdown(pid);
+        if (!bd || !bd.issues || !bd.issues.length) return '';
+        var ranked = bd.issues.filter(function (i) { return i.hasEvidence && i.score >= 50; })
+                              .sort(function (a, b) { return b.score - a.score; });
+        return (ranked[0] && ranked[0].key) || '';
+      } catch (e) { return ''; }
+    }
+    window._alignTopDriverKey = _alignTopDriverKey;
+
+    function _alignIsOnTeam(pid) {
+      try { return typeof window._pdxIsOnTeam === 'function' ? !!window._pdxIsOnTeam(pid) : false; }
+      catch (e) { return false; }
+    }
+
+    // Repaint one team-toggle button to reflect current membership (used after a
+    // toggle so the label/aria/state flip without a full card re-render).
+    function _alignPaintTeamBtn(btn, on) {
+      if (!btn) return;
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', on ? 'On your team — tap to remove' : 'Add to your team');
+      btn.innerHTML = '<span aria-hidden="true">' + (on ? '✓' : '＋') + '</span>' +
+        '<span class="align-ma-lb">' + (on ? 'On my team' : 'Add to my team') + '</span>';
+      if (on) { btn.classList.remove('just-added'); void btn.offsetWidth; btn.classList.add('just-added'); setTimeout(function () { try { btn.classList.remove('just-added'); } catch (e) {} }, 520); }
+    }
+
+    // Add/remove this candidate from the voting team. Routes through the SAME team
+    // primitive every other surface uses (so a pick here shows up on Your Ballot / My
+    // Team and syncs across devices), then repaints just this button. We pass a null
+    // btn to the shared toggle so it doesn't overwrite our compound button's markup
+    // (it flashes "✓ Added!" into whatever btn it's given); we own the visual flip here.
+    window.alignTeamToggle = function (btn, pid) {
+      if (!pid) return;
+      if (typeof window.mypolToggleAnimated === 'function') window.mypolToggleAnimated(null, pid);
+      else if (typeof window.mypolToggle === 'function') window.mypolToggle(pid);
+      else return;
+      var now = _alignIsOnTeam(pid);
+      _alignPaintTeamBtn(btn, now);
+    };
+
+    // Jump from a match straight to the receipts for that candidate. Prefers the
+    // person's Say-vs-Do receipt (seeded on the issue that drove the match); falls
+    // back to Issue Comparison on that issue when they have no curated receipt yet,
+    // then to the issue-by-issue breakdown, then the full profile — so the button is
+    // never a dead end regardless of how much record a candidate has.
+    window.alignSeeReceipts = function (pid, issueKey) {
+      if (!pid) return;
+      issueKey = issueKey || '';
+      // If invoked from inside the issue-by-issue breakdown overlay, close it first so
+      // the receipt / comparison view opens cleanly instead of stacking (no-op when the
+      // overlay isn't open — e.g. when called from a browse card).
+      try {
+        var _krOv = document.getElementById('kr-align-overlay');
+        if (_krOv && _krOv.style.display !== 'none' && typeof window.keyRacesCloseAlign === 'function') {
+          window.keyRacesCloseAlign();
+        }
+      } catch (e) {}
+      var R = window.PDXReceipts;
+      try {
+        if (R && typeof R.forPolitician === 'function' && R.forPolitician(pid) && typeof R.open === 'function') {
+          R.open(pid, issueKey); return;
+        }
+      } catch (e) {}
+      try {
+        if (issueKey && window.PDXIssueCompare && typeof window.PDXIssueCompare.open === 'function') {
+          window.PDXIssueCompare.open(issueKey, 'all'); return;
+        }
+      } catch (e) {}
+      try { if (typeof window.keyRacesAlignQuickView === 'function') { window.keyRacesAlignQuickView(pid); return; } } catch (e) {}
+      try { if (typeof window.showProfile === 'function') { window.showProfile(pid); } } catch (e) {}
+    };
+
+    // The two-button action rail rendered under a Your Match bar. Only appears when
+    // alignment is set up AND the candidate is scorable (mirrors the bars, so it never
+    // shows on a recordless card that has no match). opts.receiptsOnly drops the team
+    // button on surfaces where the person is already on the team (team slot cards).
+    function _alignMatchActions(pid, opts) {
+      opts = opts || {};
+      if (typeof _alignIssues === 'undefined' || !_alignIssues || _alignIssues.size === 0) return '';
+      var score = (typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(pid) : null;
+      if (score === null || score === undefined) return '';
+      var pidA = String(pid).replace(/'/g, "\\'");
+      var keyA = String(_alignTopDriverKey(pid) || '').replace(/'/g, "\\'");
+      var onTeam = _alignIsOnTeam(pid);
+
+      var teamBtn = opts.receiptsOnly ? '' :
+        '<button type="button" class="align-ma-btn align-ma-team' + (onTeam ? ' is-on' : '') + '" ' +
+          'aria-pressed="' + (onTeam ? 'true' : 'false') + '" ' +
+          'aria-label="' + (onTeam ? 'On your team — tap to remove' : 'Add to your team') + '" ' +
+          'onclick="event.stopPropagation();if(window.alignTeamToggle)window.alignTeamToggle(this,\'' + pidA + '\')">' +
+          '<span aria-hidden="true">' + (onTeam ? '✓' : '＋') + '</span>' +
+          '<span class="align-ma-lb">' + (onTeam ? 'On my team' : 'Add to my team') + '</span></button>';
+
+      var recBtn =
+        '<button type="button" class="align-ma-btn align-ma-receipts" ' +
+          'aria-label="See the receipts — their record on the issues behind this match" ' +
+          'onclick="event.stopPropagation();if(window.alignSeeReceipts)window.alignSeeReceipts(\'' + pidA + '\',\'' + keyA + '\')">' +
+          '<span aria-hidden="true">🧾</span><span class="align-ma-lb">See the receipts</span></button>';
+
+      return '<div class="align-match-actions' + (opts.receiptsOnly ? ' is-solo' : '') + '" role="group" aria-label="Next steps for this match">' +
+          teamBtn + recBtn + '</div>';
+    }
+    window._alignMatchActions = _alignMatchActions;
+
     function _alignScoreClass(s) {
       if (s === null || s === undefined) return '';
       return s >= 70 ? 'high' : s >= 50 ? 'mid' : 'low';
@@ -2000,7 +2116,7 @@
             '<span class="align-card-sub">Based on <b>your ' + n + ' selected issue' + (n > 1 ? 's' : '') + '</b> · tap for breakdown</span>' +
           '</span>' +
           '<span class="align-card-chev">▾</span>' +
-        '</button>' + _alignConsistencyBar(pid) + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers + _alignMatchActions(pid);
     }
     window._alignCardBar = _alignCardBar;
 
@@ -2024,7 +2140,7 @@
             '<span class="myteam-slot-match-label">🎯 Your Match · <b style="color:' + col + ';">' + label + '</b></span>' +
             '<span class="myteam-slot-match-bar"><span style="width:' + score + '%;background:linear-gradient(90deg,' + col + '99,' + col + ');"></span></span>' +
           '</span>' +
-        '</button>' + _alignConsistencyBar(pid) + drivers;
+        '</button>' + _alignConsistencyBar(pid) + drivers + _alignMatchActions(pid, { receiptsOnly: true });
     }
     window._slotMatchBand = _slotMatchBand;
 
