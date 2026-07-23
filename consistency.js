@@ -182,6 +182,60 @@
     return Math.round(100 * (rec.consistent || 0) / judged);
   }
 
+  // ── Migrated formal-action feeder (Phase 3) ─────────────────────────────────
+  // Curated receipts categorized 'voting' are FORMAL LEGISLATIVE ACTIONS (votes,
+  // sponsorships) — they belong to the Official Record, not the broader Say-vs-Do
+  // side. Rather than fabricate roll-call rows we don't have, we read them straight
+  // from the same curated source and expose them as an Official Record feeder: each
+  // sourced item becomes a per-(pid, issue) consistency signal (positive impact →
+  // consistent with their word; negative → contradicts; neutral → context, unscored).
+  // These fill Official Record coverage for members with no vr_* roll-call rows yet
+  // (mostly state / local), and are EXCLUDED from every Say-vs-Do surface (see
+  // say-vs-do.js collect()), so one event is never scored on both sides. Verifiability
+  // is preserved — an item without a source link is dropped, exactly like vr_* rows.
+  var _oaCache = null, _oaKey = -1;
+  function buildOfficialActions() {
+    var key = 0;
+    try { key = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { key = 0; }
+    if (_oaCache && key === _oaKey) return _oaCache;
+    _oaKey = key;
+    var byPid = {}, byNorm = {}, count = 0, pols = 0;
+    try {
+      var ACCT = window.ACCT_SPOTLIGHT || {};
+      Object.keys(ACCT).forEach(function (pid) {
+        var items = ACCT[pid];
+        if (!Array.isArray(items)) return;
+        var had = false;
+        items.forEach(function (it) {
+          if (!it || String(it.category || '').toLowerCase() !== 'voting') return; // formal actions only
+          if (!it.issueKey) return;
+          if (!it.source || !it.source.url) return;                                 // verifiability rule
+          var verdict = it.impact === 'positive' ? 'consistent' : it.impact === 'negative' ? 'contradicts' : null;
+          if (!verdict) return;                                                     // neutral = context, unscored
+          var iss = (byPid[pid] = byPid[pid] || {});
+          var slot = (iss[it.issueKey] = iss[it.issueKey] || { consistent: 0, contradicts: 0, total: 0, items: [] });
+          slot[verdict]++; slot.total++;
+          slot.items.push({ headline: it.headline || '', date: it.date || '', sourceUrl: it.source.url, sourceLabel: (it.source.label || 'Source'), verdict: verdict });
+          count++; had = true;
+        });
+        if (had) { byNorm[norm(pid)] = byPid[pid]; pols++; }
+      });
+    } catch (e) {}
+    _oaCache = { byPid: byPid, byNorm: byNorm, count: count, politicians: pols };
+    return _oaCache;
+  }
+  function officialActionsFor(pid, issueKey) {
+    var idx = buildOfficialActions();
+    var iss = idx.byPid[pid] || idx.byNorm[norm(pid)];
+    var slot = iss && iss[issueKey];
+    return slot || { consistent: 0, contradicts: 0, total: 0, items: [] };
+  }
+  function officialActionIssues(pid) {
+    var idx = buildOfficialActions();
+    var iss = idx.byPid[pid] || idx.byNorm[norm(pid)];
+    return iss ? Object.keys(iss) : [];
+  }
+
   // ── the core reconciler: ONE verdict for (pid, issueKey) ────────────────────
   function issueVerdict(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);           // voting engine (null = none warm)
@@ -254,25 +308,53 @@
 
   // ── OFFICIAL RECORD (scope 'official') — votes + formal actions ONLY ─────────
   // The institutional "when it counted" answer: a real % or an honest null, never a
-  // fabricated 0. Reads the voting engine only; curated receipts never enter here.
+  // fabricated 0. Two feeders, in strict priority so nothing double-counts:
+  //   1. vr_* roll-call record — AUTHORITATIVE where it exists (used alone).
+  //   2. migrated curated formal actions — fill issues with no roll-call record yet.
   function officialIssue(pid, issueKey) {
     var rec = recordSummary(pid, issueKey);
     var warm = recordsWarm(pid);
     var stance = positionStance(pid, issueKey);
-    var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record');
+    var act = officialActionsFor(pid, issueKey);
+    var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record') || act.total > 0;
+
+    // 1. Systematic roll-call record is authoritative — use it alone, so a curated
+    //    echo of the same vote can never be counted twice.
+    if (rec && rec.total) {
+      var t = rec.netVerdict === 'contradicts' ? 'contradicts'
+            : rec.netVerdict === 'consistent' ? 'consistent'
+            : rec.netVerdict === 'mixed' ? 'mixed' : 'limited';
+      return {
+        scope: 'official', token: t, verdict: scopeVerdict('official', t),
+        score: scoreFromRecord(rec), record: rec, officialActions: null, curated: null,
+        contradictions: rec.contradicts || 0, flags: 0,
+        hasStance: hasStance, pending: false, sources: ['record']
+      };
+    }
+
+    // 2. No roll-call on this issue → the migrated curated formal actions fill it
+    //    (the Phase 3 coverage win). Scored honestly: all-contradiction is a real 0%,
+    //    not a false one.
+    if (act.total > 0) {
+      var tok = (act.contradicts > 0 && act.consistent > 0) ? 'mixed'
+              : act.contradicts > 0 ? 'contradicts' : 'consistent';
+      return {
+        scope: 'official', token: tok, verdict: scopeVerdict('official', tok),
+        score: Math.round(100 * act.consistent / (act.consistent + act.contradicts)),
+        record: null, officialActions: act, curated: null,
+        contradictions: act.contradicts, flags: 0,
+        hasStance: true, pending: false, sources: ['formal-actions']
+      };
+    }
+
+    // 3. Nothing on either feeder — honest empty (never a false 0%).
     var token, pending = false;
-    if (!(rec && rec.total)) {
-      if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
-      else token = hasStance ? 'no_record' : 'no_stance';
-    } else if (rec.netVerdict === 'contradicts') token = 'contradicts';
-    else if (rec.netVerdict === 'consistent') token = 'consistent';
-    else if (rec.netVerdict === 'mixed') token = 'mixed';
-    else token = 'limited';   // has votes but no clear direction (present / not voting)
+    if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
+    else token = hasStance ? 'no_record' : 'no_stance';
     return {
       scope: 'official', token: token, verdict: scopeVerdict('official', token),
-      score: scoreFromRecord(rec), record: rec, curated: null,
-      contradictions: rec ? (rec.contradicts || 0) : 0, flags: 0,
-      hasStance: hasStance, pending: pending, sources: (rec && rec.total) ? ['record'] : []
+      score: null, record: null, officialActions: null, curated: null,
+      contradictions: 0, flags: 0, hasStance: hasStance, pending: pending, sources: []
     };
   }
 
@@ -321,12 +403,13 @@
         }
       } catch (e) {}
     }
-    // warm votes — official + combined.
+    // warm votes + migrated formal actions — official + combined.
     if (scope !== 'saydo') {
       try {
         var recs = (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function') ? window.PDXVotingRecord.memberRecords(pid) : null;
         if (recs) recs.forEach(function (it) { (it.issues || []).forEach(function (m) { if (m && m.issueKey) set[m.issueKey] = 1; }); });
       } catch (e) {}
+      try { officialActionIssues(pid).forEach(function (k) { set[k] = 1; }); } catch (e) {}
     }
     return Object.keys(set);
   }
@@ -572,6 +655,13 @@
     scopedOverall: scopedOverall,
     issuesWithSignal: issuesWithSignal,
     isSaydoReceipt: isSaydoReceipt,
+    // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
+    // reassigned to the Official Record. Exposed for reporting / debugging.
+    officialActions: {
+      stats: function () { var i = buildOfficialActions(); return { count: i.count, politicians: i.politicians }; },
+      forIssue: officialActionsFor,
+      issues: officialActionIssues
+    },
     chipHtml: chipHtml,
     dot: dot,
     legendHtml: legendHtml,

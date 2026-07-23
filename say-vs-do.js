@@ -166,6 +166,13 @@
 
       items.forEach(function (it) {
         if (!it || (it.impact !== 'negative' && it.impact !== 'positive')) return;
+        // Phase 3 boundary: 'voting' items are FORMAL LEGISLATIVE ACTIONS, migrated
+        // to the Official Record (window.PDXConsistency.officialActions). They must
+        // not appear on any Say-vs-Do surface — hero, profile feed, flashpoints,
+        // search, or the gateway "strongest" routing — so we drop them here at the
+        // single collect() chokepoint every Say-vs-Do surface reads from. No signal
+        // is lost: it now feeds Official Record instead.
+        if (String(it.category || '').toLowerCase() === 'voting') return;
         if (!it.headline || !it.source || !it.source.url) return; // must be checkable
         var st = stanceFor(pid, it.issueKey);
         var verdict = verdictOf(it, !!st);
