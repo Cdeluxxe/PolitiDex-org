@@ -1,28 +1,52 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   PolitiDex — Unified Say-vs-Do consistency  ·  window.PDXConsistency
+   PolitiDex — Promise Tracker consistency engine  ·  window.PDXConsistency
    ────────────────────────────────────────────────────────────────────────────
-   ONE consistency verdict per politician-issue (and an overall roll-up), so the
-   app never gives two different answers. Before this, a voter saw:
+   LOCKED PRODUCT MODEL (do NOT add a blended third percentage):
 
-     • curated Say-vs-Do RECEIPTS (window.PDXReceipts, from ACCT_SPOTLIGHT) — the
-       "⚠ Says One Thing · Does Another" stamps, and
-     • the VOTING-RECORD engine (window._pdxRecordIssueSummary / _issueRecordSummary)
-       — roll-call votes vs. stated stance,
+   "Promise Tracker" is a SECTION / GATEWAY name only — no percentage is attached
+   to the name itself. Inside it live TWO clearly separated systems that answer
+   two different questions and never merge into one score:
 
-   as separate signals with their own labels, icons and colours on different
-   surfaces. This module is a RECONCILIATION + PRESENTATION layer only: it calls
-   BOTH existing engines, combines them into one canonical verdict, and hands every
-   surface the SAME token, icon, label and colour. It computes nothing new about a
-   politician — it just decides, honestly, which single answer to show.
+     1. OFFICIAL RECORD  (scope: 'official')
+        • Hard, institutional, vote / formal-action based percentage.
+        • Core question: "When they had to vote, did they stand by what they said?"
+        • Built from votes + formal legislative actions (the vr_* voting engine)
+          checked against the member's stated stances.
+        • Organized by affected issue categories on the profile.
+        • HONEST EMPTY STATE: "No qualifying votes on record yet" — never a false 0%.
 
-   It NEVER invents consistency: when there's no record and no receipt to judge, it
-   says so ("Limited record" / "No record yet"), and while a member's votes are
-   still loading it says "Checking record…" rather than guessing.
+     2. SAY-VS-DO  (scope: 'saydo')
+        • Broader public-integrity layer.
+        • Core question: "Does the full public picture match what they claim?"
+        • Built from the wider public record — interviews, statements, news,
+          controversies, social posts and other verified NON-legislative evidence.
+        • Verdict + receipts led; NOT forced into a hard competing percentage
+          (score is intentionally null on this scope).
+
+     Real, discrete PROMISES ("I will / I will not" pledges) are their OWN narrower
+     system and are NOT blended into either percentage. This engine never scores them.
+
+   THE DATA BOUNDARY (being drawn — see curatedFor / isSaydoReceipt):
+     A formal vote or legislative action belongs to OFFICIAL RECORD; broader
+     public-record items belong to SAY-VS-DO; one real-world event is never scored
+     on both sides. The curated receipts today still contain legislative ('voting')
+     and 'promise' items — those are EXCLUDED from the Say-vs-Do scope here so the
+     vote isn't double-counted (it is already represented by the voting engine) and
+     promises stay in their own system.
+
+   HOW TO READ THIS FILE:
+     • officialRecord(pid, issue|overall) → the institutional %, votes only.
+     • sayVsDo(pid, issue|overall)        → the public-integrity verdict, receipts only.
+     • issueVerdict / overallVerdict      → the pre-existing COMBINED read, kept intact
+       for surfaces already wired to it (additive, non-breaking). New surfaces should
+       prefer the two scoped reads above.
+     All three share ONE vocabulary (VERDICTS) and ONE set of renderers, so the two
+     systems look like one coherent product while answering different questions.
 
    Reads (all optional / guarded — load order never matters):
      window._pdxRecordIssueSummary(pid, issueKey)  → voting-record summary | null
-     window.PDXReceipts.collect()                  → curated receipts (verdict.key)
-     window._polPositionMap(pid, CMP_DATA[pid])    → { issueKey → { stance } }
+     window.PDXReceipts.collect()                  → curated receipts (verdict.key, category)
+     window._polPositionMap(pid, CMP_DATA[pid])    → { issueKey → { stance } }  (one shared stance source)
      window.PDXVotingRecord.{memberRecords,fetchMember,noteMember}
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -56,6 +80,42 @@
     return 'none';
   }
 
+  // ── The two scoped systems inside the Promise Tracker gateway ───────────────
+  // Each carries its own name, icon and CORE QUESTION (printed verbatim in the UI),
+  // plus scope-specific copy for the muted / empty states so an Official Record with
+  // no votes reads "No qualifying votes on record yet" (never a false 0%), while a
+  // Say-vs-Do with nothing surfaced reads differently and honestly.
+  var SCOPES = {
+    official: {
+      key: 'official', icon: '🏛️', label: 'Official Record',
+      question: 'When they had to vote, did they stand by what they said?',
+      blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',
+      empty: { no_record: 'No qualifying votes on record yet', no_stance: 'No stated stance to check', limited: 'Limited voting record' }
+    },
+    saydo: {
+      key: 'saydo', icon: '🧾', label: 'Say-vs-Do',
+      question: 'Does the full public picture match what they claim?',
+      blurb: 'The broader public-integrity picture — interviews, statements, news, controversies and other verified public evidence, sourced and receipt-led.',
+      empty: { no_record: 'Nothing on the public record yet', no_stance: 'No stated stance to check', limited: 'Limited public record' }
+    },
+    combined: {
+      key: 'combined', icon: '⚖️', label: 'Say-vs-Do',
+      question: 'Do their actions match their words?',
+      blurb: '',
+      empty: { no_record: 'No record yet', no_stance: 'No stated stance', limited: 'Limited record' }
+    }
+  };
+
+  // Categories of curated receipt that DO NOT belong to the Say-vs-Do scope:
+  //   'voting'  → a formal vote/action; belongs to Official Record (the vr_* engine
+  //               already represents it — counting it here too would double-count).
+  //   'promise' → a discrete pledge; belongs to the separate Promises system.
+  var SAYDO_EXCLUDE = { voting: 1, promise: 1 };
+  function isSaydoReceipt(r) {
+    if (!r) return false;
+    return !SAYDO_EXCLUDE[String(r.category || '').toLowerCase()];
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -84,8 +144,12 @@
     return norm(a) === norm(b);
   }
   // Curated receipts for exactly this politician + issue, tallied by verdict kind.
-  function curatedFor(pid, issueKey) {
-    var res = { consistent: 0, contradicts: 0, flag: 0, total: 0, items: [] };
+  // The DATA BOUNDARY lives here: by default only Say-vs-Do-eligible receipts are
+  // counted (formal 'voting' items and discrete 'promise' items are excluded, so a
+  // vote is never scored on both sides). Pass { all: true } for the raw tally.
+  function curatedFor(pid, issueKey, opts) {
+    opts = opts || {};
+    var res = { consistent: 0, contradicts: 0, flag: 0, total: 0, items: [], excludedVoting: 0 };
     try {
       var R = window.PDXReceipts;
       if (!R || typeof R.collect !== 'function' || !issueKey) return res;
@@ -93,6 +157,10 @@
       for (var i = 0; i < all.length; i++) {
         var r = all[i];
         if (!r || r.issueKey !== issueKey || !samePol(r.pid, pid)) continue;
+        if (!opts.all && !isSaydoReceipt(r)) {
+          if (String(r.category || '').toLowerCase() === 'voting') res.excludedVoting++;
+          continue; // belongs to Official Record / Promises, not Say-vs-Do
+        }
         var k = r.verdict && r.verdict.key;
         if (k === 'contradicts') res.contradicts++;
         else if (k === 'consistent') res.consistent++;
@@ -172,38 +240,107 @@
     };
   }
 
+  // ── scope-aware copy ────────────────────────────────────────────────────────
+  // Apply a scope's own wording to the muted/empty states (Official Record →
+  // "No qualifying votes on record yet", etc.) WITHOUT forking the shared vocabulary
+  // — same icon/colour/token, scope-honest label.
+  function scopeVerdict(scope, token) {
+    var base = VERDICTS[token] || VERDICTS.no_record;
+    var sc = SCOPES[scope] || SCOPES.combined;
+    var over = sc.empty && sc.empty[token];
+    if (!over) return base;
+    return { key: base.key, ico: base.ico, label: over, short: base.short, tone: base.tone, color: base.color, cls: base.cls };
+  }
+
+  // ── OFFICIAL RECORD (scope 'official') — votes + formal actions ONLY ─────────
+  // The institutional "when it counted" answer: a real % or an honest null, never a
+  // fabricated 0. Reads the voting engine only; curated receipts never enter here.
+  function officialIssue(pid, issueKey) {
+    var rec = recordSummary(pid, issueKey);
+    var warm = recordsWarm(pid);
+    var stance = positionStance(pid, issueKey);
+    var hasStance = !!stance || (rec && rec.netVerdict && rec.netVerdict !== 'no_stance' && rec.netVerdict !== 'no_record');
+    var token, pending = false;
+    if (!(rec && rec.total)) {
+      if (!warm && hasStance) { pending = true; token = 'pending'; queueWarm(pid); }
+      else token = hasStance ? 'no_record' : 'no_stance';
+    } else if (rec.netVerdict === 'contradicts') token = 'contradicts';
+    else if (rec.netVerdict === 'consistent') token = 'consistent';
+    else if (rec.netVerdict === 'mixed') token = 'mixed';
+    else token = 'limited';   // has votes but no clear direction (present / not voting)
+    return {
+      scope: 'official', token: token, verdict: scopeVerdict('official', token),
+      score: scoreFromRecord(rec), record: rec, curated: null,
+      contradictions: rec ? (rec.contradicts || 0) : 0, flags: 0,
+      hasStance: hasStance, pending: pending, sources: (rec && rec.total) ? ['record'] : []
+    };
+  }
+
+  // ── SAY-VS-DO (scope 'saydo') — broader public record ONLY ──────────────────
+  // Verdict + receipts led; score is intentionally null so it never competes with
+  // the Official Record %. Reads Say-vs-Do-eligible curated receipts only (formal
+  // 'voting' and discrete 'promise' items are excluded by curatedFor's boundary).
+  function saydoIssue(pid, issueKey) {
+    var cur = curatedFor(pid, issueKey);
+    var stance = positionStance(pid, issueKey);
+    var hasStance = !!stance || cur.total > 0;
+    var token;
+    if (cur.total === 0) token = hasStance ? 'no_record' : 'no_stance';
+    else if (cur.contradicts > 0 && cur.consistent > 0) token = 'mixed';
+    else if (cur.contradicts > 0) token = 'contradicts';
+    else if (cur.consistent > 0) token = 'consistent';
+    else if (cur.flag > 0) token = 'flag';
+    else token = 'no_record';
+    return {
+      scope: 'saydo', token: token, verdict: scopeVerdict('saydo', token),
+      score: null, record: null, curated: cur,
+      contradictions: cur.contradicts, flags: cur.flag,
+      hasStance: hasStance, pending: false, sources: cur.total ? ['receipts'] : []
+    };
+  }
+
   // Every issue we have ANY signal on for this politician (stance, receipt, or a
-  // warm vote), so the overall roll-up covers the union — never just one engine.
-  function issuesWithSignal(pid) {
+  // warm vote), for the given scope. `scope` controls which sources count so the
+  // official / saydo roll-ups never pull in the other side's issues.
+  function issuesWithSignal(pid, scope) {
+    scope = scope || 'combined';
     var set = {};
+    // stated stances (the one shared source of truth) count for every scope.
     try {
       if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
         var pm = window._polPositionMap(pid, window.CMP_DATA[pid]) || {};
         Object.keys(pm).forEach(function (k) { set[k] = 1; });
       }
     } catch (e) {}
-    try {
-      var R = window.PDXReceipts;
-      if (R && typeof R.collect === 'function') {
-        (R.collect() || []).forEach(function (r) { if (r && r.issueKey && samePol(r.pid, pid)) set[r.issueKey] = 1; });
-      }
-    } catch (e) {}
-    try {
-      var recs = (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function') ? window.PDXVotingRecord.memberRecords(pid) : null;
-      if (recs) recs.forEach(function (it) { (it.issues || []).forEach(function (m) { if (m && m.issueKey) set[m.issueKey] = 1; }); });
-    } catch (e) {}
+    // curated public-record receipts (Say-vs-Do-eligible only) — saydo + combined.
+    if (scope !== 'official') {
+      try {
+        var R = window.PDXReceipts;
+        if (R && typeof R.collect === 'function') {
+          (R.collect() || []).forEach(function (r) { if (r && r.issueKey && samePol(r.pid, pid) && isSaydoReceipt(r)) set[r.issueKey] = 1; });
+        }
+      } catch (e) {}
+    }
+    // warm votes — official + combined.
+    if (scope !== 'saydo') {
+      try {
+        var recs = (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function') ? window.PDXVotingRecord.memberRecords(pid) : null;
+        if (recs) recs.forEach(function (it) { (it.issues || []).forEach(function (m) { if (m && m.issueKey) set[m.issueKey] = 1; }); });
+      } catch (e) {}
+    }
     return Object.keys(set);
   }
 
-  // ── the overall roll-up: ONE verdict per politician ─────────────────────────
-  function overallVerdict(pid, issueKeys) {
-    var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid);
+  // ── the overall roll-up: ONE verdict per politician, per scope ──────────────
+  function scopedOverall(scope, pid, issueKeys) {
+    var per = scope === 'official' ? officialIssue : scope === 'saydo' ? saydoIssue : issueVerdict;
+    var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid, scope);
     var counts = { consistent: 0, contradicts: 0, mixed: 0, flag: 0, limited: 0, none: 0, pending: 0 };
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
     keys.forEach(function (k) {
-      var v = issueVerdict(pid, k);
+      var v = per(pid, k);
       counts[bucketOf(v.token)]++;
-      contradictions += v.contradictions;
+      contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
       if (typeof v.score === 'number') { scoreSum += v.score; scoreN++; }
     });
@@ -217,12 +354,15 @@
     else if (anyPending) token = 'pending';
     else token = 'no_record';
     return {
-      token: token, verdict: VERDICTS[token],
-      score: scoreN ? Math.round(scoreSum / scoreN) : null,
+      scope: scope, token: token, verdict: scopeVerdict(scope, token),
+      // Say-vs-Do never carries a competing % (verdict + receipts only).
+      score: (scope === 'saydo') ? null : (scoreN ? Math.round(scoreSum / scoreN) : null),
       counts: counts, contradictions: contradictions,
       pending: anyPending, rated: scoreN, issues: keys.length
     };
   }
+  // Pre-existing COMBINED roll-up — kept intact for surfaces already wired to it.
+  function overallVerdict(pid, issueKeys) { return scopedOverall('combined', pid, issueKeys); }
 
   // ── warm the voting record (once) so pending verdicts resolve ───────────────
   // Mirrors the Alignment Tool's warm queue: debounced, one attempt per member,
@@ -267,7 +407,22 @@
       '@media (prefers-reduced-motion: reduce){.pdxc-spin{animation:none;}}' +
       '.pdxc-legend{display:flex;flex-direction:column;gap:0.35rem;font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxc-legend-row{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;}' +
-      '.pdxc-legend-row b{white-space:nowrap;}';
+      '.pdxc-legend-row b{white-space:nowrap;}' +
+      // Promise Tracker gateway — the section name (no %) + two dive-in cards.
+      '.pdxc-gate{border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.6),rgba(10,15,30,0.35));}' +
+      '.pdxc-gate-h{display:flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:0.03em;color:#e8eefc;line-height:1;}' +
+      '.pdxc-gate-sub{font-family:"Barlow Condensed",sans-serif;font-size:0.72rem;color:#9fb4d4;margin-top:0.25rem;line-height:1.3;}' +
+      '.pdxc-gate-cards{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.75rem;}' +
+      '.pdxc-gate-card{display:flex;flex-direction:column;gap:0.4rem;width:100%;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,0.1);border-radius:0.75rem;padding:0.7rem 0.8rem;background:rgba(10,15,30,0.4);transition:transform .12s ease,border-color .2s ease,background .2s ease;}' +
+      '.pdxc-gate-card:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.2);background:rgba(10,15,30,0.6);}' +
+      '.pdxc-gate-card:active{transform:scale(0.995);}' +
+      '.pdxc-gate-top{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
+      '.pdxc-gate-name{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;font-size:0.82rem;color:#e8eefc;}' +
+      '.pdxc-gate-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
+      '.pdxc-gate-q{font-family:"Barlow Condensed",sans-serif;font-style:italic;font-size:0.74rem;color:#c6d4ec;line-height:1.3;}' +
+      '.pdxc-gate-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
+      '.pdxc-gate-go{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
+      '@media (max-width:380px){.pdxc-gate-pct{font-size:1.3rem;}}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
     st.textContent = css;
@@ -322,15 +477,63 @@
     return '<div class="pdxc-legend"><div class="pdxc-legend-row" style="opacity:.75;">' + FRAME.icon + ' <b>' + FRAME.label + '</b> — ' + esc(FRAME.question) + '</div>' + rows + '</div>';
   }
 
+  // ── Promise Tracker gateway ─────────────────────────────────────────────────
+  // The SECTION name only — no percentage attached to "Promise Tracker" itself.
+  // Presents the philosophy line + two clearly separated dive-in cards, each with
+  // its own icon, name, core question, and a scoped summary (Official Record shows
+  // its % or an honest empty state; Say-vs-Do shows its verdict, never a %).
+  // Additive: returns HTML any profile surface can mount. The cards carry
+  // data-pdxc-open="official|saydo" so the host can wire the dive-in navigation.
+  function _scopeSummaryHtml(scope, pid) {
+    var ov = scopedOverall(scope, pid);
+    var m = ov.verdict;
+    if (scope === 'official') {
+      var pct = (typeof ov.score === 'number')
+        ? '<span class="pdxc-gate-pct" style="color:' + m.color + ';">' + ov.score + '%</span>'
+        : '<span class="pdxc-chip pdxc-' + m.cls + '">' + m.ico + ' ' + esc(m.label) + '</span>';
+      return pct;
+    }
+    // Say-vs-Do — verdict chip, never a percentage.
+    return '<span class="pdxc-chip pdxc-' + m.cls + '">' + (ov.token === 'pending' ? '<span class="pdxc-spin"></span>' : m.ico + ' ') + esc(m.label) + '</span>';
+  }
+  function _gateCard(scope, pid) {
+    var sc = SCOPES[scope];
+    return '<button type="button" class="pdxc-gate-card" data-pdxc-open="' + scope + '" aria-label="' + esc(sc.label + ' — ' + sc.question) + '">' +
+        '<div class="pdxc-gate-top"><span class="pdxc-gate-name"><span aria-hidden="true">' + sc.icon + '</span>' + esc(sc.label) + '</span>' + _scopeSummaryHtml(scope, pid) + '</div>' +
+        '<div class="pdxc-gate-q">“' + esc(sc.question) + '”</div>' +
+        '<div class="pdxc-gate-foot"><span class="pdxc-gate-sub">' + esc(sc.blurb) + '</span><span class="pdxc-gate-go">View →</span></div>' +
+      '</button>';
+  }
+  function gatewayHtml(pid, opts) {
+    ensureStyles();
+    opts = opts || {};
+    return '<section class="pdxc-gate" aria-label="Promise Tracker">' +
+        '<div class="pdxc-gate-h"><span aria-hidden="true">📋</span> Promise Tracker</div>' +
+        '<div class="pdxc-gate-sub">Two honest reads on whether they mean what they say — kept separate on purpose. ' +
+          '<b>Official Record</b> is the institutional score from their votes; <b>Say-vs-Do</b> is the broader public picture. ' +
+          'Discrete promises are tracked on their own.</div>' +
+        '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
+      '</section>';
+  }
+
   window.PDXConsistency = {
     FRAME: FRAME,
+    SCOPES: SCOPES,
     VERDICTS: VERDICTS,
+    // Two scoped reads — the locked product model. Pass an issueKey for a single
+    // issue, or omit it for the politician's overall roll-up in that scope.
+    officialRecord: function (pid, issue) { return issue ? officialIssue(pid, issue) : scopedOverall('official', pid); },
+    sayVsDo: function (pid, issue) { return issue ? saydoIssue(pid, issue) : scopedOverall('saydo', pid); },
+    // Pre-existing COMBINED reads — kept for surfaces already wired to them.
     issueVerdict: issueVerdict,
     overallVerdict: overallVerdict,
+    scopedOverall: scopedOverall,
     issuesWithSignal: issuesWithSignal,
+    isSaydoReceipt: isSaydoReceipt,
     chipHtml: chipHtml,
     dot: dot,
     legendHtml: legendHtml,
+    gatewayHtml: gatewayHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
