@@ -929,8 +929,22 @@
     var pidList = Object.keys(pids);
     if (!pidList.length) return;
     PDXVotingRecord.fetchCompare(pidList).then(function () {
+      var PC = window.PDXConsistency;
       want.forEach(function (w) {
         w.el.setAttribute('data-vrdone', '1');
+        // Prefer the UNIFIED verdict (curated receipts + voting record) so a dot on
+        // the comparison board matches the profile / receipts. Fall back to the
+        // voting-record-only summary when the unifier isn't loaded.
+        if (PC && typeof PC.dot === 'function') {
+          var uv = PC.issueVerdict(w.pid, w.key);
+          var d = PC.dot(uv);
+          if (!d || uv.token === 'no_record' || uv.token === 'no_stance') return; // nothing to show
+          w.el.className = (w.el.className ? w.el.className + ' ' : '') + 'vrdot ' + d.cls;
+          w.el.textContent = d.ch;
+          var extra = uv.contradictions > 0 ? ' · ⚑' + uv.contradictions : (uv.record && uv.record.total ? ' · ' + uv.record.total + ' vote' + (uv.record.total === 1 ? '' : 's') : '');
+          w.el.setAttribute('title', d.tip + extra);
+          return;
+        }
         var s = window._pdxRecordIssueSummary(w.pid, w.key);
         if (!s || !s.total) return; // no record → leave blank
         var meta = _DOT[s.netVerdict] || _DOT.record;

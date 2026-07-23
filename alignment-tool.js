@@ -1500,6 +1500,30 @@
         issues.push({ key: it.key, label: it.label, netVerdict: nv, total: it.record.total, val: val });
       });
 
+      // Fold in the unified Say-vs-Do signal so this card can't read "backs it up"
+      // while a sourced CURATED contradiction exists on a stated issue the roll-call
+      // record didn't catch. Additive + guarded: when there are no curated
+      // contradictions (the common case) nothing changes, so the base score is
+      // untouched. A genuine curated contradiction counts once and nudges the score
+      // down — the same answer the receipts and Issue Comparison already show.
+      try {
+        var _PC = window.PDXConsistency;
+        if (_PC && typeof _PC.issueVerdict === 'function') {
+          bd.issues.forEach(function (it) {
+            if (!it.direct) return;
+            var already = false;
+            for (var _i = 0; _i < issues.length; _i++) { if (issues[_i].key === it.key && issues[_i].netVerdict === 'contradicts') { already = true; break; } }
+            if (already) return;
+            var uv = _PC.issueVerdict(pid, it.key);
+            if (!uv || !uv.curated || uv.curated.contradicts <= 0) return;
+            contra++;
+            var wasRated = false;
+            for (var _j = 0; _j < issues.length; _j++) { if (issues[_j].key === it.key) { wasRated = true; break; } }
+            if (!wasRated) { if (limited > 0) limited--; rated++; totalW += 1; /* val 0 = a contradiction */ }
+          });
+        }
+      } catch (e) {}
+
       // Pending only when the visitor's issues include stated positions we could
       // check, but this member's votes simply aren't loaded yet (and we haven't
       // already tried). Otherwise "no record" is the honest, final answer.

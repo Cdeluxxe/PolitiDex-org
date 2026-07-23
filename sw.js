@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v26';
+const CACHE_VERSION = 'v27';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -75,6 +75,10 @@ const SHELL_ASSETS = [
   '/stance-library.js',
   '/voting-record.js',
   '/say-vs-do.js',
+  // Unified Say-vs-Do consistency (reconciles curated receipts + voting record
+  // into one verdict). Precached with the shell so every surface can render the
+  // shared verdict offline after first load.
+  '/consistency.js',
   '/issue-view.js',
   '/journey.js',
   '/coverage.js',

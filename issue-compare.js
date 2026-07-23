@@ -175,11 +175,23 @@
     if (!STANCE[stance] && stance !== 'none') stance = 'mixed';
     var rec = recordSummary(pid, issueKey);
     var warm = recordsWarm(pid);
-    // consistency state: rec (has votes) | 'no_record' (warm, none) | 'pending' (not warm yet)
-    var cons = { state: 'none' };
-    if (rec && rec.total) cons = { state: 'rated', rec: rec };
-    else if (warm) cons = { state: 'no_record' };
-    else cons = { state: 'pending' };
+    // Unified Say-vs-Do verdict (curated receipts + voting record), so this surface
+    // gives the SAME answer as the profile, receipts and comparison board. Falls back
+    // to the voting-record-only summary when the unifier isn't loaded.
+    var uni = null;
+    try { if (window.PDXConsistency && isFn(window.PDXConsistency.issueVerdict)) uni = window.PDXConsistency.issueVerdict(pid, issueKey); } catch (e) {}
+    var cons;
+    if (uni) {
+      if (uni.token === 'pending') cons = { state: 'pending', uni: uni };
+      else if (uni.token === 'no_record' || uni.token === 'no_stance') cons = { state: 'no_record', uni: uni };
+      else cons = { state: 'rated', uni: uni, rec: uni.record || null };
+    } else if (rec && rec.total) {
+      cons = { state: 'rated', rec: rec };
+    } else if (warm) {
+      cons = { state: 'no_record' };
+    } else {
+      cons = { state: 'pending' };
+    }
     return {
       pid: pid, name: d.name || pid, office: d.office || '', state: d.state || '',
       party: d.party || '', photo: d.photo || (d.icon || ''),
@@ -190,6 +202,15 @@
   // Rank within a bucket: rated first (consistent > mixed > contradicts), then by
   // vote count; pending next; no-record last.
   function rankScore(r) {
+    // Unified verdict first (matches what the card shows): consistent > mixed >
+    // flag > contradicts, then by how much record backs it; pending, then none.
+    if (r.cons.uni) {
+      var t = r.cons.uni.token;
+      if (t === 'pending') return 100;
+      var b = t === 'consistent' ? 400 : t === 'mixed' ? 300 : t === 'flag' ? 260 : t === 'contradicts' ? 200 : t === 'limited' ? 150 : 0;
+      var n = (r.cons.uni.record && r.cons.uni.record.total) || (r.cons.uni.curated && r.cons.uni.curated.total) || 0;
+      return b + Math.min(n, 99);
+    }
     if (r.cons.state === 'rated') {
       var nv = r.cons.rec.netVerdict;
       var base = nv === 'consistent' ? 400 : nv === 'mixed' ? 300 : nv === 'contradicts' ? 200 : 250;
@@ -310,6 +331,20 @@
 
   /* ── render: a single result card ───────────────────────────────────── */
   function consReadout(r) {
+    // Unified path — same vocabulary/icons/colours as every other surface.
+    if (r.cons.uni) {
+      var uni = r.cons.uni, m = uni.verdict;
+      if (uni.token === 'pending') return '<span class="ic-cons is-muted">⚖️ Say-vs-Do <span class="ic-spin"></span> checking record…</span>';
+      if (uni.token === 'no_record' || uni.token === 'no_stance') return '<span class="ic-cons is-muted" title="' + esc(m.short) + '">⚖️ ' + esc(m.label) + '</span>';
+      var recU = uni.record, parts = [];
+      if (recU && recU.total) parts.push(recU.total + ' vote' + (recU.total === 1 ? '' : 's'));
+      if (uni.curated && uni.curated.total) parts.push(uni.curated.total + ' receipt' + (uni.curated.total === 1 ? '' : 's'));
+      if (uni.contradictions) parts.push(uni.contradictions + ' against');
+      var flagU = (uni.contradictions > 0) ? '<span class="ic-flag">⚑ ' + uni.contradictions + '</span>' : '';
+      var muted = (uni.token === 'limited') ? ' is-muted' : '';
+      return '<span class="ic-cons' + muted + '" style="--c:' + m.color + '"><span class="ic-cons-ico">' + m.ico + '</span>'
+        + '<span class="ic-cons-txt"><b>⚖️ ' + esc(m.label) + '</b>' + flagU + '<span class="ic-cons-sub">' + esc(parts.join(' · ')) + '</span></span></span>';
+    }
     if (r.cons.state === 'pending') return '<span class="ic-cons is-muted">⚖️ Say-vs-Do <span class="ic-spin"></span> checking record…</span>';
     if (r.cons.state === 'no_record') return '<span class="ic-cons is-muted" title="No votes on record yet to verify this position">⚖️ No voting record yet</span>';
     var rec = r.cons.rec, nv = rec.netVerdict;
