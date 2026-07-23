@@ -498,7 +498,7 @@
   }
   function _gateCard(scope, pid) {
     var sc = SCOPES[scope];
-    return '<button type="button" class="pdxc-gate-card" data-pdxc-open="' + scope + '" aria-label="' + esc(sc.label + ' — ' + sc.question) + '">' +
+    return '<button type="button" class="pdxc-gate-card" data-pdxc-open="' + scope + '" data-pdxc-pid="' + esc(pid) + '" aria-label="' + esc(sc.label + ' — ' + sc.question) + '">' +
         '<div class="pdxc-gate-top"><span class="pdxc-gate-name"><span aria-hidden="true">' + sc.icon + '</span>' + esc(sc.label) + '</span>' + _scopeSummaryHtml(scope, pid) + '</div>' +
         '<div class="pdxc-gate-q">“' + esc(sc.question) + '”</div>' +
         '<div class="pdxc-gate-foot"><span class="pdxc-gate-sub">' + esc(sc.blurb) + '</span><span class="pdxc-gate-go">View →</span></div>' +
@@ -506,14 +506,56 @@
   }
   function gatewayHtml(pid, opts) {
     ensureStyles();
+    bindGateway();
     opts = opts || {};
-    return '<section class="pdxc-gate" aria-label="Promise Tracker">' +
+    return '<section class="pdxc-gate" data-pdxc-gate-pid="' + esc(pid) + '" aria-label="Promise Tracker">' +
         '<div class="pdxc-gate-h"><span aria-hidden="true">📋</span> Promise Tracker</div>' +
-        '<div class="pdxc-gate-sub">Two honest reads on whether they mean what they say — kept separate on purpose. ' +
-          '<b>Official Record</b> is the institutional score from their votes; <b>Say-vs-Do</b> is the broader public picture. ' +
+        '<div class="pdxc-gate-sub">Two separate ways to check whether their word holds up — kept apart on purpose. ' +
+          '<b>🏛️ Official Record</b> is the institutional score from their votes; <b>🧾 Say-vs-Do</b> is the broader public picture. ' +
           'Discrete promises are tracked on their own.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
       '</section>';
+  }
+
+  // Gateway navigation + live refresh. The two dive-in cards route to the deeper
+  // views the app already ships: Official Record → the profile's Voting Record
+  // section; Say-vs-Do → the politician's receipts (lightbox, else the flashpoints
+  // feed). We also re-render a mounted gateway's cards when that member's votes
+  // finish warming, so the Official Record summary resolves from "Checking…" to its
+  // real % in place.
+  function _gateNav(scope, pid) {
+    if (scope === 'official') {
+      if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-voting'); return; }
+      var el = document.getElementById('pdxsec-voting'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    // say-vs-do
+    try {
+      var R = window.PDXReceipts;
+      if (R && typeof R.forPolitician === 'function' && R.forPolitician(pid) && typeof R.open === 'function') { R.open(pid); return; }
+    } catch (e) {}
+    if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-controversies'); return; }
+    var el2 = document.getElementById('pdxsec-controversies'); if (el2 && el2.scrollIntoView) el2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  var _gateBound = false;
+  function bindGateway() {
+    if (_gateBound || !document.addEventListener) return;
+    _gateBound = true;
+    document.addEventListener('click', function (e) {
+      var card = e.target.closest && e.target.closest('[data-pdxc-open]');
+      if (!card) return;
+      e.preventDefault();
+      _gateNav(card.getAttribute('data-pdxc-open'), card.getAttribute('data-pdxc-pid') || '');
+    });
+    window.addEventListener('pdx-consistency-warm', function (ev) {
+      var pid = ev && ev.detail && ev.detail.pid; if (!pid) return;
+      var gates = document.querySelectorAll('[data-pdxc-gate-pid]');
+      for (var i = 0; i < gates.length; i++) {
+        if (gates[i].getAttribute('data-pdxc-gate-pid') !== String(pid)) continue;
+        var cards = gates[i].querySelector('.pdxc-gate-cards');
+        if (cards) cards.innerHTML = _gateCard('official', pid) + _gateCard('saydo', pid);
+      }
+    });
   }
 
   window.PDXConsistency = {

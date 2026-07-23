@@ -687,7 +687,7 @@
       var ct = document.getElementById('align-compact-tagline');
       if (ct) ct.textContent = (n === 0)
         ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your team.'
-        : '🎯 Your Match and ⚖️ Say-vs-Do now show on every candidate — see who fits, then tap “Add to my team” or “See the receipts” right on each card.';
+        : '🎯 Your Match and 🏛️ Official Record now show on every candidate — see who fits, then tap “Add to my team” or “See the receipts” right on each card.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
       var dn = document.getElementById('align-done-btn');
@@ -1500,30 +1500,6 @@
         issues.push({ key: it.key, label: it.label, netVerdict: nv, total: it.record.total, val: val });
       });
 
-      // Fold in the unified Say-vs-Do signal so this card can't read "backs it up"
-      // while a sourced CURATED contradiction exists on a stated issue the roll-call
-      // record didn't catch. Additive + guarded: when there are no curated
-      // contradictions (the common case) nothing changes, so the base score is
-      // untouched. A genuine curated contradiction counts once and nudges the score
-      // down — the same answer the receipts and Issue Comparison already show.
-      try {
-        var _PC = window.PDXConsistency;
-        if (_PC && typeof _PC.issueVerdict === 'function') {
-          bd.issues.forEach(function (it) {
-            if (!it.direct) return;
-            var already = false;
-            for (var _i = 0; _i < issues.length; _i++) { if (issues[_i].key === it.key && issues[_i].netVerdict === 'contradicts') { already = true; break; } }
-            if (already) return;
-            var uv = _PC.issueVerdict(pid, it.key);
-            if (!uv || !uv.curated || uv.curated.contradicts <= 0) return;
-            contra++;
-            var wasRated = false;
-            for (var _j = 0; _j < issues.length; _j++) { if (issues[_j].key === it.key) { wasRated = true; break; } }
-            if (!wasRated) { if (limited > 0) limited--; rated++; totalW += 1; /* val 0 = a contradiction */ }
-          });
-        }
-      } catch (e) {}
-
       // Pending only when the visitor's issues include stated positions we could
       // check, but this member's votes simply aren't loaded yet (and we haven't
       // already tried). Otherwise "no record" is the honest, final answer.
@@ -1967,19 +1943,19 @@
     function _consistShellHtml(pid, kind, c) {
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
       if (kind === 'checking') {
-        return '<div class="align-consist-bar is-checking" aria-label="Say-vs-Do consistency: checking the voting record" role="status">' +
+        return '<div class="align-consist-bar is-checking" aria-label="Official Record: checking the voting record" role="status">' +
             '<span class="align-consist-ico"><span class="align-consist-spin"></span></span>' +
-            '<span class="align-consist-main"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
+            '<span class="align-consist-main"><span class="align-consist-title">🏛️ Official Record</span>' +
             '<span class="align-consist-sub">Checking their voting record…</span></span>' +
           '</div>';
       }
       // limited — states positions, but little/no voting record to verify them yet
       var det = (c && c.limited)
         ? c.limited + ' stated ' + (c.limited === 1 ? 'position has' : 'positions have') + ' no votes on record yet'
-        : 'No voting record yet to check against their stated positions';
-      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-limited" title="They\'ve stated positions, but there\'s little or no voting record to verify them against yet" aria-label="Say-vs-Do consistency: limited voting record — nothing to score yet. Tap for details.">' +
-          '<span class="align-consist-ico">⚖️</span>' +
-          '<span class="align-consist-main"><span class="align-consist-titlerow"><span class="align-consist-title">⚖️ Say-vs-Do</span>' +
+        : 'No qualifying votes on record yet to check against their stated positions';
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar is-limited" title="They\'ve stated positions, but there\'s little or no voting record to verify them against yet" aria-label="Official Record: limited voting record — nothing to score yet. Tap for details.">' +
+          '<span class="align-consist-ico">🏛️</span>' +
+          '<span class="align-consist-main"><span class="align-consist-titlerow"><span class="align-consist-title">🏛️ Official Record</span>' +
           '<span class="align-consist-badge is-limited">Limited record</span></span>' +
           '<span class="align-consist-sub">' + det + '</span></span>' +
         '</button>';
@@ -2000,11 +1976,11 @@
       var flag = _consistFlag(c);
       var limNote = c.limited > 0 ? ' · ' + c.limited + ' with no record yet' : '';
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
-      return '<button type="button" onclick="' + open + '" class="align-consist-bar' + (hasContra ? ' is-contra' : '') + '" aria-label="Say-vs-Do consistency: ' + c.score + ' percent — ' + label + '; ' + _consistPhrase(c.score) + ', across ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record' + (hasContra ? ', including ' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') : '') + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
+      return '<button type="button" onclick="' + open + '" class="align-consist-bar' + (hasContra ? ' is-contra' : '') + '" aria-label="Official Record: ' + c.score + ' percent — ' + label + '; ' + _consistPhrase(c.score) + ', across ' + c.rated + ' of ' + c.stated + ' stated positions with a voting record' + (hasContra ? ', including ' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') : '') + '. Tap for the issue-by-issue breakdown." style="border-color:' + col + '55;box-shadow:inset 0 0 0 1px ' + col + '1c;">' +
           '<span class="align-consist-num" style="color:' + col + ';text-shadow:0 0 10px ' + col + '55;">' + c.score + '<span style="font-size:0.8rem;">%</span></span>' +
           '<span class="align-consist-main">' +
             '<span class="align-consist-titlerow">' +
-              '<span class="align-consist-title" style="color:' + col + ';">⚖️ Say-vs-Do</span>' +
+              '<span class="align-consist-title" style="color:' + col + ';">🏛️ Official Record</span>' +
               '<span class="align-consist-badge" style="color:' + col + ';background:' + col + '22;border:1px solid ' + col + '66;">' + label + '</span>' +
               flag +
             '</span>' +
@@ -2022,13 +1998,13 @@
       var c = (typeof _calcConsistencyScore === 'function') ? _calcConsistencyScore(pid) : null;
       if (!c) return '';
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
-      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking their voting record…">⚖️ Say-vs-Do <span class="align-consist-spin"></span></span>'; }
+      if (c.pending) { _alignQueueConsistWarm(pid); return '<span class="align-consist-chip is-muted" title="Checking their voting record…">🏛️ Official Record <span class="align-consist-spin"></span></span>'; }
       if (c.score === null) {
-        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, but little or no voting record to verify them against yet">⚖️ Limited record</span>' : '';
+        return c.stated > 0 ? '<span class="align-consist-chip is-muted" title="States positions, but little or no voting record to verify them against yet">🏛️ Limited record</span>' : '';
       }
       var col = _alignScoreColor(c.score);
       var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' stated position' + (c.contradictions === 1 ? '' : 's') + ' the record runs against">⚑' + c.contradictions + '</span>' : '';
-      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Say-vs-Do consistency: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">⚖️ ' + c.score + '%' + flag + '</button>';
+      return '<button type="button" onclick="' + open + '" class="align-consist-chip" title="Official Record: ' + c.score + '% — record backs ' + c.rated + ' of ' + c.stated + ' stated positions. Tap for breakdown." style="cursor:pointer;font:inherit;border-color:' + col + '40;color:' + col + ';background:' + col + '18;">🏛️ ' + c.score + '%' + flag + '</button>';
     }
     window._alignConsistencyBadge = _alignConsistencyBadge;
 
@@ -2047,14 +2023,14 @@
       var open = 'event.stopPropagation();if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\');';
 
       var consCell;
-      if (c && c.pending) { _alignQueueConsistWarm(pid); consCell = '<span class="align-dm-v is-muted">⚖️ <span class="align-consist-spin"></span></span>'; }
-      else if (!c || c.score === null) { consCell = c && c.stated > 0 ? '<span class="align-dm-v is-muted" title="States positions; no voting record to verify yet">⚖️ Ltd</span>' : '<span class="align-dm-v is-muted" title="No stated positions on your issues to check">⚖️ —</span>'; }
+      if (c && c.pending) { _alignQueueConsistWarm(pid); consCell = '<span class="align-dm-v is-muted">🏛️ <span class="align-consist-spin"></span></span>'; }
+      else if (!c || c.score === null) { consCell = c && c.stated > 0 ? '<span class="align-dm-v is-muted" title="States positions; no voting record to verify yet">🏛️ Ltd</span>' : '<span class="align-dm-v is-muted" title="No stated positions on your issues to check">🏛️ —</span>'; }
       else {
         var cCol = _alignScoreColor(c.score);
         var flag = c.contradictions > 0 ? '<span class="align-consist-flag compact" title="' + c.contradictions + ' contradiction' + (c.contradictions === 1 ? '' : 's') + '">⚑' + c.contradictions + '</span>' : '';
-        consCell = '<span class="align-dm-v" style="color:' + cCol + ';">⚖️ ' + c.score + '%' + flag + '</span>';
+        consCell = '<span class="align-dm-v" style="color:' + cCol + ';">🏛️ ' + c.score + '%' + flag + '</span>';
       }
-      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="🎯 Your Match — how well their stated positions fit the issues you care about. ⚖️ Say-vs-Do — whether their voting record backs up what they say. Tap for the issue-by-issue breakdown." aria-label="Your match ' + m + ' percent — how well their stated positions fit your issues' + (c && typeof c.score === 'number' ? '; Say-vs-Do ' + c.score + ' percent — whether their record backs up what they say' : '') + '. Tap for details.">' +
+      return '<button type="button" onclick="' + open + '" class="align-dual-mini" title="🎯 Your Match — how well their stated positions fit the issues you care about. 🏛️ Official Record — when they had to vote, did they stand by what they said. Tap for the issue-by-issue breakdown." aria-label="Your match ' + m + ' percent — how well their stated positions fit your issues' + (c && typeof c.score === 'number' ? '; Official Record ' + c.score + ' percent — whether their votes backed up what they said' : '') + '. Tap for details.">' +
           '<span class="align-dm-v" style="color:' + mCol + ';">🎯 ' + m + '%</span>' +
           '<span class="align-dm-sep">·</span>' +
           consCell +
@@ -2072,9 +2048,9 @@
       match:   { icon: '🎯', label: 'Your Match',
                  short: 'How well their stated positions fit the issues you care about.',
                  calc:  'Built from your saved stances vs. their documented positions — personal to you, not a party label.' },
-      saydo:   { icon: '⚖️', label: 'Say-vs-Do',
-                 short: 'Whether their voting record backs up the positions they claim.',
-                 calc:  'Their votes checked against their own stated positions, issue by issue. Agreement-neutral; shows “Limited record” when there isn\'t enough voting record to judge.' },
+      saydo:   { icon: '🏛️', label: 'Official Record',
+                 short: 'When they had to vote, did they stand by what they said?',
+                 calc:  'Their votes and formal legislative actions checked against their own stated positions, issue by issue. Agreement-neutral; shows “No qualifying votes on record yet” when there isn\'t enough record to judge — never a false 0%.' },
       promise: { icon: '🤝', label: 'Promise Follow-Through',
                  short: 'Of the promises they made, how many they\'ve kept.',
                  calc:  'Kept ÷ (kept + broken) of tracked promises. Pending promises don\'t count until they resolve.' },
@@ -2507,7 +2483,7 @@
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
-          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b> — plus <b>⚖️ Say-vs-Do</b>, whether their record backs it up.</div>';
+          '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b> — plus <b>🏛️ Official Record</b>, whether their record backs it up.</div>';
         return;
       }
 

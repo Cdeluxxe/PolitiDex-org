@@ -935,8 +935,10 @@
         // Prefer the UNIFIED verdict (curated receipts + voting record) so a dot on
         // the comparison board matches the profile / receipts. Fall back to the
         // voting-record-only summary when the unifier isn't loaded.
-        if (PC && typeof PC.dot === 'function') {
-          var uv = PC.issueVerdict(w.pid, w.key);
+        // Comparison dots are the OFFICIAL RECORD axis — votes / formal actions vs.
+        // stance. Use the scoped read so curated (Say-vs-Do) receipts never bleed in.
+        if (PC && typeof PC.dot === 'function' && typeof PC.officialRecord === 'function') {
+          var uv = PC.officialRecord(w.pid, w.key);
           var d = PC.dot(uv);
           if (!d || uv.token === 'no_record' || uv.token === 'no_stance') return; // nothing to show
           w.el.className = (w.el.className ? w.el.className + ' ' : '') + 'vrdot ' + d.cls;
