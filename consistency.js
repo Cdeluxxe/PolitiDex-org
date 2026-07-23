@@ -194,12 +194,69 @@
   // say-vs-do.js collect()), so one event is never scored on both sides. Verifiability
   // is preserved — an item without a source link is dropped, exactly like vr_* rows.
   var _oaCache = null, _oaKey = -1;
+
+  // Phase 4 issue-key backfill for migrated voting receipts that shipped WITHOUT an
+  // issueKey. Each entry was assigned by hand only where the issue is clear and
+  // defensible from the item's headline/context, and every value is a live ISSUE_MAP
+  // key (validated below). Keyed by "<pid>||<normalized headline>" so curly-vs-straight
+  // apostrophes and punctuation can't break the match. Items whose issue was ambiguous,
+  // multi-issue, or purely electoral/leadership are intentionally ABSENT — they stay
+  // unresolved rather than take a weak mapping. Centralised here (not edited into the
+  // 683 KB data file) so the Phase 4 mapping is auditable in one place; a later pass
+  // can fold these back into the source data.
+  var OFFICIAL_ACTION_ISSUE_BACKFILL = {
+    'lyman||carried his public lands fight from protest into the statehouse': 'lands_local',
+    'rand_paul||blocked fast track passage of the 9 11 victim compensation fund': 'national_debt',
+    'kriebe||a steady public education through line': 'public_schools',
+    'jdailey||year after year steward of utah s medical cannabis program': 'cannabis_reform',
+    'nthurston||multi year push to send drug rebates to patients': 'health_drug_prices',
+    'cbramble||two decades as the senate s tax and budget engine': 'lower_taxes',
+    'gwynn_h6||carries first responder and public safety measures': 'back_police',
+    'kwan_s12||sponsored hate crime police training law amid a 339 rise in anti aapi crime': 'rights_balance',
+    'kwan_s12||carried a resolution condemning anti aapi attacks': 'rights_balance',
+    'koford_h10||pattern a weber republican who turns conservation talk into votes': 'water',
+    'koford_h10||a first term lead on great salt lake conservation': 'water',
+    'cory_maloy_h52||a consistent multi session second amendment record': 'gun_rights',
+    'janderegg||a decade long low drama privacy throughline': 'privacy_rights',
+    'dhinkins||backed public worker bargaining rights against the partisan grain': 'econ_workers',
+    'dowens_st||guarded private property against eminent domain overreach': 'property_rights',
+    'jbriscoe||kept pushing free transit even as the bills died': 'transit',
+    'swaldrip||a single sustained obsession housing supply': 'housing_build',
+    'jburton||turned service ethic into education benefits for the guard': 'veterans',
+    'tyler_clancy||turned a lived issue into the state s homelessness portfolio': 'homeless',
+    'jferry||put real money behind the rhetoric': 'water',
+    'calbrecht||reliable rancher and water advocate for central utah': 'water',
+    'stewart_e_barlow||reformed public health order authority after living the pandemic': 'medical_freedom',
+    'cheryl_acton||pushes disclosure rules that bind candidates like herself': 'gov_transparency',
+    'ryan_d_wilcox||modernized child safety law for the ai era': 'tech_balance',
+    'jon_hawkins||co chairs the kids and tech safety commission': 'tech_balance',
+    'doug_fiefia||took an election transparency loss and kept the receipt public': 'election_integrity',
+    'kay_christofferson||willing to retire his own side s outdated program': 'transit',
+    'massie||one of congress s most reliable no votes on principle even alone': 'cut_spending',
+    'hegseth||delivered on his stated anti woke pentagon agenda': 'end_dei',
+    'nhaley||led the removal of the confederate flag in south carolina': 'rights_balance',
+    'biden||turned campaign promises into major enacted laws': 'infrastructure',
+    'obama||delivered his signature promise the affordable care act': 'healthcare',
+    'emendenhall||delivered on the environmental brand': 'climate_action'
+  };
+  function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  // Resolve an item's issueKey: its own, else the Phase 4 backfill. Only accept a key
+  // that exists in the live ISSUE_MAP when it's loaded, so a stale backfill entry can
+  // never introduce an invalid key.
+  function _resolveActionIssue(pid, it) {
+    var ik = it.issueKey;
+    var viaBackfill = false;
+    if (!ik) { ik = OFFICIAL_ACTION_ISSUE_BACKFILL[pid + '||' + _normHead(it.headline)] || ''; viaBackfill = !!ik; }
+    if (!ik) return null;
+    try { if (window.ISSUE_MAP && !window.ISSUE_MAP[ik]) return null; } catch (e) {}
+    return { key: ik, backfilled: viaBackfill };
+  }
   function buildOfficialActions() {
     var key = 0;
     try { key = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) { key = 0; }
     if (_oaCache && key === _oaKey) return _oaCache;
     _oaKey = key;
-    var byPid = {}, byNorm = {}, count = 0, pols = 0;
+    var byPid = {}, byNorm = {}, count = 0, pols = 0, backfilled = 0;
     try {
       var ACCT = window.ACCT_SPOTLIGHT || {};
       Object.keys(ACCT).forEach(function (pid) {
@@ -208,12 +265,14 @@
         var had = false;
         items.forEach(function (it) {
           if (!it || String(it.category || '').toLowerCase() !== 'voting') return; // formal actions only
-          if (!it.issueKey) return;
           if (!it.source || !it.source.url) return;                                 // verifiability rule
           var verdict = it.impact === 'positive' ? 'consistent' : it.impact === 'negative' ? 'contradicts' : null;
           if (!verdict) return;                                                     // neutral = context, unscored
+          var res = _resolveActionIssue(pid, it);                                   // own issueKey, else Phase 4 backfill
+          if (!res) return;                                                         // still unmapped → leave unresolved
+          if (res.backfilled) backfilled++;
           var iss = (byPid[pid] = byPid[pid] || {});
-          var slot = (iss[it.issueKey] = iss[it.issueKey] || { consistent: 0, contradicts: 0, total: 0, items: [] });
+          var slot = (iss[res.key] = iss[res.key] || { consistent: 0, contradicts: 0, total: 0, items: [] });
           slot[verdict]++; slot.total++;
           slot.items.push({ headline: it.headline || '', date: it.date || '', sourceUrl: it.source.url, sourceLabel: (it.source.label || 'Source'), verdict: verdict });
           count++; had = true;
@@ -221,7 +280,7 @@
         if (had) { byNorm[norm(pid)] = byPid[pid]; pols++; }
       });
     } catch (e) {}
-    _oaCache = { byPid: byPid, byNorm: byNorm, count: count, politicians: pols };
+    _oaCache = { byPid: byPid, byNorm: byNorm, count: count, politicians: pols, backfilled: backfilled };
     return _oaCache;
   }
   function officialActionsFor(pid, issueKey) {
@@ -658,7 +717,7 @@
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.
     officialActions: {
-      stats: function () { var i = buildOfficialActions(); return { count: i.count, politicians: i.politicians }; },
+      stats: function () { var i = buildOfficialActions(); return { count: i.count, politicians: i.politicians, backfilled: i.backfilled }; },
       forIssue: officialActionsFor,
       issues: officialActionIssues
     },

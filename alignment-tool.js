@@ -1485,25 +1485,42 @@
       var totalW = 0, totalV = 0;
       var rated = 0, limited = 0, stated = 0, contra = 0, consist = 0;
       var issues = [];
+      var anyPending = false;
+      var PC = window.PDXConsistency;
 
       bd.issues.forEach(function (it) {
-        if (!it.direct) return;            // Say-vs-Do needs a stated position (the "say")
+        if (!it.direct) return;            // Official Record needs a stated position (the "say")
         stated++;
-        var val = _consistFromRecord(it.record);
-        if (val === null) { limited++; return; }   // stated but no record → honest "limited"
+        // Source each issue's verdict from the SAME officialRecord() feed every other
+        // Official Record surface uses (vr_* roll-call record authoritative, with the
+        // migrated curated formal actions filling issues that have no roll call yet).
+        // Fall back to the vr_*-only record when the shared engine isn't loaded. This
+        // is still formal-action only — no curated public-record (Say-vs-Do) content.
+        var nv, val, tot;
+        if (PC && typeof PC.officialRecord === 'function') {
+          var ov = PC.officialRecord(pid, it.key);
+          if (ov && ov.token === 'pending') { anyPending = true; return; }   // still loading — not rated yet
+          nv = ov ? ov.token : null;
+          val = (ov && typeof ov.score === 'number') ? ov.score / 100 : null;
+          tot = ov ? (ov.record ? ov.record.total : (ov.officialActions ? ov.officialActions.total : 0)) : 0;
+        } else {
+          val = _consistFromRecord(it.record);
+          nv = it.record ? it.record.netVerdict : null;
+          tot = it.record ? it.record.total : 0;
+        }
+        if (val === null) { limited++; return; }   // stated but nothing to score → honest "limited"
         rated++;
-        var nv = it.record.netVerdict;
         if (nv === 'contradicts') contra++;
         else if (nv === 'consistent') consist++;
         var w = it.weight || 1;
         totalW += w; totalV += val * w;
-        issues.push({ key: it.key, label: it.label, netVerdict: nv, total: it.record.total, val: val });
+        issues.push({ key: it.key, label: it.label, netVerdict: nv, total: tot, val: val });
       });
 
-      // Pending only when the visitor's issues include stated positions we could
-      // check, but this member's votes simply aren't loaded yet (and we haven't
-      // already tried). Otherwise "no record" is the honest, final answer.
-      var pending = (stated > 0 && rated === 0 && !warm && !_consistTried[pid]);
+      // Pending when a stated position could be checked but nothing is scored yet and
+      // votes are still loading. Curated formal actions resolve synchronously, so a
+      // member with only curated coverage is rated immediately (no false pending).
+      var pending = anyPending || (stated > 0 && rated === 0 && !warm && !_consistTried[pid]);
       var score = totalW > 0 ? Math.round(100 * totalV / totalW) : null;
       issues.sort(function (a, b) { return b.total - a.total; });
       return {
