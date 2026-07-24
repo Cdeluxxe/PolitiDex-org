@@ -654,6 +654,12 @@
       '.pdxor-act{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;padding:0.28rem 0 0.28rem 0.2rem;border-top:1px solid rgba(255,255,255,0.05);line-height:1.35;}' +
       '.pdxor-act-ico{flex-shrink:0;}' +
       '.pdxor-act a{color:#7fb4ff;text-decoration:none;white-space:nowrap;}' +
+      // Omnibus provenance: a quiet second line under an act, disclosing that the
+      // verdict above came from a bill that also did other things. Muted on purpose —
+      // it qualifies the receipt, it does not compete with it.
+      '.pdxor-omni{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.2rem;}' +
+      '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
+      '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
       '.pdxor-awaiting{font-size:0.68rem;color:#7e93b3;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxor-count{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
@@ -723,6 +729,7 @@
       '.pdxgap-side-name{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.76rem;color:#e8eefc;}' +
       '.pdxgap-pct{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:0.9;}' +
       '.pdxgap-side-sub{font-size:0.66rem;color:#8fa2c0;line-height:1.35;margin:0.25rem 0 0.5rem;}' +
+      '.pdxgap-omni{color:#93a6c4;border-left:2px solid rgba(147,166,196,0.3);padding-left:0.45rem;}' +
       '.pdxgap-acts{display:flex;flex-direction:column;}' +
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
@@ -924,11 +931,54 @@
     var m = _OR_STANCE[s]; if (!m) return '';
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
   }
-  function _orActLine(verdict, title, meta, url, label) {
+  // Omnibus provenance chip for one (pid, issue): how much of this issue's verdict
+  // rests on votes that were also about other things. Reads the shared helper the
+  // Voting Record exposes (window._pdxRecordOmnibusStats), which in turn reads the
+  // engine — so no scoring happens here and nothing shows when the record is
+  // single-issue or not warm yet.
+  function _orOmniChip(pid, issueKey) {
+    try {
+      if (typeof window._pdxRecordOmnibusStats !== 'function') return '';
+      var st = window._pdxRecordOmnibusStats(pid, issueKey);
+      if (!st || !st.any) return '';
+      var tip = 'A multi-issue bill is judged separately on each issue it touched, so this ' +
+        'verdict and a different verdict on another issue can come from the same roll call.' +
+        (st.otherLabels.length ? ' Those bills also covered: ' + st.otherLabels.join(', ') + '.' : '');
+      return '<span class="pdxor-omnichip" title="' + esc(tip) + '">🧩 ' + st.omnibus + ' of ' + st.total + ' from multi-issue bills</span>';
+    } catch (e) { return ''; }
+  }
+  function _orActLine(verdict, title, meta, url, label, omniNote) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
+    // `omniNote` (optional) discloses that this line came from a multi-issue bill —
+    // calm and factual, so a contradiction from an omnibus never reads like a
+    // single-issue one. Never invented here: see _orOmniNote below.
+    var omni = omniNote ? '<span class="pdxor-omni">🧩 ' + omniNote + '</span>' : '';
     return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
-      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + '</span></div>';
+      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + omni + '</span></div>';
+  }
+  // "This came from an omnibus, not a single-issue vote" for ONE vr_* record, read
+  // through the SAME engine primitive the Voting Record cards use
+  // (_measureOmnibusContext in stance-helpers.js). Returns '' for a single-issue vote
+  // or when the engine isn't loaded, so ordinary rows are untouched. Escaped HTML;
+  // the only markup is the <b> around issue labels.
+  function _orOmniNote(item, issueKey) {
+    if (!item || typeof window._measureOmnibusContext !== 'function') return '';
+    var ctx;
+    try {
+      ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel });
+    } catch (e) { return ''; }
+    if (!ctx) return ''; // single-issue vote — nothing to disclose
+    var names = function (list) {
+      return list.map(function (c) { return '<b>' + esc(c.label) + '</b>'; }).join(', ');
+    };
+    var parts = [];
+    if (ctx.advances.length) parts.push('advanced ' + names(ctx.advances));
+    if (ctx.opposes.length) parts.push('cut against ' + names(ctx.opposes));
+    var tail = parts.length
+      ? ' The same vote also ' + parts.join(' and ') + '.'
+      : (ctx.otherLabels.length ? ' It also covered ' + names(ctx.others) + '.' : '');
+    return 'Multi-issue bill — one vote, ' + ctx.count + ' issues.' + tail;
   }
   // Evidence lines behind an Official Record issue verdict, as an array of row HTML
   // (migrated curated formal actions + the strongest vr_* votes each way). Shared by
@@ -941,15 +991,18 @@
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
-    // vr_* roll-call summary: the strongest consistent / contradicting measure.
+    // vr_* roll-call summary: the strongest consistent / contradicting measure. Each
+    // line discloses when it came from a multi-issue bill, so the reader can see that
+    // the same roll call was also a verdict on other issues.
     if (ov && ov.record) {
+      var issueKey = ov.record.issueKey;
       var mk = function (item, verdict) {
         if (!item) return;
         var url = item.sourceUrl || (item.source && item.source.url) || '';
         var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
         var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
         var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
-        lines.push(_orActLine(verdict, title, pos, url, lbl));
+        lines.push(_orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));
       };
       mk(ov.record.topContradiction, 'contradicts');
       mk(ov.record.topConsistent, 'consistent');
@@ -1032,6 +1085,7 @@
               '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
+              _orOmniChip(pid, s.key) +
             '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
@@ -1390,11 +1444,22 @@
     var offBody = offItems.length
       ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'
       : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
+    // Provenance for this side: when part of the formal record came from multi-issue
+    // bills, say so here rather than letting a gap read as a single-issue disagreement.
+    var offOmni = '';
+    var _os = (typeof window._pdxRecordOmnibusStats === 'function')
+      ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
+    if (_os && _os.any && typeof window._pdxOmnibusProvenanceNote === 'function') {
+      offOmni = '<div class="pdxgap-side-sub pdxgap-omni">🧩 ' +
+        esc(window._pdxOmnibusProvenanceNote(_os)) +
+        ' A multi-issue bill is scored separately on each issue it touched.</div>';
+    }
     var offSide =
       '<div class="pdxgap-side">' +
         '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> Official Record</span>' +
           _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
         '<div class="pdxgap-side-sub">Formal votes &amp; actions — the institutional record</div>' +
+        offOmni +
         offBody +
       '</div>';
 
@@ -1480,6 +1545,7 @@
       row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
       row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
+      row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
       row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';

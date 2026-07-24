@@ -106,7 +106,7 @@
       body: 'Reduces federal Medicaid spending and adds new eligibility and work requirements.',
       keeps: 'A “yes” cuts against a protect-health-care promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
-    { ico: '🍎', title: 'Food aid (SNAP) tightened', dir: 'broken',
+    { ico: '🍎', title: 'Food aid (SNAP) tightened', dir: 'broken', keys: ['family_support'],
       body: 'Narrows SNAP eligibility and shifts more of the cost onto the states.',
       keeps: 'A “yes” cuts against a protect-food-assistance promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
@@ -302,10 +302,84 @@
       '</article>';
   }
 
+  /* ── live secondary examples: other multi-issue measures in the record ────── */
+  // H.R.1 is the clearest teaching case, but it should not read as the only one. This
+  // layer asks the Voting Record API for measures the ledger already marks as
+  // multi-issue (isOmnibus = two or more curated issue mappings) and lists a few as
+  // cross-links. It is strictly self-gating: one fetch, no retry loop, and the block
+  // renders nothing at all if the call fails, the endpoint is absent, or the only
+  // multi-issue measure in the data is H.R.1 itself. No verdicts are computed here.
+  var MORE = { state: 'idle', items: [] };
+  var HR1_NUM_RE = /^h\.?\s*r\.?\s*1$/i;
+
+  // Short label for an issue key. OMNI_ISSUE_LABEL covers the curated H.R.1 story;
+  // live measures can carry any key in the shipped vocabulary, so unknown keys are
+  // prettified rather than shown raw (never invented — it's the key, made readable).
+  function moreIssueLabel(k) {
+    if (OMNI_ISSUE_LABEL[k]) return OMNI_ISSUE_LABEL[k];
+    return String(k || '').replace(/_/g, ' ').replace(/^\w/, function (c) { return c.toUpperCase(); });
+  }
+
+  function loadMoreOmnibus() {
+    if (MORE.state !== 'idle') return;
+    MORE.state = 'loading';
+    var done = function (items) {
+      MORE.state = 'done';
+      MORE.items = items || [];
+      if (MORE.items.length) { try { mount(); } catch (e) {} }
+    };
+    try {
+      fetch('/api/voting-record/measures?pageSize=100&sort=recent', { headers: { accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          var items = (d && Array.isArray(d.items)) ? d.items : [];
+          done(items.filter(function (m) {
+            // Multi-issue, actually voted on, and not the showcase's own subject.
+            return m && m.isOmnibus && (m.voteCount > 0) &&
+              !(String(m.chamber || '') === 'house' && HR1_NUM_RE.test(String(m.number || '')));
+          }).slice(0, 4));
+        })
+        .catch(function () { done([]); });
+    } catch (e) { done([]); }
+  }
+
+  function moreOmnibusBlock() {
+    if (!MORE.items.length) return '';
+    var cards = MORE.items.map(function (m) {
+      var keys = Array.isArray(m.issueKeys) ? m.issueKeys : [];
+      var tags = keys.map(function (k) {
+        return '<span class="hr1-more-tag">#' + esc(moreIssueLabel(k)) + '</span>';
+      }).join('');
+      var counts = [];
+      if (m.rollcallCount) counts.push(m.rollcallCount + ' roll call' + (m.rollcallCount === 1 ? '' : 's'));
+      if (m.voteCount) counts.push(m.voteCount + ' recorded votes');
+      var src = (m.source && m.source.url)
+        ? '<a class="hr1-src" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 ' +
+          esc(m.source.label || 'Source') + '</a>' : '';
+      return '<div class="hr1-more-card">' +
+          '<div class="hr1-more-num">' + esc(m.number || '') +
+            '<span class="hr1-more-count">' + esc(keys.length + ' issues') + '</span></div>' +
+          '<div class="hr1-more-title">' + esc(m.shortTitle || m.title || '') + '</div>' +
+          (tags ? '<div class="hr1-more-tags">' + tags + '</div>' : '') +
+          (counts.length ? '<div class="hr1-more-meta">' + esc(counts.join(' · ')) + '</div>' : '') +
+          src +
+        '</div>';
+    }).join('');
+    return '<div class="hr1-block">' +
+        '<div class="hr1-block-h"><span class="hr1-kicker">🧩 Not a one-off</span>' +
+          '<h3>Other multi-issue measures in the record</h3>' +
+          '<p>H.R.1 is the clearest example, not the only one. These measures in the live voting record also carry two or more issues, so a member’s single vote on each is scored separately per issue — the same way.</p>' +
+        '</div>' +
+        '<div class="hr1-more-grid">' + cards + '</div>' +
+        '<p class="hr1-note">Straight from the voting-record ledger — each measure links to its official source. Open any member’s profile to see how their own vote landed on each issue.</p>' +
+      '</div>';
+  }
+
   /* ── mount ──────────────────────────────────────────────────────────────── */
   function mount() {
     var host = document.getElementById(HOST_ID);
     if (!host) return;
+    loadMoreOmnibus(); // one-shot; re-mounts itself only if it finds anything
 
     var receipts = collectReceipts();
     var contradictions = receipts.filter(function (r) { return r.contra; });
@@ -396,10 +470,18 @@
                 '<span class="hr1-out-t">Said “I’ll protect Medicaid”</span>' +
                 '<span class="hr1-out-d">The same vote cut Medicaid funding.</span>' +
               '</div>' +
+              '<div class="hr1-out is-kept">' +
+                '<span class="hr1-out-v">✓ KEEPS</span>' +
+                '<span class="hr1-out-t">Said “I’ll secure the border”</span>' +
+                '<span class="hr1-out-d">The same vote funded enforcement.</span>' +
+              '</div>' +
             '</div>' +
           '</div>' +
-          '<p class="hr1-note">This is the engine behind every “Say vs. Do” receipt — applied to the biggest vote of the cycle.</p>' +
+          '<p class="hr1-note">One roll call, <strong style="color:#cbd9ec;">' + OMNIBUS.length + ' issues scored separately</strong> — three of them shown here. Nothing is counted twice: the vote is judged once per issue it actually touched. This is the engine behind every “Say vs. Do” receipt, applied to the biggest vote of the cycle.</p>' +
         '</div>' +
+
+        // ── Other multi-issue measures (live; renders only when data exists) ──
+        moreOmnibusBlock() +
 
         // ── Timeline ──
         '<div class="hr1-block">' +
@@ -416,6 +498,7 @@
         '<div class="hr1-foot">' +
           '<a class="hr1-foot-btn is-primary" href="#say-vs-do">🧾 See more Say-vs-Do receipts</a>' +
           '<a class="hr1-foot-btn" href="#my-politicians">⭐ Build your voting team</a>' +
+          '<button type="button" class="hr1-foot-btn" onclick="if(window.PDXConsistency&amp;&amp;window.PDXConsistency.openMethodology)window.PDXConsistency.openMethodology()">🧩 How multi-issue votes are scored</button>' +
         '</div>' +
       '</div>';
 

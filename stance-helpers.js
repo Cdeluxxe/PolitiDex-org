@@ -347,6 +347,79 @@
     }
     window._measureComponentBreakdown = _measureComponentBreakdown;
 
+    // ── Omnibus PROVENANCE (presentation metadata — changes no verdict) ────────
+    // The breakdown above answers "what did this one vote do to each issue?". These
+    // two helpers answer the companion question a voter asks on a comparison surface:
+    // "wait — is this verdict coming from a bill that was ALSO about five other
+    // things?". They read the exact same mappings and the exact same
+    // _measureComponentBreakdown output, and deliberately compute NO score: nothing
+    // here can move a verdict, a count or a percentage. They only describe where an
+    // already-computed verdict came from, so a surface can say so plainly.
+
+    // Provenance for ONE record as seen FROM one issue. Returns null for a
+    // single-issue record (the ordinary case — nothing to disclose), else the issue's
+    // own component plus the sibling issues the same vote also touched, split by
+    // whether this action advanced or cut against each of them.
+    //   item, positionMap, opts — exactly as _measureComponentBreakdown takes them
+    //   issueKey               — the issue whose verdict is being displayed
+    function _measureOmnibusContext(item, issueKey, positionMap, opts) {
+      var brk = _measureComponentBreakdown(item, positionMap, opts);
+      if (!brk.isOmnibus) return null; // single-issue vote → no provenance to show
+      var self = null, others = [];
+      brk.components.forEach(function (c) {
+        // Take the FIRST match as "this issue" so a duplicated mapping can't vanish.
+        if (self === null && c.issueKey === issueKey) self = c;
+        else others.push(c);
+      });
+      var advances = [], opposes = [], neutral = [];
+      others.forEach(function (c) {
+        if (c.effect === 'advances') advances.push(c);
+        else if (c.effect === 'opposes') opposes.push(c);
+        else neutral.push(c);
+      });
+      return {
+        count: brk.count,
+        thisIssue: self,             // null when the record doesn't map to issueKey
+        others: others,
+        labels: brk.components.map(function (c) { return c.label; }),
+        otherLabels: others.map(function (c) { return c.label; }),
+        advances: advances,          // sibling issues this action pushed forward
+        opposes: opposes,            // sibling issues this action cut against
+        neutral: neutral,            // sibling issues with no position taken
+        // True when the SAME action moves this issue and a sibling in opposite
+        // directions — the "one yea, two answers" case worth calling out.
+        splits: !!(self && self.effect !== 'none' &&
+          (self.effect === 'advances' ? opposes.length > 0 : advances.length > 0))
+      };
+    }
+    window._measureOmnibusContext = _measureOmnibusContext;
+
+    // How much of an issue's record comes from multi-issue bills. Pure counting over
+    // the same records _issueRecordSummary already aggregated — no weighting, no
+    // scoring — so a surface can print "2 of 3 votes came from multi-issue bills".
+    // Returns { total, omnibus, single, maxCount, otherLabels } ; otherLabels is the
+    // de-duplicated set of OTHER issues those bills also touched, in first-seen order.
+    function _recordOmnibusStats(issueKey, records, opts) {
+      records = Array.isArray(records) ? records : [];
+      var total = 0, omnibus = 0, maxCount = 0, otherLabels = [], seen = {};
+      records.forEach(function (item) {
+        if (!_findIssueMapping(item, issueKey)) return; // record doesn't touch this issue
+        total++;
+        var ctx = _measureOmnibusContext(item, issueKey, {}, opts);
+        if (!ctx) return;
+        omnibus++;
+        if (ctx.count > maxCount) maxCount = ctx.count;
+        ctx.otherLabels.forEach(function (l) {
+          if (l && !seen[l]) { seen[l] = 1; otherLabels.push(l); }
+        });
+      });
+      return {
+        issueKey: issueKey, total: total, omnibus: omnibus, single: total - omnibus,
+        maxCount: maxCount, otherLabels: otherLabels, any: omnibus > 0
+      };
+    }
+    window._recordOmnibusStats = _recordOmnibusStats;
+
     // Runnable, dependency-free self-test for the stance-vs-record engine. Never runs
     // on its own (pure) — call window._stanceRecordSelfTest() from the console or a
     // node harness. Returns { passed, failed, failures[] }. The cases pin down the
@@ -451,6 +524,55 @@
       eq(brk2.isOmnibus, true, 'breakdown: omnibus regardless of stance coverage');
       // A single-issue vote is not flagged omnibus.
       eq(_measureComponentBreakdown(subCon, {}).isOmnibus, false, 'breakdown: single-issue not omnibus');
+
+      // ── Omnibus provenance: same mappings, no new scoring ──────────────────
+      // Seen from the taxes side, the H.R.1 yea also cut against healthcare.
+      var ctxTax = _measureOmnibusContext(hr1, 'lower_taxes', posMap);
+      ok(!!ctxTax, 'provenance: multi-issue record has context');
+      eq(ctxTax.count, 2, 'provenance: two component issues');
+      eq(ctxTax.thisIssue.issueKey, 'lower_taxes', 'provenance: thisIssue is the displayed issue');
+      eq(ctxTax.others.length, 1, 'provenance: one sibling issue');
+      eq(ctxTax.otherLabels.join(','), 'healthcare', 'provenance: sibling label listed');
+      eq(ctxTax.opposes.length, 1, 'provenance: sibling was cut against');
+      eq(ctxTax.advances.length, 0, 'provenance: no sibling advanced');
+      eq(ctxTax.splits, true, 'provenance: one action, opposite directions → splits');
+      // Seen from the healthcare side, the same vote advanced taxes — mirror image.
+      var ctxHc = _measureOmnibusContext(hr1, 'healthcare', posMap);
+      eq(ctxHc.thisIssue.issueKey, 'healthcare', 'provenance: mirrored view keeps its own issue');
+      eq(ctxHc.advances.length, 1, 'provenance: mirrored view sees taxes advanced');
+      eq(ctxHc.splits, true, 'provenance: mirrored view also splits');
+      // A single-issue vote discloses nothing.
+      eq(_measureOmnibusContext(subCon, 'x', {}), null, 'provenance: single-issue → null');
+      // An issue the record does not map to still lists the components it does.
+      var ctxNone = _measureOmnibusContext(hr1, 'housing_build', {});
+      eq(ctxNone.thisIssue, null, 'provenance: unrelated issue → no thisIssue');
+      eq(ctxNone.others.length, 2, 'provenance: unrelated issue → both components are siblings');
+      eq(ctxNone.splits, false, 'provenance: no displayed issue → nothing to split');
+      // A present/not-voting record has no direction, so nothing splits.
+      var hr1Present = { kind: 'vote', position: 'present', issues: hr1.issues };
+      eq(_measureOmnibusContext(hr1Present, 'lower_taxes', posMap).splits, false,
+        'provenance: no position taken → no split claimed');
+
+      // Counting across a whole issue record: 1 of 2 votes came from a multi-issue bill.
+      var singleTax = { kind: 'vote', position: 'yea', issues: [{ issueKey: 'lower_taxes', weight: 100, supportMeaning: 'yea_supports' }] };
+      var st = _recordOmnibusStats('lower_taxes', [hr1, singleTax]);
+      eq(st.total, 2, 'provenance stats: both records touch the issue');
+      eq(st.omnibus, 1, 'provenance stats: one came from a multi-issue bill');
+      eq(st.single, 1, 'provenance stats: one was single-issue');
+      eq(st.maxCount, 2, 'provenance stats: widest bill touched two issues');
+      eq(st.otherLabels.join(','), 'healthcare', 'provenance stats: sibling issues de-duplicated');
+      eq(st.any, true, 'provenance stats: any → true');
+      // Records that do not touch the issue are ignored entirely.
+      var stNone = _recordOmnibusStats('housing_build', [hr1, singleTax]);
+      eq(stNone.total, 0, 'provenance stats: unrelated records not counted');
+      eq(stNone.any, false, 'provenance stats: nothing to disclose → any false');
+      // Provenance NEVER changes a verdict — the summary is identical either way.
+      var before = _issueRecordSummary('lower_taxes', 'support', [hr1, singleTax]);
+      _recordOmnibusStats('lower_taxes', [hr1, singleTax]);
+      var after = _issueRecordSummary('lower_taxes', 'support', [hr1, singleTax]);
+      eq(JSON.stringify(after.netVerdict) + after.consistent + after.contradicts,
+         JSON.stringify(before.netVerdict) + before.consistent + before.contradicts,
+         'provenance: reading provenance leaves the verdict untouched');
 
       return { passed: (failures.length === 0), failed: failures.length, failures: failures };
     }

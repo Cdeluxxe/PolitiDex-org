@@ -108,6 +108,35 @@
 #hr1-showcase .hr1-omni-card.hr1-kept .hr1-omni-keeps { color: #9ee6b8; }
 #hr1-showcase .hr1-omni-card.hr1-broken .hr1-omni-keeps { color: #f2b3b3; }
 
+/* ── Other multi-issue measures (live from the voting-record ledger) ───────── */
+/* Deliberately quieter than the curated H.R.1 cards above: these are cross-links
+   into the record, not a second teaching story. */
+#hr1-showcase .hr1-more-grid {
+  display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+#hr1-showcase .hr1-more-card {
+  display: flex; flex-direction: column; gap: 0.3rem; padding: 0.8rem 0.9rem;
+  border-radius: 0.85rem; background: rgba(13,20,38,0.55);
+  border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid rgba(147,166,196,0.35);
+}
+#hr1-showcase .hr1-more-num {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
+  font: 800 0.9rem/1 'Barlow Condensed', sans-serif; letter-spacing: 0.04em; color: #e8eefc;
+}
+#hr1-showcase .hr1-more-count {
+  font: 700 0.6rem/1 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #9fb4d4; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9999px; padding: 0.2rem 0.45rem; white-space: nowrap;
+}
+#hr1-showcase .hr1-more-title { font: 400 0.84rem/1.4 'Barlow', sans-serif; color: #c2d0e6; }
+#hr1-showcase .hr1-more-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+#hr1-showcase .hr1-more-tag {
+  font: 600 0.6rem/1.1 'Barlow Condensed', sans-serif; letter-spacing: 0.03em; color: #9fb4d4;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9999px; padding: 0.14rem 0.5rem;
+}
+#hr1-showcase .hr1-more-meta { font: 400 0.72rem/1.35 'Barlow', sans-serif; color: #8fa2c0; }
+
 /* ── Contradiction engine diagram ─────────────────────────────────────────── */
 #hr1-showcase .hr1-engine {
   padding: 1.6rem 1.1rem 1.4rem; border-radius: 1.15rem;
@@ -235,6 +264,8 @@
   color: #cfe0f5; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
   border-radius: 0.75rem; padding: 0.75rem 1.15rem; transition: all 0.16s;
 }
+#hr1-showcase .hr1-foot-btn { cursor: pointer; text-decoration: none; }
+#hr1-showcase .hr1-foot-btn:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
 #hr1-showcase .hr1-foot-btn:hover { transform: translateY(-1px); border-color: rgba(96,165,250,0.5); color: #fff; }
 #hr1-showcase .hr1-foot-btn.is-primary {
   color: #0a0f1e; background: linear-gradient(135deg, #fad96a, #e6b800); border-color: rgba(245,200,66,0.9);
@@ -247,6 +278,7 @@
   #hr1-showcase { padding: 2.4rem 0.85rem 2.6rem; }
   #hr1-showcase .hr1-stat { flex: 1 1 40%; min-width: 0; }
   #hr1-showcase .hr1-omni-grid { grid-template-columns: 1fr; }
+  #hr1-showcase .hr1-more-grid { grid-template-columns: 1fr; }
   #hr1-showcase .hr1-receipts { grid-template-columns: 1fr; }
   /* Stack the engine diagram vertically; the diagonal split marker only reads on
      wide layouts, so hide it and let the vote node sit above its two outcomes. */
