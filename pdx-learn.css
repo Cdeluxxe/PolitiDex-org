@@ -1,0 +1,307 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PolitiDex — In-context education layer  ·  window.PDXLearn
+   ───────────────────────────────────────────────────────────────────────────
+   One visual language for every teaching affordance in the product, so
+   education reads as native rather than bolted on. Four primitives:
+
+     .pdxl-t     an inline term — dotted underline, opens a definition
+     .pdxl-pop   the definition popover (anchored on desktop, bottom sheet on
+                 mobile) — shared singleton, never one per term
+     .pdxl-exp   a "What is this?" expander (<details>, works with JS off)
+     .pdxl-note  a dismissible teaching note
+     .pdxl-sheet a "How to read this" / glossary sheet
+
+   Palette is deliberately the app's calm blue-slate — NOT the verdict colours
+   (green/amber/red), which carry meaning about a politician's record. Education
+   must never look like a judgement.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Inline term ─────────────────────────────────────────────────────────── */
+/* A <button> so keyboard and touch work with no extra JS. Every inherited text
+   style is reset so a term inside a heading still looks like that heading. */
+.pdxl-t {
+  all: unset;
+  cursor: help;
+  font: inherit;
+  color: inherit;
+  display: inline;
+  text-decoration: underline dotted rgba(147, 197, 253, 0.75);
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1px;
+  border-radius: 0.15rem;
+}
+.pdxl-t:hover,
+.pdxl-t[aria-expanded="true"] {
+  text-decoration-color: #93c5fd;
+  background: rgba(96, 165, 250, 0.12);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.12);
+}
+.pdxl-t:focus-visible {
+  outline: 2px solid #7fb4ff;
+  outline-offset: 2px;
+}
+/* Optional trailing hint marker for terms that would otherwise be invisible
+   (e.g. a bare "H.R." prefix). Kept out of the accessible name. */
+.pdxl-t-mark {
+  font-size: 0.7em;
+  opacity: 0.6;
+  vertical-align: super;
+  line-height: 0;
+  margin-left: 0.08em;
+}
+/* Coarse pointers get a real tap target without disturbing the line box. */
+@media (pointer: coarse) {
+  .pdxl-t { padding: 0.12em 0.1em; margin: -0.12em -0.1em; }
+}
+
+/* ── Definition popover ──────────────────────────────────────────────────── */
+.pdxl-pop {
+  position: fixed;
+  z-index: 2147483020;
+  width: min(22rem, calc(100vw - 1.5rem));
+  max-height: min(60vh, 26rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.85rem 0.95rem 0.9rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(165deg, rgba(13, 21, 38, 0.985), rgba(17, 29, 54, 0.985));
+  border: 1px solid rgba(147, 197, 253, 0.28);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: #cfe0f5;
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.pdxl-pop.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.pdxl-pop-h {
+  display: flex; align-items: baseline; gap: 0.4rem;
+  margin: 0 1.4rem 0.35rem 0;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; color: #eaf1ff;
+}
+.pdxl-pop-kind {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #8fa8c8; border: 1px solid rgba(143, 168, 200, 0.35); border-radius: 999px;
+  padding: 0.1rem 0.4rem; white-space: nowrap; flex: 0 0 auto;
+}
+.pdxl-pop-short { margin: 0 0 0.45rem; color: #dbe7f8; }
+.pdxl-pop-long { margin: 0 0 0.45rem; color: #b3c6e0; }
+/* "How PolitiDex uses it" — the bridge from civics to this product. */
+.pdxl-pop-why {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.55rem;
+  border-left: 2px solid rgba(147, 197, 253, 0.45);
+  background: rgba(96, 165, 250, 0.07);
+  border-radius: 0 0.35rem 0.35rem 0;
+  color: #c3d5ee;
+  font-size: 0.76rem;
+}
+.pdxl-pop-why b { color: #e6eefc; }
+.pdxl-pop-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem;
+  margin-top: 0.6rem; padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.7rem;
+}
+.pdxl-pop-foot a, .pdxl-pop-foot button.pdxl-link {
+  all: unset; cursor: pointer; color: #7fb4ff; font: inherit; text-decoration: none;
+}
+.pdxl-pop-foot a:hover, .pdxl-pop-foot button.pdxl-link:hover { text-decoration: underline; }
+.pdxl-pop-foot a:focus-visible, .pdxl-pop-foot button.pdxl-link:focus-visible {
+  outline: 2px solid #7fb4ff; outline-offset: 2px; border-radius: 0.2rem;
+}
+.pdxl-pop-see { color: #8fa8c8; }
+.pdxl-pop-x {
+  position: absolute; top: 0.35rem; right: 0.35rem;
+  width: 1.7rem; height: 1.7rem; border: 0; border-radius: 50%;
+  background: transparent; color: #7596c0; font-size: 1.05rem; line-height: 1; cursor: pointer;
+}
+.pdxl-pop-x:hover { background: rgba(255, 255, 255, 0.08); color: #cbd9ec; }
+.pdxl-pop-x:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 1px; }
+
+/* Mobile-first: under 560px a popover is a bottom sheet, never a floating box
+   that can land off-screen or under the thumb. */
+@media (max-width: 560px) {
+  .pdxl-pop {
+    left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important;
+    width: auto; max-width: none; max-height: 72vh;
+    border-radius: 1rem 1rem 0 0;
+    border-bottom: 0;
+    padding: 1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom, 0px));
+    transform: translateY(100%);
+  }
+  .pdxl-pop.is-open { transform: translateY(0); }
+  .pdxl-pop-x { width: 2.1rem; height: 2.1rem; top: 0.5rem; right: 0.5rem; }
+}
+
+/* ── "What is this?" expander ────────────────────────────────────────────── */
+/* A real <details>, so it discloses progressively and still works if JS fails. */
+.pdxl-exp {
+  margin: 0.5rem 0 0;
+  border: 1px dashed rgba(147, 197, 253, 0.28);
+  border-radius: 0.6rem;
+  background: rgba(96, 165, 250, 0.045);
+}
+.pdxl-exp > summary {
+  cursor: pointer; list-style: none;
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.42rem 0.6rem; min-height: 2rem;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #9fc0e8;
+}
+.pdxl-exp > summary::-webkit-details-marker { display: none; }
+.pdxl-exp > summary:hover { color: #cfe0f5; }
+.pdxl-exp > summary:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; border-radius: 0.55rem; }
+.pdxl-exp > summary .pdxl-exp-caret { margin-left: auto; font-size: 0.65rem; opacity: 0.7; transition: transform 0.16s ease; }
+.pdxl-exp[open] > summary .pdxl-exp-caret { transform: rotate(180deg); }
+.pdxl-exp-body { padding: 0 0.6rem 0.55rem; font-size: 0.76rem; line-height: 1.55; color: #b3c6e0; }
+.pdxl-exp-body dl { margin: 0; }
+.pdxl-exp-body dt {
+  font-weight: 700; color: #e6eefc; margin-top: 0.45rem;
+  font-family: 'Barlow', sans-serif; font-size: 0.78rem;
+}
+.pdxl-exp-body dt:first-child { margin-top: 0; }
+.pdxl-exp-body dd { margin: 0.05rem 0 0; }
+.pdxl-exp-body .pdxl-exp-more { margin-top: 0.6rem; font-size: 0.72rem; }
+
+/* ── Dismissible teaching note ───────────────────────────────────────────── */
+.pdxl-note {
+  position: relative; display: flex; gap: 0.5rem; align-items: flex-start;
+  background: rgba(96, 165, 250, 0.07);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  margin: 0 0 0.7rem;
+  font-family: 'Barlow', sans-serif; font-size: 0.75rem; line-height: 1.5; color: #bfd3ee;
+}
+.pdxl-note-ico { flex: 0 0 auto; font-size: 0.95rem; line-height: 1.3; }
+.pdxl-note b { color: #e6eefc; }
+.pdxl-note-body { padding-right: 1.2rem; }
+.pdxl-note-x {
+  position: absolute; top: 0.3rem; right: 0.3rem;
+  width: 1.4rem; height: 1.4rem; border: 0; border-radius: 50%;
+  background: transparent; color: #7596c0; font-size: 0.95rem; line-height: 1; cursor: pointer;
+}
+.pdxl-note-x:hover { background: rgba(255, 255, 255, 0.08); color: #cbd9ec; }
+.pdxl-note-x:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 1px; }
+@media (pointer: coarse) { .pdxl-note-x { width: 1.9rem; height: 1.9rem; } }
+
+/* ── "How to read this" / glossary sheet ─────────────────────────────────── */
+.pdxl-scrim {
+  position: fixed; inset: 0; z-index: 2147483005;
+  background: rgba(3, 7, 18, 0.72);
+  backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none; transition: opacity 0.18s ease;
+}
+.pdxl-scrim.is-open { opacity: 1; pointer-events: auto; }
+.pdxl-sheet {
+  position: fixed; z-index: 2147483010;
+  left: 50%; top: 50%; transform: translate(-50%, -48%) scale(0.98);
+  width: min(38rem, calc(100vw - 1.5rem));
+  max-height: min(84vh, 44rem);
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 1.1rem 1.2rem 1.3rem;
+  border-radius: 1rem;
+  background: linear-gradient(170deg, rgba(13, 21, 38, 0.99), rgba(17, 29, 54, 0.99));
+  border: 1px solid rgba(147, 197, 253, 0.24);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.7);
+  color: #cfe0f5; font-family: 'Barlow', sans-serif; font-size: 0.84rem; line-height: 1.6;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.1, 0.64, 1);
+}
+.pdxl-sheet.is-open { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+.pdxl-sheet-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #8fa8c8; margin-bottom: 0.2rem;
+}
+.pdxl-sheet-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.5rem; line-height: 1.05;
+  letter-spacing: 0.01em; color: #f2f7ff; margin: 0 2rem 0.5rem 0;
+}
+.pdxl-sheet-lead { margin: 0 0 0.9rem; color: #b3c6e0; }
+.pdxl-sheet-x {
+  position: absolute; top: 0.6rem; right: 0.7rem;
+  width: 2rem; height: 2rem; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05); color: #9fb4d4; font-size: 1.1rem; line-height: 1; cursor: pointer;
+}
+.pdxl-sheet-x:hover { background: rgba(255, 255, 255, 0.12); color: #eaf1ff; }
+.pdxl-sheet-x:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+/* Numbered "how to read this" steps. */
+.pdxl-steps { list-style: none; margin: 0; padding: 0; counter-reset: pdxl; }
+.pdxl-step {
+  counter-increment: pdxl; position: relative;
+  padding: 0 0 0.75rem 2rem; margin: 0;
+}
+.pdxl-step::before {
+  content: counter(pdxl); position: absolute; left: 0; top: 0.05rem;
+  width: 1.4rem; height: 1.4rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(96, 165, 250, 0.16); border: 1px solid rgba(147, 197, 253, 0.4);
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem; color: #bfd9ff;
+}
+.pdxl-step b { color: #eaf1ff; }
+.pdxl-step-sub { display: block; color: #9fb4d4; font-size: 0.78rem; }
+.pdxl-sheet-foot {
+  margin-top: 0.9rem; padding-top: 0.7rem; border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+  font-size: 0.76rem; color: #8fa8c8;
+}
+/* Glossary listing inside a sheet. */
+.pdxl-gl-filter {
+  width: 100%; box-sizing: border-box; margin: 0 0 0.7rem;
+  padding: 0.55rem 0.7rem; min-height: 2.6rem;
+  border-radius: 0.6rem; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04); color: #eaf1ff;
+  font-family: 'Barlow', sans-serif; font-size: 0.85rem;
+}
+.pdxl-gl-filter::placeholder { color: #7e93b3; }
+.pdxl-gl-filter:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 1px; }
+.pdxl-gl-cat {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #7e93b3;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.2rem; margin: 0.9rem 0 0.5rem;
+}
+.pdxl-gl-item { margin: 0 0 0.6rem; }
+.pdxl-gl-term { font-weight: 700; color: #eaf1ff; }
+.pdxl-gl-aka { color: #7e93b3; font-size: 0.74rem; font-weight: 400; }
+.pdxl-gl-def { color: #b3c6e0; font-size: 0.8rem; }
+.pdxl-gl-empty { color: #9fb4d4; padding: 0.6rem 0; }
+
+/* A small, quiet "How to read this" trigger for any surface header. */
+.pdxl-howto {
+  all: unset; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.28rem;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-weight: 700; font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #9fc0e8;
+  border: 1px solid rgba(147, 197, 253, 0.3); border-radius: 999px;
+  padding: 0.24rem 0.55rem; min-height: 1.7rem;
+}
+.pdxl-howto:hover { color: #eaf1ff; border-color: rgba(147, 197, 253, 0.6); background: rgba(96, 165, 250, 0.1); }
+.pdxl-howto:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+@media (pointer: coarse) { .pdxl-howto { min-height: 2.2rem; padding: 0.4rem 0.7rem; } }
+
+/* ── Motion / contrast preferences ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pdxl-pop, .pdxl-sheet, .pdxl-scrim, .pdxl-exp > summary .pdxl-exp-caret {
+    transition: none !important;
+  }
+  .pdxl-pop { transform: none !important; }
+  .pdxl-sheet { transform: translate(-50%, -50%) !important; }
+}
+@media (prefers-contrast: more) {
+  .pdxl-t { text-decoration-color: #cfe0f5; }
+  .pdxl-pop, .pdxl-sheet { border-color: rgba(207, 224, 245, 0.6); }
+}
+/* Printing a profile shouldn't print floating teaching UI. */
+@media print {
+  .pdxl-pop, .pdxl-sheet, .pdxl-scrim, .pdxl-howto, .pdxl-note-x { display: none !important; }
+  .pdxl-t { text-decoration: none; }
+}

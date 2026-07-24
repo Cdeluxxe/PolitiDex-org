@@ -38,6 +38,22 @@
   }
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
 
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Guarded the same way as the other surfaces: absent education layer → plain
+  // escaped text and no extra affordances, showcase otherwise identical.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  function LNUM(num) {
+    var L = window.PDXLearn;
+    return (L && L.numberHtml) ? L.numberHtml(num) : esc(num);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
+
   /* ── identity / photo resolution (all sources may load async) ───────────── */
   function alias(id) {
     try { if (window.ACCT_ALIAS && window.ACCT_ALIAS[id]) return window.ACCT_ALIAS[id]; } catch (e) {}
@@ -357,7 +373,7 @@
         ? '<a class="hr1-src" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 ' +
           esc(m.source.label || 'Source') + '</a>' : '';
       return '<div class="hr1-more-card">' +
-          '<div class="hr1-more-num">' + esc(m.number || '') +
+          '<div class="hr1-more-num">' + LNUM(m.number || '') +
             '<span class="hr1-more-count">' + esc(keys.length + ' issues') + '</span></div>' +
           '<div class="hr1-more-title">' + esc(m.shortTitle || m.title || '') + '</div>' +
           (tags ? '<div class="hr1-more-tags">' + tags + '</div>' : '') +
@@ -429,7 +445,16 @@
         '<div class="hr1-hero">' +
           '<div class="hr1-eyebrow">🏛️ The Showcase · H.R.1</div>' +
           '<h2 class="hr1-title">One Bill. One Vote.<br><em>Many Contradictions.</em></h2>' +
-          '<p class="hr1-lead">H.R.1 — the 2025 reconciliation and tax law, the “One Big Beautiful Bill” — bundled tax cuts, Medicaid cuts, food-aid changes, border money and trillions in deficit into a <strong>single yes-or-no vote</strong>. No headline can capture that. PolitiDex can: it scores <strong>every issue a bill touches separately</strong>, so one vote can keep a promise and break another — and you can see exactly whose.</p>' +
+          '<p class="hr1-lead">' + LT('hr', 'H.R.') + '1 — the 2025 ' + LT('reconciliation', 'reconciliation') +
+            ' and tax law, the “One Big Beautiful Bill” — bundled tax cuts, Medicaid cuts, food-aid changes, ' +
+            'border money and trillions in deficit into a <strong>single yes-or-no vote</strong>. ' +
+            'No headline can capture that. PolitiDex can: it scores <strong>every issue a bill touches separately</strong>, ' +
+            'so one vote can keep a promise and break another — and you can see exactly whose.</p>' +
+          // The showcase exists to teach this one mechanism, so it gets the
+          // step-by-step sheet right under the lead.
+          (LHOWTO('omnibus', 'How one vote becomes several verdicts')
+            ? '<div class="hr1-howto-row">' + LHOWTO('omnibus', 'How one vote becomes several verdicts') + '</div>'
+            : '') +
           '<div class="hr1-stats">' +
             statChip('218–214', 'Final House vote') +
             statChip('Roll Call 190', 'Jul 3, 2025') +

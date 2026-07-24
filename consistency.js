@@ -127,6 +127,19 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Guarded exactly as in voting-record.js: with the education layer absent, LT()
+  // is plain escaped text and LHOWTO() is nothing, so every surface below renders
+  // as it did before. No verdict, score or scope boundary depends on these.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
   function norm(id) { return String(id == null ? '' : id).trim().toLowerCase(); }
 
   // ── source readers (guarded; each returns a neutral empty when unavailable) ──
@@ -630,6 +643,12 @@
       '.pdxc-gate-method{display:inline-block;margin-top:0.7rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fb4d4;cursor:pointer;background:none;border:none;padding:0.1rem 0;text-decoration:underline;text-underline-offset:2px;}' +
       '.pdxc-gate-method:hover{color:#c6d4ec;}' +
       '.pdxc-gate-method:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // Row holding the two footer links: our own methodology explainer and the
+      // education layer's "How to read this" pill. margin-top lives here now, so
+      // the two never collide when the pill is present (and the row collapses
+      // harmlessly to just the one button when it is not).
+      '.pdxc-gate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.9rem;margin-top:0.7rem;}' +
+      '.pdxc-gate-actions .pdxc-gate-method{margin-top:0;}' +
       // By-issue Official Record view (the organized dive-in).
       '.pdxor{font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
@@ -661,6 +680,9 @@
       '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
+      // Second, quieter line under an empty state: what an empty record actually
+      // means. Muted on purpose — it explains the absence, it isn't a finding.
+      '.pdxor-empty-why{font-size:0.68rem;color:#7d90ad;line-height:1.5;margin-top:0.35rem;}' +
       '.pdxor-awaiting{font-size:0.68rem;color:#7e93b3;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxor-count{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
       // Say-vs-Do feed shares the layout but takes a distinct gold/amber left accent
@@ -829,11 +851,18 @@
     opts = opts || {};
     return '<section class="pdxc-gate" data-pdxc-gate-pid="' + esc(pid) + '" aria-label="Promise Tracker">' +
         '<div class="pdxc-gate-h"><span aria-hidden="true">📋</span> Promise Tracker</div>' +
+        // Terms live in this line, not inside the two cards below: each card is a
+        // <button>, and a definition button nested inside it would be invalid
+        // markup and would swallow the card's own tap.
         '<div class="pdxc-gate-sub">Two separate ways to check whether their word holds up — kept apart on purpose. ' +
-          '<b>🏛️ Official Record</b> is the institutional score from their votes; <b>🧾 Say-vs-Do</b> is the broader public picture. ' +
+          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the institutional score from their votes; ' +
+          '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture. ' +
           'Discrete promises are tracked on their own.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
-        '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
+        '<div class="pdxc-gate-actions">' +
+          '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
+          LHOWTO('say-vs-do', 'How to read this') +
+        '</div>' +
       '</section>';
   }
 
@@ -944,7 +973,11 @@
       var tip = 'A multi-issue bill is judged separately on each issue it touched, so this ' +
         'verdict and a different verdict on another issue can come from the same roll call.' +
         (st.otherLabels.length ? ' Those bills also covered: ' + st.otherLabels.join(', ') + '.' : '');
-      return '<span class="pdxor-omnichip" title="' + esc(tip) + '">🧩 ' + st.omnibus + ' of ' + st.total + ' from multi-issue bills</span>';
+      // The count is provenance (keep it on the title for pointer users); the phrase
+      // "multi-issue bills" is the concept, so that part becomes a term — otherwise
+      // this chip would be hover-only and dead on touch.
+      return '<span class="pdxor-omnichip" title="' + esc(tip) + '">🧩 ' + st.omnibus + ' of ' + st.total +
+        ' from ' + LT('omnibus', 'multi-issue bills') + '</span>';
     } catch (e) { return ''; }
   }
   function _orActLine(verdict, title, meta, url, label, omniNote) {
@@ -1046,7 +1079,11 @@
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
 
     var head =
-      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> ' +
+          LT('officialrecord', 'Official Record') + '</span>' +
+        // Before .pdxor-overall, which carries margin-left:auto — so the pill sits
+        // beside the title and the score stays pinned right.
+        LHOWTO('voting-record', 'How to read this') +
         '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
       '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>';
 
@@ -1056,7 +1093,13 @@
         : (awaiting > 0
             ? 'No qualifying votes on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
             : 'No stated positions or formal record on file yet.');
-      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + '</div>' + _orRawLink();
+      // "No record" is a coverage statement, not a finding. Say why it happens
+      // rather than leaving an empty panel to be read as an accusation.
+      var emptyWhy = anyPending ? '' :
+        '<div class="pdxor-empty-why">' + LT('norecord', 'Why a record can be empty') +
+          ': the issue may have been handled by ' + LT('voicevote', 'voice vote') +
+          ' (no per-member record exists), or we have not documented that area yet.</div>';
+      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + emptyWhy + '</div>' + _orRawLink();
     }
 
     // Group by broad issue category.
@@ -1209,16 +1252,23 @@
           '<span class="pdxor-integrity-cap">public-record<br>integrity</span></span>';
     }
     var head =
-      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> ' +
+          LT('saydo', 'Say-vs-Do') + '</span>' +
+        LHOWTO('say-vs-do', 'How to read this') +
         '<span class="pdxor-overall">' + headPct + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
       '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
-      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score.</div>';
+      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score. ' +
+        LT('norecord', 'Why some of these show “—”') + '</div>';
 
     if (!scored.length) {
       var msg = awaiting > 0
         ? 'No public-record confirmations or contradictions surfaced yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' with nothing on the public record so far.'
         : 'No public-record evidence on file yet.';
-      return head + '<div class="pdxor-empty">' + esc(msg) + '</div>' + _sdRawLink();
+      return head + '<div class="pdxor-empty">' + esc(msg) +
+        '<div class="pdxor-empty-why">' + LT('norecord', 'That is our coverage, not a verdict') +
+          ' — and it is deliberately separate from their ' + LT('officialrecord', 'Official Record') +
+          ', which is built from votes only.</div>' +
+        '</div>' + _sdRawLink();
     }
 
     var rank = { contradicts: 0, mixed: 1, flag: 2, consistent: 3 };
@@ -1456,9 +1506,11 @@
     }
     var offSide =
       '<div class="pdxgap-side">' +
-        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> ' +
+          LT('officialrecord', 'Official Record') + '</span>' +
           _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
-        '<div class="pdxgap-side-sub">Formal votes &amp; actions — the institutional record</div>' +
+        '<div class="pdxgap-side-sub">Formal ' + LT('rollcall', 'roll-call votes') +
+          ' &amp; actions — the institutional record</div>' +
         offOmni +
         offBody +
       '</div>';
@@ -1472,7 +1524,8 @@
       : '<div class="pdxgap-side-empty">' + esc(sayEmpty) + '</div>';
     var saySide =
       '<div class="pdxgap-side">' +
-        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> ' +
+          LT('saydo', 'Say-vs-Do') + '</span>' +
           _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
         '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
         sayBody +
@@ -1480,7 +1533,9 @@
 
     return head +
       '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
-      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score.</div>';
+      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
+        LT('contradiction', 'What counts as a contradiction') + ' · ' +
+        LHOWTO('say-vs-do', 'How to read this') + '</div>';
   }
 
   // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
@@ -1547,6 +1602,17 @@
       row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
       row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
+      // The procedural down-weight is a real scoring decision a reader can check
+      // us on, so it belongs in the methodology sheet rather than only in a
+      // tooltip on the card that happens to carry the tag.
+      row('⚙️', 'Why some votes count less', 'A ' + LT('procedural', 'procedural vote') +
+        ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but party leadership drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
+        LT('recommit', 'motion to recommit') + ' or a ' + LT('table', 'motion to table') +
+        ' a Yea is a vote <b>against</b> the measure, and we read it that way — scoring it the other way round would produce exactly backwards verdicts.') +
+      row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
+        LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
+        ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
+        (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary style="color:#7fb4ff;cursor:pointer;">Open the full glossary →</button>' : '')) +
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';
   }

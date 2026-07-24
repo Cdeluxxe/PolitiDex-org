@@ -49,11 +49,32 @@
   // Safe attribute value (used inside single-quoted onclick handlers etc.).
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
 
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Every hook is guarded so this file behaves exactly as it did before if the
+  // education layer is absent or fails to load: a term falls back to plain
+  // escaped text, and the "How to read this" affordances render as nothing.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  // Measure numbers are the single best teaching spot in this file: they appear
+  // on every card, and the type prefix ("H.R.", "S.", "H.Res.") is exactly the
+  // thing a first-time visitor cannot decode. Only the prefix becomes a term.
+  function LNUM(num) {
+    var L = window.PDXLearn;
+    return (L && L.numberHtml) ? L.numberHtml(num) : esc(num);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
+
   // ── Styles (injected once) ──────────────────────────────────────────────────
   function injectStyles() {
     if (document.getElementById('pdx-vr-css')) return;
     var css = [
       '#pdx-voting-record .vr-sub{color:#9fb4d4;font-size:.82rem;line-height:1.5;margin:.15rem 0 .9rem;}',
+      '#pdx-voting-record .vr-howto-row{margin:-.55rem 0 .85rem;}',
       /* summary strip */
       '.vr-summary{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem;}',
       '.vr-stat{flex:1 1 5.2rem;min-width:5.2rem;background:rgba(10,15,30,.5);border:1px solid rgba(255,255,255,.07);border-radius:.7rem;padding:.55rem .5rem;text-align:center;}',
@@ -309,7 +330,10 @@
     var cls = pos === 'yea' ? 'vr-pos-yea' : pos === 'nay' ? 'vr-pos-nay' : 'vr-pos-neutral';
     var label = pos === 'yea' ? 'Voted Yea' : pos === 'nay' ? 'Voted Nay'
       : pos === 'present' ? 'Present' : pos === 'not_voting' ? 'Did Not Vote' : titleCase(pos);
-    return '<span class="vr-pill ' + cls + '">' + esc(label) + '</span>';
+    // The pill itself carries the definition of Yea/Nay/Present — what a Yea
+    // actually accomplished depends on the question, which is the single most
+    // misread thing on this card.
+    return '<span class="vr-pill ' + cls + '">' + LT('yea', label) + '</span>';
   }
 
   // Stance-vs-record verdict for one item against its PRIMARY issue, using the
@@ -419,9 +443,32 @@
     '</div>';
   }
 
+  // ── Dismissible "why procedural votes count less" note ─────────────────────
+  // The other concept that silently changes how this list should be read. Shown
+  // only when the visible record actually contains procedural votes, and only
+  // when the omnibus note above isn't already showing — one teaching note at a
+  // time, never two stacked. Dismissal is remembered by PDXLearn.
+  function procTeachHtml(items) {
+    var L = window.PDXLearn;
+    if (!L || !L.note) return '';
+    var n = 0;
+    (items || []).forEach(function (it) { if (it && it.isProcedural) n++; });
+    if (!n) return '';
+    return L.note('vr-procedural', {
+      icon: '⚙️',
+      title: 'Why some votes count less.',
+      html: '<b>' + n + '</b> record' + (n === 1 ? '' : 's') + ' below ' + (n === 1 ? 'is' : 'are') +
+        ' ' + LT('procedural', 'procedural') + ' — a vote about how the chamber handles a bill ' +
+        'rather than a vote on the policy. They still count, at a quarter of the weight, because ' +
+        'party leadership drives them more than personal conviction. On a ' +
+        LT('recommit', 'motion to recommit') + ' or ' + LT('table', 'to table') +
+        ' a Yea is a vote <b>against</b> the bill, and we read it that way.'
+    });
+  }
+
   // ── One vote / position card ──────────────────────────────────────────────────
   function cardHtml(item, positionMap) {
-    var num = item.number ? '<span class="vr-num">' + esc(item.number) + '</span>' : '';
+    var num = item.number ? '<span class="vr-num">' + LNUM(item.number) + '</span>' : '';
     var date = item.date ? '<span class="vr-date-txt">' + esc(fmtDate(item.date)) + '</span>' : '';
     var vb = verdictBadge(item, positionMap);
     // The badge judges the measure's PRIMARY issue. On a multi-issue bill that is one
@@ -442,17 +489,29 @@
       var actLabel = item.kind === 'position' ? titleCase(item.action) : item.action;
       meta.push('<span class="vr-tag">' + esc(actLabel) + '</span>');
     }
-    if (item.chamber) meta.push('<span class="vr-tag">' + esc(titleCase(item.chamber)) + '</span>');
+    if (item.chamber) {
+      // "House" / "Senate" is a chamber, not a party — worth one tap for anyone
+      // who does not already know the two are separate votes on the same bill.
+      var chKey = /senate/i.test(item.chamber) ? 'senate' : /house/i.test(item.chamber) ? 'house' : '';
+      meta.push('<span class="vr-tag">' +
+        (chKey ? LT(chKey, titleCase(item.chamber)) : esc(titleCase(item.chamber))) + '</span>');
+    }
     if (item.result) {
       var rc = /pass|agree/.test(item.result) ? 'vr-result-passed' : /fail|reject/.test(item.result) ? 'vr-result-failed' : '';
       meta.push('<span class="vr-tag ' + rc + '">' + esc(titleCase(item.result)) + '</span>');
     }
-    if (item.isAmendment) meta.push('<span class="vr-tag">Amendment</span>');
-    if (item.isProcedural) meta.push('<span class="vr-tag">Procedural</span>');
+    if (item.isAmendment) meta.push('<span class="vr-tag">' + LT('amendment', 'Amendment') + '</span>');
+    // Procedural is the tag that most changes how a record should be read: these
+    // votes count at a quarter weight, and a Yea on some of them (recommit, table)
+    // is a vote AGAINST the bill. Both facts live in the definition.
+    if (item.isProcedural) meta.push('<span class="vr-tag">' + LT('procedural', 'Procedural') + '</span>');
     // Flag the multi-issue case in the pill row too, so it's visible while scanning
     // (and in flat-sort mode, where cards aren't grouped under an issue heading).
     if (isOmnibusItem(item)) {
-      meta.push('<span class="vr-tag vr-omni-tag" title="' + escAttr(OMNI_EXPLAINER) + '">🧩 Multi-issue</span>');
+      // Was a hover-only title, which is dead on touch. Now the tag itself opens
+      // the omnibus definition — the concept a first-time visitor needs before
+      // the split below makes any sense.
+      meta.push('<span class="vr-tag vr-omni-tag">' + LT('omnibus', '🧩 Multi-issue') + '</span>');
     }
 
     // A one-line "they said X, they did Y" note when we have both sides.
@@ -496,7 +555,11 @@
       (filtered
         ? '<span class="vr-empty-sub">Try widening or clearing the filters to see the full record.</span>' +
           '<button type="button" class="vr-empty-btn" data-vr-clear>Clear filters</button>'
-        : '') +
+        // Not filter-induced: this is a coverage gap, and saying so plainly is more
+        // honest than a bare empty state that reads as "they did nothing."
+        : '<span class="vr-empty-sub">' + LT('norecord', 'That means our coverage here is incomplete') +
+          ' — not that nothing happened. Business handled by ' + LT('voicevote', 'voice vote') +
+          ' leaves no per-member record to publish.</span>') +
       '</div>';
   }
 
@@ -608,9 +671,14 @@
     var stat = function (v, l) {
       return '<div class="vr-stat"><div class="vr-stat-v">' + esc(v) + '</div><div class="vr-stat-l">' + esc(l) + '</div></div>';
     };
+    // Same tile, but the label is a defined term. Used for the counts whose name
+    // is itself jargon ("roll-call vote") rather than plain English ("Records").
+    var statT = function (v, key, l) {
+      return '<div class="vr-stat"><div class="vr-stat-v">' + esc(v) + '</div><div class="vr-stat-l">' + LT(key, l) + '</div></div>';
+    };
     var strip = '<div class="vr-summary">' +
       stat(s.totalRecords || 0, 'Records') +
-      stat(s.votes || 0, 'Roll-call Votes') +
+      statT(s.votes || 0, 'rollcall', 'Roll-call Votes') +
       (s.positions ? stat(s.positions, 'Other Actions') : '') +
       (s.withParty || s.againstParty ? stat(s.withParty + '/' + s.againstParty, 'With / Against Party') : '') +
       '</div>';
@@ -630,7 +698,7 @@
     if (totalJudged > 0) {
       var pct = function (n) { return (n / totalJudged * 100).toFixed(1) + '%'; };
       meter = '<div class="vr-meter">' +
-        '<div class="vr-meter-top"><span class="vr-meter-title">Say vs. Do</span>' +
+        '<div class="vr-meter-top"><span class="vr-meter-title">' + LT('saydo', 'Say vs. Do') + '</span>' +
           '<span class="vr-meter-sub">' + totalJudged + ' issue' + (totalJudged === 1 ? '' : 's') + ' with a stance &amp; a record</span></div>' +
         '<div class="vr-bar">' +
           (consistent ? '<div class="vr-bar-seg vr-bar-consistent" style="width:' + pct(consistent) + '"></div>' : '') +
@@ -713,15 +781,23 @@
       ? '<div class="vr-offline">📡 Showing a saved copy — reconnect for the latest and to filter the full record.</div>'
       : '';
 
+    var omniTeach = omniTeachHtml(_state.items);
+
     root.innerHTML =
       offlineNote +
       renderSummary({ summary: data.summary, items: _state.items }, pm) +
       renderFilters() +
-      omniTeachHtml(_state.items) +
+      omniTeach +
+      // Only when the omnibus note isn't already occupying this slot — one
+      // teaching note at a time keeps the surface calm.
+      (omniTeach ? '' : procTeachHtml(_state.items)) +
       '<div id="pdx-vr-list">' + listHtml + '</div>' +
       more +
-      '<p class="vr-note">Every record links to the official roll call or filing. ' +
-      'Stance comparisons weigh a stated position against the actual vote — see the source to judge for yourself.</p>';
+      '<p class="vr-note">Every record links to the official ' + LT('rollcall', 'roll call') +
+      ' or filing. Stance comparisons weigh a stated position against the actual vote — ' +
+      'see the source to judge for yourself.' +
+      (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Glossary →</button>' : '') +
+      '</p>';
   }
 
   // Re-fetch with the current filters (resets to page 1) and repaint the body.
@@ -812,7 +888,13 @@
       '<span id="pdxsec-voting" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section id="pdx-voting-record" class="modal-section" style="display:none;">' +
         '<div class="modal-section-title">🗳️ Voting Record</div>' +
-        '<p class="vr-sub">What they actually did — roll-call votes and official actions, each checked against what they say. Filter by issue, chamber, action, or date.</p>' +
+        '<p class="vr-sub">What they actually did — ' + LT('rollcall', 'roll-call votes') +
+          ' and official actions, each checked against what they say. ' +
+          'Filter by issue, chamber, action, or date.</p>' +
+        // One calm, optional entry point for anyone who does not already know how
+        // to read a voting record. Renders as nothing if the education layer is
+        // absent, so the section is unchanged without it.
+        (LHOWTO('voting-record') ? '<div class="vr-howto-row">' + LHOWTO('voting-record') + '</div>' : '') +
         '<div id="pdx-vr-body"><div class="vr-loading">Loading voting record…</div></div>' +
       '</section>';
   };

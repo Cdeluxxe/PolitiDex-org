@@ -112,5 +112,28 @@ const ok = (c, m) => { if (!c) fails.push(m); };
   ok(!ctx.__host.innerHTML.includes("Not a one-off"), "C: H.R.1-only data → no secondary block");
 }
 
+// ── Case D: with the education layer loaded, terms appear (and only then) ──────
+// Cross-module check: hr1-showcase.js calls PDXLearn through guarded helpers, so
+// cases A–C above already prove it renders fine WITHOUT the education layer. This
+// proves the hooks actually fire WITH it.
+{
+  const ctx = makeCtx(PAYLOAD);
+  const sandbox = vm.createContext(ctx);
+  vm.runInContext(readFileSync(join(ROOT, "pdx-learn.js"), "utf8"), sandbox, { filename: "pdx-learn.js" });
+  vm.runInContext(SRC, sandbox, { filename: "hr1-showcase.js" });
+  ok(!!ctx.window.PDXLearn, "D: PDXLearn loaded into the sandbox");
+  ctx.window.PDXHR1.mount();
+  await new Promise((r) => setTimeout(r, 20));
+  const html = ctx.__host.innerHTML;
+  ok(html.includes('data-pdxl-sheet="omnibus"'), "D: the omnibus how-to pill is offered");
+  ok(html.includes('data-pdx-term="hr"'), "D: H.R. in the lead is a defined term");
+  ok(html.includes('data-pdx-term="reconciliation"'), "D: reconciliation in the lead is a defined term");
+  // The live cross-link cards teach their own measure prefixes.
+  ok(html.includes('class="hr1-more-num"'), "D: live cards still render");
+  ok((html.match(/data-pdx-term="hr"/g) || []).length >= 2,
+    "D: the measure number on a live card links its prefix too");
+  ok(html.includes("</button> 4758"), "D: only the prefix becomes a term — the number stays text");
+}
+
 if (fails.length) { console.error("✗\n  " + fails.join("\n  ")); process.exit(1); }
-console.log("✓ hr1-showcase: all assertions passed (3 cases)");
+console.log("✓ hr1-showcase: all assertions passed (4 cases)");

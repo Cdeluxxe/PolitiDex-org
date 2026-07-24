@@ -791,6 +791,12 @@
   // by stable congress+number, local-first, and account-synced like the rest.
   defineCollection('bills', { keys: ['politidex_followed_bills'], label: 'Followed bills' });
 
+  // 'learn' — which in-context teaching notes the visitor has dismissed (see
+  // pdx-learn.js). Purely "don't tell me this again" state: nothing here affects
+  // what the product shows about any politician. Synced so a note dismissed on a
+  // phone stays dismissed on a laptop.
+  defineCollection('learn', { keys: ['pdx_learn_prefs'], label: 'Dismissed explainer notes' });
+
   // ─── PDXTeam — one named facade over the whole My Team / ballot family ──────
   // The team data is written from several long-standing <script> closures
   // (ballot builder, Home Base, saved-teams, roster). Rather than reroute every
@@ -1681,6 +1687,12 @@ window.PDXLazy = (function () {
   <!-- Say vs. Do — the contradiction receipt card (see say-vs-do.js). Kept
        render-blocking: the Say-vs-Do band sits high on the page. -->
   <link rel="stylesheet" href="/say-vs-do.css" />
+  <!-- In-context education layer (see pdx-learn.js) — the shared visual language for
+       inline term definitions, "What is this?" expanders, dismissible teaching notes
+       and "How to read this" sheets. Kept RENDER-BLOCKING on purpose: a term is a
+       real <button> reset with `all: unset`, so if this arrived late the visitor
+       would see a flash of native grey buttons inside body copy. It is small. -->
+  <link rel="stylesheet" href="/pdx-learn.css" />
   <!-- Issue View — the issue-first ranked view (see issue-view.js). Front door
        for question-first voters; sits high on the page so keep it non-blocking. -->
   <link rel="stylesheet" href="/issue-view.css" media="print" onload="this.media='all'" />
@@ -51527,6 +51539,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   <!-- State Senate wave 16 (depth: IL & PA committee chairs & notables). -->
   <script defer fetchpriority="low" src="state-senate-stances-w16.js"></script>
   <script defer src="stance-helpers.js"></script>
+  <!-- In-context education (window.PDXLearn). Must run BEFORE every surface that
+       calls PDXLearn.term() / .numberHtml() / .howto() while building its markup —
+       voting-record.js, consistency.js, hr1-showcase.js. It computes nothing and
+       reads no politician data: pure glossary content plus one shared popover and
+       sheet, delegated on document so it survives each surface's innerHTML rebuild.
+       Every call site is guarded, so if this file fails to load the product renders
+       exactly as it did before the education layer existed. -->
+  <script defer src="pdx-learn.js"></script>
   <script defer src="alignment-tool.js"></script>
   <!-- Your Ballot — unified, address-driven flow. `defer` guarantees it runs
        after every inline script has defined the ballot/team/location primitives it
