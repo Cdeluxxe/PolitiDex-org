@@ -277,7 +277,14 @@
     'nhaley||led the removal of the confederate flag in south carolina': 'rights_balance',
     'biden||turned campaign promises into major enacted laws': 'infrastructure',
     'obama||delivered his signature promise the affordable care act': 'healthcare',
-    'emendenhall||delivered on the environmental brand': 'climate_action'
+    'emendenhall||delivered on the environmental brand': 'climate_action',
+    // Phase 10 coverage recovery — two previously no-key formal actions with a clear,
+    // single-issue nexus (both landmark health-coverage measures → healthcare). The
+    // other ~21 no-key voting items stay UNRESOLVED on purpose: they are electoral,
+    // leadership, biographical, pattern-summary or multi-issue, with no defensible
+    // single ISSUE_MAP key — forcing them would be exactly the false coverage we avoid.
+    'gwbush||pepfar a global aids program credited with saving millions': 'healthcare',
+    'snider_h5||passed firefighter cancer coverage law as a volunteer firefighter himself': 'healthcare'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve an item's issueKey: its own, else the Phase 4 backfill. Only accept a key
@@ -624,6 +631,9 @@
       '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
       '.pdxor-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
       '.pdxor-q{font-style:italic;font-size:0.76rem;color:#c6d4ec;margin:0.2rem 0 0.6rem;line-height:1.3;}' +
+      // Phase 10 honest coverage disclosure line (Official Record / Say-vs-Do / divergence).
+      '.pdxcov{font-size:0.68rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.6rem;padding:0.3rem 0.5rem;border-radius:0.5rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);cursor:help;}' +
+      '.pdxcov b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-overall{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 0.6rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);margin-left:auto;}' +
       '.pdxor-overall .pdxor-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
       '.pdxor-tally{font-size:0.7rem;color:#9fb4d4;margin:0.35rem 0 0.75rem;line-height:1.35;}' +
@@ -939,6 +949,17 @@
     var n = lines.length;
     return '<details class="pdxor-acts"><summary>' + n + ' supporting ' + (n === 1 ? 'action' : 'actions') + ' ▾</summary>' + lines.join('') + '</details>';
   }
+  // Phase 10 honest coverage line: "Based on N of ~M tracked issues …". N = issues
+  // actually scored on this side; M ≈ issues in play (scored + those with a stated
+  // position still awaiting a record). Approximate by design ("~", "tracked so far")
+  // so a thin record never reads as a full verdict. Empty when nothing is scored yet
+  // (the section's own empty state already explains that case).
+  function _coverageLine(scored, awaiting, noun) {
+    if (!scored) return '';
+    var denom = scored + awaiting;
+    return '<div class="pdxcov" title="Coverage is partial and grows as more record is added. Shows how many of the issues they have taken a position on so far actually have a ' + esc(noun) + ' to check.">' +
+      '📊 Based on <b>' + scored + '</b> of ~' + denom + ' tracked issue' + (denom === 1 ? '' : 's') + ' with a ' + esc(noun) + ' so far.</div>';
+  }
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
     var scored = [], awaiting = 0, anyPending = false;
@@ -1008,7 +1029,7 @@
       ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet.</div>'
       : '';
 
-    return head + body + awaitingNote + _orRawLink();
+    return head + _coverageLine(scored.length, awaiting, 'formal record') + body + awaitingNote + _orRawLink();
   }
   function _orRawLink() {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
@@ -1165,7 +1186,7 @@
       ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no public-record evidence yet.</div>'
       : '';
 
-    return head + body + awaitingNote + _sdRawLink();
+    return head + _coverageLine(scored.length, awaiting, 'public-record score') + body + awaitingNote + _sdRawLink();
   }
   function saydoSectionHtml(pid) {
     ensureStyles();
@@ -1292,11 +1313,13 @@
       : '';
 
     var rows = d.both.map(function (p) { return _divRow(p, pid); }).join('');
+    var covDv = '<div class="pdxcov" title="Only issues with a real score on BOTH sides can be compared head-to-head. The rest are one-sided so far and are summarised below.">' +
+      '📊 Comparable on <b>' + d.both.length + '</b> of ~' + (d.both.length + d.oneSide) + ' issue' + ((d.both.length + d.oneSide) === 1 ? '' : 's') + ' with a score on either side.</div>';
     var note = d.oneSide > 0
       ? '<div class="pdxdv-note">➕ ' + d.oneSide + ' more issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a score on only one side — kept in their own feeds, not compared here.</div>'
       : '';
 
-    return head + tally + '<div class="pdxdv-rows">' + rows + '</div>' + note;
+    return head + covDv + tally + '<div class="pdxdv-rows">' + rows + '</div>' + note;
   }
   var _divergenceInner = _dvInner; // alias used by the warm-refresh listener
   function divergenceSectionHtml(pid) {
