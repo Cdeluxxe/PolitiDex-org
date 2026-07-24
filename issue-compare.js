@@ -175,11 +175,22 @@
     if (!STANCE[stance] && stance !== 'none') stance = 'mixed';
     var rec = recordSummary(pid, issueKey);
     var warm = recordsWarm(pid);
-    // consistency state: rec (has votes) | 'no_record' (warm, none) | 'pending' (not warm yet)
-    var cons = { state: 'none' };
-    if (rec && rec.total) cons = { state: 'rated', rec: rec };
-    else if (warm) cons = { state: 'no_record' };
-    else cons = { state: 'pending' };
+    // OFFICIAL RECORD axis — does their formal voting record back this stance?
+    // (Say-vs-Do, the broader public record, is surfaced separately via receipts.)
+    var uni = null;
+    try { if (window.PDXConsistency && isFn(window.PDXConsistency.officialRecord)) uni = window.PDXConsistency.officialRecord(pid, issueKey); } catch (e) {}
+    var cons;
+    if (uni) {
+      if (uni.token === 'pending') cons = { state: 'pending', uni: uni };
+      else if (uni.token === 'no_record' || uni.token === 'no_stance') cons = { state: 'no_record', uni: uni };
+      else cons = { state: 'rated', uni: uni, rec: uni.record || null };
+    } else if (rec && rec.total) {
+      cons = { state: 'rated', rec: rec };
+    } else if (warm) {
+      cons = { state: 'no_record' };
+    } else {
+      cons = { state: 'pending' };
+    }
     return {
       pid: pid, name: d.name || pid, office: d.office || '', state: d.state || '',
       party: d.party || '', photo: d.photo || (d.icon || ''),
@@ -190,6 +201,15 @@
   // Rank within a bucket: rated first (consistent > mixed > contradicts), then by
   // vote count; pending next; no-record last.
   function rankScore(r) {
+    // Unified verdict first (matches what the card shows): consistent > mixed >
+    // flag > contradicts, then by how much record backs it; pending, then none.
+    if (r.cons.uni) {
+      var t = r.cons.uni.token;
+      if (t === 'pending') return 100;
+      var b = t === 'consistent' ? 400 : t === 'mixed' ? 300 : t === 'flag' ? 260 : t === 'contradicts' ? 200 : t === 'limited' ? 150 : 0;
+      var n = (r.cons.uni.record && r.cons.uni.record.total) || (r.cons.uni.curated && r.cons.uni.curated.total) || 0;
+      return b + Math.min(n, 99);
+    }
     if (r.cons.state === 'rated') {
       var nv = r.cons.rec.netVerdict;
       var base = nv === 'consistent' ? 400 : nv === 'mixed' ? 300 : nv === 'contradicts' ? 200 : 250;
@@ -310,8 +330,22 @@
 
   /* ── render: a single result card ───────────────────────────────────── */
   function consReadout(r) {
-    if (r.cons.state === 'pending') return '<span class="ic-cons is-muted">⚖️ Say-vs-Do <span class="ic-spin"></span> checking record…</span>';
-    if (r.cons.state === 'no_record') return '<span class="ic-cons is-muted" title="No votes on record yet to verify this position">⚖️ No voting record yet</span>';
+    // Unified path — same vocabulary/icons/colours as every other surface.
+    if (r.cons.uni) {
+      var uni = r.cons.uni, m = uni.verdict;
+      if (uni.token === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
+      if (uni.token === 'no_record' || uni.token === 'no_stance') return '<span class="ic-cons is-muted" title="' + esc(m.short) + '">🏛️ ' + esc(m.label) + '</span>';
+      var recU = uni.record, parts = [];
+      if (recU && recU.total) parts.push(recU.total + ' vote' + (recU.total === 1 ? '' : 's'));
+      if (uni.curated && uni.curated.total) parts.push(uni.curated.total + ' receipt' + (uni.curated.total === 1 ? '' : 's'));
+      if (uni.contradictions) parts.push(uni.contradictions + ' against');
+      var flagU = (uni.contradictions > 0) ? '<span class="ic-flag">⚑ ' + uni.contradictions + '</span>' : '';
+      var muted = (uni.token === 'limited') ? ' is-muted' : '';
+      return '<span class="ic-cons' + muted + '" style="--c:' + m.color + '"><span class="ic-cons-ico">' + m.ico + '</span>'
+        + '<span class="ic-cons-txt"><b>🏛️ ' + esc(m.label) + '</b>' + flagU + '<span class="ic-cons-sub">' + esc(parts.join(' · ')) + '</span></span></span>';
+    }
+    if (r.cons.state === 'pending') return '<span class="ic-cons is-muted">🏛️ Official Record <span class="ic-spin"></span> checking votes…</span>';
+    if (r.cons.state === 'no_record') return '<span class="ic-cons is-muted" title="No qualifying votes on record yet to verify this position">🏛️ No qualifying votes yet</span>';
     var rec = r.cons.rec, nv = rec.netVerdict;
     var v = VERDICT[nv] || VERDICT.no_position;
     var counts = rec.total + ' vote' + (rec.total === 1 ? '' : 's')
@@ -319,7 +353,7 @@
       + (rec.consistent ? ' · ' + rec.consistent + ' backing' : '');
     var flag = (nv === 'contradicts') ? '<span class="ic-flag">⚑ contradicts</span>' : '';
     return '<span class="ic-cons" style="--c:' + v.color + '"><span class="ic-cons-ico">' + v.ico + '</span>'
-      + '<span class="ic-cons-txt"><b>⚖️ ' + esc(v.label) + '</b>' + flag + '<span class="ic-cons-sub">' + esc(counts) + '</span></span></span>';
+      + '<span class="ic-cons-txt"><b>🏛️ ' + esc(v.label) + '</b>' + flag + '<span class="ic-cons-sub">' + esc(counts) + '</span></span></span>';
   }
   function evidenceHtml(r) {
     var pos = r.pos;
@@ -404,7 +438,7 @@
       + '<span class="ic-results-count">' + rows.length + ' politician' + (rows.length === 1 ? '' : 's') + ' on ' + esc(issueLabel(_state.issueKey)) + '</span>'
       + '<button type="button" class="ic-btn ic-btn--compare" onclick="window.PDXIssueCompare.compareField()" title="Open the full side-by-side comparison with this field">⚔ Head-to-head</button>'
       + '</div>'
-      + '<p class="ic-note">Grouped by their <b>stated position</b> on this issue. The <b>⚖️ Say-vs-Do</b> read on each shows whether their voting record backs it up.</p>'
+      + '<p class="ic-note">Grouped by their <b>stated position</b> on this issue. The <b>🏛️ Official Record</b> read on each shows whether their <b>votes</b> backed that stance up when it counted. The broader public picture lives in <b>🧾 Say-vs-Do</b> on each profile.</p>'
       + (typeof window._pdxScoreLegendHtml === 'function' ? '<div class="ic-legend">' + window._pdxScoreLegendHtml({ only: ['saydo'] }) + '</div>' : '')
       + (pendingCount ? '<div class="ic-note">⚖️ Checking voting records for ' + pendingCount + ' politician' + (pendingCount === 1 ? '' : 's') + '… consistency fills in automatically.</div>' : '');
 
