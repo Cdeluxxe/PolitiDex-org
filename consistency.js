@@ -681,6 +681,39 @@
       '.pdxdv-note{margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxdv-empty{padding:0.7rem 0.2rem;}' +
       '@media (max-width:440px){.pdxdv-sum{margin-left:0;width:100%;}.pdxdv-num-pct{font-size:1.1rem;}}' +
+      // Phase 9 — tappable comparison rows + cross-links + the focused gap sheet.
+      '.pdxdv-row-tap{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;}' +
+      '.pdxdv-row-tap:hover{border-color:rgba(255,255,255,0.22);background:rgba(10,15,30,0.55);}' +
+      '.pdxdv-row-tap:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.pdxdv-row-why{display:block;margin-top:0.4rem;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fdbd0;}' +
+      '.pdxdv-open{display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.5rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:var(--c,#9fdbd0);cursor:pointer;background:rgba(10,15,30,0.4);border:1px solid var(--c,#9fdbd0);border-radius:999px;padding:0.16rem 0.55rem;}' +
+      '.pdxdv-open:hover{filter:brightness(1.15);}' +
+      '.pdxdv-open:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
+      '.pdxgap-back[hidden]{display:none;}' +
+      '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:1rem 0.95rem 1.4rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
+      '@keyframes pdxgapUp{from{transform:translateY(14px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}' +
+      '@media (prefers-reduced-motion:reduce){.pdxgap-sheet{animation:none;}}' +
+      '@media (min-width:560px){.pdxgap-back{align-items:center;}.pdxgap-sheet{border-radius:1rem;}}' +
+      '.pdxgap-x{position:absolute;top:0.6rem;right:0.7rem;width:2rem;height:2rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.2rem;line-height:1;cursor:pointer;}' +
+      '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
+      '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
+      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.15rem 0 0.4rem;padding-right:2rem;}' +
+      '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
+      '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
+      '.pdxgap-note b{color:#f5d9a0;}' +
+      '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.8rem;}' +
+      '@media (min-width:560px){.pdxgap-sides{flex-direction:row;}.pdxgap-side{flex:1;min-width:0;}}' +
+      '.pdxgap-side{border:1px solid rgba(255,255,255,0.1);border-radius:0.7rem;padding:0.65rem 0.7rem;background:rgba(10,15,30,0.4);}' +
+      '.pdxgap-side-h{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
+      '.pdxgap-side-name{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.76rem;color:#e8eefc;}' +
+      '.pdxgap-pct{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:0.9;}' +
+      '.pdxgap-side-sub{font-size:0.66rem;color:#8fa2c0;line-height:1.35;margin:0.25rem 0 0.5rem;}' +
+      '.pdxgap-acts{display:flex;flex-direction:column;}' +
+      '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
+      '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
+      '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -809,6 +842,12 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
+      if (gap) {
+        e.preventDefault();
+        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
+        return;
+      }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
       if (!card) return;
       e.preventDefault();
@@ -836,6 +875,13 @@
         if (dvs[d].getAttribute('data-pdxc-divergence-pid') !== String(pid)) continue;
         dvs[d].innerHTML = _divergenceInner(pid);
       }
+      // …and the Say-vs-Do feed, so its "compare vs the record" cross-links resolve
+      // once the vote-based side has a % to compare against (Phase 9).
+      var sds = document.querySelectorAll('[data-pdxc-saydo-pid]');
+      for (var q = 0; q < sds.length; q++) {
+        if (sds[q].getAttribute('data-pdxc-saydo-pid') !== String(pid)) continue;
+        sds[q].innerHTML = _sdInner(pid);
+      }
     });
   }
 
@@ -861,16 +907,19 @@
     return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
       '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + '</span></div>';
   }
-  function _orSupportingHtml(ov) {
+  // Evidence lines behind an Official Record issue verdict, as an array of row HTML
+  // (migrated curated formal actions + the strongest vr_* votes each way). Shared by
+  // the feed's collapsible <details> and the Phase 9 gap drawer (rendered expanded).
+  function _orEvidenceItems(ov) {
     var lines = [];
     // Migrated curated formal actions (each sourced).
-    if (ov.officialActions && ov.officialActions.items) {
+    if (ov && ov.officialActions && ov.officialActions.items) {
       ov.officialActions.items.forEach(function (a) {
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
     // vr_* roll-call summary: the strongest consistent / contradicting measure.
-    if (ov.record) {
+    if (ov && ov.record) {
       var mk = function (item, verdict) {
         if (!item) return;
         var url = item.sourceUrl || (item.source && item.source.url) || '';
@@ -882,6 +931,10 @@
       mk(ov.record.topContradiction, 'contradicts');
       mk(ov.record.topConsistent, 'consistent');
     }
+    return lines;
+  }
+  function _orSupportingHtml(ov) {
+    var lines = _orEvidenceItems(ov);
     if (!lines.length) return '';
     var n = lines.length;
     return '<details class="pdxor-acts"><summary>' + n + ' supporting ' + (n === 1 ? 'action' : 'actions') + ' ▾</summary>' + lines.join('') + '</details>';
@@ -945,7 +998,7 @@
               '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
-            '</div>' + _orSupportingHtml(s.ov) +
+            '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
@@ -982,13 +1035,15 @@
   function _catLabel(k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } }
   function _issueLabel(k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } }
   var _SD_ITEM_RANK = { contradicts: 0, flag: 1, consistent: 2 };
-  function _sdEvidenceHtml(cur) {
-    if (!cur || !cur.items || !cur.items.length) return '';
+  // Public-record receipts behind a Say-vs-Do stance, as an array of row HTML (each
+  // sourced, contradictions first). Shared by the feed's <details> and the gap drawer.
+  function _sdEvidenceItems(cur) {
+    if (!cur || !cur.items || !cur.items.length) return [];
     var items = cur.items.slice().sort(function (a, b) {
       var ak = (a.verdict && a.verdict.key) || 'flag', bk = (b.verdict && b.verdict.key) || 'flag';
       return (_SD_ITEM_RANK[ak] == null ? 9 : _SD_ITEM_RANK[ak]) - (_SD_ITEM_RANK[bk] == null ? 9 : _SD_ITEM_RANK[bk]);
     });
-    var lines = items.map(function (r) {
+    return items.map(function (r) {
       var mv = VERDICTS[(r.verdict && r.verdict.key)] || VERDICTS.flag;
       var url = r.source && r.source.url;
       var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc((r.source && r.source.label) || 'Source') + ' ↗</a>' : '';
@@ -998,9 +1053,13 @@
       var metaHtml = meta.length ? ' <span style="color:#7e93b3;">· ' + meta.join(' · ') + '</span>' : '';
       return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
         '<span>' + esc(r.headline || 'Public-record item') + metaHtml + src + '</span></div>';
-    }).join('');
-    var n = items.length;
-    return '<details class="pdxor-acts"><summary>' + n + ' public-record ' + (n === 1 ? 'item' : 'items') + ' ▾</summary>' + lines + '</details>';
+    });
+  }
+  function _sdEvidenceHtml(cur) {
+    var lines = _sdEvidenceItems(cur);
+    if (!lines.length) return '';
+    var n = lines.length;
+    return '<details class="pdxor-acts"><summary>' + n + ' public-record ' + (n === 1 ? 'item' : 'items') + ' ▾</summary>' + lines.join('') + '</details>';
   }
   function _sdCounts(cur) {
     var parts = [];
@@ -1096,7 +1155,7 @@
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' +
               _sdPctHtml(s.ov.scoreMeta, v.color, { showDash: true }) +
               _sdCounts(s.ov.curated) +
-            '</div>' + _sdEvidenceHtml(s.ov.curated) +
+            '</div>' + _sdEvidenceHtml(s.ov.curated) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
@@ -1171,9 +1230,12 @@
   function _divRelChip(rel) {
     return '<span class="pdxdv-rel" style="color:' + rel.color + ';border-color:' + rel.color + '55;background:' + rel.color + '1f;" title="' + esc(rel.blurb) + '">' + rel.ico + ' ' + rel.label + '</span>';
   }
-  function _divRow(p) {
+  function _divRow(p, pid) {
     var rel = divRel(p.gap), dir = _divDir(p.gap), g = Math.abs(p.gap);
-    return '<div class="pdxdv-row">' +
+    // Diverging & mixed rows are the tell — make them tappable to open the focused
+    // gap view. Aligned rows have no gap to explain, so they stay static.
+    var actionable = (rel.key === 'diverges' || rel.key === 'mixed');
+    var body =
         '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
@@ -1183,8 +1245,13 @@
           '</span>' +
           _divRelChip(rel) +
           (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
-        '</div>' +
-      '</div>';
+        '</div>';
+    if (actionable) {
+      return '<button type="button" class="pdxdv-row pdxdv-row-tap" data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+          ' aria-label="' + esc('See the votes and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
+          body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
+    }
+    return '<div class="pdxdv-row">' + body + '</div>';
   }
   function _dvInner(pid) {
     var d = divergenceData(pid);
@@ -1224,7 +1291,7 @@
       ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
       : '';
 
-    var rows = d.both.map(_divRow).join('');
+    var rows = d.both.map(function (p) { return _divRow(p, pid); }).join('');
     var note = d.oneSide > 0
       ? '<div class="pdxdv-note">➕ ' + d.oneSide + ' more issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a score on only one side — kept in their own feeds, not compared here.</div>'
       : '';
@@ -1237,6 +1304,126 @@
     bindGateway();
     if (!pid) return '';
     return '<section class="pdxdv" data-pdxc-divergence-pid="' + esc(pid) + '" aria-label="Official Record vs Say-vs-Do divergence">' + _dvInner(pid) + '</section>';
+  }
+
+  // ── Focused gap view (Phase 9) — "here is exactly why they diverge" ─────────
+  // A tap on a diverging/mixed comparison row (or a cross-link in either feed) opens
+  // a mobile-first bottom-sheet showing, clearly SECTIONED (never merged):
+  //   🏛️ Official Record — the formal votes/actions driving that issue's score
+  //   🧾 Say-vs-Do        — the public-record receipts driving that issue's integrity
+  // The stated stance sits up top so the contrast stays grounded in what they claim.
+  // Each side keeps its own label, score and source links; a missing/thin side shows
+  // its honest empty state rather than inventing content. The two systems are never
+  // blended into one list or one score — the sheet just puts them side by side.
+  function _gapScorePill(numeric, score, meta, color) {
+    if (numeric) return '<span class="pdxgap-pct" style="color:' + color + '">' + score + '%</span>';
+    // Say-vs-Do with some evidence but below the threshold → honest "—" (never 0/100).
+    if (meta && meta.judged) return '<span class="pdxor-pct pdxor-pct-na" title="Not enough public record yet to score">—</span>';
+    return '';
+  }
+  function _gapViewHtml(pid, issueKey) {
+    var off = officialIssue(pid, issueKey);
+    var say = saydoIssue(pid, issueKey);
+    var oNum = typeof off.score === 'number', sNum = typeof say.score === 'number';
+    var lbl = _issueLabel(issueKey);
+    var stance = _orStanceChip(pid, issueKey);
+
+    // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
+    var relHtml, gapNote;
+    if (oNum && sNum) {
+      var gap = off.score - say.score, rel = divRel(gap), g = Math.abs(gap), dir = _divDir(gap);
+      relHtml = _divRelChip(rel);
+      gapNote = '<div class="pdxgap-note">' + (g > DIV_ALIGN_MAX ? '<b>' + g + ' pt gap</b>' + (dir ? ' · ' + esc(dir) : '') + ' — ' : '') + esc(rel.blurb) + '</div>';
+    } else {
+      relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
+      gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
+    }
+
+    var head =
+      '<div class="pdxgap-h">' +
+        '<div class="pdxgap-eyebrow">⚖️ Record vs. Public Picture</div>' +
+        '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
+        '<div class="pdxgap-meta">' + (stance || '') + relHtml + '</div>' +
+        gapNote +
+      '</div>';
+
+    // 🏛️ Official Record side
+    var offItems = _orEvidenceItems(off);
+    var offEmpty = off.token === 'pending' ? 'Checking the voting record…'
+                 : (SCOPES.official.empty[off.token] || 'No qualifying votes on record yet');
+    var offBody = offItems.length
+      ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'
+      : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
+    var offSide =
+      '<div class="pdxgap-side">' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+          _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
+        '<div class="pdxgap-side-sub">Formal votes &amp; actions — the institutional record</div>' +
+        offBody +
+      '</div>';
+
+    // 🧾 Say-vs-Do side
+    var sayItems = _sdEvidenceItems(say.curated);
+    var sayEmpty = SCOPES.saydo.empty[say.token] || 'Nothing on the public record yet';
+    var sayCounts = _sdCounts(say.curated);
+    var sayBody = sayItems.length
+      ? '<div class="pdxgap-acts">' + sayItems.join('') + '</div>'
+      : '<div class="pdxgap-side-empty">' + esc(sayEmpty) + '</div>';
+    var saySide =
+      '<div class="pdxgap-side">' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+          _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
+        '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
+        sayBody +
+      '</div>';
+
+    return head +
+      '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
+      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score.</div>';
+  }
+
+  // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
+  // issue has a real % on BOTH sides (so the sheet always has something to compare).
+  function _gapLinkHtml(pid, issueKey) {
+    var o = officialIssue(pid, issueKey), s = saydoIssue(pid, issueKey);
+    if (typeof o.score !== 'number' || typeof s.score !== 'number') return '';
+    var rel = divRel(o.score - s.score);
+    return '<button type="button" class="pdxdv-open" data-pdxc-gap="' + esc(issueKey) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      ' style="--c:' + rel.color + '" title="Compare the votes and the public record behind this issue">⚖️ ' + rel.label + ' — compare →</button>';
+  }
+
+  // ── gap sheet: a single lazily-built bottom-sheet, reused for every issue ────
+  var _gapSheet = null;
+  function _ensureGapSheet() {
+    if (_gapSheet) return _gapSheet;
+    ensureStyles();
+    var back = document.createElement('div');
+    back.className = 'pdxgap-back'; back.id = 'pdxc-gap-back'; back.hidden = true;
+    back.innerHTML = '<div class="pdxgap-sheet" role="dialog" aria-modal="true" tabindex="-1" aria-label="Issue divergence detail">' +
+        '<button type="button" class="pdxgap-x" aria-label="Close">×</button>' +
+        '<div class="pdxgap-body"></div>' +
+      '</div>';
+    (document.body || document.documentElement).appendChild(back);
+    back.addEventListener('click', function (e) {
+      if (e.target === back || (e.target.closest && e.target.closest('.pdxgap-x'))) closeGap();
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.keyCode === 27) && !back.hidden) closeGap();
+    });
+    _gapSheet = back.querySelector('.pdxgap-sheet');
+    return _gapSheet;
+  }
+  function openGap(pid, issueKey) {
+    if (!pid || !issueKey || !document.body) return;
+    var sheet = _ensureGapSheet();
+    var body = sheet.querySelector('.pdxgap-body');
+    if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
+    if (sheet.parentNode) sheet.parentNode.hidden = false;
+    try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+  }
+  function closeGap() {
+    var back = document.getElementById('pdxc-gap-back');
+    if (back) back.hidden = true;
   }
 
   window.PDXConsistency = {
@@ -1270,6 +1457,10 @@
     // returns the raw comparison data; divergenceSectionHtml() the mountable view.
     divergence: divergenceData,
     divergenceSectionHtml: divergenceSectionHtml,
+    // Phase 9: open the focused gap view for one (pid, issue) from anywhere — the
+    // comparison rows and both feeds wire to this; exposed for any other surface too.
+    openGap: openGap,
+    closeGap: closeGap,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
