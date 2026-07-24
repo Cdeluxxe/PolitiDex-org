@@ -38,8 +38,12 @@ export VR_INGEST_TOKEN=…                          # the operator token (matche
 # 1. Baseline integrity snapshot
 node scripts/vr-ingest.mjs verify
 
-# 2. Pull the 119th Congress roll calls, both chambers (idempotent; re-runnable)
-node scripts/vr-ingest.mjs run house  119 250
+# 2. Pull the 119th Congress roll calls, both chambers (idempotent; re-runnable).
+#    Use --recent so `limit` means "the newest N", and --offset to page — see the
+#    "unordered list" trap below. Three ~20-vote calls stay inside safe rate limits.
+node scripts/vr-ingest.mjs run house 119 20 --recent --offset=0
+node scripts/vr-ingest.mjs run house 119 20 --recent --offset=20
+node scripts/vr-ingest.mjs run house 119 20 --recent --offset=40
 node scripts/vr-ingest.mjs run senate 119 250
 
 # 3. Attach the curated measure→issue mappings onto everything now present
@@ -58,6 +62,46 @@ exists, with the correct `supportMeaning` (does a *Yea* advance or oppose that i
 If the nexus is ambiguous, multi-issue, or the direction is contestable, **leave it
 unmapped** — an unmapped vote is honest; a wrong `supportMeaning` fabricates a false
 verdict. Re-run step 3 after editing the seed.
+
+### The `house-vote` list is unordered — always pass `--recent`
+
+`GET /house-vote/{congress}` returns **no documented sort order**. Offset 0 of
+`house-vote/119` comes back as roll calls 240, 306, 241, 116, 122, … So a bare
+`limit: 20` means "20 *arbitrary* roll calls", not "the 20 most recent", and re-running
+it re-fetches the same arbitrary slice forever — a bigger `limit` just adds more
+arbitrary older votes. Two flags fix this:
+
+| flag | effect |
+| --- | --- |
+| `--recent` (`recent: true`) | Walks the cheap, summary-only list pages, sorts by vote date, and keeps the newest `limit`. The expensive per-roll `/members` call is then made **only** for the selected roll calls, so "newest 20" costs the same member fetches as a bare `limit: 20`. |
+| `--offset=N` (`offset: N`) | Pages the (now date-ordered) list, so successive safe-sized calls advance instead of repeating. |
+
+Both default off, so the scheduled cron and any existing caller behave exactly as
+before. Prefer three `limit=20 --recent --offset=0/20/40` calls over one `limit=60`:
+same coverage, same ordering, and each call stays well inside the rate limit.
+
+### House 119/s2 seed — the deploy-time twin of the House pull
+
+`db/vr-house-seed-119-s2.json` holds the roll calls 224–283 window (2026-06-23 →
+2026-07-23, 60 roll calls / 52 measures / 2,224 roster member votes) pulled by exactly
+the command above, and `scripts/vr-gen-house-migration.mjs` turns it into an additive,
+idempotent migration:
+
+```sh
+node scripts/vr-gen-house-migration.mjs > \
+  netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql
+```
+
+This exists for the same reason as the Senate pair, plus one House-specific one:
+`applyCuratedIssueSeed()` only attaches a mapping to a measure that **already exists**,
+so a mapping added to `db/vr-issue-seed.json` for a measure that has never been ingested
+is a silent no-op until the pull surfaces it. Seeding the measures at deploy time makes
+the mapping deterministic rather than dependent on an operator having run step 2.
+The runtime pull still re-fetches and upserts the same rolls; every insert in the
+migration is find-or-create / `ON CONFLICT DO NOTHING`, so the two paths never fight.
+
+Regenerate the seed by re-running the pull, then re-run the generator into a **new**
+migration file — never edit an applied one.
 
 ### Two traps that produce BACKWARDS verdicts (both now handled in code)
 

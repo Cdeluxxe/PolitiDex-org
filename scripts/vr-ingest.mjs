@@ -14,6 +14,7 @@
 // Usage:
 //   node scripts/vr-ingest.mjs verify
 //   node scripts/vr-ingest.mjs run [house|senate] [congress] [limit] [--classify]
+//                                  [--recent] [--offset=N]
 //
 // Examples:
 //   VR_INGEST_TOKEN=… node scripts/vr-ingest.mjs verify
@@ -52,6 +53,11 @@ async function verify() {
 
 async function run(args) {
   const classify = args.includes("--classify");
+  // --recent date-sorts the source list before taking `limit` (the Congress.gov vote
+  // list is unordered, so without it a bigger limit just adds arbitrary older votes).
+  // --offset=N pages, so successive safe-sized calls advance instead of repeating.
+  const recent = args.includes("--recent");
+  const offsetArg = args.find((a) => a.startsWith("--offset="));
   const positional = args.filter((a) => !a.startsWith("--"));
   const chamber = positional[0] || "house";
   const congress = positional[1] ? Number(positional[1]) : undefined;
@@ -59,6 +65,8 @@ async function run(args) {
   const payload = { chamber, classifyIssues: classify };
   if (congress) payload.congress = congress;
   if (limit) payload.limit = limit;
+  if (recent) payload.recent = true;
+  if (offsetArg) payload.offset = Number(offsetArg.split("=")[1]) || 0;
 
   console.log(`Running ingest: ${JSON.stringify(payload)} → ${BASE}/api/vr-ingest`);
   const res = await fetch(BASE + "/api/vr-ingest", {

@@ -14,7 +14,7 @@
 // Routes (all under /api/vr-ingest):
 //   GET  /verify        integrity report (row counts + source/issue-key checks)
 //   POST /              run an ingest
-//        body: { congress?, chamber?: "house"|"senate", limit?, classifyIssues? }
+//        body: { congress?, chamber?: "house"|"senate", limit?, offset?, recent?, classifyIssues? }
 //   POST /seed-issues   apply the curated measure→issue mappings (db/vr-issue-seed.json)
 //                       onto measures that already exist — no Congress.gov key needed
 
@@ -62,9 +62,15 @@ export default async (req: Request): Promise<Response> => {
       const chamber = String(body.chamber || "house").toLowerCase();
       if (chamber !== "house" && chamber !== "senate") return json({ error: "chamber must be house or senate" }, 400);
       const limit = Math.min(Math.max(Number(body.limit) || 40, 1), 250);
+      // `offset` pages the source list; `recent: true` date-sorts it first (the
+      // Congress.gov vote list has no documented order, so without this a repeat run
+      // re-fetches the same arbitrary slice). Both default off — existing callers and
+      // the scheduled ingest behave exactly as before.
+      const offset = Math.max(Number(body.offset) || 0, 0);
+      const recent = body.recent === true;
       const classifyIssues = body.classifyIssues === true;
-      const report = await runIngest({ congress, chamber, limit, classifyIssues });
-      return json({ ran: true, congress, chamber, limit, classifyIssues, report });
+      const report = await runIngest({ congress, chamber, limit, offset, recent, classifyIssues });
+      return json({ ran: true, congress, chamber, limit, offset, recent, classifyIssues, report });
     }
 
     return json({ error: "Not found" }, 404);

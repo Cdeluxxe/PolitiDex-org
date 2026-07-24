@@ -118,10 +118,50 @@ function tallyMemberPositions(members: any[]): Record<string, number> {
   }
   return t;
 }
+// The list endpoint is NOT sorted by date — offset 0 of house-vote/119 returns rolls
+// 240, 306, 241, 116, 122… in an order the API does not document. So `limit: 20` means
+// "20 arbitrary roll calls", NOT "the 20 most recent", and re-running it re-fetches the
+// same arbitrary slice forever. `offset` pages past it; `recent: true` fixes the ordering
+// properly by walking the (cheap, summary-only) list pages, sorting by vote date, and
+// keeping the newest `limit` — the expensive per-roll `/members` call is then made ONLY
+// for the selected roll calls, so "newest 20" costs the same member fetches as before.
+const LIST_PAGE = 250; // the API's max page size, and its own documented ceiling
+
+function voteDateOf(row: any): string {
+  return String(row?.startDate || row?.date || row?.voteDate || row?.updateDate || "");
+}
+
+async function fetchVoteListPage(
+  chamber: string,
+  congress: number,
+  apiKey: string,
+  limit: number,
+  offset: number
+): Promise<{ rows: any[]; count: number }> {
+  const url =
+    `${CONGRESS_API_BASE}/${chamber}-vote/${congress}` +
+    `?format=json&limit=${limit}&offset=${offset}&api_key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, { headers: { accept: "application/json" } });
+  if (!res.ok) {
+    console.warn(`vr-ingest: Congress.gov ${res.status} for ${chamber}/${congress} @${offset}`);
+    return { rows: [], count: 0 };
+  }
+  const data: any = await res.json();
+  const rows: any[] =
+    data?.[`${chamber}RollCallVotes`] ||
+    data?.houseRollCallVotes ||
+    data?.senateRollCallVotes ||
+    data?.votes ||
+    [];
+  return { rows, count: Number(data?.pagination?.count ?? rows.length) };
+}
+
 export async function fetchRollcallsFromCongress(opts: {
   congress: number;
   chamber: string;
   limit?: number;
+  offset?: number;
+  recent?: boolean;
 }): Promise<RawVote[]> {
   const apiKey = process.env.CONGRESS_GOV_API_KEY;
   if (!apiKey) {
@@ -130,22 +170,28 @@ export async function fetchRollcallsFromCongress(opts: {
   }
   const chamber = opts.chamber === "senate" ? "senate" : "house";
   const limit = Math.min(Math.max(opts.limit || 20, 1), 250);
-  const listUrl =
-    `${CONGRESS_API_BASE}/${chamber}-vote/${opts.congress}` +
-    `?format=json&limit=${limit}&api_key=${encodeURIComponent(apiKey)}`;
+  const offset = Math.max(Number(opts.offset) || 0, 0);
   try {
-    const res = await fetch(listUrl, { headers: { accept: "application/json" } });
-    if (!res.ok) {
-      console.warn(`vr-ingest: Congress.gov ${res.status} for ${chamber}/${opts.congress}`);
-      return [];
+    let rows: any[];
+    if (opts.recent) {
+      // Walk every summary page (1 request per 250 roll calls — no member sub-fetches),
+      // then take the newest `limit` after `offset`. This is the only way to get a
+      // date-ordered window out of an endpoint that returns no documented order.
+      const all: any[] = [];
+      let seen = 0;
+      let total = Infinity;
+      while (seen < total && all.length < 5000) {
+        const page = await fetchVoteListPage(chamber, opts.congress, apiKey, LIST_PAGE, seen);
+        if (!page.rows.length) break;
+        all.push(...page.rows);
+        seen += page.rows.length;
+        total = page.count || seen;
+      }
+      all.sort((a, b) => voteDateOf(b).localeCompare(voteDateOf(a)));
+      rows = all.slice(offset, offset + limit);
+    } else {
+      rows = (await fetchVoteListPage(chamber, opts.congress, apiKey, limit, offset)).rows;
     }
-    const data: any = await res.json();
-    const rows: any[] =
-      data?.[`${chamber}RollCallVotes`] ||
-      data?.houseRollCallVotes ||
-      data?.senateRollCallVotes ||
-      data?.votes ||
-      [];
 
     const out: RawVote[] = [];
     for (const row of rows) {
@@ -567,6 +613,8 @@ export async function runIngest(opts: {
   congress: number;
   chamber: string;
   limit?: number;
+  offset?: number;
+  recent?: boolean;
   classifyIssues?: boolean;
 }): Promise<IngestReport> {
   const chamber = String(opts.chamber).toLowerCase();
@@ -593,6 +641,8 @@ async function fetchChamberRollcalls(opts: {
   congress: number;
   chamber: string;
   limit?: number;
+  offset?: number;
+  recent?: boolean;
 }): Promise<RawVote[]> {
   if (String(opts.chamber).toLowerCase() === "senate") {
     return fetchSenateRollcalls({ congress: opts.congress, limit: opts.limit });
