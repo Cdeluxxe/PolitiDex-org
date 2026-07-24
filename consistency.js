@@ -656,6 +656,31 @@
       '.pdxor-integrity-cap{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.5rem;line-height:1;letter-spacing:0.04em;text-transform:uppercase;color:#c6a15b;text-align:left;}' +
       '.pdxor-method{font-size:0.66rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.4rem 0.55rem;border-radius:0.5rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);}' +
       '.pdxor-method b{color:#c6d4ec;}' +
+      // Divergence section (Phase 8): Official Record vs Say-vs-Do, side by side.
+      // Neutral, comparison-first styling; the relationship chip carries the colour.
+      '.pdxdv{font-family:"Barlow Condensed",sans-serif;border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.5),rgba(10,15,30,0.3));}' +
+      '.pdxdv-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.75rem;}' +
+      '.pdxdv-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
+      '.pdxdv-sum{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-left:auto;padding:0.3rem 0.55rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);}' +
+      '.pdxdv-sum-na{font-size:0.68rem;color:#9fb4d4;line-height:1.3;max-width:17rem;}' +
+      '.pdxdv-sum-nums,.pdxdv-nums{display:inline-flex;align-items:center;gap:0.35rem;}' +
+      '.pdxdv-num{display:inline-flex;align-items:center;gap:0.22rem;white-space:nowrap;}' +
+      '.pdxdv-num-ic{font-size:0.8rem;opacity:0.9;}' +
+      '.pdxdv-num-pct{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:0.9;}' +
+      '.pdxdv-vs{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7e93b3;}' +
+      '.pdxdv-q{font-style:italic;font-size:0.74rem;color:#c6d4ec;margin:0.4rem 0 0.55rem;line-height:1.4;}' +
+      '.pdxdv-q b{font-style:normal;}' +
+      '.pdxdv-tally{font-size:0.72rem;color:#c6d4ec;margin:0 0 0.6rem;line-height:1.35;}' +
+      '.pdxdv-rows{display:flex;flex-direction:column;gap:0.45rem;}' +
+      '.pdxdv-row{border:1px solid rgba(255,255,255,0.08);border-radius:0.6rem;padding:0.5rem 0.6rem;background:rgba(10,15,30,0.35);}' +
+      '.pdxdv-row-lbl{font-weight:700;font-size:0.82rem;color:#e8eefc;margin-bottom:0.32rem;}' +
+      '.pdxdv-row-body{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;}' +
+      '.pdxdv-rel{display:inline-flex;align-items:center;gap:0.25rem;font-weight:700;font-size:0.68rem;letter-spacing:0.02em;padding:0.12rem 0.5rem;border-radius:999px;border:1px solid;white-space:nowrap;}' +
+      '.pdxdv-gap{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
+      '.pdxdv-note,.pdxdv-empty{font-size:0.7rem;color:#9fb4d4;line-height:1.4;}' +
+      '.pdxdv-note{margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxdv-empty{padding:0.7rem 0.2rem;}' +
+      '@media (max-width:440px){.pdxdv-sum{margin-left:0;width:100%;}.pdxdv-num-pct{font-size:1.1rem;}}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -803,6 +828,13 @@
       for (var j = 0; j < secs.length; j++) {
         if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
         secs[j].innerHTML = _officialInner(pid);
+      }
+      // …and the divergence section, so the comparison appears once the vote-based
+      // side has a real % to line up against the public-record side.
+      var dvs = document.querySelectorAll('[data-pdxc-divergence-pid]');
+      for (var d = 0; d < dvs.length; d++) {
+        if (dvs[d].getAttribute('data-pdxc-divergence-pid') !== String(pid)) continue;
+        dvs[d].innerHTML = _divergenceInner(pid);
       }
     });
   }
@@ -1083,6 +1115,130 @@
     return '<section class="pdxor pdxsd" data-pdxc-saydo-pid="' + esc(pid) + '" aria-label="Say-vs-Do by stance">' + _sdInner(pid) + '</section>';
   }
 
+  // ── Official Record vs Say-vs-Do DIVERGENCE (Phase 8) ───────────────────────
+  // The explicit accountability tell: do a member's formal voting record (🏛️
+  // Official Record %) and their broader public-record integrity (🧾 Say-vs-Do %)
+  // tell the SAME story, or different ones? We NEVER blend the two into a single
+  // "honesty" number — we place the two honest percentages side by side and label
+  // only the RELATIONSHIP between them. Each side keeps its own boundary and its own
+  // thin-data floor (a side with no real % simply isn't compared), so the contrast
+  // can never manufacture false certainty. Neutral labels describe agreement between
+  // the two records, not whether the politician is "good" — the raw numbers, always
+  // shown, carry that.
+  //   |gap| ≤ 15            → Aligned   (same story)
+  //   15 < |gap| ≤ 35       → Mixed     (mostly lines up, some daylight)
+  //   |gap| > 35            → Diverges  (different stories — the tell)
+  var DIV_ALIGN_MAX = 15, DIV_MIXED_MAX = 35;
+  var DIV_REL = {
+    aligned:  { key: 'aligned',  label: 'Aligned',  ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
+    mixed:    { key: 'mixed',    label: 'Mixed',    ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
+    diverges: { key: 'diverges', label: 'Diverges', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
+  };
+  function divRel(gap) {
+    var g = Math.abs(gap);
+    if (g <= DIV_ALIGN_MAX) return DIV_REL.aligned;
+    if (g <= DIV_MIXED_MAX) return DIV_REL.mixed;
+    return DIV_REL.diverges;
+  }
+  // Which side reads higher (only meaningful once past "Aligned"). gap = official − saydo.
+  function _divDir(gap) {
+    if (Math.abs(gap) <= DIV_ALIGN_MAX) return '';
+    return gap > 0 ? 'Official Record reads higher' : 'Say-vs-Do reads higher';
+  }
+  // Pair every issue where BOTH systems produced a real % (missing/thin sides are
+  // excluded from the head-to-head and only counted as "one-sided"). Biggest gap first.
+  function divergenceData(pid) {
+    var set = {};
+    try { issuesWithSignal(pid, 'official').forEach(function (k) { set[k] = 1; }); } catch (e) {}
+    try { issuesWithSignal(pid, 'saydo').forEach(function (k) { set[k] = 1; }); } catch (e) {}
+    var both = [], oneSide = 0;
+    Object.keys(set).forEach(function (k) {
+      var o = officialIssue(pid, k), s = saydoIssue(pid, k);
+      var oNum = typeof o.score === 'number', sNum = typeof s.score === 'number';
+      if (oNum && sNum) both.push({ key: k, off: o, say: s, gap: o.score - s.score });
+      else if (oNum || sNum) oneSide++;
+    });
+    both.sort(function (a, b) { return Math.abs(b.gap) - Math.abs(a.gap); });
+    var counts = { aligned: 0, mixed: 0, diverges: 0 };
+    both.forEach(function (p) { counts[divRel(p.gap).key]++; });
+    return { both: both, oneSide: oneSide, counts: counts };
+  }
+
+  function _divNum(icon, pct, color, label) {
+    return '<span class="pdxdv-num" title="' + esc(label) + '"><span class="pdxdv-num-ic" aria-hidden="true">' + icon + '</span>' +
+      '<span class="pdxdv-num-pct" style="color:' + color + '">' + pct + '%</span></span>';
+  }
+  function _divRelChip(rel) {
+    return '<span class="pdxdv-rel" style="color:' + rel.color + ';border-color:' + rel.color + '55;background:' + rel.color + '1f;" title="' + esc(rel.blurb) + '">' + rel.ico + ' ' + rel.label + '</span>';
+  }
+  function _divRow(p) {
+    var rel = divRel(p.gap), dir = _divDir(p.gap), g = Math.abs(p.gap);
+    return '<div class="pdxdv-row">' +
+        '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
+        '<div class="pdxdv-row-body">' +
+          '<span class="pdxdv-nums">' +
+            _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
+            _divNum('🧾', p.say.score, p.say.verdict.color, 'Say-vs-Do — public-record integrity') +
+          '</span>' +
+          _divRelChip(rel) +
+          (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
+        '</div>' +
+      '</div>';
+  }
+  function _dvInner(pid) {
+    var d = divergenceData(pid);
+    var oOv = scopedOverall('official', pid), sOv = scopedOverall('saydo', pid);
+    var oNum = typeof oOv.score === 'number', sNum = typeof sOv.score === 'number';
+
+    // Whole-profile summary: the two overall numbers side by side + a relationship
+    // label. Explicitly NOT a blended score — both numbers stay visible and separate.
+    var sumInner;
+    if (oNum && sNum) {
+      sumInner = '<span class="pdxdv-sum-nums">' +
+          _divNum('🏛️', oOv.score, oOv.verdict.color, 'Official Record overall — vote-based') +
+          '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
+          _divNum('🧾', sOv.score, sOv.verdict.color, 'Say-vs-Do overall — public-record integrity') +
+        '</span>' + _divRelChip(divRel(oOv.score - sOv.score));
+    } else {
+      sumInner = '<span class="pdxdv-sum-na">Only one side has a percentage so far — no whole-profile comparison yet.</span>';
+    }
+
+    var head =
+      '<div class="pdxdv-head"><span class="pdxdv-title"><span aria-hidden="true">⚖️</span> Record vs. Public Picture</span>' +
+        '<span class="pdxdv-sum">' + sumInner + '</span></div>' +
+      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (votes) and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This only compares the two honest scores — it never blends them into one.</div>';
+
+    if (!d.both.length) {
+      var msg = d.oneSide > 0
+        ? 'Not enough overlap yet — ' + d.oneSide + ' issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a percentage on only one side so far, so there\'s nothing to line up head-to-head.'
+        : 'No issues carry both a voting record and a public-record integrity score yet.';
+      return head + '<div class="pdxdv-empty">' + esc(msg) + '</div>';
+    }
+
+    var c = d.counts, chips = [];
+    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> aligned');
+    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> mixed');
+    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> diverging');
+    var tally = chips.length
+      ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
+      : '';
+
+    var rows = d.both.map(_divRow).join('');
+    var note = d.oneSide > 0
+      ? '<div class="pdxdv-note">➕ ' + d.oneSide + ' more issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a score on only one side — kept in their own feeds, not compared here.</div>'
+      : '';
+
+    return head + tally + '<div class="pdxdv-rows">' + rows + '</div>' + note;
+  }
+  var _divergenceInner = _dvInner; // alias used by the warm-refresh listener
+  function divergenceSectionHtml(pid) {
+    ensureStyles();
+    bindGateway();
+    if (!pid) return '';
+    return '<section class="pdxdv" data-pdxc-divergence-pid="' + esc(pid) + '" aria-label="Official Record vs Say-vs-Do divergence">' + _dvInner(pid) + '</section>';
+  }
+
   window.PDXConsistency = {
     FRAME: FRAME,
     SCOPES: SCOPES,
@@ -1110,6 +1266,10 @@
     gatewayHtml: gatewayHtml,
     officialRecordSectionHtml: officialRecordSectionHtml,
     saydoSectionHtml: saydoSectionHtml,
+    // Phase 8: the explicit Official Record vs Say-vs-Do divergence. divergence()
+    // returns the raw comparison data; divergenceSectionHtml() the mountable view.
+    divergence: divergenceData,
+    divergenceSectionHtml: divergenceSectionHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
