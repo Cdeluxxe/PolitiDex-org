@@ -144,6 +144,42 @@
     return acct + ':' + prof + ':' + sd;
   }
 
+  // ── Phase 10 receipt issue-key backfill (Say-vs-Do side) ────────────────────
+  // The sibling of consistency.js's OFFICIAL_ACTION_ISSUE_BACKFILL, applied to the
+  // OTHER side: public-record receipts (non-'voting' items) that shipped WITHOUT an
+  // issueKey and so silently dropped out of the by-stance view. Each entry was hand-
+  // assigned only where the item has a clear, single-issue policy nexus and maps to a
+  // live ISSUE_MAP key; conduct / character / electoral-biography items with no policy
+  // stance stay ABSENT on purpose (they remain visible in the flashpoints/receipts
+  // surfaces, they just can't be grouped under a stated stance). Keyed by
+  // "<pid>||<normalized headline>". No double-counting risk: this only touches
+  // non-'voting' receipts, and 'voting' items are dropped from collect() upstream, so
+  // an item is never keyed on both the Official Record and Say-vs-Do sides.
+  var SAYDO_RECEIPT_ISSUE_BACKFILL = {
+    'bmoore||voted to certify the 2020 election breaking with most of his party': 'election_integrity',
+    'owens||voted to object to pennsylvania s 2020 electoral votes': 'election_integrity',
+    'dhenderson||knocked down 2020 election fraud claims as utah s chief election officer': 'election_integrity',
+    'dhenderson||rebuked election deniers in her own party before the 2024 vote': 'election_integrity',
+    'dhenderson||welcomed an independent audit of utah s elections': 'election_integrity',
+    'cbramble||co authored the sb54 ballot access compromise and defended it': 'election_integrity',
+    'cory_maloy_h52||drew a clear line on ballot return privacy': 'election_integrity',
+    'lyman||contested the primary result with unverified claims': 'election_integrity',
+    'maloy||touted broadband funds from a law she publicly criticized': 'broadband',
+    'kennedy||a practicing physician who legislates on healthcare transparency': 'healthcare',
+    'cox||residential water saving message vs industrial water power approvals': 'water',
+    'bwilson||made the great salt lake rescue his signature cause as speaker': 'water'
+  };
+  function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  // Resolve a receipt's issueKey: its own, else the Phase 10 backfill (validated
+  // against the live ISSUE_MAP so a stale entry can never inject an invalid key).
+  function _resolveReceiptIssue(pid, it) {
+    if (it.issueKey) return it.issueKey;
+    var ik = SAYDO_RECEIPT_ISSUE_BACKFILL[pid + '||' + _normHead(it.headline)] || '';
+    if (!ik) return '';
+    try { if (window.ISSUE_MAP && !window.ISSUE_MAP[ik]) return ''; } catch (e) {}
+    return ik;
+  }
+
   function collect() {
     var key = buildKey();
     if (_cache && key === _cacheKey) return _cache;
@@ -174,9 +210,10 @@
         // is lost: it now feeds Official Record instead.
         if (String(it.category || '').toLowerCase() === 'voting') return;
         if (!it.headline || !it.source || !it.source.url) return; // must be checkable
-        var st = stanceFor(pid, it.issueKey);
+        var resolvedKey = _resolveReceiptIssue(pid, it);          // own issueKey, else Phase 10 backfill
+        var st = stanceFor(pid, resolvedKey);
         var verdict = verdictOf(it, !!st);
-        var im = issueMeta(it.issueKey);
+        var im = issueMeta(resolvedKey);
 
         // Ranking: contradictions first, prefer explicit say/do pairs, known
         // officeholders and recent, sourced events.
@@ -188,7 +225,7 @@
 
         out.push({
           pid: pid, name: name, sub: sub, party: party, photo: photo, hasOffice: hasOffice,
-          issueKey: it.issueKey || '', issue: im,
+          issueKey: resolvedKey || '', issue: im,
           said: st ? { text: st.text || st.topic, word: stanceWord(st) } : null,
           headline: it.headline, facts: it.facts || it.body || '', why: it.why || '',
           date: it.date || '', source: it.source, category: it.category || '',

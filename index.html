@@ -26074,6 +26074,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <span id="pdxsec-official-record" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.officialRecordSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.officialRecordSectionHtml(id) + '</div>') : ''}
 
+      <!-- Record vs. Public Picture — the explicit divergence bridge (Phase 8). Sits
+           BETWEEN the two sibling feeds and compares 🏛️ Official Record (votes) with
+           🧾 Say-vs-Do (public record) issue-by-issue plus a whole-profile summary,
+           labelling the relationship (Aligned / Mixed / Diverges). Never blends the
+           two into one score. Rendered by consistency.js; self-updates when votes warm. -->
+      <span id="pdxsec-divergence" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXConsistency && typeof window.PDXConsistency.divergenceSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.divergenceSectionHtml(id) + '</div>') : ''}
+
       <!-- Say-vs-Do — the dedicated, stance-first public-record feed the gateway's
            Say-vs-Do card lands on. Sibling to the Official Record section: same
            organized shape, but broader public-record evidence ONLY (statements,

@@ -49,6 +49,7 @@ import {
   crossoverFlags,
   normalizeCongressActions,
   normalizeCongressVote,
+  normalizePosition,
   originatingChamber,
   splitMeasureNumber,
   suggestIssue,
@@ -99,6 +100,23 @@ export type IngestReport = {
 // Returns [] (and logs) when unconfigured or on any error, so a flaky upstream or
 // a missing key never breaks the caller. Parsing is intentionally defensive: the
 // engine below is source-agnostic and can be fed by any fetcher producing RawVote[].
+//
+// The live Congress.gov `{chamber}-vote/{congress}` endpoint returns vote SUMMARIES
+// only — no chamber field and no per-member positions. Those positions live in a
+// separate `/{congress}/{session}/{rollNumber}/members` sub-resource, so this is a
+// TWO-STEP fetch: list the roll calls, then pull each one's members, tally the totals
+// from them, and hand the enriched object (with an explicit chamber) to the normalizer.
+function tallyMemberPositions(members: any[]): Record<string, number> {
+  const t: Record<string, number> = { yea: 0, nay: 0, present: 0, notVoting: 0 };
+  for (const m of members || []) {
+    const p = normalizePosition(m.voteCast || m.votePosition || m.position || m.vote);
+    if (p === "yea") t.yea++;
+    else if (p === "nay") t.nay++;
+    else if (p === "present") t.present++;
+    else if (p === "not_voting") t.notVoting++;
+  }
+  return t;
+}
 export async function fetchRollcallsFromCongress(opts: {
   congress: number;
   chamber: string;
@@ -109,19 +127,62 @@ export async function fetchRollcallsFromCongress(opts: {
     console.log("vr-ingest: CONGRESS_GOV_API_KEY not set — ingest is a no-op.");
     return [];
   }
+  const chamber = opts.chamber === "senate" ? "senate" : "house";
   const limit = Math.min(Math.max(opts.limit || 20, 1), 250);
-  const url =
-    `${CONGRESS_API_BASE}/${opts.chamber}-vote/${opts.congress}` +
+  const listUrl =
+    `${CONGRESS_API_BASE}/${chamber}-vote/${opts.congress}` +
     `?format=json&limit=${limit}&api_key=${encodeURIComponent(apiKey)}`;
   try {
-    const res = await fetch(url, { headers: { accept: "application/json" } });
+    const res = await fetch(listUrl, { headers: { accept: "application/json" } });
     if (!res.ok) {
-      console.warn(`vr-ingest: Congress.gov ${res.status} for ${opts.chamber}/${opts.congress}`);
+      console.warn(`vr-ingest: Congress.gov ${res.status} for ${chamber}/${opts.congress}`);
       return [];
     }
     const data: any = await res.json();
-    const rows: any[] = data?.votes || data?.houseRollCallVotes || data?.senateVotes || [];
-    return rows.map(normalizeCongressVote).filter((v): v is RawVote => !!v);
+    const rows: any[] =
+      data?.[`${chamber}RollCallVotes`] ||
+      data?.houseRollCallVotes ||
+      data?.senateRollCallVotes ||
+      data?.votes ||
+      [];
+
+    const out: RawVote[] = [];
+    for (const row of rows) {
+      const session = Number(row.sessionNumber ?? row.session ?? 1);
+      const num = Number(row.rollCallNumber ?? row.rollNumber ?? row.number);
+      // Pull the per-member positions (sequentially, so a bulk run doesn't hammer the
+      // API). A failed sub-fetch degrades to no member votes rather than dropping the
+      // roll call — the measure + roll call are still worth recording.
+      let members: any[] = [];
+      if (Number.isFinite(session) && Number.isFinite(num)) {
+        try {
+          const memUrl =
+            `${CONGRESS_API_BASE}/${chamber}-vote/${opts.congress}/${session}/${num}/members` +
+            `?format=json&api_key=${encodeURIComponent(apiKey)}`;
+          const mres = await fetch(memUrl, { headers: { accept: "application/json" } });
+          if (mres.ok) {
+            const md: any = await mres.json();
+            const container =
+              md?.[`${chamber}RollCallVoteMemberVotes`] ||
+              md?.houseRollCallVoteMemberVotes ||
+              md?.senateRollCallVoteMemberVotes ||
+              {};
+            members = Array.isArray(container?.results) ? container.results : [];
+          } else {
+            console.warn(`vr-ingest: members ${mres.status} for ${chamber} roll ${num}`);
+          }
+        } catch (e: any) {
+          console.warn(`vr-ingest: members fetch failed for ${chamber} roll ${num} —`, e?.message || String(e));
+        }
+      }
+      // Explicit chamber (list items don't carry one) + derived totals (summary has none).
+      const normalized = normalizeCongressVote(
+        { ...row, members, voteTotals: tallyMemberPositions(members) },
+        chamber
+      );
+      if (normalized) out.push(normalized);
+    }
+    return out;
   } catch (e: any) {
     console.warn("vr-ingest: fetch failed —", e?.message || String(e));
     return [];
