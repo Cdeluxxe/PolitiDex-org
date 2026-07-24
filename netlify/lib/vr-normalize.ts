@@ -50,9 +50,12 @@ export type RawVote = {
 
 // Map one Congress.gov vote object into a RawVote. Defensive: returns null when
 // the shape is unrecognisable or a required source is missing (verifiability).
-export function normalizeCongressVote(v: any): RawVote | null {
+export function normalizeCongressVote(v: any, chamberHint?: string): RawVote | null {
   if (!v || typeof v !== "object") return null;
-  const chamber = String(v.chamber || v.chamberCode || "").toLowerCase();
+  // The live Congress.gov {chamber}-vote list items carry NO chamber field (it is
+  // implied by the endpoint), so accept an explicit hint from the fetcher. A chamber
+  // present on the object still wins; the hint is the fallback.
+  const chamber = String(v.chamber || v.chamberCode || chamberHint || "").toLowerCase();
   if (chamber !== "house" && chamber !== "senate") return null;
   const rollNumber = Number(v.rollCallNumber ?? v.rollNumber ?? v.number);
   const congress = Number(v.congress);
@@ -63,18 +66,26 @@ export function normalizeCongressVote(v: any): RawVote | null {
   const sourceUrl = v.url || v.sourceUrl;
   if (!sourceUrl) return null;
 
+  // Member positions: the live sub-resource uses bioguideID / voteCast / voteParty /
+  // voteState with a split first/last name; older/shaped feeds use members[].position.
   const rawMembers: any[] = v.members || v.votePositions || v.positions || [];
   const memberVotes: RawMemberVote[] = rawMembers.map((m: any) => ({
     bioguideId: m.bioguideId || m.bioguideID || m.memberId,
-    name: m.name || m.fullName,
-    state: m.state,
-    party: m.party || m.partyCode,
-    position: normalizePosition(m.votePosition || m.position || m.vote),
+    name: m.name || m.fullName || [m.firstName, m.lastName].filter(Boolean).join(" ") || undefined,
+    state: m.state || m.voteState,
+    party: m.party || m.partyCode || m.voteParty,
+    position: normalizePosition(m.votePosition || m.position || m.vote || m.voteCast),
   })).filter((m) => !!m.position);
 
   const mm = v.legislation || v.bill || v.measure || {};
-  const measureType = String(mm.type || v.legislationType || "bill").toLowerCase();
-  const rawNumber = mm.number != null ? `${mm.type || ""}${mm.number}` : (v.legislationNumber || null);
+  const legisType = mm.type || v.legislationType || "";
+  const measureType = String(legisType || "bill").toLowerCase();
+  // The live list item splits the citation into legislationType ("HR") + legislation
+  // Number ("3424"); combine them so canonicalMeasureNumber yields "H.R. 3424" and the
+  // measure matches the curated seed instead of creating a bare-number duplicate.
+  const rawNumber = mm.number != null
+    ? `${mm.type || ""}${mm.number}`
+    : (v.legislationNumber != null ? `${v.legislationType || ""}${v.legislationNumber}` : null);
   return {
     chamber,
     congress,
@@ -96,8 +107,8 @@ export function normalizeCongressVote(v: any): RawVote | null {
       // Originating chamber (from the bill-type prefix), NOT the voting chamber, so a
       // bill voted in both chambers resolves to ONE measure row. H.R.* → house, S.* →
       // senate; falls back to the voting chamber when the prefix is unknown.
-      chamber: originatingChamber(mm.type, chamber),
-      sourceUrl: mm.url || `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
+      chamber: originatingChamber(legisType, chamber),
+      sourceUrl: mm.url || v.legislationUrl || `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
       sourceLabel: "Congress.gov",
       externalIds: mm.congressGovId ? { congressGovId: String(mm.congressGovId) } : {},
     },
