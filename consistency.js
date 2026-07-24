@@ -20,8 +20,13 @@
         • Core question: "Does the full public picture match what they claim?"
         • Built from the wider public record — interviews, statements, news,
           controversies, social posts and other verified NON-legislative evidence.
-        • Verdict + receipts led; NOT forced into a hard competing percentage
-          (score is intentionally null on this scope).
+        • Verdict + receipts led. Phase 7 adds a stance-level PUBLIC-RECORD integrity
+          % — supporting / (supporting + contradicting) receipts — plus a pooled
+          overall read in the section header. This % is derived ONLY from Say-vs-Do
+          evidence: it is never blended with, nor allowed to compete with, the
+          vote-based Official Record %, and never touches vote-consistency surfaces.
+          It stays honest under thin data (no number below MIN_SAYDO_EVIDENCE, so a
+          lone item can't fake a 0% / 100%).
 
      Real, discrete PROMISES ("I will / I will not" pledges) are their OWN narrower
      system and are NOT blended into either percentage. This engine never scores them.
@@ -36,7 +41,8 @@
 
    HOW TO READ THIS FILE:
      • officialRecord(pid, issue|overall) → the institutional %, votes only.
-     • sayVsDo(pid, issue|overall)        → the public-integrity verdict, receipts only.
+     • sayVsDo(pid, issue|overall)        → the public-integrity verdict + a
+       public-record integrity % (receipts only; never a vote-based score).
      • issueVerdict / overallVerdict      → the pre-existing COMBINED read, kept intact
        for surfaces already wired to it (additive, non-breaking). New surfaces should
        prefer the two scoped reads above.
@@ -182,6 +188,40 @@
     return Math.round(100 * (rec.consistent || 0) / judged);
   }
 
+  // ── SAY-VS-DO stance integrity score (Phase 7) ──────────────────────────────
+  // A stance-level, PUBLIC-RECORD-ONLY support percentage. It is derived solely
+  // from the Say-vs-Do-eligible receipts already counted for the stance (formal
+  // votes/actions and promises are excluded upstream by curatedFor), so it can
+  // never touch the vote-based Official Record % or the Alignment Tool.
+  //
+  //   integrity % = supporting / (supporting + contradicting)
+  //
+  // where "supporting" = receipts whose verdict backs their word (consistent) and
+  // "contradicting" = receipts that run against it. Flags are a documented red flag
+  // but not a clean say-vs-do direction, so they are shown as a caveat and kept OUT
+  // of the denominator (they'd otherwise distort a transparent support ratio).
+  //
+  // Honest thin-data rules (never a false 0% / 100% from near-empty evidence):
+  //   • fewer than MIN_SAYDO_EVIDENCE directional items  → no number ("—"), because
+  //     a single item can only ever read 0% or 100%.
+  //   • MIN..SAYDO_THIN_MAX directional items            → number shown, flagged as
+  //     "thin" so the UI/tooltip can caveat it.
+  var MIN_SAYDO_EVIDENCE = 2;   // minimum directional (supporting+contradicting) items to show a %
+  var SAYDO_THIN_MAX     = 3;   // 2–3 directional items → shown but marked thin
+  function saydoScore(supporting, contradicting, min) {
+    min = min || MIN_SAYDO_EVIDENCE;
+    supporting = supporting || 0; contradicting = contradicting || 0;
+    var judged = supporting + contradicting;
+    if (judged < min) {
+      return { pct: null, judged: judged, supporting: supporting, contradicting: contradicting, thin: false, enough: false };
+    }
+    return {
+      pct: Math.round(100 * supporting / judged),
+      judged: judged, supporting: supporting, contradicting: contradicting,
+      thin: judged <= SAYDO_THIN_MAX, enough: true
+    };
+  }
+
   // ── Migrated formal-action feeder (Phase 3) ─────────────────────────────────
   // Curated receipts categorized 'voting' are FORMAL LEGISLATIVE ACTIONS (votes,
   // sponsorships) — they belong to the Official Record, not the broader Say-vs-Do
@@ -237,7 +277,14 @@
     'nhaley||led the removal of the confederate flag in south carolina': 'rights_balance',
     'biden||turned campaign promises into major enacted laws': 'infrastructure',
     'obama||delivered his signature promise the affordable care act': 'healthcare',
-    'emendenhall||delivered on the environmental brand': 'climate_action'
+    'emendenhall||delivered on the environmental brand': 'climate_action',
+    // Phase 10 coverage recovery — two previously no-key formal actions with a clear,
+    // single-issue nexus (both landmark health-coverage measures → healthcare). The
+    // other ~21 no-key voting items stay UNRESOLVED on purpose: they are electoral,
+    // leadership, biographical, pattern-summary or multi-issue, with no defensible
+    // single ISSUE_MAP key — forcing them would be exactly the false coverage we avoid.
+    'gwbush||pepfar a global aids program credited with saving millions': 'healthcare',
+    'snider_h5||passed firefighter cancer coverage law as a volunteer firefighter himself': 'healthcare'
   };
   function _normHead(s) { return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   // Resolve an item's issueKey: its own, else the Phase 4 backfill. Only accept a key
@@ -432,9 +479,13 @@
     else if (cur.consistent > 0) token = 'consistent';
     else if (cur.flag > 0) token = 'flag';
     else token = 'no_record';
+    // Phase 7: a transparent, public-record-only support % (null under the thin-data
+    // threshold so it never fakes a 0/100). This is Say-vs-Do's OWN integrity read —
+    // it is never fed into the Official Record % or any vote-based surface.
+    var sc = saydoScore(cur.consistent, cur.contradicts);
     return {
       scope: 'saydo', token: token, verdict: scopeVerdict('saydo', token),
-      score: null, record: null, curated: cur,
+      score: sc.pct, scoreMeta: sc, record: null, curated: cur,
       contradictions: cur.contradicts, flags: cur.flag,
       hasStance: hasStance, pending: false, sources: cur.total ? ['receipts'] : []
     };
@@ -479,12 +530,14 @@
     var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid, scope);
     var counts = { consistent: 0, contradicts: 0, mixed: 0, flag: 0, limited: 0, none: 0, pending: 0 };
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
+    var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
       if (typeof v.score === 'number') { scoreSum += v.score; scoreN++; }
+      if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
     if (counts.contradicts > 0 && counts.consistent > 0) token = 'mixed';
@@ -495,10 +548,18 @@
     else if (counts.limited > 0) token = 'limited';
     else if (anyPending) token = 'pending';
     else token = 'no_record';
+    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity % (supporting
+    // ÷ directional evidence across every stance). It is NOT a blend of vote data and
+    // never competes with the Official Record — it's the public-record answer only,
+    // pooled by evidence volume and held to a higher floor so a whole-profile read
+    // never rests on one or two items. The gateway card still shows a verdict chip only.
+    var sdScore = (scope === 'saydo') ? saydoScore(sdSup, sdCon, MIN_SAYDO_EVIDENCE + 1) : null;
     return {
       scope: scope, token: token, verdict: scopeVerdict(scope, token),
-      // Say-vs-Do never carries a competing % (verdict + receipts only).
-      score: (scope === 'saydo') ? null : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      // Official/combined = the vote-based average; Say-vs-Do = its pooled public-record
+      // integrity % (still on its own scope — never blended into Official Record).
+      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      saydoScore: sdScore,
       counts: counts, contradictions: contradictions,
       pending: anyPending, rated: scoreN, issues: keys.length
     };
@@ -570,6 +631,9 @@
       '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
       '.pdxor-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
       '.pdxor-q{font-style:italic;font-size:0.76rem;color:#c6d4ec;margin:0.2rem 0 0.6rem;line-height:1.3;}' +
+      // Phase 10 honest coverage disclosure line (Official Record / Say-vs-Do / divergence).
+      '.pdxcov{font-size:0.68rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.6rem;padding:0.3rem 0.5rem;border-radius:0.5rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);cursor:help;}' +
+      '.pdxcov b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-overall{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 0.6rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);margin-left:auto;}' +
       '.pdxor-overall .pdxor-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
       '.pdxor-tally{font-size:0.7rem;color:#9fb4d4;margin:0.35rem 0 0.75rem;line-height:1.35;}' +
@@ -593,6 +657,73 @@
       // so it never reads as the Official Record (which has no accent bar).
       '.pdxsd .pdxor-title{color:#f5d9a0;}' +
       '.pdxsd .pdxor-issue{border-left:2px solid rgba(245,200,66,0.35);}' +
+      // Say-vs-Do integrity % (Phase 7): reserved score slot on each stance row +
+      // the pooled overall read in the header. Kept visually distinct from a bare
+      // vote %, always captioned/tooltipped as public-record integrity.
+      '.pdxor-pct-na{color:#7e93b3;font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;opacity:0.85;cursor:help;}' +
+      '.pdxor-thin{font-family:"Barlow Condensed",sans-serif;font-size:0.5em;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#c6a15b;margin-left:0.12em;vertical-align:super;}' +
+      '.pdxor-integrity{display:inline-flex;align-items:center;gap:0.3rem;cursor:help;}' +
+      '.pdxor-integrity-cap{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.5rem;line-height:1;letter-spacing:0.04em;text-transform:uppercase;color:#c6a15b;text-align:left;}' +
+      '.pdxor-method{font-size:0.66rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.4rem 0.55rem;border-radius:0.5rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);}' +
+      '.pdxor-method b{color:#c6d4ec;}' +
+      // Divergence section (Phase 8): Official Record vs Say-vs-Do, side by side.
+      // Neutral, comparison-first styling; the relationship chip carries the colour.
+      '.pdxdv{font-family:"Barlow Condensed",sans-serif;border:1px solid rgba(255,255,255,0.1);border-radius:0.9rem;padding:0.85rem;background:linear-gradient(180deg,rgba(18,24,42,0.5),rgba(10,15,30,0.3));}' +
+      '.pdxdv-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.75rem;}' +
+      '.pdxdv-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
+      '.pdxdv-sum{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-left:auto;padding:0.3rem 0.55rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);}' +
+      '.pdxdv-sum-na{font-size:0.68rem;color:#9fb4d4;line-height:1.3;max-width:17rem;}' +
+      '.pdxdv-sum-nums,.pdxdv-nums{display:inline-flex;align-items:center;gap:0.35rem;}' +
+      '.pdxdv-num{display:inline-flex;align-items:center;gap:0.22rem;white-space:nowrap;}' +
+      '.pdxdv-num-ic{font-size:0.8rem;opacity:0.9;}' +
+      '.pdxdv-num-pct{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:0.9;}' +
+      '.pdxdv-vs{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#7e93b3;}' +
+      '.pdxdv-q{font-style:italic;font-size:0.74rem;color:#c6d4ec;margin:0.4rem 0 0.55rem;line-height:1.4;}' +
+      '.pdxdv-q b{font-style:normal;}' +
+      '.pdxdv-tally{font-size:0.72rem;color:#c6d4ec;margin:0 0 0.6rem;line-height:1.35;}' +
+      '.pdxdv-rows{display:flex;flex-direction:column;gap:0.45rem;}' +
+      '.pdxdv-row{border:1px solid rgba(255,255,255,0.08);border-radius:0.6rem;padding:0.5rem 0.6rem;background:rgba(10,15,30,0.35);}' +
+      '.pdxdv-row-lbl{font-weight:700;font-size:0.82rem;color:#e8eefc;margin-bottom:0.32rem;}' +
+      '.pdxdv-row-body{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;}' +
+      '.pdxdv-rel{display:inline-flex;align-items:center;gap:0.25rem;font-weight:700;font-size:0.68rem;letter-spacing:0.02em;padding:0.12rem 0.5rem;border-radius:999px;border:1px solid;white-space:nowrap;}' +
+      '.pdxdv-gap{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
+      '.pdxdv-note,.pdxdv-empty{font-size:0.7rem;color:#9fb4d4;line-height:1.4;}' +
+      '.pdxdv-note{margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxdv-empty{padding:0.7rem 0.2rem;}' +
+      '@media (max-width:440px){.pdxdv-sum{margin-left:0;width:100%;}.pdxdv-num-pct{font-size:1.1rem;}}' +
+      // Phase 9 — tappable comparison rows + cross-links + the focused gap sheet.
+      '.pdxdv-row-tap{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;}' +
+      '.pdxdv-row-tap:hover{border-color:rgba(255,255,255,0.22);background:rgba(10,15,30,0.55);}' +
+      '.pdxdv-row-tap:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.pdxdv-row-why{display:block;margin-top:0.4rem;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fdbd0;}' +
+      '.pdxdv-open{display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.5rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.03em;text-transform:uppercase;color:var(--c,#9fdbd0);cursor:pointer;background:rgba(10,15,30,0.4);border:1px solid var(--c,#9fdbd0);border-radius:999px;padding:0.16rem 0.55rem;}' +
+      '.pdxdv-open:hover{filter:brightness(1.15);}' +
+      '.pdxdv-open:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
+      '.pdxgap-back[hidden]{display:none;}' +
+      '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:1rem 0.95rem 1.4rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
+      '@keyframes pdxgapUp{from{transform:translateY(14px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}' +
+      '@media (prefers-reduced-motion:reduce){.pdxgap-sheet{animation:none;}}' +
+      '@media (min-width:560px){.pdxgap-back{align-items:center;}.pdxgap-sheet{border-radius:1rem;}}' +
+      '.pdxgap-x{position:absolute;top:0.6rem;right:0.7rem;width:2rem;height:2rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.2rem;line-height:1;cursor:pointer;}' +
+      '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
+      '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
+      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.15rem 0 0.4rem;padding-right:2rem;}' +
+      '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
+      '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
+      '.pdxgap-note b{color:#f5d9a0;}' +
+      '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.8rem;}' +
+      '@media (min-width:560px){.pdxgap-sides{flex-direction:row;}.pdxgap-side{flex:1;min-width:0;}}' +
+      '.pdxgap-side{border:1px solid rgba(255,255,255,0.1);border-radius:0.7rem;padding:0.65rem 0.7rem;background:rgba(10,15,30,0.4);}' +
+      '.pdxgap-side-h{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
+      '.pdxgap-side-name{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.76rem;color:#e8eefc;}' +
+      '.pdxgap-pct{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:0.9;}' +
+      '.pdxgap-side-sub{font-size:0.66rem;color:#8fa2c0;line-height:1.35;margin:0.25rem 0 0.5rem;}' +
+      '.pdxgap-acts{display:flex;flex-direction:column;}' +
+      '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
+      '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
+      '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
+      '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -721,6 +852,12 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
+      if (gap) {
+        e.preventDefault();
+        openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
+        return;
+      }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
       if (!card) return;
       e.preventDefault();
@@ -740,6 +877,20 @@
       for (var j = 0; j < secs.length; j++) {
         if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
         secs[j].innerHTML = _officialInner(pid);
+      }
+      // …and the divergence section, so the comparison appears once the vote-based
+      // side has a real % to line up against the public-record side.
+      var dvs = document.querySelectorAll('[data-pdxc-divergence-pid]');
+      for (var d = 0; d < dvs.length; d++) {
+        if (dvs[d].getAttribute('data-pdxc-divergence-pid') !== String(pid)) continue;
+        dvs[d].innerHTML = _divergenceInner(pid);
+      }
+      // …and the Say-vs-Do feed, so its "compare vs the record" cross-links resolve
+      // once the vote-based side has a % to compare against (Phase 9).
+      var sds = document.querySelectorAll('[data-pdxc-saydo-pid]');
+      for (var q = 0; q < sds.length; q++) {
+        if (sds[q].getAttribute('data-pdxc-saydo-pid') !== String(pid)) continue;
+        sds[q].innerHTML = _sdInner(pid);
       }
     });
   }
@@ -766,16 +917,19 @@
     return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
       '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + '</span></div>';
   }
-  function _orSupportingHtml(ov) {
+  // Evidence lines behind an Official Record issue verdict, as an array of row HTML
+  // (migrated curated formal actions + the strongest vr_* votes each way). Shared by
+  // the feed's collapsible <details> and the Phase 9 gap drawer (rendered expanded).
+  function _orEvidenceItems(ov) {
     var lines = [];
     // Migrated curated formal actions (each sourced).
-    if (ov.officialActions && ov.officialActions.items) {
+    if (ov && ov.officialActions && ov.officialActions.items) {
       ov.officialActions.items.forEach(function (a) {
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
     // vr_* roll-call summary: the strongest consistent / contradicting measure.
-    if (ov.record) {
+    if (ov && ov.record) {
       var mk = function (item, verdict) {
         if (!item) return;
         var url = item.sourceUrl || (item.source && item.source.url) || '';
@@ -787,9 +941,24 @@
       mk(ov.record.topContradiction, 'contradicts');
       mk(ov.record.topConsistent, 'consistent');
     }
+    return lines;
+  }
+  function _orSupportingHtml(ov) {
+    var lines = _orEvidenceItems(ov);
     if (!lines.length) return '';
     var n = lines.length;
     return '<details class="pdxor-acts"><summary>' + n + ' supporting ' + (n === 1 ? 'action' : 'actions') + ' ▾</summary>' + lines.join('') + '</details>';
+  }
+  // Phase 10 honest coverage line: "Based on N of ~M tracked issues …". N = issues
+  // actually scored on this side; M ≈ issues in play (scored + those with a stated
+  // position still awaiting a record). Approximate by design ("~", "tracked so far")
+  // so a thin record never reads as a full verdict. Empty when nothing is scored yet
+  // (the section's own empty state already explains that case).
+  function _coverageLine(scored, awaiting, noun) {
+    if (!scored) return '';
+    var denom = scored + awaiting;
+    return '<div class="pdxcov" title="Coverage is partial and grows as more record is added. Shows how many of the issues they have taken a position on so far actually have a ' + esc(noun) + ' to check.">' +
+      '📊 Based on <b>' + scored + '</b> of ~' + denom + ' tracked issue' + (denom === 1 ? '' : 's') + ' with a ' + esc(noun) + ' so far.</div>';
   }
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
@@ -850,7 +1019,7 @@
               '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
-            '</div>' + _orSupportingHtml(s.ov) +
+            '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
@@ -860,7 +1029,7 @@
       ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet.</div>'
       : '';
 
-    return head + body + awaitingNote + _orRawLink();
+    return head + _coverageLine(scored.length, awaiting, 'formal record') + body + awaitingNote + _orRawLink();
   }
   function _orRawLink() {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
@@ -887,13 +1056,15 @@
   function _catLabel(k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } }
   function _issueLabel(k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } }
   var _SD_ITEM_RANK = { contradicts: 0, flag: 1, consistent: 2 };
-  function _sdEvidenceHtml(cur) {
-    if (!cur || !cur.items || !cur.items.length) return '';
+  // Public-record receipts behind a Say-vs-Do stance, as an array of row HTML (each
+  // sourced, contradictions first). Shared by the feed's <details> and the gap drawer.
+  function _sdEvidenceItems(cur) {
+    if (!cur || !cur.items || !cur.items.length) return [];
     var items = cur.items.slice().sort(function (a, b) {
       var ak = (a.verdict && a.verdict.key) || 'flag', bk = (b.verdict && b.verdict.key) || 'flag';
       return (_SD_ITEM_RANK[ak] == null ? 9 : _SD_ITEM_RANK[ak]) - (_SD_ITEM_RANK[bk] == null ? 9 : _SD_ITEM_RANK[bk]);
     });
-    var lines = items.map(function (r) {
+    return items.map(function (r) {
       var mv = VERDICTS[(r.verdict && r.verdict.key)] || VERDICTS.flag;
       var url = r.source && r.source.url;
       var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc((r.source && r.source.label) || 'Source') + ' ↗</a>' : '';
@@ -903,9 +1074,13 @@
       var metaHtml = meta.length ? ' <span style="color:#7e93b3;">· ' + meta.join(' · ') + '</span>' : '';
       return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
         '<span>' + esc(r.headline || 'Public-record item') + metaHtml + src + '</span></div>';
-    }).join('');
-    var n = items.length;
-    return '<details class="pdxor-acts"><summary>' + n + ' public-record ' + (n === 1 ? 'item' : 'items') + ' ▾</summary>' + lines + '</details>';
+    });
+  }
+  function _sdEvidenceHtml(cur) {
+    var lines = _sdEvidenceItems(cur);
+    if (!lines.length) return '';
+    var n = lines.length;
+    return '<details class="pdxor-acts"><summary>' + n + ' public-record ' + (n === 1 ? 'item' : 'items') + ' ▾</summary>' + lines.join('') + '</details>';
   }
   function _sdCounts(cur) {
     var parts = [];
@@ -913,6 +1088,27 @@
     if (cur.contradicts) parts.push('<b style="color:' + VERDICTS.contradicts.color + '">' + cur.contradicts + '</b> against');
     if (cur.flag) parts.push('<b style="color:' + VERDICTS.flag.color + '">' + cur.flag + '</b> flag' + (cur.flag === 1 ? '' : 's'));
     return parts.length ? '<span class="pdxor-count">' + parts.join(' · ') + '</span>' : '';
+  }
+  // Phase 7: render the stance-level public-record integrity % into the reserved
+  // score slot. `sc` is a saydoScore() breakdown. Honest by construction — shows a
+  // real number only above the thin-data floor, an explained "—" otherwise, and a
+  // tooltip that always states this is public-record integrity, NOT a voting score.
+  function _sdPctHtml(sc, color, opts) {
+    opts = opts || {};
+    if (!sc) return '';
+    if (!sc.enough) {
+      if (!opts.showDash) return '';
+      var natip = sc.judged <= 0
+        ? 'Not enough public record yet — no supporting or contradicting items to score.'
+        : 'Not enough public record yet — only ' + sc.judged + ' checkable item' + (sc.judged === 1 ? '' : 's') + '; needs at least ' + MIN_SAYDO_EVIDENCE + ' to show a fair percentage.';
+      return '<span class="pdxor-pct pdxor-pct-na" title="' + esc(natip) + '" aria-label="Not enough public record yet">—</span>';
+    }
+    var tip = 'Public-record integrity: ' + sc.supporting + ' of ' + sc.judged + ' checkable public-record item' + (sc.judged === 1 ? '' : 's') + ' back up what they say'
+      + (sc.contradicting ? ' · ' + sc.contradicting + ' run against' : '') + '.'
+      + (sc.thin ? ' Thin evidence — read with caution.' : '')
+      + ' This is public-record integrity, not their formal voting record.';
+    return '<span class="pdxor-pct" style="color:' + color + '" title="' + esc(tip) + '">' + sc.pct + '%'
+      + (sc.thin ? '<sup class="pdxor-thin" aria-hidden="true">thin</sup>' : '') + '</span>';
   }
   function _sdRawLink() {
     if (!document.getElementById || !document.getElementById('pdxsec-controversies')) return '';
@@ -929,12 +1125,27 @@
 
     var overall = scopedOverall('saydo', pid);
     var om = overall.verdict;
-    // Say-vs-Do carries NO percentage (by design) — verdict chip only. The
-    // stance-level % can slot in here later without redesign (see sayVsDo().score).
+    // Phase 7: Say-vs-Do now carries its OWN pooled public-record integrity % beside
+    // the verdict chip — NOT a blended score and never the vote-based Official Record
+    // number. When evidence is below the floor we simply keep the chip (no fake %),
+    // so divergence from the Official Record % stays honest and readable.
+    var headPct = '';
+    if (typeof overall.score === 'number') {
+      var sd = overall.saydoScore || {};
+      var htip = 'Public-record integrity across every stance: ' + sd.supporting + ' of ' + sd.judged
+        + ' checkable public-record items back up their word'
+        + (sd.contradicting ? ' · ' + sd.contradicting + ' run against' : '') + '.'
+        + (sd.thin ? ' Thin evidence — read with caution.' : '')
+        + ' Public-record integrity only — separate from the vote-based Official Record %.';
+      headPct = '<span class="pdxor-integrity" title="' + esc(htip) + '">' +
+          '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%' + (sd.thin ? '<sup class="pdxor-thin" aria-hidden="true">thin</sup>' : '') + '</span>' +
+          '<span class="pdxor-integrity-cap">public-record<br>integrity</span></span>';
+    }
     var head =
       '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
-        '<span class="pdxor-overall"><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
-      '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>';
+        '<span class="pdxor-overall">' + headPct + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
+      '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
+      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score.</div>';
 
     if (!scored.length) {
       var msg = awaiting > 0
@@ -963,8 +1174,9 @@
               '<span class="pdxor-issue-lbl">' + esc(_issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' +
+              _sdPctHtml(s.ov.scoreMeta, v.color, { showDash: true }) +
               _sdCounts(s.ov.curated) +
-            '</div>' + _sdEvidenceHtml(s.ov.curated) +
+            '</div>' + _sdEvidenceHtml(s.ov.curated) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
@@ -974,13 +1186,267 @@
       ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no public-record evidence yet.</div>'
       : '';
 
-    return head + body + awaitingNote + _sdRawLink();
+    return head + _coverageLine(scored.length, awaiting, 'public-record score') + body + awaitingNote + _sdRawLink();
   }
   function saydoSectionHtml(pid) {
     ensureStyles();
     bindGateway();
     if (!pid) return '';
     return '<section class="pdxor pdxsd" data-pdxc-saydo-pid="' + esc(pid) + '" aria-label="Say-vs-Do by stance">' + _sdInner(pid) + '</section>';
+  }
+
+  // ── Official Record vs Say-vs-Do DIVERGENCE (Phase 8) ───────────────────────
+  // The explicit accountability tell: do a member's formal voting record (🏛️
+  // Official Record %) and their broader public-record integrity (🧾 Say-vs-Do %)
+  // tell the SAME story, or different ones? We NEVER blend the two into a single
+  // "honesty" number — we place the two honest percentages side by side and label
+  // only the RELATIONSHIP between them. Each side keeps its own boundary and its own
+  // thin-data floor (a side with no real % simply isn't compared), so the contrast
+  // can never manufacture false certainty. Neutral labels describe agreement between
+  // the two records, not whether the politician is "good" — the raw numbers, always
+  // shown, carry that.
+  //   |gap| ≤ 15            → Aligned   (same story)
+  //   15 < |gap| ≤ 35       → Mixed     (mostly lines up, some daylight)
+  //   |gap| > 35            → Diverges  (different stories — the tell)
+  var DIV_ALIGN_MAX = 15, DIV_MIXED_MAX = 35;
+  var DIV_REL = {
+    aligned:  { key: 'aligned',  label: 'Aligned',  ico: '=', color: '#6ee7a0', blurb: 'Their votes and their public record tell the same story here.' },
+    mixed:    { key: 'mixed',    label: 'Mixed',    ico: '≈', color: '#93c5fd', blurb: 'Their votes and public record mostly line up, with some daylight.' },
+    diverges: { key: 'diverges', label: 'Diverges', ico: '≠', color: '#f5c842', blurb: 'Their votes and their public record tell different stories here.' }
+  };
+  function divRel(gap) {
+    var g = Math.abs(gap);
+    if (g <= DIV_ALIGN_MAX) return DIV_REL.aligned;
+    if (g <= DIV_MIXED_MAX) return DIV_REL.mixed;
+    return DIV_REL.diverges;
+  }
+  // Which side reads higher (only meaningful once past "Aligned"). gap = official − saydo.
+  function _divDir(gap) {
+    if (Math.abs(gap) <= DIV_ALIGN_MAX) return '';
+    return gap > 0 ? 'Official Record reads higher' : 'Say-vs-Do reads higher';
+  }
+  // Pair every issue where BOTH systems produced a real % (missing/thin sides are
+  // excluded from the head-to-head and only counted as "one-sided"). Biggest gap first.
+  function divergenceData(pid) {
+    var set = {};
+    try { issuesWithSignal(pid, 'official').forEach(function (k) { set[k] = 1; }); } catch (e) {}
+    try { issuesWithSignal(pid, 'saydo').forEach(function (k) { set[k] = 1; }); } catch (e) {}
+    var both = [], oneSide = 0;
+    Object.keys(set).forEach(function (k) {
+      var o = officialIssue(pid, k), s = saydoIssue(pid, k);
+      var oNum = typeof o.score === 'number', sNum = typeof s.score === 'number';
+      if (oNum && sNum) both.push({ key: k, off: o, say: s, gap: o.score - s.score });
+      else if (oNum || sNum) oneSide++;
+    });
+    both.sort(function (a, b) { return Math.abs(b.gap) - Math.abs(a.gap); });
+    var counts = { aligned: 0, mixed: 0, diverges: 0 };
+    both.forEach(function (p) { counts[divRel(p.gap).key]++; });
+    return { both: both, oneSide: oneSide, counts: counts };
+  }
+
+  function _divNum(icon, pct, color, label) {
+    return '<span class="pdxdv-num" title="' + esc(label) + '"><span class="pdxdv-num-ic" aria-hidden="true">' + icon + '</span>' +
+      '<span class="pdxdv-num-pct" style="color:' + color + '">' + pct + '%</span></span>';
+  }
+  function _divRelChip(rel) {
+    return '<span class="pdxdv-rel" style="color:' + rel.color + ';border-color:' + rel.color + '55;background:' + rel.color + '1f;" title="' + esc(rel.blurb) + '">' + rel.ico + ' ' + rel.label + '</span>';
+  }
+  function _divRow(p, pid) {
+    var rel = divRel(p.gap), dir = _divDir(p.gap), g = Math.abs(p.gap);
+    // Diverging & mixed rows are the tell — make them tappable to open the focused
+    // gap view. Aligned rows have no gap to explain, so they stay static.
+    var actionable = (rel.key === 'diverges' || rel.key === 'mixed');
+    var body =
+        '<div class="pdxdv-row-lbl">' + esc(_issueLabel(p.key)) + '</div>' +
+        '<div class="pdxdv-row-body">' +
+          '<span class="pdxdv-nums">' +
+            _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
+            _divNum('🧾', p.say.score, p.say.verdict.color, 'Say-vs-Do — public-record integrity') +
+          '</span>' +
+          _divRelChip(rel) +
+          (g > DIV_ALIGN_MAX ? '<span class="pdxdv-gap">' + g + ' pt gap' + (dir ? ' · ' + dir : '') + '</span>' : '') +
+        '</div>';
+    if (actionable) {
+      return '<button type="button" class="pdxdv-row pdxdv-row-tap" data-pdxc-gap="' + esc(p.key) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+          ' aria-label="' + esc('See the votes and public-record evidence behind the ' + rel.label.toLowerCase() + ' relationship on ' + _issueLabel(p.key)) + '">' +
+          body + '<span class="pdxdv-row-why">See what’s behind the gap <span aria-hidden="true">→</span></span></button>';
+    }
+    return '<div class="pdxdv-row">' + body + '</div>';
+  }
+  function _dvInner(pid) {
+    var d = divergenceData(pid);
+    var oOv = scopedOverall('official', pid), sOv = scopedOverall('saydo', pid);
+    var oNum = typeof oOv.score === 'number', sNum = typeof sOv.score === 'number';
+
+    // Whole-profile summary: the two overall numbers side by side + a relationship
+    // label. Explicitly NOT a blended score — both numbers stay visible and separate.
+    var sumInner;
+    if (oNum && sNum) {
+      sumInner = '<span class="pdxdv-sum-nums">' +
+          _divNum('🏛️', oOv.score, oOv.verdict.color, 'Official Record overall — vote-based') +
+          '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
+          _divNum('🧾', sOv.score, sOv.verdict.color, 'Say-vs-Do overall — public-record integrity') +
+        '</span>' + _divRelChip(divRel(oOv.score - sOv.score));
+    } else {
+      sumInner = '<span class="pdxdv-sum-na">Only one side has a percentage so far — no whole-profile comparison yet.</span>';
+    }
+
+    var head =
+      '<div class="pdxdv-head"><span class="pdxdv-title"><span aria-hidden="true">⚖️</span> Record vs. Public Picture</span>' +
+        '<span class="pdxdv-sum">' + sumInner + '</span></div>' +
+      '<div class="pdxdv-q">Do their <b>🏛️ Official Record</b> (votes) and their <b>🧾 Say-vs-Do</b> (public record) tell the same story? This only compares the two honest scores — it never blends them into one.</div>';
+
+    if (!d.both.length) {
+      var msg = d.oneSide > 0
+        ? 'Not enough overlap yet — ' + d.oneSide + ' issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a percentage on only one side so far, so there\'s nothing to line up head-to-head.'
+        : 'No issues carry both a voting record and a public-record integrity score yet.';
+      return head + '<div class="pdxdv-empty">' + esc(msg) + '</div>';
+    }
+
+    var c = d.counts, chips = [];
+    if (c.aligned) chips.push('<b style="color:' + DIV_REL.aligned.color + '">' + c.aligned + '</b> aligned');
+    if (c.mixed) chips.push('<b style="color:' + DIV_REL.mixed.color + '">' + c.mixed + '</b> mixed');
+    if (c.diverges) chips.push('<b style="color:' + DIV_REL.diverges.color + '">' + c.diverges + '</b> diverging');
+    var tally = chips.length
+      ? '<div class="pdxdv-tally">Across ' + d.both.length + ' issue' + (d.both.length === 1 ? '' : 's') + ' on both records: ' + chips.join(' · ') + '.</div>'
+      : '';
+
+    var rows = d.both.map(function (p) { return _divRow(p, pid); }).join('');
+    var covDv = '<div class="pdxcov" title="Only issues with a real score on BOTH sides can be compared head-to-head. The rest are one-sided so far and are summarised below.">' +
+      '📊 Comparable on <b>' + d.both.length + '</b> of ~' + (d.both.length + d.oneSide) + ' issue' + ((d.both.length + d.oneSide) === 1 ? '' : 's') + ' with a score on either side.</div>';
+    var note = d.oneSide > 0
+      ? '<div class="pdxdv-note">➕ ' + d.oneSide + ' more issue' + (d.oneSide === 1 ? '' : 's') + ' ' + (d.oneSide === 1 ? 'has' : 'have') + ' a score on only one side — kept in their own feeds, not compared here.</div>'
+      : '';
+
+    return head + covDv + tally + '<div class="pdxdv-rows">' + rows + '</div>' + note;
+  }
+  var _divergenceInner = _dvInner; // alias used by the warm-refresh listener
+  function divergenceSectionHtml(pid) {
+    ensureStyles();
+    bindGateway();
+    if (!pid) return '';
+    return '<section class="pdxdv" data-pdxc-divergence-pid="' + esc(pid) + '" aria-label="Official Record vs Say-vs-Do divergence">' + _dvInner(pid) + '</section>';
+  }
+
+  // ── Focused gap view (Phase 9) — "here is exactly why they diverge" ─────────
+  // A tap on a diverging/mixed comparison row (or a cross-link in either feed) opens
+  // a mobile-first bottom-sheet showing, clearly SECTIONED (never merged):
+  //   🏛️ Official Record — the formal votes/actions driving that issue's score
+  //   🧾 Say-vs-Do        — the public-record receipts driving that issue's integrity
+  // The stated stance sits up top so the contrast stays grounded in what they claim.
+  // Each side keeps its own label, score and source links; a missing/thin side shows
+  // its honest empty state rather than inventing content. The two systems are never
+  // blended into one list or one score — the sheet just puts them side by side.
+  function _gapScorePill(numeric, score, meta, color) {
+    if (numeric) return '<span class="pdxgap-pct" style="color:' + color + '">' + score + '%</span>';
+    // Say-vs-Do with some evidence but below the threshold → honest "—" (never 0/100).
+    if (meta && meta.judged) return '<span class="pdxor-pct pdxor-pct-na" title="Not enough public record yet to score">—</span>';
+    return '';
+  }
+  function _gapViewHtml(pid, issueKey) {
+    var off = officialIssue(pid, issueKey);
+    var say = saydoIssue(pid, issueKey);
+    var oNum = typeof off.score === 'number', sNum = typeof say.score === 'number';
+    var lbl = _issueLabel(issueKey);
+    var stance = _orStanceChip(pid, issueKey);
+
+    // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
+    var relHtml, gapNote;
+    if (oNum && sNum) {
+      var gap = off.score - say.score, rel = divRel(gap), g = Math.abs(gap), dir = _divDir(gap);
+      relHtml = _divRelChip(rel);
+      gapNote = '<div class="pdxgap-note">' + (g > DIV_ALIGN_MAX ? '<b>' + g + ' pt gap</b>' + (dir ? ' · ' + esc(dir) : '') + ' — ' : '') + esc(rel.blurb) + '</div>';
+    } else {
+      relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
+      gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
+    }
+
+    var head =
+      '<div class="pdxgap-h">' +
+        '<div class="pdxgap-eyebrow">⚖️ Record vs. Public Picture</div>' +
+        '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
+        '<div class="pdxgap-meta">' + (stance || '') + relHtml + '</div>' +
+        gapNote +
+      '</div>';
+
+    // 🏛️ Official Record side
+    var offItems = _orEvidenceItems(off);
+    var offEmpty = off.token === 'pending' ? 'Checking the voting record…'
+                 : (SCOPES.official.empty[off.token] || 'No qualifying votes on record yet');
+    var offBody = offItems.length
+      ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'
+      : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
+    var offSide =
+      '<div class="pdxgap-side">' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+          _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
+        '<div class="pdxgap-side-sub">Formal votes &amp; actions — the institutional record</div>' +
+        offBody +
+      '</div>';
+
+    // 🧾 Say-vs-Do side
+    var sayItems = _sdEvidenceItems(say.curated);
+    var sayEmpty = SCOPES.saydo.empty[say.token] || 'Nothing on the public record yet';
+    var sayCounts = _sdCounts(say.curated);
+    var sayBody = sayItems.length
+      ? '<div class="pdxgap-acts">' + sayItems.join('') + '</div>'
+      : '<div class="pdxgap-side-empty">' + esc(sayEmpty) + '</div>';
+    var saySide =
+      '<div class="pdxgap-side">' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+          _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
+        '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
+        sayBody +
+      '</div>';
+
+    return head +
+      '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
+      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score.</div>';
+  }
+
+  // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
+  // issue has a real % on BOTH sides (so the sheet always has something to compare).
+  function _gapLinkHtml(pid, issueKey) {
+    var o = officialIssue(pid, issueKey), s = saydoIssue(pid, issueKey);
+    if (typeof o.score !== 'number' || typeof s.score !== 'number') return '';
+    var rel = divRel(o.score - s.score);
+    return '<button type="button" class="pdxdv-open" data-pdxc-gap="' + esc(issueKey) + '" data-pdxc-gap-pid="' + esc(pid) + '"' +
+      ' style="--c:' + rel.color + '" title="Compare the votes and the public record behind this issue">⚖️ ' + rel.label + ' — compare →</button>';
+  }
+
+  // ── gap sheet: a single lazily-built bottom-sheet, reused for every issue ────
+  var _gapSheet = null;
+  function _ensureGapSheet() {
+    if (_gapSheet) return _gapSheet;
+    ensureStyles();
+    var back = document.createElement('div');
+    back.className = 'pdxgap-back'; back.id = 'pdxc-gap-back'; back.hidden = true;
+    back.innerHTML = '<div class="pdxgap-sheet" role="dialog" aria-modal="true" tabindex="-1" aria-label="Issue divergence detail">' +
+        '<button type="button" class="pdxgap-x" aria-label="Close">×</button>' +
+        '<div class="pdxgap-body"></div>' +
+      '</div>';
+    (document.body || document.documentElement).appendChild(back);
+    back.addEventListener('click', function (e) {
+      if (e.target === back || (e.target.closest && e.target.closest('.pdxgap-x'))) closeGap();
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Escape' || e.keyCode === 27) && !back.hidden) closeGap();
+    });
+    _gapSheet = back.querySelector('.pdxgap-sheet');
+    return _gapSheet;
+  }
+  function openGap(pid, issueKey) {
+    if (!pid || !issueKey || !document.body) return;
+    var sheet = _ensureGapSheet();
+    var body = sheet.querySelector('.pdxgap-body');
+    if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
+    if (sheet.parentNode) sheet.parentNode.hidden = false;
+    try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+  }
+  function closeGap() {
+    var back = document.getElementById('pdxc-gap-back');
+    if (back) back.hidden = true;
   }
 
   window.PDXConsistency = {
@@ -1010,6 +1476,14 @@
     gatewayHtml: gatewayHtml,
     officialRecordSectionHtml: officialRecordSectionHtml,
     saydoSectionHtml: saydoSectionHtml,
+    // Phase 8: the explicit Official Record vs Say-vs-Do divergence. divergence()
+    // returns the raw comparison data; divergenceSectionHtml() the mountable view.
+    divergence: divergenceData,
+    divergenceSectionHtml: divergenceSectionHtml,
+    // Phase 9: open the focused gap view for one (pid, issue) from anywhere — the
+    // comparison rows and both feeds wire to this; exposed for any other surface too.
+    openGap: openGap,
+    closeGap: closeGap,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
