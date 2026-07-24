@@ -588,6 +588,11 @@
       '.pdxor-act a{color:#7fb4ff;text-decoration:none;white-space:nowrap;}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
       '.pdxor-awaiting{font-size:0.68rem;color:#7e93b3;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxor-count{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
+      // Say-vs-Do feed shares the layout but takes a distinct gold/amber left accent
+      // so it never reads as the Official Record (which has no accent bar).
+      '.pdxsd .pdxor-title{color:#f5d9a0;}' +
+      '.pdxsd .pdxor-issue{border-left:2px solid rgba(245,200,66,0.35);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -698,7 +703,12 @@
       var el = document.getElementById(target); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
-    // say-vs-do
+    // say-vs-do → the dedicated stance-first feed; fall back to the general receipts
+    // lightbox / flashpoints only if the section isn't mounted.
+    if (document.getElementById && document.getElementById('pdxsec-saydo')) {
+      if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-saydo'); return; }
+      var sd = document.getElementById('pdxsec-saydo'); if (sd && sd.scrollIntoView) { sd.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    }
     try {
       var R = window.PDXReceipts;
       if (R && typeof R.forPolitician === 'function' && R.forPolitician(pid) && typeof R.open === 'function') { R.open(pid); return; }
@@ -865,6 +875,114 @@
     return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
   }
 
+  // ── Dedicated Say-vs-Do feed (the stance-first public-record dive-in) ────────
+  // The sibling of the Official Record view, for the OTHER accountability question.
+  // Same organized, stance-first shape (grouped by category, contradictions first),
+  // but it reads Say-vs-Do ONLY — broader public-record receipts (statements,
+  // interviews, news, controversies, rhetoric, transparency), never formal votes.
+  // NO percentage by design: verdict + supporting/contradicting counts + the sourced
+  // evidence behind each. Distinct 🧾 icon and copy so it never reads as the 🏛️
+  // Official Record. Curated receipts are synchronous, so no warm/pending state.
+  function _catOf(k) { try { return (typeof window._pdxCategoryOf === 'function' ? window._pdxCategoryOf(k) : '') || 'other'; } catch (e) { return 'other'; } }
+  function _catLabel(k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } }
+  function _issueLabel(k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } }
+  var _SD_ITEM_RANK = { contradicts: 0, flag: 1, consistent: 2 };
+  function _sdEvidenceHtml(cur) {
+    if (!cur || !cur.items || !cur.items.length) return '';
+    var items = cur.items.slice().sort(function (a, b) {
+      var ak = (a.verdict && a.verdict.key) || 'flag', bk = (b.verdict && b.verdict.key) || 'flag';
+      return (_SD_ITEM_RANK[ak] == null ? 9 : _SD_ITEM_RANK[ak]) - (_SD_ITEM_RANK[bk] == null ? 9 : _SD_ITEM_RANK[bk]);
+    });
+    var lines = items.map(function (r) {
+      var mv = VERDICTS[(r.verdict && r.verdict.key)] || VERDICTS.flag;
+      var url = r.source && r.source.url;
+      var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc((r.source && r.source.label) || 'Source') + ' ↗</a>' : '';
+      var meta = [];
+      if (r.date) meta.push(esc(r.date));
+      if (r.category) meta.push(esc(r.category));
+      var metaHtml = meta.length ? ' <span style="color:#7e93b3;">· ' + meta.join(' · ') + '</span>' : '';
+      return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+        '<span>' + esc(r.headline || 'Public-record item') + metaHtml + src + '</span></div>';
+    }).join('');
+    var n = items.length;
+    return '<details class="pdxor-acts"><summary>' + n + ' public-record ' + (n === 1 ? 'item' : 'items') + ' ▾</summary>' + lines + '</details>';
+  }
+  function _sdCounts(cur) {
+    var parts = [];
+    if (cur.consistent) parts.push('<b style="color:' + VERDICTS.consistent.color + '">' + cur.consistent + '</b> backing');
+    if (cur.contradicts) parts.push('<b style="color:' + VERDICTS.contradicts.color + '">' + cur.contradicts + '</b> against');
+    if (cur.flag) parts.push('<b style="color:' + VERDICTS.flag.color + '">' + cur.flag + '</b> flag' + (cur.flag === 1 ? '' : 's'));
+    return parts.length ? '<span class="pdxor-count">' + parts.join(' · ') + '</span>' : '';
+  }
+  function _sdRawLink() {
+    if (!document.getElementById || !document.getElementById('pdxsec-controversies')) return '';
+    return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-controversies\');else{var e=document.getElementById(\'pdxsec-controversies\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See flashpoints &amp; full receipts →</button>';
+  }
+  function _sdInner(pid) {
+    var keys = issuesWithSignal(pid, 'saydo');
+    var scored = [], awaiting = 0;
+    keys.forEach(function (k) {
+      var ov = saydoIssue(pid, k);
+      if (ov.curated && ov.curated.total > 0) scored.push({ key: k, ov: ov });
+      else awaiting++; // stated position with nothing on the public record yet
+    });
+
+    var overall = scopedOverall('saydo', pid);
+    var om = overall.verdict;
+    // Say-vs-Do carries NO percentage (by design) — verdict chip only. The
+    // stance-level % can slot in here later without redesign (see sayVsDo().score).
+    var head =
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+        '<span class="pdxor-overall"><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
+      '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>';
+
+    if (!scored.length) {
+      var msg = awaiting > 0
+        ? 'No public-record confirmations or contradictions surfaced yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' with nothing on the public record so far.'
+        : 'No public-record evidence on file yet.';
+      return head + '<div class="pdxor-empty">' + esc(msg) + '</div>' + _sdRawLink();
+    }
+
+    var rank = { contradicts: 0, mixed: 1, flag: 2, consistent: 3 };
+    var byCat = {};
+    scored.forEach(function (s) { var c = _catOf(s.key); (byCat[c] = byCat[c] || { label: _catLabel(s.key), items: [] }).items.push(s); });
+    var catKeys = Object.keys(byCat).sort(function (a, b) {
+      var ac = byCat[a].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
+      var bc = byCat[b].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
+      if (ac !== bc) return ac - bc;
+      return byCat[a].label < byCat[b].label ? -1 : 1;
+    });
+
+    var body = catKeys.map(function (ck) {
+      var grp = byCat[ck];
+      grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
+      var rows = grp.items.map(function (s) {
+        var v = s.ov.verdict;
+        return '<div class="pdxor-issue">' +
+            '<div class="pdxor-issue-top">' +
+              '<span class="pdxor-issue-lbl">' + esc(_issueLabel(s.key)) + '</span>' +
+              _orStanceChip(pid, s.key) +
+              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' +
+              _sdCounts(s.ov.curated) +
+            '</div>' + _sdEvidenceHtml(s.ov.curated) +
+          '</div>';
+      }).join('');
+      return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
+    }).join('');
+
+    var awaitingNote = awaiting > 0
+      ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no public-record evidence yet.</div>'
+      : '';
+
+    return head + body + awaitingNote + _sdRawLink();
+  }
+  function saydoSectionHtml(pid) {
+    ensureStyles();
+    bindGateway();
+    if (!pid) return '';
+    return '<section class="pdxor pdxsd" data-pdxc-saydo-pid="' + esc(pid) + '" aria-label="Say-vs-Do by stance">' + _sdInner(pid) + '</section>';
+  }
+
   window.PDXConsistency = {
     FRAME: FRAME,
     SCOPES: SCOPES,
@@ -891,6 +1009,7 @@
     legendHtml: legendHtml,
     gatewayHtml: gatewayHtml,
     officialRecordSectionHtml: officialRecordSectionHtml,
+    saydoSectionHtml: saydoSectionHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
