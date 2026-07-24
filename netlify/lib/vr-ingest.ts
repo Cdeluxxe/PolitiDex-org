@@ -43,6 +43,7 @@ import {
 import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
 import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
 import { writeMemberPack } from "./vr-pack.js";
+import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
@@ -520,23 +521,45 @@ export async function ingestVotes(
   return report;
 }
 
-// ── Top-level: fetch from Congress.gov, then load. No-op when unconfigured. ────
+// ── Top-level: fetch from the chamber's source, then load. ────────────────────
+// The House pull requires a Congress.gov API key and is a clean no-op without one.
+// The Senate pull is served by the curated seed (netlify/lib/vr-senate-source.ts),
+// which needs NO key — so only the House is gated on the key here.
 export async function runIngest(opts: {
   congress: number;
   chamber: string;
   limit?: number;
   classifyIssues?: boolean;
 }): Promise<IngestReport> {
-  if (!process.env.CONGRESS_GOV_API_KEY) {
+  const chamber = String(opts.chamber).toLowerCase();
+  const hasCongressKey = !!process.env.CONGRESS_GOV_API_KEY;
+  if (chamber !== "senate" && !hasCongressKey) {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
       memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
       curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
-      errors: ["CONGRESS_GOV_API_KEY not configured — ingest skipped"],
+      errors: ["CONGRESS_GOV_API_KEY not configured — House ingest skipped"],
     };
   }
-  const raw = await fetchRollcallsFromCongress(opts);
-  return ingestVotes(raw, { classifyIssues: opts.classifyIssues, ingestActions: true });
+  const raw = await fetchChamberRollcalls(opts);
+  // The action-timeline backfill hits Congress.gov, so only attempt it when a key is
+  // present; without one it is a no-op regardless (fetchMeasureActions is key-gated).
+  return ingestVotes(raw, { classifyIssues: opts.classifyIssues, ingestActions: hasCongressKey });
+}
+
+// Chamber router: the House pulls from the Congress.gov API; the Senate has no such
+// API resource, so it pulls from the dedicated Senate source layer (curated seed today,
+// live senate.gov XML next). Both return the same RawVote[] shape, so ingestVotes and
+// everything downstream stay chamber-agnostic.
+async function fetchChamberRollcalls(opts: {
+  congress: number;
+  chamber: string;
+  limit?: number;
+}): Promise<RawVote[]> {
+  if (String(opts.chamber).toLowerCase() === "senate") {
+    return fetchSenateRollcalls({ congress: opts.congress, limit: opts.limit });
+  }
+  return fetchRollcallsFromCongress(opts);
 }
 
 // ── Verification: an integrity report over the vr_* tables ────────────────────

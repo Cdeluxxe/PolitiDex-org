@@ -1,0 +1,1958 @@
+{
+  "_comment": "Curated Senate roll-call seed for the Voting Record. Built from official senate.gov roll-call XML by scripts/vr-build-senate-seed.mjs — every position traces to a live senate.gov document; no vote is invented. Served by netlify/lib/vr-senate-source.ts.",
+  "source": "senate.gov roll-call XML (LIS)",
+  "congress": 119,
+  "session": 1,
+  "builtFrom": [
+    "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.xml",
+    "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00570.xml",
+    "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00478.xml"
+  ],
+  "rollCallCount": 3,
+  "votes": [
+    {
+      "chamber": "senate",
+      "congress": 119,
+      "session": 1,
+      "rollNumber": 372,
+      "voteDate": "2025-07-01T15:56:00.000Z",
+      "question": "On Passage of the Bill",
+      "actionType": "passage",
+      "result": "passed",
+      "requiredMajority": "simple",
+      "totals": {
+        "yea": 50,
+        "nay": 50,
+        "present": 0,
+        "notVoting": 0
+      },
+      "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.htm",
+      "sourceLabel": "U.S. Senate",
+      "measure": {
+        "measureType": "bill",
+        "number": "H.R. 1",
+        "title": "H.R. 1 — One Big Beautiful Bill Act (reconciliation, title II of H. Con. Res. 14)",
+        "congress": 119,
+        "chamber": "house",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+        "sourceLabel": "Congress.gov"
+      },
+      "memberVotes": [
+        {
+          "name": "Alsobrooks (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Baldwin (D-WI)",
+          "state": "WI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Banks (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Barrasso (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "B001261"
+        },
+        {
+          "name": "Bennet (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Blackburn (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Blumenthal (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Blunt Rochester (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Booker (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "B001288"
+        },
+        {
+          "name": "Boozman (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Britt (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Budd (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cantwell (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Capito (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cassidy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Collins (R-ME)",
+          "state": "ME",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "C001035"
+        },
+        {
+          "name": "Coons (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Cornyn (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001056"
+        },
+        {
+          "name": "Cortez Masto (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Cotton (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cramer (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Crapo (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cruz (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001098"
+        },
+        {
+          "name": "Curtis (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001114"
+        },
+        {
+          "name": "Daines (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Duckworth (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Durbin (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "D000563"
+        },
+        {
+          "name": "Ernst (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "E000295"
+        },
+        {
+          "name": "Fetterman (D-PA)",
+          "state": "PA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "F000479"
+        },
+        {
+          "name": "Fischer (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Gallego (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Gillibrand (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Graham (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "G000359"
+        },
+        {
+          "name": "Grassley (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "G000386"
+        },
+        {
+          "name": "Hagerty (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Hassan (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hawley (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "H001089"
+        },
+        {
+          "name": "Heinrich (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hickenlooper (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hirono (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hoeven (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Husted (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Hyde-Smith (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Johnson (R-WI)",
+          "state": "WI",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Justice (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Kaine (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Kelly (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Kennedy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Kim (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "King (I-ME)",
+          "state": "ME",
+          "party": "I",
+          "position": "nay"
+        },
+        {
+          "name": "Klobuchar (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Lankford (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Lee (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "L000577"
+        },
+        {
+          "name": "Lujan (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Lummis (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Markey (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Marshall (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "McConnell (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "McCormick (R-PA)",
+          "state": "PA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Merkley (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Moody (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Moran (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Moreno (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Mullin (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Murkowski (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "M001153"
+        },
+        {
+          "name": "Murphy (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Murray (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Ossoff (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "O000174"
+        },
+        {
+          "name": "Padilla (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Paul (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "P000603"
+        },
+        {
+          "name": "Peters (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Reed (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Ricketts (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Risch (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Rosen (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Rounds (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Sanders (I-VT)",
+          "state": "VT",
+          "party": "I",
+          "position": "nay"
+        },
+        {
+          "name": "Schatz (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Schiff (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "S001150"
+        },
+        {
+          "name": "Schmitt (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Schumer (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Scott (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Scott (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Shaheen (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Sheehy (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Slotkin (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Smith (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Sullivan (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Thune (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Tillis (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Tuberville (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Van Hollen (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warner (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warnock (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warren (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "W000817"
+        },
+        {
+          "name": "Welch (D-VT)",
+          "state": "VT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Whitehouse (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Wicker (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Wyden (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Young (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "yea"
+        }
+      ]
+    },
+    {
+      "chamber": "senate",
+      "congress": 119,
+      "session": 1,
+      "rollNumber": 570,
+      "voteDate": "2025-10-10T00:59:00.000Z",
+      "question": "On Passage of the Bill",
+      "actionType": "passage",
+      "result": "passed",
+      "requiredMajority": "three_fifths",
+      "totals": {
+        "yea": 77,
+        "nay": 20,
+        "present": 0,
+        "notVoting": 3
+      },
+      "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00570.htm",
+      "sourceLabel": "U.S. Senate",
+      "measure": {
+        "measureType": "bill",
+        "number": "S. 2296",
+        "title": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
+        "congress": 119,
+        "chamber": "senate",
+        "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296",
+        "sourceLabel": "Congress.gov"
+      },
+      "memberVotes": [
+        {
+          "name": "Alsobrooks (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Baldwin (D-WI)",
+          "state": "WI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Banks (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Barrasso (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "B001261"
+        },
+        {
+          "name": "Bennet (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Blackburn (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Blumenthal (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Blunt Rochester (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Booker (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "B001288"
+        },
+        {
+          "name": "Boozman (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Britt (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Budd (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cantwell (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Capito (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cassidy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Collins (R-ME)",
+          "state": "ME",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001035"
+        },
+        {
+          "name": "Coons (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Cornyn (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001056"
+        },
+        {
+          "name": "Cortez Masto (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "not_voting"
+        },
+        {
+          "name": "Cotton (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cramer (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Crapo (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cruz (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "not_voting",
+          "bioguideId": "C001098"
+        },
+        {
+          "name": "Curtis (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001114"
+        },
+        {
+          "name": "Daines (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Duckworth (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Durbin (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "D000563"
+        },
+        {
+          "name": "Ernst (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "E000295"
+        },
+        {
+          "name": "Fetterman (D-PA)",
+          "state": "PA",
+          "party": "D",
+          "position": "yea",
+          "bioguideId": "F000479"
+        },
+        {
+          "name": "Fischer (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Gallego (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Gillibrand (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Graham (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "G000359"
+        },
+        {
+          "name": "Grassley (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "G000386"
+        },
+        {
+          "name": "Hagerty (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Hassan (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Hawley (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "H001089"
+        },
+        {
+          "name": "Heinrich (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Hickenlooper (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Hirono (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Hoeven (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Husted (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Hyde-Smith (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Johnson (R-WI)",
+          "state": "WI",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Justice (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Kaine (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Kelly (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Kennedy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Kim (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "King (I-ME)",
+          "state": "ME",
+          "party": "I",
+          "position": "yea"
+        },
+        {
+          "name": "Klobuchar (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Lankford (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Lee (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "L000577"
+        },
+        {
+          "name": "Lujan (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Lummis (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Markey (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Marshall (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "McConnell (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "McCormick (R-PA)",
+          "state": "PA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Merkley (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Moody (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Moran (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Moreno (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Mullin (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Murkowski (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "M001153"
+        },
+        {
+          "name": "Murphy (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Murray (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Ossoff (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "yea",
+          "bioguideId": "O000174"
+        },
+        {
+          "name": "Padilla (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Paul (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "P000603"
+        },
+        {
+          "name": "Peters (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Reed (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Ricketts (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Risch (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Rosen (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Rounds (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Sanders (I-VT)",
+          "state": "VT",
+          "party": "I",
+          "position": "nay"
+        },
+        {
+          "name": "Schatz (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Schiff (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "S001150"
+        },
+        {
+          "name": "Schmitt (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Schumer (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Scott (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Scott (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Shaheen (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Sheehy (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Slotkin (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Smith (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Sullivan (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Thune (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Tillis (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "not_voting"
+        },
+        {
+          "name": "Tuberville (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Van Hollen (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warner (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Warnock (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Warren (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "W000817"
+        },
+        {
+          "name": "Welch (D-VT)",
+          "state": "VT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Whitehouse (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "yea"
+        },
+        {
+          "name": "Wicker (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Wyden (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Young (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "yea"
+        }
+      ]
+    },
+    {
+      "chamber": "senate",
+      "congress": 119,
+      "session": 1,
+      "rollNumber": 478,
+      "voteDate": "2025-08-01T22:52:00.000Z",
+      "question": "On the Amendment",
+      "actionType": "amendment",
+      "result": "rejected",
+      "requiredMajority": "simple",
+      "totals": {
+        "yea": 21,
+        "nay": 75,
+        "present": 0,
+        "notVoting": 4
+      },
+      "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00478.htm",
+      "sourceLabel": "U.S. Senate",
+      "measure": {
+        "measureType": "amendment",
+        "number": "S.Amdt. 3428",
+        "title": "S.Amdt. 3428 (Johnson) to H.R. 3944 — to limit disclosures regarding earmarks",
+        "congress": 119,
+        "chamber": "senate",
+        "sourceUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/3428",
+        "sourceLabel": "Congress.gov"
+      },
+      "memberVotes": [
+        {
+          "name": "Alsobrooks (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Baldwin (D-WI)",
+          "state": "WI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Banks (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Barrasso (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "B001261"
+        },
+        {
+          "name": "Bennet (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Blackburn (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Blumenthal (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Blunt Rochester (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Booker (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "B001288"
+        },
+        {
+          "name": "Boozman (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Britt (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Budd (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cantwell (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Capito (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Cassidy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "not_voting"
+        },
+        {
+          "name": "Collins (R-ME)",
+          "state": "ME",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "C001035"
+        },
+        {
+          "name": "Coons (D-DE)",
+          "state": "DE",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Cornyn (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "C001056"
+        },
+        {
+          "name": "Cortez Masto (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Cotton (R-AR)",
+          "state": "AR",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Cramer (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Crapo (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Cruz (R-TX)",
+          "state": "TX",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001098"
+        },
+        {
+          "name": "Curtis (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "C001114"
+        },
+        {
+          "name": "Daines (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Duckworth (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Durbin (D-IL)",
+          "state": "IL",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "D000563"
+        },
+        {
+          "name": "Ernst (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "E000295"
+        },
+        {
+          "name": "Fetterman (D-PA)",
+          "state": "PA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "F000479"
+        },
+        {
+          "name": "Fischer (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Gallego (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "not_voting"
+        },
+        {
+          "name": "Gillibrand (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Graham (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "G000359"
+        },
+        {
+          "name": "Grassley (R-IA)",
+          "state": "IA",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "G000386"
+        },
+        {
+          "name": "Hagerty (R-TN)",
+          "state": "TN",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Hassan (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hawley (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "H001089"
+        },
+        {
+          "name": "Heinrich (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hickenlooper (D-CO)",
+          "state": "CO",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hirono (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Hoeven (R-ND)",
+          "state": "ND",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Husted (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Hyde-Smith (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Johnson (R-WI)",
+          "state": "WI",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Justice (R-WV)",
+          "state": "WV",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Kaine (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Kelly (D-AZ)",
+          "state": "AZ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Kennedy (R-LA)",
+          "state": "LA",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Kim (D-NJ)",
+          "state": "NJ",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "King (I-ME)",
+          "state": "ME",
+          "party": "I",
+          "position": "nay"
+        },
+        {
+          "name": "Klobuchar (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Lankford (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Lee (R-UT)",
+          "state": "UT",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "L000577"
+        },
+        {
+          "name": "Lujan (D-NM)",
+          "state": "NM",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Lummis (R-WY)",
+          "state": "WY",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Markey (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Marshall (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "McConnell (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "not_voting"
+        },
+        {
+          "name": "McCormick (R-PA)",
+          "state": "PA",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Merkley (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Moody (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Moran (R-KS)",
+          "state": "KS",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Moreno (R-OH)",
+          "state": "OH",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Mullin (R-OK)",
+          "state": "OK",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Murkowski (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "nay",
+          "bioguideId": "M001153"
+        },
+        {
+          "name": "Murphy (D-CT)",
+          "state": "CT",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Murray (D-WA)",
+          "state": "WA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Ossoff (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "O000174"
+        },
+        {
+          "name": "Padilla (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Paul (R-KY)",
+          "state": "KY",
+          "party": "R",
+          "position": "yea",
+          "bioguideId": "P000603"
+        },
+        {
+          "name": "Peters (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Reed (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Ricketts (R-NE)",
+          "state": "NE",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Risch (R-ID)",
+          "state": "ID",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Rosen (D-NV)",
+          "state": "NV",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Rounds (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Sanders (I-VT)",
+          "state": "VT",
+          "party": "I",
+          "position": "nay"
+        },
+        {
+          "name": "Schatz (D-HI)",
+          "state": "HI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Schiff (D-CA)",
+          "state": "CA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "S001150"
+        },
+        {
+          "name": "Schmitt (R-MO)",
+          "state": "MO",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Schumer (D-NY)",
+          "state": "NY",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Scott (R-FL)",
+          "state": "FL",
+          "party": "R",
+          "position": "yea"
+        },
+        {
+          "name": "Scott (R-SC)",
+          "state": "SC",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Shaheen (D-NH)",
+          "state": "NH",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Sheehy (R-MT)",
+          "state": "MT",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Slotkin (D-MI)",
+          "state": "MI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Smith (D-MN)",
+          "state": "MN",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Sullivan (R-AK)",
+          "state": "AK",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Thune (R-SD)",
+          "state": "SD",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Tillis (R-NC)",
+          "state": "NC",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Tuberville (R-AL)",
+          "state": "AL",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Van Hollen (D-MD)",
+          "state": "MD",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warner (D-VA)",
+          "state": "VA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warnock (D-GA)",
+          "state": "GA",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Warren (D-MA)",
+          "state": "MA",
+          "party": "D",
+          "position": "nay",
+          "bioguideId": "W000817"
+        },
+        {
+          "name": "Welch (D-VT)",
+          "state": "VT",
+          "party": "D",
+          "position": "not_voting"
+        },
+        {
+          "name": "Whitehouse (D-RI)",
+          "state": "RI",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Wicker (R-MS)",
+          "state": "MS",
+          "party": "R",
+          "position": "nay"
+        },
+        {
+          "name": "Wyden (D-OR)",
+          "state": "OR",
+          "party": "D",
+          "position": "nay"
+        },
+        {
+          "name": "Young (R-IN)",
+          "state": "IN",
+          "party": "R",
+          "position": "nay"
+        }
+      ]
+    }
+  ]
+}

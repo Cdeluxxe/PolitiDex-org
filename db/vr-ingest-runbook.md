@@ -83,3 +83,46 @@ State executives / law officers and state legislators with Say-vs-Do scores have
 federal roll call, so a Congress.gov ingest cannot create their comparisons. Those
 require modeling **non-legislative formal actions** (executive orders, litigation,
 administrative decisions) on the Official Record side — Phase 13B.
+
+## Senate path — scaffold now, automated XML ingest next (Phase 13B)
+
+The Congress.gov API has **no Senate roll-call resource** (`/senate-vote/{congress}` →
+"Unknown resource"), so the Senate side has its own source seam rather than the House's
+Congress.gov fetcher:
+
+- **`netlify/lib/vr-senate-source.ts`** — the seam the ingest calls for
+  `chamber === "senate"`. It returns the same canonical `RawVote[]` the House fetcher
+  produces, so every downstream step (idempotent upserts, member map, issue seed, pack
+  refresh, read path, UI) treats a Senate roll call exactly like a House one — there is
+  no chamber special-casing past this seam.
+- **`db/vr-senate-seed.json`** — the **active** source today: a small, curated set of
+  real 119th-Congress Senate roll calls, built + audited by
+  `scripts/vr-build-senate-seed.mjs` straight from official senate.gov roll-call XML
+  (every position traces to a live senate.gov document; nothing is invented).
+- **`netlify/database/migrations/*_seed_senate_voting_record.sql`** — the deploy-time
+  twin, generated from the same seed JSON by `scripts/vr-gen-senate-migration.mjs`, so
+  the votes are present the moment the branch DB is provisioned (no manual ingest call).
+
+**The planned next step is the live senate.gov XML ingest.** It is scaffolded (not
+omitted) in `vr-senate-source.ts` behind `VR_SENATE_XML`, currently a documented stub
+that falls back to the curated seed. Finishing it means: fetch the vote menu +
+per-vote XML, resolve each member by (last name, state) against `db/vr-member-map.json`
+(senate.gov carries no bioguide id — this is the one extra step the House path doesn't
+need; `scripts/vr-build-senate-seed.mjs` already contains the reference resolver), and
+curate the measure→issue mappings for arbitrary new votes. Until then, the curated seed
+IS the Senate source, and this scaffold is the bridge.
+
+### Run the Senate ingest (once VR_SENATE_XML or the seed is in place)
+
+```sh
+# Same auth, same endpoint as the House — only the chamber changes.
+node scripts/vr-ingest.mjs run senate 119 20
+```
+
+To extend the seed: add roll-call numbers to `ROLLCALLS` in
+`scripts/vr-build-senate-seed.mjs`, re-run it, then regenerate the migration:
+
+```sh
+node scripts/vr-build-senate-seed.mjs
+node scripts/vr-gen-senate-migration.mjs > netlify/database/migrations/<ts>_seed_senate_voting_record.sql
+```
