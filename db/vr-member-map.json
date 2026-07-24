@@ -1,7 +1,7 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `.map`; `members` is for human review only.",
-  "count": 58,
-  "serving119": 51,
+  "count": 63,
+  "serving119": 56,
   "annotated": true,
   "map": {
     "B000740": "stephanie_bice",
@@ -61,7 +61,12 @@
     "W000809": "steve_womack",
     "W000817": "warren",
     "W000821": "bruce_westerman",
-    "Z000017": "zeldin"
+    "Z000017": "zeldin",
+    "S001150": "schiff",
+    "J000298": "jayapal",
+    "T000481": "tlaib",
+    "E000295": "ernst",
+    "W000187": "maxine_waters"
   },
   "members": [
     {
@@ -585,6 +590,81 @@
       "state": null,
       "party": null,
       "serving119": false
+    },
+    {
+      "bioguide": "S001150",
+      "slug": "schiff",
+      "name": "Adam Schiff",
+      "chamber": "senate",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000298",
+      "slug": "jayapal",
+      "name": "Pramila Jayapal",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000481",
+      "slug": "tlaib",
+      "name": "Rashida Tlaib",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000295",
+      "slug": "ernst",
+      "name": "Joni Ernst",
+      "chamber": "senate",
+      "state": "IA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000187",
+      "slug": "maxine_waters",
+      "name": "Maxine Waters",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
     }
-  ]
+  ],
+  "_phase12_staged": {
+    "_note": "Overlap-first ingest staging (Phase 12): federal legislators added because they already carry a Say-vs-Do score on the listed issue but were missing from the ingest map. Confirm each bioguide via scripts/vr-gen-member-map.mjs before a production Congress.gov ingest.",
+    "added": [
+      {
+        "bioguide": "S001150",
+        "slug": "schiff",
+        "overlapIssue": "gov_transparency"
+      },
+      {
+        "bioguide": "J000298",
+        "slug": "jayapal",
+        "overlapIssue": "foreign_balance"
+      },
+      {
+        "bioguide": "T000481",
+        "slug": "tlaib",
+        "overlapIssue": "foreign_balance"
+      },
+      {
+        "bioguide": "E000295",
+        "slug": "ernst",
+        "overlapIssue": "healthcare"
+      },
+      {
+        "bioguide": "W000187",
+        "slug": "maxine_waters",
+        "overlapIssue": "justice_balance"
+      }
+    ]
+  }
 }
