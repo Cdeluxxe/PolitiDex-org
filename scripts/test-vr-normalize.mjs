@@ -122,6 +122,66 @@ eq(acts.map((a) => a.stage), ["introduced", "passed_house", "passed_senate", "en
 ok(acts.every((a) => a.sourceUrl.includes("all-actions")), "actions: every row carries the citable source");
 ok(acts[0].chamber === "house" && acts[2].chamber === "senate", "actions: chamber resolved from source system");
 
+// ── canonicalCongressGovUrl: the vote API's bare-number congress segment ───────
+// The list endpoint hands back "/bill/119/house-bill/8800"; congress.gov's own
+// canonical page is "/bill/119th-congress/house-bill/8800", which is what every
+// stored row and curated seed uses.
+eq(
+  N.canonicalCongressGovUrl("https://www.congress.gov/bill/119/house-bill/8800"),
+  "https://www.congress.gov/bill/119th-congress/house-bill/8800",
+  "canonUrl: 119 → 119th-congress"
+);
+eq(
+  N.canonicalCongressGovUrl("https://www.congress.gov/amendment/119/house-amendment/85"),
+  "https://www.congress.gov/amendment/119th-congress/house-amendment/85",
+  "canonUrl: amendment paths too"
+);
+eq(
+  N.canonicalCongressGovUrl("https://www.congress.gov/bill/119th-congress/house-bill/8800"),
+  "https://www.congress.gov/bill/119th-congress/house-bill/8800",
+  "canonUrl: already-ordinal URL is untouched (idempotent)"
+);
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/1/house-bill/1"),
+  "https://www.congress.gov/bill/1st-congress/house-bill/1", "canonUrl: 1 → 1st");
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/2/house-bill/1"),
+  "https://www.congress.gov/bill/2nd-congress/house-bill/1", "canonUrl: 2 → 2nd");
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/3/house-bill/1"),
+  "https://www.congress.gov/bill/3rd-congress/house-bill/1", "canonUrl: 3 → 3rd");
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/11/house-bill/1"),
+  "https://www.congress.gov/bill/11th-congress/house-bill/1", "canonUrl: 11 → 11th (not 11st)");
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/113/house-bill/1"),
+  "https://www.congress.gov/bill/113th-congress/house-bill/1", "canonUrl: 113 → 113th (not 113rd)");
+eq(N.canonicalCongressGovUrl("https://www.congress.gov/bill/121/house-bill/1"),
+  "https://www.congress.gov/bill/121st-congress/house-bill/1", "canonUrl: 121 → 121st");
+eq(
+  N.canonicalCongressGovUrl("https://www.congress.gov/roll-call-vote/119/house/78"),
+  "https://www.congress.gov/roll-call-vote/119/house/78",
+  "canonUrl: non-bill congress.gov paths are left alone"
+);
+ok(N.canonicalCongressGovUrl(null) === null, "canonUrl: null → null");
+ok(N.canonicalCongressGovUrl("") === null, "canonUrl: empty → null");
+
+// End-to-end: a raw list row's legislationUrl must reach the measure canonicalized.
+{
+  const nv = N.normalizeCongressVote(
+    {
+      congress: 119, sessionNumber: 2, rollCallNumber: 78,
+      startDate: "2026-02-25T10:40:00-05:00",
+      url: "https://api.congress.gov/v3/house-vote/119/2/78?format=json",
+      legislationType: "HR", legislationNumber: "4758",
+      legislationUrl: "https://www.congress.gov/bill/119/house-bill/4758",
+      voteQuestion: "On Passage", result: "Passed",
+    },
+    "house"
+  );
+  eq(
+    nv.measure.sourceUrl,
+    "https://www.congress.gov/bill/119th-congress/house-bill/4758",
+    "normalizeCongressVote: measure.sourceUrl is the canonical ordinal form"
+  );
+  ok(!/\/bill\/\d+\//.test(nv.measure.sourceUrl), "normalizeCongressVote: no bare-number congress segment survives");
+}
+
 // ── Committed seed integrity ──────────────────────────────────────────────────
 const memberMap = JSON.parse(readFileSync(join(ROOT, "db/vr-member-map.json"), "utf8"));
 const slugs = Object.values(memberMap.map);

@@ -103,6 +103,35 @@ migration is find-or-create / `ON CONFLICT DO NOTHING`, so the two paths never f
 Regenerate the seed by re-running the pull, then re-run the generator into a **new**
 migration file — never edit an applied one.
 
+### The earlier-measures companion seed
+
+`db/vr-house-seed-119-s2-earlier.json` holds three roll calls from **February 2026**
+(2/71 for H.R. 6329, 2/77 + 2/78 for H.R. 4758 — 2 measures, 111 roster member votes).
+They sit far outside the `--recent` window above, so a recency-based pull will never
+reach them again; they existed in production only because an ad-hoc live ingest happened
+to create them, which made their `db/vr-issue-seed.json` mappings silent no-ops on any
+fresh branch database. The generator takes a seed path so both seeds share one code path:
+
+```sh
+node scripts/vr-gen-house-migration.mjs db/vr-house-seed-119-s2-earlier.json > \
+  netlify/database/migrations/20260724150000_seed_house_119_s2_earlier_measures.sql
+```
+
+To seed another out-of-window measure, add its roll calls to a seed file in this shape
+and run the generator into a new migration. Both migrations are find-or-create /
+`ON CONFLICT DO NOTHING`, so they never fight each other or the runtime ingest.
+
+### Congress.gov URLs: the API's own field is not canonical
+
+`GET /house-vote/{congress}` returns `legislationUrl` as
+`https://www.congress.gov/bill/119/house-bill/8800` — a **bare** congress number. The
+canonical congress.gov page, and the form every stored `vr_measures.source_url` uses, is
+the ordinal `…/bill/119th-congress/house-bill/8800`. `canonicalCongressGovUrl()` in
+`netlify/lib/vr-normalize.ts` rewrites the bare form on the way in (idempotent — an
+already-ordinal URL doesn't match, and non-bill congress.gov paths are left alone), so a
+live ingest and the seeds now cite the same URL shape. Historical rows written before
+this fix were deliberately left as-is rather than rewritten in place.
+
 ### Two traps that produce BACKWARDS verdicts (both now handled in code)
 
 1. **Procedural inversion.** A mapping's `supportMeaning` answers *does advancing the

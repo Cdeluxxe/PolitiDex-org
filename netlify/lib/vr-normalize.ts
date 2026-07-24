@@ -127,7 +127,8 @@ export function normalizeCongressVote(v: any, chamberHint?: string): RawVote | n
       // bill voted in both chambers resolves to ONE measure row. H.R.* → house, S.* →
       // senate; falls back to the voting chamber when the prefix is unknown.
       chamber: originatingChamber(isAmendment ? amdtType || legisType : legisType, chamber),
-      sourceUrl: mm.url || v.legislationUrl || `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
+      sourceUrl: canonicalCongressGovUrl(mm.url || v.legislationUrl) ||
+        `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
       sourceLabel: "Congress.gov",
       externalIds: mm.congressGovId ? { congressGovId: String(mm.congressGovId) } : {},
     },
@@ -212,6 +213,31 @@ const NUMBER_PREFIX: Record<string, string> = {
   hconres: "H.Con.Res.", sconres: "S.Con.Res.",
   hamdt: "H.Amdt.", samdt: "S.Amdt.", suamdt: "S.Amdt.",
 };
+
+// Congress.gov publishes bill/amendment pages under the ORDINAL congress segment
+// ("/bill/119th-congress/house-bill/8800"), but the vote API's own `legislationUrl`
+// field hands back the bare-number form ("/bill/119/house-bill/8800"). Consuming that
+// verbatim produced non-canonical source_url values that don't match the curated seeds
+// or any already-stored row, so canonicalize on the way in. Anything that isn't a
+// congress.gov bill/amendment path is returned untouched.
+const congressOrdinal = (n: number): string => {
+  const r100 = n % 100, r10 = n % 10;
+  const suffix = r100 >= 11 && r100 <= 13 ? "th"
+    : r10 === 1 ? "st" : r10 === 2 ? "nd" : r10 === 3 ? "rd" : "th";
+  return `${n}${suffix}-congress`;
+};
+
+export function canonicalCongressGovUrl(input: string | null | undefined): string | null {
+  if (input == null) return null;
+  const s = String(input);
+  if (!s) return null;
+  // Only rewrite the bare-number congress segment; an already-ordinal URL has a
+  // non-digit suffix and fails the \d+ match, so this is idempotent.
+  return s.replace(
+    /(\/(?:bill|amendment)\/)(\d+)(\/)/,
+    (_m, before, num, after) => `${before}${congressOrdinal(Number(num))}${after}`
+  );
+}
 
 export function canonicalMeasureNumber(input: string | null | undefined): string | null {
   if (input == null) return null;
