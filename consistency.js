@@ -20,8 +20,13 @@
         • Core question: "Does the full public picture match what they claim?"
         • Built from the wider public record — interviews, statements, news,
           controversies, social posts and other verified NON-legislative evidence.
-        • Verdict + receipts led; NOT forced into a hard competing percentage
-          (score is intentionally null on this scope).
+        • Verdict + receipts led. Phase 7 adds a stance-level PUBLIC-RECORD integrity
+          % — supporting / (supporting + contradicting) receipts — plus a pooled
+          overall read in the section header. This % is derived ONLY from Say-vs-Do
+          evidence: it is never blended with, nor allowed to compete with, the
+          vote-based Official Record %, and never touches vote-consistency surfaces.
+          It stays honest under thin data (no number below MIN_SAYDO_EVIDENCE, so a
+          lone item can't fake a 0% / 100%).
 
      Real, discrete PROMISES ("I will / I will not" pledges) are their OWN narrower
      system and are NOT blended into either percentage. This engine never scores them.
@@ -36,7 +41,8 @@
 
    HOW TO READ THIS FILE:
      • officialRecord(pid, issue|overall) → the institutional %, votes only.
-     • sayVsDo(pid, issue|overall)        → the public-integrity verdict, receipts only.
+     • sayVsDo(pid, issue|overall)        → the public-integrity verdict + a
+       public-record integrity % (receipts only; never a vote-based score).
      • issueVerdict / overallVerdict      → the pre-existing COMBINED read, kept intact
        for surfaces already wired to it (additive, non-breaking). New surfaces should
        prefer the two scoped reads above.
@@ -180,6 +186,40 @@
     var judged = (rec.consistent || 0) + (rec.contradicts || 0);
     if (!judged) return null;
     return Math.round(100 * (rec.consistent || 0) / judged);
+  }
+
+  // ── SAY-VS-DO stance integrity score (Phase 7) ──────────────────────────────
+  // A stance-level, PUBLIC-RECORD-ONLY support percentage. It is derived solely
+  // from the Say-vs-Do-eligible receipts already counted for the stance (formal
+  // votes/actions and promises are excluded upstream by curatedFor), so it can
+  // never touch the vote-based Official Record % or the Alignment Tool.
+  //
+  //   integrity % = supporting / (supporting + contradicting)
+  //
+  // where "supporting" = receipts whose verdict backs their word (consistent) and
+  // "contradicting" = receipts that run against it. Flags are a documented red flag
+  // but not a clean say-vs-do direction, so they are shown as a caveat and kept OUT
+  // of the denominator (they'd otherwise distort a transparent support ratio).
+  //
+  // Honest thin-data rules (never a false 0% / 100% from near-empty evidence):
+  //   • fewer than MIN_SAYDO_EVIDENCE directional items  → no number ("—"), because
+  //     a single item can only ever read 0% or 100%.
+  //   • MIN..SAYDO_THIN_MAX directional items            → number shown, flagged as
+  //     "thin" so the UI/tooltip can caveat it.
+  var MIN_SAYDO_EVIDENCE = 2;   // minimum directional (supporting+contradicting) items to show a %
+  var SAYDO_THIN_MAX     = 3;   // 2–3 directional items → shown but marked thin
+  function saydoScore(supporting, contradicting, min) {
+    min = min || MIN_SAYDO_EVIDENCE;
+    supporting = supporting || 0; contradicting = contradicting || 0;
+    var judged = supporting + contradicting;
+    if (judged < min) {
+      return { pct: null, judged: judged, supporting: supporting, contradicting: contradicting, thin: false, enough: false };
+    }
+    return {
+      pct: Math.round(100 * supporting / judged),
+      judged: judged, supporting: supporting, contradicting: contradicting,
+      thin: judged <= SAYDO_THIN_MAX, enough: true
+    };
   }
 
   // ── Migrated formal-action feeder (Phase 3) ─────────────────────────────────
@@ -432,9 +472,13 @@
     else if (cur.consistent > 0) token = 'consistent';
     else if (cur.flag > 0) token = 'flag';
     else token = 'no_record';
+    // Phase 7: a transparent, public-record-only support % (null under the thin-data
+    // threshold so it never fakes a 0/100). This is Say-vs-Do's OWN integrity read —
+    // it is never fed into the Official Record % or any vote-based surface.
+    var sc = saydoScore(cur.consistent, cur.contradicts);
     return {
       scope: 'saydo', token: token, verdict: scopeVerdict('saydo', token),
-      score: null, record: null, curated: cur,
+      score: sc.pct, scoreMeta: sc, record: null, curated: cur,
       contradictions: cur.contradicts, flags: cur.flag,
       hasStance: hasStance, pending: false, sources: cur.total ? ['receipts'] : []
     };
@@ -479,12 +523,14 @@
     var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid, scope);
     var counts = { consistent: 0, contradicts: 0, mixed: 0, flag: 0, limited: 0, none: 0, pending: 0 };
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
+    var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
       if (typeof v.score === 'number') { scoreSum += v.score; scoreN++; }
+      if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
     if (counts.contradicts > 0 && counts.consistent > 0) token = 'mixed';
@@ -495,10 +541,18 @@
     else if (counts.limited > 0) token = 'limited';
     else if (anyPending) token = 'pending';
     else token = 'no_record';
+    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity % (supporting
+    // ÷ directional evidence across every stance). It is NOT a blend of vote data and
+    // never competes with the Official Record — it's the public-record answer only,
+    // pooled by evidence volume and held to a higher floor so a whole-profile read
+    // never rests on one or two items. The gateway card still shows a verdict chip only.
+    var sdScore = (scope === 'saydo') ? saydoScore(sdSup, sdCon, MIN_SAYDO_EVIDENCE + 1) : null;
     return {
       scope: scope, token: token, verdict: scopeVerdict(scope, token),
-      // Say-vs-Do never carries a competing % (verdict + receipts only).
-      score: (scope === 'saydo') ? null : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      // Official/combined = the vote-based average; Say-vs-Do = its pooled public-record
+      // integrity % (still on its own scope — never blended into Official Record).
+      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      saydoScore: sdScore,
       counts: counts, contradictions: contradictions,
       pending: anyPending, rated: scoreN, issues: keys.length
     };
@@ -593,6 +647,15 @@
       // so it never reads as the Official Record (which has no accent bar).
       '.pdxsd .pdxor-title{color:#f5d9a0;}' +
       '.pdxsd .pdxor-issue{border-left:2px solid rgba(245,200,66,0.35);}' +
+      // Say-vs-Do integrity % (Phase 7): reserved score slot on each stance row +
+      // the pooled overall read in the header. Kept visually distinct from a bare
+      // vote %, always captioned/tooltipped as public-record integrity.
+      '.pdxor-pct-na{color:#7e93b3;font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;opacity:0.85;cursor:help;}' +
+      '.pdxor-thin{font-family:"Barlow Condensed",sans-serif;font-size:0.5em;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#c6a15b;margin-left:0.12em;vertical-align:super;}' +
+      '.pdxor-integrity{display:inline-flex;align-items:center;gap:0.3rem;cursor:help;}' +
+      '.pdxor-integrity-cap{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.5rem;line-height:1;letter-spacing:0.04em;text-transform:uppercase;color:#c6a15b;text-align:left;}' +
+      '.pdxor-method{font-size:0.66rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.4rem 0.55rem;border-radius:0.5rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);}' +
+      '.pdxor-method b{color:#c6d4ec;}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -914,6 +977,27 @@
     if (cur.flag) parts.push('<b style="color:' + VERDICTS.flag.color + '">' + cur.flag + '</b> flag' + (cur.flag === 1 ? '' : 's'));
     return parts.length ? '<span class="pdxor-count">' + parts.join(' · ') + '</span>' : '';
   }
+  // Phase 7: render the stance-level public-record integrity % into the reserved
+  // score slot. `sc` is a saydoScore() breakdown. Honest by construction — shows a
+  // real number only above the thin-data floor, an explained "—" otherwise, and a
+  // tooltip that always states this is public-record integrity, NOT a voting score.
+  function _sdPctHtml(sc, color, opts) {
+    opts = opts || {};
+    if (!sc) return '';
+    if (!sc.enough) {
+      if (!opts.showDash) return '';
+      var natip = sc.judged <= 0
+        ? 'Not enough public record yet — no supporting or contradicting items to score.'
+        : 'Not enough public record yet — only ' + sc.judged + ' checkable item' + (sc.judged === 1 ? '' : 's') + '; needs at least ' + MIN_SAYDO_EVIDENCE + ' to show a fair percentage.';
+      return '<span class="pdxor-pct pdxor-pct-na" title="' + esc(natip) + '" aria-label="Not enough public record yet">—</span>';
+    }
+    var tip = 'Public-record integrity: ' + sc.supporting + ' of ' + sc.judged + ' checkable public-record item' + (sc.judged === 1 ? '' : 's') + ' back up what they say'
+      + (sc.contradicting ? ' · ' + sc.contradicting + ' run against' : '') + '.'
+      + (sc.thin ? ' Thin evidence — read with caution.' : '')
+      + ' This is public-record integrity, not their formal voting record.';
+    return '<span class="pdxor-pct" style="color:' + color + '" title="' + esc(tip) + '">' + sc.pct + '%'
+      + (sc.thin ? '<sup class="pdxor-thin" aria-hidden="true">thin</sup>' : '') + '</span>';
+  }
   function _sdRawLink() {
     if (!document.getElementById || !document.getElementById('pdxsec-controversies')) return '';
     return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-controversies\');else{var e=document.getElementById(\'pdxsec-controversies\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See flashpoints &amp; full receipts →</button>';
@@ -929,12 +1013,27 @@
 
     var overall = scopedOverall('saydo', pid);
     var om = overall.verdict;
-    // Say-vs-Do carries NO percentage (by design) — verdict chip only. The
-    // stance-level % can slot in here later without redesign (see sayVsDo().score).
+    // Phase 7: Say-vs-Do now carries its OWN pooled public-record integrity % beside
+    // the verdict chip — NOT a blended score and never the vote-based Official Record
+    // number. When evidence is below the floor we simply keep the chip (no fake %),
+    // so divergence from the Official Record % stays honest and readable.
+    var headPct = '';
+    if (typeof overall.score === 'number') {
+      var sd = overall.saydoScore || {};
+      var htip = 'Public-record integrity across every stance: ' + sd.supporting + ' of ' + sd.judged
+        + ' checkable public-record items back up their word'
+        + (sd.contradicting ? ' · ' + sd.contradicting + ' run against' : '') + '.'
+        + (sd.thin ? ' Thin evidence — read with caution.' : '')
+        + ' Public-record integrity only — separate from the vote-based Official Record %.';
+      headPct = '<span class="pdxor-integrity" title="' + esc(htip) + '">' +
+          '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%' + (sd.thin ? '<sup class="pdxor-thin" aria-hidden="true">thin</sup>' : '') + '</span>' +
+          '<span class="pdxor-integrity-cap">public-record<br>integrity</span></span>';
+    }
     var head =
       '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
-        '<span class="pdxor-overall"><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
-      '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>';
+        '<span class="pdxor-overall">' + headPct + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
+      '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
+      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score.</div>';
 
     if (!scored.length) {
       var msg = awaiting > 0
@@ -963,6 +1062,7 @@
               '<span class="pdxor-issue-lbl">' + esc(_issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
               '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' +
+              _sdPctHtml(s.ov.scoreMeta, v.color, { showDash: true }) +
               _sdCounts(s.ov.curated) +
             '</div>' + _sdEvidenceHtml(s.ov.curated) +
           '</div>';
