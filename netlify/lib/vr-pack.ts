@@ -36,6 +36,21 @@ const PACK_ITEM_CAP = 80; // plenty for offline; keeps the blob small
 const FETCH_CAP = 2000;
 const PROCEDURAL_TYPES = ["procedural", "motion"];
 
+// A YEA normally advances the measure — that assumption is what every verdict is built
+// on. Two common House/Senate questions INVERT it: a yea on a motion to RECOMMIT sends
+// the bill back to committee, and a yea on a motion to TABLE kills it. So on those roll
+// calls a yea is a vote AGAINST the measure, and reading it the usual way produces a
+// verdict that is not merely weak but backwards.
+//
+// This is orthogonal to a mapping's `supportMeaning` (which says whether advancing the
+// MEASURE advances the ISSUE) — it corrects the vote→measure step, not the measure→issue
+// step. Down-weighting alone cannot fix it: 0.25 × backwards is still backwards.
+// Consumed by stance-helpers.js `_voteEffectiveSupport` via item.advanceInverted.
+export function yeaBlocksMeasure(question: string | null | undefined): boolean {
+  const q = String(question || "").toLowerCase();
+  return q.indexOf("recommit") !== -1 || q.indexOf("to table") !== -1;
+}
+
 export function packKey(politicianId: string): string {
   return `member:${politicianId}`;
 }
@@ -145,6 +160,7 @@ export async function buildMemberPack(politicianId: string) {
       isParty: v.isParty,
       supports: null,
       isProcedural: PROCEDURAL_TYPES.includes(v.actionType),
+      advanceInverted: yeaBlocksMeasure(v.question),
       isAmendment: v.measureType === "amendment",
       parentMeasureId: v.parentId ?? null,
       rollcallId: v.rollcallId,
@@ -170,6 +186,7 @@ export async function buildMemberPack(politicianId: string) {
       isParty: null,
       supports: p.supports,
       isProcedural: false,
+      advanceInverted: false, // a co-sponsorship / amicus has no procedural inversion
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,

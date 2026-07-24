@@ -68,6 +68,19 @@ const MAX_COMPARE_MEMBERS = 8;
 // passes procedural=0.
 const PROCEDURAL_TYPES = ["procedural", "motion"];
 
+// A YEA normally advances the measure — the assumption every verdict rests on. Two
+// questions INVERT it: a yea on a motion to RECOMMIT sends the bill back to committee,
+// and a yea on a motion to TABLE kills it. On those roll calls a yea is a vote AGAINST
+// the measure, so reading it the usual way yields a backwards verdict, not just a weak
+// one (down-weighting cannot fix direction). Orthogonal to a mapping's supportMeaning:
+// this corrects the vote→measure step, not the measure→issue step. Kept byte-identical
+// to yeaBlocksMeasure() in netlify/lib/vr-pack.ts so the live read path and the offline
+// pack agree on every verdict.
+function yeaBlocksMeasure(question: string | null | undefined): boolean {
+  const q = String(question || "").toLowerCase();
+  return q.indexOf("recommit") !== -1 || q.indexOf("to table") !== -1;
+}
+
 // ── Distributional Impact Ledger allow-lists (defense in depth) ──────────────
 // The client renders a "Who It Affects" panel keyed off these exact values, so the
 // Function only ever emits a cohort/direction/strength it recognises.
@@ -199,6 +212,9 @@ type RecordItem = {
   isParty: string | null; // votes only
   supports: boolean | null; // positions only
   isProcedural: boolean;
+  // true when a yea on this roll call BLOCKS the measure (recommit / table) — the
+  // stance helpers invert the vote→measure read for these.
+  advanceInverted: boolean;
   isAmendment: boolean;
   parentMeasureId: number | null;
   rollcallId: number | null;
@@ -271,6 +287,7 @@ function assembleRecordItems(
       isParty: v.isParty,
       supports: null,
       isProcedural: PROCEDURAL_TYPES.includes(v.actionType),
+      advanceInverted: yeaBlocksMeasure(v.question),
       isAmendment: v.measureType === "amendment",
       parentMeasureId: v.parentId ?? null,
       rollcallId: v.rollcallId,
@@ -297,6 +314,7 @@ function assembleRecordItems(
       isParty: null,
       supports: p.supports,
       isProcedural: false,
+      advanceInverted: false, // a co-sponsorship / amicus has no procedural inversion
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,

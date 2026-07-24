@@ -332,6 +332,77 @@
           "rationale": "Amendment (to H.R. 3944) to limit disclosures regarding earmarks; a yea reduces disclosure, cutting against transparency and anti-corruption."
         }
       ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4758",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4758",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Homeowner Energy Freedom Act repeals the DOE high-efficiency electric home rebate program, state home-energy contractor training grants and building energy code adoption assistance (IRA/P.L. 117-169); a yea rolls back federal climate/electrification programs."
+        },
+        {
+          "issueKey": "cut_spending",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill also rescinds unobligated balances for the rebate and building-energy-code programs, so a yea cancels appropriated federal spending."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6329",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6329",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Information Quality Assurance Act requires agencies to publish the critical factual material relied on in rulemaking and guidance, and to use the best reasonably available evidence; a yea expands disclosure of the government's factual basis."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 85",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/85",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 97",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
+      "issues": [
+        {
+          "issueKey": "lands_preserve",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land."
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

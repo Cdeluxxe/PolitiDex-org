@@ -59,6 +59,25 @@ If the nexus is ambiguous, multi-issue, or the direction is contestable, **leave
 unmapped** — an unmapped vote is honest; a wrong `supportMeaning` fabricates a false
 verdict. Re-run step 3 after editing the seed.
 
+### Two traps that produce BACKWARDS verdicts (both now handled in code)
+
+1. **Procedural inversion.** A mapping's `supportMeaning` answers *does advancing the
+   measure advance the issue?* — it does **not** know whether a yea advances the measure.
+   On a motion to **recommit** or to **table**, a yea *blocks* the measure, so the
+   ordinary read is inverted. `yeaBlocksMeasure()` (`netlify/lib/vr-pack.ts` and
+   `netlify/functions/voting-record.mts`) flags those roll calls as `advanceInverted`,
+   and `_voteEffectiveSupport` in `stance-helpers.js` flips them. The 0.25 procedural
+   down-weight does **not** substitute for this — a quarter-weight backwards verdict is
+   still backwards. Real case: H.R. 4758 roll 119/2/77.
+2. **Rules are not policy.** A "Providing for consideration of…" resolution (H.Res. 1075
+   / 682 / 916) is a floor-procedure vote whipped on party lines. Mapping one reads party
+   discipline as conviction. Leave rule resolutions unmapped.
+
+Also skip **unanimous / near-unanimous** measures: they differentiate nobody, so they add
+attribution without adding signal. And never stretch a bill onto an issue the shipped
+vocabulary can't express — there is no `human_rights`, `foreign_aid` or `sanctions` key,
+so foreign-policy bills like H.R. 36 / H.R. 4423 stay unmapped rather than mis-keyed.
+
 ## Expected result — the ready-to-result comparisons
 
 Each becomes a real both-sided comparison the moment its member's formal record on the

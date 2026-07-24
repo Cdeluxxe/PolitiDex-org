@@ -155,6 +155,12 @@ export async function fetchRollcallsFromCongress(opts: {
       // API). A failed sub-fetch degrades to no member votes rather than dropping the
       // roll call — the measure + roll call are still worth recording.
       let members: any[] = [];
+      // The members sub-resource ALSO returns per-vote metadata the list endpoint omits
+      // entirely — voteQuestion ("On Motion to Recommit"), amendmentNumber/amendmentType
+      // — which is what lets a vote be classified as procedural vs substantive and lets
+      // an amendment become its own measure. We already make this call for the
+      // positions, so merging its metadata costs no extra request.
+      let meta: Record<string, any> = {};
       if (Number.isFinite(session) && Number.isFinite(num)) {
         try {
           const memUrl =
@@ -169,6 +175,8 @@ export async function fetchRollcallsFromCongress(opts: {
               md?.senateRollCallVoteMemberVotes ||
               {};
             members = Array.isArray(container?.results) ? container.results : [];
+            const { results: _drop, ...rest } = container as Record<string, any>;
+            meta = rest || {};
           } else {
             console.warn(`vr-ingest: members ${mres.status} for ${chamber} roll ${num}`);
           }
@@ -177,8 +185,10 @@ export async function fetchRollcallsFromCongress(opts: {
         }
       }
       // Explicit chamber (list items don't carry one) + derived totals (summary has none).
+      // `meta` is spread AFTER `row` so the richer sub-resource fields win, but only
+      // where present — a failed sub-fetch leaves `meta` empty and the row stands alone.
       const normalized = normalizeCongressVote(
-        { ...row, members, voteTotals: tallyMemberPositions(members) },
+        { ...row, ...meta, members, voteTotals: tallyMemberPositions(members) },
         chamber
       );
       if (normalized) out.push(normalized);
@@ -282,23 +292,51 @@ export async function loadMemberMap(): Promise<Record<string, string>> {
 
 // Find-or-create a measure (there is no natural unique index on measures, so this
 // is a manual idempotent upsert keyed by type+congress+chamber+number).
+//
+// NUMBERLESS VOTES: a few roll calls have no measure at all (Speaker elections,
+// approving the Journal, quorum calls). Matching those on `number IS NULL` made every
+// one of them collapse into whichever numberless row existed first — so a Speaker
+// election, an amendment and an unrelated vote ended up sharing one measure row, and
+// any issue mapping on it would have been attributed to all three. When there is no
+// number, key on the title too: it is derived from the vote question, so it is stable
+// across re-runs (still idempotent) but distinct per kind of vote.
+// A title the vote feed had to invent because the roll-call endpoints carry no measure
+// title: the bare legal citation ("H.R. 4758") or a "Roll call 78" fallback. Real titles
+// (seeded, curated, or backfilled from the bill resource) must never be overwritten by
+// one of these on a re-ingest — otherwise every re-run silently degrades the measure list.
+function isProvisionalTitle(title: string | null | undefined, number: string | null | undefined): boolean {
+  const t = String(title || "").trim();
+  if (!t) return true;
+  if (/^Roll call \d+$/i.test(t)) return true;
+  return !!number && t === String(number).trim();
+}
+
 async function upsertMeasure(m: RawVote["measure"]): Promise<number> {
   const existing = await db
-    .select({ id: vrMeasures.id })
+    .select({ id: vrMeasures.id, title: vrMeasures.title })
     .from(vrMeasures)
     .where(
       and(
         eq(vrMeasures.measureType, m.measureType),
         eq(vrMeasures.congress, m.congress),
         eq(vrMeasures.chamber, m.chamber),
-        m.number ? eq(vrMeasures.number, m.number) : sql`${vrMeasures.number} IS NULL`
+        m.number
+          ? eq(vrMeasures.number, m.number)
+          : and(sql`${vrMeasures.number} IS NULL`, eq(vrMeasures.title, m.title))
       )
     )
     .limit(1);
   if (existing.length) {
+    const keepTitle =
+      isProvisionalTitle(m.title, m.number) && !isProvisionalTitle(existing[0].title, m.number);
     await db
       .update(vrMeasures)
-      .set({ title: m.title, sourceUrl: m.sourceUrl, sourceLabel: m.sourceLabel || "Congress.gov", updatedAt: new Date() })
+      .set({
+        ...(keepTitle ? {} : { title: m.title }),
+        sourceUrl: m.sourceUrl,
+        sourceLabel: m.sourceLabel || "Congress.gov",
+        updatedAt: new Date(),
+      })
       .where(eq(vrMeasures.id, existing[0].id));
     return existing[0].id;
   }

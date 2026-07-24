@@ -175,6 +175,17 @@
         return null;
       }
       if (advances === null) return null;
+      // PROCEDURAL INVERSION: on a motion to recommit or to table, a yea BLOCKS the
+      // measure, so `advances` above is backwards. The Function marks those roll calls
+      // (item.advanceInverted, from yeaBlocksMeasure() in vr-pack.ts / voting-record.mts)
+      // rather than having this file re-parse vote questions. This is a separate step
+      // from `supportMeaning` below: this one fixes vote→measure, that one measure→issue.
+      // Without it, a member who votes NAY on recommitting a bill they support reads as
+      // opposing it — a fabricated contradiction that the procedural down-weight only
+      // shrinks, never corrects.
+      if (itemOrPosition && typeof itemOrPosition === 'object' && itemOrPosition.advanceInverted) {
+        advances = !advances;
+      }
       // 'yea_opposes' inverts the mapping; anything else (incl. undefined) is treated
       // as the safe default 'yea_supports'.
       return (supportMeaning === 'yea_opposes') ? !advances : advances;
@@ -359,6 +370,25 @@
       eq(_voteEffectiveSupport({ kind: 'position', supports: true }, 'yea_opposes'), false, 'cosponsor(advances)+yea_opposes → opposes');
       eq(_voteEffectiveSupport({ kind: 'position', supports: true }, 'yea_supports'), true, 'cosponsor(advances)+yea_supports → supports');
       eq(_voteEffectiveSupport({ kind: 'position', supports: null }, 'yea_supports'), null, 'position with null supports → no position');
+
+      // ── Procedural inversion: recommit / table flip the vote→measure read ──
+      // The real case this exists for: H.R. 4758 (repeals IRA home-electrification
+      // subsidies) is mapped cut_spending → yea_supports. Roll 119/2/77 was a Motion to
+      // Recommit; Boebert, Massie and Owens voted NAY, i.e. "do not send it back" —
+      // support for the bill, hence support for the spending cut. Read without the
+      // inversion, that NAY became "opposes cut_spending" and manufactured a
+      // contradiction against their stated support.
+      var recommitNay = { kind: 'vote', position: 'nay', isProcedural: true, advanceInverted: true };
+      var recommitYea = { kind: 'vote', position: 'yea', isProcedural: true, advanceInverted: true };
+      eq(_voteEffectiveSupport(recommitNay, 'yea_supports'), true, 'recommit nay → advances the measure');
+      eq(_voteEffectiveSupport(recommitYea, 'yea_supports'), false, 'recommit yea → blocks the measure');
+      eq(_voteEffectiveSupport(recommitYea, 'yea_opposes'), true, 'recommit + yea_opposes → both flips compose');
+      eq(_voteEffectiveSupport({ kind: 'vote', position: 'nay', advanceInverted: false }, 'yea_supports'), false,
+         'advanceInverted:false leaves an ordinary nay alone');
+      eq(_voteEffectiveSupport({ kind: 'vote', position: 'present', advanceInverted: true }, 'yea_supports'), null,
+         'inversion never invents a position out of present/not_voting');
+      eq(_stanceVoteVerdict('support', _voteEffectiveSupport(recommitNay, 'yea_supports')), 'consistent',
+         'recommit nay + pro-measure stance → consistent, not a fabricated contradiction');
 
       // ── _stanceVoteVerdict: the truth table ──
       eq(_stanceVoteVerdict('support', true),  'consistent',  'support + supports → consistent');
