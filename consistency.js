@@ -564,7 +564,31 @@
       '.pdxc-gate-q{font-family:"Barlow Condensed",sans-serif;font-style:italic;font-size:0.74rem;color:#c6d4ec;line-height:1.3;}' +
       '.pdxc-gate-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
       '.pdxc-gate-go{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
-      '@media (max-width:380px){.pdxc-gate-pct{font-size:1.3rem;}}';
+      '@media (max-width:380px){.pdxc-gate-pct{font-size:1.3rem;}}' +
+      // By-issue Official Record view (the organized dive-in).
+      '.pdxor{font-family:"Barlow Condensed",sans-serif;}' +
+      '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
+      '.pdxor-title{display:inline-flex;align-items:center;gap:0.4rem;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.03em;color:#e8eefc;}' +
+      '.pdxor-q{font-style:italic;font-size:0.76rem;color:#c6d4ec;margin:0.2rem 0 0.6rem;line-height:1.3;}' +
+      '.pdxor-overall{display:inline-flex;align-items:center;gap:0.5rem;padding:0.35rem 0.6rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);margin-left:auto;}' +
+      '.pdxor-overall .pdxor-pct{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;line-height:0.9;}' +
+      '.pdxor-tally{font-size:0.7rem;color:#9fb4d4;margin:0.35rem 0 0.75rem;line-height:1.35;}' +
+      '.pdxor-cat{margin-top:0.7rem;}' +
+      '.pdxor-cat-h{font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.62rem;color:#7e93b3;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.2rem;margin-bottom:0.4rem;}' +
+      '.pdxor-issue{border:1px solid rgba(255,255,255,0.08);border-radius:0.6rem;padding:0.55rem 0.65rem;margin-bottom:0.45rem;background:rgba(10,15,30,0.35);}' +
+      '.pdxor-issue-top{display:flex;flex-wrap:wrap;align-items:center;gap:0.45rem;}' +
+      '.pdxor-issue-lbl{font-weight:700;font-size:0.82rem;color:#e8eefc;flex:1;min-width:8rem;}' +
+      '.pdxor-stance{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.64rem;font-weight:700;padding:0.08rem 0.45rem;border-radius:999px;border:1px solid var(--c);color:var(--c);background:rgba(10,15,30,0.4);white-space:nowrap;}' +
+      '.pdxor-pct{font-family:"Bebas Neue",sans-serif;font-size:1.15rem;line-height:0.9;}' +
+      '.pdxor-acts{margin-top:0.4rem;}' +
+      '.pdxor-acts>summary{cursor:pointer;font-size:0.66rem;color:#9fdbd0;font-weight:700;letter-spacing:0.03em;list-style:none;}' +
+      '.pdxor-acts>summary::-webkit-details-marker{display:none;}' +
+      '.pdxor-act{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;padding:0.28rem 0 0.28rem 0.2rem;border-top:1px solid rgba(255,255,255,0.05);line-height:1.35;}' +
+      '.pdxor-act-ico{flex-shrink:0;}' +
+      '.pdxor-act a{color:#7fb4ff;text-decoration:none;white-space:nowrap;}' +
+      '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
+      '.pdxor-awaiting{font-size:0.68rem;color:#7e93b3;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
     st.textContent = css;
@@ -667,8 +691,11 @@
   // real % in place.
   function _gateNav(scope, pid) {
     if (scope === 'official') {
-      if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-voting'); return; }
-      var el = document.getElementById('pdxsec-voting'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Land on the organized by-issue Official Record view; fall back to the raw
+      // Voting Record list if the by-issue section isn't mounted.
+      var target = document.getElementById('pdxsec-official-record') ? 'pdxsec-official-record' : 'pdxsec-voting';
+      if (typeof window._pdxNavJump === 'function') { window._pdxNavJump(target); return; }
+      var el = document.getElementById(target); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     // say-vs-do
@@ -691,13 +718,151 @@
     });
     window.addEventListener('pdx-consistency-warm', function (ev) {
       var pid = ev && ev.detail && ev.detail.pid; if (!pid) return;
+      // Refresh the gateway cards…
       var gates = document.querySelectorAll('[data-pdxc-gate-pid]');
       for (var i = 0; i < gates.length; i++) {
         if (gates[i].getAttribute('data-pdxc-gate-pid') !== String(pid)) continue;
         var cards = gates[i].querySelector('.pdxc-gate-cards');
         if (cards) cards.innerHTML = _gateCard('official', pid) + _gateCard('saydo', pid);
       }
+      // …and the by-issue Official Record section, so it fills in as votes warm.
+      var secs = document.querySelectorAll('[data-pdxc-official-pid]');
+      for (var j = 0; j < secs.length; j++) {
+        if (secs[j].getAttribute('data-pdxc-official-pid') !== String(pid)) continue;
+        secs[j].innerHTML = _officialInner(pid);
+      }
     });
+  }
+
+  // ── By-issue Official Record view (the organized dive-in) ───────────────────
+  // Groups this politician's formal-action record by issue category. For each issue
+  // it shows their STATED stance (the shared source of truth), the Official Record
+  // verdict + %, and the supporting votes/actions behind it — with an honest empty
+  // state and never a false 0%. Reads officialRecord() only: no Say-vs-Do content,
+  // vr_* authoritative over the curated feeder (no double-counting).
+  var _OR_STANCE = {
+    support: { lb: 'Supports', c: '#4ade80', ico: '👍' },
+    oppose:  { lb: 'Opposes',  c: '#f87171', ico: '👎' },
+    mixed:   { lb: 'Mixed',    c: '#f5c842', ico: '⚖️' }
+  };
+  function _orStanceChip(pid, issueKey) {
+    var s = positionStance(pid, issueKey);
+    var m = _OR_STANCE[s]; if (!m) return '';
+    return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
+  }
+  function _orActLine(verdict, title, meta, url, label) {
+    var mv = VERDICTS[verdict] || VERDICTS.limited;
+    var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
+    return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + '</span></div>';
+  }
+  function _orSupportingHtml(ov) {
+    var lines = [];
+    // Migrated curated formal actions (each sourced).
+    if (ov.officialActions && ov.officialActions.items) {
+      ov.officialActions.items.forEach(function (a) {
+        lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
+      });
+    }
+    // vr_* roll-call summary: the strongest consistent / contradicting measure.
+    if (ov.record) {
+      var mk = function (item, verdict) {
+        if (!item) return;
+        var url = item.sourceUrl || (item.source && item.source.url) || '';
+        var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
+        var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
+        var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
+        lines.push(_orActLine(verdict, title, pos, url, lbl));
+      };
+      mk(ov.record.topContradiction, 'contradicts');
+      mk(ov.record.topConsistent, 'consistent');
+    }
+    if (!lines.length) return '';
+    var n = lines.length;
+    return '<details class="pdxor-acts"><summary>' + n + ' supporting ' + (n === 1 ? 'action' : 'actions') + ' ▾</summary>' + lines.join('') + '</details>';
+  }
+  function _orInner(pid) {
+    var keys = issuesWithSignal(pid, 'official');
+    var scored = [], awaiting = 0, anyPending = false;
+    keys.forEach(function (k) {
+      var ov = officialIssue(pid, k);
+      if (ov.token === 'pending') { anyPending = true; awaiting++; return; }
+      if (ov.token === 'consistent' || ov.token === 'contradicts' || ov.token === 'mixed' || ov.token === 'limited') {
+        scored.push({ key: k, ov: ov });
+      } else {
+        awaiting++; // no_record / no_stance — stated position with nothing to score yet
+      }
+    });
+
+    var overall = scopedOverall('official', pid);
+    var om = overall.verdict;
+    var overallHtml = (typeof overall.score === 'number')
+      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
+      : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
+
+    var head =
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+        '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
+      '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>';
+
+    if (!scored.length) {
+      var emptyMsg = anyPending
+        ? 'Checking the voting record…'
+        : (awaiting > 0
+            ? 'No qualifying votes on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
+            : 'No stated positions or formal record on file yet.');
+      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + '</div>' + _orRawLink();
+    }
+
+    // Group by broad issue category.
+    var catOf = function (k) { try { return (typeof window._pdxCategoryOf === 'function' ? window._pdxCategoryOf(k) : '') || 'other'; } catch (e) { return 'other'; } };
+    var catLabel = function (k) { try { return (typeof window._pdxCategoryLabelOf === 'function' ? window._pdxCategoryLabelOf(k) : '') || 'Other'; } catch (e) { return 'Other'; } };
+    var issueLabel = function (k) { try { return (window.ISSUE_MAP && window.ISSUE_MAP[k] && window.ISSUE_MAP[k].label) || k; } catch (e) { return k; } };
+    var rank = { contradicts: 0, mixed: 1, limited: 2, consistent: 3 };
+    var byCat = {};
+    scored.forEach(function (s) { var c = catOf(s.key); (byCat[c] = byCat[c] || { label: catLabel(s.key), items: [] }).items.push(s); });
+    // Categories with a contradiction first; issues within a category contradiction-first.
+    var catKeys = Object.keys(byCat).sort(function (a, b) {
+      var ac = byCat[a].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
+      var bc = byCat[b].items.some(function (s) { return s.ov.token === 'contradicts'; }) ? 0 : 1;
+      if (ac !== bc) return ac - bc;
+      return byCat[a].label < byCat[b].label ? -1 : 1;
+    });
+
+    var body = catKeys.map(function (ck) {
+      var grp = byCat[ck];
+      grp.items.sort(function (a, b) { return (rank[a.ov.token] || 9) - (rank[b.ov.token] || 9); });
+      var rows = grp.items.map(function (s) {
+        var v = s.ov.verdict;
+        var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
+        return '<div class="pdxor-issue">' +
+            '<div class="pdxor-issue-top">' +
+              '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
+              _orStanceChip(pid, s.key) +
+              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
+            '</div>' + _orSupportingHtml(s.ov) +
+          '</div>';
+      }).join('');
+      return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
+    }).join('');
+
+    var awaitingNote = awaiting > 0
+      ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet.</div>'
+      : '';
+
+    return head + body + awaitingNote + _orRawLink();
+  }
+  function _orRawLink() {
+    // Keep the raw Voting Record list one tap away (it still has value as a full list).
+    if (!document.getElementById || !document.getElementById('pdxsec-voting')) return '';
+    return '<button type="button" class="pdxor-rawlink" onclick="if(window._pdxNavJump)window._pdxNavJump(\'pdxsec-voting\');else{var e=document.getElementById(\'pdxsec-voting\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">See the full voting record →</button>';
+  }
+  var _officialInner = _orInner; // alias used by the warm-refresh listener
+  function officialRecordSectionHtml(pid) {
+    ensureStyles();
+    bindGateway();
+    if (!pid) return '';
+    return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
   }
 
   window.PDXConsistency = {
@@ -725,6 +890,7 @@
     dot: dot,
     legendHtml: legendHtml,
     gatewayHtml: gatewayHtml,
+    officialRecordSectionHtml: officialRecordSectionHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
