@@ -626,6 +626,10 @@
       '.pdxc-gate-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
       '.pdxc-gate-go{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fdbd0;}' +
       '@media (max-width:380px){.pdxc-gate-pct{font-size:1.3rem;}}' +
+      // Phase 11 — gateway "How we score this" link.
+      '.pdxc-gate-method{display:inline-block;margin-top:0.7rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fb4d4;cursor:pointer;background:none;border:none;padding:0.1rem 0;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxc-gate-method:hover{color:#c6d4ec;}' +
+      '.pdxc-gate-method:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
       // By-issue Official Record view (the organized dive-in).
       '.pdxor{font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
@@ -724,6 +728,12 @@
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
       '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
       '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      // Phase 11 — methodology explainer content (rendered inside the shared sheet).
+      '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
+      '.pdxm-row{border-top:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;}' +
+      '.pdxm-row-h{display:flex;align-items:center;gap:0.4rem;font-weight:700;font-size:0.82rem;color:#e8eefc;}' +
+      '.pdxm-row-b{font-size:0.75rem;color:#c6d4ec;line-height:1.5;margin-top:0.3rem;}' +
+      '.pdxm-row-b b{color:#e8eefc;font-weight:700;}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -816,6 +826,7 @@
           '<b>🏛️ Official Record</b> is the institutional score from their votes; <b>🧾 Say-vs-Do</b> is the broader public picture. ' +
           'Discrete promises are tracked on their own.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
+        '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
       '</section>';
   }
 
@@ -858,6 +869,8 @@
         openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
         return;
       }
+      var method = e.target.closest && e.target.closest('[data-pdxc-method]');
+      if (method) { e.preventDefault(); openMethodology(); return; }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
       if (!card) return;
       e.preventDefault();
@@ -1449,6 +1462,37 @@
     if (back) back.hidden = true;
   }
 
+  // ── Methodology & boundary explainer (Phase 11) ─────────────────────────────
+  // A short, plain-language "how we score this" surface, reachable from the Promise
+  // Tracker gateway. Reuses the same bottom-sheet as the gap view. Non-defensive:
+  // states what each number means, the thin-data rules, why the two systems stay
+  // separate, and exactly what the divergence labels do and don't claim.
+  function methodologyHtml() {
+    var row = function (icon, title, body) {
+      return '<div class="pdxm-row"><div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
+        '<div class="pdxm-row-b">' + body + '</div></div>';
+    };
+    return '<div class="pdxm">' +
+      '<div class="pdxgap-eyebrow">📋 Promise Tracker</div>' +
+      '<div class="pdxgap-title">How we score this</div>' +
+      '<div class="pdxm-lead">Two separate reads on whether someone\'s word holds up. We keep them apart on purpose and never blend them into a single “honesty” score.</div>' +
+      row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
+      row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
+      row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
+      row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
+      row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
+      '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
+      '</div>';
+  }
+  function openMethodology() {
+    if (!document.body) return;
+    var sheet = _ensureGapSheet();
+    var body = sheet.querySelector('.pdxgap-body');
+    if (body) body.innerHTML = methodologyHtml();
+    if (sheet.parentNode) sheet.parentNode.hidden = false;
+    try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+  }
+
   window.PDXConsistency = {
     FRAME: FRAME,
     SCOPES: SCOPES,
@@ -1484,6 +1528,10 @@
     // comparison rows and both feeds wire to this; exposed for any other surface too.
     openGap: openGap,
     closeGap: closeGap,
+    // Phase 11: the plain-language methodology / boundary explainer (opened from the
+    // gateway's "How we score this" link; exposed so any surface can open it too).
+    openMethodology: openMethodology,
+    methodologyHtml: methodologyHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },
