@@ -1020,3 +1020,181 @@ appeared.
   Accountability Score, not `ISSUE_MAP` keys. **0 are deterministically
   recoverable**; assigning keys would be authoring. Leave them alone.
 - `stuart_adams`' 3 shadowed cards (see C).
+
+---
+
+# Tenth pass — unlock the Voting Record for the 20 roster-less members (July 2026)
+
+`scripts/unlock-voting-record-20-jul2026.mjs` — one file changed, `cmp-data.js`,
+**+171 lines, 0 deletions**. The gap the ninth pass closed with by naming it.
+
+## The mechanism, precisely
+
+`db/vr-member-map.json` maps 63 bioguide ids to profile slugs, and the
+voting-record ingest keys everything it writes on those slugs. 43 had a roster
+record; 20 did not. `openModal()` ends at
+
+```js
+if (!p) { if (typeof window._pdxShowModalError === 'function') window._pdxShowModalError(id); return; }
+```
+
+(`index.html:25482`) — so for those 20 the profile never rendered, and
+`window._renderVotingRecord(id, p)` at `index.html:26153` never ran. Everything
+downstream of that one call was dark:
+
+| surface | where it lives |
+| --- | --- |
+| 🗳️ Voting Record section | `voting-record.js` `_renderVotingRecord` / `_pdxInitVotingRecord` |
+| "Votes · N Records" nav pill | `injectNavPill()` |
+| per-issue consistency dots | `_pdxHydrateVoteDots` → `_pdxRecordIssueSummary`, which reads `CMP_DATA[pid]` for the stance side |
+| Stance Library "View votes" | `__pdxVotingInitialIssue` entry point |
+| comparison-board `[data-vrdot]` | same hydrate path |
+| Alignment Tool vote adapter | `_alignmentVotesAdapter` |
+
+Not one line of `voting-record.js` needed changing. It canonicalizes ids
+correctly at every entry point already. The only thing missing was identity.
+
+## What was wired — all 20
+
+All 20 are sitting U.S. House members of the 119th Congress. None is a former
+member, none is a Senator, and the repo's own spotlight cards independently
+corroborate state and chamber for 16 of them — every one agreeing with the
+`vr-member-map` `members` annotation before any external source was consulted.
+
+| id (= the ingest slug) | name | seat | party | since | stance cards | roll-call rows in the bundled seeds |
+| --- | --- | --- | --- | --- | --- | --- |
+| `bennie_thompson` | Bennie Thompson | Mississippi · MS-02 | D | 1993-04 | 13 | 63 |
+| `bruce_westerman` | Bruce Westerman | Arkansas · AR-04 | R | 2015-01 | 11 | 63 |
+| `don_davis` | Don Davis | North Carolina · NC-01 | D | 2023-01 | 9 | 63 |
+| `frank_lucas` | Frank Lucas | Oklahoma · OK-03 | R | 1994-05 | 12 | 63 |
+| `josh_brecheen` | Josh Brecheen | Oklahoma · OK-02 | R | 2023-01 | 12 | 63 |
+| `julie_fedorchak` | Julie Fedorchak | North Dakota · ND-AL | R | 2025-01 | 12 | 63 |
+| `mariannette_miller_meeks` | Mariannette Miller-Meeks | Iowa · IA-01 | R | 2021-01 | 10 | 63 |
+| `michael_guest` | Michael Guest | Mississippi · MS-03 | R | 2019-01 | 10 | 63 |
+| `mike_collins` | Mike Collins | Georgia · GA-10 | R | 2023-01 | 6 | 63 |
+| `mike_ezell` | Mike Ezell | Mississippi · MS-04 | R | 2023-01 | 10 | 63 |
+| `mike_flood` | Mike Flood | Nebraska · NE-01 | R | 2022-06 | 13 | 63 |
+| `mike_simpson` | Mike Simpson | Idaho · ID-02 | R | 1999-01 | 14 | 63 |
+| `rick_crawford` | Rick Crawford | Arkansas · AR-01 | R | 2011-01 | 13 | 63 |
+| `rob_bresnahan` | Rob Bresnahan | Pennsylvania · PA-08 | R | 2025-01 | 13 | 63 |
+| `ryan_mackenzie` | Ryan Mackenzie | Pennsylvania · PA-07 | R | 2025-01 | 13 | 63 |
+| `scott_perry` | Scott Perry | Pennsylvania · PA-10 | R | 2013-01 | 10 | 63 |
+| `stephanie_bice` | Stephanie Bice | Oklahoma · OK-05 | R | 2021-01 | 13 | 63 |
+| `steve_womack` | Steve Womack | Arkansas · AR-03 | R | 2011-01 | 12 | 63 |
+| `trent_kelly` | Trent Kelly | Mississippi · MS-01 | R | 2015-06 | 12 | 63 |
+| `troy_downing` | Troy Downing | Montana · MT-02 | R | 2025-01 | 12 | 63 |
+
+Nobody was left out. The two calls that needed an explicit decision:
+
+- **`mike_collins`** won the 2026 Georgia GOP Senate runoff and is vacating GA-10
+  at the end of this term, but he has **not resigned**. He is the sitting member,
+  so no `Former`, no `termEnd`, no year range — the same rule that keeps
+  `phil_lyman_h69` from reappearing, applied in the other direction. When he does
+  leave, he gets `termEnd` and a time-qualified `office`, not a deletion.
+- **`don_davis`** — North Carolina redrew its map in the 2025–26 mid-decade cycle.
+  NC-01 is the seat he holds now; the record states the current seat, not a
+  historical one.
+
+## Zero alias entries added, on purpose
+
+The canonical key **is** the ingest slug, per the standing "prefer the id already
+used in the voting-record map" rule. Measured after the pass:
+
+- **20/20** slugs resolve to themselves with a live roster record — `PDXProfilePid()`
+  hits `ROSTER[slug]` on the **first** hop, no `PDX_PROFILE_ALIAS` entry needed
+- **0** of the 20 are rewritten by `PDXCanonicalPid()`, so the id the section
+  fetches with is the id the ingest wrote under, unchanged
+- **63/63** `vr-member-map` `.map` slugs now reach a roster record
+
+`PDX_PID_ALIASES` still holds only the five ids an actual merge retired
+(`susan_collins, kennedy_rfk, cullimore_s19, calbrecht, derek_brown`). It stays
+that way: a person who was never merged does not belong in a retirement table.
+
+## Field choices that are forced, not stylistic
+
+- **`state` must carry the full state name.** Harness `statesIn()` matches against
+  a table of full names only, so a bare `"MS-02"` makes the section-6 state check
+  match nothing and **silently skip** — the record would read green while
+  asserting nothing. Form is `"<Full State> · <ST>-NN"`, after `bmoore`'s
+  `"Utah · UT-1"`. No federal record in `cmp-data.js` uses the separate `district`
+  field (all 86 that do are state legislators), so the district rides in `state`.
+- **`name` must be the common-usage form.** Section 6 compares surnames as
+  `split(/\s+/).pop().replace(/[.,]/g,"")`, so the `members` annotation's
+  `"Robert P. Bresnahan, Jr."` yields `"jr"` and would fail against its own
+  spotlight card's `"Rob Bresnahan"`. Same for `Eric A. "Rick" Crawford` →
+  `Rick Crawford` and `Stephanie I. Bice` → `Stephanie Bice`. Every name written
+  here is byte-equal to the card that names it, where a card exists.
+- **`office` is exactly `"U.S. Representative"`** — the string the other 48 House
+  records use, which `chamberIn()` reads as `house`.
+- **`issues` is derived, not authored.** Each person's own stance-card `topic`
+  strings, verbatim, dropping any topic carried by more than 20 stance blocks
+  corpus-wide (the shared national template — "Abortion", "Election Integrity",
+  "Education & Parental Rights" …), first five in original order. Every string
+  already shipped in the repo; this pass wrote no new prose. A post-condition
+  asserts each entry is one of that person's own topics. An empty array would
+  have been safe — every consumer guards with `d.issues || []` / `!d.issues.length`
+  — but would have been the first of 756 records without one.
+
+## Post-conditions, proved before writing
+
+Beyond the usual field-by-field checks, the pass refuses to write unless:
+
+- no existing record is mutated (`JSON.stringify` compared key by key), and the
+  roster grows by exactly the number of missing records
+- every `vr-member-map` slug reaches a record afterwards
+- no other live id already carries the same `name` — no parallel identities
+- **every spotlight card that names one of these ids agrees on surname, state and
+  chamber.** Section 6 skips a card whose id has no roster record, so this pass
+  newly subjected 34 cards to the label check; proving the agreement in the pass
+  is what kept that from arriving as a red CI run.
+
+## Verdict delta
+
+| | before | after |
+| --- | --- | --- |
+| roster records | 736 | **756** |
+| `vr-member-map` slugs reaching a roster record | 43 / 63 | **63 / 63** |
+| Voting Record sections able to render | 43 | **63** (+20) |
+| per-issue stance rows eligible for a vote dot | — | **+228** |
+| distinct ids that cannot open a profile | 361 → 343 | **323** (−20) |
+| stance blocks with no reachable roster record | 334 | **314** |
+| dead `ACCT_SPOTLIGHT` keys | 63 | **44** |
+| dead curated-news keys | 16 | **12** |
+| roster records with ≥1 keyed position | 723 | **743** |
+| profiles passing `_pdxHasIssueEvidence` | 170 | **189** (+19) |
+| harness assertions | 6844 | **6926** |
+| spotlight cards label-checked vs roster | 1173 | **1207** (+34) |
+
+The Say-vs-Do surface is unchanged by this pass (437 receipts, 122 with a SAID
+side) — those receipts key off `ACCT_SPOTLIGHT`, which already reached these
+people; it was only the profile that would not open.
+
+19 of the 20 gained a Connected Evidence panel; `mike_collins` is the one with
+stance cards but no filed evidence items, so his panel stays honestly absent.
+
+## Verification
+
+- identity harness **6926 assertions green** (was 6844), `npm test` **exit 0**
+- pass idempotent — re-run reports `all 20 roster records already present`,
+  post-conditions still pass, nothing written
+- `node --check cmp-data.js` clean; **63 inline scripts in `index.html` parse clean**
+- `git diff --stat`: `cmp-data.js | 171 +`, one file, zero deletions
+- Utah maps untouched: still **29** senators and **52** representatives
+  cross-checked bidirectionally, 80 roster records agreeing with their seat
+
+## Still open
+
+- **323 dead ids remain, and they are content, not wiring** — out-of-state federal
+  figures with curated stance cards but no roster record and, unlike these 20, **no
+  ingested voting record either** (`zach_nunn` 11 cards/12 evidence, `dina_titus`
+  12/9, `susie_lee`, `steven_horsford`, `gabe_vasquez`, `russ_fulcher`, …). The 20
+  in this pass were worth wiring precisely because the vote rows already existed;
+  for the rest, a roster record buys a thin profile and nothing more. That is a
+  coverage decision, not a repair.
+- **352 evidence items legitimately carry no `issueKey`** — unchanged, and still
+  correct to leave alone (accountability categories, not `ISSUE_MAP` keys).
+- `stuart_adams`' 3 shadowed cards (eighth pass, section C).
+- The 20 new records are **thin by design**: no bio, no promise ledger, `score:
+  null`. Their Voting Record, stance cards and evidence panel all render; their
+  Promise Score does not, because there is nothing to score. Sourcing those is the
+  natural next pass, and it is authoring work.

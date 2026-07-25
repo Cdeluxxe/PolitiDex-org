@@ -11353,5 +11353,176 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2018-01", "termEnd": "2026-01",
   "issues": ["Fiscal Discipline & Property Taxes", "Efficient County Government", "Infrastructure & Regional Planning", "ICE & Immigration Enforcement", "Experienced Executive Leadership"]
+ },
+// ── Voting Record unlock (July 2026) ──────────────────────────────────────
+// The 20 db/vr-member-map.json slugs that had ingested roll-call data but no
+// roster record, so openModal() dead-ended and the 🗳️ Voting Record section,
+// the Votes nav pill, the per-issue consistency dots, the Stance Library
+// "View votes" jump and the comparison-board indicators could never render.
+// Identity wiring only: score is null because no promise ledger exists for any
+// of them, and every `issues` string is lifted verbatim from that person's own
+// existing stance cards. All 20 are sitting U.S. House members of the 119th
+// Congress; see scripts/unlock-voting-record-20-jul2026.mjs for the per-member
+// public-record confirmation and for why the full state name in `state` is
+// load-bearing rather than cosmetic.
+ // Sitting MS-02, in the House since Apr 13 1993; dean of the Mississippi delegation.
+ "bennie_thompson": {
+  "name": "Bennie Thompson", "office": "U.S. Representative",
+  "state": "Mississippi · MS-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1993-04",
+  "issues": ["Criminal Justice", "Economy & Taxes", "Rural Broadband", "Infrastructure", "Disaster Recovery"]
+ },
+ // Sitting AR-04 since Jan 2015; chairs House Natural Resources, which is the office string his one spotlight card uses.
+ "bruce_westerman": {
+  "name": "Bruce Westerman", "office": "U.S. Representative",
+  "state": "Arkansas · AR-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2015-01",
+  "issues": ["Taxes & Cost of Living", "Forest Management", "Tax Relief", "Second Amendment"]
+ },
+ // Sitting NC-01 since Jan 3 2023; on the Nov 3 2026 ballot. NC redrew its map in the 2025–26 mid-decade cycle; NC-01 is the seat he holds now.
+ "don_davis": {
+  "name": "Don Davis", "office": "U.S. Representative",
+  "state": "North Carolina · NC-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Climate & Energy", "Agriculture & Rural Communities", "Bipartisanship", "Social Security & Medicare"]
+ },
+ // Sitting OK-03 since a May 1994 special election; dean of the Oklahoma delegation.
+ "frank_lucas": {
+  "name": "Frank Lucas", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1994-05",
+  "issues": ["Agriculture", "Scientific Research", "Water & Conservation", "Financial Markets", "Taxes & Cost of Living"]
+ },
+ // Sitting OK-02 since Jan 2023, succeeding Markwayne Mullin. No spotlight card names him.
+ "josh_brecheen": {
+  "name": "Josh Brecheen", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Federal Spending", "National Debt", "Agriculture", "Energy Policy", "Judicial Impeachment"]
+ },
+ // Sitting ND at-large, sworn in Jan 6 2025. Most card-covered of the 20 (9 nested spotlight cards).
+ "julie_fedorchak": {
+  "name": "Julie Fedorchak", "office": "U.S. Representative",
+  "state": "North Dakota · ND-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Government Spending", "Energy & Grid Reliability", "Agriculture & Farm Country", "Ban Congressional Stock Trading", "Government Accountability"]
+ },
+ // Sitting IA-01 since Jan 2021 (first won by six votes after a recount).
+ "mariannette_miller_meeks": {
+  "name": "Mariannette Miller-Meeks", "office": "U.S. Representative",
+  "state": "Iowa · IA-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Rural Health Care", "Energy & Biofuels", "Agriculture", "Fiscal Responsibility"]
+ },
+ // Sitting MS-03 since Jan 3 2019; House Ethics chair.
+ "michael_guest": {
+  "name": "Michael Guest", "office": "U.S. Representative",
+  "state": "Mississippi · MS-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Taxes & Cost of Living", "Border Strategy", "Government Ethics", "Law Enforcement"]
+ },
+ // Sitting GA-10 since Jan 3 2023. He won the 2026 Georgia GOP Senate runoff and is vacating the House seat at the end of this term, but he has NOT resigned — still the sitting member, so no "Former" and no termEnd.
+ "mike_collins": {
+  "name": "Mike Collins", "office": "U.S. Representative",
+  "state": "Georgia · GA-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Border Security & Immigration", "Fentanyl & Cartels", "Federal Spending", "Letting States Sue Washington"]
+ },
+ // Sitting MS-04 since Jan 3 2023; former Jackson County sheriff.
+ "mike_ezell": {
+  "name": "Mike Ezell", "office": "U.S. Representative",
+  "state": "Mississippi · MS-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Taxes & Cost of Living", "Law Enforcement", "Maritime Infrastructure", "Disaster Recovery"]
+ },
+ // Sitting NE-01 since a Jun 28 2022 special election, succeeding Jeff Fortenberry.
+ "mike_flood": {
+  "name": "Mike Flood", "office": "U.S. Representative",
+  "state": "Nebraska · NE-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2022-06",
+  "issues": ["Housing Supply", "Federal Spending", "Biofuels & Agriculture", "Court Orders & the Rule of Law", "A State Path in Financial Rules"]
+ },
+ // Sitting ID-02 since Jan 1999; won the May 19 2026 primary with 63.3%.
+ "mike_simpson": {
+  "name": "Mike Simpson", "office": "U.S. Representative",
+  "state": "Idaho · ID-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1999-01",
+  "issues": ["Government Spending", "Taxes & Cost of Living", "Nuclear Energy & Idaho National Laboratory", "Salmon & Lower Snake River", "Interior & Environment Appropriations"]
+ },
+ // Sitting AR-01 since Jan 2011; chairs House Intelligence. vr-member-map records him formally as Eric A. "Rick" Crawford; the card and common usage are "Rick Crawford".
+ "rick_crawford": {
+  "name": "Rick Crawford", "office": "U.S. Representative",
+  "state": "Arkansas · AR-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011-01",
+  "issues": ["Government Spending", "Tax Relief", "National Security", "Second Amendment", "Agriculture"]
+ },
+ // Sitting PA-08, sworn in Jan 6 2025. Formally Robert P. Bresnahan, Jr. — the formal form would break the harness surname check, see header.
+ "rob_bresnahan": {
+  "name": "Rob Bresnahan", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Domestic Energy Production", "Tough on Crime", "Government Spending", "Jobs & Economy", "Infrastructure"]
+ },
+ // Sitting PA-07, sworn in Jan 6 2025. No spotlight card names him.
+ "ryan_mackenzie": {
+  "name": "Ryan Mackenzie", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Domestic Energy Production", "Tough on Crime", "America First Foreign Policy", "Jobs & Affordability", "Workforce & Education"]
+ },
+ // Sitting PA-10 since Jan 2013; won the May 19 2026 primary. No spotlight card names him.
+ "scott_perry": {
+  "name": "Scott Perry", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2013-01",
+  "issues": ["Taxes & Cost of Living", "Spending & the Debt", "National Defense"]
+ },
+ // Sitting OK-05 since Jan 2021. vr-member-map records her formally as Stephanie I. Bice.
+ "stephanie_bice": {
+  "name": "Stephanie Bice", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Taxes & Cost of Living", "Veterans & Military Construction", "Infrastructure & Transportation", "Government Modernization", "National Defense"]
+ },
+ // Sitting AR-03 since Jan 2011. No spotlight card names him.
+ "steve_womack": {
+  "name": "Steve Womack", "office": "U.S. Representative",
+  "state": "Arkansas · AR-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011-01",
+  "issues": ["Mental Health & Addiction", "Taxes & Cost of Living", "Federal Budget", "Tax Relief", "Second Amendment"]
+ },
+ // Sitting MS-01 since a Jun 2 2015 special election.
+ "trent_kelly": {
+  "name": "Trent Kelly", "office": "U.S. Representative",
+  "state": "Mississippi · MS-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2015-06",
+  "issues": ["National Defense", "Veterans & National Guard", "Agriculture", "Second Amendment", "Taxes & Cost of Living"]
+ },
+ // Sitting MT-02, sworn in Jan 6 2025, succeeding Matt Rosendale.
+ "troy_downing": {
+  "name": "Troy Downing", "office": "U.S. Representative",
+  "state": "Montana · MT-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Taxes & Cost of Living", "Tax Relief", "Public Lands Access", "Coal & Energy", "Water Infrastructure"]
  }
 });
