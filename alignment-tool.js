@@ -281,7 +281,14 @@
       // Deliberately carry no `lean`: both parties invoke institutional limits when
       // they are out of power, so coding either one as D or R would be false signal.
       checks_balances:      { label: '⚖️ Congressional Checks & Balances', chip: 'Keep Congress and the courts as a real check on executive power, whoever is president', cat: 'reform', stanceKeys: [], keywords: ['checks and balances','separation of powers','congressional oversight','oversight','advice and consent','confirmation','war powers','executive overreach','executive power','emergency powers','impoundment','rescission','nationwide injunction','universal injunction','judicial review','congressional authorization','power of the purse','subpoena','tariff authority','delegation of authority','unitary executive','institutional power'] },
-      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Draw a clear line between what states decide and what Washington decides', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] }
+      // The chip has to be DIRECTIONAL, because the Official Record % under this key
+      // is directional: every mapping is coded yea_supports = the vote favoured STATE
+      // authority (H.J.Res. 88/89, the California waiver repeal, H.R. 26, H.Amdt. 249/250).
+      // An even-handed "draw a clear line between state and federal power" chip reads as
+      // agreement with a *process* both preemption hawks and federalism absolutists
+      // endorse, so "80%" would look like "80% agreement with drawing a clear line" when
+      // the number actually means "80% of their judged votes favoured state authority".
+      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Keep decisions with the states unless there’s a clear national reason for Washington to override them', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] }
     };
 
     // Publish ISSUE_MAP on window so the many helper functions that live in OTHER
