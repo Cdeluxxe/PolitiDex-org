@@ -41141,7 +41141,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       6:'Weber County', 7:'Weber County', 8:'Weber County', 9:'Weber County', 10:'Weber County',
       11:'Weber County', 12:'Weber County', 13:'Davis County', 14:'Davis County', 15:'Davis County',
       16:'Davis County', 17:'Weber County', 18:'Weber County', 19:'Davis County', 20:'Davis County',
-      21:'Salt Lake County', 22:'Salt Lake County', 23:'Davis County', 24:'Salt Lake County', 25:'Davis County',
+      21:'Salt Lake County', 22:'Salt Lake County', 23:'Salt Lake County', 24:'Salt Lake County', 25:'Davis County',
       26:'Davis County', 27:'Davis County', 28:'Tooele County', 29:'Tooele County', 30:'Salt Lake County',
       31:'Salt Lake County', 32:'Salt Lake County', 33:'Salt Lake County', 34:'Salt Lake County', 35:'Salt Lake County',
       36:'Salt Lake County', 37:'Salt Lake County', 38:'Salt Lake County', 39:'Salt Lake County', 40:'Salt Lake County',
@@ -41204,6 +41204,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     Grant Miller's.
     //   • `gwynn_h6` resigned in March 2026, so District 6 was dropped rather than
     //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note).
+    // A second July 2026 pass added the three seats that pass had left as notes,
+    // each blocked on a missing roster record rather than on a missing fact:
+    //   • District 23 — `hoang_nguyen`. Hoang Nguyen succeeded Brian King and was
+    //     seated Jan 2025; she was content-bearing but roster-less, so 10e/10g had no
+    //     office to check. The record now exists and the seat is wired.
+    //   • District 37 — `ashlee_matthews`. Her seat was recorded here as "unconfirmed";
+    //     the public record confirms Kearns, renumbered 38→37 in 2023. She is NOT the
+    //     `matthews_h36` phantom, whose district went to James Dunnigan.
+    //   • District 43 — `eliason_h45`. The suffix is Steve Eliason's pre-2023 number;
+    //     he has held 43 since the renumbering, so his roster label read the wrong seat
+    //     and the `sandy` KEY_RACES_BY_LOCATION block ran the wrong district number.
+    //     Both were corrected with this entry, which is what put 10i in front of that
+    //     block. District 45 is Tracy Miller's and is still wired to nobody.
+    // `_UTAH_HOUSE_COUNTY[23]` was corrected Davis→Salt Lake County at the same time:
+    // it was a stale pre-2023 value sitting between two Salt Lake districts, and 10f
+    // would have failed the moment District 23 was wired with its real county.
     // Add a member here only once their district and county are verified against the
     // public record — a guess here now fails CI in both directions.
     var _UTAH_HOUSE_INFO = {
@@ -41218,13 +41234,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       rward:                   { d: 19, c: 'Davis County' },
       hollins_h24:             { d: 21, c: 'Salt Lake County' },
       jennifer_dailey_provost: { d: 22, c: 'Salt Lake County' },
+      hoang_nguyen:            { d: 23, c: 'Salt Lake County' },
       grant_miller:            { d: 24, c: 'Salt Lake County' },
       nicholeen_p_peck:        { d: 28, c: 'Tooele County' },
       bolinder_h68:            { d: 29, c: 'Tooele County' },
       fitisemanu_h30:          { d: 30, c: 'Salt Lake County' },
       james_dunnigan:          { d: 36, c: 'Salt Lake County' },
+      ashlee_matthews:         { d: 37, c: 'Salt Lake County' },
       ivory_h39:               { d: 39, c: 'Salt Lake County' },
       clinton_okerlund:        { d: 42, c: 'Salt Lake County' },
+      eliason_h45:             { d: 43, c: 'Salt Lake County' },
       teuscher_h44:            { d: 44, c: 'Salt Lake County' },
       gricius_h50:             { d: 50, c: 'Utah County' },
       cory_maloy_h52:          { d: 52, c: 'Utah County' },
@@ -47695,18 +47714,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Sandy / Cottonwood Heights (Salt Lake County) ──────────────
       sandy: [
-        // UNVERIFIED (July 2026): assertion 10i skips this race because `eliason_h45`
-        // has no _UTAH_HOUSE_INFO entry, so nothing checks the district. It is left as
-        // written rather than guessed at, but two things about it are suspect: the
-        // KR_STATE_HOUSE_INCUMBENTS comment above records that District 45 is Tracy
-        // Miller's seat, and the `_h45` suffix is a pre-2023 number on an id whose
-        // member (Steve Eliason) may no longer hold it. Resolving it means confirming
-        // the current District 45 representative against the public record and then
-        // wiring them into _UTAH_HOUSE_INFO + KR_STATE_HOUSE_INCUMBENTS, at which point
-        // 10i starts guarding this block too. Do not "fix" the number without that.
-        { raceKey: 'statehouse', short: 'House District 45', district: 'Utah House District 45', chamber: 'Utah State House',
+        // RESOLVED (July 2026): this block used to run a "District 45" race, which was
+        // the pre-2023 number in `eliason_h45`'s id suffix. Steve Eliason represented
+        // District 45 from 2011 to 2023 and has held District 43 — southern Salt Lake
+        // County, including Sandy — since the 2023 renumbering, so the region was right
+        // and only the number was stale. He is now wired at 43 in _UTAH_HOUSE_INFO and
+        // KR_STATE_HOUSE_INCUMBENTS, which means assertion 10i guards this block: change
+        // the district here and CI fails unless the info map agrees. District 45 is Tracy
+        // Miller's seat and is not wired to anyone.
+        { raceKey: 'statehouse', short: 'House District 43', district: 'Utah House District 43', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'eliason_h45', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 45 choice to My Team', candidates: ['eliason_h45'],
+          addLabel: 'Add House District 43 choice to My Team', candidates: ['eliason_h45'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 19', district: 'Utah Senate District 19', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'kcullimore', incumbentNote: 'Incumbent — your current state senator',
@@ -47898,36 +47916,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     is Walt Brooks's seat and is now wired to him.
     //   • `hollins_h24` moved 24→21. Sandra Hollins has held District 21 since 2023
     //     (District 23 before that); District 24 is Grant Miller's, seated 2025.
-    //   • District 6 dropped: Matthew Gwynn resigned in March 2026 and Rob Bishop was
-    //     appointed to the seat. Bishop is in the data set only as a former U.S.
-    //     Representative with no roster record, and wiring a congressional identity
-    //     into a state-House seat is a content decision rather than identity repair, so
-    //     the district degrades to "no incumbent" until that record exists.
+    //   • District 6 dropped: Matthew Gwynn resigned effective March 2026, at the close
+    //     of the general session. Rob Bishop won the seat at an April 25, 2026 GOP
+    //     delegate special election and was seated May 6, 2026, filling the remainder of
+    //     the term. Bishop is in the data set only as a former U.S. Representative with
+    //     no roster record, and wiring a congressional identity into a state-House seat
+    //     is a content decision rather than identity repair, so the district degrades to
+    //     "no incumbent" until that record exists.
     //
-    // STILL OPEN, deliberately not guessed at. Each needs the public record plus a
-    // content decision, so none of them is identity wiring:
-    //   • District 6 has no sitting incumbent here (above). Adding one requires a
-    //     roster record for its appointed member.
-    //   • District 45: the `sandy` block in KEY_RACES_BY_LOCATION still runs a District
-    //     45 race for `eliason_h45`, an id with no info entry and a pre-2023 suffix,
-    //     while the correction list above says District 45 is Tracy Miller's. See the
-    //     note at that block. Unguarded by 10i until the seat is wired here.
-    //   • District 23 is absent although Hoang Nguyen is confirmed as its member and has
-    //     a curated stance block — she has no cmp-data.js roster record, and 10e/10g
-    //     need one before she can be added.
-    //   • `ashlee_matthews` is content-bearing but her seat is unconfirmed, so she is in
-    //     neither table. She is NOT the `matthews_h36` phantom, whose district went to
-    //     James Dunnigan.
+    // CLEARED in the second July 2026 pass — three of the notes below turned out to be
+    // blocked only on a missing roster record, not on a missing fact, so each was wired
+    // once its seat was confirmed against the public record:
+    //   • District 23 → `hoang_nguyen` (Hoang Nguyen, D-Salt Lake City, succeeded Brian
+    //     King, seated Jan 2025). Her roster record now exists, so 10e/10g can check it.
+    //   • District 37 → `ashlee_matthews` (Ashlee Matthews, D-Kearns, seated 2021 at the
+    //     old District 38, renumbered 37 in 2023). Her seat is no longer "unconfirmed".
+    //   • District 43 → `eliason_h45` (Steve Eliason, R-Sandy). He held District 45 from
+    //     2011 to 2023 and 43 since; the suffix, his roster label and the `sandy` region
+    //     block were all still on the pre-2023 number. All three now read 43, and 10i
+    //     guards that block for the first time.
+    //
+    // STILL OPEN, deliberately not guessed at. Each needs a content decision rather than
+    // identity wiring, so none of them is repairable here:
+    //   • District 6 has no sitting incumbent here (above). Adding one means deciding how
+    //     Rob Bishop's congressional identity and his new state-House seat coexist in the
+    //     roster — a content call, not a re-key.
+    //   • District 45 is Tracy Miller's and is wired to nobody: she is not in the data
+    //     set, so there is no id to point at. This is a coverage gap, not a wrong label.
     //   • `calbrecht` is a second identity for Carl Albrecht, carrying a bogus
     //     'STATE SENATE' pm-tier tag. District 70 is wired to `carl_albrecht`, which is
     //     the record with the browse-directory entry and the Spotlight card. Merging the
     //     duplicate is a content pass, not identity repair, so both ids still exist.
+    //   • The 39 districts absent from this table are absent because no id in the data
+    //     set holds them. Bidirectionality means an entry here without an info entry now
+    //     fails CI, so the honest state of an uncovered seat is no key at all.
     var KR_STATE_HOUSE_INCUMBENTS = {
       4:'auxier_h4', 5:'snider_h5', 9:'jake_sawyer',
       10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward',
-      21:'hollins_h24', 22:'jennifer_dailey_provost', 24:'grant_miller', 28:'nicholeen_p_peck',
-      29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 39:'ivory_h39', 42:'clinton_okerlund',
-      44:'teuscher_h44',
+      21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller', 28:'nicholeen_p_peck',
+      29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 37:'ashlee_matthews', 39:'ivory_h39',
+      42:'clinton_okerlund', 43:'eliason_h45', 44:'teuscher_h44',
       50:'gricius_h50', 52:'cory_maloy_h52', 56:'valpeterson_h56', 59:'kohler_h59', 61:'lisa_shepherd', 63:'whyte_h63',
       66:'shelley_h66', 67:'christine_watkins', 68:'chew_h68', 69:'logan_monson',
       70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack', 75:'walt_brooks'

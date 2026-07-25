@@ -506,9 +506,11 @@ ok(byName.size > 100,
 // both layers agreeing on the wrong answer so nothing internal could catch it.
 // `rshipp` was wired at 75 and labelled St. George when Rex Shipp lives in Cedar City
 // and holds 71; `hollins_h24` was at the 24 its suffix encodes when Sandra Hollins
-// has held 21 since 2023. Only the public record settles these, which is why the
-// roster-vs-map check below (10h) exists: it cannot detect a wrong seat both layers
-// agree on, but it catches the moment they stop agreeing.
+// has held 21 since 2023; `eliason_h45` read District 45 in its suffix, its roster
+// label AND its regional race card when Steve Eliason has held 43 since the 2023
+// renumbering. Only the public record settles these, which is why the roster-vs-map
+// check below (10h) exists: it cannot detect a wrong seat both layers agree on, but it
+// catches the moment they stop agreeing.
 //
 // A sixth class lived entirely in the seventh map, which nothing here referenced until
 // 10i was added: a region advertising the right person under the wrong district number.
@@ -525,9 +527,13 @@ ok(byName.size > 100,
 // July 2026 follow-up pass, which cleared the twelve districts this section used to
 // report as notes; see the KR_STATE_HOUSE_INCUMBENTS comment in index.html for the
 // per-district disposition. One district was DROPPED rather than guessed at — House 6,
-// whose member resigned in March 2026 and whose appointed successor has no roster
-// record — because `incPid || null` degrading to "no incumbent" is honest, whereas
-// naming the wrong person is not.
+// whose member resigned in March 2026 and whose successor has no roster record —
+// because `incPid || null` degrading to "no incumbent" is honest, whereas naming the
+// wrong person is not. A second pass then wired three seats that had been left as
+// notes only because their member had no roster record (23 Nguyen, 37 Matthews, 43
+// Eliason), taking the House map from 33 seats to 36. A seat with no id to point at
+// stays absent from BOTH tables: under bidirectionality that is the only honest way to
+// represent a district the data set does not cover.
 const SENATE_INFO = liftObjectLiteral("var _UTAH_SENATE_INFO = {", "_UTAH_SENATE_INFO");
 const SENATE_COUNTY = liftObjectLiteral("var _UTAH_SENATE_COUNTY = {", "_UTAH_SENATE_COUNTY");
 const HOUSE_INFO = liftObjectLiteral("var _UTAH_HOUSE_INFO = {", "_UTAH_HOUSE_INFO");

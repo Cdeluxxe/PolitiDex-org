@@ -9916,7 +9916,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "eliason_h45": {
   "name": "Steve Eliason",
   "office": "Utah State Representative",
-  "state": "UT District 45 (Sandy)",
+  "state": "UT District 43 (Sandy, Salt Lake County)",
   "party": "R",
   "termStart": "2011-01",
   "score": null,
@@ -11076,5 +11076,26 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "state": "UT District 75 (St. George, Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Gun Rights", "Homeowner Rights", "Public Safety", "Limited Government"]
+ },
+ // Two more sitting representatives who were content-bearing but roster-less, which
+ // is what had kept them out of BOTH Utah House tables: each had a curated stance
+ // block and a Spotlight card under this id, but no record here, so 10e/10g had
+ // nothing to check a district or an office against. Seats confirmed against the
+ // public record before wiring — Nguyen succeeded Brian King in District 23 and was
+ // seated Jan 2025; Matthews has held the Kearns seat since 2021, renumbered 38→37
+ // by the 2023 redistricting. Same conventions as the block above: `score`/`kept`/
+ // `broken`/`pending` stay null/0 because no promise-tracking pass has been run for
+ // them, and `issues` are lifted verbatim from their own stance-card topics.
+ "hoang_nguyen": {
+  "name": "Hoang Nguyen", "office": "Utah State Representative",
+  "state": "UT District 23 (Salt Lake City)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Great Salt Lake & Water", "School Safety & Student Health", "Immigrant & Refugee Representation", "Air Quality & Environment"]
+ },
+ "ashlee_matthews": {
+  "name": "Ashlee Matthews", "office": "Utah State Representative",
+  "state": "UT District 37 (Kearns, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Child Care Access", "Working Families & Workers", "Maternal Health Coverage", "Second-Chance Employment"]
  }
 });
