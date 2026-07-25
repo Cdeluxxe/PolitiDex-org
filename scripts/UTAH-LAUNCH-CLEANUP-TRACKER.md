@@ -765,3 +765,97 @@ click. 99 vocabulary ids, 89 resolve, 0 missing bridges.
 - The 91 roster-less spotlight card ids (194 cards, mostly out-of-state federal
   figures) are unchanged from the sixth pass — still content-authored cards
   awaiting real roster records, not an identity defect.
+
+---
+
+# Eighth pass — the last 5 dead profile clicks (July 2026)
+
+`scripts/wire-last-five-rosterless-jul2026.mjs` — 7 edits, idempotent, dry-run by
+default. This closes the item the seventh pass left open above: the five people who
+had curated content but **no roster record under either of their two ids**, so both
+ids dead-ended on `_pdxShowModalError`.
+
+## The structural finding that made this small
+
+No new aliases were needed. In all five pairs the existing `ACCT_ALIAS` entry
+already pointed **sparse id → rich id**, and `PDXProfilePid()`'s `ACCT_ALIAS`
+fall-through accepts a candidate the moment it has a record. So adding the record
+under the rich id closed **both** ids at once. `PDX_PROFILE_ALIAS` still has the
+same 11 entries the seventh pass wrote, and a post-condition byte-compares both
+alias tables to prove neither moved.
+
+The rich id was also the right canonical key by the stated rule ("prefer the id
+that already carries the richer curated content") — in every pair it was the id
+holding the stance block and theme blurb.
+
+Pair identity was established from the repo, not inferred from name similarity:
+the first three were aliased by earlier passes, and the last two are documented in
+`scripts/cleanup-utah-duplicate-records-jul2026.mjs` as duplicate-person collapses
+(`mike_smith_utco → mike_smith_sheriff` UNION, `mhogan → michelle_kaufusi` DROP).
+
+## Records added (5) — all `score: null`, kept/broken/pending 0
+
+| canonical id | office | status | map wiring |
+|---|---|---|---|
+| `jon_hawkins` | Utah State Representative, D55 | **sitting** | House info + incumbents[55] + county fix |
+| `lescamilla` | Utah State Senator, D10 | **sitting** | none needed — already in both Senate tables |
+| `mike_smith_sheriff` | Utah County Sheriff | **sitting** | none — county office, no district |
+| `tyler_clancy` | State Homeless Coordinator · Former Rep | **former** | **none, deliberately** |
+| `michelle_kaufusi` | Former Mayor, Provo · 2026 Commission Nominee | **no current office** | none |
+
+Every `issues` array is lifted **verbatim** from content already in the repo — the
+person's own stance-card topics in block order, capped at five to match the
+surrounding records. Escamilla is the one with no stance block, so hers comes from
+the `keyIssues` already authored in `EXPANSION_SUGGESTIONS`. That entry also carries
+`score: 82` / 18-3-4; it is an unverified import-surface figure and was **not**
+copied. No stance, score, or narrative text was authored anywhere in this pass.
+
+## The two that must not be wired to a live seat
+
+- **Clancy** resigned District 60 in March 2026 to become the state homeless
+  coordinator. Grant Pace holds 60 (fourth pass). He gets a record and **no map
+  entry**; `termEnd: "2026-03"` plus "Former" in `office` mean assertion **10g**
+  would reject him from the House map even if a later pass tried. His Power-Map
+  `META` row is left on the old `tclancy` pid **on purpose**, with a comment saying
+  why: it is a `'STATE HOUSE'` row, so re-keying it to his roster id would inject a
+  card calling a former member a sitting representative. Left unmatched, it is inert.
+- **Kaufusi** left the Provo mayoralty in January 2026. `marsha_judkins_provo` is
+  already in this repo as "Mayor of Provo", so her stale `spotlights-data.js` card
+  label was corrected `'Mayor of Provo · Utah'` → `'Former Mayor of Provo · Utah'`.
+  Two people cannot hold one office on screen. Adding one word is the whole change.
+
+## District 55 — the one map correction
+
+`_UTAH_HOUSE_COUNTY[55]` read `'Salt Lake County'`. District 55 is a Utah County
+seat (Pleasant Grove / American Fork). That table is documented in `index.html` as
+"PARTIALLY STALE ... built on pre-2023 numbering" for districts no member occupied,
+and 55 was not in its verified list — so correcting it is exactly what assertion
+**10f** exists to force. All three tables now agree, checked by post-condition.
+
+Hawkins has been in the House since Jan 2019 (District 57 2019–2023, District 55
+2023–present). **House coverage 51 → 52 of 75.**
+
+## Verification
+
+- identity harness **6438 assertions green** (was 6435; +3 from the new section-11
+  and section-10 coverage), `npm test` exit 0
+- **99 clickable ids, 99 resolve, 0 dead clicks** — was 89/99 after the seventh pass
+- 736 roster records, 0 display names shared by 2+ live ids
+- 63 inline scripts parse clean; `node --check` clean on all three edited data files
+- both alias tables byte-identical to their pre-pass state
+
+## Still open
+
+- The `escamilla` **`EXPANSION_SUGGESTIONS` entry is now a parallel-identity
+  hazard**: if that catalog is ever bulk-imported it would create a *new* record
+  under `escamilla`, re-splitting the person this pass just unified. The import
+  de-dup (`index.html` ~13578) renames on collision but only checks `byId`/`PROFILES`
+  — not `CMP_DATA` or `ACCT_ALIAS`, which is where `escamilla` now lives. Widening
+  that check is the cleanest next guard.
+- Clancy's `ACCT_THEME` blurb still calls him "one of the chamber's youngest
+  members". True when written, stale now. Rewriting it is story text, excluded from
+  this pass by scope.
+- The 91 roster-less spotlight card ids (194 cards, mostly out-of-state federal
+  figures) are unchanged — content-authored cards awaiting real roster records, not
+  an identity defect. This is the last remaining click-through gap and the only
+  reason the number is not literally zero across every surface in the app.

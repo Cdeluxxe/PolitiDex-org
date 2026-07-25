@@ -11279,5 +11279,79 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-10",
   "issues": ["Veterans & Military", "Property Rights", "Property Taxes", "Charter & Public Education", "Citizen Referenda on Local Bonds"]
+ },
+ // SEVENTH July 2026 pass — the last five people who had curated content but no
+ // roster record under EITHER of their two ids, so both ids dead-ended on
+ // _pdxShowModalError. No alias was added for any of them: the ACCT_ALIAS entry
+ // already pointed the sparse id at the id these records use, and PDXProfilePid()
+ // accepts that hop the moment the target has a record. Same minimal pattern as
+ // Miller / Pace / Larson — `score` null and kept/broken/pending 0 because no
+ // promise-tracking pass has run, and `issues` lifted verbatim from each person's
+ // own stance-card topics in block order (capped at five, matching the records
+ // above). Districts and counties confirmed against the public record first.
+ //
+ // SITTING, fully wired into _UTAH_HOUSE_INFO + KR_STATE_HOUSE_INCUMBENTS[55].
+ // In the House since Jan 2019: District 57 2019–2023, District 55 2023–present.
+ // District 55 is a Utah County seat (Pleasant Grove / American Fork), which is why
+ // this pass also corrects _UTAH_HOUSE_COUNTY[55] from 'Salt Lake County'.
+ "jon_hawkins": {
+  "name": "Jon Hawkins", "office": "Utah State Representative",
+  "state": "UT District 55 (Pleasant Grove / American Fork, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Economic Development", "Online Child Safety & Digital Wellness", "Stronger Sexual-Offense Laws", "Public Safety & Crime", "Sports & Recreation"]
+ },
+ // SITTING, and already present in BOTH Senate tables (_UTAH_SENATE_INFO d:10 and
+ // KR_STATE_SENATE_INCUMBENTS[10]) — the roster record was the only missing layer,
+ // so this adds no map entry. In the Senate since Jan 2009 (District 1 2009–2023,
+ // District 10 2023–present) and Senate Minority Leader. She is the one person here
+ // with no stance block, so `issues` is lifted verbatim from the `keyIssues` already
+ // authored for her in EXPANSION_SUGGESTIONS; that entry's score 82 / 18-3-4 is an
+ // unverified import figure and is deliberately NOT copied.
+ "lescamilla": {
+  "name": "Luz Escamilla", "office": "Utah State Senator",
+  "state": "UT District 10 (Northwest Salt Lake City / West Valley City / Magna, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2009-01",
+  "issues": ["Healthcare Access", "Air Quality & Inversion", "Intergenerational Poverty", "Language Access"]
+ },
+ // SITTING county officer — sheriff since Aug 2018 (appointed to a vacancy, then
+ // elected), second term, 2026 Republican nominee for re-election, and president of
+ // the Utah Sheriffs' Association. A county office, so no district wiring applies.
+ // Icon matches the one his own curated stance block already uses.
+ "mike_smith_sheriff": {
+  "name": "Mike Smith", "office": "Utah County Sheriff",
+  "state": "Utah · Utah County",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🛡",
+  "termStart": "2018-08",
+  "issues": ["Backing Deputies & Community Safety", "Deputy Wellness & Mental Health", "Second Amendment", "Transparency", "Rehabilitation in Corrections"]
+ },
+ // FORMER — held House District 60 (Provo) from Jan 2023 until he resigned in March
+ // 2026 on appointment as Utah's state homeless coordinator (effective Mar 9 2026).
+ // Grant Pace holds District 60, so Clancy gets a record and deliberately NO entry
+ // in _UTAH_HOUSE_INFO or KR_STATE_HOUSE_INCUMBENTS. The `termEnd` and the "Former"
+ // in `office` are both load-bearing: assertion 10g rejects either one from the
+ // sitting House map, which is what keeps this from becoming another phil_lyman_h69.
+ // The year range in `state` time-qualifies the district the same way Brammer's
+ // House cards do, so no surface reads it as a live claim on seat 60.
+ "tyler_clancy": {
+  "name": "Tyler Clancy", "office": "Utah State Homeless Coordinator · Former UT State Representative",
+  "state": "UT District 60 (Provo, Utah County) 2023–2026",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01", "termEnd": "2026-03",
+  "issues": ["Homelessness", "Public Safety", "Mental Health & Addiction Recovery", "Criminal Justice & Second Chances", "Taxes & Limited Government"]
+ },
+ // NO CURRENT OFFICE — mayor of Provo from Jan 2018 until Jan 2026, when she lost
+ // the Nov 2025 election to Marsha Judkins (already here as `marsha_judkins_provo`,
+ // which is why her old "Mayor of Provo" spotlight label is corrected in this pass:
+ // two people cannot both hold it). She won the Jun 23 2026 Republican primary for
+ // Utah County Commission Seat A; the general election is Nov 2026. Both facts are
+ // time-qualified in `office`, so no surface claims she currently holds either post.
+ "michelle_kaufusi": {
+  "name": "Michelle Kaufusi", "office": "Former Mayor, Provo · 2026 Utah County Commission Nominee (Seat A)",
+  "state": "Utah",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2018-01", "termEnd": "2026-01",
+  "issues": ["Fiscal Discipline & Property Taxes", "Efficient County Government", "Infrastructure & Regional Planning", "ICE & Immigration Enforcement", "Experienced Executive Leadership"]
  }
 });
