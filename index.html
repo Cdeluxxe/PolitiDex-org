@@ -22638,7 +22638,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '">📜 See on The People’s Mandate ↗</button>');
       }
       if ((promises.length || spotlight.length) && s.issueKey &&
-          typeof window._pdxIsUtahStateLegislator === 'function' && window._pdxIsUtahStateLegislator(p) &&
           typeof window._pdxEvAnchor === 'function') {
         var anchor = window._pdxEvAnchor(id, s.issueKey);
         actions.push('<button type="button" class="sag-pop-jump" onclick="window._pdxCloseStanceEvidence();window._pdxJumpEvidence&&window._pdxJumpEvidence(\'' + anchor + '\');">🧩 See in profile ↓</button>');
@@ -23164,11 +23163,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // shared window._issueEvidenceMap (no new data work) and, like the Connected
   // Evidence section, is scoped to current sitting Utah State Legislators and
   // only shown when real on-record evidence exists, so it never reads as empty.
+  // Does this official have anything actually FILED on an issue — a recorded
+  // Spotlight item or a tracked promise? This is the honest gate for the whole
+  // evidence family. It replaces _pdxIsUtahStateLegislator(), which was a SCOPE
+  // gate from the first pass and wrong in both directions: it hid 132 profiles
+  // that hold a documented position plus real sourced evidence, and it offered
+  // the Locker CTA to 46 legislators with nothing on file. A documented position
+  // ALONE deliberately does not qualify — a panel whose every row reads "no
+  // connected record yet" is empty scaffolding, and the point of these sections
+  // is the connection, not the heading.
+  window._pdxHasIssueEvidence = function (id, p) {
+    try {
+      if (typeof window._issueEvidenceMap !== 'function') return false;
+      if (!p) {
+        p = (window.PROFILES && window.PROFILES[id]) ? window.PROFILES[id]
+           : ((typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null);
+      }
+      var map = window._issueEvidenceMap(id, p) || {};
+      for (var k in map) {
+        if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+        var e = map[k] || {};
+        if ((e.spotlight && e.spotlight.length) || (e.promises && e.promises.length)) return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+
   window._renderEvidenceSummary = function(id, p) {
     try {
       p = p || {};
-      if (!window._pdxIsUtahStateLegislator(p)) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var keys = Object.keys(map);
       if (!keys.length) return '';
@@ -23247,8 +23273,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._renderEvidenceConnections = function(id, p) {
     try {
       p = p || {};
-      if (!window._pdxIsUtahStateLegislator(p)) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var keys = Object.keys(map);
       if (!keys.length) return '';
@@ -23630,7 +23657,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // back to a title match the way _issueEvidenceMap does), then render the chip.
   window._pdxPromiseEvidenceLink = function(id, p, pr) {
     try {
-      if (!pr || typeof window._pdxIsUtahStateLegislator !== 'function' || !window._pdxIsUtahStateLegislator(p)) return '';
+      if (!pr) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var ik = pr.issueKey;
@@ -23990,7 +24017,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._pdxHasLocker = function (pid) {
     var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
     var p = (window.PROFILES && window.PROFILES[pid]) ? window.PROFILES[pid] : d;
-    return !!(p && typeof window._pdxIsUtahStateLegislator === 'function' && window._pdxIsUtahStateLegislator(p));
+    if (!p) return false;
+    // Offered when the Locker actually holds something for this person. The old
+    // office test was the one call site in this family that did NOT check data, so
+    // it promised a file to legislators with none and hid a real one from everyone
+    // else — the Locker index itself was never Utah-scoped.
+    return !!(typeof window._pdxHasIssueEvidence === 'function' && window._pdxHasIssueEvidence(pid, p));
   };
 
   // Authoritative count of items filed in the Evidence Locker for this politician,
@@ -25406,6 +25438,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
   function openModal(id) {
+    // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
+    // not the one the roster record lives under — a browse pid (`ray_ward` →
+    // `rward`) or a curated theme key (`kivory` → `ivory_h39`). PDXProfilePid()
+    // is the single resolution step for that, and it is the ONLY place profile
+    // loading asks the question, so every entry point below (including the cold
+    // deep-link path and the lazy full-profile refetch) inherits the fix. It
+    // guarantees the result has a real record or is the id unchanged, so the
+    // _pdxShowModalError branch further down still fires honestly for a genuinely
+    // unknown id. See PDX_PROFILE_ALIAS for why this is not ACCT_ALIAS.
+    if (id && typeof window.PDXProfilePid === 'function') id = window.PDXProfilePid(id);
     // Personal Impact Tracker (opt-in, private): opening a full profile is the
     // canonical "researched a candidate" signal. Deduped by id in PDXImpact, so
     // openModal's own re-entrant call (loading shell → refetch → re-run) counts once.
@@ -35260,11 +35302,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       janderegg:['pm-tier-state','STATE SENATE','utah_co','district3'],
       spitcher:['pm-tier-state','STATE SENATE','slc','district4'],
       cwilson:['pm-tier-state','STATE SENATE','weber','district1'],
-      calbrecht:['pm-tier-state','STATE SENATE','slc','district4'],
+      // Carl Albrecht is a REPRESENTATIVE (House District 70, Richfield/Sevier
+      // County), not a senator, and Sevier County lies wholly inside Utah's 2nd
+      // congressional district. This row spent its life keyed to `calbrecht` — the
+      // duplicate id retired in July 2026 (db/vr-pid-aliases.json) — which is why
+      // it never rendered: pmInjectDynamicCards only injects ids present in
+      // PROFILES, and the browse-directory profile is `carl_albrecht`.
+      carl_albrecht:['pm-tier-state','STATE HOUSE','sevier','district2'],
       jferry:['pm-tier-state','STATE HOUSE','box_elder','district1'],
       gsnow:['pm-tier-state','STATE HOUSE','davis','district1'],
       swaldrip:['pm-tier-state','STATE HOUSE','davis','district1'],
-      cmusselman:['pm-tier-state','STATE HOUSE','davis','district1'],
+      cmusselman:['pm-tier-state','STATE SENATE','weber','district1'],
       klisonbee:['pm-tier-state','STATE HOUSE','davis','district1'],
       jburton:['pm-tier-state','STATE HOUSE','davis','district1'],
       cperry:['pm-tier-state','STATE HOUSE','weber','district1'],
@@ -35282,9 +35330,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       dpulsipher:['pm-tier-state','STATE HOUSE','washington','district2'],
       sbeckstrom:['pm-tier-state','STATE HOUSE','washington','district2'],
       mroberts:['pm-tier-state','STATE HOUSE','washington','district2'],
+      // Do NOT re-key to `tyler_clancy`: he resigned District 60 in March 2026 to
+      // become the state homeless coordinator, and this is a 'STATE HOUSE' row, so
+      // matching it to his roster id would inject a card calling a former member a
+      // sitting representative. Left on the old pid, where it stays inert.
       tclancy:['pm-tier-state','STATE HOUSE','utah_co','district3'],
       mwinder:['pm-tier-state','STATE HOUSE','slc','district4'],
-      dhawkins:['pm-tier-state','STATE HOUSE','utah_co','district3'],
+      jon_hawkins:['pm-tier-state','STATE HOUSE','utah_co','district3'],
       jellis:['pm-tier-state','STATE HOUSE','davis','district1'],
       mballard:['pm-tier-state','STATE HOUSE','slc','district4'],
       jjohnson:['pm-tier-state','STATE HOUSE','utah_co','district3'],
@@ -41141,13 +41193,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       6:'Weber County', 7:'Weber County', 8:'Weber County', 9:'Weber County', 10:'Weber County',
       11:'Weber County', 12:'Weber County', 13:'Davis County', 14:'Davis County', 15:'Davis County',
       16:'Davis County', 17:'Weber County', 18:'Weber County', 19:'Davis County', 20:'Davis County',
-      21:'Salt Lake County', 22:'Salt Lake County', 23:'Davis County', 24:'Salt Lake County', 25:'Davis County',
+      21:'Salt Lake County', 22:'Salt Lake County', 23:'Salt Lake County', 24:'Salt Lake County', 25:'Salt Lake County',
       26:'Davis County', 27:'Davis County', 28:'Tooele County', 29:'Tooele County', 30:'Salt Lake County',
       31:'Salt Lake County', 32:'Salt Lake County', 33:'Salt Lake County', 34:'Salt Lake County', 35:'Salt Lake County',
       36:'Salt Lake County', 37:'Salt Lake County', 38:'Salt Lake County', 39:'Salt Lake County', 40:'Salt Lake County',
       41:'Salt Lake County', 42:'Salt Lake County', 43:'Salt Lake County', 44:'Salt Lake County', 45:'Salt Lake County',
       46:'Salt Lake County', 47:'Salt Lake County', 48:'Salt Lake County', 49:'Salt Lake County', 50:'Utah County',
-      51:'Salt Lake County', 52:'Utah County', 53:'Tooele County', 54:'Salt Lake County', 55:'Salt Lake County',
+      51:'Utah County', 52:'Utah County', 53:'Utah County', 54:'Salt Lake County', 55:'Utah County',
       56:'Utah County', 57:'Utah County', 58:'Utah County', 59:'Wasatch County', 60:'Utah County',
       61:'Utah County', 62:'Utah County', 63:'Utah County', 64:'Utah County', 65:'Utah County',
       66:'Sanpete County', 67:'Carbon County', 68:'Uintah County', 69:'San Juan County', 70:'Sevier County',
@@ -41203,35 +41255,107 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //   • `hollins_h24` sits in 21, not the 24 its suffix encodes; District 24 is
     //     Grant Miller's.
     //   • `gwynn_h6` resigned in March 2026, so District 6 was dropped rather than
-    //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note).
+    //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note). A third pass wired
+    //     the seat to his successor, `rob_bishop`, once that record existed.
+    // A second July 2026 pass added the three seats that pass had left as notes,
+    // each blocked on a missing roster record rather than on a missing fact:
+    //   • District 23 — `hoang_nguyen`. Hoang Nguyen succeeded Brian King and was
+    //     seated Jan 2025; she was content-bearing but roster-less, so 10e/10g had no
+    //     office to check. The record now exists and the seat is wired.
+    //   • District 37 — `ashlee_matthews`. Her seat was recorded here as "unconfirmed";
+    //     the public record confirms Kearns, renumbered 38→37 in 2023. She is NOT the
+    //     `matthews_h36` phantom, whose district went to James Dunnigan.
+    //   • District 43 — `eliason_h45`. The suffix is Steve Eliason's pre-2023 number;
+    //     he has held 43 since the renumbering, so his roster label read the wrong seat
+    //     and the `sandy` KEY_RACES_BY_LOCATION block ran the wrong district number.
+    //     Both were corrected with this entry, which is what put 10i in front of that
+    //     block. District 45 is Tracy Miller's and was still wired to nobody; a fourth
+    //     pass added her record and wired it.
+    // `_UTAH_HOUSE_COUNTY[23]` was corrected Davis→Salt Lake County at the same time:
+    // it was a stale pre-2023 value sitting between two Salt Lake districts, and 10f
+    // would have failed the moment District 23 was wired with its real county.
+    // A fourth pass added the last three seats whose sitting member was already
+    // content-bearing here but roster-less — the same "blocked on a record, not on a
+    // fact" shape as the three above:
+    //   • District 45 — `tracy_miller` (R-South Jordan, seated Jan 2025, succeeded
+    //     Susan Pulsipher). The last House seat that was wired to nobody.
+    //   • District 60 — `grant_pace` (R-Provo, seated May 2026 after Tyler Clancy
+    //     resigned to become the state homelessness coordinator). Not 61 — that is
+    //     Lisa Shepherd's, which the `utah_co` Key Races block already features.
+    //   • District 64 — `jackie_larson` (R-Spanish Fork, seated May 2026 for the
+    //     remainder of Jefferson Burton's term after he moved out of the district).
+    // A fifth pass swept all 75 seats for the same shape and found eleven more, nine
+    // of them roster-less-but-content-bearing (`verona_mauga` 31, `doug_owens` 33,
+    // `carol_spackman_moss` 34, `john_arthur` 41, `calvin_roberts` 46,
+    // `candice_pierucci` 49, `leah_hansen` 51, `kay_christofferson` 53,
+    // `doug_welton` 65) and two — `mschultz` 12 and `aromero` 25 — a different
+    // failure: they had roster records all along and had simply never been added to
+    // this map, so nothing checked their own district strings. Both were wrong when
+    // checked. Romero's read District 26, a Davis County seat; she has held 25 (west
+    // Salt Lake City) since the renumbering. Schultz's named no district at all, so
+    // 10h skipped him silently rather than catching it. That is the failure mode an
+    // info map exists to close, and it is worth remembering that a member being
+    // rostered is not the same as a member being mapped.
+    //
+    // What the sweep deliberately did NOT wire: roughly twenty ids that look like this
+    // same case and are not. `evan_vickers` / `evickers`, `ray_ward` / `rward`,
+    // `casey_snider` / `snider_h5` and their like are one person split across two
+    // surfaces — a full-name id carrying stances and a roster id carrying the record.
+    // The person is already wired under the roster id, so no district is uncovered,
+    // and adding the twin would create the parallel identity that the phantom-id
+    // clean-up existed to remove. That is merge debt for a separate pass, tracked in
+    // scripts/UTAH-LAUNCH-CLEANUP-TRACKER.md.
+    //
     // Add a member here only once their district and county are verified against the
     // public record — a guess here now fails CI in both directions.
     var _UTAH_HOUSE_INFO = {
       auxier_h4:               { d: 4,  c: 'Morgan County' },
       snider_h5:               { d: 5,  c: 'Cache County' },
+      // District 6 spans parts of Box Elder AND Weber County; `c` is Weber because
+      // 10f requires it to equal _UTAH_HOUSE_COUNTY[6], which is the by-number
+      // fallback the county-relevance matcher uses. His roster record names both.
+      rob_bishop:              { d: 6,  c: 'Weber County' },
       jake_sawyer:             { d: 9,  c: 'Weber County' },
       koford_h10:              { d: 10, c: 'Weber County' },
       hall_h11:                { d: 11, c: 'Weber County' },
+      mschultz:                { d: 12, c: 'Weber County' },
       lisonbee_h14:            { d: 14, c: 'Davis County' },
       defay_h15:               { d: 15, c: 'Davis County' },
       tlee:                    { d: 16, c: 'Davis County' },
       rward:                   { d: 19, c: 'Davis County' },
       hollins_h24:             { d: 21, c: 'Salt Lake County' },
       jennifer_dailey_provost: { d: 22, c: 'Salt Lake County' },
+      hoang_nguyen:            { d: 23, c: 'Salt Lake County' },
       grant_miller:            { d: 24, c: 'Salt Lake County' },
+      aromero:                 { d: 25, c: 'Salt Lake County' },
       nicholeen_p_peck:        { d: 28, c: 'Tooele County' },
       bolinder_h68:            { d: 29, c: 'Tooele County' },
       fitisemanu_h30:          { d: 30, c: 'Salt Lake County' },
+      verona_mauga:            { d: 31, c: 'Salt Lake County' },
+      doug_owens:              { d: 33, c: 'Salt Lake County' },
+      carol_spackman_moss:     { d: 34, c: 'Salt Lake County' },
       james_dunnigan:          { d: 36, c: 'Salt Lake County' },
+      ashlee_matthews:         { d: 37, c: 'Salt Lake County' },
       ivory_h39:               { d: 39, c: 'Salt Lake County' },
+      john_arthur:             { d: 41, c: 'Salt Lake County' },
       clinton_okerlund:        { d: 42, c: 'Salt Lake County' },
+      eliason_h45:             { d: 43, c: 'Salt Lake County' },
       teuscher_h44:            { d: 44, c: 'Salt Lake County' },
+      tracy_miller:            { d: 45, c: 'Salt Lake County' },
+      calvin_roberts:          { d: 46, c: 'Salt Lake County' },
+      candice_pierucci:        { d: 49, c: 'Salt Lake County' },
       gricius_h50:             { d: 50, c: 'Utah County' },
+      leah_hansen:             { d: 51, c: 'Utah County' },
       cory_maloy_h52:          { d: 52, c: 'Utah County' },
+      kay_christofferson:      { d: 53, c: 'Utah County' },
+      jon_hawkins:             { d: 55, c: 'Utah County' },
       valpeterson_h56:         { d: 56, c: 'Utah County' },
       kohler_h59:              { d: 59, c: 'Wasatch County' },
+      grant_pace:              { d: 60, c: 'Utah County' },
       lisa_shepherd:           { d: 61, c: 'Utah County' },
       whyte_h63:               { d: 63, c: 'Utah County' },
+      jackie_larson:           { d: 64, c: 'Utah County' },
+      doug_welton:             { d: 65, c: 'Utah County' },
       shelley_h66:             { d: 66, c: 'Sanpete County' },
       christine_watkins:       { d: 67, c: 'Carbon County' },
       chew_h68:                { d: 68, c: 'Uintah County' },
@@ -41269,24 +41393,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // now has a matching KR_STATE_SENATE_INCUMBENTS key and vice versa, so assertion
     // 10a in scripts/test-identity-integrity.mjs is BIDIRECTIONAL — adding a senator
     // to one table without the other is a hard failure, not a note.
+    //
+    // ALL 29 SEATS COVERED as of the fifth July 2026 pass, which added the last five
+    // (4, 11, 14, 15, 22). They had been absent because no roster record existed to
+    // name their senators, not because the seats were unknown; see the
+    // KR_STATE_SENATE_INCUMBENTS comment for each disposition. One consequence worth
+    // knowing before editing: this map is now exhaustive, so a NEW key here is either
+    // a correction to an existing seat or a mistake — there is no uncovered district
+    // left for one to describe. `emily_buss` is also the map's only non-R/D member
+    // (Forward Party), which is a party value the profile renderer supports.
     var _UTAH_SENATE_INFO = {
       ssandall:        { d: 1,  c: 'Box Elder County' },
       cwilson:         { d: 2,  c: 'Cache County' },
       john_johnson:    { d: 3,  c: 'Weber County' },
+      cmusselman:      { d: 4,  c: 'Weber County' },
       amillner:        { d: 5,  c: 'Weber County' },
       jstevenson:      { d: 6,  c: 'Davis County' },
       sadams:          { d: 7,  c: 'Davis County' },
       tweiler:         { d: 8,  c: 'Davis County' },
       jennifer_plumb:  { d: 9,  c: 'Salt Lake County' },
       lescamilla:      { d: 10, c: 'Salt Lake County' },
+      emily_buss:      { d: 11, c: 'Utah County' },
       kwan_s12:        { d: 12, c: 'Salt Lake County' },
       blouin_s13:      { d: 13, c: 'Salt Lake County' },
+      stephanie_pitcher:{ d: 14, c: 'Salt Lake County' },
+      kathleen_riebe:  { d: 15, c: 'Salt Lake County' },
       harper_s16:      { d: 16, c: 'Salt Lake County' },
       lincoln_fillmore:{ d: 17, c: 'Salt Lake County' },
       mccay_s11:       { d: 18, c: 'Salt Lake County' },
       kcullimore:      { d: 19, c: 'Salt Lake County' },
       rwinterton:      { d: 20, c: 'Duchesne County' },
       brammer_s21:     { d: 21, c: 'Utah County' },
+      heidi_balderree: { d: 22, c: 'Utah County' },
       kgrover:         { d: 23, c: 'Utah County' },
       kstratton:       { d: 24, c: 'Utah County' },
       mckell_s25:      { d: 25, c: 'Utah County' },
@@ -41308,11 +41446,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // 27 were corrected in July 2026 (Weber→Cache, Tooele→Duchesne, Utah→Emery,
     // Wasatch→Sanpete) when their sitting senators were added to the map above.
     var _UTAH_SENATE_COUNTY = {
-      1:'Box Elder County', 2:'Cache County', 3:'Weber County', 4:'Davis County', 5:'Weber County',
+      1:'Box Elder County', 2:'Cache County', 3:'Weber County', 4:'Weber County', 5:'Weber County',
       6:'Davis County', 7:'Davis County', 8:'Davis County', 9:'Salt Lake County', 10:'Salt Lake County',
-      11:'Salt Lake County', 12:'Salt Lake County', 13:'Salt Lake County', 14:'Salt Lake County', 15:'Utah County',
+      11:'Utah County', 12:'Salt Lake County', 13:'Salt Lake County', 14:'Salt Lake County', 15:'Salt Lake County',
       16:'Salt Lake County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Salt Lake County', 20:'Duchesne County',
-      21:'Utah County', 22:'Davis County', 23:'Utah County', 24:'Utah County', 25:'Utah County',
+      21:'Utah County', 22:'Utah County', 23:'Utah County', 24:'Utah County', 25:'Utah County',
       26:'Emery County', 27:'Sanpete County', 28:'Iron County', 29:'Washington County'
     };
 
@@ -47695,18 +47833,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Sandy / Cottonwood Heights (Salt Lake County) ──────────────
       sandy: [
-        // UNVERIFIED (July 2026): assertion 10i skips this race because `eliason_h45`
-        // has no _UTAH_HOUSE_INFO entry, so nothing checks the district. It is left as
-        // written rather than guessed at, but two things about it are suspect: the
-        // KR_STATE_HOUSE_INCUMBENTS comment above records that District 45 is Tracy
-        // Miller's seat, and the `_h45` suffix is a pre-2023 number on an id whose
-        // member (Steve Eliason) may no longer hold it. Resolving it means confirming
-        // the current District 45 representative against the public record and then
-        // wiring them into _UTAH_HOUSE_INFO + KR_STATE_HOUSE_INCUMBENTS, at which point
-        // 10i starts guarding this block too. Do not "fix" the number without that.
-        { raceKey: 'statehouse', short: 'House District 45', district: 'Utah House District 45', chamber: 'Utah State House',
+        // RESOLVED (July 2026): this block used to run a "District 45" race, which was
+        // the pre-2023 number in `eliason_h45`'s id suffix. Steve Eliason represented
+        // District 45 from 2011 to 2023 and has held District 43 — southern Salt Lake
+        // County, including Sandy — since the 2023 renumbering, so the region was right
+        // and only the number was stale. He is now wired at 43 in _UTAH_HOUSE_INFO and
+        // KR_STATE_HOUSE_INCUMBENTS, which means assertion 10i guards this block: change
+        // the district here and CI fails unless the info map agrees. District 45 is Tracy
+        // Miller's seat and is not wired to anyone.
+        { raceKey: 'statehouse', short: 'House District 43', district: 'Utah House District 43', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'eliason_h45', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 45 choice to My Team', candidates: ['eliason_h45'],
+          addLabel: 'Add House District 43 choice to My Team', candidates: ['eliason_h45'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 19', district: 'Utah Senate District 19', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'kcullimore', incumbentNote: 'Incumbent — your current state senator',
@@ -47898,39 +48035,89 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     is Walt Brooks's seat and is now wired to him.
     //   • `hollins_h24` moved 24→21. Sandra Hollins has held District 21 since 2023
     //     (District 23 before that); District 24 is Grant Miller's, seated 2025.
-    //   • District 6 dropped: Matthew Gwynn resigned in March 2026 and Rob Bishop was
-    //     appointed to the seat. Bishop is in the data set only as a former U.S.
-    //     Representative with no roster record, and wiring a congressional identity
-    //     into a state-House seat is a content decision rather than identity repair, so
-    //     the district degrades to "no incumbent" until that record exists.
+    //   • District 6 REOPENED and now wired: Matthew Gwynn resigned effective March
+    //     2026, at the close of the general session, and the seat was left at "no
+    //     incumbent" because its successor was in the data set only as a FORMER U.S.
+    //     Representative. Rob Bishop won the April 25, 2026 GOP delegate special
+    //     election and was seated May 6, 2026, filling the remainder of the term to
+    //     January 2027. He now has a state-House roster record and the district is
+    //     wired to `rob_bishop` — see the cmp-data.js comment on that record for why
+    //     his congressional service lives in the profile blurb and the Spotlight card
+    //     label rather than in `office`, which 10g requires to name the current seat.
     //
-    // STILL OPEN, deliberately not guessed at. Each needs the public record plus a
-    // content decision, so none of them is identity wiring:
-    //   • District 6 has no sitting incumbent here (above). Adding one requires a
-    //     roster record for its appointed member.
-    //   • District 45: the `sandy` block in KEY_RACES_BY_LOCATION still runs a District
-    //     45 race for `eliason_h45`, an id with no info entry and a pre-2023 suffix,
-    //     while the correction list above says District 45 is Tracy Miller's. See the
-    //     note at that block. Unguarded by 10i until the seat is wired here.
-    //   • District 23 is absent although Hoang Nguyen is confirmed as its member and has
-    //     a curated stance block — she has no cmp-data.js roster record, and 10e/10g
-    //     need one before she can be added.
-    //   • `ashlee_matthews` is content-bearing but her seat is unconfirmed, so she is in
-    //     neither table. She is NOT the `matthews_h36` phantom, whose district went to
-    //     James Dunnigan.
-    //   • `calbrecht` is a second identity for Carl Albrecht, carrying a bogus
-    //     'STATE SENATE' pm-tier tag. District 70 is wired to `carl_albrecht`, which is
-    //     the record with the browse-directory entry and the Spotlight card. Merging the
-    //     duplicate is a content pass, not identity repair, so both ids still exist.
+    // CLEARED in the second July 2026 pass — three of the notes below turned out to be
+    // blocked only on a missing roster record, not on a missing fact, so each was wired
+    // once its seat was confirmed against the public record:
+    //   • District 23 → `hoang_nguyen` (Hoang Nguyen, D-Salt Lake City, succeeded Brian
+    //     King, seated Jan 2025). Her roster record now exists, so 10e/10g can check it.
+    //   • District 37 → `ashlee_matthews` (Ashlee Matthews, D-Kearns, seated 2021 at the
+    //     old District 38, renumbered 37 in 2023). Her seat is no longer "unconfirmed".
+    //   • District 43 → `eliason_h45` (Steve Eliason, R-Sandy). He held District 45 from
+    //     2011 to 2023 and 43 since; the suffix, his roster label and the `sandy` region
+    //     block were all still on the pre-2023 number. All three now read 43, and 10i
+    //     guards that block for the first time.
+    //
+    // CLEARED in the third July 2026 pass, which took the two content decisions the
+    // pass before it had declined to make:
+    //   • District 6 → `rob_bishop`, with a state-House roster record added and his
+    //     federal service moved to the surfaces that can date it (above).
+    //   • `calbrecht`, the second Carl Albrecht identity, was merged into
+    //     `carl_albrecht` — the roster id District 70 was already wired to. Its six
+    //     bill-sourced stance cards, Evidence Locker group, profile blurb, consistency
+    //     headline and (bogus 'STATE SENATE') Power-Map row all moved to the canonical
+    //     id, and the retired id is registered in db/vr-pid-aliases.json with
+    //     ACCT_ALIAS keeping old saved picks resolvable.
+    //
+    // CLEARED in the fourth July 2026 pass — the last three seats whose sitting member
+    // was content-bearing here (a curated stance block) but roster-less, which is what
+    // had kept them out of both tables. Each district was confirmed against the public
+    // record first:
+    //   • District 45 → `tracy_miller` (R-South Jordan, seated Jan 2025, succeeded
+    //     Susan Pulsipher). This was the last seat wired to nobody.
+    //   • District 60 → `grant_pace` (R-Provo, sworn in May 2026 after Tyler Clancy
+    //     resigned to become the state homelessness coordinator). The Provo seat is 60,
+    //     not the 61 the `utah_co` region block features — 61 is Lisa Shepherd's.
+    //   • District 64 → `jackie_larson` (R-Spanish Fork, seated May 5, 2026 for the
+    //     remainder of Jefferson Burton's term; he resigned after moving out of the
+    //     district). Nothing stale had to be moved out of the way: `jburton` has no
+    //     roster record and appeared in neither Utah House table, so he never held the
+    //     seat here. Same for `tyler_clancy` at 60.
+    //
+    // STILL OPEN, deliberately not guessed at:
+    // CLEARED in the fifth July 2026 pass — a full sweep of all 75 seats against both
+    // tables, which turned up nine more members in the roster-less-but-content-bearing
+    // state above (31, 33, 34, 41, 46, 49, 51, 53, 65) and two, `mschultz` at 12 and
+    // `aromero` at 25, that had roster records but had never been mapped. Both of the
+    // latter carried a wrong or missing district on their own record, which is what
+    // being outside _UTAH_HOUSE_INFO had hidden.
+    //
+    // STILL OPEN, deliberately not guessed at:
+    //   • The 24 districts absent from this table are absent because no id in the data
+    //     set holds them. Bidirectionality means an entry here without an info entry now
+    //     fails CI, so the honest state of an uncovered seat is no key at all.
+    //   • Three roster records name a district that belongs to somebody else and are
+    //     outside this map, so nothing fails: `fgibson` reads District 60 (Grant
+    //     Pace's), `jknotts` reads District 65 (Doug Welton's) under a name that looks
+    //     like a garbled "John Knotwell" — a former District 52 member — and
+    //     `jdraxler` reads District 3 though he left in 2017. Each is a former-member
+    //     label to correct, not a seat to re-key.
+    //   • `jburton`'s Power-Map META row still reads `['pm-tier-state','STATE HOUSE',
+    //     'davis','district1']`. Both halves are wrong — Salem is Utah County (UT-3),
+    //     and he is a former member as of March 2026 — but fixing the county while
+    //     leaving the sitting-member tier would be half a repair, and retiring the row
+    //     is a content call about how former members appear on the Power Map.
     var KR_STATE_HOUSE_INCUMBENTS = {
-      4:'auxier_h4', 5:'snider_h5', 9:'jake_sawyer',
-      10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward',
-      21:'hollins_h24', 22:'jennifer_dailey_provost', 24:'grant_miller', 28:'nicholeen_p_peck',
-      29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 39:'ivory_h39', 42:'clinton_okerlund',
-      44:'teuscher_h44',
-      50:'gricius_h50', 52:'cory_maloy_h52', 56:'valpeterson_h56', 59:'kohler_h59', 61:'lisa_shepherd', 63:'whyte_h63',
-      66:'shelley_h66', 67:'christine_watkins', 68:'chew_h68', 69:'logan_monson',
-      70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack', 75:'walt_brooks'
+      4:'auxier_h4', 5:'snider_h5', 6:'rob_bishop', 9:'jake_sawyer', 10:'koford_h10',
+      11:'hall_h11', 12:'mschultz', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee',
+      19:'rward', 21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller',
+      25:'aromero', 28:'nicholeen_p_peck', 29:'bolinder_h68', 30:'fitisemanu_h30', 31:'verona_mauga',
+      33:'doug_owens', 34:'carol_spackman_moss', 36:'james_dunnigan', 37:'ashlee_matthews', 39:'ivory_h39',
+      41:'john_arthur', 42:'clinton_okerlund', 43:'eliason_h45', 44:'teuscher_h44', 45:'tracy_miller',
+      46:'calvin_roberts', 49:'candice_pierucci', 50:'gricius_h50', 51:'leah_hansen', 52:'cory_maloy_h52',
+      53:'kay_christofferson', 55:'jon_hawkins', 56:'valpeterson_h56', 59:'kohler_h59', 60:'grant_pace', 61:'lisa_shepherd',
+      63:'whyte_h63', 64:'jackie_larson', 65:'doug_welton', 66:'shelley_h66', 67:'christine_watkins',
+      68:'chew_h68', 69:'logan_monson', 70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack',
+      75:'walt_brooks'
     };
     // Sitting Utah State Senator per district. Keys are POST-2023 district numbers
     // and must agree with `_UTAH_SENATE_INFO[pid].d` for every pid that appears in
@@ -47940,10 +48127,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // is 21 — so key off the district, never the suffix.
     // Corrected July 2026: Adams added at 7, Weiler added at 8, Escamilla added at
     // 10, McCay 17→18, Brammer 22→21, Grover 24→23, Stratton added at 24 (he won
-    // Bramble's seat and was sworn in Jan 2025). Districts 4, 11, 14, 15, 22 have no
-    // roster record yet and are intentionally absent — `incPid || null` at the call
-    // sites degrades to "no incumbent", which is correct, whereas naming the wrong
-    // person is not.
+    // Bramble's seat and was sworn in Jan 2025).
+    //
+    // COMPLETE as of the fifth July 2026 pass: all 29 districts are named. The last
+    // five — 4, 11, 14, 15, 22 — had been left as no key at all rather than a guess,
+    // because none of their senators had a roster record for the tables to check
+    // against. Four of the five were already content-bearing under the ids used here
+    // and only needed the record: 4 → `cmusselman` (Calvin Musselman, R-West Haven,
+    // seated Jan 2025 succeeding Gregg Buxton), 11 → `emily_buss` (Emily Buss,
+    // Forward Party, appointed Dec 2025 to Daniel Thatcher's vacated seat), 14 →
+    // `stephanie_pitcher` (D-Salt Lake City, seated Jan 2023, previously House
+    // District 40), 15 → `kathleen_riebe` (D-Cottonwood Heights, Senate Minority
+    // Whip, elected 2018 at the pre-redistricting District 8), 22 →
+    // `heidi_balderree` (R-Saratoga Springs, seated Oct 2023 succeeding Jake
+    // Anderegg). Because 10a is bidirectional, an entry here now requires a matching
+    // `_UTAH_SENATE_INFO` entry whose `d` agrees, and vice versa.
     //
     // PHANTOM IDS REMOVED (July 2026). Seven districts were wired to ids that existed
     // in no other file — no cmp-data.js record, no stance block, no Spotlight card —
@@ -47962,10 +48160,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Utah senator named Fillerup, so the id was not a label problem to correct but a
     // non-person to delete, and District 3 now points at Johnson.
     var KR_STATE_SENATE_INCUMBENTS = {
-      1:'ssandall', 2:'cwilson', 3:'john_johnson', 5:'amillner', 6:'jstevenson',
-      7:'sadams', 8:'tweiler', 9:'jennifer_plumb', 10:'lescamilla', 12:'kwan_s12', 13:'blouin_s13', 16:'harper_s16',
-      17:'lincoln_fillmore', 18:'mccay_s11', 19:'kcullimore', 20:'rwinterton', 21:'brammer_s21',
-      23:'kgrover', 24:'kstratton', 25:'mckell_s25', 26:'dhinkins', 27:'dowens_st', 28:'evickers', 29:'dipson'
+      1:'ssandall', 2:'cwilson', 3:'john_johnson', 4:'cmusselman', 5:'amillner',
+      6:'jstevenson', 7:'sadams', 8:'tweiler', 9:'jennifer_plumb', 10:'lescamilla',
+      11:'emily_buss', 12:'kwan_s12', 13:'blouin_s13', 14:'stephanie_pitcher', 15:'kathleen_riebe',
+      16:'harper_s16', 17:'lincoln_fillmore', 18:'mccay_s11', 19:'kcullimore', 20:'rwinterton',
+      21:'brammer_s21', 22:'heidi_balderree', 23:'kgrover', 24:'kstratton', 25:'mckell_s25',
+      26:'dhinkins', 27:'dowens_st', 28:'evickers', 29:'dipson'
     };
 
     function _krGenericRace(location, raceKey, num) {
@@ -54367,7 +54567,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Representatives concentrated in Davis, Weber, Salt Lake County and Utah
     // County — janderegg, dhinkins, rwinterton, dowens_st, rspendlove,
     // kstratton, jbriscoe, swaldrip, cmusselman, jburton, tyler_clancy,
-    // jferry, calbrecht, paul_a_cutler, stewart_e_barlow, cheryl_acton,
+    // jferry, carl_albrecht, paul_a_cutler, stewart_e_barlow, cheryl_acton,
     // james_dunnigan, ryan_d_wilcox, jon_hawkins, doug_fiefia,
     // kay_christofferson and nelson_abbott — each with 3–5 sourced,
     // pattern-focused highlights, `tags`, and a one-line theme, plus aliases
@@ -54462,7 +54662,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       jburton: 'A retired Major General who legislates the veterans and National Guard world he led, and who stepped into a thankless interim health post during the pandemic.',
       tyler_clancy: 'A working Provo police detective and one of the chamber’s youngest members who legislates the homelessness and public-safety beat he walks — though his zero-tolerance camp approach draws advocate pushback.',
       jferry: 'A fifth-generation farmer who authored Utah’s Great Salt Lake water-leasing law and then left office to run the agency that executes it — strong follow-through shadowed by a standing conflict-of-interest question.',
-      calbrecht: 'A career rural-utility executive steering Utah’s nuclear and water future, with a coherent energy-and-agriculture portfolio and proactive disaster-resilience work.',
+      carl_albrecht: 'A career rural-utility executive steering Utah’s nuclear and water future, with a coherent energy-and-agriculture portfolio and proactive disaster-resilience work.',
       paul_a_cutler: 'A Davis County representative who makes accountability his subject — tightening conflict-of-interest and candidate-disclosure rules on officials like himself.',
       stewart_e_barlow: 'A practicing surgeon who legislates healthcare from firsthand experience, an expertise-to-law match that also raises the usual insider-writing-his-own-industry’s-rules question.',
       cheryl_acton: 'A steady West Jordan representative focused on disclosure and student-data privacy, willing to apply tougher candidate-disclosure rules to her own contests.',
@@ -54488,7 +54688,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       cstewart: 'A reliable Utah national-security conservative whose mid-term 2023 resignation, citing family health, drew both sympathy and criticism for the costly special election it forced.',
       jdougall: 'A self-styled “watchdog” auditor who built genuine government-transparency tools, balanced against the partisan edge critics saw in some of his probes.',
       emendenhall: 'A data-and-air-quality SLC mayor whose environmental brand is backed by real initiatives, tested by the homelessness and downtown-safety pressures every big-city mayor faces.',
-      jwilson: 'A veteran public servant from a prominent Utah family whose county-government record is steady and process-respecting, shadowed by the usual dynasty questions.'
+      jwilson: 'A veteran public servant from a prominent Utah family whose county-government record is steady and process-respecting, shadowed by the usual dynasty questions.',
+      // July 2026 — District 6. This blurb is load-bearing, not decoration: the roster
+      // `office` field can only say "Utah State Representative" (a /former/ office on a
+      // pid in _UTAH_HOUSE_INFO is a hard failure by design), so the dates of his
+      // federal service have to live somewhere a reader sees them, and this is it.
+      rob_bishop: 'A former Utah House Speaker and nine-term U.S. Representative (2003–2021) who returned to the state House in May 2026 by special election, back on the public-lands and water fights he built his federal career on — and again pledging to term-limit himself.'
     };
 
     // ── Spotlight key aliases ────────────────────────────────────────────────
@@ -54565,6 +54770,130 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       mhogan: 'michelle_kaufusi',
       dwatts: 'monica_zoltanski_sandy',
       rwood: 'troy_walker_draper',
+      // `calbrecht` is a RETIRED id (db/vr-pid-aliases.json) — the second Carl
+      // Albrecht record, whose six bill-sourced stance cards, Evidence Locker group
+      // and theme blurb were merged into `carl_albrecht` (the roster / browse /
+      // Utah-map id) in July 2026. Kept here for the same reason as
+      // `cullimore_s19`: a saved My-Team pick or bookmark stored under the old id
+      // still resolves to his curated Spotlight data.
+      calbrecht: 'carl_albrecht',
+      // July 2026 surface-split sweep — browse-directory pid → curated roster id
+      // for the Utah legislators whose spotlight cards are keyed on a slug of
+      // their display name while their cmp-data.js record lives under a short id.
+      // These are ONE person with one roster record, not merged duplicates: the
+      // curated stance block stays under the name-slug key per this repo's
+      // stance-key convention (see db/vr-pid-aliases.json and STANCE_ALIASES),
+      // and _resolveStanceList()'s name-slug fallback already reached it. What
+      // was missing is the profile hop — openModal() resolves PROFILES/CMP_DATA
+      // and, before this pass, never followed ACCT_ALIAS, so tapping any of these
+      // cards dead-ended on "This profile couldn't be loaded". Bridging them here
+      // also brings their cards under section 6's label-vs-roster check.
+      // (`derek_brown` is the exception — a genuine retired id, see below.)
+      derek_brown:       'derek_brown_ut',
+      evan_vickers:      'evickers',
+      mike_mckell:       'mckell_s25',
+      mike_schultz:      'mschultz',
+      steve_eliason:     'eliason_h45',
+      karen_kwan:        'kwan_s12',
+      daniel_mccay:      'mccay_s11',
+      ariel_defay:       'defay_h15',
+      wayne_harper:      'harper_s16',
+      keith_grover:      'kgrover',
+      kirk_cullimore:    'kcullimore',
+      mike_kohler:       'kohler_h59',
+      rosie_rivera:      'rosie_rivera_slco',
+      sandra_hollins:    'hollins_h24',
+      angela_romero:     'aromero',
+      karianne_lisonbee: 'lisonbee_h14',
+      jordan_teuscher:   'teuscher_h44',
+      ann_millner:       'amillner',
+    };
+
+    // ── Profile-id resolution — the other half of ACCT_ALIAS's old dual duty ──
+    // ACCT_ALIAS above answers "where is this person's CURATED data?" — its values
+    // are theme / ACCT_SPOTLIGHT keys, and six of them (`kivory`, `wharper`,
+    // `seliason`, `klisonbee`, `dmccay`, `jteuscher`) deliberately have no
+    // cmp-data.js record at all. Profile loading needs the opposite answer: "which
+    // id has a real roster record?" Reading ACCT_ALIAS for both questions is what
+    // left `ken_ivory` → `kivory` resolving to an id that names nobody, so the
+    // modal dead-ended even though Ken Ivory is in the roster as `ivory_h39`.
+    //
+    // This table answers ONLY the profile question, and only where ACCT_ALIAS
+    // cannot. Every value MUST be a live cmp-data.js id — scripts/
+    // test-identity-integrity.mjs section 11 enforces that, and also fails if a
+    // new curated key is added without a bridge here. Each mapping is the REVERSE
+    // of an existing ACCT_ALIAS entry (`ivory_h39: 'kivory'` is the repo already
+    // saying those two ids are one person), so nothing here is a new claim.
+    //
+    // ACCT_ALIAS is intentionally NOT edited: the curated key is re-derived from
+    // the roster id by its existing entries, which is why the ACCT_THEME blurb and
+    // the ACCT_SPOTLIGHT drivers keep resolving after a click lands on the roster
+    // id (`kivory` → opens `ivory_h39` → _slTheme follows `ivory_h39: 'kivory'`
+    // → ACCT_THEME.kivory). Its 2-hop curated chains are left alone; profile
+    // resolution no longer walks them.
+    window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
+      // curated keys with no roster record of their own
+      kivory:    'ivory_h39',
+      wharper:   'harper_s16',
+      seliason:  'eliason_h45',
+      klisonbee: 'lisonbee_h14',
+      dmccay:    'mccay_s11',
+      jteuscher: 'teuscher_h44',
+      // short browse / catalog pids whose ACCT_ALIAS entry targets one of those
+      ken_ivory: 'ivory_h39',
+      eliason:   'eliason_h45',
+      teuscher:  'teuscher_h44',
+      lisonbee:  'lisonbee_h14',
+      mccay:     'mccay_s11',
+      // Stance-block keys. Each is a slug of the roster record's own display name
+      // — the documented stance-key convention (db/vr-pid-aliases.json), where 24
+      // of the 25 Utah "surface splits" turned out to be ONE record whose curated
+      // block is keyed on the name slug, not two identities. So these are reverse
+      // bridges, exactly like the ACCT ones above, and not merges:
+      // _resolveStanceList(rosterId) already returns the block filed under the key
+      // on its left. Without them a Stance Library row, a comparison-board dot and
+      // an issue-view chip all opened nothing.
+      bridger_bolinder: 'bolinder_h68',
+      casey_snider:     'snider_h5',
+      cory_maloy:       'cory_maloy_h52',
+      curt_bramble:     'cbramble',
+      don_ipson:        'dipson',
+      jerry_stevenson:  'jstevenson',
+      jill_koford:      'koford_h10',
+      luz_escamilla:    'lescamilla',
+      matthew_gwynn:    'gwynn_h6',
+      nate_blouin:      'blouin_s13',
+      phil_lyman:       'lyman',
+      scott_chew:       'chew_h68',
+      scott_sandall:    'ssandall',
+      stephen_l_whyte:  'whyte_h63',
+      // sadams keeps its own 7-card block, which _resolveStanceList prefers; this
+      // bridge fixes the dead click and lands on the right person. The 3 cards
+      // filed under stuart_adams stay shadowed — collapsing them is a content
+      // decision, tracked separately.
+      stuart_adams:     'sadams',
+      tiara_auxier:     'auxier_h4',
+      todd_weiler:      'tweiler',
+      troy_shelley:     'shelley_h66',
+    };
+
+    // Resolve any id to one a profile can actually open, in a single step.
+    // Single-hop-on-miss, deliberately: a candidate is accepted only if IT has a
+    // record, so nothing chains through a dead id, a real profile always beats an
+    // alias, and an unknown id passes through untouched so callers can still show
+    // their own not-found state instead of silently opening the wrong person.
+    window.PDXProfilePid = function (id) {
+      if (!id) return id;
+      var hasRec = function (x) {
+        return !!((window.PROFILES && window.PROFILES[x]) ||
+                  (typeof CMP_DATA !== 'undefined' && CMP_DATA[x]));
+      };
+      if (hasRec(id)) return id;
+      var direct = window.PDX_PROFILE_ALIAS && window.PDX_PROFILE_ALIAS[id];
+      if (direct && hasRec(direct)) return direct;
+      var curated = window.ACCT_ALIAS && window.ACCT_ALIAS[id];
+      if (curated && hasRec(curated)) return curated;
+      return id;
     };
 
     // Resolve the overall theme for an official: a document-authored

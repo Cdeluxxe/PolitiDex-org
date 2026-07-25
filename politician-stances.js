@@ -1451,7 +1451,6 @@
       { topic:'Government Ethics', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Chairs the House Committee on Ethics, the panel charged with ensuring the integrity of the House, and has issued public statements in that role.', source:{label:'House.gov', url:'https://guest.house.gov/media/press-releases/statement-chairman-michael-guest-regarding-ethics-committees-release-report'} },
       { topic:'Abortion', icon:'🤰', pos:'oppose', issueKey:'pro_life', issueStance:'oppose', text:'Is a member of the congressional Pro-Life Caucus.', source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Michael_Guest_(politician)'} },
       { topic:'Law Enforcement', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'A former district attorney, he is a member of the congressional Law Enforcement Caucus and has publicly honored fallen police officers.', source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Michael_Guest_(politician)'} },
-      { topic:'Taxes & Cost of Living', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Voted yes on H.R. 1, the 2025 reconciliation and tax law, on final passage (Roll Call 190, 218–214, July 3, 2025).', evidence:'Recorded a yes vote on final passage of H.R. 1, July 3, 2025.', source:{label:'House Clerk', url:'https://clerk.house.gov/Votes/2025190'} },
     ],
     michael_chiaradio: [ // Michael Chiaradio — U.S. House — 2026 Democratic Nominee (Mississippi 3rd District)
       { topic:'Small Farmers', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Platform aims to "free the small farmer" by lowering capital barriers and offering favorable loans, qualified debt forgiveness, and expanded rental programs.', source:{label:'Campaign', url:'https://michaelachiaradio.com/issues/'} },
@@ -1471,7 +1470,6 @@
       { topic:'Maritime Infrastructure', icon:'🛳', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Chairs the Transportation Subcommittee on Coast Guard and Maritime Transportation and sponsored disaster-assistance accountability bills that passed the House.', source:{label:'GovTrack', url:'https://www.govtrack.us/congress/members/mike_ezell/456911'} },
       { topic:'Disaster Recovery', icon:'💧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Touts directing federal resources to South Mississippi, including flood-insurance reform and infrastructure funding for Hattiesburg and Petal.', source:{label:'WDAM', url:'https://www.wdam.com/2026/02/28/mississippi-4th-district-republican-primary-what-ezell-walters-are-promising-voters/'} },
       { topic:'Abortion', icon:'🤰', pos:'oppose', issueKey:'pro_life', issueStance:'oppose', text:'Supports anti-abortion policies and is a member of the House Pro-Life Caucus.', source:{label:'Magnolia Tribune', url:'https://magnoliatribune.com/2025/09/29/ezell-draws-gop-challenger-in-4th-congressional-district/'} },
-      { topic:'Taxes & Cost of Living', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Voted yes on H.R. 1, the 2025 reconciliation and tax law, on final passage (Roll Call 190, 218–214, July 3, 2025).', evidence:'Recorded a yes vote on final passage of H.R. 1, July 3, 2025.', source:{label:'House Clerk', url:'https://clerk.house.gov/Votes/2025190'} },
     ],
     jeffrey_hulum: [ // Jeffrey Hulum III — U.S. House — 2026 Democratic Nominee (Mississippi 4th District)
       { topic:'Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Says no family should go broke to see a doctor and calls for permanent, affordable health care, citing rural hospital closures.', source:{label:'WLOX', url:'https://www.wlox.com/2026/02/08/state-rep-hulum-emphasizes-veterans-care-healthcare-congressional-bid/'} },
@@ -1789,6 +1787,16 @@
       { topic:'Prescription Drug Prices', icon:'💉', pos:'oppose', issueKey:'health_drug_prices', issueStance:'oppose', text:'Opposes letting Medicare negotiate prescription-drug prices.', evidence:'Supported the 2003 Medicare law that barred Medicare from negotiating drug prices.', source:{label:'PolitiFact', url:'https://www.politifact.com/'} },
     ],
     carl_albrecht: [
+      // ── merged from 'calbrecht' (July 2026): one record per person. These
+      // are the bill-sourced cards; the three below them are the older unsourced
+      // ones this record already carried. Sourced first so an issueKey-only
+      // findStance() lookup resolves the sourced card, not the general one.
+      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to protect ranchers\' public-lands watering rights from federal overreach.', evidence:'Sponsored HB 47 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0047.html'} },
+      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to strengthen state water policy and expand Division of Water Rights legal support.', evidence:'Sponsored HB 41 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0041.html'} },
+      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to modernize Department of Agriculture and improve rural veterinarian access.', evidence:'Sponsored HB 253 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0253.html'} },
+      { topic:'Disaster Resilience', icon:'🔥', pos:'support', issueKey:'disaster_resilience', issueStance:'support', text:'Sponsored legislation to strengthen disaster recovery funding and expand pre-disaster mitigation.', evidence:'Sponsored HB 239 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0239.html'} },
+      { topic:'Nuclear & Energy Infrastructure', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Laid the groundwork for Utah\'s nuclear-energy future, creating the Nuclear Energy Consortium and Utah Energy Council.', evidence:'Sponsored HB 249 (2025) and HB 124 (2024).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0249.html'} },
+      { topic:'Private-Land Big Game', icon:'⚖️', pos:'support', issueKey:'lands_balance', issueStance:'support', text:'Sponsored a measure setting the criteria and procedures for a private-landowner hunting-permit draw and the handling of vouchers.', evidence:'Sponsored H.B. 202 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0202.html'} },
       { topic:'Reliable, Affordable Rural Energy', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support',
         text:'A central-Utah voice for keeping rural power reliable and affordable, with years of work on the Legislature\'s public-utilities and energy issues.',
         detail:'Represents a district whose economy is tied to traditional energy and resource production, and has consistently defended that base against rapid mandate-driven change.' },
@@ -1935,9 +1943,6 @@
         text:'Lead Senate sponsor of the SAVE America Act, which would require documentary proof of citizenship to register and photo ID to vote in federal elections, and require states to remove noncitizens from the rolls.',
         evidence:'Introduced the SAVE America Act with Rep. Chip Roy, Jan. 30, 2026.',
         source:{label:'lee.senate.gov', url:'https://www.lee.senate.gov/2026/1/senator-mike-lee-introduces-save-america-act-with-congressman-chip-roy'} },
-      { topic:'Tariffs & Trade Authority', icon:'💵', pos:'mixed', issueKey:'econ_trade', issueStance:'mixed',
-        text:'A past author of a bill to require congressional approval of presidential tariffs (the Global Trade Accountability Act), Lee declined to reintroduce it in 2025, deferring to the president\'s use of delegated tariff authority — a shift from his earlier free-trade advocacy.',
-        source:{label:'The Dispatch', url:'https://thedispatch.com/article/mike-lee-trump-tariffs/'} },
       { topic:'Permitting Reform & Grid/Data-Center Demand', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support',
         text:'As chairman of the Senate Energy and Natural Resources Committee, champions NEPA and broader permitting reform and has convened hearings on grid reliability and AI/data-center power demand, favoring baseload sources such as nuclear and natural gas.',
         source:{label:'E&E News', url:'https://www.eenews.net/articles/mike-lee-sets-hearing-on-grid-infrastructure/'} },
@@ -2816,7 +2821,6 @@
       { topic:'Taxes & Limited Government', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support',
         text:'One of the youngest members of House leadership, she backs the Legislature\'s income-tax cuts and a limited-government, pro-growth agenda for the booming southwest valley.' },
       { topic:'Immigration Enforcement', icon:'🛡', pos:'support', issueKey:'border_security', issueStance:'support', text:'Supports aligning Utah with federal deportation efforts, requiring sheriffs and Corrections to coordinate with immigration authorities before releasing unlawfully-present individuals.', evidence:'Sponsored HB 226 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0226.html'} },
-      { topic:'Maternal & Infant Health', icon:'🍼', pos:'support', issueKey:'family_support', issueStance:'support', text:'Improved maternal and infant health outcomes and supported deaf, blind, and English-learner students.', evidence:'Sponsored HB 363, HB 537, and HB 42 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0363.html'} },
       { topic:'Foreign-Lobbying Disclosure', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support', text:'Sponsored a transparency measure requiring people who lobby on behalf of foreign governments to register as lobbyists in Utah.', evidence:'Sponsored H.B. 90 (2022), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2022/bills/static/HB0090.html'} },
       { topic:'Maternal & Infant Health', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored a measure requiring correctional facilities to screen newly admitted women for pregnancy and updating the postnatal and early-childhood advisory board.', evidence:'Sponsored H.B. 363 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0363.html'} },
     ],
@@ -3708,22 +3712,6 @@
         evidence:'Joined the Texas v. Pennsylvania amicus brief (Dec 2020).',
         source:{label:'Deseret News', url:'https://www.deseret.com/utah/2022/9/26/23366939/utah-attorney-general-sean-reyes-ethics-complaint-donald-trump-2020-election-fraud/'} },
     ],
-    derek_brown: [
-      { topic:'Child Online Safety & Big Tech', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
-        text:'Calls protecting children online "one of my highest priorities," pressing the state\'s lawsuits against social-media platforms over harms to minors.',
-        detail:'Advanced Utah\'s suit against TikTok over alleged exploitation through its Live feature and filed a new suit against Snap (Snapchat) in June 2025.',
-        evidence:'Advanced Utah\'s TikTok litigation (2025); filed suit against Snap Inc. (June 2025).',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/utah-court-denies-tiktoks-motion-to-dismiss-in-landmark-childrens-protection-lawsuit/'} },
-      { topic:'Trust & Ethics in the Office', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
-        text:'Entered office pledging to "return trust" to an Attorney General\'s Office shaken by his predecessor\'s controversies, emphasizing ethics and transparency.',
-        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/01/03/attorney-general-derek-brown-wants-to-return-trust-to-the-office/'} },
-      { topic:'Federalism & Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
-        text:'A constitutional and appellate attorney who frames public-lands and state-authority questions around federalism and Utah\'s control of its own land.',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
-      { topic:'Fentanyl & Public Safety', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support',
-        text:'Names fentanyl and public safety among the office\'s top enforcement priorities.',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
-    ],
     moaks: [
       { topic:'ESG / Politicized Investing', icon:'💰', pos:'oppose', issueKey:'econ_growth', issueStance:'support',
         text:'One of the nation\'s most prominent state officials opposing ESG investing; in 2022 he pulled about $100 million of state funds from BlackRock, arguing ESG breaches the fiduciary duty owed to Utahns.',
@@ -4091,7 +4079,6 @@
       { topic:'Maternal Health Coverage', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Required state-employee insurance to cover doula, licensed-midwife, and birth-center services, framing it as a health and cost-saving measure for working families.', evidence:'Chief sponsor of HB 415 (2023).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2023/bills/static/HB0415.html'} },
       { topic:'Second-Chance Employment', icon:'🤝', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Advocates for public entities to hire qualified people with criminal records, arguing employment is vital to reintegration after incarceration.', evidence:'Sponsored HCR 022 (2022).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2022/bills/static/HCR022.html'} },
       { topic:'Public Schools & Student Transit', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Modernized student-transportation eligibility so more students qualify for school-bus service.', evidence:'Sponsored HB 161 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0161.html'} },
-      { topic:'Pollinator Habitat', icon:'🐝', pos:'support', issueKey:'enviro_balance', issueStance:'support', text:'Sponsored the measure that repealed the sunset on Utah’s pollinator-habitat program and made it permanent.', evidence:'Sponsored H.B. 251 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0251.html'} },
       { topic:'Student Transportation', icon:'🚆', pos:'support', issueKey:'transit', issueStance:'support', text:'Sponsored a measure amending student eligibility for state-supported school transportation.', evidence:'Sponsored H.B. 161 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0161.html'} },
     ],
     chris_mcconnehey: [ // Chris McConnehey
@@ -4282,14 +4269,6 @@
       { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Campaigned on a commitment to protect Utah water rights.' },
       { topic:'Income Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Campaigned on a commitment to cut government waste and the tax burden.' },
     ],
-    calbrecht: [ // Carl Albrecht
-      { topic:'Public Lands & Federalism', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Sponsored legislation to protect ranchers\' public-lands watering rights from federal overreach.', evidence:'Sponsored HB 47 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0047.html'} },
-      { topic:'Water Conservation', icon:'💧', pos:'support', issueKey:'water', issueStance:'support', text:'Sponsored legislation to strengthen state water policy and expand Division of Water Rights legal support.', evidence:'Sponsored HB 41 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0041.html'} },
-      { topic:'Agriculture & Rural Communities', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored legislation to modernize Department of Agriculture and improve rural veterinarian access.', evidence:'Sponsored HB 253 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0253.html'} },
-      { topic:'Disaster Resilience', icon:'🔥', pos:'support', issueKey:'disaster_resilience', issueStance:'support', text:'Sponsored legislation to strengthen disaster recovery funding and expand pre-disaster mitigation.', evidence:'Sponsored HB 239 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0239.html'} },
-      { topic:'Nuclear & Energy Infrastructure', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Laid the groundwork for Utah\'s nuclear-energy future, creating the Nuclear Energy Consortium and Utah Energy Council.', evidence:'Sponsored HB 249 (2025) and HB 124 (2024).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0249.html'} },
-      { topic:'Private-Land Big Game', icon:'⚖️', pos:'support', issueKey:'lands_balance', issueStance:'support', text:'Sponsored a measure setting the criteria and procedures for a private-landowner hunting-permit draw and the handling of vouchers.', evidence:'Sponsored H.B. 202 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0202.html'} },
-    ],
     calvin_roberts: [ // Calvin Roberts
       { topic:'Roads & Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Sponsored legislation to reform transportation procurement in Utah.', evidence:'Sponsored HB 471 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0471.html'} },
       { topic:'Housing Affordability', icon:'🏗', pos:'support', issueKey:'housing_build', issueStance:'support', text:'Has worked to keep land-use decisions local.' },
@@ -4397,7 +4376,6 @@
       { topic:'Volunteer EMS Support', icon:'🚑', pos:'support', issueKey:'health_rural', issueStance:'support', text:'Expanded insurance-program protections for volunteer emergency medical service personnel.', evidence:'Sponsored HB 298 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0298.html'} },
       { topic:'Civics Education', icon:'🏛', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored a law adding a course on American constitutional government and citizenship to high-school graduation requirements, citing a civics gap.', evidence:'Chief-sponsored HB 381 (2025).', source:{label:'Deseret News', url:'https://www.deseret.com/utah/2025/04/14/utah-governor-cox-signs-bevy-of-education-bills/'} },
       { topic:'Phone-Free Classrooms', icon:'📵', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'House floor sponsor of the "bell-to-bell" law setting a default statewide policy that students keep phones away from first to last bell, with local implementation.', evidence:'House sponsor of SB 69 (2026).', source:{label:'Utah News Dispatch', url:'https://utahnewsdispatch.com/2026/02/27/utah-legislature-approves-bell-to-bell-school-cellphone-ban/'} },
-      { topic:'Glass Recycling', icon:'♻️', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Sponsored a glass-recycling law, signed in March 2025.', evidence:'Chief-sponsored HB 177 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0177.html'} },
       { topic:'Education Innovation', icon:'🎓', pos:'support', issueKey:'school_choice', issueStance:'support', text:'A high-school teacher who has sponsored an Education Innovation Program bill aimed at flexibility in K-12 education.', evidence:'Sponsored HB 386 Education Innovation Program.', source:{label:'Ballotpedia', url:'https://ballotpedia.org/Doug_Welton'} },
       { topic:'Agriculture Accountability', icon:'🌾', pos:'support', issueKey:'rural_ag', issueStance:'support', text:'Sponsored a measure requiring an annual accountant’s review of a Department of Agriculture account holding marketing-order proceeds.', evidence:'Sponsored H.B. 346 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0346.html'} },
       { topic:'Glass Recycling', icon:'⚖️', pos:'support', issueKey:'enviro_balance', issueStance:'support', text:'Sponsored a measure directing the state to study how to increase glass recycling and report recommendations to lawmakers.', evidence:'Sponsored H.B. 177 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0177.html'} },
@@ -4459,7 +4437,6 @@
       { topic:'School Safety & Student Health', icon:'🍎', pos:'support', issueKey:'public_schools', issueStance:'support', text:'Sponsored legislation to protect student vision health in schools.', evidence:'Sponsored HB 351.' },
       { topic:'Immigrant & Refugee Representation', icon:'🤝', pos:'support', issueKey:'immigration_reform', issueStance:'support', text:'Utah\'s first Vietnamese-American refugee legislator, focused on representation and services for immigrant and refugee communities.' },
       { topic:'Air Quality & Environment', icon:'🌱', pos:'support', issueKey:'climate_action', issueStance:'support', text:'Focuses on environmental quality and emissions reduction, modernizing state CO2 system-safety rules in 2026.', evidence:'Sponsored HB 240 (2026).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2026/bills/static/HB0240.html'} },
-      { topic:'Emergency Medical Services', icon:'🚑', pos:'support', issueKey:'health_rural', issueStance:'support', text:'Passed legislation improving Utah\'s emergency medical services system.', evidence:'Primary sponsor of HB 391 (2025), passed the House 68–0.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0391.html'} },
       { topic:'Emergency Medical Services', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Sponsored a measure giving the state EMS bureau enforcement authority and directing a recommended annual schedule of fines for the emergency-medical system.', evidence:'Sponsored H.B. 391 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0391.html'} },
     ],
     jake_hunsaker: [ // Jake Hunsaker
@@ -4705,7 +4682,6 @@
       { topic:'Property-Tax Transparency', icon:'🏡', pos:'support', issueKey:'property_tax', issueStance:'support', text:'Co-sponsored Truth-in-Taxation reform strengthening public notice before local property-tax increases.', evidence:'Co-sponsored HB 236 (2026).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2026/bills/static/HB0236.html'} },
       { topic:'Foreign Land Ownership', icon:'🌐', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Cosponsored Security and Land Restriction Amendments tightening provisions on the sale of Utah land to restricted foreign entities.', evidence:'Cosponsor of HB 291 (2026).', source:{label:'le.utah.gov', url:'https://le.utah.gov/Session/2026/bills/enrolled/HB0291.pdf'} },
       { topic:'Childhood Independence', icon:'🧒', pos:'support', issueKey:'edu_parental', issueStance:'support', text:'Testified for legislation encouraging childhood independence and free play, reflecting a parental-rights, reduced-intervention view of raising children.', source:{label:'Ballotpedia', url:'https://ballotpedia.org/Leah_Hansen_(Utah)'} },
-      { topic:'Limiting DEI Programs', icon:'🏛', pos:'support', issueKey:'gov_balance', issueStance:'support', text:'Publicly supported HB 261, the 2024 law restricting diversity, equity, and inclusion programs in Utah government and higher education.', source:{label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Leah_Hansen'} },
       { topic:'Tax Relief for Families', icon:'📉', pos:'support', issueKey:'tax_middle_class', issueStance:'support', text:'A House majority member during the 2026 session that cut taxes for a sixth consecutive year, lowered the gas tax, and expanded the child tax credit.', source:{label:'Utah House', url:'https://house.utleg.gov/utahs-2026-legislative-session-lower-costs-stronger-families-and-long-term-investments/'} },
     ],
     lili_bitner: [ // Lili Bitner
@@ -4761,7 +4737,6 @@
       { topic:'Criminal-Justice Reform', icon:'🤝', pos:'support', issueKey:'justice_reform', issueStance:'support', text:'Sponsored inmate-reentry reforms suspending debt interest during incarceration and expanded jury eligibility for rehabilitated former felons.', evidence:'Sponsored HB 224 (2025) & HB 49 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0224.html'} },
       { topic:'Child Labor Protections', icon:'🛠', pos:'support', issueKey:'econ_workers', issueStance:'support', text:'Sponsored a law creating tiered penalties for child-labor violations; it passed the House 71-0.', evidence:'Sponsored HB 19 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0019.html'} },
       { topic:'Clean-Vehicle Incentives', icon:'⚡', pos:'support', issueKey:'enviro_energy', issueStance:'support', text:'Created tax credits to incentivize clean hydrogen-fueled vehicles.', evidence:'Sponsored HB 223 (2021).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2021/bills/static/HB0223.html'} },
-      { topic:'Government Efficiency', icon:'⚙️', pos:'support', issueKey:'reform_balance', issueStance:'support', text:'Let state agencies that demonstrate cost savings retain a share through government-efficiency incentives.', evidence:'Sponsored HB 317 (2025).', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0317.html'} },
       { topic:'Government Efficiency', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Sponsored a measure directing the state budget office to identify, reward, and measure cost- and time-saving efficiency improvements by agencies and employees.', evidence:'Sponsored H.B. 317 (2025), signed into law.', source:{label:'le.utah.gov', url:'https://le.utah.gov/~2025/bills/static/HB0317.html'} },
     ],
     mike_kohler: [ // Mike Kohler
@@ -5131,7 +5106,6 @@
       { topic:'Education & Workforce', icon:'🎓', pos:'support', issueKey:'edu_balance', issueStance:'support', text:'Wants to align education more closely with career and workforce readiness.' },
       { topic:'Plan Growth & Water', icon:'🚰', pos:'support', issueKey:'water_storage', issueStance:'support', text:'Argues for planning infrastructure and water before approving new density.' },
       { topic:'Limited Government & Free Markets', icon:'🗽', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'Champions responsible but limited government, free markets, personal freedom and strong families as his core governing philosophy.', source:{label:'votesambarlow.com', url:'https://www.votesambarlow.com/'} },
-      { topic:'Limited Government & Free Markets', icon:'📈', pos:'support', issueKey:'econ_growth', issueStance:'support', text:'Champions responsible but limited government, free markets, personal freedom and strong families as his core governing philosophy.' },
     ],
     scott_stephenson: [ // Scott Stephenson — Utah House District 44 (2026 candidate, former law enforcement)
       { topic:'Public Safety', icon:'👮', pos:'support', issueKey:'back_police', issueStance:'support', text:'A 28-year law-enforcement veteran and Utah Fraternal Order of Police director who prioritizes public safety.' },
@@ -7420,6 +7394,24 @@
       { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement across the state.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
     ],
     derek_brown_ut: [ // Derek Brown — ⚖️ Utah Attorney General (R)
+      // Merged from the retired `derek_brown` id (July 2026 surface-split
+      // sweep). Grafted ABOVE the original cards because two issueKeys
+      // collide — tech_balance and lands_local — and findStance() returns the
+      // FIRST match, so the sourced, more specific card has to come first.
+      { topic:'Child Online Safety & Big Tech', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'Calls protecting children online "one of my highest priorities," pressing the state\'s lawsuits against social-media platforms over harms to minors.',
+        detail:'Advanced Utah\'s suit against TikTok over alleged exploitation through its Live feature and filed a new suit against Snap (Snapchat) in June 2025.',
+        evidence:'Advanced Utah\'s TikTok litigation (2025); filed suit against Snap Inc. (June 2025).',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/utah-court-denies-tiktoks-motion-to-dismiss-in-landmark-childrens-protection-lawsuit/'} },
+      { topic:'Trust & Ethics in the Office', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'Entered office pledging to "return trust" to an Attorney General\'s Office shaken by his predecessor\'s controversies, emphasizing ethics and transparency.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/01/03/attorney-general-derek-brown-wants-to-return-trust-to-the-office/'} },
+      { topic:'Federalism & Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'A constitutional and appellate attorney who frames public-lands and state-authority questions around federalism and Utah\'s control of its own land.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
+      { topic:'Fentanyl & Public Safety', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support',
+        text:'Names fentanyl and public safety among the office\'s top enforcement priorities.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
       { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules.', evidence:'Utah Attorney General since 2025; a former Utah legislator and state Republican Party chair.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
       { topic:'Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backs Utah’s effort to assert state control over federal public lands, including a challenge over unappropriated lands.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
       { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes fentanyl and violent-crime enforcement.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },

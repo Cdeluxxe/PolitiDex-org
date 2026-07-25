@@ -70,12 +70,34 @@ function loadStanceHelpers() {
     },
     setTimeout, clearTimeout, JSON, Math, Date,
   };
+  ctx.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  ctx.navigator = { userAgent: "node" };
+  ctx.location = { href: "", search: "", hash: "" };
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
   const sandbox = vm.createContext(ctx);
-  vm.runInContext(read("politician-stances.js"), sandbox,
-    { filename: "politician-stances.js" });
+  // Load the stance shards the PAGE loads, in the page's own order, derived from
+  // its <script> tags. politician-stances.js is the pre-split 1.7MB monolith and
+  // index.html no longer references it, so loading that instead left this file
+  // asserting against a stale 882-key table while the browser resolved against a
+  // live 1058-key one — which is how 18 dead stance keys stayed green. Deriving
+  // the list here means the harness and the page cannot drift again.
+  // my-stances.js is excluded on purpose: it holds the VISITOR's own saved
+  // positions, not curated politician stances.
+  const stanceFiles = [];
+  const tagRe = /<script[^>]*\bsrc="([^"]*stances[^"]*\.js)"/g;
+  let tag;
+  const indexSrc = read("index.html");
+  while ((tag = tagRe.exec(indexSrc))) {
+    const f = tag[1];
+    if (f === "my-stances.js" || stanceFiles.includes(f)) continue;
+    try { readFileSync(join(ROOT, f)); } catch (e) { continue; }  // not shipped
+    stanceFiles.push(f);
+  }
+  if (!stanceFiles.length) throw new Error("no stance shards found in index.html script tags");
+  for (const f of stanceFiles) vm.runInContext(read(f), sandbox, { filename: f });
   vm.runInContext(read("stance-helpers.js"), sandbox,
     { filename: "stance-helpers.js" });
+  ctx.__stanceFiles = stanceFiles;
   return ctx.window;
 }
 const win = loadStanceHelpers();
@@ -92,7 +114,7 @@ function loadGlobal(file, ...names) {
 // Read the stance table off the helpers sandbox, which now loads it: that way the
 // table this file inspects is the SAME object _resolveStanceList() resolves against,
 // so a resolved block can be identified by reference rather than by guesswork.
-const STANCES = win.ISSUE_STANCE_DATA || loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
+const STANCES = win.ISSUE_STANCE_DATA;
 const SPOTLIGHTS = loadGlobal("spotlights-data.js", "SPOTLIGHTS", "PDX_SPOTLIGHTS");
 const ROSTER = loadGlobal("cmp-data.js", "CMP_DATA");
 const memberMap = JSON.parse(read("db/vr-member-map.json"));
@@ -506,9 +528,11 @@ ok(byName.size > 100,
 // both layers agreeing on the wrong answer so nothing internal could catch it.
 // `rshipp` was wired at 75 and labelled St. George when Rex Shipp lives in Cedar City
 // and holds 71; `hollins_h24` was at the 24 its suffix encodes when Sandra Hollins
-// has held 21 since 2023. Only the public record settles these, which is why the
-// roster-vs-map check below (10h) exists: it cannot detect a wrong seat both layers
-// agree on, but it catches the moment they stop agreeing.
+// has held 21 since 2023; `eliason_h45` read District 45 in its suffix, its roster
+// label AND its regional race card when Steve Eliason has held 43 since the 2023
+// renumbering. Only the public record settles these, which is why the roster-vs-map
+// check below (10h) exists: it cannot detect a wrong seat both layers agree on, but it
+// catches the moment they stop agreeing.
 //
 // A sixth class lived entirely in the seventh map, which nothing here referenced until
 // 10i was added: a region advertising the right person under the wrong district number.
@@ -525,9 +549,13 @@ ok(byName.size > 100,
 // July 2026 follow-up pass, which cleared the twelve districts this section used to
 // report as notes; see the KR_STATE_HOUSE_INCUMBENTS comment in index.html for the
 // per-district disposition. One district was DROPPED rather than guessed at — House 6,
-// whose member resigned in March 2026 and whose appointed successor has no roster
-// record — because `incPid || null` degrading to "no incumbent" is honest, whereas
-// naming the wrong person is not.
+// whose member resigned in March 2026 and whose successor has no roster record —
+// because `incPid || null` degrading to "no incumbent" is honest, whereas naming the
+// wrong person is not. A second pass then wired three seats that had been left as
+// notes only because their member had no roster record (23 Nguyen, 37 Matthews, 43
+// Eliason), taking the House map from 33 seats to 36. A seat with no id to point at
+// stays absent from BOTH tables: under bidirectionality that is the only honest way to
+// represent a district the data set does not cover.
 const SENATE_INFO = liftObjectLiteral("var _UTAH_SENATE_INFO = {", "_UTAH_SENATE_INFO");
 const SENATE_COUNTY = liftObjectLiteral("var _UTAH_SENATE_COUNTY = {", "_UTAH_SENATE_COUNTY");
 const HOUSE_INFO = liftObjectLiteral("var _UTAH_HOUSE_INFO = {", "_UTAH_HOUSE_INFO");
@@ -808,6 +836,91 @@ ok(hCountyChecked > 0, "utah maps: at least one House district county was cross-
 ok(rosterDistChecked > 0, "utah maps: at least one roster record's own district label was checked");
 ok(krLocalChecked > 0, "utah maps: at least one KEY_RACES_BY_LOCATION race was checked");
 
+// ── 11. Profile resolution must reach a real roster record ──────────────────
+// ACCT_ALIAS answers "where is the CURATED data" and its values are theme /
+// ACCT_SPOTLIGHT keys — six of which (`kivory`, `wharper`, `seliason`,
+// `klisonbee`, `dmccay`, `jteuscher`) name nobody in cmp-data.js on purpose.
+// Profile loading asks the opposite question, so it reads PDX_PROFILE_ALIAS and
+// resolves through window.PDXProfilePid(). This section pins both halves: the new
+// table may only name live records, and — the part that catches the next
+// regression rather than the last one — no id anywhere in the curated vocabulary
+// may be left unresolvable while a roster record for that person demonstrably
+// exists. That is exactly the state `ken_ivory` → `kivory` was in.
+const PROFILE_ALIAS = liftObjectLiteral(
+  "window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS ||", "PDX_PROFILE_ALIAS") || {};
+ok(Object.keys(PROFILE_ALIAS).length > 0,
+  "index.html: window.PDX_PROFILE_ALIAS was extracted (profile resolution needs it)");
+for (const [from, to] of Object.entries(PROFILE_ALIAS)) {
+  ok(!!(ROSTER && ROSTER[to]),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] → '${to}', which has no cmp-data.js ` +
+    `record — the whole point of this table is that its values are openable`);
+  ok(!RETIRED.has(to),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] → '${to}', which is retired — it would ` +
+    `resolve a click onto a dead id`);
+  ok(!(ROSTER && ROSTER[from]),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] is itself a live roster id, so the entry ` +
+    `can never be consulted (a real record always wins) — remove it`);
+  ok(from !== to, `profile alias: '${from}' may not alias to itself`);
+}
+
+// window.PDXProfilePid(), reimplemented exactly: single hop, a candidate is only
+// accepted if IT has a record, unknown ids pass through.
+const profilePid = (id) => {
+  if (!id) return id;
+  const hasRec = (x) => !!(ROSTER && ROSTER[x]);
+  if (hasRec(id)) return id;
+  if (PROFILE_ALIAS[id] && hasRec(PROFILE_ALIAS[id])) return PROFILE_ALIAS[id];
+  if (ACCT_ALIAS[id] && hasRec(ACCT_ALIAS[id])) return ACCT_ALIAS[id];
+  return id;
+};
+ok(profilePid("kivory") === "ivory_h39",
+  "profile resolution: 'kivory' must open Ken Ivory's roster record 'ivory_h39' " +
+  "(the dual-duty failure this section exists for)");
+ok(profilePid("ray_ward") === "rward",
+  "profile resolution: the ACCT_ALIAS fall-through still resolves 'ray_ward' → 'rward'");
+
+// The class-wide guard. For every id in the curated vocabulary, if profile
+// resolution fails BUT a roster record for that person is discoverable, the
+// bridge is missing. "Discoverable" means some live roster id already aliases to
+// this id (ACCT_ALIAS asserting they are one person) or a roster display name
+// slugifies to it — never a fuzzy guess. Ids with no record anywhere are skipped:
+// those need a roster record, which is a content decision, not a wiring one.
+const reverseAlias = new Map();
+for (const [k, v] of Object.entries(ACCT_ALIAS))
+  if (ROSTER && ROSTER[k]) { if (!reverseAlias.has(v)) reverseAlias.set(v, []); reverseAlias.get(v).push(k); }
+const rosterBySlug = new Map();
+for (const [rid, rec] of Object.entries(ROSTER || {})) {
+  if (!rec || typeof rec.name !== "string" || RETIRED.has(rid)) continue;
+  const s = rec.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (s && !rosterBySlug.has(s)) rosterBySlug.set(s, rid);
+}
+// ISSUE_STANCE_DATA keys belong here too: the Stance Library, the comparison
+// board and the issue view all hand their raw block key to openModal(), so a key
+// that resolves to nothing is a visible dead click. Leaving them out is why 18
+// slug-recoverable keys sat broken while this guard stayed green. Keys with no
+// discoverable roster record are still skipped below — those need a record, which
+// is a content decision.
+const curatedVocab = new Set([
+  ...Object.keys(ACCT_ALIAS), ...Object.values(ACCT_ALIAS), ...Object.keys(PROFILE_ALIAS),
+  ...Object.keys(STANCES || {}),
+]);
+let profileChecked = 0;
+for (const id of curatedVocab) {
+  const resolved = profilePid(id);
+  if (ROSTER && ROSTER[resolved]) { profileChecked++; continue; }
+  const candidates = [
+    ...(reverseAlias.get(id) || []),
+    ...(rosterBySlug.has(id) ? [rosterBySlug.get(id)] : []),
+  ].filter((c) => ROSTER && ROSTER[c] && !RETIRED.has(c));
+  ok(candidates.length === 0,
+    `profile resolution: id '${id}' opens no profile, but '${candidates[0]}' is a live ` +
+    `roster record for the same person — add PDX_PROFILE_ALIAS['${id}'] = ` +
+    `'${candidates[0]}' so the click, deep link and saved pick resolve`);
+}
+ok(profileChecked > 0,
+  "profile resolution: at least one curated id resolved to a roster record, or this " +
+  "check is vacuously green");
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);
@@ -816,6 +929,7 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ identity integrity: all ${passed} assertions passed`);
+console.log(`  stance table read from ${(win.__stanceFiles || []).length} shard(s) the page loads`);
 console.log(`  ${RETIRED.size} retired id(s) [${[...RETIRED].join(", ")}] · ` +
   `${Object.keys(STANCES || {}).length} stance blocks · ${cards.length} spotlight cards ` +
   `(${idChecked} id-resolved, ${labelChecked} label-checked vs roster) · ` +

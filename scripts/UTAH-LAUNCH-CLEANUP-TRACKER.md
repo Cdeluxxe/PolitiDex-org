@@ -190,3 +190,1011 @@ in the local tier. Script: `scripts/deep-dive-launch-polish-jul2026.mjs`
   suburbs (Murray, Riverton, Cottonwood Heights, Taylorsville), still open.
 - **Firestore evidence layer** for the new/enriched records (Ramsey, Tran) is not
   written by this client-side script — reconcile in a follow-up `--apply` pass.
+
+---
+
+# Identity Merge + Duplicate-Topic Collapse + District 6 (July 2026)
+
+Three corrective items, no new content. Script:
+`scripts/merge-albrecht-dedupe-topics-jul2026.mjs` (idempotent, dry-run by default;
+`--apply` to write, then regenerate chunks with `split-stances.mjs`). The District 6
+piece is hand-edited rather than scripted — it is one roster record and four label
+surfaces, not a repeatable transform.
+
+## 1. `calbrecht` → `carl_albrecht` (duplicate identity merged)
+
+One person under two ids, split by **surface** rather than by district:
+
+| Layer | Held by |
+|---|---|
+| Roster record, browse profile, `_UTAH_HOUSE_INFO` d:70, `KR_STATE_HOUSE_INCUMBENTS[70]`, spotlight-cards-data.js, 3 **unsourced** stance cards | `carl_albrecht` |
+| 6 **bill-sourced** stance cards, acct-spotlight-data.js Evidence Locker, ACCT_THEME blurb, consistency.js headline, a Power-Map META row mis-tagged `STATE SENATE` | `calbrecht` |
+
+`carl_albrecht` is canonical because it is the **roster** id — making the id with no
+cmp-data.js record canonical would mean re-pointing the roster, the browse node and
+both Utah House maps at a key that names nobody. Union merge: all six sourced cards
+moved into the canonical block **above** its three unsourced ones, so an
+issueKey-only `findStance()` lookup resolves the sourced card first (the canonical
+block's own `enviro_energy` and `rural_ag` cards are the weak ones). The retired id
+is registered in `db/vr-pid-aliases.json` (+ `PDX_PID_ALIASES` / `STANCE_ALIASES`
+mirrors) and index.html's `ACCT_ALIAS` keeps an old saved pick resolvable. The
+Power-Map row was re-keyed and re-tagged `['pm-tier-state','STATE HOUSE','sevier',
+'district2']` — it had never rendered, because `pmInjectDynamicCards` only injects
+ids present in `PROFILES`.
+
+**Remaining gap:** `carl_albrecht` still carries the 3 inherited **unsourced** cards
+— "Reliable, Affordable Rural Energy" (`enviro_energy`), "Rural Jobs & Economic
+Development" (`econ_growth`) and "Agriculture, Water & Rural Communities"
+(`rural_ag`), all general-philosophy text. Two of the three duplicate an issueKey
+already covered by a sourced card, which is why the sourced cards were grafted above
+them. Source or replace them in the legislative-sourcing backlog above.
+
+## 2. District 6 → `rob_bishop` (the content decision the prior pass declined)
+
+Matthew Gwynn resigned effective March 2026; Rob Bishop won the **April 25, 2026** GOP
+delegate special election and was seated **May 6, 2026**, filling the remainder of a
+term that ends January 2027 (he is also the R nominee in November, vs. James Rich,
+Forward Party). He was in the data set only as a *former* U.S. Representative — 6
+stance cards, 1 Spotlight card, a portrait — with no roster record, which is why the
+seat had been left at "no incumbent".
+
+Chosen representation: **one id, current office.** Two ids for one living person is
+exactly the split item 1 had just been merged out of. The cost is that `office` can
+only name the seat he holds now (`"Utah State Representative"`) — assertion **10g**
+rejects any `/former/` office on a pid in `_UTAH_HOUSE_INFO`, and should, since that
+check is what caught `gwynn_h6` outliving its member. So his federal service is
+carried where a reader sees it *and* where it can be dated:
+
+| Surface | Value |
+|---|---|
+| cmp-data.js `rob_bishop` | `office` "Utah State Representative", `state` "UT District 6 (Box Elder / Weber County)", `termStart` 2026-05, **no** `termEnd`, `score`/`kept`/`broken`/`pending` null/0, `issues` lifted verbatim from his own stance topics |
+| `_UTAH_HOUSE_INFO` | `{ d: 6, c: 'Weber County' }` — Weber because 10f requires it to equal `_UTAH_HOUSE_COUNTY[6]`; the district spans Box Elder too, which the roster `state` string says |
+| `KR_STATE_HOUSE_INCUMBENTS` | `6:'rob_bishop'` (37 of 75 seats now wired) |
+| index.html ACCT_THEME blurb | names "former Utah House Speaker and nine-term U.S. Representative (2003–2021)" and the May 2026 return |
+| spotlights-data.js | label `Utah State Representative · Former U.S. Representative (2003–2021)` (was `Former U.S. Representative · Utah`) |
+
+**Flagged, not rewritten:** two of his six cards are phrased from the campaign ("Has
+worked to *return* to Utah state legislature…", "…a priority *on returning* to the
+Utah House"). They are unsourced, so re-tensing them is content work, not identity
+repair. Fix them when they get sourced.
+
+## 3. Ten duplicate stance topics collapsed
+
+A repeated `topic` string on one person makes the later card **unreachable** —
+`findStance()` returns the first exact topic match. Each pair kept the card with a
+source and the stronger text; nothing unique to a person was removed.
+
+| Politician | Topic | Kept (issueKey) | Dropped (issueKey) |
+|---|---|---|---|
+| `michael_guest` | Taxes & Cost of Living | `tax_middle_class` | `lower_taxes` (verbatim-identical text) |
+| `mike_ezell` | Taxes & Cost of Living | `tax_middle_class` | `lower_taxes` (verbatim-identical text) |
+| `lee` | Tariffs & Trade Authority | `tariffs_authority` | `econ_trade` |
+| `candice_pierucci` | Maternal & Infant Health | `healthcare` | `family_support` |
+| `ashlee_matthews` | Pollinator Habitat | `lands_preserve` | `enviro_balance` |
+| `doug_welton` | Glass Recycling | `enviro_balance` | `enviro_energy` |
+| `hoang_nguyen` | Emergency Medical Services | `healthcare` | `health_rural` |
+| `leah_hansen` | Limiting DEI Programs | `end_dei` | `gov_balance` |
+| `mballard` | Government Efficiency | `gov_waste` | `reform_balance` |
+| `sam_barlow` | Limited Government & Free Markets | `gov_waste` | `econ_growth` |
+
+**Dropped unsourced facts / details worth re-adding WITH sourcing** (per this file's
+convention — real, but the surviving card does not carry them):
+
+- `candice_pierucci` — the dropped card cited **HB 537 and HB 42 (2025)** alongside
+  HB 363 and mentioned support for **deaf, blind and English-learner students**. The
+  keeper covers only the pregnancy-screening / postnatal-board measure.
+- `hoang_nguyen` — the dropped card recorded that HB 391 (2025) **passed the House
+  68–0**. The keeper describes the bill but not the margin.
+- `mballard` — the dropped card's framing that agencies **retain a share of the
+  savings** they demonstrate is sharper than the keeper's "identify, reward, and
+  measure".
+- `doug_welton` — the dropped card said HB 177 was **signed in March 2025**; the
+  keeper describes a study-and-report directive with no signing date.
+- `leah_hansen` — the dropped card sourced her HB 261 support to **Wikipedia**; the
+  keeper sources the same claim to le.utah.gov, so nothing was lost.
+
+Corpus after: **883 stance blocks · 4,426 cards · 0 blocks with a duplicate topic**,
+verified by walking every card of all ten politicians back through a `findStance()`
+stand-in. `scripts/test-identity-integrity.mjs`: **6,100 assertions, 0 failures**,
+and its duplicate-topic note block no longer prints.
+
+## Still open after this pass
+
+- **District 45** (Tracy Miller) is wired to nobody — she is not in the data set.
+  Coverage gap, not a wrong label. *(Closed by the pass below.)*
+- **District 64** (Jackie Larson, succeeded Jeff Burton May 5, 2026) and **Grant
+  Pace's Provo seat**, both seated the same week as Bishop: same coverage gap.
+  Neither seat is wired to a stale predecessor (`jburton` has no roster record and
+  appears in neither Utah map), so there is nothing to correct — only content to add.
+  *(Closed by the pass below.)*
+- **38 of 75 House districts** have no id in the data set holding them. With 10e
+  bidirectional, the honest state of an uncovered seat is no key at all.
+- ~9 historical one-off scripts still contain the literal `calbrecht` key. They are
+  already-run passes and were deliberately left untouched.
+
+---
+
+# Last Open House Seats With Confirmed Members (July 2026)
+
+Identity wiring only, hand-edited (three roster records and two map entries each — not
+a repeatable transform). All three people were **already content-bearing** here: each
+had a curated stance block and no cmp-data.js record, which is exactly what had kept
+them out of both Utah House tables, since 10e/10g need an office and a district to
+check. Same minimal pattern as `rob_bishop` / `hoang_nguyen` / `ashlee_matthews`:
+`score` null, kept/broken/pending 0, `issues` lifted **verbatim** from the person's own
+stance-card topics, no `termEnd`.
+
+| Id | District (confirmed) | Roster `state` | `termStart` | Evidence |
+|---|---|---|---|---|
+| `tracy_miller` | **45** — Salt Lake County | UT District 45 (South Jordan, Salt Lake County) | 2025-01 | R-South Jordan, assumed office Jan 1 2025, succeeded Susan Pulsipher; district covers South Jordan / Sandy / Riverton. 7 years on the Jordan Board of Education, two terms as president — which matches the "former school board president" note already on her stance block. |
+| `grant_pace` | **60** — Utah County | UT District 60 (Provo, Utah County) | 2026-05 | R-Provo, sworn in May 2026 (Wikidata start date May 5; oath administered May 6 by Speaker Schultz) after **Tyler Clancy** resigned on appointment as state homelessness coordinator. District 60 covers northern Provo. |
+| `jackie_larson` | **64** — Utah County | UT District 64 (Spanish Fork / Salem, Utah County) | 2026-05 | R-Spanish Fork, assumed office May 5 2026 by convention special election for the remainder of **Jefferson Burton**'s term; Burton resigned after moving out of the district. District 64 covers Woodland Hills, Salem, Spanish Fork, Leland, Benjamin, Lake Shore, Palmyra. |
+
+Every `c` value equals `_UTAH_HOUSE_COUNTY[d]`, which 10f requires (45 → Salt Lake, 60
+and 64 → Utah County). Nothing else was touched: no stances, no scores, no blurbs.
+
+**Coverage: 40 of 75 House seats** (was 37), still bidirectional and green —
+`_UTAH_HOUSE_INFO` and `KR_STATE_HOUSE_INCUMBENTS` have the same 40 pids.
+
+## Confirmed non-bugs
+
+- **No stale predecessor held any of the three seats.** `jburton`, `tyler_clancy` and
+  Susan Pulsipher have **no cmp-data.js roster record** and appear in neither Utah
+  House table, so districts 45, 60 and 64 were genuinely uncovered rather than
+  mis-held. (Susan Pulsipher is not in the data set at all; the only Pulsipher here is
+  `roger_pulsipher`, a Cache County school-board member.)
+- **The Provo seat is 60, not 61.** District 61 is Lisa Shepherd's and is what the
+  `utah_co` KEY_RACES_BY_LOCATION block features — an easy conflation to make while
+  wiring a second Provo-area member.
+
+## Mismatches found and deliberately left (content calls, not wiring)
+
+- **`jburton` Power-Map META row** reads `['pm-tier-state','STATE HOUSE','davis',
+  'district1']`. *Both* halves are wrong: Salem is Utah County (UT-3, not Davis /
+  UT-1), and he has been a former member since March 2026. Fixing the county while
+  leaving the sitting-member tier would be half a repair, and retiring the row is a
+  decision about how former members appear on the Power Map.
+- **`tclancy` Power-Map META row** (`utah_co`/`district3`) is geographically right but
+  has the same tier problem — Clancy left the House in May 2026 — and his ACCT_THEME
+  blurb still describes him in the present tense as "a working Provo police detective
+  and one of the chamber's youngest members". Same content call.
+- **Browse directory / `PROFILES`.** None of the Utah House records added by any of
+  these passes (Bishop, Nguyen, Matthews, and now Miller, Pace, Larson) is in the
+  static directory-backfill list in index.html, so none of them gets a Power-Map card:
+  `pmInjectDynamicCards` only injects ids present in `PROFILES`. Adding them there is a
+  visibility decision about the public directory, so it was left alone for consistency
+  with the earlier passes rather than changed silently here.
+- **`grant_pace` and `jackie_larson` stance cards are entirely unsourced** (4 each,
+  campaign-platform text), and `tracy_miller`'s 8 are mixed (3 with le.utah.gov bill
+  sources: HB 290 (2026), H.B. 76 (2025), H.B. 268 (2025)). They belong to the
+  legislative-sourcing backlog above.
+
+# Full-Chamber Sweep + Senate Catch-Up (July 2026, fifth pass)
+
+`scripts/wire-utah-sweep-jul2026.mjs` — idempotent, dry-run by default, `--apply` to
+write. 28 edits across `cmp-data.js`, `index.html` and `spotlights-data.js`.
+
+The first four passes each found their seats reactively, one note at a time. This pass
+swept **all 75 House and all 29 Senate districts** against both info maps and both
+`KR_STATE_*_INCUMBENTS` tables at once, looking for the specific failure the earlier
+passes kept tripping over: a **confirmed sitting member with curated content but no
+cmp-data.js roster record**, which is invisible to 10e/10g because there is no office or
+district string to check.
+
+## 1. Senate districts 4, 11, 14, 15, 22 — all five closed (29 of 29)
+
+These were the last seats absent from both Senate tables. They had been left as *no key
+at all* rather than a guess, which was the right call, and four of the five turned out to
+be blocked only on a missing record.
+
+| District | Id | Member | `termStart` | Evidence |
+|---|---|---|---|---|
+| **4** | `cmusselman` | Calvin "Cal" Musselman (R) | 2025-01 | West Haven, **Weber County**. Seated Jan 1 2025, succeeding D. Gregg Buxton; previously House District 8. Already had a Power-Map row and browse presence here. |
+| **11** | `emily_buss` | Emily Buss (**Forward Party**) | 2025-12 | Eagle Mountain. Appointed Dec 12 2025, seated Dec 17, filling the vacancy from **Daniel Thatcher**'s Oct 2025 resignation. District spans Utah and Tooele counties; home county is Utah. |
+| **14** | `stephanie_pitcher` | Stephanie Pitcher (D) | 2023-01 | Salt Lake City / Millcreek. Won the seat in 2022 succeeding Jani Iwamoto; **served House District 40 before that**, which is why one of her Spotlight cards still called her a Representative. |
+| **15** | `kathleen_riebe` | Kathleen Riebe (D) | 2019-01 | Cottonwood Heights. **Senate Minority Whip.** Elected 2018 to the pre-redistricting District 8; the same territory is 15 post-2023. |
+| **22** | `heidi_balderree` | Heidi Balderree (R) | 2023-10 | Saratoga Springs. Seated Oct 24 2023 succeeding **Jake Anderegg** (`janderegg`, correctly a former member here). |
+
+`emily_buss` carries `party: "F"` — index.html renders `'F'` / `'Forward'` as "Forward
+Party" (#22d3ee), so this is a supported value, not a placeholder. She is the only member
+of either chamber who is neither R nor D.
+
+**`_UTAH_SENATE_INFO` is now exhaustive.** A new key in it is either a correction to an
+existing seat or a mistake; there is no uncovered district left for one to describe.
+
+## 2. House sweep — eleven more seats wired (40 → 51 of 75)
+
+Nine were the familiar roster-less-but-content-bearing shape:
+
+| District | Id | Member | `termStart` |
+|---|---|---|---|
+| **31** | `verona_mauga` | Verona Mauga (D) — West Valley City / Taylorsville | 2025-01 |
+| **33** | `doug_owens` | Doug Owens (D) — Millcreek | 2021-01 |
+| **34** | `carol_spackman_moss` | Carol Spackman Moss (D) — Holladay | 2001-01 |
+| **41** | `john_arthur` | John Arthur (D) — Cottonwood Heights | 2025-12 |
+| **46** | `calvin_roberts` | Calvin Roberts (R) — Draper / Bluffdale | 2025-01 |
+| **49** | `candice_pierucci` | Candice Pierucci (R) — Herriman / Riverton | 2019-11 |
+| **51** | `leah_hansen` | Leah Hansen (R) — Saratoga Springs / west Lehi | 2025-08 |
+| **53** | `kay_christofferson` | Kay Christofferson (R) — Lehi | 2013-01 |
+| **65** | `doug_welton` | Doug Welton (R) — Payson | 2021-01 |
+
+Two were a **different and more interesting failure**: `mschultz` (Mike Schultz, House
+Speaker, **District 12**, Hooper) and `aromero` (Angela Romero, **District 25**, west
+Salt Lake City) had roster records the whole time and had simply never been added to
+`_UTAH_HOUSE_INFO`, so nothing checked their own district strings. **Both were wrong when
+checked:**
+
+- Romero's read `UT District 26 (West SLC)`. District 26 is a **Davis County** seat; she
+  has held 25 since the 2023 renumbering. Adding her without fixing this fails 10h.
+- Schultz's read `Utah · Weber County` — **no district number at all**, so 10h's
+  `rosterDistrict()` returned null and skipped him silently rather than catching it.
+
+Being *rostered* is not the same as being *mapped*, and only the map puts 10h in front of
+a record's own claim about itself. That is a sweep the earlier passes could not have done
+one note at a time.
+
+### Carol Spackman Moss gets no `termEnd`
+
+She announced in Dec 2025 that she will not seek re-election, but she is the sitting
+member through the end of her term in **January 2027**. 10g rejects a `termEnd` on a pid
+the info map wires to a live seat, and rightly: a retirement announcement is not a
+vacancy. Same reasoning is noted on her record.
+
+## 3. Seven stale county fallbacks corrected
+
+10f requires `_UTAH_*_INFO[pid].c === _UTAH_*_COUNTY[d]`, and every district wired for
+the first time has to be re-verified against the member's seat of residence. Both
+fallback tables were built on pre-2023 numbering:
+
+- `_UTAH_HOUSE_COUNTY`: **25** Davis → Salt Lake, **51** Salt Lake → Utah, **53** Tooele → Utah
+- `_UTAH_SENATE_COUNTY`: **4** Davis → Weber, **11** Salt Lake → Utah, **15** Utah → Salt Lake, **22** Davis → Utah
+
+## 4. Two label repairs the new records forced
+
+- **`spotlights-data.js:1461`** called Pitcher `Utah State Representative · Prosecutor`.
+  True until Jan 2023, wrong now, and *not* time-qualified — so assertion 6's chamber
+  check would have failed the moment her Senate record landed. It was copied verbatim
+  from her already-correct sibling card (`Utah State Senator · Former Prosecutor`) rather
+  than given a new phrasing.
+- **`cmusselman` Power-Map META row** read `['pm-tier-state','STATE HOUSE','davis',
+  'district1']`. Both halves stale: he has been a **senator** since Jan 2025, and West
+  Haven is **Weber**. Now matches the `cwilson` row two above it.
+
+## Deliberately NOT wired: ~20 surface-split pairs (merge debt, not map debt)
+
+The sweep surfaced roughly twenty ids that look like the same case and are not — one
+person split across two surfaces, a full-name id carrying the stance block and a roster
+id carrying the record:
+
+`evan_vickers`/`evickers` · `mike_mckell`/`mckell_s25` · `nate_blouin`/`blouin_s13` ·
+`sandra_hollins`/`hollins_h24` · `ray_ward`/`rward` · `steve_eliason`/`eliason_h45` ·
+`karen_kwan`/`kwan_s12` · `kirk_cullimore`/`kcullimore` ·
+`karianne_lisonbee`/`lisonbee_h14` · `casey_snider`/`snider_h5` · `ken_ivory`/`ivory_h39` ·
+`brady_brammer`/`brammer_s21` · `val_peterson`/`valpeterson_h56` · `wayne_harper`/`harper_s16` ·
+`jerry_stevenson`/`jstevenson` · `keith_grover`/`kgrover` · `stephanie_gricius`/`gricius_h50` ·
+`jake_fitisemanu`/`fitisemanu_h30` · `don_ipson`/`dipson` · `stephen_l_whyte`/`whyte_h63`
+
+**No district is uncovered by any of them** — the person is already wired under the
+roster id, and `ACCT_ALIAS` already resolves the browse pid to the curated record (the
+mechanism assertion 6 leans on for Ray Ward). Wiring the twin would create exactly the
+parallel identity the phantom-id clean-up existed to remove. This is a **merge** pass, of
+the same shape as `calbrecht` → `carl_albrecht`, and it is the cleanest next piece of work
+in this area.
+
+## Confirmed non-wirings (checked, correctly excluded)
+
+Not sitting, so not eligible regardless of how much content they carry:
+
+- **2026 candidates:** `claudia_bigler` (D nominee, Senate 1), `eryn_russo` (HD41
+  challenger), `kara_toone` (HD14 — **Lisonbee holds 14 until Jan 1 2027**),
+  `chris_sloan` (SD11 GOP candidate), `dave_dawson` (congressional).
+- **Former members:** `janderegg`, `dthatcher`, `cbramble`, `bwilson`, `gwynn_h6`,
+  `jwestwood`, `tyler_clancy`, `jdraxler`, `fgibson`, `mroberts` (Marc Roberts, former
+  HD67 — Welton succeeded him), `jefferson_moss` (Hansen's predecessor's predecessor),
+  `lee_perry` (now a Box Elder County Commissioner).
+- **Other offices:** `deidre_henderson` (Lt. Governor), `erik_r_craythorne` (Mayor of
+  West Point), `jeneanne_lock` (civic-coalition organizer), `chris_sloan`.
+
+Three existing wirings that public-record searches cast doubt on were re-checked and are
+**correct as-is**: Stratton at **24** (Wikipedia's infobox says 21, but its own body plus
+Ballotpedia, BillTrack50, Vote Smart and FastDemocracy all say 24), Brammer at **21**,
+Val Peterson at **56**.
+
+## Still open after this pass
+
+- **24 House districts uncovered:** 1, 2, 3, 7, 8, 13, 17, 18, 20, 26, 27, 32, 35, 38,
+  40, 47, 48, 54, 55, 57, 58, 62, 72, 74. Absent because **no id in the data set holds
+  them** — not content-bearing, not rostered, nothing to re-key. Closing these means
+  adding people, which is a content decision, not identity repair.
+- **Three roster records name somebody else's district.** All three are outside
+  `_UTAH_HOUSE_INFO`, so nothing fails: `fgibson` reads District 60 (Grant Pace's),
+  `jknotts` "John Knotts" reads District 65 (Doug Welton's) under a name that looks like a
+  garbled **John Knotwell** — former District 52, whom Pierucci succeeded — and `jdraxler`
+  reads District 3 though he left in 2017. Each is a former-member label to correct.
+- **`EXPANSION_BULK_EXTRA` diverges from the roster.** It carries `verona_mauga` at
+  `score: 77` and `doug_owens` at `score: 80` with full bio/promises, against the
+  `score: null` roster records added here, and lists `mccay` as "State Senator (Dist.
+  11)" — stale twice over, since McCay sits in 18 and 11 is now Buss's. It is an
+  AI-search / bulk-import suggestion catalog, not the live roster, and is not
+  harness-checked; reconciling it is a separate call.
+- **Power-Map META is keyed on a third id vocabulary** (`cpierucci`, `seliason`,
+  `kivory`, `csnider`, `mroberts`, `tclancy`, `klisonbee`) distinct from both the roster
+  and the stance ids. Note that `cpierucci` there and `candice_pierucci` here are the same
+  person under two keys — more merge debt of the kind in the section above.
+- **`jburton` and `tclancy` Power-Map rows** still carry sitting-member tiers, unchanged
+  from the fourth pass's note.
+- **None of the fourteen new records is in `PROFILES`**, so none gets a Power-Map card
+  (`pmInjectDynamicCards` only injects ids present there). Consistent with every earlier
+  pass; adding them is a public-directory visibility decision.
+
+---
+
+# Surface-Split Identity Pairs (July 2026, sixth pass)
+
+`scripts/merge-utah-surface-splits-jul2026.mjs` — idempotent, dry-run by default.
+
+## The premise this pass corrected
+
+The brief described ~20 Utah people existing under two ids where "one id holds the
+roster + map wiring, the other holds stance or spotlight content", creating
+"parallel identities and unreachable cards". Twenty-five such pairs do exist. But
+they were **not** parallel identities, and with one exception no stance card was
+unreachable. Measured before touching anything:
+
+- Each pair has **one** `cmp-data.js` roster record, never two. Section 9 of the
+  harness has never fired for any of them, correctly.
+- For 24 of 25 the name-slug id holds **all** the stance cards and the roster id
+  holds **zero**. Nothing was shadowed; there was nothing to union.
+- `_stanceSlug(ROSTER[rosterId].name)` equals the name-slug id for all 25, so
+  `_resolveStanceList()` reached every block through its documented name-slug
+  fallback — and every real read path goes through that resolver
+  (`index.html`'s `stanceList()`; `alignment-tool.js` enumerates keys).
+
+The two-key layout is deliberate and already documented. `db/vr-pid-aliases.json`
+says so for Cullimore — *"curated stance cards stay under the name-slug key
+`kirk_cullimore` per this file's stance-key convention; STANCE_ALIASES bridges both
+ids to it"* — and the harness says so in section 7's comment: keying off
+`STANCES[pid]` *"would push the fix toward renaming the block instead of wiring the
+bridge."*
+
+Two structural facts made that more than a style preference. Registering the
+name-slug ids as retired in `db/vr-pid-aliases.json` would trip **section 3**
+(`politician-stances.js still has a '<retired>' block`), forcing exactly those
+renames. And re-keying the spotlight cards onto the roster ids would drive
+**section 6**'s `aliasResolved` counter to zero — the assertion whose comment reads
+*"if this drops to zero the ACCT_ALIAS fall-through has stopped reaching any card
+and the Ray Ward hole has reopened."* Both invariants point the same way: bridge,
+don't rename. **So 24 stance blocks were left keyed as they are.**
+
+## What was actually broken — the click path
+
+A spotlight card keyed on a browse pid rendered fine (`nameFor()`/`officeFor()`/
+`iconFor()` fall back to the card's own literals) and was clickable. The click ran
+`toProfile()` → `showProfile()` → `openModal()`, and `openModal` resolved only
+`PROFILES[id] || CMP_DATA[id]`. It never consulted `ACCT_ALIAS`, unlike every other
+surface handling these ids. **All 48 cards across the 25 pairs dead-ended on
+`_pdxShowModalError` ("This profile couldn't be loaded")** — including the 7 pairs
+`ACCT_ALIAS` already bridged, because the bridge was never read on this path.
+
+| Fix | Layer |
+|---|---|
+| `openModal()` follows `ACCT_ALIAS` when — and only when — the id has no record of its own, so a real profile always wins and the hop stays single | `index.html` |
+| The 18 pairs `ACCT_ALIAS` did not yet bridge got their entry | `index.html` |
+
+Verified functionally: 25 of 25 pair ids now resolve a profile (0 dead), and 25 of
+25 still resolve a stance block. The 18 new bridges also brought **29 previously
+unchecked cards** under section 6's label-vs-roster check — 0 new failures
+(pre-flight simulated the assertion before writing).
+
+## The one true merge — `derek_brown` → `derek_brown_ut`
+
+The only pair matching the brief's premise, and the Albrecht shape exactly: **four
+sourced stance cards under each id.** Because `_resolveStanceList()` tries
+`ISSUE_STANCE_DATA[id]` first, the roster id's four thin AG-wave cards won and the
+four richer ones (TikTok and Snap child-safety litigation, the "return trust to the
+office" pledge succeeding Sean Reyes, federalism and public lands, fentanyl
+enforcement) were **unreachable from the canonical profile**. Same person,
+confirmed from content: both blocks cite `attorneygeneral.utah.gov` and describe
+the sitting Utah AG.
+
+Merged the Albrecht way — grafted cards go at the **top**, because two issueKeys
+collide (`tech_balance`, `lands_local`) and an issueKey-only `findStance()` lookup
+must resolve the richer sourced card first. No topic string collides, so section 7
+stays green. Its 3 spotlight cards were re-keyed (section 4 forbids a retired id on
+a card), and the retirement is registered in all three alias tables plus
+`db/vr-pid-aliases.json` with a "no DB rows" provenance note.
+
+Remaining quality gap: the four inherited AG-wave cards all cite only the office's
+own homepage.
+
+## Pairs left as-is (24) — bridged, not merged
+
+`evan_vickers`/`evickers` · `mike_mckell`/`mckell_s25` · `mike_schultz`/`mschultz` ·
+`steve_eliason`/`eliason_h45` · `karen_kwan`/`kwan_s12` · `daniel_mccay`/`mccay_s11` ·
+`ariel_defay`/`defay_h15` · `wayne_harper`/`harper_s16` · `keith_grover`/`kgrover` ·
+`kirk_cullimore`/`kcullimore` · `mike_kohler`/`kohler_h59` ·
+`rosie_rivera`/`rosie_rivera_slco` · `sandra_hollins`/`hollins_h24` ·
+`angela_romero`/`aromero` · `karianne_lisonbee`/`lisonbee_h14` ·
+`jordan_teuscher`/`teuscher_h44` · `ann_millner`/`amillner` (18 newly bridged) and
+`stephanie_gricius`/`gricius_h50` · `brady_brammer`/`brammer_s21` ·
+`val_peterson`/`valpeterson_h56` · `ray_ward`/`rward` · `trevor_lee`/`tlee` ·
+`katy_hall`/`hall_h11` · `jake_fitisemanu`/`fitisemanu_h30` (already bridged; fixed
+by the `openModal` change).
+
+No pair was ambiguous and none looked like two different people — every name-slug
+resolved to exactly one roster id.
+
+## Still open
+
+- **`ACCT_ALIAS` is doing double duty**, which is why some entries run
+  roster-id → curated-theme-key (`harper_s16: 'wharper'`, `lisonbee_h14:
+  'klisonbee'`, `eliason: 'seliason'`) and others browse-pid → roster-id. Adding
+  the 18 creates 2-hop chains like `steve_eliason → eliason_h45 → seliason`. Benign
+  today — `openModal` follows a single hop and only on a miss, and the middle id
+  always has a roster record so resolution stops there — but the table would read
+  more honestly split in two.
+- **`ken_ivory: 'kivory'` points at an id with no roster record**, so that card
+  click still dies. The roster id is `ivory_h39`. Not repointed here because
+  `ACCT_ALIAS` is also the theme-key lookup (`index.html` ~54742) and `kivory` is
+  where his `ACCT_THEME` blurb lives — fixing it properly needs the table split
+  above. Same shape for the other theme-only keys with no roster record:
+  `wharper`, `seliason`, `klisonbee`, `csnider`, `mmckell`, `vickers`, `hollins`.
+- **91 spotlight card ids resolve to no roster record at all** (194 cards), mostly
+  out-of-state federal figures (`julie_fedorchak`, `dina_titus`, `sherrod_brown`
+  …). These are not split pairs — there is no partner id to merge — so they are
+  content-authored cards awaiting real roster records, not an identity defect.
+  Section 5 passes them because they carry stance blocks.
+
+# ACCT_ALIAS Dual-Duty Split (July 2026, seventh pass)
+
+`scripts/split-acct-alias-profile-resolution-jul2026.mjs` — idempotent,
+dry-run-by-default, 3 edits. Closes the two "Still open" items above.
+
+## What "dual duty" actually was
+
+`ACCT_ALIAS`'s own header states its job: resolve an id "back to the curated key
+when a direct lookup misses". Its values are **curated keys** — theme /
+`ACCT_SPOTLIGHT` keys — and that is a data question, not a navigation one. Of its
+61 entries, 44 happen to name a live roster id and 17 name a curated key, six of
+which name **nobody** in `cmp-data.js` by design: `kivory`, `wharper`,
+`seliason`, `klisonbee`, `dmccay`, `jteuscher`.
+
+Almost every consumer wants that curated direction and was already correct:
+`_slTheme` (`ACCT_THEME`), the two `_slKey` / `ACCT_SPOTLIGHT` driver resolvers
+in `index.html`, and the `_acctKey` helpers in `say-vs-do.js`, `coverage.js`,
+`hr1-showcase.js`, `issue-view.js`, `stance-helpers.js`. Every one of those uses
+the result as a **data key**, never as a navigation target. None was broken.
+
+Exactly one consumer asked the opposite question — *which id has a real roster
+record?* — and that is profile loading. The sixth pass taught `openModal` to
+follow `ACCT_ALIAS` on a miss, which fixed 48 spotlight-card clicks whose alias
+happened to land on a roster id. But for the six curated keys above, and the five
+short pids that alias onto them, the same table lands on an id naming nobody and
+the modal still dead-ends on `_pdxShowModalError`. **Reading one table for two
+questions was the entire defect** — not a bad entry anywhere in it.
+
+## The 2-hop chains
+
+Seven, all created by the sixth pass's bridges, all curated-key chains:
+
+| chain | why it exists |
+| --- | --- |
+| `steve_eliason → eliason_h45 → seliason` | bridge, then theme key |
+| `daniel_mccay → mccay_s11 → dmccay` | " |
+| `wayne_harper → harper_s16 → wharper` | " |
+| `karianne_lisonbee → lisonbee_h14 → klisonbee` | " |
+| `jordan_teuscher → teuscher_h44 → jteuscher` | " |
+| `rosie_rivera → rosie_rivera_slco → rosie_rivera` | 2-cycle, counted from both ends |
+
+All are **left in place**. They were already benign for profiles (hop 1 has a
+roster record, so single-hop-on-miss stops there), and profile resolution no
+longer walks `ACCT_ALIAS` first at all, so they cannot regress a click. Deleting
+them would break the theme lookups that are the table's actual purpose.
+
+## The fix — a second single-purpose table, not a rewrite of the first
+
+```
+ACCT_ALIAS         id → curated key   (theme + ACCT_SPOTLIGHT)   UNCHANGED
+PDX_PROFILE_ALIAS  id → roster id     (profile loading)          new, 11 entries
+```
+
+`index.html` ~54780, immediately after the `ACCT_ALIAS` block. Purely additive —
+`ACCT_ALIAS` is not edited, and the pass refuses to write if a byte of it moved.
+That is precisely why the blurbs survive: resolution is now roster-id-first, and
+the curated key is re-derived **from** the roster id by `ACCT_ALIAS`'s existing
+entries. Clicking `kivory` opens `ivory_h39`; `_slTheme('ivory_h39')` then follows
+the untouched `ivory_h39: 'kivory'` back to `ACCT_THEME.kivory`. Verified by hand
+for all 11 ids, both theme and `ACCT_SPOTLIGHT`.
+
+Every mapping is the **reverse of an existing `ACCT_ALIAS` entry** — `ivory_h39:
+'kivory'` is the repo already asserting those two ids are one person — so no
+entry here is a new claim, and no roster record was invented.
+
+`window.PDXProfilePid(id)` is the single clear step, and `openModal`'s inline
+fall-through now reduces to one call to it. It keeps **single-hop-on-miss**: a
+candidate is accepted only if *it* has a record, so nothing chains through a dead
+id, a real profile always beats an alias, and an unknown id passes through
+untouched so `_pdxShowModalError` still fires honestly.
+
+## Ids fixed (11)
+
+Curated keys with no record of their own: `kivory → ivory_h39`, `wharper →
+harper_s16`, `seliason → eliason_h45`, `klisonbee → lisonbee_h14`, `dmccay →
+mccay_s11`, `jteuscher → teuscher_h44`.
+Short browse/catalog pids aliased onto those: `ken_ivory → ivory_h39`, `eliason →
+eliason_h45`, `teuscher → teuscher_h44`, `lisonbee → lisonbee_h14`, `mccay →
+mccay_s11`.
+
+**Correction to the previous pass's note:** `csnider`, `mmckell`, `vickers` and
+`hollins` were listed there as still-dead. They are not — `ACCT_ALIAS` maps them
+to `snider_h5`, `mckell_s25`, `evickers`, `hollins_h24`, all live roster records,
+so the sixth pass's `openModal` change already fixed them. Only the six ids above
+were genuinely unreachable.
+
+These 11 are mostly not currently-rendered card clicks — the theme keys have no
+browse-directory entry, Power-Map gates on `PROFILES`, and the five short pids
+live only in `EXPANSION_SUGGESTIONS` / `EXPANSION_BULK_EXTRA` import catalogs.
+The failing entry points are deep links (`?p=<id>`), saved My-Team picks and
+bookmarks — which is the same reason `ACCT_ALIAS`'s own comments give for keeping
+such entries at all.
+
+## Harness — section 11
+
+`test-identity-integrity.mjs`, 6377 → **6435** assertions, green. Per entry: the
+value is a live roster record, is not retired, the key is not itself a roster id
+(the entry would be unreachable), no self-alias. Plus two pinned cases
+(`kivory → ivory_h39`, `ray_ward → rward`) and the real regression guard: it
+reimplements `PDXProfilePid` and asserts that **no id in the curated vocabulary
+(`ACCT_ALIAS` keys ∪ values ∪ `PDX_PROFILE_ALIAS` keys) fails to resolve while a
+roster record for that person is discoverable** — discoverable meaning a live
+roster id already aliases to it, or a roster display name slugifies to it. Never
+a fuzzy guess. That is exactly the state `ken_ivory → kivory` was in, so the next
+curated key added without a bridge fails the harness instead of shipping a dead
+click. 99 vocabulary ids, 89 resolve, 0 missing bridges.
+
+## Still open
+
+- **5 people have no roster record under any of their 10 ids** and are therefore
+  skipped by section 11 by design — a bridge cannot point at a record that does
+  not exist: `tclancy`/`tyler_clancy`, `dhawkins`/`jon_hawkins`,
+  `escamilla`/`lescamilla`, `mike_smith_utco`/`mike_smith_sheriff`,
+  `mhogan`/`michelle_kaufusi`. Adding records is a content decision (are these
+  sitting officials we intend to cover?), not identity wiring, so no records were
+  invented here. If they are sitting, they wire with the minimal Miller/Pace
+  pattern and the harness will then accept a bridge.
+- The 91 roster-less spotlight card ids (194 cards, mostly out-of-state federal
+  figures) are unchanged from the sixth pass — still content-authored cards
+  awaiting real roster records, not an identity defect.
+
+---
+
+# Eighth pass — the last 5 dead profile clicks (July 2026)
+
+`scripts/wire-last-five-rosterless-jul2026.mjs` — 7 edits, idempotent, dry-run by
+default. This closes the item the seventh pass left open above: the five people who
+had curated content but **no roster record under either of their two ids**, so both
+ids dead-ended on `_pdxShowModalError`.
+
+## The structural finding that made this small
+
+No new aliases were needed. In all five pairs the existing `ACCT_ALIAS` entry
+already pointed **sparse id → rich id**, and `PDXProfilePid()`'s `ACCT_ALIAS`
+fall-through accepts a candidate the moment it has a record. So adding the record
+under the rich id closed **both** ids at once. `PDX_PROFILE_ALIAS` still has the
+same 11 entries the seventh pass wrote, and a post-condition byte-compares both
+alias tables to prove neither moved.
+
+The rich id was also the right canonical key by the stated rule ("prefer the id
+that already carries the richer curated content") — in every pair it was the id
+holding the stance block and theme blurb.
+
+Pair identity was established from the repo, not inferred from name similarity:
+the first three were aliased by earlier passes, and the last two are documented in
+`scripts/cleanup-utah-duplicate-records-jul2026.mjs` as duplicate-person collapses
+(`mike_smith_utco → mike_smith_sheriff` UNION, `mhogan → michelle_kaufusi` DROP).
+
+## Records added (5) — all `score: null`, kept/broken/pending 0
+
+| canonical id | office | status | map wiring |
+|---|---|---|---|
+| `jon_hawkins` | Utah State Representative, D55 | **sitting** | House info + incumbents[55] + county fix |
+| `lescamilla` | Utah State Senator, D10 | **sitting** | none needed — already in both Senate tables |
+| `mike_smith_sheriff` | Utah County Sheriff | **sitting** | none — county office, no district |
+| `tyler_clancy` | State Homeless Coordinator · Former Rep | **former** | **none, deliberately** |
+| `michelle_kaufusi` | Former Mayor, Provo · 2026 Commission Nominee | **no current office** | none |
+
+Every `issues` array is lifted **verbatim** from content already in the repo — the
+person's own stance-card topics in block order, capped at five to match the
+surrounding records. Escamilla is the one with no stance block, so hers comes from
+the `keyIssues` already authored in `EXPANSION_SUGGESTIONS`. That entry also carries
+`score: 82` / 18-3-4; it is an unverified import-surface figure and was **not**
+copied. No stance, score, or narrative text was authored anywhere in this pass.
+
+## The two that must not be wired to a live seat
+
+- **Clancy** resigned District 60 in March 2026 to become the state homeless
+  coordinator. Grant Pace holds 60 (fourth pass). He gets a record and **no map
+  entry**; `termEnd: "2026-03"` plus "Former" in `office` mean assertion **10g**
+  would reject him from the House map even if a later pass tried. His Power-Map
+  `META` row is left on the old `tclancy` pid **on purpose**, with a comment saying
+  why: it is a `'STATE HOUSE'` row, so re-keying it to his roster id would inject a
+  card calling a former member a sitting representative. Left unmatched, it is inert.
+- **Kaufusi** left the Provo mayoralty in January 2026. `marsha_judkins_provo` is
+  already in this repo as "Mayor of Provo", so her stale `spotlights-data.js` card
+  label was corrected `'Mayor of Provo · Utah'` → `'Former Mayor of Provo · Utah'`.
+  Two people cannot hold one office on screen. Adding one word is the whole change.
+
+## District 55 — the one map correction
+
+`_UTAH_HOUSE_COUNTY[55]` read `'Salt Lake County'`. District 55 is a Utah County
+seat (Pleasant Grove / American Fork). That table is documented in `index.html` as
+"PARTIALLY STALE ... built on pre-2023 numbering" for districts no member occupied,
+and 55 was not in its verified list — so correcting it is exactly what assertion
+**10f** exists to force. All three tables now agree, checked by post-condition.
+
+Hawkins has been in the House since Jan 2019 (District 57 2019–2023, District 55
+2023–present). **House coverage 51 → 52 of 75.**
+
+## Verification
+
+- identity harness **6438 assertions green** (was 6435; +3 from the new section-11
+  and section-10 coverage), `npm test` exit 0
+- **99 clickable ids, 99 resolve, 0 dead clicks** — was 89/99 after the seventh pass
+- 736 roster records, 0 display names shared by 2+ live ids
+- 63 inline scripts parse clean; `node --check` clean on all three edited data files
+- both alias tables byte-identical to their pre-pass state
+
+## Still open
+
+- The `escamilla` **`EXPANSION_SUGGESTIONS` entry is now a parallel-identity
+  hazard**: if that catalog is ever bulk-imported it would create a *new* record
+  under `escamilla`, re-splitting the person this pass just unified. The import
+  de-dup (`index.html` ~13578) renames on collision but only checks `byId`/`PROFILES`
+  — not `CMP_DATA` or `ACCT_ALIAS`, which is where `escamilla` now lives. Widening
+  that check is the cleanest next guard.
+- Clancy's `ACCT_THEME` blurb still calls him "one of the chamber's youngest
+  members". True when written, stale now. Rewriting it is story text, excluded from
+  this pass by scope.
+- The 91 roster-less spotlight card ids (194 cards, mostly out-of-state federal
+  figures) are unchanged — content-authored cards awaiting real roster records, not
+  an identity defect. This is the last remaining click-through gap and the only
+  reason the number is not literally zero across every surface in the app.
+
+---
+
+# Ninth pass — connect the dots (July 2026)
+
+`scripts/connect-the-dots-jul2026.mjs` (11 edits) and
+`scripts/harness-stance-fidelity-jul2026.mjs` (3 edits). **Wiring only** — no
+stance, no evidence item, no politician was authored. Every number below was
+measured against the real modified files, not estimated.
+
+The premise this pass started from turned out to be half wrong, and that is worth
+recording: there were **no issueKey mismatches to fix**. All 4954 stance cards
+carry an `issueKey` and every one of them is a live `ISSUE_MAP` key. The joins
+were breaking on *identity resolution* and on a *scope gate*, not on issue keys.
+
+## A · Say-vs-Do had no SAID side for 46 receipts
+
+`say-vs-do.js stanceFor()` looked in `ISSUE_STANCE_DATA` under the receipt's own
+id and its `ACCT_ALIAS` target only. It never called `_resolveStanceList`, so any
+block keyed on `STANCE_ALIASES` or on a slug of the person's display name — the
+documented stance-key convention (`db/vr-pid-aliases.json`, where 24 of 25 Utah
+"surface splits" proved to be ONE record keyed on the name slug) — was invisible
+to the contradiction engine.
+
+Routed through the shared resolver. Measured on `PDXReceipts.collect()`:
+
+| verdict | before | after |
+| --- | --- | --- |
+| Words Match Actions | 48 | **82** (+34) |
+| Backed It Up | 211 | 177 (−34) |
+| Says One Thing · Does Another | 96 | **99** (+3) |
+| Red Flag On Record | 61 | 58 (−3) |
+| Legal / Transparency Red Flag | 21 | 21 (unchanged) |
+
+Receipts carrying a SAID side: **76 → 122 (+46)** across **22 politicians**. The
++3 matter most: those were real, documented contradictions rendering as a generic
+"Red Flag On Record" because the stance sat one unfollowed hop away. `collect()`
+also adds `score += 120` when a stance exists, so those 46 now rank into the hero
+rotation instead of below it.
+
+## B · `_slKey` name-slug hop — parity, and honestly zero today
+
+`_issueEvidenceMap`'s evidence key resolved forward only (id → `ACCT_ALIAS`) while
+`_resolveStanceList` twelve lines above it has a third hop. Added the missing hop
+so the two agree.
+
+**This changes nothing for any current profile — measured: the new branch fires
+for 0 of 736 roster records.** No evidence item is presently filed under a
+display-name slug. Kept because the evidence layer and the stance layer now
+follow the same documented convention, so the next item filed that way joins
+instead of vanishing silently. Recorded as parity, not as a win. Drop it freely
+if dead branches are not wanted.
+
+## C · 18 stance-block keys opened nothing
+
+Every one is a slug of a live roster record's own display name, and
+`_resolveStanceList(rosterId)` already returns the block filed under the key — so
+the repo was already asserting they are one person. Reverse bridges added to
+`PDX_PROFILE_ALIAS` (11 → 29 entries). **Not merges**, and deliberately **not**
+`PDX_PID_ALIASES`, which by its own docs holds only ids an actual merge retired.
+
+`bridger_bolinder`→`bolinder_h68`, `casey_snider`→`snider_h5`,
+`cory_maloy`→`cory_maloy_h52`, `curt_bramble`→`cbramble`, `don_ipson`→`dipson`,
+`jerry_stevenson`→`jstevenson`, `jill_koford`→`koford_h10`,
+`luz_escamilla`→`lescamilla`, `matthew_gwynn`→`gwynn_h6`,
+`nate_blouin`→`blouin_s13`, `phil_lyman`→`lyman`, `scott_chew`→`chew_h68`,
+`scott_sandall`→`ssandall`, `stephen_l_whyte`→`whyte_h63`,
+`stuart_adams`→`sadams`, `tiara_auxier`→`auxier_h4`, `todd_weiler`→`tweiler`,
+`troy_shelley`→`shelley_h66`.
+
+17 of 18 are zero-ambiguity: the roster id carries no competing block, so the
+resolver already lands on that exact content. **`stuart_adams` is the exception**
+— `sadams` owns its own 7-card block which the resolver prefers, so the bridge
+fixes the dead click and lands on the right person, but the 3 cards filed under
+`stuart_adams` (`school_choice`, `gov_transparency`, `gov_services`) stay
+shadowed. Collapsing them is a content merge, not wiring, so it is left open.
+
+Dead clicks across all seven click surfaces: **361 → 343**, and the
+slug-recoverable subset — the part that was a wiring defect — is now **0**.
+
+## D · The evidence family was gated on office, not on data
+
+Connected Evidence, Evidence Summary, the stance and promise chips, the
+stance-popover jump buttons and the Locker CTA all gated on
+`_pdxIsUtahStateLegislator` — a scope gate from the first pass, documented there
+as "for this first pass". It was wrong in **both** directions:
+
+- it hid **132 profiles** that hold a documented position *and* real sourced
+  on-record evidence, and
+- it offered the section (and the Locker CTA) to **46 Utah legislators with
+  nothing filed at all**, whose panel rendered every row as "○ No connected
+  record yet" — empty scaffolding.
+
+Replaced with a data predicate, `window._pdxHasIssueEvidence(id, p)`: true when
+the evidence map holds at least one recorded Spotlight item or tracked promise. A
+documented position **alone** deliberately does not qualify.
+
+| | before | after |
+| --- | --- | --- |
+| profiles showing the evidence sections | 84 | **170** |
+| …newly populated | — | **132** |
+| …all-empty panels retired | — | **46** |
+| filed items reachable from a profile | — | **473** |
+
+Safe because the section body carries no Utah-specific copy (checked across
+`index.html:23246–23480`) and because `digital-library.js buildIndex()` was never
+Utah-scoped — its receipts come from `PDXReceipts.collect()` over all 258
+`ACCT_SPOTLIGHT` keys, so the Locker genuinely holds files for the federal
+figures the old gate was hiding it from. `_pdxIsUtahStateLegislator` is left
+defined and unchanged; it simply no longer gates evidence.
+
+## E · The harness was testing a file the page does not load
+
+Found while adding a guard for class (C). `scripts/test-identity-integrity.mjs`
+loaded `politician-stances.js` — the pre-split 1.7MB monolith — and its own
+comment claimed that is "how the page loads them". `index.html` loads
+`politician-stances-core.js`, `politician-stances-ext.js` and the 16
+`state-senate-stances*.js` shards, and does **not** reference the monolith at
+all. So every section reading `STANCES` was asserting against a stale **882**-key
+table while the browser resolved against a live **1058**-key one. That is why all
+18 dead keys in (C) sat broken under a green harness.
+
+The shard list is now derived from `index.html`'s own `<script src>` tags, so the
+two cannot drift again, and the report line prints the shard count. `my-stances.js`
+is excluded on purpose — it holds the visitor's saved positions, not curated
+stances. Section 11's class-wide guard also now includes `ISSUE_STANCE_DATA` keys
+in its vocabulary, which is the check that would have caught (C) on the day it
+appeared.
+
+## Verification
+
+- identity harness **6844 assertions green** (was 6438; +309 from the widened
+  section-11 vocabulary, +97 from reading the live 1058-key stance table),
+  `npm test` **exit 0**
+- both passes idempotent — re-run reports `0 edit(s), 11 already applied` /
+  `already applied` ×3, post-conditions still pass
+- `node --check` clean on `say-vs-do.js`, `stance-helpers.js`, both new passes and
+  the harness; **63 inline scripts in `index.html` parse clean**
+- no roster record LOST evidence (measured both directions)
+
+## Still open — content, not wiring
+
+- **20 of the 63 members in `db/vr-member-map.json` have no roster record**, so
+  their Voting Record section can never render no matter how the joins are wired:
+  `bennie_thompson, bruce_westerman, don_davis, frank_lucas, josh_brecheen,
+  julie_fedorchak, mariannette_miller_meeks, michael_guest, mike_collins,
+  mike_ezell, mike_flood, mike_simpson, rick_crawford, rob_bresnahan,
+  ryan_mackenzie, scott_perry, stephanie_bice, steve_womack, trent_kelly,
+  troy_downing`. This is the single highest-value gap left in the app: the vote
+  rows already exist in the database. `voting-record.js` itself needs no change —
+  it canonicalizes ids correctly at every entry point.
+- **343 remaining dead ids are all content gaps** — out-of-state federal figures
+  with stance cards and evidence but no roster record (`zach_nunn` 11 cards/12
+  evidence, `rick_crawford` 13/10, `stephanie_bice` 13/10, …). Adding records is
+  "new politicians", out of scope here.
+- **352 evidence items legitimately carry no `issueKey`** (293 `ACCT_SPOTLIGHT` +
+  59 curated-news). Their categories are `rhetoric`, `transparency`, `voting`,
+  `redflags`, `promise`, `legal` — accountability categories that feed the
+  Accountability Score, not `ISSUE_MAP` keys. **0 are deterministically
+  recoverable**; assigning keys would be authoring. Leave them alone.
+- `stuart_adams`' 3 shadowed cards (see C).
+
+---
+
+# Tenth pass — unlock the Voting Record for the 20 roster-less members (July 2026)
+
+`scripts/unlock-voting-record-20-jul2026.mjs` — one file changed, `cmp-data.js`,
+**+171 lines, 0 deletions**. The gap the ninth pass closed with by naming it.
+
+## The mechanism, precisely
+
+`db/vr-member-map.json` maps 63 bioguide ids to profile slugs, and the
+voting-record ingest keys everything it writes on those slugs. 43 had a roster
+record; 20 did not. `openModal()` ends at
+
+```js
+if (!p) { if (typeof window._pdxShowModalError === 'function') window._pdxShowModalError(id); return; }
+```
+
+(`index.html:25482`) — so for those 20 the profile never rendered, and
+`window._renderVotingRecord(id, p)` at `index.html:26153` never ran. Everything
+downstream of that one call was dark:
+
+| surface | where it lives |
+| --- | --- |
+| 🗳️ Voting Record section | `voting-record.js` `_renderVotingRecord` / `_pdxInitVotingRecord` |
+| "Votes · N Records" nav pill | `injectNavPill()` |
+| per-issue consistency dots | `_pdxHydrateVoteDots` → `_pdxRecordIssueSummary`, which reads `CMP_DATA[pid]` for the stance side |
+| Stance Library "View votes" | `__pdxVotingInitialIssue` entry point |
+| comparison-board `[data-vrdot]` | same hydrate path |
+| Alignment Tool vote adapter | `_alignmentVotesAdapter` |
+
+Not one line of `voting-record.js` needed changing. It canonicalizes ids
+correctly at every entry point already. The only thing missing was identity.
+
+## What was wired — all 20
+
+All 20 are sitting U.S. House members of the 119th Congress. None is a former
+member, none is a Senator, and the repo's own spotlight cards independently
+corroborate state and chamber for 16 of them — every one agreeing with the
+`vr-member-map` `members` annotation before any external source was consulted.
+
+| id (= the ingest slug) | name | seat | party | since | stance cards | roll-call rows in the bundled seeds |
+| --- | --- | --- | --- | --- | --- | --- |
+| `bennie_thompson` | Bennie Thompson | Mississippi · MS-02 | D | 1993-04 | 13 | 63 |
+| `bruce_westerman` | Bruce Westerman | Arkansas · AR-04 | R | 2015-01 | 11 | 63 |
+| `don_davis` | Don Davis | North Carolina · NC-01 | D | 2023-01 | 9 | 63 |
+| `frank_lucas` | Frank Lucas | Oklahoma · OK-03 | R | 1994-05 | 12 | 63 |
+| `josh_brecheen` | Josh Brecheen | Oklahoma · OK-02 | R | 2023-01 | 12 | 63 |
+| `julie_fedorchak` | Julie Fedorchak | North Dakota · ND-AL | R | 2025-01 | 12 | 63 |
+| `mariannette_miller_meeks` | Mariannette Miller-Meeks | Iowa · IA-01 | R | 2021-01 | 10 | 63 |
+| `michael_guest` | Michael Guest | Mississippi · MS-03 | R | 2019-01 | 10 | 63 |
+| `mike_collins` | Mike Collins | Georgia · GA-10 | R | 2023-01 | 6 | 63 |
+| `mike_ezell` | Mike Ezell | Mississippi · MS-04 | R | 2023-01 | 10 | 63 |
+| `mike_flood` | Mike Flood | Nebraska · NE-01 | R | 2022-06 | 13 | 63 |
+| `mike_simpson` | Mike Simpson | Idaho · ID-02 | R | 1999-01 | 14 | 63 |
+| `rick_crawford` | Rick Crawford | Arkansas · AR-01 | R | 2011-01 | 13 | 63 |
+| `rob_bresnahan` | Rob Bresnahan | Pennsylvania · PA-08 | R | 2025-01 | 13 | 63 |
+| `ryan_mackenzie` | Ryan Mackenzie | Pennsylvania · PA-07 | R | 2025-01 | 13 | 63 |
+| `scott_perry` | Scott Perry | Pennsylvania · PA-10 | R | 2013-01 | 10 | 63 |
+| `stephanie_bice` | Stephanie Bice | Oklahoma · OK-05 | R | 2021-01 | 13 | 63 |
+| `steve_womack` | Steve Womack | Arkansas · AR-03 | R | 2011-01 | 12 | 63 |
+| `trent_kelly` | Trent Kelly | Mississippi · MS-01 | R | 2015-06 | 12 | 63 |
+| `troy_downing` | Troy Downing | Montana · MT-02 | R | 2025-01 | 12 | 63 |
+
+Nobody was left out. The two calls that needed an explicit decision:
+
+- **`mike_collins`** won the 2026 Georgia GOP Senate runoff and is vacating GA-10
+  at the end of this term, but he has **not resigned**. He is the sitting member,
+  so no `Former`, no `termEnd`, no year range — the same rule that keeps
+  `phil_lyman_h69` from reappearing, applied in the other direction. When he does
+  leave, he gets `termEnd` and a time-qualified `office`, not a deletion.
+- **`don_davis`** — North Carolina redrew its map in the 2025–26 mid-decade cycle.
+  NC-01 is the seat he holds now; the record states the current seat, not a
+  historical one.
+
+## Zero alias entries added, on purpose
+
+The canonical key **is** the ingest slug, per the standing "prefer the id already
+used in the voting-record map" rule. Measured after the pass:
+
+- **20/20** slugs resolve to themselves with a live roster record — `PDXProfilePid()`
+  hits `ROSTER[slug]` on the **first** hop, no `PDX_PROFILE_ALIAS` entry needed
+- **0** of the 20 are rewritten by `PDXCanonicalPid()`, so the id the section
+  fetches with is the id the ingest wrote under, unchanged
+- **63/63** `vr-member-map` `.map` slugs now reach a roster record
+
+`PDX_PID_ALIASES` still holds only the five ids an actual merge retired
+(`susan_collins, kennedy_rfk, cullimore_s19, calbrecht, derek_brown`). It stays
+that way: a person who was never merged does not belong in a retirement table.
+
+## Field choices that are forced, not stylistic
+
+- **`state` must carry the full state name.** Harness `statesIn()` matches against
+  a table of full names only, so a bare `"MS-02"` makes the section-6 state check
+  match nothing and **silently skip** — the record would read green while
+  asserting nothing. Form is `"<Full State> · <ST>-NN"`, after `bmoore`'s
+  `"Utah · UT-1"`. No federal record in `cmp-data.js` uses the separate `district`
+  field (all 86 that do are state legislators), so the district rides in `state`.
+- **`name` must be the common-usage form.** Section 6 compares surnames as
+  `split(/\s+/).pop().replace(/[.,]/g,"")`, so the `members` annotation's
+  `"Robert P. Bresnahan, Jr."` yields `"jr"` and would fail against its own
+  spotlight card's `"Rob Bresnahan"`. Same for `Eric A. "Rick" Crawford` →
+  `Rick Crawford` and `Stephanie I. Bice` → `Stephanie Bice`. Every name written
+  here is byte-equal to the card that names it, where a card exists.
+- **`office` is exactly `"U.S. Representative"`** — the string the other 48 House
+  records use, which `chamberIn()` reads as `house`.
+- **`issues` is derived, not authored.** Each person's own stance-card `topic`
+  strings, verbatim, dropping any topic carried by more than 20 stance blocks
+  corpus-wide (the shared national template — "Abortion", "Election Integrity",
+  "Education & Parental Rights" …), first five in original order. Every string
+  already shipped in the repo; this pass wrote no new prose. A post-condition
+  asserts each entry is one of that person's own topics. An empty array would
+  have been safe — every consumer guards with `d.issues || []` / `!d.issues.length`
+  — but would have been the first of 756 records without one.
+
+## Post-conditions, proved before writing
+
+Beyond the usual field-by-field checks, the pass refuses to write unless:
+
+- no existing record is mutated (`JSON.stringify` compared key by key), and the
+  roster grows by exactly the number of missing records
+- every `vr-member-map` slug reaches a record afterwards
+- no other live id already carries the same `name` — no parallel identities
+- **every spotlight card that names one of these ids agrees on surname, state and
+  chamber.** Section 6 skips a card whose id has no roster record, so this pass
+  newly subjected 34 cards to the label check; proving the agreement in the pass
+  is what kept that from arriving as a red CI run.
+
+## Verdict delta
+
+| | before | after |
+| --- | --- | --- |
+| roster records | 736 | **756** |
+| `vr-member-map` slugs reaching a roster record | 43 / 63 | **63 / 63** |
+| Voting Record sections able to render | 43 | **63** (+20) |
+| per-issue stance rows eligible for a vote dot | — | **+228** |
+| distinct ids that cannot open a profile | 361 → 343 | **323** (−20) |
+| stance blocks with no reachable roster record | 334 | **314** |
+| dead `ACCT_SPOTLIGHT` keys | 63 | **44** |
+| dead curated-news keys | 16 | **12** |
+| roster records with ≥1 keyed position | 723 | **743** |
+| profiles passing `_pdxHasIssueEvidence` | 170 | **189** (+19) |
+| harness assertions | 6844 | **6926** |
+| spotlight cards label-checked vs roster | 1173 | **1207** (+34) |
+
+The Say-vs-Do surface is unchanged by this pass (437 receipts, 122 with a SAID
+side) — those receipts key off `ACCT_SPOTLIGHT`, which already reached these
+people; it was only the profile that would not open.
+
+19 of the 20 gained a Connected Evidence panel; `mike_collins` is the one with
+stance cards but no filed evidence items, so his panel stays honestly absent.
+
+## Verification
+
+- identity harness **6926 assertions green** (was 6844), `npm test` **exit 0**
+- pass idempotent — re-run reports `all 20 roster records already present`,
+  post-conditions still pass, nothing written
+- `node --check cmp-data.js` clean; **63 inline scripts in `index.html` parse clean**
+- `git diff --stat`: `cmp-data.js | 171 +`, one file, zero deletions
+- Utah maps untouched: still **29** senators and **52** representatives
+  cross-checked bidirectionally, 80 roster records agreeing with their seat
+
+## Still open
+
+- **323 dead ids remain, and they are content, not wiring** — out-of-state federal
+  figures with curated stance cards but no roster record and, unlike these 20, **no
+  ingested voting record either** (`zach_nunn` 11 cards/12 evidence, `dina_titus`
+  12/9, `susie_lee`, `steven_horsford`, `gabe_vasquez`, `russ_fulcher`, …). The 20
+  in this pass were worth wiring precisely because the vote rows already existed;
+  for the rest, a roster record buys a thin profile and nothing more. That is a
+  coverage decision, not a repair.
+- **352 evidence items legitimately carry no `issueKey`** — unchanged, and still
+  correct to leave alone (accountability categories, not `ISSUE_MAP` keys).
+- `stuart_adams`' 3 shadowed cards (eighth pass, section C).
+- The 20 new records are **thin by design**: no bio, no promise ledger, `score:
+  null`. Their Voting Record, stance cards and evidence panel all render; their
+  Promise Score does not, because there is nothing to score. Sourcing those is the
+  natural next pass, and it is authoring work.

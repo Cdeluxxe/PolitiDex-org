@@ -68,8 +68,19 @@
       // `kcullimore`; the curated cards live under the name-slug key
       // `kirk_cullimore`, so `kcullimore` is bridged explicitly below rather than
       // leaning on the display-name slug fallback in _resolveStanceList().
+      //
+      // `calbrecht` is the content-side duplicate of Rep. Carl Albrecht: it held six
+      // bill-sourced stance cards while the roster/browse/Utah-map id held three
+      // unsourced ones. The cards were merged into `carl_albrecht` (the roster id,
+      // per the note above about keeping the stance key equal to it), so this alias
+      // is the plain retired → canonical case with no name-slug hop.
       susan_collins:'collins', kennedy_rfk:'rfkjr', cullimore_s19:'kcullimore',
-      kcullimore:'kirk_cullimore'
+      kcullimore:'kirk_cullimore', calbrecht:'carl_albrecht',
+      // `derek_brown` is the content-side duplicate of Utah AG Derek Brown: it
+      // held four sourced cards that ISSUE_STANCE_DATA['derek_brown_ut'] shadowed
+      // outright, since the direct id hit wins over every fallback. Folded into
+      // the roster id; this keeps an old bookmark or saved pick resolving.
+      derek_brown:'derek_brown_ut'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 
@@ -86,9 +97,14 @@
     // point at. `kennedy_rfk` is that case; see db/vr-pid-aliases.json for the note.
     // `cullimore_s19` is the same case for a state legislator: the vr_* tables hold
     // congressional roll calls, so he has no rows under either id and the merge was
-    // done in the data files.
+    // done in the data files. `calbrecht` (Rep. Carl Albrecht's content-side
+    // duplicate, merged into the roster id `carl_albrecht`) is that case again.
+    // `derek_brown` (the Utah Attorney General's content-side duplicate, merged
+    // into the roster id `derek_brown_ut`) is the same case once more — a state
+    // officer casts no congressional roll calls, so there are no rows to move.
     var PDX_PID_ALIASES = {
-      susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore'
+      susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore',
+      calbrecht: 'carl_albrecht', derek_brown: 'derek_brown_ut'
     };
     window.PDX_PID_ALIASES = PDX_PID_ALIASES;
     // Resolve a politician id to the one the voting record is stored under.
@@ -881,7 +897,24 @@
       // issueKey join the evidence map; ACCT items also bring their ▲/▼ impact, so a
       // future view can show what BACKS a stance (positive) vs. what CUTS AGAINST it
       // (negative) alongside the kept/broken promise ledger. Deduped by headline.
-      var _slKey = (id && window.ACCT_SPOTLIGHT && Array.isArray(window.ACCT_SPOTLIGHT[id])) ? id
+      // Hops mirror _resolveStanceList above — id, then ACCT_ALIAS, then a slug of
+      // the display name. That third hop is the documented stance-key convention,
+      // and without it evidence filed under the name slug never joins a profile
+      // opened on its roster id (kwan_s12 and bolinder_h68 rendered an empty
+      // Connected Evidence panel for exactly that reason). Additive by
+      // construction: the first two branches only fire where a key actually holds
+      // ACCT items, which is precisely what the original expression picked, and
+      // the final fallback is unchanged — so no key that used to resolve moves.
+      var _slHasAcct = function (k) {
+        return !!(k && window.ACCT_SPOTLIGHT && Array.isArray(window.ACCT_SPOTLIGHT[k]));
+      };
+      var _slHasNews = function (k) {
+        return !!(k && window.SPOTLIGHT_DATA && Array.isArray(window.SPOTLIGHT_DATA[k]));
+      };
+      var _slNameKey = (p && p.name) ? _stanceSlug(p.name) : '';
+      var _slKey = _slHasAcct(id) ? id
+                 : (id && window.ACCT_ALIAS && _slHasAcct(window.ACCT_ALIAS[id])) ? window.ACCT_ALIAS[id]
+                 : (_slHasAcct(_slNameKey) || _slHasNews(_slNameKey)) ? _slNameKey
                  : (id && window.ACCT_ALIAS && window.ACCT_ALIAS[id]) ? window.ACCT_ALIAS[id] : id;
       var _seenSl = {};
       function addSpot(it) {
@@ -1531,10 +1564,14 @@
   // everywhere.
   window._pdxStanceEvidenceLink = function(id, p, s) {
     try {
-      if (!s || !s.issueKey || typeof window._pdxIsUtahStateLegislator !== 'function' || !window._pdxIsUtahStateLegislator(p)) return '';
+      if (!s || !s.issueKey) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
       var map = window._issueEvidenceMap(id, p) || {};
-      if (!map[s.issueKey]) return '';
+      // The chip is a link to filed evidence, so require filed evidence — the
+      // bucket exists as soon as a position does, which is not the same thing.
+      var _b = map[s.issueKey];
+      if (!_b) return '';
+      if (!((_b.spotlight && _b.spotlight.length) || (_b.promises && _b.promises.length))) return '';
       return (typeof window._pdxEvChip === 'function') ? window._pdxEvChip(id, map[s.issueKey], 'stance') : '';
     } catch (e) { return ''; }
   };

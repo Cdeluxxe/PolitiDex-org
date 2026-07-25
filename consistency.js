@@ -278,7 +278,7 @@
     'jburton||turned service ethic into education benefits for the guard': 'veterans',
     'tyler_clancy||turned a lived issue into the state s homelessness portfolio': 'homeless',
     'jferry||put real money behind the rhetoric': 'water',
-    'calbrecht||reliable rancher and water advocate for central utah': 'water',
+    'carl_albrecht||reliable rancher and water advocate for central utah': 'water',
     'stewart_e_barlow||reformed public health order authority after living the pandemic': 'medical_freedom',
     'cheryl_acton||pushes disclosure rules that bind candidates like herself': 'gov_transparency',
     'ryan_d_wilcox||modernized child safety law for the ai era': 'tech_balance',

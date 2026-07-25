@@ -9550,7 +9550,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "mschultz": {
   "name": "Mike Schultz",
   "office": "UT House Speaker",
-  "state": "Utah · Weber County",
+  "state": "UT District 12 (Hooper, Weber County)",
   "party": "R",
   "termStart": "2015-01",
   "score": 63,
@@ -9622,7 +9622,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "aromero": {
   "name": "Angela Romero",
   "office": "UT State Representative",
-  "state": "UT District 26 (West SLC)",
+  "state": "UT District 25 (West Salt Lake City, Salt Lake County)",
   "party": "D",
   "termStart": "2013-01",
   "score": 61,
@@ -9916,7 +9916,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "eliason_h45": {
   "name": "Steve Eliason",
   "office": "Utah State Representative",
-  "state": "UT District 45 (Sandy)",
+  "state": "UT District 43 (Sandy, Salt Lake County)",
   "party": "R",
   "termStart": "2011-01",
   "score": null,
@@ -11076,5 +11076,453 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "state": "UT District 75 (St. George, Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Gun Rights", "Homeowner Rights", "Public Safety", "Limited Government"]
+ },
+ // Two more sitting representatives who were content-bearing but roster-less, which
+ // is what had kept them out of BOTH Utah House tables: each had a curated stance
+ // block and a Spotlight card under this id, but no record here, so 10e/10g had
+ // nothing to check a district or an office against. Seats confirmed against the
+ // public record before wiring — Nguyen succeeded Brian King in District 23 and was
+ // seated Jan 2025; Matthews has held the Kearns seat since 2021, renumbered 38→37
+ // by the 2023 redistricting. Same conventions as the block above: `score`/`kept`/
+ // `broken`/`pending` stay null/0 because no promise-tracking pass has been run for
+ // them, and `issues` are lifted verbatim from their own stance-card topics.
+ "hoang_nguyen": {
+  "name": "Hoang Nguyen", "office": "Utah State Representative",
+  "state": "UT District 23 (Salt Lake City)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Great Salt Lake & Water", "School Safety & Student Health", "Immigrant & Refugee Representation", "Air Quality & Environment"]
+ },
+ "ashlee_matthews": {
+  "name": "Ashlee Matthews", "office": "Utah State Representative",
+  "state": "UT District 37 (Kearns, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Child Care Access", "Working Families & Workers", "Maternal Health Coverage", "Second-Chance Employment"]
+ },
+ // Rob Bishop, the third July 2026 addition and the only one that needed a decision
+ // rather than a lookup. He was in the data set as a FORMER U.S. Representative with
+ // curated stance cards and one Spotlight card, but with no roster record — so when
+ // Matthew Gwynn resigned in March 2026 and Bishop won the April 25 GOP convention
+ // special election for District 6 (sworn in May 6, 2026, filling the remainder of a
+ // term that ends January 2027), there was no record to wire the seat to.
+ //
+ // The two honest representations were a separate state-House identity or this one
+ // record with a current office. This is one record, because two ids for one living
+ // person is exactly the split `calbrecht` had just been merged out of. What that
+ // costs is that `office` can only name the office he holds NOW: assertion 10g fails
+ // any /former/ in the office of a pid in _UTAH_HOUSE_INFO, and it should — that check
+ // is what caught `gwynn_h6` outliving its member. So his federal service is carried
+ // where a reader actually sees it and where it can be dated: the index.html profile
+ // blurb and the spotlights-data.js card label both say "Former U.S. Rep. (2003–2021)"
+ // in full. `termStart` is the May 2026 swearing-in for THIS seat, not his 1978 or
+ // 2003 starts, and there is deliberately no `termEnd` — he is sitting.
+ "rob_bishop": {
+  "name": "Rob Bishop", "office": "Utah State Representative",
+  "state": "UT District 6 (Box Elder / Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Election & Redistricting Reform", "Water Conservation", "Limited Government", "Term Limits", "Public Lands & Federalism"]
+ },
+ // The last three uncovered House seats whose sitting member was already content-bearing
+ // here — each had a curated stance block and no roster record, which is the exact
+ // condition that had kept them out of BOTH Utah House tables (10e/10g have no office or
+ // district to check without a record). Seats confirmed against the public record, then
+ // wired. Same minimal pattern as the records above: `score` null and kept/broken/pending
+ // 0 because no promise-tracking pass has been run for them, `issues` lifted verbatim
+ // from their own stance-card topics, and no `termEnd` — all three are sitting.
+ "tracy_miller": {
+  "name": "Tracy Miller", "office": "Utah State Representative",
+  "state": "UT District 45 (South Jordan, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Affordable Child Care", "Child Tax Relief", "Public Schools", "Teacher Pay & Literacy", "Parental Engagement"]
+ },
+ // Seated May 5, 2026 by special election for the remainder of Jefferson Burton's term:
+ // Burton resigned after moving out of District 64, and neither he nor his id ever held
+ // this seat in the data set (there is no `jburton` roster record, and he appears in
+ // neither Utah House table), so nothing stale had to be moved out of the way.
+ "jackie_larson": {
+  "name": "Jackie Larson", "office": "Utah State Representative",
+  "state": "UT District 64 (Spanish Fork / Salem, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Private Property Rights", "Water & Farmland", "Spending Transparency", "Parental Involvement"]
+ },
+ // Sworn in the same week as Bishop and Larson, succeeding Tyler Clancy, who resigned on
+ // appointment as the state homelessness coordinator. The district is 60 (Provo), NOT the
+ // 61 that the `utah_co` Key Races block runs — that is Lisa Shepherd's seat. Clancy has
+ // no roster record either, so District 60 was simply uncovered rather than mis-held.
+ "grant_pace": {
+  "name": "Grant Pace", "office": "Utah State Representative",
+  "state": "UT District 60 (Provo, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Housing for Families", "Cut Government Waste", "Responsible Tax Cuts", "Water Conservation"]
+ },
+ // FIFTH July 2026 pass — the sweep. Eleven more House members who were
+ // content-bearing here (a curated stance block, sometimes a Spotlight card) but
+ // roster-less, so neither Utah House table could name them. Districts confirmed
+ // against the public record first; each is post-2023 numbering.
+ "verona_mauga": {
+  "name": "Verona Mauga", "office": "Utah State Representative",
+  "state": "UT District 31 (West Valley City / Taylorsville, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Disability & Social Services", "Small Business", "Public Schools", "Bike-Lane Safety", "Protecting Veterans"]
+ },
+ "doug_owens": {
+  "name": "Doug Owens", "office": "Utah State Representative",
+  "state": "UT District 33 (Millcreek, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Great Salt Lake & Water Conservation", "Clean Air", "Wetlands & Habitat", "Child Influencer Protections"]
+ },
+ // Announced in Dec 2025 that she will not seek re-election, but she is the
+ // sitting member through the end of her term in January 2027 and therefore gets
+ // NO `termEnd` — 10g rejects one on a pid the info map wires to a live seat, and
+ // rightly: a retirement announcement is not a vacancy.
+ "carol_spackman_moss": {
+  "name": "Carol Spackman Moss", "office": "Utah State Representative",
+  "state": "UT District 34 (Holladay, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2001-01",
+  "issues": ["Public Schools", "Air Quality", "Gun Safety", "Opioid & Overdose Response", "Affordable Housing"]
+ },
+ "john_arthur": {
+  "name": "John Arthur", "office": "Utah State Representative",
+  "state": "UT District 41 (Cottonwood Heights, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-12",
+  "issues": ["Great Salt Lake & Water", "Teacher Pay & Support", "Public-Employee Bargaining", "Renter Protections", "Transit & Livability"]
+ },
+ "calvin_roberts": {
+  "name": "Calvin Roberts", "office": "Utah State Representative",
+  "state": "UT District 46 (Draper / Bluffdale, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Roads & Infrastructure", "Economic Development", "Small Business", "Fuel-Tax Relief", "Transit Procurement"]
+ },
+ "candice_pierucci": {
+  "name": "Candice Pierucci", "office": "Utah State Representative",
+  "state": "UT District 49 (Herriman / Riverton, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-11",
+  "issues": ["School Choice", "Online Child Safety", "Taxes & Limited Government", "Maternal & Infant Health"]
+ },
+ "leah_hansen": {
+  "name": "Leah Hansen", "office": "Utah State Representative",
+  "state": "UT District 51 (Saratoga Springs / west Lehi, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-08",
+  "issues": ["Limiting DEI Programs", "Religious Liberty", "Property-Tax Transparency", "Taxpayer Oversight", "Foreign Land Ownership"]
+ },
+ "kay_christofferson": {
+  "name": "Kay Christofferson", "office": "Utah State Representative",
+  "state": "UT District 53 (Lehi, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2013-01",
+  "issues": ["Roads & Infrastructure", "Public Transit", "Growth & Mobility Planning", "Corridor Preservation & Property", "Road Usage Charge"]
+ },
+ "doug_welton": {
+  "name": "Doug Welton", "office": "Utah State Representative",
+  "state": "UT District 65 (Payson, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Civics Education", "Phone-Free Classrooms", "Property Taxes", "Volunteer EMS Support", "Education Innovation"]
+ },
+ // The five Senate seats that had been left honestly empty because no roster
+ // record existed to name them. Four were content-bearing under these ids
+ // already; `cmusselman` had a Power-Map row and a browse entry. With these the
+ // Senate reaches 29 of 29 and KR_STATE_SENATE_INCUMBENTS has no absent key left.
+ "cmusselman": {
+  "name": "Calvin Musselman", "office": "Utah State Senator",
+  "state": "UT District 4 (West Haven, Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Child Online Safety", "Border Security", "Economic Development", "Human Trafficking Laws", "Penalties for Repeat Crime"]
+ },
+ // `party` is "F" — Forward Party. Not a typo and not a placeholder: index.html
+ // renders 'F' / 'Forward' as "Forward Party", and she is the only member of
+ // either chamber who is not R or D. Appointed Dec 12, 2025 and seated Dec 17 to
+ // fill the vacancy left when Daniel Thatcher resigned; Thatcher is a former
+ // member here and holds nothing.
+ "emily_buss": {
+  "name": "Emily Buss", "office": "Utah State Senator",
+  "state": "UT District 11 (Eagle Mountain / Tooele, Utah County)",
+  "party": "F", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-12",
+  "issues": ["Public Schools", "Government Transparency", "Roads & Transportation Funding", "Local Control of Growth", "Open, Nonpartisan Elections"]
+ },
+ // She served Utah House District 40 before winning this Senate seat in 2022, so
+ // her Spotlight cards have to be read carefully: the one that still called her a
+ // Representative was corrected to match its already-correct sibling rather than
+ // being left to fail 6's chamber check the moment this record appeared.
+ "stephanie_pitcher": {
+  "name": "Stephanie Pitcher", "office": "Utah State Senator",
+  "state": "UT District 14 (Salt Lake City / Millcreek, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Criminal Justice Reform", "Bail & Pretrial Reform", "Mental Health & Courts", "AI in Law Enforcement", "Juvenile Justice"]
+ },
+ // Senate Minority Whip. Elected in 2018 to the pre-redistricting District 8; the
+ // same territory is District 15 under post-2023 numbering, which is the number
+ // this map keys on.
+ "kathleen_riebe": {
+  "name": "Kathleen Riebe", "office": "Utah State Senator",
+  "state": "UT District 15 (Cottonwood Heights, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Public Schools", "Healthcare Access", "Clean Air & Great Salt Lake", "Workers & Labor Rights", "Student & Youth Health"]
+ },
+ "heidi_balderree": {
+  "name": "Heidi Balderree", "office": "Utah State Senator",
+  "state": "UT District 22 (Saratoga Springs / Bluffdale, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-10",
+  "issues": ["Veterans & Military", "Property Rights", "Property Taxes", "Charter & Public Education", "Citizen Referenda on Local Bonds"]
+ },
+ // SEVENTH July 2026 pass — the last five people who had curated content but no
+ // roster record under EITHER of their two ids, so both ids dead-ended on
+ // _pdxShowModalError. No alias was added for any of them: the ACCT_ALIAS entry
+ // already pointed the sparse id at the id these records use, and PDXProfilePid()
+ // accepts that hop the moment the target has a record. Same minimal pattern as
+ // Miller / Pace / Larson — `score` null and kept/broken/pending 0 because no
+ // promise-tracking pass has run, and `issues` lifted verbatim from each person's
+ // own stance-card topics in block order (capped at five, matching the records
+ // above). Districts and counties confirmed against the public record first.
+ //
+ // SITTING, fully wired into _UTAH_HOUSE_INFO + KR_STATE_HOUSE_INCUMBENTS[55].
+ // In the House since Jan 2019: District 57 2019–2023, District 55 2023–present.
+ // District 55 is a Utah County seat (Pleasant Grove / American Fork), which is why
+ // this pass also corrects _UTAH_HOUSE_COUNTY[55] from 'Salt Lake County'.
+ "jon_hawkins": {
+  "name": "Jon Hawkins", "office": "Utah State Representative",
+  "state": "UT District 55 (Pleasant Grove / American Fork, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Economic Development", "Online Child Safety & Digital Wellness", "Stronger Sexual-Offense Laws", "Public Safety & Crime", "Sports & Recreation"]
+ },
+ // SITTING, and already present in BOTH Senate tables (_UTAH_SENATE_INFO d:10 and
+ // KR_STATE_SENATE_INCUMBENTS[10]) — the roster record was the only missing layer,
+ // so this adds no map entry. In the Senate since Jan 2009 (District 1 2009–2023,
+ // District 10 2023–present) and Senate Minority Leader. She is the one person here
+ // with no stance block, so `issues` is lifted verbatim from the `keyIssues` already
+ // authored for her in EXPANSION_SUGGESTIONS; that entry's score 82 / 18-3-4 is an
+ // unverified import figure and is deliberately NOT copied.
+ "lescamilla": {
+  "name": "Luz Escamilla", "office": "Utah State Senator",
+  "state": "UT District 10 (Northwest Salt Lake City / West Valley City / Magna, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2009-01",
+  "issues": ["Healthcare Access", "Air Quality & Inversion", "Intergenerational Poverty", "Language Access"]
+ },
+ // SITTING county officer — sheriff since Aug 2018 (appointed to a vacancy, then
+ // elected), second term, 2026 Republican nominee for re-election, and president of
+ // the Utah Sheriffs' Association. A county office, so no district wiring applies.
+ // Icon matches the one his own curated stance block already uses.
+ "mike_smith_sheriff": {
+  "name": "Mike Smith", "office": "Utah County Sheriff",
+  "state": "Utah · Utah County",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🛡",
+  "termStart": "2018-08",
+  "issues": ["Backing Deputies & Community Safety", "Deputy Wellness & Mental Health", "Second Amendment", "Transparency", "Rehabilitation in Corrections"]
+ },
+ // FORMER — held House District 60 (Provo) from Jan 2023 until he resigned in March
+ // 2026 on appointment as Utah's state homeless coordinator (effective Mar 9 2026).
+ // Grant Pace holds District 60, so Clancy gets a record and deliberately NO entry
+ // in _UTAH_HOUSE_INFO or KR_STATE_HOUSE_INCUMBENTS. The `termEnd` and the "Former"
+ // in `office` are both load-bearing: assertion 10g rejects either one from the
+ // sitting House map, which is what keeps this from becoming another phil_lyman_h69.
+ // The year range in `state` time-qualifies the district the same way Brammer's
+ // House cards do, so no surface reads it as a live claim on seat 60.
+ "tyler_clancy": {
+  "name": "Tyler Clancy", "office": "Utah State Homeless Coordinator · Former UT State Representative",
+  "state": "UT District 60 (Provo, Utah County) 2023–2026",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01", "termEnd": "2026-03",
+  "issues": ["Homelessness", "Public Safety", "Mental Health & Addiction Recovery", "Criminal Justice & Second Chances", "Taxes & Limited Government"]
+ },
+ // NO CURRENT OFFICE — mayor of Provo from Jan 2018 until Jan 2026, when she lost
+ // the Nov 2025 election to Marsha Judkins (already here as `marsha_judkins_provo`,
+ // which is why her old "Mayor of Provo" spotlight label is corrected in this pass:
+ // two people cannot both hold it). She won the Jun 23 2026 Republican primary for
+ // Utah County Commission Seat A; the general election is Nov 2026. Both facts are
+ // time-qualified in `office`, so no surface claims she currently holds either post.
+ "michelle_kaufusi": {
+  "name": "Michelle Kaufusi", "office": "Former Mayor, Provo · 2026 Utah County Commission Nominee (Seat A)",
+  "state": "Utah",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2018-01", "termEnd": "2026-01",
+  "issues": ["Fiscal Discipline & Property Taxes", "Efficient County Government", "Infrastructure & Regional Planning", "ICE & Immigration Enforcement", "Experienced Executive Leadership"]
+ },
+// ── Voting Record unlock (July 2026) ──────────────────────────────────────
+// The 20 db/vr-member-map.json slugs that had ingested roll-call data but no
+// roster record, so openModal() dead-ended and the 🗳️ Voting Record section,
+// the Votes nav pill, the per-issue consistency dots, the Stance Library
+// "View votes" jump and the comparison-board indicators could never render.
+// Identity wiring only: score is null because no promise ledger exists for any
+// of them, and every `issues` string is lifted verbatim from that person's own
+// existing stance cards. All 20 are sitting U.S. House members of the 119th
+// Congress; see scripts/unlock-voting-record-20-jul2026.mjs for the per-member
+// public-record confirmation and for why the full state name in `state` is
+// load-bearing rather than cosmetic.
+ // Sitting MS-02, in the House since Apr 13 1993; dean of the Mississippi delegation.
+ "bennie_thompson": {
+  "name": "Bennie Thompson", "office": "U.S. Representative",
+  "state": "Mississippi · MS-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1993-04",
+  "issues": ["Criminal Justice", "Economy & Taxes", "Rural Broadband", "Infrastructure", "Disaster Recovery"]
+ },
+ // Sitting AR-04 since Jan 2015; chairs House Natural Resources, which is the office string his one spotlight card uses.
+ "bruce_westerman": {
+  "name": "Bruce Westerman", "office": "U.S. Representative",
+  "state": "Arkansas · AR-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2015-01",
+  "issues": ["Taxes & Cost of Living", "Forest Management", "Tax Relief", "Second Amendment"]
+ },
+ // Sitting NC-01 since Jan 3 2023; on the Nov 3 2026 ballot. NC redrew its map in the 2025–26 mid-decade cycle; NC-01 is the seat he holds now.
+ "don_davis": {
+  "name": "Don Davis", "office": "U.S. Representative",
+  "state": "North Carolina · NC-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Climate & Energy", "Agriculture & Rural Communities", "Bipartisanship", "Social Security & Medicare"]
+ },
+ // Sitting OK-03 since a May 1994 special election; dean of the Oklahoma delegation.
+ "frank_lucas": {
+  "name": "Frank Lucas", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1994-05",
+  "issues": ["Agriculture", "Scientific Research", "Water & Conservation", "Financial Markets", "Taxes & Cost of Living"]
+ },
+ // Sitting OK-02 since Jan 2023, succeeding Markwayne Mullin. No spotlight card names him.
+ "josh_brecheen": {
+  "name": "Josh Brecheen", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Federal Spending", "National Debt", "Agriculture", "Energy Policy", "Judicial Impeachment"]
+ },
+ // Sitting ND at-large, sworn in Jan 6 2025. Most card-covered of the 20 (9 nested spotlight cards).
+ "julie_fedorchak": {
+  "name": "Julie Fedorchak", "office": "U.S. Representative",
+  "state": "North Dakota · ND-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Government Spending", "Energy & Grid Reliability", "Agriculture & Farm Country", "Ban Congressional Stock Trading", "Government Accountability"]
+ },
+ // Sitting IA-01 since Jan 2021 (first won by six votes after a recount).
+ "mariannette_miller_meeks": {
+  "name": "Mariannette Miller-Meeks", "office": "U.S. Representative",
+  "state": "Iowa · IA-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Rural Health Care", "Energy & Biofuels", "Agriculture", "Fiscal Responsibility"]
+ },
+ // Sitting MS-03 since Jan 3 2019; House Ethics chair.
+ "michael_guest": {
+  "name": "Michael Guest", "office": "U.S. Representative",
+  "state": "Mississippi · MS-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Taxes & Cost of Living", "Border Strategy", "Government Ethics", "Law Enforcement"]
+ },
+ // Sitting GA-10 since Jan 3 2023. He won the 2026 Georgia GOP Senate runoff and is vacating the House seat at the end of this term, but he has NOT resigned — still the sitting member, so no "Former" and no termEnd.
+ "mike_collins": {
+  "name": "Mike Collins", "office": "U.S. Representative",
+  "state": "Georgia · GA-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Border Security & Immigration", "Fentanyl & Cartels", "Federal Spending", "Letting States Sue Washington"]
+ },
+ // Sitting MS-04 since Jan 3 2023; former Jackson County sheriff.
+ "mike_ezell": {
+  "name": "Mike Ezell", "office": "U.S. Representative",
+  "state": "Mississippi · MS-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Taxes & Cost of Living", "Law Enforcement", "Maritime Infrastructure", "Disaster Recovery"]
+ },
+ // Sitting NE-01 since a Jun 28 2022 special election, succeeding Jeff Fortenberry.
+ "mike_flood": {
+  "name": "Mike Flood", "office": "U.S. Representative",
+  "state": "Nebraska · NE-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2022-06",
+  "issues": ["Housing Supply", "Federal Spending", "Biofuels & Agriculture", "Court Orders & the Rule of Law", "A State Path in Financial Rules"]
+ },
+ // Sitting ID-02 since Jan 1999; won the May 19 2026 primary with 63.3%.
+ "mike_simpson": {
+  "name": "Mike Simpson", "office": "U.S. Representative",
+  "state": "Idaho · ID-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "1999-01",
+  "issues": ["Government Spending", "Taxes & Cost of Living", "Nuclear Energy & Idaho National Laboratory", "Salmon & Lower Snake River", "Interior & Environment Appropriations"]
+ },
+ // Sitting AR-01 since Jan 2011; chairs House Intelligence. vr-member-map records him formally as Eric A. "Rick" Crawford; the card and common usage are "Rick Crawford".
+ "rick_crawford": {
+  "name": "Rick Crawford", "office": "U.S. Representative",
+  "state": "Arkansas · AR-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011-01",
+  "issues": ["Government Spending", "Tax Relief", "National Security", "Second Amendment", "Agriculture"]
+ },
+ // Sitting PA-08, sworn in Jan 6 2025. Formally Robert P. Bresnahan, Jr. — the formal form would break the harness surname check, see header.
+ "rob_bresnahan": {
+  "name": "Rob Bresnahan", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Domestic Energy Production", "Tough on Crime", "Government Spending", "Jobs & Economy", "Infrastructure"]
+ },
+ // Sitting PA-07, sworn in Jan 6 2025. No spotlight card names him.
+ "ryan_mackenzie": {
+  "name": "Ryan Mackenzie", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Domestic Energy Production", "Tough on Crime", "America First Foreign Policy", "Jobs & Affordability", "Workforce & Education"]
+ },
+ // Sitting PA-10 since Jan 2013; won the May 19 2026 primary. No spotlight card names him.
+ "scott_perry": {
+  "name": "Scott Perry", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2013-01",
+  "issues": ["Taxes & Cost of Living", "Spending & the Debt", "National Defense"]
+ },
+ // Sitting OK-05 since Jan 2021. vr-member-map records her formally as Stephanie I. Bice.
+ "stephanie_bice": {
+  "name": "Stephanie Bice", "office": "U.S. Representative",
+  "state": "Oklahoma · OK-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Taxes & Cost of Living", "Veterans & Military Construction", "Infrastructure & Transportation", "Government Modernization", "National Defense"]
+ },
+ // Sitting AR-03 since Jan 2011. No spotlight card names him.
+ "steve_womack": {
+  "name": "Steve Womack", "office": "U.S. Representative",
+  "state": "Arkansas · AR-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011-01",
+  "issues": ["Mental Health & Addiction", "Taxes & Cost of Living", "Federal Budget", "Tax Relief", "Second Amendment"]
+ },
+ // Sitting MS-01 since a Jun 2 2015 special election.
+ "trent_kelly": {
+  "name": "Trent Kelly", "office": "U.S. Representative",
+  "state": "Mississippi · MS-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2015-06",
+  "issues": ["National Defense", "Veterans & National Guard", "Agriculture", "Second Amendment", "Taxes & Cost of Living"]
+ },
+ // Sitting MT-02, sworn in Jan 6 2025, succeeding Matt Rosendale.
+ "troy_downing": {
+  "name": "Troy Downing", "office": "U.S. Representative",
+  "state": "Montana · MT-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Taxes & Cost of Living", "Tax Relief", "Public Lands Access", "Coal & Energy", "Water Infrastructure"]
  }
 });
