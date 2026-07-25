@@ -420,6 +420,113 @@
     }
     window._recordOmnibusStats = _recordOmnibusStats;
 
+    // ── Multi-issue SPREAD (presentation aggregate — invents no score) ─────────
+    // _measureComponentBreakdown already decides, per component issue, what one vote
+    // did ('advances'/'opposes') and how that reads against the member's stance
+    // ('consistent'/'contradicts'/…). But a card's top-level badge shows only the
+    // PRIMARY issue's verdict, so the multi-issue nature of the vote used to live in
+    // a hover — weak on touch and for some screen readers. This tallies the
+    // components that are ALREADY computed so a surface can print the whole-card
+    // story as always-visible text. No new weighting, no new thresholds: it counts.
+    //   brk — the object returned by _measureComponentBreakdown
+    // Returns null for a single-issue record, else { count, judged, consistent,
+    // contradicts, mixed, advances, opposes, tone, lead, detail, label, … }.
+    // `detail` uses the VERDICT flavour when at least one component could be judged
+    // against a stated stance, and falls back to the EFFECT flavour otherwise, so the
+    // token is never empty on a multi-issue card — including for a member with no
+    // stances at all.
+    function _multiIssueSpread(brk) {
+      if (!brk || !brk.isOmnibus) return null; // single-issue → nothing to summarise
+      var comps = Array.isArray(brk.components) ? brk.components : [];
+      var v = { consistent: 0, contradicts: 0, mixed: 0, no_position: 0, no_stance: 0 };
+      var e = { advances: 0, opposes: 0, none: 0 };
+      comps.forEach(function (c) {
+        if (v[c.verdict] !== undefined) v[c.verdict]++;
+        if (e[c.effect] !== undefined) e[c.effect]++;
+      });
+      var judged = v.consistent + v.contradicts;
+      var parts = [];
+      if (judged > 0 || v.mixed > 0) {
+        if (v.consistent) parts.push(v.consistent + ' match');
+        if (v.contradicts) parts.push(v.contradicts + ' against');
+        if (v.mixed) parts.push(v.mixed + ' mixed');
+      } else if (e.advances || e.opposes) {
+        if (e.advances) parts.push('advances ' + e.advances);
+        if (e.opposes) parts.push('cuts against ' + e.opposes);
+      } else {
+        parts.push('no position taken');
+      }
+      var tone = (v.consistent && v.contradicts) ? 'mixed'
+        : v.consistent ? 'match'
+          : v.contradicts ? 'against'
+            : (e.advances && e.opposes) ? 'mixed' : 'neutral';
+      var lead = brk.count + ' issues';
+      return {
+        count: brk.count,
+        judged: judged,
+        consistent: v.consistent, contradicts: v.contradicts, mixed: v.mixed,
+        noPosition: v.no_position, noStance: v.no_stance,
+        advances: e.advances, opposes: e.opposes, neutral: e.none,
+        // True when the SAME vote pushed one issue forward and another back — the
+        // "one yea, two answers" case the badge most needs to stop hiding.
+        splits: !!(e.advances && e.opposes),
+        stanceBased: judged > 0 || v.mixed > 0,
+        tone: tone,
+        lead: lead,
+        detail: parts.join(' · '),
+        label: lead + ' · ' + parts.join(' · ')
+      };
+    }
+    window._multiIssueSpread = _multiIssueSpread;
+
+    // ── Record COMPOSITION / confidence (describes a %, never changes one) ─────
+    // The Official Record percentage is consistent / (consistent + contradicts), so a
+    // member whose whole percentage rests on ONE omnibus vote renders identically to
+    // one with several single-issue votes. This reports how thin that denominator is
+    // and how much of it came from multi-issue bills, reusing _issueRecordSummary's
+    // counts and _recordOmnibusStats's tallies verbatim. It computes NO score and
+    // must never be allowed to move the number it annotates.
+    //   rec   — an _issueRecordSummary result (or the overall equivalent)
+    //   stats — a _recordOmnibusStats result for the same issue (optional)
+    // Returns null when there is no percentage to qualify (judged === 0), else
+    // { judged, total, unjudged, omnibus, single, maxCount, strength, level, thin,
+    //   omnibusDriven, note, detail }.
+    function _recordComposition(rec, stats) {
+      if (!rec) return null;
+      var judged = (rec.consistent || 0) + (rec.contradicts || 0);
+      if (!judged) return null; // no % is displayed → nothing to annotate
+      var total = Math.max(rec.total || 0, judged);
+      var unjudged = Math.max(0, total - judged);
+      var omnibus = stats ? (stats.omnibus || 0) : 0;
+      var single = stats ? (stats.single || 0) : 0;
+      var maxCount = stats ? (stats.maxCount || 0) : 0;
+      var level = judged >= 3 ? 'solid' : judged === 2 ? 'limited' : 'single';
+      var omnibusDriven = omnibus > 0 && omnibus >= single;
+      var note = '';
+      if (level === 'single') note = omnibus >= 1 ? '1 multi-issue vote' : '1 vote';
+      else if (level === 'limited') note = omnibusDriven ? '2 votes, multi-issue' : '2 votes';
+      else if (omnibusDriven) note = 'mostly multi-issue';
+      // Each bit is joined with '. ' below, so each one has to read as its own sentence.
+      var bits = [judged + (judged === 1 ? ' judged vote sits' : ' judged votes sit') + ' behind this percentage'];
+      if (unjudged) {
+        bits.push(unjudged + ' further record' + (unjudged === 1 ? '' : 's') + ' on this issue took no position either way, so ' +
+          (unjudged === 1 ? 'it is' : 'they are') + ' not counted in it');
+      }
+      if (omnibus) {
+        bits.push(omnibus + ' of ' + total + ' came from ' + (omnibus === 1 ? 'a multi-issue bill' : 'multi-issue bills') +
+          (maxCount >= 2 ? ' (' + (omnibus === 1 ? 'it covered ' : 'one of them covered ') + maxCount + ' issues at once)' : ''));
+      }
+      if (level !== 'solid') bits.push('A read this thin can swing a long way on one more vote');
+      return {
+        judged: judged, total: total, unjudged: unjudged,
+        omnibus: omnibus, single: single, maxCount: maxCount,
+        strength: judged >= 3 ? 3 : judged, // filled segments out of 3
+        level: level, thin: level !== 'solid', omnibusDriven: omnibusDriven,
+        note: note, detail: bits.join('. ') + '.'
+      };
+    }
+    window._recordComposition = _recordComposition;
+
     // Runnable, dependency-free self-test for the stance-vs-record engine. Never runs
     // on its own (pure) — call window._stanceRecordSelfTest() from the console or a
     // node harness. Returns { passed, failed, failures[] }. The cases pin down the
@@ -573,6 +680,96 @@
       eq(JSON.stringify(after.netVerdict) + after.consistent + after.contradicts,
          JSON.stringify(before.netVerdict) + before.consistent + before.contradicts,
          'provenance: reading provenance leaves the verdict untouched');
+
+      // ── _multiIssueSpread: the always-visible whole-card summary ─────────────
+      // hr1 splits: a yea advances lower_taxes (support → consistent) and opposes
+      // healthcare (support → contradicts). So the badge summary must say BOTH.
+      var sp = _multiIssueSpread(_measureComponentBreakdown(hr1, posMap));
+      eq(sp.count, 2, 'spread: counts every component');
+      eq(sp.consistent, 1, 'spread: one component matches the stance');
+      eq(sp.contradicts, 1, 'spread: one component cuts against it');
+      eq(sp.judged, 2, 'spread: judged is match + against');
+      eq(sp.tone, 'mixed', 'spread: match AND against → mixed tone');
+      eq(sp.splits, true, 'spread: one vote moved two issues opposite ways');
+      eq(sp.stanceBased, true, 'spread: stance flavour available');
+      eq(sp.detail, '1 match · 1 against', 'spread: verdict flavour reads plainly');
+      eq(sp.label, '2 issues · 1 match · 1 against', 'spread: label leads with the issue count');
+      // A single-issue record has no spread to show at all.
+      eq(_multiIssueSpread(_measureComponentBreakdown(subCon, posMap)), null,
+        'spread: single-issue → null (badge stays as it was)');
+      // NO stances anywhere → the token must still say something, via EFFECT flavour.
+      var spNo = _multiIssueSpread(_measureComponentBreakdown(hr1, {}));
+      eq(spNo.judged, 0, 'spread: nothing judged without stances');
+      eq(spNo.stanceBased, false, 'spread: falls back off the stance flavour');
+      eq(spNo.detail, 'advances 1 · cuts against 1', 'spread: effect flavour when no stance exists');
+      eq(spNo.splits, true, 'spread: split is a property of the vote, not of the stances');
+      eq(spNo.tone, 'mixed', 'spread: opposite effects → mixed tone even with no stance');
+      // No direction at all (present/not voting) → still never an empty token.
+      var spPres = _multiIssueSpread(_measureComponentBreakdown(hr1Present, {}));
+      eq(spPres.detail, 'no position taken', 'spread: no direction → explicit token, never blank');
+      eq(spPres.splits, false, 'spread: no direction cannot split');
+      ok(_multiIssueSpread(_measureComponentBreakdown(hr1, posMap)).detail.length > 0 &&
+        _multiIssueSpread(_measureComponentBreakdown(hr1, {})).detail.length > 0 &&
+        spPres.detail.length > 0, 'spread: detail is never empty on a multi-issue card');
+
+      // ── _recordComposition: how thin is the % and what drives it ─────────────
+      // One omnibus vote judged against a stance → the % is 100% off a single vote.
+      var recThin = _issueRecordSummary('lower_taxes', 'support', [hr1]);
+      var compThin = _recordComposition(recThin, _recordOmnibusStats('lower_taxes', [hr1]));
+      eq(compThin.judged, 1, 'composition: denominator is consistent + contradicts');
+      eq(compThin.level, 'single', 'composition: one judged vote → single');
+      eq(compThin.thin, true, 'composition: one judged vote is a thin read');
+      eq(compThin.strength, 1, 'composition: one filled segment of three');
+      eq(compThin.omnibusDriven, true, 'composition: the only vote was an omnibus');
+      eq(compThin.note, '1 multi-issue vote', 'composition: note names both thinness and composition');
+      // Three single-issue votes → solid, nothing to warn about, token stays quiet.
+      var singles = [singleTax,
+        { kind: 'vote', position: 'yea', issues: [{ issueKey: 'lower_taxes', weight: 90, supportMeaning: 'yea_supports' }] },
+        { kind: 'vote', position: 'nay', issues: [{ issueKey: 'lower_taxes', weight: 80, supportMeaning: 'yea_supports' }] }];
+      var compSolid = _recordComposition(_issueRecordSummary('lower_taxes', 'support', singles),
+        _recordOmnibusStats('lower_taxes', singles));
+      eq(compSolid.judged, 3, 'composition: three judged votes');
+      eq(compSolid.level, 'solid', 'composition: three judged votes → solid');
+      eq(compSolid.thin, false, 'composition: solid read is not thin');
+      eq(compSolid.omnibusDriven, false, 'composition: no omnibus in the mix');
+      eq(compSolid.note, '', 'composition: nothing to warn about → no visible note');
+      // Mixed depth: 2 judged, majority from omnibus bills.
+      var two = [hr1, singleTax];
+      var compTwo = _recordComposition(_issueRecordSummary('lower_taxes', 'support', two),
+        _recordOmnibusStats('lower_taxes', two));
+      eq(compTwo.level, 'limited', 'composition: two judged votes → limited');
+      eq(compTwo.omnibus + '/' + compTwo.total, '1/2', 'composition: reuses the omnibus tally verbatim');
+      eq(compTwo.omnibusDriven, true, 'composition: omnibus >= single counts as driven');
+      eq(compTwo.note, '2 votes, multi-issue', 'composition: limited + driven note');
+      // No stance → no percentage is rendered → nothing to annotate.
+      eq(_recordComposition(_issueRecordSummary('lower_taxes', null, [hr1]), null), null,
+        'composition: no stance → null');
+      // A record that took no position is counted in total but not in the denominator.
+      var recPresent = _issueRecordSummary('lower_taxes', 'support', [singleTax, hr1Present]);
+      var compPresent = _recordComposition(recPresent, _recordOmnibusStats('lower_taxes', [singleTax, hr1Present]));
+      eq(compPresent.judged, 1, 'composition: present/not-voting is not in the denominator');
+      eq(compPresent.unjudged, 1, 'composition: but it is reported as an uncounted record');
+      ok(/not counted in it/.test(compPresent.detail), 'composition: detail explains the uncounted record');
+      // The detail string is read aloud by screen readers, so each '. '-joined clause
+      // has to be a grammatical sentence — singular/plural agreement and sentence case.
+      ok(/^1 judged vote sits behind this percentage\./.test(compPresent.detail),
+        'composition: singular judged count agrees with its verb');
+      ok(/^3 judged votes sit behind this percentage\./.test(compSolid.detail),
+        'composition: plural judged count agrees with its verb');
+      ok(/came from a multi-issue bill\b/.test(compThin.detail),
+        'composition: a lone omnibus vote is described in the singular');
+      ok(!/came from a multi-issue bills/.test(compThin.detail),
+        'composition: singular article never collides with the plural noun');
+      compThin.detail.split('. ').forEach(function (sentence, i) {
+        ok(/^[A-Z0-9]/.test(sentence), 'composition: sentence ' + (i + 1) + ' of the detail starts in sentence case');
+      });
+      // Composition NEVER moves the number it annotates.
+      var pctBefore = _issueRecordSummary('lower_taxes', 'support', two);
+      _recordComposition(pctBefore, _recordOmnibusStats('lower_taxes', two));
+      var pctAfter = _issueRecordSummary('lower_taxes', 'support', two);
+      eq(pctAfter.consistent + '/' + pctAfter.contradicts + '/' + pctAfter.netVerdict,
+         pctBefore.consistent + '/' + pctBefore.contradicts + '/' + pctBefore.netVerdict,
+         'composition: annotating a percentage leaves the percentage untouched');
 
       return { passed: (failures.length === 0), failed: failures.length, failures: failures };
     }

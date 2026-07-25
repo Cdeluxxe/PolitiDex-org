@@ -133,6 +133,16 @@
       '.vr-src:hover{text-decoration:underline;}',
       '.vr-stance-note{font-size:.74rem;color:#9fb4d4;margin-top:.35rem;line-height:1.45;}',
       '.vr-stance-note b{color:#cbd9ec;}',
+      /* always-visible multi-issue summary beside the verdict badge (no hover needed) */
+      '.vr-verdict-stack{display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;text-align:right;flex-shrink:0;max-width:62%;}',
+      '.vr-verdict-scope{font-size:.66rem;color:#8ea4c6;line-height:1.35;}',
+      '.vr-verdict-scope-q{color:#6b86b0;}',
+      '.vr-spread{display:inline-flex;align-items:center;gap:.25rem;font-size:.66rem;font-weight:700;letter-spacing:.02em;' +
+        'border-radius:999px;padding:.1rem .45rem;line-height:1.4;white-space:normal;}',
+      '.vr-spread-mixed{background:rgba(251,146,60,.15);color:#fdba74;border:1px solid rgba(251,146,60,.34);}',
+      '.vr-spread-match{background:rgba(74,222,128,.14);color:#6ee7a0;border:1px solid rgba(74,222,128,.32);}',
+      '.vr-spread-against{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.36);}',
+      '.vr-spread-neutral{background:rgba(159,180,212,.12);color:#9fb4d4;border:1px solid rgba(159,180,212,.28);}',
       /* omnibus component breakdown — one vote, many per-issue verdicts */
       '.vr-omni{margin-top:.5rem;border-top:1px dashed rgba(255,255,255,.09);padding-top:.45rem;}',
       '.vr-omni-lead{font-family:"Barlow Condensed",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8ea4c6;margin-bottom:.35rem;}',
@@ -413,14 +423,58 @@
       '</div>';
     }).join('');
 
+    // The lead now carries the same spread the badge summarises, so the two never
+    // disagree — both read from _multiIssueSpread over these very components.
+    var sp = (typeof window._multiIssueSpread === 'function') ? window._multiIssueSpread(brk) : null;
+    var lead = sp ? ('Multi-issue bill · ' + esc(sp.label)) : ('Multi-issue bill · one vote, ' + brk.count + ' issues');
+
     return '<div class="vr-omni">' +
-      '<div class="vr-omni-lead">Multi-issue bill · one vote, ' + brk.count + ' issues</div>' +
+      '<div class="vr-omni-lead">' + lead + '</div>' +
       '<p class="vr-omni-touch" title="' + escAttr(OMNI_EXPLAINER) + '">This vote touched: ' + touched + '</p>' +
       '<div class="vr-omni-rows">' +
         '<div class="vr-omni-cap">What this one vote did for each:</div>' +
         rows +
       '</div>' +
     '</div>';
+  }
+
+  // ── Always-visible multi-issue summary beside the verdict badge ─────────────
+  // The badge only ever judged the measure's PRIMARY issue, and the fact that five
+  // other issues were riding on the same vote lived in a `title` — invisible on
+  // touch and inconsistently announced by screen readers. This renders that summary
+  // as real text: which issue the badge is about, and how the whole vote broke down
+  // ("🧩 3 issues · 1 match · 2 against"). Every number comes from
+  // _multiIssueSpread over the components already on the card — no new scoring.
+  // Degrades to the bare badge if either helper is absent.
+  function verdictStackHtml(item, positionMap, verdictHtml) {
+    if (!isOmnibusItem(item)) return verdictHtml; // single-issue card unchanged
+    if (typeof window._measureComponentBreakdown !== 'function' ||
+        typeof window._multiIssueSpread !== 'function') return verdictHtml;
+    var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
+    var sp = window._multiIssueSpread(brk);
+    if (!sp) return verdictHtml;
+
+    // Name the issue the badge is actually about, so the badge stops reading as the
+    // verdict on the whole bill. Only shown when there IS a badge to qualify.
+    var scope = '';
+    var primaryIssue = (item.issues && item.issues[0]) || null;
+    if (verdictHtml && primaryIssue) {
+      scope = '<span class="vr-verdict-scope">on ' + esc(issueLabel(primaryIssue.issueKey)) +
+        ' <span class="vr-verdict-scope-q">(main issue of ' + sp.count + ')</span></span>';
+    }
+
+    var tip = sp.stanceBased
+      ? 'This one vote is judged separately on each of the ' + sp.count + ' issues it touched: ' +
+        sp.detail.replace(/ · /g, ', ') + '.'
+      : 'This one vote touched ' + sp.count + ' issues. No stated stance is on file for them, so ' +
+        'what it did is shown instead: ' + sp.detail.replace(/ · /g, ', ') + '.';
+    // The split is a property of the VOTE, not of the stances, so it is disclosed
+    // either way — a member with no stance on file still cast one vote two ways.
+    if (sp.splits) tip += ' The same vote pushed one issue forward and another back.';
+    var token = '<span class="vr-spread vr-spread-' + sp.tone + '" title="' + escAttr(tip) + '">' +
+      '<span aria-hidden="true">🧩</span> ' + esc(sp.label) + '</span>';
+
+    return '<div class="vr-verdict-stack">' + verdictHtml + scope + token + '</div>';
   }
 
   // ── Dismissible "what an omnibus vote does" note ───────────────────────────
@@ -531,6 +585,9 @@
           ' — this bill’s main issue. This one vote is judged separately on each issue it touched; see the split below.') + '"'
       : '';
     var verdictHtml = vb ? '<span class="vr-verdict ' + vb.cls + '"' + vbTitle + '>' + esc(vb.label) + '</span>' : '';
+    // On a multi-issue card, wrap the badge with the always-visible scope + spread
+    // summary. Single-issue cards get the bare badge back, byte for byte.
+    verdictHtml = verdictStackHtml(item, positionMap, verdictHtml);
 
     var meta = [];
     meta.push(positionPill(item));
@@ -587,6 +644,9 @@
       note + componentBreakdownHtml(item, positionMap) + src +
       '</div>';
   }
+  // Exported for the same reason _vrTeachHtml is: a pure item → HTML function that a
+  // node harness can render without a DOM, so the card's markup is testable.
+  window._vrCardHtml = cardHtml;
 
   // ── Empty / no-match state ─────────────────────────────────────────────────
   // Any filter narrowing the set beyond the member's full record (sort is a view

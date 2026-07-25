@@ -696,6 +696,25 @@
       '.pdxor-thin{font-family:"Barlow Condensed",sans-serif;font-size:0.5em;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#c6a15b;margin-left:0.12em;vertical-align:super;}' +
       '.pdxor-integrity{display:inline-flex;align-items:center;gap:0.3rem;cursor:help;}' +
       '.pdxor-integrity-cap{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.5rem;line-height:1;letter-spacing:0.04em;text-transform:uppercase;color:#c6a15b;text-align:left;}' +
+      // Composition / confidence indicator ON the Official Record % (annotation only —
+      // it never changes the number). Three-segment depth meter + an optional short
+      // word when the read is thin or mostly multi-issue.
+      '.pdxor-comp{display:inline-flex;align-items:center;gap:0.25rem;cursor:help;}' +
+      '.pdxor-comp-bar{display:inline-flex;align-items:flex-end;gap:1.5px;height:0.62rem;}' +
+      '.pdxor-comp-bar i{display:block;width:3px;border-radius:1px;background:rgba(159,180,212,0.22);}' +
+      '.pdxor-comp-bar i:nth-child(1){height:45%;}' +
+      '.pdxor-comp-bar i:nth-child(2){height:72%;}' +
+      '.pdxor-comp-bar i:nth-child(3){height:100%;}' +
+      '.pdxor-comp-bar i.pdxor-comp-on{background:#8fa9cf;}' +
+      '.pdxor-comp-single .pdxor-comp-bar i.pdxor-comp-on{background:#e0a458;}' +
+      '.pdxor-comp-limited .pdxor-comp-bar i.pdxor-comp-on{background:#d8c169;}' +
+      '.pdxor-comp-solid .pdxor-comp-bar i.pdxor-comp-on{background:#7fbf9a;}' +
+      '.pdxor-comp-note{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.2;color:#c6a15b;}' +
+      '.pdxor-comp-solid .pdxor-comp-note{color:#8fa2c0;}' +
+      // Composition, not just depth: mark the reads that are mainly multi-issue bills
+      // with the same 🧩 the omnibus surfaces already use.
+      '.pdxor-comp-omni .pdxor-comp-note::before{content:"\\01F9E9 ";}' +
+      '.pdxor-compsum{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.25;color:#8fa2c0;max-width:9rem;text-align:left;cursor:help;}' +
       '.pdxor-method{font-size:0.66rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.4rem 0.55rem;border-radius:0.5rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);}' +
       '.pdxor-method b{color:#c6d4ec;}' +
       // Divergence section (Phase 8): Official Record vs Say-vs-Do, side by side.
@@ -980,6 +999,74 @@
         ' from ' + LT('omnibus', 'multi-issue bills') + '</span>';
     } catch (e) { return ''; }
   }
+  // ── Composition / confidence indicator ON the Official Record % ─────────────
+  // The % is consistent ÷ (consistent + contradicts), so a member whose entire
+  // percentage on an issue rests on ONE omnibus vote used to render identically to a
+  // member with several single-issue votes. This annotates the number — it never
+  // changes it: a three-segment depth meter plus a short word when the read is thin
+  // or mostly multi-issue. Every figure comes from _recordComposition, which is pure
+  // counting over the same _issueRecordSummary counts and the same
+  // _pdxRecordOmnibusStats tallies the chip beside it already uses.
+  function _orCompMeterHtml(comp, lead) {
+    var seg = '';
+    for (var i = 1; i <= 3; i++) {
+      seg += '<i class="' + (i <= comp.strength ? 'pdxor-comp-on' : 'pdxor-comp-off') + '"></i>';
+    }
+    var sentence = lead + ' ' + comp.detail;
+    var note = comp.note
+      ? '<span class="pdxor-comp-note">' + esc(comp.note) + '</span>'
+      : '';
+    // aria-label carries the whole sentence so this is not a hover-only signal;
+    // the meter itself is decorative once the label says the same thing in words.
+    return '<span class="pdxor-comp pdxor-comp-' + comp.level + (comp.omnibusDriven ? ' pdxor-comp-omni' : '') + '"' +
+        ' title="' + esc(sentence) + '" aria-label="' + esc(sentence) + '">' +
+      '<span class="pdxor-comp-bar" aria-hidden="true">' + seg + '</span>' + note +
+    '</span>';
+  }
+  // Per-issue indicator, rendered immediately after that issue's %.
+  function _orCompositionHtml(pid, issueKey, ov) {
+    try {
+      if (typeof window._recordComposition !== 'function') return '';
+      if (!ov || typeof ov.score !== 'number' || !ov.record) return ''; // no % → nothing to qualify
+      var stats = (typeof window._pdxRecordOmnibusStats === 'function')
+        ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
+      var comp = window._recordComposition(ov.record, stats);
+      if (!comp) return '';
+      return _orCompMeterHtml(comp, 'How much record is behind this percentage:');
+    } catch (e) { return ''; }
+  }
+  // Whole-panel indicator for the overall %. The overall is the MEAN of the per-issue
+  // percentages, so its confidence question is different: how many issues went into
+  // the average, and how many of those are themselves thin or omnibus-driven.
+  function _orOverallCompositionHtml(pid, scored) {
+    try {
+      if (typeof window._recordComposition !== 'function') return '';
+      var rated = 0, thin = 0, omni = 0, single = 0;
+      (scored || []).forEach(function (s) {
+        if (!s || !s.ov || typeof s.ov.score !== 'number' || !s.ov.record) return;
+        var stats = (typeof window._pdxRecordOmnibusStats === 'function')
+          ? window._pdxRecordOmnibusStats(pid, s.key) : null;
+        var c = window._recordComposition(s.ov.record, stats);
+        if (!c) return;
+        rated++;
+        if (c.thin) thin++;
+        if (c.level === 'single') single++;
+        if (c.omnibusDriven) omni++;
+      });
+      if (!rated) return '';
+      var parts = ['average of ' + rated + ' issue' + (rated === 1 ? '' : 's')];
+      if (thin) parts.push(thin + ' on 1–2 votes');
+      if (omni) parts.push(omni + ' mostly multi-issue');
+      var tip = 'The Official Record % is the mean of the per-issue percentages, so it is only as ' +
+        'deep as the records underneath it. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
+        ' had a percentage to average' +
+        (single ? '; ' + single + ' of those rest on a single judged vote' : '') +
+        (thin ? '; ' + thin + ' rest on two or fewer' : '') +
+        (omni ? '; ' + omni + ' are driven mainly by multi-issue bills' : '') + '.';
+      return '<span class="pdxor-compsum" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' +
+        esc(parts.join(' · ')) + '</span>';
+    } catch (e) { return ''; }
+  }
   function _orActLine(verdict, title, meta, url, label, omniNote) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
@@ -1074,8 +1161,11 @@
 
     var overall = scopedOverall('official', pid);
     var om = overall.verdict;
+    // Composition on the overall % — how many issues it averages and how many of them
+    // are thin or omnibus-driven. Annotation only; overall.score is untouched.
+    var overallComp = _orOverallCompositionHtml(pid, scored);
     var overallHtml = (typeof overall.score === 'number')
-      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
+      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span>' + overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
 
     var head =
@@ -1123,11 +1213,13 @@
       var rows = grp.items.map(function (s) {
         var v = s.ov.verdict;
         var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
+        // Depth/composition of the record behind that %, immediately after it.
+        var comp = _orCompositionHtml(pid, s.key, s.ov);
         return '<div class="pdxor-issue">' +
             '<div class="pdxor-issue-top">' +
               '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
-              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
+              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct + comp +
               _orOmniChip(pid, s.key) +
             '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
           '</div>';
