@@ -41157,13 +41157,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // (County)" for every senator — replacing the old "Statewide" / "(Your County)"
     // buckets and the duplicate district numbers that the raw profile data carried.
     //
-    // KNOWN INCONSISTENCY (pre-existing, not this map's fault): `rward` also claims
-    // d:19. Ray Ward sits in the Utah HOUSE from House District 19 — his roster
-    // record mislabels him as a senator, so he lands in a Senate-only map with a
-    // House district number. Cullimore's 19 is the correct Senate District 19
-    // (Salt Lake County; he moved from District 9 when redistricting renumbered the
-    // seat in 2023). The two labels still read distinctly — "District 19 (Salt Lake
-    // County)" vs "District 19 (Davis County)" — but `rward` needs its own fix.
+    // District 19 is Sen. Kirk Cullimore's alone (Sandy / Draper / Cottonwood
+    // Heights, Salt Lake County; he moved from District 9 when redistricting
+    // renumbered the seat in 2023). Ray Ward (`rward`) used to sit here too with
+    // d:19 / Davis County — he is a Utah HOUSE member from House District 19, so
+    // he now lives in _UTAH_HOUSE_COUNTY[19] and KR_STATE_HOUSE_INCUMBENTS[19]
+    // instead. Do not re-add a House member to this Senate-only map.
     var _UTAH_SENATE_INFO = {
       ssandall:   { d: 1,  c: 'Box Elder County' },
       jstevenson: { d: 6,  c: 'Davis County' },
@@ -41172,7 +41171,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       kcullimore: { d: 19, c: 'Salt Lake County' },
       cbramble:   { d: 16, c: 'Utah County' },
       kgrover:    { d: 15, c: 'Utah County' },
-      rward:      { d: 19, c: 'Davis County' },
       sadams:     { d: 22, c: 'Davis County' },
       bwilson:    { d: 24, c: 'Utah County' },
       evickers:   { d: 28, c: 'Iron County' },
@@ -41186,7 +41184,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       1:'Box Elder County', 2:'Weber County', 3:'Weber County', 4:'Davis County', 5:'Davis County',
       6:'Davis County', 7:'Salt Lake County', 8:'Salt Lake County', 9:'Salt Lake County', 10:'Salt Lake County',
       11:'Salt Lake County', 12:'Salt Lake County', 13:'Utah County', 14:'Salt Lake County', 15:'Utah County',
-      16:'Utah County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Davis County', 20:'Tooele County',
+      16:'Utah County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Salt Lake County', 20:'Tooele County',
       21:'Utah County', 22:'Davis County', 23:'Davis County', 24:'Utah County', 25:'Utah County',
       26:'Utah County', 27:'Wasatch County', 28:'Iron County', 29:'Washington County'
     };
@@ -47683,7 +47681,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     };
     var KR_STATE_HOUSE_INCUMBENTS = {
       3:'stephanie_gricius_h3', 4:'auxier_h4', 5:'snider_h5', 6:'gwynn_h6', 9:'jake_sawyer',
-      10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 22:'hooper_h22',
+      10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward', 22:'hooper_h22',
       24:'hollins_h24', 28:'nelson_h28',
       29:'bolinder_h68', 30:'fitisemanu_h30', 36:'matthews_h36', 39:'ivory_h39', 42:'judkins_h42', 45:'teuscher_h44',
       50:'gricius_h50', 52:'cory_maloy_h52', 57:'valpeterson_h56', 59:'kohler_h59', 62:'lisa_shepherd', 63:'whyte_h63',
