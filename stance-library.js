@@ -117,7 +117,14 @@
     { key: 'repro',       label: '🕊 Abortion',          test: function (k, d) { return d.cat === 'repro'; } },
     { key: 'healthcare',  label: '🏥 Healthcare Costs',  test: function (k, d) { return d.cat === 'health' || (d.stanceKeys || []).indexOf('healthcare') !== -1; } },
     { key: 'energy',      label: '💧 Energy & Water',    test: function (k, d) { return d.cat === 'enviro' || d.cat === 'land'; } },
-    { key: 'elections',   label: '🗳 Elections',         test: function (k, d) { return d.cat === 'democracy' || (d.stanceKeys || []).indexOf('campaign') !== -1; } }
+    { key: 'elections',   label: '🗳 Elections',         test: function (k, d) { return d.cat === 'democracy' || (d.stanceKeys || []).indexOf('campaign') !== -1; } },
+    // Institutional power. `cat` is 'reform' for these, which it shares with term
+    // limits / ethics / court-reform issues, so the predicate matches on the two
+    // keywords only the institutional keys carry ('separation of powers' for
+    // checks_balances, 'federalism' for states_federal_power) rather than on cat.
+    // No stanceKeys tag: those resolve against the legacy per-politician `stances`
+    // object, which has no institutional field, so a tag here would be dead wiring.
+    { key: 'checks',      label: '⚖️ Checks & Balances',  test: function (k, d) { return /separation of powers|federalism/.test((d.keywords || []).join(' ')); } }
   ];
   function hotTopicsFor(issueKey) {
     var MAP = G('ISSUE_MAP'); var d = (MAP && MAP[issueKey]) || {};

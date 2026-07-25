@@ -35,6 +35,7 @@ import { fileURLToPath } from 'url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'politician-stances.js');
 const INDEX = path.join(ROOT, 'index.html');
+const ACCT = path.join(ROOT, 'acct-spotlight-data.js');
 
 function evalGlobal(code, pick) {
   const prev = globalThis.window;
@@ -55,29 +56,40 @@ if (!stanceData || typeof stanceData !== 'object') {
   process.exit(1);
 }
 
-// 2) Determine the "notable" set from the curated accountability layer, which is
-//    embedded in index.html as window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || { ... };
-//    Extract it line-wise (from the assignment to its `    };` terminator) and
-//    eval the statement with a window shim — robust to braces/apostrophes that
-//    appear inside the data's own strings and comments.
-const html = fs.readFileSync(INDEX, 'utf8');
-const lines = html.split('\n');
+// 2) Determine the "notable" set from the curated accountability layer.
+//    It now lives in its own file (acct-spotlight-data.js), which is pure data —
+//    an Object.assign onto window.ACCT_SPOTLIGHT plus a few IIFE blocks that add
+//    to the same object — so eval'ing the whole file under a window shim yields
+//    the complete set. Historically the layer was inline in index.html, where it
+//    was extracted line-wise from the assignment to its `    };` terminator; that
+//    path is kept as a fallback so the script still works against older trees.
 let acctPids = new Set();
-let startLine = -1;
-for (let i = 0; i < lines.length; i++) {
-  if (lines[i].indexOf('window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {') !== -1) { startLine = i; break; }
-}
-if (startLine !== -1) {
-  let endLine = -1;
-  for (let i = startLine + 1; i < lines.length; i++) {
-    if (lines[i] === '    };') { endLine = i; break; }
+if (fs.existsSync(ACCT)) {
+  try {
+    acctPids = new Set(Object.keys(evalGlobal(fs.readFileSync(ACCT, 'utf8'), (w) => w.ACCT_SPOTLIGHT || {})));
+  } catch (e) {
+    console.warn('acct-spotlight-data.js parse failed:', e.message);
   }
-  if (endLine !== -1) {
-    const block = lines.slice(startLine, endLine + 1).join('\n');
-    try {
-      acctPids = new Set(Object.keys(evalGlobal(block, (w) => w.ACCT_SPOTLIGHT || {})));
-    } catch (e) {
-      console.warn('ACCT_SPOTLIGHT parse failed, falling back to a size-based split:', e.message);
+}
+if (!acctPids.size) {
+  const html = fs.readFileSync(INDEX, 'utf8');
+  const lines = html.split('\n');
+  let startLine = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].indexOf('window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {') !== -1) { startLine = i; break; }
+  }
+  if (startLine !== -1) {
+    let endLine = -1;
+    for (let i = startLine + 1; i < lines.length; i++) {
+      if (lines[i] === '    };') { endLine = i; break; }
+    }
+    if (endLine !== -1) {
+      const block = lines.slice(startLine, endLine + 1).join('\n');
+      try {
+        acctPids = new Set(Object.keys(evalGlobal(block, (w) => w.ACCT_SPOTLIGHT || {})));
+      } catch (e) {
+        console.warn('ACCT_SPOTLIGHT parse failed, falling back to a size-based split:', e.message);
+      }
     }
   }
 }
