@@ -5,7 +5,8 @@
   "description": "PolitiDex — track political promises, money, and receipts.",
   "type": "module",
   "scripts": {
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test": "for f in scripts/test-*.mjs; do echo \"── $f\"; node \"$f\" || exit 1; done"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
