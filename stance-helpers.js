@@ -68,8 +68,14 @@
       // `kcullimore`; the curated cards live under the name-slug key
       // `kirk_cullimore`, so `kcullimore` is bridged explicitly below rather than
       // leaning on the display-name slug fallback in _resolveStanceList().
+      //
+      // `calbrecht` is the content-side duplicate of Rep. Carl Albrecht: it held six
+      // bill-sourced stance cards while the roster/browse/Utah-map id held three
+      // unsourced ones. The cards were merged into `carl_albrecht` (the roster id,
+      // per the note above about keeping the stance key equal to it), so this alias
+      // is the plain retired → canonical case with no name-slug hop.
       susan_collins:'collins', kennedy_rfk:'rfkjr', cullimore_s19:'kcullimore',
-      kcullimore:'kirk_cullimore'
+      kcullimore:'kirk_cullimore', calbrecht:'carl_albrecht'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 
@@ -86,9 +92,11 @@
     // point at. `kennedy_rfk` is that case; see db/vr-pid-aliases.json for the note.
     // `cullimore_s19` is the same case for a state legislator: the vr_* tables hold
     // congressional roll calls, so he has no rows under either id and the merge was
-    // done in the data files.
+    // done in the data files. `calbrecht` (Rep. Carl Albrecht's content-side
+    // duplicate, merged into the roster id `carl_albrecht`) is that case again.
     var PDX_PID_ALIASES = {
-      susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore'
+      susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore',
+      calbrecht: 'carl_albrecht'
     };
     window.PDX_PID_ALIASES = PDX_PID_ALIASES;
     // Resolve a politician id to the one the voting record is stored under.

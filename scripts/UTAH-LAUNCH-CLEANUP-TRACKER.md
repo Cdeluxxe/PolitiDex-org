@@ -190,3 +190,123 @@ in the local tier. Script: `scripts/deep-dive-launch-polish-jul2026.mjs`
   suburbs (Murray, Riverton, Cottonwood Heights, Taylorsville), still open.
 - **Firestore evidence layer** for the new/enriched records (Ramsey, Tran) is not
   written by this client-side script — reconcile in a follow-up `--apply` pass.
+
+---
+
+# Identity Merge + Duplicate-Topic Collapse + District 6 (July 2026)
+
+Three corrective items, no new content. Script:
+`scripts/merge-albrecht-dedupe-topics-jul2026.mjs` (idempotent, dry-run by default;
+`--apply` to write, then regenerate chunks with `split-stances.mjs`). The District 6
+piece is hand-edited rather than scripted — it is one roster record and four label
+surfaces, not a repeatable transform.
+
+## 1. `calbrecht` → `carl_albrecht` (duplicate identity merged)
+
+One person under two ids, split by **surface** rather than by district:
+
+| Layer | Held by |
+|---|---|
+| Roster record, browse profile, `_UTAH_HOUSE_INFO` d:70, `KR_STATE_HOUSE_INCUMBENTS[70]`, spotlight-cards-data.js, 3 **unsourced** stance cards | `carl_albrecht` |
+| 6 **bill-sourced** stance cards, acct-spotlight-data.js Evidence Locker, ACCT_THEME blurb, consistency.js headline, a Power-Map META row mis-tagged `STATE SENATE` | `calbrecht` |
+
+`carl_albrecht` is canonical because it is the **roster** id — making the id with no
+cmp-data.js record canonical would mean re-pointing the roster, the browse node and
+both Utah House maps at a key that names nobody. Union merge: all six sourced cards
+moved into the canonical block **above** its three unsourced ones, so an
+issueKey-only `findStance()` lookup resolves the sourced card first (the canonical
+block's own `enviro_energy` and `rural_ag` cards are the weak ones). The retired id
+is registered in `db/vr-pid-aliases.json` (+ `PDX_PID_ALIASES` / `STANCE_ALIASES`
+mirrors) and index.html's `ACCT_ALIAS` keeps an old saved pick resolvable. The
+Power-Map row was re-keyed and re-tagged `['pm-tier-state','STATE HOUSE','sevier',
+'district2']` — it had never rendered, because `pmInjectDynamicCards` only injects
+ids present in `PROFILES`.
+
+**Remaining gap:** `carl_albrecht` still carries the 3 inherited **unsourced** cards
+— "Reliable, Affordable Rural Energy" (`enviro_energy`), "Rural Jobs & Economic
+Development" (`econ_growth`) and "Agriculture, Water & Rural Communities"
+(`rural_ag`), all general-philosophy text. Two of the three duplicate an issueKey
+already covered by a sourced card, which is why the sourced cards were grafted above
+them. Source or replace them in the legislative-sourcing backlog above.
+
+## 2. District 6 → `rob_bishop` (the content decision the prior pass declined)
+
+Matthew Gwynn resigned effective March 2026; Rob Bishop won the **April 25, 2026** GOP
+delegate special election and was seated **May 6, 2026**, filling the remainder of a
+term that ends January 2027 (he is also the R nominee in November, vs. James Rich,
+Forward Party). He was in the data set only as a *former* U.S. Representative — 6
+stance cards, 1 Spotlight card, a portrait — with no roster record, which is why the
+seat had been left at "no incumbent".
+
+Chosen representation: **one id, current office.** Two ids for one living person is
+exactly the split item 1 had just been merged out of. The cost is that `office` can
+only name the seat he holds now (`"Utah State Representative"`) — assertion **10g**
+rejects any `/former/` office on a pid in `_UTAH_HOUSE_INFO`, and should, since that
+check is what caught `gwynn_h6` outliving its member. So his federal service is
+carried where a reader sees it *and* where it can be dated:
+
+| Surface | Value |
+|---|---|
+| cmp-data.js `rob_bishop` | `office` "Utah State Representative", `state` "UT District 6 (Box Elder / Weber County)", `termStart` 2026-05, **no** `termEnd`, `score`/`kept`/`broken`/`pending` null/0, `issues` lifted verbatim from his own stance topics |
+| `_UTAH_HOUSE_INFO` | `{ d: 6, c: 'Weber County' }` — Weber because 10f requires it to equal `_UTAH_HOUSE_COUNTY[6]`; the district spans Box Elder too, which the roster `state` string says |
+| `KR_STATE_HOUSE_INCUMBENTS` | `6:'rob_bishop'` (37 of 75 seats now wired) |
+| index.html ACCT_THEME blurb | names "former Utah House Speaker and nine-term U.S. Representative (2003–2021)" and the May 2026 return |
+| spotlights-data.js | label `Utah State Representative · Former U.S. Representative (2003–2021)` (was `Former U.S. Representative · Utah`) |
+
+**Flagged, not rewritten:** two of his six cards are phrased from the campaign ("Has
+worked to *return* to Utah state legislature…", "…a priority *on returning* to the
+Utah House"). They are unsourced, so re-tensing them is content work, not identity
+repair. Fix them when they get sourced.
+
+## 3. Ten duplicate stance topics collapsed
+
+A repeated `topic` string on one person makes the later card **unreachable** —
+`findStance()` returns the first exact topic match. Each pair kept the card with a
+source and the stronger text; nothing unique to a person was removed.
+
+| Politician | Topic | Kept (issueKey) | Dropped (issueKey) |
+|---|---|---|---|
+| `michael_guest` | Taxes & Cost of Living | `tax_middle_class` | `lower_taxes` (verbatim-identical text) |
+| `mike_ezell` | Taxes & Cost of Living | `tax_middle_class` | `lower_taxes` (verbatim-identical text) |
+| `lee` | Tariffs & Trade Authority | `tariffs_authority` | `econ_trade` |
+| `candice_pierucci` | Maternal & Infant Health | `healthcare` | `family_support` |
+| `ashlee_matthews` | Pollinator Habitat | `lands_preserve` | `enviro_balance` |
+| `doug_welton` | Glass Recycling | `enviro_balance` | `enviro_energy` |
+| `hoang_nguyen` | Emergency Medical Services | `healthcare` | `health_rural` |
+| `leah_hansen` | Limiting DEI Programs | `end_dei` | `gov_balance` |
+| `mballard` | Government Efficiency | `gov_waste` | `reform_balance` |
+| `sam_barlow` | Limited Government & Free Markets | `gov_waste` | `econ_growth` |
+
+**Dropped unsourced facts / details worth re-adding WITH sourcing** (per this file's
+convention — real, but the surviving card does not carry them):
+
+- `candice_pierucci` — the dropped card cited **HB 537 and HB 42 (2025)** alongside
+  HB 363 and mentioned support for **deaf, blind and English-learner students**. The
+  keeper covers only the pregnancy-screening / postnatal-board measure.
+- `hoang_nguyen` — the dropped card recorded that HB 391 (2025) **passed the House
+  68–0**. The keeper describes the bill but not the margin.
+- `mballard` — the dropped card's framing that agencies **retain a share of the
+  savings** they demonstrate is sharper than the keeper's "identify, reward, and
+  measure".
+- `doug_welton` — the dropped card said HB 177 was **signed in March 2025**; the
+  keeper describes a study-and-report directive with no signing date.
+- `leah_hansen` — the dropped card sourced her HB 261 support to **Wikipedia**; the
+  keeper sources the same claim to le.utah.gov, so nothing was lost.
+
+Corpus after: **883 stance blocks · 4,426 cards · 0 blocks with a duplicate topic**,
+verified by walking every card of all ten politicians back through a `findStance()`
+stand-in. `scripts/test-identity-integrity.mjs`: **6,100 assertions, 0 failures**,
+and its duplicate-topic note block no longer prints.
+
+## Still open after this pass
+
+- **District 45** (Tracy Miller) is wired to nobody — she is not in the data set.
+  Coverage gap, not a wrong label.
+- **District 64** (Jackie Larson, succeeded Jeff Burton May 5, 2026) and **Grant
+  Pace's Provo seat**, both seated the same week as Bishop: same coverage gap.
+  Neither seat is wired to a stale predecessor (`jburton` has no roster record and
+  appears in neither Utah map), so there is nothing to correct — only content to add.
+- **38 of 75 House districts** have no id in the data set holding them. With 10e
+  bidirectional, the honest state of an uncovered seat is no key at all.
+- ~9 historical one-off scripts still contain the literal `calbrecht` key. They are
+  already-run passes and were deliberately left untouched.

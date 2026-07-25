@@ -11097,5 +11097,29 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "state": "UT District 37 (Kearns, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Child Care Access", "Working Families & Workers", "Maternal Health Coverage", "Second-Chance Employment"]
+ },
+ // Rob Bishop, the third July 2026 addition and the only one that needed a decision
+ // rather than a lookup. He was in the data set as a FORMER U.S. Representative with
+ // curated stance cards and one Spotlight card, but with no roster record — so when
+ // Matthew Gwynn resigned in March 2026 and Bishop won the April 25 GOP convention
+ // special election for District 6 (sworn in May 6, 2026, filling the remainder of a
+ // term that ends January 2027), there was no record to wire the seat to.
+ //
+ // The two honest representations were a separate state-House identity or this one
+ // record with a current office. This is one record, because two ids for one living
+ // person is exactly the split `calbrecht` had just been merged out of. What that
+ // costs is that `office` can only name the office he holds NOW: assertion 10g fails
+ // any /former/ in the office of a pid in _UTAH_HOUSE_INFO, and it should — that check
+ // is what caught `gwynn_h6` outliving its member. So his federal service is carried
+ // where a reader actually sees it and where it can be dated: the index.html profile
+ // blurb and the spotlights-data.js card label both say "Former U.S. Rep. (2003–2021)"
+ // in full. `termStart` is the May 2026 swearing-in for THIS seat, not his 1978 or
+ // 2003 starts, and there is deliberately no `termEnd` — he is sitting.
+ "rob_bishop": {
+  "name": "Rob Bishop", "office": "Utah State Representative",
+  "state": "UT District 6 (Box Elder / Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Election & Redistricting Reform", "Water Conservation", "Limited Government", "Term Limits", "Public Lands & Federalism"]
  }
 });

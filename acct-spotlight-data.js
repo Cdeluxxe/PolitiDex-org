@@ -4193,7 +4193,7 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
           why:'When personal economic interests overlap with regulatory power, the appearance question belongs in an integrity read regardless of intent.',
           source:{ label:'Utah Department of Natural Resources', url:'https://naturalresources.utah.gov/' } }
       ],
-      calbrecht: [
+      carl_albrecht: [
         { impact:'positive', category:'rhetoric', date:'2017–present', tags:['Consistency','Notable Actions'],
           headline:'Pattern: a career energy man steering Utah’s energy future',
           facts:'Albrecht, a longtime rural electric-utility executive before the Legislature, has made energy his signature — laying groundwork for Utah’s nuclear future (HB 249, 2025) alongside water (HB 41) and rural-agriculture modernization (HB 253).',

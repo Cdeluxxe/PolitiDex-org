@@ -35260,7 +35260,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       janderegg:['pm-tier-state','STATE SENATE','utah_co','district3'],
       spitcher:['pm-tier-state','STATE SENATE','slc','district4'],
       cwilson:['pm-tier-state','STATE SENATE','weber','district1'],
-      calbrecht:['pm-tier-state','STATE SENATE','slc','district4'],
+      // Carl Albrecht is a REPRESENTATIVE (House District 70, Richfield/Sevier
+      // County), not a senator, and Sevier County lies wholly inside Utah's 2nd
+      // congressional district. This row spent its life keyed to `calbrecht` — the
+      // duplicate id retired in July 2026 (db/vr-pid-aliases.json) — which is why
+      // it never rendered: pmInjectDynamicCards only injects ids present in
+      // PROFILES, and the browse-directory profile is `carl_albrecht`.
+      carl_albrecht:['pm-tier-state','STATE HOUSE','sevier','district2'],
       jferry:['pm-tier-state','STATE HOUSE','box_elder','district1'],
       gsnow:['pm-tier-state','STATE HOUSE','davis','district1'],
       swaldrip:['pm-tier-state','STATE HOUSE','davis','district1'],
@@ -41203,7 +41209,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //   • `hollins_h24` sits in 21, not the 24 its suffix encodes; District 24 is
     //     Grant Miller's.
     //   • `gwynn_h6` resigned in March 2026, so District 6 was dropped rather than
-    //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note).
+    //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note). A third pass wired
+    //     the seat to his successor, `rob_bishop`, once that record existed.
     // A second July 2026 pass added the three seats that pass had left as notes,
     // each blocked on a missing roster record rather than on a missing fact:
     //   • District 23 — `hoang_nguyen`. Hoang Nguyen succeeded Brian King and was
@@ -41225,6 +41232,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _UTAH_HOUSE_INFO = {
       auxier_h4:               { d: 4,  c: 'Morgan County' },
       snider_h5:               { d: 5,  c: 'Cache County' },
+      // District 6 spans parts of Box Elder AND Weber County; `c` is Weber because
+      // 10f requires it to equal _UTAH_HOUSE_COUNTY[6], which is the by-number
+      // fallback the county-relevance matcher uses. His roster record names both.
+      rob_bishop:              { d: 6,  c: 'Weber County' },
       jake_sawyer:             { d: 9,  c: 'Weber County' },
       koford_h10:              { d: 10, c: 'Weber County' },
       hall_h11:                { d: 11, c: 'Weber County' },
@@ -47916,13 +47927,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     is Walt Brooks's seat and is now wired to him.
     //   • `hollins_h24` moved 24→21. Sandra Hollins has held District 21 since 2023
     //     (District 23 before that); District 24 is Grant Miller's, seated 2025.
-    //   • District 6 dropped: Matthew Gwynn resigned effective March 2026, at the close
-    //     of the general session. Rob Bishop won the seat at an April 25, 2026 GOP
-    //     delegate special election and was seated May 6, 2026, filling the remainder of
-    //     the term. Bishop is in the data set only as a former U.S. Representative with
-    //     no roster record, and wiring a congressional identity into a state-House seat
-    //     is a content decision rather than identity repair, so the district degrades to
-    //     "no incumbent" until that record exists.
+    //   • District 6 REOPENED and now wired: Matthew Gwynn resigned effective March
+    //     2026, at the close of the general session, and the seat was left at "no
+    //     incumbent" because its successor was in the data set only as a FORMER U.S.
+    //     Representative. Rob Bishop won the April 25, 2026 GOP delegate special
+    //     election and was seated May 6, 2026, filling the remainder of the term to
+    //     January 2027. He now has a state-House roster record and the district is
+    //     wired to `rob_bishop` — see the cmp-data.js comment on that record for why
+    //     his congressional service lives in the profile blurb and the Spotlight card
+    //     label rather than in `office`, which 10g requires to name the current seat.
     //
     // CLEARED in the second July 2026 pass — three of the notes below turned out to be
     // blocked only on a missing roster record, not on a missing fact, so each was wired
@@ -47936,22 +47949,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     block were all still on the pre-2023 number. All three now read 43, and 10i
     //     guards that block for the first time.
     //
+    // CLEARED in the third July 2026 pass, which took the two content decisions the
+    // pass before it had declined to make:
+    //   • District 6 → `rob_bishop`, with a state-House roster record added and his
+    //     federal service moved to the surfaces that can date it (above).
+    //   • `calbrecht`, the second Carl Albrecht identity, was merged into
+    //     `carl_albrecht` — the roster id District 70 was already wired to. Its six
+    //     bill-sourced stance cards, Evidence Locker group, profile blurb, consistency
+    //     headline and (bogus 'STATE SENATE') Power-Map row all moved to the canonical
+    //     id, and the retired id is registered in db/vr-pid-aliases.json with
+    //     ACCT_ALIAS keeping old saved picks resolvable.
+    //
     // STILL OPEN, deliberately not guessed at. Each needs a content decision rather than
     // identity wiring, so none of them is repairable here:
-    //   • District 6 has no sitting incumbent here (above). Adding one means deciding how
-    //     Rob Bishop's congressional identity and his new state-House seat coexist in the
-    //     roster — a content call, not a re-key.
     //   • District 45 is Tracy Miller's and is wired to nobody: she is not in the data
     //     set, so there is no id to point at. This is a coverage gap, not a wrong label.
-    //   • `calbrecht` is a second identity for Carl Albrecht, carrying a bogus
-    //     'STATE SENATE' pm-tier tag. District 70 is wired to `carl_albrecht`, which is
-    //     the record with the browse-directory entry and the Spotlight card. Merging the
-    //     duplicate is a content pass, not identity repair, so both ids still exist.
-    //   • The 39 districts absent from this table are absent because no id in the data
+    //   • Districts 64 (Jackie Larson, succeeded Jeff Burton May 5, 2026) and Grant
+    //     Pace's Provo seat, both seated the same week as Bishop, are the same coverage
+    //     gap: neither person is in the data set, and neither seat is wired to a stale
+    //     predecessor, so there is nothing here to correct — only content to add.
+    //   • The 38 districts absent from this table are absent because no id in the data
     //     set holds them. Bidirectionality means an entry here without an info entry now
     //     fails CI, so the honest state of an uncovered seat is no key at all.
     var KR_STATE_HOUSE_INCUMBENTS = {
-      4:'auxier_h4', 5:'snider_h5', 9:'jake_sawyer',
+      4:'auxier_h4', 5:'snider_h5', 6:'rob_bishop', 9:'jake_sawyer',
       10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward',
       21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller', 28:'nicholeen_p_peck',
       29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 37:'ashlee_matthews', 39:'ivory_h39',
@@ -54395,7 +54416,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Representatives concentrated in Davis, Weber, Salt Lake County and Utah
     // County — janderegg, dhinkins, rwinterton, dowens_st, rspendlove,
     // kstratton, jbriscoe, swaldrip, cmusselman, jburton, tyler_clancy,
-    // jferry, calbrecht, paul_a_cutler, stewart_e_barlow, cheryl_acton,
+    // jferry, carl_albrecht, paul_a_cutler, stewart_e_barlow, cheryl_acton,
     // james_dunnigan, ryan_d_wilcox, jon_hawkins, doug_fiefia,
     // kay_christofferson and nelson_abbott — each with 3–5 sourced,
     // pattern-focused highlights, `tags`, and a one-line theme, plus aliases
@@ -54490,7 +54511,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       jburton: 'A retired Major General who legislates the veterans and National Guard world he led, and who stepped into a thankless interim health post during the pandemic.',
       tyler_clancy: 'A working Provo police detective and one of the chamber’s youngest members who legislates the homelessness and public-safety beat he walks — though his zero-tolerance camp approach draws advocate pushback.',
       jferry: 'A fifth-generation farmer who authored Utah’s Great Salt Lake water-leasing law and then left office to run the agency that executes it — strong follow-through shadowed by a standing conflict-of-interest question.',
-      calbrecht: 'A career rural-utility executive steering Utah’s nuclear and water future, with a coherent energy-and-agriculture portfolio and proactive disaster-resilience work.',
+      carl_albrecht: 'A career rural-utility executive steering Utah’s nuclear and water future, with a coherent energy-and-agriculture portfolio and proactive disaster-resilience work.',
       paul_a_cutler: 'A Davis County representative who makes accountability his subject — tightening conflict-of-interest and candidate-disclosure rules on officials like himself.',
       stewart_e_barlow: 'A practicing surgeon who legislates healthcare from firsthand experience, an expertise-to-law match that also raises the usual insider-writing-his-own-industry’s-rules question.',
       cheryl_acton: 'A steady West Jordan representative focused on disclosure and student-data privacy, willing to apply tougher candidate-disclosure rules to her own contests.',
@@ -54516,7 +54537,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       cstewart: 'A reliable Utah national-security conservative whose mid-term 2023 resignation, citing family health, drew both sympathy and criticism for the costly special election it forced.',
       jdougall: 'A self-styled “watchdog” auditor who built genuine government-transparency tools, balanced against the partisan edge critics saw in some of his probes.',
       emendenhall: 'A data-and-air-quality SLC mayor whose environmental brand is backed by real initiatives, tested by the homelessness and downtown-safety pressures every big-city mayor faces.',
-      jwilson: 'A veteran public servant from a prominent Utah family whose county-government record is steady and process-respecting, shadowed by the usual dynasty questions.'
+      jwilson: 'A veteran public servant from a prominent Utah family whose county-government record is steady and process-respecting, shadowed by the usual dynasty questions.',
+      // July 2026 — District 6. This blurb is load-bearing, not decoration: the roster
+      // `office` field can only say "Utah State Representative" (a /former/ office on a
+      // pid in _UTAH_HOUSE_INFO is a hard failure by design), so the dates of his
+      // federal service have to live somewhere a reader sees them, and this is it.
+      rob_bishop: 'A former Utah House Speaker and nine-term U.S. Representative (2003–2021) who returned to the state House in May 2026 by special election, back on the public-lands and water fights he built his federal career on — and again pledging to term-limit himself.'
     };
 
     // ── Spotlight key aliases ────────────────────────────────────────────────
@@ -54593,6 +54619,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       mhogan: 'michelle_kaufusi',
       dwatts: 'monica_zoltanski_sandy',
       rwood: 'troy_walker_draper',
+      // `calbrecht` is a RETIRED id (db/vr-pid-aliases.json) — the second Carl
+      // Albrecht record, whose six bill-sourced stance cards, Evidence Locker group
+      // and theme blurb were merged into `carl_albrecht` (the roster / browse /
+      // Utah-map id) in July 2026. Kept here for the same reason as
+      // `cullimore_s19`: a saved My-Team pick or bookmark stored under the old id
+      // still resolves to his curated Spotlight data.
+      calbrecht: 'carl_albrecht',
     };
 
     // Resolve the overall theme for an official: a document-authored

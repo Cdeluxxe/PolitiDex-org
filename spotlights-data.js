@@ -1580,7 +1580,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             { id: 'sanders', name: 'Bernie Sanders', office: 'U.S. Senator · Vermont', icon: '🏛', topic: 'Campaign Finance', stance: 'supported' },
             { id: 'grassley', name: 'Chuck Grassley', office: 'U.S. Senator · Iowa', icon: '🏛', topic: 'Whistleblower Protection', stance: 'supported' },
             { id: 'crockett', name: 'Jasmine Crockett', office: 'U.S. Representative · Texas', icon: '🏛', topic: 'Oversight & Accountability', stance: 'supported' },
-            { id: 'rob_bishop', name: 'Rob Bishop', office: 'Former U.S. Representative · Utah', icon: '🏛', topic: 'Term Limits', stance: 'supported' },
+            { id: 'rob_bishop', name: 'Rob Bishop', office: 'Utah State Representative · Former U.S. Representative (2003–2021)', icon: '🏛', topic: 'Term Limits', stance: 'supported' },
             { id: 'michael_guest', name: 'Michael Guest', office: 'U.S. Representative · Mississippi', icon: '🏛', topic: 'Government Ethics', stance: 'mixed' },
             { id: 'tgabbard', name: 'Tulsi Gabbard', office: 'Director of National Intelligence', icon: '🇺🇸', topic: 'Intelligence Transparency & Declassification', stance: 'mixed' },
             { id: 'salvador_giove', name: 'Salvador Giove', office: 'Congressional candidate', icon: '🏛', topic: 'Term Limits', stance: 'opposed' }
