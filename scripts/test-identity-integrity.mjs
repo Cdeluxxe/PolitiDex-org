@@ -97,6 +97,30 @@ const SPOTLIGHTS = loadGlobal("spotlights-data.js", "SPOTLIGHTS", "PDX_SPOTLIGHT
 const ROSTER = loadGlobal("cmp-data.js", "CMP_DATA");
 const memberMap = JSON.parse(read("db/vr-member-map.json"));
 
+// index.html is a single 60k-line document, not a module, so a table declared in it
+// is lifted out by brace-matching from its declaration and evaluated on its own.
+// Shared by ACCT_ALIAS below and by the Utah map invariants in section 10.
+const INDEX_HTML = read("index.html");
+function liftObjectLiteral(decl, label) {
+  const start = INDEX_HTML.indexOf(decl);
+  if (start === -1) return null;
+  const open = INDEX_HTML.indexOf("{", start);
+  if (open === -1) return null;
+  let depth = 0, end = -1;
+  for (let i = open; i < INDEX_HTML.length; i++) {
+    const ch = INDEX_HTML[i];
+    if (ch === "{") depth++;
+    else if (ch === "}") { depth--; if (depth === 0) { end = i; break; } }
+  }
+  if (end === -1) return null;
+  const ctx = { JSON };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  try {
+    return vm.runInContext(`(${INDEX_HTML.slice(open, end + 1)})`, vm.createContext(ctx),
+      { filename: `index.html:${label}` });
+  } catch { return null; }
+}
+
 // ── ACCT_ALIAS — the third client alias table, and the one that hid a real bug ──
 // index.html declares `window.ACCT_ALIAS`: CMP_DATA/browse-directory pid → the
 // curated Spotlight key for the same person. Many Utah legislators deliberately
@@ -106,30 +130,7 @@ const memberMap = JSON.parse(read("db/vr-member-map.json"));
 // `ROSTER[card.id]` lookup missed every card keyed on one: Ray Ward's card said
 // "Utah State Senator" while the roster said Representative, and this harness
 // reported 5,415 passing assertions anyway. Following the alias closes that hole.
-//
-// index.html is a single 60k-line document, not a module, so the table is lifted
-// out by brace-matching from its declaration and evaluated on its own.
-function loadAcctAlias() {
-  const src = read("index.html");
-  const start = src.indexOf("window.ACCT_ALIAS = window.ACCT_ALIAS ||");
-  if (start === -1) return null;
-  const open = src.indexOf("{", start);
-  if (open === -1) return null;
-  let depth = 0, end = -1;
-  for (let i = open; i < src.length; i++) {
-    const ch = src[i];
-    if (ch === "{") depth++;
-    else if (ch === "}") { depth--; if (depth === 0) { end = i; break; } }
-  }
-  if (end === -1) return null;
-  const ctx = { JSON };
-  ctx.window = ctx; ctx.globalThis = ctx;
-  try {
-    return vm.runInContext(`(${src.slice(open, end + 1)})`, vm.createContext(ctx),
-      { filename: "index.html:ACCT_ALIAS" });
-  } catch { return null; }
-}
-const ACCT_ALIAS = loadAcctAlias() || {};
+const ACCT_ALIAS = liftObjectLiteral("window.ACCT_ALIAS = window.ACCT_ALIAS ||", "ACCT_ALIAS") || {};
 
 ok(Object.keys(ALIASES).length > 0, "alias file: declares at least one retirement");
 ok(STANCES && typeof STANCES === "object", "politician-stances.js: exposed a stance table");
@@ -459,6 +460,141 @@ ok(byName.size > 100,
   "duplicate identity: the roster name index must actually be populated, or this check is " +
   "vacuously green");
 
+// ── 10. The Utah district maps may not disagree with each other ─────────────
+// Section 9 catches one person becoming two ids. This catches the mirror image:
+// one id being placed in two contradictory seats by two tables that nothing ever
+// compared. index.html carries four independent Utah legislature maps —
+//
+//   _UTAH_SENATE_INFO          pid → { d: district, c: county }  (sitting senators)
+//   _UTAH_SENATE_COUNTY        district → county                 (by-number fallback)
+//   KR_STATE_SENATE_INCUMBENTS district → pid                    (Key Races wiring)
+//   KR_STATE_HOUSE_INCUMBENTS  district → pid                    (House equivalent)
+//
+// — and until July 2026 nothing asserted they agreed. All three bug classes below
+// were live at once, and the suite was fully green:
+//
+//   1. KR_STATE_SENATE_INCUMBENTS[22] pointed at `brammer_s21`, whose
+//      _UTAH_SENATE_INFO district is 21; [24] pointed at `kgrover`, whose district
+//      is 23. Senate President Stuart Adams was in neither map. Root cause: Utah's
+//      post-2020 redistricting renumbered many seats, several ids still encode the
+//      OLD number in their suffix (`mccay_s11` sits in District 18,
+//      `lincoln_fillmore_s11` in District 17), and the maps were keyed off the
+//      suffix rather than the district.
+//   2. `rward` (Ray Ward, a HOUSE member) sat in _UTAH_SENATE_INFO at d:19 while
+//      also being the House incumbent for district 19 — one person, both chambers.
+//   3. `bwilson` (Brad Wilson, House Speaker, resigned Nov 2023, never a senator)
+//      and `cbramble` (Curt Bramble, retired Dec 2024) were both still listed as
+//      sitting senators, Bramble at a district a sitting senator now holds.
+//
+// Assertion strategy is deliberately ONE-DIRECTIONAL for the info↔incumbent link.
+// Seven incumbent ids (`chris_wilson_s2`, `fillerup_s3`, `jen_plumb_s9`,
+// `lincoln_fillmore_s11`, `ron_winterton_s20`, `hinkins_s26`, `derrin_owens_s27`)
+// have no _UTAH_SENATE_INFO entry AND no cmp-data.js record. Requiring the reverse
+// direction would fail on that pre-existing debt on day one, and a guard that fails
+// for reasons the reader can't act on is a guard that gets commented out. They are
+// reported as a note instead, so the debt is visible without being fatal.
+const SENATE_INFO = liftObjectLiteral("var _UTAH_SENATE_INFO = {", "_UTAH_SENATE_INFO");
+const SENATE_COUNTY = liftObjectLiteral("var _UTAH_SENATE_COUNTY = {", "_UTAH_SENATE_COUNTY");
+const SENATE_INC = liftObjectLiteral("var KR_STATE_SENATE_INCUMBENTS = {", "KR_STATE_SENATE_INCUMBENTS");
+const HOUSE_INC = liftObjectLiteral("var KR_STATE_HOUSE_INCUMBENTS = {", "KR_STATE_HOUSE_INCUMBENTS");
+
+// A failed lift yields null, which would make every check below vacuously true —
+// the exact failure mode this harness exists to prevent. Assert the extraction
+// first, and gate the rest on it, so a renamed declaration is loud.
+ok(SENATE_INFO && Object.keys(SENATE_INFO).length > 5,
+  "utah maps: _UTAH_SENATE_INFO was extracted from index.html (renamed or moved?)");
+ok(SENATE_COUNTY && Object.keys(SENATE_COUNTY).length > 20,
+  "utah maps: _UTAH_SENATE_COUNTY was extracted from index.html (renamed or moved?)");
+ok(SENATE_INC && Object.keys(SENATE_INC).length > 10,
+  "utah maps: KR_STATE_SENATE_INCUMBENTS was extracted from index.html (renamed or moved?)");
+ok(HOUSE_INC && Object.keys(HOUSE_INC).length > 10,
+  "utah maps: KR_STATE_HOUSE_INCUMBENTS was extracted from index.html (renamed or moved?)");
+
+const orphanIncumbents = [];   // incumbent ids with no _UTAH_SENATE_INFO entry (note only)
+let infoChecked = 0, countyChecked = 0, chamberChecked = 0;
+
+if (SENATE_INFO && SENATE_COUNTY && SENATE_INC && HOUSE_INC) {
+  // ── 10a. Info → Incumbent agreement ──────────────────────────────────────
+  // The bug in class 1, stated directly: the person the info map places in
+  // district N must be the person the Key Races wiring calls district N's
+  // incumbent. `_krGenericRace()` and the INC.state_senator lookup both read
+  // KR_STATE_SENATE_INCUMBENTS, while the browse tree's "District N (County)"
+  // label reads _UTAH_SENATE_INFO — so a disagreement shows one senator's name
+  // over another senator's seat, with nothing erroring.
+  for (const [pid, info] of Object.entries(SENATE_INFO)) {
+    infoChecked++;
+    const at = SENATE_INC[info.d];
+    ok(at === pid,
+      `utah maps: _UTAH_SENATE_INFO puts '${pid}' in Senate district ${info.d}, but ` +
+      `KR_STATE_SENATE_INCUMBENTS[${info.d}] is ${at === undefined ? "absent" : `'${at}'`} — ` +
+      `the browse tree and the Key Races wiring would name different senators for the same ` +
+      `seat. Note that several ids encode a PRE-2023 district in their suffix, so key off ` +
+      `_UTAH_SENATE_INFO[pid].d, never the suffix`);
+  }
+
+  // ── 10b. County consistency where both tables carry one ───────────────────
+  // _UTAH_SENATE_COUNTY is the by-number fallback consulted for any senator NOT
+  // in _UTAH_SENATE_INFO (both in the district label at _getPoliticianDistrict-
+  // OrCounty and in the county-relevance matcher). When the two tables disagree
+  // about the same district, which county a person appears under depends on
+  // which code path reached them first.
+  for (const [pid, info] of Object.entries(SENATE_INFO)) {
+    if (!info.c || !SENATE_COUNTY[info.d]) continue;
+    countyChecked++;
+    ok(info.c === SENATE_COUNTY[info.d],
+      `utah maps: _UTAH_SENATE_INFO['${pid}'] says district ${info.d} is in ${info.c}, but ` +
+      `_UTAH_SENATE_COUNTY[${info.d}] says ${SENATE_COUNTY[info.d]} — the label path and the ` +
+      `county-relevance matcher would place the same seat in two different counties`);
+  }
+
+  // ── 10c. No pid in both chambers' incumbent maps ───────────────────────────
+  // The Ray Ward class, mechanically. One person cannot hold a House seat and a
+  // Senate seat, so this fires whether the chamber was mislabelled or the pid was
+  // simply copied into the wrong table.
+  const houseByPid = new Map();
+  for (const [d, pid] of Object.entries(HOUSE_INC)) if (pid) houseByPid.set(pid, d);
+  for (const [d, pid] of Object.entries(SENATE_INC)) {
+    if (!pid) continue;
+    chamberChecked++;
+    ok(!houseByPid.has(pid),
+      `utah maps: '${pid}' is the incumbent for Senate district ${d} AND House district ` +
+      `${houseByPid.get(pid)} — one person cannot sit in both chambers. Decide the real ` +
+      `chamber and remove the other entry (this is how Ray Ward stayed a "senator")`);
+  }
+
+  // ── 10d. Nobody former, retired, or non-senate in the sitting Senate map ───
+  // The Brad Wilson / Curt Bramble class, mechanically. _UTAH_SENATE_INFO is
+  // documented as SITTING senators only; a former member in it occupies a district
+  // that a current senator holds, and the browse tree renders them as that seat.
+  // Ids with no cmp-data.js record are skipped, not failed — some sitting senators
+  // are legitimately browse-directory-only, and there is no roster claim to check.
+  for (const [pid, info] of Object.entries(SENATE_INFO)) {
+    const rec = ROSTER && ROSTER[pid];
+    if (!rec) continue;
+    const office = rec.office || "";
+    ok(/senat/i.test(office),
+      `utah maps: _UTAH_SENATE_INFO lists '${pid}' as the sitting senator for district ` +
+      `${info.d}, but the roster office is "${office}" — this map is Senate-only`);
+    ok(!/former/i.test(office),
+      `utah maps: _UTAH_SENATE_INFO lists '${pid}' at district ${info.d}, but the roster ` +
+      `office is "${office}" — a FORMER member occupies a seat a sitting senator holds; ` +
+      `move them out of this map (their curated record stays)`);
+    ok(!rec.termEnd,
+      `utah maps: _UTAH_SENATE_INFO lists '${pid}' at district ${info.d}, but the roster ` +
+      `carries termEnd "${rec.termEnd}" — a present termEnd marks a FORMER office, so they ` +
+      `are not a sitting senator`);
+  }
+
+  // ── 10e. Non-fatal: incumbent ids the info map does not know ───────────────
+  for (const [d, pid] of Object.entries(SENATE_INC)) {
+    if (!pid || SENATE_INFO[pid]) continue;
+    orphanIncumbents.push({ d, pid, hasRoster: !!(ROSTER && ROSTER[pid]) });
+  }
+}
+ok(infoChecked > 0, "utah maps: at least one _UTAH_SENATE_INFO entry was checked");
+ok(chamberChecked > 0, "utah maps: at least one Senate incumbent was cross-chamber checked");
+ok(countyChecked > 0, "utah maps: at least one district county was cross-checked");
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);
@@ -471,6 +607,18 @@ console.log(`  ${RETIRED.size} retired id(s) [${[...RETIRED].join(", ")}] · ` +
   `${Object.keys(STANCES || {}).length} stance blocks · ${cards.length} spotlight cards ` +
   `(${idChecked} id-resolved, ${labelChecked} label-checked vs roster) · ` +
   `${byName.size} distinct roster names, ${nameChecked} shared by 2+ live ids`);
+console.log(`  utah maps: ${infoChecked} sitting senator(s) cross-checked against ` +
+  `KR_STATE_SENATE_INCUMBENTS · ${countyChecked} district counties agree · ` +
+  `${chamberChecked} Senate incumbent(s) checked for a House collision`);
+if (orphanIncumbents.length) {
+  const rosterless = orphanIncumbents.filter((o) => !o.hasRoster).length;
+  console.log(`  note: ${orphanIncumbents.length} Senate incumbent id(s) have no ` +
+    `_UTAH_SENATE_INFO entry, so their district and county are unverified — ` +
+    `${rosterless} of them also have no cmp-data.js record. Pre-existing debt; the ` +
+    `info→incumbent assertion is one-directional until it is paid down:`);
+  for (const { d, pid, hasRoster } of orphanIncumbents)
+    console.log(`    · district ${d}: ${pid}${hasRoster ? "" : " (no roster record)"}`);
+}
 if (dupeTopics.length) {
   console.log(`  note: ${dupeTopics.length} stance block(s) repeat a topic string, so the later ` +
     `card is unreachable via findStance() — pre-existing, not merge-related:`);
