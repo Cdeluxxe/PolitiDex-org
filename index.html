@@ -41223,10 +41223,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     he has held 43 since the renumbering, so his roster label read the wrong seat
     //     and the `sandy` KEY_RACES_BY_LOCATION block ran the wrong district number.
     //     Both were corrected with this entry, which is what put 10i in front of that
-    //     block. District 45 is Tracy Miller's and is still wired to nobody.
+    //     block. District 45 is Tracy Miller's and was still wired to nobody; a fourth
+    //     pass added her record and wired it.
     // `_UTAH_HOUSE_COUNTY[23]` was corrected Davis→Salt Lake County at the same time:
     // it was a stale pre-2023 value sitting between two Salt Lake districts, and 10f
     // would have failed the moment District 23 was wired with its real county.
+    // A fourth pass added the last three seats whose sitting member was already
+    // content-bearing here but roster-less — the same "blocked on a record, not on a
+    // fact" shape as the three above:
+    //   • District 45 — `tracy_miller` (R-South Jordan, seated Jan 2025, succeeded
+    //     Susan Pulsipher). The last House seat that was wired to nobody.
+    //   • District 60 — `grant_pace` (R-Provo, seated May 2026 after Tyler Clancy
+    //     resigned to become the state homelessness coordinator). Not 61 — that is
+    //     Lisa Shepherd's, which the `utah_co` Key Races block already features.
+    //   • District 64 — `jackie_larson` (R-Spanish Fork, seated May 2026 for the
+    //     remainder of Jefferson Burton's term after he moved out of the district).
     // Add a member here only once their district and county are verified against the
     // public record — a guess here now fails CI in both directions.
     var _UTAH_HOUSE_INFO = {
@@ -41256,12 +41267,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       clinton_okerlund:        { d: 42, c: 'Salt Lake County' },
       eliason_h45:             { d: 43, c: 'Salt Lake County' },
       teuscher_h44:            { d: 44, c: 'Salt Lake County' },
+      tracy_miller:            { d: 45, c: 'Salt Lake County' },
       gricius_h50:             { d: 50, c: 'Utah County' },
       cory_maloy_h52:          { d: 52, c: 'Utah County' },
       valpeterson_h56:         { d: 56, c: 'Utah County' },
       kohler_h59:              { d: 59, c: 'Wasatch County' },
+      grant_pace:              { d: 60, c: 'Utah County' },
       lisa_shepherd:           { d: 61, c: 'Utah County' },
       whyte_h63:               { d: 63, c: 'Utah County' },
+      jackie_larson:           { d: 64, c: 'Utah County' },
       shelley_h66:             { d: 66, c: 'Sanpete County' },
       christine_watkins:       { d: 67, c: 'Carbon County' },
       chew_h68:                { d: 68, c: 'Uintah County' },
@@ -47960,24 +47974,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     id, and the retired id is registered in db/vr-pid-aliases.json with
     //     ACCT_ALIAS keeping old saved picks resolvable.
     //
-    // STILL OPEN, deliberately not guessed at. Each needs a content decision rather than
-    // identity wiring, so none of them is repairable here:
-    //   • District 45 is Tracy Miller's and is wired to nobody: she is not in the data
-    //     set, so there is no id to point at. This is a coverage gap, not a wrong label.
-    //   • Districts 64 (Jackie Larson, succeeded Jeff Burton May 5, 2026) and Grant
-    //     Pace's Provo seat, both seated the same week as Bishop, are the same coverage
-    //     gap: neither person is in the data set, and neither seat is wired to a stale
-    //     predecessor, so there is nothing here to correct — only content to add.
-    //   • The 38 districts absent from this table are absent because no id in the data
+    // CLEARED in the fourth July 2026 pass — the last three seats whose sitting member
+    // was content-bearing here (a curated stance block) but roster-less, which is what
+    // had kept them out of both tables. Each district was confirmed against the public
+    // record first:
+    //   • District 45 → `tracy_miller` (R-South Jordan, seated Jan 2025, succeeded
+    //     Susan Pulsipher). This was the last seat wired to nobody.
+    //   • District 60 → `grant_pace` (R-Provo, sworn in May 2026 after Tyler Clancy
+    //     resigned to become the state homelessness coordinator). The Provo seat is 60,
+    //     not the 61 the `utah_co` region block features — 61 is Lisa Shepherd's.
+    //   • District 64 → `jackie_larson` (R-Spanish Fork, seated May 5, 2026 for the
+    //     remainder of Jefferson Burton's term; he resigned after moving out of the
+    //     district). Nothing stale had to be moved out of the way: `jburton` has no
+    //     roster record and appeared in neither Utah House table, so he never held the
+    //     seat here. Same for `tyler_clancy` at 60.
+    //
+    // STILL OPEN, deliberately not guessed at:
+    //   • The 35 districts absent from this table are absent because no id in the data
     //     set holds them. Bidirectionality means an entry here without an info entry now
     //     fails CI, so the honest state of an uncovered seat is no key at all.
+    //   • `jburton`'s Power-Map META row still reads `['pm-tier-state','STATE HOUSE',
+    //     'davis','district1']`. Both halves are wrong — Salem is Utah County (UT-3),
+    //     and he is a former member as of March 2026 — but fixing the county while
+    //     leaving the sitting-member tier would be half a repair, and retiring the row
+    //     is a content call about how former members appear on the Power Map.
     var KR_STATE_HOUSE_INCUMBENTS = {
       4:'auxier_h4', 5:'snider_h5', 6:'rob_bishop', 9:'jake_sawyer',
       10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward',
       21:'hollins_h24', 22:'jennifer_dailey_provost', 23:'hoang_nguyen', 24:'grant_miller', 28:'nicholeen_p_peck',
       29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 37:'ashlee_matthews', 39:'ivory_h39',
-      42:'clinton_okerlund', 43:'eliason_h45', 44:'teuscher_h44',
-      50:'gricius_h50', 52:'cory_maloy_h52', 56:'valpeterson_h56', 59:'kohler_h59', 61:'lisa_shepherd', 63:'whyte_h63',
+      42:'clinton_okerlund', 43:'eliason_h45', 44:'teuscher_h44', 45:'tracy_miller',
+      50:'gricius_h50', 52:'cory_maloy_h52', 56:'valpeterson_h56', 59:'kohler_h59',
+      60:'grant_pace', 61:'lisa_shepherd', 63:'whyte_h63', 64:'jackie_larson',
       66:'shelley_h66', 67:'christine_watkins', 68:'chew_h68', 69:'logan_monson',
       70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack', 75:'walt_brooks'
     };

@@ -301,12 +301,70 @@ and its duplicate-topic note block no longer prints.
 ## Still open after this pass
 
 - **District 45** (Tracy Miller) is wired to nobody — she is not in the data set.
-  Coverage gap, not a wrong label.
+  Coverage gap, not a wrong label. *(Closed by the pass below.)*
 - **District 64** (Jackie Larson, succeeded Jeff Burton May 5, 2026) and **Grant
   Pace's Provo seat**, both seated the same week as Bishop: same coverage gap.
   Neither seat is wired to a stale predecessor (`jburton` has no roster record and
   appears in neither Utah map), so there is nothing to correct — only content to add.
+  *(Closed by the pass below.)*
 - **38 of 75 House districts** have no id in the data set holding them. With 10e
   bidirectional, the honest state of an uncovered seat is no key at all.
 - ~9 historical one-off scripts still contain the literal `calbrecht` key. They are
   already-run passes and were deliberately left untouched.
+
+---
+
+# Last Open House Seats With Confirmed Members (July 2026)
+
+Identity wiring only, hand-edited (three roster records and two map entries each — not
+a repeatable transform). All three people were **already content-bearing** here: each
+had a curated stance block and no cmp-data.js record, which is exactly what had kept
+them out of both Utah House tables, since 10e/10g need an office and a district to
+check. Same minimal pattern as `rob_bishop` / `hoang_nguyen` / `ashlee_matthews`:
+`score` null, kept/broken/pending 0, `issues` lifted **verbatim** from the person's own
+stance-card topics, no `termEnd`.
+
+| Id | District (confirmed) | Roster `state` | `termStart` | Evidence |
+|---|---|---|---|---|
+| `tracy_miller` | **45** — Salt Lake County | UT District 45 (South Jordan, Salt Lake County) | 2025-01 | R-South Jordan, assumed office Jan 1 2025, succeeded Susan Pulsipher; district covers South Jordan / Sandy / Riverton. 7 years on the Jordan Board of Education, two terms as president — which matches the "former school board president" note already on her stance block. |
+| `grant_pace` | **60** — Utah County | UT District 60 (Provo, Utah County) | 2026-05 | R-Provo, sworn in May 2026 (Wikidata start date May 5; oath administered May 6 by Speaker Schultz) after **Tyler Clancy** resigned on appointment as state homelessness coordinator. District 60 covers northern Provo. |
+| `jackie_larson` | **64** — Utah County | UT District 64 (Spanish Fork / Salem, Utah County) | 2026-05 | R-Spanish Fork, assumed office May 5 2026 by convention special election for the remainder of **Jefferson Burton**'s term; Burton resigned after moving out of the district. District 64 covers Woodland Hills, Salem, Spanish Fork, Leland, Benjamin, Lake Shore, Palmyra. |
+
+Every `c` value equals `_UTAH_HOUSE_COUNTY[d]`, which 10f requires (45 → Salt Lake, 60
+and 64 → Utah County). Nothing else was touched: no stances, no scores, no blurbs.
+
+**Coverage: 40 of 75 House seats** (was 37), still bidirectional and green —
+`_UTAH_HOUSE_INFO` and `KR_STATE_HOUSE_INCUMBENTS` have the same 40 pids.
+
+## Confirmed non-bugs
+
+- **No stale predecessor held any of the three seats.** `jburton`, `tyler_clancy` and
+  Susan Pulsipher have **no cmp-data.js roster record** and appear in neither Utah
+  House table, so districts 45, 60 and 64 were genuinely uncovered rather than
+  mis-held. (Susan Pulsipher is not in the data set at all; the only Pulsipher here is
+  `roger_pulsipher`, a Cache County school-board member.)
+- **The Provo seat is 60, not 61.** District 61 is Lisa Shepherd's and is what the
+  `utah_co` KEY_RACES_BY_LOCATION block features — an easy conflation to make while
+  wiring a second Provo-area member.
+
+## Mismatches found and deliberately left (content calls, not wiring)
+
+- **`jburton` Power-Map META row** reads `['pm-tier-state','STATE HOUSE','davis',
+  'district1']`. *Both* halves are wrong: Salem is Utah County (UT-3, not Davis /
+  UT-1), and he has been a former member since March 2026. Fixing the county while
+  leaving the sitting-member tier would be half a repair, and retiring the row is a
+  decision about how former members appear on the Power Map.
+- **`tclancy` Power-Map META row** (`utah_co`/`district3`) is geographically right but
+  has the same tier problem — Clancy left the House in May 2026 — and his ACCT_THEME
+  blurb still describes him in the present tense as "a working Provo police detective
+  and one of the chamber's youngest members". Same content call.
+- **Browse directory / `PROFILES`.** None of the Utah House records added by any of
+  these passes (Bishop, Nguyen, Matthews, and now Miller, Pace, Larson) is in the
+  static directory-backfill list in index.html, so none of them gets a Power-Map card:
+  `pmInjectDynamicCards` only injects ids present in `PROFILES`. Adding them there is a
+  visibility decision about the public directory, so it was left alone for consistency
+  with the earlier passes rather than changed silently here.
+- **`grant_pace` and `jackie_larson` stance cards are entirely unsourced** (4 each,
+  campaign-platform text), and `tracy_miller`'s 8 are mixed (3 with le.utah.gov bill
+  sources: HB 290 (2026), H.B. 76 (2025), H.B. 268 (2025)). They belong to the
+  legislative-sourcing backlog above.

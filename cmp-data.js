@@ -11121,5 +11121,41 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2026-05",
   "issues": ["Election & Redistricting Reform", "Water Conservation", "Limited Government", "Term Limits", "Public Lands & Federalism"]
+ },
+ // The last three uncovered House seats whose sitting member was already content-bearing
+ // here — each had a curated stance block and no roster record, which is the exact
+ // condition that had kept them out of BOTH Utah House tables (10e/10g have no office or
+ // district to check without a record). Seats confirmed against the public record, then
+ // wired. Same minimal pattern as the records above: `score` null and kept/broken/pending
+ // 0 because no promise-tracking pass has been run for them, `issues` lifted verbatim
+ // from their own stance-card topics, and no `termEnd` — all three are sitting.
+ "tracy_miller": {
+  "name": "Tracy Miller", "office": "Utah State Representative",
+  "state": "UT District 45 (South Jordan, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Affordable Child Care", "Child Tax Relief", "Public Schools", "Teacher Pay & Literacy", "Parental Engagement"]
+ },
+ // Seated May 5, 2026 by special election for the remainder of Jefferson Burton's term:
+ // Burton resigned after moving out of District 64, and neither he nor his id ever held
+ // this seat in the data set (there is no `jburton` roster record, and he appears in
+ // neither Utah House table), so nothing stale had to be moved out of the way.
+ "jackie_larson": {
+  "name": "Jackie Larson", "office": "Utah State Representative",
+  "state": "UT District 64 (Spanish Fork / Salem, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Private Property Rights", "Water & Farmland", "Spending Transparency", "Parental Involvement"]
+ },
+ // Sworn in the same week as Bishop and Larson, succeeding Tyler Clancy, who resigned on
+ // appointment as the state homelessness coordinator. The district is 60 (Provo), NOT the
+ // 61 that the `utah_co` Key Races block runs — that is Lisa Shepherd's seat. Clancy has
+ // no roster record either, so District 60 was simply uncovered rather than mis-held.
+ "grant_pace": {
+  "name": "Grant Pace", "office": "Utah State Representative",
+  "state": "UT District 60 (Provo, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2026-05",
+  "issues": ["Housing for Families", "Cut Government Waste", "Responsible Tax Cuts", "Water Conservation"]
  }
 });
