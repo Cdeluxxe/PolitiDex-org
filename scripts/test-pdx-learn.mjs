@@ -339,8 +339,83 @@ function trigger(ctx, key, cls = "pdxl-t") {
   ok(L.selfTest().passed, "7: selfTest unaffected by missing PDXStore");
 }
 
+// ── 8. Behaviour: the orientation note retires itself once a term is opened ──
+// The one note that pushes rather than waits. It teaches the affordance, so proof
+// the visitor found the affordance should retire it — otherwise a reminder to tap
+// underlined words keeps showing to someone who already taps them.
+{
+  const slots = {};
+  const store = { read: (k, d) => (k in slots ? slots[k] : d), write: (k, v) => { slots[k] = v; } };
+  const ctx = makeCtx({ store });
+  const L = ctx.window.PDXLearn;
+
+  ok(L.hasUsedTerms() === false, "8: a new visitor has not used terms yet");
+  const shown = L.note("vr-orientation", { retireOnTermUse: true, body: "Anything underlined explains itself." });
+  ok(shown !== "", "8: the orientation note shows to a visitor who has never opened a definition");
+  ok(L.note("plain-note", { body: "x" }) !== "",
+    "8: a note without retireOnTermUse is unaffected");
+
+  // Open a definition the way a visitor does — a real delegated click on a term.
+  const t = makeNode("button");
+  t.setAttribute("data-pdx-term", "hr");
+  t.parentNode = ctx.__body;
+  ctx.__body.childNodes.push(t);
+  ctx.__fire("click", t);
+
+  ok(L.hasUsedTerms() === true, "8: opening a definition records the engagement");
+  ok(slots.pdx_learn_prefs && slots.pdx_learn_prefs.used_terms === 1,
+    "8: the engagement signal persists through PDXStore");
+  ok(L.note("vr-orientation", { retireOnTermUse: true, body: "x" }) === "",
+    "8: the orientation note retires on the next render — no dismiss tap needed");
+  ok(L.note("plain-note", { body: "x" }) !== "",
+    "8: retiring the orientation note does not silence the topical notes");
+  ok(L.noteDismissed("vr-orientation") === false,
+    "8: retiring is not the same as dismissing — the note was never actually dismissed");
+
+  // A fresh visit reads the same signal, so it stays retired across sessions.
+  ok(makeCtx({ store }).window.PDXLearn.hasUsedTerms() === true,
+    "8: the engagement signal survives a reload");
+
+  // "Show the explainer notes again" must undo the engagement signal too, or the
+  // orientation note would be the one thing reset could never bring back.
+  L.resetNotes();
+  ok(L.hasUsedTerms() === false, "8: resetNotes clears the engagement signal");
+  ok(L.note("vr-orientation", { retireOnTermUse: true, body: "x" }) !== "",
+    "8: after reset the orientation note is offered again");
+}
+
+// ── 9. Behaviour: the glossary footer can restore dismissed notes ─────────────
+// resetNotes() existed but had no route to it from the UI, so a visitor who
+// dismissed everything was stuck. This gates the route, not just the function.
+{
+  const slots = {};
+  const store = { read: (k, d) => (k in slots ? slots[k] : d), write: (k, v) => { slots[k] = v; } };
+  const ctx = makeCtx({ store });
+  const L = ctx.window.PDXLearn;
+
+  L.dismissNote("vr-procedural");
+  ok(L.noteDismissed("vr-procedural") === true, "9: a note is dismissed to begin with");
+
+  L.openGlossary("");
+  const sheet = ctx.__body.childNodes.find((n) => n._classes && n._classes.has("pdxl-sheet"));
+  ok(!!sheet, "9: the glossary sheet mounted");
+  ok(sheet.innerHTML.includes("data-pdxl-reset-notes"),
+    "9: the glossary footer offers a way to bring the notes back");
+
+  const btn = makeNode("button");
+  btn.setAttribute("data-pdxl-reset-notes", "");
+  btn.parentNode = ctx.__body;
+  ctx.__body.childNodes.push(btn);
+  ctx.__fire("click", btn);
+
+  ok(L.noteDismissed("vr-procedural") === false, "9: clicking it clears the dismissals");
+  ok(btn.disabled === true, "9: the control disables itself after firing");
+  ok(String(btn.textContent).includes("restored"),
+    "9: the label confirms what happened instead of alerting");
+}
+
 if (fails.length) {
   console.error("✗ pdx-learn: " + fails.length + " failure(s)\n  " + fails.join("\n  "));
   process.exit(1);
 }
-console.log("✓ pdx-learn: all assertions passed (7 cases)");
+console.log("✓ pdx-learn: all assertions passed (9 cases)");

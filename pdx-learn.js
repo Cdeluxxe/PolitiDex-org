@@ -205,7 +205,7 @@
       aka: ['say-vs-do', 'Say-vs-Do'],
       short: 'A comparison of what someone has publicly said they stand for against what the record shows they actually did.',
       long: 'It needs both halves. Without a stated position there is nothing to check a vote against; without a record there is nothing to check the statement against.',
-      why: 'PolitiDex keeps two separate reads and never blends them into one “honesty” score: the 🏛️ Official Record (votes and formal actions only) and the 🧾 Say-vs-Do picture (statements, interviews, news and controversies only). Mixing them would hide more than it reveals.',
+      why: 'PolitiDex keeps two separate reads and never blends them into one “honesty” score: the 🏛️ Official Record (votes and formal actions only) and the 🧾 Say-vs-Do picture (statements, interviews, news and controversies only). A tracked promise counts in neither — it has its own tracker, so a pledge is never quietly recycled as a second piece of evidence. Mixing any of these would hide more than it reveals.',
       see: ['contradiction', 'officialrecord', 'norecord']
     },
     contradiction: {
@@ -280,9 +280,25 @@
   }
   function noteDismissed(id) { return !!loadPrefs()['note_' + id]; }
   function dismissNote(id) { savePrefs(Object.fromEntries([['note_' + id, 1]])); }
+
+  // Has this visitor ever opened a definition? Set the first time a term is read,
+  // and used to retire the orientation note: once someone has actually tapped an
+  // underlined word, the note telling them underlined words are tappable has done
+  // its job and should get out of the way without waiting to be dismissed. Kept
+  // as a generic signal rather than special-casing one note id, so any surface can
+  // ask "does this visitor still need the affordance explained?"
+  var USED_KEY = 'used_terms';
+  function hasUsedTerms() { return !!loadPrefs()[USED_KEY]; }
+  function markTermUsed() {
+    if (hasUsedTerms()) return;            // never rewrite prefs on every open
+    savePrefs(Object.fromEntries([[USED_KEY, 1]]));
+  }
+
   function resetNotes() {
     var p = loadPrefs(), next = {};
-    Object.keys(p).forEach(function (k) { if (k.indexOf('note_') !== 0) next[k] = p[k]; });
+    Object.keys(p).forEach(function (k) {
+      if (k.indexOf('note_') !== 0 && k !== USED_KEY) next[k] = p[k];
+    });
     _memPrefs = next;
     try {
       if (window.PDXStore && typeof window.PDXStore.write === 'function') {
@@ -367,10 +383,14 @@
   /* ═══════════════════════════════════════════════════════════════════════
      PRIMITIVE 3 — the dismissible teaching note
      Returns '' once dismissed, so a surface can call it unconditionally.
+     opts.retireOnTermUse → also return '' once the visitor has opened any
+       definition. For notes that teach the *affordance* rather than a fact:
+       proof that it landed is better than waiting for a dismiss tap.
      ═══════════════════════════════════════════════════════════════════════ */
   function note(id, opts) {
     opts = opts || {};
     if (!id || noteDismissed(id)) return '';
+    if (opts.retireOnTermUse && hasUsedTerms()) return '';
     var body = opts.html || esc(opts.body || '');
     var title = opts.title ? '<b>' + esc(opts.title) + '</b> ' : '';
     return '<div class="pdxl-note" data-pdxl-note="' + escAttr(id) + '">' +
@@ -502,6 +522,7 @@
   // from what the visitor was doing.
   function openTerm(key, trigger, focusIn) {
     if (!GLOSSARY[key] || !document.body) return;
+    markTermUsed(); // the orientation note can stand down — see note(retireOnTermUse)
     var p = ensurePop();
     if (_popTrigger && _popTrigger !== trigger) _popTrigger.setAttribute('aria-expanded', 'false');
     p.innerHTML = popHtml(key);
@@ -636,7 +657,12 @@
       '<input type="search" class="pdxl-gl-filter" data-pdxl-gl-filter placeholder="Filter terms…" ' +
         'aria-label="Filter glossary terms" value="' + escAttr(filter || '') + '">' +
       '<div data-pdxl-gl-list>' + glossaryHtml(filter) + '</div>' +
-      '<div class="pdxl-sheet-foot">Definitions describe the process, never a party or a policy.</div>';
+      // A dismissed note is remembered for good, which is right — but it left the
+      // visitor no way back. Offered here rather than in Settings because this
+      // sheet is the one place someone is already looking for help.
+      '<div class="pdxl-sheet-foot">Definitions describe the process, never a party or a policy.' +
+        '<button type="button" class="pdxl-link" data-pdxl-reset-notes>' +
+          'Show the explainer notes again</button></div>';
     _sheet.hidden = false; _scrim.hidden = false;
     _sheet.scrollTop = 0;
     if (window.requestAnimationFrame) {
@@ -686,6 +712,18 @@
 
       var gl = closest(t, '[data-pdxl-glossary]');
       if (gl) { e.preventDefault(); e.stopPropagation(); openGlossary(''); return; }
+
+      // Undo every dismissal (including the "has used terms" signal, so the
+      // orientation note comes back too). Confirmed by swapping the label rather
+      // than by an alert — nothing destructive happens and nothing needs blocking.
+      var rn = closest(t, '[data-pdxl-reset-notes]');
+      if (rn) {
+        e.preventDefault(); e.stopPropagation();
+        resetNotes();
+        rn.textContent = 'Explainer notes restored ✓';
+        rn.disabled = true;
+        return;
+      }
 
       var sh = closest(t, '[data-pdxl-sheet]');
       if (sh) { e.preventDefault(); e.stopPropagation(); openSheet(sh.getAttribute('data-pdxl-sheet')); return; }
@@ -842,6 +880,7 @@
     openSheet: openSheet, openGlossary: openGlossary, closeSheet: closeSheet,
     // notes state
     noteDismissed: noteDismissed, dismissNote: dismissNote, resetNotes: resetNotes,
+    hasUsedTerms: hasUsedTerms,
     // tests
     selfTest: selfTest
   };

@@ -108,13 +108,19 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.7rem;
 }
-.pdxl-pop-foot a, .pdxl-pop-foot button.pdxl-link {
+/* The quiet inline link. Scoped to no particular surface, because it is used in
+   popover footers, the glossary footer and the methodology sheet — `all: unset`
+   strips the native <button> chrome so it reads as text either way. */
+.pdxl-pop-foot a, button.pdxl-link {
   all: unset; cursor: pointer; color: #7fb4ff; font: inherit; text-decoration: none;
 }
-.pdxl-pop-foot a:hover, .pdxl-pop-foot button.pdxl-link:hover { text-decoration: underline; }
-.pdxl-pop-foot a:focus-visible, .pdxl-pop-foot button.pdxl-link:focus-visible {
+.pdxl-pop-foot a:hover, button.pdxl-link:hover { text-decoration: underline; }
+.pdxl-pop-foot a:focus-visible, button.pdxl-link:focus-visible {
   outline: 2px solid #7fb4ff; outline-offset: 2px; border-radius: 0.2rem;
 }
+/* Post-action state (e.g. "Explainer notes restored ✓") — no longer a control,
+   so it drops the link colour and the pointer rather than looking clickable. */
+button.pdxl-link:disabled { color: #8fa8c8; cursor: default; text-decoration: none; }
 .pdxl-pop-see { color: #8fa8c8; }
 .pdxl-pop-x {
   position: absolute; top: 0.35rem; right: 0.35rem;
@@ -252,6 +258,9 @@
   display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
   font-size: 0.76rem; color: #8fa8c8;
 }
+/* A control in the sheet footer takes its own line rather than trailing the
+   sentence — it is an action, not part of the caveat. */
+.pdxl-sheet-foot button.pdxl-link { flex: 0 0 100%; }
 /* Glossary listing inside a sheet. */
 .pdxl-gl-filter {
   width: 100%; box-sizing: border-box; margin: 0 0 0.7rem;

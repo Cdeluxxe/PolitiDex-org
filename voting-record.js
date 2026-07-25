@@ -445,9 +445,8 @@
 
   // ── Dismissible "why procedural votes count less" note ─────────────────────
   // The other concept that silently changes how this list should be read. Shown
-  // only when the visible record actually contains procedural votes, and only
-  // when the omnibus note above isn't already showing — one teaching note at a
-  // time, never two stacked. Dismissal is remembered by PDXLearn.
+  // only when the visible record actually contains procedural votes. Dismissal is
+  // remembered by PDXLearn. Ordering against the other notes: see teachHtml().
   function procTeachHtml(items) {
     var L = window.PDXLearn;
     if (!L || !L.note) return '';
@@ -465,6 +464,58 @@
         ' a Yea is a vote <b>against</b> the bill, and we read it that way.'
     });
   }
+
+  // ── First-run orientation note ─────────────────────────────────────────────
+  // The voting record is the densest thing a first-time visitor meets, and it is
+  // the first place the education layer's dotted underlines appear in bulk — so it
+  // is the honest place to say once, quietly, that they are tappable. Everything
+  // else in the layer is pull: it only teaches someone who already thought to tap.
+  // This is the single push, and it is deliberately the smallest one that works.
+  //
+  // Three things keep it from reading as onboarding:
+  //   • it renders below the filters, beside the record it describes — not as a
+  //     gate in front of it, and nothing waits on it;
+  //   • it retires itself the moment the visitor opens any definition, without
+  //     waiting to be dismissed (retireOnTermUse) — the lesson landed, so the
+  //     reminder leaves. Tapping × works too, and is remembered either way;
+  //   • it never appears at all unless there is a record on screen to read.
+  function orientTeachHtml(items) {
+    var L = window.PDXLearn;
+    if (!L || !L.note || !L.term) return '';
+    if (!(items || []).length) return '';   // nothing to orient anyone around yet
+    return L.note('vr-orientation', {
+      icon: '📖',
+      retireOnTermUse: true,
+      title: 'New to voting records?',
+      html: 'Anything with a dotted underline explains itself — ' +
+        LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' +
+        LT('procedural', 'procedural') + '. Tap one for a short, plain-language ' +
+        'definition. Nothing here is an opinion: every record below links the ' +
+        'official source so you can check it yourself.'
+    });
+  }
+
+  // ── Which teaching note gets the slot ──────────────────────────────────────
+  // At most ONE note shows above the list. Two stacked notes stop reading as help
+  // and start reading as a wall, and a visitor who dismisses a stack learns only
+  // that the product nags. So the notes are an ordered list and the first eligible
+  // one wins; each returns '' when it is dismissed or doesn't apply, so a dismissed
+  // note hands the slot to the next one on the visitor's NEXT visit rather than
+  // stacking underneath. Order is general → specific:
+  //   1. orientation — how to read anything at all (once per visitor)
+  //   2. omnibus     — only when a multi-issue measure is actually on screen
+  //   3. procedural  — only when a procedural vote is actually on screen
+  function teachHtml(items) {
+    var candidates = [orientTeachHtml, omniTeachHtml, procTeachHtml];
+    for (var i = 0; i < candidates.length; i++) {
+      var html = candidates[i](items);
+      if (html) return html;
+    }
+    return '';
+  }
+  // Exposed for scripts/test-vr-teach.mjs, matching the existing convention in
+  // stance-helpers.js (window._issueRecordSummary). Pure: items → html.
+  window._vrTeachHtml = teachHtml;
 
   // ── One vote / position card ──────────────────────────────────────────────────
   function cardHtml(item, positionMap) {
@@ -781,16 +832,12 @@
       ? '<div class="vr-offline">📡 Showing a saved copy — reconnect for the latest and to filter the full record.</div>'
       : '';
 
-    var omniTeach = omniTeachHtml(_state.items);
-
     root.innerHTML =
       offlineNote +
       renderSummary({ summary: data.summary, items: _state.items }, pm) +
       renderFilters() +
-      omniTeach +
-      // Only when the omnibus note isn't already occupying this slot — one
-      // teaching note at a time keeps the surface calm.
-      (omniTeach ? '' : procTeachHtml(_state.items)) +
+      // At most one teaching note, chosen by priority — see teachHtml().
+      teachHtml(_state.items) +
       '<div id="pdx-vr-list">' + listHtml + '</div>' +
       more +
       '<p class="vr-note">Every record links to the official ' + LT('rollcall', 'roll call') +

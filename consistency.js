@@ -1612,7 +1612,7 @@
       row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
-        (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary style="color:#7fb4ff;cursor:pointer;">Open the full glossary →</button>' : '')) +
+        (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Open the full glossary →</button>' : '')) +
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';
   }
@@ -1639,6 +1639,12 @@
     scopedOverall: scopedOverall,
     issuesWithSignal: issuesWithSignal,
     isSaydoReceipt: isSaydoReceipt,
+    // Pure thin-data rule, exposed read-only. The education layer's glossary
+    // states these thresholds in words ("below two directional items…"), so
+    // scripts/test-glossary-honesty.mjs probes THIS function to derive the real
+    // thresholds and fails if the explainer copy has drifted from them. Exposing
+    // it keeps that check behavioural instead of scraping source for a literal.
+    saydoScore: saydoScore,
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.
     officialActions: {
