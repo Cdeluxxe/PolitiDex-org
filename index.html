@@ -25406,21 +25406,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
   function openModal(id) {
-    // A card or deep link may name a browse-directory pid (`ray_ward`) whose
-    // curated record lives under a different id (`rward`). ACCT_ALIAS is that
-    // bridge and every other surface that touches these ids already follows it —
-    // the theme lookup, the Evidence Locker, the harness's own rosterFor(). This
-    // resolution step did not, so a spotlight card keyed on a browse pid rendered
-    // (nameFor()/officeFor() fall back to the card's literals), was clickable, and
-    // then dead-ended on _pdxShowModalError. Followed ONLY when the id has no
-    // record of its own, so a real profile always wins and canonicalization stays
-    // a single hop — the same rule PDXCanonicalPid() and section 2 of the identity
-    // harness enforce for the retired-id table.
-    if (id && window.ACCT_ALIAS && window.ACCT_ALIAS[id] &&
-        !(window.PROFILES && PROFILES[id]) &&
-        !(typeof CMP_DATA !== 'undefined' && CMP_DATA[id])) {
-      id = window.ACCT_ALIAS[id];
-    }
+    // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
+    // not the one the roster record lives under — a browse pid (`ray_ward` →
+    // `rward`) or a curated theme key (`kivory` → `ivory_h39`). PDXProfilePid()
+    // is the single resolution step for that, and it is the ONLY place profile
+    // loading asks the question, so every entry point below (including the cold
+    // deep-link path and the lazy full-profile refetch) inherits the fix. It
+    // guarantees the result has a real record or is the id unchanged, so the
+    // _pdxShowModalError branch further down still fires honestly for a genuinely
+    // unknown id. See PDX_PROFILE_ALIAS for why this is not ACCT_ALIAS.
+    if (id && typeof window.PDXProfilePid === 'function') id = window.PDXProfilePid(id);
     // Personal Impact Tracker (opt-in, private): opening a full profile is the
     // canonical "researched a candidate" signal. Deduped by id in PDXImpact, so
     // openModal's own re-entrant call (loading shell → refetch → re-run) counts once.
@@ -54775,6 +54770,63 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       karianne_lisonbee: 'lisonbee_h14',
       jordan_teuscher:   'teuscher_h44',
       ann_millner:       'amillner',
+    };
+
+    // ── Profile-id resolution — the other half of ACCT_ALIAS's old dual duty ──
+    // ACCT_ALIAS above answers "where is this person's CURATED data?" — its values
+    // are theme / ACCT_SPOTLIGHT keys, and six of them (`kivory`, `wharper`,
+    // `seliason`, `klisonbee`, `dmccay`, `jteuscher`) deliberately have no
+    // cmp-data.js record at all. Profile loading needs the opposite answer: "which
+    // id has a real roster record?" Reading ACCT_ALIAS for both questions is what
+    // left `ken_ivory` → `kivory` resolving to an id that names nobody, so the
+    // modal dead-ended even though Ken Ivory is in the roster as `ivory_h39`.
+    //
+    // This table answers ONLY the profile question, and only where ACCT_ALIAS
+    // cannot. Every value MUST be a live cmp-data.js id — scripts/
+    // test-identity-integrity.mjs section 11 enforces that, and also fails if a
+    // new curated key is added without a bridge here. Each mapping is the REVERSE
+    // of an existing ACCT_ALIAS entry (`ivory_h39: 'kivory'` is the repo already
+    // saying those two ids are one person), so nothing here is a new claim.
+    //
+    // ACCT_ALIAS is intentionally NOT edited: the curated key is re-derived from
+    // the roster id by its existing entries, which is why the ACCT_THEME blurb and
+    // the ACCT_SPOTLIGHT drivers keep resolving after a click lands on the roster
+    // id (`kivory` → opens `ivory_h39` → _slTheme follows `ivory_h39: 'kivory'`
+    // → ACCT_THEME.kivory). Its 2-hop curated chains are left alone; profile
+    // resolution no longer walks them.
+    window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
+      // curated keys with no roster record of their own
+      kivory:    'ivory_h39',
+      wharper:   'harper_s16',
+      seliason:  'eliason_h45',
+      klisonbee: 'lisonbee_h14',
+      dmccay:    'mccay_s11',
+      jteuscher: 'teuscher_h44',
+      // short browse / catalog pids whose ACCT_ALIAS entry targets one of those
+      ken_ivory: 'ivory_h39',
+      eliason:   'eliason_h45',
+      teuscher:  'teuscher_h44',
+      lisonbee:  'lisonbee_h14',
+      mccay:     'mccay_s11',
+    };
+
+    // Resolve any id to one a profile can actually open, in a single step.
+    // Single-hop-on-miss, deliberately: a candidate is accepted only if IT has a
+    // record, so nothing chains through a dead id, a real profile always beats an
+    // alias, and an unknown id passes through untouched so callers can still show
+    // their own not-found state instead of silently opening the wrong person.
+    window.PDXProfilePid = function (id) {
+      if (!id) return id;
+      var hasRec = function (x) {
+        return !!((window.PROFILES && window.PROFILES[x]) ||
+                  (typeof CMP_DATA !== 'undefined' && CMP_DATA[x]));
+      };
+      if (hasRec(id)) return id;
+      var direct = window.PDX_PROFILE_ALIAS && window.PDX_PROFILE_ALIAS[id];
+      if (direct && hasRec(direct)) return direct;
+      var curated = window.ACCT_ALIAS && window.ACCT_ALIAS[id];
+      if (curated && hasRec(curated)) return curated;
+      return id;
     };
 
     // Resolve the overall theme for an official: a document-authored

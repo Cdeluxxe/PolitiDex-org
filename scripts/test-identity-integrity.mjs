@@ -814,6 +814,84 @@ ok(hCountyChecked > 0, "utah maps: at least one House district county was cross-
 ok(rosterDistChecked > 0, "utah maps: at least one roster record's own district label was checked");
 ok(krLocalChecked > 0, "utah maps: at least one KEY_RACES_BY_LOCATION race was checked");
 
+// ── 11. Profile resolution must reach a real roster record ──────────────────
+// ACCT_ALIAS answers "where is the CURATED data" and its values are theme /
+// ACCT_SPOTLIGHT keys — six of which (`kivory`, `wharper`, `seliason`,
+// `klisonbee`, `dmccay`, `jteuscher`) name nobody in cmp-data.js on purpose.
+// Profile loading asks the opposite question, so it reads PDX_PROFILE_ALIAS and
+// resolves through window.PDXProfilePid(). This section pins both halves: the new
+// table may only name live records, and — the part that catches the next
+// regression rather than the last one — no id anywhere in the curated vocabulary
+// may be left unresolvable while a roster record for that person demonstrably
+// exists. That is exactly the state `ken_ivory` → `kivory` was in.
+const PROFILE_ALIAS = liftObjectLiteral(
+  "window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS ||", "PDX_PROFILE_ALIAS") || {};
+ok(Object.keys(PROFILE_ALIAS).length > 0,
+  "index.html: window.PDX_PROFILE_ALIAS was extracted (profile resolution needs it)");
+for (const [from, to] of Object.entries(PROFILE_ALIAS)) {
+  ok(!!(ROSTER && ROSTER[to]),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] → '${to}', which has no cmp-data.js ` +
+    `record — the whole point of this table is that its values are openable`);
+  ok(!RETIRED.has(to),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] → '${to}', which is retired — it would ` +
+    `resolve a click onto a dead id`);
+  ok(!(ROSTER && ROSTER[from]),
+    `profile alias: PDX_PROFILE_ALIAS['${from}'] is itself a live roster id, so the entry ` +
+    `can never be consulted (a real record always wins) — remove it`);
+  ok(from !== to, `profile alias: '${from}' may not alias to itself`);
+}
+
+// window.PDXProfilePid(), reimplemented exactly: single hop, a candidate is only
+// accepted if IT has a record, unknown ids pass through.
+const profilePid = (id) => {
+  if (!id) return id;
+  const hasRec = (x) => !!(ROSTER && ROSTER[x]);
+  if (hasRec(id)) return id;
+  if (PROFILE_ALIAS[id] && hasRec(PROFILE_ALIAS[id])) return PROFILE_ALIAS[id];
+  if (ACCT_ALIAS[id] && hasRec(ACCT_ALIAS[id])) return ACCT_ALIAS[id];
+  return id;
+};
+ok(profilePid("kivory") === "ivory_h39",
+  "profile resolution: 'kivory' must open Ken Ivory's roster record 'ivory_h39' " +
+  "(the dual-duty failure this section exists for)");
+ok(profilePid("ray_ward") === "rward",
+  "profile resolution: the ACCT_ALIAS fall-through still resolves 'ray_ward' → 'rward'");
+
+// The class-wide guard. For every id in the curated vocabulary, if profile
+// resolution fails BUT a roster record for that person is discoverable, the
+// bridge is missing. "Discoverable" means some live roster id already aliases to
+// this id (ACCT_ALIAS asserting they are one person) or a roster display name
+// slugifies to it — never a fuzzy guess. Ids with no record anywhere are skipped:
+// those need a roster record, which is a content decision, not a wiring one.
+const reverseAlias = new Map();
+for (const [k, v] of Object.entries(ACCT_ALIAS))
+  if (ROSTER && ROSTER[k]) { if (!reverseAlias.has(v)) reverseAlias.set(v, []); reverseAlias.get(v).push(k); }
+const rosterBySlug = new Map();
+for (const [rid, rec] of Object.entries(ROSTER || {})) {
+  if (!rec || typeof rec.name !== "string" || RETIRED.has(rid)) continue;
+  const s = rec.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (s && !rosterBySlug.has(s)) rosterBySlug.set(s, rid);
+}
+const curatedVocab = new Set([
+  ...Object.keys(ACCT_ALIAS), ...Object.values(ACCT_ALIAS), ...Object.keys(PROFILE_ALIAS),
+]);
+let profileChecked = 0;
+for (const id of curatedVocab) {
+  const resolved = profilePid(id);
+  if (ROSTER && ROSTER[resolved]) { profileChecked++; continue; }
+  const candidates = [
+    ...(reverseAlias.get(id) || []),
+    ...(rosterBySlug.has(id) ? [rosterBySlug.get(id)] : []),
+  ].filter((c) => ROSTER && ROSTER[c] && !RETIRED.has(c));
+  ok(candidates.length === 0,
+    `profile resolution: id '${id}' opens no profile, but '${candidates[0]}' is a live ` +
+    `roster record for the same person — add PDX_PROFILE_ALIAS['${id}'] = ` +
+    `'${candidates[0]}' so the click, deep link and saved pick resolve`);
+}
+ok(profileChecked > 0,
+  "profile resolution: at least one curated id resolved to a roster record, or this " +
+  "check is vacuously green");
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);

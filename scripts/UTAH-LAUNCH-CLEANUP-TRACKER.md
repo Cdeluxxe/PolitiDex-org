@@ -644,3 +644,124 @@ resolved to exactly one roster id.
   …). These are not split pairs — there is no partner id to merge — so they are
   content-authored cards awaiting real roster records, not an identity defect.
   Section 5 passes them because they carry stance blocks.
+
+# ACCT_ALIAS Dual-Duty Split (July 2026, seventh pass)
+
+`scripts/split-acct-alias-profile-resolution-jul2026.mjs` — idempotent,
+dry-run-by-default, 3 edits. Closes the two "Still open" items above.
+
+## What "dual duty" actually was
+
+`ACCT_ALIAS`'s own header states its job: resolve an id "back to the curated key
+when a direct lookup misses". Its values are **curated keys** — theme /
+`ACCT_SPOTLIGHT` keys — and that is a data question, not a navigation one. Of its
+61 entries, 44 happen to name a live roster id and 17 name a curated key, six of
+which name **nobody** in `cmp-data.js` by design: `kivory`, `wharper`,
+`seliason`, `klisonbee`, `dmccay`, `jteuscher`.
+
+Almost every consumer wants that curated direction and was already correct:
+`_slTheme` (`ACCT_THEME`), the two `_slKey` / `ACCT_SPOTLIGHT` driver resolvers
+in `index.html`, and the `_acctKey` helpers in `say-vs-do.js`, `coverage.js`,
+`hr1-showcase.js`, `issue-view.js`, `stance-helpers.js`. Every one of those uses
+the result as a **data key**, never as a navigation target. None was broken.
+
+Exactly one consumer asked the opposite question — *which id has a real roster
+record?* — and that is profile loading. The sixth pass taught `openModal` to
+follow `ACCT_ALIAS` on a miss, which fixed 48 spotlight-card clicks whose alias
+happened to land on a roster id. But for the six curated keys above, and the five
+short pids that alias onto them, the same table lands on an id naming nobody and
+the modal still dead-ends on `_pdxShowModalError`. **Reading one table for two
+questions was the entire defect** — not a bad entry anywhere in it.
+
+## The 2-hop chains
+
+Seven, all created by the sixth pass's bridges, all curated-key chains:
+
+| chain | why it exists |
+| --- | --- |
+| `steve_eliason → eliason_h45 → seliason` | bridge, then theme key |
+| `daniel_mccay → mccay_s11 → dmccay` | " |
+| `wayne_harper → harper_s16 → wharper` | " |
+| `karianne_lisonbee → lisonbee_h14 → klisonbee` | " |
+| `jordan_teuscher → teuscher_h44 → jteuscher` | " |
+| `rosie_rivera → rosie_rivera_slco → rosie_rivera` | 2-cycle, counted from both ends |
+
+All are **left in place**. They were already benign for profiles (hop 1 has a
+roster record, so single-hop-on-miss stops there), and profile resolution no
+longer walks `ACCT_ALIAS` first at all, so they cannot regress a click. Deleting
+them would break the theme lookups that are the table's actual purpose.
+
+## The fix — a second single-purpose table, not a rewrite of the first
+
+```
+ACCT_ALIAS         id → curated key   (theme + ACCT_SPOTLIGHT)   UNCHANGED
+PDX_PROFILE_ALIAS  id → roster id     (profile loading)          new, 11 entries
+```
+
+`index.html` ~54780, immediately after the `ACCT_ALIAS` block. Purely additive —
+`ACCT_ALIAS` is not edited, and the pass refuses to write if a byte of it moved.
+That is precisely why the blurbs survive: resolution is now roster-id-first, and
+the curated key is re-derived **from** the roster id by `ACCT_ALIAS`'s existing
+entries. Clicking `kivory` opens `ivory_h39`; `_slTheme('ivory_h39')` then follows
+the untouched `ivory_h39: 'kivory'` back to `ACCT_THEME.kivory`. Verified by hand
+for all 11 ids, both theme and `ACCT_SPOTLIGHT`.
+
+Every mapping is the **reverse of an existing `ACCT_ALIAS` entry** — `ivory_h39:
+'kivory'` is the repo already asserting those two ids are one person — so no
+entry here is a new claim, and no roster record was invented.
+
+`window.PDXProfilePid(id)` is the single clear step, and `openModal`'s inline
+fall-through now reduces to one call to it. It keeps **single-hop-on-miss**: a
+candidate is accepted only if *it* has a record, so nothing chains through a dead
+id, a real profile always beats an alias, and an unknown id passes through
+untouched so `_pdxShowModalError` still fires honestly.
+
+## Ids fixed (11)
+
+Curated keys with no record of their own: `kivory → ivory_h39`, `wharper →
+harper_s16`, `seliason → eliason_h45`, `klisonbee → lisonbee_h14`, `dmccay →
+mccay_s11`, `jteuscher → teuscher_h44`.
+Short browse/catalog pids aliased onto those: `ken_ivory → ivory_h39`, `eliason →
+eliason_h45`, `teuscher → teuscher_h44`, `lisonbee → lisonbee_h14`, `mccay →
+mccay_s11`.
+
+**Correction to the previous pass's note:** `csnider`, `mmckell`, `vickers` and
+`hollins` were listed there as still-dead. They are not — `ACCT_ALIAS` maps them
+to `snider_h5`, `mckell_s25`, `evickers`, `hollins_h24`, all live roster records,
+so the sixth pass's `openModal` change already fixed them. Only the six ids above
+were genuinely unreachable.
+
+These 11 are mostly not currently-rendered card clicks — the theme keys have no
+browse-directory entry, Power-Map gates on `PROFILES`, and the five short pids
+live only in `EXPANSION_SUGGESTIONS` / `EXPANSION_BULK_EXTRA` import catalogs.
+The failing entry points are deep links (`?p=<id>`), saved My-Team picks and
+bookmarks — which is the same reason `ACCT_ALIAS`'s own comments give for keeping
+such entries at all.
+
+## Harness — section 11
+
+`test-identity-integrity.mjs`, 6377 → **6435** assertions, green. Per entry: the
+value is a live roster record, is not retired, the key is not itself a roster id
+(the entry would be unreachable), no self-alias. Plus two pinned cases
+(`kivory → ivory_h39`, `ray_ward → rward`) and the real regression guard: it
+reimplements `PDXProfilePid` and asserts that **no id in the curated vocabulary
+(`ACCT_ALIAS` keys ∪ values ∪ `PDX_PROFILE_ALIAS` keys) fails to resolve while a
+roster record for that person is discoverable** — discoverable meaning a live
+roster id already aliases to it, or a roster display name slugifies to it. Never
+a fuzzy guess. That is exactly the state `ken_ivory → kivory` was in, so the next
+curated key added without a bridge fails the harness instead of shipping a dead
+click. 99 vocabulary ids, 89 resolve, 0 missing bridges.
+
+## Still open
+
+- **5 people have no roster record under any of their 10 ids** and are therefore
+  skipped by section 11 by design — a bridge cannot point at a record that does
+  not exist: `tclancy`/`tyler_clancy`, `dhawkins`/`jon_hawkins`,
+  `escamilla`/`lescamilla`, `mike_smith_utco`/`mike_smith_sheriff`,
+  `mhogan`/`michelle_kaufusi`. Adding records is a content decision (are these
+  sitting officials we intend to cover?), not identity wiring, so no records were
+  invented here. If they are sitting, they wire with the minimal Miller/Pace
+  pattern and the harness will then accept a bridge.
+- The 91 roster-less spotlight card ids (194 cards, mostly out-of-state federal
+  figures) are unchanged from the sixth pass — still content-authored cards
+  awaiting real roster records, not an identity defect.
