@@ -22638,7 +22638,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '">📜 See on The People’s Mandate ↗</button>');
       }
       if ((promises.length || spotlight.length) && s.issueKey &&
-          typeof window._pdxIsUtahStateLegislator === 'function' && window._pdxIsUtahStateLegislator(p) &&
           typeof window._pdxEvAnchor === 'function') {
         var anchor = window._pdxEvAnchor(id, s.issueKey);
         actions.push('<button type="button" class="sag-pop-jump" onclick="window._pdxCloseStanceEvidence();window._pdxJumpEvidence&&window._pdxJumpEvidence(\'' + anchor + '\');">🧩 See in profile ↓</button>');
@@ -23164,11 +23163,38 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // shared window._issueEvidenceMap (no new data work) and, like the Connected
   // Evidence section, is scoped to current sitting Utah State Legislators and
   // only shown when real on-record evidence exists, so it never reads as empty.
+  // Does this official have anything actually FILED on an issue — a recorded
+  // Spotlight item or a tracked promise? This is the honest gate for the whole
+  // evidence family. It replaces _pdxIsUtahStateLegislator(), which was a SCOPE
+  // gate from the first pass and wrong in both directions: it hid 132 profiles
+  // that hold a documented position plus real sourced evidence, and it offered
+  // the Locker CTA to 46 legislators with nothing on file. A documented position
+  // ALONE deliberately does not qualify — a panel whose every row reads "no
+  // connected record yet" is empty scaffolding, and the point of these sections
+  // is the connection, not the heading.
+  window._pdxHasIssueEvidence = function (id, p) {
+    try {
+      if (typeof window._issueEvidenceMap !== 'function') return false;
+      if (!p) {
+        p = (window.PROFILES && window.PROFILES[id]) ? window.PROFILES[id]
+           : ((typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null);
+      }
+      var map = window._issueEvidenceMap(id, p) || {};
+      for (var k in map) {
+        if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+        var e = map[k] || {};
+        if ((e.spotlight && e.spotlight.length) || (e.promises && e.promises.length)) return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+
   window._renderEvidenceSummary = function(id, p) {
     try {
       p = p || {};
-      if (!window._pdxIsUtahStateLegislator(p)) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var keys = Object.keys(map);
       if (!keys.length) return '';
@@ -23247,8 +23273,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._renderEvidenceConnections = function(id, p) {
     try {
       p = p || {};
-      if (!window._pdxIsUtahStateLegislator(p)) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var keys = Object.keys(map);
       if (!keys.length) return '';
@@ -23630,7 +23657,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   // back to a title match the way _issueEvidenceMap does), then render the chip.
   window._pdxPromiseEvidenceLink = function(id, p, pr) {
     try {
-      if (!pr || typeof window._pdxIsUtahStateLegislator !== 'function' || !window._pdxIsUtahStateLegislator(p)) return '';
+      if (!pr) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
       var map = window._issueEvidenceMap(id, p) || {};
       var ik = pr.issueKey;
@@ -23990,7 +24017,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   window._pdxHasLocker = function (pid) {
     var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
     var p = (window.PROFILES && window.PROFILES[pid]) ? window.PROFILES[pid] : d;
-    return !!(p && typeof window._pdxIsUtahStateLegislator === 'function' && window._pdxIsUtahStateLegislator(p));
+    if (!p) return false;
+    // Offered when the Locker actually holds something for this person. The old
+    // office test was the one call site in this family that did NOT check data, so
+    // it promised a file to legislators with none and hid a real one from everyone
+    // else — the Locker index itself was never Utah-scoped.
+    return !!(typeof window._pdxHasIssueEvidence === 'function' && window._pdxHasIssueEvidence(pid, p));
   };
 
   // Authoritative count of items filed in the Evidence Locker for this politician,
@@ -54813,6 +54845,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       teuscher:  'teuscher_h44',
       lisonbee:  'lisonbee_h14',
       mccay:     'mccay_s11',
+      // Stance-block keys. Each is a slug of the roster record's own display name
+      // — the documented stance-key convention (db/vr-pid-aliases.json), where 24
+      // of the 25 Utah "surface splits" turned out to be ONE record whose curated
+      // block is keyed on the name slug, not two identities. So these are reverse
+      // bridges, exactly like the ACCT ones above, and not merges:
+      // _resolveStanceList(rosterId) already returns the block filed under the key
+      // on its left. Without them a Stance Library row, a comparison-board dot and
+      // an issue-view chip all opened nothing.
+      bridger_bolinder: 'bolinder_h68',
+      casey_snider:     'snider_h5',
+      cory_maloy:       'cory_maloy_h52',
+      curt_bramble:     'cbramble',
+      don_ipson:        'dipson',
+      jerry_stevenson:  'jstevenson',
+      jill_koford:      'koford_h10',
+      luz_escamilla:    'lescamilla',
+      matthew_gwynn:    'gwynn_h6',
+      nate_blouin:      'blouin_s13',
+      phil_lyman:       'lyman',
+      scott_chew:       'chew_h68',
+      scott_sandall:    'ssandall',
+      stephen_l_whyte:  'whyte_h63',
+      // sadams keeps its own 7-card block, which _resolveStanceList prefers; this
+      // bridge fixes the dead click and lands on the right person. The 3 cards
+      // filed under stuart_adams stay shadowed — collapsing them is a content
+      // decision, tracked separately.
+      stuart_adams:     'sadams',
+      tiara_auxier:     'auxier_h4',
+      todd_weiler:      'tweiler',
+      troy_shelley:     'shelley_h66',
     };
 
     // Resolve any id to one a profile can actually open, in a single step.

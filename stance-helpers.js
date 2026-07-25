@@ -897,7 +897,24 @@
       // issueKey join the evidence map; ACCT items also bring their ▲/▼ impact, so a
       // future view can show what BACKS a stance (positive) vs. what CUTS AGAINST it
       // (negative) alongside the kept/broken promise ledger. Deduped by headline.
-      var _slKey = (id && window.ACCT_SPOTLIGHT && Array.isArray(window.ACCT_SPOTLIGHT[id])) ? id
+      // Hops mirror _resolveStanceList above — id, then ACCT_ALIAS, then a slug of
+      // the display name. That third hop is the documented stance-key convention,
+      // and without it evidence filed under the name slug never joins a profile
+      // opened on its roster id (kwan_s12 and bolinder_h68 rendered an empty
+      // Connected Evidence panel for exactly that reason). Additive by
+      // construction: the first two branches only fire where a key actually holds
+      // ACCT items, which is precisely what the original expression picked, and
+      // the final fallback is unchanged — so no key that used to resolve moves.
+      var _slHasAcct = function (k) {
+        return !!(k && window.ACCT_SPOTLIGHT && Array.isArray(window.ACCT_SPOTLIGHT[k]));
+      };
+      var _slHasNews = function (k) {
+        return !!(k && window.SPOTLIGHT_DATA && Array.isArray(window.SPOTLIGHT_DATA[k]));
+      };
+      var _slNameKey = (p && p.name) ? _stanceSlug(p.name) : '';
+      var _slKey = _slHasAcct(id) ? id
+                 : (id && window.ACCT_ALIAS && _slHasAcct(window.ACCT_ALIAS[id])) ? window.ACCT_ALIAS[id]
+                 : (_slHasAcct(_slNameKey) || _slHasNews(_slNameKey)) ? _slNameKey
                  : (id && window.ACCT_ALIAS && window.ACCT_ALIAS[id]) ? window.ACCT_ALIAS[id] : id;
       var _seenSl = {};
       function addSpot(it) {
@@ -1547,10 +1564,14 @@
   // everywhere.
   window._pdxStanceEvidenceLink = function(id, p, s) {
     try {
-      if (!s || !s.issueKey || typeof window._pdxIsUtahStateLegislator !== 'function' || !window._pdxIsUtahStateLegislator(p)) return '';
+      if (!s || !s.issueKey) return '';
       if (typeof window._issueEvidenceMap !== 'function') return '';
       var map = window._issueEvidenceMap(id, p) || {};
-      if (!map[s.issueKey]) return '';
+      // The chip is a link to filed evidence, so require filed evidence — the
+      // bucket exists as soon as a position does, which is not the same thing.
+      var _b = map[s.issueKey];
+      if (!_b) return '';
+      if (!((_b.spotlight && _b.spotlight.length) || (_b.promises && _b.promises.length))) return '';
       return (typeof window._pdxEvChip === 'function') ? window._pdxEvChip(id, map[s.issueKey], 'stance') : '';
     } catch (e) { return ''; }
   };

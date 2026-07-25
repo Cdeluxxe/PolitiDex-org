@@ -70,12 +70,34 @@ function loadStanceHelpers() {
     },
     setTimeout, clearTimeout, JSON, Math, Date,
   };
+  ctx.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  ctx.navigator = { userAgent: "node" };
+  ctx.location = { href: "", search: "", hash: "" };
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
   const sandbox = vm.createContext(ctx);
-  vm.runInContext(read("politician-stances.js"), sandbox,
-    { filename: "politician-stances.js" });
+  // Load the stance shards the PAGE loads, in the page's own order, derived from
+  // its <script> tags. politician-stances.js is the pre-split 1.7MB monolith and
+  // index.html no longer references it, so loading that instead left this file
+  // asserting against a stale 882-key table while the browser resolved against a
+  // live 1058-key one — which is how 18 dead stance keys stayed green. Deriving
+  // the list here means the harness and the page cannot drift again.
+  // my-stances.js is excluded on purpose: it holds the VISITOR's own saved
+  // positions, not curated politician stances.
+  const stanceFiles = [];
+  const tagRe = /<script[^>]*\bsrc="([^"]*stances[^"]*\.js)"/g;
+  let tag;
+  const indexSrc = read("index.html");
+  while ((tag = tagRe.exec(indexSrc))) {
+    const f = tag[1];
+    if (f === "my-stances.js" || stanceFiles.includes(f)) continue;
+    try { readFileSync(join(ROOT, f)); } catch (e) { continue; }  // not shipped
+    stanceFiles.push(f);
+  }
+  if (!stanceFiles.length) throw new Error("no stance shards found in index.html script tags");
+  for (const f of stanceFiles) vm.runInContext(read(f), sandbox, { filename: f });
   vm.runInContext(read("stance-helpers.js"), sandbox,
     { filename: "stance-helpers.js" });
+  ctx.__stanceFiles = stanceFiles;
   return ctx.window;
 }
 const win = loadStanceHelpers();
@@ -92,7 +114,7 @@ function loadGlobal(file, ...names) {
 // Read the stance table off the helpers sandbox, which now loads it: that way the
 // table this file inspects is the SAME object _resolveStanceList() resolves against,
 // so a resolved block can be identified by reference rather than by guesswork.
-const STANCES = win.ISSUE_STANCE_DATA || loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
+const STANCES = win.ISSUE_STANCE_DATA;
 const SPOTLIGHTS = loadGlobal("spotlights-data.js", "SPOTLIGHTS", "PDX_SPOTLIGHTS");
 const ROSTER = loadGlobal("cmp-data.js", "CMP_DATA");
 const memberMap = JSON.parse(read("db/vr-member-map.json"));
@@ -872,8 +894,15 @@ for (const [rid, rec] of Object.entries(ROSTER || {})) {
   const s = rec.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
   if (s && !rosterBySlug.has(s)) rosterBySlug.set(s, rid);
 }
+// ISSUE_STANCE_DATA keys belong here too: the Stance Library, the comparison
+// board and the issue view all hand their raw block key to openModal(), so a key
+// that resolves to nothing is a visible dead click. Leaving them out is why 18
+// slug-recoverable keys sat broken while this guard stayed green. Keys with no
+// discoverable roster record are still skipped below — those need a record, which
+// is a content decision.
 const curatedVocab = new Set([
   ...Object.keys(ACCT_ALIAS), ...Object.values(ACCT_ALIAS), ...Object.keys(PROFILE_ALIAS),
+  ...Object.keys(STANCES || {}),
 ]);
 let profileChecked = 0;
 for (const id of curatedVocab) {
@@ -900,6 +929,7 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ identity integrity: all ${passed} assertions passed`);
+console.log(`  stance table read from ${(win.__stanceFiles || []).length} shard(s) the page loads`);
 console.log(`  ${RETIRED.size} retired id(s) [${[...RETIRED].join(", ")}] · ` +
   `${Object.keys(STANCES || {}).length} stance blocks · ${cards.length} spotlight cards ` +
   `(${idChecked} id-resolved, ${labelChecked} label-checked vs roster) · ` +

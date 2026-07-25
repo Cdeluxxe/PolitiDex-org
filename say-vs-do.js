@@ -91,7 +91,27 @@
       }
       return null;
     };
-    return pick(id) || pick(alias(id)) || null;
+    var hit = pick(id) || pick(alias(id));
+    if (hit) return hit;
+    // Fall through to the shared resolver, which also tries STANCE_ALIASES and a
+    // slug of the person's display name — the documented stance-key convention
+    // (see db/vr-pid-aliases.json). Without this hop a sourced receipt renders as
+    // a bare red flag even though the stance sits right there in the data, which
+    // is the difference between "Red Flag On Record" and the real verdict,
+    // "Says One Thing · Does Another".
+    var rec = polRec(id) || polRec(alias(id));
+    var list = (typeof window._resolveStanceList === 'function')
+      ? window._resolveStanceList(id, rec) : null;
+    if (!Array.isArray(list) && typeof window._resolveStanceList === 'function' && alias(id) !== id) {
+      list = window._resolveStanceList(alias(id), rec);
+    }
+    if (Array.isArray(list)) {
+      for (var j = 0; j < list.length; j++) {
+        var c = list[j];
+        if (c && c.issueKey === issueKey && (c.text || c.topic)) return c;
+      }
+    }
+    return null;
   }
   function stanceWord(s) {
     var v = (s && (s.issueStance || s.pos)) || '';

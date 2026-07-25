@@ -859,3 +859,164 @@ Hawkins has been in the House since Jan 2019 (District 57 2019–2023, District 
   figures) are unchanged — content-authored cards awaiting real roster records, not
   an identity defect. This is the last remaining click-through gap and the only
   reason the number is not literally zero across every surface in the app.
+
+---
+
+# Ninth pass — connect the dots (July 2026)
+
+`scripts/connect-the-dots-jul2026.mjs` (11 edits) and
+`scripts/harness-stance-fidelity-jul2026.mjs` (3 edits). **Wiring only** — no
+stance, no evidence item, no politician was authored. Every number below was
+measured against the real modified files, not estimated.
+
+The premise this pass started from turned out to be half wrong, and that is worth
+recording: there were **no issueKey mismatches to fix**. All 4954 stance cards
+carry an `issueKey` and every one of them is a live `ISSUE_MAP` key. The joins
+were breaking on *identity resolution* and on a *scope gate*, not on issue keys.
+
+## A · Say-vs-Do had no SAID side for 46 receipts
+
+`say-vs-do.js stanceFor()` looked in `ISSUE_STANCE_DATA` under the receipt's own
+id and its `ACCT_ALIAS` target only. It never called `_resolveStanceList`, so any
+block keyed on `STANCE_ALIASES` or on a slug of the person's display name — the
+documented stance-key convention (`db/vr-pid-aliases.json`, where 24 of 25 Utah
+"surface splits" proved to be ONE record keyed on the name slug) — was invisible
+to the contradiction engine.
+
+Routed through the shared resolver. Measured on `PDXReceipts.collect()`:
+
+| verdict | before | after |
+| --- | --- | --- |
+| Words Match Actions | 48 | **82** (+34) |
+| Backed It Up | 211 | 177 (−34) |
+| Says One Thing · Does Another | 96 | **99** (+3) |
+| Red Flag On Record | 61 | 58 (−3) |
+| Legal / Transparency Red Flag | 21 | 21 (unchanged) |
+
+Receipts carrying a SAID side: **76 → 122 (+46)** across **22 politicians**. The
++3 matter most: those were real, documented contradictions rendering as a generic
+"Red Flag On Record" because the stance sat one unfollowed hop away. `collect()`
+also adds `score += 120` when a stance exists, so those 46 now rank into the hero
+rotation instead of below it.
+
+## B · `_slKey` name-slug hop — parity, and honestly zero today
+
+`_issueEvidenceMap`'s evidence key resolved forward only (id → `ACCT_ALIAS`) while
+`_resolveStanceList` twelve lines above it has a third hop. Added the missing hop
+so the two agree.
+
+**This changes nothing for any current profile — measured: the new branch fires
+for 0 of 736 roster records.** No evidence item is presently filed under a
+display-name slug. Kept because the evidence layer and the stance layer now
+follow the same documented convention, so the next item filed that way joins
+instead of vanishing silently. Recorded as parity, not as a win. Drop it freely
+if dead branches are not wanted.
+
+## C · 18 stance-block keys opened nothing
+
+Every one is a slug of a live roster record's own display name, and
+`_resolveStanceList(rosterId)` already returns the block filed under the key — so
+the repo was already asserting they are one person. Reverse bridges added to
+`PDX_PROFILE_ALIAS` (11 → 29 entries). **Not merges**, and deliberately **not**
+`PDX_PID_ALIASES`, which by its own docs holds only ids an actual merge retired.
+
+`bridger_bolinder`→`bolinder_h68`, `casey_snider`→`snider_h5`,
+`cory_maloy`→`cory_maloy_h52`, `curt_bramble`→`cbramble`, `don_ipson`→`dipson`,
+`jerry_stevenson`→`jstevenson`, `jill_koford`→`koford_h10`,
+`luz_escamilla`→`lescamilla`, `matthew_gwynn`→`gwynn_h6`,
+`nate_blouin`→`blouin_s13`, `phil_lyman`→`lyman`, `scott_chew`→`chew_h68`,
+`scott_sandall`→`ssandall`, `stephen_l_whyte`→`whyte_h63`,
+`stuart_adams`→`sadams`, `tiara_auxier`→`auxier_h4`, `todd_weiler`→`tweiler`,
+`troy_shelley`→`shelley_h66`.
+
+17 of 18 are zero-ambiguity: the roster id carries no competing block, so the
+resolver already lands on that exact content. **`stuart_adams` is the exception**
+— `sadams` owns its own 7-card block which the resolver prefers, so the bridge
+fixes the dead click and lands on the right person, but the 3 cards filed under
+`stuart_adams` (`school_choice`, `gov_transparency`, `gov_services`) stay
+shadowed. Collapsing them is a content merge, not wiring, so it is left open.
+
+Dead clicks across all seven click surfaces: **361 → 343**, and the
+slug-recoverable subset — the part that was a wiring defect — is now **0**.
+
+## D · The evidence family was gated on office, not on data
+
+Connected Evidence, Evidence Summary, the stance and promise chips, the
+stance-popover jump buttons and the Locker CTA all gated on
+`_pdxIsUtahStateLegislator` — a scope gate from the first pass, documented there
+as "for this first pass". It was wrong in **both** directions:
+
+- it hid **132 profiles** that hold a documented position *and* real sourced
+  on-record evidence, and
+- it offered the section (and the Locker CTA) to **46 Utah legislators with
+  nothing filed at all**, whose panel rendered every row as "○ No connected
+  record yet" — empty scaffolding.
+
+Replaced with a data predicate, `window._pdxHasIssueEvidence(id, p)`: true when
+the evidence map holds at least one recorded Spotlight item or tracked promise. A
+documented position **alone** deliberately does not qualify.
+
+| | before | after |
+| --- | --- | --- |
+| profiles showing the evidence sections | 84 | **170** |
+| …newly populated | — | **132** |
+| …all-empty panels retired | — | **46** |
+| filed items reachable from a profile | — | **473** |
+
+Safe because the section body carries no Utah-specific copy (checked across
+`index.html:23246–23480`) and because `digital-library.js buildIndex()` was never
+Utah-scoped — its receipts come from `PDXReceipts.collect()` over all 258
+`ACCT_SPOTLIGHT` keys, so the Locker genuinely holds files for the federal
+figures the old gate was hiding it from. `_pdxIsUtahStateLegislator` is left
+defined and unchanged; it simply no longer gates evidence.
+
+## E · The harness was testing a file the page does not load
+
+Found while adding a guard for class (C). `scripts/test-identity-integrity.mjs`
+loaded `politician-stances.js` — the pre-split 1.7MB monolith — and its own
+comment claimed that is "how the page loads them". `index.html` loads
+`politician-stances-core.js`, `politician-stances-ext.js` and the 16
+`state-senate-stances*.js` shards, and does **not** reference the monolith at
+all. So every section reading `STANCES` was asserting against a stale **882**-key
+table while the browser resolved against a live **1058**-key one. That is why all
+18 dead keys in (C) sat broken under a green harness.
+
+The shard list is now derived from `index.html`'s own `<script src>` tags, so the
+two cannot drift again, and the report line prints the shard count. `my-stances.js`
+is excluded on purpose — it holds the visitor's saved positions, not curated
+stances. Section 11's class-wide guard also now includes `ISSUE_STANCE_DATA` keys
+in its vocabulary, which is the check that would have caught (C) on the day it
+appeared.
+
+## Verification
+
+- identity harness **6844 assertions green** (was 6438; +309 from the widened
+  section-11 vocabulary, +97 from reading the live 1058-key stance table),
+  `npm test` **exit 0**
+- both passes idempotent — re-run reports `0 edit(s), 11 already applied` /
+  `already applied` ×3, post-conditions still pass
+- `node --check` clean on `say-vs-do.js`, `stance-helpers.js`, both new passes and
+  the harness; **63 inline scripts in `index.html` parse clean**
+- no roster record LOST evidence (measured both directions)
+
+## Still open — content, not wiring
+
+- **20 of the 63 members in `db/vr-member-map.json` have no roster record**, so
+  their Voting Record section can never render no matter how the joins are wired:
+  `bennie_thompson, bruce_westerman, don_davis, frank_lucas, josh_brecheen,
+  julie_fedorchak, mariannette_miller_meeks, michael_guest, mike_collins,
+  mike_ezell, mike_flood, mike_simpson, rick_crawford, rob_bresnahan,
+  ryan_mackenzie, scott_perry, stephanie_bice, steve_womack, trent_kelly,
+  troy_downing`. This is the single highest-value gap left in the app: the vote
+  rows already exist in the database. `voting-record.js` itself needs no change —
+  it canonicalizes ids correctly at every entry point.
+- **343 remaining dead ids are all content gaps** — out-of-state federal figures
+  with stance cards and evidence but no roster record (`zach_nunn` 11 cards/12
+  evidence, `rick_crawford` 13/10, `stephanie_bice` 13/10, …). Adding records is
+  "new politicians", out of scope here.
+- **352 evidence items legitimately carry no `issueKey`** (293 `ACCT_SPOTLIGHT` +
+  59 curated-news). Their categories are `rhetoric`, `transparency`, `voting`,
+  `redflags`, `promise`, `legal` — accountability categories that feed the
+  Accountability Score, not `ISSUE_MAP` keys. **0 are deterministically
+  recoverable**; assigning keys would be authoring. Leave them alone.
+- `stuart_adams`' 3 shadowed cards (see C).
