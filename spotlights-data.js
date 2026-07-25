@@ -1458,7 +1458,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             { id: 'kirk_cullimore', name: 'Kirk Cullimore', office: 'Utah State Senator', icon: '🏛', topic: 'Consumer Data Privacy', stance: 'supported' },
             { id: 'doug_fiefia', name: 'Doug Fiefia', office: 'Utah State Representative', icon: '🏛', topic: 'Data Ownership & Privacy', stance: 'supported' },
             { id: 'curtis', name: 'John Curtis', office: 'U.S. Senator · Utah', icon: '🏛', topic: 'Privacy & Surveillance', stance: 'mixed' },
-            { id: 'stephanie_pitcher', name: 'Stephanie Pitcher', office: 'Utah State Representative · Prosecutor', icon: '🏛', topic: 'AI in Law Enforcement', stance: 'mixed' }
+            { id: 'stephanie_pitcher', name: 'Stephanie Pitcher', office: 'Utah State Senator · Former Prosecutor', icon: '🏛', topic: 'AI in Law Enforcement', stance: 'mixed' }
           ]
         }
       },

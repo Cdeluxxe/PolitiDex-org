@@ -368,3 +368,161 @@ and 64 → Utah County). Nothing else was touched: no stances, no scores, no blu
   campaign-platform text), and `tracy_miller`'s 8 are mixed (3 with le.utah.gov bill
   sources: HB 290 (2026), H.B. 76 (2025), H.B. 268 (2025)). They belong to the
   legislative-sourcing backlog above.
+
+# Full-Chamber Sweep + Senate Catch-Up (July 2026, fifth pass)
+
+`scripts/wire-utah-sweep-jul2026.mjs` — idempotent, dry-run by default, `--apply` to
+write. 28 edits across `cmp-data.js`, `index.html` and `spotlights-data.js`.
+
+The first four passes each found their seats reactively, one note at a time. This pass
+swept **all 75 House and all 29 Senate districts** against both info maps and both
+`KR_STATE_*_INCUMBENTS` tables at once, looking for the specific failure the earlier
+passes kept tripping over: a **confirmed sitting member with curated content but no
+cmp-data.js roster record**, which is invisible to 10e/10g because there is no office or
+district string to check.
+
+## 1. Senate districts 4, 11, 14, 15, 22 — all five closed (29 of 29)
+
+These were the last seats absent from both Senate tables. They had been left as *no key
+at all* rather than a guess, which was the right call, and four of the five turned out to
+be blocked only on a missing record.
+
+| District | Id | Member | `termStart` | Evidence |
+|---|---|---|---|---|
+| **4** | `cmusselman` | Calvin "Cal" Musselman (R) | 2025-01 | West Haven, **Weber County**. Seated Jan 1 2025, succeeding D. Gregg Buxton; previously House District 8. Already had a Power-Map row and browse presence here. |
+| **11** | `emily_buss` | Emily Buss (**Forward Party**) | 2025-12 | Eagle Mountain. Appointed Dec 12 2025, seated Dec 17, filling the vacancy from **Daniel Thatcher**'s Oct 2025 resignation. District spans Utah and Tooele counties; home county is Utah. |
+| **14** | `stephanie_pitcher` | Stephanie Pitcher (D) | 2023-01 | Salt Lake City / Millcreek. Won the seat in 2022 succeeding Jani Iwamoto; **served House District 40 before that**, which is why one of her Spotlight cards still called her a Representative. |
+| **15** | `kathleen_riebe` | Kathleen Riebe (D) | 2019-01 | Cottonwood Heights. **Senate Minority Whip.** Elected 2018 to the pre-redistricting District 8; the same territory is 15 post-2023. |
+| **22** | `heidi_balderree` | Heidi Balderree (R) | 2023-10 | Saratoga Springs. Seated Oct 24 2023 succeeding **Jake Anderegg** (`janderegg`, correctly a former member here). |
+
+`emily_buss` carries `party: "F"` — index.html renders `'F'` / `'Forward'` as "Forward
+Party" (#22d3ee), so this is a supported value, not a placeholder. She is the only member
+of either chamber who is neither R nor D.
+
+**`_UTAH_SENATE_INFO` is now exhaustive.** A new key in it is either a correction to an
+existing seat or a mistake; there is no uncovered district left for one to describe.
+
+## 2. House sweep — eleven more seats wired (40 → 51 of 75)
+
+Nine were the familiar roster-less-but-content-bearing shape:
+
+| District | Id | Member | `termStart` |
+|---|---|---|---|
+| **31** | `verona_mauga` | Verona Mauga (D) — West Valley City / Taylorsville | 2025-01 |
+| **33** | `doug_owens` | Doug Owens (D) — Millcreek | 2021-01 |
+| **34** | `carol_spackman_moss` | Carol Spackman Moss (D) — Holladay | 2001-01 |
+| **41** | `john_arthur` | John Arthur (D) — Cottonwood Heights | 2025-12 |
+| **46** | `calvin_roberts` | Calvin Roberts (R) — Draper / Bluffdale | 2025-01 |
+| **49** | `candice_pierucci` | Candice Pierucci (R) — Herriman / Riverton | 2019-11 |
+| **51** | `leah_hansen` | Leah Hansen (R) — Saratoga Springs / west Lehi | 2025-08 |
+| **53** | `kay_christofferson` | Kay Christofferson (R) — Lehi | 2013-01 |
+| **65** | `doug_welton` | Doug Welton (R) — Payson | 2021-01 |
+
+Two were a **different and more interesting failure**: `mschultz` (Mike Schultz, House
+Speaker, **District 12**, Hooper) and `aromero` (Angela Romero, **District 25**, west
+Salt Lake City) had roster records the whole time and had simply never been added to
+`_UTAH_HOUSE_INFO`, so nothing checked their own district strings. **Both were wrong when
+checked:**
+
+- Romero's read `UT District 26 (West SLC)`. District 26 is a **Davis County** seat; she
+  has held 25 since the 2023 renumbering. Adding her without fixing this fails 10h.
+- Schultz's read `Utah · Weber County` — **no district number at all**, so 10h's
+  `rosterDistrict()` returned null and skipped him silently rather than catching it.
+
+Being *rostered* is not the same as being *mapped*, and only the map puts 10h in front of
+a record's own claim about itself. That is a sweep the earlier passes could not have done
+one note at a time.
+
+### Carol Spackman Moss gets no `termEnd`
+
+She announced in Dec 2025 that she will not seek re-election, but she is the sitting
+member through the end of her term in **January 2027**. 10g rejects a `termEnd` on a pid
+the info map wires to a live seat, and rightly: a retirement announcement is not a
+vacancy. Same reasoning is noted on her record.
+
+## 3. Seven stale county fallbacks corrected
+
+10f requires `_UTAH_*_INFO[pid].c === _UTAH_*_COUNTY[d]`, and every district wired for
+the first time has to be re-verified against the member's seat of residence. Both
+fallback tables were built on pre-2023 numbering:
+
+- `_UTAH_HOUSE_COUNTY`: **25** Davis → Salt Lake, **51** Salt Lake → Utah, **53** Tooele → Utah
+- `_UTAH_SENATE_COUNTY`: **4** Davis → Weber, **11** Salt Lake → Utah, **15** Utah → Salt Lake, **22** Davis → Utah
+
+## 4. Two label repairs the new records forced
+
+- **`spotlights-data.js:1461`** called Pitcher `Utah State Representative · Prosecutor`.
+  True until Jan 2023, wrong now, and *not* time-qualified — so assertion 6's chamber
+  check would have failed the moment her Senate record landed. It was copied verbatim
+  from her already-correct sibling card (`Utah State Senator · Former Prosecutor`) rather
+  than given a new phrasing.
+- **`cmusselman` Power-Map META row** read `['pm-tier-state','STATE HOUSE','davis',
+  'district1']`. Both halves stale: he has been a **senator** since Jan 2025, and West
+  Haven is **Weber**. Now matches the `cwilson` row two above it.
+
+## Deliberately NOT wired: ~20 surface-split pairs (merge debt, not map debt)
+
+The sweep surfaced roughly twenty ids that look like the same case and are not — one
+person split across two surfaces, a full-name id carrying the stance block and a roster
+id carrying the record:
+
+`evan_vickers`/`evickers` · `mike_mckell`/`mckell_s25` · `nate_blouin`/`blouin_s13` ·
+`sandra_hollins`/`hollins_h24` · `ray_ward`/`rward` · `steve_eliason`/`eliason_h45` ·
+`karen_kwan`/`kwan_s12` · `kirk_cullimore`/`kcullimore` ·
+`karianne_lisonbee`/`lisonbee_h14` · `casey_snider`/`snider_h5` · `ken_ivory`/`ivory_h39` ·
+`brady_brammer`/`brammer_s21` · `val_peterson`/`valpeterson_h56` · `wayne_harper`/`harper_s16` ·
+`jerry_stevenson`/`jstevenson` · `keith_grover`/`kgrover` · `stephanie_gricius`/`gricius_h50` ·
+`jake_fitisemanu`/`fitisemanu_h30` · `don_ipson`/`dipson` · `stephen_l_whyte`/`whyte_h63`
+
+**No district is uncovered by any of them** — the person is already wired under the
+roster id, and `ACCT_ALIAS` already resolves the browse pid to the curated record (the
+mechanism assertion 6 leans on for Ray Ward). Wiring the twin would create exactly the
+parallel identity the phantom-id clean-up existed to remove. This is a **merge** pass, of
+the same shape as `calbrecht` → `carl_albrecht`, and it is the cleanest next piece of work
+in this area.
+
+## Confirmed non-wirings (checked, correctly excluded)
+
+Not sitting, so not eligible regardless of how much content they carry:
+
+- **2026 candidates:** `claudia_bigler` (D nominee, Senate 1), `eryn_russo` (HD41
+  challenger), `kara_toone` (HD14 — **Lisonbee holds 14 until Jan 1 2027**),
+  `chris_sloan` (SD11 GOP candidate), `dave_dawson` (congressional).
+- **Former members:** `janderegg`, `dthatcher`, `cbramble`, `bwilson`, `gwynn_h6`,
+  `jwestwood`, `tyler_clancy`, `jdraxler`, `fgibson`, `mroberts` (Marc Roberts, former
+  HD67 — Welton succeeded him), `jefferson_moss` (Hansen's predecessor's predecessor),
+  `lee_perry` (now a Box Elder County Commissioner).
+- **Other offices:** `deidre_henderson` (Lt. Governor), `erik_r_craythorne` (Mayor of
+  West Point), `jeneanne_lock` (civic-coalition organizer), `chris_sloan`.
+
+Three existing wirings that public-record searches cast doubt on were re-checked and are
+**correct as-is**: Stratton at **24** (Wikipedia's infobox says 21, but its own body plus
+Ballotpedia, BillTrack50, Vote Smart and FastDemocracy all say 24), Brammer at **21**,
+Val Peterson at **56**.
+
+## Still open after this pass
+
+- **24 House districts uncovered:** 1, 2, 3, 7, 8, 13, 17, 18, 20, 26, 27, 32, 35, 38,
+  40, 47, 48, 54, 55, 57, 58, 62, 72, 74. Absent because **no id in the data set holds
+  them** — not content-bearing, not rostered, nothing to re-key. Closing these means
+  adding people, which is a content decision, not identity repair.
+- **Three roster records name somebody else's district.** All three are outside
+  `_UTAH_HOUSE_INFO`, so nothing fails: `fgibson` reads District 60 (Grant Pace's),
+  `jknotts` "John Knotts" reads District 65 (Doug Welton's) under a name that looks like a
+  garbled **John Knotwell** — former District 52, whom Pierucci succeeded — and `jdraxler`
+  reads District 3 though he left in 2017. Each is a former-member label to correct.
+- **`EXPANSION_BULK_EXTRA` diverges from the roster.** It carries `verona_mauga` at
+  `score: 77` and `doug_owens` at `score: 80` with full bio/promises, against the
+  `score: null` roster records added here, and lists `mccay` as "State Senator (Dist.
+  11)" — stale twice over, since McCay sits in 18 and 11 is now Buss's. It is an
+  AI-search / bulk-import suggestion catalog, not the live roster, and is not
+  harness-checked; reconciling it is a separate call.
+- **Power-Map META is keyed on a third id vocabulary** (`cpierucci`, `seliason`,
+  `kivory`, `csnider`, `mroberts`, `tclancy`, `klisonbee`) distinct from both the roster
+  and the stance ids. Note that `cpierucci` there and `candice_pierucci` here are the same
+  person under two keys — more merge debt of the kind in the section above.
+- **`jburton` and `tclancy` Power-Map rows** still carry sitting-member tiers, unchanged
+  from the fourth pass's note.
+- **None of the fourteen new records is in `PROFILES`**, so none gets a Power-Map card
+  (`pmInjectDynamicCards` only injects ids present there). Consistent with every earlier
+  pass; adding them is a public-directory visibility decision.

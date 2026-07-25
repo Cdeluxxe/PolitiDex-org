@@ -9550,7 +9550,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "mschultz": {
   "name": "Mike Schultz",
   "office": "UT House Speaker",
-  "state": "Utah · Weber County",
+  "state": "UT District 12 (Hooper, Weber County)",
   "party": "R",
   "termStart": "2015-01",
   "score": 63,
@@ -9622,7 +9622,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "aromero": {
   "name": "Angela Romero",
   "office": "UT State Representative",
-  "state": "UT District 26 (West SLC)",
+  "state": "UT District 25 (West Salt Lake City, Salt Lake County)",
   "party": "D",
   "termStart": "2013-01",
   "score": 61,
@@ -11157,5 +11157,127 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2026-05",
   "issues": ["Housing for Families", "Cut Government Waste", "Responsible Tax Cuts", "Water Conservation"]
+ },
+ // FIFTH July 2026 pass — the sweep. Eleven more House members who were
+ // content-bearing here (a curated stance block, sometimes a Spotlight card) but
+ // roster-less, so neither Utah House table could name them. Districts confirmed
+ // against the public record first; each is post-2023 numbering.
+ "verona_mauga": {
+  "name": "Verona Mauga", "office": "Utah State Representative",
+  "state": "UT District 31 (West Valley City / Taylorsville, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Disability & Social Services", "Small Business", "Public Schools", "Bike-Lane Safety", "Protecting Veterans"]
+ },
+ "doug_owens": {
+  "name": "Doug Owens", "office": "Utah State Representative",
+  "state": "UT District 33 (Millcreek, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Great Salt Lake & Water Conservation", "Clean Air", "Wetlands & Habitat", "Child Influencer Protections"]
+ },
+ // Announced in Dec 2025 that she will not seek re-election, but she is the
+ // sitting member through the end of her term in January 2027 and therefore gets
+ // NO `termEnd` — 10g rejects one on a pid the info map wires to a live seat, and
+ // rightly: a retirement announcement is not a vacancy.
+ "carol_spackman_moss": {
+  "name": "Carol Spackman Moss", "office": "Utah State Representative",
+  "state": "UT District 34 (Holladay, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2001-01",
+  "issues": ["Public Schools", "Air Quality", "Gun Safety", "Opioid & Overdose Response", "Affordable Housing"]
+ },
+ "john_arthur": {
+  "name": "John Arthur", "office": "Utah State Representative",
+  "state": "UT District 41 (Cottonwood Heights, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-12",
+  "issues": ["Great Salt Lake & Water", "Teacher Pay & Support", "Public-Employee Bargaining", "Renter Protections", "Transit & Livability"]
+ },
+ "calvin_roberts": {
+  "name": "Calvin Roberts", "office": "Utah State Representative",
+  "state": "UT District 46 (Draper / Bluffdale, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Roads & Infrastructure", "Economic Development", "Small Business", "Fuel-Tax Relief", "Transit Procurement"]
+ },
+ "candice_pierucci": {
+  "name": "Candice Pierucci", "office": "Utah State Representative",
+  "state": "UT District 49 (Herriman / Riverton, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-11",
+  "issues": ["School Choice", "Online Child Safety", "Taxes & Limited Government", "Maternal & Infant Health"]
+ },
+ "leah_hansen": {
+  "name": "Leah Hansen", "office": "Utah State Representative",
+  "state": "UT District 51 (Saratoga Springs / west Lehi, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-08",
+  "issues": ["Limiting DEI Programs", "Religious Liberty", "Property-Tax Transparency", "Taxpayer Oversight", "Foreign Land Ownership"]
+ },
+ "kay_christofferson": {
+  "name": "Kay Christofferson", "office": "Utah State Representative",
+  "state": "UT District 53 (Lehi, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2013-01",
+  "issues": ["Roads & Infrastructure", "Public Transit", "Growth & Mobility Planning", "Corridor Preservation & Property", "Road Usage Charge"]
+ },
+ "doug_welton": {
+  "name": "Doug Welton", "office": "Utah State Representative",
+  "state": "UT District 65 (Payson, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Civics Education", "Phone-Free Classrooms", "Property Taxes", "Volunteer EMS Support", "Education Innovation"]
+ },
+ // The five Senate seats that had been left honestly empty because no roster
+ // record existed to name them. Four were content-bearing under these ids
+ // already; `cmusselman` had a Power-Map row and a browse entry. With these the
+ // Senate reaches 29 of 29 and KR_STATE_SENATE_INCUMBENTS has no absent key left.
+ "cmusselman": {
+  "name": "Calvin Musselman", "office": "Utah State Senator",
+  "state": "UT District 4 (West Haven, Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Child Online Safety", "Border Security", "Economic Development", "Human Trafficking Laws", "Penalties for Repeat Crime"]
+ },
+ // `party` is "F" — Forward Party. Not a typo and not a placeholder: index.html
+ // renders 'F' / 'Forward' as "Forward Party", and she is the only member of
+ // either chamber who is not R or D. Appointed Dec 12, 2025 and seated Dec 17 to
+ // fill the vacancy left when Daniel Thatcher resigned; Thatcher is a former
+ // member here and holds nothing.
+ "emily_buss": {
+  "name": "Emily Buss", "office": "Utah State Senator",
+  "state": "UT District 11 (Eagle Mountain / Tooele, Utah County)",
+  "party": "F", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-12",
+  "issues": ["Public Schools", "Government Transparency", "Roads & Transportation Funding", "Local Control of Growth", "Open, Nonpartisan Elections"]
+ },
+ // She served Utah House District 40 before winning this Senate seat in 2022, so
+ // her Spotlight cards have to be read carefully: the one that still called her a
+ // Representative was corrected to match its already-correct sibling rather than
+ // being left to fail 6's chamber check the moment this record appeared.
+ "stephanie_pitcher": {
+  "name": "Stephanie Pitcher", "office": "Utah State Senator",
+  "state": "UT District 14 (Salt Lake City / Millcreek, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Criminal Justice Reform", "Bail & Pretrial Reform", "Mental Health & Courts", "AI in Law Enforcement", "Juvenile Justice"]
+ },
+ // Senate Minority Whip. Elected in 2018 to the pre-redistricting District 8; the
+ // same territory is District 15 under post-2023 numbering, which is the number
+ // this map keys on.
+ "kathleen_riebe": {
+  "name": "Kathleen Riebe", "office": "Utah State Senator",
+  "state": "UT District 15 (Cottonwood Heights, Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Public Schools", "Healthcare Access", "Clean Air & Great Salt Lake", "Workers & Labor Rights", "Student & Youth Health"]
+ },
+ "heidi_balderree": {
+  "name": "Heidi Balderree", "office": "Utah State Senator",
+  "state": "UT District 22 (Saratoga Springs / Bluffdale, Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-10",
+  "issues": ["Veterans & Military", "Property Rights", "Property Taxes", "Charter & Public Education", "Citizen Referenda on Local Bonds"]
  }
 });
