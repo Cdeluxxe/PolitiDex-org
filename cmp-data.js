@@ -9677,7 +9677,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "rshipp": {
   "name": "Rex Shipp",
   "office": "UT State Representative",
-  "state": "UT District 75 (St. George)",
+  "state": "UT District 71 (Cedar City, Iron County)",
   "party": "R",
   "score": 59,
   "kept": 5,
@@ -9746,9 +9746,10 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jwestwood": {
   "name": "John Westwood",
-  "office": "UT State Representative",
-  "state": "UT District 73 (Cedar City)",
+  "office": "Former UT State Representative",
+  "state": "UT District 72 (Cedar City) · 2013–2019",
   "party": "R",
+  "termEnd": "2018-12",
   "score": 60,
   "kept": 11,
   "broken": 6,
@@ -9879,7 +9880,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "hollins_h24": {
   "name": "Sandra Hollins",
   "office": "Utah State Representative",
-  "state": "UT District 24 (Salt Lake City)",
+  "state": "UT District 21 (Salt Lake City)",
   "party": "D",
   "termStart": "2015-01",
   "score": null,
@@ -10236,10 +10237,11 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gwynn_h6": {
   "name": "Matthew Gwynn",
-  "office": "Utah State Representative",
-  "state": "UT District 6 (Box Elder / Weber County)",
+  "office": "Former Utah State Representative",
+  "state": "UT District 6 (Box Elder / Weber County) · resigned March 2026",
   "party": "R",
   "termStart": "2021-01",
+  "termEnd": "2026-03",
   "score": null,
   "kept": 0,
   "broken": 0,
@@ -10993,5 +10995,86 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Derrin Owens", "office": "UT State Senator", "state": "UT District 27 (Fountain Green, Sanpete County)",
   "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Water Rights", "Agriculture & Ranching", "Wildfire Resilience", "Rural Broadband & Infrastructure"]
+ },
+ // ── Sitting Utah State Representatives — identity wiring only (July 2026) ─────
+ // The House half of the same clean-up as the senators above, and the same story in
+ // a different chamber. Ten House districts were wired into KR_STATE_HOUSE_INCUMBENTS
+ // (index.html) under ids that had NO roster record — six of them (`hooper_h22`,
+ // `nelson_h28`, `matthews_h36`, `judkins_h42`, `albrecht_h67`, `phil_lyman_h69`)
+ // existed in no other file at all, so `candidates: [incPid]` handed the UI a pid that
+ // could never resolve a profile. In every case the representative who actually holds
+ // the seat was ALREADY in the data set under a different id carrying a full curated
+ // stance block, so the district was re-keyed to that id and the record it was missing
+ // is added here.
+ //
+ // The ids are NOT renamed to match their district, for the same reason as the Senate
+ // records: `_resolveStanceList()` looks up `ISSUE_STANCE_DATA[id]` first, so the
+ // stance-card key must equal the roster id or the lookup needs yet another alias
+ // (see the mmckell note in stance-helpers.js). The district lives in
+ // `_UTAH_HOUSE_INFO`, which is the authority — never an id suffix.
+ //
+ // `score`/`kept`/`broken`/`pending` are deliberately null/0: no promise-tracking pass
+ // has been run for these members and a fabricated score would be worse than none.
+ // `issues` are lifted verbatim from each member's own curated stance-card topics in
+ // politician-stances.js, not authored here.
+ "jennifer_dailey_provost": {
+  "name": "Jennifer Dailey-Provost", "office": "Utah State Representative",
+  "state": "UT District 22 (Salt Lake City)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Medical Cannabis Access", "Healthcare Access", "LGBTQ+ Rights", "Air Quality & Environment"]
+ },
+ "grant_miller": {
+  "name": "Grant Miller", "office": "Utah State Representative",
+  "state": "UT District 24 (Salt Lake City)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Disability & Employment", "Homelessness & Civil Rights", "Marijuana Decriminalization", "Court-Fine Reform"]
+ },
+ "nicholeen_p_peck": {
+  "name": "Nicholeen Peck", "office": "Utah State Representative",
+  "state": "UT District 28 (Tooele, Tooele County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Parental Rights & Curriculum", "Homeschool Freedom", "Drugs in Schools", "Limited Government"]
+ },
+ "james_dunnigan": {
+  "name": "James Dunnigan", "office": "Utah State Representative",
+  "state": "UT District 36 (Taylorsville, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Child Online Safety", "Housing Affordability", "Courts & Civil Law", "Prescription Drug Pricing"]
+ },
+ "clinton_okerlund": {
+  "name": "Clinton Okerlund", "office": "Utah State Representative",
+  "state": "UT District 42 (Sandy, Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["State Parks & Recreation", "Fiscal Accountability", "Little Cottonwood Transportation", "Clean Air & Emissions"]
+ },
+ "christine_watkins": {
+  "name": "Christine Watkins", "office": "Utah State Representative",
+  "state": "UT District 67 (Price, Carbon County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Public Safety & Crime", "Climate & Clean Energy", "Child Welfare & Families", "Grid & Transmission"]
+ },
+ "logan_monson": {
+  "name": "Logan Monson", "office": "Utah State Representative",
+  "state": "UT District 69 (Blanding, San Juan County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Roads & Infrastructure", "Rural Healthcare", "Agriculture & Grazing", "First Responder Support"]
+ },
+ "carl_albrecht": {
+  "name": "Carl Albrecht", "office": "Utah State Representative",
+  "state": "UT District 70 (Richfield, Sevier County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Reliable, Affordable Rural Energy", "Rural Jobs & Economic Development", "Agriculture, Water & Rural Communities"]
+ },
+ "colin_w_jack": {
+  "name": "Colin W. Jack", "office": "Utah State Representative",
+  "state": "UT District 73 (St. George, Washington County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Climate & Clean Energy", "Energy Independence", "Environmental Enforcement Reform", "Protect Productive Farmland"]
+ },
+ "walt_brooks": {
+  "name": "Walt Brooks", "office": "Utah State Representative",
+  "state": "UT District 75 (St. George, Washington County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Gun Rights", "Homeowner Rights", "Public Safety", "Limited Government"]
  }
 });

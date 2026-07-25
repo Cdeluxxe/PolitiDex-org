@@ -15013,7 +15013,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             { type: "info", color: "gold", title: "Why This Matters", text: "As one of the Legislature's youngest leaders representing one of its fastest-growing suburbs, Pierucci is helping define how a new generation of Utah Republicans handles education and technology. Her work on child online-safety laws ties directly into a national fight over kids and social media." }
           ]
         },
-        { id: "hollins", name: "Sandra Hollins", office: "State Representative (Dist. 24)", state: "Utah", party: "Democrat", district: "District 24 (Salt Lake County)", why: "First Black woman in the Utah Legislature; leader on homelessness and equity.", score: 84, kept: 12, broken: 2, pending: 5, icon: "🏛", tier: "silver",
+        { id: "hollins", name: "Sandra Hollins", office: "State Representative (Dist. 21)", state: "Utah", party: "Democrat", district: "District 21 (Salt Lake County)", why: "First Black woman in the Utah Legislature; leader on homelessness and equity.", score: 84, kept: 12, broken: 2, pending: 5, icon: "🏛", tier: "silver",
           keyIssues: ["Homelessness & Housing", "Racial Equity", "Substance-Use Treatment", "Social Services"],
           bio: "Sandra Hollins is a licensed clinical social worker who in 2015 became the first Black woman ever elected to the Utah Legislature, representing the diverse Rose Park and Glendale neighborhoods of west Salt Lake City. Her frontline experience working with people experiencing homelessness and addiction shapes a policy focus on housing, treatment, and equity. She drew national attention for sponsoring a 2020 resolution declaring racism a public-health crisis and has been a steady advocate for criminal-justice reform and services for Utah's most vulnerable residents.",
           quote: "I sat with people on their worst days as a social worker. Now I write policy so fewer people have to reach that point.",
@@ -41128,8 +41128,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // pre-2023 numbering, and roughly half of the districts it covered were off by
     // one to three seats. The entries for districts held by a representative in
     // _UTAH_HOUSE_INFO have been verified against each member's residence and
-    // corrected (4, 5, 11, 16, 29, 30, 50, 52, 56, 59, 66, 68 changed in July 2026;
-    // 9, 10, 14, 15, 19, 39, 44, 61, 63 were already right). The remaining districts
+    // corrected (4, 5, 11, 16, 29, 30, 50, 52, 56, 59, 66, 68 changed in July 2026,
+    // then 21, 22, 24, 28, 67, 69, 71, 73 in the follow-up House pass; 9, 10, 14, 15,
+    // 19, 36, 39, 42, 44, 61, 63, 70, 75 were already right). Every district that
+    // _UTAH_HOUSE_INFO covers is now cross-checked against this table by assertion
+    // 10f, so the two can no longer drift apart silently. The remaining districts
     // have NOT been re-verified and should not be trusted for a new member without
     // checking the record — add them to _UTAH_HOUSE_INFO instead, which is
     // authoritative and cross-checked by scripts/test-identity-integrity.mjs.
@@ -41138,8 +41141,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       6:'Weber County', 7:'Weber County', 8:'Weber County', 9:'Weber County', 10:'Weber County',
       11:'Weber County', 12:'Weber County', 13:'Davis County', 14:'Davis County', 15:'Davis County',
       16:'Davis County', 17:'Weber County', 18:'Weber County', 19:'Davis County', 20:'Davis County',
-      21:'Davis County', 22:'Davis County', 23:'Davis County', 24:'Davis County', 25:'Davis County',
-      26:'Davis County', 27:'Davis County', 28:'Weber County', 29:'Tooele County', 30:'Salt Lake County',
+      21:'Salt Lake County', 22:'Salt Lake County', 23:'Davis County', 24:'Salt Lake County', 25:'Davis County',
+      26:'Davis County', 27:'Davis County', 28:'Tooele County', 29:'Tooele County', 30:'Salt Lake County',
       31:'Salt Lake County', 32:'Salt Lake County', 33:'Salt Lake County', 34:'Salt Lake County', 35:'Salt Lake County',
       36:'Salt Lake County', 37:'Salt Lake County', 38:'Salt Lake County', 39:'Salt Lake County', 40:'Salt Lake County',
       41:'Salt Lake County', 42:'Salt Lake County', 43:'Salt Lake County', 44:'Salt Lake County', 45:'Salt Lake County',
@@ -41147,8 +41150,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       51:'Salt Lake County', 52:'Utah County', 53:'Tooele County', 54:'Salt Lake County', 55:'Salt Lake County',
       56:'Utah County', 57:'Utah County', 58:'Utah County', 59:'Wasatch County', 60:'Utah County',
       61:'Utah County', 62:'Utah County', 63:'Utah County', 64:'Utah County', 65:'Utah County',
-      66:'Sanpete County', 67:'Utah County', 68:'Uintah County', 69:'Sanpete County', 70:'Sevier County',
-      71:'Carbon County', 72:'Uintah County', 73:'Iron County', 74:'Washington County', 75:'Washington County'
+      66:'Sanpete County', 67:'Carbon County', 68:'Uintah County', 69:'San Juan County', 70:'Sevier County',
+      71:'Iron County', 72:'Uintah County', 73:'Washington County', 74:'Washington County', 75:'Washington County'
     };
 
     // Collapsible district groupings for the Utah House tree (keeps the long
@@ -41181,35 +41184,62 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Key Races table having said 45, `valpeterson_h56` in 56) are deliberately NOT
     // renamed: the id is the identity, the number lives here.
     //
-    // ONE-DIRECTIONAL BY DESIGN, unlike the Senate. Every pid here must agree with
-    // KR_STATE_HOUSE_INCUMBENTS (a hard failure in section 10 of
-    // scripts/test-identity-integrity.mjs), but the reverse is NOT required: several
-    // House incumbent ids have no roster record at all, and a handful more have a
-    // roster record whose district contradicts the public record. Those are
-    // pre-existing debt, reported as notes by the harness rather than gated on. Add a
-    // member here only once their district and county are verified.
+    // ONE-DIRECTIONAL NO LONGER — as of the July 2026 follow-up pass this map covers
+    // every district in KR_STATE_HOUSE_INCUMBENTS and every pid in it holds exactly
+    // one seat, so assertion 10e in scripts/test-identity-integrity.mjs is now
+    // BIDIRECTIONAL: adding a representative to either table without the other is a
+    // hard failure, and so is a roster record whose own district string disagrees
+    // with the seat wired here. What made that possible was clearing the twelve
+    // districts that used to be reported as notes:
+    //   • Six pointed at ids that existed in no other file — `hooper_h22`,
+    //     `nelson_h28`, `matthews_h36`, `judkins_h42`, `albrecht_h67`,
+    //     `phil_lyman_h69`. Each seat's real member was already in the data set under
+    //     a curated id, so the district was re-keyed and the phantom id deleted.
+    //   • `jwestwood` held TWO seats (70 and 71) while his own record said 73. He left
+    //     the House in 2019 — Rex Shipp succeeded him — so he is a former member and
+    //     holds none of them.
+    //   • `rshipp` was wired at 75 and labelled St. George; Shipp lives in Cedar City
+    //     and holds 71. District 75 is Walt Brooks's.
+    //   • `hollins_h24` sits in 21, not the 24 its suffix encodes; District 24 is
+    //     Grant Miller's.
+    //   • `gwynn_h6` resigned in March 2026, so District 6 was dropped rather than
+    //     left naming him (see the KR_STATE_HOUSE_INCUMBENTS note).
+    // Add a member here only once their district and county are verified against the
+    // public record — a guess here now fails CI in both directions.
     var _UTAH_HOUSE_INFO = {
-      auxier_h4:       { d: 4,  c: 'Morgan County' },
-      snider_h5:       { d: 5,  c: 'Cache County' },
-      jake_sawyer:     { d: 9,  c: 'Weber County' },
-      koford_h10:      { d: 10, c: 'Weber County' },
-      hall_h11:        { d: 11, c: 'Weber County' },
-      lisonbee_h14:    { d: 14, c: 'Davis County' },
-      defay_h15:       { d: 15, c: 'Davis County' },
-      tlee:            { d: 16, c: 'Davis County' },
-      rward:           { d: 19, c: 'Davis County' },
-      bolinder_h68:    { d: 29, c: 'Tooele County' },
-      fitisemanu_h30:  { d: 30, c: 'Salt Lake County' },
-      ivory_h39:       { d: 39, c: 'Salt Lake County' },
-      teuscher_h44:    { d: 44, c: 'Salt Lake County' },
-      gricius_h50:     { d: 50, c: 'Utah County' },
-      cory_maloy_h52:  { d: 52, c: 'Utah County' },
-      valpeterson_h56: { d: 56, c: 'Utah County' },
-      kohler_h59:      { d: 59, c: 'Wasatch County' },
-      lisa_shepherd:   { d: 61, c: 'Utah County' },
-      whyte_h63:       { d: 63, c: 'Utah County' },
-      shelley_h66:     { d: 66, c: 'Sanpete County' },
-      chew_h68:        { d: 68, c: 'Uintah County' }
+      auxier_h4:               { d: 4,  c: 'Morgan County' },
+      snider_h5:               { d: 5,  c: 'Cache County' },
+      jake_sawyer:             { d: 9,  c: 'Weber County' },
+      koford_h10:              { d: 10, c: 'Weber County' },
+      hall_h11:                { d: 11, c: 'Weber County' },
+      lisonbee_h14:            { d: 14, c: 'Davis County' },
+      defay_h15:               { d: 15, c: 'Davis County' },
+      tlee:                    { d: 16, c: 'Davis County' },
+      rward:                   { d: 19, c: 'Davis County' },
+      hollins_h24:             { d: 21, c: 'Salt Lake County' },
+      jennifer_dailey_provost: { d: 22, c: 'Salt Lake County' },
+      grant_miller:            { d: 24, c: 'Salt Lake County' },
+      nicholeen_p_peck:        { d: 28, c: 'Tooele County' },
+      bolinder_h68:            { d: 29, c: 'Tooele County' },
+      fitisemanu_h30:          { d: 30, c: 'Salt Lake County' },
+      james_dunnigan:          { d: 36, c: 'Salt Lake County' },
+      ivory_h39:               { d: 39, c: 'Salt Lake County' },
+      clinton_okerlund:        { d: 42, c: 'Salt Lake County' },
+      teuscher_h44:            { d: 44, c: 'Salt Lake County' },
+      gricius_h50:             { d: 50, c: 'Utah County' },
+      cory_maloy_h52:          { d: 52, c: 'Utah County' },
+      valpeterson_h56:         { d: 56, c: 'Utah County' },
+      kohler_h59:              { d: 59, c: 'Wasatch County' },
+      lisa_shepherd:           { d: 61, c: 'Utah County' },
+      whyte_h63:               { d: 63, c: 'Utah County' },
+      shelley_h66:             { d: 66, c: 'Sanpete County' },
+      christine_watkins:       { d: 67, c: 'Carbon County' },
+      chew_h68:                { d: 68, c: 'Uintah County' },
+      logan_monson:            { d: 69, c: 'San Juan County' },
+      carl_albrecht:           { d: 70, c: 'Sevier County' },
+      rshipp:                  { d: 71, c: 'Iron County' },
+      colin_w_jack:            { d: 73, c: 'Washington County' },
+      walt_brooks:             { d: 75, c: 'Washington County' }
     };
 
     // Authoritative district + county for each SITTING Utah State Senator in the
@@ -47526,12 +47556,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // ── St. George / Washington County ─────────────────────────────
       washington: [
         {
-          raceKey: 'statehouse', short: 'House District 71',
-          district: 'Utah House District 71', chamber: 'Utah State House',
-          color: '#2dd4bf', incumbentPid: 'rshipp',
+          // District 75, not 71: this block used to name Rex Shipp, who lives in Cedar
+          // City and holds District 71 in Iron County. St. George's own seats are 73
+          // and 75; 75 is Walt Brooks's. Shipp's misplacement here is where his roster
+          // record's "St. George" label came from.
+          raceKey: 'statehouse', short: 'House District 75',
+          district: 'Utah House District 75', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'walt_brooks',
           incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 71 choice to My Team',
-          candidates: ['rshipp'],
+          addLabel: 'Add House District 75 choice to My Team',
+          candidates: ['walt_brooks'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
         {
@@ -47590,9 +47624,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Salt Lake City (Salt Lake County) ──────────────────────────
       slc: [
-        { raceKey: 'statehouse', short: 'House District 24', district: 'Utah House District 24', chamber: 'Utah State House',
+        // District 21, not 24: Sandra Hollins has held 21 since the 2023 renumbering
+        // (23 before that). Her id's `_h24` suffix is the stale number, and District 24
+        // is Grant Miller's seat.
+        { raceKey: 'statehouse', short: 'House District 21', district: 'Utah House District 21', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'hollins_h24', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 24 choice to My Team', candidates: ['hollins_h24'],
+          addLabel: 'Add House District 21 choice to My Team', candidates: ['hollins_h24'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 13', district: 'Utah Senate District 13', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'blouin_s13', incumbentNote: 'Incumbent — your current state senator',
@@ -47642,9 +47679,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           color: '#2dd4bf', incumbentPid: 'teuscher_h44', incumbentNote: 'Incumbent — eligible for re-election in 2026',
           addLabel: 'Add House District 44 choice to My Team', candidates: ['teuscher_h44'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
-        { raceKey: 'statesenate', short: 'Senate District 11', district: 'Utah Senate District 11', chamber: 'Utah State Senate',
+        { raceKey: 'statesenate', short: 'Senate District 18', district: 'Utah Senate District 18', chamber: 'Utah State Senate',
+          // Was labelled "Senate District 11" — McCay's PRE-2023 number, which his id
+          // suffix still carries. He has sat in District 18 (Riverton / Herriman) since
+          // the 2022 redistricting, which is what _UTAH_SENATE_INFO and his own roster
+          // record say. Assertion 10i now compares these two, so the stale label failed.
           color: '#a78bfa', incumbentPid: 'mccay_s11', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 11 choice to My Team', candidates: ['mccay_s11'],
+          addLabel: 'Add Senate District 18 choice to My Team', candidates: ['mccay_s11'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 4', district: 'Utah Congressional District 4', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'owens', incumbentNote: 'Incumbent — running for re-election in 2026',
@@ -47654,6 +47695,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Sandy / Cottonwood Heights (Salt Lake County) ──────────────
       sandy: [
+        // UNVERIFIED (July 2026): assertion 10i skips this race because `eliason_h45`
+        // has no _UTAH_HOUSE_INFO entry, so nothing checks the district. It is left as
+        // written rather than guessed at, but two things about it are suspect: the
+        // KR_STATE_HOUSE_INCUMBENTS comment above records that District 45 is Tracy
+        // Miller's seat, and the `_h45` suffix is a pre-2023 number on an id whose
+        // member (Steve Eliason) may no longer hold it. Resolving it means confirming
+        // the current District 45 representative against the public record and then
+        // wiring them into _UTAH_HOUSE_INFO + KR_STATE_HOUSE_INCUMBENTS, at which point
+        // 10i starts guarding this block too. Do not "fix" the number without that.
         { raceKey: 'statehouse', short: 'House District 45', district: 'Utah House District 45', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'eliason_h45', incumbentNote: 'Incumbent — eligible for re-election in 2026',
           addLabel: 'Add House District 45 choice to My Team', candidates: ['eliason_h45'],
@@ -47750,9 +47800,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Tooele / Grantsville (Tooele County) ───────────────────────
       tooele: [
-        { raceKey: 'statehouse', short: 'House District 68', district: 'Utah House District 68', chamber: 'Utah State House',
+        { raceKey: 'statehouse', short: 'House District 29', district: 'Utah House District 29', chamber: 'Utah State House',
+          // Was labelled "Utah House District 68" — Bolinder's PRE-2023 number, still in
+          // his id suffix. He has represented District 29 (Tooele / Grantsville) since
+          // 2023; post-2023 District 68 is Scott Chew's Uintah Basin seat, so this block
+          // was advertising a race 200 miles away to Tooele County readers. Caught by 10i.
           color: '#2dd4bf', incumbentPid: 'bolinder_h68', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 68 choice to My Team', candidates: ['bolinder_h68'],
+          addLabel: 'Add House District 29 choice to My Team', candidates: ['bolinder_h68'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 1', district: 'Utah Senate District 1', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'ssandall', incumbentNote: 'Incumbent — your current state senator',
@@ -47766,9 +47820,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       ],
       // ── Cedar City / Iron County ───────────────────────────────────
       cedar_city: [
-        { raceKey: 'statehouse', short: 'House District 73', district: 'Utah House District 73', chamber: 'Utah State House',
-          color: '#2dd4bf', incumbentPid: 'jwestwood', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 73 choice to My Team', candidates: ['jwestwood'],
+        // District 71, not 73: Cedar City is in Iron County, which District 71 covers
+        // and Rex Shipp holds. This block used to read "District 73 / jwestwood" —
+        // Westwood left the House in 2019 (Shipp succeeded him) and District 73 is a
+        // St. George seat, so the region, the number and the person were all wrong.
+        { raceKey: 'statehouse', short: 'House District 71', district: 'Utah House District 71', chamber: 'Utah State House',
+          color: '#2dd4bf', incumbentPid: 'rshipp', incumbentNote: 'Incumbent — eligible for re-election in 2026',
+          addLabel: 'Add House District 71 choice to My Team', candidates: ['rshipp'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 28', district: 'Utah Senate District 28', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'evickers', incumbentNote: 'Incumbent — your current state senator',
@@ -47789,11 +47847,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       4: { pid: 'owens',  label: 'Incumbent — current Utah U.S. Representative' }
     };
     // Sitting Utah State Representative per district. Keys are POST-2023 district
-    // numbers and must agree with `_UTAH_HOUSE_INFO[pid].d` for every pid that
-    // appears in both tables (section 10 of scripts/test-identity-integrity.mjs).
-    // Several ids encode a pre-redistricting number in their suffix —
-    // `bolinder_h68` sits in 29, `teuscher_h44` in 44, `valpeterson_h56` in 56 — so
-    // key off the district, never the suffix.
+    // numbers and must agree with `_UTAH_HOUSE_INFO[pid].d` — and since the July 2026
+    // follow-up pass that agreement runs BOTH ways (assertion 10e in
+    // scripts/test-identity-integrity.mjs), so every key here has an info entry and
+    // vice versa. Several ids encode a pre-redistricting number in their suffix —
+    // `bolinder_h68` sits in 29, `hollins_h24` in 21, `albrecht_h67` turned out to be
+    // District 70's member — so key off the district, never the suffix.
     //
     // Corrected July 2026 against the public record, when _UTAH_HOUSE_INFO was added
     // and made these disagreements visible for the first time:
@@ -47808,17 +47867,70 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     //     two seats is the bug class section 10 exists to catch, and District 3's
     //     actual member is not in the data set — so it degrades to "no incumbent",
     //     which is honest, rather than naming someone else's representative.
-    // Districts 70 and 71 both still name `jwestwood`, whose own roster record reads
-    // District 73; that contradiction is unresolved pre-existing debt and is reported
-    // as a harness note rather than guessed at.
+    //
+    // PHANTOM IDS REMOVED in the follow-up pass. Six districts were wired to ids that
+    // existed in no other file, so `candidates: [incPid]` handed the UI a pid that
+    // could never resolve a profile. Each seat's real member was already in the data
+    // set under the id carrying their curated stance block, so the district was
+    // re-keyed to that id and the phantom deleted:
+    //   hooper_h22      → jennifer_dailey_provost (Jennifer Dailey-Provost, D-Salt Lake
+    //                     City; no Utah legislator named Hooper exists)
+    //   nelson_h28      → nicholeen_p_peck        (Nicholeen Peck, R-Tooele, seated 2025)
+    //   matthews_h36    → james_dunnigan          (James Dunnigan, R-Taylorsville)
+    //   judkins_h42     → clinton_okerlund        (Clint Okerlund, R-Sandy, seated 2025;
+    //                     Marsha Judkins left the House and is now Provo's mayor, which
+    //                     is how she appears in cmp-data.js as `marsha_judkins_provo`)
+    //   albrecht_h67    → christine_watkins       (Christine Watkins, R-Price). The id
+    //                     named a real person at the wrong seat: Carl Albrecht's suffix
+    //                     was his pre-2023 number and he now holds District 70, where
+    //                     he is wired below as `carl_albrecht`.
+    //   phil_lyman_h69  → logan_monson            (Logan Monson, R-Blanding). Lyman left
+    //                     the House for a 2024 statewide run and Monson succeeded him in
+    //                     January 2025, so the old id was a former member on a live seat.
+    //
+    // MULTI-SEAT AND DRIFT CASES RESOLVED at the same time:
+    //   • `jwestwood` was the incumbent for BOTH 70 and 71 while his own record read
+    //     District 73. He is none of them: Rex Shipp succeeded him in January 2019, so
+    //     he is a former member and his roster record now says so. District 70 is Carl
+    //     Albrecht's and District 71 is Shipp's.
+    //   • `rshipp` moved 75→71. Shipp lives in Cedar City (Iron County) and has held
+    //     District 71 since 2023; the "St. George" label belonged to District 75, which
+    //     is Walt Brooks's seat and is now wired to him.
+    //   • `hollins_h24` moved 24→21. Sandra Hollins has held District 21 since 2023
+    //     (District 23 before that); District 24 is Grant Miller's, seated 2025.
+    //   • District 6 dropped: Matthew Gwynn resigned in March 2026 and Rob Bishop was
+    //     appointed to the seat. Bishop is in the data set only as a former U.S.
+    //     Representative with no roster record, and wiring a congressional identity
+    //     into a state-House seat is a content decision rather than identity repair, so
+    //     the district degrades to "no incumbent" until that record exists.
+    //
+    // STILL OPEN, deliberately not guessed at. Each needs the public record plus a
+    // content decision, so none of them is identity wiring:
+    //   • District 6 has no sitting incumbent here (above). Adding one requires a
+    //     roster record for its appointed member.
+    //   • District 45: the `sandy` block in KEY_RACES_BY_LOCATION still runs a District
+    //     45 race for `eliason_h45`, an id with no info entry and a pre-2023 suffix,
+    //     while the correction list above says District 45 is Tracy Miller's. See the
+    //     note at that block. Unguarded by 10i until the seat is wired here.
+    //   • District 23 is absent although Hoang Nguyen is confirmed as its member and has
+    //     a curated stance block — she has no cmp-data.js roster record, and 10e/10g
+    //     need one before she can be added.
+    //   • `ashlee_matthews` is content-bearing but her seat is unconfirmed, so she is in
+    //     neither table. She is NOT the `matthews_h36` phantom, whose district went to
+    //     James Dunnigan.
+    //   • `calbrecht` is a second identity for Carl Albrecht, carrying a bogus
+    //     'STATE SENATE' pm-tier tag. District 70 is wired to `carl_albrecht`, which is
+    //     the record with the browse-directory entry and the Spotlight card. Merging the
+    //     duplicate is a content pass, not identity repair, so both ids still exist.
     var KR_STATE_HOUSE_INCUMBENTS = {
-      4:'auxier_h4', 5:'snider_h5', 6:'gwynn_h6', 9:'jake_sawyer',
-      10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward', 22:'hooper_h22',
-      24:'hollins_h24', 28:'nelson_h28',
-      29:'bolinder_h68', 30:'fitisemanu_h30', 36:'matthews_h36', 39:'ivory_h39', 42:'judkins_h42', 44:'teuscher_h44',
+      4:'auxier_h4', 5:'snider_h5', 9:'jake_sawyer',
+      10:'koford_h10', 11:'hall_h11', 14:'lisonbee_h14', 15:'defay_h15', 16:'tlee', 19:'rward',
+      21:'hollins_h24', 22:'jennifer_dailey_provost', 24:'grant_miller', 28:'nicholeen_p_peck',
+      29:'bolinder_h68', 30:'fitisemanu_h30', 36:'james_dunnigan', 39:'ivory_h39', 42:'clinton_okerlund',
+      44:'teuscher_h44',
       50:'gricius_h50', 52:'cory_maloy_h52', 56:'valpeterson_h56', 59:'kohler_h59', 61:'lisa_shepherd', 63:'whyte_h63',
-      66:'shelley_h66', 67:'albrecht_h67', 68:'chew_h68', 69:'phil_lyman_h69',
-      70:'jwestwood', 71:'jwestwood', 75:'rshipp'
+      66:'shelley_h66', 67:'christine_watkins', 68:'chew_h68', 69:'logan_monson',
+      70:'carl_albrecht', 71:'rshipp', 73:'colin_w_jack', 75:'walt_brooks'
     };
     // Sitting Utah State Senator per district. Keys are POST-2023 district numbers
     // and must agree with `_UTAH_SENATE_INFO[pid].d` for every pid that appears in
