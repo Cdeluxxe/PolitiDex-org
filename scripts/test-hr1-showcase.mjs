@@ -135,5 +135,51 @@ const ok = (c, m) => { if (!c) fails.push(m); };
   ok(html.includes("</button> 4758"), "D: only the prefix becomes a term — the number stays text");
 }
 
+// ── Case E: the borrowed composition caveat ────────────────────────────────────
+// The showcase shows no percentages of its own, so what it reuses from the Official
+// Record panel is the CAVEAT: the same words (from the real _recordComposition in
+// stance-helpers.js) and the same markup (from PDXConsistency.compositionMeterHtml).
+// Cases A–D above ran with neither helper present and asserted nothing about it, so
+// this case also pins the guarded degradation: no engine → no caveat, no throw.
+{
+  const bare = makeCtx(PAYLOAD);
+  vm.runInContext(SRC, vm.createContext(bare), { filename: "hr1-showcase.js" });
+  bare.window.PDXHR1.mount();
+  ok(!bare.__host.innerHTML.includes("hr1-omni-caveat"),
+    "E: without the consistency engine the caveat is absent (and the page still renders)");
+  ok(bare.__host.innerHTML.includes("separate say-vs-do verdict"),
+    "E: the omnibus block itself is unaffected by the missing engine");
+
+  const ctx = makeCtx(PAYLOAD);
+  const sandbox = vm.createContext(ctx);
+  // Real copy generator, so the caveat can never word thinness differently than the
+  // panel does. Only the markup renderer is stubbed — that markup is consistency.js's
+  // to test; what matters here is WHAT the showcase hands it.
+  vm.runInContext(readFileSync(join(ROOT, "stance-helpers.js"), "utf8"), sandbox, { filename: "stance-helpers.js" });
+  ok(typeof ctx.window._recordComposition === "function", "E: real _recordComposition is available");
+  let seen = null;
+  ctx.window.PDXConsistency = {
+    compositionMeterHtml: (comp, lead) => { seen = { comp, lead }; return '<span class="pdxor-comp STUB"></span>'; },
+  };
+  vm.runInContext(SRC, sandbox, { filename: "hr1-showcase.js" });
+  ctx.window.PDXHR1.mount();
+  const html = ctx.__host.innerHTML;
+  ok(html.includes("hr1-omni-caveat"), "E: with the engine present the caveat renders");
+  ok(html.includes('<span class="pdxor-comp STUB"></span>'),
+    "E: the caveat inlines the shared meter renderer's output rather than its own markup");
+  ok(!!seen, "E: compositionMeterHtml was actually called");
+  ok(seen && seen.comp.level === "single" && seen.comp.thin === true,
+    "E: it is handed the thin single-vote composition — the case this page is about");
+  ok(seen && seen.comp.omnibusDriven === true && seen.comp.note === "1 multi-issue vote",
+    "E: and the omnibus flavour, in the panel's own words");
+  ok(seen && /covered 6 issues at once/.test(seen.comp.detail),
+    "E: the detail cites the real issue count on the page, not a hardcoded number");
+  ok(seen && /member/.test(seen.lead), "E: the lead sentence frames it as what a profile will show");
+  ok(html.includes("only</strong> vote a member has"),
+    "E: the caveat states the flip side of the showcase's own claim");
+  ok(html.includes("in proportion to how many judged votes"),
+    "E: and points at the judged-vote weighting behind the overall figure");
+}
+
 if (fails.length) { console.error("✗\n  " + fails.join("\n  ")); process.exit(1); }
-console.log("✓ hr1-showcase: all assertions passed (4 cases)");
+console.log("✓ hr1-showcase: all assertions passed (5 cases)");

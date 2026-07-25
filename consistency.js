@@ -537,19 +537,47 @@
     return Object.keys(set);
   }
 
+  // ── how much record sits behind ONE issue's percentage ──────────────────────
+  // The count of JUDGED items — exactly the denominator scoreFromRecord divides by
+  // (and, for the formal-actions branch, the denominator that branch divides by), so
+  // a weight can never disagree with the percentage it is weighting. Returns null
+  // when nothing was judged; those issues carry score null and the roll-up already
+  // skips them.
+  function judgedCountOf(v) {
+    if (!v) return null;
+    if (v.record) {
+      var n = (v.record.consistent || 0) + (v.record.contradicts || 0);
+      if (n > 0) return n;
+    }
+    if (v.officialActions) {
+      var a = (v.officialActions.consistent || 0) + (v.officialActions.contradicts || 0);
+      if (a > 0) return a;
+    }
+    return null;
+  }
+
   // ── the overall roll-up: ONE verdict per politician, per scope ──────────────
   function scopedOverall(scope, pid, issueKeys) {
     var per = scope === 'official' ? officialIssue : scope === 'saydo' ? saydoIssue : issueVerdict;
     var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid, scope);
     var counts = { consistent: 0, contradicts: 0, mixed: 0, flag: 0, limited: 0, none: 0, pending: 0 };
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
+    var wSum = 0, wN = 0;      // judged-vote-weighted numerator / denominator
     var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
-      if (typeof v.score === 'number') { scoreSum += v.score; scoreN++; }
+      if (typeof v.score === 'number') {
+        scoreSum += v.score; scoreN++;
+        // An issue counts in proportion to the record behind it. Fall back to 1 (the
+        // old equal-weight behaviour) rather than dropping the issue, so a scored
+        // issue is never silently excluded from its own member's number.
+        var w = judgedCountOf(v);
+        if (!(typeof w === 'number' && w > 0)) w = 1;
+        wSum += v.score * w; wN += w;
+      }
       if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
@@ -569,9 +597,16 @@
     var sdScore = (scope === 'saydo') ? saydoScore(sdSup, sdCon, MIN_SAYDO_EVIDENCE + 1) : null;
     return {
       scope: scope, token: token, verdict: scopeVerdict(scope, token),
-      // Official/combined = the vote-based average; Say-vs-Do = its pooled public-record
-      // integrity % (still on its own scope — never blended into Official Record).
-      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      // Official/combined = the vote-based average, WEIGHTED BY JUDGED VOTES so an
+      // issue decided by one vote no longer counts as much as one decided by ten.
+      // (Say-vs-Do keeps its own pooled public-record integrity % — never blended.)
+      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (wN ? Math.round(wSum / wN) : null),
+      // The old equal-weight mean, kept alongside so the change is disclosable rather
+      // than silent: the composition line shows both when they disagree, and the
+      // self-test asserts on the difference.
+      unweightedScore: (scope === 'saydo') ? null : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      judgedTotal: (scope === 'saydo') ? null : wN,
+      weighting: (scope === 'saydo') ? null : 'judged-votes',
       saydoScore: sdScore,
       counts: counts, contradictions: contradictions,
       pending: anyPending, rated: scoreN, issues: keys.length
@@ -725,6 +760,13 @@
       '.pdxdv-sum{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-left:auto;padding:0.3rem 0.55rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);}' +
       '.pdxdv-sum-na{font-size:0.68rem;color:#9fb4d4;line-height:1.3;max-width:17rem;}' +
       '.pdxdv-sum-nums,.pdxdv-nums{display:inline-flex;align-items:center;gap:0.35rem;}' +
+      // The Official Record panel's composition markup, reused verbatim in the tighter
+      // comparison rows (Phase 12). Only the footprint is constrained — the note stays
+      // visible text rather than becoming hover-only, it just can't crowd out the two
+      // numbers the row exists to compare.
+      '.pdxdv-nums .pdxor-comp{flex:0 0 auto;}' +
+      '.pdxdv-nums .pdxor-comp-note{max-width:5.4rem;white-space:normal;}' +
+      '.pdxdv-sum-nums .pdxor-compsum{max-width:11rem;}' +
       '.pdxdv-num{display:inline-flex;align-items:center;gap:0.22rem;white-space:nowrap;}' +
       '.pdxdv-num-ic{font-size:0.8rem;opacity:0.9;}' +
       '.pdxdv-num-pct{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:0.9;}' +
@@ -1035,10 +1077,12 @@
       return _orCompMeterHtml(comp, 'How much record is behind this percentage:');
     } catch (e) { return ''; }
   }
-  // Whole-panel indicator for the overall %. The overall is the MEAN of the per-issue
-  // percentages, so its confidence question is different: how many issues went into
-  // the average, and how many of those are themselves thin or omnibus-driven.
-  function _orOverallCompositionHtml(pid, scored) {
+  // Whole-panel indicator for the overall %. The overall is the judged-vote-WEIGHTED
+  // mean of the per-issue percentages, so its confidence question is different from a
+  // single issue's: how many issues went into it, how many of those are themselves
+  // thin or omnibus-driven, and — when weighting actually moved the number — what the
+  // old equal-weight mean would have said.
+  function _orOverallCompositionHtml(pid, scored, overall) {
     try {
       if (typeof window._recordComposition !== 'function') return '';
       var rated = 0, thin = 0, omni = 0, single = 0;
@@ -1054,15 +1098,24 @@
         if (c.omnibusDriven) omni++;
       });
       if (!rated) return '';
-      var parts = ['average of ' + rated + ' issue' + (rated === 1 ? '' : 's')];
+      var judged = overall && typeof overall.judgedTotal === 'number' ? overall.judgedTotal : null;
+      var unw = overall && typeof overall.unweightedScore === 'number' ? overall.unweightedScore : null;
+      var moved = (unw !== null && overall && typeof overall.score === 'number' && unw !== overall.score);
+      var parts = ['weighted over ' + rated + ' issue' + (rated === 1 ? '' : 's')];
       if (thin) parts.push(thin + ' on 1–2 votes');
       if (omni) parts.push(omni + ' mostly multi-issue');
-      var tip = 'The Official Record % is the mean of the per-issue percentages, so it is only as ' +
-        'deep as the records underneath it. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
+      if (moved) parts.push('unweighted ' + unw + '%');
+      var tip = 'The Official Record % averages the per-issue percentages, weighted by how many ' +
+        'judged votes sit behind each one — so an issue decided by a single vote counts less ' +
+        'than one decided by ten. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
         ' had a percentage to average' +
-        (single ? '; ' + single + ' of those rest on a single judged vote' : '') +
+        (judged ? ', over ' + judged + ' judged vote' + (judged === 1 ? '' : 's') + ' in total' : '') +
+        (single ? '; ' + single + ' of those issues rest on a single judged vote' : '') +
         (thin ? '; ' + thin + ' rest on two or fewer' : '') +
-        (omni ? '; ' + omni + ' are driven mainly by multi-issue bills' : '') + '.';
+        (omni ? '; ' + omni + ' are driven mainly by multi-issue bills' : '') + '. ' +
+        (moved
+          ? 'Counting every issue equally, regardless of depth, would give ' + unw + '% instead.'
+          : 'Weighting does not change the figure here.');
       return '<span class="pdxor-compsum" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' +
         esc(parts.join(' · ')) + '</span>';
     } catch (e) { return ''; }
@@ -1163,7 +1216,7 @@
     var om = overall.verdict;
     // Composition on the overall % — how many issues it averages and how many of them
     // are thin or omnibus-driven. Annotation only; overall.score is untouched.
-    var overallComp = _orOverallCompositionHtml(pid, scored);
+    var overallComp = _orOverallCompositionHtml(pid, scored, overall);
     var overallHtml = (typeof overall.score === 'number')
       ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span>' + overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
@@ -1440,17 +1493,22 @@
     var set = {};
     try { issuesWithSignal(pid, 'official').forEach(function (k) { set[k] = 1; }); } catch (e) {}
     try { issuesWithSignal(pid, 'saydo').forEach(function (k) { set[k] = 1; }); } catch (e) {}
-    var both = [], oneSide = 0;
+    var both = [], oneSide = 0, offScored = [];
     Object.keys(set).forEach(function (k) {
       var o = officialIssue(pid, k), s = saydoIssue(pid, k);
       var oNum = typeof o.score === 'number', sNum = typeof s.score === 'number';
+      // Every officially-scored issue, comparable or not, in the shape
+      // _orOverallCompositionHtml wants. Collected here because this loop already
+      // built each officialIssue() — the composition summary beside the overall %
+      // would otherwise recompute all of them.
+      if (oNum) offScored.push({ key: k, ov: o });
       if (oNum && sNum) both.push({ key: k, off: o, say: s, gap: o.score - s.score });
       else if (oNum || sNum) oneSide++;
     });
     both.sort(function (a, b) { return Math.abs(b.gap) - Math.abs(a.gap); });
     var counts = { aligned: 0, mixed: 0, diverges: 0 };
     both.forEach(function (p) { counts[divRel(p.gap).key]++; });
-    return { both: both, oneSide: oneSide, counts: counts };
+    return { both: both, oneSide: oneSide, counts: counts, offScored: offScored };
   }
 
   function _divNum(icon, pct, color, label) {
@@ -1470,6 +1528,11 @@
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
             _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            // Same composition treatment the Official Record panel puts on this issue's
+            // %, on the same helper, so a 100% built on one vote reads the same way in
+            // both places. Only the 🏛️ side gets it: Say-vs-Do has its own evidence
+            // depth and is not built from votes at all.
+            _orCompositionHtml(pid, p.key, p.off) +
             '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
             _divNum('🧾', p.say.score, p.say.verdict.color, 'Say-vs-Do — public-record integrity') +
           '</span>' +
@@ -1494,6 +1557,11 @@
     if (oNum && sNum) {
       sumInner = '<span class="pdxdv-sum-nums">' +
           _divNum('🏛️', oOv.score, oOv.verdict.color, 'Official Record overall — vote-based') +
+          // The whole-profile Official Record % is now a judged-vote-weighted mean, so
+          // the same disclosure that sits beside it on the Official Record panel belongs
+          // here too — otherwise the comparison invites a reader to weigh two numbers
+          // without knowing how much record is under either.
+          _orOverallCompositionHtml(pid, d.offScored, oOv) +
           '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
           _divNum('🧾', sOv.score, sOv.verdict.color, 'Say-vs-Do overall — public-record integrity') +
         '</span>' + _divRelChip(divRel(oOv.score - sOv.score));
@@ -1691,6 +1759,9 @@
       row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
       row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
+      // The overall % is a real scoring decision a reader can check us on, so it is
+      // stated here and not only in the composition line's tooltip.
+      row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
       row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
       row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
@@ -1762,6 +1833,12 @@
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,
     methodologyHtml: methodologyHtml,
+    // Phase 12: the composition / confidence meter, exposed so surfaces outside this
+    // module render the SAME markup rather than copying the classes. Takes the object
+    // _recordComposition() returns plus the lead sentence for the label. Any surface
+    // that shows — or explains — a vote-built number should be able to say how much
+    // record is under it in one voice.
+    compositionMeterHtml: _orCompMeterHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },

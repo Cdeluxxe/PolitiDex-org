@@ -38,6 +38,38 @@
   }
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
 
+  // ── Composition caveat, borrowed from the Official Record panel ──────────────
+  // The Showcase's claim is "one roll call, N issues scored separately". The honest
+  // flip side of that claim is that for a member whose ONLY judged vote on one of
+  // those issues is this bill, their percentage on that issue rests entirely on a
+  // single multi-issue vote — which is exactly what the Official Record's
+  // composition indicator says beside such a number.
+  //
+  // The Showcase renders no percentages of its own, so there is nothing here to
+  // qualify with a meter on a figure. What it can do is explain the signal a reader
+  // will meet on the profiles, in the same words and the same markup: the copy comes
+  // from _recordComposition() (stance-helpers.js) and the markup from
+  // PDXConsistency.compositionMeterHtml, so the two surfaces cannot word it
+  // differently. Absent either helper this returns '' and the Showcase is unchanged.
+  function compositionCaveatHtml() {
+    try {
+      var C = window.PDXConsistency;
+      if (typeof window._recordComposition !== 'function' || !C || typeof C.compositionMeterHtml !== 'function') return '';
+      // The canonical thin case this page is about: one judged vote, and that vote is
+      // an omnibus covering every issue in the grid above.
+      var comp = window._recordComposition(
+        { consistent: 1, contradicts: 0, mixed: 0, noPosition: 0, total: 1 },
+        { omnibus: 1, single: 0, total: 1, maxCount: OMNIBUS.length });
+      if (!comp) return '';
+      return '<p class="hr1-omni-foot hr1-omni-caveat" style="margin-top:.55rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
+        C.compositionMeterHtml(comp, 'What this looks like on a member’s profile:') + ' ' +
+        'It cuts the other way too. If H.R.1 is the <strong style="color:#cbd9ec;">only</strong> vote a member has on one of these issues, ' +
+        'their percentage there rests on this single bill — so every percentage in PolitiDex carries this depth marker beside it, ' +
+        'and the overall figure counts an issue in proportion to how many judged votes are behind it.' +
+      '</p>';
+    } catch (e) { return ''; }
+  }
+
   // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
   // Guarded the same way as the other surfaces: absent education layer → plain
   // escaped text and no extra affordances, showcase otherwise identical.
@@ -473,6 +505,7 @@
           '<p class="hr1-omni-foot" style="margin-top:.7rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
             'Each #tag above is a real issue in the Voting Record. In a member’s profile, their one Yea or Nay on H.R.1 becomes a <strong style="color:#cbd9ec;">separate say-vs-do verdict on every one of these issues</strong> — matching their stated stance on some, contradicting it on others.' +
           '</p>' +
+          compositionCaveatHtml() +
         '</div>' +
 
         // ── Contradiction engine diagram ──

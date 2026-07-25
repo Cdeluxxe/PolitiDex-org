@@ -269,7 +269,19 @@
       cut_spending:       { label: '✂️ Cut Federal Spending & Reduce Debt', chip: 'Slash federal spending and the national debt by cutting waste and shrinking government', cat: 'reform', lean: 'R', stanceKeys: ['debt','audit'], keywords: ['federal spending','cut spending','spending cuts','national debt','government waste','doge','deficit','shrink government','fiscal responsibility','overspending','bloat'] },
       stock_trading_ban:  { label: '🚫 Ban Congressional Stock Trading', chip: 'Ban members of Congress from trading individual stocks while in office', cat: 'reform', stanceKeys: ['campaign'], keywords: ['stock trading','congressional stock','member stock','insider trading','stock act','trading ban','financial conflict','conflict of interest','ban stock','blind trust','self-dealing','transparency'] },
       scotus_reform:      { label: '⚖️ Supreme Court Reform', chip: 'Set an ethics code and term limits for Supreme Court justices', cat: 'reform', stanceKeys: ['termLimits'], keywords: ['supreme court','scotus','judicial','court reform','term limits','justices','ethics code','court ethics','judiciary','high court','recusal'] },
-      reform_balance:     { label: '⚖️ Practical Government Reform', chip: 'Make government work better through common-sense efficiency, ethics and accountability', cat: 'reform', stanceKeys: ['termLimits','campaign'], keywords: ['government reform','efficiency','accountability','bipartisan','good governance','modernize','reform','transparency','ethics','term limits','common sense'] }
+      reform_balance:     { label: '⚖️ Practical Government Reform', chip: 'Make government work better through common-sense efficiency, ethics and accountability', cat: 'reform', stanceKeys: ['termLimits','campaign'], keywords: ['government reform','efficiency','accountability','bipartisan','good governance','modernize','reform','transparency','ethics','term limits','common sense'] },
+
+      // ── Institutional power ──
+      // These two exist because a large block of real votes — cabinet confirmations,
+      // war-powers and tariff-authority resolutions, nationwide-injunction bills,
+      // National Guard and state-standing fights — are about WHO decides, not about
+      // ballot access or the deficit. Those votes used to be filed under
+      // democracy_balance ("Secure & Accessible Voting") and gov_balance ("Balance the
+      // Budget"), which moved members' percentages on issues the vote was not about.
+      // Deliberately carry no `lean`: both parties invoke institutional limits when
+      // they are out of power, so coding either one as D or R would be false signal.
+      checks_balances:      { label: '⚖️ Congressional Checks & Balances', chip: 'Keep Congress and the courts as a real check on executive power, whoever is president', cat: 'reform', stanceKeys: [], keywords: ['checks and balances','separation of powers','congressional oversight','oversight','advice and consent','confirmation','war powers','executive overreach','executive power','emergency powers','impoundment','rescission','nationwide injunction','universal injunction','judicial review','congressional authorization','power of the purse','subpoena','tariff authority','delegation of authority','unitary executive','institutional power'] },
+      states_federal_power: { label: '🗺 State vs. Federal Power', chip: 'Draw a clear line between what states decide and what Washington decides', cat: 'reform', stanceKeys: [], keywords: ['federalism','states rights','state authority','tenth amendment','preemption','federal preemption','national guard','title 32','state standing','sovereignty','state sovereignty','commandeering','unfunded mandate','local control','dual sovereignty','governor','state law','federal mandate'] }
     };
 
     // Publish ISSUE_MAP on window so the many helper functions that live in OTHER
