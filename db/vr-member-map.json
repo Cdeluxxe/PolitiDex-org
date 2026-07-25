@@ -10,7 +10,7 @@
     "B001288": "booker",
     "B001317": "josh_brecheen",
     "B001327": "rob_bresnahan",
-    "C001035": "susan_collins",
+    "C001035": "collins",
     "C001053": "tom_cole",
     "C001056": "john_cornyn",
     "C001087": "rick_crawford",
@@ -530,7 +530,7 @@
     },
     {
       "bioguide": "C001035",
-      "slug": "susan_collins",
+      "slug": "collins",
       "name": "Susan M. Collins",
       "chamber": "senate",
       "state": "ME",

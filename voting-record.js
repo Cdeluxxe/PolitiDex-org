@@ -211,6 +211,18 @@
     document.head.appendChild(s);
   }
 
+  // Every politician id entering the data layer is canonicalized first. A person can
+  // have accumulated vr_* rows under two ids (politician_id is free text); once a
+  // merge migration folds one away, the record only exists under the survivor. The
+  // API canonicalizes too, but the client caches BY ID — so without this a stale
+  // `susan_collins` request would fetch Collins's record and then file it under
+  // `collins`, and the lookup that asked for it would never find it. Alias table:
+  // PDX_PID_ALIASES in stance-helpers.js (mirrors db/vr-pid-aliases.json). Guarded
+  // because script order between the two files is not contractual.
+  function canonPid(id) {
+    try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(id)) || id; } catch (e) { return id; }
+  }
+
   // ── Data layer: PDXVotingRecord.fetchMember(id, opts) with in-memory cache ────
   var PDXVotingRecord = {
     _cache: new Map(),
@@ -230,6 +242,7 @@
     },
 
     fetchMember: function (id, opts) {
+      id = canonPid(id);
       var qs = this._query(opts);
       var key = id + qs;
       if (this._cache.has(key)) return this._cache.get(key);
@@ -259,8 +272,8 @@
     // own fetch, so there is no request storm when scoring a big field; it simply
     // uses whatever is already warm and falls back to the legacy source otherwise.
     _records: {},
-    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[id] = items.slice(); },
-    memberRecords: function (id) { return this._records[id] || null; },
+    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[canonPid(id)] = items.slice(); },
+    memberRecords: function (id) { return this._records[canonPid(id)] || null; },
 
     // ── Batched side-by-side fetch for the comparison surfaces ──────────────────
     // GET /api/voting-record/compare?members=a,b,c → { members, issue, matrix }.
@@ -268,7 +281,11 @@
     // a later Alignment computation for any of these members is already warm.
     _compareCache: new Map(),
     fetchCompare: function (pids) {
-      var members = (pids || []).filter(Boolean).slice().sort();
+      // De-duplicated after canonicalization: two ids that used to be different
+      // people-shaped rows can now resolve to the same person, and asking the API for
+      // the same member twice would waste a slot in its 8-member cap.
+      var members = (pids || []).filter(Boolean).map(canonPid)
+        .filter(function (id, i, a) { return a.indexOf(id) === i; }).sort();
       if (!members.length) return Promise.resolve(null);
       var key = members.join(',');
       if (this._compareCache.has(key)) return this._compareCache.get(key);
@@ -297,6 +314,7 @@
     // as the graceful fallback when the live /member/:id endpoint can't be reached.
     _packCache: new Map(),
     fetchPack: function (id) {
+      id = canonPid(id);
       if (this._packCache.has(id)) return this._packCache.get(id);
       var self = this;
       var url = API_BASE + '/member/' + encodeURIComponent(id) + '/pack';

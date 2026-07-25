@@ -47,6 +47,7 @@ import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
+  canonicalizePidMap,
   crossoverFlags,
   normalizeCongressActions,
   normalizeCongressVote,
@@ -63,6 +64,7 @@ import {
 export {
   ISSUE_KEYS,
   canonicalMeasureNumber,
+  canonicalPid,
   normalizeCongressVote,
   originatingChamber,
 } from "./vr-normalize.js";
@@ -325,15 +327,23 @@ export async function upsertMeasureActions(measureId: number, actions: RawAction
 // Blobs override (vr-config / member-map) wins when present and non-empty; otherwise
 // the committed seed map (db/vr-member-map.json) is used. Either way, a bioguide the
 // map doesn't know is skipped, never guessed.
+//
+// Whichever source wins, every slug is then run through db/vr-pid-aliases.json. A
+// retired id (one a merge migration has already folded into another) resolves to its
+// canonical id here, at the single point where a bioguide becomes a politician_id —
+// so the ingest cannot re-open a split the merge just closed, not even from a stale
+// Blobs override written before the merge.
 export async function loadMemberMap(): Promise<Record<string, string>> {
+  let map: Record<string, string> | null = null;
   try {
-    const store = getStore(MEMBER_MAP_STORE);
-    const map = (await store.get(MEMBER_MAP_KEY, { type: "json" })) as Record<string, string> | null;
-    if (map && typeof map === "object" && Object.keys(map).length) return map;
+    const override = (await getStore(MEMBER_MAP_STORE).get(MEMBER_MAP_KEY, { type: "json" })) as
+      | Record<string, string>
+      | null;
+    if (override && typeof override === "object" && Object.keys(override).length) map = override;
   } catch {
     /* fall through to the committed seed */
   }
-  return { ...SEED_MEMBER_MAP };
+  return canonicalizePidMap(map || SEED_MEMBER_MAP);
 }
 
 // Find-or-create a measure (there is no natural unique index on measures, so this

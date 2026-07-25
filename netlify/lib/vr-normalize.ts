@@ -9,9 +9,34 @@
 // re-exports the public members so existing importers are unaffected.
 
 import issueKeyData from "../../db/issue-keys.json" with { type: "json" };
+import pidAliasData from "../../db/vr-pid-aliases.json" with { type: "json" };
 
 export const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 export const ISSUE_KEYWORDS = (issueKeyData as { keywords?: Record<string, string[]> }).keywords || {};
+
+// ── Politician-id canonicalization ───────────────────────────────────────────
+// `politician_id` is free text across the vr_* tables — no politicians table, no FK
+// — so the same person can accumulate rows under two ids (a curated seed using one,
+// the live ingest another). Once a merge migration folds one into the other, the
+// retirement is recorded in db/vr-pid-aliases.json and applied here, on both the
+// write path (vr-ingest resolves bioguide → slug through this) and the read path
+// (voting-record.mts canonicalizes the incoming id). That way a stale Blobs
+// member-map override, an old bookmark, or a cached client can't re-open the split.
+export const PID_ALIASES: Record<string, string> =
+  (pidAliasData as { aliases?: Record<string, string> }).aliases || {};
+
+/** Resolve a politician id to its canonical form (identity when not retired). */
+export function canonicalPid<T extends string | null | undefined>(pid: T): T {
+  if (!pid) return pid;
+  return (PID_ALIASES[pid as string] || pid) as T;
+}
+
+/** Copy a bioguide → slug map with every retired slug replaced by its canonical id. */
+export function canonicalizePidMap(map: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [bioguide, slug] of Object.entries(map)) out[bioguide] = canonicalPid(slug);
+  return out;
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export type RawMemberVote = {

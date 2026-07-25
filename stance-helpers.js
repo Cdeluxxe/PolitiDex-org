@@ -53,9 +53,32 @@
       // existing roster profiles light up the new curated stance cards. (Officials
       // created fresh in Batches 5/7/8 use the SAME id in the roster and in
       // ISSUE_STANCE_DATA, so they need no alias — the id matches directly.)
-      emendenhall:'erin_mendenhall_slc', jwilson:'jenny_wilson_slco'
+      emendenhall:'erin_mendenhall_slc', jwilson:'jenny_wilson_slco',
+      // ── Retired ids folded into a canonical one ────────────────────────────
+      // These are not name variants of two records — they are ONE person who
+      // accumulated rows under two ids, since resolved by a merge migration. The
+      // canonical id owns the curated stance block; the retired id maps to it so a
+      // Firestore doc or saved user record still under the old id lights up. Keep
+      // in step with db/vr-pid-aliases.json (server-side write + read path) and
+      // PDX_PID_ALIASES below — scripts/test-identity-integrity.mjs enforces it.
+      susan_collins:'collins'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
+
+    // ── Retired → canonical politician id (voting-record side) ────────────────
+    // The mirror of db/vr-pid-aliases.json for the client. `politician_id` is free
+    // text in the vr_* tables, so one person could end up with rows under two ids;
+    // once a merge migration folds one away, every surface must ask for the
+    // canonical id or it gets an empty record. The Voting Record API canonicalizes
+    // incoming ids too, but the client caches by id — so it has to agree, or a
+    // record fetched as `collins` would never be found by a lookup for
+    // `susan_collins`. Only ids a shipped migration has actually merged belong here.
+    var PDX_PID_ALIASES = { susan_collins: 'collins' };
+    window.PDX_PID_ALIASES = PDX_PID_ALIASES;
+    // Resolve a politician id to the one the voting record is stored under.
+    window.PDXCanonicalPid = function (id) {
+      return (id && PDX_PID_ALIASES[id]) || id;
+    };
 
     // Slugify a name the same way the directory import builds its document ids.
     function _stanceSlug(s) {

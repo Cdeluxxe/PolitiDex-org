@@ -1,0 +1,9 @@
+{
+  "_comment": "Retired politician_id → canonical politician_id. `politician_id` is free text across the vr_* tables (there is no politicians table and no FK), so the same person can end up under two ids — a curated seed using one and the live ingest another. When a merge migration folds one id into another, record the retirement here: the ingest canonicalizes on write and the Voting Record API canonicalizes on read, so a stale Blobs member-map override, an old bookmark, or a saved client record can never re-open the split. Client-side stance lookups have their own bridge (STANCE_ALIASES in stance-helpers.js) — keep the two in step.",
+  "aliases": {
+    "susan_collins": "collins"
+  },
+  "notes": {
+    "susan_collins": "Susan Collins (R-ME, C001035). Merged by netlify/database/migrations/20260725050000_vr_merge_susan_collins_identity.sql. `collins` is canonical: it is the cmp-data.js roster id, carries the richer sourced stance block, and held 19 of her 22 roll-call votes."
+  }
+}

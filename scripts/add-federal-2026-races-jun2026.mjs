@@ -348,7 +348,7 @@ const PEOPLE = [
 
   // ---- Maine: Susan Collins (R, incumbent) vs Graham Platner (D) ----
   {
-    id: 'susan_collins', name: 'Susan Collins', party: 'Republican', state: 'Maine',
+    id: 'collins', name: 'Susan Collins', party: 'Republican', state: 'Maine',
     district: 'Maine — U.S. Senate', status: 'office', candidacyStatus: 'active',
     nextElection: '2026-11-03', icon: '🏛', score: 70,
     office: '🏛 U.S. Senator — Maine',

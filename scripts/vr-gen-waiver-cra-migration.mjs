@@ -139,14 +139,15 @@ for (const [slug, rec] of Object.entries(loadGlobal("cmp-data.js", "CMP_DATA") |
   })(loadGlobal("spotlights-data.js", "SPOTLIGHTS"));
 }
 
-// Documented identity overrides.
-//  · Susan Collins appears in the corpus under TWO ids: `collins` (17 Senate votes, and
-//    the id that carries her curated stance) and `susan_collins` (3 votes, what the
-//    member map returns). Seed under `collins` so her record stays in one place; the
-//    split itself is flagged in the wave report.
-//  · `kennedy` is Rep. Mike Kennedy (R-UT) in cmp-data and in the corpus, but
-//    spotlights-data.js also carries a stale `kennedy` record labelled "John Kennedy ·
-//    U.S. Senator · Louisiana". Sen. John Kennedy is `kennedy_john`; pin both.
+// Documented identity overrides. Both of the splits this block was written to work
+// around have since been fixed at the source (July 2026); the pins stay because the
+// generator should keep producing the same ids regardless of member-map state.
+//  · Susan Collins is canonically `collins`. She used to also accumulate rows under
+//    `susan_collins` (the portrait key the member map was generated from); those were
+//    merged into `collins` and the retirement is recorded in db/vr-pid-aliases.json.
+//  · `kennedy` is Rep. Mike Kennedy (R-UT); Sen. John Kennedy is `kennedy_john`.
+//    spotlights-data.js used to label the `kennedy` card as the Louisiana senator —
+//    the label is corrected, but pin both ids so a future edit can't re-cross them.
 const OVERRIDE = {
   senate: { "collins|ME": "collins", "kennedy|LA": "kennedy_john" },
   house: { "kennedy|UT": "kennedy" },

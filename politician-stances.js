@@ -1632,13 +1632,6 @@
       { topic:'Judicial Nominations', icon:'⚖️', pos:'support', issueKey:'justice_balance', issueStance:'support', text:'A central player in confirming federal judges during his time in Senate leadership.' },
       { topic:'Taxes', icon:'💰', pos:'support', issueKey:'lower_taxes', issueStance:'support', text:'Backed the 2017 Trump tax cuts.' },
     ],
-    susan_collins: [ // Susan Collins — 🏛 U.S. Senator — Maine
-      { topic:'Appropriations & Maine Priorities', icon:'🏛', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Chairs the Senate Appropriations Committee and directs federal funding to Maine priorities.' },
-      { topic:'Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Cast a decisive 2017 vote against repealing the Affordable Care Act.', evidence:'Voted against ACA repeal (2017).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Helped negotiate the 2021 bipartisan infrastructure law.', evidence:'Voted for the Infrastructure Investment and Jobs Act (2021).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
-      { topic:'Reproductive Rights', icon:'⚖️', pos:'mixed', issueKey:'repro_balance', issueStance:'support', text:'Has supported abortion-rights protections, at times breaking with many in her party.' },
-      { topic:'Bipartisan Dealmaking', icon:'⚖️', pos:'support', issueKey:'reform_balance', issueStance:'support', text:'Brands herself as a centrist dealmaker willing to work across the aisle.' },
-    ],
     graham_platner: [ // Graham Platner — U.S. Senate — 2026 Democratic Nominee (Maine)
       { topic:'Cost of Living', icon:'🛒', pos:'support', issueKey:'cost_living', issueStance:'support', text:'Centers his campaign on the high costs squeezing the middle class and on income inequality.' },
       { topic:'Universal Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Supports moving toward universal health care.' },
@@ -5262,6 +5255,15 @@
       { topic:'Bipartisan Dealmaking', icon:'🤝', pos:'mixed', issueKey:'gov_transparency', issueStance:'mixed', text:'A frequent swing vote who brokers cross-party deals on spending and nominations; supporters call it independence, critics call it unpredictability — either way her vote is often decisive.', source:{label:'collins.senate.gov', url:'https://www.collins.senate.gov/newsroom/press-releases'} },
       // ── State vs. Federal Power (July 2026, verified) ──
       { topic:'State AI Laws', icon:'🤖', pos:'support', issueKey:'states_federal_power', issueStance:'support', text:'Co-sponsored the bipartisan amendment that removed a proposed ten-year moratorium on state artificial-intelligence laws from the 2025 budget bill, keeping that authority with the states while Congress works out a federal framework.', evidence:'Amendment to the 2025 reconciliation bill, adopted 99–1 on July 1, 2025.', source:{label:'collins.senate.gov', url:'https://www.collins.senate.gov'} },
+      // ── Folded in from the retired `susan_collins` id (July 2026) ──
+      // Same senator, two ids: a curated seed used `collins` while the portrait key
+      // (and therefore the generated member map and the live ingest) used
+      // `susan_collins`. See db/vr-pid-aliases.json. Cards carried over verbatim;
+      // her duplicate 'Reproductive Rights' and 'Bipartisan Dealmaking' cards were
+      // dropped because the versions above cover the same issue keys with sources.
+      { topic:'Health Care', icon:'🏥', pos:'support', issueKey:'healthcare', issueStance:'support', text:'Cast a decisive 2017 vote against repealing the Affordable Care Act.', evidence:'Voted against ACA repeal (2017).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Infrastructure', icon:'🚧', pos:'support', issueKey:'infrastructure', issueStance:'support', text:'Helped negotiate the 2021 bipartisan infrastructure law.', evidence:'Voted for the Infrastructure Investment and Jobs Act (2021).', source:{label:'Congress.gov', url:'https://www.congress.gov'} },
+      { topic:'Appropriations & Maine Priorities', icon:'🏛', pos:'support', issueKey:'gov_services', issueStance:'support', text:'Chairs the Senate Appropriations Committee and directs federal funding to Maine priorities.' },
     ],
     comer: [ // James Comer — 🔍 House Oversight Chair (R-KY)
       { topic:'Cutting Waste (DOGE Oversight)', icon:'🧹', pos:'support', issueKey:'gov_waste', issueStance:'support', text:'As Oversight chair, Comer made rooting out improper payments and duplicative programs a centerpiece, partnering with the Department of Government Efficiency effort to target what he calls wasteful federal spending.', evidence:'Chairs the House committee with government-wide investigative jurisdiction.', source:{label:'House Oversight Committee', url:'https://oversight.house.gov/'} },
