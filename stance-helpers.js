@@ -61,7 +61,15 @@
       // Firestore doc or saved user record still under the old id lights up. Keep
       // in step with db/vr-pid-aliases.json (server-side write + read path) and
       // PDX_PID_ALIASES below — scripts/test-identity-integrity.mjs enforces it.
-      susan_collins:'collins', kennedy_rfk:'rfkjr'
+      //
+      // `cullimore_s19` is the district-ballot id that duplicated Sen. Kirk
+      // Cullimore's roster record (District 9 pre-2023 vs District 19 after
+      // redistricting — one person, one seat, two numbers). Canonical is
+      // `kcullimore`; the curated cards live under the name-slug key
+      // `kirk_cullimore`, so `kcullimore` is bridged explicitly below rather than
+      // leaning on the display-name slug fallback in _resolveStanceList().
+      susan_collins:'collins', kennedy_rfk:'rfkjr', cullimore_s19:'kcullimore',
+      kcullimore:'kirk_cullimore'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 
@@ -76,7 +84,12 @@
     // shipped migration, but a person with no vr_* rows at all (a cabinet officer
     // casts no roll calls) is merged in the data files instead, with no migration to
     // point at. `kennedy_rfk` is that case; see db/vr-pid-aliases.json for the note.
-    var PDX_PID_ALIASES = { susan_collins: 'collins', kennedy_rfk: 'rfkjr' };
+    // `cullimore_s19` is the same case for a state legislator: the vr_* tables hold
+    // congressional roll calls, so he has no rows under either id and the merge was
+    // done in the data files.
+    var PDX_PID_ALIASES = {
+      susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore'
+    };
     window.PDX_PID_ALIASES = PDX_PID_ALIASES;
     // Resolve a politician id to the one the voting record is stored under.
     window.PDXCanonicalPid = function (id) {

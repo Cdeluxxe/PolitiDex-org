@@ -837,6 +837,7 @@
   }
  },
  "kcullimore": {
+  "bio": "Kirk Cullimore is a Sandy attorney who serves in Senate Republican leadership and has become a key player on technology and consumer-protection law. He was a lead Senate sponsor of Utah's pioneering laws restricting minors' use of social media and requiring parental consent — measures that put the state at the front of a national movement and drew immediate legal challenges from the tech industry. He balances that high-profile tech work with bread-and-butter judiciary, landlord-tenant, and consumer-finance legislation drawn from his legal practice.",
   "stances": {
    "border": "Supports state cooperation with federal enforcement",
    "debt": "Supports balanced budgets; voted for income tax reductions",
@@ -996,19 +997,10 @@
    "audit": "N/A — state-level office"
   }
  },
- "cullimore_s19": {
-  "bio": "Kirk Cullimore is a Sandy attorney who serves in Senate Republican leadership and has become a key player on technology and consumer-protection law. He was a lead Senate sponsor of Utah's pioneering laws restricting minors' use of social media and requiring parental consent — measures that put the state at the front of a national movement and drew immediate legal challenges from the tech industry. He balances that high-profile tech work with bread-and-butter judiciary, landlord-tenant, and consumer-finance legislation drawn from his legal practice.",
-  "stances": {
-   "border": "PolitiDex is compiling this official’s voting record.",
-   "debt": "PolitiDex is compiling this official’s voting record.",
-   "gun": "PolitiDex is compiling this official’s voting record.",
-   "termLimits": "PolitiDex is compiling this official’s voting record.",
-   "campaign": "PolitiDex is compiling this official’s voting record.",
-   "dataCenters": "N/A",
-   "healthcare": "PolitiDex is compiling this official’s voting record.",
-   "audit": "N/A — state-level office"
-  }
- },
+ // `cullimore_s19` held a duplicate Kirk Cullimore detail record here: the same bio
+ // now carried by `kcullimore` above, plus eight "compiling this official's voting
+ // record" placeholders. The bio was folded into `kcullimore` (which already had the
+ // real stances) and the id retired in db/vr-pid-aliases.json.
  "mckell_s25": {
   "bio": "Mike McKell is a Spanish Fork trial attorney who moved from the Utah House to the Senate and has become a central figure in the state's effort to regulate social media's effect on young people. Alongside Senate colleagues he sponsored Utah's first-in-the-nation laws limiting minors' social-media use and requiring age verification and default privacy protections — legislation that has been copied, challenged, and revised. His legal background also makes him a leading voice on civil-justice, mental-health, and consumer-protection matters before the Legislature.",
   "stances": {

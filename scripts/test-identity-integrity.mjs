@@ -54,6 +54,11 @@ const RETIRED = new Set(Object.keys(ALIASES));
 
 // stance-helpers.js is a browser IIFE; run it in a DOM-less sandbox to read the
 // two client alias tables as values rather than regexing them out of the source.
+//
+// politician-stances.js is loaded into the SAME sandbox first, because that is how
+// the page loads them and because _resolveStanceList() reads ISSUE_STANCE_DATA as a
+// bare global — without it the resolver short-circuits to null and section 7 would
+// be testing nothing.
 function loadStanceHelpers() {
   const noopEl = () => ({ style: {}, textContent: "", setAttribute() {}, appendChild() {} });
   const ctx = {
@@ -66,7 +71,10 @@ function loadStanceHelpers() {
     setTimeout, clearTimeout, JSON, Math, Date,
   };
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
-  vm.runInContext(read("stance-helpers.js"), vm.createContext(ctx),
+  const sandbox = vm.createContext(ctx);
+  vm.runInContext(read("politician-stances.js"), sandbox,
+    { filename: "politician-stances.js" });
+  vm.runInContext(read("stance-helpers.js"), sandbox,
     { filename: "stance-helpers.js" });
   return ctx.window;
 }
@@ -81,7 +89,10 @@ function loadGlobal(file, ...names) {
   for (const n of names) if (ctx[n]) return ctx[n];
   return undefined;
 }
-const STANCES = loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
+// Read the stance table off the helpers sandbox, which now loads it: that way the
+// table this file inspects is the SAME object _resolveStanceList() resolves against,
+// so a resolved block can be identified by reference rather than by guesswork.
+const STANCES = win.ISSUE_STANCE_DATA || loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
 const SPOTLIGHTS = loadGlobal("spotlights-data.js", "SPOTLIGHTS", "PDX_SPOTLIGHTS");
 const ROSTER = loadGlobal("cmp-data.js", "CMP_DATA");
 const memberMap = JSON.parse(read("db/vr-member-map.json"));
@@ -285,6 +296,28 @@ ok(labelChecked > 0, "spotlights: at least one card was label-checked against th
 // clean-up; they are reported below so they don't stay invisible, but they do not
 // gate CI, because a guard that fails on unrelated debt gets switched off.
 const MERGE_TARGETS = new Set(Object.values(ALIASES));
+// Resolve the way the app does, not by assuming the block key equals the id.
+// ISSUE_STANCE_DATA is keyed by the roster id for most officials but by a
+// display-name slug for a large set of state legislators (`kirk_cullimore`,
+// `mike_mckell`, `daniel_mccay` …), with STANCE_ALIASES and the name-slug fallback
+// in _resolveStanceList() bridging the two. Keying off STANCES[pid] outright would
+// fail a correct merge onto one of those ids — and, worse, would push the fix toward
+// renaming the block instead of wiring the bridge.
+const resolveBlock = (pid) => (typeof win._resolveStanceList === "function"
+  ? win._resolveStanceList(pid, (ROSTER || {})[pid])
+  : (STANCES || {})[pid]);
+ok(Array.isArray(resolveBlock(Object.values(ALIASES)[0])),
+  "resolver: _resolveStanceList() must resolve a real block inside the sandbox — if it " +
+  "returns null for every id, section 7 is vacuously green");
+// The ISSUE_STANCE_DATA key each canonical id lands on, so the duplicate-topic hard
+// failure below follows the merge even when the block is keyed by name slug.
+const MERGED_BLOCK_KEYS = new Set();
+for (const pid of MERGE_TARGETS) {
+  const block = resolveBlock(pid);
+  if (!Array.isArray(block)) continue;
+  for (const [key, val] of Object.entries(STANCES || {}))
+    if (val === block) MERGED_BLOCK_KEYS.add(key);
+}
 const dupeTopics = [];
 for (const [pid, block] of Object.entries(STANCES || {})) {
   if (!Array.isArray(block)) continue;
@@ -292,15 +325,18 @@ for (const [pid, block] of Object.entries(STANCES || {})) {
   const dupes = [...new Set(topics.filter((t, i) => topics.indexOf(t) !== i))];
   if (!dupes.length) continue;
   dupeTopics.push({ pid, dupes });
-  if (MERGE_TARGETS.has(pid))
+  if (MERGE_TARGETS.has(pid) || MERGED_BLOCK_KEYS.has(pid))
     failures.push(
       `merged block: '${pid}' repeats topic ${JSON.stringify(dupes)} — findStance() only ever ` +
       `returns the first, so the merge silently dropped the later card`);
 }
-for (const pid of MERGE_TARGETS)
-  ok(Array.isArray((STANCES || {})[pid]) && STANCES[pid].length > 0,
-    `merged block: '${pid}' is the canonical id of a merge but has no stance block — the ` +
-    `retired id's curated content was dropped instead of folded in`);
+for (const pid of MERGE_TARGETS) {
+  const block = resolveBlock(pid);
+  ok(Array.isArray(block) && block.length > 0,
+    `merged block: '${pid}' is the canonical id of a merge but resolves no stance block — the ` +
+    `retired id's curated content was dropped instead of folded in (a name-slug block needs a ` +
+    `STANCE_ALIASES bridge or a roster record whose name slugifies to the block key)`);
+}
 
 // ── 8. Every retirement records how the merge was actually done ─────────────
 // The alias file is a read-path safety net, not the merge itself. A retirement whose
@@ -324,6 +360,43 @@ for (const retired of RETIRED)
     `provenance: db/vr-pid-aliases.json notes['${retired}'] must either name the migration ` +
     `that merged it, or state that it held no DB rows, so the merge can be audited`);
 
+// ── 9. No two live roster ids claim the same person ─────────────────────────
+// The generator of this whole class of bug, caught at the source instead of by an
+// ad-hoc sweep. Two cmp-data.js records with the same display name are two search
+// results, two scores, two offices and two profiles for one human being — which is
+// exactly how `susan_collins`/`collins`, `kennedy_rfk`/`rfkjr` and
+// `kcullimore`/`cullimore_s19` each shipped. Retired ids are excluded (they are
+// supposed to be gone from the roster, which section 3's siblings cover) and so is
+// an already-declared canonical/retired pair.
+//
+// Deliberately name-based rather than fuzzy: a surname-similarity check flags real
+// relatives who both hold office (Utah alone has several), and a guard that cries
+// wolf gets muted. Exact same name is the signal that is almost never legitimate —
+// and when it IS legitimate (two officials genuinely sharing a name), the fix is to
+// make the roster labels distinguish them, which is what the app needs anyway.
+const byName = new Map();
+for (const [id, rec] of Object.entries(ROSTER || {})) {
+  if (!rec || typeof rec.name !== "string" || RETIRED.has(id)) continue;
+  const key = rec.name.toLowerCase().replace(/[^a-z]+/g, " ").trim();
+  if (!key) continue;
+  if (!byName.has(key)) byName.set(key, []);
+  byName.get(key).push(id);
+}
+let nameChecked = 0;
+for (const [key, ids] of byName) {
+  if (ids.length < 2) continue;
+  nameChecked++;
+  const detail = ids.map((i) => `${i} ("${ROSTER[i].office} / ${ROSTER[i].state}")`).join(" vs ");
+  failures.push(
+    `duplicate identity: ${ids.length} live roster ids share the name "${key}" — ${detail}. ` +
+    `If it is one person, merge them and record the retirement in db/vr-pid-aliases.json; if ` +
+    `they are genuinely different people, make the roster names distinguish them (e.g. a ` +
+    `"Jr."/"Sr." suffix) so search, comparison and My Team cannot conflate them`);
+}
+ok(byName.size > 100,
+  "duplicate identity: the roster name index must actually be populated, or this check is " +
+  "vacuously green");
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);
@@ -334,7 +407,8 @@ if (failures.length) {
 console.log(`✓ identity integrity: all ${passed} assertions passed`);
 console.log(`  ${RETIRED.size} retired id(s) [${[...RETIRED].join(", ")}] · ` +
   `${Object.keys(STANCES || {}).length} stance blocks · ${cards.length} spotlight cards ` +
-  `(${idChecked} id-resolved, ${labelChecked} label-checked vs roster)`);
+  `(${idChecked} id-resolved, ${labelChecked} label-checked vs roster) · ` +
+  `${byName.size} distinct roster names, ${nameChecked} shared by 2+ live ids`);
 if (dupeTopics.length) {
   console.log(`  note: ${dupeTopics.length} stance block(s) repeat a topic string, so the later ` +
     `card is unreachable via findStance() — pre-existing, not merge-related:`);

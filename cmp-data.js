@@ -9604,7 +9604,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "kcullimore": {
   "name": "Kirk Cullimore",
   "office": "UT State Senator",
-  "state": "UT District 9 (Draper/Sandy)",
+  "state": "UT District 19 (Sandy / Draper / Cottonwood Heights)",
   "party": "R",
   "termStart": "2019-01",
   "score": 64,
@@ -9833,24 +9833,13 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Infrastructure"
   ]
  },
- "cullimore_s19": {
-  "name": "Kirk Cullimore",
-  "office": "Utah State Senator",
-  "state": "UT District 19 (Sandy / Cottonwood Heights)",
-  "party": "R",
-  "termStart": "2019-01",
-  "score": null,
-  "kept": 0,
-  "broken": 0,
-  "pending": 0,
-  "icon": "🏛",
-  "issues": [
-   "Sandy",
-   "Judiciary",
-   "Consumer Protection",
-   "Business"
-  ]
- },
+ // `cullimore_s19` used to hold a second Kirk Cullimore record here — the
+ // district-ballot id for Utah Senate District 19. One person under two ids: he was
+ // elected in 2018 to District 9 and redistricting renumbered the same Salt Lake
+ // County seat to District 19 in 2023, so the two records disagreed on the district
+ // only because one of them was stale. The two were folded into `kcullimore` (above,
+ // district corrected to 19, bio folded into cmp-data-detail.js) and `cullimore_s19`
+ // retired in db/vr-pid-aliases.json.
  "mckell_s25": {
   "name": "Mike McKell",
   "office": "Utah State Senator",

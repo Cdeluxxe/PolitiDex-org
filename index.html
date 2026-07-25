@@ -41156,12 +41156,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Keyed by politician id so the browse tree shows a clean, unique "District N
     // (County)" for every senator — replacing the old "Statewide" / "(Your County)"
     // buckets and the duplicate district numbers that the raw profile data carried.
+    //
+    // KNOWN INCONSISTENCY (pre-existing, not this map's fault): `rward` also claims
+    // d:19. Ray Ward sits in the Utah HOUSE from House District 19 — his roster
+    // record mislabels him as a senator, so he lands in a Senate-only map with a
+    // House district number. Cullimore's 19 is the correct Senate District 19
+    // (Salt Lake County; he moved from District 9 when redistricting renumbered the
+    // seat in 2023). The two labels still read distinctly — "District 19 (Salt Lake
+    // County)" vs "District 19 (Davis County)" — but `rward` needs its own fix.
     var _UTAH_SENATE_INFO = {
       ssandall:   { d: 1,  c: 'Box Elder County' },
       jstevenson: { d: 6,  c: 'Davis County' },
       lescamilla:    { d: 7,  c: 'Salt Lake County' },
       tweiler:    { d: 8,  c: 'Davis County' },
-      kcullimore: { d: 9,  c: 'Salt Lake County' },
+      kcullimore: { d: 19, c: 'Salt Lake County' },
       cbramble:   { d: 16, c: 'Utah County' },
       kgrover:    { d: 15, c: 'Utah County' },
       rward:      { d: 19, c: 'Davis County' },
@@ -47544,8 +47552,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           addLabel: 'Add House District 45 choice to My Team', candidates: ['eliason_h45'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 19', district: 'Utah Senate District 19', chamber: 'Utah State Senate',
-          color: '#a78bfa', incumbentPid: 'cullimore_s19', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 19 choice to My Team', candidates: ['cullimore_s19'],
+          color: '#a78bfa', incumbentPid: 'kcullimore', incumbentNote: 'Incumbent — your current state senator',
+          addLabel: 'Add Senate District 19 choice to My Team', candidates: ['kcullimore'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 4', district: 'Utah Congressional District 4', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'owens', incumbentNote: 'Incumbent — running for re-election in 2026',
@@ -47685,7 +47693,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var KR_STATE_SENATE_INCUMBENTS = {
       1:'ssandall', 2:'chris_wilson_s2', 3:'fillerup_s3', 5:'amillner', 6:'jstevenson',
       9:'jen_plumb_s9', 11:'lincoln_fillmore_s11', 12:'kwan_s12', 13:'blouin_s13', 16:'harper_s16',
-      17:'mccay_s11', 19:'cullimore_s19', 20:'ron_winterton_s20', 22:'brammer_s21',
+      17:'mccay_s11', 19:'kcullimore', 20:'ron_winterton_s20', 22:'brammer_s21',
       24:'kgrover', 25:'mckell_s25', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
     };
 
@@ -54226,6 +54234,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       eliason_h45: 'seliason',
       ivory_h39: 'kivory',
       lisonbee_h14: 'klisonbee',
+      // `cullimore_s19` is a RETIRED id (db/vr-pid-aliases.json) — it was the
+      // duplicate district-ballot record for Sen. Kirk Cullimore, merged into
+      // `kcullimore`. Kept here on purpose: a saved My-Team pick or bookmark stored
+      // under the old id still resolves to his curated Spotlight data.
       cullimore_s19: 'kcullimore',
       // June 2026 Wasatch Front expansion — map Power-Map short pids to the
       // canonical curated keys the new Spotlight/theme data is stored under.
