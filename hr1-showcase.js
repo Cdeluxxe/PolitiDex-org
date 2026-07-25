@@ -38,6 +38,54 @@
   }
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
 
+  // ── Composition caveat, borrowed from the Official Record panel ──────────────
+  // The Showcase's claim is "one roll call, N issues scored separately". The honest
+  // flip side of that claim is that for a member whose ONLY judged vote on one of
+  // those issues is this bill, their percentage on that issue rests entirely on a
+  // single multi-issue vote — which is exactly what the Official Record's
+  // composition indicator says beside such a number.
+  //
+  // The Showcase renders no percentages of its own, so there is nothing here to
+  // qualify with a meter on a figure. What it can do is explain the signal a reader
+  // will meet on the profiles, in the same words and the same markup: the copy comes
+  // from _recordComposition() (stance-helpers.js) and the markup from
+  // PDXConsistency.compositionMeterHtml, so the two surfaces cannot word it
+  // differently. Absent either helper this returns '' and the Showcase is unchanged.
+  function compositionCaveatHtml() {
+    try {
+      var C = window.PDXConsistency;
+      if (typeof window._recordComposition !== 'function' || !C || typeof C.compositionMeterHtml !== 'function') return '';
+      // The canonical thin case this page is about: one judged vote, and that vote is
+      // an omnibus covering every issue in the grid above.
+      var comp = window._recordComposition(
+        { consistent: 1, contradicts: 0, mixed: 0, noPosition: 0, total: 1 },
+        { omnibus: 1, single: 0, total: 1, maxCount: OMNIBUS.length });
+      if (!comp) return '';
+      return '<p class="hr1-omni-foot hr1-omni-caveat" style="margin-top:.55rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
+        C.compositionMeterHtml(comp, 'What this looks like on a member’s profile:') + ' ' +
+        'It cuts the other way too. If H.R.1 is the <strong style="color:#cbd9ec;">only</strong> vote a member has on one of these issues, ' +
+        'their percentage there rests on this single bill — so every percentage in PolitiDex carries this depth marker beside it, ' +
+        'and the overall figure counts an issue in proportion to how many judged votes are behind it.' +
+      '</p>';
+    } catch (e) { return ''; }
+  }
+
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Guarded the same way as the other surfaces: absent education layer → plain
+  // escaped text and no extra affordances, showcase otherwise identical.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  function LNUM(num) {
+    var L = window.PDXLearn;
+    return (L && L.numberHtml) ? L.numberHtml(num) : esc(num);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
+
   /* ── identity / photo resolution (all sources may load async) ───────────── */
   function alias(id) {
     try { if (window.ACCT_ALIAS && window.ACCT_ALIAS[id]) return window.ACCT_ALIAS[id]; } catch (e) {}
@@ -106,7 +154,7 @@
       body: 'Reduces federal Medicaid spending and adds new eligibility and work requirements.',
       keeps: 'A “yes” cuts against a protect-health-care promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
-    { ico: '🍎', title: 'Food aid (SNAP) tightened', dir: 'broken',
+    { ico: '🍎', title: 'Food aid (SNAP) tightened', dir: 'broken', keys: ['family_support'],
       body: 'Narrows SNAP eligibility and shifts more of the cost onto the states.',
       keeps: 'A “yes” cuts against a protect-food-assistance promise.',
       src: { label: 'CBO · cost estimate', url: 'https://www.cbo.gov/publication/61461' } },
@@ -302,10 +350,84 @@
       '</article>';
   }
 
+  /* ── live secondary examples: other multi-issue measures in the record ────── */
+  // H.R.1 is the clearest teaching case, but it should not read as the only one. This
+  // layer asks the Voting Record API for measures the ledger already marks as
+  // multi-issue (isOmnibus = two or more curated issue mappings) and lists a few as
+  // cross-links. It is strictly self-gating: one fetch, no retry loop, and the block
+  // renders nothing at all if the call fails, the endpoint is absent, or the only
+  // multi-issue measure in the data is H.R.1 itself. No verdicts are computed here.
+  var MORE = { state: 'idle', items: [] };
+  var HR1_NUM_RE = /^h\.?\s*r\.?\s*1$/i;
+
+  // Short label for an issue key. OMNI_ISSUE_LABEL covers the curated H.R.1 story;
+  // live measures can carry any key in the shipped vocabulary, so unknown keys are
+  // prettified rather than shown raw (never invented — it's the key, made readable).
+  function moreIssueLabel(k) {
+    if (OMNI_ISSUE_LABEL[k]) return OMNI_ISSUE_LABEL[k];
+    return String(k || '').replace(/_/g, ' ').replace(/^\w/, function (c) { return c.toUpperCase(); });
+  }
+
+  function loadMoreOmnibus() {
+    if (MORE.state !== 'idle') return;
+    MORE.state = 'loading';
+    var done = function (items) {
+      MORE.state = 'done';
+      MORE.items = items || [];
+      if (MORE.items.length) { try { mount(); } catch (e) {} }
+    };
+    try {
+      fetch('/api/voting-record/measures?pageSize=100&sort=recent', { headers: { accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          var items = (d && Array.isArray(d.items)) ? d.items : [];
+          done(items.filter(function (m) {
+            // Multi-issue, actually voted on, and not the showcase's own subject.
+            return m && m.isOmnibus && (m.voteCount > 0) &&
+              !(String(m.chamber || '') === 'house' && HR1_NUM_RE.test(String(m.number || '')));
+          }).slice(0, 4));
+        })
+        .catch(function () { done([]); });
+    } catch (e) { done([]); }
+  }
+
+  function moreOmnibusBlock() {
+    if (!MORE.items.length) return '';
+    var cards = MORE.items.map(function (m) {
+      var keys = Array.isArray(m.issueKeys) ? m.issueKeys : [];
+      var tags = keys.map(function (k) {
+        return '<span class="hr1-more-tag">#' + esc(moreIssueLabel(k)) + '</span>';
+      }).join('');
+      var counts = [];
+      if (m.rollcallCount) counts.push(m.rollcallCount + ' roll call' + (m.rollcallCount === 1 ? '' : 's'));
+      if (m.voteCount) counts.push(m.voteCount + ' recorded votes');
+      var src = (m.source && m.source.url)
+        ? '<a class="hr1-src" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 ' +
+          esc(m.source.label || 'Source') + '</a>' : '';
+      return '<div class="hr1-more-card">' +
+          '<div class="hr1-more-num">' + LNUM(m.number || '') +
+            '<span class="hr1-more-count">' + esc(keys.length + ' issues') + '</span></div>' +
+          '<div class="hr1-more-title">' + esc(m.shortTitle || m.title || '') + '</div>' +
+          (tags ? '<div class="hr1-more-tags">' + tags + '</div>' : '') +
+          (counts.length ? '<div class="hr1-more-meta">' + esc(counts.join(' · ')) + '</div>' : '') +
+          src +
+        '</div>';
+    }).join('');
+    return '<div class="hr1-block">' +
+        '<div class="hr1-block-h"><span class="hr1-kicker">🧩 Not a one-off</span>' +
+          '<h3>Other multi-issue measures in the record</h3>' +
+          '<p>H.R.1 is the clearest example, not the only one. These measures in the live voting record also carry two or more issues, so a member’s single vote on each is scored separately per issue — the same way.</p>' +
+        '</div>' +
+        '<div class="hr1-more-grid">' + cards + '</div>' +
+        '<p class="hr1-note">Straight from the voting-record ledger — each measure links to its official source. Open any member’s profile to see how their own vote landed on each issue.</p>' +
+      '</div>';
+  }
+
   /* ── mount ──────────────────────────────────────────────────────────────── */
   function mount() {
     var host = document.getElementById(HOST_ID);
     if (!host) return;
+    loadMoreOmnibus(); // one-shot; re-mounts itself only if it finds anything
 
     var receipts = collectReceipts();
     var contradictions = receipts.filter(function (r) { return r.contra; });
@@ -355,7 +477,16 @@
         '<div class="hr1-hero">' +
           '<div class="hr1-eyebrow">🏛️ The Showcase · H.R.1</div>' +
           '<h2 class="hr1-title">One Bill. One Vote.<br><em>Many Contradictions.</em></h2>' +
-          '<p class="hr1-lead">H.R.1 — the 2025 reconciliation and tax law, the “One Big Beautiful Bill” — bundled tax cuts, Medicaid cuts, food-aid changes, border money and trillions in deficit into a <strong>single yes-or-no vote</strong>. No headline can capture that. PolitiDex can: it scores <strong>every issue a bill touches separately</strong>, so one vote can keep a promise and break another — and you can see exactly whose.</p>' +
+          '<p class="hr1-lead">' + LT('hr', 'H.R.') + '1 — the 2025 ' + LT('reconciliation', 'reconciliation') +
+            ' and tax law, the “One Big Beautiful Bill” — bundled tax cuts, Medicaid cuts, food-aid changes, ' +
+            'border money and trillions in deficit into a <strong>single yes-or-no vote</strong>. ' +
+            'No headline can capture that. PolitiDex can: it scores <strong>every issue a bill touches separately</strong>, ' +
+            'so one vote can keep a promise and break another — and you can see exactly whose.</p>' +
+          // The showcase exists to teach this one mechanism, so it gets the
+          // step-by-step sheet right under the lead.
+          (LHOWTO('omnibus', 'How one vote becomes several verdicts')
+            ? '<div class="hr1-howto-row">' + LHOWTO('omnibus', 'How one vote becomes several verdicts') + '</div>'
+            : '') +
           '<div class="hr1-stats">' +
             statChip('218–214', 'Final House vote') +
             statChip('Roll Call 190', 'Jul 3, 2025') +
@@ -374,6 +505,7 @@
           '<p class="hr1-omni-foot" style="margin-top:.7rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
             'Each #tag above is a real issue in the Voting Record. In a member’s profile, their one Yea or Nay on H.R.1 becomes a <strong style="color:#cbd9ec;">separate say-vs-do verdict on every one of these issues</strong> — matching their stated stance on some, contradicting it on others.' +
           '</p>' +
+          compositionCaveatHtml() +
         '</div>' +
 
         // ── Contradiction engine diagram ──
@@ -396,10 +528,18 @@
                 '<span class="hr1-out-t">Said “I’ll protect Medicaid”</span>' +
                 '<span class="hr1-out-d">The same vote cut Medicaid funding.</span>' +
               '</div>' +
+              '<div class="hr1-out is-kept">' +
+                '<span class="hr1-out-v">✓ KEEPS</span>' +
+                '<span class="hr1-out-t">Said “I’ll secure the border”</span>' +
+                '<span class="hr1-out-d">The same vote funded enforcement.</span>' +
+              '</div>' +
             '</div>' +
           '</div>' +
-          '<p class="hr1-note">This is the engine behind every “Say vs. Do” receipt — applied to the biggest vote of the cycle.</p>' +
+          '<p class="hr1-note">One roll call, <strong style="color:#cbd9ec;">' + OMNIBUS.length + ' issues scored separately</strong> — three of them shown here. Nothing is counted twice: the vote is judged once per issue it actually touched. This is the engine behind every “Say vs. Do” receipt, applied to the biggest vote of the cycle.</p>' +
         '</div>' +
+
+        // ── Other multi-issue measures (live; renders only when data exists) ──
+        moreOmnibusBlock() +
 
         // ── Timeline ──
         '<div class="hr1-block">' +
@@ -416,6 +556,7 @@
         '<div class="hr1-foot">' +
           '<a class="hr1-foot-btn is-primary" href="#say-vs-do">🧾 See more Say-vs-Do receipts</a>' +
           '<a class="hr1-foot-btn" href="#my-politicians">⭐ Build your voting team</a>' +
+          '<button type="button" class="hr1-foot-btn" onclick="if(window.PDXConsistency&amp;&amp;window.PDXConsistency.openMethodology)window.PDXConsistency.openMethodology()">🧩 How multi-issue votes are scored</button>' +
         '</div>' +
       '</div>';
 

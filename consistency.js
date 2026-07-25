@@ -127,6 +127,19 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Guarded exactly as in voting-record.js: with the education layer absent, LT()
+  // is plain escaped text and LHOWTO() is nothing, so every surface below renders
+  // as it did before. No verdict, score or scope boundary depends on these.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
   function norm(id) { return String(id == null ? '' : id).trim().toLowerCase(); }
 
   // ── source readers (guarded; each returns a neutral empty when unavailable) ──
@@ -524,19 +537,47 @@
     return Object.keys(set);
   }
 
+  // ── how much record sits behind ONE issue's percentage ──────────────────────
+  // The count of JUDGED items — exactly the denominator scoreFromRecord divides by
+  // (and, for the formal-actions branch, the denominator that branch divides by), so
+  // a weight can never disagree with the percentage it is weighting. Returns null
+  // when nothing was judged; those issues carry score null and the roll-up already
+  // skips them.
+  function judgedCountOf(v) {
+    if (!v) return null;
+    if (v.record) {
+      var n = (v.record.consistent || 0) + (v.record.contradicts || 0);
+      if (n > 0) return n;
+    }
+    if (v.officialActions) {
+      var a = (v.officialActions.consistent || 0) + (v.officialActions.contradicts || 0);
+      if (a > 0) return a;
+    }
+    return null;
+  }
+
   // ── the overall roll-up: ONE verdict per politician, per scope ──────────────
   function scopedOverall(scope, pid, issueKeys) {
     var per = scope === 'official' ? officialIssue : scope === 'saydo' ? saydoIssue : issueVerdict;
     var keys = (issueKeys && issueKeys.length) ? issueKeys : issuesWithSignal(pid, scope);
     var counts = { consistent: 0, contradicts: 0, mixed: 0, flag: 0, limited: 0, none: 0, pending: 0 };
     var scoreSum = 0, scoreN = 0, contradictions = 0, anyPending = false;
+    var wSum = 0, wN = 0;      // judged-vote-weighted numerator / denominator
     var sdSup = 0, sdCon = 0; // Say-vs-Do pooled directional evidence (Phase 7)
     keys.forEach(function (k) {
       var v = per(pid, k);
       counts[bucketOf(v.token)]++;
       contradictions += v.contradictions || 0;
       if (v.pending) anyPending = true;
-      if (typeof v.score === 'number') { scoreSum += v.score; scoreN++; }
+      if (typeof v.score === 'number') {
+        scoreSum += v.score; scoreN++;
+        // An issue counts in proportion to the record behind it. Fall back to 1 (the
+        // old equal-weight behaviour) rather than dropping the issue, so a scored
+        // issue is never silently excluded from its own member's number.
+        var w = judgedCountOf(v);
+        if (!(typeof w === 'number' && w > 0)) w = 1;
+        wSum += v.score * w; wN += w;
+      }
       if (scope === 'saydo' && v.curated) { sdSup += v.curated.consistent || 0; sdCon += v.curated.contradicts || 0; }
     });
     var token;
@@ -556,9 +597,16 @@
     var sdScore = (scope === 'saydo') ? saydoScore(sdSup, sdCon, MIN_SAYDO_EVIDENCE + 1) : null;
     return {
       scope: scope, token: token, verdict: scopeVerdict(scope, token),
-      // Official/combined = the vote-based average; Say-vs-Do = its pooled public-record
-      // integrity % (still on its own scope — never blended into Official Record).
-      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      // Official/combined = the vote-based average, WEIGHTED BY JUDGED VOTES so an
+      // issue decided by one vote no longer counts as much as one decided by ten.
+      // (Say-vs-Do keeps its own pooled public-record integrity % — never blended.)
+      score: (scope === 'saydo') ? (sdScore ? sdScore.pct : null) : (wN ? Math.round(wSum / wN) : null),
+      // The old equal-weight mean, kept alongside so the change is disclosable rather
+      // than silent: the composition line shows both when they disagree, and the
+      // self-test asserts on the difference.
+      unweightedScore: (scope === 'saydo') ? null : (scoreN ? Math.round(scoreSum / scoreN) : null),
+      judgedTotal: (scope === 'saydo') ? null : wN,
+      weighting: (scope === 'saydo') ? null : 'judged-votes',
       saydoScore: sdScore,
       counts: counts, contradictions: contradictions,
       pending: anyPending, rated: scoreN, issues: keys.length
@@ -630,6 +678,12 @@
       '.pdxc-gate-method{display:inline-block;margin-top:0.7rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.03em;text-transform:uppercase;color:#9fb4d4;cursor:pointer;background:none;border:none;padding:0.1rem 0;text-decoration:underline;text-underline-offset:2px;}' +
       '.pdxc-gate-method:hover{color:#c6d4ec;}' +
       '.pdxc-gate-method:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      // Row holding the two footer links: our own methodology explainer and the
+      // education layer's "How to read this" pill. margin-top lives here now, so
+      // the two never collide when the pill is present (and the row collapses
+      // harmlessly to just the one button when it is not).
+      '.pdxc-gate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem 0.9rem;margin-top:0.7rem;}' +
+      '.pdxc-gate-actions .pdxc-gate-method{margin-top:0;}' +
       // By-issue Official Record view (the organized dive-in).
       '.pdxor{font-family:"Barlow Condensed",sans-serif;}' +
       '.pdxor-head{display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;}' +
@@ -654,7 +708,16 @@
       '.pdxor-act{display:flex;align-items:baseline;gap:0.4rem;font-size:0.7rem;color:#c6d4ec;padding:0.28rem 0 0.28rem 0.2rem;border-top:1px solid rgba(255,255,255,0.05);line-height:1.35;}' +
       '.pdxor-act-ico{flex-shrink:0;}' +
       '.pdxor-act a{color:#7fb4ff;text-decoration:none;white-space:nowrap;}' +
+      // Omnibus provenance: a quiet second line under an act, disclosing that the
+      // verdict above came from a bill that also did other things. Muted on purpose —
+      // it qualifies the receipt, it does not compete with it.
+      '.pdxor-omni{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.2rem;}' +
+      '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
+      '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
+      // Second, quieter line under an empty state: what an empty record actually
+      // means. Muted on purpose — it explains the absence, it isn't a finding.
+      '.pdxor-empty-why{font-size:0.68rem;color:#7d90ad;line-height:1.5;margin-top:0.35rem;}' +
       '.pdxor-awaiting{font-size:0.68rem;color:#7e93b3;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       '.pdxor-count{font-size:0.66rem;color:#9fb4d4;white-space:nowrap;}' +
       // Say-vs-Do feed shares the layout but takes a distinct gold/amber left accent
@@ -668,6 +731,25 @@
       '.pdxor-thin{font-family:"Barlow Condensed",sans-serif;font-size:0.5em;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#c6a15b;margin-left:0.12em;vertical-align:super;}' +
       '.pdxor-integrity{display:inline-flex;align-items:center;gap:0.3rem;cursor:help;}' +
       '.pdxor-integrity-cap{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.5rem;line-height:1;letter-spacing:0.04em;text-transform:uppercase;color:#c6a15b;text-align:left;}' +
+      // Composition / confidence indicator ON the Official Record % (annotation only —
+      // it never changes the number). Three-segment depth meter + an optional short
+      // word when the read is thin or mostly multi-issue.
+      '.pdxor-comp{display:inline-flex;align-items:center;gap:0.25rem;cursor:help;}' +
+      '.pdxor-comp-bar{display:inline-flex;align-items:flex-end;gap:1.5px;height:0.62rem;}' +
+      '.pdxor-comp-bar i{display:block;width:3px;border-radius:1px;background:rgba(159,180,212,0.22);}' +
+      '.pdxor-comp-bar i:nth-child(1){height:45%;}' +
+      '.pdxor-comp-bar i:nth-child(2){height:72%;}' +
+      '.pdxor-comp-bar i:nth-child(3){height:100%;}' +
+      '.pdxor-comp-bar i.pdxor-comp-on{background:#8fa9cf;}' +
+      '.pdxor-comp-single .pdxor-comp-bar i.pdxor-comp-on{background:#e0a458;}' +
+      '.pdxor-comp-limited .pdxor-comp-bar i.pdxor-comp-on{background:#d8c169;}' +
+      '.pdxor-comp-solid .pdxor-comp-bar i.pdxor-comp-on{background:#7fbf9a;}' +
+      '.pdxor-comp-note{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.2;color:#c6a15b;}' +
+      '.pdxor-comp-solid .pdxor-comp-note{color:#8fa2c0;}' +
+      // Composition, not just depth: mark the reads that are mainly multi-issue bills
+      // with the same 🧩 the omnibus surfaces already use.
+      '.pdxor-comp-omni .pdxor-comp-note::before{content:"\\01F9E9 ";}' +
+      '.pdxor-compsum{font-family:"Barlow Condensed",sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;line-height:1.25;color:#8fa2c0;max-width:9rem;text-align:left;cursor:help;}' +
       '.pdxor-method{font-size:0.66rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.4rem 0.55rem;border-radius:0.5rem;background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);}' +
       '.pdxor-method b{color:#c6d4ec;}' +
       // Divergence section (Phase 8): Official Record vs Say-vs-Do, side by side.
@@ -678,6 +760,13 @@
       '.pdxdv-sum{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0.4rem 0.6rem;margin-left:auto;padding:0.3rem 0.55rem;border-radius:0.6rem;background:rgba(10,15,30,0.45);border:1px solid rgba(255,255,255,0.1);}' +
       '.pdxdv-sum-na{font-size:0.68rem;color:#9fb4d4;line-height:1.3;max-width:17rem;}' +
       '.pdxdv-sum-nums,.pdxdv-nums{display:inline-flex;align-items:center;gap:0.35rem;}' +
+      // The Official Record panel's composition markup, reused verbatim in the tighter
+      // comparison rows (Phase 12). Only the footprint is constrained — the note stays
+      // visible text rather than becoming hover-only, it just can't crowd out the two
+      // numbers the row exists to compare.
+      '.pdxdv-nums .pdxor-comp{flex:0 0 auto;}' +
+      '.pdxdv-nums .pdxor-comp-note{max-width:5.4rem;white-space:normal;}' +
+      '.pdxdv-sum-nums .pdxor-compsum{max-width:11rem;}' +
       '.pdxdv-num{display:inline-flex;align-items:center;gap:0.22rem;white-space:nowrap;}' +
       '.pdxdv-num-ic{font-size:0.8rem;opacity:0.9;}' +
       '.pdxdv-num-pct{font-family:"Bebas Neue",sans-serif;font-size:1.25rem;line-height:0.9;}' +
@@ -723,6 +812,7 @@
       '.pdxgap-side-name{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.76rem;color:#e8eefc;}' +
       '.pdxgap-pct{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:0.9;}' +
       '.pdxgap-side-sub{font-size:0.66rem;color:#8fa2c0;line-height:1.35;margin:0.25rem 0 0.5rem;}' +
+      '.pdxgap-omni{color:#93a6c4;border-left:2px solid rgba(147,166,196,0.3);padding-left:0.45rem;}' +
       '.pdxgap-acts{display:flex;flex-direction:column;}' +
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
@@ -822,11 +912,18 @@
     opts = opts || {};
     return '<section class="pdxc-gate" data-pdxc-gate-pid="' + esc(pid) + '" aria-label="Promise Tracker">' +
         '<div class="pdxc-gate-h"><span aria-hidden="true">📋</span> Promise Tracker</div>' +
+        // Terms live in this line, not inside the two cards below: each card is a
+        // <button>, and a definition button nested inside it would be invalid
+        // markup and would swallow the card's own tap.
         '<div class="pdxc-gate-sub">Two separate ways to check whether their word holds up — kept apart on purpose. ' +
-          '<b>🏛️ Official Record</b> is the institutional score from their votes; <b>🧾 Say-vs-Do</b> is the broader public picture. ' +
+          '<b>🏛️ ' + LT('officialrecord', 'Official Record') + '</b> is the institutional score from their votes; ' +
+          '<b>🧾 ' + LT('saydo', 'Say-vs-Do') + '</b> is the broader public picture. ' +
           'Discrete promises are tracked on their own.</div>' +
         '<div class="pdxc-gate-cards">' + _gateCard('official', pid) + _gateCard('saydo', pid) + '</div>' +
-        '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
+        '<div class="pdxc-gate-actions">' +
+          '<button type="button" class="pdxc-gate-method" data-pdxc-method aria-label="How we score this — methodology">ⓘ How we score this</button>' +
+          LHOWTO('say-vs-do', 'How to read this') +
+        '</div>' +
       '</section>';
   }
 
@@ -924,11 +1021,137 @@
     var m = _OR_STANCE[s]; if (!m) return '';
     return '<span class="pdxor-stance" style="--c:' + m.c + '" title="Their stated position">' + m.ico + ' Says: ' + m.lb + '</span>';
   }
-  function _orActLine(verdict, title, meta, url, label) {
+  // Omnibus provenance chip for one (pid, issue): how much of this issue's verdict
+  // rests on votes that were also about other things. Reads the shared helper the
+  // Voting Record exposes (window._pdxRecordOmnibusStats), which in turn reads the
+  // engine — so no scoring happens here and nothing shows when the record is
+  // single-issue or not warm yet.
+  function _orOmniChip(pid, issueKey) {
+    try {
+      if (typeof window._pdxRecordOmnibusStats !== 'function') return '';
+      var st = window._pdxRecordOmnibusStats(pid, issueKey);
+      if (!st || !st.any) return '';
+      var tip = 'A multi-issue bill is judged separately on each issue it touched, so this ' +
+        'verdict and a different verdict on another issue can come from the same roll call.' +
+        (st.otherLabels.length ? ' Those bills also covered: ' + st.otherLabels.join(', ') + '.' : '');
+      // The count is provenance (keep it on the title for pointer users); the phrase
+      // "multi-issue bills" is the concept, so that part becomes a term — otherwise
+      // this chip would be hover-only and dead on touch.
+      return '<span class="pdxor-omnichip" title="' + esc(tip) + '">🧩 ' + st.omnibus + ' of ' + st.total +
+        ' from ' + LT('omnibus', 'multi-issue bills') + '</span>';
+    } catch (e) { return ''; }
+  }
+  // ── Composition / confidence indicator ON the Official Record % ─────────────
+  // The % is consistent ÷ (consistent + contradicts), so a member whose entire
+  // percentage on an issue rests on ONE omnibus vote used to render identically to a
+  // member with several single-issue votes. This annotates the number — it never
+  // changes it: a three-segment depth meter plus a short word when the read is thin
+  // or mostly multi-issue. Every figure comes from _recordComposition, which is pure
+  // counting over the same _issueRecordSummary counts and the same
+  // _pdxRecordOmnibusStats tallies the chip beside it already uses.
+  function _orCompMeterHtml(comp, lead) {
+    var seg = '';
+    for (var i = 1; i <= 3; i++) {
+      seg += '<i class="' + (i <= comp.strength ? 'pdxor-comp-on' : 'pdxor-comp-off') + '"></i>';
+    }
+    var sentence = lead + ' ' + comp.detail;
+    var note = comp.note
+      ? '<span class="pdxor-comp-note">' + esc(comp.note) + '</span>'
+      : '';
+    // aria-label carries the whole sentence so this is not a hover-only signal;
+    // the meter itself is decorative once the label says the same thing in words.
+    return '<span class="pdxor-comp pdxor-comp-' + comp.level + (comp.omnibusDriven ? ' pdxor-comp-omni' : '') + '"' +
+        ' title="' + esc(sentence) + '" aria-label="' + esc(sentence) + '">' +
+      '<span class="pdxor-comp-bar" aria-hidden="true">' + seg + '</span>' + note +
+    '</span>';
+  }
+  // Per-issue indicator, rendered immediately after that issue's %.
+  function _orCompositionHtml(pid, issueKey, ov) {
+    try {
+      if (typeof window._recordComposition !== 'function') return '';
+      if (!ov || typeof ov.score !== 'number' || !ov.record) return ''; // no % → nothing to qualify
+      var stats = (typeof window._pdxRecordOmnibusStats === 'function')
+        ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
+      var comp = window._recordComposition(ov.record, stats);
+      if (!comp) return '';
+      return _orCompMeterHtml(comp, 'How much record is behind this percentage:');
+    } catch (e) { return ''; }
+  }
+  // Whole-panel indicator for the overall %. The overall is the judged-vote-WEIGHTED
+  // mean of the per-issue percentages, so its confidence question is different from a
+  // single issue's: how many issues went into it, how many of those are themselves
+  // thin or omnibus-driven, and — when weighting actually moved the number — what the
+  // old equal-weight mean would have said.
+  function _orOverallCompositionHtml(pid, scored, overall) {
+    try {
+      if (typeof window._recordComposition !== 'function') return '';
+      var rated = 0, thin = 0, omni = 0, single = 0;
+      (scored || []).forEach(function (s) {
+        if (!s || !s.ov || typeof s.ov.score !== 'number' || !s.ov.record) return;
+        var stats = (typeof window._pdxRecordOmnibusStats === 'function')
+          ? window._pdxRecordOmnibusStats(pid, s.key) : null;
+        var c = window._recordComposition(s.ov.record, stats);
+        if (!c) return;
+        rated++;
+        if (c.thin) thin++;
+        if (c.level === 'single') single++;
+        if (c.omnibusDriven) omni++;
+      });
+      if (!rated) return '';
+      var judged = overall && typeof overall.judgedTotal === 'number' ? overall.judgedTotal : null;
+      var unw = overall && typeof overall.unweightedScore === 'number' ? overall.unweightedScore : null;
+      var moved = (unw !== null && overall && typeof overall.score === 'number' && unw !== overall.score);
+      var parts = ['weighted over ' + rated + ' issue' + (rated === 1 ? '' : 's')];
+      if (thin) parts.push(thin + ' on 1–2 votes');
+      if (omni) parts.push(omni + ' mostly multi-issue');
+      if (moved) parts.push('unweighted ' + unw + '%');
+      var tip = 'The Official Record % averages the per-issue percentages, weighted by how many ' +
+        'judged votes sit behind each one — so an issue decided by a single vote counts less ' +
+        'than one decided by ten. ' + rated + ' issue' + (rated === 1 ? '' : 's') +
+        ' had a percentage to average' +
+        (judged ? ', over ' + judged + ' judged vote' + (judged === 1 ? '' : 's') + ' in total' : '') +
+        (single ? '; ' + single + ' of those issues rest on a single judged vote' : '') +
+        (thin ? '; ' + thin + ' rest on two or fewer' : '') +
+        (omni ? '; ' + omni + ' are driven mainly by multi-issue bills' : '') + '. ' +
+        (moved
+          ? 'Counting every issue equally, regardless of depth, would give ' + unw + '% instead.'
+          : 'Weighting does not change the figure here.');
+      return '<span class="pdxor-compsum" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' +
+        esc(parts.join(' · ')) + '</span>';
+    } catch (e) { return ''; }
+  }
+  function _orActLine(verdict, title, meta, url, label, omniNote) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
+    // `omniNote` (optional) discloses that this line came from a multi-issue bill —
+    // calm and factual, so a contradiction from an omnibus never reads like a
+    // single-issue one. Never invented here: see _orOmniNote below.
+    var omni = omniNote ? '<span class="pdxor-omni">🧩 ' + omniNote + '</span>' : '';
     return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
-      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + '</span></div>';
+      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + omni + '</span></div>';
+  }
+  // "This came from an omnibus, not a single-issue vote" for ONE vr_* record, read
+  // through the SAME engine primitive the Voting Record cards use
+  // (_measureOmnibusContext in stance-helpers.js). Returns '' for a single-issue vote
+  // or when the engine isn't loaded, so ordinary rows are untouched. Escaped HTML;
+  // the only markup is the <b> around issue labels.
+  function _orOmniNote(item, issueKey) {
+    if (!item || typeof window._measureOmnibusContext !== 'function') return '';
+    var ctx;
+    try {
+      ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel });
+    } catch (e) { return ''; }
+    if (!ctx) return ''; // single-issue vote — nothing to disclose
+    var names = function (list) {
+      return list.map(function (c) { return '<b>' + esc(c.label) + '</b>'; }).join(', ');
+    };
+    var parts = [];
+    if (ctx.advances.length) parts.push('advanced ' + names(ctx.advances));
+    if (ctx.opposes.length) parts.push('cut against ' + names(ctx.opposes));
+    var tail = parts.length
+      ? ' The same vote also ' + parts.join(' and ') + '.'
+      : (ctx.otherLabels.length ? ' It also covered ' + names(ctx.others) + '.' : '');
+    return 'Multi-issue bill — one vote, ' + ctx.count + ' issues.' + tail;
   }
   // Evidence lines behind an Official Record issue verdict, as an array of row HTML
   // (migrated curated formal actions + the strongest vr_* votes each way). Shared by
@@ -941,15 +1164,18 @@
         lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
       });
     }
-    // vr_* roll-call summary: the strongest consistent / contradicting measure.
+    // vr_* roll-call summary: the strongest consistent / contradicting measure. Each
+    // line discloses when it came from a multi-issue bill, so the reader can see that
+    // the same roll call was also a verdict on other issues.
     if (ov && ov.record) {
+      var issueKey = ov.record.issueKey;
       var mk = function (item, verdict) {
         if (!item) return;
         var url = item.sourceUrl || (item.source && item.source.url) || '';
         var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
         var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
         var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
-        lines.push(_orActLine(verdict, title, pos, url, lbl));
+        lines.push(_orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));
       };
       mk(ov.record.topContradiction, 'contradicts');
       mk(ov.record.topConsistent, 'consistent');
@@ -988,12 +1214,19 @@
 
     var overall = scopedOverall('official', pid);
     var om = overall.verdict;
+    // Composition on the overall % — how many issues it averages and how many of them
+    // are thin or omnibus-driven. Annotation only; overall.score is untouched.
+    var overallComp = _orOverallCompositionHtml(pid, scored, overall);
     var overallHtml = (typeof overall.score === 'number')
-      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span><span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
+      ? '<span class="pdxor-pct" style="color:' + om.color + '">' + overall.score + '%</span>' + overallComp + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span>'
       : '<span class="pdxc-chip pdxc-' + om.cls + '">' + (overall.token === 'pending' ? '<span class="pdxc-spin"></span>' : om.ico + ' ') + esc(om.label) + '</span>';
 
     var head =
-      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🏛️</span> ' +
+          LT('officialrecord', 'Official Record') + '</span>' +
+        // Before .pdxor-overall, which carries margin-left:auto — so the pill sits
+        // beside the title and the score stays pinned right.
+        LHOWTO('voting-record', 'How to read this') +
         '<span class="pdxor-overall">' + overallHtml + '</span></div>' +
       '<div class="pdxor-q">“When they had to vote, did they stand by what they said?”</div>';
 
@@ -1003,7 +1236,13 @@
         : (awaiting > 0
             ? 'No qualifying votes on record yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'is' : 'are') + ' still awaiting a formal record.'
             : 'No stated positions or formal record on file yet.');
-      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + '</div>' + _orRawLink();
+      // "No record" is a coverage statement, not a finding. Say why it happens
+      // rather than leaving an empty panel to be read as an accusation.
+      var emptyWhy = anyPending ? '' :
+        '<div class="pdxor-empty-why">' + LT('norecord', 'Why a record can be empty') +
+          ': the issue may have been handled by ' + LT('voicevote', 'voice vote') +
+          ' (no per-member record exists), or we have not documented that area yet.</div>';
+      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + emptyWhy + '</div>' + _orRawLink();
     }
 
     // Group by broad issue category.
@@ -1027,11 +1266,14 @@
       var rows = grp.items.map(function (s) {
         var v = s.ov.verdict;
         var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
+        // Depth/composition of the record behind that %, immediately after it.
+        var comp = _orCompositionHtml(pid, s.key, s.ov);
         return '<div class="pdxor-issue">' +
             '<div class="pdxor-issue-top">' +
               '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
               _orStanceChip(pid, s.key) +
-              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct +
+              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct + comp +
+              _orOmniChip(pid, s.key) +
             '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
           '</div>';
       }).join('');
@@ -1155,16 +1397,23 @@
           '<span class="pdxor-integrity-cap">public-record<br>integrity</span></span>';
     }
     var head =
-      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+      '<div class="pdxor-head"><span class="pdxor-title"><span aria-hidden="true">🧾</span> ' +
+          LT('saydo', 'Say-vs-Do') + '</span>' +
+        LHOWTO('say-vs-do', 'How to read this') +
         '<span class="pdxor-overall">' + headPct + '<span class="pdxc-chip pdxc-' + om.cls + '">' + om.ico + ' ' + esc(om.label) + '</span></span></div>' +
       '<div class="pdxor-q">“Does the full public picture match what they claim?”</div>' +
-      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score.</div>';
+      '<div class="pdxor-method">Integrity&nbsp;% = public-record actions that back their words ÷ all checkable public-record evidence (backing&nbsp;+&nbsp;against). Shown only where there are ' + MIN_SAYDO_EVIDENCE + '+ checkable items — this is public-record integrity, <b>not</b> a formal voting score. ' +
+        LT('norecord', 'Why some of these show “—”') + '</div>';
 
     if (!scored.length) {
       var msg = awaiting > 0
         ? 'No public-record confirmations or contradictions surfaced yet — ' + awaiting + ' stated position' + (awaiting === 1 ? '' : 's') + ' with nothing on the public record so far.'
         : 'No public-record evidence on file yet.';
-      return head + '<div class="pdxor-empty">' + esc(msg) + '</div>' + _sdRawLink();
+      return head + '<div class="pdxor-empty">' + esc(msg) +
+        '<div class="pdxor-empty-why">' + LT('norecord', 'That is our coverage, not a verdict') +
+          ' — and it is deliberately separate from their ' + LT('officialrecord', 'Official Record') +
+          ', which is built from votes only.</div>' +
+        '</div>' + _sdRawLink();
     }
 
     var rank = { contradicts: 0, mixed: 1, flag: 2, consistent: 3 };
@@ -1244,17 +1493,22 @@
     var set = {};
     try { issuesWithSignal(pid, 'official').forEach(function (k) { set[k] = 1; }); } catch (e) {}
     try { issuesWithSignal(pid, 'saydo').forEach(function (k) { set[k] = 1; }); } catch (e) {}
-    var both = [], oneSide = 0;
+    var both = [], oneSide = 0, offScored = [];
     Object.keys(set).forEach(function (k) {
       var o = officialIssue(pid, k), s = saydoIssue(pid, k);
       var oNum = typeof o.score === 'number', sNum = typeof s.score === 'number';
+      // Every officially-scored issue, comparable or not, in the shape
+      // _orOverallCompositionHtml wants. Collected here because this loop already
+      // built each officialIssue() — the composition summary beside the overall %
+      // would otherwise recompute all of them.
+      if (oNum) offScored.push({ key: k, ov: o });
       if (oNum && sNum) both.push({ key: k, off: o, say: s, gap: o.score - s.score });
       else if (oNum || sNum) oneSide++;
     });
     both.sort(function (a, b) { return Math.abs(b.gap) - Math.abs(a.gap); });
     var counts = { aligned: 0, mixed: 0, diverges: 0 };
     both.forEach(function (p) { counts[divRel(p.gap).key]++; });
-    return { both: both, oneSide: oneSide, counts: counts };
+    return { both: both, oneSide: oneSide, counts: counts, offScored: offScored };
   }
 
   function _divNum(icon, pct, color, label) {
@@ -1274,6 +1528,11 @@
         '<div class="pdxdv-row-body">' +
           '<span class="pdxdv-nums">' +
             _divNum('🏛️', p.off.score, p.off.verdict.color, 'Official Record — vote-based') +
+            // Same composition treatment the Official Record panel puts on this issue's
+            // %, on the same helper, so a 100% built on one vote reads the same way in
+            // both places. Only the 🏛️ side gets it: Say-vs-Do has its own evidence
+            // depth and is not built from votes at all.
+            _orCompositionHtml(pid, p.key, p.off) +
             '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
             _divNum('🧾', p.say.score, p.say.verdict.color, 'Say-vs-Do — public-record integrity') +
           '</span>' +
@@ -1298,6 +1557,11 @@
     if (oNum && sNum) {
       sumInner = '<span class="pdxdv-sum-nums">' +
           _divNum('🏛️', oOv.score, oOv.verdict.color, 'Official Record overall — vote-based') +
+          // The whole-profile Official Record % is now a judged-vote-weighted mean, so
+          // the same disclosure that sits beside it on the Official Record panel belongs
+          // here too — otherwise the comparison invites a reader to weigh two numbers
+          // without knowing how much record is under either.
+          _orOverallCompositionHtml(pid, d.offScored, oOv) +
           '<span class="pdxdv-vs" aria-hidden="true">vs</span>' +
           _divNum('🧾', sOv.score, sOv.verdict.color, 'Say-vs-Do overall — public-record integrity') +
         '</span>' + _divRelChip(divRel(oOv.score - sOv.score));
@@ -1390,11 +1654,24 @@
     var offBody = offItems.length
       ? '<div class="pdxgap-acts">' + offItems.join('') + '</div>'
       : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
+    // Provenance for this side: when part of the formal record came from multi-issue
+    // bills, say so here rather than letting a gap read as a single-issue disagreement.
+    var offOmni = '';
+    var _os = (typeof window._pdxRecordOmnibusStats === 'function')
+      ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
+    if (_os && _os.any && typeof window._pdxOmnibusProvenanceNote === 'function') {
+      offOmni = '<div class="pdxgap-side-sub pdxgap-omni">🧩 ' +
+        esc(window._pdxOmnibusProvenanceNote(_os)) +
+        ' A multi-issue bill is scored separately on each issue it touched.</div>';
+    }
     var offSide =
       '<div class="pdxgap-side">' +
-        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> Official Record</span>' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🏛️</span> ' +
+          LT('officialrecord', 'Official Record') + '</span>' +
           _gapScorePill(oNum, off.score, null, off.verdict.color) + '</div>' +
-        '<div class="pdxgap-side-sub">Formal votes &amp; actions — the institutional record</div>' +
+        '<div class="pdxgap-side-sub">Formal ' + LT('rollcall', 'roll-call votes') +
+          ' &amp; actions — the institutional record</div>' +
+        offOmni +
         offBody +
       '</div>';
 
@@ -1407,7 +1684,8 @@
       : '<div class="pdxgap-side-empty">' + esc(sayEmpty) + '</div>';
     var saySide =
       '<div class="pdxgap-side">' +
-        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> Say-vs-Do</span>' +
+        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> ' +
+          LT('saydo', 'Say-vs-Do') + '</span>' +
           _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
         '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
         sayBody +
@@ -1415,7 +1693,9 @@
 
     return head +
       '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
-      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score.</div>';
+      '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
+        LT('contradiction', 'What counts as a contradiction') + ' · ' +
+        LHOWTO('say-vs-do', 'How to read this') + '</div>';
   }
 
   // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
@@ -1479,8 +1759,23 @@
       row('🏛️', 'Official Record %', 'What their <b>formal record</b> shows: the share of their votes and formal legislative or legal actions on an issue that <b>match the position they\'ve stated</b>. Built only from roll-call votes and formal actions — never from statements or news.') +
       row('🧾', 'Say-vs-Do integrity %', 'What the <b>broader public record</b> shows: the share of checkable public-record items on an issue — statements, interviews, news, controversies — that <b>back up what they say</b>. Built only from public evidence — never from votes.') +
       row('…', 'When the record is thin', 'We don\'t turn a couple of items into a confident number. Below a small minimum we show “—” or “not enough record yet” instead of a misleading 0% or 100%. A coverage line on each section shows how much of their record we actually have so far.') +
+      // The overall % is a real scoring decision a reader can check us on, so it is
+      // stated here and not only in the composition line's tooltip.
+      row('📊', 'How the overall % is built', 'The overall Official Record % averages the per-issue percentages, <b>weighted by how many judged votes sit behind each issue</b> — so an issue decided by a single vote counts less than one decided by ten. No issue is dropped for being thin: the depth behind every number is shown beside it, and the overall figure tells you what the plain unweighted average would have been whenever the two differ.') +
       row('⚖️', 'Why two separate scores', 'Votes and public statements answer different questions, so mixing them would hide more than it reveals. We show both, side by side, and let the <b>contrast</b> be the signal.') +
+      row('🧩', 'One vote, several issues', 'Omnibus and reconciliation bills bundle many unrelated policies into one measure, so a member gets a single yes-or-no on all of it. We score <b>each issue on its own</b>, which means one roll call can keep a promise on taxes and break one on healthcare at the same time. That isn\'t double-counting: it\'s one vote, judged once per issue it actually touched. Anywhere a verdict rests on a multi-issue bill, we label it 🧩 and list the other issues that vote covered.') +
       row('↔️', 'What Aligned / Mixed / Diverges mean', 'They compare the two scores, nothing more. <b>Aligned</b> — the two records tell the same story. <b>Mixed</b> — mostly, with some daylight. <b>Diverges</b> — they tell different stories. The label describes how much the two records <b>agree with each other</b> — not whether the person is good or bad. The numbers themselves carry that.') +
+      // The procedural down-weight is a real scoring decision a reader can check
+      // us on, so it belongs in the methodology sheet rather than only in a
+      // tooltip on the card that happens to carry the tag.
+      row('⚙️', 'Why some votes count less', 'A ' + LT('procedural', 'procedural vote') +
+        ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but party leadership drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
+        LT('recommit', 'motion to recommit') + ' or a ' + LT('table', 'motion to table') +
+        ' a Yea is a vote <b>against</b> the measure, and we read it that way — scoring it the other way round would produce exactly backwards verdicts.') +
+      row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
+        LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
+        ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
+        (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Open the full glossary →</button>' : '')) +
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';
   }
@@ -1507,6 +1802,12 @@
     scopedOverall: scopedOverall,
     issuesWithSignal: issuesWithSignal,
     isSaydoReceipt: isSaydoReceipt,
+    // Pure thin-data rule, exposed read-only. The education layer's glossary
+    // states these thresholds in words ("below two directional items…"), so
+    // scripts/test-glossary-honesty.mjs probes THIS function to derive the real
+    // thresholds and fails if the explainer copy has drifted from them. Exposing
+    // it keeps that check behavioural instead of scraping source for a literal.
+    saydoScore: saydoScore,
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.
     officialActions: {
@@ -1532,6 +1833,12 @@
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,
     methodologyHtml: methodologyHtml,
+    // Phase 12: the composition / confidence meter, exposed so surfaces outside this
+    // module render the SAME markup rather than copying the classes. Takes the object
+    // _recordComposition() returns plus the lead sentence for the label. Any surface
+    // that shows — or explains — a vote-built number should be able to say how much
+    // record is under it in one voice.
+    compositionMeterHtml: _orCompMeterHtml,
     warm: queueWarm,
     label: function (t) { return (VERDICTS[t] || VERDICTS.no_record).label; },
     icon: function (t) { return (VERDICTS[t] || VERDICTS.no_record).ico; },

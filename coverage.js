@@ -100,7 +100,14 @@
       '<span class="pdx-cov-ico" aria-hidden="true">🌱</span>' +
       '<div class="pdx-cov-body"><div class="pdx-cov-title">' +
         (c.key === 'none' ? 'Not yet documented' : 'Coverage still growing') + '</div>' +
-        '<p class="pdx-cov-text">' + msg + '</p></div>' +
+        '<p class="pdx-cov-text">' + msg +
+          // One optional tap into "why a record can look empty" — the coverage
+          // callout is exactly where a first-time visitor forms the wrong
+          // conclusion. Guarded, so no education layer → unchanged copy.
+          ((window.PDXLearn && window.PDXLearn.term)
+            ? ' ' + window.PDXLearn.term('norecord', 'Why records can look empty')
+            : '') +
+        '</p></div>' +
     '</div>';
   }
 

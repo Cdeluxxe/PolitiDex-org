@@ -9,9 +9,34 @@
 // re-exports the public members so existing importers are unaffected.
 
 import issueKeyData from "../../db/issue-keys.json" with { type: "json" };
+import pidAliasData from "../../db/vr-pid-aliases.json" with { type: "json" };
 
 export const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 export const ISSUE_KEYWORDS = (issueKeyData as { keywords?: Record<string, string[]> }).keywords || {};
+
+// ── Politician-id canonicalization ───────────────────────────────────────────
+// `politician_id` is free text across the vr_* tables — no politicians table, no FK
+// — so the same person can accumulate rows under two ids (a curated seed using one,
+// the live ingest another). Once a merge migration folds one into the other, the
+// retirement is recorded in db/vr-pid-aliases.json and applied here, on both the
+// write path (vr-ingest resolves bioguide → slug through this) and the read path
+// (voting-record.mts canonicalizes the incoming id). That way a stale Blobs
+// member-map override, an old bookmark, or a cached client can't re-open the split.
+export const PID_ALIASES: Record<string, string> =
+  (pidAliasData as { aliases?: Record<string, string> }).aliases || {};
+
+/** Resolve a politician id to its canonical form (identity when not retired). */
+export function canonicalPid<T extends string | null | undefined>(pid: T): T {
+  if (!pid) return pid;
+  return (PID_ALIASES[pid as string] || pid) as T;
+}
+
+/** Copy a bioguide → slug map with every retired slug replaced by its canonical id. */
+export function canonicalizePidMap(map: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [bioguide, slug] of Object.entries(map)) out[bioguide] = canonicalPid(slug);
+  return out;
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export type RawMemberVote = {
@@ -79,13 +104,23 @@ export function normalizeCongressVote(v: any, chamberHint?: string): RawVote | n
 
   const mm = v.legislation || v.bill || v.measure || {};
   const legisType = mm.type || v.legislationType || "";
-  const measureType = String(legisType || "bill").toLowerCase();
+  // An AMENDMENT vote's subject is the amendment, not its parent bill. The live feed
+  // reports both (legislationType/Number = "HR"/"3838", amendmentType/Number =
+  // "HAMDT"/"85"), so when an amendment number is present it wins: the amendment gets
+  // its own measure row and can carry its own issue mapping, instead of inheriting the
+  // parent bill's. Without this every NDAA amendment collapses onto the NDAA itself.
+  const amdtNumber = v.amendmentNumber ?? mm.amendmentNumber ?? null;
+  const amdtType = v.amendmentType || mm.amendmentType || "";
+  const isAmendment = amdtNumber != null && String(amdtNumber) !== "";
   // The live list item splits the citation into legislationType ("HR") + legislation
   // Number ("3424"); combine them so canonicalMeasureNumber yields "H.R. 3424" and the
   // measure matches the curated seed instead of creating a bare-number duplicate.
-  const rawNumber = mm.number != null
-    ? `${mm.type || ""}${mm.number}`
-    : (v.legislationNumber != null ? `${v.legislationType || ""}${v.legislationNumber}` : null);
+  const rawNumber = isAmendment
+    ? `${amdtType}${amdtNumber}`
+    : (mm.number != null
+      ? `${mm.type || ""}${mm.number}`
+      : (v.legislationNumber != null ? `${v.legislationType || ""}${v.legislationNumber}` : null));
+  const measureType = isAmendment ? "amendment" : measureTypeFor(legisType);
   return {
     chamber,
     congress,
@@ -93,22 +128,32 @@ export function normalizeCongressVote(v: any, chamberHint?: string): RawVote | n
     rollNumber,
     voteDate: new Date(voteDate).toISOString(),
     question: v.voteQuestion || v.question || null,
-    actionType: mapActionType(v.voteType || v.question || ""),
+    // Classify from the QUESTION ("On Motion to Recommit"), not voteType — voteType is
+    // the ballot mechanism ("Yea-and-Nay" / "Recorded Vote") and matches no keyword, so
+    // reading it made EVERY House roll call fall through to "passage".
+    actionType: mapActionType(v.voteQuestion || v.question || v.voteType || ""),
     result: v.result || v.voteResult || null,
     requiredMajority: v.requiredMajority || "simple",
     totals: normalizeTotals(v.voteTotals || v.totals),
     sourceUrl,
     sourceLabel: chamber === "house" ? "U.S. House Clerk" : "U.S. Senate",
     measure: {
-      measureType: ["bill", "resolution", "amendment", "nomination"].includes(measureType) ? measureType : "bill",
+      measureType,
       number: canonicalMeasureNumber(rawNumber),
-      title: mm.title || v.legislationTitle || v.voteQuestion || `Roll call ${rollNumber}`,
+      // The vote endpoints carry NO measure title. Fall back to the legal citation
+      // ("H.R. 4758") rather than the vote question ("On Passage") or a bare "Roll call
+      // 78" — the citation is a true, stable label for the measure, while the other two
+      // describe the roll call and read as nonsense in a measure list. upsertMeasure
+      // treats these fallbacks as provisional and lets a real title replace them.
+      title: mm.title || v.legislationTitle || canonicalMeasureNumber(rawNumber) ||
+        v.voteQuestion || `Roll call ${rollNumber}`,
       congress,
       // Originating chamber (from the bill-type prefix), NOT the voting chamber, so a
       // bill voted in both chambers resolves to ONE measure row. H.R.* → house, S.* →
       // senate; falls back to the voting chamber when the prefix is unknown.
-      chamber: originatingChamber(legisType, chamber),
-      sourceUrl: mm.url || v.legislationUrl || `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
+      chamber: originatingChamber(isAmendment ? amdtType || legisType : legisType, chamber),
+      sourceUrl: canonicalCongressGovUrl(mm.url || v.legislationUrl) ||
+        `https://www.congress.gov/roll-call-vote/${congress}/${chamber}/${rollNumber}`,
       sourceLabel: "Congress.gov",
       externalIds: mm.congressGovId ? { congressGovId: String(mm.congressGovId) } : {},
     },
@@ -125,14 +170,49 @@ export function normalizePosition(p: any): string {
   return "";
 }
 
+// Congress.gov reports a bill-type CODE ("HR", "HRES", "HJRES", "HCONRES"), which is a
+// number prefix, not a measure type. Lower-casing it produced "hconres", which is not
+// in the allowed set, so every resolution silently fell back to "bill" — creating a
+// second, bill-typed row for a measure the curated seed had already stored as a
+// "resolution". Map the code to the real type instead.
+export function measureTypeFor(legisType: string): string {
+  const s = String(legisType || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (!s) return "bill";
+  if (s.endsWith("amdt") || s === "hamdt" || s === "samdt") return "amendment";
+  // HRES / SRES (simple), HJRES / SJRES (joint), HCONRES / SCONRES (concurrent).
+  if (s.endsWith("res")) return "resolution";
+  if (s === "hr" || s === "s") return "bill";
+  if (s === "pn" || s === "nomination") return "nomination";
+  return ["bill", "resolution", "amendment", "nomination"].includes(s) ? s : "bill";
+}
+
+// Classify a roll call from its QUESTION text. Order matters, because House vote
+// questions stack keywords: "On Motion to Concur in the Senate Amendment" is a
+// concurrence (passage) vote, not an amendment vote, and "On Motion to Suspend the
+// Rules and Pass" is a passage vote, not a procedural motion. The most specific
+// phrasings therefore have to be tested first.
+//
+// This drives `isProcedural` downstream, which discounts a record's weight in the
+// stance-vs-record verdict — so mislabeling a motion to recommit as "passage" reads a
+// yea-to-kill-the-bill as a yea-for-the-bill at FULL weight, inverting the signal.
 export function mapActionType(q: string): string {
   const s = String(q || "").toLowerCase();
-  if (s.indexOf("amendment") !== -1) return "amendment";
-  if (s.indexOf("cloture") !== -1) return "cloture";
-  if (s.indexOf("passage") !== -1 || s.indexOf("concur") !== -1) return "passage";
-  if (s.indexOf("nomination") !== -1) return "nomination";
   if (s.indexOf("veto") !== -1) return "veto_override";
-  if (s.indexOf("motion") !== -1 || s.indexOf("recommit") !== -1 || s.indexOf("quorum") !== -1) return "motion";
+  if (s.indexOf("cloture") !== -1) return "cloture";
+  if (s.indexOf("nomination") !== -1 || s.indexOf("confirmation") !== -1) return "nomination";
+  // Concurrence and suspension-calendar votes ARE passage votes.
+  if (s.indexOf("concur") !== -1) return "passage";
+  if (s.indexOf("suspend the rules") !== -1) return "passage";
+  if (s.indexOf("passage") !== -1 || s.indexOf("on passing") !== -1) return "passage";
+  // Procedural: a yea here is about floor process, not the policy.
+  if (s.indexOf("recommit") !== -1) return "motion";
+  if (s.indexOf("previous question") !== -1) return "procedural";
+  if (s.indexOf("speaker") !== -1) return "procedural";
+  if (s.indexOf("journal") !== -1 || s.indexOf("quorum") !== -1 || s.indexOf("adjourn") !== -1) return "procedural";
+  if (s.indexOf("amendment") !== -1) return "amendment";
+  if (s.indexOf("motion") !== -1) return "motion";
+  // "On Agreeing to the Resolution" — adopting a resolution is its passage vote.
+  if (s.indexOf("agreeing to the resolution") !== -1) return "passage";
   return "passage";
 }
 
@@ -158,6 +238,31 @@ const NUMBER_PREFIX: Record<string, string> = {
   hconres: "H.Con.Res.", sconres: "S.Con.Res.",
   hamdt: "H.Amdt.", samdt: "S.Amdt.", suamdt: "S.Amdt.",
 };
+
+// Congress.gov publishes bill/amendment pages under the ORDINAL congress segment
+// ("/bill/119th-congress/house-bill/8800"), but the vote API's own `legislationUrl`
+// field hands back the bare-number form ("/bill/119/house-bill/8800"). Consuming that
+// verbatim produced non-canonical source_url values that don't match the curated seeds
+// or any already-stored row, so canonicalize on the way in. Anything that isn't a
+// congress.gov bill/amendment path is returned untouched.
+const congressOrdinal = (n: number): string => {
+  const r100 = n % 100, r10 = n % 10;
+  const suffix = r100 >= 11 && r100 <= 13 ? "th"
+    : r10 === 1 ? "st" : r10 === 2 ? "nd" : r10 === 3 ? "rd" : "th";
+  return `${n}${suffix}-congress`;
+};
+
+export function canonicalCongressGovUrl(input: string | null | undefined): string | null {
+  if (input == null) return null;
+  const s = String(input);
+  if (!s) return null;
+  // Only rewrite the bare-number congress segment; an already-ordinal URL has a
+  // non-digit suffix and fails the \d+ match, so this is idempotent.
+  return s.replace(
+    /(\/(?:bill|amendment)\/)(\d+)(\/)/,
+    (_m, before, num, after) => `${before}${congressOrdinal(Number(num))}${after}`
+  );
+}
 
 export function canonicalMeasureNumber(input: string | null | undefined): string | null {
   if (input == null) return null;

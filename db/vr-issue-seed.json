@@ -300,6 +300,363 @@
           "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
         }
       ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 2296",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Authorizes FY2026 appropriations for Department of Defense military activities, military construction, and Department of Energy defense activities (the NDAA); a yea funds and authorizes the armed forces."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.Amdt. 3428",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/3428",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Amendment (to H.R. 3944) to limit disclosures regarding earmarks; a yea reduces disclosure, cutting against transparency and anti-corruption."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4758",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4758",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Homeowner Energy Freedom Act repeals the DOE high-efficiency electric home rebate program, state home-energy contractor training grants and building energy code adoption assistance (IRA/P.L. 117-169); a yea rolls back federal climate/electrification programs."
+        },
+        {
+          "issueKey": "cut_spending",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill also rescinds unobligated balances for the rebate and building-energy-code programs, so a yea cancels appropriated federal spending."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6329",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6329",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Information Quality Assurance Act requires agencies to publish the critical factual material relied on in rulemaking and guidance, and to use the best reasonably available evidence; a yea expands disclosure of the government's factual basis."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 85",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/85",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 97",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
+      "issues": [
+        {
+          "issueKey": "lands_preserve",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 7008",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008",
+      "issues": [
+        {
+          "issueKey": "stock_trading_ban",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Stop Insider Trading Act amends chapter 131 of title 5 to bar Members of Congress, their spouses, and dependents from holding or trading covered individual stocks; a yea is a direct vote for the congressional stock-trading ban.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
+        },
+        {
+          "issueKey": "gov_transparency",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Secondary: the bill's enforcement machinery is disclosure-based — advance public notice of covered transactions and published divestiture certifications — so a yea also expands financial-disclosure transparency. Weighted below the primary because the bill is not a general transparency measure.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 8800",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800",
+      "issues": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "FY2027 National Defense Authorization Act — authorizes DoD military activities, military construction, DOE defense activities, and personnel strengths; a yea funds and authorizes the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1181",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181",
+      "issues": [
+        {
+          "issueKey": "gun_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Protecting Privacy in Purchases Act bars payment-card networks from requiring or assigning a merchant category code that singles out firearms retailers; a yea blocks a gun-purchase tracking mechanism that gun-rights groups oppose.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 9237",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237",
+      "issues": [
+        {
+          "issueKey": "veterans",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Take Care of America's Veterans Act amends titles 10 and 38 to improve veterans' benefits and VA administration; a yea expands veterans' benefits.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6644",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644",
+      "issues": [
+        {
+          "issueKey": "housing_build",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "21st Century ROAD to Housing Act is a housing-supply package — it targets the regulatory and financing barriers to new residential construction; a yea is a vote to build more housing.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
+        },
+        {
+          "issueKey": "housing",
+          "weight": 80,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Secondary: the same package also carries affordability and federal housing-assistance provisions, so a yea advances housing affordability generally, not only new supply.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Con.Res. 89",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Jayapal War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities with Iran; a yea ends US participation in an undeclared conflict.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89"
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Con.Res. 108",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Tlaib War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon; a yea ends US participation in an undeclared conflict.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 254",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Boebert amendment to H.R. 8800 (FY2027 NDAA) would codify Executive Order 14183, requiring all personnel to serve in accordance with their biological sex and thereby banning transgender service members; a yea removes an existing protection for transgender people.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 255",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits gender-related medical care under TRICARE and bars TRICARE from covering gender-related procedures and treatments; a yea withdraws transgender health coverage.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 256",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits male participation in female sports at Department of Defense Education Activity schools — a transgender sports-participation ban for military-dependent students; a yea restricts transgender participation.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 257",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257",
+      "issues": [
+        {
+          "issueKey": "school_choice",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "McDowell amendment to H.R. 8800 (FY2027 NDAA) would authorize the Secretary of Defense to establish a school choice pilot program for members of the Armed Forces; a yea creates a publicly funded school-choice program.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 253",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253",
+      "issues": [
+        {
+          "issueKey": "gun_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Crank amendment to H.R. 8800 (FY2027 NDAA) establishes a presumption of approval for DoD servicemembers and civilian employees seeking their commander's authorization to carry personal firearms on military installations; a yea expands lawful carry.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 234",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Fine amendment to H.R. 8595 (FY2027 national security and State appropriations) would strike the $139,575,000 appropriation for the Global Environment Facility, the main US multilateral climate- and environment-finance channel; a yea defunds international climate finance. Weighted 75 because it is a single line item rather than a change in domestic climate policy.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234"
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 258",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258",
+      "issues": [
+        {
+          "issueKey": "religious_liberty",
+          "weight": 85,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Self amendment to H.R. 8800 (FY2027 NDAA) codifies protections and responsibilities for military chaplains and makes violations of those protections punishable under the Uniform Code of Military Justice; a yea strengthens statutory religious-exercise protection in the services.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258"
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

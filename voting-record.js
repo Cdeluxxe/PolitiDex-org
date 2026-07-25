@@ -49,11 +49,32 @@
   // Safe attribute value (used inside single-quoted onclick handlers etc.).
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
 
+  // ── In-context education (window.PDXLearn, pdx-learn.js) ────────────────────
+  // Every hook is guarded so this file behaves exactly as it did before if the
+  // education layer is absent or fails to load: a term falls back to plain
+  // escaped text, and the "How to read this" affordances render as nothing.
+  function LT(key, text) {
+    var L = window.PDXLearn;
+    return (L && L.term) ? L.term(key, text) : esc(text);
+  }
+  // Measure numbers are the single best teaching spot in this file: they appear
+  // on every card, and the type prefix ("H.R.", "S.", "H.Res.") is exactly the
+  // thing a first-time visitor cannot decode. Only the prefix becomes a term.
+  function LNUM(num) {
+    var L = window.PDXLearn;
+    return (L && L.numberHtml) ? L.numberHtml(num) : esc(num);
+  }
+  function LHOWTO(id, label) {
+    var L = window.PDXLearn;
+    return (L && L.howto) ? L.howto(id, label) : '';
+  }
+
   // ── Styles (injected once) ──────────────────────────────────────────────────
   function injectStyles() {
     if (document.getElementById('pdx-vr-css')) return;
     var css = [
       '#pdx-voting-record .vr-sub{color:#9fb4d4;font-size:.82rem;line-height:1.5;margin:.15rem 0 .9rem;}',
+      '#pdx-voting-record .vr-howto-row{margin:-.55rem 0 .85rem;}',
       /* summary strip */
       '.vr-summary{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem;}',
       '.vr-stat{flex:1 1 5.2rem;min-width:5.2rem;background:rgba(10,15,30,.5);border:1px solid rgba(255,255,255,.07);border-radius:.7rem;padding:.55rem .5rem;text-align:center;}',
@@ -88,6 +109,7 @@
       '.vr-group-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap;}',
       '.vr-group-title{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.98rem;letter-spacing:.02em;color:#eef4ff;}',
       '.vr-group-n{font-size:.68rem;color:#7596c0;background:rgba(255,255,255,.06);border-radius:999px;padding:.06rem .45rem;}',
+      '.vr-group-omni{font-size:.68rem;color:#c4b5fd;background:rgba(124,58,237,.14);border:1px solid rgba(124,58,237,.3);border-radius:999px;padding:.06rem .45rem;}',
       '.vr-card{background:rgba(10,15,30,.5);border:1px solid rgba(255,255,255,.07);border-radius:.75rem;padding:.65rem .75rem;margin-bottom:.5rem;}',
       '.vr-card-top{display:flex;align-items:center;gap:.5rem;justify-content:space-between;margin-bottom:.3rem;flex-wrap:wrap;}',
       '.vr-num{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.04em;color:#93c5fd;}',
@@ -111,15 +133,41 @@
       '.vr-src:hover{text-decoration:underline;}',
       '.vr-stance-note{font-size:.74rem;color:#9fb4d4;margin-top:.35rem;line-height:1.45;}',
       '.vr-stance-note b{color:#cbd9ec;}',
+      /* always-visible multi-issue summary beside the verdict badge (no hover needed) */
+      '.vr-verdict-stack{display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;text-align:right;flex-shrink:0;max-width:62%;}',
+      '.vr-verdict-scope{font-size:.66rem;color:#8ea4c6;line-height:1.35;}',
+      '.vr-verdict-scope-q{color:#6b86b0;}',
+      '.vr-spread{display:inline-flex;align-items:center;gap:.25rem;font-size:.66rem;font-weight:700;letter-spacing:.02em;' +
+        'border-radius:999px;padding:.1rem .45rem;line-height:1.4;white-space:normal;}',
+      '.vr-spread-mixed{background:rgba(251,146,60,.15);color:#fdba74;border:1px solid rgba(251,146,60,.34);}',
+      '.vr-spread-match{background:rgba(74,222,128,.14);color:#6ee7a0;border:1px solid rgba(74,222,128,.32);}',
+      '.vr-spread-against{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.36);}',
+      '.vr-spread-neutral{background:rgba(159,180,212,.12);color:#9fb4d4;border:1px solid rgba(159,180,212,.28);}',
       /* omnibus component breakdown — one vote, many per-issue verdicts */
       '.vr-omni{margin-top:.5rem;border-top:1px dashed rgba(255,255,255,.09);padding-top:.45rem;}',
       '.vr-omni-lead{font-family:"Barlow Condensed",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8ea4c6;margin-bottom:.35rem;}',
+      /* the plain-language split: "This vote touched: taxes · healthcare · border" */
+      '.vr-omni-touch{font-size:.78rem;color:#cbd9ec;line-height:1.5;margin:0 0 .4rem;}',
+      '.vr-omni-touch b{color:#e6eefc;font-weight:700;}',
+      '.vr-omni-sep{color:#5f7aa8;padding:0 .1rem;}',
+      '.vr-omni-rows{border-top:1px solid rgba(255,255,255,.06);padding-top:.3rem;}',
+      '.vr-omni-cap{font-size:.66rem;color:#7596c0;letter-spacing:.03em;margin-bottom:.15rem;}',
       '.vr-omni-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.2rem 0;font-size:.75rem;color:#cbd9ec;line-height:1.4;}',
       '.vr-omni-issue{font-weight:600;color:#e6eefc;}',
       '.vr-omni-eff{font-size:.64rem;letter-spacing:.03em;border-radius:999px;padding:.06rem .4rem;white-space:nowrap;}',
       '.vr-omni-eff-adv{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.3);}',
       '.vr-omni-eff-opp{background:rgba(251,146,60,.14);color:#fdba74;border:1px solid rgba(251,146,60,.32);}',
       '.vr-omni-v{font-size:.62rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:999px;padding:.06rem .4rem;white-space:nowrap;}',
+      '.vr-omni-tag{color:#c4b5fd;border-color:rgba(124,58,237,.35);background:rgba(124,58,237,.14);}',
+      /* dismissible "what an omnibus vote does" teaching note */
+      '.vr-teach{position:relative;display:flex;gap:.5rem;align-items:flex-start;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.22);border-radius:.6rem;padding:.55rem .65rem;margin:0 0 .7rem;font-size:.75rem;color:#bfd3ee;line-height:1.5;}',
+      '.vr-teach-ico{flex:0 0 auto;font-size:.95rem;line-height:1.3;}',
+      '.vr-teach b{color:#e6eefc;}',
+      '.vr-teach-body{padding-right:1.2rem;}',
+      '.vr-teach-x{position:absolute;top:.3rem;right:.3rem;width:1.4rem;height:1.4rem;border:0;border-radius:50%;background:transparent;color:#7596c0;font-size:.95rem;line-height:1;cursor:pointer;}',
+      '.vr-teach-x:hover{background:rgba(255,255,255,.08);color:#cbd9ec;}',
+      '.vr-teach-x:focus-visible{outline:2px solid #7fb4ff;outline-offset:1px;}',
+      '@media (pointer:coarse){.vr-teach-x{width:1.9rem;height:1.9rem;}}',
       /* amendments (collapsible) */
       '.vr-amends{margin:.1rem 0 .5rem .6rem;border-left:2px solid rgba(255,255,255,.08);padding-left:.6rem;}',
       '.vr-amends>summary{cursor:pointer;color:#8ea4c6;font-size:.75rem;padding:.15rem 0;list-style:none;}',
@@ -163,6 +211,18 @@
     document.head.appendChild(s);
   }
 
+  // Every politician id entering the data layer is canonicalized first. A person can
+  // have accumulated vr_* rows under two ids (politician_id is free text); once a
+  // merge migration folds one away, the record only exists under the survivor. The
+  // API canonicalizes too, but the client caches BY ID — so without this a stale
+  // `susan_collins` request would fetch Collins's record and then file it under
+  // `collins`, and the lookup that asked for it would never find it. Alias table:
+  // PDX_PID_ALIASES in stance-helpers.js (mirrors db/vr-pid-aliases.json). Guarded
+  // because script order between the two files is not contractual.
+  function canonPid(id) {
+    try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(id)) || id; } catch (e) { return id; }
+  }
+
   // ── Data layer: PDXVotingRecord.fetchMember(id, opts) with in-memory cache ────
   var PDXVotingRecord = {
     _cache: new Map(),
@@ -182,6 +242,7 @@
     },
 
     fetchMember: function (id, opts) {
+      id = canonPid(id);
       var qs = this._query(opts);
       var key = id + qs;
       if (this._cache.has(key)) return this._cache.get(key);
@@ -211,8 +272,8 @@
     // own fetch, so there is no request storm when scoring a big field; it simply
     // uses whatever is already warm and falls back to the legacy source otherwise.
     _records: {},
-    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[id] = items.slice(); },
-    memberRecords: function (id) { return this._records[id] || null; },
+    noteMember: function (id, items) { if (id && Array.isArray(items)) this._records[canonPid(id)] = items.slice(); },
+    memberRecords: function (id) { return this._records[canonPid(id)] || null; },
 
     // ── Batched side-by-side fetch for the comparison surfaces ──────────────────
     // GET /api/voting-record/compare?members=a,b,c → { members, issue, matrix }.
@@ -220,7 +281,11 @@
     // a later Alignment computation for any of these members is already warm.
     _compareCache: new Map(),
     fetchCompare: function (pids) {
-      var members = (pids || []).filter(Boolean).slice().sort();
+      // De-duplicated after canonicalization: two ids that used to be different
+      // people-shaped rows can now resolve to the same person, and asking the API for
+      // the same member twice would waste a slot in its 8-member cap.
+      var members = (pids || []).filter(Boolean).map(canonPid)
+        .filter(function (id, i, a) { return a.indexOf(id) === i; }).sort();
       if (!members.length) return Promise.resolve(null);
       var key = members.join(',');
       if (this._compareCache.has(key)) return this._compareCache.get(key);
@@ -249,6 +314,7 @@
     // as the graceful fallback when the live /member/:id endpoint can't be reached.
     _packCache: new Map(),
     fetchPack: function (id) {
+      id = canonPid(id);
       if (this._packCache.has(id)) return this._packCache.get(id);
       var self = this;
       var url = API_BASE + '/member/' + encodeURIComponent(id) + '/pack';
@@ -292,7 +358,10 @@
     var cls = pos === 'yea' ? 'vr-pos-yea' : pos === 'nay' ? 'vr-pos-nay' : 'vr-pos-neutral';
     var label = pos === 'yea' ? 'Voted Yea' : pos === 'nay' ? 'Voted Nay'
       : pos === 'present' ? 'Present' : pos === 'not_voting' ? 'Did Not Vote' : titleCase(pos);
-    return '<span class="vr-pill ' + cls + '">' + esc(label) + '</span>';
+    // The pill itself carries the definition of Yea/Nay/Present — what a Yea
+    // actually accomplished depends on the question, which is the single most
+    // misread thing on this card.
+    return '<span class="vr-pill ' + cls + '">' + LT('yea', label) + '</span>';
   }
 
   // Stance-vs-record verdict for one item against its PRIMARY issue, using the
@@ -321,22 +390,45 @@
   // ── Omnibus component breakdown for one record ─────────────────────────────
   // When a single measure maps to two or more issues (an omnibus / multi-issue
   // bill), one vote is really a verdict on each bundled policy. This renders that
-  // split inline: every component issue, whether THIS vote advances or cuts against
-  // it, and — when the member has a stated stance on that issue — the per-issue
-  // say-vs-do verdict. So the same "yea" can read "✓ matches" on the issues the
-  // member campaigned for and "⚠ against" on the ones it undercuts. Built entirely
-  // from the shared, tested _measureComponentBreakdown primitive; empty for
-  // single-issue records so ordinary votes are unchanged.
+  // split inline, in two layers:
+  //   1. the plain-language line a voter can read at a glance —
+  //      "This vote touched: taxes · healthcare · border security";
+  //   2. underneath it, per issue, whether THIS vote advanced or cut against that
+  //      issue and — when the member has a stated stance on it — the per-issue
+  //      say-vs-do verdict.
+  // So the same "yea" can read "✓ matches" on the issues the member campaigned for
+  // and "⚠ against" on the ones it undercuts. Built entirely from the shared, tested
+  // _measureComponentBreakdown primitive; empty for single-issue records so ordinary
+  // votes are unchanged.
   var _OMNI_VERDICT = {
     consistent:  { cls: 'vr-v-consistent',  label: '✓ matches stance' },
     contradicts: { cls: 'vr-v-contradicts', label: '⚠ against stance' },
     mixed:       { cls: 'vr-v-mixed',        label: 'mixed stance' },
     no_position: { cls: 'vr-v-neutral',      label: 'no position' }
   };
+  // True when a record maps to two or more issues. Cheap enough to call per card;
+  // matches _measureComponentBreakdown's own isOmnibus rule exactly.
+  function isOmnibusItem(item) {
+    return !!(item && item.issues && item.issues.length >= 2);
+  }
+  // Calm, factual explanation of what a multi-issue vote means, used as the tooltip
+  // on the touched-issues line and as the copy in the dismissible teaching note.
+  var OMNI_EXPLAINER = 'Omnibus and reconciliation bills bundle many unrelated policies ' +
+    'into one measure, so a member gets a single yes-or-no on all of it. Each issue is ' +
+    'scored on its own: the same vote can advance one and cut against another.';
+
   function componentBreakdownHtml(item, positionMap) {
     if (typeof window._measureComponentBreakdown !== 'function') return '';
     var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
     if (!brk.isOmnibus) return ''; // single-issue vote → nothing extra to show
+
+    // Layer 1 — the split, stated plainly. Issue labels only, primary first, so the
+    // reader sees what one vote covered before any verdict language.
+    var touched = brk.components.map(function (c) {
+      return '<b>' + esc(c.label) + '</b>';
+    }).join('<span class="vr-omni-sep" aria-hidden="true"> · </span>');
+
+    // Layer 2 — what this vote did to each of them.
     var rows = brk.components.map(function (c) {
       var eff = '';
       if (c.effect === 'advances') eff = '<span class="vr-omni-eff vr-omni-eff-adv">this vote advances it</span>';
@@ -348,18 +440,172 @@
         '<span class="vr-omni-issue">' + esc(c.label) + '</span>' + eff + v +
       '</div>';
     }).join('');
+
+    // The lead now carries the same spread the badge summarises, so the two never
+    // disagree — both read from _multiIssueSpread over these very components.
+    var sp = (typeof window._multiIssueSpread === 'function') ? window._multiIssueSpread(brk) : null;
+    var lead = sp ? ('Multi-issue bill · ' + esc(sp.label)) : ('Multi-issue bill · one vote, ' + brk.count + ' issues');
+
     return '<div class="vr-omni">' +
-      '<div class="vr-omni-lead">This one vote touches ' + brk.count + ' issues</div>' +
-      rows +
+      '<div class="vr-omni-lead">' + lead + '</div>' +
+      '<p class="vr-omni-touch" title="' + escAttr(OMNI_EXPLAINER) + '">This vote touched: ' + touched + '</p>' +
+      '<div class="vr-omni-rows">' +
+        '<div class="vr-omni-cap">What this one vote did for each:</div>' +
+        rows +
+      '</div>' +
     '</div>';
   }
 
+  // ── Always-visible multi-issue summary beside the verdict badge ─────────────
+  // The badge only ever judged the measure's PRIMARY issue, and the fact that five
+  // other issues were riding on the same vote lived in a `title` — invisible on
+  // touch and inconsistently announced by screen readers. This renders that summary
+  // as real text: which issue the badge is about, and how the whole vote broke down
+  // ("🧩 3 issues · 1 match · 2 against"). Every number comes from
+  // _multiIssueSpread over the components already on the card — no new scoring.
+  // Degrades to the bare badge if either helper is absent.
+  function verdictStackHtml(item, positionMap, verdictHtml) {
+    if (!isOmnibusItem(item)) return verdictHtml; // single-issue card unchanged
+    if (typeof window._measureComponentBreakdown !== 'function' ||
+        typeof window._multiIssueSpread !== 'function') return verdictHtml;
+    var brk = window._measureComponentBreakdown(item, positionMap || {}, { labelFn: issueLabel });
+    var sp = window._multiIssueSpread(brk);
+    if (!sp) return verdictHtml;
+
+    // Name the issue the badge is actually about, so the badge stops reading as the
+    // verdict on the whole bill. Only shown when there IS a badge to qualify.
+    var scope = '';
+    var primaryIssue = (item.issues && item.issues[0]) || null;
+    if (verdictHtml && primaryIssue) {
+      scope = '<span class="vr-verdict-scope">on ' + esc(issueLabel(primaryIssue.issueKey)) +
+        ' <span class="vr-verdict-scope-q">(main issue of ' + sp.count + ')</span></span>';
+    }
+
+    var tip = sp.stanceBased
+      ? 'This one vote is judged separately on each of the ' + sp.count + ' issues it touched: ' +
+        sp.detail.replace(/ · /g, ', ') + '.'
+      : 'This one vote touched ' + sp.count + ' issues. No stated stance is on file for them, so ' +
+        'what it did is shown instead: ' + sp.detail.replace(/ · /g, ', ') + '.';
+    // The split is a property of the VOTE, not of the stances, so it is disclosed
+    // either way — a member with no stance on file still cast one vote two ways.
+    if (sp.splits) tip += ' The same vote pushed one issue forward and another back.';
+    var token = '<span class="vr-spread vr-spread-' + sp.tone + '" title="' + escAttr(tip) + '">' +
+      '<span aria-hidden="true">🧩</span> ' + esc(sp.label) + '</span>';
+
+    return '<div class="vr-verdict-stack">' + verdictHtml + scope + token + '</div>';
+  }
+
+  // ── Dismissible "what an omnibus vote does" note ───────────────────────────
+  // Shown once above the list when the visible record actually contains a
+  // multi-issue measure, so the split below has context the first time someone
+  // meets it. Optional and non-blocking: one tap dismisses it for good (persisted
+  // with the other durable view prefs), and it never appears for a record with no
+  // multi-issue votes in it.
+  function omniTeachHtml(items) {
+    if (loadPrefs().omniNoteHidden) return '';
+    var n = 0;
+    (items || []).forEach(function (it) { if (isOmnibusItem(it)) n++; });
+    if (!n) return '';
+    return '<div class="vr-teach" data-vr-teach>' +
+      '<span class="vr-teach-ico" aria-hidden="true">🧩</span>' +
+      '<div class="vr-teach-body"><b>What an omnibus vote does.</b> ' + esc(OMNI_EXPLAINER) +
+        ' <b>' + n + '</b> record' + (n === 1 ? '' : 's') + ' below ' + (n === 1 ? 'is' : 'are') +
+        ' multi-issue — each shows the full split.</div>' +
+      '<button type="button" class="vr-teach-x" data-vr-teach-x aria-label="Dismiss this note">×</button>' +
+    '</div>';
+  }
+
+  // ── Dismissible "why procedural votes count less" note ─────────────────────
+  // The other concept that silently changes how this list should be read. Shown
+  // only when the visible record actually contains procedural votes. Dismissal is
+  // remembered by PDXLearn. Ordering against the other notes: see teachHtml().
+  function procTeachHtml(items) {
+    var L = window.PDXLearn;
+    if (!L || !L.note) return '';
+    var n = 0;
+    (items || []).forEach(function (it) { if (it && it.isProcedural) n++; });
+    if (!n) return '';
+    return L.note('vr-procedural', {
+      icon: '⚙️',
+      title: 'Why some votes count less.',
+      html: '<b>' + n + '</b> record' + (n === 1 ? '' : 's') + ' below ' + (n === 1 ? 'is' : 'are') +
+        ' ' + LT('procedural', 'procedural') + ' — a vote about how the chamber handles a bill ' +
+        'rather than a vote on the policy. They still count, at a quarter of the weight, because ' +
+        'party leadership drives them more than personal conviction. On a ' +
+        LT('recommit', 'motion to recommit') + ' or ' + LT('table', 'to table') +
+        ' a Yea is a vote <b>against</b> the bill, and we read it that way.'
+    });
+  }
+
+  // ── First-run orientation note ─────────────────────────────────────────────
+  // The voting record is the densest thing a first-time visitor meets, and it is
+  // the first place the education layer's dotted underlines appear in bulk — so it
+  // is the honest place to say once, quietly, that they are tappable. Everything
+  // else in the layer is pull: it only teaches someone who already thought to tap.
+  // This is the single push, and it is deliberately the smallest one that works.
+  //
+  // Three things keep it from reading as onboarding:
+  //   • it renders below the filters, beside the record it describes — not as a
+  //     gate in front of it, and nothing waits on it;
+  //   • it retires itself the moment the visitor opens any definition, without
+  //     waiting to be dismissed (retireOnTermUse) — the lesson landed, so the
+  //     reminder leaves. Tapping × works too, and is remembered either way;
+  //   • it never appears at all unless there is a record on screen to read.
+  function orientTeachHtml(items) {
+    var L = window.PDXLearn;
+    if (!L || !L.note || !L.term) return '';
+    if (!(items || []).length) return '';   // nothing to orient anyone around yet
+    return L.note('vr-orientation', {
+      icon: '📖',
+      retireOnTermUse: true,
+      title: 'New to voting records?',
+      html: 'Anything with a dotted underline explains itself — ' +
+        LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' +
+        LT('procedural', 'procedural') + '. Tap one for a short, plain-language ' +
+        'definition. Nothing here is an opinion: every record below links the ' +
+        'official source so you can check it yourself.'
+    });
+  }
+
+  // ── Which teaching note gets the slot ──────────────────────────────────────
+  // At most ONE note shows above the list. Two stacked notes stop reading as help
+  // and start reading as a wall, and a visitor who dismisses a stack learns only
+  // that the product nags. So the notes are an ordered list and the first eligible
+  // one wins; each returns '' when it is dismissed or doesn't apply, so a dismissed
+  // note hands the slot to the next one on the visitor's NEXT visit rather than
+  // stacking underneath. Order is general → specific:
+  //   1. orientation — how to read anything at all (once per visitor)
+  //   2. omnibus     — only when a multi-issue measure is actually on screen
+  //   3. procedural  — only when a procedural vote is actually on screen
+  function teachHtml(items) {
+    var candidates = [orientTeachHtml, omniTeachHtml, procTeachHtml];
+    for (var i = 0; i < candidates.length; i++) {
+      var html = candidates[i](items);
+      if (html) return html;
+    }
+    return '';
+  }
+  // Exposed for scripts/test-vr-teach.mjs, matching the existing convention in
+  // stance-helpers.js (window._issueRecordSummary). Pure: items → html.
+  window._vrTeachHtml = teachHtml;
+
   // ── One vote / position card ──────────────────────────────────────────────────
   function cardHtml(item, positionMap) {
-    var num = item.number ? '<span class="vr-num">' + esc(item.number) + '</span>' : '';
+    var num = item.number ? '<span class="vr-num">' + LNUM(item.number) + '</span>' : '';
     var date = item.date ? '<span class="vr-date-txt">' + esc(fmtDate(item.date)) + '</span>' : '';
     var vb = verdictBadge(item, positionMap);
-    var verdictHtml = vb ? '<span class="vr-verdict ' + vb.cls + '">' + esc(vb.label) + '</span>' : '';
+    // The badge judges the measure's PRIMARY issue. On a multi-issue bill that is one
+    // of several answers, so say which issue it belongs to rather than letting it read
+    // as the verdict on the whole vote — the breakdown below carries the others.
+    var primaryIssue = (item.issues && item.issues[0]) || null;
+    var vbTitle = (vb && isOmnibusItem(item) && primaryIssue)
+      ? ' title="' + escAttr('Verdict on ' + issueLabel(primaryIssue.issueKey) +
+          ' — this bill’s main issue. This one vote is judged separately on each issue it touched; see the split below.') + '"'
+      : '';
+    var verdictHtml = vb ? '<span class="vr-verdict ' + vb.cls + '"' + vbTitle + '>' + esc(vb.label) + '</span>' : '';
+    // On a multi-issue card, wrap the badge with the always-visible scope + spread
+    // summary. Single-issue cards get the bare badge back, byte for byte.
+    verdictHtml = verdictStackHtml(item, positionMap, verdictHtml);
 
     var meta = [];
     meta.push(positionPill(item));
@@ -369,13 +615,30 @@
       var actLabel = item.kind === 'position' ? titleCase(item.action) : item.action;
       meta.push('<span class="vr-tag">' + esc(actLabel) + '</span>');
     }
-    if (item.chamber) meta.push('<span class="vr-tag">' + esc(titleCase(item.chamber)) + '</span>');
+    if (item.chamber) {
+      // "House" / "Senate" is a chamber, not a party — worth one tap for anyone
+      // who does not already know the two are separate votes on the same bill.
+      var chKey = /senate/i.test(item.chamber) ? 'senate' : /house/i.test(item.chamber) ? 'house' : '';
+      meta.push('<span class="vr-tag">' +
+        (chKey ? LT(chKey, titleCase(item.chamber)) : esc(titleCase(item.chamber))) + '</span>');
+    }
     if (item.result) {
       var rc = /pass|agree/.test(item.result) ? 'vr-result-passed' : /fail|reject/.test(item.result) ? 'vr-result-failed' : '';
       meta.push('<span class="vr-tag ' + rc + '">' + esc(titleCase(item.result)) + '</span>');
     }
-    if (item.isAmendment) meta.push('<span class="vr-tag">Amendment</span>');
-    if (item.isProcedural) meta.push('<span class="vr-tag">Procedural</span>');
+    if (item.isAmendment) meta.push('<span class="vr-tag">' + LT('amendment', 'Amendment') + '</span>');
+    // Procedural is the tag that most changes how a record should be read: these
+    // votes count at a quarter weight, and a Yea on some of them (recommit, table)
+    // is a vote AGAINST the bill. Both facts live in the definition.
+    if (item.isProcedural) meta.push('<span class="vr-tag">' + LT('procedural', 'Procedural') + '</span>');
+    // Flag the multi-issue case in the pill row too, so it's visible while scanning
+    // (and in flat-sort mode, where cards aren't grouped under an issue heading).
+    if (isOmnibusItem(item)) {
+      // Was a hover-only title, which is dead on touch. Now the tag itself opens
+      // the omnibus definition — the concept a first-time visitor needs before
+      // the split below makes any sense.
+      meta.push('<span class="vr-tag vr-omni-tag">' + LT('omnibus', '🧩 Multi-issue') + '</span>');
+    }
 
     // A one-line "they said X, they did Y" note when we have both sides.
     var note = '';
@@ -399,6 +662,9 @@
       note + componentBreakdownHtml(item, positionMap) + src +
       '</div>';
   }
+  // Exported for the same reason _vrTeachHtml is: a pure item → HTML function that a
+  // node harness can render without a DOM, so the card's markup is testable.
+  window._vrCardHtml = cardHtml;
 
   // ── Empty / no-match state ─────────────────────────────────────────────────
   // Any filter narrowing the set beyond the member's full record (sort is a view
@@ -418,7 +684,11 @@
       (filtered
         ? '<span class="vr-empty-sub">Try widening or clearing the filters to see the full record.</span>' +
           '<button type="button" class="vr-empty-btn" data-vr-clear>Clear filters</button>'
-        : '') +
+        // Not filter-induced: this is a coverage gap, and saying so plainly is more
+        // honest than a bare empty state that reads as "they did nothing."
+        : '<span class="vr-empty-sub">' + LT('norecord', 'That means our coverage here is incomplete') +
+          ' — not that nothing happened. Business handled by ' + LT('voicevote', 'voice vote') +
+          ' leaves no per-member record to publish.</span>') +
       '</div>';
   }
 
@@ -479,9 +749,26 @@
       });
 
       var summary = recordMap[key];
+      // Provenance for the issue as a whole: how much of this verdict rests on votes
+      // that were also about other things. Presentation only — the verdict above is
+      // computed by the engine and is unchanged by this line.
+      var omniHead = '';
+      if (key !== '_none' && typeof window._recordOmnibusStats === 'function') {
+        var os = window._recordOmnibusStats(key, list, { labelFn: issueLabel });
+        if (os.any) {
+          var alsoTxt = os.otherLabels.length
+            ? ' Those bills also covered: ' + os.otherLabels.join(', ') + '.'
+            : '';
+          omniHead = '<span class="vr-group-omni" title="' + escAttr(
+              'A multi-issue bill is judged separately on each issue it touched, so the same vote can ' +
+              'appear here and under another issue with the opposite verdict.' + alsoTxt) + '">🧩 ' +
+            os.omnibus + ' of ' + os.total + ' from multi-issue bills</span>';
+        }
+      }
       var head = '<div class="vr-group-head">' +
         '<span class="vr-group-title">' + esc(key === '_none' ? '📄 Other records' : issueLabel(key)) + '</span>' +
         '<span class="vr-group-n">' + list.length + ' record' + (list.length === 1 ? '' : 's') + '</span>' +
+        omniHead +
         (summary && summary.hasStance && summary.label
           ? '<span class="vr-verdict ' +
               (summary.netVerdict === 'consistent' ? 'vr-v-consistent'
@@ -513,9 +800,14 @@
     var stat = function (v, l) {
       return '<div class="vr-stat"><div class="vr-stat-v">' + esc(v) + '</div><div class="vr-stat-l">' + esc(l) + '</div></div>';
     };
+    // Same tile, but the label is a defined term. Used for the counts whose name
+    // is itself jargon ("roll-call vote") rather than plain English ("Records").
+    var statT = function (v, key, l) {
+      return '<div class="vr-stat"><div class="vr-stat-v">' + esc(v) + '</div><div class="vr-stat-l">' + LT(key, l) + '</div></div>';
+    };
     var strip = '<div class="vr-summary">' +
       stat(s.totalRecords || 0, 'Records') +
-      stat(s.votes || 0, 'Roll-call Votes') +
+      statT(s.votes || 0, 'rollcall', 'Roll-call Votes') +
       (s.positions ? stat(s.positions, 'Other Actions') : '') +
       (s.withParty || s.againstParty ? stat(s.withParty + '/' + s.againstParty, 'With / Against Party') : '') +
       '</div>';
@@ -535,7 +827,7 @@
     if (totalJudged > 0) {
       var pct = function (n) { return (n / totalJudged * 100).toFixed(1) + '%'; };
       meter = '<div class="vr-meter">' +
-        '<div class="vr-meter-top"><span class="vr-meter-title">Say vs. Do</span>' +
+        '<div class="vr-meter-top"><span class="vr-meter-title">' + LT('saydo', 'Say vs. Do') + '</span>' +
           '<span class="vr-meter-sub">' + totalJudged + ' issue' + (totalJudged === 1 ? '' : 's') + ' with a stance &amp; a record</span></div>' +
         '<div class="vr-bar">' +
           (consistent ? '<div class="vr-bar-seg vr-bar-consistent" style="width:' + pct(consistent) + '"></div>' : '') +
@@ -622,10 +914,15 @@
       offlineNote +
       renderSummary({ summary: data.summary, items: _state.items }, pm) +
       renderFilters() +
+      // At most one teaching note, chosen by priority — see teachHtml().
+      teachHtml(_state.items) +
       '<div id="pdx-vr-list">' + listHtml + '</div>' +
       more +
-      '<p class="vr-note">Every record links to the official roll call or filing. ' +
-      'Stance comparisons weigh a stated position against the actual vote — see the source to judge for yourself.</p>';
+      '<p class="vr-note">Every record links to the official ' + LT('rollcall', 'roll call') +
+      ' or filing. Stance comparisons weigh a stated position against the actual vote — ' +
+      'see the source to judge for yourself.' +
+      (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Glossary →</button>' : '') +
+      '</p>';
   }
 
   // Re-fetch with the current filters (resets to page 1) and repaint the body.
@@ -684,6 +981,14 @@
     section.addEventListener('click', function (e) {
       if (e.target.closest('[data-vr-clear]')) { clearFilters(); return; }
       if (e.target.closest('[data-vr-retry]')) { applyFilters(); return; }
+      // Dismiss the omnibus explainer for good — remove it in place (no re-render,
+      // so the reader keeps their scroll position) and remember the choice.
+      if (e.target.closest('[data-vr-teach-x]')) {
+        var note = e.target.closest('[data-vr-teach]');
+        if (note && note.parentNode) note.parentNode.removeChild(note);
+        savePrefs({ omniNoteHidden: true });
+        return;
+      }
       var chip = e.target.closest('[data-vr-issue]');
       if (chip) { _state.filters.issue = chip.getAttribute('data-vr-issue') || ''; applyFilters(); return; }
       if (e.target.closest('[data-vr-more]')) { loadMore(); return; }
@@ -708,7 +1013,13 @@
       '<span id="pdxsec-voting" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<section id="pdx-voting-record" class="modal-section" style="display:none;">' +
         '<div class="modal-section-title">🗳️ Voting Record</div>' +
-        '<p class="vr-sub">What they actually did — roll-call votes and official actions, each checked against what they say. Filter by issue, chamber, action, or date.</p>' +
+        '<p class="vr-sub">What they actually did — ' + LT('rollcall', 'roll-call votes') +
+          ' and official actions, each checked against what they say. ' +
+          'Filter by issue, chamber, action, or date.</p>' +
+        // One calm, optional entry point for anyone who does not already know how
+        // to read a voting record. Renders as nothing if the education layer is
+        // absent, so the section is unchanged without it.
+        (LHOWTO('voting-record') ? '<div class="vr-howto-row">' + LHOWTO('voting-record') + '</div>' : '') +
         '<div id="pdx-vr-body"><div class="vr-loading">Loading voting record…</div></div>' +
       '</section>';
   };
@@ -864,6 +1175,32 @@
     return window._issueRecordSummary(issueKey, stance, on);
   };
 
+  // Companion to the summary above: where that (member, issue) verdict CAME from —
+  // how many of the votes behind it were multi-issue bills, and which other issues
+  // those bills also touched. Pure presentation metadata (see _recordOmnibusStats in
+  // stance-helpers.js): it cannot move a verdict, a count or a %. Returns null when
+  // no record is warm, so callers can simply skip the disclosure.
+  //   Used by the comparison-board dots here and by the Official Record / gap-sheet
+  //   surfaces in consistency.js, so "this came from an omnibus" reads the same
+  //   wherever a vote-based verdict is shown.
+  window._pdxRecordOmnibusStats = function (pid, issueKey) {
+    if (typeof window._recordOmnibusStats !== 'function') return null;
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs) return null;
+    var st = window._recordOmnibusStats(issueKey, recs, { labelFn: issueLabel });
+    return st.total ? st : null;
+  };
+
+  // One shared sentence for "this verdict rests partly on multi-issue bills", so the
+  // dots, the Official Record feed and the gap sheet all phrase it identically.
+  // Returns '' when there is nothing to disclose.
+  window._pdxOmnibusProvenanceNote = function (stats) {
+    if (!stats || !stats.any) return '';
+    return stats.omnibus + ' of ' + stats.total + ' record' + (stats.total === 1 ? '' : 's') +
+      ' here came from multi-issue bills' +
+      (stats.otherLabels.length ? ' that also covered ' + stats.otherLabels.join(', ') : '') + '.';
+  };
+
   // Legacy-shape voting adapter for the Alignment Tool. Returns the member's votes
   // as [{ bill, matter, alignment }] — the EXACT shape the tool already consumes —
   // sourced from the new voting record when it's warm in cache, else falling back
@@ -932,6 +1269,13 @@
       var PC = window.PDXConsistency;
       want.forEach(function (w) {
         w.el.setAttribute('data-vrdone', '1');
+        // Where the verdict came from: a dot backed by omnibus votes says so, so a
+        // comparison board never implies a clean single-issue judgement it can't make.
+        var prov = '';
+        try {
+          var st = window._pdxRecordOmnibusStats(w.pid, w.key);
+          if (st && st.any) prov = ' · 🧩 ' + window._pdxOmnibusProvenanceNote(st);
+        } catch (e) {}
         // Prefer the UNIFIED verdict (curated receipts + voting record) so a dot on
         // the comparison board matches the profile / receipts. Fall back to the
         // voting-record-only summary when the unifier isn't loaded.
@@ -944,7 +1288,7 @@
           w.el.className = (w.el.className ? w.el.className + ' ' : '') + 'vrdot ' + d.cls;
           w.el.textContent = d.ch;
           var extra = uv.contradictions > 0 ? ' · ⚑' + uv.contradictions : (uv.record && uv.record.total ? ' · ' + uv.record.total + ' vote' + (uv.record.total === 1 ? '' : 's') : '');
-          w.el.setAttribute('title', d.tip + extra);
+          w.el.setAttribute('title', d.tip + extra + prov);
           return;
         }
         var s = window._pdxRecordIssueSummary(w.pid, w.key);
@@ -952,7 +1296,7 @@
         var meta = _DOT[s.netVerdict] || _DOT.record;
         w.el.className = (w.el.className ? w.el.className + ' ' : '') + 'vrdot ' + meta.cls;
         w.el.textContent = meta.ch;
-        w.el.setAttribute('title', meta.tip + ' · ' + s.total + ' vote' + (s.total === 1 ? '' : 's') + ' on record');
+        w.el.setAttribute('title', meta.tip + ' · ' + s.total + ' vote' + (s.total === 1 ? '' : 's') + ' on record' + prov);
       });
     });
   };

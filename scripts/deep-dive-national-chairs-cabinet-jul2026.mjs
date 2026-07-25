@@ -23,7 +23,7 @@
 //     record of voting to codify Roe.
 //   • JAMES COMER (comer) — Chair, House Oversight (R-KY): DOGE-era spending and
 //     waste oversight, federal-workforce and transparency fights.
-//   • ROBERT F. KENNEDY JR. (kennedy_rfk) — HHS Secretary: "Make America Healthy
+//   • ROBERT F. KENNEDY JR. (rfkjr) — HHS Secretary: "Make America Healthy
 //     Again," chronic disease and food additives, drug prices, and a contested
 //     record on vaccines/medical freedom.
 //   • DAVE McCORMICK (mccormick) — U.S. Senator (R-PA): tariffs/China, Pennsylvania
@@ -175,9 +175,14 @@ const NEW = {
         text: 'Has run high-profile investigations and subpoena fights across administrations; supporters credit aggressive oversight, critics accuse him of selective scrutiny — a contested but central part of his record.', source: S.comer_ovs },
     ],
   },
-  kennedy_rfk: {
-    roster: { name: 'Robert F. Kennedy Jr.', office: 'U.S. Secretary of Health & Human Services', state: 'California', party: 'R', score: 54, icon: '⚕️', issues: ['Chronic Disease', 'Food & Nutrition', 'Drug Prices', 'Vaccine Policy'] },
-    label: 'Robert F. Kennedy Jr. — ⚕️ HHS Secretary',
+  // NOTE (July 25 2026): this entry originally used the id `kennedy_rfk`, which is
+  // what created a second Robert F. Kennedy Jr. identity alongside the pre-existing
+  // `rfkjr`. The id is now `rfkjr` and the roster literal below carries the MERGED
+  // values, so re-running this script is a no-op instead of re-splitting him or
+  // overwriting the merged record with the retired side's fields.
+  rfkjr: {
+    roster: { name: 'Robert F. Kennedy Jr.', office: 'HHS Secretary', state: 'National', party: 'R', termStart: '2025-02', score: null, pending: 12, icon: '🦅', issues: ['Vaccine Policy', 'Food & Nutrition Reform', 'Chronic Disease', 'Drug Prices'] },
+    label: 'Robert F. Kennedy Jr. — 🦅 HHS Secretary',
     cards: [
       { topic: 'Chronic Disease & Food', icon: '🥗', pos: 'support', issueKey: 'healthcare_costs', issueStance: 'support',
         text: 'Built HHS around a "Make America Healthy Again" agenda targeting chronic disease, ultra-processed foods, and additives — pressing food makers to drop certain synthetic dyes and reorienting nutrition guidance.',

@@ -43,9 +43,11 @@ import {
 import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
 import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
 import { writeMemberPack } from "./vr-pack.js";
+import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
   ISSUE_KEYS,
   canonicalMeasureNumber,
+  canonicalizePidMap,
   crossoverFlags,
   normalizeCongressActions,
   normalizeCongressVote,
@@ -62,6 +64,7 @@ import {
 export {
   ISSUE_KEYS,
   canonicalMeasureNumber,
+  canonicalPid,
   normalizeCongressVote,
   originatingChamber,
 } from "./vr-normalize.js";
@@ -117,10 +120,50 @@ function tallyMemberPositions(members: any[]): Record<string, number> {
   }
   return t;
 }
+// The list endpoint is NOT sorted by date — offset 0 of house-vote/119 returns rolls
+// 240, 306, 241, 116, 122… in an order the API does not document. So `limit: 20` means
+// "20 arbitrary roll calls", NOT "the 20 most recent", and re-running it re-fetches the
+// same arbitrary slice forever. `offset` pages past it; `recent: true` fixes the ordering
+// properly by walking the (cheap, summary-only) list pages, sorting by vote date, and
+// keeping the newest `limit` — the expensive per-roll `/members` call is then made ONLY
+// for the selected roll calls, so "newest 20" costs the same member fetches as before.
+const LIST_PAGE = 250; // the API's max page size, and its own documented ceiling
+
+function voteDateOf(row: any): string {
+  return String(row?.startDate || row?.date || row?.voteDate || row?.updateDate || "");
+}
+
+async function fetchVoteListPage(
+  chamber: string,
+  congress: number,
+  apiKey: string,
+  limit: number,
+  offset: number
+): Promise<{ rows: any[]; count: number }> {
+  const url =
+    `${CONGRESS_API_BASE}/${chamber}-vote/${congress}` +
+    `?format=json&limit=${limit}&offset=${offset}&api_key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, { headers: { accept: "application/json" } });
+  if (!res.ok) {
+    console.warn(`vr-ingest: Congress.gov ${res.status} for ${chamber}/${congress} @${offset}`);
+    return { rows: [], count: 0 };
+  }
+  const data: any = await res.json();
+  const rows: any[] =
+    data?.[`${chamber}RollCallVotes`] ||
+    data?.houseRollCallVotes ||
+    data?.senateRollCallVotes ||
+    data?.votes ||
+    [];
+  return { rows, count: Number(data?.pagination?.count ?? rows.length) };
+}
+
 export async function fetchRollcallsFromCongress(opts: {
   congress: number;
   chamber: string;
   limit?: number;
+  offset?: number;
+  recent?: boolean;
 }): Promise<RawVote[]> {
   const apiKey = process.env.CONGRESS_GOV_API_KEY;
   if (!apiKey) {
@@ -129,22 +172,28 @@ export async function fetchRollcallsFromCongress(opts: {
   }
   const chamber = opts.chamber === "senate" ? "senate" : "house";
   const limit = Math.min(Math.max(opts.limit || 20, 1), 250);
-  const listUrl =
-    `${CONGRESS_API_BASE}/${chamber}-vote/${opts.congress}` +
-    `?format=json&limit=${limit}&api_key=${encodeURIComponent(apiKey)}`;
+  const offset = Math.max(Number(opts.offset) || 0, 0);
   try {
-    const res = await fetch(listUrl, { headers: { accept: "application/json" } });
-    if (!res.ok) {
-      console.warn(`vr-ingest: Congress.gov ${res.status} for ${chamber}/${opts.congress}`);
-      return [];
+    let rows: any[];
+    if (opts.recent) {
+      // Walk every summary page (1 request per 250 roll calls — no member sub-fetches),
+      // then take the newest `limit` after `offset`. This is the only way to get a
+      // date-ordered window out of an endpoint that returns no documented order.
+      const all: any[] = [];
+      let seen = 0;
+      let total = Infinity;
+      while (seen < total && all.length < 5000) {
+        const page = await fetchVoteListPage(chamber, opts.congress, apiKey, LIST_PAGE, seen);
+        if (!page.rows.length) break;
+        all.push(...page.rows);
+        seen += page.rows.length;
+        total = page.count || seen;
+      }
+      all.sort((a, b) => voteDateOf(b).localeCompare(voteDateOf(a)));
+      rows = all.slice(offset, offset + limit);
+    } else {
+      rows = (await fetchVoteListPage(chamber, opts.congress, apiKey, limit, offset)).rows;
     }
-    const data: any = await res.json();
-    const rows: any[] =
-      data?.[`${chamber}RollCallVotes`] ||
-      data?.houseRollCallVotes ||
-      data?.senateRollCallVotes ||
-      data?.votes ||
-      [];
 
     const out: RawVote[] = [];
     for (const row of rows) {
@@ -154,6 +203,12 @@ export async function fetchRollcallsFromCongress(opts: {
       // API). A failed sub-fetch degrades to no member votes rather than dropping the
       // roll call — the measure + roll call are still worth recording.
       let members: any[] = [];
+      // The members sub-resource ALSO returns per-vote metadata the list endpoint omits
+      // entirely — voteQuestion ("On Motion to Recommit"), amendmentNumber/amendmentType
+      // — which is what lets a vote be classified as procedural vs substantive and lets
+      // an amendment become its own measure. We already make this call for the
+      // positions, so merging its metadata costs no extra request.
+      let meta: Record<string, any> = {};
       if (Number.isFinite(session) && Number.isFinite(num)) {
         try {
           const memUrl =
@@ -168,6 +223,8 @@ export async function fetchRollcallsFromCongress(opts: {
               md?.senateRollCallVoteMemberVotes ||
               {};
             members = Array.isArray(container?.results) ? container.results : [];
+            const { results: _drop, ...rest } = container as Record<string, any>;
+            meta = rest || {};
           } else {
             console.warn(`vr-ingest: members ${mres.status} for ${chamber} roll ${num}`);
           }
@@ -176,8 +233,10 @@ export async function fetchRollcallsFromCongress(opts: {
         }
       }
       // Explicit chamber (list items don't carry one) + derived totals (summary has none).
+      // `meta` is spread AFTER `row` so the richer sub-resource fields win, but only
+      // where present — a failed sub-fetch leaves `meta` empty and the row stands alone.
       const normalized = normalizeCongressVote(
-        { ...row, members, voteTotals: tallyMemberPositions(members) },
+        { ...row, ...meta, members, voteTotals: tallyMemberPositions(members) },
         chamber
       );
       if (normalized) out.push(normalized);
@@ -268,36 +327,72 @@ export async function upsertMeasureActions(measureId: number, actions: RawAction
 // Blobs override (vr-config / member-map) wins when present and non-empty; otherwise
 // the committed seed map (db/vr-member-map.json) is used. Either way, a bioguide the
 // map doesn't know is skipped, never guessed.
+//
+// Whichever source wins, every slug is then run through db/vr-pid-aliases.json. A
+// retired id (one a merge migration has already folded into another) resolves to its
+// canonical id here, at the single point where a bioguide becomes a politician_id —
+// so the ingest cannot re-open a split the merge just closed, not even from a stale
+// Blobs override written before the merge.
 export async function loadMemberMap(): Promise<Record<string, string>> {
+  let map: Record<string, string> | null = null;
   try {
-    const store = getStore(MEMBER_MAP_STORE);
-    const map = (await store.get(MEMBER_MAP_KEY, { type: "json" })) as Record<string, string> | null;
-    if (map && typeof map === "object" && Object.keys(map).length) return map;
+    const override = (await getStore(MEMBER_MAP_STORE).get(MEMBER_MAP_KEY, { type: "json" })) as
+      | Record<string, string>
+      | null;
+    if (override && typeof override === "object" && Object.keys(override).length) map = override;
   } catch {
     /* fall through to the committed seed */
   }
-  return { ...SEED_MEMBER_MAP };
+  return canonicalizePidMap(map || SEED_MEMBER_MAP);
 }
 
 // Find-or-create a measure (there is no natural unique index on measures, so this
 // is a manual idempotent upsert keyed by type+congress+chamber+number).
+//
+// NUMBERLESS VOTES: a few roll calls have no measure at all (Speaker elections,
+// approving the Journal, quorum calls). Matching those on `number IS NULL` made every
+// one of them collapse into whichever numberless row existed first — so a Speaker
+// election, an amendment and an unrelated vote ended up sharing one measure row, and
+// any issue mapping on it would have been attributed to all three. When there is no
+// number, key on the title too: it is derived from the vote question, so it is stable
+// across re-runs (still idempotent) but distinct per kind of vote.
+// A title the vote feed had to invent because the roll-call endpoints carry no measure
+// title: the bare legal citation ("H.R. 4758") or a "Roll call 78" fallback. Real titles
+// (seeded, curated, or backfilled from the bill resource) must never be overwritten by
+// one of these on a re-ingest — otherwise every re-run silently degrades the measure list.
+function isProvisionalTitle(title: string | null | undefined, number: string | null | undefined): boolean {
+  const t = String(title || "").trim();
+  if (!t) return true;
+  if (/^Roll call \d+$/i.test(t)) return true;
+  return !!number && t === String(number).trim();
+}
+
 async function upsertMeasure(m: RawVote["measure"]): Promise<number> {
   const existing = await db
-    .select({ id: vrMeasures.id })
+    .select({ id: vrMeasures.id, title: vrMeasures.title })
     .from(vrMeasures)
     .where(
       and(
         eq(vrMeasures.measureType, m.measureType),
         eq(vrMeasures.congress, m.congress),
         eq(vrMeasures.chamber, m.chamber),
-        m.number ? eq(vrMeasures.number, m.number) : sql`${vrMeasures.number} IS NULL`
+        m.number
+          ? eq(vrMeasures.number, m.number)
+          : and(sql`${vrMeasures.number} IS NULL`, eq(vrMeasures.title, m.title))
       )
     )
     .limit(1);
   if (existing.length) {
+    const keepTitle =
+      isProvisionalTitle(m.title, m.number) && !isProvisionalTitle(existing[0].title, m.number);
     await db
       .update(vrMeasures)
-      .set({ title: m.title, sourceUrl: m.sourceUrl, sourceLabel: m.sourceLabel || "Congress.gov", updatedAt: new Date() })
+      .set({
+        ...(keepTitle ? {} : { title: m.title }),
+        sourceUrl: m.sourceUrl,
+        sourceLabel: m.sourceLabel || "Congress.gov",
+        updatedAt: new Date(),
+      })
       .where(eq(vrMeasures.id, existing[0].id));
     return existing[0].id;
   }
@@ -520,23 +615,49 @@ export async function ingestVotes(
   return report;
 }
 
-// ── Top-level: fetch from Congress.gov, then load. No-op when unconfigured. ────
+// ── Top-level: fetch from the chamber's source, then load. ────────────────────
+// The House pull requires a Congress.gov API key and is a clean no-op without one.
+// The Senate pull is served by the curated seed (netlify/lib/vr-senate-source.ts),
+// which needs NO key — so only the House is gated on the key here.
 export async function runIngest(opts: {
   congress: number;
   chamber: string;
   limit?: number;
+  offset?: number;
+  recent?: boolean;
   classifyIssues?: boolean;
 }): Promise<IngestReport> {
-  if (!process.env.CONGRESS_GOV_API_KEY) {
+  const chamber = String(opts.chamber).toLowerCase();
+  const hasCongressKey = !!process.env.CONGRESS_GOV_API_KEY;
+  if (chamber !== "senate" && !hasCongressKey) {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
       memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
       curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
-      errors: ["CONGRESS_GOV_API_KEY not configured — ingest skipped"],
+      errors: ["CONGRESS_GOV_API_KEY not configured — House ingest skipped"],
     };
   }
-  const raw = await fetchRollcallsFromCongress(opts);
-  return ingestVotes(raw, { classifyIssues: opts.classifyIssues, ingestActions: true });
+  const raw = await fetchChamberRollcalls(opts);
+  // The action-timeline backfill hits Congress.gov, so only attempt it when a key is
+  // present; without one it is a no-op regardless (fetchMeasureActions is key-gated).
+  return ingestVotes(raw, { classifyIssues: opts.classifyIssues, ingestActions: hasCongressKey });
+}
+
+// Chamber router: the House pulls from the Congress.gov API; the Senate has no such
+// API resource, so it pulls from the dedicated Senate source layer (curated seed today,
+// live senate.gov XML next). Both return the same RawVote[] shape, so ingestVotes and
+// everything downstream stay chamber-agnostic.
+async function fetchChamberRollcalls(opts: {
+  congress: number;
+  chamber: string;
+  limit?: number;
+  offset?: number;
+  recent?: boolean;
+}): Promise<RawVote[]> {
+  if (String(opts.chamber).toLowerCase() === "senate") {
+    return fetchSenateRollcalls({ congress: opts.congress, limit: opts.limit });
+  }
+  return fetchRollcallsFromCongress(opts);
 }
 
 // ── Verification: an integrity report over the vr_* tables ────────────────────

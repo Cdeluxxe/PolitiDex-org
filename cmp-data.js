@@ -3261,23 +3261,10 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Accountability"
   ]
  },
- "kennedy_rfk": {
-  "name": "Robert F. Kennedy Jr.",
-  "office": "U.S. Secretary of Health & Human Services",
-  "state": "California",
-  "party": "R",
-  "score": 54,
-  "kept": 0,
-  "broken": 0,
-  "pending": 0,
-  "icon": "⚕️",
-  "issues": [
-   "Chronic Disease",
-   "Food & Nutrition",
-   "Drug Prices",
-   "Vaccine Policy"
-  ]
- },
+// Robert F. Kennedy Jr. was listed twice — a `kennedy_rfk` record sat here and a
+// `rfkjr` record further down, one person under two ids, so he surfaced as two
+// search results with different offices, states, parties and scores. The two were
+// folded into `rfkjr` (below) and `kennedy_rfk` retired in db/vr-pid-aliases.json.
  "mccormick": {
   "name": "Dave McCormick",
   "office": "U.S. Senator",
@@ -8736,7 +8723,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "kgrover": {
   "name": "Keith Grover",
   "office": "Utah State Senator",
-  "state": "UT District 15 (Provo)",
+  "state": "UT District 23 (Provo)",
   "party": "R",
   "termStart": "2018",
   "score": null,
@@ -9379,7 +9366,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "sadams": {
   "name": "Stuart Adams",
   "office": "Utah Senate President",
-  "state": "Utah · Davis County",
+  "state": "UT District 7 (Layton, Davis County)",
   "party": "R",
   "termStart": "2009",
   "score": 65,
@@ -9543,8 +9530,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bwilson": {
   "name": "Brad Wilson",
-  "office": "Utah State Senator",
-  "state": "Utah · Utah County",
+  "office": "Former Utah House Speaker",
+  "state": "Utah · Davis County",
   "party": "R",
   "termStart": "2011-01",
   "termEnd": "2023-11",
@@ -9598,8 +9585,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rward": {
   "name": "Ray Ward",
-  "office": "UT State Senator",
-  "state": "UT District 19",
+  "office": "Utah State Representative",
+  "state": "UT District 19 (Bountiful, Davis County)",
   "party": "R",
   "termStart": "2015-01",
   "score": 70,
@@ -9617,7 +9604,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "kcullimore": {
   "name": "Kirk Cullimore",
   "office": "UT State Senator",
-  "state": "UT District 9 (Draper/Sandy)",
+  "state": "UT District 19 (Sandy / Draper / Cottonwood Heights)",
   "party": "R",
   "termStart": "2019-01",
   "score": 64,
@@ -9652,8 +9639,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cbramble": {
   "name": "Curt Bramble",
-  "office": "UT State Senator",
-  "state": "UT District 16 (Provo)",
+  "office": "Former UT State Senator",
+  "state": "UT District 24 (Provo / Orem)",
   "party": "R",
   "termStart": "2001-01",
   "termEnd": "2024-12",
@@ -9813,7 +9800,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "mccay_s11": {
   "name": "Daniel McCay",
   "office": "Utah State Senator",
-  "state": "UT District 11 (Riverton / Herriman)",
+  "state": "UT District 18 (Riverton / Herriman)",
   "party": "R",
   "termStart": "2019-01",
   "score": null,
@@ -9846,24 +9833,13 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Infrastructure"
   ]
  },
- "cullimore_s19": {
-  "name": "Kirk Cullimore",
-  "office": "Utah State Senator",
-  "state": "UT District 19 (Sandy / Cottonwood Heights)",
-  "party": "R",
-  "termStart": "2019-01",
-  "score": null,
-  "kept": 0,
-  "broken": 0,
-  "pending": 0,
-  "icon": "🏛",
-  "issues": [
-   "Sandy",
-   "Judiciary",
-   "Consumer Protection",
-   "Business"
-  ]
- },
+ // `cullimore_s19` used to hold a second Kirk Cullimore record here — the
+ // district-ballot id for Utah Senate District 19. One person under two ids: he was
+ // elected in 2018 to District 9 and redistricting renumbered the same Salt Lake
+ // County seat to District 19 in 2023, so the two records disagreed on the district
+ // only because one of them was stale. The two were folded into `kcullimore` (above,
+ // district corrected to 19, bio folded into cmp-data-detail.js) and `cullimore_s19`
+ // retired in db/vr-pid-aliases.json.
  "mckell_s25": {
   "name": "Mike McKell",
   "office": "Utah State Senator",
@@ -10409,7 +10385,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Robert F. Kennedy Jr.",
   "office": "HHS Secretary",
   "state": "National",
-  "party": "I→R",
+  "party": "R",
   "termStart": "2025-02",
   "score": null,
   "kept": 0,
@@ -10417,10 +10393,10 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "pending": 12,
   "icon": "🦅",
   "issues": [
-   "Vaccine Safety",
+   "Vaccine Policy",
    "Food & Nutrition Reform",
    "Chronic Disease",
-   "Make America Healthy Again"
+   "Drug Prices"
   ]
  },
  "sanders": {
