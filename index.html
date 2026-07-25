@@ -35276,7 +35276,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       jteuscher:['pm-tier-state','STATE HOUSE','utah_co','district3'],
       cpierucci:['pm-tier-state','STATE HOUSE','utah_co','district3'],
       nthurston:['pm-tier-state','STATE HOUSE','utah_co','district3'],
-      kstratton:['pm-tier-state','STATE HOUSE','utah_co','district3'],
+      kstratton:['pm-tier-state','STATE SENATE','utah_co','district3'],
       kivory:['pm-tier-state','STATE HOUSE','slc','district4'],
       csnider:['pm-tier-state','STATE HOUSE','box_elder','district1'],
       dpulsipher:['pm-tier-state','STATE HOUSE','washington','district2'],
@@ -35438,7 +35438,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       'Stuart Adams': 'As Senate President, he single-handedly decides which bills live or die — including ones on your property taxes and zoning.',
       'Mike Schultz': 'As Speaker of the Utah House, he decides which bills reach a vote — from school-choice scholarships and income-tax cuts to the zoning rules that determine whether your family can afford a home.',
       'Jerry Stevenson': 'Chairs Transportation funding — decides state highway funding for I-15, SR-89, and UTA routes you rely on for your daily commute.',
-      'Brad Wilson': 'On Senate Appropriations — directly allocates the state budget funding your schools and infrastructure.',
+      'Brad Wilson': 'As Utah House Speaker through 2023, he set which budget and tax bills reached a vote — the record behind today\'s school and infrastructure funding, not a seat he still holds.',
       'Trevor Lee': 'Your state representative — votes on education funding, small business rules, and tax policy affecting your family and local businesses.',
       'Jordan Teuscher': 'Your state representative and a House leader — his votes on tech and kids\' online safety, taxes, and how fast-growing South Jordan and Riverton handle roads and schools hit close to home.',
       'Karianne Lisonbee': 'Your Davis County representative and House Majority Whip — helps decide which bills reach the floor and carries some of Utah\'s highest-profile votes on abortion, taxes, and gun rights.',
@@ -41152,40 +41152,61 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       { min: 61, max: 75, label: 'Utah County & Southern Utah' }
     ];
 
-    // Authoritative district + county for each Utah State Senator in the data set.
-    // Keyed by politician id so the browse tree shows a clean, unique "District N
-    // (County)" for every senator — replacing the old "Statewide" / "(Your County)"
-    // buckets and the duplicate district numbers that the raw profile data carried.
+    // Authoritative district + county for each SITTING Utah State Senator in the
+    // data set. Keyed by politician id so the browse tree shows a clean, unique
+    // "District N (County)" for every senator — replacing the old "Statewide" /
+    // "(Your County)" buckets and the duplicate district numbers that the raw
+    // profile data carried.
     //
-    // District 19 is Sen. Kirk Cullimore's alone (Sandy / Draper / Cottonwood
-    // Heights, Salt Lake County; he moved from District 9 when redistricting
-    // renumbered the seat in 2023). Ray Ward (`rward`) used to sit here too with
-    // d:19 / Davis County — he is a Utah HOUSE member from House District 19, so
-    // he now lives in _UTAH_HOUSE_COUNTY[19] and KR_STATE_HOUSE_INCUMBENTS[19]
-    // instead. Do not re-add a House member to this Senate-only map.
+    // DISTRICT NUMBERS ARE POST-2023. Utah's 2021–22 redistricting renumbered many
+    // Senate seats, and several ids in this codebase still encode the OLD number
+    // (`mccay_s11` now sits in District 18; `lincoln_fillmore_s11` is District 17).
+    // Trust this map's `d`, never the id suffix. Corrections applied July 2026 from
+    // the public record: Adams 22→7, Grover 15→23, McCay 11→18, Escamilla 7→10.
+    // Cullimore was already corrected 9→19.
+    //
+    // SITTING ONLY. Two non-senators used to live here and have been removed:
+    // `rward` (Ray Ward is a Utah HOUSE member — District 19 belongs to Cullimore
+    // alone) and `bwilson` (Brad Wilson was House Speaker, never a senator, and
+    // left the Legislature in Nov 2023). `cbramble` is out too — Curt Bramble
+    // retired in Dec 2024; his roster record now correctly reads District 24
+    // (Provo / Orem), the seat Keven Stratton won and holds today. Do not add a
+    // House member, a former member, or a candidate to this map.
     var _UTAH_SENATE_INFO = {
-      ssandall:   { d: 1,  c: 'Box Elder County' },
-      jstevenson: { d: 6,  c: 'Davis County' },
-      lescamilla:    { d: 7,  c: 'Salt Lake County' },
-      tweiler:    { d: 8,  c: 'Davis County' },
-      kcullimore: { d: 19, c: 'Salt Lake County' },
-      cbramble:   { d: 16, c: 'Utah County' },
-      kgrover:    { d: 15, c: 'Utah County' },
-      sadams:     { d: 22, c: 'Davis County' },
-      bwilson:    { d: 24, c: 'Utah County' },
-      evickers:   { d: 28, c: 'Iron County' },
-      dipson:     { d: 29, c: 'Washington County' }
+      ssandall:    { d: 1,  c: 'Box Elder County' },
+      amillner:    { d: 5,  c: 'Weber County' },
+      jstevenson:  { d: 6,  c: 'Davis County' },
+      sadams:      { d: 7,  c: 'Davis County' },
+      tweiler:     { d: 8,  c: 'Davis County' },
+      lescamilla:  { d: 10, c: 'Salt Lake County' },
+      kwan_s12:    { d: 12, c: 'Salt Lake County' },
+      blouin_s13:  { d: 13, c: 'Salt Lake County' },
+      harper_s16:  { d: 16, c: 'Salt Lake County' },
+      mccay_s11:   { d: 18, c: 'Salt Lake County' },
+      kcullimore:  { d: 19, c: 'Salt Lake County' },
+      brammer_s21: { d: 21, c: 'Utah County' },
+      kgrover:     { d: 23, c: 'Utah County' },
+      kstratton:   { d: 24, c: 'Utah County' },
+      mckell_s25:  { d: 25, c: 'Utah County' },
+      evickers:    { d: 28, c: 'Iron County' },
+      dipson:      { d: 29, c: 'Washington County' }
     };
 
     // County fallback for the 29 Utah Senate districts — used to label any
     // dynamically-added senator whose district number parses but who is not in the
     // authoritative map above.
+    //
+    // PARTIALLY STALE: this table was built on pre-2023 numbering. The entries for
+    // districts held by a senator in _UTAH_SENATE_INFO have been verified and
+    // corrected (5, 7, 8, 13, 16, 23); the rest — notably 2, 3, 4, 9, 11, 14, 15,
+    // 17, 20, 22, 26, 27 — have NOT been re-verified against the post-2023 map
+    // and should not be trusted for a new senator without checking the record.
     var _UTAH_SENATE_COUNTY = {
-      1:'Box Elder County', 2:'Weber County', 3:'Weber County', 4:'Davis County', 5:'Davis County',
-      6:'Davis County', 7:'Salt Lake County', 8:'Salt Lake County', 9:'Salt Lake County', 10:'Salt Lake County',
-      11:'Salt Lake County', 12:'Salt Lake County', 13:'Utah County', 14:'Salt Lake County', 15:'Utah County',
-      16:'Utah County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Salt Lake County', 20:'Tooele County',
-      21:'Utah County', 22:'Davis County', 23:'Davis County', 24:'Utah County', 25:'Utah County',
+      1:'Box Elder County', 2:'Weber County', 3:'Weber County', 4:'Davis County', 5:'Weber County',
+      6:'Davis County', 7:'Davis County', 8:'Davis County', 9:'Salt Lake County', 10:'Salt Lake County',
+      11:'Salt Lake County', 12:'Salt Lake County', 13:'Salt Lake County', 14:'Salt Lake County', 15:'Utah County',
+      16:'Salt Lake County', 17:'Salt Lake County', 18:'Salt Lake County', 19:'Salt Lake County', 20:'Tooele County',
+      21:'Utah County', 22:'Davis County', 23:'Utah County', 24:'Utah County', 25:'Utah County',
       26:'Utah County', 27:'Wasatch County', 28:'Iron County', 29:'Washington County'
     };
 
@@ -47688,11 +47709,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       66:'shelley_h66', 67:'albrecht_h67', 68:'chew_h68', 69:'phil_lyman_h69',
       70:'jwestwood', 71:'jwestwood', 75:'rshipp'
     };
+    // Sitting Utah State Senator per district. Keys are POST-2023 district numbers
+    // and must agree with `_UTAH_SENATE_INFO[pid].d` for every pid that appears in
+    // both tables. Several ids encode a pre-redistricting number in their suffix —
+    // `mccay_s11` sits in District 18, `lincoln_fillmore_s11` in District 17,
+    // `brammer_s21` really is 21 — so key off the district, never the suffix.
+    // Corrected July 2026: Adams added at 7, Weiler added at 8, Escamilla added at
+    // 10, Fillmore 11→17, McCay 17→18, Brammer 22→21, Grover 24→23, Stratton added
+    // at 24 (he won Bramble's seat and was sworn in Jan 2025). Districts 4, 11, 14,
+    // 15, 22 have no roster record yet and are intentionally absent — `incPid ||
+    // null` at the call sites degrades to "no incumbent", which is correct, whereas
+    // naming the wrong person is not.
     var KR_STATE_SENATE_INCUMBENTS = {
       1:'ssandall', 2:'chris_wilson_s2', 3:'fillerup_s3', 5:'amillner', 6:'jstevenson',
-      9:'jen_plumb_s9', 11:'lincoln_fillmore_s11', 12:'kwan_s12', 13:'blouin_s13', 16:'harper_s16',
-      17:'mccay_s11', 19:'kcullimore', 20:'ron_winterton_s20', 22:'brammer_s21',
-      24:'kgrover', 25:'mckell_s25', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
+      7:'sadams', 8:'tweiler', 9:'jen_plumb_s9', 10:'lescamilla', 12:'kwan_s12', 13:'blouin_s13', 16:'harper_s16',
+      17:'lincoln_fillmore_s11', 18:'mccay_s11', 19:'kcullimore', 20:'ron_winterton_s20', 21:'brammer_s21',
+      23:'kgrover', 24:'kstratton', 25:'mckell_s25', 26:'hinkins_s26', 27:'derrin_owens_s27', 28:'evickers', 29:'dipson'
     };
 
     function _krGenericRace(location, raceKey, num) {

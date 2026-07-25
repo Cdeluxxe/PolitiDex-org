@@ -97,10 +97,52 @@ const SPOTLIGHTS = loadGlobal("spotlights-data.js", "SPOTLIGHTS", "PDX_SPOTLIGHT
 const ROSTER = loadGlobal("cmp-data.js", "CMP_DATA");
 const memberMap = JSON.parse(read("db/vr-member-map.json"));
 
+// ── ACCT_ALIAS — the third client alias table, and the one that hid a real bug ──
+// index.html declares `window.ACCT_ALIAS`: CMP_DATA/browse-directory pid → the
+// curated Spotlight key for the same person. Many Utah legislators deliberately
+// carry two ids — a browse pid (`ray_ward`, `brady_brammer`, `dmccay`) and a
+// curated pid (`rward`, `brammer_s21`, `mccay_s11`) — and this table is the bridge.
+// The browse-layer partner usually has NO cmp-data.js record, so section 6's
+// `ROSTER[card.id]` lookup missed every card keyed on one: Ray Ward's card said
+// "Utah State Senator" while the roster said Representative, and this harness
+// reported 5,415 passing assertions anyway. Following the alias closes that hole.
+//
+// index.html is a single 60k-line document, not a module, so the table is lifted
+// out by brace-matching from its declaration and evaluated on its own.
+function loadAcctAlias() {
+  const src = read("index.html");
+  const start = src.indexOf("window.ACCT_ALIAS = window.ACCT_ALIAS ||");
+  if (start === -1) return null;
+  const open = src.indexOf("{", start);
+  if (open === -1) return null;
+  let depth = 0, end = -1;
+  for (let i = open; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === "{") depth++;
+    else if (ch === "}") { depth--; if (depth === 0) { end = i; break; } }
+  }
+  if (end === -1) return null;
+  const ctx = { JSON };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  try {
+    return vm.runInContext(`(${src.slice(open, end + 1)})`, vm.createContext(ctx),
+      { filename: "index.html:ACCT_ALIAS" });
+  } catch { return null; }
+}
+const ACCT_ALIAS = loadAcctAlias() || {};
+
 ok(Object.keys(ALIASES).length > 0, "alias file: declares at least one retirement");
 ok(STANCES && typeof STANCES === "object", "politician-stances.js: exposed a stance table");
 ok(SPOTLIGHTS && typeof SPOTLIGHTS === "object", "spotlights-data.js: exposed spotlight data");
 ok(ROSTER && Object.keys(ROSTER || {}).length > 100, "cmp-data.js: exposed the roster index");
+// If the declaration is ever renamed, the extraction above silently yields {} and
+// section 6 quietly narrows back to its pre-fix coverage. Assert the table loaded,
+// and assert a known bridge resolves, so the failure is loud instead.
+ok(Object.keys(ACCT_ALIAS).length > 0,
+  "index.html: window.ACCT_ALIAS was extracted (section 6 needs it to follow browse → curated ids)");
+ok(ACCT_ALIAS.ray_ward === "rward",
+  "index.html: ACCT_ALIAS still bridges 'ray_ward' → 'rward' (the mismatch this check exists for)");
+
 
 // ── 1. The three alias declarations agree ────────────────────────────────────
 // A retirement recorded on the server but not the client means the client keeps
@@ -252,13 +294,29 @@ function chamberIn(s) {
 }
 // Past or prospective offices legitimately disagree with the current roster row
 // (a former House member running for Senate is both things at different times).
-const timeQualified = (s) => /\bFormer\b|\bcandidate\b|\bNominee\b|\bElect\b/i.test(s || "");
+//
+// An explicit past year range is the same claim in a different grammar: a card
+// labelled "Utah House 2019–2024" is describing Sen. Brady Brammer's House tenure,
+// not asserting he sits in the House now. Treating the range as time-qualifying is
+// what lets a card be honestly dated instead of flat-swapped to his current title.
+const YEAR_RANGE = /\b(?:1[89]|20)\d{2}\s*[–—-]\s*(?:(?:1[89]|20)\d{2}|present)\b/i;
+const timeQualified = (s) =>
+  /\bFormer\b|\bcandidate\b|\bNominee\b|\bElect\b/i.test(s || "") || YEAR_RANGE.test(s || "");
+
+// Card id → roster record, following ACCT_ALIAS the way index.html does. A card
+// keyed on a browse-directory pid (`ray_ward`) has no cmp-data.js record of its
+// own; its curated partner (`rward`) does, and that is the record the app renders
+// and therefore the record the label must agree with.
+const rosterFor = (id) =>
+  (ROSTER && (ROSTER[id] || (ACCT_ALIAS[id] && ROSTER[ACCT_ALIAS[id]]))) || null;
 
 let labelChecked = 0;
+let aliasResolved = 0;
 for (const c of cards) {
-  const rec = ROSTER && ROSTER[c.id];
+  const rec = rosterFor(c.id);
   if (!rec || timeQualified(c.office) || timeQualified(rec.office)) continue;
   labelChecked++;
+  if (ROSTER && !ROSTER[c.id]) aliasResolved++;
 
   // A card may legitimately name more than one state ("Washington County
   // Commissioner · Utah"); the roster's state only has to be one of them.
@@ -285,6 +343,10 @@ for (const c of cards) {
       `label vs roster: spotlight card names id '${c.id}' '${c.name}', roster says '${rec.name}'`);
 }
 ok(labelChecked > 0, "spotlights: at least one card was label-checked against the roster");
+// Coverage assertion, not a data assertion: if this drops to zero the ACCT_ALIAS
+// fall-through has stopped reaching any card and the Ray Ward hole has reopened.
+ok(aliasResolved > 0,
+  "spotlights: at least one card was label-checked via ACCT_ALIAS (browse pid → curated roster record)");
 
 // ── 7. No duplicate topic strings inside a merged stance block ──────────────
 // findStance() returns the FIRST topic match (index.html), so a repeated topic

@@ -4268,7 +4268,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             { id: 'hawley', name: 'Josh Hawley', office: 'U.S. Senator · Missouri', icon: '🏛', topic: 'Big Tech & Antitrust', stance: 'mixed' },
             { id: 'cox', name: 'Spencer Cox', office: 'Governor of Utah', icon: '🏛', topic: 'Technology Guardrails', stance: 'mixed' },
             { id: 'mike_mckell', name: 'Mike McKell', office: 'Utah State Senator', icon: '🏛', topic: 'Social Media & Minors', stance: 'opposed' },
-            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah State Representative', icon: '🏛', topic: 'Social Media & Minors', stance: 'opposed' },
+            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah House 2019–2024', icon: '🏛', topic: 'Social Media & Minors', stance: 'opposed' },
             { id: 'derek_brown', name: 'Derek Brown', office: 'Utah Attorney General', icon: '🏛', topic: 'Child Online Safety & Big Tech', stance: 'opposed' },
             // Federal admin leaders & top governors — federal wave 20 (July 2026)
             { id: 'andrew_ferguson', name: 'Andrew Ferguson', office: 'FTC Chair', icon: '⚖️', topic: 'Antitrust & Censorship', stance: 'supported' }
@@ -6272,7 +6272,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             { id: 'jim_jordan', name: 'Jim Jordan', office: 'House Judiciary Committee Chair', icon: '🏛', topic: 'Free Speech & Big Tech', stance: 'supported' },
             { id: 'john_johnson', name: 'John Johnson', office: 'Utah State Senator · Education Chair', icon: '🏛', topic: 'Equal Treatment on Campus', stance: 'supported' },
             { id: 'katy_hall', name: 'Katy Hall', office: 'Utah State Representative', icon: '🏛', topic: 'Ending DEI in Higher Education', stance: 'supported' },
-            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah State Representative', icon: '🏛', topic: 'Religious Accommodation', stance: 'mixed' },
+            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah State Senator', icon: '🏛', topic: 'Religious Accommodation', stance: 'mixed' },
             { id: 'karianne_lisonbee', name: 'Karianne Lisonbee', office: 'Utah State Representative', icon: '🏛', topic: 'Religious & Ideological Freedom in Higher Ed', stance: 'mixed' },
             { id: 'rand_paul', name: 'Rand Paul', office: 'U.S. Senator · Kentucky', icon: '🏛', stance: 'mixed', posText: 'Defends broad free-speech protections and has criticized government retaliation against protesters and revoking student visas over political expression, while also opposing disruption of campus operations.', source: { label: 'paul.senate.gov', url: 'https://www.paul.senate.gov/' }, verdict: { cls: 'consistent', label: 'On record' } },
             { id: 'sanders', name: 'Bernie Sanders', office: 'U.S. Senator · Vermont', icon: '🏛', stance: 'opposed', posText: 'Has condemned antisemitism while defending students’ right to protest and warning that cutting university funding and deporting student activists over their views threatens free speech.', source: { label: 'sanders.senate.gov', url: 'https://www.sanders.senate.gov/' }, verdict: { cls: 'consistent', label: 'On record' } },
@@ -6904,7 +6904,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             { id: 'cox', name: 'Spencer Cox', office: 'Governor of Utah', icon: '🏛', topic: 'Technology Guardrails', stance: 'supported' },
             { id: 'mike_mckell', name: 'Mike McKell', office: 'Utah State Senator', icon: '🏛', topic: 'Social Media & Minors', stance: 'supported' },
             { id: 'jordan_teuscher', name: 'Jordan Teuscher', office: 'Utah State Representative', icon: '🏛', topic: 'Kids & Social Media', stance: 'supported' },
-            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah State Representative', icon: '🏛', topic: 'Social Media & Minors', stance: 'supported' },
+            { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah House 2019–2024', icon: '🏛', topic: 'Social Media & Minors', stance: 'supported' },
             { id: 'dthatcher', name: 'Daniel Thatcher', office: 'Utah State Senator', icon: '🏛', topic: 'Youth Mental Health', stance: 'supported' },
             { id: 'derek_brown', name: 'Derek Brown', office: 'Utah Attorney General', icon: '🏛', topic: 'Child Online Safety & Big Tech', stance: 'mixed' },
             { id: 'curtis', name: 'John Curtis', office: 'U.S. Senator · Utah', icon: '🏛', topic: 'Privacy & Surveillance', stance: 'mixed' },
@@ -7829,7 +7829,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
           {
             label: 'The legislative role · who set the rules of the split',
             people: [
-              { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah House · R-Highland', icon: '🏛', topic: 'Alpine Split (HB3003)', strength: 'strong', impact: 'Chief sponsor · HB3003 (2024)' }
+              { id: 'brady_brammer', name: 'Brady Brammer', office: 'Utah House 2019–2024 · R-Highland', icon: '🏛', topic: 'Alpine Split (HB3003)', strength: 'strong', impact: 'Chief sponsor · HB3003 (2024)' }
             ]
           }
         ],
