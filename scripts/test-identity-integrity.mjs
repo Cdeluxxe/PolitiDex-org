@@ -147,18 +147,31 @@ for (const retired of RETIRED) {
 
 // ── 4. Spotlight cards point at real, canonical ids ──────────────────────────
 // Walk every nested array in spotlights-data.js and collect card-shaped objects.
+//
+// A card is identified by `id` plus ONE of the two ways a group states a position:
+// `topic` (the usual form — findStance() looks the string up in the stance block) or
+// `posText` (the position written inline on the card). Requiring `topic` alone was a
+// real gap: the retired `kennedy_rfk` id shipped a posText-only card in the MAHA
+// spotlight, and this harness could not see it, so sections 4–6 said the merge was
+// clean while a retired id was still on screen. Keying off either field closes that.
 const cards = [];
 (function walk(node) {
   if (!node || typeof node !== "object") return;
   if (Array.isArray(node)) { for (const v of node) walk(v); return; }
-  if (typeof node.id === "string" && typeof node.topic === "string") cards.push(node);
+  if (typeof node.id === "string" &&
+      (typeof node.topic === "string" || typeof node.posText === "string")) cards.push(node);
   for (const v of Object.values(node)) walk(v);
 })(SPOTLIGHTS);
 ok(cards.length > 0, "spotlights: found politician cards to check");
+// The gap above is only closed while posText-only cards are actually reaching this
+// list — assert that rather than trusting the walk.
+ok(cards.some((c) => typeof c.topic !== "string" && typeof c.posText === "string"),
+  "spotlights: the card walk must also collect posText-only cards (no `topic` field)");
+const cardWhat = (c) => c.topic || (c.posText ? String(c.posText).slice(0, 60) + "…" : "(no position)");
 
 for (const c of cards)
   ok(!RETIRED.has(c.id),
-    `spotlight: card '${c.name || c.id}' / '${c.topic}' uses retired id '${c.id}' — ` +
+    `spotlight: card '${c.name || c.id}' / '${cardWhat(c)}' uses retired id '${c.id}' — ` +
     `re-key it to '${ALIASES[c.id]}'`);
 
 // ── 5. Every spotlight card resolves to a person the app knows ───────────────
@@ -177,7 +190,7 @@ for (const c of cards) {
   const known = (ROSTER && ROSTER[c.id]) || (STANCES && STANCES[c.id]);
   idChecked++;
   ok(!!known,
-    `orphan card: spotlight '${c.name || c.id}' / '${c.topic}' uses id '${c.id}', which is in ` +
+    `orphan card: spotlight '${c.name || c.id}' / '${cardWhat(c)}' uses id '${c.id}', which is in ` +
     `neither cmp-data.js nor politician-stances.js — it can never resolve a profile`);
 }
 ok(idChecked > 0, "spotlights: at least one card id was resolved");
@@ -242,7 +255,7 @@ for (const c of cards) {
   const rosterState = statesIn(rec.state)[0] || statesIn(rec.office)[0] || null;
   if (cardStates.length && rosterState)
     ok(cardStates.includes(rosterState),
-      `label vs roster: spotlight card '${c.name || c.id}' / '${c.topic}' places id '${c.id}' ` +
+      `label vs roster: spotlight card '${c.name || c.id}' / '${cardWhat(c)}' places id '${c.id}' ` +
       `in ${cardStates.join("/")}, but the roster has ${rosterState} — the card is about ` +
       `someone else`);
 
@@ -250,7 +263,7 @@ for (const c of cards) {
   const rosterChamber = chamberIn(rec.office);
   if (cardChamber && rosterChamber)
     ok(cardChamber === rosterChamber,
-      `label vs roster: spotlight card '${c.name || c.id}' / '${c.topic}' calls id '${c.id}' ` +
+      `label vs roster: spotlight card '${c.name || c.id}' / '${cardWhat(c)}' calls id '${c.id}' ` +
       `${cardChamber}, but the roster has ${rosterChamber}`);
 
   // Surnames must match. First names vary by usage ("J.D." / "JD", "Mike" /
@@ -289,15 +302,27 @@ for (const pid of MERGE_TARGETS)
     `merged block: '${pid}' is the canonical id of a merge but has no stance block — the ` +
     `retired id's curated content was dropped instead of folded in`);
 
-// ── 8. A merge migration exists for every retirement ────────────────────────
-// The alias file is a read-path safety net, not the merge itself. Without a
-// migration the rows are still split in the database and the depth counts stay
-// halved — the alias only hides it on ids the client happens to ask about.
+// ── 8. Every retirement records how the merge was actually done ─────────────
+// The alias file is a read-path safety net, not the merge itself. A retirement whose
+// rows are still split in the database leaves the depth counts halved, and the alias
+// only hides that on ids the client happens to ask about — so the note has to say
+// where the row-level merge happened, and it has to be auditable.
+//
+// Two legitimate forms:
+//   • a migration filename — the normal case, where the id held vr_* rows;
+//   • an explicit "no DB rows" statement — a person who never had any (a cabinet
+//     officer casts no roll calls, so the split was purely curated content). There
+//     is no migration to name because there was nothing in the database to move;
+//     demanding one would only invite a no-op migration written to satisfy a test.
+// The note must state which, in a form a reader can check against the branch DB.
 const note = aliasFile.notes || {};
+const NAMES_MIGRATION = /migrations\/\d+.*\.sql/;
+const NO_DB_ROWS = /\bno\b[^.]{0,20}\bdb rows\b/i;
 for (const retired of RETIRED)
-  ok(typeof note[retired] === "string" && /migrations\/\d+.*\.sql/.test(note[retired]),
-    `provenance: db/vr-pid-aliases.json notes['${retired}'] must name the migration that ` +
-    `merged it, so the row-level merge can be audited`);
+  ok(typeof note[retired] === "string" &&
+     (NAMES_MIGRATION.test(note[retired]) || NO_DB_ROWS.test(note[retired])),
+    `provenance: db/vr-pid-aliases.json notes['${retired}'] must either name the migration ` +
+    `that merged it, or state that it held no DB rows, so the merge can be audited`);
 
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {

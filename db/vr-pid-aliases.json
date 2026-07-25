@@ -1,9 +1,11 @@
 {
   "_comment": "Retired politician_id → canonical politician_id. `politician_id` is free text across the vr_* tables (there is no politicians table and no FK), so the same person can end up under two ids — a curated seed using one and the live ingest another. When a merge migration folds one id into another, record the retirement here: the ingest canonicalizes on write and the Voting Record API canonicalizes on read, so a stale Blobs member-map override, an old bookmark, or a saved client record can never re-open the split. Client-side stance lookups have their own bridge (STANCE_ALIASES in stance-helpers.js) — keep the two in step.",
   "aliases": {
-    "susan_collins": "collins"
+    "susan_collins": "collins",
+    "kennedy_rfk": "rfkjr"
   },
   "notes": {
-    "susan_collins": "Susan Collins (R-ME, C001035). Merged by netlify/database/migrations/20260725050000_vr_merge_susan_collins_identity.sql. `collins` is canonical: it is the cmp-data.js roster id, carries the richer sourced stance block, and held 19 of her 22 roll-call votes."
+    "susan_collins": "Susan Collins (R-ME, C001035). Merged by netlify/database/migrations/20260725050000_vr_merge_susan_collins_identity.sql. `collins` is canonical: it is the cmp-data.js roster id, carries the richer sourced stance block, and held 19 of her 22 roll-call votes.",
+    "kennedy_rfk": "Robert F. Kennedy Jr. (HHS Secretary). No merge migration: he holds NO DB rows under either id — 0 in vr_member_votes, 0 in vr_positions, 0 pdx_proposals links (verified against the branch DB, July 25 2026) — because a cabinet officer casts no roll-call votes. This was a curated-content split, not a vote split, so it was fixed in the data files: the six sourced stance cards moved into the `rfkjr` block in politician-stances.js, the duplicate cmp-data.js roster record was removed, and the one spotlight card was re-keyed. `rfkjr` is canonical: it carries every deep-dive surface (cmp-data-detail.js, spotlight-cards-data.js, acct-spotlight-data.js, the index.html votingRecords block and profile blurb), the repaired official portrait, termStart tenure, and 3 of the 4 spotlight cards. The alias still matters even with no rows: the ingest canonicalizes on write and the Voting Record API on read, so if a future source ever attributes a row to `kennedy_rfk` it lands on `rfkjr` instead of re-opening the split."
   }
 }

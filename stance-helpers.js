@@ -61,7 +61,7 @@
       // Firestore doc or saved user record still under the old id lights up. Keep
       // in step with db/vr-pid-aliases.json (server-side write + read path) and
       // PDX_PID_ALIASES below — scripts/test-identity-integrity.mjs enforces it.
-      susan_collins:'collins'
+      susan_collins:'collins', kennedy_rfk:'rfkjr'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 
@@ -72,8 +72,11 @@
     // canonical id or it gets an empty record. The Voting Record API canonicalizes
     // incoming ids too, but the client caches by id — so it has to agree, or a
     // record fetched as `collins` would never be found by a lookup for
-    // `susan_collins`. Only ids a shipped migration has actually merged belong here.
-    var PDX_PID_ALIASES = { susan_collins: 'collins' };
+    // `susan_collins`. Only ids an actual merge has retired belong here — normally a
+    // shipped migration, but a person with no vr_* rows at all (a cabinet officer
+    // casts no roll calls) is merged in the data files instead, with no migration to
+    // point at. `kennedy_rfk` is that case; see db/vr-pid-aliases.json for the note.
+    var PDX_PID_ALIASES = { susan_collins: 'collins', kennedy_rfk: 'rfkjr' };
     window.PDX_PID_ALIASES = PDX_PID_ALIASES;
     // Resolve a politician id to the one the voting record is stored under.
     window.PDXCanonicalPid = function (id) {

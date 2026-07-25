@@ -3261,23 +3261,10 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Accountability"
   ]
  },
- "kennedy_rfk": {
-  "name": "Robert F. Kennedy Jr.",
-  "office": "U.S. Secretary of Health & Human Services",
-  "state": "California",
-  "party": "R",
-  "score": 54,
-  "kept": 0,
-  "broken": 0,
-  "pending": 0,
-  "icon": "⚕️",
-  "issues": [
-   "Chronic Disease",
-   "Food & Nutrition",
-   "Drug Prices",
-   "Vaccine Policy"
-  ]
- },
+// Robert F. Kennedy Jr. was listed twice — a `kennedy_rfk` record sat here and a
+// `rfkjr` record further down, one person under two ids, so he surfaced as two
+// search results with different offices, states, parties and scores. The two were
+// folded into `rfkjr` (below) and `kennedy_rfk` retired in db/vr-pid-aliases.json.
  "mccormick": {
   "name": "Dave McCormick",
   "office": "U.S. Senator",
@@ -10409,7 +10396,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Robert F. Kennedy Jr.",
   "office": "HHS Secretary",
   "state": "National",
-  "party": "I→R",
+  "party": "R",
   "termStart": "2025-02",
   "score": null,
   "kept": 0,
@@ -10417,10 +10404,10 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "pending": 12,
   "icon": "🦅",
   "issues": [
-   "Vaccine Safety",
+   "Vaccine Policy",
    "Food & Nutrition Reform",
    "Chronic Disease",
-   "Make America Healthy Again"
+   "Drug Prices"
   ]
  },
  "sanders": {
