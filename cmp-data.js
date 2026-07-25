@@ -10943,5 +10943,55 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "name": "Stephen Harding", "office": "Connecticut State Senator", "state": "Connecticut",
   "district": "SD 30", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Cost of Living", "Brookfield"]
+ },
+// ── Sitting Utah State Senators — identity wiring only (July 2026) ────────────
+// These seven seats were wired into KR_STATE_SENATE_INCUMBENTS (index.html) under
+// invented `*_sN` ids that existed in NO other file: no roster record, no stance
+// block, no Spotlight card. Meanwhile each of these senators ALREADY had a full
+// curated stance block under a different id, so the Key Races wiring pointed at a
+// pid that could never resolve a profile while the real person sat one table away.
+// The fix keeps the id that carries the curated content and gives it the roster
+// record it was missing — which is also why the ids below are NOT renamed to match
+// their district: the stance key must equal the roster id or _resolveStanceList()
+// needs yet another alias (see the mmckell note in stance-helpers.js).
+//
+// `score`/`kept`/`broken`/`pending` are deliberately null/0 — no promise ledger has
+// been researched for these members, and inventing one would be worse than absent.
+// `issues` are lifted verbatim from each member's own curated stance-card topics in
+// politician-stances.js, not authored here.
+ "cwilson": {
+  "name": "Chris Wilson", "office": "UT State Senator", "state": "UT District 2 (Logan, Cache County)",
+  "district": "SD 2", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Property Taxes", "Higher Education", "Small Business & Economy", "Behavioral Health Crisis Care"]
+ },
+ "john_johnson": {
+  "name": "John Johnson", "office": "UT State Senator", "state": "UT District 3 (North Ogden, Weber County)",
+  "district": "SD 3", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Intellectual Diversity & DEI", "Civics Education", "Healthcare Access", "Higher-Education Board Accountability"]
+ },
+ "jennifer_plumb": {
+  "name": "Jennifer Plumb", "office": "UT State Senator", "state": "UT District 9 (Salt Lake City)",
+  "district": "SD 9", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Overdose Prevention", "Child & Maternal Health", "Gun Safety", "Healthcare Access"]
+ },
+ "lincoln_fillmore": {
+  "name": "Lincoln Fillmore", "office": "UT State Senator", "state": "UT District 17 (South Jordan, Salt Lake County)",
+  "district": "SD 17", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["School Choice", "Income Taxes", "Housing Affordability", "Public Safety"]
+ },
+ "rwinterton": {
+  "name": "Ronald Winterton", "office": "UT State Senator", "state": "UT District 20 (Roosevelt, Duchesne County)",
+  "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Energy & Resource Development", "Public Lands & Federalism", "Rural Roads & Infrastructure", "Colorado River Water"]
+ },
+ "dhinkins": {
+  "name": "David Hinkins", "office": "UT State Senator", "state": "UT District 26 (Orangeville, Emery County)",
+  "district": "SD 26", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Agriculture & Rural Communities", "Protecting Coal Mining", "Rural Water Supply", "State Budget Stewardship"]
+ },
+ "dowens_st": {
+  "name": "Derrin Owens", "office": "UT State Senator", "state": "UT District 27 (Fountain Green, Sanpete County)",
+  "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Water Rights", "Agriculture & Ranching", "Wildfire Resilience", "Rural Broadband & Infrastructure"]
  }
 });
