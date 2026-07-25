@@ -75,7 +75,12 @@
       // per the note above about keeping the stance key equal to it), so this alias
       // is the plain retired → canonical case with no name-slug hop.
       susan_collins:'collins', kennedy_rfk:'rfkjr', cullimore_s19:'kcullimore',
-      kcullimore:'kirk_cullimore', calbrecht:'carl_albrecht'
+      kcullimore:'kirk_cullimore', calbrecht:'carl_albrecht',
+      // `derek_brown` is the content-side duplicate of Utah AG Derek Brown: it
+      // held four sourced cards that ISSUE_STANCE_DATA['derek_brown_ut'] shadowed
+      // outright, since the direct id hit wins over every fallback. Folded into
+      // the roster id; this keeps an old bookmark or saved pick resolving.
+      derek_brown:'derek_brown_ut'
     };
     window.STANCE_ALIASES = STANCE_ALIASES;
 
@@ -94,9 +99,12 @@
     // congressional roll calls, so he has no rows under either id and the merge was
     // done in the data files. `calbrecht` (Rep. Carl Albrecht's content-side
     // duplicate, merged into the roster id `carl_albrecht`) is that case again.
+    // `derek_brown` (the Utah Attorney General's content-side duplicate, merged
+    // into the roster id `derek_brown_ut`) is the same case once more — a state
+    // officer casts no congressional roll calls, so there are no rows to move.
     var PDX_PID_ALIASES = {
       susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore',
-      calbrecht: 'carl_albrecht'
+      calbrecht: 'carl_albrecht', derek_brown: 'derek_brown_ut'
     };
     window.PDX_PID_ALIASES = PDX_PID_ALIASES;
     // Resolve a politician id to the one the voting record is stored under.

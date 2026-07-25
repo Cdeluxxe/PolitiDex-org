@@ -25406,6 +25406,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   };
 
   function openModal(id) {
+    // A card or deep link may name a browse-directory pid (`ray_ward`) whose
+    // curated record lives under a different id (`rward`). ACCT_ALIAS is that
+    // bridge and every other surface that touches these ids already follows it —
+    // the theme lookup, the Evidence Locker, the harness's own rosterFor(). This
+    // resolution step did not, so a spotlight card keyed on a browse pid rendered
+    // (nameFor()/officeFor() fall back to the card's literals), was clickable, and
+    // then dead-ended on _pdxShowModalError. Followed ONLY when the id has no
+    // record of its own, so a real profile always wins and canonicalization stays
+    // a single hop — the same rule PDXCanonicalPid() and section 2 of the identity
+    // harness enforce for the retired-id table.
+    if (id && window.ACCT_ALIAS && window.ACCT_ALIAS[id] &&
+        !(window.PROFILES && PROFILES[id]) &&
+        !(typeof CMP_DATA !== 'undefined' && CMP_DATA[id])) {
+      id = window.ACCT_ALIAS[id];
+    }
     // Personal Impact Tracker (opt-in, private): opening a full profile is the
     // canonical "researched a candidate" signal. Deduped by id in PDXImpact, so
     // openModal's own re-entrant call (loading shell → refetch → re-run) counts once.
@@ -54730,6 +54745,36 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // `cullimore_s19`: a saved My-Team pick or bookmark stored under the old id
       // still resolves to his curated Spotlight data.
       calbrecht: 'carl_albrecht',
+      // July 2026 surface-split sweep — browse-directory pid → curated roster id
+      // for the Utah legislators whose spotlight cards are keyed on a slug of
+      // their display name while their cmp-data.js record lives under a short id.
+      // These are ONE person with one roster record, not merged duplicates: the
+      // curated stance block stays under the name-slug key per this repo's
+      // stance-key convention (see db/vr-pid-aliases.json and STANCE_ALIASES),
+      // and _resolveStanceList()'s name-slug fallback already reached it. What
+      // was missing is the profile hop — openModal() resolves PROFILES/CMP_DATA
+      // and, before this pass, never followed ACCT_ALIAS, so tapping any of these
+      // cards dead-ended on "This profile couldn't be loaded". Bridging them here
+      // also brings their cards under section 6's label-vs-roster check.
+      // (`derek_brown` is the exception — a genuine retired id, see below.)
+      derek_brown:       'derek_brown_ut',
+      evan_vickers:      'evickers',
+      mike_mckell:       'mckell_s25',
+      mike_schultz:      'mschultz',
+      steve_eliason:     'eliason_h45',
+      karen_kwan:        'kwan_s12',
+      daniel_mccay:      'mccay_s11',
+      ariel_defay:       'defay_h15',
+      wayne_harper:      'harper_s16',
+      keith_grover:      'kgrover',
+      kirk_cullimore:    'kcullimore',
+      mike_kohler:       'kohler_h59',
+      rosie_rivera:      'rosie_rivera_slco',
+      sandra_hollins:    'hollins_h24',
+      angela_romero:     'aromero',
+      karianne_lisonbee: 'lisonbee_h14',
+      jordan_teuscher:   'teuscher_h44',
+      ann_millner:       'amillner',
     };
 
     // Resolve the overall theme for an official: a document-authored

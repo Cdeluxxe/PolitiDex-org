@@ -3712,22 +3712,6 @@
         evidence:'Joined the Texas v. Pennsylvania amicus brief (Dec 2020).',
         source:{label:'Deseret News', url:'https://www.deseret.com/utah/2022/9/26/23366939/utah-attorney-general-sean-reyes-ethics-complaint-donald-trump-2020-election-fraud/'} },
     ],
-    derek_brown: [
-      { topic:'Child Online Safety & Big Tech', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
-        text:'Calls protecting children online "one of my highest priorities," pressing the state\'s lawsuits against social-media platforms over harms to minors.',
-        detail:'Advanced Utah\'s suit against TikTok over alleged exploitation through its Live feature and filed a new suit against Snap (Snapchat) in June 2025.',
-        evidence:'Advanced Utah\'s TikTok litigation (2025); filed suit against Snap Inc. (June 2025).',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/utah-court-denies-tiktoks-motion-to-dismiss-in-landmark-childrens-protection-lawsuit/'} },
-      { topic:'Trust & Ethics in the Office', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
-        text:'Entered office pledging to "return trust" to an Attorney General\'s Office shaken by his predecessor\'s controversies, emphasizing ethics and transparency.',
-        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/01/03/attorney-general-derek-brown-wants-to-return-trust-to-the-office/'} },
-      { topic:'Federalism & Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
-        text:'A constitutional and appellate attorney who frames public-lands and state-authority questions around federalism and Utah\'s control of its own land.',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
-      { topic:'Fentanyl & Public Safety', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support',
-        text:'Names fentanyl and public safety among the office\'s top enforcement priorities.',
-        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
-    ],
     moaks: [
       { topic:'ESG / Politicized Investing', icon:'💰', pos:'oppose', issueKey:'econ_growth', issueStance:'support',
         text:'One of the nation\'s most prominent state officials opposing ESG investing; in 2022 he pulled about $100 million of state funds from BlackRock, arguing ESG breaches the fiduciary duty owed to Utahns.',
@@ -7410,6 +7394,24 @@
       { topic:'Consumer Protection', icon:'🛡', pos:'support', issueKey:'econ_corp_account', issueStance:'support', text:'Pursues consumer-protection enforcement across the state.', source:{label:'law.alaska.gov', url:'https://law.alaska.gov/'} },
     ],
     derek_brown_ut: [ // Derek Brown — ⚖️ Utah Attorney General (R)
+      // Merged from the retired `derek_brown` id (July 2026 surface-split
+      // sweep). Grafted ABOVE the original cards because two issueKeys
+      // collide — tech_balance and lands_local — and findStance() returns the
+      // FIRST match, so the sourced, more specific card has to come first.
+      { topic:'Child Online Safety & Big Tech', icon:'📱', pos:'support', issueKey:'tech_balance', issueStance:'support',
+        text:'Calls protecting children online "one of my highest priorities," pressing the state\'s lawsuits against social-media platforms over harms to minors.',
+        detail:'Advanced Utah\'s suit against TikTok over alleged exploitation through its Live feature and filed a new suit against Snap (Snapchat) in June 2025.',
+        evidence:'Advanced Utah\'s TikTok litigation (2025); filed suit against Snap Inc. (June 2025).',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/utah-court-denies-tiktoks-motion-to-dismiss-in-landmark-childrens-protection-lawsuit/'} },
+      { topic:'Trust & Ethics in the Office', icon:'🔍', pos:'support', issueKey:'gov_transparency', issueStance:'support',
+        text:'Entered office pledging to "return trust" to an Attorney General\'s Office shaken by his predecessor\'s controversies, emphasizing ethics and transparency.',
+        source:{label:'Deseret News', url:'https://www.deseret.com/politics/2025/01/03/attorney-general-derek-brown-wants-to-return-trust-to-the-office/'} },
+      { topic:'Federalism & Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support',
+        text:'A constitutional and appellate attorney who frames public-lands and state-authority questions around federalism and Utah\'s control of its own land.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
+      { topic:'Fentanyl & Public Safety', icon:'🚫', pos:'support', issueKey:'immig_fentanyl', issueStance:'support',
+        text:'Names fentanyl and public safety among the office\'s top enforcement priorities.',
+        source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov'} },
       { topic:'Federal Pushback', icon:'⚖️', pos:'mixed', issueKey:'gov_balance', issueStance:'mixed', text:'Joins Republican-led multistate suits against federal rules.', evidence:'Utah Attorney General since 2025; a former Utah legislator and state Republican Party chair.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
       { topic:'Public Lands', icon:'🏔', pos:'support', issueKey:'lands_local', issueStance:'support', text:'Backs Utah’s effort to assert state control over federal public lands, including a challenge over unappropriated lands.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },
       { topic:'Public Safety', icon:'🚔', pos:'support', issueKey:'tough_on_crime', issueStance:'support', text:'Emphasizes fentanyl and violent-crime enforcement.', source:{label:'attorneygeneral.utah.gov', url:'https://attorneygeneral.utah.gov/'} },

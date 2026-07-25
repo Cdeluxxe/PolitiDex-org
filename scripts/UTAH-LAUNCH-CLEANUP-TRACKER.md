@@ -526,3 +526,121 @@ Val Peterson at **56**.
 - **None of the fourteen new records is in `PROFILES`**, so none gets a Power-Map card
   (`pmInjectDynamicCards` only injects ids present there). Consistent with every earlier
   pass; adding them is a public-directory visibility decision.
+
+---
+
+# Surface-Split Identity Pairs (July 2026, sixth pass)
+
+`scripts/merge-utah-surface-splits-jul2026.mjs` — idempotent, dry-run by default.
+
+## The premise this pass corrected
+
+The brief described ~20 Utah people existing under two ids where "one id holds the
+roster + map wiring, the other holds stance or spotlight content", creating
+"parallel identities and unreachable cards". Twenty-five such pairs do exist. But
+they were **not** parallel identities, and with one exception no stance card was
+unreachable. Measured before touching anything:
+
+- Each pair has **one** `cmp-data.js` roster record, never two. Section 9 of the
+  harness has never fired for any of them, correctly.
+- For 24 of 25 the name-slug id holds **all** the stance cards and the roster id
+  holds **zero**. Nothing was shadowed; there was nothing to union.
+- `_stanceSlug(ROSTER[rosterId].name)` equals the name-slug id for all 25, so
+  `_resolveStanceList()` reached every block through its documented name-slug
+  fallback — and every real read path goes through that resolver
+  (`index.html`'s `stanceList()`; `alignment-tool.js` enumerates keys).
+
+The two-key layout is deliberate and already documented. `db/vr-pid-aliases.json`
+says so for Cullimore — *"curated stance cards stay under the name-slug key
+`kirk_cullimore` per this file's stance-key convention; STANCE_ALIASES bridges both
+ids to it"* — and the harness says so in section 7's comment: keying off
+`STANCES[pid]` *"would push the fix toward renaming the block instead of wiring the
+bridge."*
+
+Two structural facts made that more than a style preference. Registering the
+name-slug ids as retired in `db/vr-pid-aliases.json` would trip **section 3**
+(`politician-stances.js still has a '<retired>' block`), forcing exactly those
+renames. And re-keying the spotlight cards onto the roster ids would drive
+**section 6**'s `aliasResolved` counter to zero — the assertion whose comment reads
+*"if this drops to zero the ACCT_ALIAS fall-through has stopped reaching any card
+and the Ray Ward hole has reopened."* Both invariants point the same way: bridge,
+don't rename. **So 24 stance blocks were left keyed as they are.**
+
+## What was actually broken — the click path
+
+A spotlight card keyed on a browse pid rendered fine (`nameFor()`/`officeFor()`/
+`iconFor()` fall back to the card's own literals) and was clickable. The click ran
+`toProfile()` → `showProfile()` → `openModal()`, and `openModal` resolved only
+`PROFILES[id] || CMP_DATA[id]`. It never consulted `ACCT_ALIAS`, unlike every other
+surface handling these ids. **All 48 cards across the 25 pairs dead-ended on
+`_pdxShowModalError` ("This profile couldn't be loaded")** — including the 7 pairs
+`ACCT_ALIAS` already bridged, because the bridge was never read on this path.
+
+| Fix | Layer |
+|---|---|
+| `openModal()` follows `ACCT_ALIAS` when — and only when — the id has no record of its own, so a real profile always wins and the hop stays single | `index.html` |
+| The 18 pairs `ACCT_ALIAS` did not yet bridge got their entry | `index.html` |
+
+Verified functionally: 25 of 25 pair ids now resolve a profile (0 dead), and 25 of
+25 still resolve a stance block. The 18 new bridges also brought **29 previously
+unchecked cards** under section 6's label-vs-roster check — 0 new failures
+(pre-flight simulated the assertion before writing).
+
+## The one true merge — `derek_brown` → `derek_brown_ut`
+
+The only pair matching the brief's premise, and the Albrecht shape exactly: **four
+sourced stance cards under each id.** Because `_resolveStanceList()` tries
+`ISSUE_STANCE_DATA[id]` first, the roster id's four thin AG-wave cards won and the
+four richer ones (TikTok and Snap child-safety litigation, the "return trust to the
+office" pledge succeeding Sean Reyes, federalism and public lands, fentanyl
+enforcement) were **unreachable from the canonical profile**. Same person,
+confirmed from content: both blocks cite `attorneygeneral.utah.gov` and describe
+the sitting Utah AG.
+
+Merged the Albrecht way — grafted cards go at the **top**, because two issueKeys
+collide (`tech_balance`, `lands_local`) and an issueKey-only `findStance()` lookup
+must resolve the richer sourced card first. No topic string collides, so section 7
+stays green. Its 3 spotlight cards were re-keyed (section 4 forbids a retired id on
+a card), and the retirement is registered in all three alias tables plus
+`db/vr-pid-aliases.json` with a "no DB rows" provenance note.
+
+Remaining quality gap: the four inherited AG-wave cards all cite only the office's
+own homepage.
+
+## Pairs left as-is (24) — bridged, not merged
+
+`evan_vickers`/`evickers` · `mike_mckell`/`mckell_s25` · `mike_schultz`/`mschultz` ·
+`steve_eliason`/`eliason_h45` · `karen_kwan`/`kwan_s12` · `daniel_mccay`/`mccay_s11` ·
+`ariel_defay`/`defay_h15` · `wayne_harper`/`harper_s16` · `keith_grover`/`kgrover` ·
+`kirk_cullimore`/`kcullimore` · `mike_kohler`/`kohler_h59` ·
+`rosie_rivera`/`rosie_rivera_slco` · `sandra_hollins`/`hollins_h24` ·
+`angela_romero`/`aromero` · `karianne_lisonbee`/`lisonbee_h14` ·
+`jordan_teuscher`/`teuscher_h44` · `ann_millner`/`amillner` (18 newly bridged) and
+`stephanie_gricius`/`gricius_h50` · `brady_brammer`/`brammer_s21` ·
+`val_peterson`/`valpeterson_h56` · `ray_ward`/`rward` · `trevor_lee`/`tlee` ·
+`katy_hall`/`hall_h11` · `jake_fitisemanu`/`fitisemanu_h30` (already bridged; fixed
+by the `openModal` change).
+
+No pair was ambiguous and none looked like two different people — every name-slug
+resolved to exactly one roster id.
+
+## Still open
+
+- **`ACCT_ALIAS` is doing double duty**, which is why some entries run
+  roster-id → curated-theme-key (`harper_s16: 'wharper'`, `lisonbee_h14:
+  'klisonbee'`, `eliason: 'seliason'`) and others browse-pid → roster-id. Adding
+  the 18 creates 2-hop chains like `steve_eliason → eliason_h45 → seliason`. Benign
+  today — `openModal` follows a single hop and only on a miss, and the middle id
+  always has a roster record so resolution stops there — but the table would read
+  more honestly split in two.
+- **`ken_ivory: 'kivory'` points at an id with no roster record**, so that card
+  click still dies. The roster id is `ivory_h39`. Not repointed here because
+  `ACCT_ALIAS` is also the theme-key lookup (`index.html` ~54742) and `kivory` is
+  where his `ACCT_THEME` blurb lives — fixing it properly needs the table split
+  above. Same shape for the other theme-only keys with no roster record:
+  `wharper`, `seliason`, `klisonbee`, `csnider`, `mmckell`, `vickers`, `hollins`.
+- **91 spotlight card ids resolve to no roster record at all** (194 cards), mostly
+  out-of-state federal figures (`julie_fedorchak`, `dina_titus`, `sherrod_brown`
+  …). These are not split pairs — there is no partner id to merge — so they are
+  content-authored cards awaiting real roster records, not an identity defect.
+  Section 5 passes them because they carry stance blocks.
