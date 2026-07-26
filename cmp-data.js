@@ -11369,25 +11369,73 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "bennie_thompson": {
   "name": "Bennie Thompson", "office": "U.S. Representative",
   "state": "Mississippi · MS-02",
-  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "D", "score": 100, "kept": 3, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "1993-04",
-  "issues": ["Criminal Justice", "Economy & Taxes", "Rural Broadband", "Infrastructure", "Disaster Recovery"]
+  "issues": ["Criminal Justice", "Economy & Taxes", "Rural Broadband", "Infrastructure", "Disaster Recovery"],
+  "promises": [
+   {
+    "title": "Connect rural Mississippi to high-speed internet",
+    "detail": "Voted for the bipartisan infrastructure law and announced the resulting $1.2 billion BEAD allocation to build out Mississippi broadband.",
+    "verdict": "kept",
+    "issueKey": "broadband",
+    "sources": [{ "label": "House.gov", "url": "https://benniethompson.house.gov/media/press-releases/congressman-thompson-announces-12-billion-allocated-mississippi-broadband" }]
+   },
+   {
+    "title": "Bring federal disaster-recovery money to Delta communities",
+    "detail": "Announced nearly $10 million in federal disaster-recovery investments for Delta regional communities.",
+    "verdict": "kept",
+    "issueKey": "water",
+    "sources": [{ "label": "House.gov", "url": "https://benniethompson.house.gov/media/press-releases/congressman-bennie-thompson-announces-nearly-10-million-disaster-recovery" }]
+   },
+   {
+    "title": "Insist that Congress, not the President, decides on war",
+    "detail": "Says congressional oversight of the executive branch is not optional. Voted for H.Con.Res. 89, directing the removal of U.S. forces from hostilities with Iran under the War Powers Resolution; it passed 214–208 on July 23, 2026.",
+    "verdict": "kept",
+    "issueKey": "checks_balances",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026282" }]
+   },
+   {
+    "title": "Pass the Bolstering Security Against Ghost Guns Act",
+    "detail": "Sponsored H.R. 2698 on April 7, 2025 to tighten controls on untraceable, self-assembled firearms. It has had no floor action.",
+    "verdict": "pending",
+    "issueKey": "gun_safety",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/2698" }]
+   }
+  ]
  },
  // Sitting AR-04 since Jan 2015; chairs House Natural Resources, which is the office string his one spotlight card uses.
  "bruce_westerman": {
   "name": "Bruce Westerman", "office": "U.S. Representative",
   "state": "Arkansas · AR-04",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2015-01",
-  "issues": ["Taxes & Cost of Living", "Forest Management", "Tax Relief", "Second Amendment"]
+  "issues": ["Taxes & Cost of Living", "Forest Management", "Tax Relief", "Second Amendment"],
+  "promises": [
+   {
+    "title": "Overhaul federal forest management to cut wildfire risk",
+    "detail": "Authored the Fix Our Forests Act (H.R. 471) to expand active forest management on federal lands and moved it through the House 279–141 on January 23, 2025.",
+    "verdict": "kept",
+    "issueKey": "lands_balance",
+    "sources": [{ "label": "House Natural Resources Committee", "url": "https://naturalresources.house.gov/news/documentsingle.aspx?DocumentID=416884" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/471" }]
+   }
+  ]
  },
  // Sitting NC-01 since Jan 3 2023; on the Nov 3 2026 ballot. NC redrew its map in the 2025–26 mid-decade cycle; NC-01 is the seat he holds now.
  "don_davis": {
   "name": "Don Davis", "office": "U.S. Representative",
   "state": "North Carolina · NC-01",
-  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "D", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
-  "issues": ["Climate & Energy", "Agriculture & Rural Communities", "Bipartisanship", "Social Security & Medicare"]
+  "issues": ["Climate & Energy", "Agriculture & Rural Communities", "Bipartisanship", "Social Security & Medicare"],
+  "promises": [
+   {
+    "title": "Vote across party lines when his district calls for it",
+    "detail": "Brands himself an independent-minded, bipartisan legislator. Cast 12 votes against his party in the June–July 2026 window — including yeas on final passage of the FY2027 National Defense Authorization Act (H.R. 8800), the Stop Insider Trading Act (H.R. 7008), the FY2027 continuing resolution (H.R. 9770) and the Removing Barriers to Work for Disabled Americans Act (H.R. 8884).",
+    "verdict": "kept",
+    "issueKey": "reform_balance",
+    "sources": [{ "label": "dondavis.house.gov", "url": "https://dondavis.house.gov/media/press-releases/congressman-don-davis-votes-again-laken-riley-act" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026278" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026280" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026283" }]
+   }
+  ]
  },
  // Sitting OK-03 since a May 1994 special election; dean of the Oklahoma delegation.
  "frank_lucas": {
@@ -11401,17 +11449,63 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "josh_brecheen": {
   "name": "Josh Brecheen", "office": "U.S. Representative",
   "state": "Oklahoma · OK-02",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
-  "issues": ["Federal Spending", "National Debt", "Agriculture", "Energy Policy", "Judicial Impeachment"]
+  "issues": ["Federal Spending", "National Debt", "Agriculture", "Energy Policy", "Judicial Impeachment"],
+  "promises": [
+   {
+    "title": "Vote against spending he judges unaffordable, even against his own party",
+    "detail": "Names the national debt his top concern and presses for structural spending reductions. Cast 14 votes against his party in the June–July 2026 window, the most in this cohort — including a nay on final passage of the FY2027 National Defense Authorization Act (H.R. 8800, which passed 216–212 on July 22, 2026) and nays on the suspension bills H.R. 915, H.R. 2478 and H.R. 7128.",
+    "verdict": "kept",
+    "issueKey": "national_debt",
+    "sources": [{ "label": "GovTrack", "url": "https://www.govtrack.us/congress/members/josh_brecheen/456931" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/8800" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026278" }]
+   },
+   {
+    "title": "Enact the POWER Act",
+    "detail": "Sponsored H.R. 164, which passed the House 419–2 on January 15, 2025 and was sent to the Senate, where it has not been taken up.",
+    "verdict": "partial",
+    "issueKey": "enviro_energy",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/164" }, { "label": "GovTrack", "url": "https://www.govtrack.us/congress/votes/119-2025/h13" }]
+   }
+  ]
  },
  // Sitting ND at-large, sworn in Jan 6 2025. Most card-covered of the 20 (9 nested spotlight cards).
  "julie_fedorchak": {
   "name": "Julie Fedorchak", "office": "U.S. Representative",
   "state": "North Dakota · ND-AL",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 2, "icon": "🏛",
   "termStart": "2025-01",
-  "issues": ["Government Spending", "Energy & Grid Reliability", "Agriculture & Farm Country", "Ban Congressional Stock Trading", "Government Accountability"]
+  "issues": ["Government Spending", "Energy & Grid Reliability", "Agriculture & Farm Country", "Ban Congressional Stock Trading", "Government Accountability"],
+  "promises": [
+   {
+    "title": "Bar members of Congress from trading individual stocks",
+    "detail": "Joined a 2026 push to end member stock trading, then voted for the Stop Insider Trading Act (H.R. 7008) on final passage, which cleared the House 232–198 on July 22, 2026.",
+    "verdict": "kept",
+    "issueKey": "stock_trading_ban",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/7008" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026280" }]
+   },
+   {
+    "title": "Harden the northern-plains grid against extreme cold and attack",
+    "detail": "Centers grid reliability after 12 years regulating North Dakota utilities. Voted for the Weatherizing Infrastructure in the North and Terrorism Emergency Readiness Act (H.R. 3106), which passed the House 400–7 on July 13, 2026.",
+    "verdict": "kept",
+    "issueKey": "enviro_energy",
+    "sources": [{ "label": "House.gov", "url": "https://fedorchak.house.gov/meet-julie" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/3106" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026234" }]
+   },
+   {
+    "title": "Withhold members of Congress's pay during a government shutdown",
+    "detail": "Proposed docking congressional pay during shutdowns after the 2025 shutdown. No House floor action on the proposal is on the record.",
+    "verdict": "pending",
+    "issueKey": "gov_transparency",
+    "sources": [{ "label": "House.gov", "url": "https://fedorchak.house.gov/meet-julie" }]
+   },
+   {
+    "title": "Stop regional grid operators from billing North Dakota ratepayers for other states' mandates",
+    "detail": "Wrote legislation to bar regional transmission organizations from passing other states' energy-mandate costs on to North Dakota ratepayers. The bill has not reached a floor vote.",
+    "verdict": "pending",
+    "issueKey": "states_federal_power",
+    "sources": [{ "label": "fedorchak.house.gov", "url": "https://fedorchak.house.gov" }]
+   }
+  ]
  },
  // Sitting IA-01 since Jan 2021 (first won by six votes after a recount).
  "mariannette_miller_meeks": {
@@ -11449,17 +11543,70 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "mike_flood": {
   "name": "Mike Flood", "office": "U.S. Representative",
   "state": "Nebraska · NE-01",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 2, "icon": "🏛",
   "termStart": "2022-06",
-  "issues": ["Housing Supply", "Federal Spending", "Biofuels & Agriculture", "Court Orders & the Rule of Law", "A State Path in Financial Rules"]
+  "issues": ["Housing Supply", "Federal Spending", "Biofuels & Agriculture", "Court Orders & the Rule of Law", "A State Path in Financial Rules"],
+  "promises": [
+   {
+    "title": "Get a housing-supply bill through Congress",
+    "detail": "Chairs the Housing and Insurance Subcommittee on a pledge to expand housing supply. Voted to concur in the Senate amendment to the 21st Century ROAD to Housing Act (H.R. 6644), clearing the measure 358–32 on June 23, 2026.",
+    "verdict": "kept",
+    "issueKey": "housing_build",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/member/mike-flood/F000474" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/6644" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026224" }]
+   },
+   {
+    "title": "Pass his own Build Housing Affordably Act",
+    "detail": "Introduced H.R. 9311 to expand the housing supply. No floor vote on the bill is on the record.",
+    "verdict": "pending",
+    "issueKey": "housing_build",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/member/mike-flood/F000474" }]
+   },
+   {
+    "title": "Pass the VA TRUST Act and the Stamp Out Veterans Medical Debt Act",
+    "detail": "Sponsored H.R. 6740 and H.R. 5946. Neither has received a floor vote.",
+    "verdict": "pending",
+    "issueKey": "veterans",
+    "sources": [{ "label": "GovTrack", "url": "https://www.govtrack.us/congress/members/mike_flood/456868" }]
+   },
+   {
+    "title": "Cut federal spending — \"Washington is still spending too much\"",
+    "detail": "Campaigned on cutting federal spending. Voted for the FY2027 budget resolution setting lower spending levels (H.Con.Res. 113, 216–214, July 22, 2026) and also for the FY2027 continuing resolution carrying existing levels forward (H.R. 9770, 220–205, the same day).",
+    "verdict": "partial",
+    "issueKey": "national_debt",
+    "sources": [{ "label": "Campaign", "url": "https://mikefloodfornebraska.com/" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026281" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026272" }]
+   }
+  ]
  },
  // Sitting ID-02 since Jan 1999; won the May 19 2026 primary with 63.3%.
  "mike_simpson": {
   "name": "Mike Simpson", "office": "U.S. Representative",
   "state": "Idaho · ID-02",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 3, "icon": "🏛",
   "termStart": "1999-01",
-  "issues": ["Government Spending", "Taxes & Cost of Living", "Nuclear Energy & Idaho National Laboratory", "Salmon & Lower Snake River", "Interior & Environment Appropriations"]
+  "issues": ["Government Spending", "Taxes & Cost of Living", "Nuclear Energy & Idaho National Laboratory", "Salmon & Lower Snake River", "Interior & Environment Appropriations"],
+  "promises": [
+   {
+    "title": "Stop pocket rescissions and restore Congress's spending power",
+    "detail": "A senior appropriator who says the White House practice of letting appropriated money expire unspent is unconstitutional, because Congress decides how federal funds are spent. No legislative remedy has passed.",
+    "verdict": "pending",
+    "issueKey": "checks_balances",
+    "sources": [{ "label": "simpson.house.gov", "url": "https://simpson.house.gov" }]
+   },
+   {
+    "title": "Enact the FY2027 Interior and Environment appropriations bill",
+    "detail": "As subcommittee chairman, introduced the fiscal-2027 Interior, Environment, and Related Agencies Appropriations Act (H.R. 9171). It has not received a House floor vote on this record.",
+    "verdict": "pending",
+    "issueKey": "lands_balance",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/member/michael-simpson/S001148" }]
+   },
+   {
+    "title": "Reconcile the lower Snake River dams with salmon recovery",
+    "detail": "Authored a high-profile framework seeking to resolve the conflict between the lower Snake River dams and salmon recovery. It has not been enacted.",
+    "verdict": "pending",
+    "issueKey": "enviro_balance",
+    "sources": [{ "label": "Ballotpedia", "url": "https://ballotpedia.org/Michael_Simpson_(Idaho)" }]
+   }
+  ]
  },
  // Sitting AR-01 since Jan 2011; chairs House Intelligence. vr-member-map records him formally as Eric A. "Rick" Crawford; the card and common usage are "Rick Crawford".
  "rick_crawford": {
@@ -11473,9 +11620,25 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "rob_bresnahan": {
   "name": "Rob Bresnahan", "office": "U.S. Representative",
   "state": "Pennsylvania · PA-08",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2025-01",
-  "issues": ["Domestic Energy Production", "Tough on Crime", "Government Spending", "Jobs & Economy", "Infrastructure"]
+  "issues": ["Domestic Energy Production", "Tough on Crime", "Government Spending", "Jobs & Economy", "Infrastructure"],
+  "promises": [
+   {
+    "title": "Ban members of Congress from trading individual stocks",
+    "detail": "Introduced a member stock-trading ban, delivering on a 2024 campaign pledge, and voted for the Stop Insider Trading Act (H.R. 7008) on final passage, 232–198 on July 22, 2026.",
+    "verdict": "kept",
+    "issueKey": "stock_trading_ban",
+    "sources": [{ "label": "bresnahan.house.gov", "url": "https://bresnahan.house.gov/media/press-releases/bresnahan-introduces-legislation-ban-stock-trades-announces-plan-form-blind" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/7008" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026280" }]
+   },
+   {
+    "title": "Move his own holdings into a blind trust",
+    "detail": "Announced a plan to place his holdings in a blind trust alongside the bill. No completed transfer appears on the record.",
+    "verdict": "pending",
+    "issueKey": "stock_trading_ban",
+    "sources": [{ "label": "bresnahan.house.gov", "url": "https://bresnahan.house.gov/media/press-releases/bresnahan-introduces-legislation-ban-stock-trades-announces-plan-form-blind" }]
+   }
+  ]
  },
  // Sitting PA-07, sworn in Jan 6 2025. No spotlight card names him.
  "ryan_mackenzie": {
@@ -11505,24 +11668,93 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "steve_womack": {
   "name": "Steve Womack", "office": "U.S. Representative",
   "state": "Arkansas · AR-03",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2011-01",
-  "issues": ["Mental Health & Addiction", "Taxes & Cost of Living", "Federal Budget", "Tax Relief", "Second Amendment"]
+  "issues": ["Mental Health & Addiction", "Taxes & Cost of Living", "Federal Budget", "Tax Relief", "Second Amendment"],
+  "promises": [
+   {
+    "title": "Defend Congress's power of the purse against the executive branch",
+    "detail": "As House Budget Committee chairman he and the committee's ranking member jointly sought a GAO opinion, which confirmed that Congress controls federal spending. He said \"Article I grants the power of the purse to Congress.\"",
+    "verdict": "kept",
+    "issueKey": "checks_balances",
+    "sources": [{ "label": "House Budget Committee", "url": "https://democrats-budget.house.gov/news/press-releases/yarmuth-womack-respond-gao-s-legal-opinion-confirming-congress-s-power-purse" }]
+   },
+   {
+    "title": "No tax increases — signed the Taxpayer Protection Pledge",
+    "detail": "Signed the Taxpayer Protection Pledge, favoring spending cuts over tax increases. Voted for H.R. 1 in 2025, which extended the 2017 individual income-tax rates rather than letting them rise; it passed the House 218–214 on July 3, 2025.",
+    "verdict": "kept",
+    "issueKey": "lower_taxes",
+    "sources": [{ "label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Steve_Womack" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2025190" }]
+   },
+   {
+    "title": "Balance the federal budget",
+    "detail": "Has proposed a balanced-budget amendment and opposed debt-limit increases. Voted for the FY2027 budget resolution (H.Con.Res. 113, 216–214, July 22, 2026) and also for the FY2027 continuing resolution carrying existing spending levels forward (H.R. 9770, 220–205, the same day). No balanced-budget amendment has passed the House.",
+    "verdict": "partial",
+    "issueKey": "national_debt",
+    "sources": [{ "label": "OnTheIssues", "url": "https://ontheissues.org/House/Steve_Womack.htm" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026281" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026272" }]
+   }
+  ]
  },
  // Sitting MS-01 since a Jun 2 2015 special election.
  "trent_kelly": {
   "name": "Trent Kelly", "office": "U.S. Representative",
   "state": "Mississippi · MS-01",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2015-06",
-  "issues": ["National Defense", "Veterans & National Guard", "Agriculture", "Second Amendment", "Taxes & Cost of Living"]
+  "issues": ["National Defense", "Veterans & National Guard", "Agriculture", "Second Amendment", "Taxes & Cost of Living"],
+  "promises": [
+   {
+    "title": "Fund shipbuilding and force projection",
+    "detail": "Chairs the Armed Services Seapower and Projection Forces Subcommittee. Voted for the FY2027 National Defense Authorization Act (H.R. 8800) on final passage, 216–212 on July 22, 2026.",
+    "verdict": "kept",
+    "issueKey": "strong_defense",
+    "sources": [{ "label": "Ballotpedia", "url": "https://ballotpedia.org/Trent_Kelly" }, { "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/8800" }, { "label": "House Clerk", "url": "https://clerk.house.gov/Votes/2026278" }]
+   },
+   {
+    "title": "Pass emergency payments for struggling crop producers",
+    "detail": "Introduced the bipartisan Farmer Assistance and Revenue Mitigation Act of 2024. It did not receive a floor vote and has not been enacted.",
+    "verdict": "pending",
+    "issueKey": "rural_ag",
+    "sources": [{ "label": "House.gov", "url": "https://trentkelly.house.gov/newsroom/documentsingle.aspx?DocumentID=7467" }]
+   }
+  ]
  },
  // Sitting MT-02, sworn in Jan 6 2025, succeeding Matt Rosendale.
  "troy_downing": {
   "name": "Troy Downing", "office": "U.S. Representative",
   "state": "Montana · MT-02",
-  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2025-01",
-  "issues": ["Taxes & Cost of Living", "Tax Relief", "Public Lands Access", "Coal & Energy", "Water Infrastructure"]
+  "issues": ["Taxes & Cost of Living", "Tax Relief", "Public Lands Access", "Coal & Energy", "Water Infrastructure"],
+  "promises": [
+   {
+    "title": "Keep federal public land in public hands",
+    "detail": "Opposed a provision to sell roughly 500,000 acres of BLM land during work on the 2025 budget bill; the sale was dropped from the law that passed.",
+    "verdict": "kept",
+    "issueKey": "lands_keep_public",
+    "sources": [{ "label": "Montana Free Press", "url": "https://montanafreepress.org/2025/05/20/zinke-downing-line-up-behind-trump-budget-bill/" }]
+   },
+   {
+    "title": "Keep the Bull Mountains coal mine operating",
+    "detail": "Sponsored H.R. 931 to keep the Bull Mountains mine running; the provision was folded into the 2025 budget law.",
+    "verdict": "kept",
+    "issueKey": "enviro_energy",
+    "sources": [{ "label": "Congress.gov", "url": "https://www.congress.gov/bill/119th-congress/house-bill/931" }]
+   },
+   {
+    "title": "Eliminate the Federal Insurance Office and return insurance regulation to the states",
+    "detail": "The former Montana State Auditor made abolishing the Federal Insurance Office his first bill in Congress. It has not received a floor vote.",
+    "verdict": "pending",
+    "issueKey": "states_federal_power",
+    "sources": [{ "label": "downing.house.gov", "url": "https://downing.house.gov" }]
+   },
+   {
+    "title": "Extend the Fort Peck Reservation and Dry-Redwater rural water systems",
+    "detail": "Sponsored bills extending both rural water systems. Both passed the House and await Senate action.",
+    "verdict": "partial",
+    "issueKey": "water",
+    "sources": [{ "label": "GovTrack", "url": "https://www.govtrack.us/congress/members/troy_downing/457000" }]
+   }
+  ]
  }
 });

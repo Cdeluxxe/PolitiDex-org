@@ -5623,3 +5623,36 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
     T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
   });
 })();
+
+// ── Voting Record depth pass (July 2026) ───────────────────────────────────────
+// mike_collins was the only one of the 20 newly-unlocked Voting Record members with
+// no Connected Evidence at all, so his panel and Evidence Locker rendered empty.
+// Each item below is his own recorded action, keyed to an issueKey already on his
+// stance cards so Connected Evidence connects.
+(function () {
+  var _add = {
+    mike_collins: [
+      { impact:'positive', category:'legislation', date:'2025', tags:['Legislation','Enacted'], issueKey:'border_security',
+        headline:'Authored the Laken Riley Act, the first law of the 119th Congress',
+        facts:'Collins wrote the Laken Riley Act (H.R. 29), requiring federal detention of unauthorized immigrants charged with theft or certain other crimes. It passed the House 264–159 on January 7, 2025 and was signed into law as Public Law 119-1. Laken Riley was killed in Athens, in his district.',
+        why:'It is the clearest measure of what he can carry from introduction to enacted law, and the detention mandate is the policy he is most identified with.',
+        source:{ label:'Congress.gov', url:'https://www.congress.gov/bill/119th-congress/house-bill/29' } },
+      { impact:'positive', category:'vote', date:'2026', tags:['Roll Call'], issueKey:'gov_waste',
+        headline:'Voted for the Stop Insider Trading Act',
+        facts:'Collins voted yes on final passage of the Stop Insider Trading Act (H.R. 7008), which would bar members of Congress from trading individual stocks. It passed the House 232–198 on July 22, 2026.',
+        why:'A recorded vote on the ethics of his own institution, on a bill that split the chamber 232–198 rather than passing by acclamation.',
+        source:{ label:'House Clerk', url:'https://clerk.house.gov/Votes/2026280' } },
+      { impact:'neutral', category:'vote', date:'2026', tags:['Roll Call','Against Party'], issueKey:'enviro_energy',
+        headline:'Broke with most of his party six times on the FY2027 defense bill',
+        facts:'During House consideration of the FY2027 National Defense Authorization Act (H.R. 8800) in July 2026, Collins cast six votes against the position most of his party took, all on amendments that would have narrowed the bill — among them H.Amdt. 252, which would have prohibited funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine. He voted yes; it failed 76–350. He then voted for the underlying bill, which passed 216–212.',
+        why:'It places him on the restraint wing of his conference on defense spending and foreign assistance, a position distinct from his vote on the bill as a whole.',
+        source:{ label:'House Clerk', url:'https://clerk.house.gov/Votes/2026264' } },
+    ],
+  };
+
+  var T = (window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {});
+  Object.keys(_add).forEach(function (k) {
+    // Concat-merge so any pre-existing array for this id keeps its items.
+    T[k] = Array.isArray(T[k]) ? T[k].concat(_add[k]) : _add[k];
+  });
+})();
