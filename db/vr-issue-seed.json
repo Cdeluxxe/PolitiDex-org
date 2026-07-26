@@ -1,5 +1,5 @@
 {
-  "_comment": "Curated measure→issue mappings for the Voting Record 'stance vs. record' verdict. Applied by applyCuratedIssueSeed() in netlify/lib/vr-ingest.ts. Each entry attaches to a measure ONLY when a real measure with the same (measureType, congress, chamber, canonical number) already exists — created by the seed migration or by a live Congress.gov ingest. Entries that don't match anything yet are harmless no-ops until that roll call is ingested, so nothing here can invent a measure. supportMeaning is binary: 'yea_supports' (a yea advances the issue) or 'yea_opposes' (a yea cuts against it) — see _voteEffectiveSupport in stance-helpers.js.",
+  "_comment": "Curated measure→issue mappings for the Voting Record 'stance vs. record' verdict. Applied by applyCuratedIssueSeed() in netlify/lib/vr-ingest.ts. Each entry attaches to EVERY real measure with the same (congress, chamber, canonical number) that already exists — created by the seed migration or by a live Congress.gov ingest. measureType is recorded for provenance but is deliberately NOT part of the match: a live ingest that files H.Res. 1399 as a 'bill' must still receive the curated mapping, and a number that exists twice must have both rows mapped rather than one silently missed. Entries that don't match anything yet are harmless no-ops until that roll call is ingested, so nothing here can invent a measure. supportMeaning is binary: 'yea_supports' (a yea advances the issue) or 'yea_opposes' (a yea cuts against it) — see _voteEffectiveSupport in stance-helpers.js.",
   "measures": [
     {
       "measureType": "bill",
@@ -655,6 +655,169 @@
           "supportMeaning": "yea_supports",
           "rationale": "Self amendment to H.R. 8800 (FY2027 NDAA) codifies protections and responsibilities for military chaplains and makes violations of those protections punishable under the Uniform Code of Military Justice; a yea strengthens statutory religious-exercise protection in the services.",
           "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6955",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6955",
+      "issues": [
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Amends the Federal banking laws to widen small-business and Main Street access to capital; a yea backs that expansion of access."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Res. 1399",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-resolution/1399",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Directs the Committee on Ethics to preserve and publicly release records of monetary settlements involving sexual harassment; a yea forces disclosure of settlements that are otherwise sealed."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 8884",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8884",
+      "issues": [
+        {
+          "issueKey": "social_security",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Amends title II of the Social Security Act to reauthorize demonstration authority for the disability insurance program; a yea keeps that Social Security program authority in place. Weighted below a full-strength mapping on purpose: this is program administration, not a vote on benefit levels."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 235",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/235",
+      "issues": [
+        {
+          "issueKey": "america_first_fp",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Prohibits funds appropriated by the Act from being used for Israel — a direct floor test of whether to continue a standing foreign-aid commitment."
+        },
+        {
+          "issueKey": "cut_spending",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The amendment reduces the Foreign Military Financing Program account by the corresponding amount; a yea cuts that spending."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 236",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/236",
+      "issues": [
+        {
+          "issueKey": "america_first_fp",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Prohibits funds appropriated by the Act from being used for Jordan — a direct floor test of whether to continue a standing foreign-aid commitment."
+        },
+        {
+          "issueKey": "cut_spending",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The amendment reduces the National Security Investment Programs and Foreign Military Financing accounts by the corresponding amounts; a yea cuts that spending."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 248",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/248",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Ensures the continued operation of the Santa Ynez production unit; a yea keeps a domestic oil production asset online rather than letting it shut down."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The amendment's stated purpose is protecting a critical component of the military's fuel supply chain; a yea backs that supply-chain security."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 2965",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2965",
+      "issues": [
+        {
+          "issueKey": "gov_regulation",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Establishes a small business regulatory budget, capping the regulatory cost federal agencies may impose; a yea constrains new regulation. Identified from the H.Res. 916 rule already in this record, which describes H.R. 2965 as the small business regulatory budget bill."
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 80,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The regulatory budget is scoped to the compliance burden borne by small businesses; a yea reduces that burden."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4305",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4305",
+      "issues": [
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Creates an SBA hotline for small businesses to report federal rules they find burdensome; a yea backs that channel. Identified from the H.Res. 916 rule already in this record, which describes H.R. 4305 as the SBA Red Tape Hotline bill."
+        },
+        {
+          "issueKey": "gov_regulation",
+          "weight": 80,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The hotline exists to surface federal red tape for repeal or revision; a yea advances that deregulatory review."
         }
       ]
     }

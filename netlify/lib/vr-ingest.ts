@@ -448,48 +448,62 @@ export async function applyCuratedIssueSeed(
   const out = { measuresMatched: 0, measuresSkipped: 0, issuesUpserted: 0, badKeys: [] as string[], matchedMeasureIds: [] as number[] };
   for (const entry of seed) {
     const number = canonicalMeasureNumber(entry.number);
+    // Match on (congress, chamber, canonical number) — NOT measureType, and NOT
+    // limited to one row. Congress.gov and the roll-call feeds disagree about how
+    // to type a measure (a House resolution arrives typed 'bill' often enough),
+    // and the same number can exist twice while a merge is pending. Matching on
+    // type made a curated mapping silently no-op in both cases; matching every
+    // row means the worst case is an idempotent re-upsert. The null-number branch
+    // still needs the type to identify anything at all, so it keeps it.
     const found = await db
       .select({ id: vrMeasures.id })
       .from(vrMeasures)
       .where(
-        and(
-          eq(vrMeasures.measureType, entry.measureType),
-          eq(vrMeasures.congress, entry.congress),
-          eq(vrMeasures.chamber, entry.chamber),
-          number ? eq(vrMeasures.number, number) : sql`${vrMeasures.number} IS NULL`
-        )
-      )
-      .limit(1);
+        number
+          ? and(
+              eq(vrMeasures.congress, entry.congress),
+              eq(vrMeasures.chamber, entry.chamber),
+              eq(vrMeasures.number, number)
+            )
+          : and(
+              eq(vrMeasures.measureType, entry.measureType),
+              eq(vrMeasures.congress, entry.congress),
+              eq(vrMeasures.chamber, entry.chamber),
+              sql`${vrMeasures.number} IS NULL`
+            )
+      );
     if (!found.length) { out.measuresSkipped++; continue; } // not ingested yet — no-op
     out.measuresMatched++;
-    const measureId = found[0].id;
-    out.matchedMeasureIds.push(measureId);
-    for (const iss of entry.issues) {
-      if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
-      const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
-      const values = {
-        measureId,
-        issueKey: iss.issueKey,
-        weight: typeof iss.weight === "number" ? iss.weight : 100,
-        isPrimary: !!iss.isPrimary,
-        supportMeaning,
-        rationale: iss.rationale || "",
-        sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
-      };
-      await db
-        .insert(vrMeasureIssues)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
-          set: {
-            weight: values.weight,
-            isPrimary: values.isPrimary,
-            supportMeaning: values.supportMeaning,
-            rationale: values.rationale,
-            sourceUrl: values.sourceUrl,
-          },
-        });
-      out.issuesUpserted++;
+    for (const row of found) {
+      const measureId = row.id;
+      out.matchedMeasureIds.push(measureId);
+      for (const iss of entry.issues) {
+        if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
+        const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
+        const values = {
+          measureId,
+          issueKey: iss.issueKey,
+          weight: typeof iss.weight === "number" ? iss.weight : 100,
+          isPrimary: !!iss.isPrimary,
+          supportMeaning,
+          rationale: iss.rationale || "",
+          sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
+        };
+        await db
+          .insert(vrMeasureIssues)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
+            set: {
+              weight: values.weight,
+              isPrimary: values.isPrimary,
+              supportMeaning: values.supportMeaning,
+              rationale: values.rationale,
+              sourceUrl: values.sourceUrl,
+            },
+          });
+        out.issuesUpserted++;
+      }
     }
   }
   return out;
