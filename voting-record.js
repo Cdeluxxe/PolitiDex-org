@@ -27,6 +27,10 @@
 
    Public surface:
      window.PDXVotingRecord.fetchMember(id, opts) -> Promise<data|null>  (cached)
+     window.PDXVotingRecord.fetchIssueRecords(keys) -> Promise<{byPid,…}|null>
+         one batched request for EVERY member's record on a set of issueKeys, for
+         surfaces that must rank a whole field (issue-first ranking) rather than
+         read one profile. Rehydrates into the same item shape fetchMember returns.
      window._renderVotingRecord(id, p)            -> shell HTML string
      window._pdxInitVotingRecord()                -> hydrate after modal render
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -263,7 +267,7 @@
       return promise;
     },
 
-    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._records = {}; },
+    clearCache: function () { this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._issueRecCache.clear(); this._records = {}; },
 
     // ── Resolved per-member records (sync accessor) ─────────────────────────────
     // A member's full, unfiltered record items, cached the moment any surface loads
@@ -327,6 +331,135 @@
         .catch(function () { self._packCache.delete(id); return null; });
       this._packCache.set(id, promise);
       return promise;
+    },
+
+    // ── Batched issue-scoped read for RANKING ───────────────────────────────────
+    // GET /issue-records?issues=k1,k2 → every tracked member's record on that issue
+    // bundle in ONE request. Built for issue-first ranking, which has to know the
+    // whole field before it can order anyone: fetching per member would be dozens of
+    // requests, and reading whatever happens to be warm in _records would make the
+    // ordering depend on which profiles the visitor had already opened.
+    //
+    // The wire format de-duplicates bill and roll-call metadata (each appears once,
+    // with a thin per-member ref list pointing at it), so this rehydrates the refs
+    // back into the SAME record-item shape /member/:id returns. Callers therefore
+    // feed the result straight into the shared stance-vs-record engine
+    // (_issueRecordSummary / _polRecordMap) with no special-casing.
+    //
+    // Deliberately does NOT call noteMember(): _records is documented as a member's
+    // FULL, unfiltered record, and seeding it from an issue-scoped read would make
+    // every other surface conclude the member has voted on nothing else. This cache
+    // is separate and additive.
+    _issueRecCache: new Map(),
+    fetchIssueRecords: function (issueKeys) {
+      var keys = (issueKeys || [])
+        .map(function (k) { return String(k == null ? '' : k).trim(); })
+        .filter(Boolean)
+        .filter(function (k, i, a) { return a.indexOf(k) === i; })
+        .sort();
+      if (!keys.length) return Promise.resolve(null);
+      var qs = keys.join(',');
+      if (this._issueRecCache.has(qs)) return this._issueRecCache.get(qs);
+      var self = this;
+      var url = API_BASE + '/issue-records?issues=' + encodeURIComponent(qs);
+      var promise = fetch(url, { headers: { accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('issue-records ' + r.status); return r.json(); })
+        .then(function (data) { return self.hydrateIssueRecords(data); })
+        .catch(function (e) {
+          // Drop the entry so a later (online) attempt retries, and resolve to null so
+          // a ranking degrades to its receipt-only behaviour instead of throwing.
+          self._issueRecCache.delete(qs);
+          if (window.console && console.warn) console.warn('PDXVotingRecord.fetchIssueRecords:', e && e.message);
+          return null;
+        });
+      this._issueRecCache.set(qs, promise);
+      return promise;
+    },
+
+    // Expand the de-duplicated wire format into canonical record items per member.
+    // Pure; exposed so the shape can be tested without a network round trip.
+    hydrateIssueRecords: function (data) {
+      if (!data || !data.byPolitician) return null;
+      var measures = data.measures || {};
+      var rollcalls = data.rollcalls || {};
+      var byPid = {};
+      var pids = Object.keys(data.byPolitician);
+      for (var i = 0; i < pids.length; i++) {
+        var refs = data.byPolitician[pids[i]];
+        if (!Array.isArray(refs)) continue;
+        var items = [];
+        for (var j = 0; j < refs.length; j++) {
+          var ref = refs[j];
+          if (!ref) continue;
+          if (ref.kind === 'vote') {
+            var rc = rollcalls[ref.rollcallId];
+            if (!rc) continue;
+            var m = measures[rc.measureId];
+            if (!m) continue;
+            items.push({
+              kind: 'vote',
+              measureId: rc.measureId,
+              measureType: m.measureType,
+              number: m.number,
+              title: m.title,
+              // The roll call's own chamber is authoritative for a vote; the measure's
+              // is only a fallback (it can differ on a bill that moved chambers).
+              chamber: rc.chamber || m.chamber || null,
+              status: m.status,
+              date: rc.date || null,
+              action: rc.action || null,
+              actionType: rc.actionType,
+              position: ref.position,
+              result: rc.result || null,
+              isParty: ref.isParty || null,
+              supports: null,
+              isProcedural: !!rc.isProcedural,
+              advanceInverted: !!rc.advanceInverted,
+              isAmendment: m.measureType === 'amendment',
+              parentMeasureId: (m.parentMeasureId == null) ? null : m.parentMeasureId,
+              rollcallId: ref.rollcallId,
+              issues: m.issues || [],
+              source: rc.source || null
+            });
+          } else {
+            var pm = measures[ref.measureId];
+            if (!pm) continue;
+            items.push({
+              kind: 'position',
+              measureId: ref.measureId,
+              measureType: pm.measureType,
+              number: pm.number,
+              title: pm.title,
+              chamber: pm.chamber || null,
+              status: pm.status,
+              date: ref.date || null,
+              action: ref.action || null,
+              actionType: ref.action || '',
+              position: ref.action || '',
+              result: null,
+              isParty: null,
+              supports: (typeof ref.supports === 'boolean') ? ref.supports : null,
+              isProcedural: false,
+              advanceInverted: false,
+              isAmendment: pm.measureType === 'amendment',
+              parentMeasureId: (pm.parentMeasureId == null) ? null : pm.parentMeasureId,
+              rollcallId: null,
+              issues: pm.issues || [],
+              source: ref.source || null
+            });
+          }
+        }
+        if (!items.length) continue;
+        // Two source ids can canonicalize to the same person; merge rather than clobber.
+        var id = canonPid(pids[i]);
+        byPid[id] = byPid[id] ? byPid[id].concat(items) : items;
+      }
+      return {
+        issues: data.issues || [],
+        byPid: byPid,
+        counts: data.counts || { politicians: 0, votes: 0, positions: 0 },
+        truncated: !!data.truncated
+      };
     }
   };
   window.PDXVotingRecord = PDXVotingRecord;

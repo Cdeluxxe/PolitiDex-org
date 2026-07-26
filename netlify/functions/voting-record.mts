@@ -32,6 +32,12 @@
 //   GET /measure/:measureId     one measure + its issues, roll calls (with votes),
 //                               and non-roll-call positions
 //   GET /compare                ?members=a,b,c[&issue=key] side-by-side per member
+//   GET /issue-records          ?issues=k1,k2 every member's record on a whole issue
+//                               bundle in ONE request, de-duplicated: measure and
+//                               rollcall metadata once, then a thin per-member ref
+//                               list. Built for issue-first RANKING, where the caller
+//                               needs the whole field at once and cannot afford one
+//                               request per member (or per page).
 
 import type { Config } from "@netlify/functions";
 import { and, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
@@ -68,6 +74,14 @@ const PAGE_SIZE_MAX = 100;
 // optimization can push pagination fully into SQL via a UNION of votes+positions.)
 const FETCH_CAP = 2000;
 const MAX_COMPARE_MEMBERS = 8;
+// /issue-records serves a whole issue BUNDLE (a core issue is several ISSUE_MAP keys),
+// so it needs its own two limits: how many keys one request may ask for, and how many
+// raw vote rows it will assemble across all of them. The row cap is higher than
+// FETCH_CAP because this route deliberately spans every member rather than one, and
+// the response discloses when it was hit (`truncated`) so a caller never presents a
+// clipped read as a complete one.
+const MAX_RANK_ISSUES = 16;
+const RANK_FETCH_CAP = 8000;
 // Roll-call action types the UI treats as procedural noise, hidden when the caller
 // passes procedural=0.
 const PROCEDURAL_TYPES = ["procedural", "motion"];
@@ -1019,6 +1033,175 @@ async function getCompare(url: URL): Promise<Response> {
   return json({ members, issue: issue || null, matrix });
 }
 
+// ── GET /issue-records?issues=k1,k2,… ────────────────────────────────────────
+// Every tracked member's record on a whole issue bundle, in ONE request.
+//
+// WHY THIS EXISTS: issue-first ranking needs the vote evidence for the entire field
+// before it can order anybody. The existing routes can't serve that shape —
+// /member/:id is one member per request, /compare caps at 8 members, and /issue/:key
+// paginates the flat item list (so a ranker would have to walk pages just to learn
+// who is in the field). Reading "whoever happens to be warm in a client cache"
+// instead is worse than either: the ordering would silently depend on which profiles
+// the visitor had already opened.
+//
+// The payload is de-duplicated rather than compressed by dropping detail: measure and
+// rollcall metadata appear ONCE under `measures` / `rollcalls`, and each member gets a
+// thin ref list pointing into them. Every field the client needs to rebuild the
+// canonical record item is present, so the client rehydrates the SAME item shape
+// assembleRecordItems() produces here and feeds it to the same stance-vs-record engine
+// every other surface uses. Nothing about a verdict is computed on this side: the
+// stated stance a vote is judged against lives in the client's ISSUE_STANCE_DATA.
+//
+// Verifiability is unchanged — assembleRecordItems() already refuses to emit an item
+// without a source_url, and every issue key is checked against the shipped allow-list.
+async function getIssueRecords(url: URL): Promise<Response> {
+  const raw = clean(url.searchParams.get("issues"), 1024);
+  const keys = [
+    ...new Set(
+      raw
+        .split(",")
+        .map((k) => clean(k, ID_MAX))
+        .filter(Boolean)
+    ),
+  ].slice(0, MAX_RANK_ISSUES);
+  if (!keys.length) return json({ error: "issues query param required" }, 400);
+  const unknown = keys.find((k) => !assertIssueKey(k));
+  if (unknown) return json({ error: `Unknown issue key: ${unknown}` }, 400);
+
+  const empty = {
+    issues: keys,
+    measures: {},
+    rollcalls: {},
+    byPolitician: {},
+    counts: { politicians: 0, votes: 0, positions: 0 },
+    truncated: false,
+  };
+
+  const measureIdRows = await db
+    .select({ id: vrMeasureIssues.measureId })
+    .from(vrMeasureIssues)
+    .where(inArray(vrMeasureIssues.issueKey, keys));
+  const measureIds = [...new Set(measureIdRows.map((r) => r.id))];
+  if (!measureIds.length) return json(empty);
+
+  // One row cap across the whole bundle, +1 so the overflow is detectable rather than
+  // guessed at. Most recent first, so a clipped read is still the current record.
+  const voteRows = await db
+    .select({ ...VOTE_COLUMNS, politicianId: vrMemberVotes.politicianId })
+    .from(vrMemberVotes)
+    .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
+    .innerJoin(vrMeasures, eq(vrRollcalls.measureId, vrMeasures.id))
+    .where(inArray(vrRollcalls.measureId, measureIds))
+    .orderBy(desc(vrRollcalls.voteDate))
+    .limit(RANK_FETCH_CAP + 1);
+  const truncated = voteRows.length > RANK_FETCH_CAP;
+  if (truncated) voteRows.length = RANK_FETCH_CAP;
+
+  const posRows = await db
+    .select({ ...POSITION_COLUMNS, politicianId: vrPositions.politicianId })
+    .from(vrPositions)
+    .innerJoin(vrMeasures, eq(vrPositions.measureId, vrMeasures.id))
+    .where(inArray(vrPositions.measureId, measureIds))
+    .limit(FETCH_CAP);
+
+  const issuesByMeasure = await loadIssuesByMeasure(measureIds);
+
+  // Group by member first, then assemble per member — so the canonical items are built
+  // by the shared function, and politicianId never has to be reattached by search.
+  const votesByPid = new Map<string, any[]>();
+  const posByPid = new Map<string, any[]>();
+  for (const v of voteRows) {
+    if (!v.politicianId) continue;
+    const list = votesByPid.get(v.politicianId);
+    if (list) list.push(v);
+    else votesByPid.set(v.politicianId, [v]);
+  }
+  for (const p of posRows) {
+    if (!p.politicianId) continue;
+    const list = posByPid.get(p.politicianId);
+    if (list) list.push(p);
+    else posByPid.set(p.politicianId, [p]);
+  }
+
+  const measures: Record<string, unknown> = {};
+  const rollcalls: Record<string, unknown> = {};
+  const byPolitician: Record<string, unknown[]> = {};
+  let voteCount = 0;
+  let positionCount = 0;
+
+  for (const pid of new Set([...votesByPid.keys(), ...posByPid.keys()])) {
+    const items = assembleRecordItems(
+      votesByPid.get(pid) ?? [],
+      posByPid.get(pid) ?? [],
+      issuesByMeasure,
+      "date"
+    );
+    if (!items.length) continue;
+    const refs: unknown[] = [];
+    for (const it of items) {
+      // Shared once per measure: everything that describes the bill itself.
+      if (!measures[it.measureId]) {
+        measures[it.measureId] = {
+          number: it.number,
+          title: it.title,
+          measureType: it.measureType,
+          status: it.status,
+          chamber: it.chamber,
+          parentMeasureId: it.parentMeasureId,
+          issues: it.issues,
+        };
+      }
+      if (it.kind === "vote") {
+        // Shared once per roll call: the question asked and how it was read.
+        if (it.rollcallId != null && !rollcalls[it.rollcallId]) {
+          rollcalls[it.rollcallId] = {
+            measureId: it.measureId,
+            chamber: it.chamber,
+            date: it.date,
+            action: it.action,
+            actionType: it.actionType,
+            result: it.result,
+            isProcedural: it.isProcedural,
+            advanceInverted: it.advanceInverted,
+            source: it.source,
+          };
+        }
+        // Per member: only what differs between members on the same roll call.
+        refs.push({ kind: "vote", rollcallId: it.rollcallId, position: it.position, isParty: it.isParty });
+        voteCount++;
+      } else {
+        // A co-sponsorship / amicus is already one row per member, so it keeps its
+        // own date and source; only the bill metadata is shared.
+        refs.push({
+          kind: "position",
+          measureId: it.measureId,
+          action: it.action,
+          supports: it.supports,
+          date: it.date,
+          source: it.source,
+        });
+        positionCount++;
+      }
+    }
+    byPolitician[pid] = refs;
+  }
+
+  return json({
+    issues: keys,
+    measures,
+    rollcalls,
+    byPolitician,
+    counts: {
+      politicians: Object.keys(byPolitician).length,
+      votes: voteCount,
+      positions: positionCount,
+    },
+    // True only when the row cap actually clipped the read. The client surfaces this
+    // rather than quietly ranking on a partial record.
+    truncated,
+  });
+}
+
 // ── GET /measures ────────────────────────────────────────────────────────────
 // The Legislation / Bill library browse endpoint (Phase 1): a filterable, paginated
 // list of measures rendered as compact cards. Per-measure detail (component issues +
@@ -1226,6 +1409,10 @@ export default async (req: Request): Promise<Response> => {
 
     if (path === "/compare") {
       return await getCompare(url);
+    }
+
+    if (path === "/issue-records") {
+      return await getIssueRecords(url);
     }
 
     return json({ error: "Not found" }, 404);

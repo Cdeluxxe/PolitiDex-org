@@ -11,6 +11,10 @@
 .iv-flag          { --iv-accent: #f59e0b; }
 .iv-contradiction { --iv-accent: #f87171; }
 .iv-stated        { --iv-accent: #94a3b8; }
+/* Votes on the record with no stated position to check them against — evidence
+   present, verdict withheld. Deliberately cool/neutral so it never reads as praise
+   or blame. */
+.iv-voted         { --iv-accent: #7dd3fc; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    FRONT DOOR  ·  #issue-front-door
@@ -215,7 +219,27 @@
 .iv-badge.iv-flag          { background: rgba(245, 158, 11, 0.14);  border-color: rgba(245, 158, 11, 0.42); }
 .iv-badge.iv-contradiction { background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.42); }
 .iv-badge.iv-stated        { background: rgba(148, 163, 184, 0.14); border-color: rgba(148, 163, 184, 0.42); }
+.iv-badge.iv-voted         { background: rgba(125, 211, 252, 0.14); border-color: rgba(125, 211, 252, 0.42); }
 .iv-row-counts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: #8ea3c2; }
+
+/* ── The deciding roll call, cited in the row ───────────────────────────────
+   When a row's verdict comes from votes rather than a hand-written receipt, the
+   vote itself is named here — position, measure and year, straight off the record.
+   The left rule carries the verdict's colour so the direction is readable before
+   the words are. */
+.iv-row-vote {
+  font-family: 'Barlow', sans-serif; font-size: 0.78rem; line-height: 1.4; color: #c4d2e8;
+  margin: 0.3rem 0 0.1rem; padding-left: 0.5rem; border-left: 2px solid rgba(148, 163, 184, 0.5);
+}
+.iv-row-vote strong { color: #e8f0fb; font-weight: 700; }
+.iv-row-vote-tag {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #9fb4d4;
+}
+.iv-row-vote--contradicts { border-left-color: rgba(248, 113, 113, 0.7); }
+.iv-row-vote--contradicts .iv-row-vote-tag { color: #f8a3a3; }
+.iv-row-vote--consistent { border-left-color: rgba(74, 222, 128, 0.7); }
+.iv-row-vote--consistent .iv-row-vote-tag { color: #86efac; }
 .iv-meter { margin-top: 0.4rem; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
 .iv-meter-fill { display: block; height: 100%; border-radius: 3px; background: var(--iv-accent, #94a3b8); }
 
@@ -234,6 +258,13 @@
   color: #c8d6ee; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16);
 }
 .iv-receipt-btn--ghost:hover { background: rgba(255, 255, 255, 0.12); color: #fff; box-shadow: none; }
+/* Vote-led rows land on the measure instead of a receipt card — a different
+   destination, so a different colour, but the same tap target size. */
+.iv-receipt-btn--vote {
+  color: #06263a; background: linear-gradient(90deg, #7dd3fc, #38bdf8);
+}
+.iv-receipt-btn--vote:hover { box-shadow: 0 5px 16px rgba(56, 189, 248, 0.38); }
+.iv-receipt-btn--vote:focus-visible { outline-color: #7dd3fc; }
 
 /* ── Sub-issue focus bar ────────────────────────────────────────────────────
    The ranking can be narrowed to ONE issue ("Housing Affordability") inside a

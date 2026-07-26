@@ -2256,6 +2256,7 @@ window.PDXLazy = (function () {
       .pdx-eye-ans-v--mixed{color:#fcd34d;background:rgba(251,191,36,0.13);border:1px solid rgba(251,191,36,0.38);}
       .pdx-eye-ans-v--flag{color:#fdba74;background:rgba(251,146,60,0.13);border:1px solid rgba(251,146,60,0.38);}
       .pdx-eye-ans-v--stated{color:#93b4d6;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);}
+      .pdx-eye-ans-v--voted{color:#7dd3fc;background:rgba(125,211,252,0.12);border:1px solid rgba(125,211,252,0.34);}
       .pdx-eye-ans-go{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#8aa0c0;white-space:nowrap;}
       .pdx-eye-ans-row:hover .pdx-eye-ans-go{color:#f2d78b;}
       /* Coverage honesty — never a silent thin wall. */
@@ -69613,8 +69614,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
 
       a.rows.forEach(function (r, i) {
-        var why = r.topHeadline || (r.stanceWord ? (r.stanceWord + ' ' + r.stanceText) : '');
+        // Why this row is here, in the strongest evidence it has: a verified receipt
+        // first, then the roll call that decided the verdict, then what they merely
+        // said. Vote text is assembled from record fields only.
+        var why = r.topHeadline || '';
+        if (!why && r.voteCite) {
+          var vc = r.voteCite;
+          var pos = String(vc.position || '').toLowerCase();
+          var isVote = vc.kind !== 'position';
+          var verb = pos === 'yea' ? 'Voted yes' : pos === 'nay' ? 'Voted no'
+            : pos === 'present' ? 'Voted present' : pos === 'not_voting' ? 'Did not vote'
+            : (!isVote && vc.action) ? vc.action : 'Voted';
+          // "Voted no ON H.R. 3", but "Cosponsored H.R. 3" — a formal action already
+          // carries its own preposition.
+          why = verb + (isVote ? ' on ' : ' ') + (vc.number || vc.title || 'a measure') +
+            (vc.verdict === 'contradicts' ? ' — against their stated position' : ' — in line with what they said');
+        }
+        if (!why && r.stanceWord) why = r.stanceWord + ' ' + r.stanceText;
         var hasReceipt = !!(r.topReceiptPid && r.receiptCount);
+        var hasVote = !hasReceipt && !!(r.voteCite && r.voteCite.measureId != null);
         h += '<button type="button" class="pdx-eye-ans-row" data-ans-row="' + i + '">' +
           '<span class="pdx-eye-ans-rank" aria-hidden="true">' + (i + 1) + '</span>' +
           '<span class="pdx-eye-ans-body">' +
@@ -69622,7 +69640,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<span class="pdx-eye-ans-v pdx-eye-ans-v--' + esc(r.tierKey) + '">' + esc(r.tier.ico + ' ' + r.tier.label) + '</span>' +
             (why ? '<span class="pdx-eye-ans-why">' + esc(why) + '</span>' : '') +
           '</span>' +
-          '<span class="pdx-eye-ans-go">' + (hasReceipt ? '🧾 Receipt' : 'Profile') + ' →</span>' +
+          '<span class="pdx-eye-ans-go">' + (hasReceipt ? '🧾 Receipt' : hasVote ? '🗳 Vote' : 'Profile') + ' →</span>' +
         '</button>';
       });
 
@@ -69654,8 +69672,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         (window.CORE_NATIONAL_ISSUES || []).forEach(function (ci) {
           if (!ci || !ci.key) return;
           var cov = window.PDXIssueView.coverage(ci.key);
-          if (!cov || !cov.withReceipts) return;
-          list.push({ key: ci.key, label: stripEmoji(ci.label) || ci.label, n: cov.withReceipts });
+          if (!cov || !cov.checked) return;
+          list.push({ key: ci.key, label: stripEmoji(ci.label) || ci.label, n: cov.checked });
         });
       } catch (e) { return ''; }
       if (!list.length) return '';
@@ -69691,9 +69709,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (typeof window._showToast === 'function') window._showToast(url);
       }
     }
-    // A row in the answer opens the receipt behind it — the shortest path from a
-    // question to the sourced evidence. Without a receipt, the profile is the
-    // honest destination.
+    // A row in the answer opens the strongest evidence behind it — the shortest path
+    // from a question to the sourced proof: a receipt where one exists, otherwise the
+    // measure the deciding vote was cast on, otherwise the profile.
     function openAnswerRow(i) {
       var a = lastAnswer;
       if (!a || !a.rows[i]) return;
@@ -69701,6 +69719,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (r.topReceiptPid && r.receiptCount && window.PDXReceipts && typeof window.PDXReceipts.open === 'function') {
         close();
         window.PDXReceipts.open(r.topReceiptPid, r.topReceiptIssue || a.focusKey || '');
+        return;
+      }
+      if (r.voteCite && r.voteCite.measureId != null && window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
+        close();
+        window.PDXBillDetail.open(String(r.voteCite.measureId));
         return;
       }
       navigate('pol', { id: r.id });
@@ -70004,6 +70027,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // refresh the My Saved count/list without losing the visitor's place.
     window.addEventListener('pdx-saved-change', function () {
       if (eye.classList.contains('is-open')) rerenderKeepFocus();
+    });
+
+    // An issue answer is computed the moment the question is typed, before the roll-call
+    // batch for that issue can land. When it does, re-answer in place: the ordering, the
+    // badges and the coverage note are all richer with votes counted, and the visitor
+    // never has to retype to see it. Only fires while the panel is open.
+    window.addEventListener('pdx-issue-votes', function () {
+      if (eye.classList.contains('is-open') && input.value.trim()) rerenderKeepFocus();
     });
 
     // Signal the eye is alive (subtle idle blink), once data can resolve.

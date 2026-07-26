@@ -204,7 +204,11 @@
     mixed:         { cls: 'iv-mixed',         ico: '≈', label: 'Mixed record' },
     flag:          { cls: 'iv-flag',          ico: '⚑', label: 'Red flag on record' },
     contradiction: { cls: 'iv-contradiction', ico: '⚠', label: 'Says one thing · does another' },
-    stated:        { cls: 'iv-stated',        ico: '💬', label: 'Stated — not yet checked' }
+    stated:        { cls: 'iv-stated',        ico: '💬', label: 'Stated — not yet checked' },
+    // Votes on the record, but no stated position to check them against (or none of
+    // the votes bear on the issue's direction). Honest about what it is: evidence
+    // without a claim to test it against, so it scores neutral.
+    voted:         { cls: 'iv-voted',         ico: '🗳', label: 'Voted — no stated position' }
   };
 
   // ── data cache, keyed like PDXReceipts so it rebuilds exactly when data grows ─
@@ -217,11 +221,103 @@
     try { acct = window.ACCT_SPOTLIGHT ? Object.keys(window.ACCT_SPOTLIGHT).length : 0; } catch (e) {}
     try { prof = window.PROFILES ? Object.keys(window.PROFILES).length : 0; } catch (e) {}
     try { sd = window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0; } catch (e) {}
-    return acct + ':' + prof + ':' + sd;
+    // _voteVer rises each time a batch of roll-call votes lands, so every cache below
+    // (rankings, counts, the per-pid indexes) rebuilds with the new evidence in it.
+    return acct + ':' + prof + ':' + sd + ':' + _voteVer;
   }
   function ensureFresh() {
     var k = dataKey();
     if (k !== _key) { _key = k; _rankCache = {}; _counts = null; }
+  }
+
+  // ── roll-call votes: batched, awaited, never "whatever happens to be warm" ─────
+  // Ranking an issue means ordering the whole field, so the vote evidence for that
+  // field has to be loaded BEFORE the ranking is computed — not read out of whichever
+  // profiles the visitor happened to open. One request per issue-key set covers every
+  // member (PDXVotingRecord.fetchIssueRecords), and the result is rehydrated into the
+  // same record items the profile surfaces use, so the SAME stance-vs-record engine
+  // scores them (_issueRecordSummary — see stance-helpers.js).
+  //
+  //   _voteItems[pid]   → that member's record items across every key loaded so far
+  //   _voteLoaded[key]  → this ISSUE_MAP key's batch has landed (empty result included)
+  //   _votePending[sig] → the in-flight request for a key set, so two surfaces asking
+  //                       for the same issue at once share one round trip
+  // Nothing here blocks a render: the ranking draws immediately from receipts and
+  // stated positions, and re-renders once (via refresh()) when the votes arrive.
+  var _voteItems = {}, _voteLoaded = {}, _votePending = {}, _voteVer = 0;
+  var _voteTruncated = false, _voteWaiting = 0;
+
+  function votesFor(id) { return _voteItems[id] || null; }
+  // True while at least one batch is in flight — the surfaces say so out loud rather
+  // than presenting an incomplete read as final.
+  function votesPending() { return _voteWaiting > 0; }
+
+  // Which of `keys` still needs loading. Empty array → the caller can rank now.
+  function missingVoteKeys(keys) {
+    var out = [];
+    (keys || []).forEach(function (k) {
+      if (k && !_voteLoaded[k] && out.indexOf(k) === -1) out.push(k);
+    });
+    return out;
+  }
+
+  // Kick off (or join) the batch for these keys. Returns a promise that resolves when
+  // the evidence is in place; resolves immediately when nothing is missing.
+  function ensureVotes(keys) {
+    var missing = missingVoteKeys(keys);
+    if (!missing.length) return Promise.resolve(false);
+    var VR = G('PDXVotingRecord');
+    if (!VR || typeof VR.fetchIssueRecords !== 'function') {
+      // No data layer (offline bundle, old cache) → mark the keys done so the ranking
+      // settles on its receipt-only behaviour instead of retrying forever.
+      missing.forEach(function (k) { _voteLoaded[k] = true; });
+      return Promise.resolve(false);
+    }
+    var sig = missing.slice().sort().join(',');
+    if (_votePending[sig]) return _votePending[sig];
+    _voteWaiting++;
+    var p = VR.fetchIssueRecords(missing).then(function (res) {
+      // Mark loaded either way: a null result means the read failed or the issue has
+      // no roll-call rows, and both are honest "no vote evidence here" outcomes.
+      missing.forEach(function (k) { _voteLoaded[k] = true; });
+      var added = false;
+      if (res && res.byPid) {
+        Object.keys(res.byPid).forEach(function (pid) {
+          var id = canon(pid);
+          var items = res.byPid[pid] || [];
+          if (!items.length) return;
+          _voteItems[id] = _voteItems[id] ? _voteItems[id].concat(items) : items;
+          added = true;
+        });
+        if (res.truncated) _voteTruncated = true;
+      }
+      if (added) _voteVer++;
+      return added;
+    }).catch(function () {
+      missing.forEach(function (k) { _voteLoaded[k] = true; });
+      return false;
+    }).then(function (added) {
+      _voteWaiting--;
+      delete _votePending[sig];
+      // One event per batch, not one per caller: two surfaces sharing this round trip
+      // must not cause two re-renders on a phone.
+      try { window.dispatchEvent(new CustomEvent('pdx-issue-votes', { detail: { added: !!added } })); } catch (e) {}
+      return added;
+    });
+    _votePending[sig] = p;
+    return p;
+  }
+
+  // Load the votes for an issue (or one sub-issue) and re-render the surfaces that
+  // are showing it. Safe to call repeatedly — a loaded key never refetches.
+  function warmVotes(core, focusKey, done) {
+    var keys = focusKey ? [focusKey] : ((core && core.keys) || []);
+    if (!missingVoteKeys(keys).length) return;
+    ensureVotes(keys).then(function (added) {
+      // Called even when nothing was added, so a "checking the voting record…" note
+      // can clear itself.
+      try { if (typeof done === 'function') done(added); } catch (e) {}
+    });
   }
 
   // Receipts grouped by canonical politician id, once per data version.
@@ -264,10 +360,38 @@
     if (v === 'mixed') return 'Mixed on';
     return 'On';
   }
+  // The stance token the say-vs-do engine compares a vote against — the same
+  // 'support' | 'oppose' | 'mixed' vocabulary _polPositionMap produces, including its
+  // default for a stance row that never named a direction.
+  function stanceTokenOf(s) {
+    if (!s) return '';
+    return s.issueStance || s.pos || 'mixed';
+  }
+
+  // ── vote evidence, scored by the SAME engine as everywhere else ────────────────
+  // For one politician and one ISSUE_MAP key, run their roll-call record against
+  // their stated stance on that key through window._issueRecordSummary (stance-
+  // helpers.js) — the identical function the profile Voting Record panel and the
+  // Official Record use. It applies the mapping's supportMeaning, the procedural
+  // inversion and the procedural down-weight itself, then collapses to ONE net
+  // verdict per issue. No verdict math is reimplemented here.
+  //
+  // Returns null when there is nothing to say: no engine, no record on this key.
+  function recordSummaryFor(id, key, stanceToken) {
+    var items = votesFor(id);
+    if (!items || !items.length) return null;
+    var f = G('_issueRecordSummary');
+    if (typeof f !== 'function') return null;
+    var sum;
+    try { sum = f(key, stanceToken || null, items); } catch (e) { return null; }
+    if (!sum || !sum.total) return null;   // no record touching this key
+    return sum;
+  }
 
   // ── the ranking ───────────────────────────────────────────────────────────────
   // For a core issue (a bundle of issueKeys), rank every politician who has ANY
-  // signal on it — a receipt or a stated position — by a consistency value:
+  // signal on it — a receipt, a roll-call record, or a stated position — by a
+  // consistency value:
   //   base 50 (neutral / unchecked)
   //   + 20 per receipt where words matched actions
   //   − 30 per documented contradiction
@@ -276,9 +400,19 @@
   // their words → who contradicts them". Ties break toward the more-documented
   // record, then alphabetically.
   //
+  // VOTES ENTER AS ONE MORE PIECE OF THE SAME EVIDENCE. Per issue key, the member's
+  // whole roll-call record on that key is reduced to a single net verdict by the
+  // shared engine (recordSummaryFor above) and then counted exactly like a receipt of
+  // that verdict: net-consistent adds one "kept", net-contradicts adds one "broken",
+  // net-mixed adds one of each — which is already how the value formula treats a
+  // person with one kept and one broken receipt. So the weights, the tiers and the
+  // clamp are untouched: no new scoring philosophy, and forty votes cannot swamp the
+  // scale the way summing them one-by-one would. Vote volume still matters, but where
+  // it belongs — in the tie-break, which now counts total evidence (receipts +
+  // judged issues) rather than receipts alone.
+  //
   // `focusKey`, when given, narrows the bundle to that ONE ISSUE_MAP key. The math
-  // is untouched — only which receipts and stances are counted changes, exactly as
-  // if the bundle contained a single key.
+  // is untouched — only which receipts, votes and stances are counted changes.
   function buildRanking(core, focusKey) {
     ensureFresh();
     var cacheKey = core.key + '|' + (focusKey || '');
@@ -293,6 +427,9 @@
     var ids = {};
     Object.keys(byR).forEach(function (id) { ids[id] = 1; });
     Object.keys(byS).forEach(function (id) { ids[id] = 1; });
+    // A roll-call record is signal too: someone with votes on this issue and no
+    // receipt yet is now a ranking candidate instead of being invisible.
+    Object.keys(_voteItems).forEach(function (id) { ids[id] = 1; });
 
     var rows = [];
     Object.keys(ids).forEach(function (id) {
@@ -300,8 +437,10 @@
       var receipts = (byR[id] || []).filter(function (r) { return keySet[r.issueKey]; });
       // Stances on this issue.
       var stances = (byS[id] || []).filter(function (s) { return s && keySet[s.issueKey] && (s.text || s.topic); });
-      if (!receipts.length && !stances.length) return; // no signal → not ranked
 
+      // ── the two counters both kinds of evidence land in ─────────────────────────
+      // Receipts and votes increment the SAME pair, so the value formula, the tiers
+      // and the clamp below are exactly the ones that were there before votes existed.
       var consistent = 0, contradicts = 0, flags = 0;
       receipts.forEach(function (r) {
         var kk = r.verdict && r.verdict.key;
@@ -310,12 +449,63 @@
         else flags++;
       });
 
+      // ── vote evidence on this issue ─────────────────────────────────────────────
+      // One net verdict per issue KEY, from the shared engine. Collapsing per key is
+      // what keeps the existing weights honest: a member with 40 votes on one key
+      // counts as one kept (or one broken) promise there, exactly like a receipt.
+      var voteItems = votesFor(id);
+      var voteTotal = 0, voteConsistent = 0, voteContradicts = 0, voteMixed = 0, voteJudged = 0;
+      var topVote = null, topVoteVerdict = '', topVoteIssue = '';
+      if (voteItems && voteItems.length) {
+        // Distinct records touching this bundle — a measure mapped to two keys in the
+        // same bundle is still one vote, and must not be advertised as two. This scan
+        // is also the cheap gate on the engine loop below: a member whose loaded votes
+        // are all about some OTHER issue costs one pass over their items, not one
+        // summary per key. That matters on the front door, which ranks all 13 bundles.
+        voteItems.forEach(function (it) {
+          var iss = it && it.issues;
+          if (!iss || !iss.length) return;
+          for (var i = 0; i < iss.length; i++) {
+            if (iss[i] && keySet[iss[i].issueKey]) { voteTotal++; return; }
+          }
+        });
+      }
+      if (voteTotal) {
+        // Stance token per key, so the engine compares like with like.
+        var tokenByKey = Object.create(null);
+        stances.forEach(function (s) {
+          if (!tokenByKey[s.issueKey]) tokenByKey[s.issueKey] = stanceTokenOf(s);
+        });
+        useKeys.forEach(function (k) {
+          var sum = recordSummaryFor(id, k, tokenByKey[k] || null);
+          if (!sum) return;
+          var nv = sum.netVerdict;
+          if (nv === 'consistent') { consistent++; voteConsistent++; voteJudged++; }
+          else if (nv === 'contradicts') { contradicts++; voteContradicts++; voteJudged++; }
+          else if (nv === 'mixed') { consistent++; contradicts++; voteMixed++; voteJudged++; }
+          // 'no_stance' / 'no_position' / 'no_record' add no score — there is nothing
+          // to check the record against, and inventing a direction would be fabrication.
+
+          // Cite the strongest single vote: a documented contradiction outranks a kept
+          // promise, and useKeys' fixed order keeps the pick deterministic.
+          var cand = (nv === 'contradicts' || nv === 'mixed') ? sum.topContradiction : null;
+          var candVerdict = 'contradicts';
+          if (!cand && (nv === 'consistent' || nv === 'mixed')) { cand = sum.topConsistent; candVerdict = 'consistent'; }
+          if (cand && (!topVote || (topVoteVerdict !== 'contradicts' && candVerdict === 'contradicts'))) {
+            topVote = cand; topVoteVerdict = candVerdict; topVoteIssue = k;
+          }
+        });
+      }
+
+      if (!receipts.length && !stances.length && !voteTotal) return; // no signal → not ranked
+
       var tierKey;
       if (contradicts > 0 && consistent > 0) tierKey = 'mixed';
       else if (contradicts > 0) tierKey = 'contradiction';
       else if (consistent > 0) tierKey = 'consistent';
       else if (flags > 0) tierKey = 'flag';
-      else tierKey = 'stated';
+      else if (stances.length) tierKey = 'stated';
+      else tierKey = 'voted';   // record, but nothing stated to check it against
 
       var value = 50 + consistent * 20 - contradicts * 30 - flags * 12;
       if (value < 0) value = 0; if (value > 100) value = 100;
@@ -335,6 +525,23 @@
         state: stateOf(id),
         consistent: consistent, contradicts: contradicts, flags: flags,
         receiptCount: receipts.length,
+        // Vote evidence, reported separately from receipts so a row can say which
+        // kind of proof it rests on instead of blurring them into one number.
+        voteCount: voteTotal,          // distinct roll calls / formal actions on this issue
+        voteConsistent: voteConsistent, voteContradicts: voteContradicts,
+        voteMixed: voteMixed, voteJudged: voteJudged,
+        // The single strongest vote behind this row, for the citation line and the
+        // one-tap landing (a measure overlay). Null when nothing was judged.
+        voteCite: topVote ? {
+          verdict: topVoteVerdict, issueKey: topVoteIssue,
+          measureId: topVote.measureId, number: topVote.number || '',
+          title: topVote.title || '', chamber: topVote.chamber || '',
+          position: topVote.position || '', action: topVote.action || '',
+          date: topVote.date || '', kind: topVote.kind || 'vote'
+        } : null,
+        // Total documented evidence — the tie-break, and what "documented" means in
+        // the coverage labels once votes are part of the picture.
+        evidenceCount: receipts.length + voteTotal,
         tier: TIERS[tierKey], tierKey: tierKey, value: value,
         topReceiptPid: top ? top.pid : '', topReceiptIssue: top ? (top.issueKey || '') : '',
         topHeadline: top ? top.headline : '',
@@ -344,8 +551,14 @@
       });
     });
 
+    // Deterministic: value, then the better-documented record, then receipts (a
+    // hand-verified receipt is still the strongest single proof), then name. Every
+    // term is an integer or a locale compare, so the same data always sorts the same
+    // way — and with no votes loaded, evidenceCount === receiptCount and this is the
+    // old comparator exactly.
     rows.sort(function (a, b) {
       if (b.value !== a.value) return b.value - a.value;
+      if (b.evidenceCount !== a.evidenceCount) return b.evidenceCount - a.evidenceCount;
       if (b.receiptCount !== a.receiptCount) return b.receiptCount - a.receiptCount;
       return (a.name || '').localeCompare(b.name || '');
     });
@@ -354,17 +567,23 @@
     return rows;
   }
 
-  // Per-issue coverage counts for the front door, in one pass.
+  // Per-issue coverage counts for the front door, in one pass. Vote evidence shows up
+  // here for whichever issues have been loaded — the front door never triggers the
+  // batched read itself, because prefetching all 13 bundles to label a card would
+  // cost the visitor a lot of data for a number.
   function counts() {
     ensureFresh();
     if (_counts) return _counts;
     var out = {};
-    coreIssues().forEach(function (c) { out[c.key] = { documented: 0, receipts: 0 }; });
+    coreIssues().forEach(function (c) { out[c.key] = { documented: 0, receipts: 0, votes: 0 }; });
     coreIssues().forEach(function (c) {
       var rows = buildRanking(c);
-      var recPeople = 0;
-      rows.forEach(function (r) { if (r.receiptCount > 0) recPeople++; });
-      out[c.key] = { documented: rows.length, receipts: recPeople };
+      var recPeople = 0, votePeople = 0;
+      rows.forEach(function (r) {
+        if (r.receiptCount > 0) recPeople++;
+        if (r.voteCount > 0) votePeople++;
+      });
+      out[c.key] = { documented: rows.length, receipts: recPeople, votes: votePeople };
     });
     _counts = out;
     return out;
@@ -384,20 +603,33 @@
   // documentation than exists:
   //   none        nobody documented on this issue at all
   //   stated-only people have stated positions, but nothing checked against a record
-  //   thin        1–2 people with sourced receipts
+  //   thin        1–2 people whose words were checked against a record
   //   partial     3–6
   //   rich        7+
+  // "Checked" means a sourced receipt OR a roll-call record judged against a stated
+  // position — both are say-vs-do findings, so both count, and each is also reported
+  // on its own (withReceipts / withVotes) so the page can name which it has. A member
+  // whose votes could NOT be judged (nothing stated to check them against) is counted
+  // in `people` and nowhere else: having their votes is not the same as having checked
+  // them, and the labels must not imply otherwise.
   // The thresholds describe how much is on the page; they are not a score and feed
   // no ranking.
   function coverageOf(rows) {
     rows = rows || [];
-    var withReceipts = 0, receipts = 0;
-    rows.forEach(function (r) { if (r.receiptCount > 0) { withReceipts++; receipts += r.receiptCount; } });
+    var withReceipts = 0, receipts = 0, withVotes = 0, votes = 0, checked = 0;
+    rows.forEach(function (r) {
+      if (r.receiptCount > 0) { withReceipts++; receipts += r.receiptCount; }
+      if (r.voteCount > 0) { withVotes++; votes += r.voteCount; }
+      if (r.receiptCount > 0 || r.voteJudged > 0) checked++;
+    });
     var level = rows.length === 0 ? 'none'
-      : withReceipts === 0 ? 'stated-only'
-      : withReceipts <= 2 ? 'thin'
-      : withReceipts <= 6 ? 'partial' : 'rich';
-    return { people: rows.length, withReceipts: withReceipts, receipts: receipts, level: level, thin: (level === 'none' || level === 'stated-only' || level === 'thin') };
+      : checked === 0 ? 'stated-only'
+      : checked <= 2 ? 'thin'
+      : checked <= 6 ? 'partial' : 'rich';
+    return { people: rows.length, withReceipts: withReceipts, receipts: receipts,
+      withVotes: withVotes, votes: votes, checked: checked,
+      pending: votesPending(), truncated: _voteTruncated,
+      level: level, thin: (level === 'none' || level === 'stated-only' || level === 'thin') };
   }
   // Public read: coverage for an issue (optionally one sub-issue).
   function coverage(keyOrIssueKey, opts) {
@@ -410,20 +642,29 @@
   // missing, rather than presenting a short list as if it were the whole picture.
   function coverageNote(cov, label) {
     var what = esc(label || 'this issue');
+    // Mid-load, "nothing checked yet" would be a statement about our network timing
+    // rather than about the record — so say which it is.
+    var stillReading = cov.pending
+      ? ' Roll-call votes for this issue are still loading; the ranking updates once they land.'
+      : '';
     if (cov.level === 'none') {
       return 'No one is documented on <strong>' + what + '</strong> yet. Rather than show a ' +
         'thin or invented list, we mark the gap: this issue is on the research queue, and ' +
-        'politicians appear here as their positions and receipts are sourced.';
+        'politicians appear here as their positions, votes and receipts are sourced.' + stillReading;
     }
     if (cov.level === 'stated-only') {
       return '<strong>' + cov.people + '</strong> ' + (cov.people === 1 ? 'politician has' : 'politicians have') +
-        ' stated a position on <strong>' + what + '</strong>, but none of it has been checked against a ' +
-        'record yet — so there is no say-vs-do verdict to rank by. Read the stated positions as claims, not findings.';
+        ' a stated position or a vote on <strong>' + what + '</strong>, but nothing has been checked against a ' +
+        'record yet — so there is no say-vs-do verdict to rank by. Read what is here as claims and raw votes, ' +
+        'not findings.' + stillReading;
     }
     if (cov.level === 'thin') {
-      return 'Coverage of <strong>' + what + '</strong> is still thin — <strong>' + cov.withReceipts +
-        '</strong> ' + (cov.withReceipts === 1 ? 'person' : 'people') + ' with sourced receipts out of ' +
-        cov.people + ' documented. Enough to check, not enough to call this a full picture of the issue.';
+      var how = cov.withReceipts && cov.withVotes ? 'sourced receipts or a judged voting record'
+        : cov.withVotes && !cov.withReceipts ? 'a voting record judged against what they said'
+        : 'sourced receipts';
+      return 'Coverage of <strong>' + what + '</strong> is still thin — <strong>' + cov.checked +
+        '</strong> ' + (cov.checked === 1 ? 'person' : 'people') + ' with ' + how + ', out of ' +
+        cov.people + ' documented. Enough to check, not enough to call this a full picture of the issue.' + stillReading;
     }
     return '';
   }
@@ -450,13 +691,43 @@
       r.tier.cls + '" style="width:' + r.value + '%;"></span></div>';
   }
 
+  // What the value is made of, in the row's own words. Receipts and votes are counted
+  // together in the tiers (both are say-vs-do evidence) but named separately here, so
+  // "1 broken" always has a visible source.
   function countsLine(r) {
     var parts = [];
     if (r.consistent) parts.push(r.consistent + ' kept');
     if (r.contradicts) parts.push(r.contradicts + ' broken');
     if (r.flags) parts.push(r.flags + ' flag' + (r.flags === 1 ? '' : 's'));
+    if (r.voteCount) parts.push(r.voteCount + ' vote' + (r.voteCount === 1 ? '' : 's') +
+      (r.voteJudged ? ' checked' : ' on record'));
     if (!parts.length && r.stanceWord) parts.push('position stated');
     return parts.join(' · ');
+  }
+
+  // Human words for the position the member actually took, so the citation reads like
+  // a sentence rather than a database field.
+  function voteVerbOf(c) {
+    if (c.kind === 'position') return c.action ? String(c.action) : 'Acted on';
+    var p = String(c.position || '').toLowerCase();
+    if (p === 'yea') return 'Voted yes on';
+    if (p === 'nay') return 'Voted no on';
+    if (p === 'present') return 'Voted present on';
+    if (p === 'not_voting') return 'Did not vote on';
+    return 'Voted on';
+  }
+  // The one roll call behind a vote-driven verdict — named, dated, and one tap from
+  // the measure itself. Nothing here is generated: every field came off the record.
+  function voteCiteHTML(r) {
+    var c = r.voteCite;
+    if (!c) return '';
+    var lead = c.verdict === 'contradicts' ? 'Against their stated position' : 'In line with their stated position';
+    var what = c.number || c.title || 'this measure';
+    var when = c.date ? String(c.date).slice(0, 4) : '';
+    return '<div class="iv-row-vote iv-row-vote--' + esc(c.verdict) + '">' +
+      '<span class="iv-row-vote-tag">' + esc(lead) + '</span> ' +
+      esc(voteVerbOf(c)) + ' <strong>' + esc(what) + '</strong>' + (when ? ' (' + esc(when) + ')' : '') +
+      '</div>';
   }
 
   function rowHTML(r, rank) {
@@ -474,14 +745,21 @@
         ':</span> “' + esc(r.stanceText.length > 150 ? r.stanceText.slice(0, 148) + '…' : r.stanceText) + '”</div>'
       : '';
 
-    // The payoff: the receipt one tap away. When there's a receipt we open the
-    // exact say-vs-do card; otherwise the row just leads to the profile.
-    var receiptBtn = r.topReceiptPid
-      ? '<button type="button" class="iv-receipt-btn" data-receipt="1" ' +
-          'data-pid="' + escAttr(r.topReceiptPid) + '" data-issue="' + escAttr(r.topReceiptIssue) + '">' +
-          '🧾 See the receipt</button>'
-      : '<button type="button" class="iv-receipt-btn iv-receipt-btn--ghost" data-profile="1" ' +
-          'data-pid="' + escAttr(r.id) + '">View profile →</button>';
+    // The payoff: the proof one tap away. A hand-verified receipt is the strongest
+    // card, so it still wins when there is one; otherwise the deciding roll call opens
+    // the measure it was cast on, and only a row with neither falls back to the profile.
+    var receiptBtn;
+    if (r.topReceiptPid) {
+      receiptBtn = '<button type="button" class="iv-receipt-btn" data-receipt="1" ' +
+        'data-pid="' + escAttr(r.topReceiptPid) + '" data-issue="' + escAttr(r.topReceiptIssue) + '">' +
+        '🧾 See the receipt</button>';
+    } else if (r.voteCite && r.voteCite.measureId != null) {
+      receiptBtn = '<button type="button" class="iv-receipt-btn iv-receipt-btn--vote" data-measure="' +
+        escAttr(String(r.voteCite.measureId)) + '">🗳 See the vote</button>';
+    } else {
+      receiptBtn = '<button type="button" class="iv-receipt-btn iv-receipt-btn--ghost" data-profile="1" ' +
+        'data-pid="' + escAttr(r.id) + '">View profile →</button>';
+    }
 
     return '<li class="iv-row ' + r.tier.cls + '" data-pid="' + escAttr(r.id) + '">' +
         '<span class="iv-rank">' + rank + '</span>' +
@@ -490,6 +768,7 @@
           '<div class="iv-row-id"><span class="iv-row-name">' + esc(r.name) + '</span>' + party +
             (r.sub ? '<span class="iv-row-sub">' + esc(r.sub) + '</span>' : '') + '</div>' +
           stance +
+          voteCiteHTML(r) +
           '<div class="iv-row-verdict"><span class="iv-badge ' + r.tier.cls + '">' +
             r.tier.ico + ' ' + esc(r.tier.label) + '</span>' +
             '<span class="iv-row-counts">' + esc(countsLine(r)) + '</span></div>' +
@@ -542,6 +821,11 @@
     var iss = activeIssue();
     var host = el('iv-body');
     if (!iss || !host) return;
+    // Load this issue's roll-call evidence for the WHOLE field before it matters —
+    // one batched request per issue-key set, not one per member and not "whoever is
+    // already warm". The first paint below is receipt-and-stance based (instant); when
+    // the batch lands, refresh() rebuilds this ranking once with votes folded in.
+    warmVotes(iss.core, iss.focusKey, function (added) { if (added) refresh(); });
     var all = buildRanking(iss.core, iss.focusKey);
     var rows = applyFilter(all);
     var cov = coverageOf(all);
@@ -586,11 +870,21 @@
       var total = totalTracked();
       var undocumented = Math.max(0, total - all.length);
       var shown = (rows.length !== all.length) ? ('Showing <strong>' + rows.length + '</strong> of ') : 'Ranking ';
+      // Where the signal came from, in the plural the data actually supports.
+      var basis = (cov.withReceipts && cov.withVotes) ? 'sourced say-vs-do receipts and roll-call votes'
+        : cov.withVotes ? 'roll-call votes checked against stated positions'
+        : 'sourced say-vs-do receipts';
       coverage = '<div class="iv-coverage">' + shown + '<strong>' + all.length + '</strong> documented on this issue' +
         (cov.withReceipts ? ' · <strong>' + cov.withReceipts + '</strong> with sourced receipts' : '') +
+        (cov.withVotes ? ' · <strong>' + cov.withVotes + '</strong> with a voting record on it' : '') +
         (undocumented > 0 ? ' · <span class="iv-cov-thin">' + undocumented +
           ' more tracked, not yet documented here</span>' : '') +
-        ' · consistency is measured from sourced say-vs-do receipts.</div>';
+        ' · consistency is measured from ' + basis + '.' +
+        // Never let an in-flight or clipped read pass for a finished one.
+        (cov.pending ? ' <span class="iv-cov-thin">Checking the voting record…</span>' : '') +
+        (cov.truncated ? ' <span class="iv-cov-thin">The vote read hit its row limit, so some roll calls are ' +
+          'not counted here yet.</span>' : '') +
+        '</div>';
     }
 
     // Issue-area distributional summary ("who this issue's measures affect"),
@@ -700,6 +994,15 @@
         e.stopPropagation();
         var R = G('PDXReceipts');
         if (R && typeof R.open === 'function') R.open(rc.getAttribute('data-pid'), rc.getAttribute('data-issue'));
+        return;
+      }
+      // A vote-driven row lands on the measure it was cast on — the bill overlay shows
+      // the roll call, the issue mapping and every other member's vote on it.
+      var mb = t.closest && t.closest('[data-measure]');
+      if (mb) {
+        e.stopPropagation();
+        var BD = G('PDXBillDetail');
+        if (BD && typeof BD.open === 'function') BD.open(mb.getAttribute('data-measure'));
         return;
       }
       var row = t.closest && t.closest('.iv-row, [data-profile]');
@@ -961,6 +1264,10 @@
     if (!p) return null;
     var core = coreByKey(p.coreKey);
     if (!core) return null;
+    // Same prefetch as the overlay: the answer renders immediately from what is in
+    // memory, and a 'pdx-issue-votes' event fires when the batched roll-call read for
+    // this issue lands so the caller can ask again with votes counted.
+    warmVotes(core, p.focusKey);
     var all = buildRanking(core, p.focusKey);
     var rows = all;
     if (p.scope === 'mine') {
@@ -981,6 +1288,9 @@
     p.matched = rows.length;
     p.state = (p.scope === 'mine') ? userState() : '';
     p.coverage = coverageOf(all);
+    // Honest about being mid-load: a ranking computed before the roll-call batch lands
+    // is a receipts-only ranking, and the caller can say so rather than imply final.
+    p.votesPending = votesPending();
     p.link = linkFor({ coreKey: p.coreKey, focusKey: p.focusKey, mode: p.mode, scope: p.scope });
     return p;
   }
@@ -998,12 +1308,14 @@
       var lab = splitLabel(ci.label);
       var n = (c[ci.key] && c[ci.key].documented) || 0;
       var rec = (c[ci.key] && c[ci.key].receipts) || 0;
+      var vot = (c[ci.key] && c[ci.key].votes) || 0;
       return '<button type="button" class="ifd-card" data-core="' + escAttr(ci.key) + '">' +
         '<span class="ifd-ico" aria-hidden="true">' + lab.icon + '</span>' +
         '<span class="ifd-txt">' +
           '<span class="ifd-label">' + esc(lab.text) + '</span>' +
           '<span class="ifd-blurb">' + esc(ci.blurb || '') + '</span>' +
-          '<span class="ifd-meta">' + n + ' ranked' + (rec ? ' · ' + rec + ' with receipts' : '') + '</span>' +
+          '<span class="ifd-meta">' + n + ' ranked' + (rec ? ' · ' + rec + ' with receipts' : '') +
+            (vot ? ' · ' + vot + ' with votes' : '') + '</span>' +
         '</span>' +
         '<span class="ifd-go" aria-hidden="true">→</span>' +
       '</button>';
@@ -1018,7 +1330,8 @@
             'who backs up their words, and who says one thing and does another. The receipt is one tap away.</p>' +
         '</div>' +
         '<div class="ifd-grid">' + cards + '</div>' +
-        '<p class="ifd-foot">' + total + ' politicians tracked · rankings are built from sourced say-vs-do receipts and stated positions · nonpartisan.</p>' +
+        '<p class="ifd-foot">' + total + ' politicians tracked · rankings are built from sourced say-vs-do receipts, ' +
+          'roll-call votes and stated positions · nonpartisan.</p>' +
       '</div>';
     host.hidden = false;
 
@@ -1069,6 +1382,13 @@
     coverageNote: coverageNote,
     linkFor: linkFor,
     buildRanking: buildRanking,
+    // Prefetch an issue's roll-call evidence without rendering anything — a surface
+    // about to show a ranking can call this first, or listen for 'pdx-issue-votes'.
+    warmVotes: function (keyOrIssueKey, focusKey) {
+      var t = resolveTarget(keyOrIssueKey, focusKey);
+      if (t) warmVotes(t.core, t.focusKey);
+    },
+    votesPending: votesPending,
     refresh: refresh
   };
 
