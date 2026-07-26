@@ -15,11 +15,11 @@ counted, and every row it accounts for is marked `pending`.
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 3,991 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 2,109 |
+| …**and** the member holds a stated position on that key (rankable) | 2,233 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **650**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **664**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -112,7 +112,7 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,485 (member, issue) pairs, 10,786 member-votes.
+5,471 (member, issue) pairs, 10,662 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
@@ -133,32 +133,19 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | french_hill | strong_defense | yes |
 | 9 | maxine_waters | strong_defense | yes |
 | 9 | bruce_westerman | strong_defense | yes |
-| 9 | owens | america_first_fp | yes |
-| 9 | aoc | america_first_fp | yes |
 | 9 | bennie_thompson | america_first_fp | yes |
 | 9 | bruce_westerman | america_first_fp | yes |
 | 9 | crockett | america_first_fp | yes |
-| 9 | french_hill | america_first_fp | yes |
 | 9 | jason_smith | america_first_fp | yes |
-| 9 | jayapal | america_first_fp | yes |
-| 9 | josh_brecheen | america_first_fp | yes |
 | 9 | julie_fedorchak | america_first_fp | yes |
-| 9 | kclark | america_first_fp | yes |
-| 9 | khanna | america_first_fp | yes |
-| 9 | mariannette_miller_meeks | america_first_fp | yes |
-| 9 | maxine_waters | america_first_fp | yes |
 | 9 | michael_guest | america_first_fp | yes |
 | 9 | mike_collins | america_first_fp | yes |
 | 9 | mike_ezell | america_first_fp | yes |
 | 9 | mike_flood | america_first_fp | yes |
 | 9 | mike_simpson | america_first_fp | yes |
-| 9 | rick_crawford | america_first_fp | yes |
 | 9 | rob_bresnahan | america_first_fp | yes |
 | 9 | scalise | america_first_fp | yes |
 | 9 | stephanie_bice | america_first_fp | yes |
-| 9 | steve_womack | america_first_fp | yes |
-| 9 | tlaib | america_first_fp | yes |
-| 9 | tom_cole | america_first_fp | yes |
 | 9 | trent_kelly | america_first_fp | yes |
 | 9 | troy_downing | america_first_fp | yes |
 | 8 | crockett | cut_spending | yes |
@@ -178,7 +165,20 @@ real, verifiable position exists. Do not fill these in by inference.
 | 8 | ryan_mackenzie | gov_regulation | yes |
 | 8 | steve_womack | gov_regulation | yes |
 | 8 | mariannette_miller_meeks | gov_regulation | yes |
-| … | _5,425 more_ | | |
+| 8 | boebert | strong_defense | yes |
+| 8 | frank_lucas | strong_defense | yes |
+| 8 | emmer | america_first_fp | yes |
+| 8 | frank_lucas | america_first_fp | yes |
+| 7 | emmer | climate_action | yes |
+| 7 | emmer | states_federal_power | yes |
+| 7 | jim_jordan | climate_action | yes |
+| 7 | mike_johnson | gov_transparency | yes |
+| 7 | scalise | gov_transparency | yes |
+| 7 | jim_jordan | gov_transparency | yes |
+| 7 | owens | gov_transparency | yes |
+| 7 | khanna | gov_transparency | yes |
+| 7 | scott_perry | gov_regulation | yes |
+| … | _5,411 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -189,11 +189,11 @@ real, verifiable position exists. Do not fill these in by inference.
 | 619 | climate_action | 202 |
 | 514 | cost_living | 206 |
 | 509 | energy_production | 170 |
-| 450 | america_first_fp | 113 |
 | 439 | strong_defense | 96 |
 | 414 | national_debt | 125 |
 | 404 | cut_spending | 116 |
 | 367 | gov_transparency | 112 |
+| 326 | america_first_fp | 99 |
 | 282 | tough_on_crime | 106 |
 | 267 | gov_services | 117 |
 | 265 | foreign_balance | 100 |
