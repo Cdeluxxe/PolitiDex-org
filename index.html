@@ -1218,18 +1218,24 @@
       var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
     }
     // The unresolved side, counted the same three ways. In the breakdown shape a
-    // partial promise is stored as `compromise`.
+    // partial promise is stored as `compromise`. Pending and partial are gated
+    // separately, unlike kept / broken: no record carries a summary `partial`
+    // field, so a record with a summary pending count would otherwise lose the
+    // partials sitting in its promises[] list. Each side only falls back when it
+    // is still zero, so nothing is ever double counted.
     var pend = parseInt(p.pending, 10); if (isNaN(pend)) pend = 0;
     var part = parseInt(p.partial, 10); if (isNaN(part)) part = 0;
-    if (pend + part === 0 && Array.isArray(p.promises)) {
+    var scanPend = (pend === 0), scanPart = (part === 0);
+    if ((scanPend || scanPart) && Array.isArray(p.promises)) {
       for (var j = 0; j < p.promises.length; j++) {
         var uv = p.promises[j] && p.promises[j].verdict;
-        if (uv === 'pending') pend++; else if (uv === 'partial') part++;
+        if (scanPend && uv === 'pending') pend++;
+        else if (scanPart && uv === 'partial') part++;
       }
     }
-    if (pend + part === 0 && p.promiseBreakdown) {
-      var bp = parseInt(p.promiseBreakdown.pending, 10);    if (!isNaN(bp)) pend += bp;
-      var bc = parseInt(p.promiseBreakdown.compromise, 10); if (!isNaN(bc)) part += bc;
+    if (p.promiseBreakdown) {
+      if (pend === 0) { var bp = parseInt(p.promiseBreakdown.pending, 10);    if (!isNaN(bp)) pend += bp; }
+      if (part === 0) { var bc = parseInt(p.promiseBreakdown.compromise, 10); if (!isNaN(bc)) part += bc; }
     }
     return {
       kept: k, broken: b, resolved: k + b,
@@ -35543,7 +35549,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var pmDepth=(typeof window._pdxDepthBadge==='function')?window._pdxDepthBadge(p,{size:'sm'}):'';
         var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
         var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
-        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending):'';
+        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending,{record:p}):'';
         // First sentence of the bio as a one-line "impact" blurb. Guard the empty
         // case (no bio) so the row never renders as a lone period, and avoid cutting
         // at an abbreviation such as "U.S." or "Sen." by falling back to a longer
@@ -37595,36 +37601,65 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<span class="pdx-party-chip ' + cls + '">' + label + '</span>';
     };
 
-    // Clean kept / broken / pending pill row — the at-a-glance accountability read
-    // shared by every listing card. When there is no resolved record yet it returns
-    // a single neutral "No voting record yet" pill so candidates read honestly.
+    // Clean kept / broken / pending / partial pill row — the at-a-glance
+    // accountability read shared by every listing card. It follows the same three
+    // states as the score rail above it (see `_pdxPromiseState`) so a card never
+    // reads "0 Kept · 0 Broken" beside a rail that already says the record is
+    // open:
+    //   resolved → the real kept / broken tally, plus any outstanding work
+    //   tracking → the outstanding counts and an explicit "none resolved yet"
+    //   empty    → one neutral, context-aware "no record yet" pill
+    // Pass the whole record as `opts.record` to pick up partials and the
+    // promises[] / promiseBreakdown shapes; the loose kept / broken / pending
+    // arguments stay supported for callers that only hold the summary fields.
     window._pdxStatPills = function(kept, broken, pending, opts) {
-      var k = kept || 0, b = broken || 0, pn = pending || 0;
       opts = opts || {};
-      if (k === 0 && b === 0 && pn === 0) {
-        // Honest, context-aware empty state instead of a misleading "0 Kept / 0
-        // Broken". A 2026 challenger reads as on-the-ballot-but-no-record-yet; a
-        // new officeholder reads as early-in-term; everyone else as monitoring.
-        var msg = '⏳ No voting record yet';
-        // A candidate who lost at convention or withdrew never took office, so
-        // "record starts in office" would be misleading — say so plainly instead,
-        // matching the "Out of Race" badge and the profile's honest lede.
-        var _cs = String(opts.candidacyStatus || '').toLowerCase();
-        var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
-        var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
-        if (_outOfRace) msg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
-          : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
-          : '✖ Did not advance — never took office';
-        else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
-        else if (opts.status === 'former') msg = '⏳ Former office — record archived';
-        else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
-        return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">' + msg + '</span></div>';
+      var t = (opts.record && typeof window._pdxPromiseTally === 'function')
+        ? window._pdxPromiseTally(opts.record) : null;
+      var k, b, pn, pt;
+      if (t) { k = t.kept; b = t.broken; pn = t.pending; pt = t.partial; }
+      else {
+        k = parseInt(kept, 10);    if (isNaN(k)) k = 0;
+        b = parseInt(broken, 10);  if (isNaN(b)) b = 0;
+        pn = parseInt(pending, 10); if (isNaN(pn)) pn = 0;
+        pt = 0;
       }
-      return '<div class="pdx-statpills">' +
-        '<span class="pdx-statpill pdx-statpill-kept">✓ ' + k + ' Kept</span>' +
-        '<span class="pdx-statpill pdx-statpill-broken">✗ ' + b + ' Broken</span>' +
-        (pn > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + pn + ' Pending</span>' : '') +
-      '</div>';
+      var resolved = k + b, unresolved = pn + pt;
+      var pill = function(cls, txt) { return '<span class="pdx-statpill pdx-statpill-' + cls + '">' + txt + '</span>'; };
+      // Outstanding promises, shown only when they exist — never as a zero.
+      var openPills = (pn > 0 ? pill('pending', '⏳ ' + pn + ' Pending') : '')
+                    + (pt > 0 ? pill('partial', '~ ' + pt + ' Partial') : '');
+
+      if (resolved > 0) {
+        // A resolved record: "0 Broken" is earned information here, so both sides
+        // of the ratio stay put. Outstanding work is appended, not substituted.
+        return '<div class="pdx-statpills">' +
+          pill('kept', '✓ ' + k + ' Kept') +
+          pill('broken', '✗ ' + b + ' Broken') +
+          openPills +
+        '</div>';
+      }
+
+      // Nothing has resolved. Either promises are on file and still open, or the
+      // record is genuinely empty — one or the other, and never a row of zeroes.
+      var msg = '⏳ No voting record yet';
+      // A candidate who lost at convention or withdrew never took office, so
+      // "record starts in office" would be misleading — say so plainly instead,
+      // matching the "Out of Race" badge and the profile's honest lede. This wins
+      // over the tracking wording: those promises can no longer resolve in office.
+      var _cs = String(opts.candidacyStatus || '').toLowerCase();
+      var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
+      var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
+      if (_outOfRace) msg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
+        : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
+        : '✖ Did not advance — never took office';
+      // Tracked but unresolved: the counts carry the record, so the neutral pill
+      // only has to state what is missing from it.
+      else if (unresolved > 0) msg = '⊘ None resolved yet';
+      else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+      else if (opts.status === 'former') msg = '⏳ Former office — record archived';
+      else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
+      return '<div class="pdx-statpills">' + openPills + pill('none', msg) + '</div>';
     };
 
     // Consistent "Office • District • State" line for every compact card. District
@@ -37883,7 +37918,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 infoHint +
               '</div>'));
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -41001,7 +41036,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
