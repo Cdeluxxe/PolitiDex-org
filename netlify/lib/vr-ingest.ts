@@ -42,6 +42,7 @@ import {
 } from "../../db/schema.js";
 import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
 import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
+import measureIdentityData from "../../db/vr-measure-identity.json" with { type: "json" };
 import { writeMemberPack } from "./vr-pack.js";
 import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
@@ -92,6 +93,7 @@ export type IngestReport = {
   membersUnmapped: number;
   issuesSuggested: number;
   actionsUpserted: number;
+  curatedTitlesResolved: number;
   curatedMeasuresMatched: number;
   curatedIssuesUpserted: number;
   packsWritten: number;
@@ -413,6 +415,95 @@ async function upsertMeasure(m: RawVote["measure"]): Promise<number> {
   return row.id;
 }
 
+// ── Curated measure identity (what the bill IS; keyed by natural identity) ────
+// The roll-call endpoints carry no measure title, so a measure first seen through a
+// vote lands as "Roll call 310" and stays unmappable — nobody can judge a vote on a
+// bill nobody can name. db/vr-measure-identity.json holds identities read from the
+// GPO BILLSTATUS bulk-data record for each measure's own (congress, type, number) and
+// verified against the bill number, roll-call number and vote date we already hold.
+//
+// This is IDENTITY ONLY: it never writes an issue mapping. Naming a bill and deciding
+// which issues it speaks to are separate judgements, and applyCuratedIssueSeed() owns
+// the second one. It also never creates a measure, so an entry matching nothing is a
+// harmless no-op.
+//
+// Non-destructive by construction: the title is replaced only while it is still
+// provisional (isProvisionalTitle), and summary/introducedAt are filled only when
+// empty. A better human-written title always wins, and re-running changes nothing.
+type CuratedMeasureIdentity = {
+  measures: Array<{
+    congress: number;
+    chamber: string;
+    number: string;
+    title: string;
+    officialTitle?: string;
+    identityTitleType?: string;
+    summary?: string;
+    summarySource?: string;
+    introducedAt?: string;
+    sponsorName?: string;
+    policyArea?: string;
+    laws?: string[];
+    congressGovUrl?: string;
+    source?: { label?: string; url?: string };
+  }>;
+};
+
+const MEASURE_IDENTITY = (measureIdentityData as CuratedMeasureIdentity).measures || [];
+
+export async function applyCuratedMeasureIdentity(
+  seed: CuratedMeasureIdentity["measures"] = MEASURE_IDENTITY
+): Promise<{ measuresMatched: number; measuresSkipped: number; titlesResolved: number }> {
+  const out = { measuresMatched: 0, measuresSkipped: 0, titlesResolved: 0 };
+  for (const entry of seed) {
+    const number = canonicalMeasureNumber(entry.number);
+    if (!number || !entry.title) continue;
+    // Match on (congress, canonical number) across EVERY matching row — not
+    // measureType, because the roll-call feeds and Congress.gov disagree about how to
+    // type a resolution, and not chamber, because a measure number already names its
+    // originating chamber while the row may have been created from the other
+    // chamber's roll call. Not LIMIT 1, because the same number can legitimately
+    // exist twice while a merge is pending; both rows deserve the real title.
+    const found = await db
+      .select({
+        id: vrMeasures.id,
+        title: vrMeasures.title,
+        summary: vrMeasures.summary,
+        introducedAt: vrMeasures.introducedAt,
+        externalIds: vrMeasures.externalIds,
+      })
+      .from(vrMeasures)
+      .where(and(eq(vrMeasures.congress, entry.congress), eq(vrMeasures.number, number)));
+    if (!found.length) { out.measuresSkipped++; continue; }
+    out.measuresMatched++;
+
+    const provenance: Record<string, unknown> = {};
+    if (entry.source?.label) provenance.identitySource = entry.source.label;
+    if (entry.source?.url) provenance.billStatusUrl = entry.source.url;
+    if (entry.officialTitle) provenance.officialTitle = entry.officialTitle;
+    if (entry.identityTitleType) provenance.identityTitleType = entry.identityTitleType;
+    if (entry.summarySource) provenance.summarySource = entry.summarySource;
+    if (entry.congressGovUrl) provenance.congressGovUrl = entry.congressGovUrl;
+    if (entry.sponsorName) provenance.sponsorName = entry.sponsorName;
+    if (entry.policyArea) provenance.policyArea = entry.policyArea;
+    if (entry.laws?.length) provenance.laws = entry.laws;
+
+    for (const row of found) {
+      const takeTitle = isProvisionalTitle(row.title, number);
+      const patch: Record<string, unknown> = {
+        externalIds: { ...provenance, ...((row.externalIds as Record<string, unknown>) || {}) },
+        updatedAt: new Date(),
+      };
+      if (takeTitle) patch.title = entry.title;
+      if (entry.summary && !String(row.summary || "").trim()) patch.summary = entry.summary;
+      if (entry.introducedAt && !row.introducedAt) patch.introducedAt = new Date(`${entry.introducedAt}T00:00:00Z`);
+      await db.update(vrMeasures).set(patch).where(eq(vrMeasures.id, row.id));
+      if (takeTitle) out.titlesResolved++;
+    }
+  }
+  return out;
+}
+
 // ── Curated issue mappings (editorial; keyed by natural measure identity) ─────
 // issue mappings + supportMeaning drive the stance-vs-record verdict, so they are a
 // human CURATION step, never auto-invented. This applies db/vr-issue-seed.json onto
@@ -448,48 +539,62 @@ export async function applyCuratedIssueSeed(
   const out = { measuresMatched: 0, measuresSkipped: 0, issuesUpserted: 0, badKeys: [] as string[], matchedMeasureIds: [] as number[] };
   for (const entry of seed) {
     const number = canonicalMeasureNumber(entry.number);
+    // Match on (congress, chamber, canonical number) — NOT measureType, and NOT
+    // limited to one row. Congress.gov and the roll-call feeds disagree about how
+    // to type a measure (a House resolution arrives typed 'bill' often enough),
+    // and the same number can exist twice while a merge is pending. Matching on
+    // type made a curated mapping silently no-op in both cases; matching every
+    // row means the worst case is an idempotent re-upsert. The null-number branch
+    // still needs the type to identify anything at all, so it keeps it.
     const found = await db
       .select({ id: vrMeasures.id })
       .from(vrMeasures)
       .where(
-        and(
-          eq(vrMeasures.measureType, entry.measureType),
-          eq(vrMeasures.congress, entry.congress),
-          eq(vrMeasures.chamber, entry.chamber),
-          number ? eq(vrMeasures.number, number) : sql`${vrMeasures.number} IS NULL`
-        )
-      )
-      .limit(1);
+        number
+          ? and(
+              eq(vrMeasures.congress, entry.congress),
+              eq(vrMeasures.chamber, entry.chamber),
+              eq(vrMeasures.number, number)
+            )
+          : and(
+              eq(vrMeasures.measureType, entry.measureType),
+              eq(vrMeasures.congress, entry.congress),
+              eq(vrMeasures.chamber, entry.chamber),
+              sql`${vrMeasures.number} IS NULL`
+            )
+      );
     if (!found.length) { out.measuresSkipped++; continue; } // not ingested yet — no-op
     out.measuresMatched++;
-    const measureId = found[0].id;
-    out.matchedMeasureIds.push(measureId);
-    for (const iss of entry.issues) {
-      if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
-      const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
-      const values = {
-        measureId,
-        issueKey: iss.issueKey,
-        weight: typeof iss.weight === "number" ? iss.weight : 100,
-        isPrimary: !!iss.isPrimary,
-        supportMeaning,
-        rationale: iss.rationale || "",
-        sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
-      };
-      await db
-        .insert(vrMeasureIssues)
-        .values(values)
-        .onConflictDoUpdate({
-          target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
-          set: {
-            weight: values.weight,
-            isPrimary: values.isPrimary,
-            supportMeaning: values.supportMeaning,
-            rationale: values.rationale,
-            sourceUrl: values.sourceUrl,
-          },
-        });
-      out.issuesUpserted++;
+    for (const row of found) {
+      const measureId = row.id;
+      out.matchedMeasureIds.push(measureId);
+      for (const iss of entry.issues) {
+        if (!ISSUE_KEYS.has(iss.issueKey)) { out.badKeys.push(iss.issueKey); continue; }
+        const supportMeaning = iss.supportMeaning === "yea_opposes" ? "yea_opposes" : "yea_supports";
+        const values = {
+          measureId,
+          issueKey: iss.issueKey,
+          weight: typeof iss.weight === "number" ? iss.weight : 100,
+          isPrimary: !!iss.isPrimary,
+          supportMeaning,
+          rationale: iss.rationale || "",
+          sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
+        };
+        await db
+          .insert(vrMeasureIssues)
+          .values(values)
+          .onConflictDoUpdate({
+            target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
+            set: {
+              weight: values.weight,
+              isPrimary: values.isPrimary,
+              supportMeaning: values.supportMeaning,
+              rationale: values.rationale,
+              sourceUrl: values.sourceUrl,
+            },
+          });
+        out.issuesUpserted++;
+      }
     }
   }
   return out;
@@ -503,7 +608,7 @@ export async function ingestVotes(
   const report: IngestReport = {
     configured: true, fetched: rawVotes.length, measuresUpserted: 0, rollcallsUpserted: 0,
     memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
-    curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
+    curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0, errors: [],
   };
   const memberMap = opts.memberMap || (await loadMemberMap());
   const affectedMembers = new Set<string>();
@@ -587,6 +692,14 @@ export async function ingestVotes(
   // data therefore changed. Idempotent; skip only when a caller opts out (unit tests).
   if (opts.applyIssueSeed !== false) {
     try {
+      // Identity first, mapping second: a curated mapping is only reviewable once the
+      // measure has a real name, and applyCuratedMeasureIdentity() writes no mappings.
+      const idRes = await applyCuratedMeasureIdentity();
+      report.curatedTitlesResolved = idRes.titlesResolved;
+    } catch (e: any) {
+      report.errors.push(`curated measure identity failed: ${e?.message || e}`);
+    }
+    try {
       const seedRes = await applyCuratedIssueSeed();
       report.curatedMeasuresMatched = seedRes.measuresMatched;
       report.curatedIssuesUpserted = seedRes.issuesUpserted;
@@ -633,7 +746,7 @@ export async function runIngest(opts: {
     return {
       configured: false, fetched: 0, measuresUpserted: 0, rollcallsUpserted: 0,
       memberVotesUpserted: 0, membersUnmapped: 0, issuesSuggested: 0, actionsUpserted: 0,
-      curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
+      curatedTitlesResolved: 0, curatedMeasuresMatched: 0, curatedIssuesUpserted: 0, packsWritten: 0, skipped: 0,
       errors: ["CONGRESS_GOV_API_KEY not configured — House ingest skipped"],
     };
   }

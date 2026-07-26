@@ -11,6 +11,10 @@
 .iv-flag          { --iv-accent: #f59e0b; }
 .iv-contradiction { --iv-accent: #f87171; }
 .iv-stated        { --iv-accent: #94a3b8; }
+/* Votes on the record with no stated position to check them against — evidence
+   present, verdict withheld. Deliberately cool/neutral so it never reads as praise
+   or blame. */
+.iv-voted         { --iv-accent: #7dd3fc; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    FRONT DOOR  ·  #issue-front-door
@@ -89,11 +93,22 @@
 }
 @keyframes iv-rise { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.iv-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem 0.4rem; }
+.iv-topbar { display: flex; align-items: center; gap: 0.5rem; padding: 0.9rem 1rem 0.4rem; }
 .iv-eyebrow {
   font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.68rem;
   letter-spacing: 0.14em; text-transform: uppercase; color: #7fb4ff;
+  margin-right: auto; min-width: 0;
 }
+/* Share — the ranking a voter is looking at is a link they can send. */
+.iv-share {
+  flex: 0 0 auto; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: #c8d6ee;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px; padding: 0.4rem 0.7rem; min-height: 34px; line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.iv-share:hover { background: rgba(245, 200, 66, 0.14); border-color: rgba(245, 200, 66, 0.45); color: #f5c842; }
+.iv-share:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
 .iv-close {
   display: flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem;
   border-radius: 9999px; cursor: pointer; background: rgba(255, 255, 255, 0.08);
@@ -105,6 +120,7 @@
 
 .iv-head { display: flex; gap: 0.85rem; padding: 0.2rem 1rem 0.7rem; align-items: flex-start; }
 .iv-head-ico { flex: 0 0 auto; font-size: 2.2rem; line-height: 1; }
+.iv-head-txt { min-width: 0; }
 .iv-title { font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: clamp(1.5rem, 4.5vw, 2.2rem); line-height: 1.03; color: #fff; margin: 0 0 0.25rem; }
 .iv-blurb { font-family: 'Barlow', sans-serif; font-size: 0.82rem; color: #a9bcd8; line-height: 1.5; margin: 0; }
 .iv-blurb strong { color: #fff; }
@@ -203,7 +219,27 @@
 .iv-badge.iv-flag          { background: rgba(245, 158, 11, 0.14);  border-color: rgba(245, 158, 11, 0.42); }
 .iv-badge.iv-contradiction { background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.42); }
 .iv-badge.iv-stated        { background: rgba(148, 163, 184, 0.14); border-color: rgba(148, 163, 184, 0.42); }
+.iv-badge.iv-voted         { background: rgba(125, 211, 252, 0.14); border-color: rgba(125, 211, 252, 0.42); }
 .iv-row-counts { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; color: #8ea3c2; }
+
+/* ── The deciding roll call, cited in the row ───────────────────────────────
+   When a row's verdict comes from votes rather than a hand-written receipt, the
+   vote itself is named here — position, measure and year, straight off the record.
+   The left rule carries the verdict's colour so the direction is readable before
+   the words are. */
+.iv-row-vote {
+  font-family: 'Barlow', sans-serif; font-size: 0.78rem; line-height: 1.4; color: #c4d2e8;
+  margin: 0.3rem 0 0.1rem; padding-left: 0.5rem; border-left: 2px solid rgba(148, 163, 184, 0.5);
+}
+.iv-row-vote strong { color: #e8f0fb; font-weight: 700; }
+.iv-row-vote-tag {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem;
+  letter-spacing: 0.05em; text-transform: uppercase; color: #9fb4d4;
+}
+.iv-row-vote--contradicts { border-left-color: rgba(248, 113, 113, 0.7); }
+.iv-row-vote--contradicts .iv-row-vote-tag { color: #f8a3a3; }
+.iv-row-vote--consistent { border-left-color: rgba(74, 222, 128, 0.7); }
+.iv-row-vote--consistent .iv-row-vote-tag { color: #86efac; }
 .iv-meter { margin-top: 0.4rem; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
 .iv-meter-fill { display: block; height: 100%; border-radius: 3px; background: var(--iv-accent, #94a3b8); }
 
@@ -222,6 +258,76 @@
   color: #c8d6ee; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16);
 }
 .iv-receipt-btn--ghost:hover { background: rgba(255, 255, 255, 0.12); color: #fff; box-shadow: none; }
+/* Vote-led rows land on the measure instead of a receipt card — a different
+   destination, so a different colour, but the same tap target size. */
+.iv-receipt-btn--vote {
+  color: #06263a; background: linear-gradient(90deg, #7dd3fc, #38bdf8);
+}
+.iv-receipt-btn--vote:hover { box-shadow: 0 5px 16px rgba(56, 189, 248, 0.38); }
+.iv-receipt-btn--vote:focus-visible { outline-color: #7dd3fc; }
+
+/* ── Sub-issue focus bar ────────────────────────────────────────────────────
+   The ranking can be narrowed to ONE issue ("Housing Affordability") inside a
+   larger bundle ("Economy, Inflation & Cost of Living"). This band says so and
+   offers the widening in one tap, so precision never becomes a trap. */
+.iv-focus {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem;
+  margin: 0 0.7rem 0.15rem; padding: 0.5rem 0.7rem; border-radius: 0.6rem;
+  background: rgba(127, 180, 255, 0.09); border: 1px solid rgba(127, 180, 255, 0.24);
+}
+.iv-focus-tag {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.62rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #7fb4ff;
+}
+.iv-focus-txt { font-family: 'Barlow', sans-serif; font-size: 0.78rem; color: #a9bcd8; }
+.iv-focus-btn {
+  margin-left: auto; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.7rem; letter-spacing: 0.04em; color: #dbe6f7;
+  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px; padding: 0.34rem 0.7rem; min-height: 34px; line-height: 1;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.iv-focus-btn:hover { background: rgba(127, 180, 255, 0.18); border-color: rgba(127, 180, 255, 0.5); color: #fff; }
+.iv-focus-btn:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+
+/* ── Coverage honesty callout ───────────────────────────────────────────────
+   When an issue is barely documented, the page says so before the list is read.
+   Amber for the honest gaps, steel for "still growing" — never a red alarm,
+   because a thin record is a fact about us, not an accusation. */
+.iv-cov {
+  display: flex; gap: 0.6rem; align-items: flex-start;
+  margin: 0.15rem 0.5rem 0.55rem; padding: 0.6rem 0.7rem; border-radius: 0.65rem;
+  background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.28);
+}
+.iv-cov-ico { flex: 0 0 auto; font-size: 1rem; line-height: 1.3; }
+.iv-cov-body { min-width: 0; }
+.iv-cov-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #cbd8ec; margin-bottom: 0.15rem;
+}
+.iv-cov-text { font-family: 'Barlow', sans-serif; font-size: 0.8rem; line-height: 1.5; color: #a9bcd8; margin: 0; }
+.iv-cov-text strong { color: #fff; }
+.iv-cov--none, .iv-cov--stated-only {
+  background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.32);
+}
+.iv-cov--none .iv-cov-title, .iv-cov--stated-only .iv-cov-title { color: #f0c476; }
+
+/* Honest empty states — a titled explanation and a way out, never a blank wall. */
+.iv-empty-t {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.15rem;
+  letter-spacing: 0.02em; color: #fff; margin-bottom: 0.35rem;
+}
+.iv-empty-p { font-family: 'Barlow', sans-serif; font-size: 0.85rem; line-height: 1.55; color: #93a7c4; margin: 0 auto 1rem; max-width: 26rem; }
+.iv-empty-btn {
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.74rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #0a0f1e;
+  background: linear-gradient(90deg, #f5c842, #fbbf24); border: 0; border-radius: 9999px;
+  padding: 0.55rem 1.1rem; min-height: 42px; line-height: 1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.iv-empty-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(245, 200, 66, 0.35); }
+.iv-empty-btn:focus-visible { outline: 2px solid #f5c842; outline-offset: 2px; }
+.iv-empty--scope .iv-empty-t { color: #f0c476; }
 
 /* ── Responsive ─────────────────────────────────────────────────────────────*/
 @media (max-width: 560px) {
@@ -230,8 +336,16 @@
   .iv-row-actions { width: 100%; margin-top: 0.5rem; padding-left: 3.2rem; }
   .iv-receipt-btn { width: 100%; }
   .ifd-grid { grid-template-columns: 1fr; }
+  .iv-eyebrow { font-size: 0.62rem; letter-spacing: 0.1em; }
+  .iv-share { padding: 0.4rem 0.6rem; }
+  .iv-focus { margin: 0 0.5rem 0.15rem; }
+  .iv-focus-btn { margin-left: 0; width: 100%; }
+  .iv-cov { margin: 0.15rem 0.2rem 0.5rem; }
+  .iv-empty-btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .iv-overlay.is-open, .iv-panel { animation: none; }
-  .ifd-card, .iv-chip, .iv-fbtn, .iv-receipt-btn, .iv-row, .ifd-go { transition: none; }
+  .ifd-card, .iv-chip, .iv-fbtn, .iv-receipt-btn, .iv-row, .ifd-go,
+  .iv-share, .iv-focus-btn, .iv-empty-btn { transition: none; }
+  .iv-empty-btn:hover, .iv-receipt-btn:hover { transform: none; }
 }
