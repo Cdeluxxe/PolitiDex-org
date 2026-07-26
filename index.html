@@ -1196,8 +1196,12 @@
   // path treat the score as absent in that case and render "—" / "No record
   // yet" instead, while leaving the underlying p.score untouched so sorting and
   // the separate accountability model are unaffected.
-  window._pdxResolvedPromises = function(p) {
-    if (!p) return 0;
+  // The kept / broken tally behind the score, read from whichever shape a record
+  // carries, plus the pending / partial side of the same ledger. `resolved` is
+  // still kept + broken and nothing else — pending and partial are reported
+  // separately so they can be SHOWN without ever entering the percentage.
+  window._pdxPromiseTally = function(p) {
+    if (!p) return { kept: 0, broken: 0, resolved: 0, pending: 0, partial: 0, unresolved: 0, tracked: 0 };
     var k = parseInt(p.kept, 10);   if (isNaN(k)) k = 0;
     var b = parseInt(p.broken, 10); if (isNaN(b)) b = 0;
     // Fall back to a detailed promise list / breakdown when the summary counts
@@ -1213,7 +1217,34 @@
       var pk = parseInt(p.promiseBreakdown.kept, 10);   if (!isNaN(pk)) k += pk;
       var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
     }
-    return k + b;
+    // The unresolved side, counted the same three ways. In the breakdown shape a
+    // partial promise is stored as `compromise`. Pending and partial are gated
+    // separately, unlike kept / broken: no record carries a summary `partial`
+    // field, so a record with a summary pending count would otherwise lose the
+    // partials sitting in its promises[] list. Each side only falls back when it
+    // is still zero, so nothing is ever double counted.
+    var pend = parseInt(p.pending, 10); if (isNaN(pend)) pend = 0;
+    var part = parseInt(p.partial, 10); if (isNaN(part)) part = 0;
+    var scanPend = (pend === 0), scanPart = (part === 0);
+    if ((scanPend || scanPart) && Array.isArray(p.promises)) {
+      for (var j = 0; j < p.promises.length; j++) {
+        var uv = p.promises[j] && p.promises[j].verdict;
+        if (scanPend && uv === 'pending') pend++;
+        else if (scanPart && uv === 'partial') part++;
+      }
+    }
+    if (p.promiseBreakdown) {
+      if (pend === 0) { var bp = parseInt(p.promiseBreakdown.pending, 10);    if (!isNaN(bp)) pend += bp; }
+      if (part === 0) { var bc = parseInt(p.promiseBreakdown.compromise, 10); if (!isNaN(bc)) part += bc; }
+    }
+    return {
+      kept: k, broken: b, resolved: k + b,
+      pending: pend, partial: part, unresolved: pend + part,
+      tracked: k + b + pend + part
+    };
+  };
+  window._pdxResolvedPromises = function(p) {
+    return window._pdxPromiseTally(p).resolved;
   };
   window._pdxHasPromiseRecord = function(p) {
     return window._pdxResolvedPromises(p) > 0;
@@ -1225,6 +1256,55 @@
     var s = p.score;
     if (s === null || s === undefined || s === '') return null;
     return window._pdxHasPromiseRecord(p) ? s : null;
+  };
+  // The sample size behind that percentage — "3 of 4 resolved" (long) or
+  // "3/4 resolved" (short, for tight rails and table cells). Reads only the
+  // kept / broken counts the score already rests on; pending and partial items
+  // stay out of it, exactly as they stay out of the math. Returns '' when
+  // nothing has resolved, so a no-record profile shows no percentage AND no
+  // parenthetical rather than a hollow "0 of 0".
+  window._pdxScoreDenominator = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    return form === 'short'
+      ? t.kept + '/' + t.resolved + ' resolved'
+      : t.kept + ' of ' + t.resolved + ' resolved';
+  };
+  // ── Three honest promise states ──────────────────────────────────────────
+  // 'resolved' — something has been counted kept or broken, so a percentage is
+  //              earned and shown.
+  // 'tracking' — promises ARE on file but none has resolved. Still no
+  //              percentage (the honesty guard is untouched), but this must not
+  //              look like an empty record, which is what it did before.
+  // 'empty'    — nothing on file at all; the existing empty state stands.
+  window._pdxPromiseState = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0) return 'resolved';
+    return t.unresolved > 0 ? 'tracking' : 'empty';
+  };
+  // The 'tracking' label — "3 tracked · none resolved yet" (long) or
+  // "3 tracked · none resolved" (short). '' in the other two states.
+  window._pdxTrackingNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0 || !t.unresolved) return '';
+    return t.tracked + ' tracked · none resolved' + (form === 'short' ? '' : ' yet');
+  };
+  // Unobtrusive companion to a real percentage — "+2 pending", "+1 partial" or
+  // "+2 pending · 1 partial". Names what is still outstanding without implying it
+  // counts toward the score. '' when nothing is outstanding.
+  window._pdxPendingNote = function(p) {
+    var t = window._pdxPromiseTally(p);
+    var parts = [];
+    if (t.pending) parts.push(t.pending + ' pending');
+    if (t.partial) parts.push(t.partial + ' partial');
+    return parts.length ? '+' + parts.join(' · ') : '';
+  };
+  // Count of tracked-but-unresolved promises, labelled for a tight slot:
+  // "3 Promises" / "1 Promise".
+  window._pdxTrackedCountLabel = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.tracked) return '';
+    return t.tracked + (t.tracked === 1 ? ' Promise' : ' Promises');
   };
 
   function _checkAndTrigger() {
@@ -25508,6 +25588,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const barColor  = scoreNum === null ? 'linear-gradient(90deg,#334155,#64748b)' : scoreNum >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : scoreNum >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
+    // The denominator behind the headline percentage, so "100%" can never be read
+    // as a broad record when it rests on a single resolved promise.
+    const scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(p) : '';
+    // The unresolved side of the ledger. `promiseState` separates a profile that
+    // is genuinely tracking promises (none resolved yet) from one with nothing on
+    // file — two cases the hero used to render identically.
+    const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
+    const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
+    const pendingNote  = (typeof window._pdxPendingNote === 'function') ? window._pdxPendingNote(p) : '';
+    const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
 
     // Top bar
     document.getElementById('modal-icon').textContent = p.icon;
@@ -25521,6 +25611,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const pct = scoreNum === null ? 0 : scoreNum / 100;
     const dash = pct * circ;
     const scoreRing = scoreNum !== null ? `
+      <div class="profile-score-stack">
       <div class="score-ring w-20 h-20 flex-shrink-0">
         <svg width="80" height="80" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
@@ -25532,10 +25623,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Score</div>
         </div>
+      </div>
+      ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
+      ${pendingNote ? `<div class="profile-score-pending">${pendingNote}</div>` : ''}
+      </div>` : (promiseState === 'tracking' ? `
+      <div class="profile-score-stack">
+        <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">
+          <div style="font-size:1.5rem;line-height:1;">⏳</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#f5c842;margin-top:0.22rem;text-align:center;">${trackedLabel}</div>
+        </div>
+        <div class="profile-score-track-note">${trackingNote}</div>
       </div>` : `<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center" style="background:rgba(100,116,139,0.15);border:1px solid rgba(100,116,139,0.3);">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#9fb4d4;line-height:1;">—</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Monitoring</div>
-      </div>`;
+      </div>`);
 
     // Key issues pills
     const issuePills = (p.keyIssues || []).map(i => `<span class="issue-pill">${i}</span>`).join('');
@@ -25896,7 +25997,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
             ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
-            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">◷ No voting record yet</span>' : ''}
+            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (promiseState === 'tracking' ? '⏳ ' + trackingNote : '◷ No voting record yet') + '</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
@@ -34053,7 +34154,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     promiseBlock += row('Promise Score', pids.map((pid, i) => {
       const p = sc(pid); const sVal = _psVals[i]; const col = scoreColor(sVal);
       const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
-      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${lead}`;
+      // Show what each percentage rests on, so two 100% picks that sit on 1 and
+      // 20 resolved promises don't read as an even match.
+      const denom = (sVal !== null && sVal !== undefined && typeof window._pdxScoreDenominator === 'function')
+        ? window._pdxScoreDenominator(p) : '';
+      const denomLine = denom ? `<div class="cmp-score-denom">(${denom})</div>` : '';
+      // No percentage? Say which kind of "no percentage" it is. A pick with real
+      // pending / partial promises reads as tracking; a blank record still reads
+      // as the bare "—" it always did.
+      const trackLine = (sVal === null || sVal === undefined) && typeof window._pdxTrackingNote === 'function'
+        ? window._pdxTrackingNote(p) : '';
+      const pendLine = (sVal !== null && sVal !== undefined && typeof window._pdxPendingNote === 'function')
+        ? window._pdxPendingNote(p) : '';
+      const noteLine = trackLine
+        ? `<div class="cmp-score-note cmp-score-note-tracking">⏳ ${trackLine}</div>`
+        : (pendLine ? `<div class="cmp-score-note">${pendLine}</div>` : '');
+      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${denomLine}${noteLine}${lead}`;
     }), '', _psLeader);
     const _ftVals = pids.map(pid => followThrough(sc(pid)));
     const _ftLeader = leaderClasses(_ftVals);
@@ -35433,7 +35549,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var pmDepth=(typeof window._pdxDepthBadge==='function')?window._pdxDepthBadge(p,{size:'sm'}):'';
         var pmParty=(typeof window._pdxPartyChip==='function')?window._pdxPartyChip(p.party):'';
         var pmOffice=(typeof window._pdxOfficeLine==='function')?window._pdxOfficeLine(p):(p.office||'');
-        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending):'';
+        var pmStats=(!scNull&&typeof window._pdxStatPills==='function')?window._pdxStatPills(p.kept,p.broken,p.pending,{record:p}):'';
         // First sentence of the bio as a one-line "impact" blurb. Guard the empty
         // case (no bio) so the row never renders as a lone period, and avoid cutting
         // at an abbreviation such as "U.S." or "Sen." by falling back to a longer
@@ -37485,36 +37601,65 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return '<span class="pdx-party-chip ' + cls + '">' + label + '</span>';
     };
 
-    // Clean kept / broken / pending pill row — the at-a-glance accountability read
-    // shared by every listing card. When there is no resolved record yet it returns
-    // a single neutral "No voting record yet" pill so candidates read honestly.
+    // Clean kept / broken / pending / partial pill row — the at-a-glance
+    // accountability read shared by every listing card. It follows the same three
+    // states as the score rail above it (see `_pdxPromiseState`) so a card never
+    // reads "0 Kept · 0 Broken" beside a rail that already says the record is
+    // open:
+    //   resolved → the real kept / broken tally, plus any outstanding work
+    //   tracking → the outstanding counts and an explicit "none resolved yet"
+    //   empty    → one neutral, context-aware "no record yet" pill
+    // Pass the whole record as `opts.record` to pick up partials and the
+    // promises[] / promiseBreakdown shapes; the loose kept / broken / pending
+    // arguments stay supported for callers that only hold the summary fields.
     window._pdxStatPills = function(kept, broken, pending, opts) {
-      var k = kept || 0, b = broken || 0, pn = pending || 0;
       opts = opts || {};
-      if (k === 0 && b === 0 && pn === 0) {
-        // Honest, context-aware empty state instead of a misleading "0 Kept / 0
-        // Broken". A 2026 challenger reads as on-the-ballot-but-no-record-yet; a
-        // new officeholder reads as early-in-term; everyone else as monitoring.
-        var msg = '⏳ No voting record yet';
-        // A candidate who lost at convention or withdrew never took office, so
-        // "record starts in office" would be misleading — say so plainly instead,
-        // matching the "Out of Race" badge and the profile's honest lede.
-        var _cs = String(opts.candidacyStatus || '').toLowerCase();
-        var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
-        var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
-        if (_outOfRace) msg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
-          : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
-          : '✖ Did not advance — never took office';
-        else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
-        else if (opts.status === 'former') msg = '⏳ Former office — record archived';
-        else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
-        return '<div class="pdx-statpills"><span class="pdx-statpill pdx-statpill-none">' + msg + '</span></div>';
+      var t = (opts.record && typeof window._pdxPromiseTally === 'function')
+        ? window._pdxPromiseTally(opts.record) : null;
+      var k, b, pn, pt;
+      if (t) { k = t.kept; b = t.broken; pn = t.pending; pt = t.partial; }
+      else {
+        k = parseInt(kept, 10);    if (isNaN(k)) k = 0;
+        b = parseInt(broken, 10);  if (isNaN(b)) b = 0;
+        pn = parseInt(pending, 10); if (isNaN(pn)) pn = 0;
+        pt = 0;
       }
-      return '<div class="pdx-statpills">' +
-        '<span class="pdx-statpill pdx-statpill-kept">✓ ' + k + ' Kept</span>' +
-        '<span class="pdx-statpill pdx-statpill-broken">✗ ' + b + ' Broken</span>' +
-        (pn > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + pn + ' Pending</span>' : '') +
-      '</div>';
+      var resolved = k + b, unresolved = pn + pt;
+      var pill = function(cls, txt) { return '<span class="pdx-statpill pdx-statpill-' + cls + '">' + txt + '</span>'; };
+      // Outstanding promises, shown only when they exist — never as a zero.
+      var openPills = (pn > 0 ? pill('pending', '⏳ ' + pn + ' Pending') : '')
+                    + (pt > 0 ? pill('partial', '~ ' + pt + ' Partial') : '');
+
+      if (resolved > 0) {
+        // A resolved record: "0 Broken" is earned information here, so both sides
+        // of the ratio stay put. Outstanding work is appended, not substituted.
+        return '<div class="pdx-statpills">' +
+          pill('kept', '✓ ' + k + ' Kept') +
+          pill('broken', '✗ ' + b + ' Broken') +
+          openPills +
+        '</div>';
+      }
+
+      // Nothing has resolved. Either promises are on file and still open, or the
+      // record is genuinely empty — one or the other, and never a row of zeroes.
+      var msg = '⏳ No voting record yet';
+      // A candidate who lost at convention or withdrew never took office, so
+      // "record starts in office" would be misleading — say so plainly instead,
+      // matching the "Out of Race" badge and the profile's honest lede. This wins
+      // over the tracking wording: those promises can no longer resolve in office.
+      var _cs = String(opts.candidacyStatus || '').toLowerCase();
+      var _lostPrimary = (_cs === 'eliminated_primary' || _cs === 'lost_primary');
+      var _outOfRace = (_lostPrimary || _cs === 'eliminated' || _cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'lost' || _cs === 'defeated' || _cs === 'suspended' || _cs === 'conceded');
+      if (_outOfRace) msg = _lostPrimary ? '✖ Lost primary — not on the November ballot'
+        : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
+        : '✖ Did not advance — never took office';
+      // Tracked but unresolved: the counts carry the record, so the neutral pill
+      // only has to state what is missing from it.
+      else if (unresolved > 0) msg = '⊘ None resolved yet';
+      else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
+      else if (opts.status === 'former') msg = '⏳ Former office — record archived';
+      else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
+      return '<div class="pdx-statpills">' + openPills + pill('none', msg) + '</div>';
     };
 
     // Consistent "Office • District • State" line for every compact card. District
@@ -37730,27 +37875,50 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\');}"' +
         ' title="How is the Promise % calculated?"';
       var infoHint = '<div class="pdx-score-info">ⓘ How?</div>';
+      // Sample size behind the percentage, in the compact form the narrow rail
+      // can hold ("1/1 resolved"). Empty for a no-record card, which already
+      // shows no percentage at all.
+      var scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(d, 'short') : '';
+      // Which of the three honest states this card is in. 'tracking' means real
+      // promises are on file with none resolved — it must not wear the same
+      // "No record yet" rail as a politician with nothing on file at all.
+      var pState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(d) : (hasScore ? 'resolved' : 'empty');
+      var trackNote  = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(d, 'short') : '';
+      var trackLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(d) : '';
       var scoreBlock = hasScore
         ? '<div class="pdx-snap-score pdx-snap-score-click"' + scoreClick + ' style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
             '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
             '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+            (scoreDenom ? '<div class="pdx-snap-score-denom">' + scoreDenom + '</div>' : '') +
             infoHint +
           '</div>'
         : (status === 'candidate'
+          // A candidate keeps the blue 2026 identity, but when promises ARE on file
+          // the sub-line names them instead of implying the slate is blank.
           ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-cand pdx-snap-score-click"' + scoreClick + '>' +
               '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-cand">🗳️</div>' +
               '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-cand">2026 Ballot</div>' +
-              '<div class="pdx-snap-score-na pdx-snap-score-na-cand">Record begins in office</div>' +
+              '<div class="pdx-snap-score-na pdx-snap-score-na-cand">' + (pState === 'tracking' ? trackNote : 'Record begins in office') + '</div>' +
               infoHint +
             '</div>'
-          : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
-              '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
-              '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
-              '<div class="pdx-snap-score-na">No record yet</div>' +
-              infoHint +
-            '</div>');
+          : (pState === 'tracking'
+            // Tracked-but-unresolved. Deliberately an hourglass rather than a
+            // number in the score slot, so it can never be misread as a
+            // percentage — there still isn't one.
+            ? '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-tracking pdx-snap-score-click"' + scoreClick + '>' +
+                '<div class="pdx-snap-score-num pdx-snap-score-num-empty pdx-snap-score-num-tracking">⏳</div>' +
+                '<div class="pdx-snap-score-lbl pdx-snap-score-lbl-tracking">' + trackLabel + '</div>' +
+                '<div class="pdx-snap-score-na pdx-snap-score-na-tracking">None resolved yet</div>' +
+                infoHint +
+              '</div>'
+            : '<div class="pdx-snap-score pdx-snap-score-empty pdx-snap-score-click"' + scoreClick + '>' +
+                '<div class="pdx-snap-score-num pdx-snap-score-num-empty">&mdash;</div>' +
+                '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+                '<div class="pdx-snap-score-na">No record yet</div>' +
+                infoHint +
+              '</div>'));
 
-      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
+      var pills = (typeof window._pdxStatPills === 'function') ? window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: status, year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) : '';
       var acct = (opts.acct !== false && hasScore && typeof window._acctCardBadge === 'function')
         ? '<span id="acctbadge-' + pid + '" style="display:inline-flex;">' + window._acctCardBadge(pid) + '</span>' : '';
       var commentChip = (typeof window._pdxCommentChip === 'function') ? window._pdxCommentChip(pid) : '';
@@ -40868,7 +41036,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               heartHtml +
             '</div>' +
             '<p class="font-condensed text-sm text-steel-300 tracking-wide mb-2">' + window._pdxOfficeLine(d) + (window._pdxPartyChip(d.party) ? ' &nbsp;' + window._pdxPartyChip(d.party) : '') + '</p>' +
-            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
+            (typeof window._pdxStatPills === 'function' ? '<div style="margin-bottom:0.6rem;">' + window._pdxStatPills(d.kept, d.broken, d.pending, { record: d, status: (typeof window._pdxOfficeStatus === 'function' ? window._pdxOfficeStatus(d) : 'office'), year2026: (typeof window._pdx2026Candidate === 'function' && window._pdx2026Candidate(d)), candidacyStatus: d.candidacyStatus }) + '</div>' : '') +
             '<div class="flex flex-wrap items-center gap-3 mb-3">' +
               '<div style="flex-shrink:0;">' +
                 '<div class="chub-score" style="color:' + scCol + ';font-size:1.5rem;">' + scTxt + '</div>' +
