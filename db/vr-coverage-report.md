@@ -15,11 +15,11 @@ counted, and every row it accounts for is marked `pending`.
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 3,991 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 1,773 |
+| …**and** the member holds a stated position on that key (rankable) | 1,930 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **615**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **631**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -112,35 +112,25 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,520 (member, issue) pairs, 11,122 member-votes.
+5,504 (member, issue) pairs, 10,965 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
 | member-votes | member | issue key | profile exists |
 |---:|---|---|---|
-| 12 | scalise | strong_defense | yes |
-| 11 | mike_johnson | strong_defense | yes |
-| 11 | emmer | strong_defense | yes |
-| 11 | aoc | strong_defense | yes |
 | 11 | khanna | gov_regulation | yes |
-| 10 | julie_fedorchak | strong_defense | yes |
 | 10 | julie_fedorchak | cut_spending | yes |
-| 10 | troy_downing | strong_defense | yes |
 | 10 | troy_downing | cut_spending | yes |
 | 10 | mike_simpson | strong_defense | yes |
 | 10 | mike_simpson | cut_spending | yes |
-| 10 | mike_flood | strong_defense | yes |
 | 10 | jason_smith | strong_defense | yes |
 | 10 | jason_smith | cut_spending | yes |
 | 10 | kclark | strong_defense | yes |
 | 10 | kclark | cut_spending | yes |
 | 10 | khanna | cut_spending | yes |
-| 10 | tlaib | strong_defense | yes |
 | 10 | tlaib | cut_spending | yes |
-| 10 | jayapal | strong_defense | yes |
 | 10 | jayapal | cut_spending | yes |
 | 10 | crockett | strong_defense | yes |
-| 10 | khanna | strong_defense | yes |
 | 9 | aoc | cut_spending | yes |
 | 9 | jim_jordan | strong_defense | yes |
 | 9 | crockett | gov_regulation | yes |
@@ -158,14 +148,9 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | frank_lucas | cut_spending | yes |
 | 9 | mariannette_miller_meeks | cut_spending | yes |
 | 9 | mike_collins | cut_spending | yes |
-| 9 | rob_bresnahan | strong_defense | yes |
-| 9 | mike_collins | strong_defense | yes |
 | 9 | josh_brecheen | strong_defense | yes |
 | 9 | french_hill | strong_defense | yes |
 | 9 | maxine_waters | strong_defense | yes |
-| 9 | michael_guest | strong_defense | yes |
-| 9 | mariannette_miller_meeks | strong_defense | yes |
-| 9 | steve_womack | strong_defense | yes |
 | 9 | bruce_westerman | strong_defense | yes |
 | 9 | owens | america_first_fp | yes |
 | 9 | aoc | america_first_fp | yes |
@@ -178,7 +163,22 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | josh_brecheen | america_first_fp | yes |
 | 9 | julie_fedorchak | america_first_fp | yes |
 | 9 | kclark | america_first_fp | yes |
-| … | _5,460 more_ | | |
+| 9 | khanna | america_first_fp | yes |
+| 9 | mariannette_miller_meeks | america_first_fp | yes |
+| 9 | maxine_waters | america_first_fp | yes |
+| 9 | michael_guest | america_first_fp | yes |
+| 9 | mike_collins | america_first_fp | yes |
+| 9 | mike_ezell | america_first_fp | yes |
+| 9 | mike_flood | america_first_fp | yes |
+| 9 | mike_simpson | america_first_fp | yes |
+| 9 | rick_crawford | america_first_fp | yes |
+| 9 | rob_bresnahan | america_first_fp | yes |
+| 9 | scalise | america_first_fp | yes |
+| 9 | stephanie_bice | america_first_fp | yes |
+| 9 | steve_womack | america_first_fp | yes |
+| 9 | tlaib | america_first_fp | yes |
+| 9 | tom_cole | america_first_fp | yes |
+| … | _5,444 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -187,11 +187,11 @@ real, verifiable position exists. Do not fill these in by inference.
 | 665 | gov_regulation | 187 |
 | 639 | states_federal_power | 199 |
 | 619 | climate_action | 202 |
-| 596 | strong_defense | 112 |
 | 583 | cut_spending | 135 |
 | 514 | cost_living | 206 |
 | 509 | energy_production | 170 |
 | 450 | america_first_fp | 113 |
+| 439 | strong_defense | 96 |
 | 414 | national_debt | 125 |
 | 367 | gov_transparency | 112 |
 | 282 | tough_on_crime | 106 |
