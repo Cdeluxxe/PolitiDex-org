@@ -1403,6 +1403,18 @@
         'burt_jones', 'delbert_hosemann', 'matt_pinnell', 'jim_tressel',
         // Complete Chellie Pingree — farm-bill amendment author (July 2026)
         'chellie_pingree',
+        // Voting Record depth pass — the 20 sitting U.S. House members wired into
+        // CMP_DATA by the July 2026 Voting Record unlock (July 2026). Each has
+        // curated stance cards, roll-call history and Connected Evidence, but none
+        // has a Firestore document, so without this seed they resolved from a direct
+        // link yet never appeared in the public directory, global search, or Your
+        // Ballot. Eleven now carry sourced promise ledgers; the rest correctly read
+        // "No record yet" until there is a resolved promise to show.
+        'bennie_thompson', 'bruce_westerman', 'don_davis', 'frank_lucas', 'josh_brecheen',
+        'julie_fedorchak', 'mariannette_miller_meeks', 'michael_guest', 'mike_collins',
+        'mike_ezell', 'mike_flood', 'mike_simpson', 'rick_crawford', 'rob_bresnahan',
+        'ryan_mackenzie', 'scott_perry', 'stephanie_bice', 'steve_womack', 'trent_kelly',
+        'troy_downing',
       ].forEach(function (id) {
         if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
           PROFILES[id] = CMP_DATA[id];
