@@ -86,17 +86,23 @@ const RANK_FETCH_CAP = 8000;
 // passes procedural=0.
 const PROCEDURAL_TYPES = ["procedural", "motion"];
 
-// A YEA normally advances the measure — the assumption every verdict rests on. Two
-// questions INVERT it: a yea on a motion to RECOMMIT sends the bill back to committee,
-// and a yea on a motion to TABLE kills it. On those roll calls a yea is a vote AGAINST
-// the measure, so reading it the usual way yields a backwards verdict, not just a weak
-// one (down-weighting cannot fix direction). Orthogonal to a mapping's supportMeaning:
+// A YEA normally advances the measure — the assumption every verdict rests on. Three
+// questions INVERT it: a yea on a motion to RECOMMIT or to COMMIT sends the bill back to
+// committee, and a yea on a motion to TABLE kills it. On those roll calls a yea is a vote
+// AGAINST the measure, so reading it the usual way yields a backwards verdict, not just a
+// weak one (down-weighting cannot fix direction). "To commit" is listed separately from
+// "recommit" because the House uses the bare form for a Senate bill it has not previously
+// committed — S. 1071 roll 319 is one. Orthogonal to a mapping's supportMeaning:
 // this corrects the vote→measure step, not the measure→issue step. Kept byte-identical
 // to yeaBlocksMeasure() in netlify/lib/vr-pack.ts so the live read path and the offline
 // pack agree on every verdict.
 function yeaBlocksMeasure(question: string | null | undefined): boolean {
   const q = String(question || "").toLowerCase();
-  return q.indexOf("recommit") !== -1 || q.indexOf("to table") !== -1;
+  return (
+    q.indexOf("recommit") !== -1 ||
+    q.indexOf("to commit") !== -1 ||
+    q.indexOf("to table") !== -1
+  );
 }
 
 // ── Distributional Impact Ledger allow-lists (defense in depth) ──────────────

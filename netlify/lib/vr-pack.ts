@@ -37,10 +37,12 @@ const FETCH_CAP = 2000;
 const PROCEDURAL_TYPES = ["procedural", "motion"];
 
 // A YEA normally advances the measure — that assumption is what every verdict is built
-// on. Two common House/Senate questions INVERT it: a yea on a motion to RECOMMIT sends
-// the bill back to committee, and a yea on a motion to TABLE kills it. So on those roll
-// calls a yea is a vote AGAINST the measure, and reading it the usual way produces a
-// verdict that is not merely weak but backwards.
+// on. Three common House/Senate questions INVERT it: a yea on a motion to RECOMMIT or to
+// COMMIT sends the bill back to committee, and a yea on a motion to TABLE kills it. So on
+// those roll calls a yea is a vote AGAINST the measure, and reading it the usual way
+// produces a verdict that is not merely weak but backwards. "To commit" is listed
+// separately from "recommit" because the House uses the bare form for a Senate bill it
+// has not previously committed — S. 1071 roll 319 is one.
 //
 // This is orthogonal to a mapping's `supportMeaning` (which says whether advancing the
 // MEASURE advances the ISSUE) — it corrects the vote→measure step, not the measure→issue
@@ -48,7 +50,11 @@ const PROCEDURAL_TYPES = ["procedural", "motion"];
 // Consumed by stance-helpers.js `_voteEffectiveSupport` via item.advanceInverted.
 export function yeaBlocksMeasure(question: string | null | undefined): boolean {
   const q = String(question || "").toLowerCase();
-  return q.indexOf("recommit") !== -1 || q.indexOf("to table") !== -1;
+  return (
+    q.indexOf("recommit") !== -1 ||
+    q.indexOf("to commit") !== -1 ||
+    q.indexOf("to table") !== -1
+  );
 }
 
 export function packKey(politicianId: string): string {
