@@ -676,7 +676,9 @@
     if (r.said) lines.push('Said: “' + trimTo(r.said.text, 150) + '”');
     lines.push((r.impact === 'positive' ? 'Record: ' : 'But the record: ') + trimTo(r.headline, 150));
     lines.push('Source: ' + ((r.source && r.source.label) || 'public record') + (r.date ? ' (' + r.date + ')' : ''));
-    lines.push('Checked on PolitiDex · ' + SHARE_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''));
+    // Link straight back to THIS receipt, not just the homepage, so a share is
+    // verifiable in one tap by whoever receives it.
+    lines.push('Checked on PolitiDex · ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL).replace(/^https?:\/\//, ''));
     return lines.join('\n');
   }
   function tweetText(r) {
@@ -737,8 +739,8 @@
       var act = b.getAttribute('data-act');
       if (act === 'save') download(dataUrl, fileName);
       else if (act === 'copy') copyText(cap).then(function () { toast('Caption copied'); });
-      else if (act === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText(r)) + '&url=' + encodeURIComponent(SHARE_URL), '_blank', 'noopener');
-      else if (act === 'fb') window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL) + '&quote=' + encodeURIComponent(caption(r)), '_blank', 'noopener');
+      else if (act === 'x') window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText(r)) + '&url=' + encodeURIComponent(receiptLink(r, '', { canonical: true }) || SHARE_URL), '_blank', 'noopener');
+      else if (act === 'fb') window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(receiptLink(r, '', { canonical: true }) || SHARE_URL) + '&quote=' + encodeURIComponent(caption(r)), '_blank', 'noopener');
       if (act !== 'copy') closeMenu();
     });
     setTimeout(function () { document.addEventListener('click', onDocClick, true); }, 0);
@@ -1133,6 +1135,37 @@
     if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
   }
 
+  // ── deep links ───────────────────────────────────────────────────────────────
+  // #receipt=<pid>[~<issueKey>] lands a reader directly on one receipt. The pid and
+  // issue are exactly what openReceipt() already takes, so a link is just the two
+  // arguments a tap would have supplied. Receipts are built from data that arrives
+  // asynchronously, so an unresolved link retries briefly rather than flashing
+  // "no receipt on record".
+  function receiptLink(pidOrReceipt, issueKey, opts) {
+    var r = (pidOrReceipt && pidOrReceipt.verdict) ? pidOrReceipt : null;
+    var pid = r ? r.pid : pidOrReceipt;
+    var iss = r ? (r.issueKey || '') : (issueKey || '');
+    if (!pid) return '';
+    var h = '#receipt=' + encodeURIComponent(pid) + (iss ? '~' + encodeURIComponent(iss) : '');
+    // `canonical` builds the link on the public share domain, for anything leaving
+    // the device; otherwise stay on whatever origin the reader is already on.
+    if (opts && opts.canonical) return SHARE_URL.replace(/\/$/, '/') + h;
+    try { return location.origin + location.pathname + h; } catch (e) { return h; }
+  }
+
+  var _hashTries = 0;
+  function handleHash(retry) {
+    var m = (location.hash || '').match(/^#receipt=([^~&]+)(?:~([^&]+))?/);
+    if (!m) { _hashTries = 0; return; }
+    var pid = '', iss = '';
+    try { pid = decodeURIComponent(m[1]); } catch (e) { pid = m[1]; }
+    try { iss = m[2] ? decodeURIComponent(m[2]) : ''; } catch (e) { iss = m[2] || ''; }
+    if (!retry) _hashTries = 0;
+    if (bestReceipt(pid, iss)) { _hashTries = 0; openReceipt(pid, iss); return; }
+    // Data may still be loading — try again for a few seconds, then give up quietly.
+    if (_hashTries++ < 10) setTimeout(function () { handleHash(true); }, 700);
+  }
+
   window.PDXReceipts = {
     collect: collect,
     forPolitician: forPolitician,
@@ -1143,6 +1176,7 @@
     open: openReceipt,
     close: closeLightbox,
     find: bestReceipt,
+    linkFor: receiptLink,
     mount: mount,
     refresh: refresh,
     share: share,
@@ -1156,6 +1190,8 @@
   // roster (PROFILES) resolves. Cheap and idempotent.
   function boot() {
     try { mount(); } catch (e) {}
+    try { handleHash(); } catch (e) {}
+    window.addEventListener('hashchange', function () { try { handleHash(); } catch (e) {} });
     var tries = 0;
     var t = setInterval(function () {
       tries++;

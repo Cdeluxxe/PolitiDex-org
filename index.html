@@ -2228,6 +2228,52 @@ window.PDXLazy = (function () {
       .pdx-eye-conn-act--primary{border-color:rgba(245,200,66,0.42);background:rgba(245,200,66,0.1);color:#f2d78b;}
       .pdx-eye-conn-act--primary:hover{background:rgba(245,200,66,0.2);border-color:rgba(245,200,66,0.65);color:#ffe9a8;}
       .pdx-eye-conn-act .pdx-eye-conn-act-ico{font-size:0.78rem;line-height:1;opacity:0.92;}
+      /* ── The issue answer (issue-first findability) ─────────────────────────
+         A voter who types a QUESTION ("who actually backs housing?") gets the
+         answer above the name results: the issue we understood, the top-ranked
+         people on it, the verdict and receipt for each, and — when the data is
+         thin — a plain sentence saying so. Gold-lit like the eye's own
+         attention, because this block is the eye answering rather than listing. */
+      .pdx-eye-ans{padding:0.7rem 0.9rem 0.55rem;background:linear-gradient(180deg,rgba(245,200,66,0.07),rgba(245,200,66,0));border-bottom:1px solid rgba(245,200,66,0.16);}
+      .pdx-eye-ans-h{display:flex;align-items:flex-start;gap:0.5rem;margin:0 0.15rem 0.45rem;}
+      .pdx-eye-ans-ico{flex-shrink:0;font-size:1.15rem;line-height:1.25;}
+      .pdx-eye-ans-ht{min-width:0;}
+      .pdx-eye-ans-eyebrow{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(245,200,66,0.8);}
+      .pdx-eye-ans-title{display:block;font-family:'Barlow',sans-serif;font-weight:600;font-size:0.95rem;color:#f4f8ff;line-height:1.25;}
+      .pdx-eye-ans-lens{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#9fb4d4;margin-top:0.1rem;}
+      .pdx-eye-ans-row{display:flex;align-items:center;gap:0.6rem;width:100%;text-align:left;padding:0.45rem 0.55rem;border-radius:0.7rem;border:1px solid rgba(148,163,184,0.16);background:rgba(10,15,30,0.5);cursor:pointer;transition:background .13s ease,border-color .13s ease,transform .13s ease;}
+      .pdx-eye-ans-row + .pdx-eye-ans-row{margin-top:0.3rem;}
+      .pdx-eye-ans-row:hover{background:rgba(59,130,246,0.13);border-color:rgba(245,200,66,0.34);}
+      .pdx-eye-ans-row:active{transform:scale(0.985);}
+      .pdx-eye-ans-row:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(245,200,66,0.4);}
+      .pdx-eye-ans-rank{flex-shrink:0;width:1.35rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.85rem;color:#64748b;text-align:right;}
+      .pdx-eye-ans-body{min-width:0;flex:1;}
+      .pdx-eye-ans-name{display:block;font-family:'Barlow',sans-serif;font-weight:600;font-size:0.88rem;color:#eaf1fd;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .pdx-eye-ans-why{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.3;margin-top:0.08rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+      .pdx-eye-ans-v{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.42rem;border-radius:9999px;margin-bottom:0.12rem;}
+      .pdx-eye-ans-v--consistent{color:#6ee7b7;background:rgba(52,211,153,0.13);border:1px solid rgba(52,211,153,0.38);}
+      .pdx-eye-ans-v--contradiction{color:#fca5a5;background:rgba(248,113,113,0.13);border:1px solid rgba(248,113,113,0.38);}
+      .pdx-eye-ans-v--mixed{color:#fcd34d;background:rgba(251,191,36,0.13);border:1px solid rgba(251,191,36,0.38);}
+      .pdx-eye-ans-v--flag{color:#fdba74;background:rgba(251,146,60,0.13);border:1px solid rgba(251,146,60,0.38);}
+      .pdx-eye-ans-v--stated{color:#93b4d6;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);}
+      .pdx-eye-ans-go{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#8aa0c0;white-space:nowrap;}
+      .pdx-eye-ans-row:hover .pdx-eye-ans-go{color:#f2d78b;}
+      /* Coverage honesty — never a silent thin wall. */
+      .pdx-eye-ans-cov{margin:0.15rem 0.15rem 0.45rem;padding:0.42rem 0.6rem;border-radius:0.6rem;border:1px solid rgba(148,163,184,0.22);background:rgba(148,163,184,0.07);font-family:'Barlow',sans-serif;font-size:0.78rem;line-height:1.35;color:#b8c6de;}
+      .pdx-eye-ans-cov b{color:#e7eefb;font-weight:600;}
+      .pdx-eye-ans-cov--none,.pdx-eye-ans-cov--stated-only{border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);color:#f3cba4;}
+      .pdx-eye-ans-foot{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0.45rem 0.15rem 0.1rem;}
+      .pdx-eye-ans-btn{display:inline-flex;align-items:center;gap:0.32rem;padding:0.34rem 0.7rem;border-radius:9999px;border:1px solid rgba(148,163,184,0.28);background:rgba(148,163,184,0.06);color:#b8c6de;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.05em;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
+      .pdx-eye-ans-btn:hover{background:rgba(148,163,184,0.14);border-color:rgba(148,163,184,0.5);color:#eaf1fd;}
+      .pdx-eye-ans-btn--primary{border-color:rgba(245,200,66,0.42);background:rgba(245,200,66,0.1);color:#f2d78b;}
+      .pdx-eye-ans-btn--primary:hover{background:rgba(245,200,66,0.2);border-color:rgba(245,200,66,0.65);color:#ffe9a8;}
+      .pdx-eye-ans-btn:active{transform:scale(0.97);}
+      /* Question starters in the resting state — the eye inviting a question. */
+      .pdx-eye-ask{display:flex;flex-direction:column;gap:0.3rem;margin:0 0.25rem 0.2rem;}
+      .pdx-eye-ask-chip{display:flex;align-items:center;gap:0.45rem;width:100%;text-align:left;padding:0.42rem 0.6rem;border-radius:0.6rem;border:1px dashed rgba(245,200,66,0.3);background:rgba(245,200,66,0.06);color:#e2d3a4;font-family:'Barlow',sans-serif;font-size:0.84rem;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
+      .pdx-eye-ask-chip:hover{background:rgba(245,200,66,0.14);border-color:rgba(245,200,66,0.55);color:#ffe9a8;}
+      .pdx-eye-ask-chip:active{transform:scale(0.985);}
+      .pdx-eye-ask-ico{font-size:0.8rem;opacity:0.8;flex-shrink:0;}
       /* ── Touch / coarse-pointer polish (All-Seeing Eye) ────────────────────
          Touch devices have no hover, so the inline result actions could never
          be "revealed" — for coarse pointers they sit open at rest instead. The
@@ -2242,6 +2288,8 @@ window.PDXLazy = (function () {
       @media (hover:none) and (pointer:coarse){
         .pdx-eye-actions{display:flex;}
         .pdx-eye-act{font-size:0.76rem;padding:0.42rem 0.72rem;}
+        .pdx-eye-ans-row{padding:0.55rem 0.6rem;}
+        .pdx-eye-ans-btn{font-size:0.76rem;padding:0.46rem 0.8rem;}
         .pdx-eye-conn-h{padding:0.72rem 0.7rem;}
         .pdx-eye-conn-row{gap:0.5rem;}
         .pdx-eye-conn-theme{padding:0.48rem 0.8rem;gap:0.5rem;}
@@ -2256,6 +2304,9 @@ window.PDXLazy = (function () {
         .pdx-eye-shell{padding-left:0.75rem;padding-right:0.75rem;}
         .pdx-eye-key{display:none;}
         .pdx-eye-input{font-size:0.9rem;}
+        .pdx-eye-ans{padding:0.6rem 0.7rem 0.5rem;}
+        .pdx-eye-ans-title{font-size:0.9rem;}
+        .pdx-eye-ans-go{display:none;}
       }
     </style>
     <div class="pdx-eye-row">
@@ -42477,13 +42528,35 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '</div>';
       };
 
+      // Issue-first escape hatch. A query that names an ISSUE ("guns", "housing",
+      // "who backs immigration") found nobody by name — but the issue itself may be
+      // well documented, so offer the ranked comparison instead of a dead end.
+      var issueBtn = '';
+      try {
+        if (o.search && window.PDXIssueView && typeof window.PDXIssueView.parseQuestion === 'function') {
+          var ip = window.PDXIssueView.parseQuestion(o.search);
+          if (ip) {
+            var safeKey = String(ip.coreKey || '').replace(/[^a-z0-9_]/gi, '');
+            var safeFocus = String(ip.focusKey || '').replace(/[^a-z0-9_]/gi, '');
+            var safeMode = (ip.mode === 'consistent' || ip.mode === 'contradiction') ? ip.mode : '';
+            var lbl = String(ip.label || '').replace(/[<>&"]/g, '');
+            var cov = window.PDXIssueView.coverage(safeKey, { focusKey: safeFocus });
+            if (safeKey && cov && cov.people > 0) {
+              issueBtn = '<button type="button" style="' + btnGhost + '" onclick="window.PDXIssueView.open(\'' + safeKey +
+                '\',{focusKey:\'' + safeFocus + '\',mode:\'' + safeMode + '\'})">🧭 See who backs up ' + lbl +
+                ' (' + cov.people + ' ranked)</button>';
+            }
+          }
+        }
+      } catch (e) {}
+
       if (o.hasFilters) {
         var searchNote = o.search
           ? 'Nothing matched <span class="text-amber-300">&ldquo;' + String(o.search).replace(/</g, '&lt;').substring(0, 24) + '&rdquo;</span> with your current filters.'
           : 'No politicians match the filters you have set.';
         return wrap('🔍', 'No matches found',
           searchNote + ' Try a broader search term or remove a filter to see more of the field.',
-          '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">✕ Clear all filters</button>');
+          '<button type="button" style="' + btnPrimary + '" onclick="myteamBrowseReset()">✕ Clear all filters</button>' + issueBtn);
       }
 
       if (o.scope === 'relevant') {
@@ -68815,8 +68888,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         acts.push({ id: 'stands', ico: '🧭', label: 'See who stands where' });
       } else if (e.kind === 'issue') {
         var is = isSavedEntry(e);
-        acts.push({ id: 'save', ico: is ? '✓' : '🔖', label: is ? 'Saved' : 'Save this issue', primary: !is, saved: is });
-        acts.push({ id: 'stands', ico: '🧭', label: 'See who stands where' });
+        // Ranked comparison leads: it is the shortest path from "this issue" to
+        // "who is consistent on it, with the receipt".
+        acts.push({ id: 'ranking', ico: '🧭', label: 'See who backs it up', primary: true });
+        acts.push({ id: 'topreceipt', ico: '🧾', label: 'Top receipt on this' });
+        acts.push({ id: 'save', ico: is ? '✓' : '🔖', label: is ? 'Saved' : 'Save this issue', saved: is });
+        acts.push({ id: 'locker', ico: '🗄', label: 'Open Evidence Locker' });
       } else if (e.kind === 'bill') {
         acts.push({ id: 'openbill', ico: '🏛️', label: 'Open bill detail', primary: true });
         if (e.issueKey) acts.push({ id: 'stands', ico: '🧭', label: 'See who stands where' });
@@ -68845,7 +68922,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (kind === 'pol') { if (typeof window.showProfile === 'function') window.showProfile(data.id); }
       else if (kind === 'spotlight') { if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(data.slug); }
       else if (kind === 'issue') {
-        if (typeof window._pdxOpenEvidenceLocker === 'function' && data.key) window._pdxOpenEvidenceLocker({ issue: data.key });
+        // Issue-first: an issue result opens the RANKED view of that issue — every
+        // tracked politician ordered by consistency, receipts one tap away — rather
+        // than the raw locker. `focusKey` narrows it to a single sub-issue when the
+        // caller knows one; `mode` preselects the say-vs-do lens.
+        if (window.PDXIssueView && typeof window.PDXIssueView.open === 'function' && data.key) {
+          window.PDXIssueView.open(data.key, { focusKey: data.focusKey || '', mode: data.mode || '', scope: data.scope || '' });
+        }
+        else if (typeof window._pdxOpenEvidenceLocker === 'function' && data.key) window._pdxOpenEvidenceLocker({ issue: data.key });
         else { var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
       }
       else if (kind === 'bill') {
@@ -68868,7 +68952,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (e.kind === 'saved') { openSaved(e.saved); return; }
       if (e.kind === 'pol' || e.kind === 'stance') navigate('pol', { id: e.id });
       else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
-      else if (e.kind === 'issue') navigate('issue', { key: e.issueKey });
+      else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
       else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
     }
     // Run one command action for an entry. Saving toggles the shared collection
@@ -68898,9 +68982,41 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (id === 'open') { if (e.kind === 'saved') openSaved(e.saved); else navigate('spotlight', { slug: e.slug }); return; }
       if (id === 'stands') {
         var ik = e.issueKey || '';
-        if (typeof window._pdxOpenEvidenceLocker === 'function' && ik) { close(); window._pdxOpenEvidenceLocker({ issue: ik }); }
-        else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
-        else { close(); var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
+        // "Where they stand" now means the ranked comparison, not the raw locker.
+        if (ik) { navigate('issue', { key: ik, focusKey: e._focus || '' }); return; }
+        if (e.kind === 'spotlight') { navigate('spotlight', { slug: e.slug }); return; }
+        close(); var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      if (id === 'ranking') { navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' }); return; }
+      if (id === 'locker') {
+        close();
+        if (typeof window._pdxOpenEvidenceLocker === 'function' && e.issueKey) window._pdxOpenEvidenceLocker({ issue: e.issueKey });
+        else navigate('issue', { key: e.issueKey || '' });
+        return;
+      }
+      // The single strongest sourced receipt on this issue — one tap from an issue
+      // result to the evidence. If nothing is documented yet, say so instead of
+      // opening an empty view.
+      if (id === 'topreceipt') {
+        var rows = [];
+        try {
+          if (window.PDXIssueView && window.PDXIssueView.buildRanking && window.CORE_NATIONAL_ISSUES) {
+            var core = null;
+            window.CORE_NATIONAL_ISSUES.forEach(function (c) { if (c && c.key === e.issueKey) core = c; });
+            if (core) rows = window.PDXIssueView.buildRanking(core, e._focus || '') || [];
+          }
+        } catch (err) {}
+        var hit = null;
+        for (var ri = 0; ri < rows.length && !hit; ri++) { if (rows[ri].receiptCount && rows[ri].topReceiptPid) hit = rows[ri]; }
+        if (hit && window.PDXReceipts && typeof window.PDXReceipts.open === 'function') {
+          close(); window.PDXReceipts.open(hit.topReceiptPid, hit.topReceiptIssue || '');
+        } else if (typeof window._showToast === 'function') {
+          window._showToast('No sourced receipt on this issue yet — opening the ranking');
+          navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' });
+        } else {
+          navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' });
+        }
         return;
       }
       if (id === 'save') {
@@ -68961,15 +69077,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
         personalBadge(e) + receipt + tag + '</button>';
     }
+    // Which single sub-issue (an ISSUE_MAP key) the current query is really about,
+    // if any — so "housing" reaches housing instead of the whole economy bundle.
+    // Stashed on the entry so the row, its actions and Enter all agree.
+    function issueFocusFor(e, q) {
+      if (!q || e.kind !== 'issue') return '';
+      if (e._fq === q) return e._focus || '';
+      var f = '';
+      try {
+        var hits = (window.PDXIssueView && window.PDXIssueView.searchIssues) ? window.PDXIssueView.searchIssues(q, 6) : [];
+        for (var i = 0; i < hits.length; i++) { if (hits[i].key === e.issueKey) { f = hits[i].focusKey || ''; break; } }
+      } catch (err) {}
+      e._fq = q; e._focus = f;
+      return f;
+    }
     function issueItem(e, q, terms, idx) {
       var attr = e.kind === 'spotlight'
         ? 'data-kind="spotlight" data-slug="' + esc(e.slug) + '"'
         : 'data-kind="issue" data-key="' + esc(e.issueKey || '') + '"';
+      var sub = e.desc ? (e.sub.split(' · ')[0] + ' · ' + e.desc) : e.sub;
+      var tag = '';
+      if (e.kind === 'issue') {
+        // Lead with what is actually documented on this issue — a live count, or an
+        // honest "not yet documented" — instead of a static promise to compare.
+        var focus = issueFocusFor(e, q);
+        try {
+          var cov = (window.PDXIssueView && window.PDXIssueView.coverage)
+            ? window.PDXIssueView.coverage(e.issueKey, { focusKey: focus }) : null;
+          if (cov) {
+            sub = cov.people === 0
+              ? 'National issue · not yet documented'
+              : (cov.people + ' ranked by consistency' + (cov.withReceipts ? ' · ' + cov.withReceipts + ' with receipts' : ' · stated positions only'));
+            if (focus) {
+              var fl = '';
+              try { fl = (window.ISSUE_MAP && window.ISSUE_MAP[focus] && window.ISSUE_MAP[focus].label) || ''; } catch (fe) {}
+              if (fl) sub = fl + ' · ' + sub;
+            }
+            if (cov.thin && cov.people > 0) tag = '<span class="pdx-eye-tag pdx-eye-tag--src">Thin coverage</span>';
+            else if (cov.people === 0) tag = '<span class="pdx-eye-tag pdx-eye-tag--src">No data yet</span>';
+          }
+        } catch (err) {}
+      }
       return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" ' + attr + '>' +
         '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
-        '<span class="pdx-eye-sub">' + esc(e.desc ? (e.sub.split(' · ')[0] + ' · ' + e.desc) : e.sub) + '</span></span>' +
-        personalBadge(e) + '</button>';
+        '<span class="pdx-eye-sub">' + esc(sub) + '</span></span>' +
+        personalBadge(e) + tag + '</button>';
     }
     // A bill / measure from the Legislation library. Clicking opens the rich in-app
     // bill detail panel (PDXBills.open → PDXBillDetail), where the omnibus breakdown,
@@ -69411,6 +69564,148 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return h + '</div>';
     }
 
+    // ── the issue answer ──────────────────────────────────────────────
+    // Names are only one kind of question. "Who actually backs housing?",
+    // "who's contradictory on immigration", "guns" — all of these name an ISSUE,
+    // and sometimes a lens (who delivers / who contradicts). The issue engine
+    // parses that, ranks the people on it with the SAME consistency ordering the
+    // issue view uses, and hands back rows plus an honest read of how much data
+    // there actually is. We render it above the name results, so the answer comes
+    // before the list, and every row lands on the receipt itself in one tap.
+    var lastAnswer = null;
+    function answerBlock(q) {
+      lastAnswer = null;
+      if (!window.PDXIssueView || typeof window.PDXIssueView.answer !== 'function') return '';
+      var a = null;
+      try { a = window.PDXIssueView.answer(q, 3); } catch (e) { return ''; }
+      if (!a) return '';
+      lastAnswer = a;
+
+      var lens = a.mode === 'consistent' ? 'Ranked by consistency · who backs their words with action'
+        : a.mode === 'contradiction' ? 'Ranked by consistency · documented say-vs-do gaps first'
+        : 'Ranked by consistency · who backs up their words first';
+      if (a.state) lens += ' · ' + esc(a.state) + ' + national';
+
+      var h = '<div class="pdx-eye-ans" data-ans="1">' +
+        '<div class="pdx-eye-ans-h">' +
+          '<span class="pdx-eye-ans-ico" aria-hidden="true">' + esc(a.icon || '🎯') + '</span>' +
+          '<span class="pdx-eye-ans-ht">' +
+            '<span class="pdx-eye-ans-eyebrow">Issue answer</span>' +
+            '<span class="pdx-eye-ans-title">' + esc(a.label) +
+              (a.parentLabel ? ' <span style="color:#8aa0c0;font-weight:400;">· in ' + esc(a.parentLabel) + '</span>' : '') +
+            '</span>' +
+            '<span class="pdx-eye-ans-lens">' + lens + '</span>' +
+          '</span>' +
+        '</div>';
+
+      // Honest coverage first — a thin issue says so before it shows a short list.
+      // The note is built (and escaped) by the coverage engine, so it goes in as HTML.
+      var note = '';
+      try { note = window.PDXIssueView.coverageNote(a.coverage, a.label) || ''; } catch (e) {}
+      if (note) h += '<div class="pdx-eye-ans-cov pdx-eye-ans-cov--' + esc(a.coverage.level) + '">' + note + '</div>';
+      // When a lens or a local scope found nothing, we widened rather than showing
+      // an empty wall — and we say which.
+      if (a.scopeFellBack) h += '<div class="pdx-eye-ans-cov">No one from <b>' + esc(a.state || 'your state') + '</b> is documented on this yet — showing everywhere.</div>';
+      if (a.modeFellBack) {
+        h += '<div class="pdx-eye-ans-cov">' + (a.mode === 'contradiction'
+          ? 'No documented contradictions on <b>' + esc(a.label) + '</b> yet — showing the full ranking.'
+          : 'Nobody has been checked as backing this up yet — showing the full ranking.') + '</div>';
+      }
+
+      a.rows.forEach(function (r, i) {
+        var why = r.topHeadline || (r.stanceWord ? (r.stanceWord + ' ' + r.stanceText) : '');
+        var hasReceipt = !!(r.topReceiptPid && r.receiptCount);
+        h += '<button type="button" class="pdx-eye-ans-row" data-ans-row="' + i + '">' +
+          '<span class="pdx-eye-ans-rank" aria-hidden="true">' + (i + 1) + '</span>' +
+          '<span class="pdx-eye-ans-body">' +
+            '<span class="pdx-eye-ans-name">' + esc(r.name) + (r.party ? ' <span style="color:' + esc(r.party.color) + ';">· ' + esc(r.party.label) + '</span>' : '') + '</span>' +
+            '<span class="pdx-eye-ans-v pdx-eye-ans-v--' + esc(r.tierKey) + '">' + esc(r.tier.ico + ' ' + r.tier.label) + '</span>' +
+            (why ? '<span class="pdx-eye-ans-why">' + esc(why) + '</span>' : '') +
+          '</span>' +
+          '<span class="pdx-eye-ans-go">' + (hasReceipt ? '🧾 Receipt' : 'Profile') + ' →</span>' +
+        '</button>';
+      });
+
+      h += '<div class="pdx-eye-ans-foot">' +
+        '<button type="button" class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" data-ans-act="ranking">' +
+          '<span aria-hidden="true">🧭</span>See all ' + a.total + (a.total === 1 ? ' person' : ' people') + ' ranked' +
+        '</button>' +
+        (a.parentLabel ? '<button type="button" class="pdx-eye-ans-btn" data-ans-act="widen"><span aria-hidden="true">⤢</span>Widen to ' + esc(a.parentLabel) + '</button>' : '') +
+        '<button type="button" class="pdx-eye-ans-btn" data-ans-act="link"><span aria-hidden="true">🔗</span>Copy link</button>' +
+      '</div>';
+
+      return h + '</div>';
+    }
+    // Open the ranked issue view, falling back to the Evidence Locker where the
+    // issue module hasn't loaded.
+    function openRanking(coreKey, opts) {
+      close();
+      if (window.PDXIssueView && typeof window.PDXIssueView.open === 'function') { window.PDXIssueView.open(coreKey, opts || {}); return; }
+      if (typeof window._pdxOpenEvidenceLocker === 'function' && coreKey) { window._pdxOpenEvidenceLocker({ issue: coreKey }); return; }
+      var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Question starters for the resting state — the eye teaching that it answers
+    // questions, not just names. Built from the issues that actually have the most
+    // documentation, so a starter never lands on an empty ranking.
+    function askBlock() {
+      if (!window.PDXIssueView || typeof window.PDXIssueView.coverage !== 'function') return '';
+      var list = [];
+      try {
+        (window.CORE_NATIONAL_ISSUES || []).forEach(function (ci) {
+          if (!ci || !ci.key) return;
+          var cov = window.PDXIssueView.coverage(ci.key);
+          if (!cov || !cov.withReceipts) return;
+          list.push({ key: ci.key, label: stripEmoji(ci.label) || ci.label, n: cov.withReceipts });
+        });
+      } catch (e) { return ''; }
+      if (!list.length) return '';
+      list.sort(function (a, b) { return b.n - a.n; });
+      var qs = [];
+      if (list[0]) qs.push('Who actually backs ' + list[0].label.toLowerCase() + '?');
+      if (list[1]) qs.push("Who's contradictory on " + list[1].label.toLowerCase() + '?');
+      if (list[2]) qs.push('Who delivers on ' + list[2].label.toLowerCase() + '?');
+      var chips = qs.map(function (q) {
+        return '<button type="button" class="pdx-eye-ask-chip" data-ask="' + esc(q) + '">' +
+          '<span class="pdx-eye-ask-ico" aria-hidden="true">❓</span>' + esc(q) + '</button>';
+      }).join('');
+      return '<div class="pdx-eye-cat" data-cat="ask"><div class="pdx-eye-cat-h">' +
+        '<span class="pdx-eye-cat-dot" style="background:#f5c842;"></span>Ask a question</div>' +
+        '<div class="pdx-eye-ask">' + chips + '</div></div>';
+    }
+    function runAnswerAction(id) {
+      var a = lastAnswer;
+      if (!a) return;
+      if (id === 'ranking') { openRanking(a.coreKey, { focusKey: a.focusKey, mode: a.mode, scope: a.scope }); return; }
+      if (id === 'widen') { openRanking(a.coreKey, { mode: a.mode, scope: a.scope }); return; }
+      if (id === 'link') {
+        var url = a.link || '';
+        if (!url) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+              if (typeof window._showToast === 'function') window._showToast('Link copied — it opens this ranking ✓');
+            });
+            return;
+          }
+        } catch (e) {}
+        if (typeof window._showToast === 'function') window._showToast(url);
+      }
+    }
+    // A row in the answer opens the receipt behind it — the shortest path from a
+    // question to the sourced evidence. Without a receipt, the profile is the
+    // honest destination.
+    function openAnswerRow(i) {
+      var a = lastAnswer;
+      if (!a || !a.rows[i]) return;
+      var r = a.rows[i];
+      if (r.topReceiptPid && r.receiptCount && window.PDXReceipts && typeof window.PDXReceipts.open === 'function') {
+        close();
+        window.PDXReceipts.open(r.topReceiptPid, r.topReceiptIssue || a.focusKey || '');
+        return;
+      }
+      navigate('pol', { id: r.id });
+    }
+
     function render(q) {
       var data = getIndex();
       curCtx = personalContext();   // who this eye belongs to, refreshed each render
@@ -69423,7 +69718,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         // Empty, focused state — a calm invitation, the visitor's saved
         // collection (retrievable any time the eye opens), then a few Hot Topics.
         var suggest = data.issues.filter(function (x) { return x.kind === 'spotlight'; }).slice(0, 4);
-        html += '<div class="pdx-eye-empty">The eye is open. <b>Search politicians, issues &amp; hot topics</b> — then save what matters.</div>';
+        html += '<div class="pdx-eye-empty">The eye is open. <b>Ask a question or search politicians, issues &amp; hot topics</b> — then save what matters.</div>';
+        html += askBlock();
         html += connectionsBlock();
         html += savedBlock();
         html += teamBlock();
@@ -69444,13 +69740,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var sts  = rank(data.stances || [], q, terms, LIM, curCtx);
       var bls  = rank(data.bills || [], q, terms, LIM, curCtx);
       var iss  = rank(data.issues, q, terms, LIM, curCtx);
+      // The issue answer is computed first: a question phrased in words nobody is
+      // named after ("who actually backs housing?") can answer even when the
+      // name/stance/bill ranking finds nothing at all.
+      var ansHtml = answerBlock(q);
 
-      if (!pols.length && !sts.length && !bls.length && !iss.length) {
+      if (!ansHtml && !pols.length && !sts.length && !bls.length && !iss.length) {
         panel.innerHTML = '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
         wire();
         return 0;
       }
 
+      html += ansHtml;
       html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
       html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
       html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
@@ -69494,6 +69795,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         res.querySelectorAll('.pdx-eye-act').forEach(function (btn) {
           btn.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
           btn.addEventListener('click', function (ev) { ev.stopPropagation(); runAction(flat[i], btn.getAttribute('data-act')); });
+        });
+      });
+      // The issue answer — a row jumps straight to its receipt; the footer opens
+      // the full ranking or copies the shareable deep link.
+      panel.querySelectorAll('.pdx-eye-ans-row').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          openAnswerRow(parseInt(el.getAttribute('data-ans-row'), 10) || 0);
+        });
+      });
+      panel.querySelectorAll('[data-ans-act]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); runAnswerAction(el.getAttribute('data-ans-act')); });
+      });
+      // Question starters — fill the box and answer immediately.
+      panel.querySelectorAll('[data-ask]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          input.value = el.getAttribute('data-ask') || '';
+          try { input.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { render(input.value); }
+          try { input.focus(); } catch (e) {}
+          setActive(-1);
         });
       });
       // Related connection chips — navigate to the linked person / issue / spotlight.

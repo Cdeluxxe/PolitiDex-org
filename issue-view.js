@@ -25,11 +25,40 @@
      • window.PROFILES / CMP_DATA / ACCT_ALIAS / _getPhotoUrl
                                     identity, photo and alias resolution.
 
+   Move 3 (issue-first findability) narrows the distance from a QUESTION to the
+   answer. Three additions, all reading the same data:
+
+     • Sub-issue focus. "Who actually backs housing?" used to widen to the whole
+       "Economy, Inflation & Cost of Living" bundle (21 keys). When a query or a
+       deep-link names ONE ISSUE_MAP key, the ranking is built on that key alone
+       and titled with its own label, with one tap to widen to the full core issue.
+     • A lens read from the question. "backs / delivers / consistent" selects the
+       existing "Backs it up" filter; "contradictory / hypocrite / flip-flop"
+       selects the existing "Contradictions" filter. It picks a filter that already
+       existed — it changes no score and no ordering rule.
+     • Location scope that stays national. When (and only when) the visitor has
+       saved a location, a scope control appears for THEIR state, derived from the
+       app's own store and the shared state normalizer. Default is always
+       everywhere, and an empty state scope falls back to everywhere rather than
+       showing a wall.
+
    Exposes:
-     PDXIssueView.open(coreKeyOrIssueKey)  → open the ranked overlay for an issue
+     PDXIssueView.open(key, opts)          → open the ranked overlay. `key` is a
+                                             core-issue key OR a raw ISSUE_MAP key
+                                             (which focuses the ranking on it).
+                                             opts: { mode, scope, focusKey }
      PDXIssueView.close()                  → close it
      PDXIssueView.mountFrontDoor()         → render the #issue-front-door grid
      PDXIssueView.searchIssues(q)          → matching issues for the global search
+                                             (each hit may carry a focusKey)
+     PDXIssueView.parseQuestion(q)         → { coreKey, focusKey, mode, label, … }
+                                             a natural-language question → the
+                                             issue + lens it is asking about
+     PDXIssueView.answer(q)                → parseQuestion + the ranked rows and
+                                             coverage honesty for it, so a search
+                                             surface can render the answer inline
+     PDXIssueView.coverage(coreKey, opts)  → honest coverage readout for an issue
+     PDXIssueView.linkFor(opts)            → shareable deep link for a ranking
      PDXIssueView.refresh()                → drop caches + re-render (roster grew)
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -100,7 +129,32 @@
     if (direct) return direct;
     var f = G('coreIssueForKey');
     if (typeof f === 'function') { var c = f(k); if (c) return c; }
+    // Fall back to scanning the bundles ourselves, so a raw ISSUE_MAP key still
+    // resolves even if the alignment tool's reverse lookup hasn't loaded.
+    var list = coreIssues();
+    for (var i = 0; i < list.length; i++) {
+      if ((list[i].keys || []).indexOf(k) !== -1) return list[i];
+    }
     return null;
+  }
+  // Same leniency, but keep the distinction the caller gave us: a raw ISSUE_MAP key
+  // means "rank this ONE sub-issue", not "rank its whole bundle". A voter asking
+  // about housing should not get all 21 keys of the economy bundle back.
+  function resolveTarget(k, focusKey) {
+    var core = resolveCore(k);
+    if (!core) return null;
+    var focus = focusKey || (coreByKey(k) ? '' : k);
+    if (focus && (core.keys || []).indexOf(focus) === -1) focus = '';
+    return { core: core, focusKey: focus };
+  }
+  // Label for a single ISSUE_MAP key — the narrow sub-issue inside a core bundle.
+  function keyLabel(k) {
+    var IM = G('ISSUE_MAP') || {};
+    var def = IM[k];
+    if (def && def.label) return def.label;
+    var f = G('_issueLabel');
+    if (typeof f === 'function') { try { var l = f(k); if (l) return l; } catch (e) {} }
+    return prettyName(k);
   }
   function splitLabel(label) {
     label = String(label || '').trim();
@@ -110,6 +164,38 @@
       if (/[^\x00-\x7F]/.test(head)) return { icon: head, text: label.slice(sp + 1).trim() };
     }
     return { icon: '🎯', text: label };
+  }
+
+  // ── location: national by default, local when the voter has told us ───────────
+  // Nothing here is hardcoded to a state. The voter's state comes from the app's
+  // own location store (empty until they save one), and a politician's state from
+  // the shared normalizer every other location surface uses. With no saved
+  // location the scope control never renders and the ranking stays national.
+  function userState() {
+    try {
+      if (!window._hasUserLocation) return '';
+      var s = (window._currentVoterLocation && window._currentVoterLocation.state) || '';
+      s = String(s).trim();
+      return (!s || s === 'National') ? '' : s;
+    } catch (e) { return ''; }
+  }
+  function stateOf(id) {
+    var raw = '';
+    try { if (window._originalStates && window._originalStates[id]) raw = window._originalStates[id]; } catch (e) {}
+    if (!raw) { var d = polRec(id); raw = (d && d.state) || ''; }
+    try {
+      if (typeof window._pdxNormalizeState === 'function') return window._pdxNormalizeState(raw, id) || '';
+    } catch (e) {}
+    return String(raw || '').trim();
+  }
+  // A row belongs to the voter's scope when it is their state's own official OR a
+  // national officeholder (president, cabinet, leadership) — a Nevada voter asking
+  // "who backs housing near me" still needs the federal actors who decide it.
+  function inUserScope(r, st) {
+    if (!st) return true;
+    if (!r.state) return false;
+    if (r.state === 'National') return true;
+    return r.state.toLowerCase() === st.toLowerCase();
   }
 
   // ── verdict → consistency tier ───────────────────────────────────────────────
@@ -189,12 +275,18 @@
   // clamped to 0–100. Higher = more consistent, so the sort is "who backs up
   // their words → who contradicts them". Ties break toward the more-documented
   // record, then alphabetically.
-  function buildRanking(core) {
+  //
+  // `focusKey`, when given, narrows the bundle to that ONE ISSUE_MAP key. The math
+  // is untouched — only which receipts and stances are counted changes, exactly as
+  // if the bundle contained a single key.
+  function buildRanking(core, focusKey) {
     ensureFresh();
-    if (_rankCache[core.key]) return _rankCache[core.key];
+    var cacheKey = core.key + '|' + (focusKey || '');
+    if (_rankCache[cacheKey]) return _rankCache[cacheKey];
 
     var keySet = Object.create(null);
-    (core.keys || []).forEach(function (k) { keySet[k] = 1; });
+    var useKeys = focusKey ? [focusKey] : (core.keys || []);
+    useKeys.forEach(function (k) { keySet[k] = 1; });
 
     var byR = receiptsByPid();
     var byS = stancesByPid();
@@ -240,6 +332,7 @@
 
       rows.push({
         id: id, name: name, party: party, photo: photo, sub: sub,
+        state: stateOf(id),
         consistent: consistent, contradicts: contradicts, flags: flags,
         receiptCount: receipts.length,
         tier: TIERS[tierKey], tierKey: tierKey, value: value,
@@ -257,7 +350,7 @@
       return (a.name || '').localeCompare(b.name || '');
     });
 
-    _rankCache[core.key] = rows;
+    _rankCache[cacheKey] = rows;
     return rows;
   }
 
@@ -285,8 +378,72 @@
     return n;
   }
 
+  // ── coverage honesty ──────────────────────────────────────────────────────────
+  // An issue we barely cover has to SAY so. Every number here is counted off the
+  // same rows the ranking is built from, so a label can never claim more
+  // documentation than exists:
+  //   none        nobody documented on this issue at all
+  //   stated-only people have stated positions, but nothing checked against a record
+  //   thin        1–2 people with sourced receipts
+  //   partial     3–6
+  //   rich        7+
+  // The thresholds describe how much is on the page; they are not a score and feed
+  // no ranking.
+  function coverageOf(rows) {
+    rows = rows || [];
+    var withReceipts = 0, receipts = 0;
+    rows.forEach(function (r) { if (r.receiptCount > 0) { withReceipts++; receipts += r.receiptCount; } });
+    var level = rows.length === 0 ? 'none'
+      : withReceipts === 0 ? 'stated-only'
+      : withReceipts <= 2 ? 'thin'
+      : withReceipts <= 6 ? 'partial' : 'rich';
+    return { people: rows.length, withReceipts: withReceipts, receipts: receipts, level: level, thin: (level === 'none' || level === 'stated-only' || level === 'thin') };
+  }
+  // Public read: coverage for an issue (optionally one sub-issue).
+  function coverage(keyOrIssueKey, opts) {
+    opts = opts || {};
+    var t = resolveTarget(keyOrIssueKey, opts.focusKey);
+    if (!t) return coverageOf([]);
+    return coverageOf(buildRanking(t.core, t.focusKey));
+  }
+  // One honest sentence for a thin/empty issue. Names what IS there and what is
+  // missing, rather than presenting a short list as if it were the whole picture.
+  function coverageNote(cov, label) {
+    var what = esc(label || 'this issue');
+    if (cov.level === 'none') {
+      return 'No one is documented on <strong>' + what + '</strong> yet. Rather than show a ' +
+        'thin or invented list, we mark the gap: this issue is on the research queue, and ' +
+        'politicians appear here as their positions and receipts are sourced.';
+    }
+    if (cov.level === 'stated-only') {
+      return '<strong>' + cov.people + '</strong> ' + (cov.people === 1 ? 'politician has' : 'politicians have') +
+        ' stated a position on <strong>' + what + '</strong>, but none of it has been checked against a ' +
+        'record yet — so there is no say-vs-do verdict to rank by. Read the stated positions as claims, not findings.';
+    }
+    if (cov.level === 'thin') {
+      return 'Coverage of <strong>' + what + '</strong> is still thin — <strong>' + cov.withReceipts +
+        '</strong> ' + (cov.withReceipts === 1 ? 'person' : 'people') + ' with sourced receipts out of ' +
+        cov.people + ' documented. Enough to check, not enough to call this a full picture of the issue.';
+    }
+    return '';
+  }
+  function coverageCalloutHTML(cov, label) {
+    var msg = coverageNote(cov, label);
+    if (!msg) return '';
+    var title = cov.level === 'none' ? 'Not yet documented'
+      : cov.level === 'stated-only' ? 'Stated positions only — nothing checked yet'
+      : 'Coverage still growing';
+    return '<div class="iv-cov iv-cov--' + cov.level + '">' +
+      '<span class="iv-cov-ico" aria-hidden="true">' + (cov.level === 'none' ? '🌱' : '◷') + '</span>' +
+      '<div class="iv-cov-body">' +
+        '<div class="iv-cov-title">' + esc(title) + '</div>' +
+        '<p class="iv-cov-text">' + msg + '</p>' +
+      '</div>' +
+    '</div>';
+  }
+
   // ── overlay state ─────────────────────────────────────────────────────────────
-  var _open = false, _coreKey = '', _fMode = 'all', _fParty = '', _lastFocus = null;
+  var _open = false, _coreKey = '', _focusKey = '', _fMode = 'all', _fParty = '', _fScope = 'all', _lastFocus = null;
 
   function meterHTML(r) {
     return '<div class="iv-meter" aria-hidden="true"><span class="iv-meter-fill ' +
@@ -356,7 +513,9 @@
   }
 
   function applyFilter(rows) {
+    var st = _fScope === 'mine' ? userState() : '';
     return rows.filter(function (r) {
+      if (st && !inUserScope(r, st)) return false;
       if (_fParty && (!r.party || r.party.key !== _fParty)) return false;
       if (_fMode === 'consistent') return r.tierKey === 'consistent' || r.tierKey === 'mixed';
       if (_fMode === 'contradiction') return r.tierKey === 'contradiction' || r.tierKey === 'flag';
@@ -364,24 +523,75 @@
     });
   }
 
-  function renderBody() {
+  // The issue the overlay is currently ranking — a core bundle, or one sub-issue
+  // inside it. Both share the same ranking code; only the title and the keys differ.
+  function activeIssue() {
     var core = coreByKey(_coreKey);
+    if (!core) return null;
+    var coreLab = splitLabel(core.label);
+    if (_focusKey) {
+      var fl = splitLabel(keyLabel(_focusKey));
+      return { core: core, focusKey: _focusKey, icon: fl.icon, text: fl.text,
+        parent: coreLab.text, blurb: '' };
+    }
+    return { core: core, focusKey: '', icon: coreLab.icon, text: coreLab.text,
+      parent: '', blurb: core.blurb || '' };
+  }
+
+  function renderBody() {
+    var iss = activeIssue();
     var host = el('iv-body');
-    if (!core || !host) return;
-    var all = buildRanking(core);
+    if (!iss || !host) return;
+    var all = buildRanking(iss.core, iss.focusKey);
     var rows = applyFilter(all);
+    var cov = coverageOf(all);
+    var st = userState();
 
-    var listHTML = rows.length
-      ? '<ol class="iv-list">' + rows.map(function (r, i) { return rowHTML(r, i + 1); }).join('') + '</ol>'
-      : '<div class="iv-empty">No politicians match this filter yet on ' +
-          esc(splitLabel(core.label).text) + '. Try “All”.</div>';
+    // Honest coverage first, so a thin issue is framed before it is read. This
+    // never suppresses the rows — it labels what they are worth.
+    var covHTML = coverageCalloutHTML(cov, iss.text);
 
-    var total = totalTracked();
-    var undocumented = Math.max(0, total - all.length);
-    var coverage = '<div class="iv-coverage">Ranking <strong>' + all.length + '</strong> documented on this issue' +
-      (undocumented > 0 ? ' · <span class="iv-cov-thin">' + undocumented +
-        ' more tracked, not yet documented here</span>' : '') +
-      ' · consistency is measured from sourced say-vs-do receipts.</div>';
+    var listHTML;
+    if (rows.length) {
+      listHTML = '<ol class="iv-list">' + rows.map(function (r, i) { return rowHTML(r, i + 1); }).join('') + '</ol>';
+    } else if (_fScope === 'mine' && st && all.length) {
+      // A local scope that comes up empty is a fact about coverage, not a dead end:
+      // say it plainly and offer the national view rather than an empty wall.
+      listHTML = '<div class="iv-empty iv-empty--scope">' +
+        '<div class="iv-empty-t">No one from ' + esc(st) + ' is documented on ' + esc(iss.text) + ' yet</div>' +
+        '<p class="iv-empty-p">' + all.length + ' ' + (all.length === 1 ? 'politician is' : 'politicians are') +
+          ' documented on this issue nationally. Local coverage is still being built — ' +
+          'we would rather show you that gap than an empty list.</p>' +
+        '<button type="button" class="iv-empty-btn" data-fscope="all">See everywhere instead →</button>' +
+      '</div>';
+    } else if (all.length) {
+      listHTML = '<div class="iv-empty">' +
+        '<div class="iv-empty-t">No one matches this filter on ' + esc(iss.text) + '</div>' +
+        '<p class="iv-empty-p">' + all.length + ' ' + (all.length === 1 ? 'person is' : 'people are') +
+          ' ranked here without it.</p>' +
+        '<button type="button" class="iv-empty-btn" data-fmode="all">Clear the filter →</button>' +
+      '</div>';
+    } else {
+      // Nothing at all — the coverage callout above already says so honestly, so
+      // this only offers the way out.
+      listHTML = '<div class="iv-empty">' +
+        '<p class="iv-empty-p">Try another issue below, or search for a politician by name.</p>' +
+      '</div>';
+    }
+
+    // The counted read: what is on this page, what is not, and where the signal
+    // comes from. Only claims numbers we just counted.
+    var coverage = '';
+    if (all.length) {
+      var total = totalTracked();
+      var undocumented = Math.max(0, total - all.length);
+      var shown = (rows.length !== all.length) ? ('Showing <strong>' + rows.length + '</strong> of ') : 'Ranking ';
+      coverage = '<div class="iv-coverage">' + shown + '<strong>' + all.length + '</strong> documented on this issue' +
+        (cov.withReceipts ? ' · <strong>' + cov.withReceipts + '</strong> with sourced receipts' : '') +
+        (undocumented > 0 ? ' · <span class="iv-cov-thin">' + undocumented +
+          ' more tracked, not yet documented here</span>' : '') +
+        ' · consistency is measured from sourced say-vs-do receipts.</div>';
+    }
 
     // Issue-area distributional summary ("who this issue's measures affect"),
     // merged across the core issue's component keys. Self-hydrating placeholder;
@@ -389,30 +599,53 @@
     var impactPh = '';
     try {
       var _ph = window._pdxIssueImpactsPlaceholder;
-      if (typeof _ph === 'function') impactPh = _ph((core.keys || []).join(',')) || '';
+      var _phKeys = iss.focusKey ? iss.focusKey : (iss.core.keys || []).join(',');
+      if (typeof _ph === 'function') impactPh = _ph(_phKeys) || '';
     } catch (e) { impactPh = ''; }
 
-    host.innerHTML = coverage + impactPh + listHTML;
+    host.innerHTML = covHTML + coverage + impactPh + listHTML;
   }
 
   function renderChrome() {
-    var core = coreByKey(_coreKey);
+    var iss = activeIssue();
     var ov = el('pdx-issue-overlay');
-    if (!core || !ov) return;
-    var lab = splitLabel(core.label);
+    if (!iss || !ov) return;
+    var st = userState();
+
+    // When the ranking is narrowed to one sub-issue, say which bundle it sits in
+    // and offer the widening in one tap — precise by default, never a trap.
+    var focusBar = iss.focusKey
+      ? '<div class="iv-focus">' +
+          '<span class="iv-focus-tag">Narrowed to one issue</span>' +
+          '<span class="iv-focus-txt">Part of ' + esc(iss.parent) + '</span>' +
+          '<button type="button" class="iv-focus-btn" data-widen="1">Widen to all of ' + esc(iss.parent) + ' →</button>' +
+        '</div>'
+      : '';
+
+    // The scope control exists only when the visitor has saved a location, and its
+    // label is whatever state they saved — the ranking is national otherwise.
+    var scopeSet = st
+      ? '<div class="iv-filter-set">' +
+          '<button type="button" class="iv-fbtn' + (_fScope === 'all' ? ' is-on' : '') + '" data-fscope="all">🌐 Everywhere</button>' +
+          '<button type="button" class="iv-fbtn' + (_fScope === 'mine' ? ' is-on' : '') + '" data-fscope="mine">📍 ' + esc(st) + ' + national</button>' +
+        '</div>'
+      : '';
+
     ov.querySelector('.iv-panel').innerHTML =
       '<div class="iv-topbar">' +
         '<div class="iv-eyebrow">🏛 Issue · ranked by consistency</div>' +
+        '<button type="button" class="iv-share" data-share="1" aria-label="Copy a link to this ranking">🔗 Share</button>' +
         '<button type="button" class="iv-close" aria-label="Close issue view">✕</button>' +
       '</div>' +
       '<header class="iv-head">' +
-        '<div class="iv-head-ico" aria-hidden="true">' + lab.icon + '</div>' +
+        '<div class="iv-head-ico" aria-hidden="true">' + iss.icon + '</div>' +
         '<div class="iv-head-txt">' +
-          '<h2 class="iv-title">' + esc(lab.text) + '</h2>' +
+          '<h2 class="iv-title">' + esc(iss.text) + '</h2>' +
           '<p class="iv-blurb">Where every tracked politician stands — ranked by who <strong>backs up their words</strong> ' +
-            'and who <strong>says one thing and does another</strong>. ' + esc(core.blurb || '') + '</p>' +
+            'and who <strong>says one thing and does another</strong>. ' + esc(iss.blurb) + '</p>' +
         '</div>' +
       '</header>' +
+      focusBar +
       '<div class="iv-switcher-wrap"><div class="iv-switcher" role="tablist" aria-label="Choose an issue">' +
         switcherHTML(_coreKey) + '</div></div>' +
       '<div class="iv-filters" role="group" aria-label="Filter the ranking">' +
@@ -427,6 +660,7 @@
           '<button type="button" class="iv-fbtn iv-fbtn--D' + (_fParty === 'D' ? ' is-on' : '') + '" data-fparty="D">D</button>' +
           '<button type="button" class="iv-fbtn iv-fbtn--I' + (_fParty === 'I' ? ' is-on' : '') + '" data-fparty="I">Ind</button>' +
         '</div>' +
+        scopeSet +
       '</div>' +
       '<div class="iv-body" id="iv-body"></div>';
     renderBody();
@@ -448,12 +682,19 @@
     ov.addEventListener('click', function (e) {
       var t = e.target;
       if (t === ov || (t.closest && t.closest('.iv-close'))) { close(); return; }
+      var sh = t.closest && t.closest('[data-share]');
+      if (sh) { e.stopPropagation(); shareRanking(); return; }
+      var wd = t.closest && t.closest('[data-widen]');
+      // Widening drops the sub-issue focus but keeps the lens and scope the voter set.
+      if (wd) { _focusKey = ''; _syncHash(); renderChrome(); scrollTop(); return; }
       var chip = t.closest && t.closest('.iv-chip');
-      if (chip) { _coreKey = chip.getAttribute('data-core'); _syncHash(); renderChrome(); scrollTop(); return; }
+      if (chip) { _coreKey = chip.getAttribute('data-core'); _focusKey = ''; _syncHash(); renderChrome(); scrollTop(); return; }
       var fm = t.closest && t.closest('[data-fmode]');
-      if (fm) { _fMode = fm.getAttribute('data-fmode'); renderChrome(); return; }
+      if (fm) { _fMode = fm.getAttribute('data-fmode'); _syncHash(); renderChrome(); return; }
       var fp = t.closest && t.closest('[data-fparty]');
       if (fp) { _fParty = fp.getAttribute('data-fparty'); renderChrome(); return; }
+      var fs = t.closest && t.closest('[data-fscope]');
+      if (fs) { _fScope = fs.getAttribute('data-fscope'); _syncHash(); renderChrome(); return; }
       var rc = t.closest && t.closest('[data-receipt]');
       if (rc) {
         e.stopPropagation();
@@ -473,17 +714,23 @@
 
   function scrollTop() { var b = el('iv-body'); if (b) { try { b.scrollTo({ top: 0 }); } catch (x) { b.scrollTop = 0; } } }
 
-  function open(keyOrIssueKey) {
-    var core = resolveCore(keyOrIssueKey) || coreIssues()[0];
-    if (!core) return;
-    _coreKey = core.key; _fMode = 'all'; _fParty = '';
+  function open(keyOrIssueKey, opts) {
+    opts = opts || {};
+    var t = resolveTarget(keyOrIssueKey, opts.focusKey);
+    if (!t) { var first = coreIssues()[0]; if (!first) return; t = { core: first, focusKey: '' }; }
+    _coreKey = t.core.key;
+    _focusKey = t.focusKey || '';
+    _fMode = (opts.mode === 'consistent' || opts.mode === 'contradiction') ? opts.mode : 'all';
+    _fParty = (opts.party === 'R' || opts.party === 'D' || opts.party === 'I') ? opts.party : '';
+    // A local scope is only honoured when we actually know the visitor's state.
+    _fScope = (opts.scope === 'mine' && userState()) ? 'mine' : 'all';
     _lastFocus = document.activeElement;
     // Record this stop on the guided spine.
     try {
       if (window.PDXJourney && typeof window.PDXJourney.record === 'function') {
-        var lab = splitLabel(core.label);
-        window.PDXJourney.record('issue', { label: lab.text, icon: lab.icon,
-          nav: { type: 'issue', key: core.key } });
+        var iss = activeIssue();
+        window.PDXJourney.record('issue', { label: iss ? iss.text : t.core.key, icon: iss ? iss.icon : '🎯',
+          nav: { type: 'issue', key: _focusKey || _coreKey } });
       }
     } catch (e) {}
     var ov = ensureOverlay();
@@ -508,34 +755,234 @@
     _lastFocus = null;
   }
 
+  // ── shareable deep links ──────────────────────────────────────────────────────
+  // The whole state a reader needs to land on the same ranking travels in the hash:
+  // the issue, the sub-issue it is narrowed to, the lens, and the scope. Everything
+  // except the issue is omitted when it is the default, so a plain issue link stays
+  // clean and readable.
+  function hashFor(o) {
+    o = o || {};
+    var core = o.coreKey || _coreKey;
+    var parts = ['issue=' + encodeURIComponent(core)];
+    var f = (o.focusKey !== undefined) ? o.focusKey : _focusKey;
+    var m = (o.mode !== undefined) ? o.mode : _fMode;
+    var s = (o.scope !== undefined) ? o.scope : _fScope;
+    if (f) parts.push('key=' + encodeURIComponent(f));
+    if (m && m !== 'all') parts.push('mode=' + encodeURIComponent(m));
+    if (s && s !== 'all') parts.push('scope=' + encodeURIComponent(s));
+    return '#' + parts.join('&');
+  }
+  function linkFor(o) {
+    try { return location.origin + location.pathname + hashFor(o); } catch (e) { return hashFor(o); }
+  }
   function _syncHash() {
-    try { history.replaceState(null, '', '#issue=' + encodeURIComponent(_coreKey)); } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + location.search + hashFor()); } catch (e) {}
+  }
+  function toast(msg) { try { if (typeof window._showToast === 'function') window._showToast(msg); } catch (e) {} }
+  function shareRanking() {
+    var iss = activeIssue();
+    var url = linkFor();
+    var title = iss ? ('Who backs up their words on ' + iss.text + ' — PolitiDex') : 'PolitiDex issue ranking';
+    try {
+      if (navigator.share) {
+        navigator.share({ title: title, text: title, url: url }).catch(function () {});
+        return;
+      }
+    } catch (e) {}
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { toast('Link copied — it opens this exact ranking ✓'); })
+          .catch(function () { toast(url); });
+        return;
+      }
+    } catch (e) {}
+    toast(url);
   }
 
-  // ── search bridge (feeds the global search box — Move 1) ─────────────────────
+  // ── search bridge (feeds the global search box) ───────────────────────────────
   // Return the core issues whose label / blurb / bundled ISSUE_MAP keywords match
   // the query, so typing "guns" or "cost of living" offers an "issue ranking".
+  //
+  // Each hit also reports WHICH sub-issue matched, when one did. That is the whole
+  // difference between "housing" opening a 21-key economy bundle and "housing"
+  // opening housing: the caller passes the focusKey straight back into open().
+  //
+  // People type plurals the vocabulary doesn't use ("guns" for "gun rights",
+  // "taxes" for "tax"), so every query is also tried in a de-pluralised form. It
+  // is matching leniency only — no term is invented and no issue is renamed.
+  function variants(q) {
+    var out = [q];
+    var alt = '';
+    if (/ies$/.test(q)) alt = q.replace(/ies$/, 'y');
+    else if (/(ses|xes|zes|ches|shes)$/.test(q)) alt = q.replace(/es$/, '');
+    else if (/s$/.test(q) && !/ss$/.test(q)) alt = q.replace(/s$/, '');
+    if (alt && alt.length >= 3 && out.indexOf(alt) === -1) out.push(alt);
+    return out;
+  }
+  // Best score for `text` against any variant, using the caller's tiers:
+  // [exact, starts-with, contains]. A "contains" hit only counts at a WORD
+  // boundary — otherwise "ann" reaches "cannabis" and a person's name produces a
+  // bogus issue.
+  function scoreText(text, qs, tiers) {
+    var best = 0;
+    for (var i = 0; i < qs.length; i++) {
+      var at = -1, from = 0;
+      while ((at = text.indexOf(qs[i], from)) !== -1) {
+        if (at === 0 || !/[a-z0-9]/.test(text.charAt(at - 1))) break;
+        from = at + 1;
+      }
+      if (at === -1) continue;
+      var s = (text === qs[i]) ? tiers[0] : (at === 0 ? tiers[1] : tiers[2]);
+      // A variant match is a slightly weaker signal than the literal query.
+      if (i > 0) s -= 5;
+      if (s > best) best = s;
+    }
+    return best;
+  }
   function searchIssues(q, limit) {
     q = String(q || '').toLowerCase().trim();
     if (q.length < 2) return [];
+    var qs = variants(q);
     var IM = G('ISSUE_MAP') || {};
     var out = [];
     coreIssues().forEach(function (ci) {
       var lab = splitLabel(ci.label);
       var hay = (lab.text + ' ' + (ci.blurb || '')).toLowerCase();
-      var hit = hay.indexOf(q) !== -1;
-      if (!hit) {
-        for (var i = 0; i < (ci.keys || []).length && !hit; i++) {
-          var def = IM[ci.keys[i]];
-          if (!def) continue;
-          if (String(def.label || '').toLowerCase().indexOf(q) !== -1) { hit = true; break; }
+      // A core-level hit is the strongest: the voter named the bundle itself.
+      var score = scoreText(hay, qs, [100, 100, 80]);
+      var focusKey = '', focusLabel = '', focusScore = 0;
+      for (var i = 0; i < (ci.keys || []).length; i++) {
+        var k = ci.keys[i], def = IM[k];
+        if (!def) continue;
+        var s = scoreText(String(def.label || '').toLowerCase(), qs, [95, 70, 55]);
+        if (!s) {
           var kw = def.keywords || [];
-          for (var j = 0; j < kw.length; j++) { if (String(kw[j]).toLowerCase().indexOf(q) !== -1) { hit = true; break; } }
+          for (var j = 0; j < kw.length; j++) {
+            s = scoreText(String(kw[j]).toLowerCase(), qs, [60, 45, 30]);
+            if (s) break;
+          }
         }
+        if (s > focusScore) { focusScore = s; focusKey = k; focusLabel = def.label || prettyName(k); }
       }
-      if (hit) out.push({ key: ci.key, icon: lab.icon, label: lab.text, blurb: ci.blurb || '' });
+      // The bundle's own name winning outright means the voter asked about the
+      // bundle, so we do not narrow. Otherwise the best sub-issue is the answer.
+      if (focusScore && focusScore <= score) { focusKey = ''; focusLabel = ''; }
+      if (focusScore > score) score = focusScore;
+      if (score > 0) {
+        out.push({
+          key: ci.key, icon: lab.icon, label: lab.text, blurb: ci.blurb || '',
+          focusKey: focusKey, focusLabel: focusLabel, score: score
+        });
+      }
     });
+    out.sort(function (a, b) { return b.score - a.score; });
     return out.slice(0, limit || 4);
+  }
+
+  // ── question → issue + lens ───────────────────────────────────────────────────
+  // A voter arrives with a sentence, not a taxonomy key. "Who actually backs
+  // housing?" and "who's contradictory on immigration" both name an issue AND a
+  // lens. We resolve the issue with the search bridge above and pick a lens that
+  // ALREADY EXISTS as a filter — no new scoring, no new ordering.
+  var LENS = [
+    { mode: 'contradiction', re: /\b(contradict\w*|hypocri\w*|flip[\s-]?flop\w*|two[\s-]?faced|says? one thing|liar|lying|lies|inconsisten\w*|betray\w*|broke\w* (?:their |his |her )?promis\w*)\b/ },
+    { mode: 'consistent', re: /\b(actually|really|truly|back(?:s|ed)? (?:it )?up|backs? it|deliver\w*|follow(?:s|ed)? through|keeps? (?:their |his |her )?word|consisten\w*|reliab\w*|trustworth\w*|genuin\w*|walk(?:s|ed)? the walk)\b/ }
+  ];
+  // Words that carry no issue meaning — stripping them stops "who backs housing"
+  // from matching an issue on the word "who".
+  var STOP = /\b(who|whom|whose|what|which|where|when|why|how|is|are|was|were|does|do|did|the|a|an|on|in|of|for|about|with|and|or|to|from|my|our|their|his|her|its|really|actually|truly|most|more|best|worst|any|some|show|find|list|me|us|tell|voted?|vote|votes|stance|stances|position|positions|record|records|receipt|receipts|politician|politicians|senator|senators|rep|reps|representative|representatives|congress|near|local|state|here|now|please)\b/g;
+  // The lens vocabulary itself is not an issue. Left in, "who backs housing" could
+  // reach the guns bundle through "back" → "background checks" — the lens word
+  // winning over the actual subject. It has already been read as a lens above, so
+  // it is removed before we look for the issue.
+  var LENS_WORDS = /\b(backs?|backed|backing|deliver\w*|follows?|followed|through|keeps?|kept|word|words|action|actions|consisten\w*|inconsisten\w*|reliab\w*|trustworth\w*|genuin\w*|contradict\w*|hypocri\w*|flip|flop|flops|flopped|two|faced|liar|lying|lies|betray\w*|promis\w*|walks?|walked|stands?|stood|say|says|said|do|done|up|it|one|thing|things|actual\w*)\b/g;
+
+  function parseQuestion(raw) {
+    var q = String(raw || '').toLowerCase().trim();
+    if (!q) return null;
+
+    var mode = 'all';
+    for (var i = 0; i < LENS.length; i++) { if (LENS[i].re.test(q)) { mode = LENS[i].mode; break; } }
+    // "near me" / "in my state" asks for the local cut — only meaningful when we
+    // actually know where they are.
+    var wantsLocal = /\b(near me|my state|my area|around here|locally|in my district|my district|my town|my city)\b/.test(q);
+
+    // Strip the question scaffolding and the lens words, then try the longest,
+    // most specific phrases first so "cost of living" beats "cost" and no stray
+    // fragment outranks the actual subject.
+    var cleaned = q.replace(/[?!.,;:"'’]/g, ' ').replace(STOP, ' ').replace(LENS_WORDS, ' ').replace(/\s+/g, ' ').trim();
+    var words = cleaned ? cleaned.split(' ') : [];
+    var tries = [];
+    if (cleaned) tries.push(cleaned);
+    for (var n = Math.min(words.length, 4); n >= 2; n--) {
+      for (var s = 0; s + n <= words.length; s++) {
+        var phrase = words.slice(s, s + n).join(' ');
+        if (phrase.length >= 3 && tries.indexOf(phrase) === -1) tries.push(phrase);
+      }
+    }
+    // Single words last, longest first — the longer word is the more specific one.
+    words.slice().sort(function (a, b) { return b.length - a.length; }).forEach(function (w) {
+      if (w.length >= 3 && tries.indexOf(w) === -1) tries.push(w);
+    });
+    // Finally the raw query, in case the stopword pass ate something meaningful.
+    if (tries.indexOf(q) === -1) tries.push(q);
+
+    var hit = null;
+    for (var t = 0; t < tries.length && !hit; t++) {
+      var res = searchIssues(tries[t], 1);
+      // A very short fragment has to match strongly (a label or an exact keyword),
+      // never by landing inside a longer word.
+      if (res.length && (tries[t].length >= 5 || res[0].score >= 45)) hit = res[0];
+    }
+    if (!hit) return null;
+
+    var target = resolveTarget(hit.key, hit.focusKey);
+    if (!target) return null;
+    var focusKey = target.focusKey;
+    // A focused sub-issue carries its own emoji in its label — split it so the
+    // caller gets one icon and clean text, exactly like the overlay header.
+    var fl = focusKey ? splitLabel(keyLabel(focusKey)) : null;
+    return {
+      coreKey: target.core.key,
+      focusKey: focusKey,
+      mode: mode,
+      scope: (wantsLocal && userState()) ? 'mine' : 'all',
+      icon: (fl && fl.icon) ? fl.icon : hit.icon,
+      label: fl ? fl.text : hit.label,
+      parentLabel: focusKey ? hit.label : '',
+      blurb: hit.blurb || ''
+    };
+  }
+
+  // A search surface can render the whole answer inline: the issue we understood,
+  // the ranked rows for it, and how honest that ranking can afford to be.
+  function answer(raw, limit) {
+    var p = parseQuestion(raw);
+    if (!p) return null;
+    var core = coreByKey(p.coreKey);
+    if (!core) return null;
+    var all = buildRanking(core, p.focusKey);
+    var rows = all;
+    if (p.scope === 'mine') {
+      var st = userState();
+      var scoped = all.filter(function (r) { return inUserScope(r, st); });
+      // Never trap the answer in a local wall — fall back to everywhere and say so.
+      if (scoped.length) rows = scoped; else p.scopeFellBack = true;
+    }
+    if (p.mode === 'consistent') {
+      var c = rows.filter(function (r) { return r.tierKey === 'consistent' || r.tierKey === 'mixed'; });
+      if (c.length) rows = c; else p.modeFellBack = true;
+    } else if (p.mode === 'contradiction') {
+      var d = rows.filter(function (r) { return r.tierKey === 'contradiction' || r.tierKey === 'flag'; });
+      if (d.length) rows = d; else p.modeFellBack = true;
+    }
+    p.total = all.length;
+    p.rows = rows.slice(0, limit || 3);
+    p.matched = rows.length;
+    p.state = (p.scope === 'mine') ? userState() : '';
+    p.coverage = coverageOf(all);
+    p.link = linkFor({ coreKey: p.coreKey, focusKey: p.focusKey, mode: p.mode, scope: p.scope });
+    return p;
   }
 
   // ── front door ────────────────────────────────────────────────────────────────
@@ -591,10 +1038,20 @@
   }
 
   // ── deep-link support ────────────────────────────────────────────────────────
+  // #issue=<core>[&key=<sub-issue>][&mode=consistent|contradiction][&scope=mine]
+  // Older links carrying only #issue=<core> keep working untouched.
   function handleHash() {
     var h = location.hash || '';
-    var m = h.match(/^#issue=([^&]+)/);
-    if (m) { open(decodeURIComponent(m[1])); return; }
+    var m = h.match(/^#issue=([^&]+)(.*)$/);
+    if (m) {
+      var rest = m[2] || '';
+      function param(name) {
+        var r = rest.match(new RegExp('[&]' + name + '=([^&]*)'));
+        try { return r ? decodeURIComponent(r[1]) : ''; } catch (e) { return r ? r[1] : ''; }
+      }
+      open(decodeURIComponent(m[1]), { focusKey: param('key'), mode: param('mode'), scope: param('scope') });
+      return;
+    }
     if (/^#issues?$/.test(h)) {
       var fd = el('issue-front-door');
       if (fd && typeof fd.scrollIntoView === 'function') fd.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -606,6 +1063,11 @@
     close: close,
     mountFrontDoor: mountFrontDoor,
     searchIssues: searchIssues,
+    parseQuestion: parseQuestion,
+    answer: answer,
+    coverage: coverage,
+    coverageNote: coverageNote,
+    linkFor: linkFor,
     buildRanking: buildRanking,
     refresh: refresh
   };
