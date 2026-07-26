@@ -15,11 +15,11 @@ counted, and every row it accounts for is marked `pending`.
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 3,991 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 1,930 |
+| …**and** the member holds a stated position on that key (rankable) | 2,109 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **631**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **650**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -112,42 +112,23 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,504 (member, issue) pairs, 10,965 member-votes.
+5,485 (member, issue) pairs, 10,786 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
 | member-votes | member | issue key | profile exists |
 |---:|---|---|---|
 | 11 | khanna | gov_regulation | yes |
-| 10 | julie_fedorchak | cut_spending | yes |
-| 10 | troy_downing | cut_spending | yes |
 | 10 | mike_simpson | strong_defense | yes |
-| 10 | mike_simpson | cut_spending | yes |
 | 10 | jason_smith | strong_defense | yes |
-| 10 | jason_smith | cut_spending | yes |
 | 10 | kclark | strong_defense | yes |
-| 10 | kclark | cut_spending | yes |
-| 10 | khanna | cut_spending | yes |
-| 10 | tlaib | cut_spending | yes |
-| 10 | jayapal | cut_spending | yes |
 | 10 | crockett | strong_defense | yes |
-| 9 | aoc | cut_spending | yes |
 | 9 | jim_jordan | strong_defense | yes |
 | 9 | crockett | gov_regulation | yes |
-| 9 | stephanie_bice | cut_spending | yes |
-| 9 | tom_cole | cut_spending | yes |
 | 9 | rob_bresnahan | cut_spending | yes |
 | 9 | rick_crawford | cut_spending | yes |
-| 9 | french_hill | cut_spending | yes |
 | 9 | mike_ezell | cut_spending | yes |
 | 9 | trent_kelly | cut_spending | yes |
-| 9 | michael_guest | cut_spending | yes |
-| 9 | maxine_waters | cut_spending | yes |
-| 9 | bennie_thompson | cut_spending | yes |
-| 9 | bruce_westerman | cut_spending | yes |
-| 9 | frank_lucas | cut_spending | yes |
-| 9 | mariannette_miller_meeks | cut_spending | yes |
-| 9 | mike_collins | cut_spending | yes |
 | 9 | josh_brecheen | strong_defense | yes |
 | 9 | french_hill | strong_defense | yes |
 | 9 | maxine_waters | strong_defense | yes |
@@ -178,7 +159,26 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | steve_womack | america_first_fp | yes |
 | 9 | tlaib | america_first_fp | yes |
 | 9 | tom_cole | america_first_fp | yes |
-| … | _5,444 more_ | | |
+| 9 | trent_kelly | america_first_fp | yes |
+| 9 | troy_downing | america_first_fp | yes |
+| 8 | crockett | cut_spending | yes |
+| 8 | troy_downing | gov_regulation | yes |
+| 8 | mike_ezell | gov_regulation | yes |
+| 8 | tom_cole | gov_regulation | yes |
+| 8 | kclark | gov_regulation | yes |
+| 8 | trent_kelly | gov_regulation | yes |
+| 8 | don_davis | gov_regulation | yes |
+| 8 | josh_brecheen | gov_regulation | yes |
+| 8 | rob_bresnahan | gov_regulation | yes |
+| 8 | rick_crawford | gov_regulation | yes |
+| 8 | stephanie_bice | gov_regulation | yes |
+| 8 | mike_simpson | gov_regulation | yes |
+| 8 | mike_flood | gov_regulation | yes |
+| 8 | michael_guest | gov_regulation | yes |
+| 8 | ryan_mackenzie | gov_regulation | yes |
+| 8 | steve_womack | gov_regulation | yes |
+| 8 | mariannette_miller_meeks | gov_regulation | yes |
+| … | _5,425 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -187,12 +187,12 @@ real, verifiable position exists. Do not fill these in by inference.
 | 665 | gov_regulation | 187 |
 | 639 | states_federal_power | 199 |
 | 619 | climate_action | 202 |
-| 583 | cut_spending | 135 |
 | 514 | cost_living | 206 |
 | 509 | energy_production | 170 |
 | 450 | america_first_fp | 113 |
 | 439 | strong_defense | 96 |
 | 414 | national_debt | 125 |
+| 404 | cut_spending | 116 |
 | 367 | gov_transparency | 112 |
 | 282 | tough_on_crime | 106 |
 | 267 | gov_services | 117 |
