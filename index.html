@@ -1196,8 +1196,11 @@
   // path treat the score as absent in that case and render "—" / "No record
   // yet" instead, while leaving the underlying p.score untouched so sorting and
   // the separate accountability model are unaffected.
-  window._pdxResolvedPromises = function(p) {
-    if (!p) return 0;
+  // The kept / broken tally behind the score, read from whichever shape a record
+  // carries. Same counting rules as before — this only names the two halves so
+  // callers can show the denominator, not just its total.
+  window._pdxPromiseTally = function(p) {
+    if (!p) return { kept: 0, broken: 0, resolved: 0 };
     var k = parseInt(p.kept, 10);   if (isNaN(k)) k = 0;
     var b = parseInt(p.broken, 10); if (isNaN(b)) b = 0;
     // Fall back to a detailed promise list / breakdown when the summary counts
@@ -1213,7 +1216,10 @@
       var pk = parseInt(p.promiseBreakdown.kept, 10);   if (!isNaN(pk)) k += pk;
       var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
     }
-    return k + b;
+    return { kept: k, broken: b, resolved: k + b };
+  };
+  window._pdxResolvedPromises = function(p) {
+    return window._pdxPromiseTally(p).resolved;
   };
   window._pdxHasPromiseRecord = function(p) {
     return window._pdxResolvedPromises(p) > 0;
@@ -1225,6 +1231,19 @@
     var s = p.score;
     if (s === null || s === undefined || s === '') return null;
     return window._pdxHasPromiseRecord(p) ? s : null;
+  };
+  // The sample size behind that percentage — "3 of 4 resolved" (long) or
+  // "3/4 resolved" (short, for tight rails and table cells). Reads only the
+  // kept / broken counts the score already rests on; pending and partial items
+  // stay out of it, exactly as they stay out of the math. Returns '' when
+  // nothing has resolved, so a no-record profile shows no percentage AND no
+  // parenthetical rather than a hollow "0 of 0".
+  window._pdxScoreDenominator = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    return form === 'short'
+      ? t.kept + '/' + t.resolved + ' resolved'
+      : t.kept + ' of ' + t.resolved + ' resolved';
   };
 
   function _checkAndTrigger() {
@@ -25508,6 +25527,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
     const barColor  = scoreNum === null ? 'linear-gradient(90deg,#334155,#64748b)' : scoreNum >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : scoreNum >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
+    // The denominator behind the headline percentage, so "100%" can never be read
+    // as a broad record when it rests on a single resolved promise.
+    const scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(p) : '';
 
     // Top bar
     document.getElementById('modal-icon').textContent = p.icon;
@@ -25521,6 +25543,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     const pct = scoreNum === null ? 0 : scoreNum / 100;
     const dash = pct * circ;
     const scoreRing = scoreNum !== null ? `
+      <div class="profile-score-stack">
       <div class="score-ring w-20 h-20 flex-shrink-0">
         <svg width="80" height="80" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
@@ -25532,6 +25555,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Score</div>
         </div>
+      </div>
+      ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
       </div>` : `<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center" style="background:rgba(100,116,139,0.15);border:1px solid rgba(100,116,139,0.3);">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#9fb4d4;line-height:1;">—</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Monitoring</div>
@@ -34053,7 +34078,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     promiseBlock += row('Promise Score', pids.map((pid, i) => {
       const p = sc(pid); const sVal = _psVals[i]; const col = scoreColor(sVal);
       const lead = _psLeader[i] ? '<div class="cmp-leader-badge">👑 Highest</div>' : '';
-      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${lead}`;
+      // Show what each percentage rests on, so two 100% picks that sit on 1 and
+      // 20 resolved promises don't read as an even match.
+      const denom = (sVal !== null && sVal !== undefined && typeof window._pdxScoreDenominator === 'function')
+        ? window._pdxScoreDenominator(p) : '';
+      const denomLine = denom ? `<div class="cmp-score-denom">(${denom})</div>` : '';
+      return `<span class="cmp-score-val" style="color:${col};font-size:1.5rem;">${sVal !== null && sVal !== undefined ? sVal + '%' : '—'}</span>${denomLine}${lead}`;
     }), '', _psLeader);
     const _ftVals = pids.map(pid => followThrough(sc(pid)));
     const _ftLeader = leaderClasses(_ftVals);
@@ -37730,10 +37760,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();window._pdxPromiseInfo(event,\'' + pid + '\');}"' +
         ' title="How is the Promise % calculated?"';
       var infoHint = '<div class="pdx-score-info">ⓘ How?</div>';
+      // Sample size behind the percentage, in the compact form the narrow rail
+      // can hold ("1/1 resolved"). Empty for a no-record card, which already
+      // shows no percentage at all.
+      var scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(d, 'short') : '';
       var scoreBlock = hasScore
         ? '<div class="pdx-snap-score pdx-snap-score-click"' + scoreClick + ' style="border-color:' + scCol + '55;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03),0 0 16px ' + scCol + '10;">' +
             '<div class="pdx-snap-score-num" style="color:' + scCol + ';text-shadow:0 0 12px ' + scCol + '40;">' + sc + '<span style="font-size:0.9rem;">%</span></div>' +
             '<div class="pdx-snap-score-lbl">' + scoreLbl + '</div>' +
+            (scoreDenom ? '<div class="pdx-snap-score-denom">' + scoreDenom + '</div>' : '') +
             infoHint +
           '</div>'
         : (status === 'candidate'

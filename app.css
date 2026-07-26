@@ -1909,6 +1909,16 @@
       background: rgba(159,180,212,0.12); border: 1px solid rgba(159,180,212,0.35); color: #9fb4d4;
     }
     .profile-hero-score { flex-shrink: 0; }
+    /* Ring + its denominator caption, stacked so the sample size behind the
+       headline percentage sits directly under it ("100%" → "(1 of 1 resolved)"). */
+    .profile-score-stack {
+      display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
+    }
+    .profile-score-denom {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #7596c0; line-height: 1.1; text-align: center; white-space: nowrap;
+    }
     @media (max-width: 480px) {
       .profile-hero { gap: 0.9rem; }
       .profile-hero-photo { width: 96px; height: 118px; border-radius: 0.7rem; }
@@ -3912,6 +3922,13 @@
     .cmp-score-val {
       font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem;
       line-height: 1; display: inline-block;
+    }
+    /* Denominator under a comparison percentage — "(3 of 4 resolved)" — so the
+       side-by-side shows how much record each number is built on. */
+    .cmp-score-denom {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.58rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #7596c0; line-height: 1.15; margin-top: 0.15rem; white-space: nowrap;
     }
     .cmp-stat-pill {
       display: inline-flex; align-items: center; gap: 0.3rem;
@@ -7168,6 +7185,19 @@
       text-transform: uppercase;
       color: #7596c0;
       margin-top: 0.18rem;
+    }
+    /* Sample size under the card percentage — "1/1 resolved" — so a small record
+       reads as a small record at browse speed. */
+    .pdx-snap-score-denom {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.46rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #647a9c;
+      margin-top: 0.08rem;
+      line-height: 1.05;
+      white-space: nowrap;
     }
     /* Empty Promise pill — same footprint as the scored pill so the badge keeps a
        consistent home on every card even when no record has been compiled yet. */
