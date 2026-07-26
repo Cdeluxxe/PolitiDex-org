@@ -1919,6 +1919,27 @@
       font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase;
       color: #7596c0; line-height: 1.1; text-align: center; white-space: nowrap;
     }
+    /* Outstanding promises alongside a real percentage — dimmer than the
+       denominator, because it is context, not the basis of the score. */
+    .profile-score-pending {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.54rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #b08d2e; line-height: 1.1; text-align: center; white-space: nowrap;
+    }
+    /* Tracked-but-unresolved tile: real promises are on file, so the slot wears
+       the pending gold rather than the grey of an empty record — but it shows an
+       hourglass, never a number, because there is still no percentage. */
+    .profile-score-tracking {
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.34);
+    }
+    /* Its caption wraps rather than forcing the hero column wide. */
+    .profile-score-track-note {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.54rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #9fb4d4; line-height: 1.2; text-align: center;
+      max-width: 92px;
+    }
     @media (max-width: 480px) {
       .profile-hero { gap: 0.9rem; }
       .profile-hero-photo { width: 96px; height: 118px; border-radius: 0.7rem; }
@@ -3930,6 +3951,14 @@
       font-size: 0.58rem; letter-spacing: 0.05em; text-transform: uppercase;
       color: #7596c0; line-height: 1.15; margin-top: 0.15rem; white-space: nowrap;
     }
+    /* Secondary note under a comparison score — outstanding promises next to a
+       real percentage, or the tracking state where there is no percentage yet. */
+    .cmp-score-note {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.55rem; letter-spacing: 0.05em; text-transform: uppercase;
+      color: #b08d2e; line-height: 1.2; margin-top: 0.12rem;
+    }
+    .cmp-score-note-tracking { color: #f5c842; }
     .cmp-stat-pill {
       display: inline-flex; align-items: center; gap: 0.3rem;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
@@ -4633,6 +4662,11 @@
       .cmp-col-name { font-size: 0.95rem; }
       .cmp-col-score-ring { width: 42px; height: 42px; }
       .cmp-col-score-ring .cmp-score-val { font-size: 1rem; }
+      /* Phone: keep the score cells tight. The tracking note earns its space —
+         it is the only thing distinguishing "tracked, none resolved" from an
+         empty record — but the "+N pending" aside next to a real percentage is
+         context the Pending / In Progress row already carries, so it steps out. */
+      .cmp-score-note:not(.cmp-score-note-tracking) { display: none; }
     }
 
     /* Card highlight when checked */
@@ -7231,6 +7265,18 @@
     .pdx-snap-score-cand .pdx-snap-score-lbl-cand { color: #93c5fd; }
     .pdx-snap-score-cand .pdx-snap-score-na-cand { color: #7aa0d4; }
     .pdx-snap-score-cand.pdx-snap-score-click:hover { border-color: rgba(96,165,250,0.62) !important; }
+    /* Tracking variant of the score rail — promises ARE on file but none has
+       resolved, so the rail wears the pending gold and names the count instead of
+       reading "No record yet" like a politician with nothing on file. The slot
+       shows an hourglass, never a figure, so it can't be mistaken for a score. */
+    .pdx-snap-score-tracking {
+      border-color: rgba(245,200,66,0.34) !important;
+      background: linear-gradient(160deg, rgba(44,36,14,0.62), rgba(10,13,27,0.66));
+    }
+    .pdx-snap-score-tracking .pdx-snap-score-num-tracking { color: #f5c842; font-size: 1.42rem; line-height: 1.15; }
+    .pdx-snap-score-tracking .pdx-snap-score-lbl-tracking { color: #f5c842; }
+    .pdx-snap-score-tracking .pdx-snap-score-na-tracking { color: #b08d2e; }
+    .pdx-snap-score-tracking.pdx-snap-score-click:hover { border-color: rgba(245,200,66,0.62) !important; }
     .pdx-snap-metrics { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.72rem; }
     .pdx-snap-issues { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.6rem; }
     .pdx-snap-issue {
