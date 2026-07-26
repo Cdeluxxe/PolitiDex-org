@@ -1,0 +1,336 @@
+{
+  "_comment": "Resolved identities for measures the roll-call feeds could only label \"Roll call N\". The vote endpoints carry no measure title, so a measure first seen through a vote lands with a placeholder and stays unmappable until someone says what it is. Every entry here was read from the GPO BILLSTATUS bulk-data record for that measure's own (congress, type, number) — the Library of Congress feed congress.gov renders — and verified against the bill number, roll-call number and vote date already held in vr_rollcalls before being written. Nothing is inferred from the vote question or from the bill number alone. Applied by applyCuratedMeasureIdentity() in netlify/lib/vr-ingest.ts, which matches on (congress, canonical number) across EVERY matching row — not measureType, because the roll-call feeds and Congress.gov disagree about how to type a resolution, and not LIMIT 1, because the same number can exist twice while a merge is pending. It only ever replaces a provisional title and only fills a summary or introduced date that is currently empty, so a better human-written title is never overwritten and re-running is a no-op. It carries no issue mappings: identity and mapping are separate judgements, and db/vr-issue-seed.json owns the second one.",
+  "measures": [
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 22",
+      "title": "SAVE Act",
+      "officialTitle": "To amend the National Voter Registration Act of 1993 to require proof of United States citizenship to register an individual to vote in elections for Federal office, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires individuals to provide documentary proof of U.S. citizenship when registering to vote in federal elections. Specifically, the bill prohibits states from accepting and processing an application to register to vote in a federal election unless the applicant presents documentary proof of U.S. citizenship. The bill specifies what documents are considered acceptable proof of U.S. citizenship, such as identification that complies with the REAL ID Act of 2005 that indicates U.S. citizenship.",
+      "introducedAt": "2025-01-03",
+      "sponsorName": "Rep. Roy, Chip [R-TX-21]",
+      "policyArea": "Government Operations and Politics",
+      "summarySource": "Introduced in House @ 2025-01-03",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr22.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/22"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 276",
+      "title": "Gulf of America Act",
+      "officialTitle": "To rename the Gulf of Mexico as the \"Gulf of America\".",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill renames the Gulf of Mexico as the Gulf of America and directs federal agencies to update their documents and maps to incorporate the new name.",
+      "introducedAt": "2025-01-09",
+      "sponsorName": "Rep. Greene, Marjorie Taylor [R-GA-14]",
+      "policyArea": "Public Lands and Natural Resources",
+      "summarySource": "Introduced in House @ 2025-01-09",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr276.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/276"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 18",
+      "title": "A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\".",
+      "officialTitle": "A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial Protection relating to \"Overdraft Lending: Very Large Financial Institutions\".",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This joint resolution nullifies the final rule issued by the Consumer Financial Protection Bureau titled Overdraft Lending: Very Large Financial Institutions and published on December 30, 2024. The rule revises provisions regarding charges for insufficient funds in a customer’s bank account (i.e., overdrafts) at very large financial institutions. Under the rule, these institutions must (1) cap overdraft charges at $5; (2) with justification, cap charges at a higher amount; or (3) handle overdrafts as credit and comply with applicable Truth in Lending Act disclosure requirements.",
+      "introducedAt": "2025-02-13",
+      "sponsorName": "Sen. Scott, Tim [R-SC]",
+      "policyArea": "Finance and Financial Sector",
+      "laws": [
+        "Public Law 119-10"
+      ],
+      "summarySource": "Public Law @ 2025-05-09",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres18.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 530",
+      "title": "ACES Act",
+      "officialTitle": "To provide for a study by the National Academies of Sciences, Engineering, and Medicine on the prevalence and mortality of cancer among individuals who served as active duty aircrew in the Armed Forces, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires the Department of Veterans Affairs to enter into an agreement with the National Academies of Sciences, Engineering, and Medicine to study and report on the prevalence and mortality of cancers among veterans who served on active duty as aircrew members and regularly flew in fixed-wing aircraft.",
+      "introducedAt": "2025-01-16",
+      "sponsorName": "Rep. Pfluger, August [R-TX-11]",
+      "policyArea": "Armed Forces and National Security",
+      "summarySource": "Introduced in House @ 2025-01-16",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr530.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/530"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 1071",
+      "title": "National Defense Authorization Act for Fiscal Year 2026",
+      "officialTitle": "An Act to authorize appropriations for fiscal year 2026 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+      "identityTitleType": "Official Titles as Amended by Senate",
+      "summary": "This bill sets forth policies and authorities for FY2026 for Department of Defense (DOD) programs and activities, military construction, and the national security programs of the Department of Energy (DOE). The bill also sets forth policies and authorities for the Department of State, the Coast Guard, and the Intelligence Community (IC).",
+      "introducedAt": "2025-03-14",
+      "sponsorName": "Sen. Cornyn, John [R-TX]",
+      "policyArea": "Armed Forces and National Security",
+      "laws": [
+        "Public Law 119-60"
+      ],
+      "summarySource": "Passed House @ 2025-12-10",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s1071.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/1071"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1402",
+      "title": "TICKET Act",
+      "officialTitle": "To require sellers of event tickets to disclose comprehensive information to consumers about ticket prices and related fees, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires ticket sellers (including sellers on the secondary market) for concerts, performances, sporting events, and similar activities to clearly and prominently disclose the total ticket price for the event at the time the ticket is first displayed to an individual (and anytime thereafter during the purchasing process). Prior to completing a purchase, ticket sellers also must provide an itemized list of the base ticket price and each fee (e.g., service fee, processing fee, or other charge). The total ticket price must also be disclosed in any advertisement, marketing, or price list.",
+      "introducedAt": "2025-02-18",
+      "sponsorName": "Rep. Bilirakis, Gus M. [R-FL-12]",
+      "policyArea": "Commerce",
+      "summarySource": "Introduced in House @ 2025-02-18",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1402.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1402"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 78",
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the United States Fish and Wildlife Service relating to \"Endangered and Threatened Wildlife and Plants; Endangered Species Status for the San Francisco Bay-Delta Distinct Population Segment of the Longfin Smelt\".",
+      "officialTitle": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the United States Fish and Wildlife Service relating to \"Endangered and Threatened Wildlife and Plants; Endangered Species Status for the San Francisco Bay-Delta Distinct Population Segment of the Longfin Smelt\".",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This joint resolution nullifies the rule issued by the U.S. Fish and Wildlife Service titled Endangered and Threatened Wildlife and Plants; Endangered Species Status for the San Francisco Bay-Delta Distinct Population Segment of the Longfin Smelt and published on July 30, 2024. The rule lists the San Francisco Bay-Delta distinct population segment of longfin smelt, a fish species of the Pacific Coast, as an endangered species. Thus, the joint resolution removes protection for the species under the Endangered Species Act of 1973.",
+      "introducedAt": "2025-03-21",
+      "sponsorName": "Rep. LaMalfa, Doug [R-CA-1]",
+      "policyArea": "Animals",
+      "summarySource": "Introduced in House @ 2025-03-21",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hjres/BILLSTATUS-119hjres78.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/78"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Res. 377",
+      "title": "Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the \"Gulf of America\", and providing for consideration of the bill (H.R. 881) to establish Department of Homeland Security funding restrictions on institutions of higher education that have a relationship with Confucius Institutes, and for other purposes.",
+      "officialTitle": "Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the \"Gulf of America\", and providing for consideration of the bill (H.R. 881) to establish Department of Homeland Security funding restrictions on institutions of higher education that have a relationship with Confucius Institutes, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "introducedAt": "2025-05-05",
+      "sponsorName": "Rep. Scott, Austin [R-GA-8]",
+      "policyArea": "Congress",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hres/BILLSTATUS-119hres377.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-resolution/377"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1503",
+      "title": "Stop Forced Organ Harvesting Act of 2025",
+      "officialTitle": "To combat forced organ harvesting and trafficking in persons for purposes of the removal of organs, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires the President to impose sanctions on persons (individuals and entities) involved in forced organ trafficking and authorizes the Department of State to deny or revoke the passports of individuals convicted of certain crimes related to organ trafficking. Specifically, the President must report to Congress a list of persons that facilitate (1) forced organ harvesting, or (2) trafficking in persons for organ harvesting. For each person on the list, the President must impose property- and visa-blocking sanctions.",
+      "introducedAt": "2025-02-21",
+      "sponsorName": "Rep. Smith, Christopher H. [R-NJ-4]",
+      "policyArea": "International Affairs",
+      "summarySource": "Introduced in House @ 2025-02-21",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1503.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1503"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1005",
+      "title": "Combating the Lies of Authoritarians in School Systems Act",
+      "officialTitle": "To require public elementary and secondary schools to disclose certain funds received from, or contracts with, a foreign source, and for other purposes.",
+      "identityTitleType": "Official Titles as Amended by House",
+      "summary": "Official title as passed by the House: \"To require public elementary and secondary schools to disclose certain funds received from, or contracts with, a foreign source, and for other purposes.\" The bill was rewritten on the floor from the text as introduced; CRS published a summary only for the introduced version, so none is shown here.",
+      "introducedAt": "2025-02-05",
+      "sponsorName": "Rep. Joyce, David P. [R-OH-14]",
+      "policyArea": "Education",
+      "summarySource": "no CRS summary for the text as passed",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1005.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1005"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1049",
+      "title": "Transparency in Reporting of Adversarial Contributions to Education Act",
+      "officialTitle": "To ensure that parents are aware of foreign influence in their child's public school, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires each local educational agency (LEA), as a condition of receiving federal elementary and secondary education funds, to ensure that each elementary and secondary school served by the LEA notifies parents of their rights to request and receive information regarding foreign influence (e.g., influence by China) in schools.",
+      "introducedAt": "2025-02-06",
+      "sponsorName": "Rep. Bean, Aaron [R-FL-4]",
+      "policyArea": "Education",
+      "summarySource": "Introduced in House @ 2025-02-06",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1049.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1049"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 973",
+      "title": "Setting Consumer Standards for Lithium-Ion Batteries Act",
+      "officialTitle": "To establish consumer standards for lithium-ion batteries.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires the Consumer Product Safety Commission to issue a final consumer product safety rule for rechargeable lithium-ion batteries used in micromobility devices, such as electric bikes and electric scooters. Specifically, the rule must require manufacturers and distributors of such products to comply with the applicable safety standards jointly established by the American National Standards Institute, the Standards Council of Canada, and UL Solutions Inc.",
+      "introducedAt": "2025-02-04",
+      "sponsorName": "Rep. Torres, Ritchie [D-NY-15]",
+      "policyArea": "Commerce",
+      "summarySource": "Introduced in House @ 2025-02-04",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr973.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/973"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4305",
+      "title": "DUMP Red Tape Act",
+      "officialTitle": "To direct the Chief Counsel for Advocacy of the Small Business Administration to establish a Red Tape Hotline to receive notifications of burdensome agency rules, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill establishes a requirement for the Office of Advocacy of the Small Business Administration (SBA) to continue to operate and maintain the Red Tape Hotline, which receives notifications from small entities about the burden of complying with applicable rules, guidance, policy statements, or other activities of a federal agency. The office must report annually to the SBA and Congress information about the notifications received through the hotline.",
+      "introducedAt": "2025-07-10",
+      "sponsorName": "Rep. Wied, Tony [R-WI-8]",
+      "policyArea": "Commerce",
+      "summarySource": "Reported to House @ 2025-11-21",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr4305.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4305"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 2965",
+      "title": "Small Business Regulatory Reduction Act of 2025",
+      "officialTitle": "To require the Administrator of the Small Business Administration to ensure that the small business regulatory budget for a small business concern in a fiscal year is not greater than zero, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill requires the Small Business Administration (SBA) to ensure the annual small business regulatory budget for the SBA in each fiscal year is no greater than zero. The small business regulatory budget is the cost to a small business of a federal rulemaking, including the cost resulting from the issuance of any new rule and the cost resulting from the modification or repeal of an existing rule.",
+      "introducedAt": "2025-04-17",
+      "sponsorName": "Rep. Van Duyne, Beth [R-TX-24]",
+      "policyArea": "Commerce",
+      "summarySource": "Reported to House @ 2025-05-21",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr2965.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2965"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1069",
+      "title": "PROTECT Our Kids Act",
+      "officialTitle": "To prohibit the availability of Federal education funds for elementary and secondary schools that receive direct or indirect support from the Government of the People's Republic of China.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill prohibits federal education funding for any elementary or secondary school that directly or indirectly receives support from the Chinese government. Specifically, the bill prohibits such funding for any school that (1) has a partnership in effect with a cultural or language institute funded by the Chinese government, including a Confucius Institute; (2) operates a learning center supported by the Chinese government (commonly referred to as a Confucius Classroom)…",
+      "introducedAt": "2025-02-06",
+      "sponsorName": "Rep. Hern, Kevin [R-OK-1]",
+      "policyArea": "Education",
+      "summarySource": "Introduced in House @ 2025-02-06",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1069.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1069"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 2503",
+      "title": "ROTOR Act",
+      "officialTitle": "A bill to require all aircraft to be equipped with Automatic Dependent Surveillance-Broadcast In, to improve aviation safety, and for other purposes.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill addresses aviation safety by increasing requirements for aircraft tracking and communication using Automatic Dependent Surveillance-Broadcast (ADS-B) technology and expanding oversight. As background, ADS-B for broadcasting (Out) and receiving (In) transmits information (e.g., location and weather information) between aircraft and air traffic control. Under the bill, aircraft must generally operate with ADS-B In equipment to provide the aircraft with location information of other aircraft and traffic advisories. Current law does not require this equipment.",
+      "introducedAt": "2025-07-29",
+      "sponsorName": "Sen. Cruz, Ted [R-TX]",
+      "policyArea": "Transportation and Public Works",
+      "summarySource": "Passed Senate @ 2025-12-17",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s2503.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2503"
+    },
+    {
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1676",
+      "title": "Make SWAPs Efficient Act of 2025",
+      "officialTitle": "To amend the Pittman-Robertson Wildlife Restoration Act to require the Secretary of the Interior to approve the wildlife conservation and restoration program of a State within a certain period of time.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This bill modifies the State Wildlife Grant Program (SWGP) to establish a deadline for the Department of the Interior to approve state wildlife conservation and restoration programs. Under the SWGP, Interior provides funding to state wildlife agencies to implement their comprehensive plans (commonly known as state wildlife action plans or SWAPs) for state wildlife conservation and restoration programs.",
+      "introducedAt": "2025-02-27",
+      "sponsorName": "Rep. Donalds, Byron [R-FL-19]",
+      "policyArea": "Public Lands and Natural Resources",
+      "summarySource": "Introduced in House @ 2025-02-27",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr1676.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1676"
+    },
+    {
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S. 356",
+      "title": "Secure Rural Schools Reauthorization Act of 2025",
+      "officialTitle": "A bill to extend the Secure Rural Schools and Community Self-Determination Act of 2000.",
+      "identityTitleType": "Official Title as Introduced",
+      "summary": "This act extends and modifies the Secure Rural Schools (SRS) program, under which states and counties containing certain federal land may receive payments from the Forest Service or the Bureau of Land Management (BLM) for schools, roads, and certain other municipal services. The act modifies the SRS program, including by extending payments made to states and counties containing federal land through FY2026, providing lapsed payments for FY2024 and FY2025, extending the authority of counties to initiate projects using such funds through FY2028, and extending the authority to initiate projects proposed by resource a…",
+      "introducedAt": "2025-02-03",
+      "sponsorName": "Sen. Crapo, Mike [R-ID]",
+      "policyArea": "Public Lands and Natural Resources",
+      "laws": [
+        "Public Law 119-58"
+      ],
+      "summarySource": "Public Law @ 2025-12-18",
+      "source": {
+        "label": "GPO BILLSTATUS bulk data",
+        "url": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/s/BILLSTATUS-119s356.xml"
+      },
+      "congressGovUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/356"
+    }
+  ]
+}
