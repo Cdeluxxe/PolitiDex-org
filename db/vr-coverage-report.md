@@ -14,12 +14,12 @@ counted, and every row it accounts for is marked `pending`.
 |---|---|
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 3,991 |
-| …of which the mapping is curated but not yet deployed | 147 |
-| …**and** the member holds a stated position on that key (rankable) | 1,619 |
+| …of which the mapping is curated but not yet deployed | 0 |
+| …**and** the member holds a stated position on that key (rankable) | 1,773 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **599**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **615**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -33,17 +33,6 @@ No measure carrying a vote is left without a title.
 ## Gap 1 — measures with votes and no issue mapping
 
 43 measure(s), 1,755 member-votes at stake.
-
-4 measure(s) carrying 147 member-votes have just left this
-list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are
-counted as mapped above rather than as a gap here.
-
-| member-votes | measure | keys awaiting deploy |
-|---:|---|---|
-| 38 | S.J.Res. 18 | `gov_regulation`, `econ_corp_account` |
-| 37 | H.J.Res. 78 | `lands_preserve`, `gov_regulation` |
-| 36 | H.R. 1005 | `gov_transparency` |
-| 36 | H.R. 1049 | `edu_parental`, `gov_transparency` |
 
 | member-votes | measure | title | |
 |---:|---|---|---|
@@ -123,23 +112,17 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,536 (member, issue) pairs, 11,276 member-votes.
+5,520 (member, issue) pairs, 11,122 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
 | member-votes | member | issue key | profile exists |
 |---:|---|---|---|
-| 14 | emmer | gov_regulation | yes |
-| 13 | mike_johnson | gov_regulation | yes |
-| 13 | scalise | gov_regulation | yes |
 | 12 | scalise | strong_defense | yes |
-| 12 | jim_jordan | gov_regulation | yes |
 | 11 | mike_johnson | strong_defense | yes |
 | 11 | emmer | strong_defense | yes |
 | 11 | aoc | strong_defense | yes |
-| 11 | aoc | gov_regulation | yes |
 | 11 | khanna | gov_regulation | yes |
-| 11 | owens | gov_regulation | yes |
 | 10 | julie_fedorchak | strong_defense | yes |
 | 10 | julie_fedorchak | cut_spending | yes |
 | 10 | troy_downing | strong_defense | yes |
@@ -152,19 +135,15 @@ real, verifiable position exists. Do not fill these in by inference.
 | 10 | kclark | strong_defense | yes |
 | 10 | kclark | cut_spending | yes |
 | 10 | khanna | cut_spending | yes |
-| 10 | massie | gov_regulation | yes |
 | 10 | tlaib | strong_defense | yes |
 | 10 | tlaib | cut_spending | yes |
 | 10 | jayapal | strong_defense | yes |
 | 10 | jayapal | cut_spending | yes |
-| 10 | tlaib | gov_regulation | yes |
-| 10 | jayapal | gov_regulation | yes |
 | 10 | crockett | strong_defense | yes |
 | 10 | khanna | strong_defense | yes |
 | 9 | aoc | cut_spending | yes |
 | 9 | jim_jordan | strong_defense | yes |
 | 9 | crockett | gov_regulation | yes |
-| 9 | bruce_westerman | gov_regulation | yes |
 | 9 | stephanie_bice | cut_spending | yes |
 | 9 | tom_cole | cut_spending | yes |
 | 9 | rob_bresnahan | cut_spending | yes |
@@ -189,13 +168,23 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | steve_womack | strong_defense | yes |
 | 9 | bruce_westerman | strong_defense | yes |
 | 9 | owens | america_first_fp | yes |
-| … | _5,476 more_ | | |
+| 9 | aoc | america_first_fp | yes |
+| 9 | bennie_thompson | america_first_fp | yes |
+| 9 | bruce_westerman | america_first_fp | yes |
+| 9 | crockett | america_first_fp | yes |
+| 9 | french_hill | america_first_fp | yes |
+| 9 | jason_smith | america_first_fp | yes |
+| 9 | jayapal | america_first_fp | yes |
+| 9 | josh_brecheen | america_first_fp | yes |
+| 9 | julie_fedorchak | america_first_fp | yes |
+| 9 | kclark | america_first_fp | yes |
+| … | _5,460 more_ | | |
 
 ## Gap 2 rolled up by issue
 
 | member-votes | issue key | members missing a position |
 |---:|---|---:|
-| 819 | gov_regulation | 203 |
+| 665 | gov_regulation | 187 |
 | 639 | states_federal_power | 199 |
 | 619 | climate_action | 202 |
 | 596 | strong_defense | 112 |
