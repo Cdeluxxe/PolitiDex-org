@@ -744,10 +744,27 @@
       // The multi-issue slice, e.g. "Yea counted for Lower Taxes / against Health
       // Care". Its own line so a long pairing never squeezes the bill name.
       '.pdxor-proof-multi{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.1rem;}' +
+      // A proof line that names a roll call is also the way TO that roll call. It sits
+      // inside the row's <summary>, so it must not look like the row's own expand
+      // control: the arrow only appears on hover/tap, and the whole line gets a soft
+      // hover plate so the tap target is obvious without adding a border to every row.
+      '.pdxor-proof-act{cursor:pointer;border-radius:0.4rem;margin:0 -0.3rem;padding:0.12rem 0.3rem;transition:background 0.12s ease;}' +
+      '.pdxor-proof-act:hover{background:rgba(127,180,255,0.1);}' +
+      '.pdxor-proof-act:hover .pdxor-proof-bill{color:#bcd8ff;}' +
+      '.pdxor-proof-go{flex-shrink:0;margin-left:auto;font-size:0.68rem;color:#7fb4ff;opacity:0;transition:opacity 0.12s ease;}' +
+      '.pdxor-proof-act:hover .pdxor-proof-go{opacity:1;}' +
+      '@media (hover:none){.pdxor-proof-go{opacity:0.6;}}' +
+      '@media (prefers-reduced-motion:reduce){.pdxor-proof-act,.pdxor-proof-go{transition:none;}}' +
       // Why a verdict is a shrug — shown inside the opened row, where there is room.
       '.pdxor-why{font-size:0.68rem;color:#9fb4d4;line-height:1.5;margin:0.45rem 0 0.1rem;padding:0.35rem 0.5rem;border-radius:0.45rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);}' +
       '.pdxor-acts-open{margin-top:0.35rem;}' +
       '.pdxor-act-more{color:#7e93b3;font-style:italic;}' +
+      // The keyboard-reachable twin of the proof line: each mapped vote's bill number,
+      // inside the opened row, as a real button to that exact card. Styled as the text
+      // it replaced so the list still scans as a list.
+      '.pdxor-act-go{background:none;border:none;padding:0;margin:0;font:inherit;color:#cfe0f8;cursor:pointer;text-align:left;}' +
+      '.pdxor-act-go:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxor-act-go:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
       // Deep link out of the row into the full Voting Record, pre-filtered to the issue.
       '.pdxor-vrlink{display:inline-block;margin-top:0.45rem;background:none;border:none;padding:0.2rem 0;cursor:pointer;font-family:inherit;font-size:0.68rem;font-weight:700;letter-spacing:0.02em;color:#7fb4ff;text-align:left;}' +
       '.pdxor-vrlink:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
@@ -757,6 +774,16 @@
       '.pdxor-awaiting-d>summary::-webkit-details-marker{display:none;}' +
       '.pdxor-await-body{margin-top:0.45rem;}' +
       '.pdxor-issue-await{padding:0.4rem 0.55rem;margin-bottom:0.35rem;background:rgba(10,15,30,0.25);}' +
+      // The section's entry line: how much record there is, and the way into it. Full
+      // width and left-aligned so the count reads as a sentence, with the call to
+      // action pinned right on wide screens and wrapping under it on narrow ones.
+      '.pdxor-mapsum{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;width:100%;margin:0.5rem 0 0.1rem;padding:0.4rem 0.55rem;background:rgba(127,180,255,0.07);border:1px solid rgba(127,180,255,0.18);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;color:#cfe0f8;text-align:left;cursor:pointer;}' +
+      '.pdxor-mapsum:hover{background:rgba(127,180,255,0.12);border-color:rgba(127,180,255,0.3);}' +
+      '.pdxor-mapsum:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.pdxor-mapsum-flat{cursor:default;}' +
+      '.pdxor-mapsum-ico{flex-shrink:0;font-size:0.8rem;}' +
+      '.pdxor-mapsum-txt{min-width:0;}' +
+      '.pdxor-mapsum-go{margin-left:auto;flex-shrink:0;font-weight:700;letter-spacing:0.02em;color:#7fb4ff;white-space:nowrap;}' +
       // Mobile: keep rows scannable. The issue name takes its own full-width line so
       // the chips below it stay on one row instead of each wrapping to its own, the
       // caret pins to the name's line, and every tap target keeps a comfortable
@@ -770,6 +797,15 @@
         '.pdxor-row>summary .pdxor-issue-lbl{padding-right:1.1rem;}' +
         '.pdxor-proof{font-size:0.68rem;}' +
         '.pdxor-proof-multi{font-size:0.62rem;}' +
+        // The proof line is a tap target, so give it height and keep the arrow
+        // permanently visible — there is no hover to reveal it on.
+        '.pdxor-proof-act{padding:0.3rem 0.3rem;margin:0 -0.3rem;}' +
+        '.pdxor-proof-go{opacity:0.6;align-self:center;}' +
+        // Entry line: the count on its own line, the call to action beneath it, both
+        // full width so neither is squeezed to two words per line.
+        '.pdxor-mapsum{padding:0.5rem 0.55rem;font-size:0.7rem;}' +
+        '.pdxor-mapsum-txt{flex:1 1 auto;}' +
+        '.pdxor-mapsum-go{margin-left:0;flex:1 0 100%;}' +
         '.pdxor-vrlink{padding:0.35rem 0;}' +
       '}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
@@ -1018,6 +1054,17 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      // Deep link from a named proof line to that ONE roll call. Checked before the
+      // issue link because a proof line carries both: the vote it names, and the issue
+      // to fall back to. preventDefault also stops the <summary> it sits in from
+      // toggling, so tapping a bill opens the receipt instead of the row.
+      var vrv = e.target.closest && e.target.closest('[data-pdxc-vrvote]');
+      if (vrv) {
+        e.preventDefault();
+        _openVotingVote(vrv.getAttribute('data-pdxc-vrissue') || '',
+          vrv.getAttribute('data-pdxc-vrvote') || '');
+        return;
+      }
       // Deep link from a stance row into the full Voting Record, filtered to that
       // issue. Checked before the gap link so a row can carry both.
       var vrl = e.target.closest && e.target.closest('[data-pdxc-vrissue]');
@@ -1026,6 +1073,9 @@
         _openVotingIssue(vrl.getAttribute('data-pdxc-vrissue') || '');
         return;
       }
+      // The section's own entry point: the whole record, no issue filter.
+      var vra = e.target.closest && e.target.closest('[data-pdxc-vrall]');
+      if (vra) { e.preventDefault(); _openVotingIssue(''); return; }
       var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
       if (gap) {
         e.preventDefault();
@@ -1215,6 +1265,17 @@
       url: url, label: lbl
     };
   }
+  // The key the Voting Record card list labels its cards with, so a proof line can
+  // point at ONE roll call rather than at the issue it belongs to. Owned by
+  // voting-record.js (window._pdxRecordKey) precisely so the two sides cannot drift;
+  // '' when that file isn't loaded, in which case the proof line still deep-links to
+  // the issue-filtered list and nothing is lost but the ring.
+  function _orVoteKey(item) {
+    try {
+      if (typeof window._pdxRecordKey !== 'function') return '';
+      return window._pdxRecordKey(item) || '';
+    } catch (e) { return ''; }
+  }
   // "H.R. 22 · On Motion to Recommit · Voted Yea" — the bill, the question, the vote.
   // Falls back to the measure title when a record carries no number, so a row never
   // prints an empty proof. Pure, no HTML.
@@ -1308,6 +1369,12 @@
   // purpose: one line for a deep record (the decisive vote), two when the whole record
   // IS one or two votes — those rows are precisely the ones that used to hide behind a
   // weak label, so they show their entire evidence base up front.
+  //   Each line is also the shortest path to the receipt: a pointer click opens the
+  // full Voting Record on that exact roll call. It is deliberately NOT focusable — it
+  // lives inside a <summary>, where a second tab stop per row would compete with the
+  // row's own expand control for the keyboard. Keyboard and screen-reader users get the
+  // same destination from real buttons in the expanded body (see _orRowEvidenceHtml),
+  // so the shortcut is additive rather than the only way through.
   function _orProofHtml(pid, issueKey, ov, limit) {
     var picks = _orProofPicks(pid, issueKey, ov, limit || 1);
     if (!picks.length) return '';
@@ -1323,11 +1390,15 @@
       if (b.question) restBits.push(esc(b.question));
       if (b.position) restBits.push('Voted <b>' + esc(b.position) + '</b>');
       var rest = restBits.length ? (bill ? ' · ' : '') + restBits.join(' · ') : '';
-      return '<div class="pdxor-proof">' +
+      return '<div class="pdxor-proof pdxor-proof-act"' +
+          ' data-pdxc-vrvote="' + escAttr(_orVoteKey(p.item)) + '"' +
+          ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
+          ' title="' + escAttr('Open ' + (txt || 'this vote') + ' in the full voting record') + '">' +
           '<span class="pdxor-proof-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
           '<span class="pdxor-proof-txt">' + bill + rest +
             (multi ? '<span class="pdxor-proof-multi">🧩 ' + esc(multi) + '</span>' : '') +
           '</span>' +
+          '<span class="pdxor-proof-go" aria-hidden="true">→</span>' +
         '</div>';
     }).join('') + '</div>';
   }
@@ -1354,7 +1425,10 @@
       var b = _orProofBits(p.item);
       var meta = [b.question, b.position ? 'Voted ' + b.position : '', b.date].filter(Boolean).join(' · ');
       lines.push(_orActLine(p.verdict, b.bill || b.title || 'Recorded vote',
-        meta, b.url, b.label, _orOmniNote(p.item, issueKey)));
+        meta, b.url, b.label, _orOmniNote(p.item, issueKey),
+        // Every mapped vote in the open row is a button to that exact roll call —
+        // the keyboard-reachable version of the collapsed row's proof-line shortcut.
+        { issue: issueKey, key: _orVoteKey(p.item) }));
     });
     if (!lines.length) lines = _orEvidenceItems(ov);
     if (!lines.length) return '';
@@ -1363,13 +1437,23 @@
   // "See all N mapped votes on <issue> →" — the deep link out of the row into the full
   // Voting Record, pre-filtered to this issue (see _pdxVotingRecordFocusIssue in
   // voting-record.js). Rendered only when that list actually has something to show.
+  //   When the whole record on this issue IS one vote, the button says "open this vote"
+  // and means it: it carries that vote's key and lands on the card itself, so the copy
+  // and the destination agree.
   function _orRowVrLinkHtml(pid, issueKey, ov) {
     var total = (ov && ov.record) ? (ov.record.total || 0) : 0;
     if (!total) return '';
+    var one = '';
+    if (total === 1) {
+      var picks = _orProofPicks(pid, issueKey, ov, 1);
+      if (picks.length) one = _orVoteKey(picks[0].item);
+    }
     var label = total === 1
       ? 'Open this vote in the full record →'
       : 'See all ' + total + ' mapped votes on ' + _issueLabel(issueKey) + ' →';
-    return '<button type="button" class="pdxor-vrlink" data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
+    return '<button type="button" class="pdxor-vrlink"' +
+      (one ? ' data-pdxc-vrvote="' + escAttr(one) + '"' : '') +
+      ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
       ' data-pdxc-vrpid="' + escAttr(pid) + '">' + esc(label) + '</button>';
   }
   function _orWhyHtml(ov) {
@@ -1378,6 +1462,7 @@
   }
   // Jump into the full Voting Record, filtered to one issue when that section is live.
   // Falls back to a plain jump, then to a scroll — the link is never a dead end.
+  // '' asks for the whole record, which also clears a filter an earlier row left set.
   function _openVotingIssue(issueKey) {
     try {
       if (typeof window._pdxVotingRecordFocusIssue === 'function' &&
@@ -1386,6 +1471,18 @@
     if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-voting'); return; }
     var el = document.getElementById('pdxsec-voting');
     if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // The same journey, aimed at ONE roll call: scroll to and ring that card. Every step
+  // of the chain degrades to the next rather than to nothing —
+  //   exact card → issue-filtered list → section jump → plain scroll
+  // — so a reader who taps a named bill always arrives somewhere that explains itself,
+  // even when the record for that vote hasn't been painted yet.
+  function _openVotingVote(issueKey, voteKey) {
+    try {
+      if (voteKey && typeof window._pdxVotingRecordFocusVote === 'function' &&
+          window._pdxVotingRecordFocusVote(issueKey, voteKey)) return;
+    } catch (e) {}
+    _openVotingIssue(issueKey);
   }
 
   // ── Composition / confidence indicator ON the Official Record % ─────────────
@@ -1467,15 +1564,26 @@
         esc(parts.join(' · ')) + '</span>';
     } catch (e) { return ''; }
   }
-  function _orActLine(verdict, title, meta, url, label, omniNote) {
+  function _orActLine(verdict, title, meta, url, label, omniNote, focus) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
     // `omniNote` (optional) discloses that this line came from a multi-issue bill —
     // calm and factual, so a contradiction from an omnibus never reads like a
     // single-issue one. Never invented here: see _orOmniNote below.
     var omni = omniNote ? '<span class="pdxor-omni">🧩 ' + omniNote + '</span>' : '';
+    // `focus` (optional) makes the headline the keyboard-reachable twin of the proof
+    // line's pointer shortcut: a real <button> that opens the full Voting Record on
+    // this exact roll call. Omitted → the headline stays plain text, exactly as before,
+    // which is what the Say-vs-Do feed's non-vote receipts still want.
+    var head = esc(title);
+    if (focus && focus.issue) {
+      head = '<button type="button" class="pdxor-act-go"' +
+        ' data-pdxc-vrvote="' + escAttr(focus.key || '') + '"' +
+        ' data-pdxc-vrissue="' + escAttr(focus.issue) + '"' +
+        ' title="' + escAttr('Open ' + title + ' in the full voting record') + '">' + esc(title) + '</button>';
+    }
     return '<div class="pdxor-act"><span class="pdxor-act-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
-      '<span>' + esc(title) + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + omni + '</span></div>';
+      '<span>' + head + (meta ? ' <span style="color:#7e93b3;">· ' + esc(meta) + '</span>' : '') + src + omni + '</span></div>';
   }
   // "This came from an omnibus, not a single-issue vote" for ONE vr_* record, read
   // through the SAME engine primitive the Voting Record cards use
@@ -1549,6 +1657,53 @@
     return '<div class="pdxcov" title="Coverage is partial and grows as more record is added. Shows how many of the issues they have taken a position on so far actually have a ' + esc(noun) + ' to check.">' +
       '📊 Based on <b>' + scored + '</b> of ~' + denom + ' tracked issue' + (denom === 1 ? '' : 's') + ' with a ' + esc(noun) + ' so far.</div>';
   }
+  // ── "12 mapped votes across 5 issues · See full record →" ────────────────────
+  // The section's own always-visible entry point into the Voting Record. Everything a
+  // reader needed before this existed was behind a row they had to think to expand,
+  // which left the honest answer to "where are the receipts?" one guess away.
+  //   Counted, never estimated: window._pdxRecordMappedCounts reads the same warm
+  // cache the rows do, and counts only records that carry an issue mapping. Empty
+  // string when nothing is warm or nothing is mapped, so a member with no record shows
+  // no claim about one.
+  function _orMappedSummaryText(counts) {
+    if (!counts || !counts.votes) return '';
+    var v = counts.votes, i = counts.issues;
+    var txt = v + ' mapped vote' + (v === 1 ? '' : 's') +
+      (i === 1 ? ' on 1 issue' : ' across ' + i + ' issues');
+    // One or two votes cannot carry a pattern. Saying so keeps the count from reading
+    // as depth it does not have — the same honesty the row-level "Limited" chip owes.
+    if (v <= 2) txt += ' so far — still a thin record';
+    return txt;
+  }
+  function _orMappedSummaryTip(counts) {
+    var tip = 'Counted from the voting record loaded for this member: records carrying at ' +
+      'least one issue mapping, which are the ones a stated position can be checked against.';
+    var un = (counts.total || 0) - counts.votes;
+    if (un > 0) {
+      tip += ' ' + un + ' further record' + (un === 1 ? '' : 's') + ' ' + (un === 1 ? 'is' : 'are') +
+        ' in the full list with no issue mapping yet.';
+    }
+    return tip;
+  }
+  function _orMappedSummaryHtml(pid) {
+    var counts = null;
+    try {
+      if (typeof window._pdxRecordMappedCounts === 'function') counts = window._pdxRecordMappedCounts(pid);
+    } catch (e) { counts = null; }
+    var txt = _orMappedSummaryText(counts);
+    if (!txt) return '';
+    var tip = _orMappedSummaryTip(counts);
+    var body = '<span class="pdxor-mapsum-ico" aria-hidden="true">🗂️</span>' +
+      '<span class="pdxor-mapsum-txt">' + esc(txt) + '</span>';
+    // No Voting Record section on the page → keep the count, drop the promise. A line
+    // that cannot go anywhere should not look like a link.
+    var live = document.getElementById && document.getElementById('pdxsec-voting');
+    if (!live) return '<div class="pdxor-mapsum pdxor-mapsum-flat" title="' + escAttr(tip) + '">' + body + '</div>';
+    return '<button type="button" class="pdxor-mapsum" data-pdxc-vrall="1"' +
+        ' title="' + escAttr(tip) + '">' + body +
+        '<span class="pdxor-mapsum-go">See full record →</span>' +
+      '</button>';
+  }
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
     var scored = [], awaiting = 0, anyPending = false, awaitingKeys = [];
@@ -1594,7 +1749,11 @@
         '<div class="pdxor-empty-why">' + LT('norecord', 'Why a record can be empty') +
           ': the issue may have been handled by ' + LT('voicevote', 'voice vote') +
           ' (no per-member record exists), or we have not documented that area yet.</div>';
-      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + emptyWhy + '</div>' + _orRawLink();
+      return head + '<div class="pdxor-empty">' + esc(emptyMsg) + emptyWhy + '</div>' +
+        // After the empty message, not before it: nothing here is checkable yet, so the
+        // record that DOES exist reads as "and here is what we have" rather than as a
+        // contradiction of the line above it.
+        _orMappedSummaryHtml(pid) + _orRawLink();
     }
 
     // Group by broad issue category.
@@ -1673,7 +1832,8 @@
         : '<div class="pdxor-awaiting">' + esc(head2) + '.</div>';
     }
 
-    return head + _coverageLine(scored.length, awaiting, 'formal record') + body + awaitingNote + _orRawLink();
+    return head + _orMappedSummaryHtml(pid) + _coverageLine(scored.length, awaiting, 'formal record') +
+      body + awaitingNote + _orRawLink();
   }
   function _orRawLink() {
     // Keep the raw Voting Record list one tap away (it still has value as a full list).
@@ -2203,10 +2363,14 @@
     // the reason a thin verdict is thin; proofText(item) → "H.R. 22 · On Motion to
     // Recommit · Voted Yea"; multiNote(item, issueKey) → "Yea counted for X / against
     // Y". None of them score, weight or fetch anything.
+    //   mappedSummary(counts) → the section's entry-line copy ("12 mapped votes across
+    // 5 issues"), from counts window._pdxRecordMappedCounts already produced; it only
+    // words a count, it never derives one.
     proof: {
       rowVerdict: _orRowVerdict,
       proofText: _orProofText,
       multiNote: _orRowMultiNote,
+      mappedSummary: _orMappedSummaryText,
       LABELS: _OR_ROW
     },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
