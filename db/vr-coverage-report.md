@@ -14,12 +14,12 @@ counted, and every row it accounts for is marked `pending`.
 |---|---|
 | Recorded yea/nay votes | 5,746 |
 | …on a measure with at least one issue mapping | 3,991 |
-| …of which the mapping is curated but not yet deployed | 147 |
-| …**and** the member holds a stated position on that key (rankable) | 1,619 |
+| …of which the mapping is curated but not yet deployed | 0 |
+| …**and** the member holds a stated position on that key (rankable) | 2,233 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **599**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **664**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -33,17 +33,6 @@ No measure carrying a vote is left without a title.
 ## Gap 1 — measures with votes and no issue mapping
 
 43 measure(s), 1,755 member-votes at stake.
-
-4 measure(s) carrying 147 member-votes have just left this
-list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are
-counted as mapped above rather than as a gap here.
-
-| member-votes | measure | keys awaiting deploy |
-|---:|---|---|
-| 38 | S.J.Res. 18 | `gov_regulation`, `econ_corp_account` |
-| 37 | H.J.Res. 78 | `lands_preserve`, `gov_regulation` |
-| 36 | H.R. 1005 | `gov_transparency` |
-| 36 | H.R. 1049 | `edu_parental`, `gov_transparency` |
 
 | member-votes | measure | title | |
 |---:|---|---|---|
@@ -123,88 +112,88 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,536 (member, issue) pairs, 11,276 member-votes.
+5,471 (member, issue) pairs, 10,662 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
 | member-votes | member | issue key | profile exists |
 |---:|---|---|---|
-| 14 | emmer | gov_regulation | yes |
-| 13 | mike_johnson | gov_regulation | yes |
-| 13 | scalise | gov_regulation | yes |
-| 12 | scalise | strong_defense | yes |
-| 12 | jim_jordan | gov_regulation | yes |
-| 11 | mike_johnson | strong_defense | yes |
-| 11 | emmer | strong_defense | yes |
-| 11 | aoc | strong_defense | yes |
-| 11 | aoc | gov_regulation | yes |
 | 11 | khanna | gov_regulation | yes |
-| 11 | owens | gov_regulation | yes |
-| 10 | julie_fedorchak | strong_defense | yes |
-| 10 | julie_fedorchak | cut_spending | yes |
-| 10 | troy_downing | strong_defense | yes |
-| 10 | troy_downing | cut_spending | yes |
 | 10 | mike_simpson | strong_defense | yes |
-| 10 | mike_simpson | cut_spending | yes |
-| 10 | mike_flood | strong_defense | yes |
 | 10 | jason_smith | strong_defense | yes |
-| 10 | jason_smith | cut_spending | yes |
 | 10 | kclark | strong_defense | yes |
-| 10 | kclark | cut_spending | yes |
-| 10 | khanna | cut_spending | yes |
-| 10 | massie | gov_regulation | yes |
-| 10 | tlaib | strong_defense | yes |
-| 10 | tlaib | cut_spending | yes |
-| 10 | jayapal | strong_defense | yes |
-| 10 | jayapal | cut_spending | yes |
-| 10 | tlaib | gov_regulation | yes |
-| 10 | jayapal | gov_regulation | yes |
 | 10 | crockett | strong_defense | yes |
-| 10 | khanna | strong_defense | yes |
-| 9 | aoc | cut_spending | yes |
 | 9 | jim_jordan | strong_defense | yes |
 | 9 | crockett | gov_regulation | yes |
-| 9 | bruce_westerman | gov_regulation | yes |
-| 9 | stephanie_bice | cut_spending | yes |
-| 9 | tom_cole | cut_spending | yes |
 | 9 | rob_bresnahan | cut_spending | yes |
 | 9 | rick_crawford | cut_spending | yes |
-| 9 | french_hill | cut_spending | yes |
 | 9 | mike_ezell | cut_spending | yes |
 | 9 | trent_kelly | cut_spending | yes |
-| 9 | michael_guest | cut_spending | yes |
-| 9 | maxine_waters | cut_spending | yes |
-| 9 | bennie_thompson | cut_spending | yes |
-| 9 | bruce_westerman | cut_spending | yes |
-| 9 | frank_lucas | cut_spending | yes |
-| 9 | mariannette_miller_meeks | cut_spending | yes |
-| 9 | mike_collins | cut_spending | yes |
-| 9 | rob_bresnahan | strong_defense | yes |
-| 9 | mike_collins | strong_defense | yes |
 | 9 | josh_brecheen | strong_defense | yes |
 | 9 | french_hill | strong_defense | yes |
 | 9 | maxine_waters | strong_defense | yes |
-| 9 | michael_guest | strong_defense | yes |
-| 9 | mariannette_miller_meeks | strong_defense | yes |
-| 9 | steve_womack | strong_defense | yes |
 | 9 | bruce_westerman | strong_defense | yes |
-| 9 | owens | america_first_fp | yes |
-| … | _5,476 more_ | | |
+| 9 | bennie_thompson | america_first_fp | yes |
+| 9 | bruce_westerman | america_first_fp | yes |
+| 9 | crockett | america_first_fp | yes |
+| 9 | jason_smith | america_first_fp | yes |
+| 9 | julie_fedorchak | america_first_fp | yes |
+| 9 | michael_guest | america_first_fp | yes |
+| 9 | mike_collins | america_first_fp | yes |
+| 9 | mike_ezell | america_first_fp | yes |
+| 9 | mike_flood | america_first_fp | yes |
+| 9 | mike_simpson | america_first_fp | yes |
+| 9 | rob_bresnahan | america_first_fp | yes |
+| 9 | scalise | america_first_fp | yes |
+| 9 | stephanie_bice | america_first_fp | yes |
+| 9 | trent_kelly | america_first_fp | yes |
+| 9 | troy_downing | america_first_fp | yes |
+| 8 | crockett | cut_spending | yes |
+| 8 | troy_downing | gov_regulation | yes |
+| 8 | mike_ezell | gov_regulation | yes |
+| 8 | tom_cole | gov_regulation | yes |
+| 8 | kclark | gov_regulation | yes |
+| 8 | trent_kelly | gov_regulation | yes |
+| 8 | don_davis | gov_regulation | yes |
+| 8 | josh_brecheen | gov_regulation | yes |
+| 8 | rob_bresnahan | gov_regulation | yes |
+| 8 | rick_crawford | gov_regulation | yes |
+| 8 | stephanie_bice | gov_regulation | yes |
+| 8 | mike_simpson | gov_regulation | yes |
+| 8 | mike_flood | gov_regulation | yes |
+| 8 | michael_guest | gov_regulation | yes |
+| 8 | ryan_mackenzie | gov_regulation | yes |
+| 8 | steve_womack | gov_regulation | yes |
+| 8 | mariannette_miller_meeks | gov_regulation | yes |
+| 8 | boebert | strong_defense | yes |
+| 8 | frank_lucas | strong_defense | yes |
+| 8 | emmer | america_first_fp | yes |
+| 8 | frank_lucas | america_first_fp | yes |
+| 7 | emmer | climate_action | yes |
+| 7 | emmer | states_federal_power | yes |
+| 7 | jim_jordan | climate_action | yes |
+| 7 | mike_johnson | gov_transparency | yes |
+| 7 | scalise | gov_transparency | yes |
+| 7 | jim_jordan | gov_transparency | yes |
+| 7 | owens | gov_transparency | yes |
+| 7 | khanna | gov_transparency | yes |
+| 7 | scott_perry | gov_regulation | yes |
+| … | _5,411 more_ | | |
 
 ## Gap 2 rolled up by issue
 
 | member-votes | issue key | members missing a position |
 |---:|---|---:|
-| 819 | gov_regulation | 203 |
+| 665 | gov_regulation | 187 |
 | 639 | states_federal_power | 199 |
 | 619 | climate_action | 202 |
-| 596 | strong_defense | 112 |
-| 583 | cut_spending | 135 |
 | 514 | cost_living | 206 |
 | 509 | energy_production | 170 |
-| 450 | america_first_fp | 113 |
+| 439 | strong_defense | 96 |
 | 414 | national_debt | 125 |
+| 404 | cut_spending | 116 |
 | 367 | gov_transparency | 112 |
+| 326 | america_first_fp | 99 |
 | 282 | tough_on_crime | 106 |
 | 267 | gov_services | 117 |
 | 265 | foreign_balance | 100 |
