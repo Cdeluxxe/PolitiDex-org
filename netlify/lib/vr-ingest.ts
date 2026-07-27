@@ -652,6 +652,32 @@ export async function ingestVotes(
       }
 
       // Roll call — idempotent on (chamber, congress, session, rollNumber).
+      //
+      // The conflict branch is a REPAIR path, not a plain refresh. Before it existed a
+      // row written by an earlier, buggier pull kept its defects forever: every House
+      // roll call ingested while the classifier read voteType instead of the question
+      // landed with question = NULL and action_type = 'passage', and no later pull —
+      // however correct — could overwrite either field. So a motion to recommit stayed
+      // recorded as a full-weight passage vote until someone wrote a migration for that
+      // one row by hand. Now a correct later pull heals it.
+      //
+      // Non-destructive by construction, in both directions:
+      //   • question is filled ONLY when the stored one is NULL/blank and the incoming
+      //     one is present. A stored question is never replaced and never blanked — an
+      //     incoming NULL leaves the row alone, so a pull from an endpoint that omits
+      //     the question cannot erase text an earlier pull (or a migration) supplied.
+      //   • action_type follows the question. It is re-derived only when the stored
+      //     value provably came from no information: the stored question was blank, or
+      //     the type is the explicit 'unknown', or it is the weak 'passage' default
+      //     sitting on a question IDENTICAL to the incoming one whose own derivation
+      //     says otherwise. That last case is the pre-fix classifier's signature, and
+      //     matching on identical text is what makes the re-derivation sound —
+      //     excluded.action_type IS mapActionType() of that same string. A curated or
+      //     migration-corrected type on a row with a real question is left alone.
+      // Nothing here invents text: every value written is either already in the row or
+      // came from the incoming record.
+      const storedQ = sql`coalesce(btrim(${vrRollcalls.question}), '')`;
+      const incomingQ = sql`coalesce(btrim(excluded.question), '')`;
       const [rc] = await db
         .insert(vrRollcalls)
         .values({
@@ -662,7 +688,23 @@ export async function ingestVotes(
         })
         .onConflictDoUpdate({
           target: [vrRollcalls.chamber, vrRollcalls.congress, vrRollcalls.session, vrRollcalls.rollNumber],
-          set: { result: v.result, totals: v.totals || {}, measureId, updatedAt: new Date() },
+          set: {
+            result: v.result,
+            totals: v.totals || {},
+            measureId,
+            question: sql`CASE WHEN ${storedQ} = '' AND ${incomingQ} <> ''
+                               THEN excluded.question
+                               ELSE ${vrRollcalls.question} END`,
+            actionType: sql`CASE
+                 WHEN ${incomingQ} = '' THEN ${vrRollcalls.actionType}
+                 WHEN ${storedQ} = '' THEN excluded.action_type
+                 WHEN ${vrRollcalls.actionType} = 'unknown' THEN excluded.action_type
+                 WHEN ${vrRollcalls.actionType} = 'passage'
+                  AND lower(${storedQ}) = lower(${incomingQ})
+                  AND excluded.action_type <> 'passage' THEN excluded.action_type
+                 ELSE ${vrRollcalls.actionType} END`,
+            updatedAt: new Date(),
+          },
         })
         .returning({ id: vrRollcalls.id });
       report.rollcallsUpserted++;
