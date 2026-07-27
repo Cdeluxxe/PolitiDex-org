@@ -714,6 +714,64 @@
       '.pdxor-omni{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.2rem;}' +
       '.pdxor-omni b{color:#c6d4ec;font-weight:700;}' +
       '.pdxor-omnichip{display:inline-flex;align-items:center;gap:0.2rem;font-size:0.6rem;font-weight:700;color:#93a6c4;border:1px dashed rgba(147,166,196,0.4);border-radius:999px;padding:0.05rem 0.4rem;white-space:nowrap;cursor:help;}' +
+      // ── Stance-row proof (Says · Record · which vote) ────────────────────────
+      // The row is a <details>: the summary carries the scannable answer (stated
+      // position, what the record shows, the decisive bill), the body carries every
+      // mapped vote and the deep links. Native disclosure, so keyboard, screen-reader
+      // and find-in-page behaviour come for free and no JS is needed to open a row.
+      '.pdxor-row>summary{list-style:none;cursor:pointer;display:block;}' +
+      '.pdxor-row>summary::-webkit-details-marker{display:none;}' +
+      '.pdxor-row>summary::marker{content:"";}' +
+      '.pdxor-row>summary:focus-visible{outline:2px solid #7fb4ff;outline-offset:3px;border-radius:0.4rem;}' +
+      '.pdxor-row[open]{border-color:rgba(255,255,255,0.16);background:rgba(10,15,30,0.5);}' +
+      '.pdxor-caret{margin-left:auto;flex-shrink:0;font-size:0.7rem;color:#7e93b3;transition:transform .15s ease;}' +
+      '.pdxor-row[open] .pdxor-caret{transform:rotate(180deg);}' +
+      '@media (prefers-reduced-motion:reduce){.pdxor-caret{transition:none;}}' +
+      // The "Says: Supports" chip's honest counterpart — no stated position to check
+      // the mapped votes against. Dashed so it never reads as a stated stance.
+      '.pdxor-stance-none{border-style:dashed;font-weight:600;}' +
+      // "Record: …" chip. Slightly wider tracking than a bare verdict chip because it
+      // now carries a label AND a value, and the two must not run together.
+      '.pdxor-recchip{cursor:help;}' +
+      // The proof line: which bill, which question, which way they voted. Always
+      // visible — this is the whole point of the row, not a detail behind a tap.
+      '.pdxor-proofs{margin-top:0.35rem;display:flex;flex-direction:column;gap:0.2rem;}' +
+      '.pdxor-proof{display:flex;align-items:baseline;gap:0.35rem;font-size:0.7rem;color:#c6d4ec;line-height:1.4;}' +
+      '.pdxor-proof-ico{flex-shrink:0;font-size:0.72rem;}' +
+      '.pdxor-proof-txt{min-width:0;}' +
+      '.pdxor-proof-bill{color:#e8eefc;font-weight:700;letter-spacing:0.01em;}' +
+      '.pdxor-proof-txt b{color:#e8eefc;font-weight:700;}' +
+      // The multi-issue slice, e.g. "Yea counted for Lower Taxes / against Health
+      // Care". Its own line so a long pairing never squeezes the bill name.
+      '.pdxor-proof-multi{display:block;font-size:0.64rem;color:#93a6c4;line-height:1.4;margin-top:0.1rem;}' +
+      // Why a verdict is a shrug — shown inside the opened row, where there is room.
+      '.pdxor-why{font-size:0.68rem;color:#9fb4d4;line-height:1.5;margin:0.45rem 0 0.1rem;padding:0.35rem 0.5rem;border-radius:0.45rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);}' +
+      '.pdxor-acts-open{margin-top:0.35rem;}' +
+      '.pdxor-act-more{color:#7e93b3;font-style:italic;}' +
+      // Deep link out of the row into the full Voting Record, pre-filtered to the issue.
+      '.pdxor-vrlink{display:inline-block;margin-top:0.45rem;background:none;border:none;padding:0.2rem 0;cursor:pointer;font-family:inherit;font-size:0.68rem;font-weight:700;letter-spacing:0.02em;color:#7fb4ff;text-align:left;}' +
+      '.pdxor-vrlink:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
+      '.pdxor-vrlink:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.3rem;}' +
+      // "No votes yet" stances, listed rather than only counted.
+      '.pdxor-awaiting-d>summary{list-style:none;cursor:pointer;}' +
+      '.pdxor-awaiting-d>summary::-webkit-details-marker{display:none;}' +
+      '.pdxor-await-body{margin-top:0.45rem;}' +
+      '.pdxor-issue-await{padding:0.4rem 0.55rem;margin-bottom:0.35rem;background:rgba(10,15,30,0.25);}' +
+      // Mobile: keep rows scannable. The issue name takes its own full-width line so
+      // the chips below it stay on one row instead of each wrapping to its own, the
+      // caret pins to the name's line, and every tap target keeps a comfortable
+      // height without growing the row.
+      '@media (max-width:480px){' +
+        '.pdxor-issue{padding:0.5rem 0.55rem;}' +
+        '.pdxor-issue-top{gap:0.3rem 0.35rem;}' +
+        '.pdxor-issue-lbl{flex:1 0 100%;min-width:0;font-size:0.8rem;}' +
+        '.pdxor-caret{margin-left:0;position:absolute;right:0.55rem;top:0.5rem;}' +
+        '.pdxor-row{position:relative;}' +
+        '.pdxor-row>summary .pdxor-issue-lbl{padding-right:1.1rem;}' +
+        '.pdxor-proof{font-size:0.68rem;}' +
+        '.pdxor-proof-multi{font-size:0.62rem;}' +
+        '.pdxor-vrlink{padding:0.35rem 0;}' +
+      '}' +
       '.pdxor-empty{font-size:0.76rem;color:#9fb4d4;padding:0.7rem 0.2rem;line-height:1.4;}' +
       // Second, quieter line under an empty state: what an empty record actually
       // means. Muted on purpose — it explains the absence, it isn't a finding.
@@ -960,6 +1018,14 @@
     if (_gateBound || !document.addEventListener) return;
     _gateBound = true;
     document.addEventListener('click', function (e) {
+      // Deep link from a stance row into the full Voting Record, filtered to that
+      // issue. Checked before the gap link so a row can carry both.
+      var vrl = e.target.closest && e.target.closest('[data-pdxc-vrissue]');
+      if (vrl) {
+        e.preventDefault();
+        _openVotingIssue(vrl.getAttribute('data-pdxc-vrissue') || '');
+        return;
+      }
       var gap = e.target.closest && e.target.closest('[data-pdxc-gap]');
       if (gap) {
         e.preventDefault();
@@ -1041,6 +1107,287 @@
         ' from ' + LT('omnibus', 'multi-issue bills') + '</span>';
     } catch (e) { return ''; }
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SAY-VS-DO PROOF ON A STANCE ROW
+  // ═══════════════════════════════════════════════════════════════════════════
+  // A stance row used to end at a verdict label, so a thin record rendered as
+  // "Limited voting record · 🧩 1 of 1 from multi-issue bills" — a count with no
+  // subject. The reader never learned WHICH bill, which slice of it was mapped to
+  // this issue, or which way the member actually voted. Everything below names that
+  // proof, so each row answers four questions in order: what they say, what the
+  // record shows, which vote backs it, and how confident that reading is.
+  //
+  // Nothing here scores, re-weights, filters or invents anything. Every field is read
+  // from the SAME warm vr_* records and the SAME engine primitives the Official
+  // Record % is already built from (_pdxRecordIssueSummary, _pdxRecordIssueItems,
+  // _measureComponentBreakdown, _measureOmnibusContext). Each helper returns '' when
+  // its source is unavailable, so a row degrades to exactly what it rendered before.
+  function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
+  function _tc(s) {
+    return String(s == null ? '' : s).replace(/[_-]+/g, ' ').trim()
+      .replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); });
+  }
+
+  // ── Row-level record vocabulary ─────────────────────────────────────────────
+  // Deliberately shorter and more concrete than the section-level SCOPES.empty copy:
+  // a row is scanned, not read, and it already carries the issue name beside it. So
+  // "Limited voting record" (which reads as a verdict on the member) becomes
+  // "Record: Limited · 1 vote" (which reads as a fact about our data), and the reason
+  // moves to the proof line underneath where there is room to state it.
+  var _OR_ROW = {
+    consistent:  { ico: '✓', label: 'Backed it up',   cls: 'consistent' },
+    contradicts: { ico: '⚠', label: 'Contradicts',    cls: 'contradicts' },
+    mixed:       { ico: '◑', label: 'Cuts both ways', cls: 'mixed' },
+    limited:     { ico: '…', label: 'Limited',        cls: 'limited' },
+    no_record:   { ico: '—', label: 'No votes yet',   cls: 'none' },
+    no_stance:   { ico: '—', label: 'No votes yet',   cls: 'none' },
+    pending:     { ico: '⏳', label: 'Checking record…', cls: 'pending' }
+  };
+  // Pure: an officialIssue() read → what the row's record chip should say, plus the
+  // one-line reason when the verdict is a shrug. `why` is the piece that used to be
+  // missing entirely: "Limited" has several distinct causes and they are not
+  // interchangeable to a reader deciding whether to trust the row.
+  function _orRowVerdict(ov) {
+    var token = (ov && ov.token) || 'no_record';
+    var m = _OR_ROW[token] || _OR_ROW.no_record;
+    var rec = (ov && ov.record) || null;
+    var acts = (ov && ov.officialActions) || null;
+    var total = rec ? (rec.total || 0) : (acts ? (acts.total || 0) : 0);
+    var why = '';
+    if (token === 'limited') {
+      if (rec && !rec.hasStance) {
+        why = total === 1
+          ? 'One vote is mapped to this issue, but they have not stated a position on it — so there is nothing to check the vote against.'
+          : total + ' votes are mapped to this issue, but they have not stated a position on it — so there is nothing to check them against.';
+      } else if (rec && rec.noPosition >= total && total > 0) {
+        why = total === 1
+          ? 'The one vote mapped here took no clear position on this issue.'
+          : 'The ' + total + ' votes mapped here took no clear position on this issue.';
+      } else {
+        why = 'Not enough directional votes on this issue to call it either way yet.';
+      }
+    } else if (token === 'no_record' || token === 'no_stance') {
+      why = 'They have stated a position, but no qualifying vote has been mapped to this issue yet. That is our coverage, not a verdict.';
+    }
+    return {
+      key: token, ico: m.ico, label: m.label, cls: m.cls, why: why, total: total,
+      // "1 vote" / "3 votes" beside a thin label turns a shrug into a fact.
+      count: total ? (total + (total === 1 ? ' vote' : ' votes')) : ''
+    };
+  }
+  function _orRecordChipHtml(ov) {
+    var rv = _orRowVerdict(ov);
+    var tail = (rv.key === 'limited' && rv.count) ? ' · ' + rv.count : '';
+    var tip = rv.why || 'What their formal record shows on this issue, checked against the position they state.';
+    return '<span class="pdxc-chip pdxc-' + rv.cls + ' pdxor-recchip" title="' + escAttr(tip) + '">' +
+      rv.ico + ' Record: ' + esc(rv.label) + esc(tail) + '</span>';
+  }
+  // "What they say", with an honest fallback. When there is no stated position but
+  // votes ARE mapped, the absence is usually the reason the verdict reads "Limited",
+  // so name it instead of dropping the chip and leaving the reader to guess.
+  function _orSaysChipHtml(pid, issueKey, ov) {
+    var chip = _orStanceChip(pid, issueKey);
+    if (chip) return chip;
+    if (!(ov && ov.record && ov.record.total)) return '';
+    return '<span class="pdxor-stance pdxor-stance-none" style="--c:#9fb4d4"' +
+      ' title="Votes are mapped to this issue, but they have not stated a position we can check them against.">' +
+      '💬 Says: Nothing stated yet</span>';
+  }
+
+  // ── One record → its printable proof fields ─────────────────────────────────
+  // Pure; reads only fields the voting-record normalizer already sets. `question` is
+  // the roll-call question a vote actually answered ("On Motion to Recommit"), which
+  // is the piece that decides how a Yea should be read — a position's `action` is a
+  // slug, so that one gets title-cased.
+  function _orProofBits(item) {
+    if (!item) return null;
+    var src = item.source;
+    var url = item.sourceUrl || (src && typeof src === 'object' ? src.url : '') || '';
+    var lbl = item.sourceLabel || (src && typeof src === 'object' ? src.label : '') ||
+      (typeof src === 'string' ? src : '') || 'Congress.gov';
+    return {
+      bill: item.number ? String(item.number) : '',
+      title: item.title ? String(item.title) : '',
+      question: item.action ? (item.kind === 'position' ? _tc(item.action) : String(item.action)) : '',
+      position: item.position ? _tc(item.position) : '',
+      date: item.date ? String(item.date) : '',
+      url: url, label: lbl
+    };
+  }
+  // "H.R. 22 · On Motion to Recommit · Voted Yea" — the bill, the question, the vote.
+  // Falls back to the measure title when a record carries no number, so a row never
+  // prints an empty proof. Pure, no HTML.
+  function _orProofText(item) {
+    var b = _orProofBits(item);
+    if (!b) return '';
+    var parts = [];
+    if (b.bill) parts.push(b.bill);
+    else if (b.title) parts.push(b.title);
+    if (b.question) parts.push(b.question);
+    if (b.position) parts.push('Voted ' + b.position);
+    return parts.join(' · ');
+  }
+  // The multi-issue disclosure, compressed to row scale: "Yea counted for Lower
+  // Taxes / against Health Care". Reads the same _measureOmnibusContext primitive the
+  // longer prose note uses, so a single roll call landing opposite ways on two issues
+  // is stated the same wherever it appears. '' for single-issue votes.
+  function _orRowMultiNote(item, issueKey) {
+    if (!item || typeof window._measureOmnibusContext !== 'function') return '';
+    var ctx;
+    try { ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel }); }
+    catch (e) { return ''; }
+    if (!ctx) return '';
+    var adv = [], opp = [];
+    if (ctx.thisIssue) {
+      if (ctx.thisIssue.effect === 'advances') adv.push(ctx.thisIssue);
+      else if (ctx.thisIssue.effect === 'opposes') opp.push(ctx.thisIssue);
+    }
+    ctx.advances.forEach(function (c) { adv.push(c); });
+    ctx.opposes.forEach(function (c) { opp.push(c); });
+    var names = function (list) {
+      var out = list.slice(0, 2).map(function (c) { return String(c.label); });
+      if (list.length > 2) out.push('+' + (list.length - 2) + ' more');
+      return out.join(', ');
+    };
+    var parts = [];
+    if (adv.length) parts.push('for ' + names(adv));
+    if (opp.length) parts.push('against ' + names(opp));
+    if (!parts.length) return 'One vote, ' + ctx.count + ' issues — no clear position on any of them.';
+    var lead = item.position ? _tc(item.position) + ' counted' : 'This vote counted';
+    return lead + ' ' + parts.join(' / ');
+  }
+  // This record's verdict on THIS issue, via the same breakdown primitive the
+  // aggregate uses — so a per-vote icon can never disagree with the row's own maths.
+  function _orItemVerdict(item, issueKey, stance) {
+    try {
+      if (typeof window._measureComponentBreakdown !== 'function') return 'limited';
+      var pm = {};
+      if (stance) pm[issueKey] = { stance: stance };
+      var brk = window._measureComponentBreakdown(item, pm, { labelFn: _issueLabel });
+      for (var i = 0; i < brk.components.length; i++) {
+        if (brk.components[i].issueKey !== issueKey) continue;
+        var v = brk.components[i].verdict;
+        return (v === 'consistent' || v === 'contradicts' || v === 'mixed') ? v : 'limited';
+      }
+    } catch (e) {}
+    return 'limited';
+  }
+  // Which records a row should quote, decisive-first. The engine summary keeps only
+  // the strongest vote each way, and on a thin row it keeps NEITHER — that is exactly
+  // the case that used to render as a bare count, so we fall back to the raw mapped
+  // records and name the bill anyway. De-duplicated, never re-ordered by verdict
+  // beyond "contradiction before confirmation" (the sharper signal first).
+  function _orProofPicks(pid, issueKey, ov, limit) {
+    var picks = [], seen = {};
+    var rec = (ov && ov.record) || null;
+    if (!rec) return picks;
+    var stance = rec.stance || null;
+    var key = function (it) {
+      return [it.rollcallId || '', it.measureId || '', it.number || '', it.date || '', it.action || ''].join('|');
+    };
+    var push = function (item, verdict) {
+      if (!item || (limit && picks.length >= limit)) return;
+      var k = key(item);
+      if (seen[k]) return;
+      seen[k] = 1;
+      picks.push({ item: item, verdict: verdict || _orItemVerdict(item, issueKey, stance) });
+    };
+    push(rec.topContradiction, 'contradicts');
+    push(rec.topConsistent, 'consistent');
+    if (!limit || picks.length < limit) {
+      var items = [];
+      try {
+        if (typeof window._pdxRecordIssueItems === 'function') items = window._pdxRecordIssueItems(pid, issueKey) || [];
+      } catch (e) { items = []; }
+      for (var i = 0; i < items.length; i++) push(items[i], null);
+    }
+    return picks;
+  }
+  // The compact, always-visible proof line(s) under a row's chips. `limit` is small on
+  // purpose: one line for a deep record (the decisive vote), two when the whole record
+  // IS one or two votes — those rows are precisely the ones that used to hide behind a
+  // weak label, so they show their entire evidence base up front.
+  function _orProofHtml(pid, issueKey, ov, limit) {
+    var picks = _orProofPicks(pid, issueKey, ov, limit || 1);
+    if (!picks.length) return '';
+    return '<div class="pdxor-proofs">' + picks.map(function (p) {
+      var mv = VERDICTS[p.verdict] || VERDICTS.limited;
+      var txt = _orProofText(p.item);
+      if (!txt) return '';
+      var multi = _orRowMultiNote(p.item, issueKey);
+      var b = _orProofBits(p.item);
+      var bill = b.bill ? '<b class="pdxor-proof-bill">' + esc(b.bill) + '</b>' : '';
+      var restBits = [];
+      if (!b.bill && b.title) restBits.push(esc(b.title));
+      if (b.question) restBits.push(esc(b.question));
+      if (b.position) restBits.push('Voted <b>' + esc(b.position) + '</b>');
+      var rest = restBits.length ? (bill ? ' · ' : '') + restBits.join(' · ') : '';
+      return '<div class="pdxor-proof">' +
+          '<span class="pdxor-proof-ico" style="color:' + mv.color + '" aria-hidden="true">' + mv.ico + '</span>' +
+          '<span class="pdxor-proof-txt">' + bill + rest +
+            (multi ? '<span class="pdxor-proof-multi">🧩 ' + esc(multi) + '</span>' : '') +
+          '</span>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  // Every record behind the row, expanded — the full mapped list rather than the
+  // summary's strongest-each-way pair, so the count in the chip and the number of
+  // lines here agree. Falls back to _orEvidenceItems when the raw records are not
+  // reachable, so this can only ever add detail, never remove it.
+  var _OR_ROW_EVIDENCE_MAX = 8;
+  function _orRowEvidenceHtml(pid, issueKey, ov) {
+    var lines = [], extra = '';
+    if (ov && ov.officialActions && ov.officialActions.items) {
+      ov.officialActions.items.forEach(function (a) {
+        lines.push(_orActLine(a.verdict, a.headline || 'Formal action', a.date || '', a.sourceUrl, a.sourceLabel));
+      });
+    }
+    var picks = _orProofPicks(pid, issueKey, ov, 0);
+    if (picks.length > _OR_ROW_EVIDENCE_MAX) {
+      extra = '<div class="pdxor-act pdxor-act-more">' +
+        esc('+ ' + (picks.length - _OR_ROW_EVIDENCE_MAX) + ' more mapped ' +
+          (picks.length - _OR_ROW_EVIDENCE_MAX === 1 ? 'vote' : 'votes') + ' — open the full record below.') + '</div>';
+      picks = picks.slice(0, _OR_ROW_EVIDENCE_MAX);
+    }
+    picks.forEach(function (p) {
+      var b = _orProofBits(p.item);
+      var meta = [b.question, b.position ? 'Voted ' + b.position : '', b.date].filter(Boolean).join(' · ');
+      lines.push(_orActLine(p.verdict, b.bill || b.title || 'Recorded vote',
+        meta, b.url, b.label, _orOmniNote(p.item, issueKey)));
+    });
+    if (!lines.length) lines = _orEvidenceItems(ov);
+    if (!lines.length) return '';
+    return '<div class="pdxor-acts-open">' + lines.join('') + extra + '</div>';
+  }
+  // "See all N mapped votes on <issue> →" — the deep link out of the row into the full
+  // Voting Record, pre-filtered to this issue (see _pdxVotingRecordFocusIssue in
+  // voting-record.js). Rendered only when that list actually has something to show.
+  function _orRowVrLinkHtml(pid, issueKey, ov) {
+    var total = (ov && ov.record) ? (ov.record.total || 0) : 0;
+    if (!total) return '';
+    var label = total === 1
+      ? 'Open this vote in the full record →'
+      : 'See all ' + total + ' mapped votes on ' + _issueLabel(issueKey) + ' →';
+    return '<button type="button" class="pdxor-vrlink" data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
+      ' data-pdxc-vrpid="' + escAttr(pid) + '">' + esc(label) + '</button>';
+  }
+  function _orWhyHtml(ov) {
+    var rv = _orRowVerdict(ov);
+    return rv.why ? '<div class="pdxor-why">' + esc(rv.why) + '</div>' : '';
+  }
+  // Jump into the full Voting Record, filtered to one issue when that section is live.
+  // Falls back to a plain jump, then to a scroll — the link is never a dead end.
+  function _openVotingIssue(issueKey) {
+    try {
+      if (typeof window._pdxVotingRecordFocusIssue === 'function' &&
+          window._pdxVotingRecordFocusIssue(issueKey)) return;
+    } catch (e) {}
+    if (typeof window._pdxNavJump === 'function') { window._pdxNavJump('pdxsec-voting'); return; }
+    var el = document.getElementById('pdxsec-voting');
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   // ── Composition / confidence indicator ON the Official Record % ─────────────
   // The % is consistent ÷ (consistent + contradicts), so a member whose entire
   // percentage on an issue rests on ONE omnibus vote used to render identically to a
@@ -1188,6 +1535,9 @@
     var n = lines.length;
     return '<details class="pdxor-acts"><summary>' + n + ' supporting ' + (n === 1 ? 'action' : 'actions') + ' ▾</summary>' + lines.join('') + '</details>';
   }
+  // Retained for any surface still collapsing evidence behind a summary; the profile's
+  // Official Record rows now open their own evidence in place (see _orRowEvidenceHtml).
+  void _orSupportingHtml;
   // Phase 10 honest coverage line: "Based on N of ~M tracked issues …". N = issues
   // actually scored on this side; M ≈ issues in play (scored + those with a stated
   // position still awaiting a record). Approximate by design ("~", "tracked so far")
@@ -1201,7 +1551,7 @@
   }
   function _orInner(pid) {
     var keys = issuesWithSignal(pid, 'official');
-    var scored = [], awaiting = 0, anyPending = false;
+    var scored = [], awaiting = 0, anyPending = false, awaitingKeys = [];
     keys.forEach(function (k) {
       var ov = officialIssue(pid, k);
       if (ov.token === 'pending') { anyPending = true; awaiting++; return; }
@@ -1209,6 +1559,8 @@
         scored.push({ key: k, ov: ov });
       } else {
         awaiting++; // no_record / no_stance — stated position with nothing to score yet
+        // Kept so the count can name the issues instead of only tallying them.
+        awaitingKeys.push(k);
       }
     });
 
@@ -1268,21 +1620,58 @@
         var pct = (typeof s.ov.score === 'number') ? '<span class="pdxor-pct" style="color:' + v.color + '">' + s.ov.score + '%</span>' : '';
         // Depth/composition of the record behind that %, immediately after it.
         var comp = _orCompositionHtml(pid, s.key, s.ov);
-        return '<div class="pdxor-issue">' +
-            '<div class="pdxor-issue-top">' +
-              '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
-              _orStanceChip(pid, s.key) +
-              '<span class="pdxc-chip pdxc-' + v.cls + '">' + v.ico + ' ' + esc(v.label) + '</span>' + pct + comp +
-              _orOmniChip(pid, s.key) +
-            '</div>' + _orSupportingHtml(s.ov) + _gapLinkHtml(pid, s.key) +
-          '</div>';
+        // A row whose ENTIRE record is one or two votes shows both up front — those
+        // are exactly the rows that used to read as "Limited voting record" with the
+        // bill unnamed. Deeper rows quote the decisive vote and keep the rest one tap
+        // away, so the list stays scannable.
+        var total = (s.ov.record && s.ov.record.total) || 0;
+        var inline = (total && total <= 2) ? 2 : 1;
+        return '<details class="pdxor-issue pdxor-row" data-pdxc-row="' + escAttr(s.key) + '">' +
+            '<summary class="pdxor-row-sum">' +
+              '<div class="pdxor-issue-top">' +
+                '<span class="pdxor-issue-lbl">' + esc(issueLabel(s.key)) + '</span>' +
+                _orSaysChipHtml(pid, s.key, s.ov) +
+                _orRecordChipHtml(s.ov) + pct + comp +
+                _orOmniChip(pid, s.key) +
+                '<span class="pdxor-caret" aria-hidden="true">▾</span>' +
+              '</div>' +
+              _orProofHtml(pid, s.key, s.ov, inline) +
+            '</summary>' +
+            '<div class="pdxor-row-body">' +
+              _orWhyHtml(s.ov) +
+              _orRowEvidenceHtml(pid, s.key, s.ov) +
+              _orRowVrLinkHtml(pid, s.key, s.ov) +
+              _gapLinkHtml(pid, s.key) +
+            '</div>' +
+          '</details>';
       }).join('');
       return '<div class="pdxor-cat"><div class="pdxor-cat-h">' + esc(grp.label) + '</div>' + rows + '</div>';
     }).join('');
 
-    var awaitingNote = awaiting > 0
-      ? '<div class="pdxor-awaiting">➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' + (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet.</div>'
-      : '';
+    // Stated positions with nothing mapped to them yet. Previously a bare count, which
+    // left "which issues?" unanswerable without leaving the profile. Now the count
+    // opens the list, each row labelled with the same Says / Record vocabulary as a
+    // scored row — so "No votes yet" reads as the coverage gap it is, in the same
+    // language, rather than as a different kind of silence.
+    var awaitingNote = '';
+    if (awaiting > 0) {
+      var awaitRows = awaitingKeys.map(function (k) {
+        var ov = officialIssue(pid, k);
+        return '<div class="pdxor-issue pdxor-issue-await">' +
+            '<div class="pdxor-issue-top">' +
+              '<span class="pdxor-issue-lbl">' + esc(issueLabel(k)) + '</span>' +
+              _orStanceChip(pid, k) +
+              _orRecordChipHtml(ov) +
+            '</div>' +
+          '</div>';
+      }).join('');
+      var head2 = '➕ ' + awaiting + ' more stated position' + (awaiting === 1 ? '' : 's') + ' ' +
+        (awaiting === 1 ? 'has' : 'have') + ' no qualifying votes on record yet';
+      awaitingNote = awaitRows
+        ? '<details class="pdxor-awaiting-d"><summary class="pdxor-awaiting">' + esc(head2) + ' ▾</summary>' +
+            '<div class="pdxor-await-body">' + awaitRows + '</div></details>'
+        : '<div class="pdxor-awaiting">' + esc(head2) + '.</div>';
+    }
 
     return head + _coverageLine(scored.length, awaiting, 'formal record') + body + awaitingNote + _orRawLink();
   }
@@ -1808,6 +2197,18 @@
     // thresholds and fails if the explainer copy has drifted from them. Exposing
     // it keeps that check behavioural instead of scraping source for a literal.
     saydoScore: saydoScore,
+    // Pure row-proof helpers behind the profile's Official Record stance rows, exposed
+    // read-only so scripts/test-or-proof.mjs can gate the LANGUAGE and the proof
+    // formatting without a DOM: rowVerdict(ov) → the row's Record chip vocabulary +
+    // the reason a thin verdict is thin; proofText(item) → "H.R. 22 · On Motion to
+    // Recommit · Voted Yea"; multiNote(item, issueKey) → "Yea counted for X / against
+    // Y". None of them score, weight or fetch anything.
+    proof: {
+      rowVerdict: _orRowVerdict,
+      proofText: _orProofText,
+      multiNote: _orRowMultiNote,
+      LABELS: _OR_ROW
+    },
     // Migrated formal-action feeder (Phase 3): the curated 'voting' receipts, now
     // reassigned to the Official Record. Exposed for reporting / debugging.
     officialActions: {

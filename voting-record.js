@@ -1088,6 +1088,30 @@
     };
   }
 
+  // ── Deep link: open the full Voting Record filtered to ONE issue ─────────────
+  // The profile's Official Record stance rows name the decisive bill inline, but a
+  // reader who wants the rest of the votes behind that verdict needs the full list
+  // pre-filtered, not a jump to an unfiltered section they then have to filter by
+  // hand. Reuses the exact filter path the issue chips already use (set
+  // _state.filters.issue → applyFilters → renderBody repaints the chips), then jumps
+  // to the section. Returns false when the section isn't live for this member so the
+  // caller can fall back to a plain jump — it never throws and never fabricates data.
+  window._pdxVotingRecordFocusIssue = function (issueKey) {
+    try {
+      if (!_state || !_state.id) return false;
+      var sec = document.getElementById('pdx-voting-record');
+      if (!sec || sec.style.display === 'none') return false;
+      if (issueKey && _state.filters.issue !== issueKey) {
+        _state.filters.issue = issueKey;
+        // Grouping mode ('' sort) keeps the issue heading visible above the cards.
+        applyFilters();
+      }
+      if (typeof window._pdxNavJump === 'function') window._pdxNavJump('pdxsec-voting');
+      else if (sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    } catch (e) { return false; }
+  };
+
   function renderErrorInline() {
     var root = document.getElementById('pdx-vr-list');
     if (root) root.innerHTML = '<div class="vr-empty"><span class="vr-empty-ico">📡</span>Couldn’t load the voting record right now. Check your connection and try again.' +
@@ -1306,6 +1330,33 @@
     var pm = (window._polPositionMap && cmp) ? (window._polPositionMap(pid, cmp) || {}) : {};
     var stance = pm[issueKey] ? pm[issueKey].stance : null;
     return window._issueRecordSummary(issueKey, stance, on);
+  };
+
+  // The RAW records behind a (member, issue) summary, newest first. Same filter and
+  // same warm cache as _pdxRecordIssueSummary above — this simply hands back the
+  // items instead of the aggregate, so a surface can NAME the bill and roll-call
+  // question a verdict rests on rather than printing a bare count. Pure, synchronous,
+  // never fetches: returns null when no record is warm for that member, and [] when
+  // the member has a record but nothing mapped to this issue.
+  //   Used by the profile's Official Record stance rows (consistency.js) to show the
+  //   proof line "H.R. 22 · On Motion to Recommit · Voted Yea", including in the thin
+  //   "limited" case where the summary keeps no top-consistent / top-contradicting
+  //   item to point at.
+  window._pdxRecordIssueItems = function (pid, issueKey) {
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs) return null;
+    var on = recs.filter(function (it) {
+      return it && it.issues && it.issues.some(function (m) { return m && m.issueKey === issueKey; });
+    });
+    // Newest first, so the proof line quotes the most recent vote on the issue.
+    // Undated records sort last rather than being dropped.
+    return on.slice().sort(function (a, b) {
+      var ad = a.date || '', bd = b.date || '';
+      if (ad === bd) return 0;
+      if (!ad) return 1;
+      if (!bd) return -1;
+      return ad < bd ? 1 : -1;
+    });
   };
 
   // Companion to the summary above: where that (member, issue) verdict CAME from —
