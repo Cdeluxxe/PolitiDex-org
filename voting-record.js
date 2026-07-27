@@ -115,6 +115,12 @@
       '.vr-group-n{font-size:.68rem;color:#7596c0;background:rgba(255,255,255,.06);border-radius:999px;padding:.06rem .45rem;}',
       '.vr-group-omni{font-size:.68rem;color:#c4b5fd;background:rgba(124,58,237,.14);border:1px solid rgba(124,58,237,.3);border-radius:999px;padding:.06rem .45rem;}',
       '.vr-card{background:rgba(10,15,30,.5);border:1px solid rgba(255,255,255,.07);border-radius:.75rem;padding:.65rem .75rem;margin-bottom:.5rem;}',
+      // The card a proof-line deep link landed on. The ring persists (it is what
+      // answers "which one did I click?"); it clears on the next paint, because the
+      // markup is rebuilt. The flash is the only motion, and it is opt-out.
+      '.vr-card-focus{border-color:rgba(147,197,253,.75);box-shadow:0 0 0 2px rgba(147,197,253,.28);animation:vrFocusIn 1.1s ease-out 1;scroll-margin:5rem 0;}',
+      '@keyframes vrFocusIn{0%{box-shadow:0 0 0 6px rgba(147,197,253,0);}35%{box-shadow:0 0 0 6px rgba(147,197,253,.4);}100%{box-shadow:0 0 0 2px rgba(147,197,253,.28);}}',
+      '@media (prefers-reduced-motion:reduce){.vr-card-focus{animation:none;}}',
       '.vr-card-top{display:flex;align-items:center;gap:.5rem;justify-content:space-between;margin-bottom:.3rem;flex-wrap:wrap;}',
       '.vr-num{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.04em;color:#93c5fd;}',
       '.vr-date-txt{font-size:.72rem;color:#7596c0;}',
@@ -723,6 +729,19 @@
   window._vrTeachHtml = teachHtml;
 
   // ── One vote / position card ──────────────────────────────────────────────────
+  // ── One record → a stable presentation key ──────────────────────────────────
+  // Two surfaces need to agree on "this is the same vote": the card list here, and the
+  // profile's Official Record proof line, which deep-links to it. The vr_* feed has no
+  // single guaranteed id across kinds (positions carry no rollcallId), so the key is
+  // the same tuple both sides already had in hand. Presentation only — nothing is
+  // scored, filtered or fetched by it, so a key collision costs at most a scroll to
+  // the wrong card of the same bill on the same day.
+  window._pdxRecordKey = function (item) {
+    if (!item) return '';
+    return [item.kind || '', item.rollcallId || '', item.measureId || '',
+      item.number || '', item.date || '', item.action || ''].join('|');
+  };
+
   function cardHtml(item, positionMap) {
     var num = item.number ? '<span class="vr-num">' + LNUM(item.number) + '</span>' : '';
     var date = item.date ? '<span class="vr-date-txt">' + esc(fmtDate(item.date)) + '</span>' : '';
@@ -788,7 +807,7 @@
           esc(item.source.label || 'View the official record') + '</a>'
       : '';
 
-    return '<div class="vr-card">' +
+    return '<div class="vr-card" data-vr-key="' + escAttr(window._pdxRecordKey(item)) + '">' +
       '<div class="vr-card-top"><div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">' + num + date + '</div>' + verdictHtml + '</div>' +
       (item.title ? '<div class="vr-card-title">' + esc(item.title) + '</div>' : '') +
       '<div class="vr-meta">' + meta.join('') + '</div>' +
@@ -1056,6 +1075,38 @@
       'see the source to judge for yourself.' +
       (window.PDXLearn ? ' <button type="button" class="pdxl-link" data-pdxl-glossary>Glossary →</button>' : '') +
       '</p>';
+
+    // A deep link asked for one exact roll call — this is the paint it was waiting
+    // for. Consumed either way: a key that survives one repaint without matching has
+    // missed its list, and the reader is already on the issue-filtered section.
+    if (_state.focusKey) focusPendingVote(true);
+  }
+
+  // ── Scroll to, and ring, the card a deep link named ─────────────────────────
+  // Matches on data-vr-key by iterating rather than by attribute selector, so a
+  // roll-call question containing quotes can never break the lookup. Returns false
+  // when the card isn't in the painted list (a later page, or filtered out) — the
+  // caller has already jumped to the section, so a miss degrades to "here is the
+  // filtered list", never to nothing.
+  function focusPendingVote(consume) {
+    var want = _state && _state.focusKey;
+    if (consume) _state.focusKey = '';
+    if (!want || !document.querySelectorAll) return false;
+    var cards = document.querySelectorAll('#pdx-vr-list [data-vr-key]');
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].getAttribute('data-vr-key') !== want) continue;
+      if (!consume) _state.focusKey = '';
+      var el = cards[i];
+      // 'center' rather than 'start': the profile modal has a sticky nav rail, and
+      // centring the card keeps it clear of it without needing to know its height.
+      if (el.scrollIntoView) {
+        try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        catch (e) { el.scrollIntoView(); }
+      }
+      el.className += ' vr-card-focus';
+      return true;
+    }
+    return false;
   }
 
   // Re-fetch with the current filters (resets to page 1) and repaint the body.
@@ -1088,7 +1139,70 @@
     };
   }
 
+  // ── Deep link: open the full Voting Record filtered to ONE issue ─────────────
+  // The profile's Official Record stance rows name the decisive bill inline, but a
+  // reader who wants the rest of the votes behind that verdict needs the full list
+  // pre-filtered, not a jump to an unfiltered section they then have to filter by
+  // hand. Reuses the exact filter path the issue chips already use (set
+  // _state.filters.issue → applyFilters → renderBody repaints the chips), then jumps
+  // to the section. Returns false when the section isn't live for this member so the
+  // caller can fall back to a plain jump — it never throws and never fabricates data.
+  //   A falsy issueKey means "the whole record": it CLEARS any issue filter left over
+  //   from an earlier row click, so the section's "See full record" entry point shows
+  //   what it promises rather than someone else's leftover filter.
+  window._pdxVotingRecordFocusIssue = function (issueKey) {
+    try {
+      if (!_state || !_state.id) return false;
+      var sec = document.getElementById('pdx-voting-record');
+      if (!sec || sec.style.display === 'none') return false;
+      var want = issueKey || '';
+      if (_state.filters.issue !== want) {
+        _state.filters.issue = want;
+        // Grouping mode ('' sort) keeps the issue heading visible above the cards.
+        applyFilters();
+      }
+      if (typeof window._pdxNavJump === 'function') window._pdxNavJump('pdxsec-voting');
+      else if (sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    } catch (e) { return false; }
+  };
+
+  // ── Deep link: open the record ON one exact roll call ────────────────────────
+  // Same journey as above with one more step: filter to the issue the reader was
+  // looking at, then scroll to and ring the specific card. The ring waits for the
+  // repaint the filter change triggers (see focusPendingVote, called at the end of
+  // renderBody); when the filter is already right there is no repaint, so the focus
+  // runs immediately instead. Nothing here fetches a record that the filtered request
+  // wouldn't already return, and nothing scores or reorders anything.
+  //   Degrades in one direction only: exact card → issue-filtered list → section.
+  //   Returns false only when the section isn't live, so the caller's own fallback
+  //   chain (a plain nav jump) still applies.
+  window._pdxVotingRecordFocusVote = function (issueKey, voteKey) {
+    try {
+      if (!_state || !_state.id) return false;
+      var sec = document.getElementById('pdx-voting-record');
+      if (!sec || sec.style.display === 'none') return false;
+      _state.focusKey = voteKey || '';
+      var want = issueKey || '';
+      var repainting = false;
+      if (_state.filters.issue !== want) {
+        _state.filters.issue = want;
+        applyFilters();
+        repainting = true;
+      }
+      if (typeof window._pdxNavJump === 'function') window._pdxNavJump('pdxsec-voting');
+      else if (sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Already painted with the right filter → ring it now. Mid-repaint, leave the
+      // key for renderBody: the list is showing "Loading…" and has no cards to match.
+      if (!repainting && _state.focusKey) focusPendingVote(false);
+      return true;
+    } catch (e) { return false; }
+  };
+
   function renderErrorInline() {
+    // A failed load means the paint a deep link was waiting for is never coming; drop
+    // the pending focus so it can't attach itself to some later, unrelated repaint.
+    if (_state) _state.focusKey = '';
     var root = document.getElementById('pdx-vr-list');
     if (root) root.innerHTML = '<div class="vr-empty"><span class="vr-empty-ico">📡</span>Couldn’t load the voting record right now. Check your connection and try again.' +
       '<button type="button" class="vr-empty-btn" data-vr-retry>Try again</button></div>';
@@ -1223,7 +1337,9 @@
         sort: (prefs.sort || ''), hideProcedural: !!prefs.hideProcedural
       },
       facets: { issues: [], chambers: [], actionTypes: [] },
-      data: null, items: [], page: 1, offline: false
+      // focusKey: a record key (see _pdxRecordKey) that the NEXT paint should scroll
+      // to and ring — set by _pdxVotingRecordFocusVote, consumed by renderBody.
+      data: null, items: [], page: 1, offline: false, focusKey: ''
     };
 
     // Warm the offline pack (fire-and-forget) so the service worker caches it and
@@ -1306,6 +1422,57 @@
     var pm = (window._polPositionMap && cmp) ? (window._polPositionMap(pid, cmp) || {}) : {};
     var stance = pm[issueKey] ? pm[issueKey].stance : null;
     return window._issueRecordSummary(issueKey, stance, on);
+  };
+
+  // The RAW records behind a (member, issue) summary, newest first. Same filter and
+  // same warm cache as _pdxRecordIssueSummary above — this simply hands back the
+  // items instead of the aggregate, so a surface can NAME the bill and roll-call
+  // question a verdict rests on rather than printing a bare count. Pure, synchronous,
+  // never fetches: returns null when no record is warm for that member, and [] when
+  // the member has a record but nothing mapped to this issue.
+  //   Used by the profile's Official Record stance rows (consistency.js) to show the
+  //   proof line "H.R. 22 · On Motion to Recommit · Voted Yea", including in the thin
+  //   "limited" case where the summary keeps no top-consistent / top-contradicting
+  //   item to point at.
+  window._pdxRecordIssueItems = function (pid, issueKey) {
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs) return null;
+    var on = recs.filter(function (it) {
+      return it && it.issues && it.issues.some(function (m) { return m && m.issueKey === issueKey; });
+    });
+    // Newest first, so the proof line quotes the most recent vote on the issue.
+    // Undated records sort last rather than being dropped.
+    return on.slice().sort(function (a, b) {
+      var ad = a.date || '', bd = b.date || '';
+      if (ad === bd) return 0;
+      if (!ad) return 1;
+      if (!bd) return -1;
+      return ad < bd ? 1 : -1;
+    });
+  };
+
+  // How much record there IS for a member, counted from the same warm cache — the
+  // numbers behind the Official Record section's "12 mapped votes across 5 issues"
+  // entry line. `votes` counts records carrying at least one issue mapping (those are
+  // the ones a stated position can be checked against); `total` counts every warm
+  // record, so a surface can stay honest about the gap between what is in the full
+  // list and what is mappable. Pure, synchronous, never fetches: null when nothing is
+  // warm for that member, so callers simply render nothing.
+  window._pdxRecordMappedCounts = function (pid) {
+    var recs = PDXVotingRecord.memberRecords(pid);
+    if (!recs) return null;
+    var seen = {}, keys = [], votes = 0;
+    recs.forEach(function (it) {
+      if (!it) return;
+      var mapped = false;
+      (it.issues || []).forEach(function (m) {
+        if (!m || !m.issueKey) return;
+        mapped = true;
+        if (!seen[m.issueKey]) { seen[m.issueKey] = 1; keys.push(m.issueKey); }
+      });
+      if (mapped) votes++;
+    });
+    return { votes: votes, issues: keys.length, total: recs.length, issueKeys: keys };
   };
 
   // Companion to the summary above: where that (member, issue) verdict CAME from —

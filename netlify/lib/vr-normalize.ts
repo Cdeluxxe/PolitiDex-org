@@ -53,8 +53,8 @@ export type RawVote = {
   session: number;
   rollNumber: number;
   voteDate: string; // ISO
-  question: string | null;
-  actionType: string; // passage | amendment | cloture | motion | …
+  question: string | null; // trimmed vote question; NULL when the feed carries none
+  actionType: string; // passage | amendment | cloture | motion | … | unknown (no question)
   result: string | null;
   requiredMajority?: string;
   totals?: Record<string, number>;
@@ -121,17 +121,25 @@ export function normalizeCongressVote(v: any, chamberHint?: string): RawVote | n
       ? `${mm.type || ""}${mm.number}`
       : (v.legislationNumber != null ? `${v.legislationType || ""}${v.legislationNumber}` : null));
   const measureType = isAmendment ? "amendment" : measureTypeFor(legisType);
+  // The vote QUESTION, trimmed, or null when the feed carries none. A whitespace-only
+  // or empty string is stored as NULL rather than "" so "we don't have it" has exactly
+  // one representation, and the ingest repair path (netlify/lib/vr-ingest.ts) can fill
+  // it from a later pull without having to treat '' and NULL differently.
+  const question = String(v.voteQuestion ?? v.question ?? "").trim() || null;
   return {
     chamber,
     congress,
     session,
     rollNumber,
     voteDate: new Date(voteDate).toISOString(),
-    question: v.voteQuestion || v.question || null,
+    question,
     // Classify from the QUESTION ("On Motion to Recommit"), not voteType — voteType is
     // the ballot mechanism ("Yea-and-Nay" / "Recorded Vote") and matches no keyword, so
-    // reading it made EVERY House roll call fall through to "passage".
-    actionType: mapActionType(v.voteQuestion || v.question || v.voteType || ""),
+    // reading it made EVERY House roll call fall through to "passage". voteType is no
+    // longer consulted even as a last resort: feeding it in guaranteed the fall-through
+    // it exists to prevent, which is precisely how a question-less roll call became a
+    // "passage" vote. With no question, mapActionType returns "unknown".
+    actionType: mapActionType(question || ""),
     result: v.result || v.voteResult || null,
     requiredMajority: v.requiredMajority || "simple",
     totals: normalizeTotals(v.voteTotals || v.totals),
@@ -196,7 +204,16 @@ export function measureTypeFor(legisType: string): string {
 // stance-vs-record verdict — so mislabeling a motion to recommit as "passage" reads a
 // yea-to-kill-the-bill as a yea-for-the-bill at FULL weight, inverting the signal.
 export function mapActionType(q: string): string {
-  const s = String(q || "").toLowerCase();
+  const s = String(q || "").toLowerCase().trim();
+  // NO QUESTION TEXT → "unknown", never "passage". A roll call whose question we do
+  // not have tells us nothing about what was being decided, and "passage" is the most
+  // consequential thing it could claim: full weight, ordinary direction, and the label
+  // "passed the bill" over a vote that may have been a motion to recommit or the
+  // Election of the Speaker. Defaulting a blank to passage is what let a numberless
+  // amendment vote read as a passage vote on the wrong measure. Staying explicitly
+  // unknown is honest, and it is repairable — the upsert path in netlify/lib/
+  // vr-ingest.ts re-derives the type as soon as a later pull supplies the question.
+  if (!s) return "unknown";
   if (s.indexOf("veto") !== -1) return "veto_override";
   if (s.indexOf("cloture") !== -1) return "cloture";
   if (s.indexOf("nomination") !== -1 || s.indexOf("confirmation") !== -1) return "nomination";
@@ -213,6 +230,9 @@ export function mapActionType(q: string): string {
   if (s.indexOf("motion") !== -1) return "motion";
   // "On Agreeing to the Resolution" — adopting a resolution is its passage vote.
   if (s.indexOf("agreeing to the resolution") !== -1) return "passage";
+  // Catch-all for question text that IS present but matches no keyword ("On Agreeing
+  // to the Conference Report"). Unchanged: real text describing a decision on a
+  // measure defaults to passage. Only a blank question is now excluded from it.
   return "passage";
 }
 

@@ -182,6 +182,107 @@ ok(N.canonicalCongressGovUrl("") === null, "canonUrl: empty → null");
   ok(!/\/bill\/\d+\//.test(nv.measure.sourceUrl), "normalizeCongressVote: no bare-number congress segment survives");
 }
 
+// ── mapActionType: a blank question is UNKNOWN, never "passage" ───────────────
+// THE BUG CLASS THIS EXISTS TO PREVENT. Every House roll call ingested while the
+// classifier read `voteType` ("Yea-and-Nay" — the ballot mechanism, which matches no
+// keyword) fell through to "passage". So a motion to recommit, an amendment vote and
+// the Election of the Speaker all arrived labelled as passage votes on whatever
+// measure they had collapsed onto: full weight, ordinary direction, and a label
+// claiming the member voted to pass a bill. Blank in must now mean unknown out.
+const mat = N.mapActionType;
+eq(mat(""), "unknown", "action: empty question → unknown, not passage");
+eq(mat("   "), "unknown", "action: whitespace-only question → unknown");
+eq(mat(null), "unknown", "action: null question → unknown");
+eq(mat(undefined), "unknown", "action: undefined question → unknown");
+// Real question text is classified exactly as before — this guard narrowed nothing else.
+eq(mat("On Passage"), "passage", "action: 'On Passage' → passage");
+eq(mat("On Motion to Suspend the Rules and Pass"), "passage", "action: suspension → passage");
+eq(mat("On Motion to Concur in the Senate Amendment"), "passage", "action: concurrence → passage");
+eq(mat("On Agreeing to the Resolution"), "passage", "action: adopting a resolution → passage");
+eq(mat("On Agreeing to the Amendment"), "amendment", "action: amendment vote → amendment");
+eq(mat("On Motion to Recommit"), "motion", "action: recommit → motion (procedural weight)");
+eq(mat("On Ordering the Previous Question"), "procedural", "action: previous question → procedural");
+eq(mat("Election of the Speaker"), "procedural", "action: Speaker election → procedural");
+eq(mat("On Agreeing to the Conference Report"), "passage",
+   "action: present-but-unmatched text still defaults to passage");
+// The ballot mechanism is not a question. It still maps to passage if handed in, which
+// is exactly why the normalize path below must never hand it in.
+eq(mat("Yea-and-Nay"), "passage", "action: voteType text would still fall through — so it is no longer consulted");
+
+// ── normalizeCongressVote: a question-less vote stays unclassified ────────────
+{
+  const noQuestion = N.normalizeCongressVote({
+    chamber: "House", congress: 119, sessionNumber: 1, rollCallNumber: 247,
+    startDate: "2025-09-10T20:57:00Z", url: "https://clerk.house.gov/evs/2025/roll247.xml",
+    voteType: "Yea-and-Nay", result: "Agreed to",
+    legislation: { type: "HR", number: "3838" },
+    members: [{ bioguideId: "X000001", party: "R", votePosition: "Yea" }],
+  });
+  ok(noQuestion !== null, "normalize: a question-less vote is still ingested (identity, not silence)");
+  eq(noQuestion.question, null, "normalize: no question text → question stays null");
+  eq(noQuestion.actionType, "unknown", "normalize: no question → action_type 'unknown', NOT 'passage'");
+
+  const blankQuestion = N.normalizeCongressVote({
+    chamber: "House", congress: 119, sessionNumber: 1, rollCallNumber: 248,
+    startDate: "2025-09-10T21:10:00Z", url: "https://clerk.house.gov/evs/2025/roll248.xml",
+    voteQuestion: "   ", voteType: "Recorded Vote",
+    legislation: { type: "HR", number: "3838" },
+    members: [],
+  });
+  eq(blankQuestion.question, null, "normalize: whitespace-only question → null, not ''");
+  eq(blankQuestion.actionType, "unknown", "normalize: whitespace-only question → unknown");
+
+  const recommit = N.normalizeCongressVote({
+    chamber: "House", congress: 119, sessionNumber: 1, rollCallNumber: 101,
+    startDate: "2025-04-09T00:00:00Z", url: "https://clerk.house.gov/evs/2025/roll101.xml",
+    voteQuestion: "  On Motion to Recommit  ", voteType: "Yea-and-Nay",
+    legislation: { type: "HR", number: "22" }, members: [],
+  });
+  eq(recommit.question, "On Motion to Recommit", "normalize: question is trimmed");
+  eq(recommit.actionType, "motion", "normalize: recommit classified from the question, not the ballot type");
+}
+eq(nv.actionType, "passage", "normalize: 'On Passage' still classifies as passage");
+
+// The ballot mechanism must not reach the classifier at all — not even as a last resort.
+const NORM_SRC = readFileSync(join(ROOT, "netlify/lib/vr-normalize.ts"), "utf8");
+ok(!/mapActionType\([^)]*voteType/.test(NORM_SRC),
+   "normalize source: voteType is no longer passed to mapActionType");
+
+// ── Ingest upsert: the conflict branch REPAIRS, non-destructively ─────────────
+// The repair runs in Postgres (ON CONFLICT DO UPDATE) and needs a database to
+// execute, so this gates the shape of the statement in source: which columns the
+// conflict branch may write, and that each write is guarded. Rendered form verified
+// against drizzle's own SQL output:
+//   "question" = CASE WHEN coalesce(btrim("vr_rollcalls"."question"), '') = ''
+//                      AND coalesce(btrim(excluded.question), '') <> ''
+//                     THEN excluded.question ELSE "vr_rollcalls"."question" END
+const ING_SRC = readFileSync(join(ROOT, "netlify/lib/vr-ingest.ts"), "utf8");
+const conflict = ING_SRC.slice(
+  ING_SRC.indexOf("onConflictDoUpdate", ING_SRC.indexOf(".insert(vrRollcalls)")),
+  ING_SRC.indexOf(".returning({ id: vrRollcalls.id })")
+);
+ok(conflict.length > 0 && conflict.length < 3000, "ingest source: located the roll-call conflict branch");
+ok(/question: sql`CASE/.test(conflict), "ingest source: question is written through a guarded CASE");
+ok(/actionType: sql`CASE/.test(conflict), "ingest source: action_type is written through a guarded CASE");
+ok(conflict.includes("excluded.question") && conflict.includes("excluded.action_type"),
+   "ingest source: the repair reads the incoming record, inventing nothing");
+// Never blank a stored question, and never overwrite one: both directions are the
+// same guard — fill only when stored is empty AND incoming is not.
+const flatConflict = conflict.replace(/\s+/g, " ");
+ok(flatConflict.includes(
+     "question: sql`CASE WHEN ${storedQ} = '' AND ${incomingQ} <> '' " +
+     "THEN excluded.question ELSE ${vrRollcalls.question} END`"),
+   "ingest source: question is filled only when stored is blank and incoming is present");
+ok(!/question: v\.question/.test(conflict) && !/question: excluded/.test(conflict),
+   "ingest source: no unconditional question overwrite in the conflict branch");
+// action_type only ever moves off a value that came from no information.
+ok(conflict.indexOf("'unknown'") < conflict.indexOf("= 'passage'"),
+   "ingest source: the explicit unknown yields before the weak passage default is touched");
+ok(/lower\([\s\S]*?\) = lower\(/.test(conflict),
+   "ingest source: the passage re-derivation requires identical question text");
+ok(!/requiredMajority:|sourceUrl:|voteDate:/.test(conflict),
+   "ingest source: the conflict branch stays narrow — no fields beyond the repair set");
+
 // ── Committed seed integrity ──────────────────────────────────────────────────
 const memberMap = JSON.parse(readFileSync(join(ROOT, "db/vr-member-map.json"), "utf8"));
 const slugs = Object.values(memberMap.map);
