@@ -402,7 +402,7 @@
   // ══════════════════════════════════════════════════════════════════════════
   var SHARE_URL = 'https://politidex.fyi/';
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
-  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b' };
+  var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
 
   function ensureFonts() {
@@ -589,7 +589,11 @@
       } else { y += 12; }
 
       // Footer geometry (reserve space so the body never collides with it).
-      var footTop = IMG_H - PAD - 96;
+      // A vote-derived card carries two extra footer lines — the citable source
+      // URL and the visible method link — so the reserve grows to match rather
+      // than the body being allowed to run into them.
+      var extraFoot = (r.verifyUrl ? 30 : 0) + (r.method ? 28 : 0);
+      var footTop = IMG_H - PAD - 96 - extraFoot;
 
       // ── SAID block ──
       if (r.said) {
@@ -614,6 +618,34 @@
       ctx.fillStyle = '#ffffff';
       var headLines = wrapText(ctx, r.headline, contentW, 3);
       y = drawLines(ctx, headLines, x, y, 50) + 12;
+      // ── Optional split block: one vote, two outcomes ───────────────────────
+      // Only vote-derived omnibus cards set r.split. It names the other curated
+      // issues the SAME cited vote moved, and the direction it moved each of
+      // them, straight from the stored mapping — so a reader cannot mistake a
+      // 14-issue package vote for a single-issue one. Curated receipts never set
+      // it and are drawn exactly as before.
+      if (r.split && (r.split.advances.length || r.split.opposes.length)) {
+        ctx.font = '800 22px "Barlow Condensed", sans-serif';
+        ctx.fillStyle = '#c4b5fd';
+        ctx.fillText('THE SAME VOTE MOVED ' + r.split.count + ' MAPPED ISSUES', x, y);
+        y += 32;
+        [['ADVANCES', r.split.advances, '#4ade80'], ['OPPOSES', r.split.opposes, '#f87171']]
+          .forEach(function (row) {
+            if (!row[1].length || y > footTop - 40) return;
+            ctx.font = '700 24px "Barlow Condensed", sans-serif';
+            ctx.fillStyle = row[2];
+            var lbl = row[0] + ': ';
+            ctx.fillText(lbl, x, y);
+            var lw = ctx.measureText(lbl).width;
+            ctx.font = '400 24px "Barlow", sans-serif';
+            ctx.fillStyle = '#cdd9ec';
+            var txt = row[1].join(' · ');
+            var lines = wrapText(ctx, txt, contentW - lw, 1);
+            ctx.fillText(lines[0] || txt, x + lw, y);
+            y += 32;
+          });
+        y += 6;
+      }
       if (r.facts) {
         ctx.font = '400 29px "Barlow", sans-serif';
         ctx.fillStyle = '#b7c6de';
@@ -625,7 +657,7 @@
       }
 
       // ── Footer: source + date · watermark ──
-      var fy = IMG_H - PAD - 70;
+      var fy = IMG_H - PAD - 70 - extraFoot;
       ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(x, fy); ctx.lineTo(right, fy); ctx.stroke();
       fy += 20;
@@ -639,6 +671,25 @@
       ctx.font = '600 22px "Barlow Condensed", sans-serif';
       ctx.fillStyle = '#7596c0';
       ctx.fillText('Verdict based on public record — check it yourself.', x, fy + 34);
+      var my = fy + 34;
+      // The citable URL itself, printed so the receipt survives being screenshotted
+      // out of the app: "check it yourself" is only true if the address travels
+      // with the image. Vote-derived cards always set this.
+      if (r.verifyUrl) {
+        my += 30;
+        ctx.font = '600 22px "Barlow Condensed", sans-serif';
+        ctx.fillStyle = '#9fb4d4';
+        var vTxt = 'VERIFY: ' + String(r.verifyUrl);
+        ctx.fillText(wrapText(ctx, vTxt, contentW, 1)[0] || vTxt, x, my);
+      }
+      // Method stays visible on the card, not just in the app.
+      if (r.method) {
+        my += 28;
+        ctx.font = '600 20px "Barlow Condensed", sans-serif';
+        ctx.fillStyle = '#7596c0';
+        var mTxt = String(r.method);
+        ctx.fillText(wrapText(ctx, mTxt, contentW, 1)[0] || mTxt, x, my);
+      }
       // Right watermark
       ctx.textAlign = 'right';
       ctx.font = '700 30px "Barlow Condensed", sans-serif';
@@ -646,7 +697,10 @@
       ctx.fillText('politidex.fyi', right, fy);
       ctx.font = '700 20px "Barlow Condensed", sans-serif';
       ctx.fillStyle = '#9fb4d4';
-      ctx.fillText('SAY vs. DO', right, fy + 36);
+      // A vote-derived card is Official Record, not Say-vs-Do. The mark names
+      // which system produced the verdict so the two are never conflated by
+      // whoever sees the image.
+      ctx.fillText(r.origin === 'official_record' ? 'OFFICIAL RECORD' : 'SAY vs. DO', right, fy + 36);
       ctx.textAlign = 'left';
 
       return c;
@@ -1146,7 +1200,12 @@
     var pid = r ? r.pid : pidOrReceipt;
     var iss = r ? (r.issueKey || '') : (issueKey || '');
     if (!pid) return '';
-    var h = '#receipt=' + encodeURIComponent(pid) + (iss ? '~' + encodeURIComponent(iss) : '');
+    // A card may carry its own deep link. Vote-derived cards do: they resolve to
+    // `#record=…`, which lands on the Official Record gap view rather than the
+    // Say-vs-Do receipt lightbox — a formal legislative action must not open on a
+    // Say-vs-Do surface. Curated receipts carry no hash and keep `#receipt=…`.
+    var h = (r && r.hash) ? String(r.hash)
+      : '#receipt=' + encodeURIComponent(pid) + (iss ? '~' + encodeURIComponent(iss) : '');
     // `canonical` builds the link on the public share domain, for anything leaving
     // the device; otherwise stay on whatever origin the reader is already on.
     if (opts && opts.canonical) return SHARE_URL.replace(/\/$/, '/') + h;

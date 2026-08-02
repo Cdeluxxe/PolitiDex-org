@@ -1,0 +1,782 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PolitiDex — Vote-derived share cards  ·  window.PDXReceiptCards
+   ────────────────────────────────────────────────────────────────────────────
+   A SECOND FEED into the share-card renderer that already ships in say-vs-do.js.
+
+   say-vs-do.js builds its cards from window.ACCT_SPOTLIGHT — the curated public
+   record — and deliberately drops `category === 'voting'` at its collect()
+   chokepoint, because formal legislative actions belong to the OFFICIAL RECORD,
+   not to Say-vs-Do. That boundary is correct and this file does not touch it.
+   The consequence, though, was that the strongest, most checkable material the
+   app holds — a member's own floor vote lined up against their own stated
+   position on the same ISSUE_MAP key — could not leave the app as an image.
+
+   This module fixes exactly that, additively:
+
+     • It reads the Official Record side ONLY: warm vr_* records from
+       PDXVotingRecord, judged by the SAME shared engine every other surface
+       uses (window._issueRecordSummary / _measureComponentBreakdown in
+       stance-helpers.js). It re-implements no verdict logic of its own.
+     • It emits objects in the shape renderCanvas(r) already consumes, and hands
+       them to PDXReceipts.share(cardObject, btn) — which already accepts a
+       receipt OBJECT, so the image pipeline, the native share sheet, the
+       desktop fallback menu and the one-tap mobile flow are reused verbatim.
+     • NOTHING here is added to PDXReceipts.collect(). No Official Record verdict
+       enters a Say-vs-Do score, count, percentage or ranking. The two systems
+       stay separated exactly as consistency.js locks them; this file only lets
+       one of them produce a picture.
+
+   WHAT MAKES A CARD ELIGIBLE — the trust guards (see GUARDS below). A card is
+   built only when every guard passes. Every guard fails CLOSED: an unknown or
+   unreadable condition blocks the card rather than shipping it. A refutable
+   receipt costs more than a missing one.
+
+   The public surface:
+     PDXReceiptCards.warm(pid)            → Promise, loads the record if needed
+     PDXReceiptCards.cardsFor(pid, opts)  → every eligible card, strongest first
+     PDXReceiptCards.contradiction(pid)   → strongest eligible contradiction card
+     PDXReceiptCards.consistency(pid)     → strongest eligible consistency card
+     PDXReceiptCards.omnibus(pid, number) → the "one vote, two outcomes" card
+     PDXReceiptCards.find(pid, issueKey)  → one card by issue (deep links)
+     PDXReceiptCards.share(card, btn)     → one tap → image (via PDXReceipts)
+     PDXReceiptCards.audit(pid)           → why each candidate was kept/blocked
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  if (window.PDXReceiptCards) return; // idempotent
+
+  var SHARE_HASH = 'record';               // #record=<pid>~<issueKey>
+  var METHOD_URL = 'politidex.fyi/#methodology';
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TRUST GUARDS
+  // ──────────────────────────────────────────────────────────────────────────
+  // Each guard names the defect it exists to stop, so a future reader can tell
+  // whether it is still needed. Guards 1–4 are the four required before any card
+  // is share-eligible; 5–9 are structural minimums a shareable image needs to
+  // survive being screenshotted away from the app. Guards 10 and 11 are two
+  // additional exclusions found while wiring this up — both are documented in
+  // the same terms and both fail closed.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ── Guard 1 · nominations are never share-card eligible ───────────────────
+  // Confirmation votes are mapped into vr_measure_issues as POLICY PROXIES — a
+  // vote on an HHS nominee carries `healthcare` at weight 100, a vote on an FBI
+  // nominee carries `tough_on_crime` and `gov_transparency` in opposite
+  // directions. That is a defensible aggregate signal inside the app, next to
+  // its own provenance. It is not defensible on a card that has left the app,
+  // where "the record shows: voted Yea on healthcare" would rest on a vote about
+  // a PERSON. The eight nomination measures in the ledger touch 839 distinct
+  // (member, issue) pairs, so this is the single largest exclusion here.
+  var BLOCKED_MEASURE_TYPES = { nomination: 'A confirmation vote is mapped as a policy proxy; it cannot carry a policy claim off-app.' };
+
+  // ── Guard 3 · issue keys whose semantics are not coherent ─────────────────
+  // `tariffs_authority` collects stances filed as SUPPORT that mean opposite
+  // things: one member's support is "the Constitution gives Congress — not the
+  // president — the power to set tariffs", another's support is "defends broad
+  // presidential authority to impose tariffs quickly without waiting on
+  // Congress". A single measure mapping (S.J.Res. 37, yea_supports) cannot be
+  // right for both readings, so members who filed the congressional-authority
+  // position score backwards. Until the key is split, or every stance under it
+  // is re-filed to one meaning, nothing on this key ships.
+  var BLOCKED_ISSUE_KEYS = {
+    tariffs_authority: 'Support-filed stances under this key carry opposite meanings (congressional authority vs presidential authority), so the single measure mapping reads backwards for one of them.'
+  };
+
+  // ── Guard 4 · america_first_fp resting on a restraint position ────────────
+  // `america_first_fp` is doing double duty, and the ledger shows it on BOTH
+  // sides of the card.
+  //
+  //   The SAID side: some stances filed under it are America-First framed; others
+  //   are anti-interventionist / war-powers restraint positions that happen to
+  //   share a non-interventionist conclusion.
+  //
+  //   The DID side: four of the eleven measures mapped to `america_first_fp` are
+  //   ALSO mapped to `restraint` — the Iran, Lebanon and Ukraine war-powers
+  //   measures (H.Con.Res. 89, H.Con.Res. 108, S.J.Res. 59, H.Amdt. 252). A card
+  //   that judged "America First" by a war-powers withdrawal vote would be
+  //   resting on a restraint position no matter which side carried it.
+  //
+  // A `restraint` key already exists and is already mapped, so the durable fix is
+  // re-filing under it. Until that happens both sides are held: the stance side by
+  // pid and by stance language, the measure side by the measure's own dual
+  // mapping. `restraint` itself is unaffected and fully shippable.
+  var AFP_KEY = 'america_first_fp';
+  var RESTRAINT_KEY = 'restraint';
+  var AFP_RESTRAINT_PIDS = { aoc: 1, khanna: 1, tlaib: 1, jayapal: 1, lee: 1 };
+  // Belt-and-braces on the same defect: a restraint-framed stance filed under
+  // america_first_fp by a pid not in the list above is still blocked. This only
+  // ever REMOVES a card, so a false positive costs a share, not a reader's trust.
+  var AFP_RESTRAINT_RE = /(endless war|forever war|war powers|unauthoriz|military intervention|bring (?:the )?troops home|diplomacy first|de-?escalat|withdraw(?:al)? from|arms sales)/i;
+
+  // ── Guard 10 · a SAID side that is itself a vote (circular receipt) ───────
+  // At least one stance in the corpus is written as "Voted against an amendment
+  // (H.Amdt. 252)…". Using that as the "They said" line would produce a card
+  // whose two halves are the same fact, and would quietly move a formal
+  // legislative action onto the Say-vs-Do side of the card — the exact boundary
+  // consistency.js locks. Any stance text that cites a measure number or opens
+  // with a vote verb is refused as a SAID side.
+  var MEASURE_CITE_RE = /\b(?:H\.?R\.?|S\.?|H\.?J\.?\s?Res\.?|S\.?J\.?\s?Res\.?|H\.?\s?Res\.?|S\.?\s?Res\.?|H\.?\s?Amdt\.?|S\.?\s?Amdt\.?|P\.?N\.?)\s?\d+/i;
+  var VOTE_VERB_RE = /\b(voted|vote[sd]? (?:for|against)|cosponsor|co-sponsor|sponsored|roll call)\b/i;
+
+  // ── Guard 11 · duplicated measure identity ────────────────────────────────
+  // Two vr_measures rows for the same bill number each carried the same curated
+  // issue mapping, so the same bill appeared twice under one issue. The durable
+  // fix is the migration that merges those identities
+  // (20260802000000_vr_merge_duplicate_joint_resolution_identities.sql). This is
+  // the client-side backstop for a database that has not applied it yet: if the
+  // warm record set shows one bill NUMBER arriving under two different
+  // measureIds on the same issue, no card cites that bill.
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // small helpers — all read-only, all guarded (every source loads async)
+  // ══════════════════════════════════════════════════════════════════════════
+  function canonPid(id) {
+    try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(id)) || id; } catch (e) { return id; }
+  }
+  function polRec(id) {
+    var p = null;
+    try { if (window.PROFILES && window.PROFILES[id]) p = window.PROFILES[id]; } catch (e) {}
+    if (!p) { try { if (window.CMP_DATA && window.CMP_DATA[id]) p = window.CMP_DATA[id]; } catch (e) {} }
+    return p;
+  }
+  function prettyName(id) {
+    return String(id || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function partyChip(raw) {
+    var p = String(raw || '').trim().toUpperCase();
+    if (!p) return null;
+    var c = p.charAt(0);
+    if (c === 'R') return { label: 'R', color: '#f87171' };
+    if (c === 'D') return { label: 'D', color: '#60a5fa' };
+    if (c === 'I') return { label: 'IND', color: '#a78bfa' };
+    return { label: p.slice(0, 3), color: '#94a3b8' };
+  }
+  // Same icon/label split say-vs-do.js uses, so both feeds print the same chip.
+  function issueMeta(key) {
+    var im = (window.ISSUE_MAP) || {};
+    var def = key && im[key];
+    if (!def || !def.label) return null;
+    var m = String(def.label).match(/^\s*(\p{Extended_Pictographic}(?:️)?)\s*(.*)$/u);
+    return m ? { icon: m[1], label: m[2] || def.label } : { icon: '🎯', label: def.label };
+  }
+  function issueLabel(key) {
+    var im = issueMeta(key);
+    return im ? im.label : String(key || '');
+  }
+  function titleCase(s) {
+    return String(s || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function stanceWord(stance) {
+    if (stance === 'support') return 'Supports';
+    if (stance === 'oppose') return 'Opposes';
+    if (stance === 'mixed') return 'Mixed on';
+    return 'On';
+  }
+  function yearOf(d) {
+    var m = String(d || '').match(/(19|20)\d{2}/g);
+    return m ? parseInt(m[m.length - 1], 10) : 0;
+  }
+  // 2025-05-01T14:20:00.000Z → 2025-05-01. The card prints a date a reader can
+  // match against the Clerk's own record, not a localized rendering of it.
+  function dayOf(d) {
+    var s = String(d || '');
+    var m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : s;
+  }
+  // congress.gov/roll-call-vote/119/house/113 — the URL with its scheme and any
+  // query string stripped, short enough to print on one footer line and still be
+  // typed into a browser by hand.
+  function shortUrl(u) {
+    var s = String(u || '').replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[?#].*$/, '').replace(/\/$/, '');
+    return s.length > 62 ? s.slice(0, 61) + '…' : s;
+  }
+  function positionMapFor(pid) {
+    try {
+      var d = polRec(pid);
+      if (window._polPositionMap) return window._polPositionMap(pid, d) || {};
+    } catch (e) {}
+    return {};
+  }
+  function recordsFor(pid) {
+    try {
+      if (window.PDXVotingRecord && typeof window.PDXVotingRecord.memberRecords === 'function') {
+        return window.PDXVotingRecord.memberRecords(pid) || null;
+      }
+    } catch (e) {}
+    return null;
+  }
+  function mappingOn(item, issueKey) {
+    var list = (item && Array.isArray(item.issues)) ? item.issues : [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].issueKey === issueKey) return list[i];
+    }
+    return null;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // GUARD EVALUATION
+  // ──────────────────────────────────────────────────────────────────────────
+  // Each function returns '' when the guard passes, or a plain-language reason
+  // when it blocks. The reasons are what audit() reports and what the Part-4
+  // exclusion list is generated from — they are not decoration.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Guards 1, 5–8: is this ONE record citable on a card at all?
+  function blockRecord(item) {
+    if (!item) return 'no record';
+    // Guard 1 — nominations.
+    var mt = String(item.measureType || '').toLowerCase();
+    if (BLOCKED_MEASURE_TYPES[mt]) return BLOCKED_MEASURE_TYPES[mt];
+    // Guard 5 — a card says "the record shows … voted <position>". Only an actual
+    // recorded yea/nay does. Positions (co-sponsorships, amicus filings,
+    // litigation, executive actions) are real record, but they are not votes and
+    // this feed does not claim they are.
+    if (item.kind !== 'vote') return 'not a recorded floor vote (' + (item.kind || 'unknown') + ')';
+    if (item.position !== 'yea' && item.position !== 'nay') {
+      return 'no directional vote recorded (' + (item.position || 'none') + ')';
+    }
+    // Guard 6 — procedural votes are down-weighted inside the app for good
+    // reason: a yea on a motion to table is not a yea on the bill. Off-app,
+    // where the nuance cannot travel with the image, they do not ship at all.
+    if (item.isProcedural || item.advanceInverted) return 'procedural vote — the question does not read plainly off-app';
+    // Guard 7 — the four things the card must print. A missing one makes the card
+    // uncheckable, which is the only thing worse than not shipping it.
+    if (!item.number) return 'measure has no bill number to cite';
+    if (!item.action) return 'roll call has no recorded question';
+    if (!item.date) return 'record carries no date';
+    if (!item.source || !item.source.url) return 'record carries no source URL';
+    // Guard 8 — a provisional title ("Roll call 310") names nothing a reader can
+    // look up, and the card's supporting line is built from the title.
+    if (/^roll\s*call\b/i.test(String(item.title || ''))) return 'measure title is still provisional';
+    return '';
+  }
+
+  // Guards 3, 4: is this ISSUE key shippable for this member, on this record?
+  function blockIssue(pid, issueKey, stanceText, item) {
+    if (!issueKey) return 'record is not mapped to a curated issue';
+    if (BLOCKED_ISSUE_KEYS[issueKey]) return BLOCKED_ISSUE_KEYS[issueKey];
+    if (!issueMeta(issueKey)) return 'issue key is not in the live ISSUE_MAP';
+    if (issueKey === AFP_KEY) {
+      if (AFP_RESTRAINT_PIDS[canonPid(pid)] || AFP_RESTRAINT_PIDS[pid]) {
+        return 'stance is a restraint position filed under america_first_fp — hold until it is re-filed under `restraint`';
+      }
+      if (stanceText && AFP_RESTRAINT_RE.test(String(stanceText))) {
+        return 'stance text reads as a restraint position filed under america_first_fp — hold until it is re-filed under `restraint`';
+      }
+      // The measure side of the same defect, read off the measure's own mappings:
+      // if the cited vote is ALSO curated as `restraint`, the card rests on a
+      // restraint position whichever side of it the member came down on.
+      if (item && mappingOn(item, RESTRAINT_KEY)) {
+        return 'the cited vote is curated as both america_first_fp and `restraint` — the card would rest on a restraint position; hold until the keys are separated';
+      }
+    }
+    return '';
+  }
+
+  // Guard 10: is this SAID side a stated position, rather than a vote?
+  function blockStance(text) {
+    var s = String(text || '').trim();
+    if (!s) return 'no stated position on this issue to line the vote up against';
+    if (MEASURE_CITE_RE.test(s)) return 'stated position cites a measure number — it is itself vote-derived, so the card would be circular';
+    if (VOTE_VERB_RE.test(s)) return 'stated position is written as a vote — it is itself vote-derived, so the card would be circular';
+    return '';
+  }
+
+  // Guard 11: does one bill number reach this issue through two measure ids?
+  function blockDuplicateIdentity(records, issueKey, number) {
+    if (!number) return '';
+    var ids = {}, n = 0;
+    (records || []).forEach(function (it) {
+      if (!it || it.number !== number) return;
+      if (!mappingOn(it, issueKey)) return;
+      var id = String(it.measureId == null ? '' : it.measureId);
+      if (!ids[id]) { ids[id] = 1; n++; }
+    });
+    return n > 1 ? 'bill ' + number + ' reaches this issue through ' + n + ' separate measure rows — duplicate identity not yet merged' : '';
+  }
+
+  // Guard 9 (verdict stability): the card's verdict must be the SAME verdict the
+  // member's own profile shows for this issue, computed over the WHOLE record —
+  // not just over the votes a card is allowed to cite. Without this a member
+  // whose net record on healthcare is consistent (because most of the weight sits
+  // on a nomination proxy) could still yield a "contradicts" card built from the
+  // one substantive bill, and the card would disagree with the page it links to.
+  // Anyone who followed the link would be right to call the card wrong.
+  function stableVerdict(summary, want) {
+    if (!summary) return 'no record summary for this issue';
+    if (summary.netVerdict !== want) {
+      return 'net record verdict on this issue is "' + summary.netVerdict + '", not "' + want + '" — a ' + want + ' card would contradict the profile it links to';
+    }
+    return '';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CARD CONSTRUCTION
+  // ──────────────────────────────────────────────────────────────────────────
+  // The object below is exactly what say-vs-do.js's renderCanvas(r) draws. Three
+  // fields are new and OPTIONAL there, so curated receipts are unaffected:
+  //   r.verifyUrl — the citable source URL, printed in the footer
+  //   r.method    — the visible method link, printed under it
+  //   r.split     — the omnibus "one vote, N issues" block
+  // Everything else (pid/name/sub/party/issue/said/headline/facts/date/source/
+  // impact/verdict) is the pre-existing receipt contract.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  var VERDICTS = {
+    contradicts: { key: 'contradicts', cls: 'v-contradicts', ico: '⚠', label: 'Says One Thing · Voted Another', rank: 5 },
+    consistent:  { key: 'consistent',  cls: 'v-consistent',  ico: '✓', label: 'Vote Matched The Words',        rank: 2 },
+    omnibus:     { key: 'omnibus',     cls: 'v-omnibus',     ico: '⇅', label: 'One Vote · Two Outcomes',       rank: 4 }
+  };
+
+  // "H.J.Res. 78 · On Passage · Voted Yea" — bill, question, position, in the same
+  // order and the same words the profile's Official Record proof line uses. Built
+  // from PDXConsistency.proof.proofText when that module is loaded so the two can
+  // never drift; the local fallback prints the identical string.
+  function proofLine(item) {
+    var t = '';
+    try {
+      if (window.PDXConsistency && window.PDXConsistency.proof &&
+          typeof window.PDXConsistency.proof.proofText === 'function') {
+        t = window.PDXConsistency.proof.proofText(item) || '';
+      }
+    } catch (e) {}
+    if (!t) {
+      var parts = [];
+      if (item.number) parts.push(String(item.number));
+      else if (item.title) parts.push(String(item.title));
+      if (item.action) parts.push(String(item.action));
+      if (item.position) parts.push('Voted ' + titleCase(item.position));
+      t = parts.join(' · ');
+    }
+    // Two roll calls in the ledger carry a question that repeats the measure
+    // number it belongs to ("On the Joint Resolution H.J.Res. 88"), which reads as
+    // a stutter once the number is already the first field — and one of them is
+    // the single most-cited measure here. Collapse the repeat on the CARD only:
+    // the profile row keeps the Clerk's question verbatim, and nothing but the
+    // duplicated number is removed.
+    var num = String((item && item.number) || '');
+    if (num && t.split(num).length > 2) {
+      var seg = t.split(' · ');
+      for (var i = 1; i < seg.length; i++) {
+        var stripped = seg[i].split(num).join(' ').replace(/\s{2,}/g, ' ').trim();
+        if (stripped) seg[i] = stripped;
+      }
+      t = seg.join(' · ');
+    }
+    return t;
+  }
+
+  // The supporting line under the headline: what the bill is, how the chamber
+  // came down, and — when the mapping carries one — the curated rationale for why
+  // this bill speaks to this issue. Every clause is quoted from stored data.
+  function supportingText(item, mapping) {
+    var bits = [];
+    if (item.title) bits.push(String(item.title).replace(/\s+/g, ' ').trim());
+    if (mapping && mapping.rationale) bits.push(String(mapping.rationale).replace(/\s+/g, ' ').trim());
+    var tail = [];
+    if (item.chamber) tail.push(titleCase(item.chamber));
+    if (item.result) tail.push(String(item.result));
+    if (tail.length) bits.push(tail.join(' · '));
+    return bits.join(' — ');
+  }
+
+  function baseCard(pid, item, issueKey, stance, verdict) {
+    var d = polRec(pid);
+    var name = (d && d.name) || prettyName(pid);
+    var sub = d
+      ? [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); })
+          .filter(Boolean).join(' · ')
+      : '';
+    var photo = '';
+    try { if (typeof window._getPhotoUrl === 'function') photo = window._getPhotoUrl(pid) || ''; } catch (e) {}
+    var mapping = mappingOn(item, issueKey);
+    var date = dayOf(item.date);
+    var srcUrl = (item.source && item.source.url) || '';
+
+    return {
+      // identity
+      pid: pid, name: name, sub: sub, party: d ? partyChip(d.party) : null,
+      photo: photo, hasOffice: !!(d && (d.office || d.district)),
+      // issue
+      issueKey: issueKey, issue: issueMeta(issueKey),
+      // SAID — the stated position, verbatim
+      said: { text: stance.text || stance.topic || '', word: stanceWord(stance.stance) },
+      // DID — bill, question, position, date
+      headline: proofLine(item),
+      facts: supportingText(item, mapping),
+      why: '',
+      date: date,
+      source: { url: srcUrl, label: (item.source && item.source.label) || 'Congress.gov' },
+      // renderer hints
+      category: 'official_record',
+      impact: verdict.key === 'contradicts' ? 'negative' : 'positive',
+      verdict: verdict,
+      verifyUrl: shortUrl(srcUrl),
+      method: 'HOW THIS IS JUDGED: ' + METHOD_URL,
+      // Provenance a caller (or a test) can read without re-deriving it. `origin`
+      // is what keeps this feed identifiable downstream: nothing that carries it
+      // may be counted into a Say-vs-Do score.
+      origin: 'official_record',
+      measureNumber: item.number || '',
+      rollcallId: item.rollcallId || null,
+      hash: '#' + SHARE_HASH + '=' + encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey),
+      score: 0
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CANDIDATE ENUMERATION
+  // ──────────────────────────────────────────────────────────────────────────
+  // For one member: every (issue, cited vote) pair the engine already ranks,
+  // annotated with the guard verdict. Returns candidates in BOTH states so
+  // audit() can report the exclusions rather than only the survivors.
+  // ══════════════════════════════════════════════════════════════════════════
+  function candidates(pid) {
+    pid = canonPid(pid);
+    var records = recordsFor(pid);
+    if (!records || !records.length) return [];
+    if (typeof window._issueRecordSummary !== 'function') return [];
+
+    var pm = positionMapFor(pid);
+    // Group the member's records by every issue they map to — the same grouping
+    // _polRecordMap does, kept local so a card never depends on a whole-profile
+    // map being built first.
+    var byIssue = {};
+    records.forEach(function (it) {
+      if (!it || !Array.isArray(it.issues)) return;
+      it.issues.forEach(function (m) {
+        if (!m || !m.issueKey) return;
+        (byIssue[m.issueKey] = byIssue[m.issueKey] || []).push(it);
+      });
+    });
+
+    var out = [];
+    Object.keys(byIssue).forEach(function (issueKey) {
+      var pos = pm[issueKey];
+      var stance = pos ? pos.stance : null;
+      // The engine's own aggregate over the FULL record for this issue. This is
+      // the number the profile shows, and guard 9 holds the card to it.
+      var summary = window._issueRecordSummary(issueKey, stance, byIssue[issueKey]);
+
+      [['contradicts', summary.topContradiction], ['consistent', summary.topConsistent]]
+        .forEach(function (pair) {
+          var want = pair[0], item = pair[1];
+          if (!item) return;
+          var cand = {
+            pid: pid, issueKey: issueKey, want: want, item: item,
+            summary: summary, stance: pos || null, blocked: ''
+          };
+          // Guard order is the order a reader would check them in: is the issue
+          // shippable, is there a real stated position, is the cited vote
+          // citable, is the identity clean, does the verdict hold.
+          cand.blocked =
+            blockIssue(pid, issueKey, pos && pos.text, item) ||
+            (pos ? '' : 'no stated position on this issue to line the vote up against') ||
+            blockStance(pos && pos.text) ||
+            blockRecord(item) ||
+            blockDuplicateIdentity(records, issueKey, item.number) ||
+            stableVerdict(summary, want);
+          out.push(cand);
+        });
+    });
+
+    // Strongest first: decisiveness of the issue verdict, then the weight of the
+    // cited vote, then recency. Contradictions and consistencies are ranked in
+    // the same units so neither is structurally favoured.
+    out.forEach(function (c) {
+      var mapping = mappingOn(c.item, c.issueKey);
+      var w = (mapping && typeof mapping.weight === 'number') ? mapping.weight : 100;
+      var margin = Math.abs(c.summary.contradictScore - c.summary.consistentScore);
+      c.strength = w + margin + Math.max(0, yearOf(c.item.date) - 2000) + (c.summary.total > 1 ? 25 : 0);
+    });
+    out.sort(function (a, b) { return b.strength - a.strength; });
+    return out;
+  }
+
+  function toCard(cand) {
+    if (!cand || cand.blocked) return null;
+    var card = baseCard(cand.pid, cand.item, cand.issueKey, cand.stance, VERDICTS[cand.want]);
+    card.score = cand.strength;
+    card.recordSummary = {
+      total: cand.summary.total,
+      consistent: cand.summary.consistent,
+      contradicts: cand.summary.contradicts,
+      netVerdict: cand.summary.netVerdict
+    };
+    return card;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE OMNIBUS SPLIT CARD  ·  "one vote, two outcomes"
+  // ──────────────────────────────────────────────────────────────────────────
+  // Built on top of an ordinary eligible card, never instead of one: the same
+  // member, the same stated position, the same single cited vote, the same
+  // guards. What it adds is the disclosure that the one vote it cites moved
+  // several curated issues at once, and in opposite directions — read straight
+  // off _measureComponentBreakdown, the same primitive the H.R. 1 Showcase and
+  // the profile's multi-issue note use. It invents no mapping and re-weights
+  // nothing; it only names what the mapping already says.
+  //   One claim per card is preserved: the claim is still "this member's stated
+  //   position on THIS issue vs their vote", and the split is the context that
+  //   makes that vote legible rather than a second claim.
+  // ══════════════════════════════════════════════════════════════════════════
+  function splitFor(item, issueKey) {
+    if (typeof window._measureComponentBreakdown !== 'function') return null;
+    var brk;
+    try { brk = window._measureComponentBreakdown(item, {}, { labelFn: issueLabel }); }
+    catch (e) { return null; }
+    if (!brk || !brk.isOmnibus) return null;
+    var advances = [], opposes = [], self = null;
+    brk.components.forEach(function (c) {
+      if (self === null && c.issueKey === issueKey) { self = c; return; }
+      if (c.effect === 'advances') advances.push(c.label);
+      else if (c.effect === 'opposes') opposes.push(c.label);
+    });
+    if (self) {
+      // The focus issue belongs on its own side of the split, first, so the card
+      // never appears to leave out the issue it is judging.
+      if (self.effect === 'advances') advances.unshift(self.label);
+      else if (self.effect === 'opposes') opposes.unshift(self.label);
+    }
+    // Only a genuine split is worth a different card. A bill that pushes six
+    // issues the same way is an ordinary vote with a long mapping list.
+    if (!advances.length || !opposes.length) return null;
+    return {
+      count: brk.count,
+      advances: advances,
+      opposes: opposes,
+      focusKey: issueKey,
+      focusEffect: self ? self.effect : 'none'
+    };
+  }
+
+  function omnibus(pid, number) {
+    var want = number ? String(number).toUpperCase().replace(/\s+/g, ' ') : '';
+    var list = candidates(pid).filter(function (c) {
+      if (c.blocked) return false;
+      if (!want) return true;
+      return String(c.item.number || '').toUpperCase().replace(/\s+/g, ' ') === want;
+    });
+    for (var i = 0; i < list.length; i++) {
+      var split = splitFor(list[i].item, list[i].issueKey);
+      if (!split) continue;
+      var card = toCard(list[i]);
+      if (!card) continue;
+      card.split = split;
+      // The stamp changes because the CLAIM the reader should take away changes:
+      // the same vote moved this issue one way and others the other way. The
+      // underlying say-vs-do verdict is preserved on the card for anyone reading
+      // it programmatically.
+      card.saydoVerdict = card.verdict;
+      card.verdict = VERDICTS.omnibus;
+      card.impact = card.saydoVerdict.key === 'contradicts' ? 'negative' : 'positive';
+      return card;
+    }
+    return null;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PUBLIC READS
+  // ══════════════════════════════════════════════════════════════════════════
+  function cardsFor(pid, opts) {
+    opts = opts || {};
+    var cards = [];
+    candidates(pid).forEach(function (c) {
+      var card = toCard(c);
+      if (!card) return;
+      if (opts.want && card.verdict.key !== opts.want) return;
+      if (opts.issueKey && card.issueKey !== opts.issueKey) return;
+      // One card per (member, issue): the strongest one. A member with a stated
+      // position and a mixed record does not get two cards arguing with each
+      // other.
+      for (var i = 0; i < cards.length; i++) if (cards[i].issueKey === card.issueKey) return;
+      cards.push(card);
+    });
+    return cards;
+  }
+  function firstOf(pid, want) {
+    var list = cardsFor(pid, { want: want });
+    return list.length ? list[0] : null;
+  }
+  function contradiction(pid) { return firstOf(pid, 'contradicts'); }
+  function consistency(pid) { return firstOf(pid, 'consistent'); }
+  function find(pid, issueKey) {
+    if (!pid) return null;
+    var list = cardsFor(pid, issueKey ? { issueKey: issueKey } : {});
+    return list.length ? list[0] : null;
+  }
+  // Every candidate with the reason it was kept or dropped. This is the surface
+  // the Wave-1 exclusion list is read off, and the surface the tests assert on.
+  function audit(pid) {
+    return candidates(pid).map(function (c) {
+      return {
+        pid: c.pid, issueKey: c.issueKey, want: c.want,
+        measure: c.item.number || '', measureType: c.item.measureType || '',
+        question: c.item.action || '', position: c.item.position || '',
+        date: dayOf(c.item.date), netVerdict: c.summary.netVerdict,
+        eligible: !c.blocked, reason: c.blocked || 'eligible'
+      };
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // WARMING  ·  the record has to be in the sync cache before a card exists
+  // ──────────────────────────────────────────────────────────────────────────
+  // Mirrors consistency.js's queueWarm: one attempt per member, resolves to
+  // whatever is warm afterwards. Never throws — a card that cannot be built is
+  // simply not offered.
+  // ══════════════════════════════════════════════════════════════════════════
+  var _warmed = {};
+  function warm(pid) {
+    pid = canonPid(pid);
+    if (!pid) return Promise.resolve(null);
+    if (recordsFor(pid)) return Promise.resolve(recordsFor(pid));
+    if (_warmed[pid]) return _warmed[pid];
+    var VR = window.PDXVotingRecord;
+    if (!VR || typeof VR.fetchMember !== 'function') return Promise.resolve(null);
+    _warmed[pid] = VR.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+      if (data && data.items && data.items.length && typeof VR.noteMember === 'function') {
+        VR.noteMember(pid, data.items);
+      }
+      return recordsFor(pid);
+    }).catch(function () { return null; });
+    return _warmed[pid];
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SHARE  ·  one tap, straight through the existing pipeline
+  // ──────────────────────────────────────────────────────────────────────────
+  // PDXReceipts.share() already accepts a receipt OBJECT (it branches on
+  // `idOrReceipt.verdict`), so a vote-derived card needs no new image code, no
+  // new share sheet and no new fallback menu. Mobile stays one tap: the button
+  // handler calls share(pid) and the record is warmed inside that same gesture.
+  // ══════════════════════════════════════════════════════════════════════════
+  function share(cardOrPid, btn) {
+    var card = (cardOrPid && cardOrPid.verdict) ? cardOrPid : null;
+    if (card) return doShare(card, btn);
+    var pid = cardOrPid;
+    var ready = find(pid);
+    if (ready) return doShare(ready, btn);
+    // Not warm yet — fetch, then share. Still one tap for the reader.
+    return warm(pid).then(function () {
+      var c = find(pid);
+      if (c) return doShare(c, btn);
+      if (window.PDXReceipts && typeof window.PDXReceipts.share === 'function') {
+        // Nothing eligible on the record side. Fall back to the curated feed
+        // rather than telling the reader nothing exists.
+        return window.PDXReceipts.share(pid, btn);
+      }
+      return null;
+    });
+  }
+  function doShare(card, btn) {
+    if (!window.PDXReceipts || typeof window.PDXReceipts.share !== 'function') return null;
+    return window.PDXReceipts.share(card, btn);
+  }
+  function renderImage(card) {
+    if (!window.PDXReceipts || typeof window.PDXReceipts.renderImage !== 'function') {
+      return Promise.reject(new Error('share pipeline not loaded'));
+    }
+    return window.PDXReceipts.renderImage(card);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ONE-TAP BUTTON DELEGATE + DEEP LINK
+  // ──────────────────────────────────────────────────────────────────────────
+  // `.pdxrc-share-btn[data-pid]` (optionally with data-issue / data-measure)
+  // shares a vote-derived card. Bound once, at the document level, like the
+  // Say-vs-Do delegate it sits beside.
+  //
+  // #record=<pid>~<issueKey> lands a reader on the Official Record gap view for
+  // that exact (member, issue) — PDXConsistency.openGap, the surface that shows
+  // the vote, its question and its source. It deliberately does NOT open the
+  // Say-vs-Do receipt lightbox: a formal legislative action must not appear on a
+  // Say-vs-Do surface, and a card that linked there would breach the same
+  // boundary it was built to respect.
+  // ══════════════════════════════════════════════════════════════════════════
+  function bindDelegate() {
+    if (window._pdxrcBound) return;
+    window._pdxrcBound = true;
+    document.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest && e.target.closest('.pdxrc-share-btn');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      var pid = btn.getAttribute('data-pid');
+      var iss = btn.getAttribute('data-issue') || '';
+      var num = btn.getAttribute('data-measure') || '';
+      if (!pid) return;
+      var go = function () {
+        var card = num ? omnibus(pid, num) : (iss ? find(pid, iss) : find(pid));
+        if (card) return doShare(card, btn);
+        return share(pid, btn);
+      };
+      if (recordsFor(canonPid(pid))) go(); else warm(pid).then(go);
+    }, true);
+  }
+
+  var _hashTries = 0;
+  function handleHash(retry) {
+    var m = (location.hash || '').match(/^#record=([^~&]+)(?:~([^&]+))?/);
+    if (!m) { _hashTries = 0; return; }
+    var pid = '', iss = '';
+    try { pid = decodeURIComponent(m[1]); } catch (e) { pid = m[1]; }
+    try { iss = m[2] ? decodeURIComponent(m[2]) : ''; } catch (e) { iss = m[2] || ''; }
+    if (!retry) _hashTries = 0;
+    var open = function () {
+      if (window.PDXConsistency && typeof window.PDXConsistency.openGap === 'function' && iss) {
+        window.PDXConsistency.openGap(pid, iss);
+        return true;
+      }
+      if (typeof window.showProfile === 'function') { window.showProfile(pid); return true; }
+      return false;
+    };
+    // The record arrives asynchronously, so an unresolved link retries briefly
+    // rather than flashing an empty view — the same contract say-vs-do.js uses.
+    if (recordsFor(canonPid(pid)) && open()) { _hashTries = 0; return; }
+    if (_hashTries === 0) { try { warm(pid); } catch (e) {} }
+    if (_hashTries++ < 10) setTimeout(function () { handleHash(true); }, 700);
+    else open();
+  }
+
+  window.PDXReceiptCards = {
+    // reads
+    cardsFor: cardsFor,
+    contradiction: contradiction,
+    consistency: consistency,
+    omnibus: omnibus,
+    find: find,
+    audit: audit,
+    // actions
+    warm: warm,
+    share: share,
+    renderImage: renderImage,
+    // exposed so scripts/test-receipt-cards.mjs can assert on the guards
+    // themselves rather than only on their effects, and so a future reader can
+    // see the exclusion list without reading the whole file.
+    guards: {
+      blockRecord: blockRecord,
+      blockIssue: blockIssue,
+      blockStance: blockStance,
+      blockDuplicateIdentity: blockDuplicateIdentity,
+      stableVerdict: stableVerdict,
+      blockedMeasureTypes: BLOCKED_MEASURE_TYPES,
+      blockedIssueKeys: BLOCKED_ISSUE_KEYS,
+      restraintPids: AFP_RESTRAINT_PIDS
+    },
+    VERDICTS: VERDICTS,
+    METHOD_URL: METHOD_URL,
+    // pure, testable pieces
+    proofLine: proofLine,
+    splitFor: splitFor,
+    candidates: candidates
+  };
+
+  function boot() {
+    try { bindDelegate(); } catch (e) {}
+    try { handleHash(); } catch (e) {}
+    window.addEventListener('hashchange', function () { try { handleHash(); } catch (e) {} });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();

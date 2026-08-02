@@ -52322,6 +52322,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        (voting-record.js, say-vs-do.js) and before the surfaces that render it
        (issue-compare.js and the inline profile / comparison code). -->
   <script defer src="consistency.js"></script>
+  <!-- Vote-derived share cards (window.PDXReceiptCards). A SECOND FEED into the
+       share-card renderer in say-vs-do.js: it turns Official Record verdicts
+       (a member's own floor vote against their own stated position on the same
+       issue key) into images through the existing canvas / share pipeline, behind
+       trust guards that fail closed. It adds nothing to PDXReceipts.collect(), so
+       no Official Record verdict enters a Say-vs-Do score. Loads after
+       voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
+       and consistency.js (the shared proof vocabulary and openGap landing). -->
+  <script defer src="receipt-cards.js"></script>
   <!-- Issue View — the issue-first ranked view (window.PDXIssueView). Loads after
        say-vs-do.js (it reads PDXReceipts) and the stance / core-issue globals it
        ranks from (ISSUE_STANCE_DATA, ISSUE_MAP, CORE_NATIONAL_ISSUES); mounts the

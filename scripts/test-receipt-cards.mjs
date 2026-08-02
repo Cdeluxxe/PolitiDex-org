@@ -1,0 +1,632 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// Unit tests for the VOTE-DERIVED SHARE CARDS in receipt-cards.js
+// ─────────────────────────────────────────────────────────────────────────────
+// receipt-cards.js is a second feed into the share-card renderer that already
+// ships in say-vs-do.js: it turns Official Record verdicts (a member's own floor
+// vote against their own stated position on the same ISSUE_MAP key) into images
+// through the existing canvas / share pipeline.
+//
+// A share card is the only PolitiDex surface that travels WITHOUT its context —
+// no link to follow, no methodology panel one tap away, nothing to correct it
+// once it is a PNG in someone's feed. So the thing worth testing here is not
+// that cards get built; it is that the wrong ones DON'T. This harness gates:
+//
+//   1. the GUARDS, each against the specific defect it exists to stop — a
+//      nomination proxy, an incoherent issue key, a mis-filed stance, a
+//      procedural question, a circular vote-derived "they said", a duplicated
+//      measure identity, and a verdict that disagrees with the profile it links
+//      to. Every guard must fail CLOSED;
+//   2. the CARD CONTRACT — name, office, issue, they-said, bill · question ·
+//      position · date, a citable URL, a visible method link and a verdict stamp,
+//      all sourced from the input and nothing invented;
+//   3. the OMNIBUS SPLIT — one vote, both directions, read off the stored mapping;
+//   4. the BOUNDARY — no Official Record verdict reaches a Say-vs-Do score, and a
+//      card's deep link lands on the Official Record view, not the Say-vs-Do one.
+//
+//   node scripts/test-receipt-cards.mjs
+//
+// No database, no network, no browser. Exit code is non-zero on the first failure.
+
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// ── Sandbox ───────────────────────────────────────────────────────────────────
+// Enough document for the boot guards in say-vs-do.js / receipt-cards.js to
+// no-op. setInterval is stubbed to a dead token so say-vs-do.js's refresh poll
+// cannot hold the process open.
+const noopEl = () => ({
+  style: {}, textContent: "", hidden: false, className: "", innerHTML: "",
+  classList: { add() {}, remove() {}, contains: () => false },
+  setAttribute() {}, getAttribute: () => null, appendChild() {}, removeChild() {},
+  querySelector: () => null, querySelectorAll: () => [],
+  addEventListener() {}, removeEventListener() {}, focus() {}, scrollIntoView() {},
+  closest: () => null, insertAdjacentHTML() {}, remove() {},
+});
+const ctx = {
+  console,
+  document: {
+    readyState: "complete",
+    head: noopEl(), body: noopEl(), documentElement: noopEl(),
+    createElement: noopEl, getElementById: () => null,
+    querySelector: () => null, querySelectorAll: () => [],
+    addEventListener() {},
+  },
+  location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+  navigator: {},
+  setTimeout: () => 0, clearTimeout: () => {},
+  setInterval: () => 0, clearInterval: () => {},
+  requestAnimationFrame: () => 0,
+  JSON, Math, Date, Promise, encodeURIComponent, decodeURIComponent,
+};
+ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
+ctx.addEventListener = () => {};
+
+// ── Fixtures, declared BEFORE load so the modules see them like a real page ───
+ctx.ISSUE_MAP = ctx.window.ISSUE_MAP = {
+  national_debt:     { label: "💰 National Debt" },
+  lower_taxes:       { label: "🧾 Lower Taxes" },
+  healthcare:        { label: "🏥 Health Care" },
+  climate_action:    { label: "🌍 Climate Action" },
+  border_security:   { label: "🛂 Border Security" },
+  gov_regulation:    { label: "📋 Government Regulation" },
+  lands_preserve:    { label: "🏞️ Public Lands" },
+  school_choice:     { label: "🎓 School Choice" },
+  tariffs_authority: { label: "⚖️ Tariff Authority" },
+  america_first_fp:  { label: "🌐 America First Foreign Policy" },
+  restraint:         { label: "🕊️ Military Restraint" },
+  strong_defense:    { label: "🛡️ Strong Defense" },
+};
+
+const SRC = (u) => ({ url: u, label: "Congress.gov" });
+
+// One member, one stated position per issue — each written to exercise exactly
+// one branch of the guards.
+ctx.ISSUE_STANCE_DATA = ctx.window.ISSUE_STANCE_DATA = {
+  testrep: [
+    { issueKey: "national_debt", issueStance: "support", topic: "National Debt",
+      text: "The deficit is the defining threat to the next generation and I will not vote to add to it." },
+    { issueKey: "lower_taxes", issueStance: "support", topic: "Taxes",
+      text: "Every bracket should keep more of what it earns." },
+    { issueKey: "healthcare", issueStance: "support", topic: "Health Care",
+      text: "Medicaid coverage in this district must be protected." },
+    { issueKey: "climate_action", issueStance: "support", topic: "Climate",
+      text: "Emissions have to fall this decade, not the next one." },
+    { issueKey: "school_choice", issueStance: "support", topic: "Schools",
+      text: "Families should be able to choose the school that fits their child." },
+    { issueKey: "gov_regulation", issueStance: "oppose", topic: "Regulation",
+      text: "Federal rulemaking has outrun the Congress that authorised it." },
+    { issueKey: "lands_preserve", issueStance: "oppose", topic: "Public Lands",
+      text: "Public land should stay in public hands." },
+    // Guard 3 — the incoherent key. This text is the congressional-authority
+    // reading of `tariffs_authority`, filed as support, which is what makes the
+    // key unshippable.
+    { issueKey: "tariffs_authority", issueStance: "support", topic: "Tariffs",
+      text: "The Constitution gives Congress — not the president — the power to set tariffs." },
+    // Guard 4 — a restraint position filed under america_first_fp.
+    { issueKey: "america_first_fp", issueStance: "support", topic: "Foreign Policy",
+      text: "No more endless wars: Congress never authorised this deployment." },
+    // Guard 10 — a stated position that is itself a vote.
+    { issueKey: "border_security", issueStance: "support", topic: "Border",
+      text: "Voted against an amendment (H.Amdt. 252) that would have stripped the funding." },
+  ],
+};
+ctx.PROFILES = ctx.window.PROFILES = {
+  testrep: { name: "Rep. Test Member", office: "U.S. House", district: "TX-07", state: "TX", party: "R" },
+};
+
+// The record. Shapes match voting-record.js's hydrateIssueRecords output.
+const RECORDS = [
+  // The workhorse: a real omnibus, five mapped issues, both directions.
+  {
+    kind: "vote", measureId: 1, measureType: "bill", number: "H.R. 1",
+    title: "One Big Beautiful Bill Act", chamber: "house", result: "Passed",
+    date: "2025-07-03", action: "On Passage", position: "yea",
+    isProcedural: false, advanceInverted: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/1?q=1"),
+    issues: [
+      { issueKey: "lower_taxes", weight: 100, isPrimary: true, supportMeaning: "yea_supports",
+        rationale: "Extends and expands the 2017 individual rate cuts." },
+      { issueKey: "national_debt", weight: 65, isPrimary: false, supportMeaning: "yea_opposes",
+        rationale: "CBO scores the package as adding to the deficit over ten years." },
+      { issueKey: "healthcare", weight: 60, isPrimary: false, supportMeaning: "yea_opposes" },
+      { issueKey: "climate_action", weight: 55, isPrimary: false, supportMeaning: "yea_opposes" },
+      { issueKey: "border_security", weight: 55, isPrimary: false, supportMeaning: "yea_supports" },
+    ],
+  },
+  // Guard 1 — a confirmation vote carrying a policy key at full weight.
+  {
+    kind: "vote", measureId: 2, measureType: "nomination", number: "PN 100",
+    title: "Nomination of a Secretary of Health and Human Services", chamber: "senate",
+    result: "Confirmed", date: "2025-02-13", action: "On the Nomination", position: "yea",
+    isProcedural: false, source: SRC("https://www.congress.gov/nomination/119th-congress/100"),
+    issues: [{ issueKey: "healthcare", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }],
+  },
+  // Guard 3 — the incoherent key.
+  {
+    kind: "vote", measureId: 3, measureType: "resolution", number: "S.J.Res. 37",
+    title: "Terminating the national emergency underlying certain tariffs", chamber: "senate",
+    result: "Rejected", date: "2025-04-30", action: "On Passage", position: "nay",
+    isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37"),
+    issues: [{ issueKey: "tariffs_authority", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+  // Guard 4 — america_first_fp resting on the restraint stance above.
+  {
+    kind: "vote", measureId: 4, measureType: "amendment", number: "H.Amdt. 252",
+    title: "Amendment prohibiting funds for unauthorized hostilities", chamber: "house",
+    result: "Failed", date: "2025-06-18", action: "On Agreeing to the Amendment", position: "nay",
+    isProcedural: false, source: SRC("https://www.congress.gov/amendment/119th-congress/house-amendment/252"),
+    issues: [
+      { issueKey: "america_first_fp", weight: 80, isPrimary: true, supportMeaning: "yea_supports" },
+      { issueKey: "strong_defense", weight: 40, isPrimary: false, supportMeaning: "yea_opposes" },
+    ],
+  },
+  // Guard 6 — procedural question.
+  {
+    kind: "vote", measureId: 5, measureType: "bill", number: "H.R. 22",
+    title: "SAVE Act", chamber: "house", result: "Failed",
+    date: "2025-03-04", action: "On Motion to Recommit", position: "yea",
+    isProcedural: true, source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/22"),
+    issues: [{ issueKey: "gov_regulation", weight: 70, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+  // Guard 11 — ONE bill number arriving through TWO measure ids, the client-side
+  // backstop for a database that has not applied the identity-merge migration.
+  {
+    kind: "vote", measureId: 56, measureType: "bill", number: "S.J.Res. 18",
+    title: "Disapproving a rule on public land management", chamber: "senate",
+    result: "Passed", date: "2025-05-08", action: "On Passage", position: "yea",
+    isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18"),
+    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes" }],
+  },
+  {
+    kind: "vote", measureId: 141, measureType: "resolution", number: "S.J.Res. 18",
+    title: "Disapproving a rule on public land management", chamber: "senate",
+    result: "Passed", date: "2025-05-08", action: "On Passage", position: "yea",
+    isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18"),
+    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes" }],
+  },
+  // Guard 9 — school_choice: two votes matching the stance, one against it. A
+  // contradiction card exists locally but the NET record does not say contradicts.
+  {
+    kind: "vote", measureId: 7, measureType: "bill", number: "H.R. 5",
+    title: "Educational Choice for Children Act", chamber: "house", result: "Passed",
+    date: "2025-09-10", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/5"),
+    issues: [{ issueKey: "school_choice", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+  {
+    kind: "vote", measureId: 8, measureType: "bill", number: "H.R. 6",
+    title: "Charter School Expansion Act", chamber: "house", result: "Passed",
+    date: "2025-10-01", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/6"),
+    issues: [{ issueKey: "school_choice", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+  },
+  {
+    kind: "vote", measureId: 9, measureType: "bill", number: "H.R. 7",
+    title: "Public School Funding Floor Act", chamber: "house", result: "Passed",
+    date: "2025-10-15", action: "On Passage", position: "yea", isProcedural: false,
+    source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/7"),
+    issues: [{ issueKey: "school_choice", weight: 40, isPrimary: true, supportMeaning: "yea_opposes" }],
+  },
+];
+
+// A second member used only for the record-quality guards, so the fixtures above
+// stay readable. No stated positions are needed: these must be refused before a
+// stance is ever consulted.
+ctx.ISSUE_STANCE_DATA.thinrep = [
+  { issueKey: "climate_action", issueStance: "support", text: "Emissions have to fall this decade." },
+];
+ctx.PROFILES.thinrep = { name: "Rep. Thin Record", office: "U.S. House", state: "OH", party: "D" };
+const THIN_RECORDS = [
+  { kind: "vote", measureId: 20, measureType: "bill", number: "H.R. 30", title: "Clean Grid Act",
+    chamber: "house", result: "Passed", date: "2025-04-01", action: "On Passage", position: "yea",
+    isProcedural: false, source: null,                    // guard 7 — no source URL
+    issues: [{ issueKey: "climate_action", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }] },
+];
+
+// Stub the record data layer the module reads through.
+const RECORD_STORE = { testrep: RECORDS, thinrep: THIN_RECORDS };
+ctx.window.PDXVotingRecord = {
+  memberRecords: (pid) => RECORD_STORE[pid] || null,
+  fetchMember: (pid) => Promise.resolve({ items: RECORD_STORE[pid] || [] }),
+  noteMember: () => {},
+};
+
+const sandbox = vm.createContext(ctx);
+for (const file of ["stance-helpers.js", "consistency.js", "say-vs-do.js", "receipt-cards.js"]) {
+  vm.runInContext(readFileSync(join(ROOT, file), "utf8"), sandbox, { filename: file });
+}
+
+let passed = 0;
+const failures = [];
+const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
+const eq = (a, b, msg) =>
+  ok(a === b, `${msg} (got ${JSON.stringify(a)}, want ${JSON.stringify(b)})`);
+const has = (hay, needle, msg) =>
+  ok(String(hay).includes(needle), `${msg} (${JSON.stringify(needle)} missing from ${JSON.stringify(hay)})`);
+const lacks = (hay, needle, msg) =>
+  ok(!String(hay).includes(needle), `${msg} (${JSON.stringify(needle)} unexpectedly present in ${JSON.stringify(hay)})`);
+
+const RC = ctx.window.PDXReceiptCards;
+ok(!!RC, "export: window.PDXReceiptCards exists");
+if (!RC) { console.error("✖ PDXReceiptCards not exported — cannot continue"); process.exit(1); }
+for (const fn of ["cardsFor", "contradiction", "consistency", "omnibus", "find", "audit", "warm", "share", "guards"]) {
+  ok(RC[fn] != null, `export: PDXReceiptCards.${fn} is present`);
+}
+
+// Index the audit once — every guard assertion reads off it.
+const auditRows = RC.audit("testrep");
+const row = (issueKey, want) => auditRows.find((a) => a.issueKey === issueKey && a.want === want) || null;
+const reasonFor = (issueKey, want) => { const r = row(issueKey, want); return r ? r.reason : "(no such candidate)"; };
+const eligible = (issueKey, want) => { const r = row(issueKey, want); return !!(r && r.eligible); };
+
+// ══ 1. THE GUARDS ════════════════════════════════════════════════════════════
+
+// ── Guard 1 · nominations ─────────────────────────────────────────────────────
+// The single largest exclusion: confirmation votes are mapped as policy proxies,
+// so "the record shows: voted Yea on health care" would rest on a vote about a
+// person. Nothing on a nomination may ever become a card.
+ok(!eligible("healthcare", "contradicts"), "guard 1: a nomination-backed contradiction is not eligible");
+has(reasonFor("healthcare", "contradicts"), "confirmation vote",
+  "guard 1: the reason names the nomination proxy");
+for (const r of auditRows) {
+  ok(!(r.eligible && r.measureType === "nomination"),
+    `guard 1: no eligible card cites a nomination (${r.issueKey}/${r.measure})`);
+}
+// And directly, so the guard cannot be reached only by accident of the fixtures.
+ok(!!RC.guards.blockRecord({ kind: "vote", measureType: "nomination", position: "yea", number: "PN 1", action: "On the Nomination", date: "2025-01-01", source: SRC("https://x.test/1") }),
+  "guard 1: blockRecord refuses measure_type = nomination outright");
+
+// ── Guard 3 · tariffs_authority ───────────────────────────────────────────────
+// Support-filed stances under this key mean opposite things, so the one measure
+// mapping reads backwards for one of them.
+for (const want of ["contradicts", "consistent"]) {
+  ok(!eligible("tariffs_authority", want), `guard 3: no tariffs_authority ${want} card is eligible`);
+}
+has(RC.guards.blockIssue("anyone", "tariffs_authority", "any stance"), "opposite meanings",
+  "guard 3: the reason names the incoherent semantics");
+ok(RC.guards.blockedIssueKeys.tariffs_authority, "guard 3: tariffs_authority is on the blocked-key list");
+
+// ── Guard 4 · america_first_fp resting on a restraint position ────────────────
+ok(!eligible("america_first_fp", "contradicts"), "guard 4: restraint-framed afp contradiction is not eligible");
+ok(!eligible("america_first_fp", "consistent"), "guard 4: restraint-framed afp consistency is not eligible");
+has(RC.guards.blockIssue("someone_else", "america_first_fp", "No more endless wars in the region."),
+  "restraint", "guard 4: restraint-framed stance text blocks the key for any pid");
+for (const pid of ["aoc", "khanna", "tlaib", "jayapal", "lee"]) {
+  has(RC.guards.blockIssue(pid, "america_first_fp", "America First means our allies pay their share."),
+    "re-filed under `restraint`", `guard 4: ${pid} is held on america_first_fp pending the re-file`);
+}
+// The same key is NOT blocked for an America-First-framed stance from a pid that
+// is not on the hold list — the guard is scoped to the defect, not to the issue.
+eq(RC.guards.blockIssue("other_rep", "america_first_fp", "America First means our allies pay their share."), "",
+  "guard 4: an America-First-framed stance from an unaffected pid is not blocked");
+// `restraint` itself is shippable — the fix this guard is waiting on is available.
+eq(RC.guards.blockIssue("aoc", "restraint", "Congress never authorised this deployment."), "",
+  "guard 4: the `restraint` key the stances should be re-filed under is itself shippable");
+// The MEASURE side of the same defect: four of the measures mapped to
+// america_first_fp are ALSO mapped to `restraint` (the Iran / Lebanon / Ukraine
+// war-powers measures), so a card citing one rests on a restraint position no
+// matter which way the member voted or how their stance is framed.
+const DUAL = {
+  kind: "vote", measureType: "resolution", number: "S.J.Res. 59", title: "Iran war powers resolution",
+  action: "On Passage of the Joint Resolution", position: "nay", date: "2025-06-27", isProcedural: false,
+  source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59"),
+  issues: [
+    { issueKey: "america_first_fp", weight: 70, isPrimary: false, supportMeaning: "yea_supports" },
+    { issueKey: "restraint", weight: 100, isPrimary: true, supportMeaning: "yea_supports" },
+  ],
+};
+has(RC.guards.blockIssue("some_rep", "america_first_fp", "America First means our allies pay their share.", DUAL),
+  "curated as both america_first_fp and `restraint`",
+  "guard 4: a vote curated as both keys cannot carry an America-First card");
+eq(RC.guards.blockIssue("some_rep", "restraint", "Congress must authorise this.", DUAL), "",
+  "guard 4: the same dual-mapped vote CAN carry a `restraint` card — that is the key it belongs to");
+// A single-key america_first_fp measure is unaffected: the guard is scoped to the
+// conflation, not to the issue.
+eq(RC.guards.blockIssue("some_rep", "america_first_fp", "America First means our allies pay their share.", {
+  issues: [{ issueKey: "america_first_fp", weight: 70, supportMeaning: "yea_supports" }],
+}), "", "guard 4: an america_first_fp-only measure is not blocked by the conflation guard");
+
+// ── Guards 5–8 · what a citable record must carry ─────────────────────────────
+const GOOD = { kind: "vote", measureType: "bill", number: "H.R. 1", title: "A Real Bill",
+  action: "On Passage", position: "yea", date: "2025-07-03", isProcedural: false,
+  source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/1") };
+eq(RC.guards.blockRecord(GOOD), "", "guard 5-8: a complete, substantive, sourced vote passes");
+has(RC.guards.blockRecord({ ...GOOD, kind: "position" }), "not a recorded floor vote",
+  "guard 5: a co-sponsorship is real record but is not a vote, so it cannot say 'voted'");
+has(RC.guards.blockRecord({ ...GOOD, position: "present" }), "no directional vote",
+  "guard 5: present / not-voting carries no direction to report");
+has(RC.guards.blockRecord({ ...GOOD, isProcedural: true }), "procedural",
+  "guard 6: a procedural question is refused — the nuance cannot travel with the image");
+has(RC.guards.blockRecord({ ...GOOD, advanceInverted: true }), "procedural",
+  "guard 6: an inverted-direction vote is refused for the same reason");
+has(RC.guards.blockRecord({ ...GOOD, number: "" }), "no bill number", "guard 7: a card must cite a bill number");
+has(RC.guards.blockRecord({ ...GOOD, action: "" }), "no recorded question", "guard 7: a card must cite the question");
+has(RC.guards.blockRecord({ ...GOOD, date: "" }), "no date", "guard 7: a card must carry a date");
+has(RC.guards.blockRecord({ ...GOOD, source: null }), "no source URL", "guard 7: a card must carry a source URL");
+has(RC.guards.blockRecord({ ...GOOD, source: { label: "Congress.gov" } }), "no source URL",
+  "guard 7: a source with a label but no URL is not checkable");
+has(RC.guards.blockRecord({ ...GOOD, title: "Roll call 310" }), "provisional",
+  "guard 8: a provisional 'Roll call NNN' title names nothing a reader can look up");
+eq(RC.guards.blockRecord(null), "no record", "guard 5-8: a missing record fails closed");
+// End to end: the unsourced record on the second member yields no card at all.
+eq(RC.find("thinrep"), null, "guard 7: a member whose only mapped vote has no source URL gets no card");
+has(reasonFor2(RC.audit("thinrep"), "climate_action", "contradicts"), "no source URL",
+  "guard 7: the audit reports the missing source URL as the reason");
+function reasonFor2(rows, issueKey, want) {
+  const r = rows.find((a) => a.issueKey === issueKey && a.want === want);
+  return r ? r.reason : "(no such candidate)";
+}
+
+// ── Guard 10 · a circular receipt ─────────────────────────────────────────────
+// A "they said" that is itself a vote makes both halves of the card the same
+// fact, and quietly moves a legislative action onto the Say-vs-Do side.
+ok(!eligible("border_security", "contradicts") && !eligible("border_security", "consistent"),
+  "guard 10: a vote-derived stated position yields no card");
+has(RC.guards.blockStance("Voted against an amendment (H.Amdt. 252) to strip the funding."), "circular",
+  "guard 10: a stance written as a vote is refused");
+has(RC.guards.blockStance("Cosponsored S. 5 to expand the credit."), "circular",
+  "guard 10: a stance written as a co-sponsorship is refused");
+has(RC.guards.blockStance("Backs H.R. 1 as written."), "circular",
+  "guard 10: a stance that cites a measure number is refused");
+eq(RC.guards.blockStance("Every bracket should keep more of what it earns."), "",
+  "guard 10: an ordinary stated position passes");
+has(RC.guards.blockStance(""), "no stated position", "guard 10: an empty stance fails closed");
+
+// ── Guard 11 · duplicated measure identity ────────────────────────────────────
+// The client-side backstop for the identity-merge migration.
+ok(!eligible("lands_preserve", "consistent") && !eligible("lands_preserve", "contradicts"),
+  "guard 11: an issue reached through two measure ids for one bill number yields no card");
+const dupReason = reasonFor("lands_preserve", "consistent") + reasonFor("lands_preserve", "contradicts");
+has(dupReason, "duplicate identity", "guard 11: the reason names the unmerged duplicate identity");
+eq(RC.guards.blockDuplicateIdentity(RECORDS, "lower_taxes", "H.R. 1"), "",
+  "guard 11: a bill with one identity row is not blocked");
+eq(RC.guards.blockDuplicateIdentity(RECORDS, "lands_preserve", ""), "",
+  "guard 11: a missing number is handled by the record guards, not this one");
+
+// ── Guard 9 · verdict stability ───────────────────────────────────────────────
+// A card must show the same verdict the profile it links to shows, computed over
+// the WHOLE record. Otherwise anyone who follows the link is right to call the
+// card wrong.
+ok(!eligible("school_choice", "contradicts"),
+  "guard 9: a local contradiction is refused when the net record does not say contradicts");
+has(reasonFor("school_choice", "contradicts"), "net record verdict",
+  "guard 9: the reason names the disagreement with the profile");
+has(RC.guards.stableVerdict({ netVerdict: "mixed" }, "contradicts"), "net record verdict",
+  "guard 9: a mixed net record refuses a contradiction card");
+eq(RC.guards.stableVerdict({ netVerdict: "contradicts" }, "contradicts"), "",
+  "guard 9: a matching net verdict passes");
+has(RC.guards.stableVerdict(null, "consistent"), "no record summary",
+  "guard 9: a missing summary fails closed");
+// Every card that IS eligible agrees with its own net verdict, by construction.
+for (const r of auditRows) {
+  if (!r.eligible) continue;
+  eq(r.netVerdict, r.want, `guard 9: eligible ${r.issueKey} card matches the net record verdict`);
+}
+
+// A member with no stated position on an issue cannot have a say-vs-do card at
+// all — there is nothing for the vote to be measured against.
+const noStanceRow = auditRows.find((a) => a.issueKey === "strong_defense");
+if (noStanceRow) has(noStanceRow.reason, "no stated position",
+  "guards: an unmapped-to-a-stance issue is refused for want of something to check");
+
+// ══ 2. THE CARD CONTRACT ═════════════════════════════════════════════════════
+// The profile's own proof helper, and the fixtures indexed by bill number, so a
+// card's record line can be checked against the string the app already prints.
+const P0 = ctx.window.PDXConsistency && ctx.window.PDXConsistency.proof;
+const RECORD_BY_NUM = {};
+for (const r of RECORDS) if (!RECORD_BY_NUM[r.number]) RECORD_BY_NUM[r.number] = r;
+
+const contra = RC.contradiction("testrep");
+ok(!!contra, "cards: a contradiction card is built from the pre-cleared set");
+if (contra) {
+  eq(contra.issueKey, "national_debt", "cards: the strongest eligible contradiction is the debt vote");
+  eq(contra.verdict.key, "contradicts", "cards: verdict stamp is the contradiction stamp");
+  eq(contra.verdict.cls, "v-contradicts", "cards: verdict class matches the existing renderer vocabulary");
+  // politician name / office
+  eq(contra.name, "Rep. Test Member", "cards: politician name comes from the roster");
+  has(contra.sub, "U.S. House", "cards: office line is present");
+  has(contra.sub, "TX-07", "cards: district is present");
+  // issue
+  eq(contra.issue.label, "National Debt", "cards: issue label is the ISSUE_MAP label, emoji split off");
+  eq(contra.issue.icon, "💰", "cards: issue icon is split into its own field, as the renderer expects");
+  // They said
+  eq(contra.said.word, "Supports", "cards: the said line names the direction of the stated position");
+  has(contra.said.text, "defining threat", "cards: the said line quotes the stated position verbatim");
+  // The record shows: bill, question, position, date
+  eq(contra.headline, "H.R. 1 · On Passage · Voted Yea",
+    "cards: the record line is bill · question · position, in that order");
+  eq(contra.date, "2025-07-03", "cards: the date is the ISO day, matchable against the Clerk's record");
+  has(contra.facts, "One Big Beautiful Bill Act", "cards: the supporting line names the measure");
+  has(contra.facts, "CBO scores the package", "cards: the curated rationale for the mapping is carried through");
+  has(contra.facts, "Passed", "cards: the chamber outcome is carried through");
+  // source URL + method link + mark
+  eq(contra.source.url, "https://www.congress.gov/bill/119th-congress/house-bill/1?q=1",
+    "cards: the full source URL is retained for the link");
+  eq(contra.verifyUrl, "congress.gov/bill/119th-congress/house-bill/1",
+    "cards: the printed URL drops the scheme and query so it fits and can be typed by hand");
+  has(contra.method, "#methodology", "cards: a method link is on the card itself, not only in the app");
+  eq(contra.origin, "official_record", "cards: the card declares which system produced its verdict");
+  // one claim per card
+  eq(contra.measureNumber, "H.R. 1", "cards: exactly one measure is cited");
+  // Nothing invented: every claim on the card traces to the input.
+  const inputText = JSON.stringify(RECORDS[0]) + JSON.stringify(ctx.ISSUE_STANCE_DATA.testrep);
+  ok(inputText.includes(contra.said.text), "honesty: the said line is quoted, not paraphrased");
+  lacks(contra.headline, "H.R. 22", "honesty: no other bill leaks into the record line");
+  lacks(JSON.stringify(contra), "PN 100", "honesty: the excluded nomination appears nowhere on the card");
+}
+
+const consist = RC.consistency("testrep");
+ok(!!consist, "cards: a consistency card is built from the pre-cleared set");
+if (consist) {
+  eq(consist.verdict.key, "consistent", "cards: verdict stamp is the consistency stamp");
+  eq(consist.impact, "positive", "cards: a consistency card reads 'AND the record shows'");
+  // Ranking is by mapping weight, verdict margin and recency — not by which
+  // verdict is more provocative. The strongest consistency here is the one the
+  // engine scores highest, whatever bill that lands on; what must hold is that it
+  // is a real, fully-cited vote.
+  ok(/^(H|S)[.\w ]*\.? ?\d+ · .+ · Voted (Yea|Nay)$/.test(consist.headline),
+    `cards: a consistency card cites bill · question · position (got ${JSON.stringify(consist.headline)})`);
+  eq(consist.headline, P0 ? P0.proofText(RECORD_BY_NUM[consist.measureNumber]) : consist.headline,
+    "cards: same proof format on a consistency card");
+  has(consist.method, "#methodology", "cards: method stays visible on a consistency card too");
+  eq(consist.origin, "official_record", "cards: consistency cards declare their system too");
+}
+// The H.R. 1 consistency side specifically: the SAME vote that contradicts the
+// debt stance backs the tax stance. Both cards must exist, independently.
+const taxCard = RC.find("testrep", "lower_taxes");
+ok(!!taxCard, "cards: the tax side of the same omnibus vote is its own eligible card");
+if (taxCard) {
+  eq(taxCard.verdict.key, "consistent", "cards: the tax side of H.R. 1 reads as consistent");
+  eq(taxCard.headline, "H.R. 1 · On Passage · Voted Yea", "cards: the tax card cites the same one vote");
+  has(taxCard.facts, "Extends and expands",
+    "cards: the tax mapping's own curated rationale is carried through");
+  ok(contra && contra.measureNumber === taxCard.measureNumber,
+    "cards: one vote can yield two cards on two issues — that is the mapping, not a contradiction in the data");
+}
+eq(contra && contra.impact, "negative", "cards: a contradiction card reads 'BUT the record shows'");
+
+// One card per (member, issue) — a member never gets two cards arguing.
+const all = RC.cardsFor("testrep");
+const keys = all.map((c) => c.issueKey);
+eq(keys.length, new Set(keys).size, "cards: at most one card per member-issue");
+ok(all.length >= 2, "cards: the pre-cleared set yields at least a contradiction and a consistency");
+// Strongest first.
+for (let i = 1; i < all.length; i++) {
+  ok(all[i - 1].score >= all[i].score, "cards: cards are ordered strongest first");
+}
+// find() honours an issue key, for deep links.
+eq(RC.find("testrep", "national_debt").issueKey, "national_debt", "cards: find() resolves one issue");
+eq(RC.find("testrep", "tariffs_authority"), null, "cards: find() on a blocked key returns nothing");
+eq(RC.find("nobody_here"), null, "cards: an unknown member yields no card rather than throwing");
+
+// The proof line is the SAME string the profile's Official Record row prints, so
+// the card and the page can never disagree about what the record says.
+if (P0 && contra) {
+  eq(contra.headline, P0.proofText(RECORDS[0]),
+    "cards: the card's record line is the profile's own proof text, not a second phrasing");
+}
+// The one documented divergence: a question that repeats its own measure number
+// reads as a stutter once the number is already the first field, so the card
+// collapses the repeat. Nothing but the duplicated number is removed.
+eq(RC.proofLine({ kind: "vote", number: "H.J.Res. 88", action: "On the Joint Resolution H.J.Res. 88",
+  position: "yea" }), "H.J.Res. 88 · On the Joint Resolution · Voted Yea",
+  "cards: a question that repeats the bill number is collapsed on the card");
+eq(RC.proofLine({ kind: "vote", number: "H.R. 1", action: "On Passage", position: "yea" }),
+  "H.R. 1 · On Passage · Voted Yea",
+  "cards: an ordinary question is left exactly as the Clerk recorded it");
+// The number must survive even if the question is nothing BUT the number.
+has(RC.proofLine({ kind: "vote", number: "H.R. 1", action: "H.R. 1", position: "nay" }), "H.R. 1",
+  "cards: collapsing never empties the record line");
+
+// ══ 3. THE OMNIBUS SPLIT CARD ════════════════════════════════════════════════
+const omni = RC.omnibus("testrep", "H.R. 1");
+ok(!!omni, "omnibus: the H.R. 1 split card is built");
+if (omni) {
+  eq(omni.verdict.key, "omnibus", "omnibus: the stamp names the split, not a severity");
+  eq(omni.verdict.cls, "v-omnibus", "omnibus: the class has a CSS rule to match");
+  eq(omni.split.count, 5, "omnibus: the disclosed count is the real mapped count");
+  ok(omni.split.advances.length > 0 && omni.split.opposes.length > 0,
+    "omnibus: both directions are named — that IS the card");
+  has(omni.split.advances.join(" · "), "Lower Taxes", "omnibus: names an issue the vote advanced");
+  has(omni.split.opposes.join(" · "), "National Debt", "omnibus: names an issue the same vote cut against");
+  has(omni.split.opposes.join(" · "), "Health Care", "omnibus: names every opposed issue in the mapping");
+  // The say-vs-do verdict is preserved for anything reading the card in code.
+  ok(omni.saydoVerdict && ["contradicts", "consistent"].includes(omni.saydoVerdict.key),
+    "omnibus: the underlying say-vs-do verdict is preserved on the card");
+  eq(omni.headline, "H.R. 1 · On Passage · Voted Yea", "omnibus: still cites exactly one vote");
+  has(omni.method, "#methodology", "omnibus: method stays visible");
+  // Nothing invented: every label in the split is an issue this bill is mapped to.
+  const mapped = RECORDS[0].issues.map((i) => ctx.window.ISSUE_MAP[i.issueKey].label.replace(/^\S+\s/, ""));
+  for (const label of omni.split.advances.concat(omni.split.opposes)) {
+    ok(mapped.includes(label), `honesty: split label '${label}' comes from this bill's own mapping`);
+  }
+  // The excluded keys cannot appear even as split context.
+  lacks(JSON.stringify(omni.split), "Tariff", "honesty: a blocked key never appears in the split");
+}
+// A single-issue vote is not an omnibus and gets no split card.
+eq(RC.splitFor(RECORDS[6], "lands_preserve"), null, "omnibus: a single-issue vote has no split to disclose");
+// A package that pushes every issue the same way is not a split either.
+eq(RC.splitFor({
+  kind: "vote", position: "yea",
+  issues: [
+    { issueKey: "lower_taxes", weight: 100, supportMeaning: "yea_supports" },
+    { issueKey: "border_security", weight: 80, supportMeaning: "yea_supports" },
+  ],
+}, "lower_taxes"), null, "omnibus: a one-direction package is an ordinary vote, not a split");
+// Asking for a bill that is not eligible yields nothing rather than a near-miss.
+eq(RC.omnibus("testrep", "PN 100"), null, "omnibus: a nomination cannot become a split card");
+
+// ══ 4. THE EDITORIAL BOUNDARY ════════════════════════════════════════════════
+// Official Record verdicts must not reach a Say-vs-Do score. The chokepoint is
+// PDXReceipts.collect(), which drops category 'voting'; this feed never writes to
+// it. Building every card must leave the curated feed exactly as it was.
+const R = ctx.window.PDXReceipts;
+ok(!!R, "boundary: PDXReceipts (the curated feed) is loaded alongside");
+if (R) {
+  const before = R.collect().length;
+  RC.cardsFor("testrep"); RC.omnibus("testrep", "H.R. 1"); RC.contradiction("testrep");
+  eq(R.collect().length, before, "boundary: building vote-derived cards adds nothing to the Say-vs-Do feed");
+  for (const rec of R.collect()) {
+    ok(rec.origin !== "official_record", "boundary: no Official Record card is inside the curated feed");
+  }
+  // A card's deep link lands on the Official Record gap view, NOT the Say-vs-Do
+  // receipt lightbox — a legislative action must not open on a Say-vs-Do surface.
+  if (contra) {
+    eq(contra.hash, "#record=testrep~national_debt", "boundary: a card links to the Official Record view");
+    const link = R.linkFor(contra, "", { canonical: true });
+    has(link, "#record=testrep~national_debt", "boundary: the shared link carries the record hash");
+    lacks(link, "#receipt=", "boundary: the shared link never resolves to the Say-vs-Do lightbox");
+    has(link, "politidex.fyi", "boundary: a shared link is canonical, so it works off-device");
+    // The curated feed's own links are untouched.
+    has(R.linkFor("testrep", "national_debt", { canonical: true }), "#receipt=",
+      "boundary: curated receipts still use the #receipt= hash");
+  }
+}
+// The one-tap share path is the existing pipeline, not a second one.
+eq(typeof RC.share, "function", "share: PDXReceiptCards.share exists");
+ok(RC.share.length <= 2, "share: share(card|pid, btn) keeps the existing one-tap signature");
+
+// ══ 5. SOURCE-LEVEL CONTRACTS ════════════════════════════════════════════════
+// The additive renderer changes: three optional fields say-vs-do.js must read, and
+// the collect() boundary line that must stay.
+const svd = readFileSync(join(ROOT, "say-vs-do.js"), "utf8");
+for (const bit of ["r.verifyUrl", "r.method", "r.split", "r.hash", "omnibus:"]) {
+  has(svd, bit, `renderer: say-vs-do.js reads ${bit}`);
+}
+has(svd, "'voting'", "renderer: the collect() boundary that drops legislative items is still there");
+const css = readFileSync(join(ROOT, "say-vs-do.css"), "utf8");
+has(css, ".svd-receipt.v-omnibus", "renderer: the omnibus verdict class has a CSS rule");
+const html = readFileSync(join(ROOT, "index.html"), "utf8");
+has(html, 'src="receipt-cards.js"', "wiring: index.html loads receipt-cards.js");
+ok(html.indexOf('src="receipt-cards.js"') > html.indexOf('src="consistency.js"'),
+  "wiring: receipt-cards.js loads after the modules it reads");
+// The hooks this module depends on, so a rename fails loudly here rather than
+// silently emptying the feed.
+const rc = readFileSync(join(ROOT, "receipt-cards.js"), "utf8");
+for (const hook of ["_issueRecordSummary", "_measureComponentBreakdown", "memberRecords", "PDXReceipts.share"]) {
+  has(rc, hook, `hook: receipt-cards.js still reads ${hook}`);
+}
+// The curated spotlight data may be NAMED in this file's prose (it explains the
+// boundary), but it must never be READ: a vote-derived card that reached into
+// ACCT_SPOTLIGHT would be mixing the two systems at the source.
+const rcCode = rc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+lacks(rcCode, "ACCT_SPOTLIGHT", "boundary: the vote-derived feed never reads the curated spotlight data");
+lacks(rcCode, "PDXReceipts.collect", "boundary: the vote-derived feed never writes into the curated feed");
+
+// Reading the record must not mutate it.
+const recBefore = JSON.stringify(RECORDS);
+RC.audit("testrep"); RC.cardsFor("testrep"); RC.omnibus("testrep", "H.R. 1");
+eq(JSON.stringify(RECORDS), recBefore, "honesty: building cards never mutates the record it read");
+
+// ── Report ────────────────────────────────────────────────────────────────────
+if (failures.length) {
+  console.error(`✖ ${failures.length} failure(s), ${passed} passed\n`);
+  for (const f of failures) console.error("  • " + f);
+  process.exit(1);
+}
+console.log(`✓ ${passed} assertions passed — vote-derived share cards + trust guards`);
