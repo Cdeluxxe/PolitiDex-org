@@ -341,8 +341,11 @@ const displayScore = (() => {
   ok(saydoBranch.indexOf("%") === -1,
     "the Say-vs-Do gateway card now prints a percentage — it is a verdict chip by design");
 
+  // Bounded by the export block rather than a fixed character count: the pill grew a
+  // coverage qualifier, and a fixed window would have reported that addition as the
+  // disappearance of the count it still returns.
   const pill = EXEC_UI.slice(EXEC_UI.indexOf("function navPill"),
-    EXEC_UI.indexOf("function navPill") + 700);
+    EXEC_UI.lastIndexOf("window.PDXExecRecordUI"));
   must(pill.length > 200, "exec-record-ui.js no longer defines navPill");
   ok(pill.indexOf("%") === -1,
     "the Executive Enactment Record nav pill prints a ratio — the EER is count-only\n" +

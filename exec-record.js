@@ -81,6 +81,147 @@
     trump: { office: 'President of the United States', currentTerm: '47' }
   };
 
+  // ── Coverage gate ──────────────────────────────────────────────────────────
+  // THE PROBLEM THIS SOLVES. The office allow-list above holds one pid, and the
+  // seeded action file holds actions for one figure. Rendered without qualification,
+  // the lane reads as finished: a reader who sees a rich ✒️ section on one profile
+  // and none on the next infers the second figure has taken no formal action, when
+  // the truth is that nothing has been recorded for them yet. That inference is the
+  // failure — it turns our coverage into a claim about a person.
+  //
+  // WHY A GATE AND NOT BALANCE. The alternative is to seed the other figures so the
+  // lane looks even. That would mean publishing thin, hurried records for figures we
+  // have not sourced properly, which trades an honest gap for a dishonest ledger.
+  // Withholding the lane entirely is no better: it would bury primary-sourced court
+  // rulings that a reader is entitled to see. So the lane ships, and it declares its
+  // own coverage in the reader's own terms — a count they can check — rather than
+  // implying a completeness it does not have.
+  //
+  // COMPUTED, NEVER HARD-CODED. Both figures below are derived at read time from the
+  // shipped roster and the shipped action file, so the declaration cannot go stale
+  // behind the data. Seed a second figure and the numerator moves on its own; add a
+  // governor to the roster and the denominator does.
+  //
+  // The denominator is the app's CHIEF EXECUTIVES — the offices that issue formal
+  // executive actions in the first place. Legislators are excluded because they have
+  // the 🏛️ lane; deputies (lieutenant governor, vice president) and candidates are
+  // excluded because they issue nothing to record.
+  var CHIEF_OFFICE = /\b(president|governor|mayor)\b/i;
+  var NOT_CHIEF = /\b(candidate|former|lieutenant|vice|deputy|nominee)\b/i;
+  // Below this many figures on file the lane is a pilot, not a lane: with one figure
+  // there is no field to be in, and with two, every comparison a reader could make is
+  // the same single pair. Three is the smallest number at which the section describes
+  // a category rather than a subject.
+  var COVERAGE_MIN_FIGURES = 3;
+  // And even at that count, a section that appears on a small minority of the figures
+  // it applies to still reads as a verdict on the ones it skips. Below this share of
+  // the tracked chief executives, absence is the norm and must be said out loud.
+  var COVERAGE_BROAD_SHARE = 0.5;
+
+  // Every string a coverage surface may render, in one table, so the vocabulary test
+  // gates them the way it gates the verdict and standing labels. No percentage and no
+  // vote language here either — the gate is subject to the lane's own rules.
+  var EXEC_COVERAGE = {
+    pilot: {
+      key: 'pilot',
+      badge: 'Limited coverage',
+      label: 'This lane is still being built',
+      short: 'A profile with no section here has nothing recorded yet — that is a gap in our file, ' +
+        'not a finding that the figure has taken no action.',
+      compare: 'Nothing in this lane is comparable between figures while coverage is this uneven.',
+      cls: 'exec-cov-pilot'
+    },
+    broad: {
+      key: 'broad',
+      badge: 'Coverage',
+      label: 'On file for the chief executives this app tracks',
+      short: 'A profile with no section here still means nothing has been recorded yet, ' +
+        'not that the figure has taken no action.',
+      compare: '',
+      cls: 'exec-cov-broad'
+    },
+    none: {
+      key: 'none',
+      badge: 'Nothing on file',
+      label: 'No formal executive actions are recorded yet',
+      short: 'No qualifying action is on file for any figure. Nothing is shown rather than a guess.',
+      compare: 'Nothing in this lane is comparable between figures.',
+      cls: 'exec-cov-none'
+    }
+  };
+
+  // How many figures in the shipped roster hold an office this lane would cover.
+  // Guarded: with no roster loaded the count is 0 and coverage falls back to the
+  // figure count alone, which keeps the gate closed rather than opening it.
+  function chiefExecutiveCount() {
+    var d;
+    try { d = window.CMP_DATA; } catch (e) { return 0; }
+    if (!d || typeof d !== 'object') return 0;
+    var n = 0;
+    for (var pid in d) {
+      if (!Object.prototype.hasOwnProperty.call(d, pid)) continue;
+      var office = String((d[pid] && d[pid].office) || '');
+      if (CHIEF_OFFICE.test(office) && !NOT_CHIEF.test(office)) n++;
+    }
+    return n;
+  }
+
+  // How many figures actually have a publishable action on file. Uses the SAME
+  // source gate the section itself uses (actionsFor drops an action citing a
+  // directory index), so the numerator counts what a reader can actually see —
+  // a figure whose every action fails the source rule is not covered.
+  function coveredPids() {
+    var out = [];
+    var data;
+    try { data = window.EXEC_ACTIONS || {}; } catch (e) { return out; }
+    for (var pid in EXEC_PIDS) {
+      if (!Object.prototype.hasOwnProperty.call(EXEC_PIDS, pid)) continue;
+      if (!data[pid]) continue;
+      if (actionsFor(pid, { allTerms: true }).allTime > 0) out.push(pid);
+    }
+    return out;
+  }
+
+  // The one read every coverage surface goes through. `comparable` is the machine
+  // form of the rule: while it is false, no surface may rank, compare or aggregate
+  // this lane across figures.
+  function coverage() {
+    var covered = coveredPids();
+    var tracked = chiefExecutiveCount();
+    var onFile = covered.length;
+    var state;
+    if (!onFile) state = 'none';
+    else if (onFile < COVERAGE_MIN_FIGURES) state = 'pilot';
+    else if (tracked > 0 && onFile / tracked < COVERAGE_BROAD_SHARE) state = 'pilot';
+    else if (!tracked) state = 'pilot'; // no roster to check against: stay closed
+    else state = 'broad';
+    var meta = EXEC_COVERAGE[state];
+    return {
+      state: state,
+      onFile: onFile,
+      tracked: tracked,
+      pids: covered,
+      comparable: state === 'broad',
+      badge: meta.badge,
+      label: meta.label,
+      short: meta.short,
+      compare: meta.compare,
+      cls: meta.cls,
+      // The checkable sentence. Built from the two live counts so it can never say
+      // something the data does not. Kept free of any word the EER forbids.
+      line: tracked
+        ? 'Formal actions are on file for ' + onFile + ' of the ' + tracked +
+          ' presidents, governors and mayors this app tracks.'
+        : 'Formal actions are on file for ' + onFile + ' ' + plural(onFile, 'figure', 'figures') + '.'
+    };
+  }
+
+  // The machine-enforced non-comparability rule. Any surface that would rank,
+  // compare or aggregate the EER across figures must call this first and do nothing
+  // when it returns false. It is a function rather than a constant so it re-reads
+  // the live data instead of freezing a verdict at load time.
+  function comparable() { return coverage().comparable; }
+
   // ── Axis A · Alignment ─────────────────────────────────────────────────────
   // Its own table. Deliberately shares NO token with consistency.js's VERDICTS,
   // whose 'consistent' / 'contradicts' are what the roll-call scorer emits and whose
@@ -532,6 +673,13 @@
     FRAMING: FRAMING,
     STANDING_STICKY: STANDING_STICKY,
     THIN_MAX: THIN_MAX,
+    COVERAGE: EXEC_COVERAGE,
+    // How much of this lane actually exists, computed from the shipped roster and
+    // the shipped action file. Every coverage surface reads this; nothing hard-codes
+    // a figure. `comparable()` is the gate a ranking or aggregating surface must
+    // pass before it may treat two figures' EERs as commensurable.
+    coverage: coverage,
+    comparable: comparable,
     // Read-only view of the office gate, so the test can cross-check it against
     // db/vr-member-map.json without reaching into the closure.
     pids: function () { return Object.keys(EXEC_PIDS); },
