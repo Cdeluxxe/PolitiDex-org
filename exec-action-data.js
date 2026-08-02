@@ -253,6 +253,72 @@
       },
       {
         "actionClass": "executive_order",
+        "documentId": "Executive Order 14156",
+        "executiveOrderNumber": 14156,
+        "title": "Declaring a National Energy Emergency",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02003/declaring-a-national-energy-emergency",
+        "sourceLabel": "Federal Register — Executive Order 14156, 90 FR 8433",
+        "frCitation": "90 FR 8433",
+        "frDocumentNumber": "2025-02003",
+        "publishedAt": "2025-01-29",
+        "issues": [
+          {
+            "issueKey": "energy_production",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 100,
+            "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation."
+          },
+          {
+            "issueKey": "lands_energy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 60,
+            "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water."
+          },
+          {
+            "issueKey": "climate_action",
+            "direction": "opposes",
+            "isPrimary": false,
+            "weight": 55,
+            "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-20",
+            "authority": "President of the United States",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14156 document record, 90 FR 8433",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02003/declaring-a-national-energy-emergency",
+            "note": "Published at 90 FR 8433 and carrying no revocation in the Federal Register's disposition record for this document. That is the whole of the claim: it describes the order's status in the register, NOT the outcome of any challenge to it. The later rows in this log are what report the challenge."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-01-12",
+            "authority": "President of the United States",
+            "basis": "register_continuation",
+            "sourceLabel": "Federal Register — Continuation of the National Emergency With Respect to Energy, 91 FR 1667 (doc 2026-00732), signed Jan. 12, 2026",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/01/14/2026-00732/continuation-of-the-national-emergency-with-respect-to-energy",
+            "note": "A National Emergencies Act declaration expires after one year unless it is continued, so this row exists to answer a question the first row cannot: the order did not lapse on January 20, 2026. The notice states 'I am continuing for 1 year the national emergency declared in Executive Order 14156', under 50 U.S.C. 1622(d). CITATION CORRECTION: the Federal Register's own disposition note for EO 14156 cites this as 'Notice of January 12, 2026 (91 FR 1661)', but 91 FR 1661 is a different document (doc 2026-00698, a Foreign Assistance Act delegation). The continuation is doc 2026-00732 at 91 FR 1667, which is what this row cites and what was read. A continuation says nothing about any challenge to the order."
+          },
+          {
+            "status": "challenged_unverified",
+            "effectiveAt": "2026-01-30",
+            "authority": "Challenge pending — U.S. District Court for the Western District of Washington (State of Washington v. Trump, No. 2:25-cv-00869-JNW)",
+            "basis": "pending_litigation",
+            "sourceLabel": "W.D. Wash. — State of Washington v. Trump, No. 2:25-cv-00869-JNW, First Amended and Supplemental Complaint (ECF 55, filed Jan. 30, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.wawd.348016/gov.uscourts.wawd.348016.55.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/70238539/state-of-washington-v-trump/",
+            "note": "THE CURRENT STANDING, and it is a statement about this file rather than about the order. Seventeen States are suing over this order; its paragraph 1 reads 'This case concerns an Executive Order issued on January 20, 2025, EO 14156, 90 Fed. Reg. 8433 (January 29, 2025)', and the prayer for relief asks the court to declare EO 14156 unlawful and to enjoin the agencies implementing it. The docket was filed May 9, 2025 and is not terminated; as read in this pass it carries no preliminary-injunction ruling and no ruling on the pending motion to dismiss. So no court has stopped this order and no court has upheld it — 'in force' would assert the second of those, which is why this row does not say it. Dated to the operative amended complaint, the document actually read, rather than to the docket's filing date."
+          }
+        ]
+      },
+      {
+        "actionClass": "executive_order",
         "documentId": "Executive Order 14151",
         "executiveOrderNumber": 14151,
         "title": "Ending Radical and Wasteful Government DEI Programs and Preferencing",
@@ -282,6 +348,36 @@
             "sourceUrl": "https://storage.courtlistener.com/pdf/2026/02/06/natl._assoc._of_diversity_officers_in_higher_edu._v._donald_trump.pdf",
             "caseUrl": "https://www.courtlistener.com/opinion/10785644/natl-assoc-of-diversity-officers-in-higher-edu-v-donald-trump/",
             "note": "The facial challenge to this order reached judgment: the Fourth Circuit VACATED the district court's preliminary injunction and remanded for further proceedings, so no injunction against the order is in effect. Read from the court's own published opinion, which closes 'we vacate the district court's order granting plaintiffs' motion for a preliminary injunction, and remand for further proceedings. VACATED AND REMANDED'. The case continues on remand; a later ruling would arrive as a further row in this log rather than a change to this one."
+          },
+          {
+            "status": "partly_blocked",
+            "effectiveAt": "2025-02-21",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Preliminary Injunction of Feb. 21, 2025 (ECF 45)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.45.0_5.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — the first standing this order held, appended behind the current one. 'The Motion is GRANTED IN PART and DENIED IN PART': the court preliminarily enjoined this order's Section 2(b)(i), the Termination Provision, in part — together with two provisions of a different order, EO 14173, which are not this row's subject. Partly blocked and not blocked: one provision of this order was enjoined and the rest was not, and the Enjoined Parties are 'Defendants other than the President' and those acting in concert with them, not the President himself. Read from the injunction order itself, not from the accompanying memorandum opinion (ECF 44)."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-14",
+            "authority": "U.S. Court of Appeals for the Fourth Circuit",
+            "basis": "court_ruling",
+            "sourceLabel": "Fourth Circuit — National Association of Diversity Officers in Higher Education v. Trump, No. 25-1189, Order of Mar. 14, 2025 granting a stay pending appeal (D. Md. ECF 73)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.73.0_2.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — 'we grant the government's motion for a stay of the preliminary injunction', entered at the direction of Chief Judge Diaz with the concurrence of Judges Harris and Rushing, applying the Nken v. Holder factors. The injunction stopped operating, so the order was operative again — which is why this row reads in force. A STAY IS NOT A MERITS RULING: the same order set an expedited briefing schedule and the appeal remained pending until the February 6, 2026 decision above, which is the row that resolved it. This row is what 'in force' is licensed to mean here and no more."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-06-30",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Order of June 30, 2026 dismissing the case (ECF 107)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.107.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "THE CURRENT STANDING, found while verifying the docket for the backfill above and appended rather than folded into the earlier row. On remand the plaintiffs filed a notice of voluntary dismissal without prejudice and the court accepted it: 'it is hereby ORDERED that the notice is ACCEPTED. The Clerk is directed to CLOSE this case.' The case is closed and no injunction against this order is in effect. WITHOUT PREJUDICE and by the plaintiffs' own choice — no court held this order lawful, and this row does not say one did. It supersedes the February 6, 2026 row's closing sentence ('the case continues on remand'), which was true when written; the earlier row stays as filed because the log is append-only."
           }
         ]
       },

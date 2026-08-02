@@ -41,6 +41,14 @@
         "blocked": { "label": "blocked by court order", "token": "blocked", "contested": true },
         "struckDown": { "label": "struck down", "token": "struck_down", "contested": true },
         "rescinded": { "label": "rescinded", "token": "rescinded", "contested": true },
+        "challengedUnverified": {
+          "label": "challenged in court — no ruling on file",
+          "token": "challenged_unverified",
+          "contested": true,
+          "isCoverage": true,
+          "_why": "A live challenge with no primary ruling we have read. It is NOT a claim that the action was blocked and NOT a claim that it survived — it is the honest name for the gap between the two, and it exists so that gap does not have to be filed as `in_force`. Filing a challenged order as `in_force` is the quiet error this token prevents: `in_force` is a positive claim that nothing has disturbed the order, and a court that has not ruled has not confirmed that. Contested, because a reader who sees only `in_force` counts is told the record is settled when it is not.",
+          "_useRule": "Only where we have (a) a primary court document establishing the challenge is on file and live, and (b) no primary ruling resolving it. If a primary ruling exists, read it and use the token it supports — this is never a shortcut for 'we did not check'."
+        },
         "superseded": { "label": "superseded by later action", "token": "superseded", "contested": false },
         "expired": { "label": "lapsed or expired", "token": "expired", "contested": false }
       }
@@ -62,8 +70,8 @@
   "thinRecordMax": 2,
   "_thinRecordWhy": "One or two actions cannot carry a pattern. Adopted from _orMappedSummaryText, which already appends 'so far — still a thin record' at low N so a count does not read as depth it does not have.",
 
-  "standingAlwaysVisibleWhen": ["partlyBlocked", "blocked", "struckDown", "rescinded"],
-  "_standingAlwaysVisibleWhy": "If any action is contested, the standing clause survives into EVERY rendering including the most compact chip. A summary showing only alignment implies the whole record is operative — the exact failure the second axis exists to prevent, reintroduced at the aggregate level after being solved at the card level.",
+  "standingAlwaysVisibleWhen": ["partlyBlocked", "blocked", "struckDown", "rescinded", "challengedUnverified"],
+  "_standingAlwaysVisibleWhy": "If any action is contested, the standing clause survives into EVERY rendering including the most compact chip. A summary showing only alignment implies the whole record is operative — the exact failure the second axis exists to prevent, reintroduced at the aggregate level after being solved at the card level. challengedUnverified is on this list for the same reason it is `contested`: dropping it would leave the compact rendering saying 'in force' about a record with a live unresolved challenge in it.",
 
   "defaultTermScope": "current_term",
   "_defaultTermScopeWhy": "An all-time count mixes terms and a reader takes an old action as current. The default rendering is the current term; the all-time count is available in the tip. Changing the denominator is the one thing that must never happen quietly, so both figures are always reachable.",

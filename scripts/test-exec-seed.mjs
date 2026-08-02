@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* ═══════════════════════════════════════════════════════════════════════════
-   ✒️ EXECUTIVE ENACTMENT RECORD — Phase 3 seed gate
+   ✒️ EXECUTIVE ENACTMENT RECORD — seed gate
    ═══════════════════════════════════════════════════════════════════════════
-   Gates the wave-1 action data in db/exec-action-seed.json on three things the
-   lane's honesty actually depends on:
+   Gates the curated action data in db/exec-action-seed.json — wave 1 (Phase 3) and
+   wave 2 — on three things the lane's honesty actually depends on:
 
      1. SOURCE QUALITY. Every action and every standing must cite a document a
         reader can open. This is not a style rule: "partly blocked in court" is a
@@ -13,11 +13,13 @@
         list, not against a copy of either.
 
      2. JSON ↔ SQL AGREEMENT. The seed exists twice — as curated JSON for the
-        client and as INSERTs in 20260807000000_seed_exec_actions_wave1.sql for
-        the database. Two copies of the same citations WILL drift. Every document
-        id, every source URL and every issue key in the JSON is required to appear
-        in the SQL, so drift fails here instead of shipping a page whose numbers
-        disagree with the rows behind them.
+        client and as INSERTs in the wave migrations for the database. Two copies
+        of the same citations WILL drift. Every document id, every source URL and
+        every issue key in the JSON is required to appear in the SQL, so drift
+        fails here instead of shipping a page whose numbers disagree with the rows
+        behind them. The waves are read as one body of text: an applied migration
+        can never be edited, so a backfill lands in a new file and a check that
+        cared which file would break on the first one.
 
      3. THE INVARIANTS, DRIVEN BY THE REAL DATA. execSummary() returns null when
         its buckets do not add up, which means a silent null is indistinguishable
@@ -25,7 +27,7 @@
         non-null AND re-derives the arithmetic independently, rather than trusting
         the guard that would have hidden the failure.
 
-   It also proves the `against` bucket is REACHABLE. With the wave-1 set, no issue
+   It also proves the `against` bucket is REACHABLE. With the curated set, no issue
    lands in "acted against it" — every action either matched a stated position or
    had no directional position to check against. That is a fact about this data,
    not a property of the code, and an untested bucket that happens to read 0 is
@@ -56,8 +58,15 @@ const SEED = J("db/exec-action-seed.json");
 const TYPES = J("db/exec-action-types.json");
 const SUMKEYS = J("db/exec-summary-keys.json");
 const ISSUE_KEYS = J("db/issue-keys.json").keys;
-const MIGRATION_REL = "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql";
-const SQL = R(MIGRATION_REL);
+// The seed ships as SQL across one migration per wave, and every wave's rows are
+// read here as one body of text: an assertion that a citation "appears in the
+// migration" must not care which wave wrote it, or the first backfill would have to
+// choose between editing an applied migration and failing this suite.
+const MIGRATION_RELS = [
+  "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql",
+  "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql"
+];
+const SQL = MIGRATION_RELS.map(R).join("\n");
 const SEED_TEXT = R("db/exec-action-seed.json");
 
 const ACTIONS = (SEED.actions && SEED.actions.trump) || [];
@@ -90,7 +99,7 @@ ctx.window.CMP_DATA = { trump: { name: "Donald Trump" } };
 const setActions = (list) => { ctx.window.EXEC_ACTIONS = { trump: list }; };
 setActions(ACTIONS);
 
-console.log("── ✒️ exec seed: wave-1 actions ──────────────────────────────────");
+console.log("── ✒️ exec seed: curated actions ─────────────────────────────────");
 
 /* ═════════════════════════════════════════════════════════════════════════════
    1 · SHAPE AND VOCABULARY
@@ -99,7 +108,7 @@ console.log("── ✒️ exec seed: wave-1 actions ─────────
    open by showing an action with no class rather than closed by refusing it.
    ═══════════════════════════════════════════════════════════════════════════ */
 section("1 · shape and vocabulary");
-ok(ACTIONS.length === 5, `wave-1 seeds five actions (got ${ACTIONS.length})`);
+ok(ACTIONS.length === 6, `the seed carries six actions — five from wave 1, EO 14156 from wave 2 (got ${ACTIONS.length})`);
 
 const seenDocIds = new Set(), seenTitles = new Set(), seenFrDocs = new Set();
 for (const a of ACTIONS) {
@@ -210,9 +219,11 @@ for (const a of ACTIONS) {
 
     // THE LIMIT DISCLOSURE. Only court_ruling can support a claim about litigation.
     // Any weaker basis must say so IN ITS OWN NOTE, where a reader sees it — not
-    // only in this file's documentation block, where nobody does.
-    if (s.basis !== "court_ruling") {
-      ok(/not (a statement about|the outcome of) any challenge/i.test(s.note),
+    // only in this file's documentation block, where nobody does. pending_litigation
+    // is exempted from THIS wording and held to its own, below: a row whose whole
+    // subject is a challenge cannot honestly say it says nothing about one.
+    if (s.basis !== "court_ruling" && s.basis !== "pending_litigation") {
+      ok(/(not (a statement about|the outcome of)|says nothing about) any challenge/i.test(s.note),
         `${at}: a ${s.basis} standing discloses that it says nothing about any challenge`);
     }
     // And the symmetric guard, which is the one that matters. Without it, a standing
@@ -226,9 +237,31 @@ for (const a of ACTIONS) {
       ok(/courtlistener\.com|uscourts\.gov|supremecourt\.gov/i.test(hostOf(s.sourceUrl)),
         `${at}: a court_ruling basis cites a court document, not a register entry (${hostOf(s.sourceUrl)})`);
     }
-    // A contested standing is exactly the claim that needs a ruling behind it.
+    // pending_litigation is the weakest basis in the vocabulary and the only one that
+    // reports an unresolved state, so it carries the tightest guard. It must cite a
+    // court document (a complaint is still a court filing, not a press account), name
+    // the court the challenge sits in, and state IN THE NOTE that no court has
+    // resolved it. That last one is the whole disclosure: without it the row reads as
+    // an accusation with a citation attached, which is the failure mode this basis
+    // exists to avoid.
+    if (s.basis === "pending_litigation") {
+      ok(/courtlistener\.com|uscourts\.gov|supremecourt\.gov/i.test(hostOf(s.sourceUrl)),
+        `${at}: a pending_litigation basis cites a court document (${hostOf(s.sourceUrl)})`);
+      ok(/court|circuit|judge/i.test(s.authority),
+        `${at}: a pending_litigation basis names the court the challenge is pending in`);
+      ok(/\bno (court|ruling)\b/i.test(s.note) && /\bruling\b/i.test(s.note),
+        `${at}: a pending_litigation standing states in its note that no ruling resolves it`);
+      ok(s.status === "challenged_unverified",
+        `${at}: pending_litigation supports only challenged_unverified, never a ruling token`);
+    }
+    // A contested standing is exactly the claim that needs a ruling behind it —
+    // EXCEPT the one contested token that claims no ruling happened. Splitting the
+    // rule rather than loosening it: everything that says a court ACTED still needs
+    // a court_ruling, and the one token that says a court has NOT acted needs the
+    // basis that reports exactly that, so neither can be reached from the other.
     if (CONTESTED_TOKENS.includes(s.status)) {
-      ok(s.basis === "court_ruling", `${at}: a contested standing rests on a ruling`);
+      const wantBasis = s.status === "challenged_unverified" ? "pending_litigation" : "court_ruling";
+      ok(s.basis === wantBasis, `${at}: a ${s.status} standing rests on ${wantBasis}`);
       ok(/court|circuit|justice|judge/i.test(s.authority), `${at}: a contested standing names a court`);
     }
     // The human-readable case page, where one is carried alongside the opinion PDF.
@@ -268,11 +301,28 @@ const DUP_HEADLINE = "Declared a national energy emergency to expand production"
 const dupCount = SPOTLIGHT.split(DUP_HEADLINE).length - 1;
 ok(dupCount <= 1, `curated spotlight carries the day-one energy headline at most once (found ${dupCount})`);
 
+// One document per row is the rule; "one row per issue" was never the rule. Two
+// actions now lead on energy_production, and that is the dedupe WORKING rather than
+// failing: EO 14154 and EO 14156 are two separate documents signed the same day, and
+// they carry different standings. What must never come back is the folded card — one
+// row describing both — so the check is on identity, not on the issue.
 const energyPrimary = ACTIONS.filter((a) => (a.issues || []).some((m) => m.isPrimary && m.issueKey === "energy_production"));
-ok(energyPrimary.length === 1, `exactly one action leads on energy_production (got ${energyPrimary.length})`);
-// EO 14156 is a wave-2 candidate: it is deliberately NOT here, and if it arrives it
-// must arrive as its own row with its own standing rather than inside this one.
-ok(!ACTIONS.some((a) => a.executiveOrderNumber === 14156), "EO 14156 is not folded into the EO 14154 row");
+const energyIds = energyPrimary.map((a) => a.documentId);
+ok(new Set(energyIds).size === energyIds.length,
+  `each energy-leading action is its own document (${energyIds.join(", ")})`);
+const eo14154 = ACTIONS.find((a) => a.executiveOrderNumber === 14154);
+const eo14156 = ACTIONS.find((a) => a.executiveOrderNumber === 14156);
+ok(!!eo14154 && !!eo14156, "EO 14154 and EO 14156 are both on file");
+ok(eo14154.documentId !== eo14156.documentId && eo14154.sourceUrl !== eo14156.sourceUrl &&
+   eo14154.frCitation !== eo14156.frCitation && eo14154.frDocumentNumber !== eo14156.frDocumentNumber,
+  "EO 14156 is not folded into the EO 14154 row — separate id, source, citation and document number");
+// The proof the split was necessary, asserted rather than argued: a single folded row
+// would have had to publish one standing for two documents, and these two do not
+// share one. If they ever converge this check goes quiet on its own; it fails only if
+// someone merges the rows back together.
+ok(eo14154.status.length >= 1 && eo14156.status.length >= 1, "both energy orders carry a standing log");
+ok(EX.standingOf(eo14154) !== EX.standingOf(eo14156),
+  `the two energy orders resolve to different standings (${EX.standingOf(eo14154)} / ${EX.standingOf(eo14156)})`);
 
 /* ═════════════════════════════════════════════════════════════════════════════
    5 · JSON ↔ SQL AGREEMENT
@@ -356,8 +406,11 @@ if (sum) {
   const A = sum.issues, B = sum.actions, C = sum.byClass;
   ok(A.aligned + A.against + A.bothWays + A.noActionFound + A.noStance === A.total,
     "Axis A buckets sum to the issue total");
-  ok(B.inForce + B.partlyBlocked + B.blocked + B.struckDown + B.rescinded + B.superseded + B.expired === B.total,
-    "Axis B buckets sum to the action total");
+  // Summed from the vocabulary's own bucket keys rather than a hand-written list, so
+  // widening Axis B cannot leave this check silently summing the old vocabulary.
+  const bKeys = Object.keys(SUMKEYS.buckets.actions.keys);
+  ok(bKeys.reduce((n, k) => n + (B[k] || 0), 0) === B.total,
+    `Axis B buckets sum to the action total (${bKeys.length} buckets)`);
   ok(C.signed_law + C.vetoed_law + C.executive_order + C.directive === ACTIONS.length,
     "class counts sum to the actions on file");
   ok(B.total + sum.unstatedStanding === ACTIONS.length, "every action is either given a standing or disclosed as lacking one");
@@ -368,7 +421,7 @@ if (sum) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 2 && C.executive_order === 3, `class split is 2 laws + 3 orders (got ${C.signed_law}+${C.executive_order})`);
+  ok(C.signed_law === 2 && C.executive_order === 4, `class split is 2 laws + 4 orders (got ${C.signed_law}+${C.executive_order})`);
 
   // "Upgrade or hold" — verified as an outcome, not a promise. Every wave-1 item
   // cleared the source gate, and every one carries a citable standing.
@@ -483,4 +536,4 @@ if (fails) {
   console.error(`✗ exec seed: ${fails} of ${checks} checks failed`);
   process.exit(1);
 }
-console.log(`✓ exec seed: ${checks} checks passed — 5 actions, ${ACTIONS.reduce((n, a) => n + (a.status || []).length, 0)} cited standings, JSON ⇄ SQL in agreement`);
+console.log(`✓ exec seed: ${checks} checks passed — ${ACTIONS.length} actions, ${ACTIONS.reduce((n, a) => n + (a.status || []).length, 0)} cited standings, JSON ⇄ SQL in agreement`);

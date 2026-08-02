@@ -119,6 +119,10 @@
         '.pdxer-partly{color:#f5c842;border-color:rgba(245,200,66,.42);background:rgba(245,200,66,.14);}' +
         '.pdxer-blocked,.pdxer-struck{color:#f89b9b;border-color:rgba(248,113,113,.42);background:rgba(248,113,113,.12);}' +
         '.pdxer-rescinded,.pdxer-superseded,.pdxer-expired{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1);}' +
+        // Its own colour, not a borrowed one. Sharing the in-force green would say a
+        // court has left the action alone and sharing the blocked red would say a court
+        // has stopped it; the whole point of the token is that neither has happened yet.
+        '.pdxer-challenged{color:#f0a868;border-color:rgba(240,168,104,.42);background:rgba(240,168,104,.12);}' +
         '.pdxer-units{font-size:0.64rem;color:#8fa2c0;line-height:1.4;margin:0 0 0.7rem;padding:0.3rem 0.5rem;border-radius:0.5rem;background:rgba(159,180,212,0.06);border:1px solid rgba(159,180,212,0.14);}' +
         // One card per document.
         '.pdxer-card{border:1px solid rgba(255,255,255,0.08);border-radius:0.7rem;padding:0.6rem 0.65rem;margin-bottom:0.5rem;background:rgba(10,15,30,0.35);}' +
@@ -362,6 +366,10 @@
     add(sum.actions.blocked, 'blocked');
     add(sum.actions.partlyBlocked, 'partly_blocked');
     add(sum.actions.rescinded, 'rescinded');
+    // A live unresolved challenge leads over the uncontested standings for the same
+    // reason the injunctions do, and sits after them because a ruling outranks a
+    // pending one.
+    add(sum.actions.challengedUnverified, 'challenged_unverified');
     add(sum.actions.superseded, 'superseded');
     add(sum.actions.expired, 'expired');
     add(sum.actions.inForce, 'in_force');

@@ -1,9 +1,11 @@
 {
-  "_purpose": "✒️ Executive Enactment Record — Phase 3: the wave-1 formal actions, curated from primary sources. This file is the single source of truth for the lane's action data: netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql writes the same rows into the vr_* spine, and Phase 4 will load the same shape into window.EXEC_ACTIONS. scripts/test-exec-seed.mjs asserts the two agree, so the SQL and the client data cannot drift apart.",
+  "_purpose": "✒️ Executive Enactment Record — the formal actions, curated from primary sources. Wave 1 (Phase 3) seeded five actions; wave 2 added EO 14156 as its own row and backfilled EO 14151's standing history. This file is the single source of truth for the lane's action data: netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql and 20260808000000_seed_exec_actions_wave2.sql write the same rows into the vr_* spine, and exec-action-data.js is generated from this file by scripts/gen-exec-action-data.mjs. scripts/test-exec-seed.mjs asserts they all agree, so the SQL and the client data cannot drift apart.",
   "_readBy": [
+    "scripts/gen-exec-action-data.mjs (generates exec-action-data.js — regenerate after every edit)",
     "scripts/test-exec-seed.mjs",
     "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql (hand-derived; the test asserts they match)",
-    "exec-record.js (Phase 4, via window.EXEC_ACTIONS)"
+    "netlify/database/migrations/20260808000000_seed_exec_actions_wave2.sql (hand-derived; the test asserts they match)",
+    "exec-record.js (via window.EXEC_ACTIONS)"
   ],
   "_shape": "Exactly the shape actionsFor() / standingOf() in exec-record.js already read: actionClass, documentId, title, actedAt, term, sourceUrl, sourceLabel, issues[{issueKey, direction, isPrimary, weight, rationale}], status[{status, effectiveAt, authority, sourceLabel, sourceUrl, basis, note}]. Nothing here is a new vocabulary — every actionClass is a key of db/exec-action-types.json#actionClasses, every direction is a key of #issueDirections, every status is a token of db/exec-summary-keys.json#buckets.actions, and every issueKey is in db/issue-keys.json.",
 
@@ -13,16 +15,24 @@
     "basisValues": {
       "enacted_law_published": "The standing is established by the enrolled text as published by GPO — the law exists and nothing in the file repeals it. Claims enactment and publication; claims nothing about litigation.",
       "court_ruling": "The standing is established by a ruling this pass read in full from the court's own opinion. The strongest basis, and the only one that can support 'blocked', 'partly blocked' or 'struck down'.",
-      "register_disposition": "The standing is established by the Federal Register document record, whose disposition notes are the authoritative register of revocation and supersession BY LATER PRESIDENTIAL ACTION. Deliberately narrower than court_ruling: it says the order stands as published and unrevoked, and says nothing about any challenge to it. Every entry using this basis states that limit in its note."
+      "register_disposition": "The standing is established by the Federal Register document record, whose disposition notes are the authoritative register of revocation and supersession BY LATER PRESIDENTIAL ACTION. Deliberately narrower than court_ruling: it says the order stands as published and unrevoked, and says nothing about any challenge to it. Every entry using this basis states that limit in its note.",
+      "register_continuation": "Wave 2. The standing is established by a Federal Register notice continuing a time-limited authority — specifically a National Emergencies Act declaration, which expires one year after it is declared unless the President continues it (50 U.S.C. 1622(d)). Separated from register_disposition because it answers a different question: not 'has this been revoked' but 'has this lapsed'. It carries the same limit — a continuation is a presidential act and says nothing about any challenge to the order.",
+      "pending_litigation": "Wave 2, and the ONLY basis that may support challenged_unverified. The row is established by a primary court filing showing a live challenge — a complaint or docket document read in this pass — and by the absence of any ruling resolving it in the same docket. It is strictly weaker than court_ruling and can never support blocked, partly blocked or struck down: a complaint is an allegation, and this basis reports that the allegation is on file and unresolved, not that it is correct. Every entry using this basis names the case, the court, and what the docket did and did not contain when it was read."
     }
   },
 
-  "_whyNoScore": "There is no score field anywhere in this file and no count that could become one. See exec-record.js's header: the set of orders a president could have signed is unbounded and self-chosen, so any ratio computed over these five rows would divide by a number we picked.",
+  "_whyNoScore": "There is no score field anywhere in this file and no count that could become one. See exec-record.js's header: the set of orders a president could have signed is unbounded and self-chosen, so any ratio computed over these rows would divide by a number we picked.",
 
   "_verificationPass": {
     "date": "2026-08-02",
-    "method": "Every citation below was fetched and read in this pass, not carried over from curated text. Federal Register facts come from the FR API document records (title, signing date, publication date, FR citation, document number, disposition notes). Public Law facts come from GPO's published PLAW packages. Standing facts come from the courts' own opinions, downloaded as PDF and read — the operative 'For the foregoing reasons' disposition, not a summary of it.",
-    "refused": "congress.gov returns HTTP 403 to this environment, as it has to every prior voting-record pass (see 20260804000000's header). The congress.gov bill pages below are cited as the source of record because db/exec-action-types.json names them as such and the repo's whole congressional lane already cites them; the FACTS asserted about those two laws were verified against GPO instead, which does answer."
+    "method": "Every citation below was fetched and read in this pass, not carried over from curated text. Federal Register facts come from the FR API document records (title, signing date, publication date, FR citation, document number, disposition notes). Public Law facts come from GPO's published PLAW packages. Standing facts come from the courts' own opinions and orders, downloaded as PDF and read — the operative disposition, not a summary of it.",
+    "refused": "congress.gov returns HTTP 403 to this environment, as it has to every prior voting-record pass (see 20260804000000's header). The congress.gov bill pages below are cited as the source of record because db/exec-action-types.json names them as such and the repo's whole congressional lane already cites them; the FACTS asserted about those two laws were verified against GPO instead, which does answer.",
+    "wave2": {
+      "date": "2026-08-02",
+      "added": "EO 14156 (own row, three status rows), EO 14151 (three appended status rows), and the challenged_unverified standing token.",
+      "courtSources": "courtlistener.com's HTML site also returns HTTP 403 to this environment and its docket-entries API requires credentials, so dockets were read through the unauthenticated search API (type=r, fielded queries) and every document was then downloaded in full from storage.courtlistener.com and read as text. Rate limited to 5 requests a minute, which is why the docket sweeps in these notes are narrow and named rather than exhaustive.",
+      "negativeFindings": "Two claims here rest on the ABSENCE of a document, which is the weakest kind of finding and is therefore stated as what was searched rather than as fact: (1) the W.D. Wash. docket for EO 14156 was queried for injunction / dismissal / order entries and returned only pro hac vice orders, and the docket is not terminated — hence challenged_unverified rather than a ruling token; (2) the FR disposition record for EO 14156 contains no revocation entry. Neither is a guarantee that nothing exists; both are a statement of what this pass looked for and found."
+    }
   },
 
   "actions": {
@@ -113,7 +123,7 @@
         "frCitation": "90 FR 8353",
         "frDocumentNumber": "2025-01956",
         "publishedAt": "2025-01-29",
-        "_dedupeNote": "ONE energy action, not two. The app's curated spotlight data carried this order twice for Trump under one headline that also folded in a second, separate order — 'Declared a national energy emergency to expand production' described BOTH 'Unleashing American Energy' and 'Declaring a National Energy Emergency' (EO 14156, 90 FR 8433, doc 2025-02003, signed the same day). Two documents inside one card cannot be given a standing each, which is precisely what the Standing axis needs. This seed carries EO 14154 alone; EO 14156 is a wave-2 candidate and will arrive as its own row with its own citation and its own standing.",
+        "_dedupeNote": "ONE energy action, not two. The app's curated spotlight data carried this order twice for Trump under one headline that also folded in a second, separate order — 'Declared a national energy emergency to expand production' described BOTH 'Unleashing American Energy' and 'Declaring a National Energy Emergency' (EO 14156, 90 FR 8433, doc 2025-02003, signed the same day). Two documents inside one card cannot be given a standing each, which is precisely what the Standing axis needs. This seed carries EO 14154 alone; EO 14156 arrived in wave 2 as its own row below, with its own citation and its own standing — and the two standings are now different, which is the evidence that splitting them was not pedantry.",
         "issues": [
           { "issueKey": "energy_production", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Directs agencies to expedite oil, gas and mineral permitting and leasing and to remove regulatory barriers to domestic energy production." },
           { "issueKey": "climate_action", "direction": "opposes", "isPrimary": false, "weight": 55, "rationale": "Revokes the previous administration's climate executive orders. The Federal Register disposition record for this document lists the revocations by number, including EO 13990 and EO 14008." }
@@ -130,6 +140,58 @@
             "note": "Published at 90 FR 8353 and not revoked or superseded by any later presidential action in the Federal Register's disposition record for this document. That is the whole of the claim: it describes the order's status in the register, NOT the outcome of any challenge to it. This pass found no ruling enjoining EO 14154 itself; the litigation it appears in concerns agency implementation of funding provisions, and the appellate ruling there (4th Cir. No. 25-1575, decided 2026-01-21) vacated the district court's injunctions rather than extending them."
           }
         ]
+      },
+
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14156",
+        "executiveOrderNumber": 14156,
+        "title": "Declaring a National Energy Emergency",
+        "actedAt": "2025-01-20",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02003/declaring-a-national-energy-emergency",
+        "sourceLabel": "Federal Register — Executive Order 14156, 90 FR 8433",
+        "frCitation": "90 FR 8433",
+        "frDocumentNumber": "2025-02003",
+        "publishedAt": "2025-01-29",
+        "_splitNote": "The other half of the folded card described in EO 14154's _dedupeNote above, now standing on its own. Signed the same day as EO 14154 and about the same subject, and still a different document: a different FR citation (90 FR 8433, pp. 8433–8437, doc 2025-02003), a different legal mechanism (a National Emergencies Act declaration that unlocks emergency permitting authorities, rather than a set of policy directives), and — the point of the split — a different standing. EO 14154 stands unchallenged in this file; this one is in active litigation. Folded together, one card would have had to pick one of those two answers and would have been wrong about the other document.",
+        "issues": [
+          { "issueKey": "energy_production", "direction": "advances", "isPrimary": true, "weight": 100, "rationale": "Declares a national energy emergency and directs agencies to use emergency authorities to expedite domestic energy production, transportation, refining and generation." },
+          { "issueKey": "lands_energy", "direction": "advances", "isPrimary": false, "weight": 60, "rationale": "Sections 4 and 5 direct emergency Clean Water Act and Rivers and Harbors Act permitting by the Army Corps of Engineers and emergency Endangered Species Act consultation procedures for energy projects on federal land and water." },
+          { "issueKey": "climate_action", "direction": "opposes", "isPrimary": false, "weight": 55, "rationale": "Section 8(a) defines the 'energy' the emergency covers as crude oil, natural gas, lease condensates, natural gas liquids, refined petroleum products, uranium, coal, biofuels, geothermal heat, the kinetic movement of flowing water and critical minerals — wind and solar are absent from the definition, so the emergency's expedited procedures are unavailable to them." }
+        ],
+        "_issuesNote": "The 'opposes' mapping on climate_action is read off the order's own text, not inferred from its subject: Section 8(a) is an enumerated definition, and what it leaves out is as operative as what it includes, because the emergency authorities in Sections 3 through 6 reach only the listed resources. Weighted below the primary mapping because the order does not repeal any climate measure — it routes around them for one set of resources.",
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-01-20",
+            "authority": "President of the United States",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14156 document record, 90 FR 8433",
+            "sourceUrl": "https://www.federalregister.gov/documents/2025/01/29/2025-02003/declaring-a-national-energy-emergency",
+            "note": "Published at 90 FR 8433 and carrying no revocation in the Federal Register's disposition record for this document. That is the whole of the claim: it describes the order's status in the register, NOT the outcome of any challenge to it. The later rows in this log are what report the challenge."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-01-12",
+            "authority": "President of the United States",
+            "basis": "register_continuation",
+            "sourceLabel": "Federal Register — Continuation of the National Emergency With Respect to Energy, 91 FR 1667 (doc 2026-00732), signed Jan. 12, 2026",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/01/14/2026-00732/continuation-of-the-national-emergency-with-respect-to-energy",
+            "note": "A National Emergencies Act declaration expires after one year unless it is continued, so this row exists to answer a question the first row cannot: the order did not lapse on January 20, 2026. The notice states 'I am continuing for 1 year the national emergency declared in Executive Order 14156', under 50 U.S.C. 1622(d). CITATION CORRECTION: the Federal Register's own disposition note for EO 14156 cites this as 'Notice of January 12, 2026 (91 FR 1661)', but 91 FR 1661 is a different document (doc 2026-00698, a Foreign Assistance Act delegation). The continuation is doc 2026-00732 at 91 FR 1667, which is what this row cites and what was read. A continuation says nothing about any challenge to the order."
+          },
+          {
+            "status": "challenged_unverified",
+            "effectiveAt": "2026-01-30",
+            "authority": "Challenge pending — U.S. District Court for the Western District of Washington (State of Washington v. Trump, No. 2:25-cv-00869-JNW)",
+            "basis": "pending_litigation",
+            "sourceLabel": "W.D. Wash. — State of Washington v. Trump, No. 2:25-cv-00869-JNW, First Amended and Supplemental Complaint (ECF 55, filed Jan. 30, 2026)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.wawd.348016/gov.uscourts.wawd.348016.55.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/70238539/state-of-washington-v-trump/",
+            "note": "THE CURRENT STANDING, and it is a statement about this file rather than about the order. Seventeen States are suing over this order; its paragraph 1 reads 'This case concerns an Executive Order issued on January 20, 2025, EO 14156, 90 Fed. Reg. 8433 (January 29, 2025)', and the prayer for relief asks the court to declare EO 14156 unlawful and to enjoin the agencies implementing it. The docket was filed May 9, 2025 and is not terminated; as read in this pass it carries no preliminary-injunction ruling and no ruling on the pending motion to dismiss. So no court has stopped this order and no court has upheld it — 'in force' would assert the second of those, which is why this row does not say it. Dated to the operative amended complaint, the document actually read, rather than to the docket's filing date."
+          }
+        ],
+        "_standingNote": "Why the challenge row is last and not the continuation row: current standing is the latest row by effective_at, and a presidential continuation does not resolve a lawsuit. Had the continuation been filed after the challenge it would still have carried challenged_unverified, for the same reason — the President continuing his own emergency is not a court answering the question that is open."
       },
 
       {
@@ -157,9 +219,40 @@
             "sourceUrl": "https://storage.courtlistener.com/pdf/2026/02/06/natl._assoc._of_diversity_officers_in_higher_edu._v._donald_trump.pdf",
             "caseUrl": "https://www.courtlistener.com/opinion/10785644/natl-assoc-of-diversity-officers-in-higher-edu-v-donald-trump/",
             "note": "The facial challenge to this order reached judgment: the Fourth Circuit VACATED the district court's preliminary injunction and remanded for further proceedings, so no injunction against the order is in effect. Read from the court's own published opinion, which closes 'we vacate the district court's order granting plaintiffs' motion for a preliminary injunction, and remand for further proceedings. VACATED AND REMANDED'. The case continues on remand; a later ruling would arrive as a further row in this log rather than a change to this one."
+          },
+          {
+            "status": "partly_blocked",
+            "effectiveAt": "2025-02-21",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Preliminary Injunction of Feb. 21, 2025 (ECF 45)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.45.0_5.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — the first standing this order held, appended behind the current one. 'The Motion is GRANTED IN PART and DENIED IN PART': the court preliminarily enjoined this order's Section 2(b)(i), the Termination Provision, in part — together with two provisions of a different order, EO 14173, which are not this row's subject. Partly blocked and not blocked: one provision of this order was enjoined and the rest was not, and the Enjoined Parties are 'Defendants other than the President' and those acting in concert with them, not the President himself. Read from the injunction order itself, not from the accompanying memorandum opinion (ECF 44)."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2025-03-14",
+            "authority": "U.S. Court of Appeals for the Fourth Circuit",
+            "basis": "court_ruling",
+            "sourceLabel": "Fourth Circuit — National Association of Diversity Officers in Higher Education v. Trump, No. 25-1189, Order of Mar. 14, 2025 granting a stay pending appeal (D. Md. ECF 73)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.73.0_2.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "BACKFILL — 'we grant the government's motion for a stay of the preliminary injunction', entered at the direction of Chief Judge Diaz with the concurrence of Judges Harris and Rushing, applying the Nken v. Holder factors. The injunction stopped operating, so the order was operative again — which is why this row reads in force. A STAY IS NOT A MERITS RULING: the same order set an expedited briefing schedule and the appeal remained pending until the February 6, 2026 decision above, which is the row that resolved it. This row is what 'in force' is licensed to mean here and no more.",
+            "_whyNotChallenged": "This is the case the new challenged_unverified token was NOT used for, and the distinction matters. A primary ruling exists here and this pass read it, so the honest report is what that ruling did. challenged_unverified is for the state where no such ruling exists — see EO 14156 above. Using it here would file a read document as an unread one."
+          },
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-06-30",
+            "authority": "U.S. District Court for the District of Maryland (Judge Adam B. Abelson)",
+            "basis": "court_ruling",
+            "sourceLabel": "D. Md. — National Association of Diversity Officers in Higher Education v. Trump, No. 1:25-cv-00333-ABA, Order of June 30, 2026 dismissing the case (ECF 107)",
+            "sourceUrl": "https://storage.courtlistener.com/recap/gov.uscourts.mdd.575287/gov.uscourts.mdd.575287.107.0.pdf",
+            "caseUrl": "https://www.courtlistener.com/docket/69607847/national-association-of-diversity-officers-in-higher-education-v-trump/",
+            "note": "THE CURRENT STANDING, found while verifying the docket for the backfill above and appended rather than folded into the earlier row. On remand the plaintiffs filed a notice of voluntary dismissal without prejudice and the court accepted it: 'it is hereby ORDERED that the notice is ACCEPTED. The Clerk is directed to CLOSE this case.' The case is closed and no injunction against this order is in effect. WITHOUT PREJUDICE and by the plaintiffs' own choice — no court held this order lawful, and this row does not say one did. It supersedes the February 6, 2026 row's closing sentence ('the case continues on remand'), which was true when written; the earlier row stays as filed because the log is append-only."
           }
         ],
-        "_standingBackfill": "The earlier history is real and is NOT yet on file: the district court had preliminarily enjoined parts of this order in February 2025 and the Fourth Circuit stayed that injunction in March 2025. Both belong in this append-only log, and both are held back for the same reason everything else in this lane is held back — this pass did not read either document from a primary source, and a status row cannot cite an opinion it has not opened. Wave-2 backfill, additive, no rewrite: the log is append-only precisely so the history can be filled in behind the current standing."
+        "_standingBackfill": "DONE in wave 2, additively. The two rows wave 1 held back — the District of Maryland's February 21, 2025 preliminary injunction and the Fourth Circuit's March 14, 2025 stay of it — are now on file above, each read from the court's own document and each carrying its own citation and basis. The February 6, 2026 row that was here first was not rewritten or moved; the whole point of an append-only log is that history can be filled in behind the current standing without disturbing what was already published. A fourth row, the June 30, 2026 dismissal, was found while verifying the docket for this backfill and appended in the same way. Array position is not meaning here: current standing is the latest row by effective_at, computed in exec-record.js's standingOf(), so these rows sit at the end of the array in the order they were appended while reading as history in the UI."
       },
 
       {

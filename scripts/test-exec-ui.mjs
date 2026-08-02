@@ -348,6 +348,85 @@ for (const card of CARDS) {
   }
 }
 
+// The wave-2 token: a live challenge renders as neither blocked nor undisturbed.
+// The whole point of `challenged_unverified` is the distance between "a court stopped
+// this" and "nothing has disturbed this". If the rendering collapses that distance in
+// either direction the token has failed, so both directions are checked here.
+{
+  const eo = CARDS.find((c) => c.includes("Executive Order 14156"));
+  ok(!!eo, "the EO 14156 card is missing — the new standing token is unexercised in the UI");
+  const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14156");
+  ok(!!seeded, "fixture drift: EO 14156 is no longer seeded");
+  const live = (seeded.status || []).find((s) => s.status === "challenged_unverified");
+  ok(!!live, "fixture drift: EO 14156 no longer carries a challenged_unverified entry");
+  if (eo && live) {
+    // Its own chip class. Reusing the in-force green or the blocked red would assert
+    // an outcome no ruling on file supports.
+    has(eo, 'class="pdxer-chip pdxer-challenged"', "the challenged standing borrows another standing's chip class");
+    has(eo, EX.STANDING.challenged_unverified.label, "the challenged standing label is not rendered on the card");
+    has(eo, live.sourceUrl, "the challenged standing is rendered with no citation of the filing");
+    has(eo, live.caseUrl, "the challenged standing is rendered with no case docket link");
+    hasText(eo, live.note, "the challenged standing is rendered with no note stating what is and is not known");
+
+    // Not upgraded into a ruling.
+    for (const t of ["blocked", "partly_blocked", "struck_down"]) {
+      ok(!eo.includes(EX.STANDING[t].label),
+        `the EO 14156 card shows ${JSON.stringify(EX.STANDING[t].label)} — a pending challenge was rendered as a ruling`);
+    }
+    // Nor quietly downgraded: the live challenge is the latest row, so it leads the
+    // card rather than sitting behind the earlier-changes fold.
+    const rows = seeded.status.slice().sort((a, b) => Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt));
+    eq(rows[0].status, "challenged_unverified", "fixture drift: the challenge is no longer EO 14156's current standing");
+    ok(eo.indexOf(live.sourceUrl) < eo.indexOf("pdxer-more"),
+      "the live challenge is filed behind the earlier-changes fold instead of leading the card");
+    has(eo, "2 earlier recorded changes", "EO 14156's two earlier standing rows are not offered");
+  }
+
+  // Axis B counts it as its own bucket, after the rulings and ahead of in force.
+  eq(SUM.actions.challengedUnverified, 1,
+    "fixture drift: the summary no longer counts exactly one challenged-unverified document");
+  const row = (HTML.match(/<div class="pdxer-axis"><span class="pdxer-axis-lbl">Standing ·[\s\S]*?<\/div>/) || [])[0] || "";
+  ok(row, "the standing axis row could not be isolated");
+  has(row, "pdxer-challenged", "the challenged bucket is missing from the standing axis row");
+  has(row, `<b>${SUM.actions.challengedUnverified}</b> ${EX.STANDING.challenged_unverified.label}`,
+    "the standing axis row does not carry a count for the challenged bucket");
+  ok(row.indexOf("pdxer-challenged") < row.indexOf("pdxer-inforce"),
+    "the challenged bucket is ordered below the in-force bucket in the standing axis row");
+  if (row.includes("pdxer-partly")) {
+    ok(row.indexOf("pdxer-partly") < row.indexOf("pdxer-challenged"),
+      "a pending challenge is ordered above an actual injunction in the standing axis row");
+  }
+}
+
+// The EO 14151 backfill: the log grew backwards without the published row moving.
+{
+  const eo = CARDS.find((c) => c.includes("Executive Order 14151"));
+  ok(!!eo, "the EO 14151 card is missing");
+  const seeded = SEED.actions.trump.find((a) => a.documentId === "Executive Order 14151");
+  eq(seeded.status.length, 4, "fixture drift: EO 14151 no longer carries four standing entries");
+  if (eo) {
+    has(eo, "3 earlier recorded changes", "the backfilled standing history is not offered on the EO 14151 card");
+    // Every appended row reaches the screen with its own warrant, including the two
+    // 2025 rows that predate the row already published against this action.
+    for (const s of seeded.status) {
+      hasText(eo, s.note, `the EO 14151 standing note of ${s.effectiveAt} is not rendered`);
+      has(eo, s.sourceUrl, `the EO 14151 citation for ${s.effectiveAt} is not rendered`);
+      hasText(eo, s.authority, `the EO 14151 authority for ${s.effectiveAt} is not rendered`);
+    }
+    // Append-only means the earlier reading survives verbatim. This is the row that
+    // was already on file before the backfill; it is asserted here so a later edit to
+    // it fails loudly rather than quietly rewriting history.
+    const published = seeded.status.find((s) => s.effectiveAt.startsWith("2026-02-06"));
+    ok(!!published, "the standing row published before the wave-2 backfill is gone from the log");
+    // And the current standing is still resolved by date, not by array position.
+    eq(EX.standingOf(seeded), "in_force",
+      "EO 14151's current standing changed — the backfill was supposed to append behind it");
+    const latest = seeded.status.slice().sort((a, b) => Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt))[0];
+    ok(eo.indexOf(latest.sourceUrl) < eo.indexOf(published.sourceUrl),
+      "a backfilled row is rendered ahead of the current standing");
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 5 · Fail closed — an uncitable standing is never rendered as operative
 // ─────────────────────────────────────────────────────────────────────────────

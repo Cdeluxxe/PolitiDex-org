@@ -33,7 +33,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
+const readText = (p) => readFileSync(join(ROOT, p), "utf8");
+const readJson = (p) => JSON.parse(readText(p));
 
 let passed = 0;
 const failures = [];
@@ -168,6 +169,50 @@ eq(contested.join(","), Object.keys(EX.STANDING_STICKY).sort().join(","),
 eq(contested.join(","), [...SUMKEYS.standingAlwaysVisibleWhen]
   .map((k) => SUMKEYS.buckets.actions.keys[k].token).sort().join(","),
   "db/exec-summary-keys.json standingAlwaysVisibleWhen has drifted from the contested standings");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4b · challenged_unverified — the token for a live challenge with no ruling read
+// ─────────────────────────────────────────────────────────────────────────────
+// The parity checks above prove it is wired in. These prove it MEANS what it was
+// added to mean, which parity cannot: a token can be perfectly wired and still be
+// the wrong shape. Its whole purpose is to stop a challenged action being filed as
+// `in_force` — `in_force` is a positive claim that nothing has disturbed the action,
+// and a court that has not ruled has not established that.
+const CHU = EX.STANDING.challenged_unverified;
+ok(!!CHU, "challenged_unverified is missing from EXEC_STANDING — a live challenge has nowhere honest to go");
+if (CHU) {
+  ok(CHU.contested === true,
+    "challenged_unverified is not contested — the standing clause would drop out of the compact rendering and the record would read as settled");
+  ok(CHU.isCoverage === true,
+    "challenged_unverified is not marked isCoverage — it reports the state of our file, like said_not_done, and must never render as a finding against the action");
+  ok(!!EX.STANDING_STICKY.challenged_unverified, "challenged_unverified is not sticky");
+  // A borrowed colour is a borrowed claim: the in-force green says a court left the
+  // action alone and the blocked red says a court stopped it, and neither happened.
+  const otherCls = Object.values(EX.STANDING).filter((s) => s.key !== CHU.key).map((s) => s.cls);
+  ok(!otherCls.includes(CHU.cls), `challenged_unverified shares its class "${CHU.cls}" with another standing`);
+  ok(new RegExp("\\." + CHU.cls.replace(/^exec-/, "pdxer-") + "\\{").test(readText("exec-record-ui.js")),
+    `exec-record-ui.js has no style rule for ${CHU.cls.replace(/^exec-/, "pdxer-")} — the chip would render unstyled`);
+  // The label has to carry the limit, not just the accusation. "Challenged in court"
+  // on its own reads as a finding; what makes it honest is the second half.
+  ok(/challeng/i.test(CHU.label), "challenged_unverified's label does not say it is challenged");
+  ok(/no ruling|not verified|unresolved/i.test(CHU.label),
+    `challenged_unverified's label states the challenge without stating the limit ("${CHU.label}")`);
+  ok(!FORBIDDEN.test(CHU.label), `challenged_unverified's label uses forbidden vocabulary ("${CHU.label}")`);
+  eq(CHU.label.toLowerCase(), SUMKEYS.buckets.actions.keys.challengedUnverified.label.toLowerCase(),
+    "the shipped label and the summary-key label for challenged_unverified have drifted apart");
+  // It ranks above in_force and below the rulings at issue level: an unresolved
+  // challenge must not be summarised away as operative, and must not outrank a court
+  // that actually acted.
+  const rank = readText("exec-record.js").match(/var order = \[([\s\S]*?)\];/);
+  const ordered = rank ? [...rank[1].matchAll(/'([a-z_]+)'/g)].map((m) => m[1]) : [];
+  ok(ordered.indexOf("challenged_unverified") >= 0, "challenged_unverified is absent from the issue-level standing ranking");
+  ok(ordered.indexOf("challenged_unverified") < ordered.indexOf("in_force"),
+    "challenged_unverified ranks below in_force — an issue with a live challenge could present as operative");
+  for (const stronger of ["struck_down", "blocked", "partly_blocked"]) {
+    ok(ordered.indexOf(stronger) < ordered.indexOf("challenged_unverified"),
+      `challenged_unverified outranks ${stronger} — a pending challenge would hide a ruling that already happened`);
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5 · No executive pid may be roll-call attributable

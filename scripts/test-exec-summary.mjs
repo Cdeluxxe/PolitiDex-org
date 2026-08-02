@@ -189,7 +189,12 @@ ok(/1 across/.test(B.label), `singular action count is wrong: ${B.label}`);
 
 // ── 6 · standing stays visible whenever anything is contested ────────────────
 setStances({ voter_id: "support" });
-for (const contested of ["blocked", "partly_blocked", "struck_down", "rescinded"]) {
+// Driven from the shipped contested flags rather than a written-out list, so a token
+// added to the vocabulary is covered here the moment it lands instead of the next
+// time someone remembers this loop exists.
+const CONTESTED = Object.values(EX.STANDING).filter((s) => s.contested).map((s) => s.key);
+ok(CONTESTED.length >= 5, `expected the contested vocabulary to have grown, got ${CONTESTED.join(", ")}`);
+for (const contested of CONTESTED) {
   setActions([{ actionClass: "executive_order", documentId: "EO X", title: "T", actedAt: "2025-01-01",
     term: "47", sourceUrl: FR(6), sourceLabel: "Federal Register",
     issues: [{ issueKey: "voter_id", direction: "advances" }],
@@ -203,7 +208,50 @@ for (const contested of ["blocked", "partly_blocked", "struck_down", "rescinded"
   // …and it must never be presentable as alignment alone.
   ok(C.label.indexOf("Standing:") > C.label.indexOf("acted on it"),
     `${contested}: standing must follow, not replace, the alignment clause`);
+  // Nothing contested may be counted as in force. Obvious, and the whole reason the
+  // newest token exists: the alternative filing for a live challenge WAS `in_force`.
+  eq(C.actions.inForce, 0, `${contested}: a contested action was also counted in force`);
 }
+
+// ── 6b · challenged_unverified says the challenge is open, not that it won ───
+// The token's job is to be weaker than both neighbours. It must not read as a court
+// having blocked the action, and it must not let the action be counted as unimpeded.
+setActions([
+  { actionClass: "executive_order", documentId: "EO CH", title: "Challenged", actedAt: "2025-01-01", term: "47",
+    sourceUrl: FR(6), sourceLabel: "Federal Register",
+    issues: [{ issueKey: "voter_id", direction: "advances" }],
+    status: [st("in_force", "2025-01-01", FR(6)), st("challenged_unverified", "2026-01-30")] },
+  { actionClass: "executive_order", documentId: "EO OK", title: "Unchallenged", actedAt: "2025-01-02", term: "47",
+    sourceUrl: FR(7), sourceLabel: "Federal Register",
+    issues: [{ issueKey: "energy_production", direction: "advances" }],
+    status: [st("in_force", "2025-01-02", FR(7))] },
+]);
+const CH = EX.summary("trump");
+ok(!!CH, "the challenged fixture yielded no summary — an Axis B bucket is missing from the invariant");
+eq(CH.actions.challengedUnverified, 1, "challenged_unverified did not reach its own bucket");
+eq(CH.actions.inForce, 1, "the challenged action was folded in with the unchallenged one");
+eq(CH.actions.blocked + CH.actions.partlyBlocked + CH.actions.struckDown, 0,
+  "a pending challenge was counted as a court having acted");
+eq(CH.actions.total, 2, "Axis B total does not include the challenged action");
+ok(/no ruling on file/i.test(CH.label),
+  `the label states the challenge without its limit: ${CH.label}`);
+ok(!/blocked|struck/i.test(CH.label),
+  `the label reports a pending challenge in the language of a ruling: ${CH.label}`);
+// Issue level: the challenged action's issue must not present as settled, and the
+// unchallenged one must not be dragged into the challenge.
+eq(EX.issue("trump", "voter_id").standing.key, "challenged_unverified",
+  "an issue whose only action is challenged presented as something else");
+eq(EX.issue("trump", "energy_production").standing.key, "in_force",
+  "a challenge on one action leaked into an unrelated issue's standing");
+// And a ruling on the same action still outranks it — the token yields to evidence.
+setActions([{ actionClass: "executive_order", documentId: "EO CH", title: "Challenged", actedAt: "2025-01-01",
+  term: "47", sourceUrl: FR(6), sourceLabel: "Federal Register",
+  issues: [{ issueKey: "voter_id", direction: "advances" }],
+  status: [st("challenged_unverified", "2026-01-30"), st("partly_blocked", "2026-03-01")] }]);
+eq(EX.summary("trump").actions.partlyBlocked, 1,
+  "a later ruling did not supersede the pending-challenge row — the log must yield to evidence");
+eq(EX.summary("trump").actions.challengedUnverified, 0,
+  "the superseded pending-challenge row was still counted");
 
 // ── 7 · latest status wins, and an uncitable status is not a standing ────────
 setActions([{ actionClass: "executive_order", documentId: "EO Y", title: "T", actedAt: "2025-01-01",

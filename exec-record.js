@@ -101,12 +101,29 @@
   // ── Axis B · Standing ──────────────────────────────────────────────────────
   // `contested: true` marks the standings that make the standing clause
   // non-droppable — see STANDING_STICKY below.
+  //
+  // `challenged_unverified` is the honest name for the gap between "a court stopped
+  // this" and "nothing has disturbed this". Without it the only available filing for a
+  // live, unresolved challenge is `in_force`, and `in_force` is a positive claim: it
+  // says the action stands unimpeded. A court that has not ruled has not established
+  // that, so filing it there would state something the sources do not support. It is
+  // contested for the same reason — a reader shown only in-force counts is told the
+  // record is settled when part of it is still open.
   var EXEC_STANDING = {
     in_force:       { key: 'in_force',       ico: '●', label: 'In force',               contested: false, cls: 'exec-inforce' },
     partly_blocked: { key: 'partly_blocked', ico: '◐', label: 'Partly blocked in court', contested: true,  cls: 'exec-partly' },
     blocked:        { key: 'blocked',        ico: '⊘', label: 'Blocked by court order',  contested: true,  cls: 'exec-blocked' },
     struck_down:    { key: 'struck_down',    ico: '✕', label: 'Struck down',             contested: true,  cls: 'exec-struck' },
     rescinded:      { key: 'rescinded',      ico: '↩', label: 'Rescinded',               contested: true,  cls: 'exec-rescinded' },
+    challenged_unverified: {
+      key: 'challenged_unverified', ico: '⚖', label: 'Challenged in court — no ruling on file',
+      contested: true, cls: 'exec-challenged', isCoverage: true,
+      // Coverage, like said_not_done on Axis A: it reports the state of OUR file, not a
+      // finding against the action. Use it only where a primary court document shows the
+      // challenge is live AND no primary ruling resolving it has been read. It is never a
+      // shorthand for "we did not look".
+      short: 'A challenge to this action is on file and live; no primary ruling resolving it has been read.'
+    },
     superseded:     { key: 'superseded',     ico: '⇢', label: 'Superseded by later action', contested: false, cls: 'exec-superseded' },
     expired:        { key: 'expired',        ico: '⌛', label: 'Lapsed or expired',       contested: false, cls: 'exec-expired' }
   };
@@ -148,7 +165,7 @@
   // Standings that keep the standing clause in EVERY rendering, however compact. A
   // summary showing only alignment implies the whole record is operative — the exact
   // failure Axis B exists to prevent, reintroduced one level up.
-  var STANDING_STICKY = { partly_blocked: 1, blocked: 1, struck_down: 1, rescinded: 1 };
+  var STANDING_STICKY = { partly_blocked: 1, blocked: 1, struck_down: 1, rescinded: 1, challenged_unverified: 1 };
 
   // One or two actions cannot carry a pattern. Adopted from consistency.js's
   // _orMappedSummaryText, which already appends a thinness caveat at low N so a count
@@ -303,7 +320,12 @@
 
     // Issue-level standing: the most contested standing among this issue's actions,
     // so an issue is never presented as settled while one of its orders is enjoined.
-    var order = ['struck_down', 'blocked', 'partly_blocked', 'rescinded', 'superseded', 'expired', 'in_force'];
+    // challenged_unverified sits below the rulings and above the uncontested standings:
+    // it must outrank in_force (an unresolved challenge cannot be summarised away as
+    // operative) but must not outrank an actual injunction, because "a court stopped
+    // part of this" is the stronger and better-sourced claim of the two.
+    var order = ['struck_down', 'blocked', 'partly_blocked', 'rescinded',
+                 'challenged_unverified', 'superseded', 'expired', 'in_force'];
     for (var k = 0; k < order.length && !res.standing; k++) {
       for (var n = 0; n < res.actions.length; n++) {
         if (res.actions[n].standing === order[k]) { res.standing = EXEC_STANDING[order[k]]; break; }
@@ -358,11 +380,13 @@
 
     var actions = {
       inForce: 0, partlyBlocked: 0, blocked: 0, struckDown: 0,
-      rescinded: 0, superseded: 0, expired: 0, total: 0
+      rescinded: 0, challengedUnverified: 0, superseded: 0, expired: 0, total: 0
     };
     var STATUS_BUCKET = {
       in_force: 'inForce', partly_blocked: 'partlyBlocked', blocked: 'blocked',
-      struck_down: 'struckDown', rescinded: 'rescinded', superseded: 'superseded', expired: 'expired'
+      struck_down: 'struckDown', rescinded: 'rescinded',
+      challenged_unverified: 'challengedUnverified',
+      superseded: 'superseded', expired: 'expired'
     };
     var byClass = { signed_law: 0, vetoed_law: 0, executive_order: 0, directive: 0 };
     var unstated = 0;
@@ -383,7 +407,8 @@
       unstatedStanding: unstated,
       dropped: pool.dropped, allTimeTotal: pool.allTime, droppedAllTime: pool.droppedAllTime,
       thin: pool.kept.length <= THIN_MAX,
-      contested: !!(actions.partlyBlocked || actions.blocked || actions.struckDown || actions.rescinded),
+      contested: !!(actions.partlyBlocked || actions.blocked || actions.struckDown ||
+                    actions.rescinded || actions.challengedUnverified),
       label: '',
       score: null // structurally null — asserted by scripts/test-exec-summary.mjs
     };
@@ -396,7 +421,7 @@
     // A missing summary is a rendering gap; a wrong one is a false claim.
     var aSum = issues.aligned + issues.against + issues.bothWays + issues.noActionFound + issues.noStance;
     var bSum = actions.inForce + actions.partlyBlocked + actions.blocked + actions.struckDown +
-               actions.rescinded + actions.superseded + actions.expired;
+               actions.rescinded + actions.challengedUnverified + actions.superseded + actions.expired;
     var cSum = byClass.signed_law + byClass.vetoed_law + byClass.executive_order + byClass.directive;
     if (aSum !== issues.total) return null;
     if (bSum !== actions.total) return null;
@@ -440,6 +465,9 @@
     if (sum.actions.blocked)       st.push(sum.actions.blocked + ' blocked by court order');
     if (sum.actions.struckDown)    st.push(sum.actions.struckDown + ' struck down');
     if (sum.actions.rescinded)     st.push(sum.actions.rescinded + ' rescinded');
+    if (sum.actions.challengedUnverified) {
+      st.push(sum.actions.challengedUnverified + ' challenged in court — no ruling on file');
+    }
     if (sum.actions.superseded)    st.push(sum.actions.superseded + ' superseded by later action');
     if (sum.actions.expired)       st.push(sum.actions.expired + ' lapsed or expired');
     if (st.length) out += ' Standing: ' + st.join(', ') + '.';
