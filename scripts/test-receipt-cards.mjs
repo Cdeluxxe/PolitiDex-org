@@ -618,6 +618,162 @@ const rcCode = rc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 lacks(rcCode, "ACCT_SPOTLIGHT", "boundary: the vote-derived feed never reads the curated spotlight data");
 lacks(rcCode, "PDXReceipts.collect", "boundary: the vote-derived feed never writes into the curated feed");
 
+// ══ 6. THE SHARE AFFORDANCE ══════════════════════════════════════════════════
+// A host surface cannot know at render time whether a card exists — the record
+// arrives async. So the button is rendered CLOSED (hidden + pending) and
+// hydrate() either reveals it or deletes it. That default state is the whole
+// contract: an unhydratable button is invisible, so a share is never offered
+// that the guards would refuse to honour.
+
+const btnHtml = RC.buttonHtml({ pid: "testrep", issueKey: "national_debt" });
+has(btnHtml, "hidden", "affordance: a freshly rendered share button starts hidden");
+has(btnHtml, 'data-pdxrc-pending="1"', "affordance: a freshly rendered button is marked pending");
+has(btnHtml, 'data-pid="testrep"', "affordance: the button carries the member it will resolve");
+has(btnHtml, 'data-issue="national_debt"', "affordance: the button carries the issue it will resolve");
+has(btnHtml, 'type="button"', "affordance: the control is a button, not a bare link");
+has(btnHtml, "aria-label", "affordance: the control is labelled for screen readers");
+eq(RC.buttonHtml({}), "", "affordance: no member means no button at all");
+eq(RC.buttonHtml(), "", "affordance: buttonHtml() with no options returns nothing rather than throwing");
+has(RC.buttonHtml({ pid: "testrep", issueKey: "x", block: true }), "pdxrc-block",
+  "affordance: block:true asks for the full-width mobile variant");
+has(RC.buttonHtml({ pid: "testrep", measure: "H.R. 1", stopKeys: true }), "stopPropagation",
+  "affordance: stopKeys:true keeps key events out of an enclosing role=button card");
+has(RC.buttonHtml({ pid: 'a"b', issueKey: "<x>" }), "&quot;",
+  "affordance: attribute values are escaped before they reach the DOM");
+lacks(RC.buttonHtml({ pid: "testrep", issueKey: "<x>" }), "<x>",
+  "affordance: an issue key cannot inject markup");
+
+// A DOM small enough to read and complete enough to exercise reveal-vs-delete.
+const fakeBtn = (attrs) => {
+  const b = {
+    attrs: attrs, removed: false, classes: [], innerHTML: "", props: {},
+    getAttribute: (k) => (k in attrs ? attrs[k] : null),
+    setAttribute: (k, v) => { b.props[k] = v; },
+    removeAttribute: (k) => { delete attrs[k]; },
+    classList: { add: (c) => b.classes.push(c) },
+  };
+  b.parentNode = { removeChild: (n) => { n.removed = true; n.parentNode = null; } };
+  return b;
+};
+// hydrate() selects `.pdxrc-share-btn[data-pdxrc-pending]`, so the stub root has
+// to honour the pending filter — that filter is what makes a second pass free.
+const fakeRoot = (btns) => ({
+  querySelectorAll: () => btns.filter((b) => b.getAttribute("data-pdxrc-pending") != null),
+});
+
+const goodBtn = fakeBtn({ "data-pid": "testrep", "data-issue": "national_debt", "data-pdxrc-pending": "1" });
+const blockedBtn = fakeBtn({ "data-pid": "testrep", "data-issue": "tariffs_authority", "data-pdxrc-pending": "1" });
+const omniBtn = fakeBtn({ "data-pid": "testrep", "data-measure": "H.R. 1", "data-pdxrc-pending": "1" });
+const pidlessBtn = fakeBtn({ "data-pdxrc-pending": "1" });
+const unknownBtn = fakeBtn({ "data-pid": "nobody_here", "data-issue": "healthcare", "data-pdxrc-pending": "1" });
+
+const shown = await RC.hydrate(fakeRoot([goodBtn, blockedBtn, omniBtn, pidlessBtn, unknownBtn]));
+
+eq(shown, 2, "hydrate: exactly the two resolvable buttons were revealed");
+eq(goodBtn.removed, false, "hydrate: an eligible issue card keeps its share button");
+eq(goodBtn.attrs["data-pdxrc-pending"], undefined, "hydrate: a revealed button is no longer pending");
+eq(goodBtn.attrs.hidden, undefined, "hydrate: a revealed button is no longer hidden");
+has(goodBtn.innerHTML, "Share this vote", "hydrate: a revealed issue button says what it shares");
+ok(goodBtn.classes.some((c) => /^pdxrc-v-/.test(c)),
+  "hydrate: a revealed button carries the verdict accent it will print");
+has(goodBtn.props.title || "", "National Debt",
+  "hydrate: the tooltip names the issue the card is about");
+has(goodBtn.props.title || "", "source URL",
+  "hydrate: the tooltip tells the reader what the image will contain before they send it");
+eq(blockedBtn.removed, true, "hydrate: FAIL CLOSED — a blocked issue key loses its share button entirely");
+eq(unknownBtn.removed, true, "hydrate: FAIL CLOSED — an unknown member loses its share button entirely");
+eq(pidlessBtn.removed, true, "hydrate: a button with no member is removed rather than left hidden forever");
+eq(omniBtn.removed, false, "hydrate: the H.R. 1 omnibus split card keeps its share button");
+has(omniBtn.innerHTML, "split vote", "hydrate: the omnibus button says it is a split vote, not a single verdict");
+
+// Second pass must be a no-op: nothing is left pending, so nothing is touched.
+const again = await RC.hydrate(fakeRoot([goodBtn, omniBtn]));
+eq(again, 0, "hydrate: re-running over already-revealed buttons reveals nothing new");
+
+// The reveal path and the click path must resolve the SAME card, or a button can
+// promise one thing and share another.
+ok((rc.match(/cardForButton\(/g) || []).length >= 3,
+  "affordance: reveal and click both resolve through the one cardForButton()");
+
+// ── Mount points: each surface renders the slot through the shared API ────────
+const hr1 = readFileSync(join(ROOT, "hr1-showcase.js"), "utf8");
+has(hr1, "RC.buttonHtml(", "mount: the H.R. 1 showcase asks receipt-cards.js for the control");
+has(hr1, "measure: HR1_SHARE_NUMBER", "mount: the showcase share button is scoped to the H.R. 1 split card");
+has(hr1, "stopKeys: true", "mount: the showcase button shields the card's own key handler");
+has(hr1, "RC.hydrate(", "mount: the showcase hydrates after it mounts");
+has(hr1, "hr1-rc-foot", "mount: the showcase share control lives in the receipt-card footer");
+lacks(hr1.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""), "isProcedural",
+  "mount: the showcase does not re-implement a guard of its own");
+
+const consSrc = readFileSync(join(ROOT, "consistency.js"), "utf8");
+has(consSrc, "pdxor-share", "mount: the profile record/stance row has a share slot");
+has(consSrc, "pdxgap-share", "mount: the Official Record gap view has a share slot");
+has(consSrc, "_rcShareHtml", "mount: both consistency slots render through one helper");
+has(consSrc, "PDXReceiptCards", "mount: consistency.js reads the share API rather than building cards");
+ok((consSrc.match(/_rcHydrateSoon\(\)/g) || []).length >= 3,
+  "mount: consistency.js hydrates on first render, on gap open and on record warm");
+
+// The gap view is two columns — 🏛️ Official Record and 🧾 Say-vs-Do. The share
+// control belongs to the record side only; a share button on the curated side
+// would blend the two feeds the editorial model keeps apart.
+const gapFn = consSrc.slice(consSrc.indexOf("function _gapViewHtml"));
+const gapBody = gapFn.slice(0, gapFn.indexOf("\n  function ", 10));
+ok(gapBody.indexOf("pdxgap-share") > -1, "mount: the gap share slot is inside _gapViewHtml");
+ok(gapBody.indexOf("pdxgap-share") > gapBody.indexOf("offBody"),
+  "boundary: the gap share button sits on the Official Record side of the split");
+
+// ── The method link has to land somewhere ─────────────────────────────────────
+has(rc, "#methodolog", "method: receipt-cards.js routes the link its own cards print");
+has(rc, "openMethodology('cards')", "method: the card's method link opens the share-card rules");
+has(consSrc, "function openMethodology", "method: consistency.js owns the methodology sheet");
+has(consSrc, 'data-pdxm-row=', "method: methodology rows are addressable so a link can focus one");
+has(consSrc, 'pdxm-row-focus', "method: the focused row is marked when arrived at from a card");
+
+// ── The methodology copy must actually state the five rules ──────────────────
+// Asserted on the PLAIN-LANGUAGE wording, not on field names: the whole point of
+// the section is that a reader who never opens the schema can still check us.
+const mIdx = consSrc.indexOf("Cards you can share");
+ok(mIdx > -1, "method: the share-card methodology section exists");
+const mSection = consSrc.slice(mIdx, consSrc.indexOf("'cards')", mIdx) + 8);
+ok(mSection.length > 800 && mSection.length < 5000,
+  "method: the share-card section is one bounded row, not the whole sheet");
+for (const [what, pattern] of [
+  ["the measure→issue mapping and that a person recorded why", /recorded why|rationale/i],
+  ["that mappings are never inferred from a bill's text", /never infer/i],
+  ["which way a Yes points (supportMeaning)", /supports the issue or opposes it/i],
+  ["procedural and inverted questions", /procedural/i],
+  ["the primary-issue judgment", /primarily/i],
+  ["one card, one issue", /one card, one issue/i],
+  ["the source URL requirement", /source URL/i],
+  ["the method link back", /link back to this page/i],
+]) {
+  ok(pattern.test(mSection), `method copy: covers ${what}`);
+}
+lacks(mSection, "Republican", "method copy: no party characterization");
+lacks(mSection, "Democrat", "method copy: no party characterization");
+
+// ── Share text must not mislabel the feed it came from ────────────────────────
+has(svd, "origin === 'official_record'", "share text: the caption branches on which feed the card came from");
+has(svd, "isRecordCard", "share text: one predicate decides, not a scattered check");
+has(svd, "🏛️", "share text: an Official Record card's text carries the record mark");
+has(svd, "verifyUrl", "share text: the pasted text carries the citable URL, not just the card image");
+has(svd, "r.source.url", "share text: pasted text prefers the FULL url — the card's elided one is not typable");
+
+// ── Wave 1 scope lock ────────────────────────────────────────────────────────
+ok(!!RC.guards.wave1HoldIssueKeys.america_first_fp,
+  "wave 1: america_first_fp is held out of the first public wave");
+has(RC.guards.wave1HoldIssueKeys.america_first_fp, "two readings",
+  "wave 1: the hold states why, so lifting it is a decision and not a guess");
+ok(!RC.guards.blockedIssueKeys.america_first_fp,
+  "wave 1: the hold is a wave gate, not a permanent block — the guards stay separable");
+ok(!!RC.guards.blockedIssueKeys.tariffs_authority,
+  "wave 1: tariffs_authority stays permanently blocked, not merely held");
+has(RC.guards.wave1Hold("america_first_fp"), "wave 1",
+  "wave 1: the hold is applied by its own gate, reachable independently of the guards");
+eq(RC.guards.wave1Hold("lower_taxes"), "", "wave 1: the hold touches nothing outside its own key");
+eq(RC.guards.blockIssue("someone_else", "america_first_fp", "America First means putting our own workers first.", null), "",
+  "wave 1: holding a key for wave 1 did not turn guard 4 into a blanket block");
+
 // Reading the record must not mutate it.
 const recBefore = JSON.stringify(RECORDS);
 RC.audit("testrep"); RC.cardsFor("testrep"); RC.omnibus("testrep", "H.R. 1");

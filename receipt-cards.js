@@ -83,6 +83,13 @@
     tariffs_authority: 'Support-filed stances under this key carry opposite meanings (congressional authority vs presidential authority), so the single measure mapping reads backwards for one of them.'
   };
 
+  // Keys that are not structurally broken but are not cleared for the first
+  // public wave either. Separate from BLOCKED_ISSUE_KEYS so the audit can say
+  // which of the two it is, and so lifting a hold does not touch a guard.
+  var WAVE1_HOLD_ISSUE_KEYS = {
+    america_first_fp: 'held out of wave 1 — the key still carries two readings (America-First framing and war-powers restraint), and a finished card cannot show which one the verdict was scored against'
+  };
+
   // ── Guard 4 · america_first_fp resting on a restraint position ────────────
   // `america_first_fp` is doing double duty, and the ledger shows it on BOTH
   // sides of the card.
@@ -272,6 +279,21 @@
       }
     }
     return '';
+  }
+
+  // Not a guard. A guard says a card is structurally refutable; a wave hold says
+  // a card we could build is not cleared to go out yet. They are kept apart so
+  // the audit can name which one stopped a card, and so lifting a hold is one
+  // deletion that cannot weaken a guard by accident.
+  //
+  // The america_first_fp hold: guard 4 above catches the cards provably resting
+  // on a restraint position. What it cannot catch is the residual ambiguity in
+  // the KEY ITSELF — a reader looking at a finished card has no way to tell which
+  // reading of "America First Foreign Policy" the verdict was scored against, and
+  // both readings are live in the stance data. In the app the stance text sits
+  // next to the verdict and settles it; on a PNG it does not travel.
+  function wave1Hold(issueKey) {
+    return WAVE1_HOLD_ISSUE_KEYS[issueKey] || '';
   }
 
   // Guard 10: is this SAID side a stated position, rather than a vote?
@@ -476,7 +498,8 @@
             blockStance(pos && pos.text) ||
             blockRecord(item) ||
             blockDuplicateIdentity(records, issueKey, item.number) ||
-            stableVerdict(summary, want);
+            stableVerdict(summary, want) ||
+            wave1Hold(issueKey);
           out.push(cand);
         });
     });
@@ -682,6 +705,108 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // SHARE AFFORDANCE  ·  markup + fail-closed hydration
+  // ──────────────────────────────────────────────────────────────────────────
+  // A host surface must not decide for itself whether a card is shareable: to do
+  // that it would have to re-implement the guards, and a second copy of a guard is
+  // a guard that drifts. So both the markup and the eligibility check live here,
+  // beside the guards themselves.
+  //
+  //   buttonHtml(opts) → a button that renders HIDDEN and marked pending. It
+  //                      promises nothing until this module has built the card.
+  //   hydrate(root)    → warms each pid once, then for every pending button either
+  //                      REVEALS it (a card exists and passed every guard) or
+  //                      REMOVES it from the DOM (no card).
+  //
+  // Fail closed in the literal sense: the default state of the affordance is
+  // invisible. If the record never arrives, the fetch fails, or any guard blocks,
+  // the reader is never offered a share that cannot be honoured — and the host
+  // surface never has to know which guard said no.
+  // ══════════════════════════════════════════════════════════════════════════
+  var _ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  function escA(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return _ESC[c]; });
+  }
+
+  // opts: { pid, issueKey, measure, block, stopKeys }
+  //   issueKey → the card for that one issue (profile row, gap sheet)
+  //   measure  → the omnibus split card for that bill (H.R. 1 Showcase)
+  //   block    → full-width, for a mobile bottom sheet
+  //   stopKeys → the host row is itself keyboard-activatable, so keep Enter/Space
+  //              on this button from bubbling into the row's own handler
+  function buttonHtml(opts) {
+    opts = opts || {};
+    if (!opts.pid) return '';
+    return '<button type="button" class="pdxrc-share-btn' + (opts.block ? ' pdxrc-block' : '') + '"' +
+      ' hidden data-pdxrc-pending="1"' +
+      ' data-pid="' + escA(opts.pid) + '"' +
+      (opts.issueKey ? ' data-issue="' + escA(opts.issueKey) + '"' : '') +
+      (opts.measure ? ' data-measure="' + escA(opts.measure) + '"' : '') +
+      (opts.stopKeys ? ' onkeydown="event.stopPropagation()"' : '') +
+      ' aria-label="Share this Official Record card as an image">' +
+      '<span class="pdxrc-ico" aria-hidden="true">🏛️</span>' +
+      '<span class="pdxrc-lbl">Share</span></button>';
+  }
+
+  // The one place a button's attributes are turned into a card, used by BOTH the
+  // hydrator and the click delegate — so what a button reveals and what it shares
+  // can never be two different things.
+  function cardForButton(btn) {
+    if (!btn) return null;
+    var pid = btn.getAttribute('data-pid');
+    if (!pid) return null;
+    var iss = btn.getAttribute('data-issue') || '';
+    var num = btn.getAttribute('data-measure') || '';
+    if (num) return omnibus(pid, num);
+    return iss ? find(pid, iss) : find(pid);
+  }
+
+  function dropBtn(btn) { if (btn && btn.parentNode) btn.parentNode.removeChild(btn); }
+
+  function revealBtn(btn, card) {
+    var omni = card.verdict.key === 'omnibus';
+    // What the reader is about to send, named on the control itself. The bill
+    // number and the issue are the two things that make the image checkable, so
+    // they are what the tooltip and the accessible name say.
+    var what = [card.measureNumber, card.issue && card.issue.label].filter(Boolean).join(' · ');
+    btn.classList.add('pdxrc-' + card.verdict.cls);
+    btn.innerHTML = '<span class="pdxrc-ico" aria-hidden="true">' + (omni ? '⇅' : '🏛️') + '</span>' +
+      '<span class="pdxrc-lbl">' + escA(omni ? 'Share this split vote' : 'Share this vote') + '</span>';
+    btn.setAttribute('title', 'Share ' + (what || 'this vote') +
+      ' as an image — the card prints the bill, the question, the vote, the date, the source URL and how it was judged.');
+    btn.setAttribute('aria-label', 'Share ' + (what || 'this vote') + ' as an Official Record image');
+    btn.removeAttribute('data-pdxrc-pending');
+    btn.removeAttribute('hidden');
+  }
+
+  // Resolves to the number of buttons revealed. Safe to call on every repaint: a
+  // button is only ever looked at while it still carries data-pdxrc-pending.
+  function hydrate(root) {
+    var scope = root || document;
+    var list = null;
+    try { list = scope.querySelectorAll('.pdxrc-share-btn[data-pdxrc-pending]'); } catch (e) { list = null; }
+    if (!list || !list.length) return Promise.resolve(0);
+    var byPid = {}, i, p;
+    for (i = 0; i < list.length; i++) {
+      p = list[i].getAttribute('data-pid');
+      if (!p) { dropBtn(list[i]); continue; }
+      (byPid[p] = byPid[p] || []).push(list[i]);
+    }
+    var shown = 0;
+    var pids = Object.keys(byPid);
+    return Promise.all(pids.map(function (pid) {
+      return warm(pid).then(null, function () { return null; }).then(function () {
+        byPid[pid].forEach(function (btn) {
+          if (!btn.parentNode) return;
+          var card = null;
+          try { card = cardForButton(btn); } catch (e) { card = null; }
+          if (card) { revealBtn(btn, card); shown++; } else dropBtn(btn);
+        });
+      });
+    })).then(function () { return shown; });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // ONE-TAP BUTTON DELEGATE + DEEP LINK
   // ──────────────────────────────────────────────────────────────────────────
   // `.pdxrc-share-btn[data-pid]` (optionally with data-issue / data-measure)
@@ -703,16 +828,40 @@
       if (!btn) return;
       e.preventDefault(); e.stopPropagation();
       var pid = btn.getAttribute('data-pid');
-      var iss = btn.getAttribute('data-issue') || '';
-      var num = btn.getAttribute('data-measure') || '';
       if (!pid) return;
       var go = function () {
-        var card = num ? omnibus(pid, num) : (iss ? find(pid, iss) : find(pid));
+        var card = cardForButton(btn);
         if (card) return doShare(card, btn);
         return share(pid, btn);
       };
       if (recordsFor(canonPid(pid))) go(); else warm(pid).then(go);
     }, true);
+  }
+
+  // Every card prints `politidex.fyi/#methodology` as its visible method link, so
+  // that hash has to LAND somewhere: before this, it resolved to the homepage with a
+  // fragment nothing read, which makes the most important promise on the card — that
+  // you can check how it was judged — the one promise it failed to keep. Handled here
+  // rather than in consistency.js because this is the module that prints the link.
+  var _methodTries = 0;
+  function openMethodSheet() {
+    try {
+      if (window.PDXConsistency && typeof window.PDXConsistency.openMethodology === 'function') {
+        // 'cards' focuses the row that states the share-card rules specifically —
+        // the question a reader who tapped the card's method line actually asked.
+        window.PDXConsistency.openMethodology('cards');
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  function handleMethodHash(retry) {
+    if (!/^#methodolog/i.test(String(location.hash || ''))) { _methodTries = 0; return false; }
+    if (!retry) _methodTries = 0;
+    if (openMethodSheet()) { _methodTries = 0; return true; }
+    // A reader arriving cold from a shared image may beat consistency.js to the DOM.
+    if (_methodTries++ < 20) setTimeout(function () { handleMethodHash(true); }, 250);
+    return true;
   }
 
   var _hashTries = 0;
@@ -751,6 +900,10 @@
     warm: warm,
     share: share,
     renderImage: renderImage,
+    // share affordance — the ONLY way a host surface should offer a share, so the
+    // guards decide what is offered rather than each surface guessing.
+    buttonHtml: buttonHtml,
+    hydrate: hydrate,
     // exposed so scripts/test-receipt-cards.mjs can assert on the guards
     // themselves rather than only on their effects, and so a future reader can
     // see the exclusion list without reading the whole file.
@@ -760,8 +913,10 @@
       blockStance: blockStance,
       blockDuplicateIdentity: blockDuplicateIdentity,
       stableVerdict: stableVerdict,
+      wave1Hold: wave1Hold,
       blockedMeasureTypes: BLOCKED_MEASURE_TYPES,
       blockedIssueKeys: BLOCKED_ISSUE_KEYS,
+      wave1HoldIssueKeys: WAVE1_HOLD_ISSUE_KEYS,
       restraintPids: AFP_RESTRAINT_PIDS
     },
     VERDICTS: VERDICTS,
@@ -774,8 +929,12 @@
 
   function boot() {
     try { bindDelegate(); } catch (e) {}
+    try { handleMethodHash(); } catch (e) {}
     try { handleHash(); } catch (e) {}
-    window.addEventListener('hashchange', function () { try { handleHash(); } catch (e) {} });
+    window.addEventListener('hashchange', function () {
+      try { handleMethodHash(); } catch (e) {}
+      try { handleHash(); } catch (e) {}
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

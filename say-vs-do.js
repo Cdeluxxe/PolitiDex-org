@@ -724,12 +724,34 @@
 
   function slugify(s) { return String(s || 'receipt').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'receipt'; }
   function trimTo(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s; }
+  // The image carries its own provenance; the caption that travels beside it has to
+  // agree with it. A vote-derived card is 🏛️ Official Record and leads with the bill,
+  // and its source line prints the citable URL the card footer shows — a curated 🧾
+  // Say-vs-Do receipt is unchanged.
+  function isRecordCard(r) { return !!(r && r.origin === 'official_record'); }
+  function sourceLine(r) {
+    var lbl = (r.source && r.source.label) || (isRecordCard(r) ? 'the official record' : 'public record');
+    // The card IMAGE prints r.verifyUrl, which is elided to fit the card width.
+    // Pasted text has no width limit, so it carries the whole URL — an elided
+    // one is not clickable and not typable, which defeats the point of citing it.
+    var full = (r.source && r.source.url) || r.verifyUrl || '';
+    var url = isRecordCard(r) && full ? ' — ' + full : '';
+    return lbl + (r.date ? ' (' + r.date + ')' : '') + url;
+  }
   function caption(r) {
     var lines = [];
-    lines.push('🧾 ' + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
+    var rec = isRecordCard(r);
+    lines.push((rec ? '🏛️ ' : '🧾 ') + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
     if (r.said) lines.push('Said: “' + trimTo(r.said.text, 150) + '”');
     lines.push((r.impact === 'positive' ? 'Record: ' : 'But the record: ') + trimTo(r.headline, 150));
-    lines.push('Source: ' + ((r.source && r.source.label) || 'public record') + (r.date ? ' (' + r.date + ')' : ''));
+    lines.push('Source: ' + sourceLine(r));
+    // A split card's whole point is that one vote landed both ways, so the caption
+    // says so too rather than leaving the image to carry it alone.
+    if (rec && r.split) {
+      lines.push('Same vote, ' + r.split.count + ' mapped issues: advances ' +
+        r.split.advances.length + ', opposes ' + r.split.opposes.length + '.');
+    }
+    if (rec && r.method) lines.push(r.method.replace(/^HOW THIS IS JUDGED:\s*/i, 'How this is judged: '));
     // Link straight back to THIS receipt, not just the homepage, so a share is
     // verifiable in one tap by whoever receives it.
     lines.push('Checked on PolitiDex · ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL).replace(/^https?:\/\//, ''));
@@ -737,8 +759,8 @@
   }
   function tweetText(r) {
     var v = r.verdict.label.replace(' · ', ': ');
-    return trimTo('🧾 ' + r.name + ' — ' + v + '. ' + r.headline +
-      ' (source: ' + ((r.source && r.source.label) || 'public record') + (r.date ? ', ' + r.date : '') + ')', 240);
+    return trimTo((isRecordCard(r) ? '🏛️ ' : '🧾 ') + r.name + ' — ' + v + '. ' + r.headline +
+      ' (source: ' + sourceLine(r) + ')', 240);
   }
 
   function toast(msg) {

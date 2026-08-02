@@ -769,6 +769,13 @@
       '.pdxor-vrlink{display:inline-block;margin-top:0.45rem;background:none;border:none;padding:0.2rem 0;cursor:pointer;font-family:inherit;font-size:0.68rem;font-weight:700;letter-spacing:0.02em;color:#7fb4ff;text-align:left;}' +
       '.pdxor-vrlink:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
       '.pdxor-vrlink:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.3rem;}' +
+      // Slot for the 🏛️ Official Record share control (receipt-cards.js). The
+      // control itself is styled globally in say-vs-do.css so both feeds' buttons
+      // are defined side by side and cannot quietly converge; this only positions
+      // it. Collapses to nothing when no card cleared the guards and the button was
+      // removed, so an ineligible row shows no empty gap.
+      '.pdxor-share{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;}' +
+      '.pdxor-share:empty{display:none;margin:0;}' +
       // "No votes yet" stances, listed rather than only counted.
       '.pdxor-awaiting-d>summary{list-style:none;cursor:pointer;}' +
       '.pdxor-awaiting-d>summary::-webkit-details-marker{display:none;}' +
@@ -911,6 +918,10 @@
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
       '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
+      // The share control sits INSIDE the 🏛️ side of the sheet, never in the footer
+      // and never on the 🧾 side, so what it shares is unambiguous.
+      '.pdxgap-share{margin-top:0.55rem;}' +
+      '.pdxgap-share:empty{display:none;margin:0;}' +
       '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       // Phase 11 — methodology explainer content (rendered inside the shared sheet).
       '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
@@ -918,6 +929,13 @@
       '.pdxm-row-h{display:flex;align-items:center;gap:0.4rem;font-weight:700;font-size:0.82rem;color:#e8eefc;}' +
       '.pdxm-row-b{font-size:0.75rem;color:#c6d4ec;line-height:1.5;margin-top:0.3rem;}' +
       '.pdxm-row-b b{color:#e8eefc;font-weight:700;}' +
+      // "All of these have to hold" reads as a checklist, not a paragraph.
+      '.pdxm-row-b ul.pdxm-steps{list-style:none;margin:0.45rem 0 0.15rem;padding:0;}' +
+      '.pdxm-row-b ul.pdxm-steps li{position:relative;padding-left:1.05rem;margin:0.32rem 0;}' +
+      '.pdxm-row-b ul.pdxm-steps li::before{content:"→";position:absolute;left:0;color:#7fb4ff;}' +
+      // A reader who tapped "how this is judged" on a shared card arrives with one
+      // question; the row that answers it is briefly ringed so it is findable.
+      '.pdxm-row-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(127,180,255,0.55);background:rgba(127,180,255,0.07);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -1118,6 +1136,10 @@
         if (sds[q].getAttribute('data-pdxc-saydo-pid') !== String(pid)) continue;
         sds[q].innerHTML = _sdInner(pid);
       }
+      // The repaint above is the moment the vote record actually exists, so it is
+      // also the moment a vote-derived share card can first be built. Re-run the
+      // reveal pass over the freshly painted rows.
+      _rcHydrateSoon();
     });
   }
 
@@ -1460,6 +1482,31 @@
     var rv = _orRowVerdict(ov);
     return rv.why ? '<div class="pdxor-why">' + esc(rv.why) + '</div>' : '';
   }
+
+  // ── Official Record share affordance (receipt-cards.js) ─────────────────────
+  // Two slots, both on the 🏛️ side only: one in each profile stance row, one in the
+  // gap sheet's Official Record column. Neither decides eligibility — the control is
+  // rendered hidden and receipt-cards.js reveals it only for (member, issue) pairs
+  // whose card clears every trust guard, or removes it outright. Re-deriving that
+  // here would mean a second copy of the guards, and a second copy is one that
+  // drifts; so this file offers the slot and asks nothing about the answer.
+  function _rcShareHtml(pid, issueKey, opts) {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.buttonHtml !== 'function' || !pid || !issueKey) return '';
+      return RC.buttonHtml({ pid: pid, issueKey: issueKey, block: !!(opts && opts.block) });
+    } catch (e) { return ''; }
+  }
+  // Reveal pass. Idempotent and cheap — hydrate() only looks at buttons still marked
+  // pending — so it is safe on every repaint. Scheduled rather than immediate because
+  // both callers hand their HTML to someone else to mount.
+  function _rcHydrateSoon() {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.hydrate !== 'function') return;
+      setTimeout(function () { try { RC.hydrate(document); } catch (e) {} }, 0);
+    } catch (e) {}
+  }
   // Jump into the full Voting Record, filtered to one issue when that section is live.
   // Falls back to a plain jump, then to a scroll — the link is never a dead end.
   // '' asks for the whole record, which also clears a filter an earlier row left set.
@@ -1801,6 +1848,7 @@
               _orRowEvidenceHtml(pid, s.key, s.ov) +
               _orRowVrLinkHtml(pid, s.key, s.ov) +
               _gapLinkHtml(pid, s.key) +
+              '<div class="pdxor-share">' + _rcShareHtml(pid, s.key) + '</div>' +
             '</div>' +
           '</details>';
       }).join('');
@@ -1845,6 +1893,9 @@
     ensureStyles();
     bindGateway();
     if (!pid) return '';
+    // The rows carry hidden share controls; reveal the eligible ones once the caller
+    // has mounted this string.
+    _rcHydrateSoon();
     return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
   }
 
@@ -2222,6 +2273,8 @@
           ' &amp; actions — the institutional record</div>' +
         offOmni +
         offBody +
+        // Full-width because this sheet is a mobile bottom sheet first.
+        '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
       '</div>';
 
     // 🧾 Say-vs-Do side
@@ -2285,6 +2338,9 @@
     if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
     if (sheet.parentNode) sheet.parentNode.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+    // A reader arriving from a shared card's #record= link can reach this before the
+    // vote record is warm, so the reveal pass runs on every open rather than once.
+    _rcHydrateSoon();
   }
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');
@@ -2297,8 +2353,9 @@
   // states what each number means, the thin-data rules, why the two systems stay
   // separate, and exactly what the divergence labels do and don't claim.
   function methodologyHtml() {
-    var row = function (icon, title, body) {
-      return '<div class="pdxm-row"><div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
+    var row = function (icon, title, body, id) {
+      return '<div class="pdxm-row"' + (id ? ' data-pdxm-row="' + esc(id) + '"' : '') + '>' +
+        '<div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
         '<div class="pdxm-row-b">' + body + '</div></div>';
     };
     return '<div class="pdxm">' +
@@ -2321,6 +2378,23 @@
         ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but party leadership drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
         LT('recommit', 'motion to recommit') + ' or a ' + LT('table', 'motion to table') +
         ' a Yea is a vote <b>against</b> the measure, and we read it that way — scoring it the other way round would produce exactly backwards verdicts.') +
+      // The shareable-card rules. These are stricter than the in-app rules on purpose
+      // and a reader can only check us on them if they are written down, so this row
+      // is the destination the method line printed on every card points at.
+      row('📤', 'Cards you can share — and what has to be true first',
+        'Some of these verdicts can leave PolitiDex as an image. A shared card has to stand up with <b>none</b> of this page around it, so the bar is higher than for anything shown inside the app. Every card carries <b>one member, one issue, one vote</b> — and all five of these have to hold, or there is no card:' +
+        '<ul class="pdxm-steps">' +
+          '<li><b>A person mapped this bill to this issue.</b> Someone decided, in writing, that this measure speaks to this issue, and recorded why. We never infer it from a bill\'s title or text.</li>' +
+          '<li><b>We know which way a Yes points.</b> Each mapping also records whether voting <b>Yes</b> supports the issue or opposes it — plenty of bills advance a cause by being voted down. Without that, a Nay that actually <b>advanced</b> what someone campaigned on would read as opposition to it.</li>' +
+          '<li><b>The vote is on the policy, not the process.</b> ' + LT('procedural', 'Procedural votes') +
+            ', and any question where a Yea actually blocks the measure — a ' + LT('recommit', 'motion to recommit') +
+            ' or a ' + LT('table', 'motion to table') + ' — never become cards at all. In the app they count at a quarter weight; on an image that qualifier cannot travel, so they are excluded outright.</li>' +
+          '<li><b>The card judges the issue it names.</b> One card, one issue. A big bill touches several, so each mapping also records whether that issue is what the bill was <b>primarily</b> about or a side effect of it — and the card leads with the issue it names rather than the loudest one. Its verdict has to match what their <b>whole</b> record on that issue says, not just the single vote it quotes; where the two disagree, we don\'t ship the card. When one vote moved several issues at once, the card names the others and which way each one went.</li>' +
+          '<li><b>The receipt is printed on the card.</b> Bill number, the exact question the Clerk asked, how they voted, the date, a <b>source URL you can type in yourself</b>, and a link back to this page. A card that can\'t be checked doesn\'t ship.</li>' +
+        '</ul>' +
+        'Some things are held back on purpose: <b>confirmation votes</b>, because a vote about a <b>person</b> can\'t carry a policy claim once it leaves the app; issues whose wording means opposite things to different members; and any “they said” line that is <b>itself a vote</b>, which would leave the card arguing with its own evidence. ' +
+        'Sharing also never moves a number — 🏛️ Official Record cards stay out of the 🧾 Say-vs-Do scores completely, exactly as above.',
+        'cards') +
       row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
@@ -2328,13 +2402,26 @@
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';
   }
-  function openMethodology() {
+  function openMethodology(focus) {
     if (!document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = methodologyHtml();
     if (sheet.parentNode) sheet.parentNode.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+    // A reader who tapped "HOW THIS IS JUDGED" on a shared card asked one specific
+    // question. Land them on the answer rather than at the top of the sheet — the
+    // link is only useful if it resolves to the rules that produced the card.
+    if (focus) {
+      try {
+        var sel = String(focus).replace(/[^a-z0-9_-]/gi, '');
+        var row = sel && sheet.querySelector('[data-pdxm-row="' + sel + '"]');
+        if (row) {
+          row.classList.add('pdxm-row-focus');
+          if (row.scrollIntoView) row.scrollIntoView({ block: 'center' });
+        }
+      } catch (e) {}
+    }
   }
 
   window.PDXConsistency = {
