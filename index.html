@@ -36454,6 +36454,54 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       todd_huston: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg/500px-SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg',
       warren_petersen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Warren_Petersen_by_Gage_Skidmore_2.jpg/500px-Warren_Petersen_by_Gage_Skidmore_2.jpg',
       wes_moore: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Wes_Moore_Official_Governor_Portrait.jpg/500px-Wes_Moore_Official_Governor_Portrait.jpg',
+
+      // ── Coverage pass: faces for the share / arrival pool ────────────────────
+      // Added so a cold #record= arrival, an Official Record share card, a profile
+      // hero and a browse/search row all paint the same real face. Every URL below
+      // was confirmed HTTP 200 image/* before being added; anyone without a
+      // confirmable public portrait is deliberately absent and keeps the honest
+      // party-tinted initials fallback.
+      //
+      // Sitting members of Congress use the official unitedstates/images portrait,
+      // keyed by Bioguide ID resolved from the authoritative dataset
+      // (https://unitedstates.github.io/congress-legislators/legislators-current.json).
+      //
+      // Executive/state officials use the hash-independent Commons redirect,
+      //   https://commons.wikimedia.org/wiki/Special:FilePath/<File>?width=500
+      // rather than the upload.wikimedia.org/.../thumb/<hash>/... form used above.
+      // Same trusted host family, but the thumb form embeds the file's MD5 path and
+      // has already 404d on this project twice when a file was re-uploaded (see
+      // scripts/add-missing-photos.mjs). Special:FilePath survives a re-hash.
+      blunt_rochester:          'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001303.jpg', // Lisa Blunt Rochester — Sen, DE
+      chellie_pingree:          'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000597.jpg', // Chellie Pingree — Rep, ME-01
+      cortez_masto:             'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001113.jpg', // Catherine Cortez Masto — Sen, NV
+      julie_fedorchak:          'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000482.jpg', // Julie Fedorchak — Rep, ND-AL
+      marie_gluesenkamp_perez:  'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000600.jpg', // Marie Gluesenkamp Perez — Rep, WA-03
+      maxine_waters:            'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000187.jpg', // Maxine Waters — Rep, CA-43
+      mike_flood:               'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000474.jpg', // Mike Flood — Rep, NE-01
+      mike_simpson:             'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001148.jpg', // Michael K. Simpson — Rep, ID-02
+      troy_downing:             'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000634.jpg', // Troy Downing — Rep, MT-02
+      van_hollen:               'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000128.jpg', // Chris Van Hollen — Sen, MD
+
+      adrian_fontes:            'https://commons.wikimedia.org/wiki/Special:FilePath/Adrian_Fontes_2025.jpg?width=500', // Adrian Fontes — Secretary of State, AZ
+      al_schmidt:               'https://commons.wikimedia.org/wiki/Special:FilePath/Al_Schmidt.jpg?width=500', // Al Schmidt — Secretary of the Commonwealth, PA
+      brad_raffensperger:       'https://commons.wikimedia.org/wiki/Special:FilePath/SoS_HeadshotRaffensperger.jpg?width=500', // Brad Raffensperger — Secretary of State, GA
+      cisco_aguilar:            'https://commons.wikimedia.org/wiki/Special:FilePath/Francisco_Aguilar%2C_Secretary_of_State_of_Nevada%2C_2024.jpg?width=500', // Cisco Aguilar — Secretary of State, NV
+      diego_morales:            'https://commons.wikimedia.org/wiki/Special:FilePath/Diego_Morales_DC.png?width=500', // Diego Morales — Secretary of State, IN
+      frank_larose:             'https://commons.wikimedia.org/wiki/Special:FilePath/Frank_LaRose_by_Gage_Skidmore.jpg?width=500', // Frank LaRose — Secretary of State, OH
+      hassett:                  'https://commons.wikimedia.org/wiki/Special:FilePath/Kevin_Hassett_official_photo_(cropped)(2).jpg?width=500', // Kevin Hassett — Director, National Economic Council
+      hegseth:                  'https://commons.wikimedia.org/wiki/Special:FilePath/Pete_Hegseth_Official_Portrait_(cropped)(b).jpg?width=500', // Pete Hegseth — Secretary of Defense
+      jane_nelson_tx:           'https://commons.wikimedia.org/wiki/Special:FilePath/Sec-Jane-Nelson-TX.jpg?width=500', // Jane Nelson — Secretary of State, TX
+      jeff_jackson:             'https://commons.wikimedia.org/wiki/Special:FilePath/Rep._Jeff_Jackson_-_118th_Congress.jpg?width=500', // Jeff Jackson — Attorney General, NC
+      jena_griswold:            'https://commons.wikimedia.org/wiki/Special:FilePath/Jena_Griswold.JPG?width=500', // Jena Griswold — Secretary of State, CO
+      jocelyn_benson:           'https://commons.wikimedia.org/wiki/Special:FilePath/SOS_Jocelyn_Benson_web.jpg?width=500', // Jocelyn Benson — Secretary of State, MI
+      maggie_toulouse_oliver:   'https://commons.wikimedia.org/wiki/Special:FilePath/Maggie_Toulouse_Oliver.jpg?width=500', // Maggie Toulouse Oliver — Secretary of State, NM
+      michael_adams_ky:         'https://commons.wikimedia.org/wiki/Special:FilePath/Michael_Adams.jpg?width=500', // Michael Adams — Secretary of State, KY
+      michael_watson_ms:        'https://commons.wikimedia.org/wiki/Special:FilePath/Michael_Watson.png?width=500', // Michael Watson — Secretary of State, MS
+      shirley_weber:            'https://commons.wikimedia.org/wiki/Special:FilePath/Shirley_Weber.jpg?width=500', // Shirley Weber — Secretary of State, CA
+      stephen_miran:            'https://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Governor_Stephen_I._Miran_HIGH_RES_miran_stephen_(54810191208)_(cropped).jpg?width=500', // Stephen Miran — Chair, Council of Economic Advisers
+      steve_hobbs:              'https://commons.wikimedia.org/wiki/Special:FilePath/Steve_Hobbs.jpg?width=500', // Steve Hobbs — Secretary of State, WA
+      steve_simon:              'https://commons.wikimedia.org/wiki/Special:FilePath/2026SteveSimon.jpg?width=500', // Steve Simon — Secretary of State, MN
     };
     // Expose the curated headshot map globally so the single-source-of-truth
     // _getPhotoUrl() (defined in a SEPARATE <script> closure, where this `var`
