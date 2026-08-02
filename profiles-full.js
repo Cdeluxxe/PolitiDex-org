@@ -1,0 +1,5537 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Full politician profiles (PROFILES population)
+// ─────────────────────────────────────────────────────────────────────────────
+// Extracted verbatim from index.html (it began at line 22346 of the pre-split
+// document) as part of the first-paint pass. Not a rewrite: the code below is
+// byte-for-byte what was inline, and the <script src> that replaced it sits at
+// the same position in the document, so execution order and global scope are
+// unchanged. It moved out so the HTML stops carrying it on every single visit —
+// external scripts are cached and V8-code-cached across loads; inline script in
+// a revalidated document is re-downloaded and re-compiled every time.
+// ─────────────────────────────────────────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════
+  // FULL POLITICIAN PROFILES
+    // ════════════════════════════════════════════════════════════
+  // FULL POLITICIAN PROFILES (Dynamically loaded)
+  // ════════════════════════════════════════════════════════════
+  // PROFILES is now defined at the top of the file as an empty object
+  // and dynamically populated from Firestore.
+
+  // ════════════════════════════════════════════════════════════
+  // POPULATE DIR_DATA FROM PROFILES (dynamic — picks up all entries)
+  // ════════════════════════════════════════════════════════════
+  window._populateDirData = function() {
+    // Build the public directory from the de-duplicated, stub-free view so
+    // the same person never appears twice and empty placeholders are hidden.
+    // (Admin tools still read raw PROFILES — see window._cleanProfiles.)
+    var _dirProfiles = (typeof window._cleanProfiles === 'function')
+      ? window._cleanProfiles().profiles : PROFILES;
+    DIR_DATA = Object.keys(_dirProfiles).map(function(id, index) {
+      var p = _dirProfiles[id];
+      var officeRaw = (p.office || '').replace(/^[^A-Za-z0-9]+/, '');
+      var officeKey = 'candidate';
+      if (/U\.S\.\s*Senator|^Senator/i.test(officeRaw)) officeKey = 'senate';
+      else if (/U\.S\.\s*Representative/i.test(officeRaw)) officeKey = 'house';
+      else if (/Governor/i.test(officeRaw)) officeKey = 'governor';
+      else if (/President|Secretary|Director/i.test(officeRaw)) officeKey = 'executive';
+      else if (/State\s*(Senator|Rep)|Speaker|Senate\s*President/i.test(officeRaw)) officeKey = 'state';
+      else if (/Mayor/i.test(officeRaw)) officeKey = 'local';
+      else if (/Candidate/i.test(officeRaw)) officeKey = 'candidate';
+
+      var typeKey = 'principle';
+      if (officeKey === 'executive' || officeKey === 'governor' || officeKey === 'local') typeKey = 'executive';
+
+      var rank = typeof p.rank === 'number' ? p.rank : parseInt(String(p.rank).replace('#', ''), 10);
+      if (isNaN(rank)) rank = 900 + index;
+
+      return {
+        id: id,
+        name: p.name,
+        office: officeRaw,
+        officeKey: officeKey,
+        typeKey: typeKey,
+        state: p.state,
+        party: p.party,
+        score: p.score != null ? p.score : null,
+        rank: rank,
+        tier: p.tier || 'gray',
+        icon: p.icon || '🏛',
+        issues: p.keyIssues || [],
+        bio: p.bio || '',
+        photo: p.photo || ''
+      };
+    });
+
+    var countEl = document.getElementById('profile-count');
+    if (countEl) countEl.textContent = DIR_DATA.length;
+    if (typeof filterDirectory === 'function') filterDirectory();
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // DEEP-PROFILE DATA & RENDERERS
+  // ────────────────────────────────────────────────────────────
+  // These power the richer "Full Profile" view: a politician's stated
+  // positions on the same issues used by the Alignment Tool, a People's
+  // Mandate scorecard built from the signals PolitiDex already tracks, and
+  // scannable voting highlights. Everything is data-driven and degrades
+  // gracefully, so profiles can be filled in gradually over time — add an
+  // entry to ISSUE_STANCE_DATA (or MANDATE_OVERRIDES) for a politician and
+  // the new sections light up automatically. Politicians with no curated
+  // data still render a useful, honest "still being documented" view.
+  // ════════════════════════════════════════════════════════════
+
+  // ── Curated issue-stance schema ──────────────────────────────────────
+  // Each politician id maps to a list of positions. Every position is one
+  // object with a small, stable set of fields — add or omit any optional field
+  // freely and the card still renders, so coverage can grow over time without
+  // ever breaking the structure. To document a new official, add their id with a
+  // list of positions in exactly this shape; nothing else needs to change.
+  //
+  //   REQUIRED
+  //     topic   : the issue name, human-readable (mirrors the Alignment Tool).
+  //     pos     : 'support' | 'oppose' | 'mixed' | 'tracking' — the badge shown
+  //               on the card (how they come down on THIS topic, as framed).
+  //     text    : one clear, specific sentence stating their position.
+  //
+  //   OPTIONAL (each independently safe to leave off)
+  //     icon     : emoji for the card; falls back to 🎯.
+  //     detail   : a second sentence of context — the "why", the nuance, or the
+  //                scope of the position. Shown under `text` in a quieter style.
+  //     evidence : the concrete record behind the stance — a named vote, signed
+  //                bill, or sponsored measure. Rendered with a "Record:" label.
+  //     source   : { label, url } — a citation link (official site, Congress.gov,
+  //                le.utah.gov, etc.) surfaced as a chip.
+  //     issueKey + issueStance : the LINKAGE to the Personalized Alignment Tool.
+  //                issueKey points at the exact ISSUE_MAP position; issueStance
+  //                ('support' | 'oppose' | 'mixed') is whether they back THAT
+  //                position. This powers the per-issue "You vs. them" comparison
+  //                and is kept separate from `pos` because a card topic may be
+  //                framed differently from the Alignment position (e.g. "opposes
+  //                foreign aid" == supports the "America First" position). Add
+  //                these two to make a stance comparable; omit them and the card
+  //                still renders, it just isn't matched against a user's picks.
+  //
+  // Quality over quantity: a documented official should have a handful of
+  // specific, sourced positions rather than many vague ones. Utah officials in
+  // 2026 races are the current priority and the most fully populated below.
+  // ISSUE_STANCE_DATA ships in politician-stances-core.js + politician-stances-ext.js
+  // (split from the former politician-stances.js; both load via deferred <script>
+  // before alignment-tool.js, so the full object is present by DOMContentLoaded)
+
+  // Optional curated overrides for the People's Mandate scorecard (0–100).
+  // Leave a principle out to let it derive automatically from tracked data.
+  var MANDATE_OVERRIDES = {};
+
+  // Funding integrity signal (higher = more small-donor, less special-interest
+  // funded). FALLBACK SEED ONLY: for anyone with an itemized filing in FTM_FUNDING,
+  // the live, transparent Constituents-First signal (window._pdxFinanceSignal,
+  // computed from real FEC / Utah-disclosure buckets with its reasons shown in the
+  // UI) supersedes these numbers. This map still seeds the Transparency and
+  // Constituents-over-special-interests mandate principles for officials who have
+  // no filing on file yet. See FINANCE_INTEGRITY.md.
+  var FINANCE_INTEGRITY = {
+    trump:32, cox:54, lee:48, curtis:68, massie:78, owens:58,
+    maloy:62, kennedy:55, bmoore:57, bilzerian:35, gallrein:64,
+    gleich:75, bking:48
+  };
+
+  // Best-effort emoji for a free-text key issue, pulled from the Alignment
+  // Tool's ISSUE_MAP so derived stances share the same visual vocabulary.
+  function _deepProfileTopicIcon(text) {
+    try {
+      if (typeof ISSUE_MAP === 'undefined' || !text) return '🎯';
+      var low = String(text).toLowerCase();
+      for (var key in ISSUE_MAP) {
+        var def = ISSUE_MAP[key];
+        if (!def || !def.keywords) continue;
+        for (var i = 0; i < def.keywords.length; i++) {
+          if (low.indexOf(def.keywords[i].toLowerCase()) !== -1) {
+            return (def.label || '🎯').split(' ')[0];
+          }
+        }
+      }
+    } catch (e) {}
+    return '🎯';
+  }
+
+  // Stance helpers (STANCE_ALIASES, _resolveStanceList, _polPositionMap) extracted to stance-helpers.js
+
+  <!-- Connected-evidence + related stance helpers moved to stance-helpers.js -->
+
+  <!-- _pdxSeatIssueBoard + "How You Compare" family moved to stance-helpers.js -->
+
+  // ── Stance at a Glance ───────────────────────────────────────────────
+  // A compact, collapsible index of every documented position a politician
+  // holds — built from the SAME ISSUE_STANCE_DATA the detailed Key Issue
+  // Stances cards use, so the two can never disagree. Each row pairs the issue
+  // with a one-line summary of the stance and a single evidence dot answering
+  // "do we have receipts on this?": green when the politician's own promises
+  // and on-record items back the stance, red when they cut against it, blue
+  // when mixed, amber when in progress, hollow when nothing is connected yet.
+  // Tapping a row opens a small popover listing the connected Promises and
+  // Spotlight items for that one issue, drawn straight from
+  // window._issueEvidenceMap (no new data work). Collapsed by default so it
+  // orients a visitor without crowding the profile.
+  //
+  // CONTENT_STYLE: every line is the individual's own stated position and
+  // their own record — no party framing is introduced here.
+  window._sagCtx = null;
+  window._renderStanceGlance = function(id, p) {
+    try {
+      p = p || {};
+      var stances = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+      var documented = stances.filter(function(s){ return s && s.topic; });
+      // Nothing documented → step aside rather than render an empty box. The
+      // Key Issue Stances section immediately below already carries the honest
+      // "positions being documented / limited record" message, so stacking a
+      // second empty state here would just be noise.
+      if (!documented.length) return '';
+
+      // Stash the render context so a row's tap (which only carries its index)
+      // can re-resolve the politician and rebuild the evidence map on click.
+      window._sagCtx = { id: id, p: p };
+
+      function esc(s) {
+        if (s == null) return '';
+        if (typeof window._slEsc === 'function') return window._slEsc(s);
+        return String(s).replace(/[&<>"]/g, function(c){
+          return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+        });
+      }
+
+      var evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+
+      var POS_META = {
+        support:  { cls:'sag-support',  ico:'✓', label:'Supports' },
+        oppose:   { cls:'sag-oppose',   ico:'✗', label:'Opposes' },
+        mixed:    { cls:'sag-mixed',    ico:'~', label:'Mixed' },
+        tracking: { cls:'sag-tracking', ico:'…', label:'Tracking' },
+        priority: { cls:'sag-tracking', ico:'★', label:'Priority' }
+      };
+
+      // The at-a-glance evidence read for one issue: does the politician's own
+      // record (kept/broken promises + positive/negative on-record items) back
+      // the stance, cut against it, or just exist? Hollow when nothing is tied.
+      function evRead(e) {
+        if (!e) return { cls:'ev-none', label:'No evidence yet', media:'' };
+        var c = e.counts || {};
+        var supports  = (c.promisesKept   || 0) + (c.spotlightPositive || 0);
+        var against   = (c.promisesBroken || 0) + (c.spotlightNegative || 0);
+        var connected = (e.promises ? e.promises.length : 0) + (e.spotlight ? e.spotlight.length : 0);
+        if (!connected) return { cls:'ev-none', label:'No evidence yet', media:'' };
+        var media = (e.spotlight || []).filter(function(s){ return s.media && s.media.url; }).length;
+        var mediaIco = media ? '<span class="sag-ev-media" title="' + media + ' video clip' + (media === 1 ? '' : 's') + ' on record — tap to watch">▶' + (media > 1 ? ' ' + media : '') + '</span>' : '';
+        var n = connected + ' linked';
+        if (supports && against)  return { cls:'ev-mixed',    label:n, media:mediaIco };
+        if (supports && !against) return { cls:'ev-backs',    label:n, media:mediaIco };
+        if (against && !supports) return { cls:'ev-cuts',     label:n, media:mediaIco };
+        return { cls:'ev-progress', label:n, media:mediaIco };
+      }
+
+      var firstNm = (p.name ? String(p.name).split(' ')[0] : 'this official');
+      var domId = 'sag-' + String(id || '').replace(/[^a-z0-9_-]/gi, '');
+
+      // Say vs. Do — the explicit verdict pill. Reads the same backs/cuts/mixed
+      // signal as the old evidence dot, but states it as a verdict comparing what the
+      // official SAYS (this stance) to what their own record shows. A 'mixed' stance
+      // can't contradict itself, so it always reads "Mixed record". Hollow evidence →
+      // no verdict pill (honest: nothing to compare yet). _sagHydrateRecord upgrades
+      // this in place to the roll-call-based verdict where the voting DB has votes.
+      function sagVerdict(read, pos) {
+        if (!read || read.cls === 'ev-none') return null;
+        if (pos === 'mixed')            return { cls:'sag-v-mixed',       ico:'~', label:'Mixed record', line:'shows a mixed record on' };
+        if (read.cls === 'ev-backs')    return { cls:'sag-v-consistent',  ico:'✓', label:'Backs it up',  line:'backs up' };
+        if (read.cls === 'ev-cuts')     return { cls:'sag-v-contradicts', ico:'✗', label:'Contradicts',  line:'cuts against' };
+        if (read.cls === 'ev-mixed')    return { cls:'sag-v-mixed',       ico:'~', label:'Mixed record', line:'shows a mixed record on' };
+        if (read.cls === 'ev-progress') return { cls:'sag-v-progress',    ico:'⏳', label:'In progress',  line:'is still delivering on' };
+        return null;
+      }
+
+      var withEv = 0;
+      var rows = documented.map(function(s, i) {
+        var m = POS_META[s.pos] || POS_META.tracking;
+        var e = (s.issueKey && evMap[s.issueKey]) ? evMap[s.issueKey] : null;
+        var read = evRead(e);
+        if (read.cls !== 'ev-none') withEv++;
+        var evTitle = (read.cls === 'ev-none')
+          ? 'No promises or recorded statements are tied to this position yet'
+          : 'Tap to see the promises and on-record items tied to this position';
+        // All-Seeing Eye — direct jump to the attached video. Rendered as a
+        // prominent gold "Watch Video" pill (span, since the row is a <button>);
+        // tapping it opens the clip inline and stops the row's evidence-popover.
+        var _sagVid = (typeof window._pdxIssueVideo === 'function') ? window._pdxIssueVideo(id, p, s.issueKey) : null;
+        var sagWatch = (_sagVid && typeof window._pdxWatchPill === 'function')
+          ? window._pdxWatchPill(_sagVid, { cls: 'sag-watch' }) : '';
+        // People's Mandate tie — when this position is on an issue citizens are
+        // actively voting on, surface a chip that jumps to the reform. This is
+        // the stance → reform leg of the thread the request asks for.
+        var sagMandate = (s.issueKey && typeof window._pdxMandateChip === 'function')
+          ? window._pdxMandateChip(s.issueKey, { compact: true }) : '';
+        var m2 = sagVerdict(read, s.pos);
+        var vdBadge = m2
+          ? '<span class="sag-verdict ' + m2.cls + '" data-sag-issue="' + esc(s.issueKey || '') + '" title="Say vs. Do — whether ' + esc(firstNm) + '’s own record lines up with this stated position">' + m2.ico + ' ' + m2.label + '</span>'
+          : '';
+        var rowDomId = domId + '-d' + i;
+        var evText = esc(s.evidence || s.detail || '');
+        var srcHtml = (s.source && s.source.url)
+          ? '<a class="sag-src" href="' + esc(s.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();">' + esc(s.source.label || 'Source') + ' ↗</a>'
+          : (s.source && s.source.label ? '<span class="sag-src">' + esc(s.source.label) + '</span>' : '');
+        var c = (e && e.counts) || {};
+        var tallyParts = [];
+        if (c.promisesKept)    tallyParts.push('<span class="t-kept">✓ ' + c.promisesKept + ' kept</span>');
+        if (c.promisesBroken)  tallyParts.push('<span class="t-broken">✗ ' + c.promisesBroken + ' broken</span>');
+        if (c.promisesPending) tallyParts.push('<span class="t-pending">⏳ ' + c.promisesPending + ' pending</span>');
+        if (c.spotlight)       tallyParts.push('<span>📋 ' + c.spotlight + ' on record</span>');
+        var tallyHtml = tallyParts.length ? '<div class="sag-tally">' + tallyParts.join('') + '</div>' : '';
+        var vdLineTxt = m2
+          ? '<strong>' + esc(firstNm) + '’s own record ' + m2.line + ' this position.</strong> Weighed from their promises, on-record statements and — where available — roll-call votes.'
+          : 'No promises, statements or recorded votes are tied to this position yet.';
+        var evLine = (evText || srcHtml)
+          ? '<div class="sag-detail-ev">' + evText + (evText && srcHtml ? ' · ' : '') + srcHtml + '</div>'
+          : '';
+        var detailInner =
+          '<div class="sag-verdict-line ' + (m2 ? m2.cls : 'sag-v-none') + '">' + vdLineTxt + '</div>' +
+          evLine +
+          tallyHtml +
+          '<div class="sag-votes" data-sag-votes="' + esc(s.issueKey || '') + '" data-loaded="0"></div>' +
+          '<button type="button" class="sag-detail-cta" onclick="event.stopPropagation(); window._pdxOpenStanceEvidence(' + i + ')">See all evidence &amp; votes →</button>';
+        return '<div class="sag-item ' + m.cls + '">' +
+            '<button type="button" class="sag-row ' + m.cls + '" aria-expanded="false" onclick="window._sagToggleRow(this,' + i + ')" ' +
+              'aria-label="Expand ' + esc(s.topic) + '">' +
+              '<span class="sag-ico" aria-hidden="true">' + (s.icon || '🎯') + '</span>' +
+              '<span class="sag-main">' +
+                '<span class="sag-topic">' + esc(s.topic) + '</span>' +
+                '<span class="sag-text">' + esc(s.text || '') + '</span>' +
+                (sagMandate ? '<span class="sag-mandate" style="display:inline-flex;margin-top:0.3rem;">' + sagMandate + '</span>' : '') +
+              '</span>' +
+              '<span class="sag-meta">' +
+                sagWatch +
+                '<span class="sag-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+                vdBadge +
+              '</span>' +
+              '<span class="sag-chev" aria-hidden="true">›</span>' +
+            '</button>' +
+            '<div class="sag-detail" id="' + rowDomId + '"><div class="sag-detail-inner">' + detailInner + '</div></div>' +
+          '</div>';
+      }).join('');
+
+      var first = (p.name ? String(p.name).split(' ')[0] : 'this official');
+      var n = documented.length;
+      var domId = 'sag-' + String(id || '').replace(/[^a-z0-9_-]/gi, '');
+      var countPill = n + ' position' + (n === 1 ? '' : 's') +
+        (withEv ? ' · ' + withEv + ' with evidence' : '');
+
+      // People's Mandate tie-in — the count badge sits in the header so the
+      // connection is visible at a glance even while the section is collapsed,
+      // and the collapsible cue inside the body lists exactly which reforms this
+      // official has a position or evidence on. Both no-op to '' when nothing
+      // connects, so a profile with no Mandate overlap looks exactly as before.
+      var mandateBadge = (typeof window._pdxMandateCountBadge === 'function')
+        ? window._pdxMandateCountBadge(id, p) : '';
+      var mandateCue = (typeof window._pdxMandateProfileCue === 'function')
+        ? window._pdxMandateProfileCue(id, p, { scope: 'sag' }) : '';
+
+      // Honest caption when the record is thin — shown instead of letting a
+      // one- or two-item list read as the whole story.
+      var limited = (n < 3)
+        ? '<div class="sag-limited"><span class="sag-limited-ico" aria-hidden="true">📋</span>' +
+            '<span class="sag-limited-text">Limited position data available — showing the ' + n +
+            ' position' + (n === 1 ? '' : 's') + ' documented for ' + esc(first) +
+            ' so far. More are added as statements and votes are verified.</span></div>'
+        : '';
+
+      // Progressive enhancement: once this section is in the DOM, upgrade each
+      // verdict pill to the authoritative roll-call verdict for members whose votes
+      // are in the voting-record database. No-ops for everyone else. Runs after the
+      // synchronous innerHTML insertion completes (macrotask), and is fully guarded.
+      try { setTimeout(function(){ try { if (typeof window._sagHydrateRecord === 'function') window._sagHydrateRecord(id, p); } catch (e) {} }, 60); } catch (e) {}
+
+      return '<div class="modal-section">' +
+          '<button class="dd-toggle-btn" onclick="toggleDD(\'' + domId + '\')" id="btn-' + domId + '">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">' +
+              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.08em;color:#dbe6f6;">🧭 Stance at a Glance</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.45rem;border-radius:999px;white-space:nowrap;">' + countPill + '</span>' + mandateBadge +
+            '</div>' +
+            '<svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+          '</button>' +
+          '<div class="dd-body" id="' + domId + '">' +
+            '<div class="dd-inner" style="padding:0.875rem;">' +
+              '<p class="sag-lead">Where ' + esc(first) + ' stands on the issues — each with a <em>Say vs. Do</em> verdict showing whether ' + esc(first) + '’s own record backs the position up. Tap any issue to expand its evidence and recorded votes.</p>' +
+              mandateCue +
+              limited +
+              '<div class="sag-list">' + rows + '</div>' +
+              '<p class="sag-foot">Say vs. Do verdict: <b style="color:#6ee7a0;">✓ Backs it up</b> · <b style="color:#fca5a5;">✗ Contradicts</b> · <b style="color:#93c5fd;">~ Mixed</b> · <b style="color:#f5c842;">⏳ In progress</b>. Weighed from ' + esc(first) + '’s own promises, on-record statements and — where available — roll-call votes.</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    } catch (err) {
+      if (window.console && console.warn) console.warn('stance glance failed', err);
+      return '';
+    }
+  };
+
+  // Expand/collapse one stance row's inline detail (Say vs. Do breakdown + the
+  // issue's recorded votes + a link to the full evidence locker). Lazily fills the
+  // recorded-votes list the first time a row is opened.
+  window._sagToggleRow = function(btn, i) {
+    try {
+      if (!btn) return;
+      var item = btn.parentNode;
+      var detail = btn.nextElementSibling;
+      if (!detail || String(detail.className || '').indexOf('sag-detail') === -1) {
+        detail = item ? item.querySelector('.sag-detail') : null;
+      }
+      if (!detail) return;
+      var open = btn.classList.contains('is-open');
+      btn.classList.toggle('is-open', !open);
+      detail.classList.toggle('is-open', !open);
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (!open) {
+        var votes = detail.querySelector('.sag-votes');
+        if (votes && votes.getAttribute('data-loaded') === '0' && typeof window._sagFillVotes === 'function') {
+          var ctx = window._sagCtx || {};
+          window._sagFillVotes(votes, ctx.id, ctx.p);
+        }
+      }
+    } catch (e) {}
+  };
+
+  // Render up to three recorded votes tagged to one issueKey into a row's detail.
+  window._sagRenderVotes = function(votesEl, items, issue) {
+    try {
+      if (!votesEl) return;
+      var esc = window._slEsc || function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; }); };
+      var hits = (items || []).filter(function(it){
+        return it && (it.issues || []).some(function(x){ return x && x.issueKey === issue; });
+      });
+      if (!hits.length) {
+        votesEl.innerHTML = '<span class="sag-votes-empty">No recorded roll-call votes are tied to this issue yet — the receipts above come from promises and on-record statements.</span>';
+        return;
+      }
+      hits.sort(function(a, b){ return String(b.date || '').localeCompare(String(a.date || '')); });
+      var rows = hits.slice(0, 3).map(function(it){
+        var pos = String(it.position || '').toLowerCase();
+        var pcls = pos === 'yea' ? 'v-yea' : (pos === 'nay' ? 'v-nay' : 'v-other');
+        var plabel = (it.position || (it.kind === 'position' ? 'action' : '—'));
+        var yr = it.date ? (' · ' + String(it.date).slice(0, 4)) : '';
+        var num = it.number ? (esc(it.number) + ' — ') : '';
+        return '<div class="sag-vote"><span class="sag-vote-pos ' + pcls + '">' + esc(plabel) + '</span><span>' + num + esc(it.title || '') + yr + '</span></div>';
+      }).join('');
+      votesEl.innerHTML = '<div class="sag-votes-head">Recorded votes on this issue</div>' + rows;
+    } catch (e) { try { votesEl.innerHTML = ''; } catch (e2) {} }
+  };
+
+  // Fill a row's recorded-votes container. Uses the in-memory cache when warm,
+  // otherwise fetches the member's record once. Fully no-ops when the voting-record
+  // layer or this member's votes aren't available (most local officials).
+  window._sagFillVotes = function(votesEl, id, p) {
+    try {
+      if (!votesEl) return;
+      votesEl.setAttribute('data-loaded', '1');
+      var issue = votesEl.getAttribute('data-sag-votes') || '';
+      var api = window.PDXVotingRecord;
+      if (!issue || !api || typeof api.memberRecords !== 'function') return;
+      var recs = api.memberRecords(id);
+      if (recs == null && typeof api.fetchMember === 'function') {
+        votesEl.innerHTML = '<span class="sag-votes-loading">Checking recorded votes…</span>';
+        api.fetchMember(id, { pageSize: 100 }).then(function(data){
+          try {
+            if (data && data.items && typeof api.noteMember === 'function') api.noteMember(id, data.items);
+            window._sagRenderVotes(votesEl, (data && data.items) || [], issue);
+            if (typeof window._sagHydrateRecord === 'function') window._sagHydrateRecord(id, p);
+          } catch (e) { try { votesEl.innerHTML = ''; } catch (e2) {} }
+        }, function(){ try { votesEl.innerHTML = ''; } catch (e) {} });
+        return;
+      }
+      window._sagRenderVotes(votesEl, recs || [], issue);
+    } catch (e) {}
+  };
+
+  // Progressive enhancement: upgrade each row's Say-vs-Do verdict pill (and its
+  // detail line) from the evidence-based reading to the authoritative roll-call
+  // verdict, for members whose votes are in the voting-record database. Reuses the
+  // shared say-vs-do engine (_polPositionMap + _polRecordMap). No-ops otherwise.
+  window._sagHydrateRecord = function(id, p) {
+    try {
+      var ctx = window._sagCtx || {};
+      id = id || ctx.id; p = p || ctx.p || {};
+      if (!id) return;
+      var domId = 'sag-' + String(id).replace(/[^a-z0-9_-]/gi, '');
+      var body = document.getElementById(domId);
+      if (!body) return;
+      var pills = body.querySelectorAll('.sag-verdict[data-sag-issue]');
+      if (!pills.length) return;
+      var api = window.PDXVotingRecord;
+      if (!api || typeof api.memberRecords !== 'function') return;
+      var recs = api.memberRecords(id);
+      if (recs == null) {
+        if (!window._sagFetchedFor) window._sagFetchedFor = {};
+        if (!window._sagFetchedFor[id] && typeof api.fetchMember === 'function') {
+          window._sagFetchedFor[id] = 1;
+          api.fetchMember(id, { pageSize: 100 }).then(function(data){
+            try { if (data && data.items && typeof api.noteMember === 'function') api.noteMember(id, data.items); window._sagHydrateRecord(id, p); } catch (e) {}
+          });
+        }
+        return;
+      }
+      if (!recs.length) return;
+      var posMap = (typeof window._polPositionMap === 'function') ? window._polPositionMap(id, p) : null;
+      var recMap = (typeof window._polRecordMap === 'function') ? window._polRecordMap(recs, posMap) : null;
+      if (!recMap) return;
+      var esc = window._slEsc || function(s){ return String(s == null ? '' : s); };
+      var firstNm = (p && p.name) ? String(p.name).split(' ')[0] : 'This official';
+      var VMAP = {
+        consistent:  { cls:'sag-v-consistent',  ico:'✓', label:'Backs it up',  line:'back up' },
+        contradicts: { cls:'sag-v-contradicts', ico:'✗', label:'Contradicts',  line:'cut against' },
+        mixed:       { cls:'sag-v-mixed',       ico:'~', label:'Mixed record', line:'show a mixed record on' }
+      };
+      for (var k = 0; k < pills.length; k++) {
+        var pill = pills[k];
+        var issue = pill.getAttribute('data-sag-issue');
+        var sum = issue ? recMap[issue] : null;
+        if (!sum || !sum.total) continue;
+        var v = VMAP[sum.netVerdict];
+        if (!v) continue;
+        var nv = sum.total;
+        pill.className = 'sag-verdict ' + v.cls;
+        pill.innerHTML = v.ico + ' ' + v.label;
+        pill.setAttribute('title', 'Say vs. Do — measured against ' + nv + ' recorded vote' + (nv === 1 ? '' : 's') + ' on this issue');
+        pill.setAttribute('data-sag-src', 'votes');
+        var item = (pill.closest) ? pill.closest('.sag-item') : null;
+        var line = item ? item.querySelector('.sag-verdict-line') : null;
+        if (line) {
+          line.className = 'sag-verdict-line ' + v.cls;
+          line.innerHTML = '<strong>' + esc(firstNm) + '’s recorded votes ' + v.line + ' this position.</strong> Measured against ' + nv + ' roll-call vote' + (nv === 1 ? '' : 's') + ' tagged to this issue — expand the full locker for each one.';
+        }
+      }
+    } catch (e) {}
+  };
+
+  // Open the per-issue evidence popover for the glance row at index `i`. Re-uses
+  // the stashed render context (politician + profile) so the row markup only has
+  // to carry its index, then rebuilds the connected-evidence map for that issue.
+  window._pdxOpenStanceEvidence = function(i) {
+    try {
+      var ctx = window._sagCtx || {};
+      var id = ctx.id || window._pdxCurrentProfileId;
+      var p = ctx.p || (window.PROFILES && window.PROFILES[id]) || {};
+      var stances = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+      var documented = stances.filter(function(s){ return s && s.topic; });
+      var s = documented[i];
+      if (!s) return;
+
+      function esc(v) {
+        if (v == null) return '';
+        if (typeof window._slEsc === 'function') return window._slEsc(v);
+        return String(v).replace(/[&<>"]/g, function(c){
+          return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+        });
+      }
+
+      var evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+      var e = (s.issueKey && evMap[s.issueKey]) ? evMap[s.issueKey] : null;
+      var first = (p.name ? String(p.name).split(' ')[0] : 'this official');
+
+      var STANCE_META = {
+        support: { cls:'sag-support', ico:'✓', label:'Supports' },
+        oppose:  { cls:'sag-oppose',  ico:'✗', label:'Opposes' },
+        mixed:   { cls:'sag-mixed',   ico:'~', label:'Mixed' },
+        tracking:{ cls:'sag-tracking',ico:'…', label:'Tracking' },
+        priority:{ cls:'sag-tracking',ico:'★', label:'Top Priority' }
+      };
+      var sm = STANCE_META[s.pos] || STANCE_META.tracking;
+
+      var VERDICT = {
+        kept:       { cls:'kept',       label:'Kept' },
+        broken:     { cls:'broken',     label:'Broken' },
+        compromise: { cls:'compromise', label:'Compromise' },
+        pending:    { cls:'pending',    label:'Pending' }
+      };
+
+      function promRow(pr) {
+        var v = String(pr.verdict || 'pending').toLowerCase();
+        var vm = VERDICT[v] || VERDICT.pending;
+        return '<div class="sag-pop-prom">' +
+            '<span class="sag-pop-prom-dot ' + vm.cls + '" aria-hidden="true"></span>' +
+            '<span class="sag-pop-prom-body">' + esc(pr.title) +
+              '<span class="sag-pop-prom-verdict ' + vm.cls + '">· ' + vm.label + '</span>' +
+            '</span>' +
+          '</div>';
+      }
+
+      function spotLinks(it) {
+        var links = [];
+        var m = it.media || null;
+        if (m && m.url) {
+          var isVideo = m.type === 'video';
+          var glyph, txt;
+          if (isVideo) { var vk = (typeof window._slVideoKindWord === 'function') ? window._slVideoKindWord(m) : ''; glyph = '▶'; txt = 'Watch ' + (vk || '') + 'video' + (m.timestamp ? ' · ' + esc(m.timestamp) : ''); }
+          else if (m.type === 'x_post')   { glyph = '𝕏'; txt = 'View post'; }
+          else if (m.type === 'facebook') { glyph = '📘'; txt = 'Facebook'; }
+          else if (m.type === 'audio')    { glyph = '🎧'; txt = 'Listen'; }
+          else if (m.type === 'text')     { glyph = '📄'; txt = 'Read'; }
+          else { glyph = '🔗'; txt = 'Open'; }
+          links.push('<a href="' + esc(m.url) + '" target="_blank" rel="noopener" class="sag-pop-link' + (isVideo ? ' is-video' : '') + '">' + glyph + ' ' + txt + '</a>');
+        }
+        if (it.source && it.source.url && (!m || !m.url || it.source.url !== m.url)) {
+          links.push('<a href="' + esc(it.source.url) + '" target="_blank" rel="noopener" class="sag-pop-link">🔗 ' + esc(it.source.label || 'Source') + '</a>');
+        }
+        return links.length ? '<div class="sag-pop-spot-links">' + links.join('') + '</div>' : '';
+      }
+
+      function spotRow(it) {
+        var imp = it.impact === 'positive' ? { c:'positive', g:'▲' }
+                : it.impact === 'negative' ? { c:'negative', g:'▼' }
+                : { c:'neutral', g:'•' };
+        var dateBit = it.date ? ' <span class="sag-pop-spot-date">· ' + esc(it.date) + '</span>' : '';
+        return '<div class="sag-pop-spot">' +
+            '<div class="sag-pop-spot-head">' +
+              '<span class="sag-pop-spot-impact ' + imp.c + '" aria-hidden="true">' + imp.g + '</span>' +
+              '<span class="sag-pop-spot-headline">' + esc(it.headline) + dateBit + '</span>' +
+            '</div>' + spotLinks(it) +
+          '</div>';
+      }
+
+      var promises = (e && e.promises) ? e.promises : [];
+      var spotlight = (e && e.spotlight) ? e.spotlight : [];
+
+      var body = '';
+      body += '<div class="sag-pop-stance">' +
+          '<span class="sag-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span>' +
+        '</div>';
+      if (s.text)   body += '<p class="sag-pop-text">' + esc(s.text) + '</p>';
+      if (s.detail) body += '<p class="sag-pop-detail">' + esc(s.detail) + '</p>';
+      if (s.evidence) body += '<p class="sag-pop-record"><span class="sag-pop-rlabel">Record</span>' + esc(s.evidence) + '</p>';
+      if (s.source && s.source.url) {
+        body += '<a href="' + esc(s.source.url) + '" target="_blank" rel="noopener" class="sag-pop-link" style="margin-bottom:0.2rem;">🔗 ' + esc(s.source.label || 'Source') + '</a>';
+      }
+
+      if (promises.length) {
+        body += '<div class="sag-pop-grouph">🤝 Tracked Promises<span class="sag-pop-groupn">' + promises.length + '</span></div>';
+        body += promises.map(promRow).join('');
+      }
+      if (spotlight.length) {
+        body += '<div class="sag-pop-grouph">🔦 On Record<span class="sag-pop-groupn">' + spotlight.length + '</span></div>';
+        body += spotlight.map(spotRow).join('');
+      }
+      if (!promises.length && !spotlight.length) {
+        body += '<div class="sag-pop-empty"><span aria-hidden="true">🔍</span><span>No tracked promise or recorded statement is tied to this position yet. The stance above reflects ' + esc(first) + '’s stated position; connected evidence is added as promises and on-record items are verified and tagged to this issue.</span></div>';
+      }
+
+      // For sitting Utah legislators the full Connected Evidence section is on
+      // the page — offer a one-tap jump to this issue's card there, plus a deep
+      // link into the Evidence Locker pre-filtered to this official AND issue.
+      // Action row at the end of the thread: stance → evidence → (promises and
+      // on-record items shown above) → The People's Mandate. The Mandate jump
+      // renders for ANY official whose issue is part of a reform, so the
+      // stance → reform leg is one tap from the evidence itself; the in-profile +
+      // Evidence Locker deep links stay scoped to sitting Utah legislators, whose
+      // Connected Evidence lives on the page.
+      var actions = [];
+      var _mItems = (s.issueKey && typeof window._pdxMandateForIssue === 'function')
+        ? window._pdxMandateForIssue(s.issueKey) : [];
+      if (_mItems && _mItems.length) {
+        var jsMk = String(s.issueKey == null ? '' : s.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        actions.push('<button type="button" class="sag-pop-jump is-mandate" ' +
+          'onclick="window._pdxCloseStanceEvidence();window._pdxMandateFocus&&window._pdxMandateFocus(\'' + jsMk + '\');" ' +
+          'title="' + esc('See the People’s Mandate reform' + (_mItems.length > 1 ? 's' : '') + ' this position connects to') +
+          '">📜 See on The People’s Mandate ↗</button>');
+      }
+      if ((promises.length || spotlight.length) && s.issueKey &&
+          typeof window._pdxEvAnchor === 'function') {
+        var anchor = window._pdxEvAnchor(id, s.issueKey);
+        actions.push('<button type="button" class="sag-pop-jump" onclick="window._pdxCloseStanceEvidence();window._pdxJumpEvidence&&window._pdxJumpEvidence(\'' + anchor + '\');">🧩 See in profile ↓</button>');
+        if (spotlight.length) {
+          var jsId = String(id == null ? '' : id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          var jsIk = String(s.issueKey == null ? '' : s.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          actions.push('<button type="button" class="sag-pop-jump is-locker" onclick="window._pdxCloseStanceEvidence();window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\',issue:\'' + jsIk + '\'});">📚 View in the Digital Library ↗</button>');
+        }
+      }
+      var jump = actions.length ? '<div class="sag-pop-actions">' + actions.join('') + '</div>' : '';
+
+      body += jump;
+      body += '<p class="sag-pop-foot">Built only from ' + esc(first) + '’s own documented position, tracked promises and Spotlight items on this issue — never their party’s record.</p>';
+
+      var sheet = '<div class="sag-pop" role="dialog" aria-modal="true" aria-label="Evidence for ' + esc(s.topic) + '">' +
+          '<div class="sag-pop-head">' +
+            '<span class="sag-pop-ico" aria-hidden="true">' + (s.icon || '🎯') + '</span>' +
+            '<div class="sag-pop-titlewrap">' +
+              '<div class="sag-pop-eyebrow">' + esc(first) + '’s position</div>' +
+              '<div class="sag-pop-title">' + esc(s.topic) + '</div>' +
+              ((s.issueKey && typeof window._pdxMandateChip === 'function')
+                ? (function(){ var mc = window._pdxMandateChip(s.issueKey, {}); return mc ? '<div style="margin-top:0.35rem;">' + mc + '</div>' : ''; })()
+                : '') +
+            '</div>' +
+            '<button class="sag-pop-x" onclick="window._pdxCloseStanceEvidence()" aria-label="Close">✕</button>' +
+          '</div>' + body +
+        '</div>';
+
+      var overlay = document.getElementById('sag-pop-overlay');
+      if (!overlay) return;
+      overlay.innerHTML = sheet;
+      overlay.style.display = 'flex';
+    } catch (err) {
+      if (window.console && console.warn) console.warn('stance evidence popover failed', err);
+    }
+  };
+
+  window._pdxCloseStanceEvidence = function() {
+    var overlay = document.getElementById('sag-pop-overlay');
+    if (!overlay) return;
+    overlay.style.display = 'none';
+    overlay.innerHTML = '';
+  };
+
+  // Key Issue Stances — clear, scannable positions on specific issues.
+  window._renderIssueStances = function(id, p) {
+    p = p || {};
+    var stances = _resolveStanceList(id, p);
+    var derived = false;
+    // A 2026 candidate (or any not-yet-seated challenger) has no voting record to
+    // build documented stances from. When we fall back to their key issues we
+    // reframe the section as the priorities they are campaigning on — an honest,
+    // intentional read — rather than positions that are merely "being researched."
+    var _is2026Cand = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+    var _isCandidate = _is2026Cand ||
+      ((typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(p) === 'candidate') ||
+      /candidat|challenger|nominee|running/i.test(((p.office || '') + ' ' + (p.state || '')));
+    var _firstName = (p.name ? String(p.name).split(' ')[0] : 'this candidate');
+    if (!stances || !stances.length) {
+      // Fall back to the politician's tracked key issues so the section is
+      // still informative. For a sitting official the position is flagged as
+      // not-yet-documented; for a candidate it is presented as a stated priority.
+      var ki = (p.keyIssues || []).slice(0, 6);
+      if (!ki.length) {
+        // No documented stances AND no tagged issues. For a complete
+        // officeholder record we still deliberately omit the section to avoid
+        // noise. But for a 2026 candidate, or any thin / early-record profile,
+        // we render a clean, intentional empty state instead of vanishing — so
+        // the profile reads as honestly in-progress rather than broken, the
+        // thin-record notice's "positions below" hint always has something to
+        // land on, and the visitor is still pointed to the Alignment Tool as a
+        // way to judge them on values right now.
+        var _depthES = (typeof window._pdxRecordDepth === 'function') ? window._pdxRecordDepth(p) : 'full';
+        if (!_isCandidate && _depthES === 'full') return '';
+        // A candidacy that has CONCLUDED (eliminated at convention, withdrew,
+        // or lost) with no published platform is a closed book, not a work in
+        // progress. Saying positions are "being added" would imply more is
+        // coming when nothing is — so we tell that story honestly instead.
+        var _candStatusES = String(p.candidacyStatus || p.status || '').toLowerCase();
+        var _lostPrimaryES = (_candStatusES === 'eliminated_primary' || _candStatusES === 'lost_primary');
+        var _inactiveES = (_lostPrimaryES || _candStatusES === 'eliminated' || _candStatusES === 'withdrew' ||
+          _candStatusES === 'withdrawn' || _candStatusES === 'lost' || _candStatusES === 'defeated' ||
+          _candStatusES === 'suspended' || _candStatusES === 'conceded');
+        var _esTitle, _esIco, _esHead, _esSub;
+        if (_isCandidate && _inactiveES) {
+          var _esVerb = _lostPrimaryES
+            ? 'lost the primary and is not advancing to the general election'
+            : (_candStatusES === 'withdrew' || _candStatusES === 'withdrawn' || _candStatusES === 'suspended')
+              ? 'withdrew before the ballot was set' : 'did not advance past the nominating stage';
+          _esTitle = '🎯 Key Issue Stances';
+          _esIco   = '📋';
+          _esHead  = 'Limited record — no published platform';
+          _esSub   = _firstName + ' ' + _esVerb + ' and published no policy platform, so positions are intentionally left out here rather than invented. This profile is kept honest and thin on purpose — you can still compare your own values to the broader field with the Alignment Tool.';
+        } else if (_isCandidate) {
+          _esTitle = '🎯 Top Priorities';
+          _esIco   = '🗳️';
+          _esHead  = 'Campaign priorities being added';
+          _esSub   = 'As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record. We are gathering their stated priorities from public campaign materials and will add detailed positions and sources as they are published — until then, you can still compare ' + _firstName + ' to your own values with the Alignment Tool.';
+        } else {
+          _esTitle = '🎯 Key Issue Stances';
+          _esIco   = '🧭';
+          _esHead  = 'Stated positions being documented';
+          _esSub   = 'Detailed positions for ' + _firstName + ' are still being documented and will be added as public statements and votes are verified. In the meantime, you can compare ' + _firstName + ' to your own values with the Alignment Tool.';
+        }
+        return '<div class="modal-section">' +
+          '<div class="modal-section-title" style="justify-content:space-between;">' +
+            '<span style="display:inline-flex;align-items:center;gap:0.45rem;min-width:0;">' + _esTitle + '</span>' +
+            ((typeof window._pdxStanceRecordMiniLink === 'function') ? window._pdxStanceRecordMiniLink(id, p) : '') +
+          '</div>' +
+          '<div class="pdx-empty-state">' +
+            '<div class="pdx-empty-ico">' + _esIco + '</div>' +
+            '<div class="pdx-empty-title">' + _esHead + '</div>' +
+            '<div class="pdx-empty-sub">' + _esSub + '</div>' +
+            // Quiet on-ramp: a profile with no documented record yet is exactly
+            // where the community can help. Skipped for concluded candidacies
+            // (a closed book, where suggesting more would be misleading).
+            ((!_inactiveES && typeof window._pdxSuggestCueHtml === 'function')
+              ? ('<div style="margin-top:0.85rem;">' + window._pdxSuggestCueHtml(p.name, { label: 'Several issues still have no record. Help build it' }) + '</div>')
+              : '') +
+          '</div>' +
+        '</div>';
+      }
+      derived = true;
+      stances = ki.map(function(issue) {
+        return { topic: issue, icon: _deepProfileTopicIcon(issue),
+          pos: _isCandidate ? 'priority' : 'tracking',
+          text: _isCandidate
+            ? ('A core priority of ' + _firstName + '\'s campaign. Detailed positions are added as the campaign publishes statements and, once in office, a voting record begins.')
+            : 'A detailed position is being researched and will be added as statements and votes are verified.' };
+      });
+    }
+    var _derivedCand = derived && _isCandidate;
+    // NOTE (Phase 1 consolidation): the old local `posMeta` stance→badge map
+    // (support/oppose/mixed/tracking/priority → cls/sc/ico/label) has been
+    // retired. Key Issue Stances now speaks the canonical four-state language
+    // from the shared window.PDXStance helper (the same one Who Stands Where
+    // uses), so the per-row pill, colours, and labels live in one place. The
+    // only card-local mapping left is canonical-key → left-border tint (`_sc`
+    // in renderCard), which reuses the existing sc-* CSS — no new colours.
+    // "Researching"/tracking folds into "No Clear Position"; "Top Priority" is
+    // kept as a separate emphasis marker (a star), never a stance colour.
+
+    // Category metadata mirrors the Alignment Tool's groupings so stances slot
+    // under the same human-readable headers a visitor already knows.
+    var CAT_META = {
+      gov:{icon:'💰',label:'Taxes & Government'}, econ:{icon:'📈',label:'Economy & Jobs'},
+      housing:{icon:'🏠',label:'Housing & Cost of Living'}, infra:{icon:'🚧',label:'Infrastructure & Transportation'},
+      land:{icon:'🏔',label:'Public Lands & Energy'},
+      enviro:{icon:'💧',label:'Water & Environment'}, dc:{icon:'🖥',label:'Data Centers & Growth'}, immig:{icon:'🛡',label:'Immigration'},
+      guns:{icon:'🔫',label:'Gun Policy'}, justice:{icon:'👮',label:'Criminal Justice & Safety'},
+      foreign:{icon:'🦅',label:'Foreign Policy & Defense'}, health:{icon:'🏥',label:'Healthcare'},
+      edu:{icon:'🎓',label:'Education'}, family:{icon:'🧸',label:'Family, Children & Work'},
+      repro:{icon:'🕊',label:'Abortion & Reproductive Rights'},
+      rights:{icon:'🏳️‍🌈',label:'Civil Rights & LGBTQ+'}, tech:{icon:'🚀',label:'Technology & Privacy'},
+      democracy:{icon:'🗳',label:'Elections & Democracy'}, reform:{icon:'⏳',label:'Government Reform'},
+      other:{icon:'🎯',label:'Other Issues'}
+    };
+    var CAT_ORDER = ['gov','econ','housing','infra','land','enviro','dc','immig','guns','justice','foreign','health','edu','family','repro','rights','tech','democracy','reform','other'];
+    function _stanceCat(s) {
+      if (s.cat && CAT_META[s.cat]) return s.cat;
+      if (s.issueKey && typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP[s.issueKey] && ISSUE_MAP[s.issueKey].cat) return ISSUE_MAP[s.issueKey].cat;
+      return 'other';
+    }
+
+    function renderCard(s) {
+      // ── Canonical stance pill (single source of truth) ───────────────────
+      // Lead the row with the exact calm pill Who Stands Where uses, via the
+      // shared window.PDXStance helper. The underlying data (issueStance / pos)
+      // is untouched — we only resolve it to one of the four canonical states.
+      //   • "priority" is a candidate placeholder, not a real position: strip
+      //     the fake pos so it folds into "No Clear Position" (its underlying
+      //     issueStance still wins if one is on record).
+      //   • "tracking"/"Researching" already aliases to "No Clear Position".
+      // Top Priority survives as a separate emphasis star (below), never a
+      // stance colour.
+      var _placeholderPriority = (s.pos === 'priority');
+      var _isPriority = _placeholderPriority || window.PDXStance.isTopPriority(s);
+      var _stanceKey = window.PDXStance.resolveStance(_placeholderPriority ? { issueStance: s.issueStance } : s);
+      var _stancePill = window.PDXStance.stancePill(_stanceKey);
+      // Canonical key → the card's existing left-border tint, so the card edge
+      // stays in the pill's colour family. Reuses sc-* CSS — no new colours.
+      var _sc = ({ supported:'sc-support', opposed:'sc-oppose', mixed:'sc-mixed', none:'sc-tracking' })[_stanceKey] || 'sc-tracking';
+      // ── Evidence Locker bridge ────────────────────────────────────────────
+      // Tie this documented position to the actual receipts. The count is drawn
+      // straight from the loaded Locker index (the same "N items" the Locker's
+      // own stance rows show), and the whole card becomes a one-tap drill-in,
+      // filtered to this politician + issue. Offered only for genuinely
+      // documented stances that carry an issueKey AND have real evidence on
+      // record, so a card never points a visitor at an empty file.
+      var _evAttrs = '', _evCue = '', _evCls = '', _depthPill = '';
+      if (!derived && s.issueKey) {
+        var _eAttr = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+        var _ec = (typeof window._pdxEvidenceIssueCountsForPerson === 'function') ? window._pdxEvidenceIssueCountsForPerson(id) : null;
+        var _en = _ec ? (_ec[s.issueKey] || 0) : null;
+        var _lockable = (_en !== null) ? (_en > 0)
+          : !!(typeof window._pdxHasLocker === 'function' && window._pdxHasLocker(id));
+        if (_lockable) {
+          _evCls = ' is-evclick';
+          _evAttrs = ' role="button" tabindex="0"' +
+            ' data-ev-pol="' + _eAttr(id) + '" data-ev-issue="' + _eAttr(s.issueKey) + '"' +
+            ' onclick="window._pdxStanceCardOpen(this,event)"' +
+            ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxStanceCardOpen(this,event);}"' +
+            ' title="Open the Evidence Locker — ' + _eAttr((p && p.name) ? p.name : 'this official') + ' on ' + _eAttr(s.topic || s.issueKey) + '"';
+          _evCue = '<div class="stance-ev-cue"><span class="stance-ev-cue-ico" aria-hidden="true">📂</span>' +
+            (_en !== null && _en > 0
+              ? ('See the <strong>' + _en + '</strong> evidence item' + (_en === 1 ? '' : 's'))
+              : 'See the evidence') +
+            '<span class="stance-ev-cue-go">in the Locker ↗</span></div>';
+          // Compact Evidence-depth pill — count + strength tier for THIS position,
+          // pulled from the same loaded library index. Sits high on the card so the
+          // depth of the curated record behind the stance is scannable at a glance.
+          _depthPill = (typeof window._pdxEvidenceDepthPill === 'function')
+            ? window._pdxEvidenceDepthPill(id, s.issueKey, { format: 'receipts' }) : '';
+        }
+      }
+      // Shared vote + comment row, keyed by a stable issue target id, so each
+      // documented stance carries the community's discussion natively. Only
+      // shown for genuinely documented positions — not the derived "researching"
+      // placeholders, which carry no stance worth voting on yet.
+      var voteRow = '';
+      if (!derived && typeof window._pdxSpotlightEngageHTML === 'function') {
+        var _vtIssue = window._pdxVoteTargetId('issue', id, (s.issueKey || s.topic || ''));
+        voteRow = window._pdxSpotlightEngageHTML(_vtIssue, 'this position');
+      } else if (!derived && typeof window._pdxVoteControlHTML === 'function') {
+        var _vtIssue2 = window._pdxVoteTargetId('issue', id, (s.issueKey || s.topic || ''));
+        voteRow = window._pdxVoteControlHTML(_vtIssue2, 'this position');
+      }
+      // Optional second line of context — the "why" or scope behind the stance.
+      var det = s.detail ? '<p style="font-size:0.74rem;color:#7e98bc;line-height:1.6;margin:0.35rem 0 0;">' + s.detail + '</p>' : '';
+      var ev = s.evidence ? '<div style="font-size:0.7rem;color:#7596c0;line-height:1.5;margin-top:0.4rem;"><span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">Record:</span> ' + s.evidence + '</div>' : '';
+      var src = s.source && s.source.url ? '<a href="' + s.source.url + '" target="_blank" rel="noopener" class="dd-source-chip" style="margin-top:0.45rem;" onclick="event.stopPropagation();">🔗 ' + s.source.label + '</a>' : '';
+      // If the visitor selected the matching Alignment Tool position, tag the card
+      // with their own view + a colored match indicator — the at-a-glance linkage.
+      var youPill = '';
+      if (s.issueKey && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.has(s.issueKey)) {
+        var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
+        var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos || 'mixed') : 'partial';
+        var vm = _CMP_VERDICT_META[verdict] || _CMP_VERDICT_META.partial;
+        var youIM = (typeof _userIntensityMeta === 'function') ? _userIntensityMeta(intensity) : { label: _userStanceLabel(intensity), sub: _userStanceLabel(intensity) };
+        youPill = '<span class="stance-you ' + vm.cls + '">' + vm.ico + ' ' + vm.full + ' · ' + (youIM.sub || ('You: ' + youIM.label)) + '</span>';
+      }
+      return '<div class="stance-card ' + _sc + _evCls + '"' + _evAttrs + '>' +
+        // Row leads with the canonical stance pill, then the topic — mirroring
+        // Who Stands Where's "stance first" reading order.
+        '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
+          _stancePill +
+          '<span style="font-size:1rem;line-height:1;flex-shrink:0;">' + (s.icon || '🎯') + '</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;color:white;letter-spacing:0.01em;">' + s.topic + '</span>' +
+          ((typeof window._pdxVideoEye === 'function' && typeof window._pdxIssueVideo === 'function')
+            ? window._pdxVideoEye(window._pdxIssueVideo(id, p, s.issueKey), {}) : '') +
+          // Top Priority — a quiet emphasis star, kept strictly separate from
+          // the stance colour (per Phase 1: priority is emphasis, not a stance).
+          (_isPriority ? '<span title="Top priority" aria-label="Top priority" style="margin-left:0.05rem;color:#e6c35c;font-size:0.9rem;line-height:1;flex-shrink:0;">★</span>' : '') +
+        '</div>' +
+        // Secondary evidence line — receipts/strength demoted below the stance,
+        // prefixed with a quiet "Evidence" caption, exactly mirroring the
+        // Stance › Evidence hierarchy from Who Stands Where.
+        (_depthPill ? '<div class="pdxis-p-meta" style="margin:0.15rem 0 0.45rem;"><span class="pdxis-meta-k">Evidence</span>' + _depthPill + '</div>' : '') +
+        '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;">' + s.text + '</p>' +
+        det +
+        ev +
+        (src ? '<div>' + src + '</div>' : '') +
+        ((typeof window._pdxStanceEvidenceLink === 'function') ? window._pdxStanceEvidenceLink(id, p, s) : '') +
+        // Connect the dots: link this stated position out to the topic's ranked
+        // view, its sourced Issue Spotlight, and any citizen-backed reform tied
+        // to the same issueKey. Documented stances only — a derived placeholder
+        // has no position worth connecting yet.
+        ((!derived && typeof window._pdxStanceConnectRow === 'function') ? window._pdxStanceConnectRow(id, p, s) : '') +
+        youPill +
+        voteRow +
+        _evCue +
+      '</div>';
+    }
+
+    // Distribution summary chips — show at a glance how the official's documented
+    // positions break down (and how many line up with the visitor's picks).
+    var nSup = 0, nOpp = 0, nMix = 0, nYouMatch = 0, nYouTotal = 0;
+    stances.forEach(function(s) {
+      if (s.pos === 'support') nSup++;
+      else if (s.pos === 'oppose') nOpp++;
+      else if (s.pos === 'mixed') nMix++;
+      if (!derived && s.issueKey && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.has(s.issueKey)) {
+        nYouTotal++;
+        var iv = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
+        if ((typeof _issueVerdict === 'function' ? _issueVerdict(iv, s.issueStance || s.pos || 'mixed') : '') === 'match') nYouMatch++;
+      }
+    });
+    var sumChips = '';
+    if (!derived) {
+      if (nSup) sumChips += '<span class="stance-sum-chip stance-support">✓ ' + nSup + ' Support</span>';
+      if (nOpp) sumChips += '<span class="stance-sum-chip stance-oppose">✗ ' + nOpp + ' Oppose</span>';
+      if (nMix) sumChips += '<span class="stance-sum-chip stance-mixed">~ ' + nMix + ' Mixed</span>';
+      if (nYouTotal) sumChips += '<span class="stance-sum-chip stance-you-sum">🤝 You agree on ' + nYouMatch + '/' + nYouTotal + '</span>';
+    }
+
+    // Body: group documented stances under category headers; render the derived
+    // "researching" fallback as a simple flat list (no real categories to group).
+    var body;
+    if (derived) {
+      body = stances.map(renderCard).join('');
+    } else {
+      var groups = {};
+      stances.forEach(function(s) { var c = _stanceCat(s); (groups[c] = groups[c] || []).push(s); });
+      body = CAT_ORDER.filter(function(c) { return groups[c]; }).map(function(c) {
+        var meta = CAT_META[c] || CAT_META.other;
+        var list = groups[c];
+        return '<div class="stance-cat">' +
+          '<div class="stance-cat-head"><span class="stance-cat-ico">' + meta.icon + '</span>' + meta.label +
+            '<span class="stance-cat-n">' + list.length + '</span></div>' +
+          list.map(renderCard).join('') +
+        '</div>';
+      }).join('');
+    }
+
+    var note = _derivedCand
+      ? ('As a ' + (_is2026Cand ? '2026 candidate' : 'candidate') + ', ' + _firstName + ' does not yet have a voting record to score. The priorities above are drawn from their public campaign — PolitiDex logs kept-and-broken promises once they take office.')
+      : (derived
+        ? 'Detailed stances for this official are still being documented. The issues above are tracked from their profile and the Alignment Tool — positions are added as statements and votes are verified.'
+        : 'Stances summarize public statements and voting records on the same issues used by the Alignment Tool. Sources are linked where available, and this section expands as more positions are verified.');
+    var _countWord = _derivedCand
+      ? (stances.length === 1 ? ' priority' : ' priorities')
+      : (' issue' + (stances.length === 1 ? '' : 's'));
+    // ── "Limited Record" context for sitting officials with thin promise data ──
+    // When a real officeholder has documented positions but only a sparse tracked
+    // promise record, lead with an honest expectation-setting note so users know
+    // why the promise score is thin — and that these sourced positions are the
+    // most reliable read on where the official stands right now. Only shown for
+    // genuine, non-derived stances on a sitting (non-candidate) official.
+    var _depthKIS = (typeof window._pdxRecordDepth === 'function') ? window._pdxRecordDepth(p) : 'full';
+    var _limitedBanner = '';
+    if (!derived && !_isCandidate && _depthKIS === 'limited') {
+      // A sitting official with a thin promise record but real documented positions
+      // is the profile that most easily reads as "broken" — a sparse score with no
+      // obvious anchor. Rather than a one-line apology, this panel makes the limited
+      // record feel like one intentional system: it names the connected lenses that
+      // DO work without a full promise score — the sourced positions here, the
+      // visitor's Alignment match, and the Spotlight — with honest counts, then says
+      // plainly what is still being built. It mirrors the Candidate Snapshot's
+      // framing for officials that don't qualify for the (score-less) Snapshot, and
+      // references the Snapshot only when it is actually shown above.
+      var _lrSnap = (window._pdxSnapshotShownId === id);
+      var _lrChips = [];
+      _lrChips.push('<span class="lr-chip"><span class="lr-chip-ico" aria-hidden="true">📌</span>' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</span>');
+      var _lrHasPicks = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var _lrMatch = (_lrHasPicks && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+      _lrChips.push('<span class="lr-chip lr-chip-align"><span class="lr-chip-ico" aria-hidden="true">🤝</span>' +
+        (_lrMatch !== null ? (_lrMatch + '% your match') : 'Compare on your values') + '</span>');
+      var _lrSpot = (typeof window._krBuildSpotlight === 'function') ? window._krBuildSpotlight(id) : null;
+      if (_lrSpot) {
+        var _lrSpotV = (_lrSpot.kind === 'newcomer' || _lrSpot.kind === 'monitoring')
+          ? 'Monitoring'
+          : ((_lrSpot.total > 1) ? (_lrSpot.total + ' updates') : 'Latest update');
+        _lrChips.push('<span class="lr-chip lr-chip-spot"><span class="lr-chip-ico" aria-hidden="true">🔦</span>' + _lrSpotV + '</span>');
+      }
+      // Honest pointer — to the Snapshot when present, otherwise to the sections
+      // that ARE on this profile, so the cross-reference is always real.
+      var _lrRef = _lrSnap
+        ? ' The <strong style="color:#c4b5fd;">Candidate Snapshot</strong> at the top pulls these together at a glance.'
+        : (' Your <strong style="color:#a78bfa;">How You Compare</strong> match' +
+            (_lrSpot ? ' and the <strong style="color:#f5c842;">Spotlight</strong> are' : ' is') + ' on this profile too.');
+      _limitedBanner =
+        '<div class="stance-limited-note">' +
+          '<div class="lr-head">' +
+            '<span class="stance-limited-pill">📋 Limited Record</span>' +
+            '<span class="stance-limited-text">PolitiDex tracks only a few promises for ' + _firstName + ' so far, so the promise score is thin. These <strong style="color:#cbd9ec;">' + stances.length + ' sourced position' + (stances.length === 1 ? '' : 's') + '</strong> are the clearest read on where ' + _firstName + ' stands today.' + _lrRef + '</span>' +
+          '</div>' +
+          '<div class="lr-row"><span class="lr-row-label">On record now</span><div class="lr-chips">' + _lrChips.join('') + '</div></div>' +
+          '<div class="lr-row lr-row-building"><span class="lr-row-label">Still being built</span><span class="lr-building-text"><span aria-hidden="true">⏳</span> More of ' + _firstName + '\'s voting record, and kept-and-broken promises as commitments play out — added only as each is verified, never invented.</span></div>' +
+        '</div>';
+    }
+    // ── Additional activity — inferred from evidence ──────────────────────────
+    // Beyond the documented positions above, a politician often has Locker
+    // evidence on issues that carry NO curated ISSUE_STANCE_DATA stance. Rather
+    // than stay silent, surface those issues here with the SAME conservative
+    // headline-inferred read the Evidence Locker uses — marked with "~" and the
+    // established tooltip — kept in a clearly labelled secondary block below the
+    // documented list so the two never blur. Each is a one-tap drill-in to the
+    // Locker, filtered to this politician + issue, exactly like the documented
+    // cards. Only issues with real directional evidence appear (the helper omits
+    // the rest), so an empty inferred row can never render.
+    var _inferredSection = '';
+    try {
+      var _infMap = (typeof window._pdxEvidenceInferredStancesForPerson === 'function')
+        ? window._pdxEvidenceInferredStancesForPerson(id) : null;
+      if (_infMap) {
+        var _docKeys = Object.create(null);
+        stances.forEach(function (s) { if (s.issueKey) _docKeys[s.issueKey] = 1; });
+        var _infMeta = {
+          support: { cls:'stance-support', sc:'sc-support', ico:'✓', label:'Supports' },
+          oppose:  { cls:'stance-oppose',  sc:'sc-oppose',  ico:'✗', label:'Opposes' },
+          mixed:   { cls:'stance-mixed',   sc:'sc-mixed',   ico:'~', label:'Mixed' }
+        };
+        var _eAttrI = function (v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+        var _infRows = Object.keys(_infMap)
+          .filter(function (k) { return !_docKeys[k]; })   // documented stances win — never duplicate
+          .map(function (k) { var o = _infMap[k]; o.key = k; return o; })
+          .sort(function (a, b) { return b.count - a.count; });
+        if (_infRows.length) {
+          var _polNameI = (p && p.name) ? p.name : 'this official';
+          var _infTip = 'Inferred from the headline — not yet a documented position';
+          var _infCards = _infRows.map(function (o) {
+            var m = _infMeta[o.dir];
+            if (!m) return '';
+            var _infDepth = (typeof window._pdxEvidenceDepthPill === 'function')
+              ? window._pdxEvidenceDepthPill(id, o.key, { format: 'receipts' }) : '';
+            return '<div class="stance-card stance-inferred ' + m.sc + ' is-evclick"' +
+              ' role="button" tabindex="0"' +
+              ' data-ev-pol="' + _eAttrI(id) + '" data-ev-issue="' + _eAttrI(o.key) + '"' +
+              ' onclick="window._pdxStanceCardOpen(this,event)"' +
+              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxStanceCardOpen(this,event);}"' +
+              ' title="' + _eAttrI('Open the Evidence Locker — ' + _polNameI + ' on ' + o.label) + '">' +
+              '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem;margin-bottom:0.35rem;">' +
+                '<div style="display:flex;align-items:center;gap:0.45rem;min-width:0;">' +
+                  '<span style="font-size:1rem;line-height:1;flex-shrink:0;">' + (o.icon || '🎯') + '</span>' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;color:white;letter-spacing:0.01em;">' + _eAttrI(o.label) + '</span>' +
+                '</div>' +
+                '<span class="stance-badge ' + m.cls + '" title="' + _eAttrI(_infTip) + '">' + m.ico + ' ' + m.label +
+                  ((o.dir !== 'mixed') ? ' <span class="stance-inf-mark" aria-hidden="true">~</span>' : '') +
+                '</span>' +
+              '</div>' +
+              (_infDepth ? '<div class="stance-depth-row" style="margin:0 0 0.4rem;">' + _infDepth + '</div>' : '') +
+              '<p style="font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;">Inferred from ' + _eAttrI(_firstName) + '\'s evidence on this issue — not yet a documented position.</p>' +
+              '<div class="stance-ev-cue"><span class="stance-ev-cue-ico" aria-hidden="true">📂</span>See the <strong>' + o.count + '</strong> evidence item' + (o.count === 1 ? '' : 's') +
+                '<span class="stance-ev-cue-go">in the Locker ↗</span></div>' +
+            '</div>';
+          }).join('');
+          _inferredSection = '<div class="stance-inferred-wrap">' +
+            '<div class="stance-cat-head stance-inferred-head"><span class="stance-cat-ico">🔎</span>Additional activity — inferred from evidence' +
+              '<span class="stance-cat-n">' + _infRows.length + '</span></div>' +
+            '<p class="stance-inferred-note">Issues ' + _eAttrI(_firstName) + ' has evidence on in the Locker but no documented position yet. These reads are inferred from the headlines (marked <span class="stance-inf-mark">~</span>) — not curated stances. Open any to weigh the evidence yourself.</p>' +
+            _infCards +
+          '</div>';
+        }
+      }
+    } catch (e) { _inferredSection = ''; }
+    // Secondary, in-context jump to the Full Stance Record overlay (every issue +
+    // honest gaps) and an optional subtle teaser counting the gap issues that the
+    // curated cards above don't show. Both read from already-cached stats.
+    var _recMini = (typeof window._pdxStanceRecordMiniLink === 'function') ? window._pdxStanceRecordMiniLink(id, p) : '';
+    var _recTeaser = '';
+    try {
+      var _recStats = (typeof window._pdxStanceRecordStats === 'function') ? window._pdxStanceRecordStats(id, p) : null;
+      var _gaps = _recStats ? _recStats.gaps : 0;
+      if (_gaps > 0 && (typeof window._pdxOpenStanceRecord === 'function')) {
+        var _gapJsId = _pdxEvJsId(id);
+        _recTeaser = '<button type="button" class="pdx-fsr-teaser" ' +
+          'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + _gapJsId + '\');">' +
+          '+ <b>' + _gaps + '</b> more issue' + (_gaps === 1 ? '' : 's') + ' tracked, including gaps. ' +
+          '<span class="pdx-fsr-teaser-go">View full record →</span></button>';
+      }
+    } catch (e) { _recTeaser = ''; }
+    // Thin / early profile: when the section is built from stated key issues
+    // (no documented stances yet), offer the same quiet on-ramp to help build the
+    // record. Skipped for concluded candidacies and for full officeholder records.
+    var _thinSuggest = '';
+    try {
+      var _csTS = String(p.candidacyStatus || p.status || '').toLowerCase();
+      var _closedTS = /eliminated|lost|withdrew|withdrawn|defeated|suspended|conceded/.test(_csTS);
+      if (derived && !_closedTS && typeof window._pdxSuggestCueHtml === 'function') {
+        _thinSuggest = '<div style="margin-top:0.5rem;">' + window._pdxSuggestCueHtml(p.name, { label: 'Several issues still have no record. Help build it' }) + '</div>';
+      }
+    } catch (e) { _thinSuggest = ''; }
+    return '<div class="modal-section">' +
+      '<div class="modal-section-title" style="justify-content:space-between;">' +
+        '<span style="display:inline-flex;align-items:center;gap:0.45rem;">' + (_derivedCand ? '🎯 Top Priorities' : '🎯 Key Issue Stances') + '</span>' +
+        '<span style="display:inline-flex;align-items:center;gap:0.4rem;flex-shrink:0;">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + stances.length + _countWord + '</span>' +
+          _recMini +
+        '</span>' +
+      '</div>' +
+      '<p class="modal-section-sub">' + (_derivedCand
+        ? ('The core priorities of ' + _firstName + '\'s campaign — drawn from public campaign materials, with detailed positions and sources added as they are published.')
+        : ('Where ' + (p.name ? String(p.name).split(' ')[0] : 'they') + ' stand' + (p.name ? 's' : '') + ' on the issues — grouped by topic, with the record and sources shown where available.')) + '</p>' +
+      _limitedBanner +
+      (sumChips ? '<div class="stance-summary">' + sumChips + '</div>' : '') +
+      body +
+      _recTeaser +
+      _thinSuggest +
+      _inferredSection +
+      '<p class="src-note">' + note + '</p>' +
+    '</div>';
+  };
+
+
+  // ── Connected Evidence view ──────────────────────────────────────────────
+  // The visible surface for the connected-evidence work: for each issue, it
+  // shows the official's OWN stance beside the promises and recorded
+  // statements/actions tagged to that SAME issue, so a reader sees in one place
+  // what they claim, what they promised, and what they've said or done on
+  // record — and whether the record backs, complicates, or cuts against the
+  // stance. Reads straight from window._issueEvidenceMap (no new data work).
+  //
+  // Scoped to CURRENT SITTING UTAH STATE LEGISLATORS for this first pass — the
+  // cohort whose promises and Spotlight items carry the shared issueKey. Returns
+  // '' for everyone else (federal officials, 2026 candidates, statewide execs)
+  // so the section simply doesn't appear there yet.
+  //
+  // CONTENT_STYLE: every line is about THIS person's own record. No party
+  // framing is introduced here — the view only re-presents already-authored,
+  // individually-sourced positions/promises/Spotlight content.
+
+  // True only for a seated Utah State House/Senate member (not a candidate for
+  // one, not a federal office). Drives the first-pass scope.
+  window._pdxIsUtahStateLegislator = function(p) {
+    if (!p) return false;
+    var state = String(p.state || '');
+    if (!/utah/i.test(state) && !/\bUT\b/.test(state)) return false;
+    var office = String(p.office || '');
+    // Must be a STATE legislative seat …
+    if (!/state\s+(senator|rep|representative|house|senate)/i.test(office)) return false;
+    // … actually held, not merely sought, and not a federal seat.
+    if (/candidate|running for|nominee|challenger|u\.?s\.?\b|federal|congress/i.test(office)) return false;
+    if ((typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p)) return false;
+    if ((typeof window._pdxOfficeStatus === 'function') && window._pdxOfficeStatus(p) === 'candidate') return false;
+    return true;
+  };
+
+  // ── Profile "Evidence" summary strip ──────────────────────────────────────
+  // A compact, clickable lead-in that tells a visitor, at a glance, how much
+  // supporting evidence PolitiDex holds on this official — "12 pieces of
+  // evidence across 7 issues" with a video/post breakdown — and opens the
+  // Evidence Locker pre-filtered to them in one tap. Reads straight from the
+  // shared window._issueEvidenceMap (no new data work) and, like the Connected
+  // Evidence section, is scoped to current sitting Utah State Legislators and
+  // only shown when real on-record evidence exists, so it never reads as empty.
+  // Does this official have anything actually FILED on an issue — a recorded
+  // Spotlight item or a tracked promise? This is the honest gate for the whole
+  // evidence family. It replaces _pdxIsUtahStateLegislator(), which was a SCOPE
+  // gate from the first pass and wrong in both directions: it hid 132 profiles
+  // that hold a documented position plus real sourced evidence, and it offered
+  // the Locker CTA to 46 legislators with nothing on file. A documented position
+  // ALONE deliberately does not qualify — a panel whose every row reads "no
+  // connected record yet" is empty scaffolding, and the point of these sections
+  // is the connection, not the heading.
+  window._pdxHasIssueEvidence = function (id, p) {
+    try {
+      if (typeof window._issueEvidenceMap !== 'function') return false;
+      if (!p) {
+        p = (window.PROFILES && window.PROFILES[id]) ? window.PROFILES[id]
+           : ((typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null);
+      }
+      var map = window._issueEvidenceMap(id, p) || {};
+      for (var k in map) {
+        if (!Object.prototype.hasOwnProperty.call(map, k)) continue;
+        var e = map[k] || {};
+        if ((e.spotlight && e.spotlight.length) || (e.promises && e.promises.length)) return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  };
+
+  window._renderEvidenceSummary = function(id, p) {
+    try {
+      p = p || {};
+      if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
+      var map = window._issueEvidenceMap(id, p) || {};
+      var keys = Object.keys(map);
+      if (!keys.length) return '';
+
+      function esc(s) {
+        if (s == null) return '';
+        if (typeof window._slEsc === 'function') return window._slEsc(s);
+        return String(s).replace(/[&<>"]/g, function(c){
+          return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+        });
+      }
+
+      // Tally the on-record evidence the Locker holds for this official: total
+      // items, how many distinct issues they touch, and the video / post mix.
+      var totItems = 0, totVideo = 0, totPost = 0, totProm = 0, issuesWithEv = 0;
+      keys.forEach(function(k) {
+        var e = map[k] || {};
+        var spot = Array.isArray(e.spotlight) ? e.spotlight : [];
+        var prom = Array.isArray(e.promises) ? e.promises : [];
+        if (spot.length) issuesWithEv++;
+        totItems += spot.length;
+        totProm += prom.length;
+        spot.forEach(function(s) {
+          var m = s && s.media;
+          if (m && m.type === 'video') totVideo++;
+          else if (m && (m.type === 'x_post' || m.type === 'facebook')) totPost++;
+        });
+      });
+      // Nothing in the Locker for this person → don't render an empty entry point.
+      if (!totItems) return '';
+
+      var first = (p.name ? String(p.name).split(' ')[0] : 'this official');
+      // Raw politician id, JS-string-escaped for the inline open call (the Locker
+      // filters on the unsanitized id, so it must be passed through verbatim).
+      var jsId = String(id == null ? '' : id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var open = "window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:'" + jsId + "'});";
+
+      // Headline count + scannable breakdown chips (only the ones that apply).
+      var headline = totItems + ' piece' + (totItems === 1 ? '' : 's') + ' of evidence across ' +
+        issuesWithEv + ' issue' + (issuesWithEv === 1 ? '' : 's');
+      var chips = '';
+      function chip(ico, label) {
+        return '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;background:rgba(159,180,212,0.1);border:1px solid rgba(159,180,212,0.22);padding:0.1rem 0.45rem;border-radius:999px;white-space:nowrap;">' + ico + ' ' + label + '</span>';
+      }
+      if (totVideo) chips += chip('<span style="color:#f5c842;">▶</span>', totVideo + ' video' + (totVideo === 1 ? '' : 's'));
+      if (totPost)  chips += chip('𝕏', totPost + ' post' + (totPost === 1 ? '' : 's'));
+      if (totProm)  chips += chip('🤝', totProm + ' promise' + (totProm === 1 ? '' : 's'));
+      var chipRow = chips ? '<div style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem;">' + chips + '</div>' : '';
+
+      // One clickable banner. Flex layout wraps the CTA below the text on narrow
+      // screens, so it reads cleanly on mobile as well as desktop.
+      return '<div class="modal-section">' +
+          '<button type="button" onclick="' + open + '" ' +
+            'aria-label="Open the Evidence Locker filtered to ' + esc(p.name || first) + '" ' +
+            'style="width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;' +
+            'background:linear-gradient(135deg,rgba(245,200,66,0.1) 0%,rgba(19,33,63,0.55) 60%);' +
+            'border:1px solid rgba(245,200,66,0.32);border-radius:0.85rem;padding:0.85rem 1rem;transition:border-color 0.15s ease,box-shadow 0.15s ease;" ' +
+            'onmouseover="this.style.borderColor=\'rgba(245,200,66,0.6)\';this.style.boxShadow=\'0 0 16px rgba(245,200,66,0.18)\';" ' +
+            'onmouseout="this.style.borderColor=\'rgba(245,200,66,0.32)\';this.style.boxShadow=\'none\';">' +
+            '<span aria-hidden="true" style="width:40px;height:40px;flex-shrink:0;border-radius:0.6rem;background:rgba(245,200,66,0.14);border:1px solid rgba(245,200,66,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">📂</span>' +
+            '<span style="flex:1;min-width:160px;">' +
+              '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;">Evidence Locker</span>' +
+              '<span style="display:block;font-family:\'Bebas Neue\',sans-serif;font-size:1.25rem;letter-spacing:0.02em;color:#fff;line-height:1.15;">' + headline + '</span>' +
+              '<span style="display:block;font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin-top:0.1rem;">Every recorded statement, vote and clip PolitiDex has gathered on ' + esc(first) + ' — open the full, filterable file.</span>' +
+              chipRow +
+            '</span>' +
+            '<span style="flex-shrink:0;white-space:nowrap;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#0a0f1e;background:#f5c842;border-radius:0.6rem;padding:0.5rem 0.9rem;">Open ↗</span>' +
+          '</button>' +
+        '</div>';
+    } catch (e) {
+      if (window.console && console.warn) console.warn('evidence summary failed', e);
+      return '';
+    }
+  };
+
+  window._renderEvidenceConnections = function(id, p) {
+    try {
+      p = p || {};
+      if (typeof window._issueEvidenceMap !== 'function') return '';
+      if (typeof window._pdxHasIssueEvidence === 'function' &&
+          !window._pdxHasIssueEvidence(id, p)) return '';
+      var map = window._issueEvidenceMap(id, p) || {};
+      var keys = Object.keys(map);
+      if (!keys.length) return '';
+
+      var first = (p.name ? String(p.name).split(' ')[0] : 'this official');
+      function esc(s) {
+        if (s == null) return '';
+        if (typeof window._slEsc === 'function') return window._slEsc(s);
+        return String(s).replace(/[&<>"]/g, function(c){
+          return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+        });
+      }
+      function issueLabel(k) {
+        var l = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
+        l = l || (map[k].position && map[k].position.topic) || k;
+        // ISSUE_MAP labels lead with an emoji; the card already shows that icon
+        // separately, so drop the leading emoji token to avoid doubling it.
+        var parts = String(l).trim().split(/\s+/);
+        if (parts.length > 1 && /[^\x00-\x7F]/.test(parts[0])) parts.shift();
+        return parts.join(' ');
+      }
+      function issueIco(k) {
+        if (map[k].position && map[k].position.icon) return map[k].position.icon;
+        // ISSUE_MAP labels lead with an emoji (e.g. "🏔 Protect Public Lands") —
+        // reuse it so the panel matches the icon the Alignment Tool shows for the
+        // same issue. Fall back to a neutral target when the lead token is plain.
+        var lbl = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
+        var head = String(lbl || '').trim().split(/\s+/)[0] || '';
+        return (head && /[^\x00-\x7F]/.test(head)) ? head : '🎯';
+      }
+
+      // Each issue's overall "read": does the official's own record back the
+      // stance, cut against it, or complicate it? Built only from kept/broken
+      // promises and positive/negative recorded items on THIS issue.
+      function readFor(e) {
+        var c = e.counts;
+        var supports = c.promisesKept + c.spotlightPositive;
+        var against  = c.promisesBroken + c.spotlightNegative;
+        var connected = e.promises.length + e.spotlight.length;
+        if (!e.position) {
+          // Evidence exists but no curated stance — an honest gap to surface.
+          return { cls: 'evd-gap', label: '◆ Stance not yet written', kind: 'gap' };
+        }
+        if (!connected) return { cls: 'evd-thin', label: '○ No connected record yet', kind: 'thin' };
+        if (supports && against) return { cls: 'evd-mixed', label: '~ Record is mixed', kind: 'mixed' };
+        if (supports && !against) return { cls: 'evd-backs', label: '✓ Record backs the stance', kind: 'backs' };
+        if (against && !supports) return { cls: 'evd-cuts', label: '✗ Record cuts against it', kind: 'cuts' };
+        return { cls: 'evd-progress', label: '… Action in progress', kind: 'progress' };
+      }
+
+      var STANCE_META = {
+        support: { cls: 'stance-support', ico: '✓', label: 'Supports' },
+        oppose:  { cls: 'stance-oppose',  ico: '✗', label: 'Opposes' },
+        mixed:   { cls: 'stance-mixed',   ico: '~', label: 'Mixed' }
+      };
+      var VERDICT_META = {
+        kept:    { cls: 'kept',    label: 'Kept' },
+        broken:  { cls: 'broken',  label: 'Broken' },
+        pending: { cls: 'pending', label: 'Pending' }
+      };
+
+      // One recorded Spotlight item → headline + impact marker + media/source
+      // links (video & X with timestamps where available).
+      function renderSpot(s) {
+        var imp = s.impact === 'positive' ? { c:'positive', g:'▲' }
+                : s.impact === 'negative' ? { c:'negative', g:'▼' }
+                : { c:'neutral', g:'•' };
+        var links = [];
+        var m = s.media || null;
+        var mediaUrl = m && m.url ? m.url : null;
+        if (mediaUrl) {
+          var isX = m.type === 'x_post';
+          var glyph, txt;
+          if (m.type === 'video') { var _vk = (typeof window._slVideoKindWord === 'function') ? window._slVideoKindWord(m) : ''; glyph = '▶'; txt = 'Watch ' + _vk + 'video' + (m.timestamp ? ' · ' + esc(m.timestamp) : ''); }
+          else if (isX)           { glyph = '𝕏'; txt = 'View post'; }
+          else if (m.type === 'facebook') { glyph = '📘'; txt = 'View Facebook post'; }
+          else if (m.type === 'audio') { glyph = '🎧'; txt = 'Listen'; }
+          else if (m.type === 'text')  { glyph = '📄'; txt = 'Read'; }
+          else { glyph = '🔗'; txt = 'Open'; }
+          var ttl = m.label ? ' title="' + esc(m.label) + '"' : '';
+          links.push('<a href="' + esc(mediaUrl) + '" target="_blank" rel="noopener" class="evd-media-link' +
+            (isX ? ' is-x' : '') + '"' + ttl + '>' + glyph + ' ' + txt + '</a>');
+        }
+        // All-Seeing Eye cue when this on-record item is backed by video.
+        if (typeof window._pdxItemVideo === 'function' && typeof window._pdxVideoEye === 'function') {
+          var _spotVid = window._pdxItemVideo(s);
+          if (_spotVid) links.unshift(window._pdxVideoEye(_spotVid, { stop: false }));
+        }
+        // Show the citation when it adds a distinct destination beyond the media.
+        if (s.source && s.source.url && (!mediaUrl || s.source.url !== mediaUrl)) {
+          links.push('<a href="' + esc(s.source.url) + '" target="_blank" rel="noopener" class="evd-src-link" title="' +
+            esc(s.source.label || 'Source') + '">🔗 ' + esc(s.source.label || 'Source') + '</a>');
+        }
+        var dateBit = s.date ? ' <span style="color:#5f7da6;font-weight:400;">· ' + esc(s.date) + '</span>' : '';
+        return '<div class="evd-spot">' +
+            '<div class="evd-spot-head">' +
+              '<span class="evd-spot-impact ' + imp.c + '" aria-hidden="true">' + imp.g + '</span>' +
+              '<span class="evd-spot-headline">' + esc(s.headline) + dateBit +
+              '</span>' +
+            '</div>' +
+            (links.length ? '<div class="evd-spot-links">' + links.join('') + '</div>' : '') +
+          '</div>';
+      }
+
+      function renderProm(pr) {
+        var v = String(pr.verdict || 'pending').toLowerCase();
+        var vm = VERDICT_META[v] || VERDICT_META.pending;
+        return '<div class="evd-prom">' +
+            '<span class="evd-prom-dot ' + vm.cls + '" aria-hidden="true"></span>' +
+            '<span>' + esc(pr.title) +
+              '<span class="evd-prom-verdict ' + vm.cls + '">· ' + vm.label + '</span>' +
+            '</span>' +
+          '</div>';
+      }
+
+      function renderCard(e) {
+        var read = readFor(e);
+        var pos = e.position;
+        // Stance lane
+        var stanceLane;
+        if (pos) {
+          var sm = STANCE_META[pos.stance] || STANCE_META.mixed;
+          stanceLane =
+            '<div class="evd-stance-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</div>' +
+            '<p class="evd-stance-text">' + esc(pos.text || pos.topic || '') + '</p>';
+        } else {
+          stanceLane = '<p class="evd-empty-line">No curated stance written yet — surfaced here so the gap is visible, not hidden.</p>';
+        }
+        // Promises lane
+        var promLane = e.promises.length
+          ? e.promises.map(renderProm).join('')
+          : '<p class="evd-empty-line">No promises tagged to this issue yet.</p>';
+        // Recorded lane
+        var spotLane = e.spotlight.length
+          ? e.spotlight.map(renderSpot).join('')
+          : '<p class="evd-empty-line">No recorded statements or actions tagged yet.</p>';
+
+        // On-record items live in the Evidence Locker — when this issue has any,
+        // offer a direct, pre-filtered jump straight to them.
+        var lockerLink = '';
+        if (e.spotlight.length) {
+          var jsId = String(id == null ? '' : id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          var jsIk = String(e.issueKey == null ? '' : e.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          lockerLink = '<button type="button" class="evd-locker-link" ' +
+            'onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\',issue:\'' + jsIk + '\'});">' +
+            '📚 View ' + e.spotlight.length + ' in the Digital Library ↗</button>';
+        }
+
+        return '<div id="' + window._pdxEvAnchor(id, e.issueKey) + '" class="evd-card ' + read.cls + '">' +
+            '<div class="evd-head">' +
+              '<span class="evd-head-ico" aria-hidden="true">' + issueIco(e.issueKey) + '</span>' +
+              '<span class="evd-head-label">' + esc(issueLabel(e.issueKey)) + '</span>' +
+              '<span class="evd-read ' + read.cls + '">' + read.label + '</span>' +
+            '</div>' +
+            '<div class="evd-lanes">' +
+              '<div class="evd-lane"><div class="evd-lane-h">📌 Stated stance</div>' + stanceLane + '</div>' +
+              '<div class="evd-lane"><div class="evd-lane-h">🤝 Promises<span class="evd-lane-n">' + e.promises.length + '</span></div>' + promLane + '</div>' +
+              '<div class="evd-lane"><div class="evd-lane-h">🔦 On record<span class="evd-lane-n">' + e.spotlight.length + '</span></div>' + spotLane + '</div>' +
+            '</div>' +
+            lockerLink +
+          '</div>';
+      }
+
+      // Rank issues by how much CONNECTED evidence they carry, so the richest,
+      // most useful issues lead and stance-only / thin ones fall to the bottom.
+      var entries = keys.map(function(k){ return map[k]; });
+      function richness(e) {
+        return (e.promises.length + e.spotlight.length) * 10 +
+               (e.position ? 1 : 0) +
+               e.spotlight.reduce(function(n,s){ return n + (s.media && s.media.url ? 1 : 0); }, 0);
+      }
+      entries.sort(function(a,b){ return richness(b) - richness(a); });
+
+      // Totals for the scannable summary line.
+      var totStance = 0, totProm = 0, totSpot = 0, totMedia = 0, totConnected = 0;
+      entries.forEach(function(e){
+        if (e.position) totStance++;
+        totProm += e.promises.length;
+        totSpot += e.spotlight.length;
+        totMedia += e.spotlight.filter(function(s){ return s.media && s.media.url; }).length;
+        if (e.promises.length || e.spotlight.length) totConnected++;
+      });
+
+      // Nothing connected anywhere — the Key Issue Stances section already
+      // carries the bare positions, so don't add an empty duplicate here.
+      if (!totProm && !totSpot) return '';
+
+      var sumChips = '';
+      sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">🧩</span>' + totConnected + ' connected issue' + (totConnected === 1 ? '' : 's') + '</span>';
+      if (totStance) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">📌</span>' + totStance + ' stance' + (totStance === 1 ? '' : 's') + '</span>';
+      if (totProm) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">🤝</span>' + totProm + ' promise' + (totProm === 1 ? '' : 's') + '</span>';
+      if (totSpot) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">🔦</span>' + totSpot + ' on record</span>';
+      if (totMedia) sumChips += '<span class="evd-sum-chip"><span class="evd-sum-ico">▶</span>' + totMedia + ' with video / post</span>';
+
+      // Show the connected issues by default; collapse any thin / stance-only
+      // tail behind a toggle so the panel stays scannable but the absence of
+      // evidence is still one tap away, never hidden.
+      var lead = entries.filter(function(e){ return e.promises.length || e.spotlight.length; });
+      var tail = entries.filter(function(e){ return !(e.promises.length || e.spotlight.length); });
+      var leadHtml = lead.map(renderCard).join('');
+      var tailHtml = tail.map(renderCard).join('');
+      var domId = 'evd-tail-' + String(id).replace(/[^a-z0-9_-]/gi, '');
+      var tailBlock = tail.length
+        ? '<div id="' + domId + '" style="display:none;margin-top:0.7rem;">' + tailHtml + '</div>' +
+          '<button type="button" class="evd-more-btn" onclick="(function(b){var t=document.getElementById(\'' + domId + '\');if(!t)return;var open=t.style.display!==\'none\';t.style.display=open?\'none\':\'block\';b.textContent=open?(\'Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet\'):\'Hide thin-record issues\';})(this)">Show ' + tail.length + ' stance' + (tail.length === 1 ? '' : 's') + ' with no connected record yet</button>'
+        : '';
+
+      return '<div class="modal-section">' +
+          '<div class="modal-section-title" style="justify-content:space-between;">' +
+            '<span style="display:inline-flex;align-items:center;gap:0.45rem;">🧩 Connected Evidence</span>' +
+            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.12rem 0.5rem;border-radius:999px;">' + entries.length + ' issue' + (entries.length === 1 ? '' : 's') + '</span>' +
+          '</div>' +
+          '<p class="modal-section-sub">Each issue shows what ' + esc(first) + ' says, what ' + esc(first) + ' promised, and what ' + esc(first) + ' has said or done on record — side by side, so you can see whether the record backs, complicates, or cuts against the stance. Video and X posts link to the source, with timestamps where available.</p>' +
+          (sumChips ? '<div class="evd-summary">' + sumChips + '</div>' : '') +
+          leadHtml +
+          tailBlock +
+          '<p class="evd-foot-note">Built only from ' + esc(first) + '\'s own documented positions, tracked promises, and Spotlight items on each issue — never their party\'s record. “On record” links open the original video, X post, or citation. This view grows as more of ' + esc(first) + '\'s positions, promises and recorded words are verified and tagged.</p>' +
+        '</div>';
+    } catch (e) {
+      if (window.console && console.warn) console.warn('evidence view failed', e);
+      return '';
+    }
+  };
+
+
+  // ── Connected-evidence quick-access (Promises ↔ Issue Positions ↔ Evidence) ──
+  // The Connected Evidence section above groups everything by issue; these helpers
+  // let an individual Promise or Issue Position card link STRAIGHT to its matching
+  // issue card there — surfacing the floor video / on-record proof right where the
+  // user is reading the claim. Scoped, like the section itself, to sitting Utah
+  // State Legislators, and only shown when real connected evidence exists.
+
+  // Stable DOM id for one issue's card inside the Connected Evidence section, so a
+  // promise/stance chip and that card agree on the same anchor.
+  window._pdxEvAnchor = function(id, issueKey) {
+    return 'evd-issue-' + String(id || '').replace(/[^a-z0-9_-]/gi, '') +
+      '-' + String(issueKey || '').replace(/[^a-z0-9_-]/gi, '');
+  };
+
+  // Smooth-scroll to an issue's Connected Evidence card and pulse it briefly so the
+  // jump is obvious. No-ops cleanly when the anchor isn't on the page.
+  window._pdxJumpEvidence = function(anchorId) {
+    try {
+      var el = document.getElementById(anchorId);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var prev = el.style.boxShadow;
+      el.style.transition = 'box-shadow 0.45s ease';
+      el.style.boxShadow = '0 0 0 2px rgba(245,200,66,0.6)';
+      setTimeout(function() { el.style.boxShadow = prev || ''; }, 1500);
+    } catch (e) {}
+  };
+
+  // Per-issue evidence tallies from the shared map (kept identical to the counts
+  // the Connected Evidence cards show).
+  function _pdxEvCounts(e) {
+    var spot = (e && Array.isArray(e.spotlight)) ? e.spotlight : [];
+    var prom = (e && Array.isArray(e.promises)) ? e.promises : [];
+    return {
+      spotN:  spot.length,
+      promN:  prom.length,
+      videoN: spot.filter(function(s) { return s.media && s.media.type === 'video'; }).length,
+      postN:  spot.filter(function(s) { return s.media && s.media.type === 'x_post'; }).length,
+      fbN:    spot.filter(function(s) { return s.media && s.media.type === 'facebook'; }).length
+    };
+  }
+
+  // Pick the single STRONGEST piece of attached proof across the items on one
+  // issue, resolved to a directly-openable link. Official video wins, then a
+  // social post (X, then Facebook), then audio/text. The watchable URL lives on
+  // `media.url` for posts and committee clips, but floor-video records keep it on
+  // `source.url` with only the medium + timestamp on `media` — so this recovers it
+  // either way (the same rule _slEvidenceRow uses). Supporting (positive-impact)
+  // items break ties so the link a promise leads with is the one that actually
+  // backs it. Returns null when no item carries an openable media link, so callers
+  // can stay honest about thin evidence and show only the lighter "see related" jump.
+  function _pdxIssueBestMedia(e) {
+    var spot = (e && Array.isArray(e.spotlight)) ? e.spotlight : [];
+    var rank = { video: 5, x_post: 3, facebook: 2, audio: 1, text: 0 };
+    var best = null, bestScore = -1;
+    spot.forEach(function(s) {
+      if (!s) return;
+      var m = s.media || null;
+      var st = String(s.sourceType || '');
+      var type = (m && m.type) ? m.type
+               : (/x_post|tweet/.test(st) ? 'x_post'
+               : /facebook|fb_post/.test(st) ? 'facebook'
+               : /video/.test(st) ? 'video'
+               : /audio/.test(st) ? 'audio' : '');
+      if (!type || rank[type] == null) return;
+      var url = (m && m.url) ? m.url : (s.source && s.source.url ? s.source.url : '');
+      if (!url) return;
+      var score = rank[type] * 2 + (s.impact === 'positive' ? 1 : 0);
+      if (score > bestScore) {
+        bestScore = score;
+        best = { type: type, url: url, timestamp: (m && m.timestamp) || '',
+          label: (m && m.label) || '', headline: s.headline || '' };
+      }
+    });
+    return best;
+  }
+
+  // A direct, one-tap link to a single piece of attached evidence — the proof
+  // itself, opening immediately in a new tab rather than scrolling the reader to
+  // a panel to hunt for it. Mirrors the glyphs, colors and "▶ Watch · 24:42"
+  // wording of the Spotlight evidence row so video/post links read the same
+  // everywhere. Returns '' when there's nothing openable.
+  function _pdxDirectMediaLink(m, stop) {
+    if (!m || !m.url) return '';
+    var esc = (typeof window._slEsc === 'function') ? window._slEsc : function(s){ return String(s == null ? '' : s); };
+    var MAP = {
+      video:  { g: '▶',  col: '245,200,66',  txt: 'Watch official video' },
+      x_post: { g: '𝕏', col: '139,160,190', txt: 'View the post' },
+      facebook: { g: '📘', col: '146,166,232', txt: 'View Facebook post' },
+      audio:  { g: '🎧', col: '167,139,250', txt: 'Listen' },
+      text:   { g: '📄', col: '120,180,140', txt: 'Read the source' }
+    };
+    var md = MAP[m.type] || { g: '🔗', col: '117,150,192', txt: 'Open source' };
+    var label;
+    if (m.type === 'video') {
+      var vk = (typeof window._slVideoKindWord === 'function') ? window._slVideoKindWord(m) : '';
+      label = 'Watch ' + (vk || 'official ') + 'video' + (m.timestamp ? ' · ' + esc(m.timestamp) : '');
+    } else {
+      label = md.txt;
+    }
+    var ttl = m.label ? esc(m.label) : (m.headline ? esc(m.headline) : md.txt);
+    return '<a href="' + esc(m.url) + '" target="_blank" rel="noopener" onclick="' + stop + '" title="' + ttl + '" ' +
+      'style="cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:rgb(' + md.col + ');background:rgba(' + md.col + ',0.14);border:1px solid rgba(' + md.col + ',0.45);padding:0.14rem 0.55rem;border-radius:999px;line-height:1.3;">' + md.g + ' ' + label + ' ↗</a>';
+  }
+
+  // The subtle quick-access cue itself. When the issue carries openable proof it
+  // LEADS with a direct media link (official video / X post, one tap to the
+  // receipt), then offers a lighter "see all connected" jump to the Connected
+  // Evidence card. With on-record items but no openable link, it shows just the
+  // jump — honest about thinner evidence. `context` tunes the wording and jump
+  // direction for a promise vs a stance.
+  function _pdxEvChip(id, e, context) {
+    if (!e || !e.issueKey) return '';
+    var c = _pdxEvCounts(e);
+    var anchor = window._pdxEvAnchor(id, e.issueKey);
+    var jump = "event.stopPropagation();window._pdxJumpEvidence&&window._pdxJumpEvidence('" + anchor + "');";
+    var stop = "event.stopPropagation();";
+    // Strongest openable proof on this issue — the link the cue leads with.
+    var directLink = _pdxDirectMediaLink(_pdxIssueBestMedia(e), stop);
+    var col, text, title, arrow;
+    if (context === 'promise') {
+      // A promise links to the recorded statements/actions that back or test it.
+      // The Connected Evidence section sits ABOVE the Promise Tracker, so point up.
+      if (!c.spotN) return '';
+      arrow = ' ↑';
+      if (c.videoN) { col = '245,200,66'; text = 'See ' + c.spotN + ' on record';
+        title = 'Jump to the official video and on-record items tied to this promise’s issue.'; }
+      else if (c.postN) { col = '139,160,190'; text = 'See ' + c.spotN + ' on record';
+        title = 'Jump to the posts and on-record items tied to this promise’s issue.'; }
+      else if (c.fbN) { col = '146,166,232'; text = 'See ' + c.spotN + ' on record';
+        title = 'Jump to the Facebook posts and on-record items tied to this promise’s issue.'; }
+      else { col = '167,139,250'; text = '🔦 See ' + c.spotN + ' on record';
+        title = 'Jump to the recorded statements and actions tied to this promise’s issue.'; }
+    } else {
+      // A stance links to all the promises + on-record items on the same issue.
+      // The Connected Evidence section sits just BELOW the stances, so point down.
+      var total = c.promN + c.spotN;
+      if (!total) return '';
+      arrow = ' ↓';
+      text = '🧩 See ' + total + ' connected' + (c.videoN && !directLink ? ' · ▶ video' : '');
+      col = '117,150,192';
+      title = 'See the promises and on-record items — video and posts where available — connected to this position.';
+    }
+    var chip = '<button type="button" onclick="' + jump + '" title="' + title + '" ' +
+      'style="cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:rgb(' + col + ');background:rgba(' + col + ',0.1);border:1px solid rgba(' + col + ',0.34);padding:0.14rem 0.55rem;border-radius:999px;line-height:1.3;">' + text + arrow + '</button>';
+    // Wrap so the direct link (primary) and the jump (secondary) sit inline and
+    // wrap cleanly on narrow / mobile screens.
+    return '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin-top:0.45rem;">' + directLink + chip + '</div>';
+  }
+  // Exposed for _pdxStanceEvidenceLink, which now lives in stance-helpers.js.
+  window._pdxEvChip = _pdxEvChip;
+
+  // Resolve the issue bucket a promise belongs to (by its own issueKey, falling
+  // back to a title match the way _issueEvidenceMap does), then render the chip.
+  window._pdxPromiseEvidenceLink = function(id, p, pr) {
+    try {
+      if (!pr) return '';
+      if (typeof window._issueEvidenceMap !== 'function') return '';
+      var map = window._issueEvidenceMap(id, p) || {};
+      var ik = pr.issueKey;
+      if (!ik || !map[ik]) {
+        var t = String(pr.title || '').trim().toLowerCase();
+        for (var k in map) {
+          if ((map[k].promises || []).some(function(x) { return String(x.title || '').trim().toLowerCase() === t; })) { ik = k; break; }
+        }
+      }
+      if (!ik || !map[ik]) return '';
+      return _pdxEvChip(id, map[ik], 'promise');
+    } catch (e) { return ''; }
+  };
+
+  <!-- Stance-at-a-Glance rendering helpers moved to stance-helpers.js -->
+
+
+  // ── Camera-eye · video-evidence indicator ─────────────────────────────────
+  // A small video-camera icon with an eye in the lens used to flag that VERIFIED
+  // VIDEO proof — floor or committee footage — is attached to a specific item.
+  // It reads as a plain "tap to watch" action, not a mystical symbol. It is
+  // deliberately reserved for video: text-only citations and social posts never
+  // get one, so the cue stays meaningful. The three helpers below resolve the
+  // watchable link for each surface, then `_pdxVideoEye` renders the icon as a
+  // one-tap link (jumping to the timestamp when one exists) with a "Watch video
+  // evidence" tooltip. All return '' / null when there is no real video, so
+  // callers can drop them in unconditionally.
+
+  // Inline SVG: a video camera outline with an eye looking out of the lens —
+  // reads instantly as "video evidence available, tap to watch" rather than a
+  // mystical symbol. Camera body + viewfinder hump + record dot frame an almond
+  // eye and pupil sitting inside the lens ring. Uses currentColor so the gold
+  // theme + glow come entirely from the .pdx-eye CSS.
+  var _PDX_EYE_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">' +
+      '<rect x="2" y="7" width="20" height="13" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M8.2 7 L9.5 4.6 L14.5 4.6 L15.8 7 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<circle cx="12" cy="13.6" r="4.7" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
+      '<path d="M8.6 13.6 C10 11.9 14 11.9 15.4 13.6 C14 15.3 10 15.3 8.6 13.6 Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>' +
+      '<circle cx="12" cy="13.6" r="1.55" fill="currentColor"/>' +
+      '<circle cx="18.4" cy="9.6" r="0.95" fill="currentColor"/>' +
+    '</svg>';
+
+  function _pdxEyeEsc(s) {
+    if (typeof window._slEsc === 'function') return window._slEsc(s);
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c];
+    });
+  }
+
+  <!-- _pdxItemVideo + _pdxIssueVideo moved to stance-helpers.js -->
+
+  // Same as _pdxIssueVideo, but recovers a promise's issueKey by title the way
+  // _pdxPromiseEvidenceLink does, so a live record whose promise lost its key
+  // still lights up.
+  window._pdxPromiseVideo = function(id, p, pr) {
+    try {
+      if (!pr || typeof window._issueEvidenceMap !== 'function') return null;
+      var map = window._issueEvidenceMap(id, p) || {};
+      var ik = pr.issueKey;
+      if (!ik || !map[ik]) {
+        var t = String(pr.title || '').trim().toLowerCase();
+        for (var k in map) {
+          if ((map[k].promises || []).some(function(x){ return String(x.title || '').trim().toLowerCase() === t; })) { ik = k; break; }
+        }
+      }
+      return (ik && map[ik]) ? window._pdxIssueVideo(id, p, ik) : null;
+    } catch (e) { return null; }
+  };
+
+  <!-- _pdxVideoEye moved to stance-helpers.js -->
+
+  // A bigger, unmissable gold "Watch Video" pill (eye + label + timestamp) for
+  // use inside contexts that are themselves buttons/rows — Stance at a Glance and
+  // the Home Team views — where a plain anchor would be invalid or get lost. It
+  // is a span that opens the in-app player on tap/Enter and never triggers the
+  // row it sits on. Returns '' when there's no watchable clip.
+  window._pdxWatchPill = function (video, opts) {
+    if (!video || !video.url) return '';
+    opts = opts || {};
+    var jsUrl = String(video.url).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var jsTs = String(video.timestamp || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    var open = 'event.stopPropagation();event.preventDefault();window._pdxOpenVideo(\'' + jsUrl + '\',{timestamp:\'' + jsTs + '\'});';
+    var tip = 'Watch video evidence' + (video.timestamp ? ' — jumps to ' + _pdxEyeEsc(video.timestamp) : '');
+    var ts = video.timestamp ? '<span class="pdx-watch-pill-ts">' + _pdxEyeEsc(video.timestamp) + '</span>' : '';
+    var label = opts.label || 'Watch Video';
+    return '<span class="pdx-watch-pill ' + (opts.cls || '') + '" role="link" tabindex="0" title="' + tip +
+      '" aria-label="' + tip + '" onclick="' + open + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + open + '}">' +
+      '<span class="pdx-eye pdx-watch-pill-eye" aria-hidden="true">' + _PDX_EYE_SVG + '</span>' +
+      '<span class="pdx-watch-pill-txt">' + label + '</span>' + ts + '</span>';
+  };
+
+  // ── In-app HLS video player ────────────────────────────────────────────
+  // Plays a le.utah.gov floor/committee citation inline instead of bouncing the
+  // visitor to the heavy desktop archive page (which on phones frequently failed
+  // to start the clip). It resolves the underlying HLS stream + start offset via
+  // the /api/leg-video function, then plays it with native HLS on iOS/Safari and
+  // hls.js everywhere else, seeked to the exact moment. If anything fails, the
+  // official archive is offered as a one-tap fallback so evidence is never lost.
+  window._pdxIsLegVideoUrl = function (u) {
+    return /le\.utah\.gov\/av\/(floor|committee)Archive\.jsp/i.test(String(u || ''));
+  };
+
+  // Deep-link a YouTube URL to a cited moment. A pinpoint timestamp is one of the
+  // things the Evidence Strength score rewards, but for a YouTube clip it was only
+  // ever shown as a label — the link still opened the video at 0:00. This appends
+  // YouTube's own `t=<seconds>s` start parameter so a cited "24:42" actually jumps
+  // there. Accepts "mm:ss" / "h:mm:ss" (or bare seconds); returns the URL unchanged
+  // for a non-YouTube link, a missing timestamp, or a URL that already has a start.
+  window._pdxYtDeepLink = function (url, ts) {
+    var u = String(url || '');
+    if (!u || !ts || !/youtu\.?be|youtube\.com/i.test(u) || /[?&#]t=/.test(u)) return u;
+    var parts = String(ts).trim().split(':');
+    var secs = 0;
+    for (var i = 0; i < parts.length; i++) {
+      var n = parseInt(parts[i], 10);
+      if (isNaN(n)) return u;
+      secs = secs * 60 + n;
+    }
+    if (!secs) return u;
+    return u + (u.indexOf('?') === -1 ? '?' : '&') + 't=' + secs + 's';
+  };
+
+  (function () {
+    var modal, videoEl, hls, lastFocus;
+    var HLS_LIB = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js';
+    var libState = 0, libCbs = []; // 0 idle · 1 loading · 2 ready · 3 failed
+
+    function fmt(sec) {
+      sec = Math.max(0, Math.floor(sec || 0));
+      var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+      var mm = (h && m < 10) ? '0' + m : '' + m;
+      var ss = s < 10 ? '0' + s : '' + s;
+      return (h ? h + ':' + mm : mm) + ':' + ss;
+    }
+
+    function ensureLib(cb) {
+      if (window.Hls) { cb(true); return; }
+      libCbs.push(cb);
+      if (libState === 1) return;
+      libState = 1;
+      var s = document.createElement('script');
+      s.src = HLS_LIB; s.async = true;
+      s.onload = function () { libState = 2; libCbs.splice(0).forEach(function (f) { f(!!window.Hls); }); };
+      s.onerror = function () { libState = 3; libCbs.splice(0).forEach(function (f) { f(false); }); };
+      document.head.appendChild(s);
+    }
+
+    function ensureModal() {
+      if (modal) return;
+      modal = document.createElement('div');
+      modal.className = 'pdx-vid-modal';
+      modal.id = 'pdx-vid-modal';
+      modal.setAttribute('hidden', '');
+      var eye = (typeof _PDX_EYE_SVG === 'string') ? _PDX_EYE_SVG : '';
+      modal.innerHTML =
+        '<div class="pdx-vid-backdrop" data-pdx-vid-dismiss></div>' +
+        '<div class="pdx-vid-box" role="dialog" aria-modal="true" aria-label="Video evidence player">' +
+          '<div class="pdx-vid-head">' +
+            '<span class="pdx-eye" aria-hidden="true">' + eye + '</span>' +
+            '<div class="pdx-vid-htext">' +
+              '<div class="pdx-vid-kicker">▶ Video evidence</div>' +
+              '<div class="pdx-vid-title"></div>' +
+            '</div>' +
+            '<button type="button" class="pdx-vid-close" aria-label="Close video" data-pdx-vid-dismiss>&times;</button>' +
+          '</div>' +
+          '<div class="pdx-vid-stage">' +
+            '<video class="pdx-vid-el" playsinline controls preload="metadata"></video>' +
+            '<div class="pdx-vid-state">' +
+              '<div class="pdx-vid-spinner"></div>' +
+              '<div class="pdx-vid-state-msg">Loading official video…</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="pdx-vid-foot">' +
+            '<span class="pdx-vid-ts"></span>' +
+            '<a class="pdx-vid-srclink" target="_blank" rel="noopener">Open on le.utah.gov ↗</a>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(modal);
+      videoEl = modal.querySelector('.pdx-vid-el');
+      modal.addEventListener('click', function (e) {
+        if (e.target.closest('[data-pdx-vid-dismiss]')) close();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal && !modal.hasAttribute('hidden')) close();
+      });
+    }
+
+    function setState(visible, msg, fallbackUrl) {
+      var st = modal.querySelector('.pdx-vid-state');
+      if (!visible) { st.setAttribute('hidden', ''); return; }
+      st.removeAttribute('hidden');
+      var html = fallbackUrl
+        ? '<div class="pdx-vid-state-msg">' + _pdxEyeEsc(msg) + '</div>' +
+          '<a class="pdx-vid-open-official" target="_blank" rel="noopener" href="' +
+          _pdxEyeEsc(fallbackUrl) + '"><span aria-hidden="true">▶</span> Watch on le.utah.gov</a>'
+        : '<div class="pdx-vid-spinner"></div><div class="pdx-vid-state-msg">' + _pdxEyeEsc(msg) + '</div>';
+      st.innerHTML = html;
+    }
+
+    function teardown() {
+      try { if (hls) { hls.destroy(); hls = null; } } catch (e) {}
+      if (videoEl) {
+        try { videoEl.pause(); } catch (e) {}
+        try { videoEl.removeAttribute('src'); videoEl.load(); } catch (e) {}
+      }
+    }
+
+    function close() {
+      if (!modal) return;
+      teardown();
+      modal.setAttribute('hidden', '');
+      document.body.classList.remove('pdx-vid-open');
+      try { if (lastFocus && lastFocus.focus) lastFocus.focus(); } catch (e) {}
+    }
+
+    function seekAndPlay(offset) {
+      var done = false;
+      function go() {
+        if (done) return; done = true;
+        if (offset > 0) { try { videoEl.currentTime = offset; } catch (e) {} }
+        var pr = videoEl.play();
+        if (pr && pr.catch) pr.catch(function () {}); // muted-autoplay rules; controls remain
+      }
+      videoEl.addEventListener('loadedmetadata', go, { once: true });
+      setTimeout(go, 2000); // safety if metadata already cached
+    }
+
+    function play(src, offset, archiveUrl) {
+      offset = offset || 0;
+      // Native HLS (iOS Safari, macOS Safari) — no library needed.
+      if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        videoEl.src = src;
+        setState(false);
+        seekAndPlay(offset);
+        return;
+      }
+      ensureLib(function (ok) {
+        if (ok && window.Hls && window.Hls.isSupported()) {
+          hls = new window.Hls({ startPosition: offset > 0 ? offset : -1 });
+          hls.loadSource(src);
+          hls.attachMedia(videoEl);
+          hls.on(window.Hls.Events.MANIFEST_PARSED, function () { setState(false); seekAndPlay(offset); });
+          hls.on(window.Hls.Events.ERROR, function (evt, data) {
+            if (data && data.fatal) {
+              teardown();
+              setState(true, 'This video could not stream in the app. It will play on the official archive.', archiveUrl);
+            }
+          });
+        } else {
+          // Last resort: hand the element the stream directly.
+          videoEl.src = src;
+          setState(false);
+          seekAndPlay(offset);
+        }
+      });
+    }
+
+    window._pdxOpenVideo = function (url, opts) {
+      opts = opts || {};
+      if (!url) return;
+      if (!window._pdxIsLegVideoUrl(url)) { window.open(window._pdxYtDeepLink(url, opts.timestamp), '_blank', 'noopener'); return; }
+      ensureModal();
+      lastFocus = document.activeElement;
+      teardown();
+      modal.removeAttribute('hidden');
+      document.body.classList.add('pdx-vid-open');
+      modal.querySelector('.pdx-vid-title').textContent = opts.title || 'Official floor / committee video';
+      var srcLink = modal.querySelector('.pdx-vid-srclink');
+      srcLink.href = url;
+      var tsEl = modal.querySelector('.pdx-vid-ts');
+      tsEl.textContent = opts.timestamp ? 'Jumps to ' + opts.timestamp : '';
+      setState(true, 'Loading official video…');
+
+      fetch('/api/leg-video?url=' + encodeURIComponent(url))
+        .then(function (r) { return r.ok ? r.json() : r.json().then(function (d) { throw new Error(d && d.error || 'unavailable'); }); })
+        .then(function (data) {
+          if (!data || !data.hls) throw new Error('No stream');
+          if (data.title) modal.querySelector('.pdx-vid-title').textContent = data.title;
+          if (!opts.timestamp && data.offset) tsEl.textContent = 'Jumps to ' + fmt(data.offset);
+          play(data.hls, data.offset || 0, url);
+        })
+        .catch(function () {
+          setState(true, 'Watch this clip on the official Utah Legislature archive.', url);
+        });
+    };
+  })();
+
+  // Catch every other floor/committee video link on the page — the "Watch video"
+  // buttons in evidence rows, banners, Spotlight, Stance at a Glance and the Home
+  // Team views are plain <a href> to the archive — and route them through the same
+  // in-app player. Capture phase runs before each link's own onclick (some call
+  // stopPropagation), and modifier-click / middle-click still open a normal tab.
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a || !window._pdxIsLegVideoUrl(a.getAttribute('href') || a.href)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var ts = a.getAttribute('data-pdx-vts') || '';
+    window._pdxOpenVideo(a.href, { timestamp: ts });
+  }, true);
+
+
+
+  // ── Shared evidence surfacing ─────────────────────────────────────────
+  // One set of helpers that put the gold All-Seeing Eye, a direct "Watch" jump
+  // to the strongest clip, and a one-tap "See Evidence" jump into the
+  // pre-filtered Evidence Locker on every card and modal — so a voter never has
+  // to hunt for video proof or the on-record file. The Evidence Locker only
+  // indexes current sitting Utah State Legislators, so the locker CTA is gated
+  // to them (_pdxHasLocker); the direct video eye shows wherever a real clip
+  // exists. Both stay silent when there's nothing on record.
+
+  // Decorative gold All-Seeing Eye (non-link) for labelling an evidence CTA.
+  window._pdxEyeGlyph = function (cls) {
+    return '<span class="pdx-eye ' + (cls || '') + '" aria-hidden="true">' + _PDX_EYE_SVG + '</span>';
+  };
+
+  // Per-politician evidence tally: total on-record items, video clips (+ the
+  // best watchable one), social posts, tied promises, issues touched. Memoised
+  // per id and keyed on whether the full profile has loaded, so re-renders
+  // across the many card surfaces don't recompute the map, while a lite→full
+  // upgrade still refreshes the count.
+  var _pdxEvSumCache = {};
+  window._pdxEvidenceSummary = function (pid) {
+    var loaded = !!(window._pdxFullIds && window._pdxFullIds.has && window._pdxFullIds.has(pid));
+    var c = _pdxEvSumCache[pid];
+    if (c && c.loaded === loaded) return c.val;
+    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    var r = { items: 0, videos: 0, posts: 0, promises: 0, issues: 0, best: null, bestIssueKey: null };
+    if (d && typeof window._issueEvidenceMap === 'function') {
+      try {
+        var p = (window.PROFILES && window.PROFILES[pid]) ? window.PROFILES[pid] : d;
+        var map = window._issueEvidenceMap(pid, p) || {};
+        for (var k in map) {
+          var e = map[k];
+          var spot = e.spotlight || [];
+          if (spot.length) r.issues++;
+          r.items += spot.length;
+          r.promises += (e.promises || []).length;
+          spot.forEach(function (s) {
+            var v = (typeof window._pdxItemVideo === 'function') ? window._pdxItemVideo(s) : null;
+            if (v) { r.videos++; if (!r.best || (v.timestamp && !r.best.timestamp)) { r.best = v; r.bestIssueKey = k; } }
+            else { var m = s.media; if (m && (m.type === 'x_post' || m.type === 'facebook')) r.posts++; }
+          });
+        }
+      } catch (err) {}
+    }
+    _pdxEvSumCache[pid] = { loaded: loaded, val: r };
+    return r;
+  };
+
+  // Is the Evidence Locker populated for this politician? (It indexes current
+  // sitting Utah State Legislators.) Gates whether the locker "See Evidence" CTA
+  // is offered, so the jump never opens an empty file.
+  window._pdxHasLocker = function (pid) {
+    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    var p = (window.PROFILES && window.PROFILES[pid]) ? window.PROFILES[pid] : d;
+    if (!p) return false;
+    // Offered when the Locker actually holds something for this person. The old
+    // office test was the one call site in this family that did NOT check data, so
+    // it promised a file to legislators with none and hid a real one from everyone
+    // else — the Locker index itself was never Utah-scoped.
+    return !!(typeof window._pdxHasIssueEvidence === 'function' && window._pdxHasIssueEvidence(pid, p));
+  };
+
+  // Authoritative count of items filed in the Evidence Locker for this politician,
+  // summed from the loaded library index (_pdxEvidenceIssueCountsForPerson). This
+  // is the true number a voter sees once they open the Locker, so the card count
+  // and the filtered library agree. Returns null while the library is still
+  // loading (the underlying count fn returns null until then) so callers can fall
+  // back to their own spotlight tally and never guess a number.
+  window._pdxLockerItemCount = function (pid) {
+    if (!pid || typeof window._pdxEvidenceIssueCountsForPerson !== 'function') return null;
+    var counts = window._pdxEvidenceIssueCountsForPerson(pid);
+    if (!counts) return null;
+    var n = 0;
+    for (var k in counts) n += counts[k];
+    return n;
+  };
+
+  // JS-string-escape a raw politician id for an inline onclick (the Locker
+  // filters on the unsanitized id, so it must pass through verbatim).
+  function _pdxEvJsId(pid) {
+    return String(pid == null ? '' : pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
+  // Compact evidence row for any politician card (small/medium, Relevant to Me,
+  // favourites, compare). Gold All-Seeing Eye + video count jumping straight to
+  // the strongest clip, plus a one-tap "See Evidence" into the pre-filtered
+  // Locker. Returns '' when there is neither a watchable clip nor a lockable file.
+  window._pdxEvidenceRow = function (pid, opts) {
+    opts = opts || {};
+    var t = window._pdxEvidenceSummary(pid);
+    var hasLocker = window._pdxHasLocker(pid);
+    // Prefer the real Evidence Locker tally over the spotlight-derived count, so
+    // the "See Evidence" jump appears for every sitting legislator who actually
+    // has filed records — even when none have been pulled into a Spotlight yet —
+    // and the number shown matches what the filtered Locker opens to. Falls back
+    // to the spotlight count while the library loads; the honesty gate still
+    // holds (a legislator with zero filed items shows no locker CTA).
+    var lockerN = (hasLocker && typeof window._pdxLockerItemCount === 'function') ? window._pdxLockerItemCount(pid) : null;
+    var itemN = (lockerN !== null) ? lockerN : t.items;
+    var showLocker = !!(hasLocker && itemN);
+    var hasWatch = !!(t.videos && t.best && t.best.url);
+    if (!hasWatch && !showLocker) return '';
+    var jsId = _pdxEvJsId(pid);
+    var html = '';
+    if (hasWatch && typeof window._pdxVideoEye === 'function') {
+      var eye = window._pdxVideoEye(t.best, { stop: true, cls: 'pdx-evrow-eye' });
+      var ts = t.best.timestamp ? '<span class="pdx-evrow-ts">@ ' + _pdxEyeEsc(t.best.timestamp) + '</span>' : '';
+      html += '<a href="' + _pdxEyeEsc(t.best.url) + '" target="_blank" rel="noopener" class="pdx-evrow-watch" ' +
+        'onclick="event.stopPropagation();" title="Watch the strongest video evidence on record" ' +
+        'aria-label="Watch video evidence">' + eye +
+        '<span class="pdx-evrow-watch-txt">Watch ' + (t.videos > 1 ? '<strong>' + t.videos + '</strong> Videos' : 'Video') + '</span>' + ts + '</a>';
+    }
+    if (showLocker) {
+      html += '<button type="button" class="pdx-evrow-see' + (hasWatch ? '' : ' is-solo') + '" ' +
+        'onclick="event.stopPropagation();window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\'});" ' +
+        'aria-label="See the evidence on record — opens the Evidence Locker filtered to this official">' +
+        window._pdxEyeGlyph('pdx-evrow-see-eye') + 'See Evidence <span class="pdx-evrow-see-n">' + itemN + '</span> ↗</button>';
+    }
+    return '<div class="pdx-evrow">' + html + '</div>';
+  };
+
+  // Prominent evidence banner for the medium + full profile modals: the same gold
+  // All-Seeing Eye and direct-Watch / See-Evidence actions as the card row, but
+  // weightier, so evidence is impossible to miss the moment a profile opens.
+  window._pdxEvidenceBanner = function (pid, opts) {
+    opts = opts || {};
+    var t = window._pdxEvidenceSummary(pid);
+    var hasLocker = window._pdxHasLocker(pid);
+    // Same authoritative-count preference as the card row: when the Locker library
+    // has loaded, use its true item count for both the gate and the headline so the
+    // banner agrees with the filtered Locker; fall back to the spotlight tally until
+    // then.
+    var lockerN = (hasLocker && typeof window._pdxLockerItemCount === 'function') ? window._pdxLockerItemCount(pid) : null;
+    var itemN = (lockerN !== null) ? lockerN : t.items;
+    var showLocker = !!(hasLocker && itemN);
+    var hasWatch = !!(t.videos && t.best && t.best.url);
+    if (!hasWatch && !showLocker) return '';
+    var jsId = _pdxEvJsId(pid);
+    var _d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    var _p = (window.PROFILES && window.PROFILES[pid]) ? window.PROFILES[pid] : _d;
+    var first = (_p && _p.name) ? String(_p.name).split(' ')[0] : 'this official';
+    var fullName = (_p && _p.name) ? _p.name : first;
+    var openLocker = "window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:'" + jsId + "'});";
+    var counts = [];
+    if (t.videos) counts.push('<span class="pdx-evb-chip is-video">' + window._pdxEyeGlyph('pdx-evb-chip-eye') + '<strong>' + t.videos + '</strong> video' + (t.videos === 1 ? '' : 's') + '</span>');
+    if (t.posts) counts.push('<span class="pdx-evb-chip">𝕏 ' + t.posts + ' post' + (t.posts === 1 ? '' : 's') + '</span>');
+    if (t.promises) counts.push('<span class="pdx-evb-chip">🤝 ' + t.promises + ' promise' + (t.promises === 1 ? '' : 's') + '</span>');
+
+    // Featured-video context — the issue the strongest clip ties to (from cached
+    // evidence metadata), or a neutral "Latest floor video" when it carries no tag.
+    var vctx = '';
+    if (hasWatch) {
+      var vlabel = (t.bestIssueKey && typeof window._issueLabel === 'function') ? (window._issueLabel(t.bestIssueKey) || '') : '';
+      var kindWord = (t.best.kind ? (t.best.kind.charAt(0).toUpperCase() + t.best.kind.slice(1) + ' ') : 'Latest floor ');
+      var vtext = vlabel ? ('Video on ' + vlabel) : (kindWord + 'video');
+      vctx = '<div class="pdx-evb-vctx"><span class="pdx-evb-vctx-ico" aria-hidden="true">▶</span>' + _pdxEyeEsc(vtext) +
+        (t.best.timestamp ? ' <span class="pdx-evb-vctx-ts">@ ' + _pdxEyeEsc(t.best.timestamp) + '</span>' : '') + '</div>';
+    }
+
+    var watchBtn = '';
+    if (hasWatch) {
+      var ts = t.best.timestamp ? ' <span class="pdx-evb-ts">@ ' + _pdxEyeEsc(t.best.timestamp) + '</span>' : '';
+      watchBtn = '<a href="' + _pdxEyeEsc(t.best.url) + '" target="_blank" rel="noopener" class="pdx-evb-watch" ' +
+        'onclick="event.stopPropagation();" aria-label="Watch the strongest video evidence">' +
+        '<span class="pdx-evb-watch-ico" aria-hidden="true">▶</span> Watch Video' + ts + '</a>';
+    }
+    var seeBtn = '';
+    if (showLocker) {
+      seeBtn = '<button type="button" class="pdx-evb-see' + (hasWatch ? '' : ' is-primary') + '" ' +
+        'onclick="event.stopPropagation();' + openLocker + '" ' +
+        'aria-label="Open the Evidence Locker filtered to this official">📂 See Evidence · ' + itemN + ' ↗</button>';
+    }
+
+    // The headline count is itself a jump into the filtered Locker (only where the
+    // Locker actually holds a file; a watch-only banner keeps it as plain text).
+    var label = itemN ? (itemN + ' piece' + (itemN === 1 ? '' : 's') + ' of evidence on record') : 'Video evidence on record';
+    var headline = showLocker
+      ? '<button type="button" class="pdx-evb-headline-btn" onclick="event.stopPropagation();' + openLocker + '" ' +
+          'title="Open the Evidence Locker filtered to this official" ' +
+          'aria-label="Open the Evidence Locker filtered to ' + _pdxEyeEsc(fullName) + '">' +
+          '<span class="pdx-evb-headline">' + label + '</span>' +
+          '<span class="pdx-evb-headline-cue" aria-hidden="true">open file ↗</span></button>'
+      : '<div class="pdx-evb-headline">' + label + '</div>';
+
+    var browse = showLocker
+      ? '<button type="button" class="pdx-evb-browse" onclick="event.stopPropagation();' + openLocker + '" ' +
+          'aria-label="Browse all evidence for ' + _pdxEyeEsc(fullName) + ' in the Evidence Locker">' +
+          'Browse all evidence for ' + _pdxEyeEsc(first) + ' <span aria-hidden="true">→</span></button>'
+      : '';
+
+    return '<div class="pdx-evb">' +
+        '<div class="pdx-evb-icon" aria-hidden="true">' + window._pdxEyeGlyph('pdx-evb-icon-eye') + '</div>' +
+        '<div class="pdx-evb-main">' +
+          '<div class="pdx-evb-kicker">📹 Video &amp; evidence on record</div>' +
+          headline +
+          (counts.length ? '<div class="pdx-evb-counts">' + counts.join('') + '</div>' : '') +
+          vctx +
+        '</div>' +
+        '<div class="pdx-evb-actions">' + watchBtn + seeBtn + '</div>' +
+        browse +
+      '</div>';
+  };
+
+  // ── View Full Stance Record ──────────────────────────────────────────
+  // One prominent, impossible-to-miss jump to the complete per-issue record —
+  // every documented position, its curated-evidence depth, connected promises /
+  // on-record items, and an honest "No record yet" for the gaps. It is the escape
+  // hatch that lets "Stance at a Glance" and "Key Issue Stances" stay the clean
+  // summarized views. The CTA and its destination read ONLY from already-cached
+  // sources (the resolved stance list, window._issueEvidenceMap, and the loaded
+  // Evidence Locker depth index), so there is no new network cost.
+
+  <!-- _pdxStanceRecordStats moved to stance-helpers.js -->
+
+  window._pdxStanceRecordCta = function (id, p) {
+    try {
+      p = p || {};
+      var s = window._pdxStanceRecordStats(id, p);
+      var jsId = _pdxEvJsId(id);
+      var thinRecord = !s.tracked;
+      // Thin profiles still get the button — the label simply tells the honest
+      // truth that the record is in progress (and the overlay shows the gaps).
+      var title = thinRecord ? 'View Full Record — still being built' : 'View Full Stance Record';
+      var statText = s.tracked
+        ? (s.tracked + ' issue' + (s.tracked === 1 ? '' : 's') + ' tracked' +
+            (s.withEvidence ? ' <span class="pdx-fsr-dot" aria-hidden="true">•</span> ' + s.withEvidence + ' with evidence' : ''))
+        : 'Every issue + honest gaps';
+      return '<div class="modal-section pdx-fsr-wrap">' +
+          '<button type="button" class="pdx-fsr-btn" ' +
+            'onclick="window._pdxOpenStanceRecord&&window._pdxOpenStanceRecord(\'' + jsId + '\');" ' +
+            'aria-label="Open the full stance record — every issue, its evidence depth, and what is still missing">' +
+            '<span class="pdx-fsr-ico" aria-hidden="true">📋</span>' +
+            '<span class="pdx-fsr-main">' +
+              '<span class="pdx-fsr-kicker">The complete picture</span>' +
+              '<span class="pdx-fsr-title">' + title + '</span>' +
+              '<span class="pdx-fsr-stat">' + statText + '</span>' +
+            '</span>' +
+            '<span class="pdx-fsr-go" aria-hidden="true">Open ↗</span>' +
+          '</button>' +
+        '</div>';
+    } catch (e) { return ''; }
+  };
+
+  <!-- _pdxStanceRecordMiniLink moved to stance-helpers.js -->
+
+  // Sort / filter state for the open record overlay (re-render on change).
+  window._pdxRecordState = null;
+
+  window._pdxOpenStanceRecord = function (id) {
+    try {
+      if (!id) return;
+      var overlay = document.getElementById('pdx-record-overlay');
+      if (!overlay) return;
+      var p = (window.PROFILES && window.PROFILES[id]) ? window.PROFILES[id]
+            : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ? CMP_DATA[id] : {});
+      window._pdxRecordState = { id: id, sort: 'strength', view: 'all' };
+      overlay.innerHTML = window._pdxStanceRecordBody(id, p);
+      overlay.style.display = 'flex';
+      try { overlay.scrollTop = 0; } catch (e) {}
+      // Deep-linkable hash, without disturbing the ?p=<id> profile param.
+      try {
+        var want = '#record/' + encodeURIComponent(id);
+        if (location.hash !== want) history.replaceState(null, '', location.pathname + location.search + want);
+      } catch (e) {}
+      // Fill any depth pills that rendered before the Locker library finished loading.
+      if (typeof window._pdxEnhanceDepthPills === 'function') { try { window._pdxEnhanceDepthPills(overlay); } catch (e) {} }
+    } catch (e) { if (window.console && console.warn) console.warn('stance record open failed', e); }
+  };
+
+  window._pdxCloseStanceRecord = function (opts) {
+    opts = opts || {};
+    var overlay = document.getElementById('pdx-record-overlay');
+    if (overlay) { overlay.style.display = 'none'; overlay.innerHTML = ''; }
+    window._pdxRecordState = null;
+    if (opts.keepHash !== true) {
+      try { if (String(location.hash || '').indexOf('#record/') === 0) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    }
+  };
+
+  // Re-render the overlay after a sort/filter change.
+  window._pdxRecordSet = function (key, val) {
+    if (!window._pdxRecordState) return;
+    window._pdxRecordState[key] = val;
+    var st = window._pdxRecordState;
+    var overlay = document.getElementById('pdx-record-overlay');
+    if (!overlay) return;
+    var p = (window.PROFILES && window.PROFILES[st.id]) ? window.PROFILES[st.id]
+          : ((typeof CMP_DATA !== 'undefined' && CMP_DATA[st.id]) ? CMP_DATA[st.id] : {});
+    overlay.innerHTML = window._pdxStanceRecordBody(st.id, p);
+    if (typeof window._pdxEnhanceDepthPills === 'function') { try { window._pdxEnhanceDepthPills(overlay); } catch (e) {} }
+  };
+
+  // The full record body — a unified per-issue table built from documented
+  // positions + connected evidence + curated Locker receipts. Works on every
+  // profile: thin ones simply show honest "No record yet" rows.
+  window._pdxStanceRecordBody = function (id, p) {
+    p = p || {};
+    var st = window._pdxRecordState || { sort: 'strength', view: 'all' };
+    function esc(s) {
+      if (s == null) return '';
+      if (typeof window._slEsc === 'function') return window._slEsc(s);
+      return String(s).replace(/[&<>"]/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; });
+    }
+    var name = p.name || 'This official';
+    var first = String(name).split(' ')[0] || 'They';
+    var jsId = _pdxEvJsId(id);
+
+    var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+    var evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+    var depth = (typeof window._pdxEvidenceDepthForPerson === 'function') ? window._pdxEvidenceDepthForPerson(id) : null;
+    var hasLocker = (typeof window._pdxHasLocker === 'function') ? window._pdxHasLocker(id) : false;
+
+    var rows = {};
+    function rowFor(k) {
+      if (!rows[k]) rows[k] = { issueKey: k, topic:'', icon:'', stance:'', text:'',
+        promises:0, onrecord:0, media:0, receipts:0 };
+      return rows[k];
+    }
+    var topicOnly = [];
+    stanceList.forEach(function (s) {
+      if (!s || !s.topic) return;
+      if (!s.issueKey) { topicOnly.push(s); return; }
+      var r = rowFor(s.issueKey);
+      r.topic = s.topic; r.icon = s.icon || ''; r.stance = s.pos || s.issueStance || ''; r.text = s.text || '';
+    });
+    Object.keys(evMap).forEach(function (k) {
+      var e = evMap[k]; var r = rowFor(k);
+      r.promises = (e.promises || []).length;
+      r.onrecord = (e.spotlight || []).length;
+      r.media = (e.spotlight || []).filter(function (x) { return x.media && x.media.url; }).length;
+      if (!r.topic && e.position) { r.topic = e.position.topic || ''; r.icon = r.icon || e.position.icon || ''; r.text = r.text || e.position.text || ''; }
+      if (!r.stance && e.position && e.position.stance) r.stance = e.position.stance;
+    });
+    if (depth) Object.keys(depth).forEach(function (k) {
+      var dd = depth[k]; var r = rowFor(k);
+      r.receipts = dd.count || 0;
+      if (!r.topic && dd.label) r.topic = dd.label;
+    });
+
+    function issueLabel(k, fallback) {
+      var l = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
+      l = l || fallback || k;
+      var parts = String(l).trim().split(/\s+/);
+      if (parts.length > 1 && /[^\x00-\x7F]/.test(parts[0])) parts.shift();
+      return parts.join(' ');
+    }
+    function issueIco(k, fallback) {
+      if (fallback) return fallback;
+      var lbl = (typeof window._issueLabel === 'function') ? window._issueLabel(k) : '';
+      var head = String(lbl || '').trim().split(/\s+/)[0] || '';
+      return (head && /[^\x00-\x7F]/.test(head)) ? head : '🎯';
+    }
+
+    var STANCE_META = {
+      support:  { cls:'fsrec-support',  ico:'✓', label:'Supports' },
+      oppose:   { cls:'fsrec-oppose',   ico:'✗', label:'Opposes' },
+      mixed:    { cls:'fsrec-mixed',    ico:'~', label:'Mixed' },
+      tracking: { cls:'fsrec-tracking', ico:'…', label:'Tracking' },
+      priority: { cls:'fsrec-tracking', ico:'★', label:'Priority' }
+    };
+
+    var list = Object.keys(rows).map(function (k) { return rows[k]; });
+    function richness(r) { return (r.receipts * 4) + (r.onrecord * 3) + (r.promises * 2) + r.media + (r.stance ? 1 : 0); }
+    function hasRecord(r) { return !!(r.receipts || r.onrecord || r.promises); }
+
+    if (st.sort === 'az') {
+      list.sort(function (a, b) { return issueLabel(a.issueKey, a.topic).toLowerCase().localeCompare(issueLabel(b.issueKey, b.topic).toLowerCase()); });
+    } else {
+      list.sort(function (a, b) { return richness(b) - richness(a); });
+    }
+
+    function renderRow(r) {
+      var sm = STANCE_META[r.stance] || STANCE_META.tracking;
+      var lbl = issueLabel(r.issueKey, r.topic);
+      var ico = r.icon || issueIco(r.issueKey, r.icon);
+      var depthPill = (typeof window._pdxEvidenceDepthPill === 'function') ? window._pdxEvidenceDepthPill(id, r.issueKey, { format: 'receipts' }) : '';
+      var chips = [];
+      if (r.onrecord) chips.push('<span class="fsrec-chip">🔦 ' + r.onrecord + ' on record</span>');
+      if (r.promises) chips.push('<span class="fsrec-chip">🤝 ' + r.promises + ' promise' + (r.promises === 1 ? '' : 's') + '</span>');
+      if (r.media) chips.push('<span class="fsrec-chip is-video">▶ ' + r.media + ' clip' + (r.media === 1 ? '' : 's') + '</span>');
+      var rec = hasRecord(r);
+      var noRec = !rec && !depthPill;
+      var jsIk = String(r.issueKey == null ? '' : r.issueKey).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var clickable = (rec || r.receipts) && r.issueKey;
+      var tag = noRec ? '<span class="fsrec-norec">○ No record yet</span>' : '';
+      // A row that carries evidence but no summarised position is itself a gap —
+      // label it honestly so the adjacent suggest cue reads in context.
+      var unsum = (rec && !r.stance) ? '<span class="fsrec-norec is-soft">Evidence on file · no position summarised yet</span>' : '';
+      // Quiet "Suggest a receipt" on-ramp — shown ONLY on genuine gaps: a row with
+      // no record at all, or one with evidence but no summarised position. Rows
+      // with a documented stance backed by a record (strong evidence) never get
+      // it. Reuses the global _pdxSuggestReceipt deep-link; no new request.
+      function jsAttr(s) { return esc(String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ')); }
+      var showSuggest = !!r.issueKey && (noRec || !r.stance);
+      var suggest = showSuggest
+        ? '<span class="fsrec-suggest" role="button" tabindex="0" ' +
+            'onclick="event.stopPropagation();window._pdxSuggestReceipt&&window._pdxSuggestReceipt(\'' + jsAttr(r.issueKey) + '\',\'' + jsAttr(lbl) + '\',\'' + jsAttr(name) + '\');" ' +
+            'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();this.click();}" ' +
+            'title="Suggest a receipt or track this issue for ' + esc(first) + ' on ' + esc(lbl) + ' in the Community Exchange">＋ Suggest a receipt</span>'
+        : '';
+      var inner = '<span class="fsrec-row-ico" aria-hidden="true">' + ico + '</span>' +
+        '<span class="fsrec-row-main">' +
+          '<span class="fsrec-row-top"><span class="fsrec-row-label">' + esc(lbl) + '</span>' +
+            (r.stance ? '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span>' : '') + '</span>' +
+          (r.text ? '<span class="fsrec-row-text">' + esc(r.text) + '</span>' : '') +
+          '<span class="fsrec-row-meta">' + (depthPill || '') + chips.join('') + tag + unsum + suggest + '</span>' +
+        '</span>' +
+        (clickable ? '<span class="fsrec-row-go" aria-hidden="true">↗</span>' : '');
+      if (clickable) {
+        return '<button type="button" class="fsrec-row is-click" ' +
+          'onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\',issue:\'' + jsIk + '\'});" ' +
+          'aria-label="Open the Evidence Locker filtered to ' + esc(first) + ' on ' + esc(lbl) + '">' + inner + '</button>';
+      }
+      return '<div class="fsrec-row">' + inner + '</div>';
+    }
+    function renderTopicOnly(s) {
+      var sm = STANCE_META[s.pos] || STANCE_META.tracking;
+      return '<div class="fsrec-row">' +
+        '<span class="fsrec-row-ico" aria-hidden="true">' + (s.icon || '🎯') + '</span>' +
+        '<span class="fsrec-row-main">' +
+          '<span class="fsrec-row-top"><span class="fsrec-row-label">' + esc(s.topic) + '</span>' +
+            '<span class="fsrec-badge ' + sm.cls + '">' + sm.ico + ' ' + sm.label + '</span></span>' +
+          (s.text ? '<span class="fsrec-row-text">' + esc(s.text) + '</span>' : '') +
+          '<span class="fsrec-row-meta"><span class="fsrec-norec">○ No connected record yet</span></span>' +
+        '</span></div>';
+    }
+
+    // ── Classify every row for the stat row + the segmented Show filter ──────
+    // leadRows carry some kind of record (receipts / on-record / promises);
+    // thinRows carry none. A row is a "gap" when it lacks a documented stance
+    // backed by a record — that's an unstated issue, a stated position with
+    // nothing connected yet, or evidence on file not summarised into a position.
+    var leadRows = list.filter(hasRecord);
+    var thinRows = list.filter(function (r) { return !hasRecord(r); });
+    var leadGaps = leadRows.filter(function (r) { return !r.stance; });
+    var withRec = leadRows.length;
+    var total = list.length + topicOnly.length;
+    var documentedCount = list.filter(function (r) { return r.stance; }).length + topicOnly.length;
+    var gapsCount = thinRows.length + topicOnly.length + leadGaps.length;
+    // Community discussions — straight from the cached per-politician comment
+    // count (no new network). W in the stat row, and a tappable gold chip.
+    var commentN = (typeof _commentCounts !== 'undefined' && _commentCounts[id]) ? _commentCounts[id] : 0;
+
+    var view = (st.view === 'evidence' || st.view === 'gaps') ? st.view : 'all';
+
+    // Rows actually rendered for the active Show filter, and the count shown in
+    // the live result note. "Gaps only" drops every documented-stance-with-record
+    // row, leaving the honest gaps + unsummarised rows the suggest cues live on.
+    var bodyHtml, shownCount;
+    if (view === 'evidence') {
+      bodyHtml = leadRows.map(renderRow).join('');
+      shownCount = leadRows.length;
+    } else if (view === 'gaps') {
+      bodyHtml = leadGaps.map(renderRow).join('') + thinRows.map(renderRow).join('') + topicOnly.map(renderTopicOnly).join('');
+      shownCount = gapsCount;
+    } else {
+      bodyHtml = leadRows.map(renderRow).join('') + thinRows.map(renderRow).join('') + topicOnly.map(renderTopicOnly).join('');
+      shownCount = total;
+    }
+
+    // Quick stats — an instant read on how complete (or thin) the record is
+    // before scrolling. Same muted pill language as the rest of the surface.
+    var summary = '<div class="fsrec-summary">' +
+        '<span class="fsrec-sum-chip"><b>' + documentedCount + '</b> documented position' + (documentedCount === 1 ? '' : 's') + '</span>' +
+        '<span class="fsrec-sum-chip is-ev"><b>' + withRec + '</b> with evidence</span>' +
+        '<span class="fsrec-sum-chip is-thin"><b>' + gapsCount + '</b> gap' + (gapsCount === 1 ? '' : 's') + '</span>' +
+        (commentN
+          ? '<button type="button" class="fsrec-sum-chip is-community" onclick="event.stopPropagation();window.openCommentModal&&openCommentModal(\'' + jsId + '\')" title="Read &amp; add community discussion for ' + esc(first) + '">💬 <b>' + commentN + '</b> active community discussion' + (commentN === 1 ? '' : 's') + '</button>'
+          : '<span class="fsrec-sum-chip is-thin is-community">💬 <b>0</b> community discussions</span>') +
+      '</div>';
+
+    // Sort on the left, the segmented Show filter on the right — grouped so the
+    // bar reads as two scannable clusters. "Gaps only" is easy to find but quiet.
+    function segBtn(val, lbl, gapStyle) {
+      var on = (view === val);
+      return '<button type="button" class="fsrec-segbtn' + (on ? ' is-on' : '') + (gapStyle ? ' is-gaps' : '') + '" ' +
+        'onclick="window._pdxRecordSet&&window._pdxRecordSet(\'view\',\'' + val + '\')"' +
+        (on ? ' aria-pressed="true"' : '') + '>' + lbl + '</button>';
+    }
+    var controls = '<div class="fsrec-controls">' +
+        '<div class="fsrec-sortset" role="group" aria-label="Sort the record">' +
+          '<span class="fsrec-ctrl-lbl">Sort</span>' +
+          '<button type="button" class="fsrec-sortbtn' + (st.sort === 'strength' ? ' is-on' : '') + '" onclick="window._pdxRecordSet&&window._pdxRecordSet(\'sort\',\'strength\')">Strongest first</button>' +
+          '<button type="button" class="fsrec-sortbtn' + (st.sort === 'az' ? ' is-on' : '') + '" onclick="window._pdxRecordSet&&window._pdxRecordSet(\'sort\',\'az\')">A–Z</button>' +
+        '</div>' +
+        '<div class="fsrec-filterset" role="group" aria-label="Filter the record">' +
+          '<span class="fsrec-ctrl-lbl">Show</span>' +
+          '<div class="fsrec-seg">' +
+            segBtn('all', 'All', false) +
+            segBtn('evidence', 'With evidence', false) +
+            segBtn('gaps', 'Gaps only', true) +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    // Live result count — what the active filter is showing vs. the whole record.
+    var viewNote = view === 'gaps' ? ' · gaps only' : (view === 'evidence' ? ' · with evidence' : '');
+    var resultNote = '<p class="fsrec-result-note">Showing <b>' + shownCount + '</b> of ' + total + ' tracked issue' + (total === 1 ? '' : 's') + viewNote + '</p>';
+
+    // Prominent Evidence-blue header action — the one obvious jump into the full
+    // evidence file. _pdxOpenEvidenceLocker already dismisses this overlay, so the
+    // politician-filtered results land in view immediately. Cached deep-link only.
+    var headLocker = (hasLocker)
+      ? '<button type="button" class="fsrec-head-locker" onclick="window._pdxOpenEvidenceLocker&&window._pdxOpenEvidenceLocker({pol:\'' + jsId + '\'});" ' +
+          'aria-label="Browse all evidence for ' + esc(first) + ' in the Evidence Locker">📂 Browse all evidence in the Locker <span aria-hidden="true">→</span></button>'
+      : '';
+
+    var content;
+    if (!total) {
+      content = '<div class="fsrec-empty"><span aria-hidden="true">📋</span>' +
+        '<p>No documented positions or evidence are on record for ' + esc(first) + ' yet. As statements, votes and receipts are verified and tagged, they’ll appear here — this view stays honest about what isn’t known.</p></div>';
+    } else if (!shownCount) {
+      // Filter selected but nothing matches (e.g. "Gaps only" on a complete record).
+      content = summary + controls +
+        '<div class="fsrec-empty"><span aria-hidden="true">✅</span>' +
+        '<p>No issues match this filter. ' +
+        (view === 'gaps' ? 'Every tracked issue for ' + esc(first) + ' already has a documented position with evidence.' : 'Switch back to “All” to see the full record.') +
+        '</p></div>' +
+        '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
+    } else {
+      content = summary + controls + resultNote +
+        '<div class="fsrec-list">' + bodyHtml + '</div>' +
+        '<p class="fsrec-foot">Built only from ' + esc(first) + '’s own documented positions, tracked promises and on-record items — never their party’s record. Blue 📂 pills open the Evidence Locker filtered to that issue.</p>';
+    }
+
+    return '<div class="fsrec" role="dialog" aria-modal="true" aria-label="Full stance record for ' + esc(name) + '" onclick="event.stopPropagation();">' +
+        '<div class="fsrec-head">' +
+          '<div class="fsrec-headwrap">' +
+            '<div class="fsrec-eyebrow">📑 Full Stance Record</div>' +
+            '<div class="fsrec-title">' + esc(name) + '</div>' +
+            (p.office ? '<div class="fsrec-office">' + esc(p.office) + '</div>' : '') +
+            headLocker +
+          '</div>' +
+          '<button class="fsrec-x" onclick="window._pdxCloseStanceRecord()" aria-label="Close">✕</button>' +
+        '</div>' +
+        content +
+      '</div>';
+  };
+
+  // ── "Suggest a receipt / Track this issue" bridge ─────────────────────
+  // A single, low-friction on-ramp that turns a visible gap (a "No record yet"
+  // row, a thin profile, a sparse Evidence Locker issue group) into a suggestion
+  // flow. It reuses the EXISTING Community Exchange deep-link verbatim
+  // (PDXCommunity.openForIssue) — no new submission flow and no network request:
+  // the Exchange opens pre-filtered to the issue, with the politician carried as
+  // light context so the user lands in the right place. `issueKey` may be empty
+  // (thin-profile case) — the Exchange then opens scoped to just the politician.
+  window._pdxSuggestReceipt = function (issueKey, label, polName) {
+    try { if (typeof window._pdxCloseStanceRecord === 'function') window._pdxCloseStanceRecord(); } catch (e) {}
+    try { if (typeof window._pdxElCloseModal === 'function') window._pdxElCloseModal(); } catch (e) {}
+    try {
+      if (window.PDXCommunity && typeof window.PDXCommunity.openForIssue === 'function') {
+        window.PDXCommunity.openForIssue(issueKey || '', label || '', polName || '');
+        return;
+      }
+    } catch (e) {}
+    // Last-resort fallback if the Exchange module hasn't initialised yet.
+    try { location.hash = '#community-exchange'; } catch (e) {}
+  };
+
+  // Build a quiet, reusable "suggest a receipt" cue button (Evidence-blue) for the
+  // thin-profile and Evidence-Locker surfaces. `opts.issue`/`opts.issueLabel`
+  // pre-filter the Exchange; `name` is carried as politician context. Returns a
+  // self-contained button that calls _pdxSuggestReceipt on click.
+  window._pdxSuggestCueHtml = function (name, opts) {
+    opts = opts || {};
+    function esc(s) {
+      if (typeof window._slEsc === 'function') return window._slEsc(s);
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; });
+    }
+    function jsA(s) { return esc(String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ')); }
+    var label = opts.label || 'Several issues still have no record. Help build it';
+    var cls = opts.cls ? ('pdx-suggest-cue ' + opts.cls) : 'pdx-suggest-cue';
+    var who = name ? (' for ' + esc(String(name).split(' ')[0])) : '';
+    return '<button type="button" class="' + cls + '" ' +
+      'onclick="window._pdxSuggestReceipt&&window._pdxSuggestReceipt(\'' + jsA(opts.issue || '') + '\',\'' + jsA(opts.issueLabel || '') + '\',\'' + jsA(name || '') + '\');" ' +
+      'title="Open the Community Exchange to suggest a receipt' + who + '">' +
+      (opts.ico || '🔎') + ' ' + esc(label) + ' <span aria-hidden="true">→</span></button>';
+  };
+
+  // ── Issue-tie chip ───────────────────────────────────────────────────
+  // Renders a small chip naming the Alignment Tool issue a Spotlight item is
+  // tied to, given an ISSUE_MAP key. This is what makes a Spotlight headline
+  // read as connected to the issue positions shown in the Candidate Snapshot:
+  // the chip uses the SAME label the Snapshot and Alignment Tool use, so a
+  // visitor sees "this news is about the same issue I just read their stance on."
+  // Returns '' when the key is missing or unknown, so callers can drop it in
+  // unconditionally. `prefix` overrides the lead-in wording.
+  window._issueTagHtml = function(issueKey, prefix) {
+    try {
+      if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
+      var lbl = ISSUE_MAP[issueKey].label || 'this issue';
+      var lead = prefix || 'On the issue:';
+      return '<span class="pdx-issue-tie" title="This Spotlight item connects to the &quot;' + lbl +
+        '&quot; position — compare it in the Alignment Tool.">🔗 ' + lead + ' ' + lbl + '</span>';
+    } catch (e) { return ''; }
+  };
+
+  // Resolve just the human label for an ISSUE_MAP key (e.g. '💧 Save the Great
+  // Salt Lake'). Returns '' for an unknown/missing key so callers can drop it in
+  // unconditionally. Used by the full Spotlight modal to label an item's issue
+  // bridge with the SAME wording the Snapshot and Alignment Tool show, so a
+  // Spotlight headline reads as connected to a position the voter just compared.
+  window._issueLabel = function(issueKey) {
+    try {
+      if (!issueKey || typeof ISSUE_MAP === 'undefined' || !ISSUE_MAP || !ISSUE_MAP[issueKey]) return '';
+      return ISSUE_MAP[issueKey].label || '';
+    } catch (e) { return ''; }
+  };
+
+
+  // ── Candidate Snapshot ───────────────────────────────────────────────
+  // A structured overview for thin / early-record profiles. Rather than a
+  // stack of empty placeholders, it leads with what IS known about a
+  // candidate — their stated positions and priorities, the issues they can
+  // be compared on, and the latest Spotlight item — while being honest about
+  // the limited record and what is still being gathered. It is the orienting
+  // summary that ties together three existing systems:
+  //   • the Alignment Tool — which issues they have stated positions on,
+  //     keyed by the SAME ISSUE_MAP keys so it links one-to-one;
+  //   • the Spotlight — where statements, positions and events are logged;
+  //   • their bio, key issues and documented stances.
+  // Returns '' for a full record (or on any error) so it never shows there
+  // and the caller can cleanly fall back to the plain thin notice.
+  window._renderCandidateSnapshot = function(id, p, opts) {
+    p = p || {}; opts = opts || {};
+    if (!opts.isThin) return '';
+    try {
+      var name = (p.name || 'This candidate');
+      var first = String(name).split(' ')[0] || 'They';
+      var is2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+      var statusMode = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+      var isChallenger = statusMode === 'candidate' ||
+        /candidat|challenger|nominee|running/i.test(((p.office || '') + ' ' + (p.state || '')));
+
+      // Stated positions — documented stances are keyed by the same ISSUE_MAP
+      // keys the Alignment Tool uses, so each one is an issue the candidate can
+      // be compared on by values. Fall back to their key issues as the stated
+      // priorities they are campaigning on.
+      var stanceList = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+      var keyed = stanceList.filter(function(s) { return s && s.issueKey; });
+      var keyIssues = (p.keyIssues || []);
+      var statedCount = stanceList.length || keyIssues.length;
+      var trackedIssueCount = keyed.length || keyIssues.length;
+      // A position is "recorded" when it carries concrete evidence — a named
+      // vote, signed bill or sponsored measure — versus "stated", taken from
+      // public statements or campaign materials. This split drives the visual
+      // treatment that lets users tell a voting record from a campaign promise.
+      var recordedCount = stanceList.filter(function(s) { return s && s.evidence; }).length;
+
+      // ── Honest "Limited Record" lede ─────────────────────────────────
+      // Only promise "the issues below" when there is actually something there
+      // (documented positions or campaign priorities); on a bio-only profile
+      // that clause would dangle, so it is dropped.
+      var _hasStands = (stanceList.length || keyIssues.length) > 0;
+      var _standsClause = _hasStands ? 'starting with where they stand on the issues below, ' : '';
+      // A 2026 candidate who lost at convention or withdrew is no longer on the
+      // ballot — describing them as actively "running" would be inaccurate. When
+      // the record says so (candidacyStatus), the lede tells that story honestly
+      // instead and frames any positions below as what they campaigned on.
+      var _candStatus = String(p.candidacyStatus || p.status || '').toLowerCase();
+      var _lostPrimaryCand = (_candStatus === 'eliminated_primary' || _candStatus === 'lost_primary');
+      var _inactiveCand = (_lostPrimaryCand || _candStatus === 'eliminated' || _candStatus === 'withdrew' ||
+        _candStatus === 'withdrawn' || _candStatus === 'lost' || _candStatus === 'defeated' ||
+        _candStatus === 'suspended' || _candStatus === 'conceded');
+      var lede;
+      if (isChallenger && _inactiveCand) {
+        var _verb = _lostPrimaryCand
+          ? 'lost the ' + (is2026 ? '2026 ' : '') + 'primary and is not advancing to the general election'
+          : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended')
+            ? 'withdrew from the ' + (is2026 ? '2026 ' : '') + 'race before the ballot was set'
+            : 'ran in ' + (is2026 ? '2026' : 'this race') + ' but did not advance past the nominating stage';
+        lede = first + ' ' + _verb + ', so there is <strong>no governing record to score</strong>. ' +
+          (_hasStands
+            ? 'What is shown below is what ' + first + ' campaigned on — their stated positions and priorities, kept here for the record.'
+            : 'This profile reflects only what is verifiable from public records, so positions are intentionally left out rather than invented.');
+      } else if (isChallenger) {
+        lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so there are <strong>no tracked promises to score yet</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes, sources and promises as the race develops.';
+      } else {
+        lede = first + ' is early in their term, so there are <strong>few tracked promises so far</strong> — a thin record here is normal at this stage. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+      }
+
+      // ── At-a-glance facts ─────────────────────────────────────────────
+      var facts = [];
+      if (p.office) facts.push({ k: 'Seat', v: p.office });
+      if (p.party) facts.push({ k: 'Party', v: p.party });
+      if (p.nextElection) {
+        var ed = new Date(p.nextElection + 'T00:00:00');
+        if (!isNaN(ed.getTime())) facts.push({ k: (p.electionLabel || 'Next election'), v: ed.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
+      }
+      if (statedCount) facts.push({ k: 'Issue positions', v: String(statedCount), accent: true });
+      if (recordedCount) facts.push({ k: 'Vote/bill-backed', v: String(recordedCount) });
+      // Promise record: never show a bare "Promises scored: 0" — it reads as an
+      // empty scoreboard and adds no value. Lead with an honest status word
+      // instead. The lede already explains why nothing is scored yet. For a
+      // candidate who is no longer on the ballot, say so plainly rather than
+      // implying a record is still on its way.
+      facts.push(_inactiveCand
+        ? { k: 'Race status', v: _lostPrimaryCand ? 'Lost primary' : (_candStatus === 'withdrew' || _candStatus === 'withdrawn' || _candStatus === 'suspended') ? 'Withdrew' : 'Did not advance', muted: true }
+        : isChallenger
+          ? { k: 'Promise record', v: 'Begins in office', muted: true }
+          : { k: 'Promise record', v: 'Building', muted: true });
+      var factsHtml = '<div class="cs-facts">' + facts.map(function(f) {
+        return '<div class="cs-fact"><div class="cs-fact-k">' + f.k + '</div>' +
+          '<div class="cs-fact-v' + (f.accent ? ' cs-accent' : '') + (f.muted ? ' cs-muted' : '') + '">' + f.v + '</div></div>';
+      }).join('') + '</div>';
+
+      // ── What they stand for ───────────────────────────────────────────
+      var posMetaCS = {
+        support:  { ico: '✓', label: 'Supports', cls: 'cs-b-support' },
+        oppose:   { ico: '✗', label: 'Opposes',  cls: 'cs-b-oppose' },
+        mixed:    { ico: '~', label: 'Mixed',     cls: 'cs-b-mixed' },
+        priority: { ico: '★', label: 'Priority',  cls: 'cs-b-priority' },
+        tracking: { ico: '…', label: 'Tracking',  cls: 'cs-b-priority' }
+      };
+      // Shared linkage state, used by both the positions list and the connector.
+      var alignHasUser = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      var hasIssueMap = (typeof ISSUE_MAP !== 'undefined' && ISSUE_MAP);
+      // Source-type tag — the visible difference between a position backed by an
+      // actual vote/bill ("Recorded") and one taken from public statements ("Stated").
+      var srcMeta = {
+        rec:    { ico: '🗳', label: 'Recorded', cls: 'cs-src-rec' },
+        stated: { ico: '💬', label: 'Stated',   cls: 'cs-src-stated' }
+      };
+      // Per-issue "your match" verdict, surfaced inline only when the visitor has
+      // a saved Alignment pick on this exact issue — the at-a-glance linkage.
+      var vdMeta = {
+        match:    { ico: '✓', label: 'You match',  cls: 'cs-vd-match' },
+        partial:  { ico: '~', label: 'Partial',    cls: 'cs-vd-partial' },
+        mismatch: { ico: '✗', label: 'You differ', cls: 'cs-vd-mismatch' }
+      };
+      function _csPositionRow(s) {
+        var m = posMetaCS[s.pos] || posMetaCS.tracking;
+        var src = s.evidence ? srcMeta.rec : srcMeta.stated;
+        var vdHtml = '';
+        if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
+          var intensity = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
+          var verdict = (typeof _issueVerdict === 'function') ? _issueVerdict(intensity, s.issueStance || s.pos) : null;
+          var vm = verdict && vdMeta[verdict];
+          if (vm) vdHtml = '<span class="cs-vd ' + vm.cls + '">' + vm.ico + ' ' + vm.label + '</span>';
+        }
+        var txt = (s.text || '').toString();
+        return '<div class="cs-pos">' +
+          '<div class="cs-pos-line">' +
+            '<span class="cs-pos-ico">' + (s.icon || '🎯') + '</span>' +
+            '<span class="cs-pos-topic">' + (s.topic || 'Issue') + '</span>' +
+            '<span class="cs-pos-badge ' + m.cls + '">' + m.ico + ' ' + m.label + '</span>' +
+            '<span class="cs-src ' + src.cls + '">' + src.ico + ' ' + src.label + '</span>' +
+            vdHtml +
+          '</div>' +
+          (txt ? '<p class="cs-pos-text">' + txt + '</p>' : '') +
+        '</div>';
+      }
+
+      // ── Issue positions (the centerpiece) ─────────────────────────────
+      // The heart of a thin profile: the specific issues this candidate has
+      // taken a documented position on, each shown with its DIRECTION
+      // (Supports / Opposes / Mixed), the one-line position itself, and its
+      // BASIS — "Recorded" (a named vote or bill) vs "Stated" (a public
+      // statement). Comparable (Alignment-keyed) positions lead, and any that
+      // overlap the visitor's saved Alignment picks get an inline match verdict.
+      var standsHead, standsBody, posCountPill = '';
+      if (stanceList.length) {
+        // Order so the strongest evidence leads: vote/bill-backed ("Recorded")
+        // positions first, then the other Alignment-comparable positions, then
+        // the rest. On a thin profile this list IS the main read, so every
+        // position is shown — nothing is hidden behind a "+N more" fold.
+        var sortedStances = stanceList.slice().sort(function(a, b) {
+          var ae = a.evidence ? 1 : 0, be = b.evidence ? 1 : 0;
+          if (be !== ae) return be - ae;
+          return (b.issueKey ? 1 : 0) - (a.issueKey ? 1 : 0);
+        });
+        // At-a-glance distribution — the scan layer. A visitor reads the SHAPE of
+        // the record (how many supports vs opposes, how much is vote-backed vs
+        // stated, and how many line up with their own Alignment picks) before
+        // reading any single position. This is what makes the Snapshot the place
+        // to size up a thin candidate in a few seconds.
+        var dSup = 0, dOpp = 0, dMix = 0, dRec = 0, dStated = 0, dYouM = 0, dYouT = 0;
+        stanceList.forEach(function(s) {
+          if (s.pos === 'support') dSup++;
+          else if (s.pos === 'oppose') dOpp++;
+          else if (s.pos === 'mixed') dMix++;
+          if (s.evidence) dRec++; else dStated++;
+          if (alignHasUser && hasIssueMap && s.issueKey && _alignIssues.has(s.issueKey) && ISSUE_MAP[s.issueKey]) {
+            dYouT++;
+            var ivd = (typeof _alignIntensity !== 'undefined' && _alignIntensity[s.issueKey]) || 'support';
+            if ((typeof _issueVerdict === 'function' ? _issueVerdict(ivd, s.issueStance || s.pos) : '') === 'match') dYouM++;
+          }
+        });
+        var distChips = '';
+        if (dSup) distChips += '<span class="cs-dist-chip cs-b-support">✓ ' + dSup + ' Support' + (dSup > 1 ? 's' : '') + '</span>';
+        if (dOpp) distChips += '<span class="cs-dist-chip cs-b-oppose">✗ ' + dOpp + ' Oppose' + (dOpp > 1 ? 's' : '') + '</span>';
+        if (dMix) distChips += '<span class="cs-dist-chip cs-b-mixed">~ ' + dMix + ' Mixed</span>';
+        if (dRec) distChips += '<span class="cs-dist-chip cs-src-rec">🗳 ' + dRec + ' Recorded</span>';
+        if (dStated) distChips += '<span class="cs-dist-chip cs-src-stated">💬 ' + dStated + ' Stated</span>';
+        if (dYouT) distChips += '<span class="cs-dist-chip cs-dist-you">🤝 You agree on ' + dYouM + '/' + dYouT + '</span>';
+        var distRow = distChips ? '<div class="cs-dist">' + distChips + '</div>' : '';
+
+        standsHead = '📌 Where ' + first + ' stands';
+        posCountPill = '<span class="cs-count-pill">' + stanceList.length + ' position' + (stanceList.length === 1 ? '' : 's') + '</span>';
+        var posIntro = '<p class="cs-pos-intro">The clearest read on ' + first + ' right now: <strong>every issue position on record</strong>, strongest evidence first. ' +
+          (dYouT ? 'Your matching picks are flagged inline.' : 'Set your Alignment picks to see where you line up.') + '</p>';
+        var posLegend = '<div class="cs-pos-legend">' +
+          '<span><span class="cs-src cs-src-rec">🗳 Recorded</span> backed by a vote or bill</span>' +
+          '<span><span class="cs-src cs-src-stated">💬 Stated</span> from public statements</span>' +
+        '</div>';
+        standsBody = posIntro + distRow + posLegend + '<div class="cs-pos-list">' +
+          sortedStances.map(_csPositionRow).join('') +
+        '</div>' +
+        '<p class="cs-pos-more">Full context, the record and sources for each position are in <strong style="color:#d8b4fe;">Key Issue Stances</strong> below' +
+          (alignHasUser ? ', and matched issue-by-issue to your picks in <strong style="color:#d8b4fe;">How You Compare</strong>.' : '.') + '</p>';
+      } else if (keyIssues.length) {
+        standsHead = '🎯 ' + first + '\'s campaign priorities';
+        posCountPill = '<span class="cs-count-pill">' + keyIssues.length + ' issue' + (keyIssues.length === 1 ? '' : 's') + '</span>';
+        standsBody = '<div class="cs-pills">' + keyIssues.slice(0, 8).map(function(i) {
+          return '<span class="cs-pill-issue">🎯 ' + i + '</span>';
+        }).join('') + '</div>' +
+        '<p class="cs-stance-text" style="margin-top:0.5rem;">These are the priorities ' + first + ' is campaigning on. Detailed positions and sources are added as they are published.</p>';
+      } else {
+        // No documented positions AND no campaign priorities — the thinnest case.
+        // What we say here depends on WHY the record is thin, so a blank reads as
+        // an honest, intentional state rather than a half-built or broken profile.
+        standsHead = '🧭 Where ' + first + ' stands';
+        if (_inactiveCand) {
+          // Off the ballot and nothing surfaced in the public record — say so
+          // plainly and make clear the blank is deliberate, not missing data.
+          standsBody = '<p class="cs-stance-text">' + first + ' ' +
+            ((_candStatus === 'withdrew' || _candStatus === 'suspended') ? 'left the race' : 'did not advance past the nominating stage') +
+            ', and no issue positions could be verified from the public record. Rather than invent positions, this profile is <strong>intentionally left blank here</strong> — it will only be updated if sourced statements or votes come to light.</p>';
+        } else if (isChallenger) {
+          // Active candidate, simply early — honest that positions are coming and
+          // will be sourced, never invented, with a path to compare meanwhile.
+          standsBody = '<p class="cs-stance-text">' + first + ' is early in the ' + (is2026 ? '2026 ' : '') + 'race and has not yet published detailed issue positions. We add them here only as campaign statements, questionnaires and votes are verified — never invented. In the meantime, you can still compare ' + first + ' to your own values with the Alignment Tool.</p>';
+        } else {
+          standsBody = '<p class="cs-stance-text">We are gathering ' + first + '\'s stated positions from public statements and the voting record as they are verified. In the meantime, you can still compare ' + first + ' to your own values with the Alignment Tool.</p>';
+        }
+      }
+      var standsBlock = '<div class="cs-block cs-positions" id="cs-block-positions"><div class="cs-block-h">' + standsHead + posCountPill + '</div>' + standsBody + '</div>';
+
+      // ── Alignment Tool connector ──────────────────────────────────────
+      // Ties the positions above to the Personalized Alignment Tool. When the
+      // visitor has saved picks it shows their match score and points to the
+      // full issue-by-issue "How You Compare" breakdown lower in this same
+      // profile; otherwise it invites them to set their positions so they can
+      // judge the candidate by their own values, not party.
+      var userMatch = (alignHasUser && typeof _calcAlignmentScore === 'function') ? _calcAlignmentScore(id) : null;
+      var matchChip = '';
+      if (userMatch !== null) {
+        var mc = userMatch >= 70 ? '#4ade80' : userMatch >= 50 ? '#f5c842' : '#f87171';
+        matchChip = '<span class="cs-align-match" style="color:' + mc + ';border-color:' + mc + '55;">🎯 ' + userMatch + '% your match</span>';
+      }
+      var alignText = alignHasUser
+        ? ('Your saved Alignment picks are matched against ' + first + '\'s positions, issue by issue — see the full <strong>How You Compare</strong> breakdown below.')
+        : (trackedIssueCount > 0
+            ? (first + ' has positions on <strong>' + trackedIssueCount + ' issue' + (trackedIssueCount === 1 ? '' : 's') + '</strong> the Alignment Tool tracks. Pick the issues you care about to see, point by point, where you and ' + first + ' line up — by values, not party.')
+            : ('Compare ' + first + ' to the issues you care about with the Alignment Tool — and judge them by your values, not their party. Their positions appear here as we document them.'));
+
+      // ── What data powers the match ────────────────────────────────────
+      // The honesty layer: when the visitor has picks, pull the same per-issue
+      // breakdown the score uses and say plainly whether the number rests on a
+      // documented record or an early read from stated priorities. This is what
+      // makes the Alignment Tool legible on thin and 2026 candidates — it never
+      // claims more certainty than the data behind it supports.
+      var alignBd = (alignHasUser && typeof _calcAlignmentBreakdown === 'function') ? _calcAlignmentBreakdown(id) : null;
+      var basisHtml = '';
+      if (alignBd && alignBd.issues && alignBd.issues.length) {
+        var nEv = alignBd.issues.filter(function(it) { return it.hasEvidence; }).length;
+        var nTot = alignBd.issues.length;
+        var basisText, basisIco;
+        if (nEv === 0) {
+          basisIco = '🌱';
+          basisText = 'This match is an <strong>early read</strong> from ' + first + '\'s stated priorities — there\'s no voting record yet, so it sharpens as positions are verified.';
+        } else if (nEv < nTot) {
+          basisIco = '📊';
+          basisText = '<strong>' + nEv + ' of ' + nTot + '</strong> of your issues are backed by ' + first + '\'s documented positions; the rest are an early read from their stated priorities.';
+        } else {
+          basisIco = '✅';
+          basisText = 'Backed by ' + first + '\'s <strong>documented positions</strong> on all ' + nTot + ' of your selected issue' + (nTot === 1 ? '' : 's') + '.';
+        }
+        basisHtml = '<p class="cs-align-basis"><span class="cs-align-basis-ico" aria-hidden="true">' + basisIco + '</span><span>' + basisText + '</span></p>';
+      } else if (!alignHasUser && trackedIssueCount > 0) {
+        basisHtml = '<p class="cs-align-basis"><span class="cs-align-basis-ico" aria-hidden="true">📊</span><span>The comparison is built from ' + first + '\'s <strong>' + trackedIssueCount + ' stated position' + (trackedIssueCount === 1 ? '' : 's') + '</strong> on the issues — an honest values read even before a full voting record exists.</span></p>';
+      }
+
+      // ── In-context path to the match ──────────────────────────────────
+      // One tap from the Snapshot to the live Alignment result. With picks, it
+      // opens the instant issue-by-issue quick view; without, it opens the
+      // picker so a first-time visitor can set positions and compare on the spot.
+      var alignCtaHtml;
+      if (alignHasUser) {
+        alignCtaHtml = '<button type="button" class="cs-align-cta" onclick="event.stopPropagation();if(window.keyRacesAlignQuickView){window.keyRacesAlignQuickView(\'' + id + '\');}else{var el=document.getElementById(\'cs-howcompare-anchor\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">🤝 See your issue-by-issue match <span aria-hidden="true">→</span></button>';
+      } else {
+        alignCtaHtml = '<button type="button" class="cs-align-cta" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Pick your issues to compare <span aria-hidden="true">→</span></button>';
+      }
+
+      // Light guidance for the new-visitor / thin-candidate case: explain that
+      // alignment leans on stated positions when a voting record isn't there yet,
+      // so the tool reads as useful rather than empty on early candidates.
+      var alignGuideHtml = alignHasUser
+        ? ''
+        : '<p class="cs-align-guide">💡 <strong>New to a candidate?</strong> Officials this early rarely have a long voting record — the Alignment Tool compares them on their <strong>stated positions</strong> instead, so you can still judge fit by your values, not their party.</p>';
+
+      var alignBlock = '<div class="cs-align" id="cs-block-align">' +
+        '<div class="cs-align-top"><span class="cs-align-h">🤝 Compare on your values</span>' + matchChip + '</div>' +
+        '<p class="cs-align-text">' + alignText + '</p>' +
+        basisHtml +
+        alignGuideHtml +
+        alignCtaHtml +
+      '</div>';
+
+      // ── Spotlight linkage ─────────────────────────────────────────────
+      var spot = (typeof window._krBuildSpotlight === 'function') ? window._krBuildSpotlight(id) : null;
+      var spotBlock = '';
+      if (spot) {
+        var spotText = (spot.teaser || spot.title || '').toString();
+        // When the lead Spotlight item is tagged with an Alignment issue, surface
+        // the tie. If the candidate also holds a documented position on that exact
+        // issue above, say so explicitly — that is the Snapshot↔Spotlight link the
+        // whole card is built around: the news below is about a value stated above.
+        var spotTiedToPosition = !!(spot.issueKey) && keyed.some(function(s) { return s.issueKey === spot.issueKey; });
+        var spotTie = (spot.issueKey && typeof window._issueTagHtml === 'function')
+          ? window._issueTagHtml(spot.issueKey, spotTiedToPosition ? 'Connects to their position on' : 'On the issue:')
+          : '';
+        var spotTieRow = spotTie ? '<div class="cs-spot-tie-row">' + spotTie + '</div>' : '';
+        // Cross-story bridge: even when the LEAD item isn't about a documented
+        // position, a more recent Spotlight update further down the timeline might
+        // be. Scan every story for one whose issue matches a position shown above,
+        // so the Snapshot can always point out "this news is about a value stated
+        // here" — the connection holds across the whole record, not just the top item.
+        var keyedByIssue = {};
+        keyed.forEach(function(s) { if (s.issueKey) keyedByIssue[s.issueKey] = s; });
+        var tiedStories = (spot.stories || []).filter(function(st) { return st && st.issueKey && keyedByIssue[st.issueKey]; });
+        // A secondary bridge note, shown when the lead itself isn't tied to a
+        // position but another recent update is — names the issue and points into
+        // the Spotlight so the rhetoric-vs-record link is never lost off the top.
+        var spotCrossNote = '';
+        if (!spotTiedToPosition && tiedStories.length && typeof window._issueLabel === 'function') {
+          var xKeys = {};
+          tiedStories.forEach(function(st) { xKeys[st.issueKey] = true; });
+          var xLabel = window._issueLabel(tiedStories[0].issueKey);
+          var xCount = 0; for (var xk in xKeys) { if (xKeys.hasOwnProperty(xk)) xCount++; }
+          if (xLabel) {
+            spotCrossNote = '<p class="cs-spot-note">🔗 A recent Spotlight update connects to ' + first + '\'s position on <strong style="color:#c4b5fd;">' + xLabel + '</strong>' +
+              (xCount > 1 ? ' (and ' + (xCount - 1) + ' other tracked issue' + (xCount - 1 === 1 ? '' : 's') + ')' : '') +
+              ' — open the Spotlight to see how the record matches the rhetoric.</p>';
+          }
+        }
+        if (spot.kind === 'newcomer' || spot.kind === 'monitoring') {
+          // No real story to open yet — show the honest status note and explain
+          // that the Spotlight is where future statements/events get logged, tied
+          // to the very issues this candidate is being tracked on.
+          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 Spotlight</div>' +
+            '<div class="cs-spot-card">' +
+              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + '</span>' +
+              '<span class="cs-spot-text">' + spotText + '</span></span>' +
+            '</div>' +
+            '<p class="cs-spot-note">As ' + first + ' makes news, the Spotlight logs each statement, vote and key moment here — tied to the issue positions above, so you can see how the record matches the rhetoric.</p>' +
+          '</div>';
+        } else {
+          spotBlock = '<div class="cs-spot" id="cs-block-spot"><div class="cs-block-h">🔦 In the Spotlight</div>' +
+            '<button type="button" class="cs-spot-card" onclick="event.stopPropagation();window.keyRacesSpotlight && window.keyRacesSpotlight(\'' + id + '\');">' +
+              '<span class="cs-spot-main"><span class="cs-spot-badge">' + spot.badgeIco + ' ' + spot.badge + (spot.date ? ' · ' + spot.date : '') + '</span>' +
+              '<span class="cs-spot-text">' + spotText + '</span></span>' +
+              '<span class="cs-spot-cta" aria-hidden="true">→</span>' +
+            '</button>' +
+            spotTieRow +
+            (spotTiedToPosition ? '<p class="cs-spot-note">This Spotlight item ties to a position above — open it to see the news, sources and why it matters for that issue.</p>' : spotCrossNote) +
+          '</div>';
+        }
+      }
+
+      // ── "We're actively gathering" transparency ───────────────────────
+      var gatherItems = [];
+      gatherItems.push(isChallenger
+        ? ('A voting record — it begins once ' + first + ' takes office')
+        : ('More of ' + first + '\'s voting record'));
+      gatherItems.push(stanceList.length
+        ? 'More sourced positions across additional issues'
+        : 'Detailed, sourced positions on their key issues');
+      gatherItems.push('Kept-and-broken promises as commitments play out');
+      var gatherBlock = '<div class="cs-gather"><div class="cs-gather-h">⏳ We\'re actively gathering</div>' +
+        '<ul class="cs-gather-list">' + gatherItems.map(function(g) { return '<li>' + g + '</li>'; }).join('') + '</ul></div>';
+
+      // ── Actions (mirror the thin-notice CTAs) ─────────────────────────
+      var onTeam = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
+      // When the visitor already has Alignment picks, the primary action keeps
+      // them on the profile and jumps to the in-modal "How You Compare"
+      // breakdown — connecting the snapshot's positions directly to their
+      // alignment. Otherwise it opens the Alignment Tool so they can set picks.
+      var alignActionBtn = alignHasUser
+        ? '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();var el=document.getElementById(\'cs-howcompare-anchor\');if(el){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}else{closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var a=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(a)a.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);}">🤝 Open the full breakdown</button>'
+        : '<button type="button" class="cs-act-btn cs-act-align" onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">🎯 Compare on the issues</button>';
+      var actions = '<div class="cs-actions">' +
+        alignActionBtn +
+        '<button type="button" class="cs-act-btn cs-act-team' + (onTeam ? ' is-on' : '') + '" onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
+          (onTeam ? '✓ On your team' : '★ Add to my team') + '</button>' +
+      '</div>';
+
+      var hint = '<div class="cs-foot-hint">↓ ' +
+        ((keyIssues.length || stanceList.length) ? 'Full positions, your alignment and the promise tracker are below' : 'More detail is below') + '</div>';
+
+      // ── Cohesion index ("one read, three ways") ───────────────────────
+      // The connective frame for the whole snapshot: it names the three lenses
+      // this card uses to size up a thin candidate — their stated Positions, the
+      // visitor's own Alignment match, and the Spotlight — and lets the visitor
+      // jump straight to any of them. Each chip reflects what data actually
+      // exists (a count, a live match %, or an honest status word), so the
+      // snapshot reads as one intentional system rather than three loose blocks.
+      // Built last so it can reflect the spotlight/alignment state resolved above.
+      var mapChips = [];
+      var posV = stanceList.length
+        ? (stanceList.length + ' on record')
+        : (keyIssues.length ? (keyIssues.length + ' priorit' + (keyIssues.length === 1 ? 'y' : 'ies')) : 'Being added');
+      mapChips.push({ t: 'cs-block-positions', ico: '📌', k: 'Positions', v: posV });
+      var matchV, matchAccent = false;
+      if (userMatch !== null) { matchV = userMatch + '% match'; matchAccent = true; }
+      else if (trackedIssueCount > 0) { matchV = 'Compare'; }
+      else { matchV = 'Compare'; }
+      mapChips.push({ t: 'cs-block-align', ico: '🤝', k: 'Your match', v: matchV, accent: matchAccent });
+      if (spotBlock) {
+        var spotV = (spot && (spot.kind === 'newcomer' || spot.kind === 'monitoring'))
+          ? 'Monitoring'
+          : ((spot && spot.total > 1) ? (spot.total + ' updates') : 'Latest update');
+        mapChips.push({ t: 'cs-block-spot', ico: '🔦', k: 'Spotlight', v: spotV });
+      }
+      var mapHtml = '<div class="cs-map">' +
+        '<div class="cs-map-intro"><span aria-hidden="true">🧭</span>One read on ' + first + ', three ways — tap to jump</div>' +
+        '<div class="cs-map-row">' +
+          mapChips.map(function(c) {
+            return '<button type="button" class="cs-map-chip" onclick="event.stopPropagation();var el=document.getElementById(\'' + c.t + '\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});">' +
+              '<span class="cs-map-ico" aria-hidden="true">' + c.ico + '</span>' +
+              '<span class="cs-map-txt"><span class="cs-map-k">' + c.k + '</span>' +
+              '<span class="cs-map-v' + (c.accent ? ' cs-map-v-match' : '') + '">' + c.v + '</span></span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+
+      // Limited-record pill label — mirror the exact wording the card-level depth
+      // badge uses (🌱 "Early in Term" for a sitting official with nothing tracked
+      // yet, "Limited Record" otherwise), so a visitor sees the SAME label in the
+      // modal that drew them in from the card. Challengers keep "Limited Record"
+      // since their card already carries the "2026 Candidate" status badge.
+      var csPillLabel = (!isChallenger && typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(p) === 'none')
+        ? 'Early in Term' : 'Limited Record';
+
+      return '<div class="cand-snapshot">' +
+        '<div class="cs-head">' +
+          '<div class="cs-head-ico">' + (isChallenger ? '🗳️' : '🌱') + '</div>' +
+          '<div class="cs-head-main">' +
+            '<div class="cs-title">Candidate Snapshot<span class="cs-pill" title="Not a knock on the candidate — it just means we have few tracked promises so far. This snapshot leads with what is known: their stated positions and where they stand on the issues.">' + csPillLabel + '</span></div>' +
+            '<p class="cs-lede">' + lede + '</p>' +
+          '</div>' +
+        '</div>' +
+        factsHtml +
+        mapHtml +
+        standsBlock +
+        alignBlock +
+        spotBlock +
+        gatherBlock +
+        actions +
+        hint +
+      '</div>';
+    } catch (e) {
+      return '';
+    }
+  };
+
+
+  // The People's Mandate Alignment — a scorecard of core good-government
+  // principles, derived from the Promise %, Accountability score and funding
+  // signals PolitiDex already tracks (curated overrides supported).
+  window._renderMandateAlignment = function(id, p) {
+    p = p || {};
+    var ov = MANDATE_OVERRIDES[id] || {};
+    var acct = (p.accountability && typeof p.accountability.overallScore === 'number') ? p.accountability : null;
+    // Honesty gate: only let the Accountability of Truth Score feed this
+    // scorecard when there's enough verified record to stand behind it. On very
+    // thin profiles the row falls back to "Monitoring" instead of showing a
+    // precise number we can't explain. Curated overrides always win.
+    var acctShowable = !!acct && ((typeof window._pdxScoreExplainable !== 'function') || window._pdxScoreExplainable(p, id));
+    function acctCat(re) {
+      if (!acctShowable || !acct.categories) return null;
+      for (var i = 0; i < acct.categories.length; i++) {
+        if (re.test(acct.categories[i].label || '')) return acct.categories[i].score;
+      }
+      return null;
+    }
+    var promiseScore = (typeof p.score === 'number') ? p.score : null;
+    // Prefer the live, transparent Constituents-First finance signal (computed
+    // from itemized FEC / Utah-disclosure buckets, with its reasons shown below);
+    // fall back to the curated FINANCE_INTEGRITY seed for anyone without a filing.
+    var finSig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
+    var integ = finSig ? finSig.score : ((typeof FINANCE_INTEGRITY[id] === 'number') ? FINANCE_INTEGRITY[id] : null);
+    var pick = function() {
+      for (var i = 0; i < arguments.length; i++) {
+        var v = arguments[i];
+        if (typeof v === 'number' && !isNaN(v)) return Math.round(v);
+      }
+      return null;
+    };
+    var principles = [
+      { label:'Keeps Promises', icon:'🤝',
+        score: pick(ov.promises, promiseScore),
+        desc:'Share of tracked campaign promises kept versus broken (Promise %).' },
+      { label:'Accountability', icon:'🛡️',
+        score: pick(ov.accountability, acctShowable ? acct.overallScore : null, acctCat(/account/i)),
+        desc:'Independent Accountability of Truth score for honesty and consistency.' },
+      { label:'Transparency', icon:'🔍',
+        score: pick(ov.transparency, acctCat(/transparen/i), integ),
+        desc:'Openness about finances, votes and decisions — seeded by the campaign-finance Constituents-First signal below.' },
+      { label:'Constituents Over Special Interests', icon:'🏛️',
+        score: pick(ov.constituents, integ, acctCat(/integrity|independ|interest/i)),
+        desc: finSig
+          ? ('Funded ' + finSig.shares.smallDollar + '% by small-dollar donors vs ' + finSig.shares.concentrated + '% large-individual & PAC money — see the transparent breakdown below.')
+          : 'How much funding and action favor everyday constituents over corporate and PAC money.' }
+    ];
+    var mcol = function(s) { return s >= 70 ? '#4ade80' : s >= 50 ? '#f5c842' : '#f87171'; };
+    var rated = principles.filter(function(pr) { return pr.score !== null; });
+    var overall = rated.length ? Math.round(rated.reduce(function(a, pr) { return a + pr.score; }, 0) / rated.length) : null;
+    var rows = principles.map(function(pr) {
+      var has = pr.score !== null;
+      var col = has ? mcol(pr.score) : '#5b7196';
+      var valTxt = has ? pr.score + '<span style="font-size:0.65rem;color:#7596c0;">/100</span>' : '<span style="font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;">Monitoring</span>';
+      return '<div class="mandate-row">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.3rem;">' +
+          '<span style="display:flex;align-items:center;gap:0.4rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;"><span style="font-size:0.85rem;">' + pr.icon + '</span>' + pr.label + '</span>' +
+          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;color:' + col + ';line-height:1;">' + valTxt + '</span>' +
+        '</div>' +
+        '<div class="mandate-track"><div class="mandate-fill" style="width:' + (has ? pr.score : 0) + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></div></div>' +
+        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.45;margin:0.28rem 0 0;">' + pr.desc + '</p>' +
+      '</div>';
+    }).join('');
+    // SCORING CLEANUP: the 4-tile People's Mandate scorecard (Keeps Promises /
+    // Accountability / Transparency / Constituents) re-presented signals shown
+    // elsewhere — Promise % has its own section, the retired Accountability
+    // composite is gone, and the finance tiles duplicated the money lens. This
+    // section now renders ONLY the Follow-the-Money / Constituents-First funding
+    // lens, kept deliberately separate from the record scores. The scorecard
+    // computations above are left intact (unused) to keep the diff minimal; they
+    // no longer render. When there's no finance signal, nothing shows.
+    if (!finSig) return '';
+    return '<div class="modal-section" id="alignment-modal-section">' +
+      '<div class="modal-section-title">💰 Follow the Money</div>' +
+      '<div style="background:rgba(10,15,30,0.4);border:1px solid rgba(74,222,128,0.18);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;">' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.05em;color:#dbe6f6;">🏛️ Constituents-First signal</div>' +
+          '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#4ade80;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
+        '</div>' +
+        '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">funding lens</strong> — not one of the record scores. Computed live from itemized public filings, it shows how much of their money comes from small-dollar donors versus large-individual and PAC money.</p>' +
+        window._pdxFinanceSignalHTML(finSig) +
+      '</div>' +
+      '<p class="src-note">Campaign-finance Constituents-First signal (FEC + Utah state disclosures). A funding lens, kept separate from Your Match, Say-vs-Do, and Promise Follow-Through.</p>' +
+    '</div>';
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // FOLLOW-THROUGH SUMMARY — the at-a-glance "did they actually do
+  // what they said?" read. Built from kept / broken / pending promise
+  // counts. Follow-Through Rate = Kept ÷ (Kept + Broken); pending
+  // promises are deliberately excluded so no one is credited or blamed
+  // for a promise that hasn't played out yet (matches the Promise %
+  // methodology). Shared by the profile hero and the browse cards.
+  // ════════════════════════════════════════════════════════════
+  window._ftMeta = function(kept, broken, pending){
+    kept = +kept || 0; broken = +broken || 0; pending = +pending || 0;
+    var resolved = kept + broken;
+    var rate = resolved ? Math.round(kept / resolved * 100) : null;
+    var col = rate === null ? '#9fb4d4' : rate >= 70 ? '#4ade80' : rate >= 50 ? '#f5c842' : '#f87171';
+    var verdict = rate === null ? 'Tracking' : rate >= 70 ? 'Keeps Their Word' : rate >= 50 ? 'Mixed Record' : 'Breaks Promises';
+    var sub = rate === null ? 'No promises have resolved yet — monitoring in progress.'
+            : rate >= 70 ? 'Mostly follows through on what they say.'
+            : rate >= 50 ? 'Follows through about half the time.'
+            : 'Frequently fails to follow through on what they say.';
+    var ico = rate === null ? '🔍' : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
+    return { kept:kept, broken:broken, pending:pending, resolved:resolved, rate:rate, col:col, verdict:verdict, sub:sub, ico:ico };
+  };
+
+  // Prominent profile hero — the headline "Did they follow through?" block.
+  window._renderFollowThrough = function(kept, broken, pending, pid){
+    var m = window._ftMeta(kept, broken, pending);
+    if (m.resolved === 0 && m.pending === 0) return '';
+    var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
+    var brokenPct = m.resolved ? 100 - keptPct : 0;
+    var rateTxt = m.rate === null ? '—' : m.rate + '%';
+    // The rate block opens the same Promise % explainer used by the cards.
+    var ftClick = ' role="button" tabindex="0"' +
+      ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
+      ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
+      ' title="How is the Follow-Through Rate calculated?"';
+    return '' +
+      '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(192,21,42,0.1),rgba(30,53,96,0.45));border:1px solid ' + m.col + '4d;border-radius:0.95rem;padding:1rem 1.1rem;box-shadow:0 0 22px ' + m.col + '14, inset 0 1px 0 rgba(255,255,255,0.04);">' +
+        '<div style="display:flex;align-items:center;gap:0.95rem;margin-bottom:0.85rem;">' +
+          '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:' + m.col + ';line-height:1;text-shadow:0 0 16px ' + m.col + '40;">' + rateTxt + '</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Follow-Through Rate</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.12rem;">ⓘ How?</div>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">Did they actually follow through?</div>' +
+            '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1;">' + m.ico + ' ' + m.verdict + '</div>' +
+            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
+          '</div>' +
+        '</div>' +
+        (m.resolved ? '<div style="display:flex;height:11px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.6rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
+          '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);transition:width 1s cubic-bezier(0.4,0,0.2,1);" title="Kept ' + keptPct + '%"></div>' +
+          '<div style="width:' + brokenPct + '%;background:linear-gradient(90deg,#f87171,#991b1b);" title="Broken ' + brokenPct + '%"></div>' +
+        '</div>' : '') +
+        '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;">' +
+          '<span class="vbadge vbadge-kept vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="kept" onclick="window._pdxBadgeClick(\'kept\')" onkeydown="window._pdxBadgeKey(event,\'kept\')" title="Show the kept promises">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="vbadge vbadge-broken vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="broken" onclick="window._pdxBadgeClick(\'broken\')" onkeydown="window._pdxBadgeKey(event,\'broken\')" title="Show the broken promises">✗ ' + m.broken + ' Broken</span>' +
+          '<span class="vbadge vbadge-pending vbadge-click" role="button" tabindex="0" aria-pressed="false" data-jump="pending" onclick="window._pdxBadgeClick(\'pending\')" onkeydown="window._pdxBadgeKey(event,\'pending\')" title="Show the pending promises">⏳ ' + m.pending + ' Pending</span>' +
+        '</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.55rem;">👆 Tap a count to filter the promises below · tap again or “All” to reset</div>' +
+      '</div>';
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // PROMISE FILTER — makes the kept / broken / pending counts (and the
+  // Promise Tracker filter tabs) interactive. Clicking a status scrolls
+  // the open profile modal to the Promise Tracker and shows only the
+  // promises with that verdict; "All" restores the full list. Works for
+  // every profile because it operates on whatever the open modal rendered.
+  // ════════════════════════════════════════════════════════════
+  window.pdxFilterPromises = function(verdict, doScroll){
+    verdict = verdict || 'all';
+    var list = document.getElementById('pdx-promise-list');
+    if (!list) return;
+    var labels = { all:'promises', kept:'kept promises', broken:'broken promises', pending:'pending promises', partial:'partial promises' };
+
+    // Toggle visibility of each verdict group.
+    var anyShown = false;
+    var groups = list.querySelectorAll('[data-verdict]');
+    for (var i = 0; i < groups.length; i++) {
+      var gv = groups[i].getAttribute('data-verdict');
+      var show = (verdict === 'all' || gv === verdict);
+      groups[i].style.display = show ? '' : 'none';
+      if (show) anyShown = true;
+    }
+
+    // Empty-state message for a status with no tracked promises.
+    var empty = document.getElementById('pdx-promise-empty');
+    if (empty) {
+      empty.textContent = 'No ' + (labels[verdict] || 'promises') + ' tracked yet.';
+      empty.style.display = anyShown ? 'none' : '';
+    }
+
+    // Reflect the active state on both the tabs and the hero badges.
+    var tabs = document.querySelectorAll('#pdx-promise-filter .pdx-pfilter-btn');
+    for (var t = 0; t < tabs.length; t++) {
+      var tabActive = tabs[t].getAttribute('data-f') === verdict;
+      tabs[t].classList.toggle('active', tabActive);
+      tabs[t].setAttribute('aria-pressed', tabActive ? 'true' : 'false');
+    }
+    var badges = document.querySelectorAll('[data-jump]');
+    for (var b = 0; b < badges.length; b++) {
+      var badgeActive = badges[b].getAttribute('data-jump') === verdict;
+      badges[b].classList.toggle('vbadge-active', badgeActive);
+      badges[b].setAttribute('aria-pressed', badgeActive ? 'true' : 'false');
+    }
+
+    // Remember the active filter so the hero badges can toggle back to "All".
+    window._pdxActiveFilter = verdict;
+
+    // Active-filter status line: spell out what's showing and offer a one-tap
+    // reset whenever a single status is selected; hidden when viewing all.
+    var status = document.getElementById('pdx-promise-status');
+    if (status) {
+      var statusLabel = document.getElementById('pdx-promise-status-label');
+      if (statusLabel) statusLabel.textContent = labels[verdict] || 'all promises';
+      status.style.display = (verdict === 'all') ? 'none' : '';
+    }
+
+    if (doScroll) {
+      var sec = document.getElementById('pdx-promise-section');
+      if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  };
+
+  // Hero badge click — tapping a status filters to it and scrolls down;
+  // tapping the SAME status again clears the filter back to "All". This gives
+  // the counts an obvious built-in reset in addition to the "All" tab.
+  window._pdxBadgeClick = function(verdict){
+    var next = (window._pdxActiveFilter === verdict) ? 'all' : verdict;
+    window.pdxFilterPromises(next, true);
+  };
+
+  // Keyboard activation (Enter / Space) for the clickable hero badges.
+  window._pdxBadgeKey = function(ev, verdict){
+    if (ev && (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar')) {
+      ev.preventDefault();
+      window._pdxBadgeClick(verdict);
+    }
+  };
+
+  // Filter-tab click — same toggle semantics as the hero counts: tapping the
+  // already-active tab clears back to "All", so every clickable pill (hero
+  // counts and tracker tabs alike) can also undo its own filter.
+  window.pdxToggleFilter = function(f){
+    var next = (window._pdxActiveFilter === f) ? 'all' : f;
+    window.pdxFilterPromises(next);
+  };
+
+  // Compact card strip — one-line kept/broken read + a thin split bar so a
+  // visitor can judge follow-through without opening the profile.
+  window._ftStrip = function(kept, broken, pending){
+    var m = window._ftMeta(kept, broken, pending);
+    if (m.resolved === 0) return '';
+    var keptPct = Math.round(m.kept / m.resolved * 100);
+    return '<div style="margin:0.1rem 0 0.35rem;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.35rem;flex-wrap:wrap;">' +
+        '<span class="pdx-statpills">' +
+          '<span class="pdx-statpill pdx-statpill-kept">✓ ' + m.kept + ' Kept</span>' +
+          '<span class="pdx-statpill pdx-statpill-broken">✗ ' + m.broken + ' Broken</span>' +
+          (m.pending > 0 ? '<span class="pdx-statpill pdx-statpill-pending">⏳ ' + m.pending + ' Pending</span>' : '') +
+        '</span>' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.03em;text-transform:uppercase;color:' + m.col + ';">' + m.rate + '% Follow-Through</span>' +
+      '</div>' +
+      '<div style="display:flex;height:5px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);">' +
+        '<div style="width:' + keptPct + '%;background:linear-gradient(90deg,#16a34a,#4ade80);"></div>' +
+        '<div style="width:' + (100 - keptPct) + '%;background:linear-gradient(90deg,#f87171,#991b1b);"></div>' +
+      '</div>' +
+    '</div>';
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // MODAL RENDERER
+  // ════════════════════════════════════════════════════════════
+    // showProfile — public entry-point for all "View Profile" buttons
+  function showProfile(id, ev) {
+    console.log('🔥 showProfile called with id:', id);
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    // If the Compare My Team overlay is open it sits above the profile modal —
+    // dismiss it so the profile the voter tapped is actually visible.
+    if (typeof window.homeCompareClose === 'function') { try { window.homeCompareClose(); } catch (e) {} }
+    // Record this stop on the guided spine (Move 3) so the trail always reflects
+    // where the voter is.
+    try {
+      if (window.PDXJourney && typeof window.PDXJourney.record === 'function') {
+        var _jp = (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) || (window.PROFILES && window.PROFILES[id]) || {};
+        var _jn = (_jp && _jp.name) || (typeof window._pdxPoliticianName === 'function' ? window._pdxPoliticianName(id) : id);
+        window.PDXJourney.record('profile', { label: _jn, icon: '👤', nav: { type: 'profile', pid: id } });
+      }
+    } catch (e) {}
+    openModal(id);
+  }
+
+  // Loading shell for the full-profile modal while its full document is fetched.
+  // Reveals the same overlay openModal uses and drops a spinner into #modal-content
+  // (which openModal overwrites once the data arrives), so a cold open / deep link
+  // gives immediate feedback instead of a frozen tap.
+  window._pdxOpenFullModalShell = function (id) {
+    var d = (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ||
+            (window.PROFILES && window.PROFILES[id]) || {};
+    var nm = d && d.name ? (typeof window._slEsc === 'function' ? window._slEsc(d.name) : d.name) : 'profile';
+    var host = document.getElementById('modal-content');
+    if (host) {
+      host.innerHTML = '<div class="pdx-modal-loading">' +
+          '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
+          '<p>Loading ' + nm + '…</p>' +
+        '</div>';
+    }
+    var overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      overlay.style.setProperty('display', 'flex', 'important');
+      overlay.style.setProperty('opacity', '1', 'important');
+      overlay.style.setProperty('visibility', 'visible', 'important');
+    }
+    document.body.style.overflow = 'hidden';
+  };
+
+  // Friendly fallback for when a profile genuinely can't be resolved from either
+  // the live roster (PROFILES) or the bundled static roster (CMP_DATA). Instead of
+  // the tap silently doing nothing, reveal the modal with a clear message and an
+  // obvious way out, so a missing record is communicated rather than felt as a bug.
+  window._pdxShowModalError = function (id) {
+    var host = document.getElementById('modal-content');
+    if (host) {
+      host.innerHTML = '<div class="pdx-modal-loading" role="alert" style="text-align:center;">' +
+          '<div style="font-size:2rem;line-height:1;margin-bottom:0.5rem;">⚠️</div>' +
+          '<p style="font-weight:700;color:#fff;margin-bottom:0.35rem;">This profile couldn’t be loaded</p>' +
+          '<p style="font-size:0.82rem;color:#9fb4d4;max-width:22rem;line-height:1.5;margin:0 auto;">We couldn’t find a record for this official right now. Please close this and try again in a moment.</p>' +
+          '<button type="button" onclick="if(typeof closeModal===\'function\')closeModal()" class="kr-action-btn" style="margin-top:1.1rem;">Close</button>' +
+        '</div>';
+    }
+    var overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      overlay.style.setProperty('display', 'flex', 'important');
+      overlay.style.setProperty('opacity', '1', 'important');
+      overlay.style.setProperty('visibility', 'visible', 'important');
+    }
+    document.body.style.overflow = 'hidden';
+  };
+
+  // ── Profile quick-jump nav: relative time, smooth scroll, scroll-spy ─────
+  // Powers the sticky pill rail rendered under the profile hero. Everything
+  // operates on the #modal-body scroll container and is re-armed on each open.
+
+  // Compact "2d ago"-style formatter for the Activity pill / footer. Accepts an
+  // ISO string, epoch ms, or a Firestore-style {seconds} object; returns '' for
+  // anything it can't parse so the caller can cleanly omit the value.
+  window._pdxRelTime = function (ts) {
+    try {
+      var d;
+      if (ts && typeof ts === 'object' && typeof ts.seconds === 'number') d = new Date(ts.seconds * 1000);
+      else if (typeof ts === 'number') d = new Date(ts);
+      else d = new Date(String(ts));
+      if (!d || isNaN(d.getTime())) return '';
+      var s = Math.max(0, (Date.now() - d.getTime()) / 1000);
+      if (s < 60) return 'just now';
+      var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+      var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+      var dd = Math.floor(h / 24); if (dd < 7) return dd + 'd ago';
+      if (dd < 30) return Math.floor(dd / 7) + 'w ago';
+      if (dd < 365) return Math.floor(dd / 30) + 'mo ago';
+      return Math.floor(dd / 365) + 'y ago';
+    } catch (e) { return ''; }
+  };
+
+  // Smooth-scroll the modal body so the target section clears the sticky rail.
+  window._pdxNavJump = function (targetId, btn) {
+    var body = document.getElementById('modal-body');
+    var el = document.getElementById(targetId);
+    if (!body || !el) return;
+    var nav = document.getElementById('pdx-profile-nav');
+    var navH = nav ? nav.offsetHeight : 0;
+    var top = body.scrollTop + el.getBoundingClientRect().top - body.getBoundingClientRect().top - navH - 12;
+    try { body.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
+    catch (e) { body.scrollTop = Math.max(0, top); }
+    if (btn && btn.parentElement) {
+      Array.prototype.forEach.call(btn.parentElement.children, function (c) { c.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      try { btn.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
+    }
+    // Suppress the scroll-spy briefly so it doesn't fight the animated jump.
+    window._pdxNavUserJumping = true;
+    clearTimeout(window._pdxNavJumpTimer);
+    window._pdxNavJumpTimer = setTimeout(function () { window._pdxNavUserJumping = false; }, 650);
+  };
+
+  // Highlight the pill for whichever section is currently under the rail.
+  window._pdxInitProfileNav = function () {
+    var body = document.getElementById('modal-body');
+    var nav = document.getElementById('pdx-profile-nav');
+    if (!body || !nav) return;
+    var pills = Array.prototype.slice.call(nav.querySelectorAll('.pdx-pnav-pill'));
+    if (!pills.length) return;
+    var targets = pills.map(function (b) {
+      return { btn: b, el: document.getElementById(b.getAttribute('data-target')) };
+    }).filter(function (t) { return t.el; });
+    if (!targets.length) return;
+
+    function spy() {
+      window._pdxNavRaf = 0;
+      if (window._pdxNavUserJumping) return;
+      var ref = body.getBoundingClientRect().top + nav.offsetHeight + 16;
+      var activeIdx = 0;
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i].el.getBoundingClientRect().top <= ref) activeIdx = i;
+      }
+      // At the very bottom, force the last section active so it stays reachable.
+      if (body.scrollTop + body.clientHeight >= body.scrollHeight - 4) activeIdx = targets.length - 1;
+      targets.forEach(function (t, i) { t.btn.classList.toggle('is-active', i === activeIdx); });
+    }
+    function onScroll() {
+      if (window._pdxNavRaf) return;
+      window._pdxNavRaf = requestAnimationFrame(spy);
+    }
+    if (window._pdxNavScrollHandler) body.removeEventListener('scroll', window._pdxNavScrollHandler);
+    window._pdxNavScrollHandler = onScroll;
+    body.addEventListener('scroll', onScroll, { passive: true });
+    spy();
+  };
+
+  function openModal(id) {
+    // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
+    // not the one the roster record lives under — a browse pid (`ray_ward` →
+    // `rward`) or a curated theme key (`kivory` → `ivory_h39`). PDXProfilePid()
+    // is the single resolution step for that, and it is the ONLY place profile
+    // loading asks the question, so every entry point below (including the cold
+    // deep-link path and the lazy full-profile refetch) inherits the fix. It
+    // guarantees the result has a real record or is the id unchanged, so the
+    // _pdxShowModalError branch further down still fires honestly for a genuinely
+    // unknown id. See PDX_PROFILE_ALIAS for why this is not ACCT_ALIAS.
+    if (id && typeof window.PDXProfilePid === 'function') id = window.PDXProfilePid(id);
+    // Personal Impact Tracker (opt-in, private): opening a full profile is the
+    // canonical "researched a candidate" signal. Deduped by id in PDXImpact, so
+    // openModal's own re-entrant call (loading shell → refetch → re-run) counts once.
+    try { if (id && window.PDXImpact) window.PDXImpact.record('researched', id); } catch (e) {}
+    // The full profile needs the COMPLETE document (promises, voting record,
+    // sections, etc.). When only the lightweight index stub is loaded for this
+    // id, open the modal on a loading shell, lazy-fetch the full doc, then re-run
+    // (which now finds the cached full data and renders normally). This also
+    // covers cold deep-links (?p=<id>) where no modal was opened first.
+    if (id && window._pdxFullIds && typeof window._pdxEnsureFullProfile === 'function' && !window._pdxFullIds.has(id)) {
+      if (typeof window._pdxOpenFullModalShell === 'function') window._pdxOpenFullModalShell(id);
+      window._pdxEnsureFullProfile(id).then(function () {
+        // Firestore may not have a document for this id — some current officeholders
+        // (e.g. recently appointed state legislators) live only in the bundled static
+        // roster (CMP_DATA). Seed PROFILES from that fallback so the full profile still
+        // opens instead of dead-ending on a spinner.
+        if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
+          PROFILES[id] = CMP_DATA[id];
+        }
+        openModal(id);
+      });
+      return;
+    }
+    let p = PROFILES[id];
+    // The full-profile modal is normally PROFILES-backed (the live Firestore mirror).
+    // When an officeholder exists only in the bundled static roster, fall back to it so
+    // the PROFILE button reliably opens their profile; if neither source has the record,
+    // surface a clear message rather than silently doing nothing.
+    if (!p && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
+      p = PROFILES[id] = CMP_DATA[id];
+    }
+    if (!p) {
+      if (typeof window._pdxShowModalError === 'function') window._pdxShowModalError(id);
+      return;
+    }
+
+    // Each profile opens with the promise list unfiltered ("All").
+    window._pdxActiveFilter = 'all';
+
+    // Promise Score only counts once a promise has resolved (kept/broken).
+    // With nothing resolved, treat the score as absent so the hero ring, the
+    // score bar and the "No record yet" framing all read honestly rather than
+    // surfacing a misleading percentage.
+    const scoreNum = window._pdxDisplayScore(p);
+    const scoreText = scoreNum === null ? '—' : scoreNum + '%';
+    const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
+    const barColor  = scoreNum === null ? 'linear-gradient(90deg,#334155,#64748b)' : scoreNum >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : scoreNum >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
+    const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
+    // The denominator behind the headline percentage, so "100%" can never be read
+    // as a broad record when it rests on a single resolved promise.
+    const scoreDenom = (typeof window._pdxScoreDenominator === 'function') ? window._pdxScoreDenominator(p) : '';
+    // The unresolved side of the ledger. `promiseState` separates a profile that
+    // is genuinely tracking promises (none resolved yet) from one with nothing on
+    // file — two cases the hero used to render identically.
+    const promiseState = (typeof window._pdxPromiseState === 'function') ? window._pdxPromiseState(p) : (scoreNum === null ? 'empty' : 'resolved');
+    const trackingNote = (typeof window._pdxTrackingNote === 'function') ? window._pdxTrackingNote(p) : '';
+    const pendingNote  = (typeof window._pdxPendingNote === 'function') ? window._pdxPendingNote(p) : '';
+    const trackedLabel = (typeof window._pdxTrackedCountLabel === 'function') ? window._pdxTrackedCountLabel(p) : '';
+
+    // Top bar
+    document.getElementById('modal-icon').textContent = p.icon;
+    document.getElementById('modal-icon').style.background = p.iconBg;
+    document.getElementById('modal-icon').style.borderColor = p.iconBorder;
+    document.getElementById('modal-name-small').textContent = p.name;
+    document.getElementById('modal-office-small').textContent = p.office + ' · ' + p.state;
+
+    // Score ring SVG
+    const radius = 28, circ = 2 * Math.PI * radius;
+    const pct = scoreNum === null ? 0 : scoreNum / 100;
+    const dash = pct * circ;
+    const scoreRing = scoreNum !== null ? `
+      <div class="profile-score-stack">
+      <div class="score-ring w-20 h-20 flex-shrink-0">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+          <circle cx="40" cy="40" r="${radius}" fill="none" stroke="${scoreColor}" stroke-width="6"
+            stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"
+            style="transition:stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1);filter:drop-shadow(0 0 4px ${scoreColor}66)"/>
+        </svg>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Score</div>
+        </div>
+      </div>
+      ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
+      ${pendingNote ? `<div class="profile-score-pending">${pendingNote}</div>` : ''}
+      </div>` : (promiseState === 'tracking' ? `
+      <div class="profile-score-stack">
+        <div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center profile-score-tracking">
+          <div style="font-size:1.5rem;line-height:1;">⏳</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#f5c842;margin-top:0.22rem;text-align:center;">${trackedLabel}</div>
+        </div>
+        <div class="profile-score-track-note">${trackingNote}</div>
+      </div>` : `<div class="flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center" style="background:rgba(100,116,139,0.15);border:1px solid rgba(100,116,139,0.3);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#9fb4d4;line-height:1;">—</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Monitoring</div>
+      </div>`);
+
+    // Key issues pills
+    const issuePills = (p.keyIssues || []).map(i => `<span class="issue-pill">${i}</span>`).join('');
+
+    // Promise table rows
+    const verdictMap = {
+      kept:    { badge: '<span class="vbadge vbadge-kept">✓ Kept</span>',       row: '' },
+      broken:  { badge: '<span class="vbadge vbadge-broken">✗ Broken</span>',   row: 'rgba(248,113,113,0.03)' },
+      pending: { badge: '<span class="vbadge vbadge-pending">⏳ Pending</span>', row: 'rgba(245,200,66,0.03)' },
+      partial: { badge: '<span class="vbadge vbadge-partial">~ Partial</span>',  row: 'rgba(96,165,250,0.03)' },
+    };
+    // Group promises by verdict so kept / broken / pending read at a glance
+    // instead of being mixed together — each group gets a colored header,
+    // a count, and a colored left rail for fast scanning.
+    const _pGroups = [
+      { v:'kept',    label:'Kept',    color:'#4ade80', icon:'✓' },
+      { v:'broken',  label:'Broken',  color:'#f87171', icon:'✗' },
+      { v:'partial', label:'Partial', color:'#60a5fa', icon:'~' },
+      { v:'pending', label:'Pending', color:'#f5c842', icon:'⏳' },
+    ];
+    const promiseRows = (p.promises && p.promises.length) ? _pGroups.map(g => {
+      const rows = (p.promises || []).filter(r => (r.verdict || 'pending') === g.v);
+      if (!rows.length) return '';
+      return `<div data-verdict="${g.v}" style="padding-top:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${g.color};padding:0.45rem 0 0.4rem;border-bottom:1px solid ${g.color}26;margin-bottom:0.1rem;">
+          <span>${g.icon} ${g.label}</span>
+          <span style="margin-left:auto;background:${g.color}1a;border:1px solid ${g.color}44;color:${g.color};border-radius:999px;padding:0.02rem 0.5rem;">${rows.length}</span>
+        </div>` + rows.map(r => {
+          // Source chips — promises may carry a `sources` array of {url,label}
+          // objects (or bare URL strings). Surfacing them here lets the receipts
+          // show right next to each promise instead of only inside the deep-dive.
+          const _srcs = Array.isArray(r.sources) ? r.sources : [];
+          const _srcHtml = _srcs.length ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;">' + _srcs.map(s => {
+            const _u = (s && typeof s === 'object') ? s.url : s;
+            if (!_u) return '';
+            let _lbl = (s && typeof s === 'object' && s.label) ? s.label : '';
+            if (!_lbl) { try { _lbl = new URL(_u).hostname.replace(/^www\./, ''); } catch (e) { _lbl = 'Source'; } }
+            return `<a href="${_u}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="dd-source-chip">🔗 ${_lbl}</a>`;
+          }).join('') + '</div>' : '';
+          // Camera-eye + a prominent, direct "Watch Video" pill whenever a
+          // verified floor/committee video is tied to this promise's issue. The
+          // small icon sits by the title; the gold pill below the detail is the
+          // unmissable, ungated one-tap jump to the clip (at its timestamp) — so
+          // video proof on a Promise no longer hides behind the Evidence Locker.
+          const _pVid = (typeof window._pdxPromiseVideo === 'function')
+            ? window._pdxPromiseVideo(id, p, r) : null;
+          const _pEye = (_pVid && typeof window._pdxVideoEye === 'function')
+            ? window._pdxVideoEye(_pVid, {}) : '';
+          const _pWatch = (_pVid && typeof window._pdxWatchPill === 'function')
+            ? '<div style="margin-top:0.45rem;">' + window._pdxWatchPill(_pVid, { label: 'Watch Video' }) + '</div>' : '';
+          return `<div class="promise-row" style="padding:0.6rem 0 0.6rem 0.7rem;border-left:2px solid ${g.color}55;margin:0.15rem 0;">
+          <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;"><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.85rem;color:white;letter-spacing:0.01em;">${r.title}</span>${_pEye}</div>
+          <div style="font-size:0.78rem;color:#9fb4d4;line-height:1.5;">${r.detail}</div>
+          ${_pWatch}
+          ${_srcHtml}
+          ${(typeof window._pdxPromiseImpactHTML === 'function') ? window._pdxPromiseImpactHTML(id, p, r) : ''}
+          ${(typeof window._pdxPromiseEvidenceLink === 'function') ? window._pdxPromiseEvidenceLink(id, p, r) : ''}
+          ${(typeof window._pdxSpotlightEngageHTML === 'function') ? window._pdxSpotlightEngageHTML(window._pdxVoteTargetId('promise', id, r.title), 'this promise') : ((typeof window._pdxVoteControlHTML === 'function') ? window._pdxVoteControlHTML(window._pdxVoteTargetId('promise', id, r.title), 'this promise') : '')}
+        </div>`;
+        }).join('') + `</div>`;
+    }).join('') : '';
+
+    // Filter tabs for the Promise Tracker — "All" plus one tab per verdict
+    // that actually has promises, so the list can be narrowed to a single
+    // status. Mirrors the clickable kept/broken/pending counts in the hero.
+    const promiseFilterBar = (p.promises && p.promises.length) ? (function(){
+      const counts = { all: p.promises.length };
+      _pGroups.forEach(g => { counts[g.v] = (p.promises || []).filter(r => (r.verdict || 'pending') === g.v).length; });
+      const tab = (f, label) => `<button type="button" class="pdx-pfilter-btn${f==='all'?' active':''}" data-f="${f}" aria-pressed="${f==='all'?'true':'false'}" onclick="window.pdxToggleFilter('${f}')">${label} <span class="pdx-pfilter-n">${counts[f]}</span></button>`;
+      let btns = tab('all', 'All');
+      _pGroups.forEach(g => { if (counts[g.v]) btns += tab(g.v, `${g.icon} ${g.label}`); });
+      return `<div id="pdx-promise-filter" class="pdx-pfilter">${btns}</div>`;
+    })() : '';
+
+    // Stats summary bar
+    const keptCount  = (p.promises||[]).filter(r=>r.verdict==='kept').length;
+    const brokenCount = (p.promises||[]).filter(r=>r.verdict==='broken').length;
+    const pendingAct = (p.promises||[]).filter(r=>r.verdict==='pending').length;
+
+    // Thin / early-stage profile detection — when a politician has no published
+    // score, no resolved promises, and no detailed promise list, the profile
+    // would otherwise render as a stack of empty placeholders that reads as
+    // broken. We instead surface a single honest notice up top and let the
+    // stated-positions sections below carry the rest.
+    const _pbThin = p.promiseBreakdown || {};
+    const _pbThinTotal = (_pbThin.kept||0) + (_pbThin.compromise||0) + (_pbThin.broken||0) + (_pbThin.pending||0);
+    const _resolvedCount = (keptCount || p.kept || 0) + (brokenCount || p.broken || 0);
+    // Thin when there is no scorable record yet (no published score and nothing
+    // resolved). A score-less profile that carries only a few pending pledges still
+    // counts — the notice explains the gap while the pending items list below it.
+    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && _pbThinTotal === 0;
+    const _statusMode = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
+    const _is2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
+    const _isChallenger = _statusMode === 'candidate' || /candidat|challenger|nominee|running/i.test(((p.office||'') + ' ' + (p.state||'')));
+    const _thinTitle = _isChallenger
+      ? (_is2026 ? '2026 Candidate — no voting record yet' : 'Candidate — no voting record yet')
+      : 'Early in term — limited record';
+    const _onTeamAlready = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
+    // Actionable "what you can do now" guidance for a low-data profile. Rather than
+    // leaving the visitor at a dead end, it offers the two honest next steps that
+    // work without a voting record: compare on values via the Alignment Tool, and
+    // save the candidate to revisit as the record fills in.
+    const _thinNext =
+      '<div class="ptn-next">' +
+        '<div class="ptn-next-label">What you can do now</div>' +
+        '<div class="ptn-actions">' +
+          '<button type="button" class="ptn-act-btn ptn-act-align" ' +
+            'onclick="event.stopPropagation();closeModal();setTimeout(function(){if(window.alignTogglePanel)window.alignTogglePanel(true);var el=document.getElementById(\'alignment-panel\')||document.getElementById(\'alignment\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});},320);">' +
+            '🎯 Compare on the issues</button>' +
+          '<button type="button" class="ptn-act-btn ptn-act-team' + (_onTeamAlready ? ' is-on' : '') + '" ' +
+            'onclick="event.stopPropagation();window.mypolToggleAnimated&&window.mypolToggleAnimated(this,\'' + id + '\');">' +
+            (_onTeamAlready ? '✓ On your team' : '★ Add to my team') + '</button>' +
+        '</div>' +
+        '<p class="ptn-text" style="margin-top:0.55rem;font-size:0.74rem;">No tracked promises yet — but you can still ' +
+          '<strong style="color:#c4b5fd;">compare ' + (p.name ? p.name.split(' ')[0] : 'them') + ' on the issues you care about</strong> with the Alignment Tool, or ' +
+          '<strong style="color:#fbbf24;">add ' + (_onTeamAlready ? 'them to your team' : 'them to your team and check back later') + '</strong> as the record fills in.</p>' +
+      '</div>';
+    const thinNotice = _isThinProfile ? (
+      '<div class="profile-thin-notice">' +
+        '<div class="ptn-icon">' + (_isChallenger ? '🗳️' : '🌱') + '</div>' +
+        '<div class="ptn-body">' +
+          '<div class="ptn-title">' + _thinTitle + '<span class="ptn-pill">◷ Monitoring</span></div>' +
+          '<p class="ptn-text">' + (_isChallenger
+            ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
+            : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
+          '<div class="ptn-hint">↓ ' + ((p.keyIssues && p.keyIssues.length) ? 'Their key issues and stated positions are below' : 'Their stated positions are below') + '</div>' +
+          _thinNext +
+        '</div>' +
+      '</div>'
+    ) : '';
+
+    // Candidate Snapshot — a structured overview that supersedes the bare thin
+    // notice on low-data profiles, leading with stated positions, the Alignment
+    // Tool linkage and the latest Spotlight item. Returns '' for a full record
+    // (or on error), so the template cleanly falls back to thinNotice.
+    const candidateSnapshot = (typeof window._renderCandidateSnapshot === 'function')
+      ? window._renderCandidateSnapshot(id, p, { isThin: _isThinProfile })
+      : '';
+    // Record whether the cohesive Candidate Snapshot actually rendered on THIS
+    // profile, so downstream sections (e.g. the Key Issue Stances "Limited Record"
+    // panel) only cross-reference it when it is really there — never pointing a
+    // visitor at a section that isn't present on a limited-but-scored officeholder.
+    window._pdxSnapshotShownId = candidateSnapshot ? id : null;
+
+    // Extra sections
+    let extraSections = '';
+    for (const sec of (p.sections || [])) {
+      if (sec.type === 'alert') {
+        const rows = (sec.content || []).map(c => `
+          <div style="margin-bottom:1rem;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#fb923c;margin-bottom:0.3rem;">${c.heading}</div>
+            <p style="font-size:0.82rem;color:rgba(254,215,170,0.85);line-height:1.6;">${c.text}</p>
+          </div>`).join('');
+        extraSections += `
+          <div class="modal-section">
+            <div class="modal-section-title" style="color:#fb923c;">${sec.label || sec.title}</div>
+            <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);border-radius:0.875rem;overflow:hidden;">
+              <div style="background:rgba(249,115,22,0.14);border-bottom:1px solid rgba(249,115,22,0.2);padding:0.6rem 1rem;">
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.1em;color:#fb923c;">${sec.title}</span>
+              </div>
+              <div style="padding:1rem 1rem 0.5rem;">${rows}</div>
+            </div>
+          </div>`;
+      } else if (sec.type === 'deepdive') {
+        const ddId = 'dd-' + Math.random().toString(36).slice(2,8);
+        const keptRows = (sec.promises || []).filter(r => r.verdict === 'kept');
+        const brokenRows = (sec.promises || []).filter(r => r.verdict === 'broken');
+        const pendingRows = (sec.promises || []).filter(r => r.verdict === 'pending');
+        const renderDDRows = (rows, color, icon) => rows.map(r => `
+          <div class="dd-promise-row">
+            <div style="display:flex;align-items:flex-start;gap:0.6rem;">
+              <div style="flex-shrink:0;margin-top:0.1rem;">
+                <span style="display:inline-flex;align-items:center;gap:0.2rem;background:${color}22;border:1px solid ${color}44;color:${color};font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:999px;">${icon}</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;color:white;margin-bottom:0.15rem;">${r.title}</div>
+                <div style="font-size:0.75rem;color:#9fb4d4;line-height:1.5;margin-bottom:${r.sources && r.sources.length ? '0.4rem' : '0'};">${r.detail}</div>
+                ${r.sources && r.sources.length ? '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' + r.sources.map(s => `<a href="${s.url}" target="_blank" rel="noopener" class="dd-source-chip">🔗 ${s.label}</a>`).join('') + '</div>' : ''}
+                ${(typeof window._pdxSpotlightEngageHTML === 'function') ? window._pdxSpotlightEngageHTML(window._pdxVoteTargetId('promise', id, r.title), 'this promise') : ((typeof window._pdxVoteControlHTML === 'function') ? window._pdxVoteControlHTML(window._pdxVoteTargetId('promise', id, r.title), 'this promise') : '')}
+              </div>
+            </div>
+          </div>`).join('');
+        let ddContent = '';
+        if (keptRows.length) ddContent += `<div style="padding:0.4rem 0.875rem 0.1rem;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#4ade80;padding:0.4rem 0 0.3rem;">✓ Kept (${keptRows.length})</div></div>` + renderDDRows(keptRows, '#4ade80', '✓ Kept');
+        if (brokenRows.length) ddContent += `<div style="padding:0.4rem 0.875rem 0.1rem;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f87171;padding:0.4rem 0 0.3rem;">✗ Broken (${brokenRows.length})</div></div>` + renderDDRows(brokenRows, '#f87171', '✗ Broken');
+        if (pendingRows.length) ddContent += `<div style="padding:0.4rem 0.875rem 0.1rem;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;padding:0.4rem 0 0.3rem;">⏳ Pending (${pendingRows.length})</div></div>` + renderDDRows(pendingRows, '#f5c842', '⏳ Pending');
+        extraSections += `
+          <div class="modal-section">
+            <button class="dd-toggle-btn" onclick="toggleDD('${ddId}')" id="btn-${ddId}">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;color:#9fb4d4;">📂 ${sec.title || 'Deep Dive — Evidence & Sources'}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.4rem;border-radius:999px;">${(sec.promises||[]).length} entries · ${(sec.sources_count||0)} sources</span>
+              </div>
+              <svg class="dd-chevron w-4 h-4 text-steel-400" fill="none" stroke="#7596c0" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="dd-body" id="${ddId}">
+              <div class="dd-inner">${ddContent}</div>
+            </div>
+          </div>`;
+      } else if (sec.type === 'info') {
+        const borderColor = sec.color === 'gold' ? 'rgba(245,200,66,0.3)' : 'rgba(159,180,212,0.2)';
+        const bgColor = sec.color === 'gold' ? 'rgba(245,200,66,0.07)' : 'rgba(30,53,96,0.4)';
+        const textColor = sec.color === 'gold' ? '#f5c842' : '#9fb4d4';
+        extraSections += `
+          <div class="modal-section">
+            <div style="background:${bgColor};border:1px solid ${borderColor};border-radius:0.75rem;padding:1rem;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:${textColor};margin-bottom:0.4rem;">${sec.title}</div>
+              <p style="font-size:0.82rem;color:#9fb4d4;line-height:1.6;">${sec.text}</p>
+            </div>
+          </div>`;
+      }
+    }
+
+    // ── Quick-jump nav data ─────────────────────────────────────────────
+    // A glanceable "map" of the profile: one pill per major section, each
+    // carrying a live summary and smooth-scrolling to its section. Built here
+    // from the same figures the sections render, so a pill never disagrees
+    // with the content below, and self-gating — a section with nothing to show
+    // contributes no pill (the whole rail hides if fewer than two survive).
+    let _navEvidenceCount = 0;
+    try {
+      (p.promises || []).forEach(function (pr) { if (pr && Array.isArray(pr.sources)) _navEvidenceCount += pr.sources.length; });
+      (p.sections || []).forEach(function (s) { if (s && typeof s.sources_count === 'number') _navEvidenceCount += s.sources_count; });
+      const _evMap = (typeof window._issueEvidenceMap === 'function') ? (window._issueEvidenceMap(id, p) || {}) : {};
+      Object.keys(_evMap).forEach(function (k) { _navEvidenceCount += ((_evMap[k] && _evMap[k].spotlight) ? _evMap[k].spotlight.length : 0); });
+    } catch (e) { _navEvidenceCount = 0; }
+
+    let _navActivityRel = '';
+    try {
+      const _ats = p.updatedAt || p.createdAt;
+      if (_ats && typeof window._pdxRelTime === 'function') _navActivityRel = window._pdxRelTime(_ats);
+    } catch (e) { _navActivityRel = ''; }
+    const _navActivityHas = !!(_navActivityRel || (p.promises && p.promises.length) || _navEvidenceCount || (p.keyIssues && p.keyIssues.length));
+    const _navActivityVal = _navActivityRel ? ('Updated ' + _navActivityRel)
+      : ((p.promises && p.promises.length) ? (p.promises.length + ' tracked')
+      : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
+
+    const _navItems = [];
+    // Score — published promise %, with a trend arrow when a delta is known.
+    if (scoreNum !== null) {
+      let _navTrend = '';
+      const _navDelta = (typeof p.scoreTrend === 'number') ? p.scoreTrend
+        : (typeof p.scoreDelta === 'number') ? p.scoreDelta : null;
+      if (_navDelta && _navDelta > 0) _navTrend = ' ↑';
+      else if (_navDelta && _navDelta < 0) _navTrend = ' ↓';
+      _navItems.push({ target: 'pdxsec-score', icon: '📊', label: 'Score', value: scoreText + _navTrend, color: scoreColor });
+    }
+    // Record — kept / broken counts + follow-through rate.
+    {
+      const _resolved = keptCount + brokenCount;
+      if (_resolved > 0 || (p.promises && p.promises.length)) {
+        const _rate = _resolved ? (' · ' + Math.round(keptCount / _resolved * 100) + '%') : '';
+        // Pending only appears when there's something outstanding, so the pill stays
+        // compact (e.g. "6K · 6B · 50%") but still surfaces the full kept/broken/pending
+        // read (e.g. "6K · 6B · 2P · 50%") the way the record section reports it.
+        const _pend = (pendingAct > 0) ? (' · ' + pendingAct + 'P') : '';
+        _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend + _rate, color: '#f5c842' });
+      }
+    }
+    // Positions — number of tracked key issues.
+    if (p.keyIssues && p.keyIssues.length) {
+      const _n = p.keyIssues.length;
+      _navItems.push({ target: 'pdxsec-positions', icon: '🎯', label: 'Positions', value: _n + ' Issue' + (_n === 1 ? '' : 's'), color: '#c4b5fd' });
+      // Full Report — a dedicated rail entry that OPENS the Full Stance Record
+      // overlay (every issue + evidence depth + honest gaps) rather than scrolling
+      // to a section, so the deepest per-issue view is one tap from the map. Sits
+      // right after Positions since it is the "see everything" extension of it.
+      _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
+    }
+    // ✒️ Enactments — the Executive Enactment Record, for figures who cast no
+    // congressional floor votes. Self-gating exactly as the section is: navPill()
+    // returns null unless sourced formal actions are on file, so this pill exists on
+    // an executive profile and nowhere else. The value is a count with its qualifier
+    // attached ("5 On File") — never a bare number, and never a ratio.
+    try {
+      if (window.PDXExecRecordUI && typeof window.PDXExecRecordUI.navPill === 'function') {
+        const _navEer = window.PDXExecRecordUI.navPill(id);
+        if (_navEer) {
+          _navItems.push({ target: _navEer.target, icon: _navEer.icon, label: _navEer.label, value: _navEer.value, color: _navEer.color });
+        }
+      }
+    } catch (e) {}
+    // Controversies — the neutral flashpoints block, shown only when at least one
+    // sourced say-vs-do gap / broken promise / flagged event is on record.
+    try {
+      if (typeof window._pdxControversyCount === 'function') {
+        const _navCtv = window._pdxControversyCount(id, p);
+        if (_navCtv > 0) {
+          _navItems.push({ target: 'pdxsec-controversies', icon: '⚠️', label: 'Controversies', value: _navCtv + ' Flashpoint' + (_navCtv === 1 ? '' : 's'), color: '#f87171' });
+        }
+      }
+    } catch (e) {}
+    // Funding — who bankrolls them, shown only when a filing record is on file.
+    try {
+      if (typeof window._pdxFunding === 'function') {
+        const _navFund = window._pdxFunding(id);
+        if (_navFund) {
+          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
+          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
+          const _fi = (_navFund.character && _navFund.character.icon) || '💰';
+          _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
+        }
+      }
+    } catch (e) {}
+    // Evidence — total receipts/sources/clips gathered.
+    if (_navEvidenceCount > 0) {
+      _navItems.push({ target: 'pdxsec-evidence', icon: '🔗', label: 'Evidence', value: _navEvidenceCount + ' Evidence', color: '#f5c842' });
+    }
+    // Match — the visitor's personal alignment %, when they've set it up.
+    try {
+      const _navHasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+      if (_navHasIssues && typeof _calcAlignmentScore === 'function') {
+        const _navMatch = _calcAlignmentScore(id);
+        if (_navMatch !== null && _navMatch !== undefined) {
+          const _mc = _navMatch >= 70 ? '#4ade80' : _navMatch >= 50 ? '#f5c842' : '#f87171';
+          _navItems.push({ target: 'pdxsec-match', icon: '🤝', label: 'Match', value: _navMatch + '% Match', color: _mc });
+        }
+      }
+    } catch (e) {}
+    // Activity — freshness / how much is tracked.
+    if (_navActivityHas) {
+      _navItems.push({ target: 'pdxsec-activity', icon: '🕑', label: 'Activity', value: _navActivityVal, color: '#9fb4d4' });
+    }
+
+    // A single pill isn't a "map" — only render the rail when at least two exist.
+    const _navBar = (_navItems.length >= 2)
+      ? '<nav id="pdx-profile-nav" class="pdx-pnav" aria-label="Jump to a section of this profile">' +
+          '<div class="pdx-pnav-track">' +
+            _navItems.map(function (n) {
+              // Action pill — opens an overlay (Full Stance Record) instead of
+              // scrolling to an in-page anchor. It carries no data-target, so the
+              // scroll-spy cleanly ignores it and it never steals the active state.
+              if (n.action === 'stance') {
+                return '<button type="button" class="pdx-pnav-pill pdx-pnav-action" ' +
+                  'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + ' — opens the full stance record" ' +
+                  'onclick="window._pdxOpenStanceRecord && window._pdxOpenStanceRecord(\'' + n.stanceId + '\')">' +
+                  '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
+                  '<span class="pdx-pnav-txt">' +
+                    '<span class="pdx-pnav-label">' + n.label + '</span>' +
+                    '<span class="pdx-pnav-val" style="color:' + n.color + ';">' + n.value + '</span>' +
+                  '</span>' +
+                '</button>';
+              }
+              return '<button type="button" class="pdx-pnav-pill" data-target="' + n.target + '" ' +
+                'aria-label="' + n.label + ': ' + String(n.value).replace(/"/g, '') + '" ' +
+                'onclick="window._pdxNavJump && window._pdxNavJump(\'' + n.target + '\', this)">' +
+                '<span class="pdx-pnav-ico" aria-hidden="true">' + n.icon + '</span>' +
+                '<span class="pdx-pnav-txt">' +
+                  '<span class="pdx-pnav-label">' + n.label + '</span>' +
+                  '<span class="pdx-pnav-val" style="color:' + n.color + ';">' + n.value + '</span>' +
+                '</span>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+        '</nav>'
+      : '';
+
+    // Assemble full modal content
+    document.getElementById('modal-content').innerHTML = `
+
+      <!-- Hero header — clean letterhead: photo, identity, status, score -->
+      <div class="profile-hero">
+        <div class="profile-hero-photo">
+          ${(function(){ var _hp = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
+        </div>
+        <div class="profile-hero-id">
+          <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
+          <h2 class="profile-name">${p.name}</h2>
+          ${(function(){ var parts=[p.district,p.state].filter(Boolean); return parts.length ? '<div class="profile-office">' + parts.join('<span class="po-sep">·</span>') + '</div>' : ''; })()}
+          ${(function(){ var tp=(typeof window._pdxTenurePill==='function')?window._pdxTenurePill(p):''; return tp ? '<div class="profile-tenure">' + tp + '</div>' : ''; })()}
+          <div class="profile-meta">
+            ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
+            ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
+            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (promiseState === 'tracking' ? '⏳ ' + trackingNote : '◷ No voting record yet') + '</span>' : ''}
+            ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
+          </div>
+        </div>
+        <div class="profile-hero-score">${scoreRing}</div>
+      </div>
+
+      <!-- Quick-jump navigation — a sticky, glanceable map of the profile.
+           Each pill summarizes a section (score, record, positions, evidence,
+           your match, activity) and smooth-scrolls to it; the pill for the
+           section in view is highlighted as you scroll. Full render + behavior
+           live in .pdx-pnav CSS and window._pdxNavJump / _pdxInitProfileNav. -->
+      ${_navBar}
+
+      <!-- Candidacy status banner — the clearest, top-of-profile read on whether
+           this person is still running for 2026 or is out of the race (lost
+           primary / withdrew). Driven only by the structured candidacyStatus
+           flag, so it's never inferred from prose. -->
+      ${(typeof window._pdxStatusBanner === 'function') ? window._pdxStatusBanner(p, { emphasis: 'high', showActive: true }) : ''}
+
+      <!-- Evidence banner — the gold All-Seeing Eye + a direct "Watch" jump to
+           the strongest clip + a one-tap "See Evidence" into the pre-filtered
+           Evidence Locker, surfaced high so video proof and the on-record file
+           are obvious the moment the profile opens. Self-gating: shows only when
+           there's a watchable clip or a lockable file. -->
+      ${(typeof window._pdxEvidenceBanner === 'function') ? window._pdxEvidenceBanner(id) : ''}
+
+      <!-- Election Status Banner -->
+      ${(function(){
+        if (!p.nextElection) return '';
+        const now = new Date();
+        const elDate = new Date(p.nextElection + 'T00:00:00');
+        const diffMs = elDate - now;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return '';
+        const label = p.electionLabel || 'Next election';
+        let timeStr, urgencyColor, urgencyBg, urgencyBorder, urgencyGlow, urgencyIcon;
+        if (diffDays <= 90) {
+          urgencyColor = '#f87171'; urgencyBg = 'rgba(248,113,113,0.1)'; urgencyBorder = 'rgba(248,113,113,0.35)'; urgencyGlow = 'rgba(248,113,113,0.15)'; urgencyIcon = '🔴';
+        } else if (diffDays <= 365) {
+          urgencyColor = '#f5c842'; urgencyBg = 'rgba(245,200,66,0.08)'; urgencyBorder = 'rgba(245,200,66,0.3)'; urgencyGlow = 'rgba(245,200,66,0.1)'; urgencyIcon = '🟡';
+        } else {
+          urgencyColor = '#4ade80'; urgencyBg = 'rgba(74,222,128,0.08)'; urgencyBorder = 'rgba(74,222,128,0.25)'; urgencyGlow = 'rgba(74,222,128,0.08)'; urgencyIcon = '🟢';
+        }
+        if (diffDays === 0) { timeStr = 'Today'; }
+        else if (diffDays === 1) { timeStr = 'Tomorrow'; }
+        else if (diffDays < 365) { timeStr = diffDays + ' days'; }
+        else { const yrs = (diffDays / 365.25); timeStr = yrs < 1.9 ? Math.round(diffDays / 30.44) + ' months' : yrs.toFixed(1) + ' years'; }
+        const dateFormatted = elDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return '<div style="display:flex;align-items:center;gap:0.6rem;background:' + urgencyBg + ';border:1px solid ' + urgencyBorder + ';border-radius:0.75rem;padding:0.55rem 0.85rem;margin-bottom:1.25rem;box-shadow:0 0 12px ' + urgencyGlow + ';">' +
+          '<div style="font-size:1rem;line-height:1;">' + urgencyIcon + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:0.06em;color:' + urgencyColor + ';line-height:1.2;">' + label + ' in <span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.04em;">' + timeStr + '</span></div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.1rem;">' + dateFormatted + '</div>' +
+          '</div>' +
+          '<div style="flex-shrink:0;font-family:\'Bebas Neue\',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;background:' + urgencyBg + ';border:1px solid ' + urgencyBorder + ';color:' + urgencyColor + ';padding:0.2rem 0.5rem;border-radius:999px;">' + (diffDays <= 90 ? 'IMMINENT' : diffDays <= 365 ? 'APPROACHING' : 'DISTANT') + '</div>' +
+        '</div>';
+      })()}
+
+      <!-- Candidate Snapshot — a structured overview shown only when there is no
+           scorable record yet. It leads with what IS known (stated positions,
+           the issues they can be compared on, the latest Spotlight item) and is
+           honest about the limited record, so a fresh challenger or new
+           officeholder reads as intentional rather than broken. Falls back to
+           the plain thin notice if the snapshot can't render. -->
+      ${candidateSnapshot || thinNotice}
+
+      <!-- Follow-Through summary — the headline integrity read: did they
+           actually do what they said? Kept vs broken, a follow-through rate,
+           and a plain-language verdict, shown before anything else. -->
+      <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id) : ''}
+
+      <!-- Accountability of Truth Score (purple) — the headline objective rating, shown first -->
+      <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
+
+      <!-- Promise score bar — the FORMAL, in-office follow-through record (votes,
+           bills, official promises kept vs. broken). -->
+      ${scoreNum !== null ? `<div style="margin-bottom:1.25rem;">
+        <div style="display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">
+          <span>🤝 Promise Follow-Through · In-office record</span><span style="color:${scoreColor};">${scoreText}</span>
+        </div>
+        <div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${scoreNum}%;background:${barColor};border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
+        <p style="font-size:0.64rem;color:#7e92b4;line-height:1.45;margin:0.4rem 0 0;">Kept ÷ (kept + broken) of ${p.name ? p.name.split(' ')[0] : 'their'} tracked campaign promises — pending promises are excluded. See the receipts below.</p>
+      </div>` : ''}
+
+      <!-- Biography & signature quote — who they are, read early so the
+           profile opens like an honest dossier: identity → record → person. -->
+      ${(p.bio || p.quote) ? `<div class="modal-section">
+        <div class="modal-section-title">📋 Biography</div>
+        ${p.bio ? `<p style="font-size:0.88rem;color:#b9cae3;line-height:1.75;margin:0 0 ${p.quote ? '1.05rem' : '0'};">${p.bio}</p>` : ''}
+        ${p.quote ? `<blockquote class="profile-quote"><p>${p.quote}</p>${p.quoteSource ? `<cite class="profile-quote-cite">${p.quoteSource}</cite>` : ''}</blockquote>` : ''}
+      </div>` : ''}
+
+      <!-- Key Issues — a quick, at-a-glance read of what this official is most
+           defined by, placed right after the biography so it frames the detailed
+           record below. Only rendered when there are issues, so a profile without
+           tagged issues never shows an empty section. -->
+      <span id="pdxsec-positions" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(p.keyIssues && p.keyIssues.length) ? `<div class="modal-section">
+        <div class="modal-section-title">🎯 Key Issues</div>
+        <p class="modal-section-sub">The issues this official is most defined by — the lens for the record below.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">${issuePills}</div>
+      </div>` : ''}
+
+      <!-- Biggest Controversies — a visually distinct, neutral block surfacing the
+           2–4 most notable / divisive items already on this official's record
+           (say-vs-do gaps, broken promises, flagged events). Each card carries a
+           sourced summary, a Say-vs-Do verdict where one applies, and one-tap
+           links to the related Issue Spotlight, full receipt, and voting record.
+           Rendered by controversies.js entirely from data the app already ships;
+           self-gates to '' when nothing checkable is on record. -->
+      ${(typeof window._renderControversies === 'function') ? window._renderControversies(id, p) : ''}
+
+      <!-- Money & Funding — who bankrolls this official, surfaced right in the
+           core profile (not only inside the Compare tool). Same window._pdxFunding
+           lookup and 🌱/⚖️/🏦 language as Compare, with a calm "Not on file"
+           state and one-tap paths to the filings and into a side-by-side. -->
+      ${(typeof window._pdxFundingSection === 'function') ? window._pdxFundingSection(id, p) : ''}
+
+      <!-- Personalized Alignment Score — a first-class "Your Match" read on every
+           profile. When the visitor has set up alignment it shows their match vs.
+           THIS politician (values, not party); when they haven't, a compact CTA
+           invites them to set it up so the feature is discoverable on every profile. -->
+      <span id="pdxsec-match" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(() => {
+        const hasIssues = (typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0);
+        const firstName = ((p && p.name) ? String(p.name).split(' ')[0] : 'them');
+        if (hasIssues && typeof _calcAlignmentScore === 'function') {
+          const alignScore = _calcAlignmentScore(id);
+          if (alignScore === null) return '';
+          const aCol = alignScore >= 70 ? '#4ade80' : alignScore >= 50 ? '#f5c842' : '#f87171';
+          const verdict = alignScore >= 70 ? 'Strong match' : alignScore >= 50 ? 'Partial match' : 'Weak match';
+          return `<div id="modal-personalized-alignment" class="modal-block" role="button" tabindex="0" onclick="if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView('${id}');" style="cursor:pointer;margin-bottom:1.25rem;background:linear-gradient(135deg, rgba(139,92,246,0.14) 0%, rgba(10,15,30,0.4) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:0.85rem;padding:0.85rem 1rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 20px rgba(139,92,246,0.1);">
+            <div style="display:flex;align-items:center;gap:0.85rem;">
+              <div style="flex-shrink:0;text-align:center;min-width:62px;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-weight:900;line-height:1;font-size:2.4rem;color:${aCol};text-shadow:0 0 14px ${aCol}55;">${alignScore}<span style="font-size:1.1rem;">%</span></div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#a78bfa;margin-top:0.1rem;">🎯 Your Match</div>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;margin-bottom:0.35rem;">
+                  <span>Your values vs. ${firstName}</span><span style="color:${aCol};font-weight:700;">${verdict}</span>
+                </div>
+                <div style="height:7px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;margin-bottom:0.45rem;">
+                  <div style="height:100%;width:${alignScore}%;background:linear-gradient(90deg, ${aCol}88, ${aCol});border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
+                </div>
+                <p style="font-size:0.68rem;color:#9fb4d4;line-height:1.4;margin:0;">How ${firstName}'s record fits <strong style="color:#c4b5fd;">your</strong> positions — regardless of party. <span style="color:#a78bfa;">Tap for the issue-by-issue breakdown ▾</span></p>
+              </div>
+            </div>
+          </div>`;
+        }
+        // Not set up yet → invite the visitor to unlock their match on this person.
+        return `<div id="modal-personalized-alignment-setup" class="modal-block" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.05) 100%);border:1px dashed rgba(139,92,246,0.5);border-radius:0.85rem;padding:0.85rem 1rem;">
+            <div style="width:38px;height:38px;border-radius:0.65rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;box-shadow:0 0 14px rgba(139,92,246,0.4);">🎯</div>
+            <div style="flex:1;min-width:170px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.03em;color:#d8b4fe;font-size:0.9rem;text-transform:uppercase;">See your match with ${firstName}</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;color:#b9a8e6;font-size:0.76rem;line-height:1.4;margin-top:0.1rem;">Set the issues you care about and judge ${firstName} by your values — not their party.</div>
+            </div>
+            <button type="button" onclick="closeModal();setTimeout(function(){if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var el=document.getElementById('alignment-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}},320);" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.76rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.7rem;padding:0.55rem 1rem;cursor:pointer;box-shadow:0 4px 14px rgba(139,92,246,0.3);">🎯 Set Up Match</button>
+          </div>`;
+      })()}
+
+      <!-- Connecting the Dots — a neutral synthesis spine that threads the
+           profile's accountability lenses in reading order (stances → votes →
+           who they affect → federal contracts → your own comparison), each with
+           a live signal and a jump link down to the full section. Self-gating:
+           hidden unless at least two lenses carry real data (profile-connect.js). -->
+      ${(typeof window._pdxConnectDots === 'function') ? window._pdxConnectDots(id, p) : ''}
+
+      <!-- View Full Stance Record — the prominent, impossible-to-miss jump to the
+           complete per-issue record (evidence depth + honest "No record yet"
+           rows). Sits right under the alignment row and above every summarized
+           view so the full truth record is reachable within seconds of landing,
+           on every profile. Cached sources only — no new network cost. -->
+      ${(typeof window._pdxStanceRecordCta === 'function') ? window._pdxStanceRecordCta(id, p) : ''}
+
+      <!-- Top-level "Who It Affects" overview — a compact net read of who the
+           measures on this official's record affect, by economic group. Reuses the
+           cached member-impacts data (its cohortSummary); self-hydrating placeholder,
+           hidden until data lands and hidden entirely when no votes are scored, so it
+           adds nothing where there's no data. Links down to the vote-by-vote breakdown. -->
+      <span id="pdxsec-impact" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._pdxMemberImpactsOverview === 'function') ? window._pdxMemberImpactsOverview(id) : ''}
+
+      <!-- The People's Mandate Alignment -->
+      ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
+
+      <!-- Follow the Money — Side by Side. Pairs the Constituents-First finance
+           signal (who funds them) with a distributional summary of who their key
+           votes affect. Renders only when a finance signal exists; the distributional
+           column fills async and the whole section hides itself when the official has
+           no ledger-scored votes, so it never adds empty noise. -->
+      ${(function(){
+        try {
+          var _sig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
+          if (_sig && typeof window._pdxMemberImpactsSideBySide === 'function') {
+            return window._pdxMemberImpactsSideBySide(id, _sig);
+          }
+        } catch (e) {}
+        return '';
+      })()}
+
+      <!-- Related Proposals — community reforms from The People's Mandate that are
+           linked to THIS politician. The container is filled asynchronously after
+           render from /api/mandate-proposals?politician=<id>; it stays empty (and
+           invisible) when nothing is linked, so it never adds noise to a profile. -->
+      <div id="pdx-related-proposals" data-pid="${id}"></div>
+      ${(function(){ if (typeof window._pdxLoadRelatedProposals === 'function') { setTimeout(function(){ try { window._pdxLoadRelatedProposals(id); } catch(e){} }, 0); } return ''; })()}
+
+      <!-- How You Compare: per-issue linkage to the visitor's Alignment Tool picks -->
+      ${(typeof window._renderIssueComparison === 'function') ? window._renderIssueComparison(id, p) : ''}
+
+      <!-- Stance at a Glance — collapsible, scannable index of documented
+           positions with a per-issue evidence dot; taps open a small evidence
+           popover. Sits just above the detailed Key Issue Stances cards. -->
+      <span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderStanceGlance === 'function') ? window._renderStanceGlance(id, p) : ''}
+
+      <!-- Key Issue Stances -->
+      ${(typeof window._renderIssueStances === 'function') ? window._renderIssueStances(id, p) : ''}
+
+      <!-- Connected Evidence — stance + promises + recorded words/actions per
+           issue (current sitting Utah State Legislators; '' for everyone else) -->
+      <span id="pdxsec-evidence" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderEvidenceSummary === 'function') ? window._renderEvidenceSummary(id, p) : ''}
+      ${(typeof window._renderEvidenceConnections === 'function') ? window._renderEvidenceConnections(id, p) : ''}
+
+      <!-- Promise Tracker — gateway (section name only, no % on the name). Presents
+           the two clearly-separated systems: 🏛️ Official Record (votes) and 🧾
+           Say-vs-Do (broader public record). Each card dives into its deeper view.
+           Rendered by consistency.js; self-updates when votes warm. -->
+      <span id="pdxsec-promise-tracker" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXConsistency && typeof window.PDXConsistency.gatewayHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.gatewayHtml(id) + '</div>') : ''}
+
+      <!-- ✒️ Executive Enactment Record — the formal-record lane for figures who
+           cast no congressional floor votes: signed legislation, vetoes, executive
+           orders and directives, each checked against what they say they stand for
+           (alignment) AND against what happened to it afterwards (standing), with
+           every action and every standing carrying its own primary citation. Counts
+           only — no score, because the set of orders a president could sign is
+           unbounded and self-chosen, so there is no honest denominator. Rendered by
+           exec-record-ui.js; self-gates to '' for everyone with nothing on file, so
+           it appears on an executive profile and nowhere else. Additive: the 🏛️
+           Official Record below is untouched and still renders its own empty state. -->
+      <span id="pdxsec-exec-record" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXExecRecordUI && typeof window.PDXExecRecordUI.sectionHtml === 'function') ? (function(){ try { var _eer = window.PDXExecRecordUI.sectionHtml(id); return _eer ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _eer + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+
+      <!-- Official Record — the organized, by-issue dive-in the Promise Tracker
+           gateway's Official Record card lands on. Groups formal votes/actions by
+           issue category with the stated stance, verdict/% and supporting receipts.
+           Rendered by consistency.js from officialRecord() only (no Say-vs-Do
+           content); the raw Voting Record list below stays available. -->
+      <span id="pdxsec-official-record" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXConsistency && typeof window.PDXConsistency.officialRecordSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.officialRecordSectionHtml(id) + '</div>') : ''}
+
+      <!-- Record vs. Public Picture — the explicit divergence bridge (Phase 8). Sits
+           BETWEEN the two sibling feeds and compares 🏛️ Official Record (votes) with
+           🧾 Say-vs-Do (public record) issue-by-issue plus a whole-profile summary,
+           labelling the relationship (Aligned / Mixed / Diverges). Never blends the
+           two into one score. Rendered by consistency.js; self-updates when votes warm. -->
+      <span id="pdxsec-divergence" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXConsistency && typeof window.PDXConsistency.divergenceSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.divergenceSectionHtml(id) + '</div>') : ''}
+
+      <!-- Say-vs-Do — the dedicated, stance-first public-record feed the gateway's
+           Say-vs-Do card lands on. Sibling to the Official Record section: same
+           organized shape, but broader public-record evidence ONLY (statements,
+           interviews, news, controversies) — no formal votes, no percentage yet.
+           Rendered by consistency.js from sayVsDo(); the general receipts hero and
+           flashpoints surfaces are unchanged. -->
+      <span id="pdxsec-saydo" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXConsistency && typeof window.PDXConsistency.saydoSectionHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.saydoSectionHtml(id) + '</div>') : ''}
+
+      <!-- Voting Record — "what they actually did": roll-call votes + official
+           actions from /api/voting-record, keyed to ISSUE_MAP and checked against
+           their stated stances. Renders hidden and self-reveals only when a record
+           exists (see voting-record.js / _pdxInitVotingRecord). -->
+      <span id="pdxsec-voting" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderVotingRecord === 'function') ? window._renderVotingRecord(id, p) : ''}
+
+      <!-- Major Contracts in Their State/District — major federal contracts tied
+           to this official's state (geographic context, not an implication of
+           involvement). Rendered synchronously by gov-contracts.js from the
+           client-side Federal Spending Tracker dataset; self-gates to '' when the
+           state has no tracked contracts. Cross-links into the tracker and the
+           "Government Contracting, Influence & Waste" Spotlight. -->
+      <span id="pdxsec-contracts" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(typeof window._renderMajorContracts === 'function') ? window._renderMajorContracts(id, p) : ''}
+
+      <!-- Your Stance vs Their Record — relocated to the end of the accountability
+           chain so the profile closes on how the record maps to the visitor's own
+           positions (the final "dot" the overview points to). Rendered by My Stances
+           (neutral, notes-free); empty until there are overlapping positions, so it
+           never shows when there is nothing to compare. -->
+      <span id="pdxsec-compare" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXStances && typeof window.PDXStances.vsRecordHtml === 'function') ? (function(){ try { var _vs = window.PDXStances.vsRecordHtml(id, { max: 8 }); return _vs ? ('<div class="modal-block pdx-vsrecord-block" style="margin-bottom:1.25rem;">' + _vs + '</div>') : ''; } catch(e){ return ''; } })() : ''}
+
+      <!-- Deep Dive: Full Promise Breakdown -->
+      ${(function(){
+        const pb = p.promiseBreakdown || {};
+        const k    = typeof pb.kept       === 'number' ? pb.kept       : (typeof p.kept    === 'number' ? p.kept    : keptCount);
+        const comp = typeof pb.compromise === 'number' ? pb.compromise : 0;
+        const b    = typeof pb.broken     === 'number' ? pb.broken     : (typeof p.broken  === 'number' ? p.broken  : brokenCount);
+        const pend = typeof pb.pending    === 'number' ? pb.pending    : (typeof p.pending === 'number' ? p.pending : pendingCount);
+        const total = k + comp + b + pend;
+        if (total === 0) return '';
+        const resolved = k + comp + b;
+        const pctOf    = n => total ? Math.round(n / total * 100) : 0;
+        const rawScore = resolved ? Math.round(k / resolved * 100) : 0;
+        const src  = pb.source || { label: 'PolitiDex Methodology', url: '#methodology' };
+        const note = pb.note || '';
+        const isAnchor = (src.url || '').charAt(0) === '#';
+        const card = (val, label, color) => '<div style="background:' + color + '14;border:1px solid ' + color + '33;border-radius:0.65rem;padding:0.6rem 0.35rem;text-align:center;">' +
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.5rem;color:' + color + ';line-height:1;">' + val + '</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;letter-spacing:0.07em;text-transform:uppercase;color:#7596c0;margin-top:0.2rem;line-height:1.2;">' + label + '</div>' +
+          '</div>';
+        return `
+      <div class="modal-section">
+        <button class="dd-toggle-btn" onclick="toggleDD('pb-deepdive')" id="btn-pb-deepdive">
+          <div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.08em;color:#9fb4d4;">🔬 Deep Dive: Full Promise Breakdown</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(159,180,212,0.12);border:1px solid rgba(159,180,212,0.2);color:#7596c0;padding:0.1rem 0.4rem;border-radius:999px;white-space:nowrap;">${total} tracked</span>
+          </div>
+          <svg class="dd-chevron w-4 h-4" fill="none" stroke="#7596c0" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="dd-body" id="pb-deepdive">
+          <div class="dd-inner" style="padding:0.875rem;">
+
+            <!-- Total tracked -->
+            <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.8rem;">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:white;line-height:1;">${total}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;letter-spacing:0.07em;text-transform:uppercase;color:#7596c0;">Total promises tracked</span>
+            </div>
+
+            <!-- Four-way split -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;margin-bottom:0.85rem;">
+              ${card(k,    'Kept · '       + pctOf(k)    + '%', '#4ade80')}
+              ${card(comp, 'Compromise · ' + pctOf(comp) + '%', '#60a5fa')}
+              ${card(b,    'Broken · '     + pctOf(b)    + '%', '#f87171')}
+              ${card(pend, 'Pending · '    + pctOf(pend) + '%', '#f5c842')}
+            </div>
+
+            <!-- Formula -->
+            <div style="background:rgba(10,15,30,0.6);border:1px solid rgba(245,200,66,0.18);border-radius:0.7rem;padding:0.75rem 0.85rem;margin-bottom:0.7rem;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">How the score is calculated</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:white;margin-bottom:0.3rem;">Promise % = Kept ÷ (Kept + Broken)</div>
+              <p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.5rem;"><strong style="color:#cbd9ec;">Pending items are ignored until they resolve</strong> — no one is credited or blamed for a promise that hasn't played out yet, so it stays out of the math.</p>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:#cbd9ec;background:rgba(0,0,0,0.25);border-radius:0.45rem;padding:0.45rem 0.6rem;">
+                ${k} ÷ (${k} + ${b}) = <span style="color:${scoreColor};font-weight:700;">${rawScore}% raw</span>${scoreNum !== null ? ` · Published Promise Score <span style="color:${scoreColor};font-weight:700;">${scoreText}</span>` : ''}
+              </div>
+              ${(scoreNum !== null && rawScore !== scoreNum) ? `<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.45rem 0 0;">Flagship promises are weighted by real-world impact, so the headline score can sit ${scoreNum < rawScore ? 'below' : 'above'} the raw ratio.</p>` : ''}
+            </div>
+
+            ${note ? `<p style="font-size:0.76rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.7rem;">${note}</p>` : ''}
+
+            <!-- Source -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Source</span>
+              <a href="${src.url}"${isAnchor ? '' : ' target="_blank" rel="noopener"'} class="dd-source-chip">🔗 ${src.label}</a>
+            </div>
+
+          </div>
+        </div>
+      </div>` ;
+      })()}
+
+      <!-- Quote & Biography now render together near the top of the profile -->
+
+      <!-- Key Issues now render near the top, directly under the Biography, so the
+           profile reads identity → issues at a glance → record → detail. -->
+
+      <!-- Promise breakdown table -->
+      <span id="pdxsec-record" class="pdx-nav-anchor" aria-hidden="true"></span>
+      <div class="modal-section" id="pdx-promise-section">
+        <div class="modal-section-title">📊 Promise Tracker</div>
+        <p class="modal-section-sub">Every tracked promise, grouped by verdict — kept, broken, and still pending — so the record speaks plainly. Tap a status to filter.</p>
+        ${promiseFilterBar}
+        <div id="pdx-promise-status" class="pdx-pfilter-status" style="display:none;">
+          <span>Showing <b id="pdx-promise-status-label">all promises</b></span>
+          <button type="button" class="pdx-pfilter-reset" onclick="window.pdxFilterPromises('all')">↺ Show all promises</button>
+        </div>
+        <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:0 0.875rem 0.6rem;">
+          <div id="pdx-promise-list">${promiseRows || '<div class="pdx-empty-state"><div class="pdx-empty-ico">📋</div><div class="pdx-empty-title">No promises tracked yet</div><div class="pdx-empty-sub">' + (_isChallenger ? 'Once this candidate takes office and acts on their pledges, kept and broken promises will be logged here.' : 'As this official acts on their pledges, kept and broken promises will be logged here — until then, see their stated positions above.') + '</div></div>'}</div>
+          <div id="pdx-promise-empty" style="display:none;padding:1.1rem;color:#7596c0;font-size:0.8rem;text-align:center;">No promises tracked yet.</div>
+        </div>
+        <button onclick="openFullProfileVerify('${id}')" class="w-full mt-3 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] btn-glow" style="background:linear-gradient(135deg,#c0152a,#7c3aed);box-shadow:0 6px 20px rgba(192,21,42,0.3);">
+          <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110.2 21a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.745 3.745 0 013.296-1.043A3.746 3.746 0 0113.8 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+          🛡️ Verify Full Profile with AI
+        </button>
+        <p style="font-size:0.62rem;color:#4e72a0;text-align:center;margin:0.45rem 0 0;letter-spacing:0.02em;">Comprehensive multi-AI report (Claude, Gemini, Grok &amp; GPT) verifying credentials, positions, controversy &amp; trust score.</p>
+      </div>
+
+      <!-- Financial Transparency — Wealth Over Time -->
+      ${(function(){
+        const wealthData = {
+          trump:    { label:'Donald Trump',    unit:'B', years:[2015,2017,2019,2021,2023,2025,2026], values:[4.5,3.7,3.1,2.5,2.6,5.8,6.5] },
+          cox:      { label:'Spencer Cox',     unit:'M', years:[2018,2019,2020,2021,2022,2023,2024,2025,2026], values:[1.2,1.3,1.4,1.6,1.8,2.1,2.3,2.5,2.8] },
+          lee:      { label:'Mike Lee',        unit:'M', years:[2011,2013,2015,2017,2019,2021,2023,2025,2026], values:[0.8,0.9,1.0,1.1,1.3,1.5,1.6,1.7,1.8] },
+          curtis:   { label:'John Curtis',     unit:'M', years:[2017,2019,2021,2023,2025,2026], values:[2.1,2.3,2.5,2.8,3.0,3.2] },
+          massie:   { label:'Thomas Massie',   unit:'M', years:[2012,2014,2016,2018,2020,2022,2024,2026], values:[1.5,1.6,1.8,2.0,2.2,2.5,2.7,3.0] },
+          owens:    { label:'Burgess Owens',   unit:'M', years:[2020,2021,2022,2023,2024,2025,2026], values:[3.5,3.6,3.8,4.0,4.2,4.4,4.6] },
+          maloy:    { label:'Celeste Maloy',   unit:'M', years:[2022,2023,2024,2025,2026], values:[0.6,0.7,0.8,0.9,1.0] },
+          kennedy:  { label:'Mike Kennedy',    unit:'M', years:[2018,2020,2022,2024,2026], values:[2.0,2.2,2.4,2.6,2.9] },
+          bilzerian:{ label:'Dan Bilzerian',   unit:'M', years:[2014,2016,2018,2020,2022,2024,2026], values:[100,120,80,50,40,35,30] },
+          gallrein: { label:'Ed Gallrein',     unit:'M', years:[2018,2020,2022,2024,2026], values:[1.8,2.0,2.1,2.3,2.5] }
+        };
+        const wd = wealthData[id];
+        if (!wd) return '';
+        window.__wealthChartData = wd;
+        return '<div class="modal-section">' +
+          '<div class="modal-section-title">\u{1F4C8} Wealth Over Time (Public Disclosures)</div>' +
+          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1rem;">' +
+            '<div style="position:relative;width:100%;height:260px;">' +
+              '<canvas id="wealthChart" style="width:100%!important;height:100%!important;"></canvas>' +
+            '</div>' +
+            '<p style="font-size:0.65rem;color:#4e72a0;line-height:1.5;margin:0.75rem 0 0;text-align:center;">Data from public financial disclosures, FEC, and OpenSecrets. Not investment advice.</p>' +
+          '</div>' +
+        '</div>';
+      })()}
+
+      <!-- Key Voting Record -->
+      ${(function(){
+        const votingRecords = {
+          curtis: [
+            { bill:'Fiscal Responsibility Act of 2023', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Honored deficit reduction pledge while energy donors benefited from expedited pipeline permitting provisions in the bill.' },
+            { bill:'FISA Section 702 Reauthorization', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Voted for warrantless surveillance renewal despite stated privacy concerns — tech industry donors benefit from broad data-collection frameworks.' },
+            { bill:'Colorado River Drought Contingency Act', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed Western water compact as promised — real estate donors depend on Utah water supply stability for new developments.' },
+            { bill:'Bipartisan Infrastructure Law', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Delivered on rural broadband promise — $120M for Utah. Tech industry donors ($310K) positioned to win connectivity contracts.' },
+            { bill:'National Defense Authorization Act FY2025', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Supported defense spending but bill included earmark provisions he had previously pledged to oppose.' },
+          ],
+          massie: [
+            { bill:'FISA Reauthorization Act (H.R. 7888)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed warrantless surveillance as promised — one of 19 House Republicans to break with leadership. Consistent with anti-surveillance donors.' },
+            { bill:'FY2024 Omnibus Spending Bill', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Refused to vote for 1,000+ page bill he hadn\'t fully read — honoring his signature pledge to Kentucky voters.' },
+            { bill:'Farm Bill 2023 (H.R. 8467)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Voted for bill retaining crop subsidies despite pledge to eliminate them — Farm Bureau donors ($180K) and KY-04 agriculture pressure prevailed.' },
+            { bill:'National Defense Authorization Act FY2025', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed military spending increases and called for Pentagon audit instead — consistent with libertarian fiscal stance.' },
+            { bill:'Bipartisan Safer Communities Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed all gun control measures as promised — Gun Rights Groups ($320K) are among his top PAC donors.' },
+            { bill:'Federal Reserve Transparency Act', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Co-sponsored Audit the Fed again — every Congress since 2012. Liberty PAC network ($160K) strongly supports this effort.' },
+          ],
+          lee: [
+            { bill:'FY2024 Omnibus Appropriations', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Voted for ~$1.7T in deficit spending despite foundational "never support deficit spending" pledge — Club for Growth donors publicly criticized the vote.' },
+            { bill:'FISA Section 702 Reauthorization', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed warrantless surveillance consistent with civil liberties stance and constitutional originalism platform.' },
+            { bill:'Respect for Marriage Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed on religious liberty grounds as promised — consistent with his base and Senate Conservatives Fund donors ($580K).' },
+            { bill:'Debt Ceiling Suspension (2023)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed clean debt ceiling raise — consistent with fiscal conservatism pledge. Club for Growth ($1.2M top donor) expected this vote.' },
+            { bill:'CHIPS and Science Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed government industrial policy on principle — though Utah tech donors stood to benefit from semiconductor investment.' },
+            { bill:'Balanced Budget Amendment Reintroduction', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Championed balanced budget amendment in 2011-2012 but has not reintroduced or pushed it since 2015 despite continued campaign rhetoric.' },
+          ],
+          cox: [
+            { bill:'Utah H.B. 261 (Transgender Youth Sports)', vote:'Signed', voteClass:'signed', alignment:'partial', matter:'Initially vetoed similar bill in 2022, then signed revised version under political pressure — shift from moderate brand disappointed some supporters.' },
+            { bill:'Utah S.B. 127 (Tax Reform Package)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Delivered promised tax reform — real estate industry donors ($1.85M) benefited from property tax restructuring provisions.' },
+            { bill:'Utah H.B. 311 (Social Media Age Verification)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Led national movement on youth social media regulation — fulfilled tech governance promise with bipartisan support.' },
+            { bill:'Utah Executive Order on AI in Government', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Fulfilled tech innovation pledge — tech industry donors aligned with digital government modernization spending.' },
+            { bill:'Utah H.B. 469 (Great Salt Lake Preservation)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Environmental conservation action consistent with moderate approach — insurance and real estate donors depend on lake stability.' },
+          ],
+          trump: [
+            { bill:'Tax Cuts and Jobs Act (2017)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Delivered promised tax cuts — real estate pass-through deduction directly benefited Trump Org and mega-donors like Timothy Mellon ($150M).' },
+            { bill:'Executive Order: Withdraw from Paris Agreement', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Fulfilled climate skeptic pledge — energy sector donors and Elon Musk / America PAC ($97M) aligned with deregulation agenda.' },
+            { bill:'CARES Act ($2.2T COVID Relief)', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Emergency spending contradicted fiscal conservative rhetoric — $500B corporate fund disproportionately benefited Wall Street and securities donors ($22.4M).' },
+            { bill:'First Step Act (Criminal Justice Reform)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Bipartisan criminal justice reform fulfilled despite some law enforcement donor opposition — rare cross-aisle achievement.' },
+            { bill:'Government Shutdown (Border Wall Funding)', vote:'Signed', voteClass:'signed', alignment:'partial', matter:'35-day shutdown demanded $5.7B for wall but settled for $1.375B — far less than the "big, beautiful wall" promise to base.' },
+            { bill:'Executive Order: Schedule F (Federal Workforce)', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Restructured federal bureaucracy as pledged — fulfilled "drain the swamp" rhetoric aligned with anti-establishment donor base.' },
+          ],
+          owens: [
+            { bill:'Secure the Border Act (H.R. 2)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed strict border security as promised — defense/aerospace donors ($260K) aligned with enforcement infrastructure spending.' },
+            { bill:'Parents Bill of Rights Act', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported parental rights in education as pledged — consistent with campaign platform on family values and school choice.' },
+            { bill:'National Defense Authorization Act FY2025', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported military spending — defense sector donors ($260K) directly benefit from NDAA procurement provisions.' },
+            { bill:'Inflation Reduction Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed Democratic spending bill as promised — pharma donors ($290K) opposed the drug pricing negotiation provisions.' },
+            { bill:'FISA Reauthorization', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Voted for surveillance renewal — intelligence community ties from military background, but some constituents raised civil liberty concerns.' },
+          ],
+          maloy: [
+            { bill:'H.R. 1 (Lower Energy Costs Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed energy production expansion as promised — oil & gas ($210K) and mining ($180K) donors are top contributors.' },
+            { bill:'Secure the Border Act (H.R. 2)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported border security consistent with campaign pledge — key issue for rural District 2 district.' },
+            { bill:'National Defense Authorization Act FY2025', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed defense spending for Hill AFB and Utah defense contractors — aligned with district employment and donor base.' },
+            { bill:'Federal Lands Management Reform Act', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported increased state input on federal land decisions — ranching/agriculture donors ($150K) depend on grazing access.' },
+            { bill:'Continuing Resolution (Gov\'t Funding)', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Voted for short-term spending to avoid shutdown despite pledging fiscal restraint — pragmatism over principle.' },
+          ],
+          bilzerian: [
+            { bill:'No Federal Voting Record', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As a first-time candidate, Bilzerian has no congressional voting record. His self-funded campaign ($1.2M) limits outside donor influence but raises questions about personal wealth driving political access.' },
+          ],
+          gallrein: [
+            { bill:'No Federal Voting Record Yet', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As Republican nominee for KY-04, Gallrein has no federal voting record. His agriculture/restaurant donor base ($320K + $140K) suggests priorities in farm and small business policy.' },
+          ],
+          kennedy: [
+            { bill:'No Federal Voting Record — State Record Only', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Kennedy served in Utah House 2013-2020 but has no federal record. Health sector donors ($580K Pharma) suggest healthcare policy focus if elected to Congress.' },
+          ],
+          boebert: [
+            { bill:'Bipartisan Safer Communities Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed all gun control as promised — consistent with Second Amendment absolutist platform and firearms industry support.' },
+            { bill:'Debt Ceiling Suspension (Fiscal Responsibility Act)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed spending compromise — pledged to reject any deal that didn\'t include deep spending cuts.' },
+            { bill:'Continuing Resolution (Gov\'t Funding)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Voted against stopgap funding — consistent with opposition to business-as-usual spending and government bloat.' },
+            { bill:'Impeachment of DHS Secretary Mayorkas', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported impeachment over border security failures — fulfilled pledge to hold Biden administration accountable.' },
+            { bill:'Ukraine Supplemental Aid Package', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed foreign military spending as promised — "America First" position resonates with small-dollar donor base.' },
+          ],
+          gaetz: [
+            { bill:'Motion to Vacate Speaker McCarthy', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led historic ouster effort — fulfilled anti-establishment pledge to challenge GOP leadership regardless of political cost.' },
+            { bill:'Ukraine Supplemental Aid Package', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed foreign military spending — consistent with non-interventionist "America First" platform.' },
+            { bill:'FISA Reauthorization', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed warrantless surveillance — civil liberties champion stance consistent with libertarian-leaning donor base.' },
+            { bill:'Continuing Resolution (Gov\'t Funding)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed stopgap spending — pledged to force real budget negotiations rather than continuing resolutions.' },
+            { bill:'National Defense Authorization Act FY2024', vote:'Nay', voteClass:'nay', alignment:'partial', matter:'Opposed NDAA despite supporting military — objected to spending levels and "woke" provisions in the final bill.' },
+          ],
+          mtg: [
+            { bill:'Ukraine Supplemental Aid Package', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed foreign aid as pledged — "not one more penny to Ukraine" was a core campaign promise aligned with populist base.' },
+            { bill:'Debt Ceiling Deal (Fiscal Responsibility Act)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Rejected spending compromise — demanded deeper cuts consistent with fiscal hawk positioning.' },
+            { bill:'Motion to Vacate Speaker McCarthy', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Did not vote despite anti-establishment brand — complex loyalty dynamics after McCarthy gave her committee seats back.' },
+            { bill:'FISA Reauthorization', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed surveillance state consistent with anti-establishment and civil liberties position.' },
+            { bill:'Bipartisan Infrastructure Law', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed bipartisan spending deal — labeled it "Communist infrastructure bill" in line with hard-right fiscal stance.' },
+          ],
+          tgabbard: [
+            { bill:'Confirming role as Director of National Intelligence', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Appointed by Trump as DNI — fulfills her pivot from Democratic congresswoman to national security hawk in the MAGA orbit.' },
+            { bill:'Stop Arming Terrorists Act (former House bill)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Her signature legislation opposed CIA weapons programs for Syrian rebels — consistent with non-interventionist brand.' },
+            { bill:'Impeachment of President Trump (2019)', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Voted "present" rather than Yes or No — angered both parties. Demonstrated independence but was criticized as fence-sitting.' },
+            { bill:'Tulsi Aloha PAC spending controversy', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Campaign finance reports showed PAC spent heavily on travel and personal security — raised questions about donor fund usage.' },
+          ],
+          hegseth: [
+            { bill:'No Legislative Voting Record', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As Defense Secretary nominee (not a legislator), Hegseth has no voting record. His Fox News advocacy positions serve as his policy track record.' },
+            { bill:'Pentagon DEI Program Elimination (Policy Directive)', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Directed elimination of military DEI programs — fulfilled core campaign advocacy position from Fox News era.' },
+            { bill:'Military Readiness & Lethality Review', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Ordered comprehensive review of military readiness — aligned with "warrior culture" restoration pledge.' },
+          ],
+          lyman: [
+            { bill:'Utah H.B. 148 (Transfer of Public Lands Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for the landmark bill demanding federal transfer of public lands to Utah — the foundation of his entire political career and gubernatorial platform.' },
+            { bill:'Recapture Canyon ATV Protest Ride (2014)', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Led an illegal ATV ride through protected federal land, resulting in a federal misdemeanor conviction. Actions contradicted stated respect for rule of law.' },
+            { bill:'Utah H.B. 357 (Constitutional Carry Expansion)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted to expand Utah constitutional carry provisions — consistent with strong Second Amendment stance and rural conservative base in San Juan County.' },
+            { bill:'Utah H.B. 469 (Great Salt Lake Preservation)', vote:'Nay', voteClass:'nay', alignment:'partial', matter:'Opposed environmental spending measure — consistent with anti-regulation stance but contradicted broader Utah conservation consensus.' },
+            { bill:'Utah S.B. 127 (Tax Reform Package)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported tax restructuring — aligned with fiscal conservatism platform and goal to eventually abolish state income tax.' },
+          ],
+          cstewart: [
+            { bill:'FISA Section 702 Reauthorization', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Supported surveillance reauthorization as Intel Committee member — national security priority over civil liberties concerns he acknowledged but deprioritized.' },
+            { bill:'FY2023 Omnibus Appropriations', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed $1.7T spending bill consistent with fiscal conservatism pledge — one of the reliable No votes on omnibus packages throughout his tenure.' },
+            { bill:'National Defense Authorization Act FY2023', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed defense spending as former B-1 bomber pilot — defense/aerospace donors ($340K) aligned with military readiness priorities.' },
+            { bill:'Colorado River Drought Contingency Act', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported Western water compact protecting Utah\'s allocation — consistent with District 2 district priorities and real estate donors dependent on water stability.' },
+            { bill:'Bipartisan Infrastructure Law (H.R. 3684)', vote:'Nay', voteClass:'nay', alignment:'partial', matter:'Opposed the $1.2T infrastructure package despite Utah receiving billions — fiscal concerns outweighed infrastructure benefits for his district.' },
+          ],
+          rfine: [
+            { bill:'FL H.B. 1 (Universal School Choice)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Championed Florida\'s universal ESA expansion — consistent with school choice platform. Education reform PAC donors ($180K) aligned with this priority.' },
+            { bill:'FL Anti-BDS Resolution (H.R. 545)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Authored anti-BDS resolution in Florida House — signature pro-Israel issue and centerpiece of his planned federal legislative agenda.' },
+            { bill:'FL H.B. 1421 (Gender Transition Procedures Ban for Minors)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for ban on gender transition procedures for minors — consistent with social conservative platform and base in Brevard County.' },
+            { bill:'FL S.B. 252 (Anti-Vaccine Mandate Bill)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Co-sponsored anti-vaccine mandate legislation — fulfilled campaign promise to block employer and government vaccination requirements.' },
+            { bill:'FL State Budget FY2024 ($117B)', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Voted for Florida\'s record $117B budget despite claiming fiscal conservatism — pragmatism over stated spending restraint principles.' },
+          ],
+          bmoore: [
+            { bill:'National Defense Authorization Act FY2025', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Backed defense spending protecting Hill Air Force Base funding and F-35 expansion — defense/aerospace donors ($280K) directly benefit from NDAA procurement.' },
+            { bill:'Bipartisan Infrastructure Law (H.R. 3684)', vote:'Nay', voteClass:'nay', alignment:'broken', matter:'Voted against the infrastructure bill despite campaigning on infrastructure priorities — $3.4B for Utah roads, water, and broadband were in the package.' },
+            { bill:'Inflation Reduction Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed Democratic spending bill as Ways & Means member — consistent with anti-tax-increase platform and opposition to new government spending.' },
+            { bill:'Great Salt Lake Recovery Act (H.R. 4890)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Co-introduced legislation to fund Great Salt Lake recovery — fulfilled environmental conservation pledge for northern Utah.' },
+            { bill:'Tax Cuts and Jobs Act Extension Provisions', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported extending 2017 tax cuts through Ways & Means Committee — consistent with anti-tax-increase platform and small business donor base ($320K).' },
+            { bill:'Continuing Resolution (Gov\'t Funding)', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Voted for short-term funding to avoid shutdown despite pledging fiscal restraint — chose pragmatism over principle to protect Hill AFB operations.' },
+          ],
+          jpetro: [
+            { bill:'Layton FY2025 Budget ($128M)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Approved city budget with increased public safety and road maintenance funding — consistent with campaign infrastructure and safety pledges.' },
+            { bill:'Layton Crossing Development Approval', vote:'Signed', voteClass:'signed', alignment:'partial', matter:'Approved major commercial development with conditions — delivered growth but some residents felt public input process was insufficient despite campaign pledge.' },
+            { bill:'Police Department Staffing Expansion (Phase 1)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Authorized hiring of 6 additional Layton PD officers — Phase 1 of promised 12-officer expansion. Public safety donors and community groups aligned.' },
+            { bill:'East Layton Residential Zoning Amendment', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Approved rezoning of agricultural buffer land for residential development — contradicted campaign pledge to protect farmland buffer zones on Layton\'s eastern edge.' },
+            { bill:'Hill AFB Noise Impact Coordination MOU', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Formal memorandum of understanding with Hill AFB on F-35 noise impacts still in draft — meetings ongoing but no binding agreement reached despite campaign commitment.' },
+          ],
+          jstevenson: [
+            { bill:'Utah S.B. 110 (Water Conservation Amendments)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for water district metering and tiered pricing reforms — consistent with water conservation platform and Davis County infrastructure priorities.' },
+            { bill:'Utah FY2024 State Budget ($28.8B)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Approved state budget growing 8.4% while CPI was ~2.2% — contradicted stated position that growth should not exceed inflation.' },
+            { bill:'Utah S.B. 211 (Davis County Tech Development Zone)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Authored bill creating technology development zone in Davis County — economic development donors ($220K) positioned to benefit from zone incentives.' },
+            { bill:'I-15 Layton/Clearfield Interchange Funding', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured UDOT appropriations for critical I-15 interchange improvements — directly benefits Davis County commuters and transportation donors ($140K).' },
+            { bill:'UTA FrontRunner Extension Study', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised feasibility study for FrontRunner extension to West City at 2022 GOP meeting — no study commissioned or funded as of 2025.' },
+          ],
+          tlee: [
+            { bill:'Utah H.B. 215 (Utah Fits All Scholarship Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Voted for universal $8,000 ESA school choice program — consistent with education choice platform. Passed House 44-28.' },
+            { bill:'Utah H.B. 54 (Income Tax Reduction)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported reducing Utah income tax from 4.65% to 4.55% — consistent with tax-cut priorities for District 16 families and businesses.' },
+            { bill:'Utah H.B. 312 (Occupational Licensing Expansion)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed expanding licensing requirements for new professions — consistent with free-market, anti-regulation platform and small business donor base.' },
+            { bill:'District 16 Road Funding Bill', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised targeted road funding bill for Layton (District 16) during 2022 campaign — no such bill introduced in 2023 or 2024 legislative sessions.' },
+            { bill:'Utah H.B. 182 (Small Business Permitting Reform)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Introduced bill streamlining license renewal for businesses under 10 employees — passed Commerce Committee 8-2. Pending full House vote.' },
+          ],
+          sadams: [
+            { bill:'Utah H.B. 215 (Utah Fits All Scholarship Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Used Senate President authority to ensure floor consideration and passage 20-9 — instrumental in creating universal school choice for all Utah families.' },
+            { bill:'Utah FY2024 State Budget ($28.8B)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'Approved budget growing 8.4% vs ~2.2% CPI under his Senate leadership — contradicted stated fiscal restraint principles.' },
+            { bill:'I-15 Davis/Weber County Corridor Funding ($280M)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Secured $280M for I-15 corridor improvements in Davis and Weber counties — directly benefits his Layton-area constituents and transportation donors.' },
+            { bill:'Utah Water Conservation Package (SB 110 + companion bills)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led passage of comprehensive water conservation legislation — critical for Great Salt Lake and Davis County water sustainability.' },
+            { bill:'Legislative Term Limits Floor Vote', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Publicly expressed openness to term limits but no bill received a Senate floor vote under his presidency (2019-2025) — reform stalled in committee.' },
+            { bill:'Great Salt Lake Water Compact Legislation', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Expressed support for comprehensive Great Salt Lake water legislation in March 2025 but no formal bill sponsored or introduced as of mid-2025.' },
+          ],
+          emendenhall: [
+            { bill:'SLC Affordable Housing Master Plan ($70M)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Signed and funded 5-year affordable housing plan — $70M committed to new units and tenant protections. Housing advocacy donors aligned.' },
+            { bill:'Climate Positive 2040 Executive Order', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Committed SLC to carbon neutrality by 2040 and 100% renewable electricity for city operations by 2030 — environmental groups ($180K) strongly supported.' },
+            { bill:'Winter Shelter Capacity Pledge (2022-23)', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Pledged zero unsheltered nights during winter — over 200 individuals remained unsheltered on peak January nights per city shelter survey.' },
+            { bill:'Police Reform Implementation Plan', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Promised comprehensive police reform report by Q2 2022 — released 18 months late in December 2023. Reform advocates and civil rights donors criticized the delay.' },
+            { bill:'$100M Affordable Housing Bond (Nov 2025 Ballot)', vote:'Exec Order', voteClass:'execorder', alignment:'partial', matter:'Proposed $100M general obligation bond for affordable housing — pending voter approval. Ambitious but outcome depends on ballot measure passage.' },
+          ],
+          jwilson: [
+            { bill:'SL County Homeless Action Plan (Shelter +430 beds)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Expanded shelter capacity by 430 beds through 2023 — fulfilled Homeless Action Plan pledge with county-funded expansions and service provider contracts.' },
+            { bill:'Pretrial Services Reform Program', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Launched pretrial services reducing unnecessary detention for low-risk defendants — 34% reduction confirmed. Cost-effective at $28/day vs $65/day for jail.' },
+            { bill:'ARPA Public Health Deployment ($180M)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Secured and deployed $180M in federal ARPA funds for county public health, behavioral health, and housing — delivered on post-COVID infrastructure pledge.' },
+            { bill:'Affordable Housing Trust Fund (FY2023)', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Pledged $20M annual trust fund contribution — actual FY2023 contribution was $8.4M (42% of goal). Administration cited competing budget priorities.' },
+            { bill:'County Jail Modernization Plan', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Promised facility plan by 2022 — released in late 2024, two years late with significant cost overruns in assessments.' },
+          ],
+          bwilson: [
+            { bill:'Utah H.B. 215 (Utah Fits All Scholarship Act)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'As House Speaker, directed procedural framework ensuring passage 44-28 — decisive leadership on creating universal $8,000 ESA school choice program.' },
+            { bill:'Utah H.B. 54 & predecessors (Income Tax Reductions)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led sequential income tax reductions from 4.95% to 4.55% across multiple sessions — fulfilled core tax reform promise to Utah taxpayers.' },
+            { bill:'Utah FY2023 State Budget ($24.9B)', vote:'Yea', voteClass:'yea', alignment:'broken', matter:'State budget grew 42% under his speakership (FY2019-FY2023) from $17.5B to $24.9B — far exceeding inflation and contradicting fiscal restraint principles.' },
+            { bill:'Utah S.B. 110 (Water Conservation Amendments)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Supported comprehensive water conservation legislation including metering requirements — critical for Great Salt Lake and Utah\'s long-term water security.' },
+            { bill:'House Committee Vote Transparency Reform', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Pledged full committee vote transparency — only partially implemented. Many standing committee votes remain unrecorded as of 2024.' },
+          ],
+          biden: [
+            { bill:'Infrastructure Investment and Jobs Act (2021)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Delivered the "Build Back Better" infrastructure promise — roughly $1.2T for roads, bridges, broadband, and water, with bipartisan support and projects still breaking ground in 2026.' },
+            { bill:'Inflation Reduction Act (2022)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Fulfilled core climate and drug-pricing pledges — ~$370B in clean-energy investment plus Medicare\'s first power to negotiate prescription prices and a $35 insulin cap.' },
+            { bill:'Bipartisan Safer Communities Act (2022)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Signed the first major federal gun-safety law in nearly 30 years — honored a long-standing pledge after years of stalled efforts.' },
+            { bill:'Student Loan Forgiveness Plan', vote:'Exec Order', voteClass:'execorder', alignment:'broken', matter:'Promised broad student-debt cancellation, but the Supreme Court struck down the main plan in 2023, leaving the central version of the pledge unfulfilled.' },
+            { bill:'June 2024 Border Asylum Restriction', vote:'Exec Order', voteClass:'execorder', alignment:'partial', matter:'After a bipartisan border deal collapsed, he reversed course and tightened asylum by executive action — a partial pivot from his day-one reform promise under political pressure.' },
+          ],
+          obama: [
+            { bill:'Affordable Care Act (2010)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Delivered his signature healthcare promise, covering ~20M people — though his "keep your plan" pledge was rated false after some plans were cancelled.' },
+            { bill:'American Recovery and Reinvestment Act (2009)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Fulfilled the pledge to confront the financial crisis with stimulus — $787B plus the auto bailout, credited with stabilizing the economy at the cost of higher deficits.' },
+            { bill:'Dodd-Frank Wall Street Reform (2010)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Honored the promise to re-regulate Wall Street after 2008, creating the Consumer Financial Protection Bureau.' },
+            { bill:'Paris Climate Agreement (2016)', vote:'Exec Order', voteClass:'execorder', alignment:'kept', matter:'Met his climate-leadership pledge by joining Paris — though entering by executive action left it vulnerable to a successor\'s withdrawal.' },
+            { bill:'Executive Order to Close Guantanamo Bay', vote:'Exec Order', voteClass:'execorder', alignment:'broken', matter:'Signed a day-two order to close the prison within a year; congressional resistance and his own caution left it open at the end of both terms.' },
+          ],
+          gwbush: [
+            { bill:'Bush Tax Cuts (2001 & 2003)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Delivered the promised tax cuts — but they helped turn a budget surplus into deficits, a tension with his fiscal-conservative brand.' },
+            { bill:'No Child Left Behind Act (2002)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Fulfilled his "compassionate conservative" education pledge with testing-based accountability — later judged too rigid and rolled back.' },
+            { bill:'Medicare Part D (2003)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Created prescription-drug coverage for seniors — the largest Medicare expansion in its history, though it added to long-term costs.' },
+            { bill:'Iraq War Authorization (2002)', vote:'Signed', voteClass:'signed', alignment:'broken', matter:'Justified by WMD claims that proved false; the war\'s cost and length became the defining controversy of his presidency.' },
+            { bill:'Comprehensive Immigration Reform (2007)', vote:'Not Voting', voteClass:'notvoting', alignment:'broken', matter:'Pushed hard for a path to legal status, but his own party blocked it in the Senate — a promise he could not deliver.' },
+          ],
+          sanders: [
+            { bill:'Iraq War Authorization (2002)', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Voted against the Iraq War as a House member — a defining early stand consistent with his lifelong anti-war record.' },
+            { bill:'USA PATRIOT Act', vote:'Nay', voteClass:'nay', alignment:'kept', matter:'Opposed the surveillance expansion on civil-liberties grounds — consistent with his privacy and constitutional positions.' },
+            { bill:'Yemen War Powers Resolution (2019)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Led the bipartisan effort to end U.S. support for the Saudi-led war — fulfilling his pledge to reclaim congressional war powers.' },
+            { bill:'$15 Minimum Wage Amendment (2021)', vote:'Yea', voteClass:'yea', alignment:'kept', matter:'Forced a Senate vote on his signature wage hike — it failed, but he kept the promise to put colleagues on record.' },
+            { bill:'Inflation Reduction Act (2022)', vote:'Yea', voteClass:'yea', alignment:'partial', matter:'Backed the climate and drug-pricing law while publicly arguing it fell short of the Medicare for All and Green New Deal scale he campaigns on.' },
+          ],
+          nhaley: [
+            { bill:'SC Confederate Flag Removal (2015)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'As governor, led the removal of the Confederate flag from the SC State House grounds after the Charleston church massacre — her defining act of leadership.' },
+            { bill:'SC 20-Week Abortion Ban (2016)', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Signed one of the nation\'s stricter abortion limits as governor — consistent with the pro-life identity she carried into national politics.' },
+            { bill:'SC Voter ID Law', vote:'Signed', voteClass:'signed', alignment:'kept', matter:'Backed and defended voter-ID requirements — aligned with her conservative platform, though critics raised access concerns.' },
+            { bill:'No Federal Legislative Record', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'Haley has never served in Congress; her record is as SC governor and UN Ambassador, so federal promise-tracking rests on executive and diplomatic actions rather than floor votes.' },
+          ],
+          rfkjr: [
+            { bill:'HHS Vaccine Advisory Overhaul (2025)', vote:'Exec Action', voteClass:'execorder', alignment:'partial', matter:'Reshuffled federal vaccine advisory panels as promised — fulfilling his "transparency" pledge to supporters while alarming public-health experts who cite established vaccine science.' },
+            { bill:'Food Additive & Dye Phase-Out Directive (2025)', vote:'Exec Action', voteClass:'execorder', alignment:'partial', matter:'Began pressing to remove synthetic dyes and certain additives under the MAHA agenda — an early step toward a signature promise still being implemented.' },
+            { bill:'No Congressional Voting Record', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As an environmental lawyer turned HHS Secretary, Kennedy has no legislative voting record; his promises will be judged by regulatory action across FDA, CDC, and NIH.' },
+          ],
+          dballard: [
+            { bill:'No Federal Voting Record — Challenger', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As a Democratic challenger in heavily Republican UT-1, Ballard has no congressional record; his small-dollar, no-corporate-PAC pledge and veterans-and-rural-health focus are the test of his platform.' },
+          ],
+          jjohnson: [
+            { bill:'No Federal Voting Record — Challenger', vote:'Not Voting', voteClass:'notvoting', alignment:'partial', matter:'As a Democratic challenger in UT-4, Johnson has no congressional record; her platform centers on public-school funding, ACA protection, and Wasatch Front air quality.' },
+          ],
+        };
+        const vr = votingRecords[id];
+        if (!vr || !vr.length) return '';
+        const alignLabel = { kept:'✓ Kept', broken:'✗ Broken', partial:'~ Partial' };
+        const vrRows = vr.map(function(v) {
+          return '<div class="vr-row">' +
+            '<div style="display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.35rem;">' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.82rem;color:white;letter-spacing:0.01em;margin-bottom:0.3rem;">' + v.bill + '</div>' +
+                '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem;">' +
+                  '<span class="vr-vote-pill vr-vote-' + v.voteClass + '">' + v.vote + '</span>' +
+                  '<span class="vr-align-pill vr-align-' + v.alignment + '">' + (alignLabel[v.alignment]||v.alignment) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-size:0.75rem;color:#7596c0;line-height:1.55;margin-top:0.25rem;padding-left:0;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">Why This Matters:</span> ' + v.matter +
+            '</div>' +
+          '</div>';
+        }).join('');
+        // Voting Record Highlights — a scannable lead-in surfacing the few most
+        // significant votes plus an at-a-glance tally, above the full record.
+        const _vrTally = { kept:0, broken:0, partial:0 };
+        vr.forEach(function(v){ if (_vrTally[v.alignment] !== undefined) _vrTally[v.alignment]++; });
+        const _tallyChip = function(n, label, col){ return n ? '<div style="flex:1;text-align:center;background:' + col + '14;border:1px solid ' + col + '33;border-radius:0.6rem;padding:0.4rem 0.3rem;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.25rem;color:' + col + ';line-height:1;">' + n + '</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;margin-top:0.15rem;">' + label + '</div></div>' : ''; };
+        const _vrHiCards = vr.slice(0, 3).map(function(v){
+          return '<div style="background:rgba(10,15,30,0.55);border:1px solid rgba(255,255,255,0.06);border-radius:0.65rem;padding:0.6rem 0.7rem;margin-bottom:0.45rem;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.78rem;color:white;line-height:1.35;min-width:0;">' + v.bill + '</span>' +
+              '<span class="vr-align-pill vr-align-' + v.alignment + '" style="flex-shrink:0;">' + (alignLabel[v.alignment]||v.alignment) + '</span>' +
+            '</div>' +
+            '<div style="margin-top:0.4rem;"><span class="vr-vote-pill vr-vote-' + v.voteClass + '">' + v.vote + '</span></div>' +
+          '</div>';
+        }).join('');
+        const _vrHighlightsSection = vr.length >= 2
+          ? '<div class="modal-section">' +
+              '<div class="modal-section-title">\u{1F5F3}️ Voting Record Highlights</div>' +
+              '<div style="display:flex;gap:0.45rem;margin-bottom:0.7rem;">' +
+                _tallyChip(_vrTally.kept, 'Kept Word', '#4ade80') +
+                _tallyChip(_vrTally.partial, 'Partial', '#60a5fa') +
+                _tallyChip(_vrTally.broken, 'Broke Word', '#f87171') +
+              '</div>' +
+              _vrHiCards +
+              '<p class="src-note">A few of the most significant votes. See the full record below for every tracked vote and why it matters.</p>' +
+            '</div>'
+          : '';
+        return _vrHighlightsSection +
+          '<div class="modal-section">' +
+          '<div class="modal-section-title">\u{1F5F3}️ Full Voting Record</div>' +
+          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;overflow:hidden;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.875rem;background:rgba(96,165,250,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">' +
+              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#60a5fa;">LEGISLATIVE ACTIONS</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;padding:0.1rem 0.4rem;border-radius:999px;">' + vr.length + ' votes tracked</span>' +
+            '</div>' +
+            vrRows +
+          '</div>' +
+          '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Voting data from Congress.gov, Clerk.house.gov, Senate.gov roll calls, and state legislative records.</p>' +
+        '</div>';
+      })()}
+
+      <!-- Extra sections (alerts, info boxes) -->
+      ${extraSections}
+
+      <!-- In the Spotlight — Current Events & Controversies -->
+      ${(function(){
+        const spotlightData = (window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {});
+        // ── In the Spotlight — politician-specific, accountability-linked ──────
+        // Surfaces THIS official's own record and ties it directly to the
+        // Accountability of Truth Score. The same kept/broken promises the score
+        // is computed from are shown here as the *drivers* of that score — each
+        // tagged ▲/▼ and tappable to open the full accountability analysis. An
+        // optional per-document `spotlight` array lets curators attach specific
+        // issues/events and flag whether each helps or hurts the score (impact:
+        // 'positive' | 'negative', plus optional `category` matching an
+        // accountability category key). Curated news from the SPOTLIGHT_DATA map
+        // and on-document entries without an impact are shown as context. Falls
+        // back to a clean, honest empty state when there is nothing to show.
+        var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight · Accountability</div>' +
+          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality that feed the <strong style="color:#c4b5fd;">Accountability Score</strong>, separate from the in-office Promise % record above.</p>';
+        var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
+
+        function _slHumanize(s) {
+          return String(s).replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ')
+            .replace(/\s+/g, ' ').trim().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+        }
+
+        // Classify a REAL curated item by the kind of thing it is — a
+        // controversy, a piece of legislation, a public statement, or a key
+        // campaign/office event — using keyword heuristics over its own headline
+        // and facts. This only re-labels existing, sourced text (it never invents
+        // content) so each card announces what it is at a glance and controversies
+        // read distinctly from routine news. Order matters: the most consequential
+        // signal a card can carry wins.
+        function _slClassifyNews(headline, facts) {
+          var t = String(headline || '') + ' ' + String(facts || '').replace(/<[^>]*>/g, ' ');
+          if (/scrutiny|controvers|under fire|allegation|criticism|rebuke|ethics|conviction|questions? raised|misdemeanor|\bprobe\b|investigat|fire over|backlash|lawsuit|sued|unconstitutional|draws? .*question/i.test(t))
+            return { badge: '🚩 Controversy', accent: '248,113,113' };
+          if (/\bh\.?\s?b\.?\s?\d|\bs\.?\s?b\.?\s?\d|\bbill\b|signed|sponsor|co-spons|introduced|\bpassed\b|enacted|\blaw\b|amendment|resolution|reauthor|filibuster|\bveto|legislation|advances?\b/i.test(t))
+            return { badge: '📋 Key Legislation', accent: '96,165,250' };
+          if (/secured \$|\bfunding\b|\$\d|grant\b|approved|appointed|wins?\b|elected|polling|leads? in|re-?emerges|launch|mounts?|runs? in|campaign/i.test(t))
+            return { badge: '🏛️ Key Event', accent: '120,180,140' };
+          if (/announce|testif|argued|defend|called for|champions?|push(?:es|ed|ing)?\b|\bvows?\b|warned|statement|\bsaid\b|centers?\b|backs?\b|opposes?\b|supports?\b/i.test(t))
+            return { badge: '🗣️ Public Statement', accent: '245,200,66' };
+          return { badge: '📰 In the News', accent: '96,165,250' };
+        }
+
+        // Detect the issue area a REAL item touches from its own text and return a
+        // short, alignment-flavored label. The label echoes the People's Mandate
+        // issue vocabulary so a Spotlight card visibly connects to the positions a
+        // voter is comparing on — the tag itself taps up to the alignment scorecard
+        // (see _slCard). Returns '' when no clear issue is present rather than
+        // forcing a guess.
+        function _slIssueTag(headline, facts) {
+          var t = (String(headline || '') + ' ' + String(facts || '').replace(/<[^>]*>/g, ' ')).toLowerCase();
+          var map = [
+            [/great salt lake|water|drought|virgin river|conservation|air quality|emission|climate|inversion|environment/, '💧 Water & Environment'],
+            [/housing|home price|affordable|zoning|\brent\b|starter-home/, '🏠 Housing'],
+            [/health|medicaid|medicare|\baca\b|affordable care|drug|pharma|vaccine|insulin|nursing|clinic/, '🏥 Healthcare'],
+            [/ethics|\bpac\b|\bfec\b|campaign finance|\bdisclos|conflict of interest|luxury travel|self-funded|personal loans/, '🔎 Ethics & Money'],
+            [/tax|budget|spending|deficit|income-tax|fiscal|tariff|subsid/, '💰 Taxes & Spending'],
+            [/school|education|voucher|scholarship|universit|curriculum|\bstudent/, '🎓 Education'],
+            [/energy|nuclear|reactor|gigawatt|\boil\b|\bgas\b|renewable|solar|data center|\bgrid\b/, '⚡ Energy'],
+            [/social media|app store|privacy|\bdata\b|surveillance|\bai\b|age verification|tech industry|broadband|\bapp\b/, '🖥️ Tech & Privacy'],
+            [/\bborder\b|immigration|immigrant/, '🛡️ Border & Immigration'],
+            [/federal land|public land|bears ears|monument|grazing|mineral|lands transfer/, '🏔️ Public Lands'],
+            [/defense|military|pentagon|f-35|air force|\bndaa\b|veteran|armed/, '🎖️ Defense & Veterans'],
+            [/abortion|reproductive/, '⚖️ Abortion'],
+            [/\bgun\b|firearm|second amendment/, '🔫 Gun Rights'],
+            [/foreign|\bchina\b|russia|\biran\b|israel|\bbds\b|\bwho\b|intelligence|assad|syria/, '🌐 Foreign Policy'],
+            [/\bjail\b|police|\bcrime\b|homeless|sentencing|rape-?kit|justice/, '🚔 Public Safety']
+          ];
+          for (var i = 0; i < map.length; i++) { if (map[i][0].test(t)) return map[i][1]; }
+          return '';
+        }
+
+        // Shared card renderer. When `impact` is 'positive'/'negative' the card
+        // becomes a tappable link into the full Accountability analysis, gets a
+        // green/red left border, and shows an impact pill + tap hint — making the
+        // connection between a Spotlight item and the score explicit. `accent` is
+        // an "r,g,b" tint used for the type badge and (when not score-linked) the
+        // left border, keeping every card in the dark, gold-accented house style.
+        function _slCard(o) {
+          var accent = o.accent || '96,165,250';
+          var linked = (o.impact === 'positive' || o.impact === 'negative');
+          var neutral = (o.impact === 'neutral');
+          var impactCol = o.impact === 'positive' ? '74,222,128' : '248,113,113';
+          var impactLabel = o.impact === 'positive' ? '▲ Strengthens score' : '▼ Weighs on score';
+          var catLabel = (o.category && typeof window._slCatLabel === 'function') ? window._slCatLabel(o.category) : '';
+          // Simple human-readable tags (1–2 per item) rendered as small chips so
+          // each highlight carries an at-a-glance categorization the voter can
+          // skim and filter on, alongside the structured score `category`.
+          var tagChips = '';
+          if (Array.isArray(o.tags) && o.tags.length) {
+            tagChips = o.tags.slice(0, 2).map(function(t){
+              return '<span style="color:#9fc6e8;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.32);padding:0.06rem 0.4rem;border-radius:999px;">' + window._slEsc(t) + '</span>';
+            }).join('');
+          }
+          var edge = linked ? impactCol : (neutral ? '120,140,170' : accent);
+          var idAttr = o.anchorId ? (' id="' + o.anchorId + '"') : '';
+
+          // ── Issue bridge ───────────────────────────────────────────────
+          // The connective tissue to the Candidate Snapshot. When a curated item
+          // carries an `issueKey`, this row names the SAME Alignment-tracked issue
+          // the Snapshot shows a position on — and, when the official actually
+          // holds a documented stance on that issue (`heldPosition`), it says so
+          // outright: "Expands on <Name>'s position · Supports <issue>." Tapping
+          // jumps up to the alignment scorecard in the same modal, so a news
+          // headline reads as evidence on a value the voter is already comparing,
+          // not a loose feed item. Falls back silently to '' for unknown keys.
+          var bridge = '';
+          var ilabel = (o.issueKey && typeof window._issueLabel === 'function') ? window._issueLabel(o.issueKey) : '';
+          if (ilabel) {
+            var jumpAlign = "event.stopPropagation();var el=document.getElementById('alignment-modal-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});";
+            var hp = o.heldPosition;
+            if (hp && (hp.stance === 'support' || hp.stance === 'oppose' || hp.stance === 'mixed')) {
+              var _sm = { support:{ t:'✓ Supports', c:'74,222,128' }, oppose:{ t:'✗ Opposes', c:'248,113,113' }, mixed:{ t:'~ Mixed record', c:'245,200,66' } }[hp.stance];
+              bridge = '<button type="button" onclick="' + jumpAlign + '"' +
+                ' title="' + _slLast + ' holds a tracked position on this issue — tap to compare it on the People’s Mandate Alignment."' +
+                ' style="cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem;background:linear-gradient(90deg,rgba(245,200,66,0.08),rgba(167,139,250,0.1));border:1px solid rgba(167,139,250,0.34);border-left:3px solid rgba(245,200,66,0.6);border-radius:0.55rem;padding:0.4rem 0.55rem;">' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#e3c97a;">🔗 Expands on ' + _slLast + '’s position</span>' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.05em;text-transform:uppercase;color:rgb(' + _sm.c + ');background:rgba(' + _sm.c + ',0.12);border:1px solid rgba(' + _sm.c + ',0.4);padding:0.05rem 0.4rem;border-radius:999px;">' + _sm.t + '</span>' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.04em;color:#c4b5fd;">' + ilabel + '</span>' +
+                '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.06em;text-transform:uppercase;color:#a78bfa;">Compare ↗</span>' +
+              '</button>';
+            } else {
+              bridge = '<button type="button" onclick="' + jumpAlign + '"' +
+                ' title="This item connects to the ' + ilabel + ' position the Alignment Tool tracks — tap to compare it."' +
+                ' style="cursor:pointer;margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.28rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.05em;text-transform:uppercase;color:#c4b5fd;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);border-radius:999px;padding:0.14rem 0.55rem;line-height:1.3;">🔗 On the issue: ' + ilabel + ' ↗</button>';
+            }
+          }
+
+          var open = '<div' + idAttr + ' style="';
+          if (linked) {
+            // Tap jumps to the Accountability card and pulses the matching
+            // contribution row — keeping the cause→effect link inside one modal.
+            var jump = 'if(window._slFocusAccountability)window._slFocusAccountability(\'' + safeSlId + '\',' + (o.contribIndex || 0) + ');';
+            open = '<div' + idAttr + ' role="button" tabindex="0"' +
+              ' onclick="' + jump + '"' +
+              ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + jump + '}"' +
+              ' style="cursor:pointer;';
+          }
+          // Clear, tappable sourcing for the claim — a structured {label,url}
+          // source renders as a small linked chip; legacy items keep any source
+          // links embedded inline in the body text. When the item carries
+          // attached media (official floor/committee video with a timestamp, an X
+          // post, audio), the shared evidence row leads with a "▶ Watch · 24:42" /
+          // "𝕏 View post" link so the proof behind the claim is one tap away.
+          var srcRow = '';
+          if (typeof window._slEvidenceRow === 'function') {
+            srcRow = window._slEvidenceRow(o, { stop: true });
+          } else if (o.source && o.source.url) {
+            srcRow = '<div style="margin-top:0.5rem;"><a href="' + window._slEsc(o.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();" ' +
+              'style="display:inline-flex;align-items:center;gap:0.3rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#86b8e0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);padding:0.14rem 0.5rem;border-radius:999px;">🔗 Source: ' + window._slEsc(o.source.label || 'Link') + ' ↗</a></div>';
+          }
+          return open + 'background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-left:3px solid rgba(' + edge + ',0.65);border-radius:0.75rem;padding:0.8rem 0.9rem;margin-bottom:0.6rem;transition:box-shadow 0.2s,border-color 0.2s;">' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:rgb(' + accent + ');background:rgba(' + accent + ',0.12);border:1px solid rgba(' + accent + ',0.32);padding:0.1rem 0.45rem;border-radius:999px;">' + o.badge + '</span>' +
+              (o.date ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;color:#9a8a55;">' + o.date + '</span>' : '') +
+              (o.topic ? '<button type="button" onclick="event.stopPropagation();var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" title="See how this issue shapes ' + _slLast + '’s alignment" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:#86b8e0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.32);padding:0.08rem 0.42rem;border-radius:999px;">' + o.topic + ' ↗</button>' : '') +
+              (linked ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:rgb(' + impactCol + ');background:rgba(' + impactCol + ',0.12);border:1px solid rgba(' + impactCol + ',0.4);padding:0.1rem 0.4rem;border-radius:999px;">' + impactLabel + '</span>'
+                : (neutral ? '<span style="margin-left:auto;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.07em;text-transform:uppercase;color:#9fb4d4;background:rgba(120,140,170,0.12);border:1px solid rgba(120,140,170,0.4);padding:0.1rem 0.4rem;border-radius:999px;">● Noted · no score impact</span>' : '')) +
+            '</div>' +
+            '<h4 style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.25;color:white;margin:0 0 ' + (o.body ? '0.35rem' : '0') + ';">' + o.headline + '</h4>' +
+            (o.body ? '<p style="font-size:0.68rem;color:#c7d4e8;line-height:1.55;margin:0 0 ' + (o.why ? '0.45rem' : '0') + ';">' + o.body + '</p>' : '') +
+            (o.why ? '<div style="display:flex;gap:0.4rem;font-size:0.66rem;line-height:1.5;color:#e3c97a;background:rgba(245,200,66,0.06);border-radius:0.5rem;padding:0.45rem 0.55rem;">' +
+              '<span style="flex-shrink:0;">⚡</span><span><strong style="color:#f5c842;">Why it matters:</strong> ' + o.why + '</span></div>' : '') +
+            srcRow +
+            bridge +
+            (linked ? '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">' +
+              (catLabel ? '<span style="color:#c4b5fd;background:rgba(139,92,246,0.14);border:1px solid rgba(139,92,246,0.4);padding:0.06rem 0.4rem;border-radius:999px;">' + catLabel + '</span>' : '') +
+              tagChips +
+              '<span style="color:#a78bfa;">🛡️ Tap to see this in the Accountability breakdown ↑</span>' +
+            '</div>'
+            : (tagChips ? '<div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">' + tagChips + '</div>' : '')) +
+            // Community engagement (like / dislike + comments) — a scoped test of
+            // on-item interaction, attached to every Spotlight card by a stable id
+            // derived from this official + the item's headline.
+            ((typeof window._pdxSpotlightEngageHTML === 'function' && typeof window._pdxVoteTargetId === 'function')
+              ? window._pdxSpotlightEngageHTML(window._pdxVoteTargetId('spotlight', id, o.headline), 'this Spotlight item')
+              : '') +
+          '</div>';
+        }
+
+        var _slDoc     = (p && Array.isArray(p.spotlight)) ? p.spotlight : [];
+        var _slPromos  = (p && Array.isArray(p.promises)) ? p.promises : [];
+        var _slPending = _slPromos.filter(function(r) { return r && r.verdict === 'pending'; });
+
+        // 1) Score DRIVERS — the SAME ordered list the Accountability card reads
+        //    from (window._slComputeDrivers), so the two sections map one-to-one
+        //    by index: curator-flagged spotlight entries (impact ▲/▼) followed by
+        //    the official's own kept/broken promise ledger. Each card is anchored
+        //    (id = sl-driver-<id>-<i>) and taps through to the matching row in the
+        //    Accountability breakdown, making cause→effect explicit.
+        var slDriverItems = (typeof window._slComputeDrivers === 'function') ? window._slComputeDrivers(p, id) : [];
+        // The medium modal shows the TOP 2–4 highlights only — a tight, skimmable
+        // synthesis. The complete set lives in the full Accountability analysis.
+        var slDrivers = slDriverItems.slice(0, 4).map(function(it, i) {
+          return _slCard({
+            badge: it.badge,
+            accent: it.kind === 'spotlight' ? '167,139,250' : '96,165,250',
+            date: it.date, headline: it.headline, body: it.body, why: it.why,
+            impact: it.impact, category: it.category, tags: it.tags, source: it.source,
+            media: it.media, sourceType: it.sourceType, issueKey: it.issueKey,
+            anchorId: 'sl-driver-' + safeSlId + '-' + i, contribIndex: i
+          });
+        });
+
+        // 2) Recent NEWS / events — curated context plus any on-document entries
+        //    not flagged as ▲/▼ drivers. Entries explicitly tagged impact:'neutral'
+        //    are honored with a "no score impact" pill so a curator's intent reads
+        //    clearly; untagged entries simply appear as news.
+        var slNews = [];
+        // The official's own documented positions, keyed by ISSUE_MAP key, so a
+        // curated Spotlight item tagged with an `issueKey` can be matched against
+        // a stance they actually hold — turning a news card into "expands on
+        // their position on X" (the Snapshot↔Spotlight bridge built in _slCard).
+        var _slPosMap = (typeof window._polPositionMap === 'function') ? (window._polPositionMap(id, p) || {}) : {};
+        function _slTieReady(ik) { return !!(ik && typeof window._issueLabel === 'function' && window._issueLabel(ik)); }
+        (spotlightData[id] || []).forEach(function(it) {
+          var cls = _slClassifyNews(it.headline, it.facts);
+          var ik = it.issueKey;
+          slNews.push(_slCard({ badge: cls.badge, accent: cls.accent, date: it.date, headline: it.headline, body: it.facts, why: it.why, source: it.source,
+            media: it.media, sourceType: it.sourceType,
+            issueKey: ik, heldPosition: (ik && _slPosMap[ik]) ? _slPosMap[ik] : null,
+            topic: _slTieReady(ik) ? '' : _slIssueTag(it.headline, it.facts) }));
+        });
+        _slDoc.forEach(function(it) {
+          if (!it || it.impact === 'positive' || it.impact === 'negative') return;
+          var _h = it.headline || it.title, _b = it.facts || it.detail;
+          var _neutral = it.impact === 'neutral';
+          var cls = _slClassifyNews(_h, _b);
+          var ik2 = it.issueKey;
+          slNews.push(_slCard({ badge: it.badge || (_neutral ? 'Context' : cls.badge), accent: _neutral ? '120,140,170' : cls.accent, date: it.date,
+            headline: _h, body: _b, why: it.why, source: it.source,
+            media: it.media, sourceType: it.sourceType,
+            impact: (_neutral ? 'neutral' : undefined), category: it.category,
+            issueKey: ik2, heldPosition: (ik2 && _slPosMap[ik2]) ? _slPosMap[ik2] : null,
+            topic: _slTieReady(ik2) ? '' : _slIssueTag(_h, _b) }));
+        });
+
+        // Connective lead-in shown above any populated Spotlight. Frames the
+        // section as THIS official's real record — issues, public statements and
+        // notable actions — and names the two-way link to the scores above, so
+        // Spotlight reads as the evidence behind the numbers rather than a stray
+        // news feed.
+        function _slIntro() {
+          return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
+            'The personal-integrity record behind ' + _slLast + '’s Accountability Score — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> read, deliberately separate from the formal Promise % (votes, bills and official pledges). ' +
+            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to compare that stance on the People’s Mandate Alignment.' +
+          '</p>';
+        }
+
+        // Closing tie-in: a one-tap jump up to the People's Mandate Alignment
+        // scorecard in the same modal, making explicit that these issues help
+        // explain how the official aligns with a voter's values.
+        function _slAlignFooter() {
+          return '<div style="margin-top:0.85rem;display:flex;justify-content:center;">' +
+            '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🏛️ How these shape ' + _slLast + '’s alignment ↑</button>' +
+          '</div>';
+        }
+
+        // Connective sub-header that names the link to the score and offers a
+        // one-tap jump into the full analysis.
+        function _slDriverHeader() {
+          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Driving the Accountability Score</span>' +
+              '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.25rem 0.6rem;border-radius:999px;white-space:nowrap;">View Score Analysis →</button>' +
+            '</div>';
+        }
+        function _slNewsHeader() {
+          return '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:' + (slDrivers.length ? '1rem' : '0.2rem') + ' 0 0.6rem;">' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">📰 News, Statements &amp; Key Events</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);padding:0.06rem 0.4rem;border-radius:999px;">' + slNews.length + '</span>' +
+            '</div>';
+        }
+
+        if (slDrivers.length || slNews.length) {
+          var slBody = '';
+          var slThemeHtml = (typeof window._slThemeBanner === 'function') ? window._slThemeBanner(p, id) : '';
+          var slPatternHtml = (typeof window._slPatternBar === 'function') ? window._slPatternBar(slDriverItems, 'full') : '';
+          if (slDrivers.length) slBody += slThemeHtml + slPatternHtml + _slDriverHeader() + slDrivers.join('');
+          else slBody += slThemeHtml;
+          if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + slBody +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score — tap one to see it in the score breakdown, or open the full analysis above. Sources linked inline.</p>' +
+            _slAlignFooter() +
+          '</div>';
+        }
+
+        // 3) No curated drivers or news yet — build a specific, honest read from
+        //    the official's OWN record: their signature public statement, a
+        //    promise in progress, documented positions, and tracked priorities.
+        //    Everything here is real, politician-specific data already on the
+        //    profile — no generic filler.
+        var derived = [];
+        function _slPush(c) { if (derived.length < 4) derived.push(_slCard(c)); }
+        // Lead with the official's signature quote — a genuine public statement,
+        // rendered as a pull-quote so it reads as their voice, not boilerplate.
+        if (p && p.quote && String(p.quote).trim()) {
+          _slPush({ badge:'🗣️ In Their Own Words', accent:'245,200,66',
+            headline:'“' + String(p.quote).trim() + '”' });
+        }
+        if (_slPending.length) {
+          _slPush({ badge:'⏳ In Progress', accent:'96,165,250', headline:_slPending[0].title, body:_slPending[0].detail,
+            topic:_slIssueTag(_slPending[0].title, _slPending[0].detail) });
+        }
+        // Documented positions — prefer the resolved, ISSUE_MAP-keyed stance list
+        // so each card carries a 🔗 issue link straight to the same position shown
+        // in the Candidate Snapshot and Alignment Tool. Falls back to the raw
+        // stances object (keyword-tagged) when no keyed positions are curated.
+        var _slResolved = (typeof window._resolveStanceList === 'function') ? (window._resolveStanceList(id, p) || []) : [];
+        var _slKeyed = _slResolved.filter(function(s) { return s && s.issueKey && (s.text || s.topic); });
+        if (_slKeyed.length) {
+          _slKeyed.slice(0, 2).forEach(function(s) {
+            _slPush({ badge:'📌 Where They Stand', accent:'167,139,250',
+              headline:(s.topic || _slHumanize(s.issueKey)), body:(s.text || ''),
+              issueKey:s.issueKey });
+          });
+        } else if (p && p.stances && typeof p.stances === 'object') {
+          Object.keys(p.stances).slice(0, 2).forEach(function(k) {
+            var txt = p.stances[k];
+            if (txt) _slPush({ badge:'📌 Where They Stand', accent:'167,139,250', headline:_slHumanize(k), body:txt,
+              topic:_slIssueTag(k, txt) });
+          });
+        }
+        if (derived.length < 3 && p && Array.isArray(p.keyIssues) && p.keyIssues.length) {
+          _slPush({ badge:'🎯 Top Priorities', accent:'96,165,250',
+            headline:'What ' + _slLast + ' is focused on',
+            body: p.keyIssues.slice(0, 6).join('&nbsp;·&nbsp;') });
+        }
+
+        if (derived.length) {
+          return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() +
+            (typeof window._slThemeBanner === 'function' ? window._slThemeBanner(p, id) : '') + derived.join('') +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Drawn from ' + _slLast + '’s own statements and tracked positions. Bills, votes and news will appear here as score drivers once verified.</p>' +
+            _slAlignFooter() +
+          '</div>';
+        }
+
+        // 4) Genuinely nothing to highlight — clean, honest placeholder that
+        //    still points the visitor to judge the official by their values now.
+        //    The one-line Accountability theme still shows when one is authored.
+        return '<div class="modal-section" id="spotlight-modal-section">' + slTitle +
+          (typeof window._slThemeBanner === 'function' ? window._slThemeBanner(p, id) : '') +
+          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
+            '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No Spotlight items yet for ' + _slLast + '</div>' +
+            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0.85rem;">As this official’s record develops, notable bills, votes, and news will appear here — and any that affect the Accountability of Truth Score will be tagged and linked to it. In the meantime, you can still judge ' + _slLast + ' by your own values.</p>' +
+            '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">💰 See the funding lens ↑</button>' +
+          '</div>' +
+        '</div>';
+      })()}
+
+      <!-- Follow the Money — Campaign Finance in Modal -->
+      ${(function(){
+        var ftmModalData = {
+          trump:    { nwBefore:'$4.5B', nwNow:'$6.5B', nwGain:'+$2.0B', pctGain:44, officeYear:2017, donors:[{name:'Timothy Mellon (Shipping)',amt:'$150M'},{name:'Miriam Adelson (Casinos)',amt:'$100M'},{name:'Elon Musk / America PAC',amt:'$97M'},{name:'Real Estate Industry',amt:'$28.7M'}], corpPct:62, smallPct:28, otherPct:10, integrity:32 },
+          cox:      { nwBefore:'$1.2M', nwNow:'$2.8M', nwGain:'+$1.6M', pctGain:133, officeYear:2021, donors:[{name:'Real Estate Industry',amt:'$1.85M'},{name:'Republican Governors Assoc.',amt:'$2.1M'},{name:'Health Professionals',amt:'$890K'},{name:'Insurance Industry',amt:'$720K'}], corpPct:58, smallPct:30, otherPct:12, integrity:54 },
+          lee:      { nwBefore:'$0.8M', nwNow:'$1.8M', nwGain:'+$1.0M', pctGain:125, officeYear:2011, donors:[{name:'Club for Growth',amt:'$1.2M'},{name:'Securities & Investment',amt:'$980K'},{name:'Real Estate Industry',amt:'$870K'},{name:'Oil & Gas Industry',amt:'$650K'}], corpPct:55, smallPct:32, otherPct:13, integrity:48 },
+          curtis:   { nwBefore:'$2.1M', nwNow:'$3.2M', nwGain:'+$1.1M', pctGain:52, officeYear:2017, donors:[{name:'Real Estate Industry',amt:'$720K'},{name:'Health Professionals',amt:'$480K'},{name:'Oil & Gas Industry',amt:'$420K'},{name:'NRSC',amt:'$380K'}], corpPct:48, smallPct:38, otherPct:14, integrity:68 },
+          massie:   { nwBefore:'$1.5M', nwNow:'$3.0M', nwGain:'+$1.5M', pctGain:100, officeYear:2012, donors:[{name:'Small Individual Donors',amt:'$1.8M'},{name:'Gun Rights Groups',amt:'$320K'},{name:'Real Estate Industry',amt:'$210K'},{name:'Farm Bureau',amt:'$180K'}], corpPct:22, smallPct:65, otherPct:13, integrity:78 },
+          owens:    { nwBefore:'$3.5M', nwNow:'$4.6M', nwGain:'+$1.1M', pctGain:31, officeYear:2021, donors:[{name:'Small Individual Donors',amt:'$3.2M'},{name:'Real Estate Industry',amt:'$580K'},{name:'Securities & Investment',amt:'$420K'},{name:'Republican Main Street PAC',amt:'$350K'}], corpPct:42, smallPct:45, otherPct:13, integrity:58 },
+          maloy:    { nwBefore:'$0.6M', nwNow:'$1.0M', nwGain:'+$0.4M', pctGain:67, officeYear:2023, donors:[{name:'Small Individual Donors',amt:'$980K'},{name:'GOP Committees',amt:'$520K'},{name:'Real Estate Industry',amt:'$280K'},{name:'Oil & Gas',amt:'$210K'}], corpPct:40, smallPct:42, otherPct:18, integrity:62 },
+          kennedy:  { nwBefore:'$2.0M', nwNow:'$2.9M', nwGain:'+$0.9M', pctGain:45, officeYear:2013, donors:[{name:'Health Professionals',amt:'$420K'},{name:'GOP of Utah',amt:'$380K'},{name:'Real Estate Industry',amt:'$240K'},{name:'Pharma/Devices',amt:'$160K'}], corpPct:50, smallPct:35, otherPct:15, integrity:55 },
+          bilzerian:{ nwBefore:'$100M', nwNow:'$30M', nwGain:'-$70M', pctGain:-70, officeYear:2026, donors:[{name:'Self-Funded',amt:'$1.2M'},{name:'Entertainment Industry',amt:'$85K'},{name:'Cannabis Industry',amt:'$62K'},{name:'Small Donors',amt:'$95K'}], corpPct:12, smallPct:8, otherPct:80, integrity:35 },
+          gallrein: { nwBefore:'$1.8M', nwNow:'$2.5M', nwGain:'+$0.7M', pctGain:39, officeYear:2026, donors:[{name:'Agriculture PACs',amt:'$320K'},{name:'Restaurant Industry',amt:'$140K'},{name:'Small Donors',amt:'$180K'},{name:'GOP Committees',amt:'$210K'}], corpPct:38, smallPct:45, otherPct:17, integrity:64 }
+        };
+        var fd = ftmModalData[id];
+        if (!fd) return '';
+        var intClass = fd.integrity >= 65 ? 'ftm-integrity-high' : fd.integrity >= 45 ? 'ftm-integrity-mid' : 'ftm-integrity-low';
+        var intLabel = fd.integrity >= 65 ? 'HIGH' : fd.integrity >= 45 ? 'MODERATE' : 'LOW';
+        var intIcon = fd.integrity >= 65 ? '🛡️' : fd.integrity >= 45 ? '⚠️' : '🚩';
+        var donorRows = fd.donors.map(function(d) {
+          return '<div class="ftm-modal-donor-row">' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;color:white;letter-spacing:0.01em;">' + d.name + '</div>' +
+            '</div>' +
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;color:#4ade80;letter-spacing:0.03em;">' + d.amt + '</div>' +
+          '</div>';
+        }).join('');
+        return '<div class="modal-section">' +
+          '<div class="modal-section-title">💰 Follow the Money — Campaign Finance & Net Worth</div>' +
+          '<div class="ftm-modal-wrap">' +
+            '<div class="ftm-modal-header">' +
+              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#4ade80;">FINANCIAL TRANSPARENCY REPORT</span>' +
+              '<div class="ftm-integrity-badge ' + intClass + '">' + intIcon + ' ' + fd.integrity + ' ' + intLabel + '</div>' +
+            '</div>' +
+            '<div style="padding:0.875rem;">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;">Net Worth Change</div>' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#4e72a0;">Since entering office (' + fd.officeYear + ')</div>' +
+              '</div>' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:1rem;">' +
+                '<div style="background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
+                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:#9fb4d4;line-height:1;">' + fd.nwBefore + '</div>' +
+                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">Before Office</div>' +
+                '</div>' +
+                '<div style="background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
+                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:white;line-height:1;">' + fd.nwNow + '</div>' +
+                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">Current</div>' +
+                '</div>' +
+                '<div style="background:rgba(10,15,30,0.6);border:1px solid ' + (fd.pctGain > 50 ? 'rgba(248,113,113,0.2)' : 'rgba(74,222,128,0.15)') + ';border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
+                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:' + (fd.pctGain > 50 ? '#f87171' : fd.pctGain < 0 ? '#4ade80' : '#f5c842') + ';line-height:1;">' + fd.nwGain + '</div>' +
+                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">' + (fd.pctGain >= 0 ? '+' : '') + fd.pctGain + '% Change</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="margin-bottom:1rem;">' +
+                '<canvas id="ftmNwChart" style="width:100%!important;height:160px!important;"></canvas>' +
+              '</div>' +
+              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.5rem;">Top Donors & Funding Sources</div>' +
+              donorRows +
+              '<div style="margin-top:0.75rem;">' +
+                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.4rem;">Funding Breakdown</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#ff8a8a;width:5.5rem;text-align:right;">Corp/PAC ' + fd.corpPct + '%</span>' +
+                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div class="ftm-bar-corp" style="width:' + fd.corpPct + '%;"></div></div>' +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#7cc4ff;width:5.5rem;text-align:right;">Small Donors ' + fd.smallPct + '%</span>' +
+                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div class="ftm-bar-small" style="width:' + fd.smallPct + '%;"></div></div>' +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#c4a6ff;width:5.5rem;text-align:right;">Other ' + fd.otherPct + '%</span>' +
+                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div style="background:linear-gradient(90deg,#c4a6ff,#a78bfa);border-radius:4px;height:10px;width:' + fd.otherPct + '%;transition:width 1s ease;"></div></div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="margin-top:0.75rem;display:flex;align-items:center;justify-content:space-between;">' +
+                '<button id="ftm-follow-btn" class="ftm-follow-btn" onclick="toggleFollowMoney(\'' + id + '\')" data-pid="' + id + '">💰 Follow This Money Trail</button>' +
+                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;color:#4e72a0;letter-spacing:0.06em;">Data: FEC, OpenSecrets, public disclosures</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      })()}
+
+      <!-- Activity — a compact, honest "last touched / how much is tracked"
+           footer so the profile closes with a sense of freshness rather than
+           trailing off. Also the scroll target for the Activity quick-jump pill. -->
+      ${(function(){
+        function chip(lbl, val){ return '<div class="pdx-activity-chip"><span class="lbl">' + lbl + '</span><span class="val">' + val + '</span></div>'; }
+        let chips = '';
+        if (_navActivityRel) chips += chip('Last updated', _navActivityRel);
+        if (p.promises && p.promises.length) chips += chip('Promises tracked', p.promises.length);
+        if (_navEvidenceCount) chips += chip('Evidence', _navEvidenceCount);
+        if (p.keyIssues && p.keyIssues.length) chips += chip('Key issues', p.keyIssues.length);
+        if (!chips) return '';
+        return '<div class="modal-section" id="pdxsec-activity">' +
+            '<div class="modal-section-title">🕑 Activity</div>' +
+            '<div class="pdx-activity-row">' + chips + '</div>' +
+          '</div>';
+      })()}
+
+      <!-- Spacer -->
+      <div class="modal-section" id="my-notes-section" style="display:none;">
+        <div class="modal-section-title">📝 My Notes <span style="font-size:0.55rem;font-weight:400;color:#4e72a0;letter-spacing:0.06em;">(Private — saved to your account)</span></div>
+        <textarea id="modal-my-notes" class="my-notes-area" placeholder="Write your private notes about this politician... These are saved to your account and visible only to you."></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;">
+          <span id="my-notes-status" class="my-notes-save-indicator" style="color:#4ade80;opacity:0;">Saved</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#4e72a0;">🔒 Private · Synced across devices</span>
+        </div>
+      </div>
+
+      <!-- Spacer -->
+      <div style="height:0.5rem;"></div>
+    `;
+
+    // Related Issue Spotlight callout — a calm, light cross-link surfaced near the
+    // top of the profile when this official is featured in an Issue Spotlight.
+    if (typeof window._pdxRelatedSpotlight === 'function') {
+      try { window._pdxRelatedSpotlight(id); } catch (e) {}
+    }
+
+    // Render wealth chart if data is available
+    if (window.__wealthChartData) {
+      const wd = window.__wealthChartData;
+      const ctx = document.getElementById('wealthChart');
+      delete window.__wealthChartData;
+      if (ctx) window.PDXLazy.chart().then(function () {
+        if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); }
+        window.__wealthChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: wd.years,
+            datasets: [{
+              label: 'Net Worth ($' + wd.unit + ')',
+              data: wd.values,
+              borderColor: '#4ade80',
+              backgroundColor: 'rgba(74,222,128,0.10)',
+              pointBackgroundColor: '#4ade80',
+              pointBorderColor: '#0a0f1e',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.35
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#9fb4d4', font: { family: "'Barlow Condensed', sans-serif", size: 12, weight: '600' }, boxWidth: 14, padding: 12 }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(10,15,30,0.95)',
+                titleColor: '#fff',
+                bodyColor: '#9fb4d4',
+                borderColor: 'rgba(74,222,128,0.3)',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 8,
+                titleFont: { family: "'Barlow Condensed', sans-serif", weight: '700', size: 13 },
+                bodyFont: { family: "'Barlow', sans-serif", size: 12 },
+                callbacks: { label: function(c) { return ' $' + c.parsed.y.toFixed(1) + wd.unit; } }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 11 } },
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                border: { color: 'rgba(255,255,255,0.08)' }
+              },
+              y: {
+                ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 11 }, callback: function(v) { return '$' + v + wd.unit; } },
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                border: { color: 'rgba(255,255,255,0.08)' }
+              }
+            }
+          }
+        });
+      }).catch(function () {});
+    }
+
+    // Render FTM net worth bar chart
+    var _ftmNwCanvas = document.getElementById('ftmNwChart');
+    if (_ftmNwCanvas) {
+      if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); }
+      var _ftmNwData = {
+        trump:    { labels:['Before','2019','2021','2023','Now'], values:[4.5,3.1,2.5,2.6,6.5], unit:'B' },
+        cox:      { labels:['Before','2022','2023','2024','Now'], values:[1.2,1.6,2.1,2.3,2.8], unit:'M' },
+        lee:      { labels:['Before','2015','2019','2023','Now'], values:[0.8,1.0,1.3,1.6,1.8], unit:'M' },
+        curtis:   { labels:['Before','2019','2021','2023','Now'], values:[2.1,2.3,2.5,2.8,3.2], unit:'M' },
+        massie:   { labels:['Before','2016','2020','2024','Now'], values:[1.5,1.8,2.2,2.7,3.0], unit:'M' },
+        owens:    { labels:['Before','2022','2023','2024','Now'], values:[3.5,3.8,4.0,4.2,4.6], unit:'M' },
+        maloy:    { labels:['Before','2023','2024','2025','Now'], values:[0.6,0.7,0.8,0.9,1.0], unit:'M' },
+        kennedy:  { labels:['Before','2018','2022','2024','Now'], values:[2.0,2.2,2.4,2.6,2.9], unit:'M' },
+        bilzerian:{ labels:['Before','2018','2020','2022','Now'], values:[100,80,50,40,30], unit:'M' },
+        gallrein: { labels:['Before','2020','2022','2024','Now'], values:[1.8,2.0,2.1,2.3,2.5], unit:'M' }
+      };
+      var _ftmD = _ftmNwData[id];
+      if (_ftmD) window.PDXLazy.chart().then(function () {
+        window.__ftmNwChartInstance = new Chart(_ftmNwCanvas, {
+          type: 'bar',
+          data: {
+            labels: _ftmD.labels,
+            datasets: [{
+              label: 'Net Worth ($' + _ftmD.unit + ')',
+              data: _ftmD.values,
+              backgroundColor: _ftmD.values.map(function(v, i) {
+                return i === 0 ? 'rgba(159,180,212,0.4)' : i === _ftmD.values.length - 1 ? 'rgba(74,222,128,0.5)' : 'rgba(96,165,250,0.35)';
+              }),
+              borderColor: _ftmD.values.map(function(v, i) {
+                return i === 0 ? '#9fb4d4' : i === _ftmD.values.length - 1 ? '#4ade80' : '#60a5fa';
+              }),
+              borderWidth: 1.5,
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(10,15,30,0.95)',
+                titleColor: '#fff', bodyColor: '#9fb4d4',
+                borderColor: 'rgba(74,222,128,0.3)', borderWidth: 1,
+                padding: 8, cornerRadius: 8,
+                callbacks: { label: function(c) { return ' $' + c.parsed.y + _ftmD.unit; } }
+              }
+            },
+            scales: {
+              x: { ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 10 } }, grid: { display: false }, border: { color: 'rgba(255,255,255,0.08)' } },
+              y: { ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 10 }, callback: function(v) { return '$' + v + _ftmD.unit; } }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,0.08)' } }
+            }
+          }
+        });
+      }).catch(function () {});
+    }
+
+    // Follow Money Trail button state
+    var _ftmFollowBtn = document.getElementById('ftm-follow-btn');
+    if (_ftmFollowBtn) {
+      var _cu = auth.currentUser;
+      if (_cu && !_cu.isAnonymous) {
+        db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
+          if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
+            _ftmFollowBtn.classList.add('ftm-following');
+            _ftmFollowBtn.innerHTML = '✅ Following Money Trail';
+          }
+        }).catch(function() {});
+      }
+    }
+
+    console.log('✅ openModal built content for', id);
+
+    // FORCE modal to show — multiple methods
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '1';
+      overlay.style.visibility = 'visible';
+      overlay.style.setProperty('display', 'flex', 'important');
+      overlay.style.setProperty('opacity', '1', 'important');
+      overlay.style.setProperty('visibility', 'visible', 'important');
+    } else {
+      console.error('❌ modal-overlay NOT found!');
+    }
+
+    document.getElementById('modal-body').scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+    // Track which profile is open (used by the top-bar Share button) and reflect
+    // it in the address bar so the link can be copied or shared directly.
+    window._pdxCurrentProfileId = id;
+    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(id) + location.hash); } catch (e) {}
+    // Arm the quick-jump nav (smooth-scroll + scroll-spy) now that the content
+    // is in the DOM and the body has been scrolled back to the top.
+    if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
+    // Voting Record — lazily fetch /api/voting-record and reveal the section if
+    // this member has any record (self-gating; no-ops quietly otherwise).
+    if (typeof window._pdxInitVotingRecord === 'function') window._pdxInitVotingRecord();
+    // Like button setup — use live data from Firestore
+    const _likeBtn = document.getElementById('modal-like-btn');
+    if (_likeBtn) {
+      const base = _likeCounts[id] || 0;
+      _likeBtn.dataset.count = base;
+      _likeBtn.dataset.pid = 'modal-' + id;
+      _likeBtn.querySelector('.like-count').textContent = base;
+      if (_likedPids.has(id)) _likeBtn.classList.add('liked');
+      else _likeBtn.classList.remove('liked');
+    }
+    var _modalDisBtn = document.getElementById('modal-dislike-btn');
+    if (_modalDisBtn) {
+      _modalDisBtn.dataset.count = _dislikeCounts[id] || 0;
+      _modalDisBtn.dataset.pid = 'modal-' + id;
+      _modalDisBtn.querySelector('.dislike-count').textContent = _dislikeCounts[id] || 0;
+      if (_dislikedPids.has(id)) _modalDisBtn.classList.add('disliked');
+      else _modalDisBtn.classList.remove('disliked');
+    }
+
+    // Favorite (heart) — point it at this politician and reflect saved state so
+    // the slim footer's save control opens correctly for whoever is on screen.
+    var _modalFavBtn = document.getElementById('modal-favorite-btn');
+    if (_modalFavBtn) {
+      _modalFavBtn.dataset.pid = 'modal-' + id;
+      var _isFav = (typeof _favoritePids !== 'undefined') && _favoritePids.has(id);
+      _modalFavBtn.classList.toggle('favorited', !!_isFav);
+      _modalFavBtn.innerHTML = _isFav ? '❤️' : '🤍';
+      _modalFavBtn.title = _isFav ? 'Remove from Favorites' : 'Save to Favorites';
+    }
+
+    // Reflect whether this politician is already on the voter's team so the
+    // footer call-to-action opens in the right state with a fitting next step.
+    if (typeof window.pdxSyncModalTeamBtn === 'function') window.pdxSyncModalTeamBtn(id);
+
+    // My Notes — show for logged-in (non-anonymous) users
+    var _notesSection = document.getElementById('my-notes-section');
+    var _notesArea = document.getElementById('modal-my-notes');
+    var _notesStatus = document.getElementById('my-notes-status');
+    var _currentUser = auth.currentUser;
+    if (_notesSection && _notesArea && _currentUser && !_currentUser.isAnonymous) {
+      _notesSection.style.display = '';
+      _notesArea.value = '';
+      if (_notesStatus) { _notesStatus.style.opacity = '0'; _notesStatus.textContent = 'Saved'; }
+      db.collection('userNotes').doc(_currentUser.uid).collection('politicians').doc(id).get()
+        .then(function(doc) {
+          if (doc.exists && doc.data().notes) {
+            _notesArea.value = doc.data().notes;
+          }
+        }).catch(function(e) { console.warn('Notes load failed:', e); });
+
+      if (window._myNotesDebounce) clearTimeout(window._myNotesDebounce);
+      _notesArea.oninput = function() {
+        if (_notesStatus) { _notesStatus.style.opacity = '1'; _notesStatus.textContent = 'Saving...'; _notesStatus.style.color = '#f5c842'; }
+        if (window._myNotesDebounce) clearTimeout(window._myNotesDebounce);
+        window._myNotesDebounce = setTimeout(function() {
+          var u = auth.currentUser;
+          if (!u || u.isAnonymous) return;
+          db.collection('userNotes').doc(u.uid).collection('politicians').doc(id).set({
+            notes: _notesArea.value,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).then(function() {
+            if (_notesStatus) { _notesStatus.textContent = 'Saved'; _notesStatus.style.color = '#4ade80'; _notesStatus.style.opacity = '1'; }
+            setTimeout(function() { if (_notesStatus) _notesStatus.style.opacity = '0'; }, 2000);
+          }).catch(function(e) {
+            console.warn('Notes save failed:', e);
+            if (_notesStatus) { _notesStatus.textContent = 'Save failed'; _notesStatus.style.color = '#f87171'; _notesStatus.style.opacity = '1'; }
+          });
+        }, 800);
+      };
+    } else if (_notesSection) {
+      _notesSection.style.display = 'none';
+    }
+  }
+
+  function closeModal() {
+    if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); window.__wealthChartInstance = null; }
+    if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); window.__ftmNwChartInstance = null; }
+    // Close any open stance-evidence popover so it never lingers over the page.
+    if (typeof window._pdxCloseStanceEvidence === 'function') window._pdxCloseStanceEvidence();
+    window._sagCtx = null;
+    // Detach the quick-jump nav's scroll-spy listener from the body.
+    try {
+      var _mb = document.getElementById('modal-body');
+      if (_mb && window._pdxNavScrollHandler) { _mb.removeEventListener('scroll', window._pdxNavScrollHandler); }
+    } catch (e) {}
+    window._pdxNavScrollHandler = null; window._pdxNavUserJumping = false;
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      overlay.style.removeProperty('display');
+      overlay.style.setProperty('display', 'none', 'important');
+      overlay.style.overscrollBehavior = 'contain';
+    }
+    document.body.style.overflow = '';
+    // Drop the ?p=<id> deep-link param from the address bar on close.
+    window._pdxCurrentProfileId = null;
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    // Refresh the comment + vote counts on listing cards so anything added inside
+    // the profile shows live the moment the modal closes.
+    if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
+    if (typeof window._pdxRefreshVoteChips === 'function') window._pdxRefreshVoteChips();
+  }
+
+
+  function toggleDD(id) {
+    const body = document.getElementById(id);
+    const btn  = document.getElementById('btn-' + id);
+    if (!body || !btn) return;
+    const isOpen = body.classList.contains('dd-open');
+    body.classList.toggle('dd-open', !isOpen);
+    btn.classList.toggle('dd-active', !isOpen);
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      // Close the Full Stance Record overlay first if it's open, then the stance
+      // evidence popover, then the share sheet, otherwise close the profile modal.
+      var _rec = document.getElementById('pdx-record-overlay');
+      if (_rec && _rec.style.display !== 'none') { window._pdxCloseStanceRecord(); return; }
+      var _sag = document.getElementById('sag-pop-overlay');
+      if (_sag && _sag.style.display !== 'none') { window._pdxCloseStanceEvidence(); return; }
+      var _sh = document.getElementById('pdx-share-overlay');
+      if (_sh && _sh.style.display !== 'none') { window._pdxCloseShareSheet(); return; }
+      closeModal();
+    }
+  });
+
+  // Deep-link support for the Full Stance Record overlay (#record/<id>): open it
+  // when the hash is set (back/forward, a shared link) and close it when the hash
+  // leaves. The CTA opens the overlay directly and writes this hash; this listener
+  // keeps browser navigation in sync. Best-effort — never throws into the page.
+  window._pdxSyncRecordHash = function () {
+    try {
+      var h = String(location.hash || '');
+      var m = h.match(/^#record\/(.+)$/);
+      var overlay = document.getElementById('pdx-record-overlay');
+      if (!overlay) return;
+      if (m) {
+        var id = decodeURIComponent(m[1]);
+        var open = !!(window._pdxRecordState && window._pdxRecordState.id === id && overlay.style.display !== 'none');
+        if (!open && typeof window._pdxOpenStanceRecord === 'function') window._pdxOpenStanceRecord(id);
+      } else if (overlay.style.display !== 'none') {
+        window._pdxCloseStanceRecord({ keepHash: true });
+      }
+    } catch (e) {}
+  };
+  window.addEventListener('hashchange', function () { window._pdxSyncRecordHash(); });
+  window.addEventListener('load', function () {
+    // Defer so PROFILES / CMP_DATA are populated before a cold deep-link opens.
+    try { setTimeout(function () { window._pdxSyncRecordHash(); }, 400); } catch (e) {}
+  });
+
+  // ════════════════════════════════════════════════════════════
+  // SHARE — direct links to a specific politician profile
+  // ════════════════════════════════════════════════════════════
+  // A shared link looks like  https://<site>/?p=<id>  and re-opens that
+  // politician's profile modal automatically on load (see _pdxOpenFromUrl).
+  window._pdxShareData = null;
+
+  window.pdxShareUrl = function(id) {
+    return location.origin + location.pathname + '?p=' + encodeURIComponent(id);
+  };
+
+  window.pdxSharePolitician = function(id, ev) {
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    var p = (typeof PROFILES !== 'undefined' && PROFILES) ? PROFILES[id] : null;
+    var name = (p && p.name) ? p.name : 'this politician';
+    var office = (p && p.office) ? p.office : '';
+    var url = window.pdxShareUrl(id);
+    var text = name + (office ? ' (' + office + ')' : '') + ' on PolitiDex — track their promises and record. 🇺🇸';
+    window._pdxShareData = { id: id, name: name, url: url, text: text };
+
+    var overlay  = document.getElementById('pdx-share-overlay');
+    var nameEl   = document.getElementById('pdx-share-name');
+    var linkEl   = document.getElementById('pdx-share-link');
+    var copyBtn  = document.getElementById('pdx-share-copy');
+    var nativeBtn = document.getElementById('pdx-share-native');
+    if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
+    if (linkEl)  linkEl.value = url;
+    if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
+    // The native Web Share API ("More Options") is only offered where supported —
+    // mostly mobile and some desktop browsers.
+    if (nativeBtn) nativeBtn.style.display = (navigator.share) ? '' : 'none';
+    if (overlay) overlay.style.display = 'flex';
+  };
+
+  window._pdxCloseShareSheet = function() {
+    var overlay = document.getElementById('pdx-share-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
+
+  function _pdxLegacyCopy(text) {
+    try {
+      var inp = document.getElementById('pdx-share-link');
+      if (inp) { inp.focus(); inp.select(); document.execCommand('copy'); }
+    } catch (e) { console.warn('Legacy copy failed:', e); }
+  }
+
+  window._pdxCopyShareLink = function() {
+    var d = window._pdxShareData; if (!d) return;
+    var copyBtn = document.getElementById('pdx-share-copy');
+    var done = function() {
+      if (copyBtn) {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function() { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1800);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(d.url).then(done).catch(function() { _pdxLegacyCopy(d.url); done(); });
+    } else {
+      _pdxLegacyCopy(d.url); done();
+    }
+  };
+
+  window._pdxShareTo = function(platform) {
+    var d = window._pdxShareData; if (!d) return;
+    var u = encodeURIComponent(d.url);
+    var t = encodeURIComponent(d.text);
+    if (platform === 'native') {
+      if (navigator.share) {
+        navigator.share({ title: 'PolitiDex — ' + d.name, text: d.text, url: d.url }).catch(function() {});
+      }
+      return;
+    }
+    var link = '';
+    if (platform === 'x') link = 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+    else if (platform === 'facebook') link = 'https://www.facebook.com/sharer/sharer.php?u=' + u;
+    if (link) window.open(link, '_blank', 'noopener,noreferrer,width=600,height=540');
+  };
+
+  // Deep-link: open the profile named in the URL (?p=<id>) once profiles
+  // have loaded. Called from _checkAndTrigger after the directory is built.
+  window._pdxOpenFromUrl = function() {
+    try {
+      var pid = new URLSearchParams(location.search).get('p');
+      if (!pid) return;
+      if (typeof PROFILES === 'undefined' || !PROFILES || !PROFILES[pid]) return;
+      if (typeof showProfile === 'function') showProfile(pid);
+    } catch (e) { console.warn('Deep-link open failed:', e); }
+  };
+
+  // ════════════════════════════════════════════════════════════
+  // SCROLL ANIMATIONS
+  // ════════════════════════════════════════════════════════════
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // Each element only needs to animate in once. Stop watching it so the
+        // observer isn't re-firing for hundreds of already-shown elements on
+        // every scroll.
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.04, rootMargin: '0px 0px -20px 0px' });
+  document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+  // Immediately show elements already in viewport
+  document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
+  });
+  // Fallback: ensure all animate-on-scroll elements become visible after 1.2s
+  setTimeout(() => {
+    document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
+  }, 1200);
+
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.progress-fill').forEach(bar => {
+          const target = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => { bar.style.width = target; }, 200);
+        });
+        // The fill animation runs once per card; release it afterward.
+        barObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('.card-holo').forEach(el => barObserver.observe(el));
+  

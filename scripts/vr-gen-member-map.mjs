@@ -52,10 +52,20 @@ const SEED_SLUGS = {
 };
 
 // ── 1. slug → bioguide from BROWSE_PHOTOS congress portraits ──────────────────
+// BROWSE_PHOTOS was declared in an inline <script> in index.html until the
+// first-paint pass moved the large inline blocks into external files loaded from
+// the same document positions; it now lives in compare-hub.js. Read the document
+// TOGETHER WITH the local scripts it loads so the map is found either way — this
+// must stay in step with scripts/audit-photo-coverage.mjs, which reads the same
+// map the same way.
 function fromBrowsePhotos() {
-  const html = readFileSync(join(ROOT, "index.html"), "utf8");
+  const index = readFileSync(join(ROOT, "index.html"), "utf8");
+  const html = [index, ...[...index.matchAll(/<script[^>]*\bsrc="\/?([^"/][^"]*\.js)"/g)]
+    .map((m) => m[1])
+    .filter((f, i, a) => a.indexOf(f) === i)
+    .map((f) => { try { return readFileSync(join(ROOT, f), "utf8"); } catch { return ""; } })].join("\n");
   const open = html.indexOf("var BROWSE_PHOTOS = {");
-  if (open === -1) throw new Error("BROWSE_PHOTOS map not found in index.html");
+  if (open === -1) throw new Error("BROWSE_PHOTOS map not found in index.html or the scripts it loads");
   const close = html.indexOf("\n    };", open);
   const body = html.slice(open, close === -1 ? undefined : close);
   const re =

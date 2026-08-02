@@ -590,6 +590,19 @@ for (const card of CARDS) {
 {
   const html = R("index.html");
   const at = (f) => html.indexOf(`src="${f}"`);
+
+  // The profile template used to live in an inline <script> in index.html. The
+  // first-paint pass moved the big inline blocks into external files loaded from
+  // the same document positions, so the markup below is now in profiles-full.js
+  // rather than in the HTML itself. The invariant is unchanged — the surface must
+  // be mounted, exactly once, behind a guard — so the haystack is the document
+  // TOGETHER WITH the local scripts it loads. Written this way it also survives
+  // the next extraction without needing to be touched again.
+  const page = [html, ...[...html.matchAll(/<script[^>]*\bsrc="\/?([^"/][^"]*\.js)"/g)]
+    .map((m) => m[1])
+    .filter((f, i, a) => a.indexOf(f) === i)
+    .map((f) => { try { return R(f); } catch { return ""; } })].join("\n");
+
   for (const f of [OUT_PATH, "exec-record.js", "exec-record-ui.js"]) {
     ok(at(f) > 0, `index.html does not load ${f}`);
     eq((html.match(new RegExp(`src="${f.replace(/\./g, "\\.")}"`, "g")) || []).length, 1,
@@ -604,10 +617,10 @@ for (const card of CARDS) {
   ok(at("exec-record.js") < at("exec-record-ui.js"), "exec-record-ui.js loads before exec-record.js");
 
   // Mounted once, into the profile, behind a guard.
-  eq((html.match(/id="pdxsec-exec-record"/g) || []).length, 1,
+  eq((page.match(/id="pdxsec-exec-record"/g) || []).length, 1,
     "the EER anchor is missing or duplicated in the profile template");
-  has(html, "window.PDXExecRecordUI.sectionHtml", "the profile never calls the EER renderer");
-  ok(/window\.PDXExecRecordUI && typeof window\.PDXExecRecordUI\.sectionHtml === 'function'/.test(html),
+  has(page, "window.PDXExecRecordUI.sectionHtml", "the profile never calls the EER renderer");
+  ok(/window\.PDXExecRecordUI && typeof window\.PDXExecRecordUI\.sectionHtml === 'function'/.test(page),
     "the EER render call is not guarded — a failed script load would break the profile");
 
   // Additive only: the 🏛️ surfaces are still mounted, unchanged.
@@ -617,7 +630,7 @@ for (const card of CARDS) {
     'id="pdxsec-divergence"',
     'id="pdxsec-saydo"',
     'id="pdxsec-voting"'
-  ]) has(html, marker, `a congressional Official Record surface was disturbed: ${marker}`);
+  ]) has(page, marker, `a congressional Official Record surface was disturbed: ${marker}`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

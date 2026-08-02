@@ -1,0 +1,1780 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// All-Seeing Eye search
+// ─────────────────────────────────────────────────────────────────────────────
+// Extracted verbatim from index.html (it began at line 68581 of the pre-split
+// document) as part of the first-paint pass. Not a rewrite: the code below is
+// byte-for-byte what was inline, and the <script src> that replaced it sits at
+// the same position in the document, so execution order and global scope are
+// unchanged. It moved out so the HTML stops carrying it on every single visit —
+// external scripts are cached and V8-code-cached across loads; inline script in
+// a revalidated document is re-downloaded and re-compiled every time.
+// ─────────────────────────────────────────────────────────────────────────────
+  (function () {
+    'use strict';
+    var input = document.getElementById('pdx-eye-input');
+    var panel = document.getElementById('pdx-eye-panel');
+    var eye   = document.getElementById('pdx-eye');
+    var clear = document.getElementById('pdx-eye-clear');
+    if (!input || !panel || !eye) return;
+
+    // ── tiny helpers ──────────────────────────────────────────────────
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function norm(s) { return String(s == null ? '' : s).toLowerCase(); }
+    // Canonicalize a party string to a display chip {label,color}.
+    function partyChip(raw) {
+      var p = String(raw || '').trim().toUpperCase();
+      if (!p) return null;
+      var c = p.charAt(0);
+      if (c === 'R') return { label: 'R', color: '#f87171' };
+      if (c === 'D') return { label: 'D', color: '#60a5fa' };
+      if (c === 'I') return { label: 'IND', color: '#a78bfa' };
+      return { label: p.slice(0, 3), color: '#94a3b8' };
+    }
+    // Leading emoji (if any) from a label like "🏥 Healthcare …".
+    function leadEmoji(s) {
+      var m = String(s || '').match(/^\s*(\p{Extended_Pictographic}(?:️)?)/u);
+      return m ? m[1] : '';
+    }
+    function stripEmoji(s) {
+      return String(s || '').replace(/^\s*\p{Extended_Pictographic}(?:️)?\s*/u, '').trim();
+    }
+
+    // ── data access (defensive — sources may load asynchronously) ─────
+    function allPolIds() {
+      var ids = {};
+      try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA) Object.keys(CMP_DATA).forEach(function (id) { ids[id] = 1; }); } catch (e) {}
+      try { if (window.PROFILES) Object.keys(window.PROFILES).forEach(function (id) { ids[id] = 1; }); } catch (e) {}
+      return Object.keys(ids);
+    }
+    function polRec(id) {
+      var p = null;
+      try { if (window.PROFILES && window.PROFILES[id]) p = window.PROFILES[id]; } catch (e) {}
+      if (!p) { try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) p = CMP_DATA[id]; } catch (e) {} }
+      return p;
+    }
+    function photoFor(id) {
+      try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {}
+      return '';
+    }
+
+    // ── build the search index (people + issues), memoized ────────────
+    var index = null, indexKey = '', relCache = {};
+    function buildIndex() {
+      var people = [], issues = [];
+
+      // Politicians — mirror the app's browse haystack so a nav search and the
+      // "All Politicians" search surface the same records.
+      allPolIds().forEach(function (id) {
+        var d = polRec(id);
+        if (!d || !d.name) return;
+        var parts = [d.name, d.office, d.state, d.district, d.bio, d.quote, d.tagline, d.summary];
+        if (Array.isArray(d.issues)) parts = parts.concat(d.issues);
+        else if (typeof d.issues === 'string') parts.push(d.issues);
+        if (d.stances && typeof d.stances === 'object') {
+          for (var k in d.stances) { if (d.stances[k]) parts.push(d.stances[k]); }
+        }
+        var pc = partyChip(d.party);
+        if (pc) parts.push(pc.label === 'R' ? 'republican gop' : pc.label === 'D' ? 'democrat democratic' : 'independent');
+        var sub = [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); })
+          .filter(Boolean).join(' · ');
+        people.push({
+          kind: 'pol', id: id, title: d.name,
+          titleLc: norm(d.name),
+          tokens: norm(d.name).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+          sub: sub, icon: d.icon || '🏛', party: pc,
+          hay: parts.filter(Boolean).join(' ').toLowerCase()
+        });
+      });
+
+      // Issue Spotlights (Hot Topics) — deep, sourced local investigations.
+      try {
+        if (window.PDXSpotlight && typeof window.PDXSpotlight.list === 'function') {
+          window.PDXSpotlight.list().forEach(function (sp) {
+            if (!sp || !sp.slug) return;
+            var desc = sp.blurb || sp.summary || sp.metaDescription || '';
+            var parts = [sp.title, sp.place, sp.eyebrow, desc, sp.summary, sp.controversy, sp.searchKeywords];
+            // Phase 2 — pull the key claims/sections into the haystack so a query
+            // can reach a Spotlight through its timeline or the way people group.
+            if (Array.isArray(sp.timeline)) sp.timeline.forEach(function (t) { if (t && t.text) parts.push(t.text); });
+            if (Array.isArray(sp.groups)) sp.groups.forEach(function (g) { if (g && g.label) parts.push(g.label); });
+            if (Array.isArray(sp.evidence)) sp.evidence.forEach(function (ev) { if (ev && ev.label) parts.push(ev.label); });
+            issues.push({
+              kind: 'spotlight', slug: sp.slug, title: sp.title || 'Issue Spotlight',
+              titleLc: norm(sp.title),
+              tokens: norm(sp.title).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+              sub: sp.place ? ('🔦 Spotlight · ' + sp.place) : '🔦 Issue Spotlight',
+              desc: desc, icon: '🔦',
+              hay: parts.filter(Boolean).join(' ').toLowerCase()
+            });
+          });
+        }
+      } catch (e) {}
+
+      // National issue categories — broad comparison topics (Hot Topics view).
+      try {
+        var core = window.CORE_NATIONAL_ISSUES || [];
+        core.forEach(function (ci) {
+          if (!ci || !ci.label) return;
+          var parts = [ci.label, ci.blurb].concat(ci.keys || []);
+          issues.push({
+            kind: 'issue', issueKey: ci.key, keys: (ci.keys || []).slice(), title: stripEmoji(ci.label) || ci.label,
+            titleLc: norm(stripEmoji(ci.label) || ci.label),
+            tokens: norm(ci.label).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+            sub: 'National issue · compare where they stand',
+            desc: ci.blurb || '', icon: leadEmoji(ci.label) || '🎯',
+            hay: parts.filter(Boolean).join(' ').toLowerCase()
+          });
+        });
+      } catch (e) {}
+
+      // Individual promises / positions & Evidence Locker receipts. Each stance
+      // card (a topic + sourced position, sometimes a campaign pledge) is its own
+      // searchable record, tagged to a politician and an issue key. This is what
+      // lets the eye surface specifics — "closed-loop cooling", "truth in taxation"
+      // — not just names. Resolved from the same live data the Evidence Locker reads.
+      var stances = [];
+      try {
+        var SD = window.ISSUE_STANCE_DATA || {};
+        Object.keys(SD).forEach(function (pid) {
+          var list = SD[pid];
+          if (!Array.isArray(list)) return;
+          var d = polRec(pid);
+          var pname = (d && d.name) || pid.replace(/_/g, ' ');
+          var psub = d ? [d.office, d.state].map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean).join(' · ') : '';
+          list.forEach(function (st) {
+            if (!st || !st.topic) return;
+            var srcLabel = (st.source && st.source.label) || '';
+            var parts = [st.topic, st.text, st.evidence, pname, psub, st.issueKey, srcLabel];
+            stances.push({
+              kind: 'stance', id: pid, title: st.topic,
+              titleLc: norm(st.topic),
+              tokens: norm(st.topic + ' ' + pname).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+              polName: pname, polSub: psub, icon: st.icon || '🧾',
+              pos: st.pos || st.issueStance || '', issueKey: st.issueKey || '',
+              pledge: !!st.pledge, strength: st.strength || '', sourceLabel: srcLabel,
+              snippet: st.text || st.evidence || '',
+              hay: parts.filter(Boolean).join(' ').toLowerCase()
+            });
+          });
+        });
+      } catch (e) {}
+
+      // Bills & Legislation — the Voting Record measures, made first-class in the eye
+      // so it is the ONE place that reaches politicians, positions, issues, Spotlights
+      // AND legislation. Sourced from the live /measures list once fetched (full,
+      // authoritative) merged with the inline light index (instant + curated search
+      // keywords). Live entries win on the natural key; the inline `keywords` are
+      // always folded in so a curated bill (e.g. the Farm Bill) stays reachable by the
+      // plain-language terms people type — "pesticide liability", "farm bill", "7567".
+      var bills = [];
+      try {
+        var issLabel = (typeof window._issueLabel === 'function') ? window._issueLabel : function () { return ''; };
+        // keyword lookup from the inline index, keyed by congress|number
+        var inlineKw = {};
+        if (Array.isArray(window.PDX_BILLS_INDEX)) {
+          window.PDX_BILLS_INDEX.forEach(function (b) {
+            if (b && b.number) inlineKw[String(b.congress || '') + '|' + b.number] = b.keywords || '';
+          });
+        }
+        var billSeen = {}, billPools = [];
+        if (Array.isArray(window.__pdxEyeBillsLive)) billPools.push(window.__pdxEyeBillsLive); // full live list wins
+        if (Array.isArray(window.PDX_BILLS_INDEX)) billPools.push(window.PDX_BILLS_INDEX);
+        billPools.forEach(function (pool) {
+          pool.forEach(function (b) {
+            if (!b || !b.number) return;
+            var natKey = String(b.congress || '') + '|' + b.number;
+            if (billSeen[natKey]) return;
+            billSeen[natKey] = 1;
+            var numRaw = String(b.number);
+            var numCompact = numRaw.replace(/[^a-z0-9]/gi, '');          // "hr7567"
+            var numDigits = (numRaw.match(/\d+/g) || []).join(' ');       // "7567"
+            var ikeys = (b.issueKeys || []).slice();
+            if (b.primaryIssue && ikeys.indexOf(b.primaryIssue) === -1) ikeys.unshift(b.primaryIssue);
+            var issueLabels = ikeys.map(function (k) { try { return issLabel(k) || ''; } catch (e) { return ''; } });
+            var kw = b.keywords || inlineKw[natKey] || '';
+            var disp = b.shortTitle || b.title || numRaw;
+            var chamberW = b.chamber === 'senate' ? 'senate' : b.chamber === 'house' ? 'house' : (b.chamber || '');
+            var typeW = (b.measureType === 'resolution' ? 'resolution' : b.measureType === 'nomination' ? 'nomination' :
+              b.measureType === 'litigation' ? 'litigation lawsuit court case' : b.measureType === 'amendment' ? 'amendment' : 'bill') + ' legislation measure';
+            var parts = [numRaw, numCompact, numDigits, b.title, b.shortTitle, kw, typeW, chamberW,
+              ('congress ' + (b.congress || '')), b.status].concat(ikeys).concat(issueLabels);
+            var chamberLbl = chamberW === 'senate' ? 'Senate' : chamberW === 'house' ? 'House' : '';
+            bills.push({
+              kind: 'bill', number: numRaw, id: (b.id != null ? b.id : null),
+              title: disp,
+              titleLc: norm(numRaw + ' ' + disp),
+              tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+              sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') + (b.isOmnibus ? ' · omnibus' : ''),
+              desc: issueLabels.filter(Boolean).slice(0, 3).join(' · '),
+              icon: '🏛️', issueKey: b.primaryIssue || (ikeys[0] || ''), issueKeys: ikeys,
+              status: b.status || '',
+              hay: parts.filter(Boolean).join(' ').toLowerCase()
+            });
+          });
+        });
+      } catch (e) {}
+
+      index = { people: people, issues: issues, stances: stances, bills: bills };
+      relCache = {};
+      return index;
+    }
+    function getIndex() {
+      ensureEyeBills(); // kick off the one-time live Legislation fetch (guarded)
+      // Rebuild when the roster size changes (e.g. Firestore profiles arrive).
+      var key = allPolIds().length + ':' +
+        ((window.PDXSpotlight && window.PDXSpotlight.list) ? window.PDXSpotlight.list().length : 0) + ':' +
+        ((window.CORE_NATIONAL_ISSUES || []).length) + ':' +
+        (window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0) + ':' +
+        (Array.isArray(window.__pdxEyeBillsLive) ? ('L' + window.__pdxEyeBillsLive.length)
+          : ('I' + ((window.PDX_BILLS_INDEX || []).length)));
+      if (!index || key !== indexKey) { indexKey = key; buildIndex(); }
+      return index;
+    }
+    // Load the full, authoritative Legislation list once (and the inline light index,
+    // for its curated search keywords), then rebuild so EVERY bill — not just the
+    // marquee inline set — is discoverable in the eye. Guarded so it runs at most once
+    // and only after PDXBills is present; failures leave the inline set in place.
+    var billsFetchStarted = false;
+    function ensureEyeBills() {
+      if (billsFetchStarted) return;
+      if (!(window.PDXBills && typeof window.PDXBills.list === 'function')) return;
+      billsFetchStarted = true;
+      try { if (typeof window.PDXBills.ensureIndex === 'function') window.PDXBills.ensureIndex().then(function () { if (window.PDXEye) { window.PDXEye.rebuild(); if (eye.classList.contains('is-open')) render(input.value); } }).catch(function () {}); } catch (e) {}
+      try {
+        // Page through the full list (the API caps pageSize at 100) so EVERY measure
+        // is indexed, not just the first page — then rebuild once at the end.
+        var acc = [];
+        var pull = function (page) {
+          return window.PDXBills.list({ pageSize: 100, page: page, sort: 'number' }).then(function (d) {
+            if (!d || !Array.isArray(d.items)) return;
+            acc = acc.concat(d.items);
+            var total = (typeof d.total === 'number') ? d.total : acc.length;
+            if (acc.length < total && d.items.length > 0 && page < 25) return pull(page + 1);
+          });
+        };
+        pull(1).then(function () {
+          if (acc.length) {
+            window.__pdxEyeBillsLive = acc;
+            if (window.PDXEye) { window.PDXEye.rebuild(); if (eye.classList.contains('is-open')) render(input.value); }
+          }
+        }).catch(function () {});
+      } catch (e) {}
+    }
+
+    // ── fuzzy scoring ─────────────────────────────────────────────────
+    // Subsequence quality: 1 when q's letters appear contiguously in hay, less
+    // as they spread out; -1 when q is not a subsequence at all. Gives typo /
+    // partial tolerance ("massie" → "Thomas Massie", "healthcre" → Healthcare).
+    function subseq(hay, q) {
+      if (!q) return -1;
+      var hi = 0, qi = 0, first = -1, last = -1;
+      while (hi < hay.length && qi < q.length) {
+        if (hay.charCodeAt(hi) === q.charCodeAt(qi)) { if (first < 0) first = hi; last = hi; qi++; }
+        hi++;
+      }
+      if (qi < q.length) return -1;
+      var span = last - first + 1;
+      return q.length / span; // 1 = contiguous run
+    }
+    function tokenPrefix(tokens, t) {
+      for (var i = 0; i < tokens.length; i++) { if (tokens[i].indexOf(t) === 0) return true; }
+      return false;
+    }
+    function score(entry, q, terms) {
+      var name = entry.titleLc, hay = entry.hay, s = 0;
+
+      // whole-query hits (strongest signal)
+      var idxName = name.indexOf(q);
+      if (idxName === 0) s += 120;
+      else if (idxName > 0) s += 70;
+      else if (hay.indexOf(q) !== -1) s += 26;
+
+      // per-term hits
+      var allInHay = true, nameHit = false;
+      for (var i = 0; i < terms.length; i++) {
+        var t = terms[i], inName = name.indexOf(t);
+        if (inName === 0) { s += 44; nameHit = true; }
+        else if (tokenPrefix(entry.tokens, t)) { s += 38; nameHit = true; }
+        else if (inName > 0) { s += 22; nameHit = true; }
+        if (hay.indexOf(t) !== -1) s += 9; else allInHay = false;
+      }
+
+      // fuzzy subsequence fallback on the name (typo tolerance)
+      var fq = subseq(name, q);
+      if (fq > 0) { s += Math.round(18 * fq); if (fq >= 0.999) s += 6; }
+
+      // gate: keep only genuinely relevant entries
+      if (!allInHay && !nameHit && fq < 0.34) return 0;
+      // very short queries: require a name-side hit so we don't dump the DB
+      if (q.length <= 2 && !nameHit && idxName !== 0) return 0;
+      return s;
+    }
+    function rank(list, q, terms, limit, ctx) {
+      var out = [];
+      for (var i = 0; i < list.length; i++) {
+        var sc = score(list[i], q, terms);
+        if (sc > 0) {
+          // Personal nudge: only ever added on top of a genuine match, so the
+          // gate above still decides *what* shows — this just reorders within it.
+          if (ctx) sc += personalBoost(personalOf(list[i], ctx));
+          out.push({ e: list[i], s: sc });
+        }
+      }
+      out.sort(function (a, b) { return b.s - a.s || a.e.title.localeCompare(b.e.title); });
+      return out.slice(0, limit).map(function (r) { return r.e; });
+    }
+
+    // ── connection discovery ──────────────────────────────────────────
+    // Small, calm cross-links that let the eye "see" relationships in the data.
+    // Everything is derived from existing structures (spotlight rosters + the
+    // stance records) and memoized per id, and it only runs for the handful of
+    // rows actually shown — so it never touches search-matching performance.
+    function stripThe(s) { return String(s || '').replace(/^the\s+/i, ''); }
+    // Friendly issue label for an issueKey, via ISSUE_MAP then the national buckets.
+    function issueShort(issueKey) {
+      if (!issueKey) return '';
+      var im = window.ISSUE_MAP || {};
+      if (im[issueKey] && im[issueKey].label) return stripEmoji(im[issueKey].label);
+      var core = window.CORE_NATIONAL_ISSUES || [];
+      for (var i = 0; i < core.length; i++) {
+        if ((core[i].keys || []).indexOf(issueKey) !== -1) return stripEmoji(core[i].label);
+      }
+      return issueKey.replace(/_/g, ' ');
+    }
+    // The national-issue bucket key an issueKey rolls up into (for a clickable hint).
+    function coreKeyForIssue(issueKey) {
+      var core = window.CORE_NATIONAL_ISSUES || [];
+      for (var i = 0; i < core.length; i++) {
+        if ((core[i].keys || []).indexOf(issueKey) !== -1) return core[i].key;
+      }
+      return '';
+    }
+    // Which stance topics a Spotlight grades "strong" for each politician. Strength
+    // is recorded on the Spotlight receipts (a recorded vote/ruling = Strong), not on
+    // the base stance, so we read it from there — this is what earns a "Strong on …"
+    // hint rather than a plainer "On record". Built once per index, memoized.
+    function strongTopicMap() {
+      if (relCache.__strong) return relCache.__strong;
+      var m = {};
+      try {
+        var reg = (window.PDXSpotlight && window.PDXSpotlight.registry) || {};
+        Object.keys(reg).forEach(function (slug) {
+          var sp = reg[slug];
+          (sp.groups || []).forEach(function (g) {
+            (g.people || []).forEach(function (p) { if (p && p.id && p.topic && p.strength === 'strong') { (m[p.id] = m[p.id] || {})[p.topic] = 1; } });
+          });
+          (sp.evidence || []).forEach(function (ev) {
+            (ev.items || []).forEach(function (it) { if (it && it.id && it.topic && it.strength === 'strong') { (m[it.id] = m[it.id] || {})[it.topic] = 1; } });
+          });
+        });
+      } catch (e) {}
+      relCache.__strong = m;
+      return m;
+    }
+    // 1–2 hints for a politician: Spotlights they're central to, then one strongly
+    // documented issue ("Strong on Climate Action" / "Central to Stratos …").
+    function relatedForPol(id) {
+      var ck = 'pol:' + id;
+      if (relCache[ck]) return relCache[ck];
+      var out = [];
+      try {
+        if (window.PDXSpotlight && window.PDXSpotlight.forPolitician) {
+          window.PDXSpotlight.forPolitician(id).forEach(function (sp) {
+            if (out.length < 2 && sp && sp.slug) out.push({ kind: 'spotlight', slug: sp.slug, ico: '🔦', label: 'Central to ' + stripThe(sp.title) });
+          });
+        }
+      } catch (e) {}
+      if (out.length < 2) {
+        try {
+          var list = (window.ISSUE_STANCE_DATA || {})[id] || [];
+          var strongTopics = strongTopicMap()[id] || {};
+          var pick = null, isStrong = false, i;
+          // prefer a base stance the Spotlights grade "strong"
+          for (i = 0; i < list.length; i++) { if (list[i] && list[i].issueKey && strongTopics[list[i].topic]) { pick = list[i]; isStrong = true; break; } }
+          if (!pick) { for (i = 0; i < list.length; i++) { var p = list[i]; if (p && p.issueKey && (p.pos === 'support' || p.pos === 'oppose')) { pick = p; break; } } }
+          if (pick) {
+            var lbl = issueShort(pick.issueKey);
+            if (lbl) out.push({ kind: 'issue', key: coreKeyForIssue(pick.issueKey), ico: '📍', label: (isStrong ? 'Strong on ' : 'On record: ') + lbl });
+          }
+        } catch (e) {}
+      }
+      relCache[ck] = out.slice(0, 2);
+      return relCache[ck];
+    }
+    // 1–2 key politicians with strong documented positions on an issue / spotlight.
+    function relatedForIssue(entry) {
+      var ck = entry.kind === 'spotlight' ? 'sp:' + entry.slug : 'iss:' + (entry.issueKey || '');
+      if (relCache[ck]) return relCache[ck];
+      var out = [], seen = {};
+      try {
+        if (entry.kind === 'spotlight' && window.PDXSpotlight) {
+          var sp = (window.PDXSpotlight.registry || {})[entry.slug];
+          if (sp && Array.isArray(sp.groups)) {
+            var people = [];
+            sp.groups.forEach(function (g) { (g.people || []).forEach(function (pp) { people.push(pp); }); });
+            people.sort(function (a, b) { return (b.strength === 'strong' ? 1 : 0) - (a.strength === 'strong' ? 1 : 0); });
+            people.forEach(function (pp) { if (out.length < 2 && pp.id && !seen[pp.id]) { seen[pp.id] = 1; out.push({ kind: 'pol', id: pp.id, ico: '👤', label: pp.name }); } });
+          }
+        } else {
+          var keys = entry.keys || [], SD = window.ISSUE_STANCE_DATA || {}, strong = [], other = [];
+          Object.keys(SD).forEach(function (pid) {
+            (SD[pid] || []).forEach(function (st) {
+              if (!st || !st.issueKey || keys.indexOf(st.issueKey) === -1) return;
+              if (st.strength === 'strong') strong.push(pid);
+              else if (st.pos === 'support' || st.pos === 'oppose') other.push(pid);
+            });
+          });
+          strong.concat(other).forEach(function (pid) {
+            if (out.length < 2 && !seen[pid]) { var d = polRec(pid); if (d && d.name) { seen[pid] = 1; out.push({ kind: 'pol', id: pid, ico: '👤', label: d.name }); } }
+          });
+        }
+      } catch (e) {}
+      relCache[ck] = out.slice(0, 2);
+      return relCache[ck];
+    }
+    // Render the little "related" chip row beneath a result (or '' when there's none).
+    function relBlock(entry) {
+      var hints = entry.kind === 'pol' ? relatedForPol(entry.id)
+        : (entry.kind === 'spotlight' || entry.kind === 'issue') ? relatedForIssue(entry)
+        : [];
+      if (!hints || !hints.length) return '';
+      var chips = hints.map(function (h) {
+        var attr = h.kind === 'pol' ? 'data-kind="pol" data-id="' + esc(h.id) + '"'
+          : h.kind === 'spotlight' ? 'data-kind="spotlight" data-slug="' + esc(h.slug) + '"'
+          : 'data-kind="issue" data-key="' + esc(h.key || '') + '"';
+        return '<button type="button" class="pdx-eye-rel-chip" ' + attr + '><span class="pdx-eye-rel-ico" aria-hidden="true">' + esc(h.ico || '↳') + '</span>' + esc(h.label) + '</button>';
+      }).join('');
+      return '<div class="pdx-eye-rel"><span class="pdx-eye-rel-lead" aria-hidden="true">↳</span>' + chips + '</div>';
+    }
+    // A tiny stance pill (Supports / Opposes / Mixed) for a receipt row.
+    function posPill(pos) {
+      var p = String(pos || '').toLowerCase(), c, lbl;
+      if (p.indexOf('support') !== -1) { c = '#34d399'; lbl = 'Supports'; }
+      else if (p.indexOf('oppose') !== -1) { c = '#f87171'; lbl = 'Opposes'; }
+      else if (p.indexOf('mix') !== -1) { c = '#fbbf24'; lbl = 'Mixed'; }
+      else return '';
+      return '<span class="pdx-eye-pos" style="color:' + c + ';background:' + c + '22;border:1px solid ' + c + '55;">' + lbl + '</span>';
+    }
+
+    // ── the action layer (Phase 3) ────────────────────────────────────
+    // The eye now lets you *act* on a result, not just open it. Each entry maps
+    // to a small, calm set of command-palette actions revealed on focus/hover.
+    // "Save" routes into the shared window.PDXSaved collection; the rest reuse
+    // the app's existing navigation (team, compare, profile, Evidence Locker,
+    // Spotlights) — no new surfaces, just a faster way to reach them.
+    function toast(msg) { if (typeof window._showToast === 'function') window._showToast(msg); }
+
+    // The {type,key} identity a saveable entry stores in window.PDXSaved.
+    function savedKeyFor(e) {
+      if (e.kind === 'stance') return { type: 'receipt', key: e.id + '|' + (e.issueKey || '') + '|' + e.title };
+      if (e.kind === 'spotlight') return { type: 'spotlight', key: e.slug };
+      if (e.kind === 'issue') return { type: 'issue', key: e.issueKey || e.title };
+      return null;
+    }
+    function isSavedEntry(e) {
+      var sk = savedKeyFor(e);
+      return !!(sk && window.PDXSaved && window.PDXSaved.has(sk.type, sk.key));
+    }
+    // A self-contained snapshot so a saved item stays openable even if the live
+    // index later changes — it carries its own title/sub/icon and the nav hooks.
+    function savedSnapshot(e) {
+      var sk = savedKeyFor(e);
+      if (!sk) return null;
+      var snap = { type: sk.type, key: sk.key, title: e.title, icon: e.icon || '🔖', sub: '', nav: {} };
+      if (e.kind === 'stance') {
+        snap.icon = e.icon || '🧾';
+        snap.sub = posPillText(e.pos) + (e.polName || '') + (e.sourceLabel ? ' · ' + e.sourceLabel : '');
+        snap.nav = { polId: e.id, issueKey: e.issueKey || '' };
+        // Rich fields so the My Evidence workspace can render a canonical stance
+        // pill, the politician + context, and a snippet without re-deriving from
+        // the live index (which may have changed since this was saved).
+        snap.stance = e.pos || '';
+        snap.polId = e.id;
+        snap.polName = e.polName || '';
+        snap.polSub = e.polSub || '';
+        snap.topic = e.title || '';
+        snap.sourceLabel = e.sourceLabel || '';
+        snap.snippet = e.snippet || '';
+        snap.issueKey = e.issueKey || '';
+        snap.pledge = !!e.pledge;
+      } else if (e.kind === 'spotlight') {
+        snap.icon = '🔦'; snap.sub = e.sub || 'Issue Spotlight';
+        snap.nav = { slug: e.slug, issueKey: e.issueKey || '' };
+        snap.slug = e.slug;
+      } else if (e.kind === 'issue') {
+        snap.icon = e.icon || '🎯'; snap.sub = 'National issue';
+        snap.nav = { issueKey: e.issueKey || '' };
+        snap.issueKey = e.issueKey || '';
+      }
+      return snap;
+    }
+    function posPillText(pos) {
+      var p = String(pos || '').toLowerCase();
+      if (p.indexOf('support') !== -1) return 'Supports · ';
+      if (p.indexOf('oppose') !== -1) return 'Opposes · ';
+      if (p.indexOf('mix') !== -1) return 'Mixed · ';
+      return '';
+    }
+
+    // ── personal awareness (saved items + My Team) ────────────────────
+    // The eye now knows *whose* eye it is. It reads two client-side stores the
+    // rest of the app already keeps — the shared window.PDXSaved collection and
+    // the My Team roster (localStorage 'politidex_my_politicians' + the ballot
+    // map 'politidex_my_team') — and turns them into a small "personal context".
+    // That context does two calm things: it *boosts* already-relevant results
+    // that matter to this visitor (their saved receipts, their team's positions)
+    // so they surface first, and it *badges* those rows so the relevance is
+    // legible. Both stores are tiny, so the context is rebuilt per render and is
+    // always truthful the instant something is saved or a teammate is added.
+    function teamIdSet() {
+      var set = {};
+      try { var a = JSON.parse(localStorage.getItem('politidex_my_politicians') || '[]'); if (Array.isArray(a)) a.forEach(function (id) { if (id) set[id] = 1; }); } catch (e) {}
+      try { var sel = JSON.parse(localStorage.getItem('politidex_my_team') || '{}') || {}; for (var k in sel) { if (sel[k]) set[sel[k]] = 1; } } catch (e) {}
+      return set;
+    }
+    function personalContext() {
+      var ctx = { team: teamIdSet(), savedIds: {}, savedIssueKeys: {}, savedPolIds: {} };
+      var items = (window.PDXSaved && window.PDXSaved.list) ? window.PDXSaved.list() : [];
+      items.forEach(function (s) {
+        ctx.savedIds[String(s.type) + '::' + String(s.key)] = 1;
+        var ik = s.issueKey || (s.nav && s.nav.issueKey) || '';
+        if (ik) ctx.savedIssueKeys[ik] = 1;   // a theme this visitor has been collecting
+        var pid = s.polId || (s.nav && s.nav.polId) || '';
+        if (pid) ctx.savedPolIds[pid] = 1;    // a person this visitor keeps saving from
+      });
+      ctx.hasTeam = Object.keys(ctx.team).length > 0;
+      ctx.hasSaved = items.length > 0;
+      return ctx;
+    }
+    // The politician an entry is "about" (people + receipts are tied to a person).
+    function entryPolId(e) { return (e && (e.kind === 'pol' || e.kind === 'stance')) ? (e.id || '') : ''; }
+    // The three personal signals a result can carry, against a context.
+    function personalOf(e, ctx) {
+      var sig = { saved: false, team: false, theme: false };
+      if (!ctx || !e) return sig;
+      var sk = savedKeyFor(e);
+      if (sk && ctx.savedIds[sk.type + '::' + sk.key]) sig.saved = true;        // literally in their collection
+      var pid = entryPolId(e);
+      if (pid && ctx.team[pid]) sig.team = true;                                 // one of their people
+      var ik = e.issueKey || '';
+      if ((ik && ctx.savedIssueKeys[ik]) || (pid && ctx.savedPolIds[pid])) sig.theme = true; // adjacent to a save
+      return sig;
+    }
+    // A calm nudge added on top of a result's base relevance — never enough to
+    // outrank a strong name/topic match, just enough to float personal items to
+    // the front of the pack they already belong to. Only applied to entries that
+    // already scored above the relevance gate, so we never surface unrelated
+    // saved/team content into an unrelated query.
+    function personalBoost(sig) {
+      var b = 0;
+      if (sig.saved) b += 60;
+      if (sig.team)  b += 40;
+      if (sig.theme) b += 20;
+      return b;
+    }
+    // One small pill for the strongest personal signal a row carries (saved wins
+    // over team so the collection reads first). Empty when nothing is personal —
+    // so a normal search looks exactly as it did before this layer existed.
+    function personalBadge(e) {
+      if (badgeOff) return '';
+      var sig = personalOf(e, curCtx);
+      if (sig.saved) return '<span class="pdx-eye-tag pdx-eye-tag--saved" title="In your saved collection">Saved</span>';
+      if (sig.team)  return '<span class="pdx-eye-tag pdx-eye-tag--team" title="From a politician on My Team">★ My Team</span>';
+      return '';
+    }
+
+    // The ordered action list for an entry. `primary` gets the gold treatment;
+    // `saved`/`on` reflect current state so the label flips to a confirmation.
+    function actionsFor(e) {
+      var acts = [];
+      if (e.kind === 'pol') {
+        var on = (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(e.id);
+        acts.push({ id: 'team', ico: on ? '★' : '＋', label: on ? 'On My Team' : 'Add to My Team', primary: !on, on: on });
+        acts.push({ id: 'compare', ico: '⚖', label: 'Compare' });
+        acts.push({ id: 'profile', ico: '👤', label: 'View full profile' });
+      } else if (e.kind === 'stance') {
+        var rs = isSavedEntry(e);
+        acts.push({ id: 'save', ico: rs ? '✓' : '🔖', label: rs ? 'Saved to My Evidence' : 'Save this receipt', primary: !rs, saved: rs });
+        acts.push({ id: 'evidence', ico: '🗄', label: 'View in Evidence Locker' });
+        acts.push({ id: 'jump', ico: '👤', label: 'Jump to politician' });
+      } else if (e.kind === 'spotlight') {
+        var ss = isSavedEntry(e);
+        acts.push({ id: 'save', ico: ss ? '✓' : '🔖', label: ss ? 'Saved' : 'Save this issue', primary: !ss, saved: ss });
+        acts.push({ id: 'open', ico: '🔦', label: 'Open Spotlight' });
+        acts.push({ id: 'stands', ico: '🧭', label: 'See who stands where' });
+      } else if (e.kind === 'issue') {
+        var is = isSavedEntry(e);
+        // Ranked comparison leads: it is the shortest path from "this issue" to
+        // "who is consistent on it, with the receipt".
+        acts.push({ id: 'ranking', ico: '🧭', label: 'See who backs it up', primary: true });
+        acts.push({ id: 'topreceipt', ico: '🧾', label: 'Top receipt on this' });
+        acts.push({ id: 'save', ico: is ? '✓' : '🔖', label: is ? 'Saved' : 'Save this issue', saved: is });
+        acts.push({ id: 'locker', ico: '🗄', label: 'Open Evidence Locker' });
+      } else if (e.kind === 'bill') {
+        acts.push({ id: 'openbill', ico: '🏛️', label: 'Open bill detail', primary: true });
+        if (e.issueKey) acts.push({ id: 'stands', ico: '🧭', label: 'See who stands where' });
+      } else if (e.kind === 'saved') {
+        acts.push({ id: 'open', ico: '↗', label: 'Open' });
+        acts.push({ id: 'unsave', ico: '✕', label: 'Remove', danger: true });
+      }
+      return acts;
+    }
+    function actionStrip(e) {
+      var acts = actionsFor(e);
+      if (!acts.length) return '';
+      var btns = acts.map(function (a) {
+        var cls = 'pdx-eye-act' + (a.primary ? ' pdx-eye-act--primary' : '') +
+          ((a.saved || a.on) ? ' is-saved' : '') + (a.danger ? ' pdx-eye-act--danger' : '');
+        return '<button type="button" class="' + cls + '" data-act="' + a.id + '" tabindex="-1">' +
+          '<span class="pdx-eye-act-ico" aria-hidden="true">' + esc(a.ico) + '</span>' + esc(a.label) + '</button>';
+      }).join('');
+      return '<div class="pdx-eye-actions" role="group" aria-label="Actions for this result">' + btns + '</div>';
+    }
+
+    // Navigate to a result (the default open) — shared by clicks, Enter, and the
+    // related-connection chips, so every path lands in the same place.
+    function navigate(kind, data) {
+      close();
+      if (kind === 'pol') { if (typeof window.showProfile === 'function') window.showProfile(data.id); }
+      else if (kind === 'spotlight') { if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(data.slug); }
+      else if (kind === 'issue') {
+        // Issue-first: an issue result opens the RANKED view of that issue — every
+        // tracked politician ordered by consistency, receipts one tap away — rather
+        // than the raw locker. `focusKey` narrows it to a single sub-issue when the
+        // caller knows one; `mode` preselects the say-vs-do lens.
+        if (window.PDXIssueView && typeof window.PDXIssueView.open === 'function' && data.key) {
+          window.PDXIssueView.open(data.key, { focusKey: data.focusKey || '', mode: data.mode || '', scope: data.scope || '' });
+        }
+        else if (typeof window._pdxOpenEvidenceLocker === 'function' && data.key) window._pdxOpenEvidenceLocker({ issue: data.key });
+        else { var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
+      }
+      else if (kind === 'bill') {
+        if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
+        else { var dl = document.getElementById('digital-library'); if (dl) dl.scrollIntoView({ behavior: 'smooth' }); }
+      }
+    }
+    function openSaved(s) {
+      close();
+      var nav = s.nav || {};
+      if (s.type === 'spotlight' && nav.slug) { navigate('spotlight', { slug: nav.slug }); return; }
+      if (s.type === 'receipt') {
+        if (typeof window._pdxOpenEvidenceLocker === 'function') { window._pdxOpenEvidenceLocker({ pol: nav.polId, issue: nav.issueKey || '' }); return; }
+        if (typeof window.showProfile === 'function') window.showProfile(nav.polId); return;
+      }
+      if (s.type === 'issue') { navigate('issue', { key: nav.issueKey }); }
+    }
+    function activateEntry(e) {
+      if (!e) return;
+      if (e.kind === 'saved') { openSaved(e.saved); return; }
+      if (e.kind === 'pol' || e.kind === 'stance') navigate('pol', { id: e.id });
+      else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
+      else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
+      else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
+    }
+    // Run one command action for an entry. Saving toggles the shared collection
+    // (which fires 'pdx-saved-change' → the panel re-renders to flip the label
+    // and update the My Saved count); navigation actions close the eye.
+    function runAction(e, id) {
+      if (!e) return;
+      if (id === 'team') {
+        // mypolToggleAnimated shows its own rich "added to your team" toast — we
+        // just re-render so the action label flips to reflect membership.
+        if (typeof window.mypolToggleAnimated === 'function') window.mypolToggleAnimated(null, e.id);
+        rerenderKeepFocus();
+        return;
+      }
+      if (id === 'compare') {
+        close();
+        try {
+          if (window._cmpSelected && typeof window._cmpSelected.add === 'function') window._cmpSelected.add(e.id);
+          if (typeof window.openCompare === 'function') window.openCompare();
+          if (typeof window.cmpAddRacePeers === 'function') window.cmpAddRacePeers(e.id);
+        } catch (err) { navigate('pol', { id: e.id }); }
+        return;
+      }
+      if (id === 'profile' || id === 'jump') { navigate('pol', { id: e.id }); return; }
+      if (id === 'openbill') { close(); if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(e.number || e.id); else navigate('bill', { number: e.number, id: e.id }); return; }
+      if (id === 'evidence') { close(); if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: e.id, issue: e.issueKey || '' }); else navigate('pol', { id: e.id }); return; }
+      if (id === 'open') { if (e.kind === 'saved') openSaved(e.saved); else navigate('spotlight', { slug: e.slug }); return; }
+      if (id === 'stands') {
+        var ik = e.issueKey || '';
+        // "Where they stand" now means the ranked comparison, not the raw locker.
+        if (ik) { navigate('issue', { key: ik, focusKey: e._focus || '' }); return; }
+        if (e.kind === 'spotlight') { navigate('spotlight', { slug: e.slug }); return; }
+        close(); var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      if (id === 'ranking') { navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' }); return; }
+      if (id === 'locker') {
+        close();
+        if (typeof window._pdxOpenEvidenceLocker === 'function' && e.issueKey) window._pdxOpenEvidenceLocker({ issue: e.issueKey });
+        else navigate('issue', { key: e.issueKey || '' });
+        return;
+      }
+      // The single strongest sourced receipt on this issue — one tap from an issue
+      // result to the evidence. If nothing is documented yet, say so instead of
+      // opening an empty view.
+      if (id === 'topreceipt') {
+        var rows = [];
+        try {
+          if (window.PDXIssueView && window.PDXIssueView.buildRanking && window.CORE_NATIONAL_ISSUES) {
+            var core = null;
+            window.CORE_NATIONAL_ISSUES.forEach(function (c) { if (c && c.key === e.issueKey) core = c; });
+            if (core) rows = window.PDXIssueView.buildRanking(core, e._focus || '') || [];
+          }
+        } catch (err) {}
+        var hit = null;
+        for (var ri = 0; ri < rows.length && !hit; ri++) { if (rows[ri].receiptCount && rows[ri].topReceiptPid) hit = rows[ri]; }
+        if (hit && window.PDXReceipts && typeof window.PDXReceipts.open === 'function') {
+          close(); window.PDXReceipts.open(hit.topReceiptPid, hit.topReceiptIssue || '');
+        } else if (typeof window._showToast === 'function') {
+          window._showToast('No sourced receipt on this issue yet — opening the ranking');
+          navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' });
+        } else {
+          navigate('issue', { key: e.issueKey || '', focusKey: e._focus || '' });
+        }
+        return;
+      }
+      if (id === 'save') {
+        var snap = savedSnapshot(e);
+        if (snap && window.PDXSaved) {
+          var nowSaved = window.PDXSaved.toggle(snap);
+          toast(nowSaved ? 'Saved — find it in My Saved ✓' : 'Removed from My Saved');
+        }
+        return; // 'pdx-saved-change' triggers the re-render
+      }
+      if (id === 'unsave') {
+        if (e.saved && window.PDXSaved) { window.PDXSaved.remove(e.saved.type, e.saved.key); toast('Removed from My Saved'); }
+        return;
+      }
+    }
+
+    // ── render ────────────────────────────────────────────────────────
+    var flat = [];      // flattened list of currently-rendered items (for keyboard)
+    var active = -1;    // active row index
+    var actIdx = -1;    // focused action within the active row (-1 = the row itself)
+    var curQ = null;    // last-rendered query (to reset per-category expansion)
+    var curCtx = null;  // personal context (saved + team) for the current render
+    var badgeOff = false; // suppress the personal badge inside sections that already imply it
+    var expand = { pol: false, stance: false, iss: false, saved: false, team: false }; // "see more" per category
+
+    function highlight(text, q, terms) {
+      var lc = norm(text), at = -1, len = 0;
+      var qi = lc.indexOf(q);
+      if (q && qi !== -1) { at = qi; len = q.length; }
+      else {
+        for (var i = 0; i < terms.length; i++) {
+          var ti = lc.indexOf(terms[i]);
+          if (ti !== -1 && (at === -1 || ti < at)) { at = ti; len = terms[i].length; }
+        }
+      }
+      if (at === -1) return esc(text);
+      return esc(text.slice(0, at)) + '<mark>' + esc(text.slice(at, at + len)) + '</mark>' + esc(text.slice(at + len));
+    }
+
+    function polItem(e, q, terms, idx) {
+      var url = photoFor(e.id);
+      var thumb = url
+        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
+        : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
+      var tag = e.party ? '<span class="pdx-eye-tag" style="color:' + e.party.color + ';background:' + e.party.color + '22;border:1px solid ' + e.party.color + '55;">' + esc(e.party.label) + '</span>' : '';
+      // Say-vs-Do verdict — surface the strongest sourced contradiction (or
+      // "backed it up") right on the search row so the receipt leads the result.
+      // Where there's no receipt, fall back to an honest coverage signal so a
+      // thin/undocumented official reads as "not yet documented" — never silence.
+      var receipt = '';
+      try { if (window.PDXReceipts && window.PDXReceipts.rowBadge) receipt = window.PDXReceipts.rowBadge(e.id) || ''; } catch (rerr) {}
+      if (!receipt) {
+        try { if (window.PDXCoverage && window.PDXCoverage.badgeHTML) receipt = window.PDXCoverage.badgeHTML(e.id) || ''; } catch (cerr) {}
+      }
+      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '">' +
+        thumb +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
+        personalBadge(e) + receipt + tag + '</button>';
+    }
+    // Which single sub-issue (an ISSUE_MAP key) the current query is really about,
+    // if any — so "housing" reaches housing instead of the whole economy bundle.
+    // Stashed on the entry so the row, its actions and Enter all agree.
+    function issueFocusFor(e, q) {
+      if (!q || e.kind !== 'issue') return '';
+      if (e._fq === q) return e._focus || '';
+      var f = '';
+      try {
+        var hits = (window.PDXIssueView && window.PDXIssueView.searchIssues) ? window.PDXIssueView.searchIssues(q, 6) : [];
+        for (var i = 0; i < hits.length; i++) { if (hits[i].key === e.issueKey) { f = hits[i].focusKey || ''; break; } }
+      } catch (err) {}
+      e._fq = q; e._focus = f;
+      return f;
+    }
+    function issueItem(e, q, terms, idx) {
+      var attr = e.kind === 'spotlight'
+        ? 'data-kind="spotlight" data-slug="' + esc(e.slug) + '"'
+        : 'data-kind="issue" data-key="' + esc(e.issueKey || '') + '"';
+      var sub = e.desc ? (e.sub.split(' · ')[0] + ' · ' + e.desc) : e.sub;
+      var tag = '';
+      if (e.kind === 'issue') {
+        // Lead with what is actually documented on this issue — a live count, or an
+        // honest "not yet documented" — instead of a static promise to compare.
+        var focus = issueFocusFor(e, q);
+        try {
+          var cov = (window.PDXIssueView && window.PDXIssueView.coverage)
+            ? window.PDXIssueView.coverage(e.issueKey, { focusKey: focus }) : null;
+          if (cov) {
+            sub = cov.people === 0
+              ? 'National issue · not yet documented'
+              : (cov.people + ' ranked by consistency' + (cov.withReceipts ? ' · ' + cov.withReceipts + ' with receipts' : ' · stated positions only'));
+            if (focus) {
+              var fl = '';
+              try { fl = (window.ISSUE_MAP && window.ISSUE_MAP[focus] && window.ISSUE_MAP[focus].label) || ''; } catch (fe) {}
+              if (fl) sub = fl + ' · ' + sub;
+            }
+            if (cov.thin && cov.people > 0) tag = '<span class="pdx-eye-tag pdx-eye-tag--src">Thin coverage</span>';
+            else if (cov.people === 0) tag = '<span class="pdx-eye-tag pdx-eye-tag--src">No data yet</span>';
+          }
+        } catch (err) {}
+      }
+      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" ' + attr + '>' +
+        '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        '<span class="pdx-eye-sub">' + esc(sub) + '</span></span>' +
+        personalBadge(e) + tag + '</button>';
+    }
+    // A bill / measure from the Legislation library. Clicking opens the rich in-app
+    // bill detail panel (PDXBills.open → PDXBillDetail), where the omnibus breakdown,
+    // sponsors, member actions and related Spotlights live.
+    function billStatusLabel(s) {
+      var M = { introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate', enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending' };
+      return M[s] || '';
+    }
+    function billItem(e, q, terms, idx) {
+      var st = billStatusLabel(e.status);
+      var badge = st ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(st) + '</span>' : '';
+      var sub = e.sub + (e.desc ? ' · ' + e.desc : '');
+      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="bill" data-number="' + esc(e.number) + '">' +
+        '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        '<span class="pdx-eye-sub">' + esc(sub) + '</span></span>' +
+        personalBadge(e) + badge + '</button>';
+    }
+    // A single promise / position / receipt. Clicking opens the politician's
+    // profile (where the full Evidence Locker card lives). The row leads with a
+    // stance pill and tails with the source label — the "receipt" at a glance.
+    function stanceItem(e, q, terms, idx) {
+      var url = photoFor(e.id);
+      var thumb = url
+        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
+        : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
+      var src = e.sourceLabel ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(e.sourceLabel) + '</span>' : '';
+      var sub = posPill(e.pos) + esc(e.polName) + (e.polSub ? ' · ' + esc(e.polSub) : '') + (e.pledge ? ' · pledge' : '');
+      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '">' +
+        thumb +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        '<span class="pdx-eye-sub">' + sub + '</span></span>' +
+        personalBadge(e) + src + '</button>';
+    }
+    // Wrap one rendered row so its related hints and its action strip live in a
+    // single focus/hover container — this is what lets the eye reveal the action
+    // layer for exactly the row you're on, and nothing else.
+    function wrapRes(idx, itemHtml, entry, q, terms) {
+      return '<div class="pdx-eye-res" data-i="' + idx + '">' + itemHtml + relBlock(entry) + actionStrip(entry) + '</div>';
+    }
+    // A saved-collection row (rendered in the empty-state "My Saved" section).
+    function savedItemHtml(e, idx) {
+      var s = e.saved;
+      var badge = s.type === 'receipt' ? 'Receipt' : s.type === 'spotlight' ? 'Spotlight' : 'Issue';
+      var thumbCls = (s.type === 'spotlight' || s.type === 'issue') ? 'pdx-eye-thumb pdx-eye-thumb--issue' : 'pdx-eye-thumb';
+      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="saved">' +
+        '<span class="' + thumbCls + '">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + esc(e.title) + '</span>' +
+        (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
+        '<span class="pdx-eye-tag pdx-eye-tag--saved">' + badge + '</span>' +
+        '</button>';
+    }
+    // The "My Saved" section — the retrievable home of everything the eye let you
+    // save. Shown in the calm empty/focused state so a returning visitor sees
+    // their collection the moment they open the eye.
+    function savedBlock() {
+      var items = (window.PDXSaved && window.PDXSaved.list) ? window.PDXSaved.list() : [];
+      if (!items.length) return '';
+      var cap = expand.saved ? items.length : 6;
+      var h = '<div class="pdx-eye-cat" data-cat="saved"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#a78bfa;"></span>My Saved<span class="pdx-eye-cat-n">' + items.length + '</span></div>';
+      items.slice(0, cap).forEach(function (s) {
+        var e = { kind: 'saved', saved: s, title: s.title, icon: s.icon || '🔖', sub: s.sub || '' };
+        var i = flat.length; flat.push(e);
+        h += wrapRes(i, savedItemHtml(e, i), e, '', []);
+      });
+      if (items.length > cap) { h += '<button type="button" class="pdx-eye-more" data-more="saved">See ' + (items.length - cap) + ' more ▾</button>'; }
+      return h + '</div>';
+    }
+    // The "From My Team" section — the visitor's own roster, surfaced the moment
+    // the eye opens so a returning user lands on their people first. Rows reuse
+    // the normal politician renderer (and its action strip: compare, profile,
+    // Evidence Locker), so a teammate here behaves exactly like one found by name.
+    function teamBlock() {
+      var ctx = curCtx || personalContext();
+      var ids = Object.keys(ctx.team);
+      if (!ids.length) return '';
+      var byId = {};
+      getIndex().people.forEach(function (p) { byId[p.id] = p; });
+      var entries = [];
+      ids.forEach(function (id) { if (byId[id]) entries.push(byId[id]); });
+      if (!entries.length) return '';
+      var cap = expand.team ? entries.length : 6;
+      var h = '<div class="pdx-eye-cat" data-cat="team"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#f5c842;"></span>From My Team<span class="pdx-eye-cat-n">' + entries.length + '</span></div>';
+      badgeOff = true; // every row here is a teammate — the section header already says so
+      entries.slice(0, cap).forEach(function (e) {
+        var i = flat.length; flat.push(e);
+        h += wrapRes(i, polItem(e, '', [], i), e, '', []);
+      });
+      badgeOff = false;
+      if (entries.length > cap) { h += '<button type="button" class="pdx-eye-more" data-more="team">See ' + (entries.length - cap) + ' more ▾</button>'; }
+      return h + '</div>';
+    }
+    // ── the personal map (Phase 5) ────────────────────────────────────
+    // Per-result boosting told the visitor "this one is yours". The map goes a
+    // step further and shows the *shape* of what they watch: it rolls their saved
+    // receipts up to national themes, then, for each theme, counts how many of
+    // their own teammates are already on record on it. That single crossing —
+    // "a theme you collect × a person you back" — is the connection this layer
+    // surfaces, plus the people who share a Spotlight with something they saved.
+    // Everything is derived live from window.PDXSaved + the My Team roster, so it
+    // is always truthful and needs no store of its own.
+    var connOpen = true; // the map is calm-but-visible by default; the header collapses it
+    // One friendly {label, icon} for a national-issue bucket key (falls back to
+    // the raw issueKey when a save doesn't roll up into a known bucket).
+    function themeMeta(coreKey, ik) {
+      var core = window.CORE_NATIONAL_ISSUES || [];
+      for (var i = 0; i < core.length; i++) {
+        if (core[i].key === coreKey) return { label: stripEmoji(core[i].label) || core[i].label, icon: leadEmoji(core[i].label) || '📍' };
+      }
+      return { label: issueShort(ik) || String(coreKey).replace(/_/g, ' '), icon: '📍' };
+    }
+    // The connection graph for this visitor. Cheap: one pass over the (tiny) saved
+    // list, then one pass over each teammate's stances. Rebuilt per open, memoized
+    // only within a single render via curCtx.
+    function connectionsData(ctx) {
+      ctx = ctx || personalContext();
+      var out = { tagThemes: [], issueThemes: [], siblings: [], teamActive: 0, itemsById: {} };
+      if (!ctx.hasSaved) return out; // the map needs a collection to connect
+      var items = (window.PDXSaved && window.PDXSaved.list) ? window.PDXSaved.list() : [];
+      var normTags = (window.PDXSaved && window.PDXSaved.normTags)
+        ? window.PDXSaved.normTags
+        : function (t) { return Array.isArray(t) ? t : []; };
+
+      // 1a · roll each saved item up to a national-issue bucket (the app's own themes)
+      var buckets = {}; // coreKey -> { kind:'issue', key, label, icon, savedCount, teamIds:{}, itemIds:{}, items:[] }
+      function bucketOf(ik) {
+        var ck = coreKeyForIssue(ik) || ik; // fall back to the raw key as its own bucket
+        if (!buckets[ck]) { var m = themeMeta(ck, ik); buckets[ck] = { kind: 'issue', key: ck, label: m.label, icon: m.icon, savedCount: 0, teamIds: {}, itemIds: {}, items: [] }; }
+        return buckets[ck];
+      }
+      // 1b · …and cluster the SAME saves by the visitor's own tags — how *they*
+      // organize their evidence. Each tag remembers which national issues its
+      // receipts span, so we can cross-link the visitor's team to it later.
+      var tags = {}; // tag -> { kind:'tag', key, label, icon, savedCount, teamIds:{}, cores:{coreKey:n}, itemIds:{}, items:[] }
+      function tagOf(tg) {
+        if (!tags[tg]) tags[tg] = { kind: 'tag', key: tg, label: tg, icon: '🏷', savedCount: 0, teamIds: {}, cores: {}, itemIds: {}, items: [] };
+        return tags[tg];
+      }
+      // One compact summary per saved item, so an expanded cluster can list the
+      // real receipts (and deep-link each) without re-reading the store. The same
+      // summary object is shared across every cluster the item lands in, which is
+      // also what lets two clusters be detected as "sharing" a receipt.
+      function summarize(s) {
+        return {
+          id: String(s.type) + '::' + String(s.key),
+          type: s.type, key: s.key,
+          title: s.title || '(untitled)', sub: s.sub || '', icon: s.icon || '🔖',
+          polId: s.polId || (s.nav && s.nav.polId) || '',
+          issueKey: s.issueKey || (s.nav && s.nav.issueKey) || ''
+        };
+      }
+      function addItem(cluster, sum) { if (!cluster.itemIds[sum.id]) { cluster.itemIds[sum.id] = 1; cluster.items.push(sum); } }
+      items.forEach(function (s) {
+        var sum = summarize(s);
+        out.itemsById[sum.id] = sum;
+        var ik = sum.issueKey;
+        var ck = ik ? (coreKeyForIssue(ik) || ik) : '';
+        if (ik) { var b = bucketOf(ik); b.savedCount++; addItem(b, sum); }
+        normTags(s.tags).forEach(function (tg) {
+          var tb = tagOf(tg); tb.savedCount++; addItem(tb, sum);
+          if (ck) tb.cores[ck] = (tb.cores[ck] || 0) + 1;
+        });
+      });
+
+      // 2 · which of the visitor's own teammates are on record on each cluster.
+      //   · an issue cluster matches a teammate with a stance in that core theme
+      //   · a tag cluster matches a teammate active on ANY theme that tag spans —
+      //     i.e. the people already working the issues the visitor tags heavily.
+      var teamIds = Object.keys(ctx.team);
+      var SD = window.ISSUE_STANCE_DATA || {};
+      var activeAll = {};
+      var teamCores = {}; // pid -> { coreKey:1 } — each teammate's themes, indexed once
+      teamIds.forEach(function (pid) {
+        var cs = {};
+        (SD[pid] || []).forEach(function (st) {
+          if (!st || !st.issueKey) return;
+          cs[coreKeyForIssue(st.issueKey) || st.issueKey] = 1;
+        });
+        teamCores[pid] = cs;
+      });
+      teamIds.forEach(function (pid) {
+        var cs = teamCores[pid];
+        Object.keys(buckets).forEach(function (ck) { if (cs[ck]) { buckets[ck].teamIds[pid] = 1; activeAll[pid] = 1; } });
+        Object.keys(tags).forEach(function (tg) {
+          var tb = tags[tg];
+          for (var ck in tb.cores) { if (cs[ck]) { tb.teamIds[pid] = 1; activeAll[pid] = 1; break; } }
+        });
+      });
+      out.teamActive = Object.keys(activeAll).length;
+
+      function finish(b) {
+        b.teamCount = Object.keys(b.teamIds).length;
+        // the theme a tag leans on most — scopes a teammate chip's deep-link.
+        if (b.kind === 'tag') {
+          var top = '', best = 0;
+          for (var ck in b.cores) { if (b.cores[ck] > best) { best = b.cores[ck]; top = ck; } }
+          b.topIssue = top;
+        }
+        return b;
+      }
+      // strongest connection first: most saved, then most of the visitor's people active
+      var sortFn = function (a, b) { return (b.savedCount - a.savedCount) || (b.teamCount - a.teamCount) || String(a.label).localeCompare(String(b.label)); };
+      Object.keys(tags).forEach(function (k) { out.tagThemes.push(finish(tags[k])); });
+      Object.keys(buckets).forEach(function (k) { out.issueThemes.push(finish(buckets[k])); });
+      out.tagThemes.sort(sortFn);
+      out.issueThemes.sort(sortFn);
+
+      // 3 · Spotlight siblings — people featured alongside a Spotlight the visitor
+      // saved, that they neither saved from nor already have on their team. A
+      // sibling drawn from a Spotlight the visitor took the trouble to *tag* reads
+      // as a stronger signal, so it sorts first and carries that tag as context.
+      try {
+        var reg = (window.PDXSpotlight && window.PDXSpotlight.registry) || {};
+        var seenSib = {};
+        items.forEach(function (s) {
+          if (s.type !== 'spotlight') return;
+          var slug = s.slug || (s.nav && s.nav.slug) || s.key;
+          var sp = reg[slug];
+          if (!sp || !Array.isArray(sp.groups)) return;
+          var stags = normTags(s.tags);
+          sp.groups.forEach(function (g) {
+            (g.people || []).forEach(function (pp) {
+              if (!pp || !pp.id || seenSib[pp.id]) return;
+              if (ctx.team[pp.id] || ctx.savedPolIds[pp.id]) return; // already in their world
+              var d = polRec(pp.id); if (!d || !d.name) return;
+              seenSib[pp.id] = 1;
+              out.siblings.push({ id: pp.id, name: d.name, from: stripThe(sp.title || 'a Spotlight you saved'), tag: stags[0] || '' });
+            });
+          });
+        });
+        out.siblings.sort(function (a, b) { return (b.tag ? 1 : 0) - (a.tag ? 1 : 0); });
+      } catch (e) {}
+
+      return out;
+    }
+    // Which cluster (by id "kind:key") is currently expanded in the map, and the
+    // last-built data (so the wire handlers can resolve a receipt by id). A single
+    // open cluster keeps the panel calm — an accordion, not a wall of detail.
+    var connSel = '';
+    var connData = null;
+    function connReceiptById(id) { return (connData && connData.itemsById && connData.itemsById[id]) || null; }
+    // Deep-link a single saved receipt: prefer its politician's Evidence Locker
+    // scoped to the receipt's theme, else fall back to My Evidence.
+    function connOpenReceipt(sum) {
+      close();
+      if (sum && sum.polId && typeof window._pdxOpenEvidenceLocker === 'function') {
+        window._pdxOpenEvidenceLocker({ pol: sum.polId, issue: sum.issueKey || '' });
+      } else if (typeof window._pdxOpenMyEvidenceByTag === 'function') {
+        window._pdxOpenMyEvidenceByTag('');
+      }
+    }
+    // Render the personal map into the eye's resting state. Returns '' (nothing at
+    // all) unless the visitor has saved content that rolls up into at least one
+    // theme — so a new or empty visitor never sees it.
+    function connectionsBlock() {
+      var ctx = curCtx || personalContext();
+      var data = connectionsData(ctx);
+      connData = data;
+      if (!data.tagThemes.length && !data.issueThemes.length) return '';
+
+      // Blend: the visitor's own tags lead — mirroring how *they* organize their
+      // evidence is the whole point of this layer — but at least one of the app's
+      // inferred themes is kept alongside when room remains. So tags are
+      // *preferred*, never a wholesale replacement of the national-issue map.
+      var themes;
+      if (data.tagThemes.length) themes = data.tagThemes.slice(0, 3).concat(data.issueThemes).slice(0, 4);
+      else themes = data.issueThemes.slice(0, 4);
+      if (!themes.length) return '';
+      var sibs = data.siblings.slice(0, 3);
+
+      // Relationships are scoped to the clusters we actually show, so every
+      // "overlaps with" chip jumps to something visible on the map. Two clusters
+      // overlap when they share a saved receipt (the same item is tagged into both
+      // / rolls into both) or a teammate on record across them.
+      themes.forEach(function (t) { t._id = t.kind + ':' + t.key; });
+      var displayed = {}; themes.forEach(function (t) { displayed[t._id] = t; });
+      themes.forEach(function (a) {
+        var rel = [];
+        themes.forEach(function (b) {
+          if (b === a) return;
+          var st = 0, sr = 0, p, it;
+          for (p in a.teamIds) { if (b.teamIds[p]) st++; }
+          for (it in a.itemIds) { if (b.itemIds[it]) sr++; }
+          if (st || sr) rel.push({ id: b._id, kind: b.kind, key: b.key, label: b.label, icon: b.icon, st: st, sr: sr });
+        });
+        rel.sort(function (x, y) { return (y.sr + y.st) - (x.sr + x.st); });
+        a._rel = rel;
+      });
+      // Forget a remembered open cluster that is no longer on the map, then light
+      // up the clusters the open one overlaps (the calm "shared highlighting").
+      if (connSel && !displayed[connSel]) connSel = '';
+      var openT = connSel ? displayed[connSel] : null;
+      var linked = {};
+      if (openT) openT._rel.forEach(function (r) { linked[r.id] = 1; });
+
+      // header summary — a one-line read that stands alone when collapsed
+      var nTag = 0, nIss = 0;
+      themes.forEach(function (t) { if (t.kind === 'tag') nTag++; else nIss++; });
+      var parts = [];
+      if (nTag) parts.push(nTag + ' of your tag' + (nTag === 1 ? '' : 's'));
+      if (nIss) parts.push(nIss + ' theme' + (nIss === 1 ? '' : 's'));
+      var sum = parts.join(' · ');
+      if (data.teamActive) sum += ' · ' + data.teamActive + ' on My Team active';
+      var collapsed = !connOpen;
+      var h = '<div class="pdx-eye-conn' + (collapsed ? ' is-collapsed' : '') + '" data-cat="conn">' +
+        '<button type="button" class="pdx-eye-conn-h" data-conn-toggle aria-expanded="' + (collapsed ? 'false' : 'true') + '">' +
+          '<span class="pdx-eye-conn-eye" aria-hidden="true">◉</span>' +
+          '<span class="pdx-eye-conn-t">Your Connections</span>' +
+          '<span class="pdx-eye-conn-sum">' + esc(sum) + '</span>' +
+          '<span class="pdx-eye-conn-chev" aria-hidden="true">▾</span>' +
+        '</button>';
+      if (!collapsed) {
+        h += '<div class="pdx-eye-conn-body">' +
+          '<div class="pdx-eye-conn-lead">The eye traces what you watch — the receipts you’ve saved, grouped the way you tag them and mapped onto the team you’ve built. <b>Open a cluster to follow its threads.</b></div>' +
+          '<div class="pdx-eye-conn-map">';
+        themes.forEach(function (t) { h += clusterHtml(t, t._id === connSel, !!linked[t._id]); });
+        h += '</div>';
+        if (sibs.length) {
+          h += '<div class="pdx-eye-conn-sib"><span class="pdx-eye-conn-sib-lead"><span class="pdx-eye-conn-thread" aria-hidden="true">↳</span>Shares a Spotlight with your saves</span>';
+          sibs.forEach(function (s) {
+            var tip = s.tag ? ('From ' + s.from + ' · your “' + s.tag + '” tag') : ('From ' + s.from);
+            h += '<button type="button" class="pdx-eye-conn-chip" data-conn-pol="' + esc(s.id) + '" title="' + esc(tip) + '">' + esc(s.name) + '</button>';
+          });
+          h += '</div>';
+        }
+        h += '</div>';
+      }
+      return h + '</div>';
+    }
+    // One cluster on the map: its theme button (tap to expand), a light teammate
+    // preview at rest, and — when open — its receipts, teammates, overlapping
+    // clusters and a strip of quick actions.
+    function clusterHtml(t, isOpen, isLinked) {
+      var isTag = t.kind === 'tag';
+      var meta = t.savedCount + ' saved';
+      if (t.teamCount) meta += ' · ' + t.teamCount + ' on My Team';
+      var scopeIk = isTag ? (t.topIssue || '') : t.key;
+      var cls = 'pdx-eye-conn-cl' + (isOpen ? ' is-open' : '') + (isLinked ? ' is-linked' : '');
+      var tip = isOpen ? 'Collapse this cluster' : (isTag ? ('Open your “' + t.label + '” tag cluster') : ('Open the ' + t.label + ' cluster'));
+      var h = '<div class="' + cls + '" data-cluster="' + esc(t._id) + '">' +
+        '<div class="pdx-eye-conn-row">' +
+          '<span class="pdx-eye-conn-node" aria-hidden="true"></span>' +
+          '<button type="button" class="pdx-eye-conn-theme' + (isTag ? ' pdx-eye-conn-theme--tag' : '') + '" data-conn-cluster="' + esc(t._id) + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '" title="' + esc(tip) + '">' +
+            '<span class="pdx-eye-conn-ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
+            '<b>' + esc(t.label) + '</b>' +
+            (isTag ? '<span class="pdx-eye-conn-yours">your tag</span>' : '') +
+            '<span class="pdx-eye-conn-meta">' + esc(meta) + '</span>' +
+            '<span class="pdx-eye-conn-xp" aria-hidden="true">▾</span>' +
+          '</button>';
+      // At rest, keep a light teammate preview so the map still reads relational
+      // when nothing is open (the full roster appears inside the detail).
+      if (!isOpen) {
+        Object.keys(t.teamIds).slice(0, 3).forEach(function (pid) {
+          var d = polRec(pid); if (!d || !d.name) return;
+          var chipIssue = scopeIk ? ' data-conn-issue="' + esc(scopeIk) + '"' : '';
+          h += '<button type="button" class="pdx-eye-conn-chip" data-conn-pol="' + esc(pid) + '"' + chipIssue + ' title="See where ' + esc(d.name) + ' stands on ' + esc(t.label) + '">' +
+            '<span class="pdx-eye-conn-star" aria-hidden="true">★</span>' + esc(d.name) + '</button>';
+        });
+      }
+      h += '</div>'; // row
+      if (isOpen) h += clusterDetail(t, scopeIk);
+      return h + '</div>'; // cl
+    }
+    // The expanded body of a cluster: the receipts it holds, the teammates active
+    // on it, the other clusters it overlaps, then the quick-action strip.
+    function clusterDetail(t, scopeIk) {
+      var isTag = t.kind === 'tag';
+      var h = '<div class="pdx-eye-conn-detail">';
+
+      // 1 · the actual receipts in this cluster
+      var recs = t.items.slice(0, 4);
+      if (recs.length) {
+        h += '<div class="pdx-eye-conn-sec"><div class="pdx-eye-conn-sec-h"><span class="pdx-eye-conn-thread" aria-hidden="true">↳</span>Receipts here</div><div class="pdx-eye-conn-list">';
+        recs.forEach(function (r) {
+          h += '<button type="button" class="pdx-eye-conn-rcpt" data-conn-rcpt="' + esc(r.id) + '" title="Open this receipt">' +
+            '<span class="pdx-eye-conn-rcpt-ico" aria-hidden="true">' + esc(r.icon) + '</span>' +
+            '<span class="pdx-eye-conn-rcpt-tx"><span class="pdx-eye-conn-rcpt-tt">' + esc(r.title) + '</span>' +
+            (r.sub ? '<span class="pdx-eye-conn-rcpt-sb">' + esc(r.sub) + '</span>' : '') + '</span></button>';
+        });
+        if (t.items.length > recs.length) h += '<span class="pdx-eye-conn-rcpt-more">+' + (t.items.length - recs.length) + ' more</span>';
+        h += '</div></div>';
+      }
+
+      // 2 · teammates active in this cluster
+      var tids = Object.keys(t.teamIds);
+      if (tids.length) {
+        h += '<div class="pdx-eye-conn-sec"><div class="pdx-eye-conn-sec-h"><span class="pdx-eye-conn-thread" aria-hidden="true">↳</span>Teammates on this</div><div class="pdx-eye-conn-list">';
+        tids.slice(0, 6).forEach(function (pid) {
+          var d = polRec(pid); if (!d || !d.name) return;
+          var chipIssue = scopeIk ? ' data-conn-issue="' + esc(scopeIk) + '"' : '';
+          h += '<button type="button" class="pdx-eye-conn-chip" data-conn-pol="' + esc(pid) + '"' + chipIssue + ' title="See where ' + esc(d.name) + ' stands on ' + esc(t.label) + '">' +
+            '<span class="pdx-eye-conn-star" aria-hidden="true">★</span>' + esc(d.name) + '</button>';
+        });
+        h += '</div></div>';
+      }
+
+      // 3 · related themes / tags this cluster overlaps (shared receipts or teammates)
+      if (t._rel && t._rel.length) {
+        h += '<div class="pdx-eye-conn-sec"><div class="pdx-eye-conn-sec-h"><span class="pdx-eye-conn-thread" aria-hidden="true">↳</span>Overlaps with</div><div class="pdx-eye-conn-list">';
+        t._rel.slice(0, 4).forEach(function (r) {
+          var bits = [];
+          if (r.sr) bits.push(r.sr + ' receipt' + (r.sr === 1 ? '' : 's'));
+          if (r.st) bits.push(r.st + ' teammate' + (r.st === 1 ? '' : 's'));
+          h += '<button type="button" class="pdx-eye-conn-rel" data-conn-cluster="' + esc(r.id) + '" data-kind="' + esc(r.kind) + '" title="Jump to ' + esc(r.label) + '">' +
+            '<span aria-hidden="true">' + esc(r.icon) + '</span>' + esc(r.label) +
+            (bits.length ? '<span class="pdx-eye-conn-rel-share">' + esc(bits.join(' · ')) + '</span>' : '') + '</button>';
+        });
+        h += '</div></div>';
+      }
+
+      // 4 · quick actions — the deep-links out of the map
+      h += '<div class="pdx-eye-conn-acts">';
+      if (isTag) {
+        h += '<button type="button" class="pdx-eye-conn-act pdx-eye-conn-act--primary" data-conn-act="evidence" data-tag="' + esc(t.key) + '"><span class="pdx-eye-conn-act-ico" aria-hidden="true">🗂</span>View in My Evidence</button>';
+      } else {
+        h += '<button type="button" class="pdx-eye-conn-act pdx-eye-conn-act--primary" data-conn-act="locker" data-issue="' + esc(t.key) + '"><span class="pdx-eye-conn-act-ico" aria-hidden="true">🗄</span>Open Evidence Locker</button>';
+      }
+      if (scopeIk && tids.length) {
+        h += '<button type="button" class="pdx-eye-conn-act" data-conn-act="teammates" data-issue="' + esc(scopeIk) + '"><span class="pdx-eye-conn-act-ico" aria-hidden="true">★</span>See teammates on this</button>';
+      }
+      if (t._rel && t._rel.length) {
+        h += '<button type="button" class="pdx-eye-conn-act" data-conn-act="related" data-target="' + esc(t._rel[0].id) + '"><span class="pdx-eye-conn-act-ico" aria-hidden="true">◈</span>Explore related ' + (t._rel[0].kind === 'tag' ? 'tags' : 'themes') + '</button>';
+      }
+      h += '</div>';
+
+      return h + '</div>'; // detail
+    }
+    // hints and its action strip), and a "See more" expander when the ranked
+    // list runs deeper.
+    function catBlock(catKey, title, color, listAll, renderItem, q, terms) {
+      if (!listAll || !listAll.length) return '';
+      var cap = expand[catKey] ? listAll.length : 6;
+      var shown = listAll.slice(0, cap);
+      var h = '<div class="pdx-eye-cat" data-cat="' + catKey + '"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:' + color + ';"></span>' + title + '<span class="pdx-eye-cat-n">' + listAll.length + '</span></div>';
+      shown.forEach(function (e) { var i = flat.length; flat.push(e); h += wrapRes(i, renderItem(e, q, terms, i), e, q, terms); });
+      if (listAll.length > cap) {
+        h += '<button type="button" class="pdx-eye-more" data-more="' + catKey + '">See ' + (listAll.length - cap) + ' more ▾</button>';
+      }
+      return h + '</div>';
+    }
+
+    // ── the issue answer ──────────────────────────────────────────────
+    // Names are only one kind of question. "Who actually backs housing?",
+    // "who's contradictory on immigration", "guns" — all of these name an ISSUE,
+    // and sometimes a lens (who delivers / who contradicts). The issue engine
+    // parses that, ranks the people on it with the SAME consistency ordering the
+    // issue view uses, and hands back rows plus an honest read of how much data
+    // there actually is. We render it above the name results, so the answer comes
+    // before the list, and every row lands on the receipt itself in one tap.
+    var lastAnswer = null;
+    function answerBlock(q) {
+      lastAnswer = null;
+      if (!window.PDXIssueView || typeof window.PDXIssueView.answer !== 'function') return '';
+      var a = null;
+      try { a = window.PDXIssueView.answer(q, 3); } catch (e) { return ''; }
+      if (!a) return '';
+      lastAnswer = a;
+
+      var lens = a.mode === 'consistent' ? 'Ranked by consistency · who backs their words with action'
+        : a.mode === 'contradiction' ? 'Ranked by consistency · documented say-vs-do gaps first'
+        : 'Ranked by consistency · who backs up their words first';
+      if (a.state) lens += ' · ' + esc(a.state) + ' + national';
+
+      var h = '<div class="pdx-eye-ans" data-ans="1">' +
+        '<div class="pdx-eye-ans-h">' +
+          '<span class="pdx-eye-ans-ico" aria-hidden="true">' + esc(a.icon || '🎯') + '</span>' +
+          '<span class="pdx-eye-ans-ht">' +
+            '<span class="pdx-eye-ans-eyebrow">Issue answer</span>' +
+            '<span class="pdx-eye-ans-title">' + esc(a.label) +
+              (a.parentLabel ? ' <span style="color:#8aa0c0;font-weight:400;">· in ' + esc(a.parentLabel) + '</span>' : '') +
+            '</span>' +
+            '<span class="pdx-eye-ans-lens">' + lens + '</span>' +
+          '</span>' +
+        '</div>';
+
+      // Honest coverage first — a thin issue says so before it shows a short list.
+      // The note is built (and escaped) by the coverage engine, so it goes in as HTML.
+      var note = '';
+      try { note = window.PDXIssueView.coverageNote(a.coverage, a.label) || ''; } catch (e) {}
+      if (note) h += '<div class="pdx-eye-ans-cov pdx-eye-ans-cov--' + esc(a.coverage.level) + '">' + note + '</div>';
+      // When a lens or a local scope found nothing, we widened rather than showing
+      // an empty wall — and we say which.
+      if (a.scopeFellBack) h += '<div class="pdx-eye-ans-cov">No one from <b>' + esc(a.state || 'your state') + '</b> is documented on this yet — showing everywhere.</div>';
+      if (a.modeFellBack) {
+        h += '<div class="pdx-eye-ans-cov">' + (a.mode === 'contradiction'
+          ? 'No documented contradictions on <b>' + esc(a.label) + '</b> yet — showing the full ranking.'
+          : 'Nobody has been checked as backing this up yet — showing the full ranking.') + '</div>';
+      }
+
+      a.rows.forEach(function (r, i) {
+        // Why this row is here, in the strongest evidence it has: a verified receipt
+        // first, then the roll call that decided the verdict, then what they merely
+        // said. Vote text is assembled from record fields only.
+        var why = r.topHeadline || '';
+        if (!why && r.voteCite) {
+          var vc = r.voteCite;
+          var pos = String(vc.position || '').toLowerCase();
+          var isVote = vc.kind !== 'position';
+          var verb = pos === 'yea' ? 'Voted yes' : pos === 'nay' ? 'Voted no'
+            : pos === 'present' ? 'Voted present' : pos === 'not_voting' ? 'Did not vote'
+            : (!isVote && vc.action) ? vc.action : 'Voted';
+          // "Voted no ON H.R. 3", but "Cosponsored H.R. 3" — a formal action already
+          // carries its own preposition.
+          why = verb + (isVote ? ' on ' : ' ') + (vc.number || vc.title || 'a measure') +
+            (vc.verdict === 'contradicts' ? ' — against their stated position' : ' — in line with what they said');
+        }
+        if (!why && r.stanceWord) why = r.stanceWord + ' ' + r.stanceText;
+        var hasReceipt = !!(r.topReceiptPid && r.receiptCount);
+        var hasVote = !hasReceipt && !!(r.voteCite && r.voteCite.measureId != null);
+        h += '<button type="button" class="pdx-eye-ans-row" data-ans-row="' + i + '">' +
+          '<span class="pdx-eye-ans-rank" aria-hidden="true">' + (i + 1) + '</span>' +
+          '<span class="pdx-eye-ans-body">' +
+            '<span class="pdx-eye-ans-name">' + esc(r.name) + (r.party ? ' <span style="color:' + esc(r.party.color) + ';">· ' + esc(r.party.label) + '</span>' : '') + '</span>' +
+            '<span class="pdx-eye-ans-v pdx-eye-ans-v--' + esc(r.tierKey) + '">' + esc(r.tier.ico + ' ' + r.tier.label) + '</span>' +
+            (why ? '<span class="pdx-eye-ans-why">' + esc(why) + '</span>' : '') +
+          '</span>' +
+          '<span class="pdx-eye-ans-go">' + (hasReceipt ? '🧾 Receipt' : hasVote ? '🗳 Vote' : 'Profile') + ' →</span>' +
+        '</button>';
+      });
+
+      h += '<div class="pdx-eye-ans-foot">' +
+        '<button type="button" class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" data-ans-act="ranking">' +
+          '<span aria-hidden="true">🧭</span>See all ' + a.total + (a.total === 1 ? ' person' : ' people') + ' ranked' +
+        '</button>' +
+        (a.parentLabel ? '<button type="button" class="pdx-eye-ans-btn" data-ans-act="widen"><span aria-hidden="true">⤢</span>Widen to ' + esc(a.parentLabel) + '</button>' : '') +
+        '<button type="button" class="pdx-eye-ans-btn" data-ans-act="link"><span aria-hidden="true">🔗</span>Copy link</button>' +
+      '</div>';
+
+      return h + '</div>';
+    }
+    // Open the ranked issue view, falling back to the Evidence Locker where the
+    // issue module hasn't loaded.
+    function openRanking(coreKey, opts) {
+      close();
+      if (window.PDXIssueView && typeof window.PDXIssueView.open === 'function') { window.PDXIssueView.open(coreKey, opts || {}); return; }
+      if (typeof window._pdxOpenEvidenceLocker === 'function' && coreKey) { window._pdxOpenEvidenceLocker({ issue: coreKey }); return; }
+      var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Question starters for the resting state — the eye teaching that it answers
+    // questions, not just names. Built from the issues that actually have the most
+    // documentation, so a starter never lands on an empty ranking.
+    function askBlock() {
+      if (!window.PDXIssueView || typeof window.PDXIssueView.coverage !== 'function') return '';
+      var list = [];
+      try {
+        (window.CORE_NATIONAL_ISSUES || []).forEach(function (ci) {
+          if (!ci || !ci.key) return;
+          var cov = window.PDXIssueView.coverage(ci.key);
+          if (!cov || !cov.checked) return;
+          list.push({ key: ci.key, label: stripEmoji(ci.label) || ci.label, n: cov.checked });
+        });
+      } catch (e) { return ''; }
+      if (!list.length) return '';
+      list.sort(function (a, b) { return b.n - a.n; });
+      var qs = [];
+      if (list[0]) qs.push('Who actually backs ' + list[0].label.toLowerCase() + '?');
+      if (list[1]) qs.push("Who's contradictory on " + list[1].label.toLowerCase() + '?');
+      if (list[2]) qs.push('Who delivers on ' + list[2].label.toLowerCase() + '?');
+      var chips = qs.map(function (q) {
+        return '<button type="button" class="pdx-eye-ask-chip" data-ask="' + esc(q) + '">' +
+          '<span class="pdx-eye-ask-ico" aria-hidden="true">❓</span>' + esc(q) + '</button>';
+      }).join('');
+      return '<div class="pdx-eye-cat" data-cat="ask"><div class="pdx-eye-cat-h">' +
+        '<span class="pdx-eye-cat-dot" style="background:#f5c842;"></span>Ask a question</div>' +
+        '<div class="pdx-eye-ask">' + chips + '</div></div>';
+    }
+    function runAnswerAction(id) {
+      var a = lastAnswer;
+      if (!a) return;
+      if (id === 'ranking') { openRanking(a.coreKey, { focusKey: a.focusKey, mode: a.mode, scope: a.scope }); return; }
+      if (id === 'widen') { openRanking(a.coreKey, { mode: a.mode, scope: a.scope }); return; }
+      if (id === 'link') {
+        var url = a.link || '';
+        if (!url) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+              if (typeof window._showToast === 'function') window._showToast('Link copied — it opens this ranking ✓');
+            });
+            return;
+          }
+        } catch (e) {}
+        if (typeof window._showToast === 'function') window._showToast(url);
+      }
+    }
+    // A row in the answer opens the strongest evidence behind it — the shortest path
+    // from a question to the sourced proof: a receipt where one exists, otherwise the
+    // measure the deciding vote was cast on, otherwise the profile.
+    function openAnswerRow(i) {
+      var a = lastAnswer;
+      if (!a || !a.rows[i]) return;
+      var r = a.rows[i];
+      if (r.topReceiptPid && r.receiptCount && window.PDXReceipts && typeof window.PDXReceipts.open === 'function') {
+        close();
+        window.PDXReceipts.open(r.topReceiptPid, r.topReceiptIssue || a.focusKey || '');
+        return;
+      }
+      if (r.voteCite && r.voteCite.measureId != null && window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
+        close();
+        window.PDXBillDetail.open(String(r.voteCite.measureId));
+        return;
+      }
+      navigate('pol', { id: r.id });
+    }
+
+    function render(q) {
+      var data = getIndex();
+      curCtx = personalContext();   // who this eye belongs to, refreshed each render
+      flat = [];
+      var html = '';
+      q = norm(q).trim();
+      if (q !== curQ) { expand = { pol: false, stance: false, iss: false, bill: false, saved: false, team: false }; curQ = q; }
+
+      if (!q) {
+        // Empty, focused state — a calm invitation, the visitor's saved
+        // collection (retrievable any time the eye opens), then a few Hot Topics.
+        var suggest = data.issues.filter(function (x) { return x.kind === 'spotlight'; }).slice(0, 4);
+        html += '<div class="pdx-eye-empty">The eye is open. <b>Ask a question or search politicians, issues &amp; hot topics</b> — then save what matters.</div>';
+        html += askBlock();
+        html += connectionsBlock();
+        html += savedBlock();
+        html += teamBlock();
+        if (suggest.length) {
+          html += '<div class="pdx-eye-cat"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#fb923c;"></span>Explore Hot Topics</div>';
+          suggest.forEach(function (e) { var i = flat.length; flat.push(e); html += wrapRes(i, issueItem(e, '', [], i), e, '', []); });
+          html += '</div>';
+        }
+        html += hintBar();
+        panel.innerHTML = html;
+        wire();
+        return flat.length;
+      }
+
+      var terms = q.split(/\s+/).filter(Boolean);
+      var LIM = 30; // rank deep enough to power "See more"; the cap of 6 is applied per category
+      var pols = rank(data.people, q, terms, LIM, curCtx);
+      var sts  = rank(data.stances || [], q, terms, LIM, curCtx);
+      var bls  = rank(data.bills || [], q, terms, LIM, curCtx);
+      var iss  = rank(data.issues, q, terms, LIM, curCtx);
+      // The issue answer is computed first: a question phrased in words nobody is
+      // named after ("who actually backs housing?") can answer even when the
+      // name/stance/bill ranking finds nothing at all.
+      var ansHtml = answerBlock(q);
+
+      if (!ansHtml && !pols.length && !sts.length && !bls.length && !iss.length) {
+        panel.innerHTML = '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+        wire();
+        return 0;
+      }
+
+      html += ansHtml;
+      html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
+      html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
+      html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
+      html += catBlock('iss', 'Issues &amp; Hot Topics', '#fb923c', iss, issueItem, q, terms);
+      html += hintBar();
+      panel.innerHTML = html;
+      wire();
+      return flat.length;
+    }
+    function hintBar() {
+      return '<div class="pdx-eye-hint"><span class="pdx-eye-kbd">↑</span><span class="pdx-eye-kbd">↓</span> move &nbsp;·&nbsp; <span class="pdx-eye-kbd">→</span> actions &nbsp;·&nbsp; <span class="pdx-eye-kbd">↵</span> open &nbsp;·&nbsp; <span class="pdx-eye-kbd">esc</span> close</div>';
+    }
+
+    // ── activation / navigation ───────────────────────────────────────
+    // Navigate from a related-connection chip (which carries its target in data
+    // attributes). Result rows go through activateEntry(flat[i]) instead.
+    function activate(el) {
+      if (!el) return;
+      var kind = el.getAttribute('data-kind');
+      if (kind === 'pol') navigate('pol', { id: el.getAttribute('data-id') });
+      else if (kind === 'spotlight') navigate('spotlight', { slug: el.getAttribute('data-slug') });
+      else if (kind === 'issue') navigate('issue', { key: el.getAttribute('data-key') });
+    }
+    function entryAt(el) {
+      var res = el && el.closest ? el.closest('.pdx-eye-res') : null;
+      if (!res) return null;
+      var i = parseInt(res.getAttribute('data-i'), 10);
+      return isNaN(i) ? null : flat[i];
+    }
+    function wire() {
+      // Each result lives in a .pdx-eye-res wrapper: the row opens it, the action
+      // strip (revealed on focus/hover) runs a command without leaving the eye.
+      panel.querySelectorAll('.pdx-eye-res').forEach(function (res) {
+        var i = parseInt(res.getAttribute('data-i'), 10);
+        res.addEventListener('mouseenter', function () { setActive(i); });
+        var item = res.querySelector('.pdx-eye-item');
+        if (item) {
+          item.addEventListener('mousedown', function (ev) { ev.preventDefault(); }); // keep input focus
+          item.addEventListener('click', function () { activateEntry(flat[i]); });
+        }
+        res.querySelectorAll('.pdx-eye-act').forEach(function (btn) {
+          btn.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+          btn.addEventListener('click', function (ev) { ev.stopPropagation(); runAction(flat[i], btn.getAttribute('data-act')); });
+        });
+      });
+      // The issue answer — a row jumps straight to its receipt; the footer opens
+      // the full ranking or copies the shareable deep link.
+      panel.querySelectorAll('.pdx-eye-ans-row').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          openAnswerRow(parseInt(el.getAttribute('data-ans-row'), 10) || 0);
+        });
+      });
+      panel.querySelectorAll('[data-ans-act]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); runAnswerAction(el.getAttribute('data-ans-act')); });
+      });
+      // Question starters — fill the box and answer immediately.
+      panel.querySelectorAll('[data-ask]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          input.value = el.getAttribute('data-ask') || '';
+          try { input.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) { render(input.value); }
+          try { input.focus(); } catch (e) {}
+          setActive(-1);
+        });
+      });
+      // Related connection chips — navigate to the linked person / issue / spotlight.
+      panel.querySelectorAll('.pdx-eye-rel-chip').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); activate(el); });
+      });
+      // "See more" — expand that category in place, keeping the query and focus.
+      panel.querySelectorAll('.pdx-eye-more').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var cat = el.getAttribute('data-more');
+          if (cat) expand[cat] = true;
+          render(input.value);
+          setActive(-1);
+        });
+      });
+      // Personal map ("Your Connections") — collapse toggle + its cross-links.
+      panel.querySelectorAll('[data-conn-toggle]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) { ev.stopPropagation(); connOpen = !connOpen; render(input.value); setActive(-1); });
+      });
+      // A cluster theme (or an "overlaps with" chip) → expand it in place. A
+      // single open cluster keeps the map calm; re-opening the same one closes it.
+      panel.querySelectorAll('[data-conn-cluster]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var id = el.getAttribute('data-conn-cluster') || '';
+          connSel = (connSel === id) ? '' : id;
+          render(input.value); setActive(-1);
+        });
+      });
+      // A saved receipt inside an expanded cluster → open it.
+      panel.querySelectorAll('[data-conn-rcpt]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          connOpenReceipt(connReceiptById(el.getAttribute('data-conn-rcpt') || ''));
+        });
+      });
+      // Quick actions inside an expanded cluster — deep-links out of the map (or,
+      // for "Explore related", a jump to the strongest overlapping cluster).
+      panel.querySelectorAll('[data-conn-act]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var act = el.getAttribute('data-conn-act');
+          if (act === 'related') { connSel = el.getAttribute('data-target') || ''; render(input.value); setActive(-1); return; }
+          if (act === 'evidence') {
+            var tag = el.getAttribute('data-tag') || '';
+            close();
+            if (typeof window._pdxOpenMyEvidenceByTag === 'function') window._pdxOpenMyEvidenceByTag(tag);
+            return;
+          }
+          if (act === 'locker') { close(); navigate('issue', { key: el.getAttribute('data-issue') || '' }); return; }
+          if (act === 'teammates') {
+            var ik = el.getAttribute('data-issue') || '';
+            close();
+            if (ik && typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ issue: ik });
+          }
+        });
+      });
+      // A teammate / sibling chip → open that person, scoped to the theme when known.
+      panel.querySelectorAll('.pdx-eye-conn-chip[data-conn-pol]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var pid = el.getAttribute('data-conn-pol'), ik = el.getAttribute('data-conn-issue') || '';
+          close();
+          if (ik && typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: pid, issue: ik });
+          else navigate('pol', { id: pid });
+        });
+      });
+    }
+
+    // ── active-row + action (keyboard) handling ───────────────────────
+    function resEls() { return panel.querySelectorAll('.pdx-eye-res'); }
+    function activeRes() { var els = resEls(); return (active >= 0 && els[active]) ? els[active] : null; }
+    function actBtns(res) { return res ? res.querySelectorAll('.pdx-eye-act') : []; }
+    function clearActFocus(res) { actBtns(res).forEach(function (b) { b.classList.remove('is-focus'); }); }
+    // Move the roving highlight across the active row's action strip. j = -1 hands
+    // focus back to the row itself.
+    function setActFocus(j) {
+      var res = activeRes(); if (!res) { actIdx = -1; return; }
+      var btns = actBtns(res);
+      if (!btns.length) { actIdx = -1; return; }
+      if (j < 0) { actIdx = -1; clearActFocus(res); return; }
+      if (j >= btns.length) j = btns.length - 1;
+      actIdx = j;
+      btns.forEach(function (b, n) { b.classList.toggle('is-focus', n === j); });
+      btns[j].scrollIntoView({ block: 'nearest' });
+    }
+    function setActive(i) {
+      var els = resEls();
+      if (!els.length) { active = -1; actIdx = -1; return; }
+      if (i < 0) i = els.length - 1;
+      if (i >= els.length) i = 0;
+      active = i; actIdx = -1;
+      els.forEach(function (el, n) {
+        var on = n === i;
+        el.classList.toggle('is-active', on);
+        if (on) { input.setAttribute('aria-activedescendant', ''); el.scrollIntoView({ block: 'nearest' }); }
+        else { clearActFocus(el); }
+      });
+    }
+    // Re-render (e.g. after a save toggles a label / the My Saved count) while
+    // holding the visitor's place — same active row, same focused action.
+    function rerenderKeepFocus() {
+      var a = active, ai = actIdx;
+      render(input.value);
+      if (a >= 0) { setActive(Math.min(a, resEls().length - 1)); if (ai >= 0) setActFocus(ai); }
+    }
+
+    // ── open / close ──────────────────────────────────────────────────
+    function open() { eye.classList.add('is-open'); input.setAttribute('aria-expanded', 'true'); }
+    function close() { eye.classList.remove('is-open'); input.setAttribute('aria-expanded', 'false'); active = -1; actIdx = -1; }
+
+    // ── events ────────────────────────────────────────────────────────
+    var t = null;
+    input.addEventListener('input', function () {
+      var has = input.value.length > 0;
+      eye.classList.toggle('has-text', has);
+      clearTimeout(t);
+      t = setTimeout(function () { render(input.value); setActive(input.value.trim() ? 0 : -1); open(); }, 60);
+    });
+    input.addEventListener('focus', function () {
+      eye.classList.add('is-focus');
+      render(input.value); open();
+      setActive(input.value.trim() ? 0 : -1);
+    });
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowDown') { ev.preventDefault(); if (!eye.classList.contains('is-open')) { render(input.value); open(); } setActFocus(-1); setActive(active + 1); }
+      else if (ev.key === 'ArrowUp') { ev.preventDefault(); setActFocus(-1); setActive(active - 1); }
+      else if (ev.key === 'ArrowRight') {
+        // Reveal / step into the active row's action strip (command-palette move).
+        if (active >= 0 && actBtns(activeRes()).length) { ev.preventDefault(); setActFocus(actIdx + 1); }
+      } else if (ev.key === 'ArrowLeft') {
+        if (actIdx >= 0) { ev.preventDefault(); setActFocus(actIdx - 1); }
+      } else if (ev.key === 'Tab') {
+        // Once inside the action strip, Tab/Shift+Tab roves across it. Before
+        // entering (actIdx === -1) Tab keeps its normal behaviour, so keyboard
+        // users can still tab out of the search.
+        if (actIdx >= 0) { ev.preventDefault(); setActFocus(ev.shiftKey ? actIdx - 1 : actIdx + 1); }
+      } else if (ev.key === 'Enter') {
+        if (actIdx >= 0) {
+          var res = activeRes(), btns = actBtns(res);
+          if (res && btns[actIdx]) { ev.preventDefault(); runAction(flat[parseInt(res.getAttribute('data-i'), 10)], btns[actIdx].getAttribute('data-act')); }
+        } else if (active >= 0 && flat[active]) { ev.preventDefault(); activateEntry(flat[active]); }
+      } else if (ev.key === 'Escape') {
+        if (actIdx >= 0) { setActFocus(-1); }
+        else if (input.value) { input.value = ''; eye.classList.remove('has-text'); render(''); }
+        else { close(); input.blur(); }
+      }
+    });
+    clear.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+    clear.addEventListener('click', function () {
+      input.value = ''; eye.classList.remove('has-text'); input.focus(); render(''); open();
+    });
+
+    // click / focus outside closes
+    document.addEventListener('mousedown', function (ev) {
+      if (!eye.contains(ev.target)) { close(); eye.classList.remove('is-focus'); }
+    });
+    input.addEventListener('blur', function () {
+      // defer so an item click (which blurs the input) can still fire
+      setTimeout(function () { if (!eye.contains(document.activeElement)) { eye.classList.remove('is-focus'); if (!eye.matches(':hover')) close(); } }, 120);
+    });
+
+    // Global "/" to focus search (nice-to-have) — ignored while typing elsewhere.
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== '/' || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      var a = document.activeElement, tag = a && a.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (a && a.isContentEditable)) return;
+      ev.preventDefault();
+      input.focus();
+      input.scrollIntoView({ block: 'nearest' });
+    });
+
+    // When anything changes the saved collection (a Save action here, or a future
+    // My Saved page), keep the open panel truthful: flip Save→Saved labels and
+    // refresh the My Saved count/list without losing the visitor's place.
+    window.addEventListener('pdx-saved-change', function () {
+      if (eye.classList.contains('is-open')) rerenderKeepFocus();
+    });
+
+    // An issue answer is computed the moment the question is typed, before the roll-call
+    // batch for that issue can land. When it does, re-answer in place: the ordering, the
+    // badges and the coverage note are all richer with votes counted, and the visitor
+    // never has to retype to see it. Only fires while the panel is open.
+    window.addEventListener('pdx-issue-votes', function () {
+      if (eye.classList.contains('is-open') && input.value.trim()) rerenderKeepFocus();
+    });
+
+    // Signal the eye is alive (subtle idle blink), once data can resolve.
+    eye.classList.add('is-loaded');
+    window.PDXEye = {
+      focus: function () { input.focus(); },
+      rebuild: function () { index = null; },
+      render: render,
+      // Open the eye pre-filled with a query and run it — used by other panels
+      // (e.g. the bill detail) to "link back" into the central discovery hub.
+      search: function (q) {
+        try {
+          input.value = q == null ? '' : String(q);
+          open();
+          eye.classList.add('is-focus');
+          render(input.value);
+          setActive(input.value.trim() ? 0 : -1);
+          input.focus();
+          try { eye.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+        } catch (e) {}
+      }
+    };
+  })();
+  
