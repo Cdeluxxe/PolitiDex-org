@@ -255,6 +255,14 @@
 #hr1-showcase .hr1-rc.is-rep { border-color: rgba(45,212,191,0.45); box-shadow: 0 0 0 1px rgba(45,212,191,0.14), 0 8px 24px rgba(0,0,0,0.28); }
 #hr1-showcase .hr1-tab.is-rep.is-active { background: rgba(45,212,191,0.16); border-color: rgba(45,212,191,0.55); color: #7ff0dd; }
 #hr1-showcase .hr1-rc-facts { margin: 0; font: 400 0.83rem/1.5 'Barlow', sans-serif; color: #c2d0e6; }
+/* Receipt-card footer: the source link and — where the member's own H.R.1 vote
+   produces a card that clears every trust guard — the 🏛️ Official Record share
+   control (rendered hidden by receipt-cards.js and revealed on hydrate). Wraps so
+   the share control keeps a full-size tap target on a narrow screen. */
+#hr1-showcase .hr1-rc-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; margin-top: 0.55rem;
+}
+#hr1-showcase .hr1-rc-foot:empty { display: none; }
 
 /* ── Footer CTAs ──────────────────────────────────────────────────────────── */
 #hr1-showcase .hr1-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; margin-top: 2.6rem; }

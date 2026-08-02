@@ -346,8 +346,37 @@
           '</span>' +
         '</div>' +
         '<p class="hr1-rc-facts">' + esc(r.facts) + '</p>' +
-        (r.source ? '<a class="hr1-src" href="' + escAttr(r.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 ' + esc(r.source.label || 'Source') + '</a>' : '') +
+        '<div class="hr1-rc-foot">' +
+          (r.source ? '<a class="hr1-src" href="' + escAttr(r.source.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 ' + esc(r.source.label || 'Source') + '</a>' : '') +
+          recordShareHtml(r.id) +
+        '</div>' +
       '</article>';
+  }
+
+  /* ── Official Record split-card share (receipt-cards.js) ───────────────────── */
+  // H.R.1 is the app's clearest omnibus teaching case, so it is also where the
+  // "one vote, two outcomes" split card belongs. The button is rendered hidden and
+  // is revealed by PDXReceiptCards.hydrate() only for members whose H.R.1 vote
+  // actually produces a card that clears every trust guard — this file never
+  // decides eligibility, and never sees why a member was excluded.
+  //   What gets shared is the member's OWN vote on H.R.1 against their OWN stated
+  // position, not the curated receipt this card is drawn from. The two stay
+  // distinct: 🏛️ steel control, 🧾 gold Say-vs-Do control, never the same button.
+  var HR1_SHARE_NUMBER = 'H.R. 1';
+  function recordShareHtml(pid) {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.buttonHtml !== 'function') return '';
+      // stopKeys: the receipt card is itself an Enter/Space-activatable role=button,
+      // so the share control keeps its own key events out of the card's handler.
+      return RC.buttonHtml({ pid: pid, measure: HR1_SHARE_NUMBER, stopKeys: true });
+    } catch (e) { return ''; }
+  }
+  function hydrateShares(host) {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (RC && typeof RC.hydrate === 'function') RC.hydrate(host);
+    } catch (e) {}
   }
 
   /* ── live secondary examples: other multi-issue measures in the record ────── */
@@ -561,6 +590,7 @@
       '</div>';
 
     bindFilters(host);
+    hydrateShares(host);
   }
 
   // Delegated filter tabs (bound once per host innerHTML rebuild).

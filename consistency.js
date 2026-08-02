@@ -769,6 +769,13 @@
       '.pdxor-vrlink{display:inline-block;margin-top:0.45rem;background:none;border:none;padding:0.2rem 0;cursor:pointer;font-family:inherit;font-size:0.68rem;font-weight:700;letter-spacing:0.02em;color:#7fb4ff;text-align:left;}' +
       '.pdxor-vrlink:hover{color:#a9ceff;text-decoration:underline;text-underline-offset:2px;}' +
       '.pdxor-vrlink:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.3rem;}' +
+      // Slot for the 🏛️ Official Record share control (receipt-cards.js). The
+      // control itself is styled globally in say-vs-do.css so both feeds' buttons
+      // are defined side by side and cannot quietly converge; this only positions
+      // it. Collapses to nothing when no card cleared the guards and the button was
+      // removed, so an ineligible row shows no empty gap.
+      '.pdxor-share{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;}' +
+      '.pdxor-share:empty{display:none;margin:0;}' +
       // "No votes yet" stances, listed rather than only counted.
       '.pdxor-awaiting-d>summary{list-style:none;cursor:pointer;}' +
       '.pdxor-awaiting-d>summary::-webkit-details-marker{display:none;}' +
@@ -895,6 +902,13 @@
       '.pdxgap-x{position:absolute;top:0.6rem;right:0.7rem;width:2rem;height:2rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.2rem;line-height:1;cursor:pointer;}' +
       '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
       '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
+      // The member's name, between the eyebrow and the issue. Sized under the issue
+      // title on purpose: the issue is still what the sheet is about, the name is
+      // who it is about, and a cold arrival needs both in the first glance. Wraps
+      // rather than truncates — a clipped name on a page whose whole job is
+      // identifying someone is worse than a second line.
+      '.pdxgap-who{font-weight:700;font-size:0.95rem;color:#e8eefc;line-height:1.2;padding-right:2rem;}' +
+      '.pdxgap-who-sub{font-weight:600;font-size:0.72rem;color:#8fa5c4;}' +
       '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.15rem 0 0.4rem;padding-right:2rem;}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
@@ -911,13 +925,41 @@
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
       '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
+      // The share control sits INSIDE the 🏛️ side of the sheet, never in the footer
+      // and never on the 🧾 side, so what it shares is unambiguous.
+      '.pdxgap-share{margin-top:0.55rem;}' +
+      '.pdxgap-share:empty{display:none;margin:0;}' +
       '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      // ── Next step ───────────────────────────────────────────────────────────
+      // A shared #record= link opens this sheet over whatever page the reader
+      // happened to land on, so closing it drops them nowhere. This row is the
+      // way out: one line of three concrete moves, above the footer's fine print
+      // rather than buried in it. Sized for a thumb — the sheet is a mobile
+      // bottom sheet first — and wrapping rather than scrolling on narrow
+      // screens, so the third option is never the one that falls off the edge.
+      '.pdxgap-next{margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxgap-next-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;font-size:0.68rem;color:#8fa2c0;margin-bottom:0.45rem;}' +
+      '.pdxgap-next-row{display:flex;flex-wrap:wrap;gap:0.4rem;}' +
+      '.pdxgap-nx{display:inline-flex;align-items:center;gap:0.35rem;flex:1 1 auto;min-width:11rem;' +
+        'text-align:left;text-decoration:none;cursor:pointer;font-family:"Barlow Condensed",sans-serif;' +
+        'font-size:0.82rem;letter-spacing:0.01em;line-height:1.25;color:#dbe6f7;padding:0.5rem 0.6rem;' +
+        'border:1px solid rgba(127,180,255,0.28);border-radius:0.55rem;background:rgba(30,58,138,0.18);' +
+        'transition:background 0.15s,border-color 0.15s;}' +
+      '.pdxgap-nx:hover,.pdxgap-nx:focus-visible{background:rgba(30,58,138,0.34);border-color:rgba(127,180,255,0.5);}' +
+      '.pdxgap-nx-ico{flex:none;}' +
       // Phase 11 — methodology explainer content (rendered inside the shared sheet).
       '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
       '.pdxm-row{border-top:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;}' +
       '.pdxm-row-h{display:flex;align-items:center;gap:0.4rem;font-weight:700;font-size:0.82rem;color:#e8eefc;}' +
       '.pdxm-row-b{font-size:0.75rem;color:#c6d4ec;line-height:1.5;margin-top:0.3rem;}' +
       '.pdxm-row-b b{color:#e8eefc;font-weight:700;}' +
+      // "All of these have to hold" reads as a checklist, not a paragraph.
+      '.pdxm-row-b ul.pdxm-steps{list-style:none;margin:0.45rem 0 0.15rem;padding:0;}' +
+      '.pdxm-row-b ul.pdxm-steps li{position:relative;padding-left:1.05rem;margin:0.32rem 0;}' +
+      '.pdxm-row-b ul.pdxm-steps li::before{content:"→";position:absolute;left:0;color:#7fb4ff;}' +
+      // A reader who tapped "how this is judged" on a shared card arrives with one
+      // question; the row that answers it is briefly ringed so it is findable.
+      '.pdxm-row-focus{border-radius:0.5rem;box-shadow:0 0 0 2px rgba(127,180,255,0.55);background:rgba(127,180,255,0.07);}' +
       '.pdxor-rawlink{display:inline-block;margin-top:0.7rem;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;cursor:pointer;background:none;border:none;padding:0;}';
     var st = document.createElement('style');
     st.id = 'pdx-consistency-css';
@@ -1082,6 +1124,25 @@
         openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
         return;
       }
+      // ── Next-step row inside the gap sheet ────────────────────────────────
+      // "Open the full profile" — the step back out for a reader who arrived on
+      // a shared #record= link, where the sheet is floating over whatever page
+      // the app happened to be showing. The sheet closes first: leaving it up
+      // over the profile it just navigated to would look like nothing happened.
+      var prof = e.target.closest && e.target.closest('[data-pdxc-profile]');
+      if (prof) {
+        e.preventDefault();
+        var ppid = prof.getAttribute('data-pdxc-profile') || '';
+        closeGap();
+        if (ppid && typeof window.showProfile === 'function') window.showProfile(ppid);
+        return;
+      }
+      // "Find your own reps" — a real anchor, so it keeps its href for a
+      // middle-click or a long-press. The sheet is modal, so it has to come
+      // down before the hub it points at is visible; the navigation itself is
+      // left to the browser.
+      var away = e.target.closest && e.target.closest('[data-pdxc-gapclose]');
+      if (away) { closeGap(); return; }
       var method = e.target.closest && e.target.closest('[data-pdxc-method]');
       if (method) { e.preventDefault(); openMethodology(); return; }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
@@ -1118,6 +1179,10 @@
         if (sds[q].getAttribute('data-pdxc-saydo-pid') !== String(pid)) continue;
         sds[q].innerHTML = _sdInner(pid);
       }
+      // The repaint above is the moment the vote record actually exists, so it is
+      // also the moment a vote-derived share card can first be built. Re-run the
+      // reveal pass over the freshly painted rows.
+      _rcHydrateSoon();
     });
   }
 
@@ -1460,6 +1525,31 @@
     var rv = _orRowVerdict(ov);
     return rv.why ? '<div class="pdxor-why">' + esc(rv.why) + '</div>' : '';
   }
+
+  // ── Official Record share affordance (receipt-cards.js) ─────────────────────
+  // Two slots, both on the 🏛️ side only: one in each profile stance row, one in the
+  // gap sheet's Official Record column. Neither decides eligibility — the control is
+  // rendered hidden and receipt-cards.js reveals it only for (member, issue) pairs
+  // whose card clears every trust guard, or removes it outright. Re-deriving that
+  // here would mean a second copy of the guards, and a second copy is one that
+  // drifts; so this file offers the slot and asks nothing about the answer.
+  function _rcShareHtml(pid, issueKey, opts) {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.buttonHtml !== 'function' || !pid || !issueKey) return '';
+      return RC.buttonHtml({ pid: pid, issueKey: issueKey, block: !!(opts && opts.block) });
+    } catch (e) { return ''; }
+  }
+  // Reveal pass. Idempotent and cheap — hydrate() only looks at buttons still marked
+  // pending — so it is safe on every repaint. Scheduled rather than immediate because
+  // both callers hand their HTML to someone else to mount.
+  function _rcHydrateSoon() {
+    try {
+      var RC = window.PDXReceiptCards;
+      if (!RC || typeof RC.hydrate !== 'function') return;
+      setTimeout(function () { try { RC.hydrate(document); } catch (e) {} }, 0);
+    } catch (e) {}
+  }
   // Jump into the full Voting Record, filtered to one issue when that section is live.
   // Falls back to a plain jump, then to a scroll — the link is never a dead end.
   // '' asks for the whole record, which also clears a filter an earlier row left set.
@@ -1801,6 +1891,7 @@
               _orRowEvidenceHtml(pid, s.key, s.ov) +
               _orRowVrLinkHtml(pid, s.key, s.ov) +
               _gapLinkHtml(pid, s.key) +
+              '<div class="pdxor-share">' + _rcShareHtml(pid, s.key) + '</div>' +
             '</div>' +
           '</details>';
       }).join('');
@@ -1845,6 +1936,9 @@
     ensureStyles();
     bindGateway();
     if (!pid) return '';
+    // The rows carry hidden share controls; reveal the eligible ones once the caller
+    // has mounted this string.
+    _rcHydrateSoon();
     return '<section class="pdxor" data-pdxc-official-pid="' + esc(pid) + '" aria-label="Official Record by issue">' + _orInner(pid) + '</section>';
   }
 
@@ -2170,6 +2264,33 @@
     if (meta && meta.judged) return '<span class="pdxor-pct pdxor-pct-na" title="Not enough public record yet to score">—</span>';
     return '';
   }
+  // The member's own name, for the gap sheet header. Reads the same two roster
+  // globals every other surface reads and falls back to the prettified pid, so it
+  // can return an unhelpful string but never an empty one.
+  function _gapMemberName(pid) {
+    var p = null;
+    try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
+    var n = p && (p.name || p.fullName || p.displayName);
+    if (n) return String(n);
+    return String(pid || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  // Office + party, if the roster has them — the one-line identity a cold arrival
+  // needs to know they are looking at the person from the image. Omitted entirely
+  // rather than guessed.
+  function _gapMemberSub(pid) {
+    var p = null;
+    try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
+    if (!p) return '';
+    var bits = [];
+    var office = p.office || p.title || p.role || p.position || '';
+    var state = p.state || p.stateName || '';
+    var party = p.party || '';
+    if (office) bits.push(String(office));
+    if (state) bits.push(String(state));
+    if (party) bits.push(String(party));
+    return bits.join(' · ');
+  }
+
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
@@ -2178,19 +2299,67 @@
     var stance = _orStanceChip(pid, issueKey);
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
-    var relHtml, gapNote;
+    //
+    // WHO THIS HEADER IS FOR. This sheet was built as a cross-link from inside the
+    // app, where the reader already knows whose profile they are on and chose the
+    // comparison. It is now also the LANDING PAGE for every shared 🏛️ Official
+    // Record card — receipt-cards.js routes `#record=<pid>~<issue>` straight here —
+    // and that reader arrives with nothing but the image they tapped.
+    //
+    // Two things were wrong for them, and both were measured across the whole
+    // public share pool rather than guessed:
+    //
+    //   · THE MEMBER WAS NEVER NAMED. The header printed an eyebrow, the issue
+    //     label and two chips. Someone who tapped a card about Mike Simpson landed
+    //     on a page that says "Cut Federal Spending & Reduce Debt" and never says
+    //     Mike Simpson. There is no way to tell it is the same object.
+    //
+    //   · THE COMPARISON FRAME MISFIRES ON EVERY SINGLE SHARED CARD. All 212 core
+    //     public cards land here with an Official Record score and NO Say-vs-Do
+    //     score — the share gate selects on formal-record depth, and the curated
+    //     Say-vs-Do layer covers different members and issues. So all 212 hit the
+    //     else-branch: eyebrow "Record vs. Public Picture", chip "— One side only",
+    //     and an opening line explaining there is nothing to line up. The image
+    //     made a sourced claim; the page opened by apologising for having nothing
+    //     to compare. That is the worst possible first sentence for an arrival.
+    //
+    // So when the Official Record is the side carrying the score, the header leads
+    // with the Official Record and states what IS there. Nothing is hidden: the
+    // 🧾 side still renders below with its own honest empty state, and the
+    // comparison framing returns unchanged the moment both sides have a number.
+    var relHtml, gapNote, eyebrow = '⚖️ Record vs. Public Picture';
     if (oNum && sNum) {
       var gap = off.score - say.score, rel = divRel(gap), g = Math.abs(gap), dir = _divDir(gap);
       relHtml = _divRelChip(rel);
       gapNote = '<div class="pdxgap-note">' + (g > DIV_ALIGN_MAX ? '<b>' + g + ' pt gap</b>' + (dir ? ' · ' + esc(dir) : '') + ' — ' : '') + esc(rel.blurb) + '</div>';
+    } else if (oNum) {
+      // The arrival case. Say what the formal record on this issue actually shows,
+      // in the vocabulary the shared card used, and count the votes behind it — the
+      // depth is the answer to "why should I believe this", and it is the number
+      // the reader cannot get from the image.
+      eyebrow = '🏛️ ' + 'Official Record';
+      var _rv = _orRowVerdict(off);
+      relHtml = '<span class="pdxdv-rel" style="color:' + off.verdict.color + ';border-color:' +
+        off.verdict.color + '55;background:' + off.verdict.color + '1f;">' + esc(off.verdict.label) + '</span>';
+      var _tot = (off.record && off.record.total) || (off.officialActions && off.officialActions.total) || 0;
+      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? 'vote' : 'votes') + ' on this issue' : '';
+      gapNote = '<div class="pdxgap-note">' +
+        esc([_depth, _rv && _rv.why ? _rv.why : ''].filter(Boolean).join(' · ') ||
+          'Their formal record on this issue, vote by vote, with every source.') +
+        '</div>';
     } else {
       relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
       gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
     }
 
+    // The name leads. It is the first thing on the shared image and it has to be
+    // the first thing here, or the two are not visibly the same object.
+    var _sub = _gapMemberSub(pid);
     var head =
       '<div class="pdxgap-h">' +
-        '<div class="pdxgap-eyebrow">⚖️ Record vs. Public Picture</div>' +
+        '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
+        '<div class="pdxgap-who">' + esc(_gapMemberName(pid)) +
+          (_sub ? ' <span class="pdxgap-who-sub">' + esc(_sub) + '</span>' : '') + '</div>' +
         '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
         '<div class="pdxgap-meta">' + (stance || '') + relHtml + '</div>' +
         gapNote +
@@ -2222,6 +2391,8 @@
           ' &amp; actions — the institutional record</div>' +
         offOmni +
         offBody +
+        // Full-width because this sheet is a mobile bottom sheet first.
+        '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
       '</div>';
 
     // 🧾 Say-vs-Do side
@@ -2242,9 +2413,65 @@
 
     return head +
       '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
+      _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>';
+  }
+
+  // ── One clear next step out of the gap sheet ────────────────────────────────
+  // A reader who followed a shared card's #record= link arrives here with no
+  // history: handleHash() in receipt-cards.js opens this sheet directly, so
+  // behind it is whatever page the app happened to be on. Dismissing the sheet
+  // used to be the only exit, and it led nowhere.
+  //
+  // Three moves, in widening order — stay on this member and check a second
+  // issue, step back to the whole profile, or leave and look up your own
+  // delegation. Each one is a real destination that already exists in the app;
+  // nothing here invents a surface.
+  //
+  // The first is offered ONLY when this member actually has another issue with a
+  // score behind it, and it names that issue outright. A "check another issue"
+  // button that opens an empty comparison is worse than no button, and a generic
+  // label makes a reader tap to find out what they get.
+  //
+  // Preference is by how much the next view will have to show: a diverging or
+  // mixed two-sided issue first, then any two-sided issue, then an issue carrying
+  // only an Official Record score. That last tier matters more than it looks — a
+  // Wave 1 share card IS an Official Record card, and the member behind one often
+  // has no curated Say-vs-Do at all, so a both-sides-only rule would leave exactly
+  // the arriving reader with no second issue to check.
+  function _gapNextHtml(pid, issueKey) {
+    var items = [];
+    var next = null;
+    try {
+      var d = divergenceData(pid);
+      var both = d.both;                     // already sorted by widest gap first
+      for (var i = 0; i < both.length && !next; i++) {
+        if (both[i].key !== issueKey && divRel(both[i].gap).key !== 'aligned') next = both[i].key;
+      }
+      for (var j = 0; j < both.length && !next; j++) {
+        if (both[j].key !== issueKey) next = both[j].key;
+      }
+      var off = d.offScored || [];
+      for (var k = 0; k < off.length && !next; k++) {
+        if (off[k].key !== issueKey) next = off[k].key;
+      }
+    } catch (e) {}
+    if (next) {
+      items.push('<button type="button" class="pdxgap-nx" data-pdxc-gap="' + esc(next) +
+        '" data-pdxc-gap-pid="' + esc(pid) + '">' +
+        '<span class="pdxgap-nx-ico" aria-hidden="true">⚖️</span>' +
+        '<span>Check ' + esc(_issueLabel(next)) + ' <span aria-hidden="true">→</span></span></button>');
+    }
+    items.push('<button type="button" class="pdxgap-nx" data-pdxc-profile="' + esc(pid) + '">' +
+      '<span class="pdxgap-nx-ico" aria-hidden="true">🏛️</span>' +
+      '<span>Open the full profile <span aria-hidden="true">→</span></span></button>');
+    items.push('<a class="pdxgap-nx" href="#voter-hub" data-pdxc-gapclose="1">' +
+      '<span class="pdxgap-nx-ico" aria-hidden="true">📍</span>' +
+      '<span>Find your own reps <span aria-hidden="true">→</span></span></a>');
+    return '<div class="pdxgap-next"><div class="pdxgap-next-h">Where to next</div>' +
+      '<div class="pdxgap-next-row">' + items.join('') + '</div></div>';
   }
 
   // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
@@ -2285,6 +2512,9 @@
     if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
     if (sheet.parentNode) sheet.parentNode.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+    // A reader arriving from a shared card's #record= link can reach this before the
+    // vote record is warm, so the reveal pass runs on every open rather than once.
+    _rcHydrateSoon();
   }
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');
@@ -2297,8 +2527,9 @@
   // states what each number means, the thin-data rules, why the two systems stay
   // separate, and exactly what the divergence labels do and don't claim.
   function methodologyHtml() {
-    var row = function (icon, title, body) {
-      return '<div class="pdxm-row"><div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
+    var row = function (icon, title, body, id) {
+      return '<div class="pdxm-row"' + (id ? ' data-pdxm-row="' + esc(id) + '"' : '') + '>' +
+        '<div class="pdxm-row-h"><span aria-hidden="true">' + icon + '</span> ' + esc(title) + '</div>' +
         '<div class="pdxm-row-b">' + body + '</div></div>';
     };
     return '<div class="pdxm">' +
@@ -2321,6 +2552,25 @@
         ' — whether to debate a bill, send it back, or move on — counts at <b>a quarter</b> of the weight of a vote on the policy itself. These are real votes with real outcomes, but party leadership drives them more than personal conviction, so one of them never outweighs a member\'s actual vote on the bill. On a ' +
         LT('recommit', 'motion to recommit') + ' or a ' + LT('table', 'motion to table') +
         ' a Yea is a vote <b>against</b> the measure, and we read it that way — scoring it the other way round would produce exactly backwards verdicts.') +
+      // The shareable-card rules. These are stricter than the in-app rules on purpose
+      // and a reader can only check us on them if they are written down, so this row
+      // is the destination the method line printed on every card points at.
+      row('📤', 'Cards you can share — and what has to be true first',
+        'Some of these verdicts can leave PolitiDex as an image. A shared card has to stand up with <b>none</b> of this page around it, so the bar is higher than for anything shown inside the app. Every card carries <b>one member, one issue, one vote</b> — and all seven of these have to hold, or there is no card:' +
+        '<ul class="pdxm-steps">' +
+          '<li><b>A person mapped this bill to this issue.</b> Someone decided, in writing, that this measure speaks to this issue, and recorded why. We never infer it from a bill\'s title or text.</li>' +
+          '<li><b>We know which way a Yes points.</b> Each mapping also records whether voting <b>Yes</b> supports the issue or opposes it — plenty of bills advance a cause by being voted down. Without that, a Nay that actually <b>advanced</b> what someone campaigned on would read as opposition to it.</li>' +
+          '<li><b>The vote is on the policy, not the process.</b> ' + LT('procedural', 'Procedural votes') +
+            ', and any question where a Yea actually blocks the measure — a ' + LT('recommit', 'motion to recommit') +
+            ' or a ' + LT('table', 'motion to table') + ' — never become cards at all. In the app they count at a quarter weight; on an image that qualifier cannot travel, so they are excluded outright.</li>' +
+          '<li><b>The card judges the issue it names.</b> One card, one issue. A big bill touches several, so each mapping also records whether that issue is what the bill was <b>primarily</b> about or a side effect of it — and the card leads with the issue it names rather than the loudest one. Its verdict has to match what their <b>whole</b> record on that issue says, not just the single vote it quotes; where the two disagree, we don\'t ship the card. When one vote moved several issues at once, the card names the others and which way each one went.</li>' +
+          '<li><b>The receipt is printed on the card.</b> Bill number, the exact question the Clerk asked, how they voted, the date, a <b>source URL you can type in yourself</b>, and a link back to this page. That URL is always the chamber\'s own public roll-call page — <b>clerk.house.gov</b> for a House vote, <b>senate.gov</b> for a Senate one — never a developer API endpoint, never a bill page that doesn\'t show the vote, and never shortened with a “…”. It is printed whole or the card doesn\'t ship. Where we hold the vote but not the roll-call number needed to build that address, there is no card.</li>' +
+          '<li><b>We say what a Yea actually did.</b> On a resolution that <b>cancels</b> something — a Congressional Review Act disapproval, for instance — the title tells you what it is about, not which way a Yes points. Those cards lead with the curator\'s own plain-English sentence for what passing it did (“a yea rolls back the mandate”). If nobody wrote one, the card doesn\'t ship: a reader shouldn\'t have to know how the CRA works to read a receipt.</li>' +
+          '<li><b>We don\'t claim what came first.</b> The stated positions in PolitiDex are <b>undated</b>, so a card never asserts that someone said a thing and then voted the other way — only that the position and the vote point in different directions. The card says so on its face. We will not date a statement we can\'t source a date for.</li>' +
+        '</ul>' +
+        'Some things are held back on purpose: <b>confirmation votes</b>, because a vote about a <b>person</b> can\'t carry a policy claim once it leaves the app; issues whose wording means opposite things to different members; and any “they said” line that is <b>itself a vote</b>, which would leave the card arguing with its own evidence. ' +
+        'Sharing also never moves a number — 🏛️ Official Record cards stay out of the 🧾 Say-vs-Do scores completely, exactly as above.',
+        'cards') +
       row('📖', 'If a term is unfamiliar', 'Anything with a dotted underline anywhere in PolitiDex opens a short, plain-language definition — ' +
         LT('hr', 'H.R.') + ', ' + LT('rollcall', 'roll-call vote') + ', ' + LT('omnibus', 'omnibus') +
         ', ' + LT('cloture', 'cloture') + '. Definitions describe the process, never a party or a policy.' +
@@ -2328,13 +2578,26 @@
       '<div class="pdxgap-foot">No blended score. No vote counted twice. Every item links to its source.</div>' +
       '</div>';
   }
-  function openMethodology() {
+  function openMethodology(focus) {
     if (!document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = methodologyHtml();
     if (sheet.parentNode) sheet.parentNode.hidden = false;
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
+    // A reader who tapped "HOW THIS IS JUDGED" on a shared card asked one specific
+    // question. Land them on the answer rather than at the top of the sheet — the
+    // link is only useful if it resolves to the rules that produced the card.
+    if (focus) {
+      try {
+        var sel = String(focus).replace(/[^a-z0-9_-]/gi, '');
+        var row = sel && sheet.querySelector('[data-pdxm-row="' + sel + '"]');
+        if (row) {
+          row.classList.add('pdxm-row-focus');
+          if (row.scrollIntoView) row.scrollIntoView({ block: 'center' });
+        }
+      } catch (e) {}
+    }
   }
 
   window.PDXConsistency = {
@@ -2394,6 +2657,20 @@
     // comparison rows and both feeds wire to this; exposed for any other surface too.
     openGap: openGap,
     closeGap: closeGap,
+    // Phase 8 (share): the gap sheet's "where to next" row, exposed as a pure
+    // string builder. A reader arriving on a shared #record= link has no history
+    // behind this sheet, so the row is the only exit — scripts/test-receipt-cards.mjs
+    // asserts it offers real destinations rather than a dead generic button, and
+    // it can be asserted without standing up a DOM.
+    nextStepHtml: _gapNextHtml,
+    // Phase 10 (digital share): the whole landing view, as a pure string builder.
+    // This sheet is the destination of every shared 🏛️ card, and its header was
+    // wrong for all 212 of them — it never named the member and it opened with
+    // "— One side only", because a card is only ever shared when the Official
+    // Record has depth the curated Say-vs-Do layer does not. Exposed so
+    // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
+    // rather than assert on the source text of the function that writes it.
+    gapViewHtml: _gapViewHtml,
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

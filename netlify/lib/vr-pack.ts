@@ -106,6 +106,14 @@ export async function buildMemberPack(politicianId: string) {
       status: vrMeasures.status,
       rollcallId: vrRollcalls.id,
       chamber: vrRollcalls.chamber,
+      // The (congress, session, roll number) tuple. Carried so a client can build
+      // the CANONICAL public roll-call page — clerk.house.gov/Votes/<year><roll>,
+      // senate.gov/.../vote_<c>_<s>_<roll> — instead of printing whatever URL the
+      // ingest happened to store (an api.congress.gov endpoint, a bill page, a
+      // press release). See receipt-cards.js `canonicalCitation`.
+      congress: vrRollcalls.congress,
+      session: vrRollcalls.session,
+      rollNumber: vrRollcalls.rollNumber,
       voteDate: vrRollcalls.voteDate,
       question: vrRollcalls.question,
       actionType: vrRollcalls.actionType,
@@ -170,6 +178,9 @@ export async function buildMemberPack(politicianId: string) {
       isAmendment: v.measureType === "amendment",
       parentMeasureId: v.parentId ?? null,
       rollcallId: v.rollcallId,
+      congress: v.congress ?? null,
+      session: v.session ?? null,
+      rollNumber: v.rollNumber ?? null,
       issues: issuesByMeasure.get(v.measureId) ?? [],
       source: { url: v.rcSourceUrl, label: v.rcSourceLabel },
     });
@@ -196,6 +207,10 @@ export async function buildMemberPack(politicianId: string) {
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,
+      // A co-sponsorship / amicus has no roll call, so it has no roll-call page.
+      congress: null,
+      session: null,
+      rollNumber: null,
       issues: issuesByMeasure.get(p.measureId) ?? [],
       source: { url: p.posSourceUrl, label: p.posSourceLabel ?? null },
     });

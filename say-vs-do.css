@@ -104,6 +104,10 @@
 .svd-receipt.v-contradicts { border-color: rgba(248, 113, 113, 0.32); --svd-accent: #f87171; }
 .svd-receipt.v-consistent  { border-color: rgba(74, 222, 128, 0.32);  --svd-accent: #4ade80; }
 .svd-receipt.v-flag        { border-color: rgba(245, 158, 11, 0.32);  --svd-accent: #f59e0b; }
+/* Vote-derived omnibus split card ("one vote, two outcomes"). Same violet the
+   issue chip uses, so the accent reads as "this is about the issue mapping"
+   rather than as a fourth verdict severity. */
+.svd-receipt.v-omnibus     { border-color: rgba(167, 139, 250, 0.32); --svd-accent: #a78bfa; }
 
 /* Header: who + the stamp */
 .svd-rc-head { display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 0.85rem; }
@@ -214,6 +218,7 @@
 .svd-mini.v-contradicts { --svd-accent: #f87171; }
 .svd-mini.v-consistent  { --svd-accent: #4ade80; }
 .svd-mini.v-flag        { --svd-accent: #f59e0b; }
+.svd-mini.v-omnibus     { --svd-accent: #a78bfa; }
 .svd-mini-top { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.5rem; }
 .svd-mini-photo {
   width: 2rem; height: 2.4rem; border-radius: 0.4rem; flex: none; overflow: hidden;
@@ -357,6 +362,7 @@
 .svd-badge.v-contradicts { color: #f87171; background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.4); }
 .svd-badge.v-consistent  { color: #4ade80; background: rgba(74, 222, 128, 0.14); border: 1px solid rgba(74, 222, 128, 0.4); }
 .svd-badge.v-flag        { color: #fbbf24; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.4); }
+.svd-badge.v-omnibus     { color: #c4b5fd; background: rgba(167, 139, 250, 0.14); border: 1px solid rgba(167, 139, 250, 0.4); }
 
 /* ── Receipt lightbox (what "name + issue" search lands on) ─────────────────*/
 .svd-lightbox {
@@ -417,4 +423,45 @@
 @media (prefers-reduced-motion: reduce) {
   .svd-receipt, .svd-mini, #say-vs-do .svd-nav, #say-vs-do .svd-cta-btn { transition: none; }
   .svd-share-menu { animation: none; }
+}
+
+/* ── Official Record share affordance (receipt-cards.js) ─────────────────────*/
+/* Deliberately NOT the gold Say-vs-Do pill above. The two feeds answer different
+   questions and must never be mistaken for one another, so the vote-derived
+   control is institutional steel with a 🏛️ cue and an outline instead of a fill —
+   the same visual split the 🏛️ / 🧾 section headers already use.
+     It ships hidden. receipt-cards.js reveals it only after it has actually built
+   the card behind it (hydrate()), and removes it outright when no card passes the
+   guards, so a share is never offered that cannot be honoured. `[hidden]` is
+   restated with display:none because the element is otherwise inline-flex. */
+.pdxrc-share-btn[hidden] { display: none !important; }
+.pdxrc-share-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+  cursor: pointer; min-height: 2rem; padding: 0.34rem 0.72rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.72rem;
+  letter-spacing: 0.05em; text-transform: uppercase; line-height: 1;
+  color: #dbe6f7; background: rgba(30, 53, 96, 0.55);
+  border: 1px solid var(--pdxrc-c, rgba(127, 180, 255, 0.42)); border-radius: 9999px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.pdxrc-share-btn:hover { background: rgba(30, 53, 96, 0.9); color: #fff; transform: translateY(-1px); }
+.pdxrc-share-btn:active { transform: translateY(0); }
+.pdxrc-share-btn:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+.pdxrc-share-btn.is-busy { cursor: progress; filter: saturate(0.5) brightness(0.9); }
+.pdxrc-share-btn .pdxrc-ico { font-size: 0.85rem; }
+/* Verdict accent only on the border — the card carries the verdict, the button
+   just points at it, so this stays a hint rather than a second stamp. */
+.pdxrc-share-btn.pdxrc-v-contradicts { --pdxrc-c: rgba(248, 113, 113, 0.5); }
+.pdxrc-share-btn.pdxrc-v-consistent  { --pdxrc-c: rgba(74, 222, 128, 0.5); }
+.pdxrc-share-btn.pdxrc-v-omnibus     { --pdxrc-c: rgba(167, 139, 250, 0.55); }
+/* Bottom-sheet / narrow-column use: a full-width tap target. */
+.pdxrc-share-btn.pdxrc-block { width: 100%; min-height: 2.6rem; font-size: 0.78rem; }
+@media (max-width: 640px) {
+  /* Mobile-first: every share control clears the 44px guidance on touch. */
+  .pdxrc-share-btn { min-height: 2.4rem; padding: 0.5rem 0.85rem; font-size: 0.76rem; }
+  .pdxrc-share-btn.pdxrc-block { min-height: 2.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdxrc-share-btn { transition: none; }
+  .pdxrc-share-btn:hover { transform: none; }
 }

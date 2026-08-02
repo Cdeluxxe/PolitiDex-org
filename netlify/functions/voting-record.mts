@@ -242,6 +242,12 @@ type RecordItem = {
   isAmendment: boolean;
   parentMeasureId: number | null;
   rollcallId: number | null;
+  // The (congress, session, roll number) tuple behind a vote. Carried so the
+  // client can build the CANONICAL public roll-call page rather than printing
+  // whatever URL the ingest stored — see receipt-cards.js `canonicalCitation`.
+  congress: number | null;
+  session: number | null;
+  rollNumber: number | null;
   issues: Array<{
     issueKey: string;
     weight: number;
@@ -315,6 +321,9 @@ function assembleRecordItems(
       isAmendment: v.measureType === "amendment",
       parentMeasureId: v.parentId ?? null,
       rollcallId: v.rollcallId,
+      congress: v.congress ?? null,
+      session: v.session ?? null,
+      rollNumber: v.rollNumber ?? null,
       issues: issuesByMeasure.get(v.measureId) ?? [],
       source: { url: v.rcSourceUrl, label: v.rcSourceLabel },
     });
@@ -342,6 +351,10 @@ function assembleRecordItems(
       isAmendment: p.measureType === "amendment",
       parentMeasureId: p.parentId ?? null,
       rollcallId: null,
+      // A co-sponsorship / amicus has no roll call, so it has no roll-call page.
+      congress: null,
+      session: null,
+      rollNumber: null,
       issues: issuesByMeasure.get(p.measureId) ?? [],
       source: { url: p.posSourceUrl, label: p.posSourceLabel ?? null },
     });
@@ -393,6 +406,9 @@ const VOTE_COLUMNS = {
   status: vrMeasures.status,
   rollcallId: vrRollcalls.id,
   chamber: vrRollcalls.chamber,
+  congress: vrRollcalls.congress,
+  session: vrRollcalls.session,
+  rollNumber: vrRollcalls.rollNumber,
   voteDate: vrRollcalls.voteDate,
   question: vrRollcalls.question,
   actionType: vrRollcalls.actionType,
@@ -1163,6 +1179,9 @@ async function getIssueRecords(url: URL): Promise<Response> {
           rollcalls[it.rollcallId] = {
             measureId: it.measureId,
             chamber: it.chamber,
+            congress: it.congress,
+            session: it.session,
+            rollNumber: it.rollNumber,
             date: it.date,
             action: it.action,
             actionType: it.actionType,
