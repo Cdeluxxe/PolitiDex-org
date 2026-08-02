@@ -71,6 +71,45 @@
     {
       "measureType": "bill",
       "congress": 119,
+      "chamber": "senate",
+      "number": "S. 5",
+      "_comment": "The bill that actually became Public Law 119-1. H.R. 29 above is the House's own Laken Riley bill, which passed the House on 2025-01-07 and went no further; the Senate took up its own S. 5, amended it, and both chambers passed that. Senate roll 119/1/7 and House roll 119/1/23 are votes on S. 5, not on H.R. 29 — see migration 20260804000000_vr_repair_laken_riley_measure_identity.sql. These four mappings are carried from H.R. 29 because the curated rationale still describes S. 5's text; the values below are byte-identical to the ones that migration inserts, because applyCuratedIssueSeed() upserts with onConflictDoUpdate and would otherwise overwrite them on the next POST /seed-issues.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5",
+      "issues": [
+        {
+          "issueKey": "deportations",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
+        },
+        {
+          "issueKey": "border_security",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Tightens immigration enforcement."
+        },
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury.",
+          "_comment": "Restated from the CRS summary of Public Law 119-1 rather than copied from H.R. 29. H.R. 29's rationale enumerates the House bill's narrower trigger list; S. 5 as enacted adds larceny and the death/serious-bodily-injury clause via the Senate amendment (roll 119/1/6, Ernst, agreed 75-24). Reusing the H.R. 29 sentence here would have understated the enacted text."
+        },
+        {
+          "issueKey": "states_federal_power",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions; a yea expands state authority to contest federal enforcement choices in court."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
       "chamber": "house",
       "number": "H.R. 22",
       "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/22",

@@ -393,18 +393,48 @@
   // re-ran a network script, which trades a rare wrong link for a routine
   // outage. The report says plainly which addresses were read and when.
   var UNRESOLVED_CITATIONS = {
-    // Senate roll call 119-1-7 (20 Jan 2025, 64-35) is On Passage of S. 5. The
-    // ledger attributes it to H.R. 29 — same policy, different bill number — so
-    // the page a reader opens names a measure the card does not. The vote and
-    // the page are both real; the link between them is what is wrong, and that
-    // is a measure-identity repair, not something a card should paper over.
-    'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm':
-      'the roll-call page for this vote is recorded under a different measure number, so a reader following the citation would not find the bill named on the card'
+    // Senate roll call 119-1-7 (20 Jan 2025, 64-35) and House roll call 119-1-23
+    // (22 Jan 2025) are both votes on S. 5. The ledger attributed the first to
+    // H.R. 29 and the second to a "Senate Amendments to H.R. 29" row — same
+    // policy, same popular name, different bill — so the page a reader opens
+    // names a measure the card does not. The votes and the pages are both real;
+    // the link between them is what was wrong.
+    //
+    // Each entry records the measure the CHAMBER'S OWN RECORD names, taken from
+    // db/vr-citation-check.json's `pageMeasure`. That is what makes this guard
+    // safe in both directions across the repair in migration
+    // 20260804000000_vr_repair_laken_riley_measure_identity.sql: while the ledger
+    // still says H.R. 29 the card disagrees with the page and is refused, and once
+    // the migration lands and the card says S. 5 it agrees with the page and
+    // publishes — with no second deploy needed and no window in which a card can
+    // print the wrong bill. An entry with no `measure` (a dead link, a page that
+    // does not name its own roll call) is refused unconditionally, because there
+    // is nothing a corrected ledger could come to agree with.
+    'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm': {
+      measure: 'S. 5',
+      why: 'the roll-call page for this vote is recorded under a different measure number, so a reader following the citation would not find the bill named on the card'
+    },
+    'https://clerk.house.gov/Votes/202523': {
+      measure: 'S 5',
+      why: 'the Clerk\'s record of this roll call is a vote on a different bill than the one named on the card, so a reader following the citation would not find the measure the card cites'
+    }
   };
+  // "S. 5", "S 5" and "S.5" are the same bill written three ways, and the two
+  // chambers punctuate differently, so agreement is judged on the bare token.
+  function sameMeasure(a, b) {
+    var na = String(a || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var nb = String(b || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return !!na && na === nb;
+  }
   function blockUnverifiedCitation(item) {
     var cit = canonicalCitation(item);
     if (!cit) return '';                       // guard 12 already refused it
-    return UNRESOLVED_CITATIONS[cit.url] || '';
+    var entry = UNRESOLVED_CITATIONS[cit.url];
+    if (!entry) return '';
+    // The card now names the same measure the page does: the mismatch this entry
+    // was recorded for has been repaired, and the citation checks out.
+    if (entry.measure && sameMeasure(item.number, entry.measure)) return '';
+    return entry.why;
   }
 
   // ══════════════════════════════════════════════════════════════════════════

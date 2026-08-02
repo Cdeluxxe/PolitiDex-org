@@ -941,25 +941,43 @@ if (craCard) {
     "guard 14: the refused-citation list is exactly what the link check could not confirm");
   eq((evidence.unresolved || []).length, fromEvidence.length,
     "guard 14: the evidence file's own summary agrees with its per-URL results");
-  for (const [url, why] of Object.entries(denied)) {
+  for (const [url, entry] of Object.entries(denied)) {
     ok(/^https:\/\/(www\.senate\.gov|clerk\.house\.gov)\//.test(url),
       "guard 14: a refused address is still a chamber roll-call page, not junk");
-    ok(why.length > 40 && !/^error|^failed/i.test(why),
+    ok(entry.why.length > 40 && !/^error|^failed/i.test(entry.why),
       "guard 14: the refusal says in plain words what a reader would have found");
+    // The measure recorded on the entry is the one the CHAMBER names, and it has to
+    // be the same string the evidence file captured — that value is what decides
+    // whether a repaired card publishes, so a hand-edit that drifts from the
+    // evidence would quietly re-open the hole this guard exists to close.
+    const ev = (evidence.unresolved || []).find((u) => u.url === url);
+    eq(entry.measure || "", (ev && ev.pageMeasure) || "",
+      "guard 14: the entry's page-measure matches the evidence it was taken from");
   }
-  // The guard is keyed on the DERIVED address, so it must be reachable through
-  // the same derivation the card prints — not through the stored source URL.
-  const badUrl = Object.keys(denied)[0];
-  if (badUrl) {
-    const m = badUrl.match(/vote_(\d+)_(\d+)_0*(\d+)\.htm$/);
-    if (m) {
-      const victim = { kind: "vote", chamber: "senate", date: "2025-01-20",
-        congress: +m[1], session: +m[2], rollNumber: +m[3],
-        source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/29") };
-      eq(RC.canonicalCitation(victim).url, badUrl,
+  // Measure-awareness, both directions. These two assertions are the whole reason
+  // the entries carry a measure: the repair migration and this file deploy
+  // independently, so the guard has to be correct BEFORE the ledger is fixed
+  // (refuse — the card would print the wrong bill) and AFTER (publish — the card
+  // and the page now name the same one), without a second deploy in between.
+  {
+    const conflicted = Object.entries(denied).filter(([, e]) => e.measure);
+    ok(conflicted.length > 0, "guard 14: at least one refusal is a measure conflict");
+    for (const [url, entry] of conflicted) {
+      const sm = url.match(/vote_(\d+)_(\d+)_0*(\d+)\.htm$/);
+      const hm = url.match(/clerk\.house\.gov\/Votes\/(\d{4})(\d+)$/);
+      const base = sm
+        ? { chamber: "senate", congress: +sm[1], session: +sm[2], rollNumber: +sm[3] }
+        : { chamber: "house", congress: 119, session: 1, rollNumber: +hm[2] };
+      const at = (number) => ({ kind: "vote", date: "2025-01-20", number,
+        source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/29"), ...base });
+      eq(RC.canonicalCitation(at("H.R. 29")).url, url,
         "guard 14: the refused address is one the deriver actually produces");
-      ok(!!RC.guards.blockUnverifiedCitation(victim),
-        "guard 14: a vote whose page names a different measure is refused");
+      ok(!!RC.guards.blockUnverifiedCitation(at("H.R. 29")),
+        "guard 14: before the repair, a card naming the wrong measure is refused");
+      eq(RC.guards.blockUnverifiedCitation(at(entry.measure)), "",
+        "guard 14: after the repair, a card naming the measure the page names publishes");
+      eq(RC.guards.blockUnverifiedCitation(at(entry.measure.replace(/[.\s]/g, ""))), "",
+        "guard 14: agreement is judged on the bill token, not on chamber punctuation");
     }
   }
   // Fail OPEN is the failure mode to fear here: an empty or mis-keyed denylist
@@ -970,9 +988,29 @@ if (craCard) {
     "guard 14: a confirmed citation is not blocked");
   eq(RC.guards.blockUnverifiedCitation(VOTE({ source: SRC("https://x.test/nothing") })), "",
     "guard 14: an underivable citation is guard 12's refusal to make, not guard 14's");
+  // No card may ship an address guard 14 would refuse FOR THAT CARD. Phrased as
+  // "no card ships a denied address" this would start failing the day the repair
+  // migration lands and an S. 5 card correctly cites the S. 5 roll-call page —
+  // which is the outcome the repair exists to produce, not a regression.
+  //
+  // Both sides are compared in printable form. card.verifyUrl is what the footer
+  // prints, and printableUrl() strips the scheme AND the leading "www.", so
+  // "https://" + card.verifyUrl reconstructs "https://senate.gov/…" and never
+  // equals the "https://www.senate.gov/…" key it is meant to be tested against.
+  // Comparing the raw strings made this assertion pass for every Senate citation
+  // no matter what the denylist said.
+  const printable = (u) => String(u || "").replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+  const sameNum = (a, b) => String(a || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase()
+    === String(b || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  const deniedByPrint = new Map(Object.entries(denied).map(([u, e]) => [printable(u), e]));
+  ok(deniedByPrint.has(printable("https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm")),
+    "guard 14: the printable-form index actually resolves a www address (the comparison is not vacuous)");
   for (const card of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
-    ok(!denied["https://" + card.verifyUrl] && !denied[card.source.url],
-      `citation: no card ships an address the link check refused (${card.issueKey})`);
+    for (const u of [card.verifyUrl, card.source.url]) {
+      const entry = deniedByPrint.get(printable(u));
+      ok(!entry || (entry.measure && sameNum(entry.measure, card.measureNumber)),
+        `citation: no card ships an address the link check refused for that card's measure (${card.issueKey})`);
+    }
   }
 }
 

@@ -25,12 +25,30 @@
 //   • the page names the roll call we cited ("Roll Call 310" / "Vote Number: 372")
 //     — a wrong roll number usually still returns a 200 page, so status alone
 //     proves nothing;
-//   • the page does not name a DIFFERENT measure than the one we attribute the
-//     vote to. Senate pages carry an explicit `Measure Number:` field, so a
-//     mismatch there is a hard failure — it means our roll→measure link is wrong.
-//     The Clerk's page is a JS app whose payload is not a stable contract, so a
-//     measure it does not mention is recorded as `unconfirmed`, never as a pass
-//     dressed up as a match.
+//   • the chamber's own record of that vote does not name a DIFFERENT measure
+//     than the one we attribute the vote to.
+//
+// That last rule is the reason this script exists in its current form. The ledger
+// used to file Senate roll 119/1/7 under H.R. 29; the Senate's record of that vote
+// says S. 5. Both are real bills, both are called the Laken Riley Act, and only one
+// of them was voted on that day — so every card built on that roll call printed a
+// true vote under a false bill, and the derived VERIFY link led to a page that
+// contradicted the card. A measure conflict is therefore a HARD FAILURE, in both
+// chambers, for every roll call: not a warning, not an `unconfirmed`, but a
+// citation guard 14 refuses to publish.
+//
+// Corroboration comes from the structured record, not from the human page:
+//   • House — https://clerk.house.gov/evs/<year>/roll<NNN>.xml, field <legis-num>
+//   • Senate — the citation URL with .htm swapped for .xml, field <document_name>
+// Both are stable, documented contracts. The Clerk's *human* page is a JS app whose
+// payload is not, which is why an earlier revision of this script could only mark
+// House measures `unconfirmed` and would have let the Laken Riley sibling through
+// on the House side. The human page is still fetched, because it is the address the
+// card actually prints and it still has to resolve; the XML is what it is checked
+// against. A record we cannot read leaves the measure `unconfirmed` — an absent
+// record is not a contradiction, and inventing a failure from silence would refuse
+// good cards — but the run reports the unconfirmed count so a coverage collapse
+// cannot pass for a clean sweep.
 //
 // The snapshot it writes (db/vr-citation-check.json) is what receipt-cards.js
 // guard 14 reads: any citation recorded as NOT ok is refused on the card, so a
@@ -102,6 +120,31 @@ const stripTags = (html) => String(html).replace(/<[^>]*>/g, ' ').replace(/&nbsp
 // the measure and not about how a chamber happens to punctuate it.
 const normNum = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
+// Bill-style designations pulled out of a number string, normalised. This is the
+// unit of comparison, and it is deliberately narrower than "the whole string":
+//
+//   "H.R. 29"                     → HR29
+//   "Senate Amendments to H.R. 29" → HR29      (a name that asserts a bill)
+//   "PN11-7"                      → PN117
+//   "H.Amdt. 266"                 → (nothing)  an amendment's own designation is
+//                                              not a bill number, and neither the
+//                                              Clerk nor the Senate record carries
+//                                              it — the Clerk's <amendment-num> is
+//                                              a debate sequence, not the H.Amdt.
+//   "Patel — FBI"                 → (nothing)  a human label for a nomination
+//
+// Yielding nothing is the point. Comparing an amendment designation or a nickname
+// against the bill the chamber names would manufacture a conflict out of two
+// records that agree, so those cases end as `unconfirmed` and publish.
+const BILL_TOKEN = /(HJRES|HCONRES|HRES|HR|SJRES|SCONRES|SRES|S|PN)(\d+)/g;
+function billTokens(...parts) {
+  const out = new Set();
+  for (const p of parts) {
+    for (const m of normNum(p).matchAll(BILL_TOKEN)) out.add(m[1] + m[2]);
+  }
+  return out;
+}
+
 function readHousePage(body, roll) {
   const text = stripTags(body);
   const namesRoll = new RegExp('Roll\\s*Call\\s*' + roll + '\\b').test(text);
@@ -115,6 +158,47 @@ function readSenatePage(body, roll) {
   return { namesRoll, measure: m ? m[1].trim() : '', text: normNum(text) };
 }
 
+// ── The chamber's structured record of the vote ─────────────────────────────
+// Deliberately a plain tag scrape rather than an XML parse: both feeds are flat,
+// single-namespace documents, and the fields read here are the ones their DTDs
+// have carried unchanged for twenty years. Anything unrecognised comes back empty,
+// which reads downstream as "not corroborated" rather than as a conflict.
+const tag = (xml, name) => {
+  const m = String(xml).match(new RegExp('<' + name + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + name + '>'));
+  return m ? m[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+};
+
+// clerk.house.gov/Votes/2025023 → clerk.house.gov/evs/2025/roll023.xml
+function houseRecordUrl(citationUrl, roll) {
+  const tail = citationUrl.split('/Votes/')[1];
+  if (!tail || tail.length < 5) return '';
+  return `https://clerk.house.gov/evs/${tail.slice(0, 4)}/roll${String(roll).padStart(3, '0')}.xml`;
+}
+const senateRecordUrl = (citationUrl) => citationUrl.replace(/\.htm$/, '.xml');
+
+function readRecord(chamber, xml) {
+  if (chamber === 'house') {
+    // <legis-num> is the underlying measure even on an amendment vote, so an
+    // amendment row corroborates through its parent. Procedural votes with no
+    // measure (adjourn, quorum) leave it empty or set it to a marker word.
+    const legis = tag(xml, 'legis-num');
+    return {
+      measure: /^\s*(QUORUM|JOURNAL|MOTION)/i.test(legis) ? '' : legis,
+      question: tag(xml, 'vote-question'),
+      amendment: tag(xml, 'amendment-num'),
+      result: tag(xml, 'vote-result'),
+      rollNumber: tag(xml, 'rollcall-num'),
+    };
+  }
+  return {
+    measure: tag(xml, 'document_name'),
+    question: tag(xml, 'question'),
+    amendment: tag(xml, 'amendment_number'),
+    result: tag(xml, 'vote_result'),
+    rollNumber: tag(xml, 'vote_number'),
+  };
+}
+
 async function fetchOnce(u) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
@@ -124,6 +208,21 @@ async function fetchOnce(u) {
   } finally { clearTimeout(timer); }
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// The structured record is corroboration, not the citation itself, so it gets
+// fewer attempts and its failure is never the reason a citation fails: an
+// unreachable record leaves the measure unconfirmed, which publishes.
+async function fetchRecord(u) {
+  if (!u) return null;
+  for (let a = 0; a < 2; a++) {
+    try {
+      const res = await fetchOnce(u);
+      if (res.status === 200 && /^\s*<\?xml/.test(res.body)) return res.body;
+      return null;
+    } catch { await sleep(900); }
+  }
+  return null;
+}
 
 // One citation → a verdict. Transient network trouble is retried; a citation we
 // still cannot read after ATTEMPTS is NOT ok, because an unread link is an
@@ -141,24 +240,55 @@ async function check(entry) {
     return { ...base, ok: false, measureMatch: 'unchecked', reason: 'redirected to the Senate\'s "roll call vote not available" page' };
   }
 
-  if (entry.chamber === 'house') {
-    const p = readHousePage(res.body, entry.roll);
-    if (!p.namesRoll) return { ...base, ok: false, measureMatch: 'unchecked', reason: `page does not name Roll Call ${entry.roll}` };
-    // The Clerk page for an amendment vote names the underlying bill, so the
-    // parent number counts as corroboration too.
-    const wanted = [entry.number, entry.parentNumber].filter(Boolean).map(normNum);
-    const named = wanted.some((n) => n && p.text.includes(n));
-    return { ...base, ok: true, measureMatch: named ? 'confirmed' : 'unconfirmed', reason: '' };
+  // 1. The address the card prints has to resolve to the roll call we cited.
+  const isHouse = entry.chamber === 'house';
+  const page = isHouse ? readHousePage(res.body, entry.roll) : readSenatePage(res.body, entry.roll);
+  if (!page.namesRoll) {
+    const what = isHouse ? `Roll Call ${entry.roll}` : `Senate vote ${entry.roll}`;
+    return { ...base, ok: false, measureMatch: 'unchecked', reason: `page does not name ${what}` };
   }
 
-  const p = readSenatePage(res.body, entry.roll);
-  if (!p.namesRoll) return { ...base, ok: false, measureMatch: 'unchecked', reason: `page does not name Senate vote ${entry.roll}` };
-  if (!p.measure) return { ...base, ok: true, measureMatch: 'unconfirmed', reason: '' };
-  const wanted = [entry.number, entry.parentNumber].filter(Boolean).map(normNum);
-  if (wanted.some((n) => n && normNum(p.measure) === n)) return { ...base, ok: true, measureMatch: 'confirmed', reason: '' };
-  // The page states a measure and it is not ours: the roll→measure link is wrong,
+  // 2. The chamber's structured record has to agree about WHICH MEASURE was voted
+  //    on. Same rule and same consequence in both chambers.
+  await sleep(PAUSE_MS);
+  const recUrl = isHouse ? houseRecordUrl(entry.url, entry.roll) : senateRecordUrl(entry.url);
+  const xml = await fetchRecord(recUrl);
+  const rec = xml ? readRecord(entry.chamber, xml) : null;
+  const found = { ...base, recordUrl: recUrl, recordQuestion: rec?.question || '' };
+
+  // An amendment row corroborates through its parent bill, which is what both
+  // feeds name on an amendment vote.
+  const pageMeasure = rec?.measure || (isHouse ? '' : page.measure);
+  const ours = billTokens(entry.number, entry.parentNumber);
+  const theirs = billTokens(pageMeasure);
+
+  if (!theirs.size) {
+    // The record names no bill — a procedural vote, or a feed we could not read.
+    // Fall back to the weaker signal the human page offers: the House page
+    // mentioning our number somewhere is worth recording, but it is corroboration,
+    // never a conflict.
+    const named = isHouse && ours.size && [...ours].some((n) => page.text.includes(n));
+    return { ...found, ok: true, measureMatch: named ? 'confirmed' : 'unconfirmed', pageMeasure: pageMeasure || undefined, reason: '' };
+  }
+  if (!ours.size) {
+    // The record names a bill and the ledger names no comparable one — an
+    // amendment row with no parent link, or a nomination filed under a nickname.
+    // Nothing is contradicted, but nothing is corroborated either.
+    return {
+      ...found, ok: true, measureMatch: 'unconfirmed', pageMeasure,
+      reason: '', note: `ledger number ${JSON.stringify(entry.number)} carries no bill designation to compare against ${pageMeasure}`,
+    };
+  }
+  if ([...ours].some((n) => theirs.has(n))) {
+    return { ...found, ok: true, measureMatch: 'confirmed', pageMeasure, reason: '' };
+  }
+  // The record states a measure and it is not ours: the roll→measure link is wrong,
   // and a card built on it would attribute a real vote to the wrong bill.
-  return { ...base, ok: false, measureMatch: 'conflict', pageMeasure: p.measure, reason: `page is for ${p.measure}, not ${entry.number}` };
+  return {
+    ...found, ok: false, measureMatch: 'conflict', pageMeasure,
+    reason: `the ${isHouse ? 'Clerk' : 'Senate'} record for this roll call is for ${pageMeasure}, `
+      + `but the ledger files it under ${entry.number || '(no number)'}`,
+  };
 }
 
 async function main() {
@@ -220,9 +350,41 @@ async function main() {
   }
 
   const bad = results.filter((r) => !r.ok);
+  const conflicts = results.filter((r) => r.measureMatch === 'conflict');
   const unconfirmed = results.filter((r) => r.ok && r.measureMatch !== 'confirmed');
   console.log(`\n${results.length - bad.length} resolved / ${bad.length} failed` +
     `  ·  measure confirmed on ${results.length - bad.length - unconfirmed.length}, unconfirmed on ${unconfirmed.length}`);
+
+  // The sweep result, called out separately from ordinary link rot: these are the
+  // roll calls where the ledger and the chamber disagree about which bill was voted
+  // on. Each one is a card printing a true vote under a false measure.
+  if (conflicts.length) {
+    console.log(`\n✗ MEASURE CONFLICTS — ${conflicts.length} roll call(s) the ledger files under the wrong measure:`);
+    for (const c of conflicts) {
+      console.log(`  ${c.chamber} roll ${c.roll}: ledger says ${c.number || '(no number)'}, ` +
+        `chamber record says ${c.pageMeasure}   (${c.memberVotes} member vote(s))`);
+      console.log(`      card cites  ${c.url}`);
+      console.log(`      record      ${c.recordUrl}`);
+    }
+  } else {
+    console.log('\n✓ no measure conflicts — every roll call the ledger could corroborate is filed under the measure the chamber says was voted on');
+  }
+
+  // Not a failure, but not a clean bill of health either: these are roll calls the
+  // chamber attributes to a bill while the ledger files them under something with
+  // no bill designation in it. Almost all are amendment rows with no parent_id, so
+  // the link exists in the chamber's record and not in ours.
+  const incomparable = results.filter((r) => r.note);
+  if (incomparable.length) {
+    console.log(`\n· ${incomparable.length} roll call(s) could not be compared either way:`);
+    const byNote = new Map();
+    for (const r of incomparable) {
+      const k = `${r.chamber} · ${r.number} → ${r.pageMeasure}`;
+      byNote.set(k, (byNote.get(k) || 0) + 1);
+    }
+    for (const [k, n] of byNote) console.log(`    ${k}${n > 1 ? `  ×${n}` : ''}`);
+  }
+
   if (bad.length) {
     console.log('\nRefuse these on cards (guard 14):');
     for (const b of bad) console.log(`  ${b.url}\n      ${b.reason}  (${b.memberVotes} member vote(s))`);
@@ -230,21 +392,33 @@ async function main() {
 
   const snapshot = {
     checkedAt: new Date().toISOString(),
-    note: 'Generated by scripts/vr-check-citations.mjs. `unresolved` is what receipt-cards.js guard 14 refuses.',
+    note: 'Generated by scripts/vr-check-citations.mjs. `unresolved` is what receipt-cards.js guard 14 refuses. '
+      + 'An entry with `pageMeasure` is a measure conflict: the link resolves, but the chamber\'s record of that '
+      + 'roll call names a different measure than the ledger does, so the card would be true about the vote and '
+      + 'false about the bill.',
     summary: {
       rollcallsChecked: rows.length,
       distinctCitations: results.length,
       underivable,
       resolved: results.length - bad.length,
       failed: bad.length,
+      measureConflicts: conflicts.length,
       measureConfirmed: results.length - bad.length - unconfirmed.length,
       measureUnconfirmed: unconfirmed.length,
     },
-    unresolved: bad.map((b) => ({ url: b.url, reason: b.reason, memberVotes: b.memberVotes })),
+    unresolved: bad.map((b) => ({
+      url: b.url, reason: b.reason, memberVotes: b.memberVotes,
+      // What the chamber says the page is about. Guard 14 uses this to stay correct
+      // under either deploy ordering: a card whose measure matches pageMeasure is
+      // already fixed and may publish; anything else is still refused.
+      pageMeasure: b.pageMeasure || undefined,
+      recordUrl: b.recordUrl || undefined,
+    })),
     results: results.map((r) => ({
       url: r.url, chamber: r.chamber, roll: r.roll, number: r.number,
       memberVotes: r.memberVotes, status: r.status, ok: r.ok,
-      measureMatch: r.measureMatch, reason: r.reason || undefined,
+      measureMatch: r.measureMatch, pageMeasure: r.pageMeasure || undefined,
+      reason: r.reason || undefined,
     })),
   };
 
