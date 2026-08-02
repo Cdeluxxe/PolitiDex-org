@@ -47,13 +47,17 @@
    than publishing arithmetic that does not hold — a missing summary is a rendering
    gap, a wrong one is a false claim.
 
-   PHASE BOUNDARY
-   Phases 1–2 are foundation only. This file is NOT yet loaded by index.html and
-   renders nothing; Phase 4 wires the UI. The action data arrives in Phase 3 — until
-   then window.EXEC_ACTIONS is absent and every read below honestly returns empty.
+   WHERE IT SITS
+   This file is the read path and nothing else: it computes counts and returns
+   vocabulary, and it touches no DOM, which is what lets its whole suite run in a
+   DOM-less sandbox. The markup lives next door in exec-record-ui.js, so "the wrong
+   number" and "the wrong sentence" stay separately gated. index.html loads
+   exec-action-data.js → this file → exec-record-ui.js, in that order. Every read
+   below is still guarded: if the data file is absent (offline, or a page that does
+   not ship it) the record comes back honestly empty and the section renders nothing.
 
    Reads (all optional, all guarded):
-     window.EXEC_ACTIONS[pid]   → the seeded formal actions (Phase 3)
+     window.EXEC_ACTIONS[pid]   → the seeded formal actions (exec-action-data.js)
      window._polPositionMap(pid, CMP_DATA[pid]) → the ONE shared stance source,
                                   the same feeder consistency.js:154 uses
    Exposes:

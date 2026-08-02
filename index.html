@@ -25958,6 +25958,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // right after Positions since it is the "see everything" extension of it.
       _navItems.push({ action: 'stance', stanceId: _pdxEvJsId(id), icon: '📑', label: 'Full Report', value: 'All Stances', color: '#7fb4ff' });
     }
+    // ✒️ Enactments — the Executive Enactment Record, for figures who cast no
+    // congressional floor votes. Self-gating exactly as the section is: navPill()
+    // returns null unless sourced formal actions are on file, so this pill exists on
+    // an executive profile and nowhere else. The value is a count with its qualifier
+    // attached ("5 On File") — never a bare number, and never a ratio.
+    try {
+      if (window.PDXExecRecordUI && typeof window.PDXExecRecordUI.navPill === 'function') {
+        const _navEer = window.PDXExecRecordUI.navPill(id);
+        if (_navEer) {
+          _navItems.push({ target: _navEer.target, icon: _navEer.icon, label: _navEer.label, value: _navEer.value, color: _navEer.color });
+        }
+      }
+    } catch (e) {}
     // Controversies — the neutral flashpoints block, shown only when at least one
     // sourced say-vs-do gap / broken promise / flagged event is on record.
     try {
@@ -26284,6 +26297,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            Rendered by consistency.js; self-updates when votes warm. -->
       <span id="pdxsec-promise-tracker" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(window.PDXConsistency && typeof window.PDXConsistency.gatewayHtml === 'function') ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + window.PDXConsistency.gatewayHtml(id) + '</div>') : ''}
+
+      <!-- ✒️ Executive Enactment Record — the formal-record lane for figures who
+           cast no congressional floor votes: signed legislation, vetoes, executive
+           orders and directives, each checked against what they say they stand for
+           (alignment) AND against what happened to it afterwards (standing), with
+           every action and every standing carrying its own primary citation. Counts
+           only — no score, because the set of orders a president could sign is
+           unbounded and self-chosen, so there is no honest denominator. Rendered by
+           exec-record-ui.js; self-gates to '' for everyone with nothing on file, so
+           it appears on an executive profile and nowhere else. Additive: the 🏛️
+           Official Record below is untouched and still renders its own empty state. -->
+      <span id="pdxsec-exec-record" class="pdx-nav-anchor" aria-hidden="true"></span>
+      ${(window.PDXExecRecordUI && typeof window.PDXExecRecordUI.sectionHtml === 'function') ? (function(){ try { var _eer = window.PDXExecRecordUI.sectionHtml(id); return _eer ? ('<div class="modal-block" style="margin-bottom:1.25rem;">' + _eer + '</div>') : ''; } catch(e){ return ''; } })() : ''}
 
       <!-- Official Record — the organized, by-issue dive-in the Promise Tracker
            gateway's Official Record card lands on. Groups formal votes/actions by
@@ -52379,6 +52405,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
+       no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
+       PDXExecRecordUI). Three files, loaded in dependency order:
+         exec-action-data.js  the sourced formal actions, generated from
+                              db/exec-action-seed.json by scripts/gen-exec-action-data.mjs;
+         exec-record.js       the DOM-free read path (alignment + standing, no score);
+         exec-record-ui.js    the profile section it renders into #pdxsec-exec-record.
+       All three sit after stance-helpers.js, whose _polPositionMap is the ONE shared
+       stance source this lane and the 🏛️ lane both read, so the two can never
+       disagree about what someone said. Nothing here touches consistency.js or the
+       Official Record surfaces; with any of the three absent the section renders the
+       empty string rather than a claim. -->
+  <script defer src="exec-action-data.js"></script>
+  <script defer src="exec-record.js"></script>
+  <script defer src="exec-record-ui.js"></script>
   <!-- Issue View — the issue-first ranked view (window.PDXIssueView). Loads after
        say-vs-do.js (it reads PDXReceipts) and the stance / core-issue globals it
        ranks from (ISSUE_STANCE_DATA, ISSUE_MAP, CORE_NATIONAL_ISSUES); mounts the
