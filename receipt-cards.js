@@ -56,9 +56,11 @@
   // is share-eligible; 5–9 are structural minimums a shareable image needs to
   // survive being screenshotted away from the app. Guards 10 and 11 are two
   // additional exclusions found while wiring this up — both are documented in
-  // the same terms and both fail closed. Guards 12 and 13 are what a SKEPTIC
-  // needs: an address that resolves to the roll call (12), and, on a disapproval
-  // resolution, a plain-English statement of what a Yea actually did (13).
+  // the same terms and both fail closed. Guards 12–14 are what a SKEPTIC needs:
+  // an address that can be derived for the roll call (12), a plain-English
+  // statement, on a disapproval resolution, of what a Yea actually did (13), and
+  // — because a derived address is a construction and not yet evidence — proof
+  // that the address was FETCHED and found to name that vote (14).
   // ══════════════════════════════════════════════════════════════════════════
 
   // ── Guard 1 · nominations are never share-card eligible ───────────────────
@@ -375,6 +377,36 @@
     return 'no canonical public roll-call page can be derived for this vote (stored source is not a roll-call page and the roll number is missing)';
   }
 
+  // ── Guard 14 · the citation has to have been READ, not just built ──────────
+  // canonicalCitation constructs an address. Construction is not verification:
+  // it is right only if the roll number is right AND the chamber's URL scheme is
+  // what we believe it is, and it is a dead link — or, worse, a link to somebody
+  // else's vote — if either slips. scripts/vr-check-citations.mjs fetches every
+  // derivable citation and reads the page, and anything it could not confirm is
+  // listed here. The list is generated, not hand-written; scripts/test-receipt-
+  // cards.mjs re-derives it from db/vr-citation-check.json on every run, so it
+  // cannot drift away from the evidence, and `--verify` re-checks it live.
+  //
+  // Only citations the check REFUSED appear here — an empty list is the healthy
+  // state. This is a denylist rather than an allowlist on purpose: an allowlist
+  // would silently un-publish every newly ingested roll call until someone
+  // re-ran a network script, which trades a rare wrong link for a routine
+  // outage. The report says plainly which addresses were read and when.
+  var UNRESOLVED_CITATIONS = {
+    // Senate roll call 119-1-7 (20 Jan 2025, 64-35) is On Passage of S. 5. The
+    // ledger attributes it to H.R. 29 — same policy, different bill number — so
+    // the page a reader opens names a measure the card does not. The vote and
+    // the page are both real; the link between them is what is wrong, and that
+    // is a measure-identity repair, not something a card should paper over.
+    'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm':
+      'the roll-call page for this vote is recorded under a different measure number, so a reader following the citation would not find the bill named on the card'
+  };
+  function blockUnverifiedCitation(item) {
+    var cit = canonicalCitation(item);
+    if (!cit) return '';                       // guard 12 already refused it
+    return UNRESOLVED_CITATIONS[cit.url] || '';
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // PLAIN-ENGLISH OPERATIVE EFFECT  ·  disapproval resolutions
   // ──────────────────────────────────────────────────────────────────────────
@@ -566,23 +598,49 @@
   // title and the only one the line budget must never drop. When that clause came
   // from THIS mapping's own rationale, it is removed from the rationale so the
   // card states it once rather than twice.
-  function supportingText(item, mapping) {
-    var bits = [];
+  // The supporting block, as SEGMENTS in descending order of load-bearing-ness:
+  //
+  //   0  what a Yea actually did, in plain words   (disapproval measures only)
+  //   1  the measure's own title
+  //   2  the mapping rationale
+  //   3  chamber · result
+  //
+  // Segments 0 and 1 are PROTECTED. The card canvas has a finite number of fact
+  // lines and used to spend them first-come-first-served on one long string, so a
+  // wordy rationale could push the cut into the bill title and ship a card whose
+  // measure trails off mid-name — the one string on the block a reader needs
+  // intact to look the vote up for themselves. Keeping the parts separate lets the
+  // renderer drop whole trailing segments until the block fits, so what is lost is
+  // the least load-bearing sentence rather than the middle of the title.
+  //
+  // `facts` stays the joined string: it is what the pasted caption and every
+  // non-canvas surface read, and neither of those is line-limited, so they keep
+  // the whole thing.
+  var FACTS_PROTECTED = 2;
+  function supportingParts(item, mapping) {
+    var parts = [];
     var rat = (mapping && mapping.rationale) ? String(mapping.rationale).replace(/\s+/g, ' ').trim() : '';
     if (isDisapproval(item)) {
       var eff = yeaEffect(item, mapping);
       if (eff) {
-        bits.push(eff.text);
+        parts.push(eff.text);
         if (eff.fromSelected) rat = rat.replace(YEA_CLAUSE_RE, '').replace(/[\s;,]+$/, '').trim();
       }
     }
-    if (item.title) bits.push(String(item.title).replace(/\s+/g, ' ').trim());
-    if (rat) bits.push(rat);
+    // Index 1 is always the title slot, even when the measure has no operative-
+    // effect sentence in front of it, so the protected prefix is a fixed length
+    // and the renderer never has to guess which segment is the title.
+    if (parts.length === 0) parts.push('');
+    parts.push(item.title ? String(item.title).replace(/\s+/g, ' ').trim() : '');
+    if (rat) parts.push(rat);
     var tail = [];
     if (item.chamber) tail.push(titleCase(item.chamber));
     if (item.result) tail.push(String(item.result));
-    if (tail.length) bits.push(tail.join(' · '));
-    return bits.join(' — ');
+    if (tail.length) parts.push(tail.join(' · '));
+    return parts;
+  }
+  function supportingText(item, mapping) {
+    return supportingParts(item, mapping).filter(Boolean).join(' — ');
   }
 
   function baseCard(pid, item, issueKey, stance, verdict) {
@@ -623,6 +681,10 @@
       // DID — bill, question, position, date
       headline: proofLine(item),
       facts: supportingText(item, mapping),
+      // The same content the renderer can shorten a segment at a time. Empty
+      // slots are kept so index 1 is always the title; the canvas skips them.
+      factParts: supportingParts(item, mapping),
+      factProtected: FACTS_PROTECTED,
       why: '',
       date: date,
       source: { url: citation.url, label: citation.label },
@@ -697,6 +759,7 @@
             blockStance(pos && pos.text) ||
             blockRecord(item) ||
             blockCitation(item) ||
+            blockUnverifiedCitation(item) ||
             blockPlainEffect(item, issueKey) ||
             blockDuplicateIdentity(records, issueKey, item.number) ||
             stableVerdict(summary, want) ||
@@ -1113,6 +1176,8 @@
       blockIssue: blockIssue,
       blockStance: blockStance,
       blockCitation: blockCitation,
+      blockUnverifiedCitation: blockUnverifiedCitation,
+      unresolvedCitations: UNRESOLVED_CITATIONS,
       blockPlainEffect: blockPlainEffect,
       blockDuplicateIdentity: blockDuplicateIdentity,
       stableVerdict: stableVerdict,

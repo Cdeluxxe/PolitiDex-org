@@ -924,6 +924,154 @@ if (craCard) {
     "plain english: the effect is stated once, not repeated out of the rationale it came from");
 }
 
+// ── Part 4 · guard 14, the citation was READ and not merely built ─────────────
+// canonicalCitation constructs an address; construction is not verification. The
+// denylist in receipt-cards.js exists to refuse the addresses that were fetched
+// and did NOT turn out to name the vote on the card. The only thing that can make
+// that list wrong is drift — someone edits the list by hand, or the evidence file
+// is refreshed and the list is not — so the test derives the expected list from
+// the evidence and compares, rather than restating it. Offline: the JSON is the
+// committed record of a network run, not a new one.
+{
+  const evidence = JSON.parse(readFileSync(join(ROOT, "db/vr-citation-check.json"), "utf8"));
+  const denied = RC.guards.unresolvedCitations;
+  const fromEvidence = (evidence.results || [])
+    .filter((r) => r.ok === false).map((r) => r.url).sort();
+  eq(JSON.stringify(Object.keys(denied).sort()), JSON.stringify(fromEvidence),
+    "guard 14: the refused-citation list is exactly what the link check could not confirm");
+  eq((evidence.unresolved || []).length, fromEvidence.length,
+    "guard 14: the evidence file's own summary agrees with its per-URL results");
+  for (const [url, why] of Object.entries(denied)) {
+    ok(/^https:\/\/(www\.senate\.gov|clerk\.house\.gov)\//.test(url),
+      "guard 14: a refused address is still a chamber roll-call page, not junk");
+    ok(why.length > 40 && !/^error|^failed/i.test(why),
+      "guard 14: the refusal says in plain words what a reader would have found");
+  }
+  // The guard is keyed on the DERIVED address, so it must be reachable through
+  // the same derivation the card prints — not through the stored source URL.
+  const badUrl = Object.keys(denied)[0];
+  if (badUrl) {
+    const m = badUrl.match(/vote_(\d+)_(\d+)_0*(\d+)\.htm$/);
+    if (m) {
+      const victim = { kind: "vote", chamber: "senate", date: "2025-01-20",
+        congress: +m[1], session: +m[2], rollNumber: +m[3],
+        source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/29") };
+      eq(RC.canonicalCitation(victim).url, badUrl,
+        "guard 14: the refused address is one the deriver actually produces");
+      ok(!!RC.guards.blockUnverifiedCitation(victim),
+        "guard 14: a vote whose page names a different measure is refused");
+    }
+  }
+  // Fail OPEN is the failure mode to fear here: an empty or mis-keyed denylist
+  // silently publishes the bad card. A vote that WAS confirmed must pass, and an
+  // underivable one must fall to guard 12 rather than being waved through here.
+  eq(RC.guards.blockUnverifiedCitation(VOTE({ congress: 119, session: 1, rollNumber: 190,
+    source: SRC("https://clerk.house.gov/Votes/2025190") })), "",
+    "guard 14: a confirmed citation is not blocked");
+  eq(RC.guards.blockUnverifiedCitation(VOTE({ source: SRC("https://x.test/nothing") })), "",
+    "guard 14: an underivable citation is guard 12's refusal to make, not guard 14's");
+  for (const card of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
+    ok(!denied["https://" + card.verifyUrl] && !denied[card.source.url],
+      `citation: no card ships an address the link check refused (${card.issueKey})`);
+  }
+}
+
+// ── Part 5 · the bill title survives the line budget ──────────────────────────
+// The supporting block has a hard line budget and used to be one joined string,
+// so a long rationale could push the cut into the measure title and ship a card
+// reading "…the One Big Beautiful Bill Ac…". That is the one string a reader
+// needs intact to go and check the vote, so the card now hands the renderer
+// SEGMENTS and the renderer drops whole trailing ones instead of cutting.
+{
+  const card = RC.cardsFor("testrep").find((c) => c.measureNumber === "H.R. 1")
+    || RC.omnibus("testrep", "H.R. 1");
+  ok(Array.isArray(card.factParts) && card.factParts.length >= 2,
+    "facts: the card carries its supporting block as segments, not only as one string");
+  eq(card.factProtected, 2, "facts: the protected prefix is the effect slot and the title slot");
+  eq(card.factParts[1], "One Big Beautiful Bill Act",
+    "facts: slot 1 is always the measure title, so the renderer never has to guess");
+  eq(card.factParts.filter(Boolean).join(" — "), card.facts,
+    "facts: the segments and the joined string are the same content, so captions lose nothing");
+  ok(card.facts.indexOf("One Big Beautiful Bill Act") !== -1,
+    "facts: the joined string still names the measure");
+
+  // Measure real wrapped output. A monospace metric is enough: the guarantee
+  // under test is "no cut inside the protected prefix", which is about which
+  // segments are emitted, not about a particular typeface.
+  const fake = { measureText: (s) => ({ width: String(s).length * 14 }) };
+  const W = 952;   // ≈68 characters to the line under that metric
+  const TITLE = "A Very Long Measure Title That Runs On For Quite A While Indeed";
+  const seg = (parts) => {
+    const r = { factParts: parts, factProtected: 2 };
+    r.facts = parts.filter(Boolean).join(" — ");
+    return r;
+  };
+
+  // A rationale far too long for the budget: it has to go entirely.
+  const bloated = seg(["", TITLE, new Array(60).fill("rationale").join(" "), "House · Passed"]);
+  const old = R._wrapText(fake, bloated.facts, W, 3);
+  ok(/…$/.test(old[old.length - 1]),
+    "facts: the fixture really does overflow the budget, or this test proves nothing");
+  ok(/rationale…$/.test(old[old.length - 1]),
+    "facts: and the old joined-string path ended the card mid-sentence");
+  const cut = R._factLines(fake, bloated, W, 3);
+  ok(cut.join(" ").indexOf(TITLE) !== -1,
+    "facts: the whole title is rendered even when the block will not fit");
+  ok(cut.join(" ").indexOf("rationale") === -1,
+    "facts: the rationale is dropped entire rather than cut mid-sentence");
+  ok(!/…$/.test(cut[cut.length - 1]),
+    "facts: dropping a segment removes the ellipsis instead of moving it");
+  eq(R._factLines(fake, bloated, W, 0).length, 0,
+    "facts: no line budget renders nothing, never a stray ellipsis");
+
+  // The guarantee, stated as a sweep rather than as one lucky fixture: at every
+  // budget from "the protected prefix just fits" upward, the prefix is emitted
+  // whole and nothing trails off. Below that line the fallback takes over, which
+  // is the documented and unavoidable case.
+  {
+    const effecty = seg([new Array(40).fill("effect").join(" "), TITLE,
+      new Array(60).fill("rationale").join(" "), "House · Passed"]);
+    const prefix = effecty.factParts.slice(0, 2).filter(Boolean).join(" — ");
+    const floor = R._wrapText(fake, prefix, W, 0).length;
+    for (let b = floor; b <= floor + 4; b++) {
+      const got = R._factLines(fake, effecty, W, b).join(" ");
+      ok(got.indexOf(prefix) === 0,
+        `facts: at a ${b}-line budget the effect and title are emitted whole and first`);
+      ok(!/…$/.test(got), `facts: at a ${b}-line budget nothing trails off`);
+    }
+  }
+
+  // Order matters: the tail goes before the rationale, and the title never goes.
+  // Sized so title + rationale fit in three lines but the tail tips it to four.
+  const snug = seg(["", TITLE, new Array(12).fill("rationale").join(" "), "House · Passed"]);
+  const roomy = R._factLines(fake, snug, W, 6);
+  ok(roomy.join(" ").indexOf("House · Passed") !== -1,
+    "facts: when it all fits, nothing is dropped");
+  const mid = R._factLines(fake, snug, W, 3);
+  ok(mid.join(" ").indexOf("rationale") !== -1,
+    "facts: a rationale that fits is kept");
+  ok(mid.join(" ").indexOf("House · Passed") === -1,
+    "facts: the least load-bearing segment is the first to go");
+
+  // The unavoidable case still fails safe: a title too long for the budget on
+  // its own is ellipsized rather than dropped, because a blank block is worse.
+  const monster = seg(["", new Array(80).fill("Title").join(" ")]);
+  const forced = R._factLines(fake, monster, W, 2);
+  eq(forced.length, 2, "facts: an unfittable title fills the budget rather than blanking it");
+  ok(/…$/.test(forced[1]), "facts: and says so with an ellipsis rather than stopping silently");
+
+  // A card from another feed carries no segments; it must render as before.
+  eq(R._factLines(fake, { facts: "plain string" }, W, 3).join(" "), "plain string",
+    "facts: a card with no segments keeps the original behaviour");
+
+  // No shipped card may be cut inside its protected prefix at the full budget.
+  for (const c of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
+    const lines = R._factLines(fake, c, W, 7).join(" ").replace(/…/g, "");
+    const prefix = (c.factParts || []).slice(0, 2).filter(Boolean).join(" — ").replace(/…/g, "");
+    ok(lines.startsWith(prefix), `facts: the ${c.issueKey} card renders its title whole`);
+  }
+}
+
 // Method copy has to describe all three, or the card's method link points at a
 // page that no longer matches the card.
 {

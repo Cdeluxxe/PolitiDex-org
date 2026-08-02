@@ -464,6 +464,43 @@
     for (var i = 0; i < lines.length; i++) ctx.fillText(lines[i], x, y + i * lh);
     return y + lines.length * lh;
   }
+
+  // ── Facts block: drop a sentence, never a bill title ────────────────────────
+  // The supporting block has a hard line budget, and the naive way to spend it is
+  // to hand wrapText() one long joined string and let it ellipsize whatever falls
+  // off the end. That is fine when the tail is a rationale clause and wrong when
+  // it is the measure's name: a card reading "…the One Big Beautiful Bill Ac…"
+  // has broken the one string a reader needs in order to go look the vote up, and
+  // a receipt that cannot be checked is not a receipt.
+  //
+  // So when the card supplies `factParts` (see supportingParts in receipt-cards.js)
+  // we spend the budget by SEGMENT instead. The first `factProtected` slots — what
+  // a Yea did, and the title — always ship whole; the optional tail is dropped one
+  // segment at a time, longest-lived last, until the block wraps inside the
+  // budget. Nothing is ever cut mid-phrase, and a dropped rationale is a sentence
+  // the reader never sees rather than one that breaks off mid-word.
+  //
+  // Ellipsis remains the fallback for the case the segments cannot fix: a title so
+  // long the protected prefix alone overflows. Truncating there is still the right
+  // call — the alternative is a blank block — but it is now rare and visible
+  // rather than routine. Cards with no `factParts` keep the old behaviour exactly.
+  function factLines(ctx, r, maxW, maxLines) {
+    if (maxLines < 1) return [];
+    var parts = r && r.factParts;
+    if (!parts || !parts.length) return wrapText(ctx, r && r.facts, maxW, maxLines);
+    var prot = Math.max(0, Math.min(parts.length, r.factProtected == null ? 2 : r.factProtected));
+    var keep = parts.slice(0, prot).filter(Boolean);
+    var opt = parts.slice(prot).filter(Boolean);
+    // Longest first: try everything, then shed one trailing segment per pass.
+    for (var n = opt.length; n >= 0; n--) {
+      var text = keep.concat(opt.slice(0, n)).join(' — ');
+      if (!text) continue;
+      var lines = wrapText(ctx, text, maxW, 0);
+      if (lines.length <= maxLines) return lines;
+    }
+    // Protected prefix alone still overflows — ellipsize it and say so honestly.
+    return wrapText(ctx, keep.join(' — ') || r.facts, maxW, maxLines);
+  }
   function initials(name) {
     var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
     if (!parts.length) return '★';
@@ -658,13 +695,12 @@
           });
         y += 6;
       }
-      if (r.facts) {
+      if (r.facts || (r.factParts && r.factParts.length)) {
         ctx.font = '400 29px "Barlow", sans-serif';
         ctx.fillStyle = '#b7c6de';
         var maxFactLines = Math.max(0, Math.floor((footTop - y - 10) / 38));
         if (maxFactLines >= 1) {
-          var factLines = wrapText(ctx, r.facts, contentW, Math.min(maxFactLines, 7));
-          drawLines(ctx, factLines, x, y, 38);
+          drawLines(ctx, factLines(ctx, r, contentW, Math.min(maxFactLines, 7)), x, y, 38);
         }
       }
 
@@ -1288,7 +1324,13 @@
     renderImage: function (idOrReceipt) {
       var r = (idOrReceipt && idOrReceipt.verdict) ? idOrReceipt : forPolitician(idOrReceipt);
       return r ? renderCanvas(r).then(canvasToBlob) : Promise.reject(new Error('no receipt'));
-    }
+    },
+    // Exposed for scripts/test-receipt-cards.mjs. The promise that a bill title
+    // never ships broken mid-word is only worth as much as the test that holds
+    // it, and that test needs to measure real wrapped output rather than grep
+    // the call site. Callers outside the tests have no reason to use these.
+    _wrapText: wrapText,
+    _factLines: factLines
   };
 
   // Initial mount + one delayed refresh so names/photos fill in once the live
