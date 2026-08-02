@@ -72,9 +72,13 @@
       "supremecourt.gov",
       "www.courtlistener.com",
       "courtlistener.com",
+      "storage.courtlistener.com",
       "www.govinfo.gov",
-      "govinfo.gov"
+      "govinfo.gov",
+      "www.uscourts.gov",
+      "uscourts.gov"
     ],
+    "_courtHostsWhy": "Added in Phase 3, when the standing of the wave-1 orders had to be established from rulings rather than asserted. A federal court's own document server is as primary as a source gets, and storage.courtlistener.com serves the byte-identical PDF of the same opinion under a stable path — the Phase 3 pass verified that the April 2025 D.D.C. opinion downloads identically (816,214 bytes) from ecf.dcd.uscourts.gov and from storage.courtlistener.com. Reading a ruling is the only way to tell 'blocked' from 'partly blocked' from 'in force', so the host list has to reach the rulings.",
     "rejectedUrlPatterns": [
       "^https?://[^/]+/?$",
       "^https?://[^/]+/presidential-actions/?$",

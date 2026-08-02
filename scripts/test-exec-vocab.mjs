@@ -27,7 +27,7 @@
 // No database, no network, no DOM. Exit code is non-zero on the first failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -266,13 +266,43 @@ for (const part of ["migration.sql", "snapshot.json"]) {
 // BEFORE one already applied to the branch, and `drizzle-kit generate` stamps the
 // wall-clock date — which sorts behind this repo's hand-versioned migrations, since
 // those run ahead of the calendar. So the version has to be picked, not inherited.
-// Asserting it is the maximum encodes the platform rule offline.
+//
+// What can be asserted offline is DEPENDENCY ORDER, which is permanent. An earlier
+// revision of this check required the standing-log migration to be the newest in the
+// tree; that was true on the day it was written and false the moment Phase 3 added
+// the seed behind it, so it failed on a correct change. The checks below hold no
+// matter how many migrations arrive later:
+//   • no two migrations share a version — a tie has no defined apply order;
+//   • the standing log is created AFTER vr_positions, which it has an FK to;
+//   • the Phase 3 seed runs AFTER the table it inserts into.
 const versionOf = (f) => (f.match(/^(\d+)/) || [])[1] || "";
-const maxVersion = migrationEntries
-  .map(versionOf).filter(Boolean).sort().at(-1);
-ok(versionOf(execMigrationDir) === maxVersion,
-  `${execMigrationDir} does not sort last (max version present is ${maxVersion}) — ` +
-  "the platform will reject it as out-of-order on deploy");
+const allVersions = migrationEntries.map(versionOf).filter(Boolean);
+ok(new Set(allVersions).size === allVersions.length,
+  "two migrations share a version prefix — the apply order between them is undefined");
+
+const execVersion = versionOf(execMigrationDir);
+// Migrations come in two shapes in this repo — a bare .sql for seeds and repairs, a
+// drizzle-shaped directory for anything that creates a table — so the body has to be
+// resolved through both before it can be searched.
+const bodyOf = (entry) => {
+  for (const p of [join(MIGRATIONS, entry), join(MIGRATIONS, entry, "migration.sql")]) {
+    try { if (statSync(p).isFile()) return readFileSync(p, "utf8"); } catch (e) { /* next shape */ }
+  }
+  return "";
+};
+const positionsMigration = migrationEntries
+  .find((f) => /CREATE TABLE IF NOT EXISTS "vr_positions"/.test(bodyOf(f)));
+if (positionsMigration) {
+  ok(versionOf(positionsMigration) < execVersion,
+    `${execMigrationDir} sorts before the migration that creates vr_positions — its foreign key would not resolve`);
+}
+const seedMigration = migrationEntries.find((f) => /_seed_exec_actions_wave1\.sql$/.test(f));
+ok(!!seedMigration, "no *_seed_exec_actions_wave1.sql migration found — Phase 3 seeds the standing log");
+if (seedMigration) {
+  ok(execVersion < versionOf(seedMigration),
+    `the Phase 3 seed (${seedMigration}) sorts before the migration that creates vr_exec_action_status — ` +
+    "it would insert into a table that does not exist yet");
+}
 
 const migration = readFileSync(join(MIGRATIONS, execMigrationDir, "migration.sql"), "utf8");
 ok(/CREATE TABLE IF NOT EXISTS "vr_exec_action_status"/.test(migration),
