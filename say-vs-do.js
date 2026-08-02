@@ -469,6 +469,36 @@
     return y + lines.length * lh;
   }
 
+  // ── Issue lists: a truncated issue name is not an issue name ────────────────
+  // The split rows on an omnibus card name the OTHER curated issues the same
+  // cited vote moved. Wrapping that list with a one-line clamp ellipsized it
+  // mid-label: the H.R. 1 card announced "THE SAME VOTE MOVED 14 MAPPED ISSUES"
+  // and then printed "Cut Income & Business Taxes · Cut Federal Spending &
+  // Reduce Debt · Middle-Class Tax…" — two real names out of ten, followed by a
+  // fragment that reads like a third issue and is not one. A reader has no way
+  // to tell which of those is a whole name, and no way to look up the fragment.
+  //
+  // So the list is packed by WHOLE label and the remainder is counted instead of
+  // cut. "+8 more" is a true statement a reader can go and check; "Middle-Class
+  // Tax…" is not a statement at all. Whole labels are dropped from the end, one
+  // at a time, until the list plus its counter fits the line budget.
+  function labelListLines(ctx, list, maxW, maxLines) {
+    if (!list || !list.length || !(maxLines >= 1)) return [];
+    for (var k = list.length; k >= 1; k--) {
+      var txt = list.slice(0, k).join(' · ');
+      if (k < list.length) txt += ' · +' + (list.length - k) + ' more';
+      var lines = wrapText(ctx, txt, maxW, 0);
+      var fits = lines.length <= maxLines;
+      for (var i = 0; fits && i < lines.length; i++) {
+        if (ctx.measureText(lines[i]).width > maxW) fits = false;
+      }
+      if (fits) return lines;
+    }
+    // Even a single label plus the counter overflows the budget. The bare count
+    // is still true and still legible; a clipped name would be neither.
+    return [String(list.length) + ' issues'];
+  }
+
   // ── Facts block: drop a sentence, never a bill title ────────────────────────
   // The supporting block has a hard line budget, and the naive way to spend it is
   // to hand wrapText() one long joined string and let it ellipsize whatever falls
@@ -506,6 +536,9 @@
   // call — the alternative is a blank block — but it is now rare and visible
   // rather than routine. Cards with no `factParts` keep the old behaviour exactly.
   var FACT_LH = 38;
+  // Line height for a wrapped issue list in the split block. Tighter than the
+  // fact block's 38 because these are list items, not sentences.
+  var SPLIT_LH = 30;
   var FACT_TIERS = {
     effect: { font: '600 29px "Barlow", sans-serif', fill: '#f5c842' },
     title:  { font: '600 29px "Barlow", sans-serif', fill: '#e8eefc' },
@@ -755,16 +788,26 @@
           .forEach(function (row) {
             if (!row[1].length || y > footTop - 40) return;
             ctx.font = '700 24px "Barlow Condensed", sans-serif';
-            ctx.fillStyle = row[2];
             var lbl = row[0] + ': ';
-            ctx.fillText(lbl, x, y);
             var lw = ctx.measureText(lbl).width;
+            // Up to two lines, and only as many as the space above the footer
+            // actually allows. Two is enough to carry five or six whole issue
+            // names; a third would start crowding out the bill title below.
+            ctx.font = '400 24px "Barlow", sans-serif';
+            var cap = Math.max(1, Math.min(2, Math.floor((footTop - 40 - y) / SPLIT_LH)));
+            var lines = labelListLines(ctx, row[1], contentW - lw, cap);
+            ctx.font = '700 24px "Barlow Condensed", sans-serif';
+            ctx.fillStyle = row[2];
+            ctx.fillText(lbl, x, y);
             ctx.font = '400 24px "Barlow", sans-serif';
             ctx.fillStyle = '#cdd9ec';
-            var txt = row[1].join(' · ');
-            var lines = wrapText(ctx, txt, contentW - lw, 1);
-            ctx.fillText(lines[0] || txt, x + lw, y);
-            y += 32;
+            // Continuation lines hang under the list, not under the label, so
+            // the coloured ADVANCES/OPPOSES word stays the only thing in the
+            // left gutter and the two rows remain scannable as two rows.
+            for (var li = 0; li < lines.length; li++) {
+              ctx.fillText(lines[li], x + lw, y + li * SPLIT_LH);
+            }
+            y += 32 + Math.max(0, lines.length - 1) * SPLIT_LH;
           });
         y += 6;
       }
@@ -870,7 +913,21 @@
   }
 
   function slugify(s) { return String(s || 'receipt').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'receipt'; }
-  function trimTo(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : s; }
+  // A word-boundary trim, then one more cut: a clipped line that ends on a
+  // function word reads as a transmission failure rather than an abbreviation.
+  // "…to give Republicans a…" and "…aviation decarbonization, and…" both promise
+  // a noun the reader never gets, and both were real short-post output. Dropping
+  // the orphan costs three characters and buys a line that ends where a thought
+  // pauses. Exactly one is dropped — chaining would eat real content.
+  var TRIM_ORPHAN = /[\s,;:—–-]+(?:a|an|and|the|of|to|in|on|for|or|but|with|that|from|at|by|as|its|their|his|her|our|this|these|those|into|over|under|about|per|than|nor|so|if|it|is|are|was|were|be|been)$/i;
+  function trimTo(s, n) {
+    s = String(s || '');
+    if (s.length <= n) return s;
+    var cut = s.slice(0, n - 1).replace(/\s+\S*$/, '');
+    var lean = cut.replace(TRIM_ORPHAN, '');
+    if (lean.trim()) cut = lean;
+    return cut.replace(/[\s,;:]+$/, '') + '…';
+  }
   // The image carries its own provenance; the caption that travels beside it has to
   // agree with it. A vote-derived card is 🏛️ Official Record and leads with the bill,
   // and its source line prints the citable URL the card footer shows — a curated 🧾
@@ -886,6 +943,41 @@
     return lbl + (r.date ? ' (' + r.date + ')' : '') + url;
   }
   function issueName(r) { return (r && r.issue && r.issue.label) || ''; }
+
+  // ── The card's fact tiers, named ────────────────────────────────────────────
+  // receipt-cards.js builds factParts as a fixed four-slot array so the renderer
+  // never has to guess which segment is which:
+  //   [0] the "what a Yea did" sentence — present ONLY on a CRA / disapproval
+  //       vote, empty on an ordinary bill
+  //   [1] the measure's own title
+  //   [2] the curated mapping rationale: in plain English, what this vote does to
+  //       THIS issue
+  //   [3] chamber · result
+  // Captions used to print [0] and nothing else. On 192 of the 212 core public
+  // cards [0] is empty, so the pasted text named a bill number, a procedural
+  // question and a verdict — and never once said what the measure was about.
+  // [1] and [2] are already on the card, already sanitised, already sourced.
+  // They are the plain-English half of the share, and they belong in the text.
+  function factPart(r, i) {
+    var p = r && r.factParts;
+    return (p && p[i]) ? String(p[i]).replace(/\s+/g, ' ').trim() : '';
+  }
+  function measureTitle(r) { return factPart(r, 1); }
+  // "Voted Yea" / "Voted Nay", read off the headline the card already built —
+  // not re-derived from the vote, so it cannot disagree with the image.
+  function votedSeg(r) {
+    var seg = String((r && r.headline) || '').split(' · ');
+    var last = seg[seg.length - 1] || '';
+    return /^Voted\b/i.test(last) ? last : '';
+  }
+  // A stated position is quoted prose that very often contains its own quotation
+  // marks. Nesting them inside the caption's curly pair reads as a typo, and a
+  // trim landing inside one leaves it unbalanced. Inner doubles become singles so
+  // the outer pair stays unambiguous; trimTo() already breaks on a word boundary.
+  function quoted(s, max) {
+    var t = String(s || '').replace(/\s+/g, ' ').trim().replace(/[“”"]/g, "'");
+    return t ? '“' + trimTo(t, max) + '”' : '';
+  }
   // ── Official Record caption ─────────────────────────────────────────────────
   // ONE shape for all three record verdicts — contradiction, consistency and the
   // H.R. 1 omnibus split. The old caption varied its record-line prefix by
@@ -902,14 +994,16 @@
   //   · the issue, which the old caption never named at all — a reader landing on
   //     a quoted position and a bill number had no idea what the pair was about
   //   · the stated position and its undated disclosure, verbatim from the card
-  //   · the record line, then — on a CRA or disapproval vote — the plain-English
-  //     effect sentence that the image prints in its own tier. That sentence is
-  //     the only thing standing between "voted Yea on S.J.Res.11" and a reader
-  //     who has no idea what a Yea on a resolution of disapproval does; it must
-  //     travel with the text, not only with the pixels
+  //   · the record line, then the measure's own title, then — on a CRA or
+  //     disapproval vote — the plain-English effect sentence, and then the
+  //     curated mapping rationale. Those last three are the only things standing
+  //     between "voted Yea on S.J.Res.11" and a reader who has no idea what a Yea
+  //     on a resolution of disapproval does; they must travel with the text, not
+  //     only with the pixels
   //   · on a split card, the mapped issues BY NAME rather than by count — "14
   //     issues, advances 9, opposes 5" is a statistic, and the point of the card
-  //     is which ones
+  //     is which ones — one labelled line per side, because fourteen names in a
+  //     single paragraph is not a thing anyone reads on a phone
   //   · the full source URL, the method path, and the deep link back to this same
   //     receipt. All three, every time, scheme included so they are clickable.
   //
@@ -933,18 +1027,34 @@
       // when it is really disagreeing with a recorded stance. Same claim in the
       // text half as in the pixels, or the two halves are not the same share.
       lines.push('Their stated position: ' + (r.said.word ? r.said.word + ' — ' : '') +
-        '“' + trimTo(r.said.text, 150) + '”');
+        quoted(r.said.text, 150));
       if (r.saidNote) lines.push(r.saidNote);
     }
     lines.push('The record: ' + trimHeadline(r.headline, 150));
-    // factParts[0] is the "what a Yea did" slot and is empty on an ordinary bill.
-    var effect = r.factParts && r.factParts[0];
-    if (effect) lines.push('What a Yea did: ' + trimTo(String(effect), 200));
+    // The three fact tiers, each with the label its provenance earns. [0] is the
+    // disapproval effect and says what a Yea DID; [2] is the curated mapping
+    // rationale and says why the vote counts on THIS issue. Different sources,
+    // different claims, so they are never merged under one label — and the title
+    // sits between them so the reader knows which measure both are about.
+    var title = measureTitle(r);
+    if (title) lines.push('The measure: ' + trimTo(title, 200));
+    var didEffect = factPart(r, 0);
+    if (didEffect) lines.push('What a Yea did: ' + trimTo(didEffect, 200));
+    var why = factPart(r, 2);
+    // 300, not 220. The long caption is the one artefact with no platform limit,
+    // and the rationale is the sentence that answers "why does a defence vote
+    // count on THIS issue" — the question a sceptical reader asks first. At 220
+    // it cut 21 of the 212 core cards mid-sentence ("This NDAA also…"), which
+    // reads as a claim withheld. 300 clears the longest rationale in the ledger.
+    if (why) lines.push('Why it counts on ' + (iss || 'this issue') + ': ' + trimTo(why, 300));
     if (r.split && (r.split.advances.length || r.split.opposes.length)) {
-      var moved = [];
-      if (r.split.advances.length) moved.push('advances ' + r.split.advances.join(', '));
-      if (r.split.opposes.length) moved.push('opposes ' + r.split.opposes.join(', '));
-      lines.push('The same vote moved ' + r.split.count + ' mapped issues — ' + moved.join('; ') + '.');
+      // One 400-character paragraph naming fourteen issues is not readable on a
+      // phone. The count leads, then each side gets its own labelled line — the
+      // same names, in the same order, nothing dropped and nothing summarised
+      // into a statistic.
+      lines.push('The same vote moved ' + r.split.count + ' mapped issues.');
+      if (r.split.advances.length) lines.push('Advances: ' + r.split.advances.join(', '));
+      if (r.split.opposes.length) lines.push('Opposes: ' + r.split.opposes.join(', '));
       // On a fourteen-issue package that list is long enough that a reader has to
       // hunt through it for the one issue the card is actually judging — and on
       // H.R. 1 two of the names ("Cut Federal Spending & Reduce Debt" and "Tackle
@@ -992,8 +1102,93 @@
     if (seg.length < 3 || !/^Voted\b/i.test(seg[seg.length - 1])) return trimTo(s, max);
     var head = seg[0], tail = seg[seg.length - 1];
     var room = max - head.length - tail.length - 6;   // two ' · ' joiners
-    if (room < 8) return trimTo(head + ' · ' + tail, max);
+    // A middle segment clipped to a stub — "H.J.Res. 89 · On the… · Voted Yea" —
+    // is worse than no middle segment at all: it reads as a broken string rather
+    // than as an abbreviation, and the question is precisely the part a reader
+    // can recover from either link. Below a width that can carry a recognisable
+    // fragment, drop it outright.
+    if (room < 16) return trimTo(head + ' · ' + tail, max);
     return head + ' · ' + trimTo(seg.slice(1, -1).join(' · '), room) + ' · ' + tail;
+  }
+
+  // ── The short post ──────────────────────────────────────────────────────────
+  // What a stranger sees in a group chat before they decide whether to tap. The
+  // old build was head + trimmed headline + two links, and it was missing the
+  // half that makes the card a claim at all: the STATED POSITION. "Says One Thing
+  // · Voted Another. H.Amdt. 232 · On Agreeing to the Amendment · Voted Nay" names
+  // no thing said, and no thing the amendment would have done. It is a verdict
+  // with both of its terms left out.
+  //
+  // So the short post is built from a required list rather than from whatever
+  // survives a trim:
+  //   🏛️ marker · name · issue      the origin, unmistakably not a curated receipt
+  //   verdict                        stated, not implied
+  //   Said:                          the position the verdict is computed against
+  //   Did:                           which way they voted, on what, in plain words
+  //   politidex.fyi deep link        reopens THIS receipt
+  //   full chamber URL               the government's own record
+  // and the method path only if it fits.
+  //
+  // ON LENGTH. Those elements do not fit in 280 characters, and on a Senate
+  // citation they are not close: the two addresses cost ~157 there and the header
+  // another ~95, leaving under 30 for both content lines. Rather than drop a
+  // required element to protect a number inherited from one platform, the builder
+  // spends whatever is left on Said and Did, gives each a floor it will not go
+  // below, and lets the post run past 280 when the floors demand it. A post that
+  // fits X but cannot say what was said is not a shorter post; it is a different,
+  // weaker claim. The floors are what bound the overrun — nothing else grows, and
+  // the method line is dropped entirely rather than allowed to push it further.
+  // Measured across the 212 core public cards: 310–433 characters.
+  //
+  // ON THE SAID FLOOR. It was 50, and 50 is not a claim. Mike Simpson's post read
+  // `Said: “Says he is 'troubled by the United States’…”` — a fragment that ends
+  // inside a nested quote and states nothing at all, attached to a verdict of
+  // "Says One Thing · Voted Another" that the reader is now asked to take on
+  // faith. If the post cannot carry the position, it cannot carry the accusation.
+  // 75 is the width at which the stated positions in this corpus reach a verb.
+  var RECORD_POST_SAID_FLOOR = 75;
+  var RECORD_POST_DID_FLOOR = 95;
+
+  // "Voted Nay on H.Amdt. 232 (Boebert) to H.R. 8595 — eliminate funding for the
+  // Fulbright Program": the direction, the measure, and what the measure was, in
+  // that order. Falls back to the card's own headline when the pieces are not all
+  // present.
+  function recordDidLine(r, max) {
+    var voted = votedSeg(r);
+    var num = r.measureNumber || String((r && r.headline) || '').split(' · ')[0] || '';
+    var lead = voted && num ? voted + ' on ' + num : (voted || num);
+    if (!lead) return trimHeadline(r.headline, max);
+    // Preference order is legibility: the disapproval sentence when there is one
+    // (it is always plain English and always short), then the measure's own
+    // title, then the curated mapping rationale.
+    var effect = factPart(r, 0);
+    var what = effect || measureTitle(r) || factPart(r, 2);
+    // The effect sentence is a SENTENCE ABOUT THE MEASURE — "A yea rolls back a
+    // major state climate rule." — not a description of this member's vote. Hung
+    // off an em dash it silently becomes one: "Voted Nay on H.J.Res. 88 — A yea
+    // rolls back a major state climate rule" tells a scrolling reader that Rick
+    // Larsen's NAY rolled back the rule, which is the opposite of what happened.
+    // A full stop keeps the two claims apart: what they did, then what a yea
+    // does. Title and rationale are noun phrases and still take the em dash.
+    var join = effect ? '. ' : ' — ';
+    // Several stored titles already OPEN with the measure number — "H.R. 1 — One
+    // Big Beautiful Bill Act", "H.Amdt. 232 (Boebert) to H.R. 8595 — …". Printing
+    // one of those after "Voted Yea on H.R. 1" says the number twice, and cutting
+    // the number off the front of the title leaves "(Boebert) to H.R. 8595 — …"
+    // hanging. So when the title already names the measure, the title IS the
+    // object of the sentence and the lead does not name it again.
+    if (!effect && num && what &&
+        what.slice(0, String(num).length).toUpperCase() === String(num).toUpperCase()) {
+      lead = voted ? voted + ' on' : 'On';
+      var joined = lead + ' ' + what;
+      return joined.length <= max ? joined : lead + ' ' + trimTo(what, max - lead.length - 1);
+    }
+    // Only pair it on if a usable amount survives; a two-word stub after an em
+    // dash is noise.
+    if (what && max - lead.length - join.length >= 20) {
+      return lead + join + trimTo(what, max - lead.length - join.length);
+    }
+    return trimTo(lead, max);
   }
 
   function tweetText(r) {
@@ -1002,30 +1197,36 @@
       return trimTo('🧾 ' + r.name + ' — ' + v + '. ' + r.headline +
         ' (source: ' + sourceLine(r) + ')', 240);
     }
-    // The address is the entire point of the post, so it is reserved out of the
-    // budget and the headline is trimmed AROUND it. Composing the whole string
-    // and trimming the end — which is what this used to do — put the source URL
-    // last in line for the characters, so a long enough bill title would
-    // silently produce a post nobody could check.
+    // Both addresses are reserved whole, before any content gets a budget. The
+    // chamber URL is where the vote is read off the government's own record; the
+    // politidex.fyi record link is where the judging is shown and this same
+    // receipt reopens. A post carrying only the first is a claim footnoted to a
+    // page that never mentions us; one carrying only the second asks a reader to
+    // take our word for the vote. Neither is enough alone.
     var head = '🏛️ OFFICIAL RECORD — ' + r.name + (issueName(r) ? ' on ' + issueName(r) : '') +
-      ': ' + r.verdict.label + '. ';
-    // TWO addresses, both reserved, both whole. The chamber URL is where the
-    // vote is read off the government's own record; the politidex.fyi record
-    // link is where the judging is shown and this same receipt reopens. A post
-    // carrying only the first is a claim with a footnote to a page that never
-    // mentions us; one carrying only the second asks a reader to take our word
-    // for the vote. Wave 1's whole standard is that neither is enough alone, so
-    // both are subtracted before the headline gets any budget at all, and the
-    // headline — the one part a reader can reconstruct from either link — is
-    // what gives way when they will not all fit.
-    //
-    // 280 rather than the old 240: the two addresses cost about 130 characters
-    // on a Senate roll call before a word of content, and the previous ceiling
-    // was a self-imposed margin, not a platform limit. Trimming the headline to
-    // nothing to preserve a margin would defeat the reason the margin existed.
-    var tail = '\nCheck: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL) +
-      '\n' + ((r.source && r.source.url) || r.verifyUrl || '');
-    return head + trimHeadline(r.headline, Math.max(24, RECORD_POST_MAX - head.length - tail.length)) + tail;
+      '\n' + r.verdict.label;
+    var deep = receiptLink(r, '', { canonical: true }) || SHARE_URL;
+    var src = (r.source && r.source.url) || r.verifyUrl || '';
+    // Both links are LABELLED. Two bare URLs stacked at the foot of a post give a
+    // cold reader no way to tell which one is the government's record and which
+    // one reopens the receipt — and "Check:" is the invitation the whole share is
+    // making. Fifteen characters is a cheap price for that.
+    var tail = '\nCheck: ' + deep + (src ? '\nSource: ' + src : '');
+    var said = (r.said && r.said.text) ? String(r.said.text) : '';
+    // Newlines for "\nSaid: " and "\nDid: " are part of the fixed cost.
+    var fixed = head.length + tail.length + (said ? 7 : 0) + 6;
+    var room = RECORD_POST_MAX - fixed;
+    var didBudget = Math.max(RECORD_POST_DID_FLOOR, Math.min(130, Math.round(room * 0.5)));
+    var did = recordDidLine(r, didBudget);
+    var saidBudget = said ? Math.max(RECORD_POST_SAID_FLOOR, Math.min(110, room - did.length)) : 0;
+    var out = head +
+      (said ? '\nSaid: ' + quoted(said, saidBudget) : '') +
+      '\nDid: ' + did + tail;
+    // The method path is the one optional element — it goes in only if the post
+    // is still inside the target after everything required is in.
+    var m = r.method ? String(r.method).replace(/^HOW THIS IS JUDGED:\s*/i, '') : '';
+    if (m && out.length + m.length + 10 <= RECORD_POST_MAX) out += '\nMethod: ' + m;
+    return out;
   }
 
   function toast(msg) {
@@ -1535,6 +1736,7 @@
     // it, and that test needs to measure real wrapped output rather than grep
     // the call site. Callers outside the tests have no reason to use these.
     _wrapText: wrapText,
+    _labelListLines: labelListLines,
     _factLines: factLines,
     _factBlocks: factBlocks,
     _factTiers: FACT_TIERS,

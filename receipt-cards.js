@@ -297,12 +297,23 @@
     return { label: p.slice(0, 3), color: '#94a3b8' };
   }
   // Same icon/label split say-vs-do.js uses, so both feeds print the same chip.
+  // Zero-width joiners and BOMs travel invisibly through a label and then show
+  // up as a tofu box on whichever phone renders the share text. One label in
+  // ISSUE_MAP opens with a bare ZWJ before its emoji, and because \s does not
+  // match a format character the icon split below failed on it outright: the
+  // card fell back to the generic 🎯 while still printing the real emoji inside
+  // the label ("‍🌈 Protect LGBTQ+ Rights"), so the same card carried two icons,
+  // one of them wrong. Stripped here rather than in ISSUE_MAP so nothing outside
+  // the share path changes.
+  var ZERO_WIDTH_RE = /[​-‏⁠﻿]/g;
   function issueMeta(key) {
     var im = (window.ISSUE_MAP) || {};
     var def = key && im[key];
     if (!def || !def.label) return null;
-    var m = String(def.label).match(/^\s*(\p{Extended_Pictographic}(?:️)?)\s*(.*)$/u);
-    return m ? { icon: m[1], label: m[2] || def.label } : { icon: '🎯', label: def.label };
+    var label = String(def.label).replace(ZERO_WIDTH_RE, '').trim();
+    if (!label) return null;
+    var m = label.match(/^\s*(\p{Extended_Pictographic}(?:️)?)\s*(.*)$/u);
+    return m ? { icon: m[1], label: m[2] || label } : { icon: '🎯', label: label };
   }
   function issueLabel(key) {
     var im = issueMeta(key);
@@ -310,6 +321,19 @@
   }
   function titleCase(s) {
     return String(s || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  // The stored `result` is a ledger token, not a caption: the corpus holds
+  // "passed", "Passed", "failed", "agreed_to" and "rejected" side by side. On a
+  // share image the last line of the fact block read "House · agreed_to" — a raw
+  // enum with an underscore, on the one artefact whose whole job is looking like
+  // a public record rather than a database dump — and two cards from the same
+  // starter set read "House · passed" and "House · Passed". Sentence case, one
+  // space for the underscore. Nothing about the outcome changes; only the casing
+  // the reader sees does, so this stays source-faithful.
+  function resultLabel(s) {
+    var t = String(s || '').replace(/_/g, ' ').trim();
+    if (!t) return '';
+    return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
   }
   function stanceWord(stance) {
     if (stance === 'support') return 'Supports';
@@ -949,7 +973,7 @@
     if (rat) parts.push(rat);
     var tail = [];
     if (item.chamber) tail.push(titleCase(item.chamber));
-    if (item.result) tail.push(String(item.result));
+    if (item.result) tail.push(resultLabel(item.result));
     if (tail.length) parts.push(tail.join(' · '));
     return parts;
   }
@@ -1581,6 +1605,12 @@
     publicShareBlock: publicShareBlock,
     publicTier: publicTier,
     PUBLIC_MIN_JUDGED: PUBLIC_MIN_JUDGED,
+    // Phase 10 (digital share): the two pure text builders that decide what the
+    // fact block and the issue chip actually PRINT. Exposed so the presentation
+    // tests can assert on the string a reader sees rather than on the source of
+    // the function that writes it.
+    supportingParts: supportingParts,
+    issueMeta: issueMeta,
     // actions
     warm: warm,
     share: share,

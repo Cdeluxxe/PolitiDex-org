@@ -902,6 +902,13 @@
       '.pdxgap-x{position:absolute;top:0.6rem;right:0.7rem;width:2rem;height:2rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.2rem;line-height:1;cursor:pointer;}' +
       '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
       '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
+      // The member's name, between the eyebrow and the issue. Sized under the issue
+      // title on purpose: the issue is still what the sheet is about, the name is
+      // who it is about, and a cold arrival needs both in the first glance. Wraps
+      // rather than truncates — a clipped name on a page whose whole job is
+      // identifying someone is worse than a second line.
+      '.pdxgap-who{font-weight:700;font-size:0.95rem;color:#e8eefc;line-height:1.2;padding-right:2rem;}' +
+      '.pdxgap-who-sub{font-weight:600;font-size:0.72rem;color:#8fa5c4;}' +
       '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.15rem 0 0.4rem;padding-right:2rem;}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
@@ -2257,6 +2264,33 @@
     if (meta && meta.judged) return '<span class="pdxor-pct pdxor-pct-na" title="Not enough public record yet to score">—</span>';
     return '';
   }
+  // The member's own name, for the gap sheet header. Reads the same two roster
+  // globals every other surface reads and falls back to the prettified pid, so it
+  // can return an unhelpful string but never an empty one.
+  function _gapMemberName(pid) {
+    var p = null;
+    try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
+    var n = p && (p.name || p.fullName || p.displayName);
+    if (n) return String(n);
+    return String(pid || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  // Office + party, if the roster has them — the one-line identity a cold arrival
+  // needs to know they are looking at the person from the image. Omitted entirely
+  // rather than guessed.
+  function _gapMemberSub(pid) {
+    var p = null;
+    try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
+    if (!p) return '';
+    var bits = [];
+    var office = p.office || p.title || p.role || p.position || '';
+    var state = p.state || p.stateName || '';
+    var party = p.party || '';
+    if (office) bits.push(String(office));
+    if (state) bits.push(String(state));
+    if (party) bits.push(String(party));
+    return bits.join(' · ');
+  }
+
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
@@ -2265,19 +2299,67 @@
     var stance = _orStanceChip(pid, issueKey);
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
-    var relHtml, gapNote;
+    //
+    // WHO THIS HEADER IS FOR. This sheet was built as a cross-link from inside the
+    // app, where the reader already knows whose profile they are on and chose the
+    // comparison. It is now also the LANDING PAGE for every shared 🏛️ Official
+    // Record card — receipt-cards.js routes `#record=<pid>~<issue>` straight here —
+    // and that reader arrives with nothing but the image they tapped.
+    //
+    // Two things were wrong for them, and both were measured across the whole
+    // public share pool rather than guessed:
+    //
+    //   · THE MEMBER WAS NEVER NAMED. The header printed an eyebrow, the issue
+    //     label and two chips. Someone who tapped a card about Mike Simpson landed
+    //     on a page that says "Cut Federal Spending & Reduce Debt" and never says
+    //     Mike Simpson. There is no way to tell it is the same object.
+    //
+    //   · THE COMPARISON FRAME MISFIRES ON EVERY SINGLE SHARED CARD. All 212 core
+    //     public cards land here with an Official Record score and NO Say-vs-Do
+    //     score — the share gate selects on formal-record depth, and the curated
+    //     Say-vs-Do layer covers different members and issues. So all 212 hit the
+    //     else-branch: eyebrow "Record vs. Public Picture", chip "— One side only",
+    //     and an opening line explaining there is nothing to line up. The image
+    //     made a sourced claim; the page opened by apologising for having nothing
+    //     to compare. That is the worst possible first sentence for an arrival.
+    //
+    // So when the Official Record is the side carrying the score, the header leads
+    // with the Official Record and states what IS there. Nothing is hidden: the
+    // 🧾 side still renders below with its own honest empty state, and the
+    // comparison framing returns unchanged the moment both sides have a number.
+    var relHtml, gapNote, eyebrow = '⚖️ Record vs. Public Picture';
     if (oNum && sNum) {
       var gap = off.score - say.score, rel = divRel(gap), g = Math.abs(gap), dir = _divDir(gap);
       relHtml = _divRelChip(rel);
       gapNote = '<div class="pdxgap-note">' + (g > DIV_ALIGN_MAX ? '<b>' + g + ' pt gap</b>' + (dir ? ' · ' + esc(dir) : '') + ' — ' : '') + esc(rel.blurb) + '</div>';
+    } else if (oNum) {
+      // The arrival case. Say what the formal record on this issue actually shows,
+      // in the vocabulary the shared card used, and count the votes behind it — the
+      // depth is the answer to "why should I believe this", and it is the number
+      // the reader cannot get from the image.
+      eyebrow = '🏛️ ' + 'Official Record';
+      var _rv = _orRowVerdict(off);
+      relHtml = '<span class="pdxdv-rel" style="color:' + off.verdict.color + ';border-color:' +
+        off.verdict.color + '55;background:' + off.verdict.color + '1f;">' + esc(off.verdict.label) + '</span>';
+      var _tot = (off.record && off.record.total) || (off.officialActions && off.officialActions.total) || 0;
+      var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? 'vote' : 'votes') + ' on this issue' : '';
+      gapNote = '<div class="pdxgap-note">' +
+        esc([_depth, _rv && _rv.why ? _rv.why : ''].filter(Boolean).join(' · ') ||
+          'Their formal record on this issue, vote by vote, with every source.') +
+        '</div>';
     } else {
       relHtml = '<span class="pdxdv-rel" style="color:#9fb4d4;border-color:#9fb4d455;background:#9fb4d41f;">— One side only</span>';
       gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
     }
 
+    // The name leads. It is the first thing on the shared image and it has to be
+    // the first thing here, or the two are not visibly the same object.
+    var _sub = _gapMemberSub(pid);
     var head =
       '<div class="pdxgap-h">' +
-        '<div class="pdxgap-eyebrow">⚖️ Record vs. Public Picture</div>' +
+        '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
+        '<div class="pdxgap-who">' + esc(_gapMemberName(pid)) +
+          (_sub ? ' <span class="pdxgap-who-sub">' + esc(_sub) + '</span>' : '') + '</div>' +
         '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
         '<div class="pdxgap-meta">' + (stance || '') + relHtml + '</div>' +
         gapNote +
@@ -2581,6 +2663,14 @@
     // asserts it offers real destinations rather than a dead generic button, and
     // it can be asserted without standing up a DOM.
     nextStepHtml: _gapNextHtml,
+    // Phase 10 (digital share): the whole landing view, as a pure string builder.
+    // This sheet is the destination of every shared 🏛️ card, and its header was
+    // wrong for all 212 of them — it never named the member and it opened with
+    // "— One side only", because a card is only ever shared when the Official
+    // Record has depth the curated Say-vs-Do layer does not. Exposed so
+    // scripts/test-receipt-cards.mjs can assert what an arrival actually reads
+    // rather than assert on the source text of the function that writes it.
+    gapViewHtml: _gapViewHtml,
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

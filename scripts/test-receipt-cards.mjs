@@ -834,8 +834,10 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
   for (const name of omni.split.advances.concat(omni.split.opposes)) {
     has(om, name, `share text: the split caption names ${name} rather than counting it`);
   }
-  has(om, "advances " + omni.split.advances.join(", "),
+  has(om, "Advances: " + omni.split.advances.join(", "),
     "share text: and says which way each group went, read off the stored mapping");
+  has(om, "Opposes: " + omni.split.opposes.join(", "),
+    "share text: one labelled line per side — fourteen names in a paragraph is not readable on a phone");
   // The list is the context; the focus issue is the claim. On H.R. 1 the split
   // runs to fourteen names and two of them read as synonyms on opposite sides,
   // so the caption states outright which side the card's own issue landed on.
@@ -864,9 +866,117 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
       "share text: and an ordinary bill's caption does not, because there is no such sentence to quote");
   }
 
-  // The post. BOTH addresses are the point of it — the chamber's own record and
-  // the path back to the judging — so both are reserved out of the budget rather
-  // than left last in line for whatever the headline did not eat.
+  // ── The other two fact tiers ────────────────────────────────────────────────
+  // factParts[0] exists only on a disapproval vote, and on 192 of the 212 core
+  // public cards it is empty. A caption that prints [0] and nothing else names a
+  // bill number, a procedural question and a verdict — and never says what the
+  // measure was about. [1] (the title) and [2] (the curated mapping rationale)
+  // are already on the card, already sanitised, already sourced.
+  {
+    const cap = R._caption(contra);
+    has(cap, "The measure: " + contra.factParts[1],
+      "share text: an ordinary bill's caption names the measure, not only its number");
+    has(cap, "Why it counts on " + contra.issue.label + ": " + contra.factParts[2],
+      "share text: and gives the curated reason the vote counts on THIS issue, in plain English");
+    // Different provenance, different label — the disapproval effect and the
+    // mapping rationale are never merged under one heading.
+    ok(cap.indexOf("What a Yea did:") === -1,
+      "share text: the mapping rationale is not passed off as a statement of what a Yea did");
+    const bare = Object.assign({}, contra, { factParts: ["", "", "", "House · Passed"] });
+    const bareCap = R._caption(bare);
+    lacks(bareCap, "The measure:",
+      "share text: a card with no title says nothing rather than inventing one");
+    lacks(bareCap, "Why it counts on",
+      "share text: and a card with no curated rationale says nothing rather than guessing one");
+  }
+
+  // Quoted prose routinely contains its own quotation marks. Nesting them inside
+  // the caption's curly pair reads as a typo, and a trim landing inside one leaves
+  // it unbalanced.
+  {
+    const q = Object.assign({}, contra, {
+      said: { word: "Supports", text: 'Says it is "so important" that we act, and calls it "urgent".' },
+    });
+    const cap = R._caption(q);
+    has(cap, "“Says it is 'so important' that we act, and calls it 'urgent'.”",
+      "share text: inner double quotes become singles so the outer pair stays unambiguous");
+    eq((cap.match(/[“”]/g) || []).length, 2,
+      "share text: exactly one curly pair in the stated-position line");
+  }
+
+  // A middle segment clipped to a stub — "H.J.Res. 89 · On the… · Voted Yea" — is
+  // worse than no middle segment: it reads as a broken string rather than as an
+  // abbreviation. Below a usable width the question is dropped outright.
+  // A trim that lands on a function word promises a noun the reader never gets.
+  // Both of these were real short-post output before the orphan drop.
+  {
+    const orphan = Object.assign({}, contra, {
+      said: { text: "Founded the Conservative Climate Caucus to give Republicans a constructive seat at the climate table.", word: "Supports" },
+    });
+    const tw = R._tweetText(orphan);
+    lacks(tw, "Republicans a…", "share text: a clipped line does not end on an article");
+    lacks(tw, ", and…", "share text: nor on a dangling conjunction");
+    has(tw, "Republicans", "share text: and the orphan drop takes the orphan, not the content");
+  }
+
+  {
+    const t = R._trimHeadline("H.J.Res. 89 · On the Joint Resolution · Voted Yea", 34);
+    ok(t.length <= 34, `share text: the stub-drop honours the budget (${t.length})`);
+    lacks(t, "On the…", "share text: no clipped question stub survives the trim");
+    has(t, "Voted Yea", "share text: and the vote is still there after the question is dropped");
+  }
+
+  // A stored title that OPENS with the measure number. "Voted Nay on H.Amdt. 232"
+  // followed by a title that starts "H.Amdt. 232 (Boebert)…" says the number
+  // twice; cutting the number off the title instead leaves "(Boebert) to H.R.
+  // 8595 — …" dangling. Neither is acceptable, so the title becomes the object of
+  // the sentence and the lead stops naming the measure separately.
+  {
+    const amdt = Object.assign({}, contra, {
+      measureNumber: "H.Amdt. 232",
+      headline: "H.Amdt. 232 · On Agreeing to the Amendment · Voted Nay",
+      factParts: ["", "H.Amdt. 232 (Boebert) to H.R. 8595 — eliminate funding for the Fulbright Program", "", ""],
+    });
+    const tw = R._tweetText(amdt);
+    has(tw, "Voted Nay on H.Amdt. 232 (Boebert)",
+      "share text: a title that already names the measure is the object of the sentence");
+    lacks(tw, "H.Amdt. 232 — H.Amdt. 232",
+      "share text: the measure number is never printed twice");
+    lacks(tw, "— (Boebert)",
+      "share text: and stripping the number never leaves a sponsor parenthetical dangling");
+    has(tw, "Fulbright",
+      "share text: the Did budget reaches the part of the title that says what the vote did");
+  }
+
+  // The disapproval effect sentence describes THE MEASURE, not this member's
+  // vote. Hung off an em dash after "Voted Nay on H.J.Res. 88" it reads as though
+  // the nay did the rolling back — the exact opposite of the record. A full stop
+  // keeps the two claims apart.
+  {
+    const nayCra = Object.assign({}, contra, {
+      measureNumber: "H.J.Res. 88",
+      headline: "H.J.Res. 88 · On Passage · Voted Nay",
+      factParts: ["A yea rolls back a major state climate rule.",
+        "Providing for congressional disapproval of the EPA waiver", "", ""],
+    });
+    const tw = R._tweetText(nayCra);
+    has(tw, "Voted Nay on H.J.Res. 88. A yea rolls back",
+      "share text: the effect sentence is a second sentence, not an apposition on the vote");
+    lacks(tw, "Voted Nay on H.J.Res. 88 — A yea",
+      "share text: a nay is never presented as having done what a yea does");
+  }
+
+  // The post. It is built from a REQUIRED LIST, not from whatever survives a
+  // trim: marker, verdict, the stated position, what the vote did, the path back
+  // to the judging, and the chamber's own record. The old build carried neither
+  // the position nor the measure, which left "Says One Thing · Voted Another"
+  // with both of its terms missing.
+  // 440, not 280. The required list does not fit 280 on a Senate citation — the
+  // two addresses alone cost ~157 there — and the builder is instructed to spend
+  // the overrun on Said and Did rather than drop either. Measured across the 212
+  // core public cards the posts run 308–434; the ceiling is the guard that the
+  // overrun stays BOUNDED, not that it stays inside a platform limit.
+  const POST_CEILING = 440;
   for (const [label, card] of [["contradiction", contra], ["omnibus", omni]]) {
     const long = Object.assign({}, card, { headline: card.headline + " — " + "a very long question line".repeat(12) });
     const tw = R._tweetText(long);
@@ -875,19 +985,22 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
     ok(tw.endsWith(card.source.url),
       `share text: and keeps it whole and last, where a client will linkify it`);
     has(tw, "\nCheck: https://politidex.fyi/#record=",
-      `share text: a ${label} post also carries the path back to the receipt and the method behind it`);
+      `share text: a ${label} post also carries the path back to the receipt`);
+    has(tw, "\nSource: ", `share text: and labels which of the two addresses is the government's own`);
     ok(tw.indexOf("#record=" + card.pid) > -1,
       `share text: pointed at THIS member's record, not at the homepage`);
-    ok(tw.length <= 280, `share text: while staying inside the post budget (${tw.length})`);
+    has(tw, "\nSaid: ", `share text: a ${label} post states the position the verdict is computed against`);
+    has(tw, "\nDid: ", `share text: and says what the member actually did, in its own labelled line`);
+    // 280 cannot hold the required list on a Senate citation. What IS bounded is
+    // the overrun: only the two content floors grow, so the post has a ceiling.
+    ok(tw.length <= POST_CEILING, `share text: the overrun stays bounded (${tw.length})`);
     ok(R._tweetText(card).indexOf("🏛️ OFFICIAL RECORD") === 0,
       `share text: a ${label} post is marked as Official Record, not as a curated receipt`);
   }
-  // The headline is what gives way when the two addresses will not both fit —
-  // never one of the addresses, and never the vote. "H.R. 1 · On Passage of the
-  // Bill · Voted Yea" trimmed from the right loses "Voted Yea" first, which
-  // leaves a post that states a verdict and then declines to say what the member
-  // actually did. A Senate citation is the long case: ~86 chars of URL on its
-  // own, which is what broke the old 240-char ceiling.
+  // The long case: a Senate citation is ~86 characters of URL on its own. Neither
+  // address gives way, and neither does the vote — "H.R. 1 · On Passage of the
+  // Bill · Voted Yea" trimmed from the right loses "Voted Yea" first, which leaves
+  // a post that states a verdict and then declines to say what the member did.
   {
     const senate = Object.assign({}, contra, {
       headline: "H.R. 1 · " + "On a Motion to Concur in a Very Long Question Line ".repeat(6) + "· Voted Yea",
@@ -896,9 +1009,11 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
     const tw = R._tweetText(senate);
     ok(tw.endsWith(senate.source.url), "share text: a long Senate URL still survives whole");
     has(tw, "\nCheck: https://politidex.fyi/#record=", "share text: and so does the check path beside it");
-    ok(tw.length <= 280, `share text: on the longest citation shape in the ledger (${tw.length})`);
-    has(tw, "Voted Yea\n", "share text: and so does the vote — the headline is trimmed in the middle, not at the end");
-    has(tw, "H.R. 1 · ", "share text: with the measure number kept at the front where it leads");
+    ok(tw.length <= POST_CEILING, `share text: on the longest citation shape in the ledger (${tw.length})`);
+    has(tw, "Voted Yea", "share text: and so does the vote — the direction is never what gives way");
+    has(tw, "H.R. 1", "share text: with the measure named, so the citation can be matched to it");
+    lacks(tw, "On a Motion to Concur in a Very Long Question Line On a",
+      "share text: and the procedural question — recoverable from either link — is what does");
   }
   // The middle-out trim, on its own.
   eq(R._trimHeadline("H.R. 1 · On Passage · Voted Yea", 200), "H.R. 1 · On Passage · Voted Yea",
@@ -1566,6 +1681,51 @@ if (craCard) {
   lacks(next, "data-pdxc-gap=", "arrival: no second-issue button when there is no second issue to open");
   has(next, "data-pdxc-profile", "arrival: the unconditional steps ship regardless");
 
+  // ── What the arrival actually READS at the top of that view ─────────────────
+  // The header was written for a reader already inside the app, who knew whose
+  // profile they were on. It is now the first thing a stranger sees after tapping
+  // a shared image, and for that reader it failed twice: it never named the
+  // member, and — because a card only ships where the Official Record has depth
+  // the curated Say-vs-Do layer does not — it opened with "— One side only" and a
+  // sentence explaining there was nothing to compare. Measured against the live
+  // pool that was every one of the 212 core public cards.
+  eq(typeof C.gapViewHtml, "function", "arrival: the landing view is a pure builder");
+  {
+    const realSummary2 = ctx.window._pdxRecordIssueSummary;
+    const realProfiles = ctx.window.PROFILES;
+    let view;
+    try {
+      ctx.window._pdxRecordIssueSummary = (pid, key) =>
+        (pid === "testrep" && key === "national_debt"
+          ? { total: 4, consistent: 1, contradicts: 3, netVerdict: "contradicts" } : null);
+      ctx.window.PROFILES = Object.assign({}, realProfiles, {
+        testrep: { name: "Test Representative", office: "U.S. Representative", state: "Idaho", party: "R" },
+      });
+      view = C.gapViewHtml("testrep", "national_debt");
+    } finally {
+      if (realSummary2 === undefined) delete ctx.window._pdxRecordIssueSummary;
+      else ctx.window._pdxRecordIssueSummary = realSummary2;
+      if (realProfiles === undefined) delete ctx.window.PROFILES;
+      else ctx.window.PROFILES = realProfiles;
+    }
+    has(view, "Test Representative",
+      "arrival: the member is named — the landing view has to be visibly the same object as the image");
+    has(view, "pdxgap-who", "arrival: the name has its own slot, above the issue");
+    has(view, "U.S. Representative", "arrival: with the office that identifies which Test Representative");
+    has(view, "🏛️ Official Record",
+      "arrival: an Official-Record-only issue is framed as the Official Record, not as a comparison");
+    lacks(view, "One side only",
+      "arrival: the arrival is never greeted by a chip saying there is nothing to compare");
+    lacks(view, "nothing to line up head-to-head",
+      "arrival: nor by a sentence apologising for it — the card made a claim, the page states it");
+    has(view, "4 judged votes on this issue",
+      "arrival: the depth behind the verdict leads, because it is the thing the image could not carry");
+    // Nothing is hidden by the reframing: the 🧾 side still renders, with its own
+    // honest empty state. The boundary is the point of the sheet.
+    has(view, "Say-vs-Do", "arrival: the Say-vs-Do side is still shown, not suppressed");
+    has(view, "pdxgap-next", "arrival: and the way out is still on the same view");
+  }
+
   // The three controls are only real if something handles them. The gap sheet is
   // built by innerHTML into a delegate-bound document, so the handlers live in
   // consistency.js's click delegate, not on the nodes.
@@ -1581,6 +1741,105 @@ if (craCard) {
   ok(delegate.length > 500, "arrival: the click delegate was located, so this check is not vacuous");
   ok(delegate.indexOf("data-pdxc-profile") > -1 && delegate.indexOf("closeGap()") > -1,
     "arrival: opening the profile closes the sheet first, so the reader is not left under a modal");
+}
+
+// ── Phase 10 · what the share image actually prints ──────────────────────────
+// Three defects found by laying the real renderer over the live core-tier pool
+// (212 cards: 153 issue cards + 59 omnibus splits). All three are presentation
+// only — no verdict, no citation and no mapping moves — but each one produced an
+// artefact that a stranger could not read, or could read wrongly.
+{
+  // 1. A truncated issue name is not an issue name.
+  //
+  // The split rows list the OTHER curated issues the same cited vote moved. They
+  // were clamped to a single line, and wrapText ellipsizes what it cannot fit —
+  // so the H.R. 1 card announced "THE SAME VOTE MOVED 14 MAPPED ISSUES" and then
+  // printed two real names followed by "Middle-Class Tax…", a fragment that
+  // reads like a third issue, names nothing, and cannot be looked up. Whole
+  // labels now, with the remainder COUNTED.
+  const wide = { font: "" };
+  wide.measureText = (s) => ({ width: String(s).length * 10 });
+  const three = ["Alpha Issue", "Beta Issue", "Gamma Issue"];
+
+  eq(R._labelListLines(wide, three, 4000, 2).join(" | "),
+    "Alpha Issue · Beta Issue · Gamma Issue",
+    "split rows: a list that fits is printed whole, on one line, unchanged");
+
+  {
+    // Room for two labels plus the counter, but not for all three names, so one has to go.
+    const lines = R._labelListLines(wide, three, 360, 1);
+    lacks(lines.join(" "), "…",
+      "split rows: an over-long issue list is never ellipsized mid-label");
+    has(lines.join(" "), "+1 more",
+      "split rows: what did not fit is counted instead — a claim the reader can go and check");
+    eq(three.filter((n) => lines.join(" ").indexOf(n) > -1).length, 2,
+      "split rows: and every name that IS printed is printed whole");
+  }
+
+  {
+    // Two lines of budget must carry more names than one, or the extra line is
+    // decoration rather than a fix.
+    const one = R._labelListLines(wide, three, 360, 1).join(" ");
+    const two = R._labelListLines(wide, three, 360, 2).join(" ");
+    ok(three.filter((n) => two.indexOf(n) > -1).length >
+       three.filter((n) => one.indexOf(n) > -1).length,
+      "split rows: the second line buys whole names, not a longer counter");
+  }
+
+  {
+    // The pathological case: one label alone is wider than the row. Ellipsizing
+    // it would print a fragment; the bare count is at least true.
+    const lines = R._labelListLines(wide, ["A Ludicrously Long Single Issue Label", "B"], 60, 1);
+    lacks(lines.join(" "), "…",
+      "split rows: even when nothing fits, no half-name is printed");
+    has(lines.join(" "), "2 issues",
+      "split rows: the honest fallback is the count, which is still readable at thumbnail size");
+  }
+  eq(R._labelListLines(wide, [], 400, 2).length, 0, "split rows: an empty list draws nothing");
+  eq(R._labelListLines(wide, three, 400, 0).length, 0, "split rows: no vertical budget draws nothing");
+
+  // 2. No ledger tokens on a public artefact.
+  //
+  // The last line of the fact block printed the stored `result` verbatim. Across
+  // the corpus that field holds "passed", "Passed", "failed", "agreed_to" and
+  // "rejected" side by side, so one card read "House · agreed_to" — a database
+  // enum, underscore and all, on the one artefact whose whole job is looking
+  // like a public record — while two cards from the same starter set disagreed
+  // about whether "passed" is capitalised.
+  {
+    const P = (result) => {
+      const parts = RC.supportingParts({ chamber: "house", title: "A Bill", result: result }, null);
+      return parts[parts.length - 1];
+    };
+    eq(P("agreed_to"), "House · Agreed to", "fact tail: an underscored ledger token is never printed raw");
+    eq(P("passed"), "House · Passed", "fact tail: outcomes are sentence case…");
+    eq(P("Passed"), "House · Passed", "fact tail: …whichever casing the ledger happens to hold");
+    eq(P("failed"), "House · Failed", "fact tail: including the ones that did not pass");
+    lacks(P("agreed_to"), "_", "fact tail: nothing on the card carries a schema underscore");
+  }
+
+  // 3. A zero-width joiner is not an icon.
+  //
+  // One ISSUE_MAP label opens with a bare ZWJ before its emoji. \s does not match
+  // a format character, so the icon split failed outright: the card fell back to
+  // the generic 🎯 while still printing the real emoji inside the label text, and
+  // carried two icons, one of them wrong — plus an invisible character that lands
+  // as a tofu box on whichever phone renders the caption.
+  {
+    const realMap = ctx.window.ISSUE_MAP;
+    let meta;
+    try {
+      ctx.window.ISSUE_MAP = Object.assign({}, realMap, {
+        zwtest: { label: "‍🌈 Protect Something" },
+      });
+      meta = RC.issueMeta("zwtest");
+    } finally {
+      ctx.window.ISSUE_MAP = realMap;
+    }
+    eq(meta.icon, "🌈", "issue label: the real emoji is recognised as the icon, not replaced by a fallback");
+    eq(meta.label, "Protect Something", "issue label: and it is not ALSO left inside the text");
+    lacks(meta.label + meta.icon, "‍", "issue label: no zero-width character survives onto a share artefact");
+  }
 }
 
 // ── Guard 15 · the stated position has to be independent of the vote ─────────
