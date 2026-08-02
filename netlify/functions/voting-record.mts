@@ -31,6 +31,14 @@
 //        query: chamber, position, from, to, sort, page, pageSize
 //   GET /measure/:measureId     one measure + its issues, roll calls (with votes),
 //                               and non-roll-call positions
+//   GET /measure-ref/:congress/:number
+//                               resolve a measure's printed identity ("119" +
+//                               "H.R. 9311") to its row — identity only
+//   GET /rollcall/:congress/:chamber/:roll
+//                               resolve an official roll-call address to the measure
+//                               it belongs to (identity only, no member tally). This
+//                               is what lets a shared /vote/… link either open the
+//                               right record or honestly 404.
 //   GET /compare                ?members=a,b,c[&issue=key] side-by-side per member
 //   GET /issue-records          ?issues=k1,k2 every member's record on a whole issue
 //                               bundle in ONE request, de-duplicated: measure and
@@ -857,6 +865,106 @@ async function getMemberImpacts(politicianId: string): Promise<Response> {
   return json({ politicianId, measures, cohortSummary });
 }
 
+// ── GET /measure-ref/:congress/:number ───────────────────────────────────────
+// Resolve a measure's NATURAL key — the congress plus the printed identifier
+// ("H.R. 9311") that a shared bill link carries — to its identity row.
+//
+// The client already deep-links bills by congress + number; until now the only
+// way to turn that pair into a measure was to page through /measures and match
+// client-side, which a social scraper cannot do. This is the same resolution done
+// once, server-side, returning identity only.
+async function getMeasureRef(congress: number, number: string): Promise<Response> {
+  const wanted = number.trim();
+  if (!wanted) return json({ error: "Missing measure number" }, 400);
+
+  const rows = await db
+    .select()
+    .from(vrMeasures)
+    .where(and(eq(vrMeasures.congress, congress), eq(vrMeasures.number, wanted)))
+    .limit(2);
+
+  const measure = rows.find((m) => m.sourceUrl);
+  if (!measure) return json({ error: "Measure not found" }, 404);
+
+  return json({
+    measure: {
+      id: measure.id,
+      measureType: measure.measureType,
+      congress: measure.congress,
+      chamber: measure.chamber,
+      number: measure.number,
+      title: measure.title,
+      shortTitle: measure.shortTitle,
+      status: measure.status,
+      sourceUrl: measure.sourceUrl,
+    },
+  });
+}
+
+// ── GET /rollcall/:congress/:chamber/:roll ───────────────────────────────────
+// Resolve an OFFICIAL roll-call address — the chamber/congress/number triple that
+// clerk.house.gov and senate.gov print, and the one a /vote/… share link carries —
+// to the measure it belongs to.
+//
+// This exists so a shared /vote/119/house/190 link can be answered truthfully by
+// the edge before any JavaScript runs: either this returns the roll call and the
+// link opens that measure, or it returns 404 and the link says so. It deliberately
+// returns identity only (what was voted on, when, how it came out) and NOT the
+// member-by-member tally — a preview needs an address, not a scoreboard, and the
+// full detail is one request away at /measure/:id.
+async function getRollcall(
+  congress: number,
+  chamber: string,
+  rollNumber: number
+): Promise<Response> {
+  const [rc] = await db
+    .select()
+    .from(vrRollcalls)
+    .where(
+      and(
+        eq(vrRollcalls.chamber, chamber),
+        eq(vrRollcalls.congress, congress),
+        eq(vrRollcalls.rollNumber, rollNumber)
+      )
+    )
+    .orderBy(desc(vrRollcalls.voteDate));
+  if (!rc) return json({ error: "Roll call not found" }, 404);
+  // VERIFIABILITY: the same rule the rest of this Function follows — nothing is
+  // emitted that a reader cannot go and check for themselves.
+  if (!rc.sourceUrl) return json({ error: "Roll call has no source" }, 404);
+
+  const [measure] = await db.select().from(vrMeasures).where(eq(vrMeasures.id, rc.measureId));
+  if (!measure || !measure.sourceUrl) return json({ error: "Measure not found" }, 404);
+
+  return json({
+    rollcall: {
+      id: rc.id,
+      chamber: rc.chamber,
+      congress: rc.congress,
+      session: rc.session,
+      rollNumber: rc.rollNumber,
+      voteDate: rc.voteDate,
+      question: rc.question,
+      actionType: rc.actionType,
+      result: rc.result,
+      totals: rc.totals,
+      sourceUrl: rc.sourceUrl,
+      sourceLabel: rc.sourceLabel,
+    },
+    measure: {
+      id: measure.id,
+      measureType: measure.measureType,
+      congress: measure.congress,
+      chamber: measure.chamber,
+      number: measure.number,
+      title: measure.title,
+      shortTitle: measure.shortTitle,
+      status: measure.status,
+      sourceUrl: measure.sourceUrl,
+    },
+  });
+}
+
 // ── GET /measure/:measureId ──────────────────────────────────────────────────
 async function getMeasure(measureId: number): Promise<Response> {
   const [measure] = await db.select().from(vrMeasures).where(eq(vrMeasures.id, measureId));
@@ -1453,6 +1561,33 @@ export default async (req: Request): Promise<Response> => {
     const measureMatch = path.match(/^\/measure\/(\d+)$/);
     if (measureMatch) {
       return await getMeasure(parseInt(measureMatch[1], 10));
+    }
+
+    // The printed bill identifier ("H.R. 9311") carries spaces and dots, so the
+    // number is whatever remains after the congress segment.
+    const measureRefMatch = path.match(/^\/measure-ref\/(\d+)\/(.+)$/);
+    if (measureRefMatch) {
+      const congress = parseInt(measureRefMatch[1], 10);
+      const number = clean(decodeURIComponent(measureRefMatch[2]), 80);
+      if (!Number.isFinite(congress)) return json({ error: "Congress must be an integer" }, 400);
+      return await getMeasureRef(congress, number);
+    }
+
+    // The official roll-call address: /rollcall/119/house/190. Anything that is
+    // not that exact shape is a bad address, not an empty result — say 400 rather
+    // than pretend to have looked.
+    const rollcallMatch = path.match(/^\/rollcall\/(\d+)\/([a-z]+)\/(\d+)$/i);
+    if (rollcallMatch) {
+      const congress = parseInt(rollcallMatch[1], 10);
+      const chamber = rollcallMatch[2].toLowerCase();
+      const rollNumber = parseInt(rollcallMatch[3], 10);
+      if (chamber !== "house" && chamber !== "senate") {
+        return json({ error: "Chamber must be house or senate" }, 400);
+      }
+      if (!Number.isFinite(congress) || !Number.isFinite(rollNumber)) {
+        return json({ error: "Congress and roll number must be integers" }, 400);
+      }
+      return await getRollcall(congress, chamber, rollNumber);
     }
 
     if (path === "/compare") {

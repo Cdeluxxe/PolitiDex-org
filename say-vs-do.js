@@ -1694,6 +1694,20 @@
     // Say-vs-Do surface. Curated receipts carry no hash and keep `#receipt=…`.
     var h = (r && r.hash) ? String(r.hash)
       : '#receipt=' + encodeURIComponent(pid) + (iss ? '~' + encodeURIComponent(iss) : '');
+    // Which surface this link lands on — the Official Record gap view or the
+    // Say-vs-Do lightbox — is decided above and must survive the trip.
+    var kind = /^#record=/.test(h) ? 'record' : 'receipt';
+    // A hash is invisible to a server, so a pasted receipt link could only ever
+    // unfurl as the generic site card. The query form carries the same (member,
+    // issue) pair somewhere the edge can read it, and share-links.js turns it back
+    // into exactly the hash above on arrival — every existing hash link still works.
+    var links = null;
+    try { links = window.PDXShareLinks; } catch (e) {}
+    if (links && links[kind]) {
+      var canonicalUrl = links[kind](pid, iss);
+      if (opts && opts.canonical) return links.on(SHARE_URL, canonicalUrl);
+      return canonicalUrl;
+    }
     // `canonical` builds the link on the public share domain, for anything leaving
     // the device; otherwise stay on whatever origin the reader is already on.
     if (opts && opts.canonical) return SHARE_URL.replace(/\/$/, '/') + h;

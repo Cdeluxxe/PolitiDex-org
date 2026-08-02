@@ -478,8 +478,16 @@
   }
 
   // A stable, shareable deep link to this bill (congress + number).
+  //
+  // The panel still RUNS on `#bill/<congress>/<number>` — every link already out
+  // there keeps working — but a hash never reaches a server, so a pasted hash link
+  // could only ever unfurl as the generic site card. What leaves the device is the
+  // query form (`/?bill=119/H.R. 1`), which the edge can read and preview and
+  // share-links.js converts straight back into the same hash on arrival.
   function shareUrl() {
     if (!_current) return location.href;
+    var links = G('PDXShareLinks');
+    if (links && links.bill) return links.bill(_current.congress, _current.number);
     return location.origin + location.pathname +
       '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
   }

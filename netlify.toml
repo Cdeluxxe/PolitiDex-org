@@ -47,6 +47,17 @@
 # so the client-side router can read the congress/chamber/roll from the path and
 # open the corresponding measure. Scoped to /vote/* only, leaving every other
 # route (assets, /api/*, the Functions) untouched.
+#
+# This rewrite ALONE used to be the whole story, and that was the bug: nothing in
+# the app ever read the path, so every /vote/… link returned HTTP 200 and quietly
+# showed the front page — a citation that looks like it worked and didn't. The
+# rule stays (it is what serves the document), but the edge function
+# netlify/edge-functions/share-preview.ts now runs in front of it and gives it
+# meaning: it resolves the roll call against the voting-record API, hands the
+# client the measure to open, and returns an honest 404 when the roll call is not
+# one we hold. Lookup failures other than a definitive 404 still fall through to
+# this rewrite, so a slow database degrades to the old behaviour rather than to a
+# broken link.
 [[redirects]]
   from = "/vote/*"
   to = "/index.html"

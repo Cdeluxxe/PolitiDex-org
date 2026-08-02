@@ -26,6 +26,12 @@
 <link rel="preload" as="script" href="/hero-receipt-data.js">
 <link rel="preload" as="script" href="/hero-receipt.js">
 <script defer src="/pdx-lazy-data.js"></script>
+<!-- Share deep links (share-links.js). Loaded ahead of every feature module so a
+     server-visible share link (?bill=… / ?receipt=… / ?record=… / ?rank=…, or a
+     /vote/… address the edge resolved) is already converted into the app's own
+     hash by the time those modules boot and read location.hash. Existing hash
+     links bypass it entirely. -->
+<script defer src="/share-links.js"></script>
 <script defer src="/cmp-data.js"></script>
 <script defer src="/spotlight-cards-data.js"></script>
 <!-- ^ Run 2 perf: large curated data (roster, Spotlights, accountability) extracted from index.html; deferred + cached.
@@ -25033,7 +25039,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // ── Navigation / lifecycle ────────────────────────────────────────────────
     var _open = null;            // currently open slug
     var _meta = null;            // saved <title>/meta for restore
-    var _basePath = (location.pathname.indexOf('/issue/') === 0) ? '/' : (location.pathname || '/');
+    // Clean share paths (/issue/<slug>, /vote/<congress>/<chamber>/<roll>) are
+    // rewrites of this same document, so closing an overlay must return to "/"
+    // rather than to a path that only ever existed to be shared.
+    var _basePath = /^\/(issue|vote)\//.test(location.pathname || '') ? '/' : (location.pathname || '/');
 
     function spotlightUrl(slug) { return location.origin + '/issue/' + slug; }
 
