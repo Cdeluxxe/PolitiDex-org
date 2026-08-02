@@ -895,40 +895,124 @@
       '.pdxdv-open:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
       '.pdxgap-back{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,7,16,0.72);backdrop-filter:blur(2px);}' +
       '.pdxgap-back[hidden]{display:none;}' +
-      '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:1rem 0.95rem 1.4rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
+      // Top padding is deliberately tight (0.65rem, not 1rem): this sheet is the
+      // LANDING PAGE for every shared card, and the first thing a reader saw used to
+      // be a band of empty gradient above a 0.62rem eyebrow. The close button is
+      // pulled in to match so the identity row starts as high as it can.
+      '.pdxgap-sheet{position:relative;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,#141a2c,#0c111e);border:1px solid rgba(255,255,255,0.12);border-radius:1rem 1rem 0 0;padding:0.65rem 0.85rem 1.3rem;box-shadow:0 -12px 40px rgba(0,0,0,0.5);font-family:"Barlow Condensed",sans-serif;animation:pdxgapUp .18s ease;}' +
       '@keyframes pdxgapUp{from{transform:translateY(14px);opacity:0.6;}to{transform:translateY(0);opacity:1;}}' +
       '@media (prefers-reduced-motion:reduce){.pdxgap-sheet{animation:none;}}' +
-      '@media (min-width:560px){.pdxgap-back{align-items:center;}.pdxgap-sheet{border-radius:1rem;}}' +
-      '.pdxgap-x{position:absolute;top:0.6rem;right:0.7rem;width:2rem;height:2rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.2rem;line-height:1;cursor:pointer;}' +
+      '@media (min-width:560px){.pdxgap-back{align-items:center;}.pdxgap-sheet{border-radius:1rem;padding:0.85rem 1.1rem 1.4rem;}}' +
+      // ── Arrival mode ────────────────────────────────────────────────────────
+      // Opened as a cross-link from inside the app, this is a bottom sheet over a
+      // page the reader can still see, and the dim strip above it is the point.
+      // Opened from a shared `#record=` link it is the whole destination — there is
+      // nothing behind it worth showing — so a short sheet pinned to the bottom
+      // reads as a large empty space at the top of the screen. In that case the
+      // sheet fills the viewport instead. Desktop keeps the centred card.
+      '.pdxgap-back.pdxgap-arrive{align-items:stretch;}' +
+      '.pdxgap-arrive .pdxgap-sheet{min-height:100%;max-height:100%;border-radius:0;padding-bottom:2rem;}' +
+      '@media (min-width:560px){.pdxgap-back.pdxgap-arrive{align-items:center;}.pdxgap-arrive .pdxgap-sheet{min-height:0;max-height:92vh;border-radius:1rem;padding-bottom:1.4rem;}}' +
+      '.pdxgap-x{position:absolute;top:0.45rem;right:0.5rem;width:1.85rem;height:1.85rem;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(10,15,30,0.6);color:#c6d4ec;font-size:1.15rem;line-height:1;cursor:pointer;z-index:2;}' +
       '.pdxgap-x:hover{background:rgba(10,15,30,0.9);}' +
       '.pdxgap-eyebrow{font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:#7e93b3;}' +
-      // The member's name, between the eyebrow and the issue. Sized under the issue
-      // title on purpose: the issue is still what the sheet is about, the name is
-      // who it is about, and a cold arrival needs both in the first glance. Wraps
-      // rather than truncates — a clipped name on a page whose whole job is
-      // identifying someone is worse than a second line.
-      '.pdxgap-who{font-weight:700;font-size:0.95rem;color:#e8eefc;line-height:1.2;padding-right:2rem;}' +
-      '.pdxgap-who-sub{font-weight:600;font-size:0.72rem;color:#8fa5c4;}' +
-      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.15rem 0 0.4rem;padding-right:2rem;}' +
+      // ── Header identity block ───────────────────────────────────────────────
+      // Face, then name, then office/state/party — the same three cues the shared
+      // image leads with, in the same order, so a reader who tapped a card can see
+      // in one glance that this is the same person. The photo is the only genuinely
+      // new element: it comes from _getPhotoUrl (the app's single headshot source)
+      // and degrades to party-tinted initials, never to a broken image frame.
+      '.pdxgap-id{display:flex;align-items:center;gap:0.6rem;padding-right:2.1rem;}' +
+      '.pdxgap-face{flex:none;position:relative;width:3.1rem;height:3.1rem;border-radius:0.7rem;overflow:hidden;background:#0a0f1e;border:1px solid var(--c,#8fa5c4);box-shadow:0 0 0 1px rgba(0,0,0,0.4);}' +
+      '.pdxgap-face img{width:100%;height:100%;object-fit:cover;display:block;}' +
+      '.pdxgap-face-ph::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",sans-serif;font-size:1.2rem;letter-spacing:0.02em;color:var(--c,#8fa5c4);background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(0,0,0,0.25));}' +
+      '.pdxgap-idmain{min-width:0;}' +
+      // The member's name leads the block. Wraps rather than truncates — a clipped
+      // name on a page whose whole job is identifying someone is worse than a
+      // second line.
+      '.pdxgap-who{font-weight:700;font-size:1.02rem;color:#e8eefc;line-height:1.15;}' +
+      '.pdxgap-who-sub{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-weight:600;font-size:0.7rem;color:#8fa5c4;line-height:1.3;margin-top:0.1rem;}' +
+      '.pdxgap-party{font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.05rem 0.34rem;border-radius:999px;color:var(--c,#8fa5c4);border:1px solid var(--c,#8fa5c4);background:rgba(10,15,30,0.5);}' +
+      '.pdxgap-title{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:0.02em;color:#e8eefc;line-height:1;margin:0.55rem 0 0.4rem;}' +
+      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:2.75rem;height:2.75rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
+      // The verdict, sized so it is the thing the eye lands on. Same colour and
+      // wording as the chip everywhere else; only the scale changes.
+      '.pdxgap-rel-hero{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;font-size:0.8rem;letter-spacing:0.01em;padding:0.24rem 0.6rem;border-radius:999px;color:var(--c,#9fb4d4);border:1px solid var(--c,#9fb4d4);background:rgba(10,15,30,0.55);}' +
+      '.pdxgap-relpct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;letter-spacing:0.02em;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
       '.pdxgap-note b{color:#f5d9a0;}' +
-      '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.8rem;}' +
-      '@media (min-width:560px){.pdxgap-sides{flex-direction:row;}.pdxgap-side{flex:1;min-width:0;}}' +
+      '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.7rem;}' +
+      // Official-Record-only arrivals do NOT get a mostly-empty second column: the
+      // record takes the full width and the 🧾 side becomes a short note beneath it.
+      '.pdxgap-sides-solo{display:block;}' +
+      '@media (min-width:560px){.pdxgap-sides{flex-direction:row;}.pdxgap-side{flex:1;min-width:0;}.pdxgap-sides-solo{display:block;}}' +
       '.pdxgap-side{border:1px solid rgba(255,255,255,0.1);border-radius:0.7rem;padding:0.65rem 0.7rem;background:rgba(10,15,30,0.4);}' +
       '.pdxgap-side-h{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
       '.pdxgap-side-name{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.76rem;color:#e8eefc;}' +
       '.pdxgap-pct{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;line-height:0.9;}' +
       '.pdxgap-side-sub{font-size:0.66rem;color:#8fa2c0;line-height:1.35;margin:0.25rem 0 0.5rem;}' +
+      // Section-level omnibus provenance. The count is the headline; the list of
+      // other issues those bills covered moves inside the disclosure, because on a
+      // member with a broad record that list was a comma cloud sitting directly
+      // above the evidence a reader came for.
       '.pdxgap-omni{color:#93a6c4;border-left:2px solid rgba(147,166,196,0.3);padding-left:0.45rem;}' +
+      'details.pdxgap-omni{margin:0.25rem 0 0.5rem;}' +
+      'details.pdxgap-omni>summary{cursor:pointer;list-style:none;font-size:0.66rem;line-height:1.35;}' +
+      'details.pdxgap-omni>summary::-webkit-details-marker{display:none;}' +
+      'details.pdxgap-omni>summary::after{content:" ▾";color:#7e93b3;}' +
+      'details.pdxgap-omni[open]>summary::after{content:" ▴";}' +
+      'details.pdxgap-omni>summary b{color:#cfe0f8;}' +
+      'details.pdxgap-omni>summary:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
+      '.pdxgap-omni-b{font-size:0.66rem;color:#93a6c4;line-height:1.45;margin-top:0.3rem;}' +
       '.pdxgap-acts{display:flex;flex-direction:column;}' +
       '.pdxgap-acts .pdxor-act{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxgap-acts .pdxor-act:first-child{border-top:none;}' +
       '.pdxgap-side-empty{font-size:0.72rem;color:#9fb4d4;line-height:1.4;padding:0.3rem 0;}' +
+      // ── Per-vote multi-issue block ──────────────────────────────────────────
+      // An omnibus vote used to disclose itself as one long sentence naming every
+      // other issue it touched ("The same vote also advanced A, B, C and cut against
+      // D, E."). On a phone that is a paragraph of bold labels between the reader
+      // and the next vote. Same facts, same source (_measureOmnibusContext), now as
+      // a one-line header plus counted Advances / Opposes rows, with the labels
+      // themselves behind a disclosure.
+      '.pdxgap-om{margin:0.3rem 0 0.1rem;padding:0.4rem 0.5rem;border-radius:0.5rem;border:1px solid rgba(147,166,196,0.22);background:rgba(147,166,196,0.07);}' +
+      '.pdxgap-om-h{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem;font-size:0.66rem;font-weight:700;letter-spacing:0.02em;color:#b9c9e4;}' +
+      '.pdxgap-om-split{font-weight:700;font-size:0.6rem;letter-spacing:0.03em;text-transform:uppercase;color:#f5c842;border:1px solid rgba(245,200,66,0.45);background:rgba(245,200,66,0.12);border-radius:999px;padding:0.02rem 0.32rem;}' +
+      '.pdxgap-om-rows{display:flex;flex-wrap:wrap;gap:0.25rem 0.55rem;margin-top:0.3rem;}' +
+      '.pdxgap-om-row{display:inline-flex;align-items:baseline;gap:0.25rem;font-size:0.66rem;color:#9fb4d4;line-height:1.3;}' +
+      '.pdxgap-om-row b{font-weight:700;}' +
+      '.pdxgap-om-adv b,.pdxgap-om-adv .pdxgap-om-ico{color:#6ee7a0;}' +
+      '.pdxgap-om-opp b,.pdxgap-om-opp .pdxgap-om-ico{color:#f89b9b;}' +
+      '.pdxgap-om-neu b,.pdxgap-om-neu .pdxgap-om-ico{color:#9fb4d4;}' +
+      '.pdxgap-om-all{margin-top:0.35rem;}' +
+      '.pdxgap-om-all>summary{cursor:pointer;list-style:none;font-size:0.63rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:#7fb4ff;}' +
+      '.pdxgap-om-all>summary::-webkit-details-marker{display:none;}' +
+      '.pdxgap-om-all>summary::after{content:" ▾";}' +
+      '.pdxgap-om-all[open]>summary::after{content:" ▴";}' +
+      '.pdxgap-om-all>summary:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
+      '.pdxgap-om-chips{display:flex;flex-wrap:wrap;gap:0.25rem;margin-top:0.35rem;}' +
+      '.pdxgap-om-chip{font-size:0.63rem;line-height:1.3;padding:0.08rem 0.4rem;border-radius:999px;border:1px solid rgba(255,255,255,0.14);background:rgba(10,15,30,0.5);color:#c6d4ec;}' +
+      '.pdxgap-om-chip.pdxgap-om-c-adv{border-color:rgba(110,231,160,0.4);color:#a9e9c6;}' +
+      '.pdxgap-om-chip.pdxgap-om-c-opp{border-color:rgba(248,155,155,0.4);color:#f3bcbc;}' +
+      // ── Official-Record-only state (the honest 🧾 empty state) ───────────────
+      // Every shared card lands here with a formal record and no curated Say-vs-Do
+      // evidence, because the share gate selects on vote depth while the curated
+      // layer covers different members and issues. A blank narrow column read
+      // as an unfinished page. This is the same absence, stated on purpose: what IS
+      // on file, what ISN'T, and that the difference is coverage rather than a
+      // verdict. It invents no evidence and carries no score.
+      '.pdxgap-solo{margin-top:0.6rem;border:1px dashed rgba(147,166,196,0.4);border-radius:0.7rem;padding:0.6rem 0.7rem;background:rgba(147,166,196,0.06);}' +
+      '.pdxgap-solo-h{display:flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.7rem;color:#b9c9e4;}' +
+      '.pdxgap-solo-b{font-size:0.72rem;color:#c6d4ec;line-height:1.45;margin-top:0.35rem;}' +
+      '.pdxgap-solo-b b{color:#e8eefc;}' +
+      '.pdxgap-solo-n{font-size:0.66rem;color:#8fa2c0;line-height:1.45;margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       // The share control sits INSIDE the 🏛️ side of the sheet, never in the footer
-      // and never on the 🧾 side, so what it shares is unambiguous.
-      '.pdxgap-share{margin-top:0.55rem;}' +
-      '.pdxgap-share:empty{display:none;margin:0;}' +
+      // and never on the 🧾 side, so what it shares is unambiguous. The separator
+      // above it keeps it reading as the section's action rather than as one more
+      // evidence row, now that the evidence list above it can be full-width.
+      '.pdxgap-share{margin-top:0.6rem;padding-top:0.55rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxgap-share:empty{display:none;margin:0;padding:0;border-top:none;}' +
       '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
       // ── Next step ───────────────────────────────────────────────────────────
       // A shared #record= link opens this sheet over whatever page the reader
@@ -1654,13 +1738,16 @@
         esc(parts.join(' · ')) + '</span>';
     } catch (e) { return ''; }
   }
-  function _orActLine(verdict, title, meta, url, label, omniNote, focus) {
+  function _orActLine(verdict, title, meta, url, label, omniNote, focus, omniHtml) {
     var mv = VERDICTS[verdict] || VERDICTS.limited;
     var src = url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + esc(label || 'Source') + ' ↗</a>' : '';
     // `omniNote` (optional) discloses that this line came from a multi-issue bill —
     // calm and factual, so a contradiction from an omnibus never reads like a
     // single-issue one. Never invented here: see _orOmniNote below.
-    var omni = omniNote ? '<span class="pdxor-omni">🧩 ' + omniNote + '</span>' : '';
+    //   `omniHtml` (optional) is the same disclosure pre-rendered as a block by the
+    // caller — the gap sheet's scannable Advances / Opposes variant. When supplied it
+    // replaces the inline sentence; every other surface keeps the sentence unchanged.
+    var omni = omniHtml || (omniNote ? '<span class="pdxor-omni">🧩 ' + omniNote + '</span>' : '');
     // `focus` (optional) makes the headline the keyboard-reachable twin of the proof
     // line's pointer shortcut: a real <button> that opens the full Voting Record on
     // this exact roll call. Omitted → the headline stays plain text, exactly as before,
@@ -1698,10 +1785,58 @@
       : (ctx.otherLabels.length ? ' It also covered ' + names(ctx.others) + '.' : '');
     return 'Multi-issue bill — one vote, ' + ctx.count + ' issues.' + tail;
   }
+  // The SAME disclosure, laid out to be scanned instead of read — used by the gap
+  // sheet, where this line is the arrival surface for a shared card and a paragraph
+  // of bold issue labels is the first thing a phone shows.
+  //
+  // Identical inputs, identical source (_measureOmnibusContext), identical claims:
+  // one header line naming the bill's breadth, then Advances / Opposes / no-position
+  // rows carrying only COUNTS, then the labels themselves behind a closed disclosure.
+  // Nothing is dropped — the full detail is one tap away — and nothing is added.
+  // Returns '' for a single-issue vote or an unloaded engine, exactly like the
+  // sentence version, so a row degrades to what it rendered before.
+  function _orOmniBlockHtml(item, issueKey) {
+    if (!item || typeof window._measureOmnibusContext !== 'function') return '';
+    var ctx;
+    try {
+      ctx = window._measureOmnibusContext(item, issueKey, {}, { labelFn: _issueLabel });
+    } catch (e) { return ''; }
+    if (!ctx) return ''; // single-issue vote — nothing to disclose
+    var row = function (cls, ico, verb, list) {
+      if (!list || !list.length) return '';
+      return '<span class="pdxgap-om-row ' + cls + '">' +
+        '<span class="pdxgap-om-ico" aria-hidden="true">' + ico + '</span>' +
+        '<span><b>' + verb + '</b> ' + list.length + ' other issue' + (list.length === 1 ? '' : 's') + '</span></span>';
+    };
+    var rows = row('pdxgap-om-adv', '▲', 'Advances', ctx.advances) +
+               row('pdxgap-om-opp', '▼', 'Opposes', ctx.opposes) +
+               row('pdxgap-om-neu', '•', 'No position on', ctx.neutral);
+    var chips = (ctx.others || []).map(function (c) {
+      var k = c.effect === 'advances' ? ' pdxgap-om-c-adv' : c.effect === 'opposes' ? ' pdxgap-om-c-opp' : '';
+      var pre = c.effect === 'advances' ? '▲ ' : c.effect === 'opposes' ? '▼ ' : '';
+      return '<span class="pdxgap-om-chip' + k + '">' + pre + esc(c.label) + '</span>';
+    }).join('');
+    var det = chips
+      ? '<details class="pdxgap-om-all"><summary>The other ' + ctx.others.length +
+          ' issue' + (ctx.others.length === 1 ? '' : 's') + ' this one vote touched</summary>' +
+          '<div class="pdxgap-om-chips">' + chips + '</div></details>'
+      : '';
+    return '<div class="pdxgap-om">' +
+      '<div class="pdxgap-om-h"><span aria-hidden="true">🧩</span> <span>Multi-issue bill — one vote, ' +
+        ctx.count + ' issues</span>' +
+        (ctx.splits ? '<span class="pdxgap-om-split">cuts both ways</span>' : '') + '</div>' +
+      (rows ? '<div class="pdxgap-om-rows">' + rows + '</div>' : '') +
+      det +
+    '</div>';
+  }
   // Evidence lines behind an Official Record issue verdict, as an array of row HTML
   // (migrated curated formal actions + the strongest vr_* votes each way). Shared by
   // the feed's collapsible <details> and the Phase 9 gap drawer (rendered expanded).
-  function _orEvidenceItems(ov) {
+  //   opts.omniBlock — render each vote's multi-issue disclosure as the scannable
+  //   block above instead of the inline sentence. Presentation only; the lines, their
+  //   order, their verdicts and their sources are identical either way.
+  function _orEvidenceItems(ov, opts) {
+    opts = opts || {};
     var lines = [];
     // Migrated curated formal actions (each sourced).
     if (ov && ov.officialActions && ov.officialActions.items) {
@@ -1720,7 +1855,9 @@
         var lbl = item.sourceLabel || (item.source && item.source.label) || 'Congress.gov';
         var title = item.title || item.shortTitle || item.number || item.question || 'Recorded vote';
         var pos = item.position ? ('Voted ' + item.position) : (item.actionType || '');
-        lines.push(_orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));
+        lines.push(opts.omniBlock
+          ? _orActLine(verdict, title, pos, url, lbl, '', null, _orOmniBlockHtml(item, issueKey))
+          : _orActLine(verdict, title, pos, url, lbl, _orOmniNote(item, issueKey)));
       };
       mk(ov.record.topContradiction, 'contradicts');
       mk(ov.record.topConsistent, 'consistent');
@@ -2264,31 +2401,85 @@
     if (meta && meta.judged) return '<span class="pdxor-pct pdxor-pct-na" title="Not enough public record yet to score">—</span>';
     return '';
   }
-  // The member's own name, for the gap sheet header. Reads the same two roster
-  // globals every other surface reads and falls back to the prettified pid, so it
-  // can return an unhelpful string but never an empty one.
-  function _gapMemberName(pid) {
+  // ── Header identity, for the gap sheet ──────────────────────────────────────
+  // One read of the roster, shared by every part of the header, so the face, the
+  // name and the office line can never disagree with each other. Reads the same two
+  // globals every other surface reads (PROFILES then CMP_DATA) and the same single
+  // headshot source the profile hero and every card use (window._getPhotoUrl), so a
+  // reader who tapped a shared card sees the SAME photo here that the app shows
+  // everywhere else. Every field is omitted rather than guessed when the roster has
+  // not got it, and the photo is accepted only when it is an actual URL — some
+  // records carry an emoji in that slot, and an emoji in an <img> is a broken frame.
+  function _gapIdentity(pid) {
     var p = null;
     try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
-    var n = p && (p.name || p.fullName || p.displayName);
-    if (n) return String(n);
-    return String(pid || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    var name = (p && (p.name || p.fullName || p.displayName)) ||
+      String(pid || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    var photo = '';
+    try { if (typeof window._getPhotoUrl === 'function') photo = window._getPhotoUrl(pid) || ''; } catch (e) {}
+    if (!photo && p && p.photo) photo = String(p.photo);
+    photo = String(photo || '').trim();
+    return {
+      name: String(name),
+      office: String((p && (p.office || p.title || p.role || p.position)) || '').trim(),
+      district: String((p && p.district) || '').trim(),
+      state: String((p && (p.state || p.stateName)) || '').trim(),
+      party: String((p && p.party) || '').trim(),
+      photo: /^(https?:\/\/|\/|data:image\/)/i.test(photo) ? photo : ''
+    };
   }
-  // Office + party, if the roster has them — the one-line identity a cold arrival
-  // needs to know they are looking at the person from the image. Omitted entirely
-  // rather than guessed.
-  function _gapMemberSub(pid) {
-    var p = null;
-    try { p = (window.PROFILES && window.PROFILES[pid]) || (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) {}
-    if (!p) return '';
+  // The member's own name, for the gap sheet header. Falls back to the prettified
+  // pid, so it can return an unhelpful string but never an empty one.
+  function _gapMemberName(pid) { return _gapIdentity(pid).name; }
+  // Party colours match the app's existing convention wherever a party is tinted.
+  function _gapPartyColor(party) {
+    var s = String(party || '').trim().toUpperCase();
+    if (s === 'R' || s.indexOf('REPUB') === 0) return '#f87171';
+    if (s === 'D' || s.indexOf('DEMO') === 0) return '#60a5fa';
+    if (s === 'I' || s.indexOf('INDEP') === 0) return '#a78bfa';
+    if (s === 'F' || s.indexOf('FORWARD') === 0) return '#22d3ee';
+    if (s === 'L' || s.indexOf('LIBERTAR') === 0) return '#fbbf24';
+    if (s === 'G' || s.indexOf('GREEN') === 0) return '#34d399';
+    return '#8fa5c4';
+  }
+  // Two letters for the no-photo case. Stripped to A–Z so it is safe to print into
+  // an attribute, and empty when the name yields nothing usable — the medallion then
+  // renders as a plain party-tinted tile rather than as junk.
+  function _gapInitials(name) {
+    var words = String(name || '').replace(/[^A-Za-z\s'-]/g, ' ').trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return '';
+    var first = words[0].charAt(0);
+    var last = words.length > 1 ? words[words.length - 1].charAt(0) : '';
+    return (first + last).toUpperCase().replace(/[^A-Z]/g, '');
+  }
+  // The face. A real headshot when the roster has one, otherwise party-tinted
+  // initials — never a broken image and never an empty box. The <img> failing is
+  // handled the same way the rest of the app handles it: drop the image and let the
+  // medallion underneath show through. Decorative by design: the name is printed
+  // immediately beside it, so an alt text would just be read twice.
+  function _gapFaceHtml(id) {
+    var col = _gapPartyColor(id.party);
+    var fb = _gapInitials(id.name);
+    var attrs = ' style="--c:' + col + '"' + (fb ? ' data-fb="' + fb + '"' : '');
+    if (!id.photo) return '<span class="pdxgap-face pdxgap-face-ph"' + attrs + ' aria-hidden="true"></span>';
+    return '<span class="pdxgap-face"' + attrs + ' aria-hidden="true">' +
+      '<img src="' + esc(id.photo) + '" alt="" loading="lazy" decoding="async"' +
+      ' onerror="this.remove();this.parentNode.classList.add(&quot;pdxgap-face-ph&quot;)"></span>';
+  }
+  // Office · district · state, then the party as its own tinted chip. Omitted
+  // entirely rather than guessed — a cold arrival is better served by three true
+  // facts than by four with one invented.
+  function _gapSubHtml(id) {
     var bits = [];
-    var office = p.office || p.title || p.role || p.position || '';
-    var state = p.state || p.stateName || '';
-    var party = p.party || '';
-    if (office) bits.push(String(office));
-    if (state) bits.push(String(state));
-    if (party) bits.push(String(party));
-    return bits.join(' · ');
+    if (id.office) bits.push(esc(id.office));
+    if (id.district) bits.push(esc(id.district));
+    if (id.state) bits.push(esc(id.state));
+    var party = id.party
+      ? '<span class="pdxgap-party" style="--c:' + _gapPartyColor(id.party) + '">' + esc(id.party) + '</span>'
+      : '';
+    if (!bits.length && !party) return '';
+    return '<div class="pdxgap-who-sub">' +
+      (bits.length ? '<span>' + bits.join(' · ') + '</span>' : '') + party + '</div>';
   }
 
   function _gapViewHtml(pid, issueKey) {
@@ -2339,8 +2530,13 @@
       // the reader cannot get from the image.
       eyebrow = '🏛️ ' + 'Official Record';
       var _rv = _orRowVerdict(off);
-      relHtml = '<span class="pdxdv-rel" style="color:' + off.verdict.color + ';border-color:' +
-        off.verdict.color + '55;background:' + off.verdict.color + '1f;">' + esc(off.verdict.label) + '</span>';
+      // The verdict carries its number, because the number IS the verdict here and
+      // the reader should not have to scan down into the 🏛️ panel to find it. Same
+      // score, same source, same colour as the panel's pill below — never a second
+      // figure, and the 🏛️ Official Record eyebrow directly above it says which of
+      // the two records it belongs to.
+      relHtml = '<span class="pdxgap-rel-hero" style="--c:' + off.verdict.color + '">' +
+        '<span class="pdxgap-relpct">' + off.score + '%</span> ' + esc(off.verdict.label) + '</span>';
       var _tot = (off.record && off.record.total) || (off.officialActions && off.officialActions.total) || 0;
       var _depth = _tot ? _tot + ' judged ' + (_tot === 1 ? 'vote' : 'votes') + ' on this issue' : '';
       gapNote = '<div class="pdxgap-note">' +
@@ -2352,21 +2548,34 @@
       gapNote = '<div class="pdxgap-note">Only one side has a score on this issue so far — there\'s nothing to line up head-to-head yet.</div>';
     }
 
-    // The name leads. It is the first thing on the shared image and it has to be
-    // the first thing here, or the two are not visibly the same object.
-    var _sub = _gapMemberSub(pid);
+    // ── The identity block ────────────────────────────────────────────────────
+    // Face, name, office/state/party, issue, verdict — in that order, which is the
+    // order the shared image itself leads with. The face is the cue the sheet was
+    // missing entirely: a reader who tapped a card about Mike Simpson used to land
+    // on a page whose first pixels were empty gradient, and had to read a 0.62rem
+    // eyebrow and a name in body text before anything confirmed they were in the
+    // right place. Recognition is faster than reading, so the photo goes first.
+    var _id = _gapIdentity(pid);
     var head =
       '<div class="pdxgap-h">' +
-        '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
-        '<div class="pdxgap-who">' + esc(_gapMemberName(pid)) +
-          (_sub ? ' <span class="pdxgap-who-sub">' + esc(_sub) + '</span>' : '') + '</div>' +
+        '<div class="pdxgap-id">' + _gapFaceHtml(_id) +
+          '<div class="pdxgap-idmain">' +
+            '<div class="pdxgap-eyebrow">' + esc(eyebrow) + '</div>' +
+            '<div class="pdxgap-who">' + esc(_id.name) + '</div>' +
+            _gapSubHtml(_id) +
+          '</div>' +
+        '</div>' +
         '<div class="pdxgap-title">' + esc(lbl) + '</div>' +
-        '<div class="pdxgap-meta">' + (stance || '') + relHtml + '</div>' +
+        // Verdict first, stated position second. The verdict is what the reader came
+        // to check; the stance is the thing it was checked against.
+        '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
         gapNote +
       '</div>';
 
-    // 🏛️ Official Record side
-    var offItems = _orEvidenceItems(off);
+    // 🏛️ Official Record side. omniBlock: the multi-issue disclosure on each vote
+    // renders as a scannable Advances / Opposes summary here rather than as the
+    // inline sentence the profile feed uses — same facts, same source.
+    var offItems = _orEvidenceItems(off, { omniBlock: true });
     var offEmpty = off.token === 'pending' ? 'Checking the voting record…'
                  : (SCOPES.official.empty[off.token] || 'No qualifying votes on record yet');
     var offBody = offItems.length
@@ -2374,13 +2583,19 @@
       : '<div class="pdxgap-side-empty">' + esc(offEmpty) + '</div>';
     // Provenance for this side: when part of the formal record came from multi-issue
     // bills, say so here rather than letting a gap read as a single-issue disagreement.
+    // The COUNT is the summary line; the list of other issues those bills covered sits
+    // inside the disclosure, because on a broad record that list was a comma cloud
+    // standing between the reader and the evidence they opened the sheet for.
     var offOmni = '';
     var _os = (typeof window._pdxRecordOmnibusStats === 'function')
       ? window._pdxRecordOmnibusStats(pid, issueKey) : null;
     if (_os && _os.any && typeof window._pdxOmnibusProvenanceNote === 'function') {
-      offOmni = '<div class="pdxgap-side-sub pdxgap-omni">🧩 ' +
-        esc(window._pdxOmnibusProvenanceNote(_os)) +
-        ' A multi-issue bill is scored separately on each issue it touched.</div>';
+      offOmni = '<details class="pdxgap-side-sub pdxgap-omni">' +
+        '<summary><span aria-hidden="true">🧩</span> <b>' + _os.omnibus + ' of ' + _os.total + '</b> ' +
+          (_os.total === 1 ? 'record' : 'records') + ' here came from multi-issue bills</summary>' +
+        '<div class="pdxgap-omni-b">' + esc(window._pdxOmnibusProvenanceNote(_os)) +
+          ' A multi-issue bill is scored separately on each issue it touched.</div>' +
+      '</details>';
     }
     var offSide =
       '<div class="pdxgap-side">' +
@@ -2395,24 +2610,56 @@
         '<div class="pdxgap-share">' + _rcShareHtml(pid, issueKey, { block: true }) + '</div>' +
       '</div>';
 
-    // 🧾 Say-vs-Do side
+    // ── 🧾 Say-vs-Do side ─────────────────────────────────────────────────────
+    // Two genuinely different situations were rendering the same way, and only one of
+    // them is a column:
+    //
+    //   · There IS curated public-record evidence → the two-column comparison, which
+    //     is what this sheet was built for. Unchanged.
+    //
+    //   · There is NONE — which is every shared card, because the share gate selects
+    //     on formal-record depth while the curated Say-vs-Do layer covers different
+    //     members and issues. A narrow panel holding one grey line of "Nothing on
+    //     the public record yet", beside a full column of sourced votes, reads as a
+    //     page that failed to load. The absence is real and permanent-until-curated,
+    //     so it is stated on purpose instead: the Official Record takes the full
+    //     width, and the 🧾 side becomes a short note underneath saying what IS on
+    //     file, what is NOT, and that the difference is our coverage rather than a
+    //     verdict on the member.
+    //
+    // Nothing is invented and no score appears on this side in either case.
     var sayItems = _sdEvidenceItems(say.curated);
-    var sayEmpty = SCOPES.saydo.empty[say.token] || 'Nothing on the public record yet';
     var sayCounts = _sdCounts(say.curated);
-    var sayBody = sayItems.length
-      ? '<div class="pdxgap-acts">' + sayItems.join('') + '</div>'
-      : '<div class="pdxgap-side-empty">' + esc(sayEmpty) + '</div>';
-    var saySide =
-      '<div class="pdxgap-side">' +
-        '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> ' +
-          LT('saydo', 'Say-vs-Do') + '</span>' +
-          _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
-        '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
-        sayBody +
-      '</div>';
+    var sayHas = sayItems.length > 0 || sNum;
+    var saySide, sidesCls = '';
+    if (sayHas) {
+      saySide =
+        '<div class="pdxgap-side">' +
+          '<div class="pdxgap-side-h"><span class="pdxgap-side-name"><span aria-hidden="true">🧾</span> ' +
+            LT('saydo', 'Say-vs-Do') + '</span>' +
+            _gapScorePill(sNum, say.score, say.scoreMeta, say.verdict.color) + '</div>' +
+          '<div class="pdxgap-side-sub">Public-record evidence — statements, news, controversies' + (sayCounts ? ' · ' + sayCounts : '') + '</div>' +
+          '<div class="pdxgap-acts">' + sayItems.join('') + '</div>' +
+        '</div>';
+    } else {
+      sidesCls = ' pdxgap-sides-solo';
+      saySide =
+        '<div class="pdxgap-solo">' +
+          '<div class="pdxgap-solo-h"><span aria-hidden="true">🧾</span> ' +
+            LT('saydo', 'Say-vs-Do') + ' — not on file yet</div>' +
+          '<div class="pdxgap-solo-b">This is an <b>Official Record</b> read: it is built from ' +
+            'formal roll-call votes and legislative actions, and those are ' +
+            (oNum || offItems.length ? 'on file here.' : 'what this sheet covers.') +
+            ' Curated public-record evidence for <b>' + esc(_id.name) + '</b> on <b>' + esc(lbl) +
+            '</b> — statements, interviews, news, controversies — has not been checked in yet.</div>' +
+          '<div class="pdxgap-solo-n">That is a gap in our coverage, not a verdict, and it changes ' +
+            'nothing above: the two records are scored separately and are never merged into a ' +
+            'single number, so the Official Record figure stands on its own either way.</div>' +
+        '</div>';
+    }
 
     return head +
-      '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
+      '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
       _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
@@ -2505,12 +2752,35 @@
     _gapSheet = back.querySelector('.pdxgap-sheet');
     return _gapSheet;
   }
-  function openGap(pid, issueKey) {
+  // Is this open an ARRIVAL — a reader landing from a shared `#record=` image — or a
+  // cross-link tapped from inside the app? The difference is purely presentational
+  // and it decides how much of the screen the sheet takes (see .pdxgap-arrive):
+  // over a profile the reader can still see, a short bottom sheet is right and the
+  // dim strip above it is the point; as the whole destination, that same strip is a
+  // large empty space at the top of the page. Callers may state it outright; the
+  // hash is the fallback so the behaviour is correct even for a caller that doesn't.
+  function _gapIsArrival(opts) {
+    if (opts && typeof opts.arrival === 'boolean') return opts.arrival;
+    try { return /^#record=/.test(String(location.hash || '')); } catch (e) { return false; }
+  }
+  // Set or clear the arrival class on the shared backdrop. Guarded: an environment
+  // without classList simply keeps the bottom-sheet layout.
+  function _gapArrive(back, on) {
+    try {
+      if (!back || !back.classList) return;
+      if (on) back.classList.add('pdxgap-arrive'); else back.classList.remove('pdxgap-arrive');
+    } catch (e) {}
+  }
+  function openGap(pid, issueKey, opts) {
     if (!pid || !issueKey || !document.body) return;
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = _gapViewHtml(pid, issueKey);
-    if (sheet.parentNode) sheet.parentNode.hidden = false;
+    var back = sheet.parentNode;
+    if (back) {
+      _gapArrive(back, _gapIsArrival(opts));
+      back.hidden = false;
+    }
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
@@ -2583,7 +2853,16 @@
     var sheet = _ensureGapSheet();
     var body = sheet.querySelector('.pdxgap-body');
     if (body) body.innerHTML = methodologyHtml();
-    if (sheet.parentNode) sheet.parentNode.hidden = false;
+    // Same shared backdrop as the gap sheet, so the arrival class has to be decided
+    // here too rather than inherited from whatever opened it last. A reader who
+    // followed `#methodology` off a shared card is arriving; one who tapped
+    // "ⓘ How we score this" inside the app is not.
+    if (sheet.parentNode) {
+      var arrive = false;
+      try { arrive = /^#methodolog/i.test(String(location.hash || '')); } catch (e) {}
+      _gapArrive(sheet.parentNode, arrive);
+      sheet.parentNode.hidden = false;
+    }
     try { sheet.scrollTop = 0; sheet.focus(); } catch (e) {}
     // A reader who tapped "HOW THIS IS JUDGED" on a shared card asked one specific
     // question. Land them on the answer rather than at the top of the sheet — the

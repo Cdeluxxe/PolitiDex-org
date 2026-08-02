@@ -1576,7 +1576,10 @@
     if (!retry) _hashTries = 0;
     var open = function () {
       if (window.PDXConsistency && typeof window.PDXConsistency.openGap === 'function' && iss) {
-        window.PDXConsistency.openGap(pid, iss);
+        // arrival:true — this reader followed a shared image and has no page behind
+        // the sheet, so it takes the whole viewport on a phone instead of sitting as
+        // a short bottom sheet under a band of empty backdrop. Presentation only.
+        window.PDXConsistency.openGap(pid, iss, { arrival: true });
         return true;
       }
       if (typeof window.showProfile === 'function') { window.showProfile(pid); return true; }
