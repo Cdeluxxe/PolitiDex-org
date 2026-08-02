@@ -939,3 +939,62 @@ export const vrDistributionalImpacts = pgTable(
     cohortIdx: index("vr_distributional_impacts_cohort_idx").on(t.cohort),
   })
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ✒️ EXECUTIVE ENACTMENT RECORD — the standing log (additive, Phase 1)
+// ─────────────────────────────────────────────────────────────────────────────
+// The Executive Enactment Record is the second record lane, for figures who cast no
+// congressional floor votes: presidents and executives, judged on signed legislation,
+// vetoes, executive orders and directives. It shares this schema's issue spine — the
+// same vr_measures / vr_measure_issues mappings, validated against the same
+// db/issue-keys.json allow-list — so an executive action and a congressional vote sit
+// on one issue page and mean the same thing. It carries NO score and NO percentage:
+// a roll call has an externally-imposed denominator (the votes the floor scheduled),
+// while a president's set of possible orders is unbounded and self-selected, so any
+// ratio would divide by a number we invented.
+//
+// The action itself is a vr_positions row (action_type 'signed' | 'vetoed' | 'issued'
+// — that table is already documented as non-roll-call actions that still count as
+// "doing"). This table records what happened to it AFTERWARDS, which is the half of
+// executive truthfulness with no congressional counterpart: a vote is over when it is
+// counted, but an order can be signed, enjoined, and struck down.
+//
+// APPEND-ONLY BY DESIGN: one row per status CHANGE, never an update in place. A
+// mutable column would collapse "signed → enjoined → struck down" to its last value
+// and lose the two earlier citations with it. Current standing = latest row by
+// effectiveAt; the full set is the timeline.
+//
+// VERIFIABILITY: sourceLabel and sourceUrl are both NOT NULL, as in every other vr_*
+// table. The claim that an action was blocked carries the same burden of proof as the
+// claim that it was signed.
+export const vrExecActionStatus = pgTable(
+  "vr_exec_action_status",
+  {
+    id: serial().primaryKey(),
+    positionId: integer("position_id")
+      .notNull()
+      .references(() => vrPositions.id, { onDelete: "cascade" }),
+    // in_force | partly_blocked | blocked | struck_down | rescinded | superseded |
+    // expired. Validated in the Function against db/exec-summary-keys.json, the way
+    // issue keys are validated against db/issue-keys.json — plain text with no CHECK
+    // constraint, so widening the vocabulary is a data change, not a migration.
+    status: text().notNull(),
+    // When the standing CHANGED (the injunction, the ruling, the rescission) — not
+    // when the row was written.
+    effectiveAt: timestamp("effective_at", { withTimezone: true }),
+    // WHO changed it: the court by name, or the signer for a self-rescission. An
+    // unnamed authority is not a citation.
+    authority: text().notNull().default(""),
+    sourceLabel: text("source_label").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    // One-line plain-language description, shown on the status timeline.
+    note: text().notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    // Matches the current-standing read exactly (latest effectiveAt per position),
+    // which runs once per action for every action in a count summary.
+    positionIdx: index("vr_exec_action_status_position_idx").on(t.positionId, t.effectiveAt),
+    statusIdx: index("vr_exec_action_status_status_idx").on(t.status),
+  })
+);

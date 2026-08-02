@@ -1,0 +1,522 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PolitiDex — ✒️ EXECUTIVE ENACTMENT RECORD (Phases 1–2: vocabulary + read path)
+   ═══════════════════════════════════════════════════════════════════════════
+   The second record lane, for figures who cast no congressional floor votes.
+   Presidents and executives are judged on what they actually did with the power
+   they have: signed legislation, vetoes, executive orders and formal directives.
+
+   WHY A SEPARATE LANE AND A SEPARATE FILE
+   The 🏛️ Official Record answers "when they had to vote, did they stand by what
+   they said?" A president never appears in it, and correctly so — the vr_* ingest
+   attributes a roll call only through db/vr-member-map.json, which contains no
+   executive pid. That absence is a safety mechanism, not an oversight. But it also
+   means a sourced, issue-keyed executive record sits in the app unreadable.
+
+   This lane is deliberately its OWN file rather than a scope inside consistency.js.
+   Two reasons, both practical:
+     1. Nothing here can regress the shipped 🏛️ / 🧾 lanes. This file is purely
+        additive and consistency.js is untouched.
+     2. The no-vote-language rule is testable by FILE. consistency.js legitimately
+        says "Voted Yea" and labels a verdict "Mixed record"; this file must never
+        say either. Keeping the vocabularies in separate files lets
+        scripts/test-exec-vocab.mjs scope its matcher precisely instead of trying to
+        tell one lane's strings from the other's inside a single 2,900-line module.
+
+   THE LOAD-BEARING DECISION: NO SCORE, EVER
+   A roll-call percentage is honest because the denominator is externally imposed —
+   the votes the floor scheduled. Nobody in this app chose them. A president's set of
+   possible orders is unbounded and self-selected, so any EER percentage would divide
+   by a number we invented, and would be trivially gameable by whoever curates the
+   action list. So this lane reports counts, dates, documents and standing, and never
+   a ratio. `score` is returned as a literal null and asserted by test. There is no
+   code path that produces a percentage, which is why there is no risk of one leaking.
+
+   TWO AXES, NEVER COLLAPSED
+     Axis A  Alignment — stated position vs formal action
+     Axis B  Standing  — what happened to the action afterwards
+   Axis B has no congressional counterpart and is why this cannot be a re-skin. The
+   worked example is already in the app's data: the IEEPA tariff orders were signed,
+   and the Supreme Court held they exceeded presidential authority. A single verdict
+   word either credits the signer with delivering or accuses them of failing. Both
+   are false; only both axes together are true.
+
+   FAIL CLOSED
+   Every gate here refuses by default. An unknown pid is not eligible. An action with
+   no primary source, or one citing a directory index or a fact sheet, is dropped
+   before it can be counted. A summary whose buckets do not add up returns null rather
+   than publishing arithmetic that does not hold — a missing summary is a rendering
+   gap, a wrong one is a false claim.
+
+   PHASE BOUNDARY
+   Phases 1–2 are foundation only. This file is NOT yet loaded by index.html and
+   renders nothing; Phase 4 wires the UI. The action data arrives in Phase 3 — until
+   then window.EXEC_ACTIONS is absent and every read below honestly returns empty.
+
+   Reads (all optional, all guarded):
+     window.EXEC_ACTIONS[pid]   → the seeded formal actions (Phase 3)
+     window._polPositionMap(pid, CMP_DATA[pid]) → the ONE shared stance source,
+                                  the same feeder consistency.js:154 uses
+   Exposes:
+     window.PDXExecRecord
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  if (window.PDXExecRecord) return; // idempotent
+
+  // ── Who this lane is for ───────────────────────────────────────────────────
+  // Fail closed: an office-based allow-list, not "anyone missing from the member
+  // map". Members of Congress also have curated formal actions, and those belong to
+  // the 🏛️ lane via vr_positions — gating on absence from the map would sweep them
+  // in here and split one person's record across two lanes.
+  //
+  // INVARIANT (asserted in scripts/test-exec-vocab.mjs against db/vr-member-map.json):
+  // no pid in this table may appear in the member map. If one ever did, the vr_*
+  // ingest could attribute a roll call to them and manufacture exactly the fake
+  // "Voted Yea/Nay" framing this lane exists to prevent.
+  var EXEC_PIDS = {
+    trump: { office: 'President of the United States', currentTerm: '47' }
+  };
+
+  // ── Axis A · Alignment ─────────────────────────────────────────────────────
+  // Its own table. Deliberately shares NO token with consistency.js's VERDICTS,
+  // whose 'consistent' / 'contradicts' are what the roll-call scorer emits and whose
+  // labels ("Backs it up", "Mixed record") are vote-shaped. Reusing them would make
+  // the two lanes indistinguishable in exactly the place they must not be.
+  var EXEC_VERDICTS = {
+    acted_on_it:      { key: 'acted_on_it',      ico: '✓', label: 'Acted on it',                    short: 'A formal action on file advances the stated position.',              tone: 'good',  cls: 'exec-acted' },
+    acted_against:    { key: 'acted_against',    ico: '⚠', label: 'Acted against it',               short: 'A formal action on file cuts against the stated position.',          tone: 'bad',   cls: 'exec-against' },
+    acted_both_ways:  { key: 'acted_both_ways',  ico: '◑', label: 'Acted both ways',                short: 'Formal actions on file run in both directions on this issue.',       tone: 'warn',  cls: 'exec-both' },
+    // COVERAGE, not a finding. The copy must never read as "they failed to act" —
+    // this lane cannot prove a negative over an unbounded action space, and saying
+    // so plainly is the difference between a record and an accusation.
+    said_not_done:    { key: 'said_not_done',    ico: '—', label: 'Said it — no action found',      short: 'A position is stated; no qualifying formal action is on file yet.',  tone: 'muted', cls: 'exec-none', isCoverage: true },
+    acted_no_stance:  { key: 'acted_no_stance',  ico: '—', label: 'Acted — no stated position',     short: 'A formal action is on file with no directional position to check it against.', tone: 'muted', cls: 'exec-none', isCoverage: true },
+    no_record:        { key: 'no_record',        ico: '—', label: 'No executive action on record',  short: 'Nothing on file for this issue yet.',                                tone: 'muted', cls: 'exec-none', isCoverage: true }
+  };
+
+  // ── Axis B · Standing ──────────────────────────────────────────────────────
+  // `contested: true` marks the standings that make the standing clause
+  // non-droppable — see STANDING_STICKY below.
+  var EXEC_STANDING = {
+    in_force:       { key: 'in_force',       ico: '●', label: 'In force',               contested: false, cls: 'exec-inforce' },
+    partly_blocked: { key: 'partly_blocked', ico: '◐', label: 'Partly blocked in court', contested: true,  cls: 'exec-partly' },
+    blocked:        { key: 'blocked',        ico: '⊘', label: 'Blocked by court order',  contested: true,  cls: 'exec-blocked' },
+    struck_down:    { key: 'struck_down',    ico: '✕', label: 'Struck down',             contested: true,  cls: 'exec-struck' },
+    rescinded:      { key: 'rescinded',      ico: '↩', label: 'Rescinded',               contested: true,  cls: 'exec-rescinded' },
+    superseded:     { key: 'superseded',     ico: '⇢', label: 'Superseded by later action', contested: false, cls: 'exec-superseded' },
+    expired:        { key: 'expired',        ico: '⌛', label: 'Lapsed or expired',       contested: false, cls: 'exec-expired' }
+  };
+
+  // ── Action classes ─────────────────────────────────────────────────────────
+  // Counts are reported PER CLASS and never summed into one headline figure.
+  // Signing a bill Congress wrote and issuing an order alone are different claims
+  // about power; a combined "6 actions" number flattens shared authorship into sole
+  // authorship, and the summary is the likeliest place that flattening would happen.
+  var EXEC_CLASSES = {
+    signed_law:      { key: 'signed_law',      verb: 'Signed into law',       authorship: 'shared', label: 'signed into law' },
+    vetoed_law:      { key: 'vetoed_law',      verb: 'Vetoed',                authorship: 'shared', label: 'vetoed' },
+    executive_order: { key: 'executive_order', verb: 'Signed Executive Order', authorship: 'sole',  label: 'executive order' },
+    directive:       { key: 'directive',       verb: 'Issued a directive',    authorship: 'sole',   label: 'directive' }
+  };
+
+  var EXEC_SCOPE = {
+    key: 'executive', icon: '✒️', label: 'Executive Enactment Record',
+    question: 'When they could act alone, what did they actually do?',
+    // Note the absence of any comparison to the congressional lane. Explaining this
+    // lane by reference to the other one would put vote language on an EER surface,
+    // which is the rule; the denominator argument stands on its own without it.
+    blurb: 'Signed legislation, vetoes, executive orders and formal directives — checked against what they say they stand for, and against what happened to each action afterwards. No score: the set of orders a president could sign is unbounded and self-chosen, so there is no honest denominator to divide by.',
+    empty: {
+      no_record: 'No executive action on record yet',
+      no_stance: 'No stated position to check',
+      said_not_done: 'A position is stated; no qualifying action is on file yet'
+    }
+  };
+
+  // ── The framing clause ─────────────────────────────────────────────────────
+  // Every rendered label begins with this literal, as its FIRST clause, in the same
+  // type size as the numbers — not as a disclaimer underneath them. It is what makes
+  // the counts true: the denominator is our file, not the figure's complete output.
+  // A reader who takes "5" for "everything they did" has been misled by omission
+  // even though every individual number is correct.
+  var FRAMING = 'Of the formal actions on file';
+
+  // Standings that keep the standing clause in EVERY rendering, however compact. A
+  // summary showing only alignment implies the whole record is operative — the exact
+  // failure Axis B exists to prevent, reintroduced one level up.
+  var STANDING_STICKY = { partly_blocked: 1, blocked: 1, struck_down: 1, rescinded: 1 };
+
+  // One or two actions cannot carry a pattern. Adopted from consistency.js's
+  // _orMappedSummaryText, which already appends a thinness caveat at low N so a count
+  // does not read as depth it does not have.
+  var THIN_MAX = 2;
+
+  // ── Source rule (fail closed) ──────────────────────────────────────────────
+  // An action whose primary source cannot be opened and checked is not publishable.
+  // These patterns are not hypothetical — every one of them is in the app's live
+  // curated data today: the judicial-appointments item cites a bare congress.gov, and
+  // cut_spending / tariffs_growth cite the bare presidential-actions index, while
+  // healthcare_costs cites a fact sheet rather than the order.
+  var REJECT_SRC = [
+    /^https?:\/\/[^/]+\/?$/i,                     // bare host — cites nothing
+    /^https?:\/\/[^/]+\/presidential-actions\/?$/i, // a directory index, not a document
+    /^https?:\/\/[^/]+\/briefing-room\/?$/i,
+    /\/fact-sheets?\b/i,                          // the administration describing its own order
+    /\/press-releases?\b/i,
+    /\/remarks\//i
+  ];
+  function sourceOk(url) {
+    if (!url) return false;
+    var u = String(url).trim();
+    if (!/^https:\/\//i.test(u)) return false;    // https only, no protocol-relative
+    for (var i = 0; i < REJECT_SRC.length; i++) if (REJECT_SRC[i].test(u)) return false;
+    return true;
+  }
+
+  function norm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function plural(n, one, many) { return n === 1 ? one : many; }
+
+  // ── Eligibility ────────────────────────────────────────────────────────────
+  function eligible(pid) { return !!EXEC_PIDS[norm(pid)]; }
+  function officeOf(pid) { var e = EXEC_PIDS[norm(pid)]; return e ? e.office : ''; }
+  function currentTerm(pid) { var e = EXEC_PIDS[norm(pid)]; return e ? e.currentTerm : ''; }
+
+  // ── The one shared stance source ───────────────────────────────────────────
+  // Identical feeder to consistency.js:154, so this lane and the 🏛️ lane can never
+  // disagree about what someone said. Values are 'support' | 'oppose' | 'mixed'.
+  function positionStance(pid, issueKey) {
+    try {
+      if (typeof window._polPositionMap !== 'function' || !window.CMP_DATA) return null;
+      var pm = window._polPositionMap(pid, window.CMP_DATA[pid]) || {};
+      return pm[issueKey] ? pm[issueKey].stance : null;
+    } catch (e) { return null; }
+  }
+  // 'mixed' is NOT directional: it gives an action nothing to be checked against, so
+  // it is treated as no directional stance rather than being forced into a direction.
+  function directionalStance(st) {
+    var s = norm(st);
+    return (s === 'support' || s === 'oppose') ? s : null;
+  }
+
+  // ── Actions on file ────────────────────────────────────────────────────────
+  // Phase 3 populates window.EXEC_ACTIONS. Until then this returns [] and every read
+  // below is honestly empty — the lane shows nothing rather than guessing.
+  //
+  // Each action rejected here is COUNTED, not silently dropped: `dropped` rides along
+  // in the summary and surfaces in the tip, because a filter that hides its own
+  // exclusions makes a partial record look complete.
+  function actionsFor(pid, opts) {
+    opts = opts || {};
+    var out = { kept: [], dropped: 0, droppedAllTime: 0, allTime: 0 };
+    if (!eligible(pid)) return out;
+    var raw;
+    try { raw = (window.EXEC_ACTIONS || {})[norm(pid)] || []; } catch (e) { return out; }
+    if (!raw || !raw.length) return out;
+    var term = opts.allTerms ? null : currentTerm(pid);
+    for (var i = 0; i < raw.length; i++) {
+      var a = raw[i];
+      if (!a || !EXEC_CLASSES[a.actionClass]) continue;
+      var ok = sourceOk(a.sourceUrl) && !!(a.sourceLabel && String(a.sourceLabel).trim());
+      if (ok) out.allTime++; else out.droppedAllTime++;
+      // Term scope is applied AFTER the source gate so the tip's all-time figure is a
+      // true all-time figure and not "all time within this term".
+      if (term && String(a.term || '') !== String(term)) continue;
+      if (!ok) { out.dropped++; continue; }
+      out.kept.push(a);
+    }
+    return out;
+  }
+
+  // Current standing of one action: the LATEST status entry by effectiveAt, matching
+  // the vr_exec_action_status read exactly. Every entry must carry its own citation —
+  // "struck down" without a ruling is as unpublishable as an unsourced signing.
+  function standingOf(action) {
+    var list = (action && action.status) || [];
+    var best = null;
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      if (!s || !EXEC_STANDING[s.status]) continue;
+      if (!sourceOk(s.sourceUrl) || !(s.sourceLabel && String(s.sourceLabel).trim())) continue;
+      if (!best) { best = s; continue; }
+      var a = Date.parse(s.effectiveAt || '') || 0, b = Date.parse(best.effectiveAt || '') || 0;
+      if (a >= b) best = s;
+    }
+    // Fail closed: an action with no citable status is NOT assumed to be in force.
+    return best ? best.status : null;
+  }
+
+  // ── Axis A for one issue ───────────────────────────────────────────────────
+  // Reads the same supportMeaning logic the congressional lane uses, renamed for this
+  // lane's vocabulary: a mapping that 'advances' an issue supports it, one that
+  // 'opposes' it cuts against it. An omnibus therefore reports both directions from a
+  // single signature, exactly as one vote on H.R. 1 does in the 🏛️ lane.
+  function executiveIssue(pid, issueKey, opts) {
+    var res = {
+      scope: 'executive', issueKey: issueKey,
+      token: 'no_record', verdict: EXEC_VERDICTS.no_record,
+      standing: null, actions: [], stance: null,
+      counts: { signed_law: 0, vetoed_law: 0, executive_order: 0, directive: 0 },
+      score: null // structurally null — there is no code path that sets it otherwise
+    };
+    if (!eligible(pid) || !issueKey) return res;
+    var stance = positionStance(pid, issueKey);
+    res.stance = stance;
+    var dir = directionalStance(stance);
+
+    var pool = actionsFor(pid, opts).kept, adv = 0, opp = 0;
+    for (var i = 0; i < pool.length; i++) {
+      var a = pool[i], maps = a.issues || [];
+      for (var j = 0; j < maps.length; j++) {
+        var m = maps[j];
+        if (!m || m.issueKey !== issueKey) continue;
+        if (m.direction === 'advances') adv++;
+        else if (m.direction === 'opposes') opp++;
+        else continue;
+        res.actions.push({
+          actionClass: a.actionClass, verb: EXEC_CLASSES[a.actionClass].verb,
+          documentId: a.documentId || '', title: a.title || '', actedAt: a.actedAt || '',
+          term: a.term || '', direction: m.direction, isPrimary: !!m.isPrimary,
+          sourceUrl: a.sourceUrl, sourceLabel: a.sourceLabel,
+          standing: standingOf(a)
+        });
+        res.counts[a.actionClass]++;
+        break; // one issue maps once per action
+      }
+    }
+
+    if (!res.actions.length) {
+      res.token = stance ? 'said_not_done' : 'no_record';
+    } else if (!dir) {
+      // An action is on file but there is no directional position to check it
+      // against — including a stated stance of 'mixed', which is not directional.
+      res.token = 'acted_no_stance';
+    } else {
+      var pro = dir === 'support' ? adv : opp;
+      var con = dir === 'support' ? opp : adv;
+      res.token = (pro && con) ? 'acted_both_ways' : pro ? 'acted_on_it' : con ? 'acted_against' : 'acted_no_stance';
+    }
+    res.verdict = EXEC_VERDICTS[res.token];
+
+    // Issue-level standing: the most contested standing among this issue's actions,
+    // so an issue is never presented as settled while one of its orders is enjoined.
+    var order = ['struck_down', 'blocked', 'partly_blocked', 'rescinded', 'superseded', 'expired', 'in_force'];
+    for (var k = 0; k < order.length && !res.standing; k++) {
+      for (var n = 0; n < res.actions.length; n++) {
+        if (res.actions[n].standing === order[k]) { res.standing = EXEC_STANDING[order[k]]; break; }
+      }
+    }
+    return res;
+  }
+
+  // ── The count summary ──────────────────────────────────────────────────────
+  // Two labelled totals that are NEVER added together. Axis A counts issues; Axis B
+  // counts documents. One signed law can touch five issues and one issue can have
+  // three orders behind it, so a single combined figure would invite the reader to
+  // treat two different denominators as parts of one whole.
+  //
+  // The issue denominator covers every issue the ON-FILE ACTIONS touch, plus every
+  // issue with a stated position — not just a curated headline set. If it counted
+  // only the headline issues, `against` would read 0 while the app's own data says a
+  // signed omnibus cut against one of its mapped issues, and the disclosure shown on
+  // the individual card would vanish from the summary above it. A summary that can
+  // only ever show alignment is a scoreboard, not a record.
+  function execSummary(pid, opts) {
+    opts = opts || {};
+    if (!eligible(pid)) return null;
+    var pool = actionsFor(pid, opts);
+    if (!pool.kept.length) return null; // nothing on file → the panel's empty state speaks
+
+    // Issue universe: mapped issues from the kept actions ∪ stated positions.
+    var set = {}, i, j;
+    for (i = 0; i < pool.kept.length; i++) {
+      var maps = pool.kept[i].issues || [];
+      for (j = 0; j < maps.length; j++) if (maps[j] && maps[j].issueKey) set[maps[j].issueKey] = 1;
+    }
+    try {
+      if (typeof window._polPositionMap === 'function' && window.CMP_DATA) {
+        var pm = window._polPositionMap(pid, window.CMP_DATA[pid]) || {};
+        Object.keys(pm).forEach(function (k) { set[k] = 1; });
+      }
+    } catch (e) {}
+    var keys = Object.keys(set).sort();
+
+    var issues = { aligned: 0, against: 0, bothWays: 0, noActionFound: 0, noStance: 0, total: 0 };
+    var TOKEN_BUCKET = {
+      acted_on_it: 'aligned', acted_against: 'against', acted_both_ways: 'bothWays',
+      said_not_done: 'noActionFound', acted_no_stance: 'noStance'
+    };
+    for (i = 0; i < keys.length; i++) {
+      // Same feeder as the individual cards — one pass, so the summary and the cards
+      // can never disagree about an issue.
+      var b = TOKEN_BUCKET[executiveIssue(pid, keys[i], opts).token];
+      if (b) { issues[b]++; issues.total++; }
+    }
+
+    var actions = {
+      inForce: 0, partlyBlocked: 0, blocked: 0, struckDown: 0,
+      rescinded: 0, superseded: 0, expired: 0, total: 0
+    };
+    var STATUS_BUCKET = {
+      in_force: 'inForce', partly_blocked: 'partlyBlocked', blocked: 'blocked',
+      struck_down: 'struckDown', rescinded: 'rescinded', superseded: 'superseded', expired: 'expired'
+    };
+    var byClass = { signed_law: 0, vetoed_law: 0, executive_order: 0, directive: 0 };
+    var unstated = 0;
+    for (i = 0; i < pool.kept.length; i++) {
+      byClass[pool.kept[i].actionClass]++;
+      var sb = STATUS_BUCKET[standingOf(pool.kept[i])];
+      if (sb) { actions[sb]++; actions.total++; } else { unstated++; }
+    }
+
+    var sum = {
+      scope: 'executive', pid: norm(pid), office: officeOf(pid),
+      framing: FRAMING,
+      termScope: opts.allTerms ? 'all_time' : 'current_term',
+      term: opts.allTerms ? '' : currentTerm(pid),
+      issues: issues, actions: actions, byClass: byClass,
+      // Disclosed, never hidden: actions whose standing has no citation, and actions
+      // excluded by the source rule.
+      unstatedStanding: unstated,
+      dropped: pool.dropped, allTimeTotal: pool.allTime, droppedAllTime: pool.droppedAllTime,
+      thin: pool.kept.length <= THIN_MAX,
+      contested: !!(actions.partlyBlocked || actions.blocked || actions.struckDown || actions.rescinded),
+      label: '',
+      score: null // structurally null — asserted by scripts/test-exec-summary.mjs
+    };
+
+    // ── Invariants ───────────────────────────────────────────────────────────
+    // 1 and 3 hold by construction (totals are summed from the buckets, never
+    // counted independently). 2 is the seam between the append-only status log and
+    // the current-standing read, so it is the one that can actually break — and on a
+    // mismatch we return null rather than publish arithmetic that does not hold.
+    // A missing summary is a rendering gap; a wrong one is a false claim.
+    var aSum = issues.aligned + issues.against + issues.bothWays + issues.noActionFound + issues.noStance;
+    var bSum = actions.inForce + actions.partlyBlocked + actions.blocked + actions.struckDown +
+               actions.rescinded + actions.superseded + actions.expired;
+    var cSum = byClass.signed_law + byClass.vetoed_law + byClass.executive_order + byClass.directive;
+    if (aSum !== issues.total) return null;
+    if (bSum !== actions.total) return null;
+    if (cSum !== pool.kept.length) return null;
+    if (actions.total + unstated !== pool.kept.length) return null;
+
+    sum.label = execSummaryText(sum);
+    return sum;
+  }
+
+  // ── The label ──────────────────────────────────────────────────────────────
+  // Assembled from the counts, never authored per figure — a pure function of the
+  // summary object, no DOM and no window reads, so the language rules can be gated
+  // against real generated output rather than against the templates alone.
+  //
+  // Forbidden here and enforced by scripts/test-exec-vocab.mjs: any '%', bare
+  // fractions, vote words, and GRADED ADJECTIVES. That last one is the subtle rule
+  // and the reason it needs a test — "mostly acted on it" IS a percentage, a ratio
+  // judgment wearing a word. It would reintroduce through the copy the invented
+  // denominator the no-score decision removed from the math, and it would pass every
+  // numeric check. The label describes composition; it never grades it.
+  function execSummaryText(sum) {
+    if (!sum || !sum.actions || !sum.actions.total && !sum.unstatedStanding) return '';
+    var docs = sum.actions.total + (sum.unstatedStanding || 0);
+    if (!docs) return '';
+    var iss = sum.issues.total;
+
+    var out = FRAMING + ' — ' + docs + ' across ' + iss + ' ' + plural(iss, 'issue', 'issues');
+    if (sum.thin) out += ', still a thin record';
+
+    var al = [];
+    if (sum.issues.aligned)  al.push('acted on it on ' + sum.issues.aligned);
+    if (sum.issues.against)  al.push('acted against it on ' + sum.issues.against);
+    if (sum.issues.bothWays) al.push('both ways on ' + sum.issues.bothWays);
+    out += al.length ? ': ' + al.join(', ') + '.' : '.';
+
+    // The standing clause is non-droppable whenever anything is contested.
+    var st = [];
+    if (sum.actions.inForce)       st.push(sum.actions.inForce + ' in force');
+    if (sum.actions.partlyBlocked) st.push(sum.actions.partlyBlocked + ' partly blocked in court');
+    if (sum.actions.blocked)       st.push(sum.actions.blocked + ' blocked by court order');
+    if (sum.actions.struckDown)    st.push(sum.actions.struckDown + ' struck down');
+    if (sum.actions.rescinded)     st.push(sum.actions.rescinded + ' rescinded');
+    if (sum.actions.superseded)    st.push(sum.actions.superseded + ' superseded by later action');
+    if (sum.actions.expired)       st.push(sum.actions.expired + ' lapsed or expired');
+    if (st.length) out += ' Standing: ' + st.join(', ') + '.';
+    if (sum.unstatedStanding) {
+      out += ' ' + sum.unstatedStanding + ' with no confirmed standing on file.';
+    }
+
+    if (sum.issues.noActionFound) {
+      out += ' ' + sum.issues.noActionFound + ' ' + plural(sum.issues.noActionFound, 'issue', 'issues') +
+             ' with a stated position and no action found.';
+    }
+    return out;
+  }
+
+  // The tip carries what the one-line label cannot: the selection rule, the other
+  // term scope, and what was EXCLUDED. Mirrors consistency.js:1905's
+  // _orMappedSummaryTip, which already names the records it did not count — a filter
+  // that hides its own exclusions makes a partial record look complete.
+  function execSummaryTip(sum) {
+    if (!sum) return '';
+    var t = 'Counted from the formal actions on file for this figure: signed legislation, ' +
+      'vetoes, executive orders and formal directives, each carrying a primary source ' +
+      '(congress.gov for legislation, the Federal Register for orders). Selection follows ' +
+      'a published rule — every qualifying action touching a covered issue, in date order.';
+    if (sum.termScope === 'current_term' && sum.term) {
+      t += ' Showing the current term (' + sum.term + ')';
+      if (sum.allTimeTotal > sum.actions.total + (sum.unstatedStanding || 0)) {
+        t += '; ' + sum.allTimeTotal + ' on file across all terms';
+      }
+      t += '.';
+    } else {
+      t += ' Showing all terms on file.';
+    }
+    t += ' Issue counts and action counts are different units and are never added together: ' +
+      'one action can touch several issues, and one issue can have several actions behind it.';
+    if (sum.issues.noActionFound) {
+      t += ' "No action found" is coverage, not a finding — it means nothing qualifying is ' +
+        'on file yet, not that the figure declined to act.';
+    }
+    if (sum.dropped) {
+      t += ' ' + sum.dropped + ' curated ' + plural(sum.dropped, 'item is', 'items are') +
+        ' held back for citing a directory index or a summary page rather than the document itself.';
+    }
+    if (sum.unstatedStanding) {
+      t += ' ' + sum.unstatedStanding + ' ' + plural(sum.unstatedStanding, 'action has', 'actions have') +
+        ' no citable standing on file and are not assumed to be in force.';
+    }
+    // There is no percentage to explain, and saying so is part of the method. Stated
+    // without reference to the congressional lane: explaining this lane by comparison
+    // to that one would put vote language on an EER surface, and the denominator
+    // argument stands perfectly well on its own.
+    t += ' No percentage is shown: the set of actions a president could have taken is ' +
+      'unbounded and self-chosen, so there is no honest denominator to divide by.';
+    return t;
+  }
+
+  window.PDXExecRecord = {
+    SCOPE: EXEC_SCOPE,
+    VERDICTS: EXEC_VERDICTS,
+    STANDING: EXEC_STANDING,
+    CLASSES: EXEC_CLASSES,
+    FRAMING: FRAMING,
+    STANDING_STICKY: STANDING_STICKY,
+    THIN_MAX: THIN_MAX,
+    // Read-only view of the office gate, so the test can cross-check it against
+    // db/vr-member-map.json without reaching into the closure.
+    pids: function () { return Object.keys(EXEC_PIDS); },
+    eligible: eligible,
+    office: officeOf,
+    currentTerm: currentTerm,
+    // Per-issue read (Axis A + Axis B). score is always null.
+    issue: executiveIssue,
+    // Politician-level count summary, or null when nothing is on file / an invariant
+    // fails. Never a percentage.
+    summary: execSummary,
+    // Pure, DOM-free, directly unit-testable.
+    summaryText: execSummaryText,
+    summaryTip: execSummaryTip,
+    // Exposed so the tests gate the SHIPPED source rule rather than a copy of it.
+    sourceOk: sourceOk,
+    standingOf: standingOf,
+    actionsFor: actionsFor
+  };
+})();

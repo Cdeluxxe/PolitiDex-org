@@ -1,0 +1,82 @@
+{
+  "_purpose": "✒️ Executive Enactment Record — the count-summary vocabulary. The EER carries NO score and NO percentage, so this is what occupies the slot where the 🏛️ lane prints a percentage: the same information a ratio would compress, published uncompressed.",
+  "_readBy": ["exec-record.js", "scripts/test-exec-vocab.mjs", "scripts/test-exec-summary.mjs"],
+
+  "framing": "Of the formal actions on file",
+  "_framingWhy": "Not a disclaimer in small type — the FIRST clause of the sentence, in the same type size as the numbers. It is what makes the counts true: the denominator is our file, not the figure's complete output. A reader who takes N for 'everything they did' has been misled by omission even though every individual number is correct. Precedent: consistency.js:1905 _orMappedSummaryTip already names the records it did NOT count.",
+  "_framingRule": "Every rendered label MUST begin with this literal string. Asserted as a prefix, not matched as a pattern, so a count interpolated into the middle of it cannot quietly break the lead-in.",
+
+  "buckets": {
+    "issues": {
+      "unit": "issue",
+      "totalKey": "total",
+      "_why": "Axis A — alignment between a stated position and the formal actions on file. One issue is aligned, against, or both.",
+      "keys": {
+        "aligned": { "label": "acted on it", "token": "acted_on_it", "negative": false },
+        "against": { "label": "acted against it", "token": "acted_against", "negative": true },
+        "bothWays": { "label": "both ways", "token": "acted_both_ways", "negative": false },
+        "noActionFound": {
+          "label": "stated position, no action found",
+          "token": "said_not_done",
+          "negative": false,
+          "isCoverage": true,
+          "_why": "COVERAGE, never a negative. Folding this into `against` would convert 'we have found no action' into 'they acted against it'. The app cannot prove a negative over an unbounded action space, so this is reported on its own line and is never summed into against."
+        },
+        "noStance": {
+          "label": "action on file, no stated position",
+          "token": "acted_no_stance",
+          "negative": false,
+          "isCoverage": true,
+          "_why": "Also covers a stated position of 'mixed': a non-directional stance gives an action nothing to be checked against, which is what this bucket means."
+        }
+      }
+    },
+    "actions": {
+      "unit": "document",
+      "totalKey": "total",
+      "_why": "Axis B — what happened to the action afterwards. One document has exactly one current standing (the latest vr_exec_action_status row by effective_at). No congressional counterpart exists; this axis is why the EER cannot be a re-skin of the 🏛️ lane.",
+      "keys": {
+        "inForce": { "label": "in force", "token": "in_force", "contested": false },
+        "partlyBlocked": { "label": "partly blocked in court", "token": "partly_blocked", "contested": true },
+        "blocked": { "label": "blocked by court order", "token": "blocked", "contested": true },
+        "struckDown": { "label": "struck down", "token": "struck_down", "contested": true },
+        "rescinded": { "label": "rescinded", "token": "rescinded", "contested": true },
+        "superseded": { "label": "superseded by later action", "token": "superseded", "contested": false },
+        "expired": { "label": "lapsed or expired", "token": "expired", "contested": false }
+      }
+    }
+  },
+
+  "_unitsWhy": "THE TRAP THIS FILE EXISTS TO STOP. Axis A counts issues; Axis B counts documents. One signed law can touch five issues and one issue can have three orders behind it, so a row reading '3 aligned · 4 in force' invites the reader to treat 3 and 4 as parts of one whole. Shipping the unit as DATA — rather than leaving it implicit in variable names — is what makes the check mechanical: any renderer that adds an issue-unit count to a document-unit count is caught by construction.",
+
+  "labelTemplates": {
+    "coverage": "{framing} — {actionTotal} across {issueTotal} {issueWord}",
+    "thin": ", still a thin record",
+    "alignment": ": {alignmentTerms}.",
+    "standing": " Standing: {standingTerms}.",
+    "coverageGap": " {noActionFound} {issueWord} with a stated position and no action found.",
+    "empty": ""
+  },
+  "_emptyWhy": "Nothing on file returns an empty string and lets the panel's own no_record state speak, following the existing precedent at consistency.js:1895 that 'a member with no record shows no claim about one'. The summary never manufactures a sentence to fill space.",
+
+  "thinRecordMax": 2,
+  "_thinRecordWhy": "One or two actions cannot carry a pattern. Adopted from _orMappedSummaryText, which already appends 'so far — still a thin record' at low N so a count does not read as depth it does not have.",
+
+  "standingAlwaysVisibleWhen": ["partlyBlocked", "blocked", "struckDown", "rescinded"],
+  "_standingAlwaysVisibleWhy": "If any action is contested, the standing clause survives into EVERY rendering including the most compact chip. A summary showing only alignment implies the whole record is operative — the exact failure the second axis exists to prevent, reintroduced at the aggregate level after being solved at the card level.",
+
+  "defaultTermScope": "current_term",
+  "_defaultTermScopeWhy": "An all-time count mixes terms and a reader takes an old action as current. The default rendering is the current term; the all-time count is available in the tip. Changing the denominator is the one thing that must never happen quietly, so both figures are always reachable.",
+
+  "forbidden": {
+    "pattern": "%|\\b(mostly|largely|strong|strongly|weak|weakly|poor|poorly|consistent|inconsistent|mixed|most|majority|half|few|many|vot(e|ed|es|ing)|yea|nay|roll ?calls?)\\b",
+    "flags": "i",
+    "_why": {
+      "%": "Decision 1: no percentage on the EER, ever. A president's set of possible orders is unbounded and self-selected, so any ratio would divide by a number we invented.",
+      "gradedAdjectives": "'Mostly acted on it' IS a percentage — a ratio judgment wearing a word. It reintroduces through the copy the invented denominator the no-score rule removed from the math, and it would pass every numeric check. The label describes composition; it never grades it.",
+      "proportionWords": "most / majority / half / few / many are ratios in prose.",
+      "voteWords": "Decision 9: no vote language on any EER surface. This figure cast no floor votes."
+    },
+    "_scopeWarning": "This pattern deliberately matches `consistent` and `mixed`, which are LEGITIMATE tokens and labels in consistency.js's VERDICTS table for the 🏛️ lane. The matcher must therefore be applied to EER strings ONLY. scripts/test-exec-vocab.mjs asserts both directions: the EER vocabulary is clean, AND the pattern still fires on 'Mixed record' so it can never become vacuous."
+  }
+}

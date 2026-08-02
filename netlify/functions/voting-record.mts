@@ -150,6 +150,29 @@ function assertIssueKey(key: string): boolean {
   return ISSUE_KEYS.has(key);
 }
 
+// ── Query-filter allow-lists ─────────────────────────────────────────────────
+// Defined once and shared by /member and /issue so the two endpoints can never
+// drift apart on what they will accept.
+//
+// The 'executive' chamber and the executive_order | proclamation | memorandum types
+// belong to the ✒️ Executive Enactment Record — the second record lane, for figures
+// who cast no congressional floor votes. They are additive: widening what a caller
+// may FILTER on creates no data and changes no existing response. The precedent is
+// already here — measure_type 'litigation' with chamber 'court' lets a court case
+// share the issue spine without pretending it is a roll call, and an executive order
+// is the same shape of thing. See db/exec-action-types.json for the full vocabulary.
+const CHAMBERS = ["house", "senate", "joint", "court", "executive"];
+const MEASURE_TYPES = [
+  "bill",
+  "resolution",
+  "amendment",
+  "nomination",
+  "litigation",
+  "executive_order",
+  "proclamation",
+  "memorandum",
+];
+
 // Parse a date query param into a Date, or null when absent/invalid.
 function parseDate(v: string | null): Date | null {
   const s = clean(v, 40);
@@ -183,7 +206,7 @@ function parseFilters(url: URL): Filters | { error: string; status: number } {
   }
 
   const chamber = clean(url.searchParams.get("chamber"), 16).toLowerCase();
-  if (chamber && !["house", "senate", "joint", "court"].includes(chamber)) {
+  if (chamber && !CHAMBERS.includes(chamber)) {
     return { error: `Invalid chamber: ${chamber}`, status: 400 };
   }
 
@@ -1242,12 +1265,12 @@ async function getMeasures(url: URL): Promise<Response> {
   }
 
   const chamber = clean(url.searchParams.get("chamber"), 16).toLowerCase();
-  if (chamber && !["house", "senate", "joint", "court"].includes(chamber)) {
+  if (chamber && !CHAMBERS.includes(chamber)) {
     return json({ error: `Invalid chamber: ${chamber}` }, 400);
   }
 
   const measureType = clean(url.searchParams.get("type"), 24).toLowerCase();
-  if (measureType && !["bill", "resolution", "amendment", "nomination", "litigation"].includes(measureType)) {
+  if (measureType && !MEASURE_TYPES.includes(measureType)) {
     return json({ error: `Invalid type: ${measureType}` }, 400);
   }
 
