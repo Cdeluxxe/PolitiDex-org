@@ -923,9 +923,19 @@
           var pend = (typeof p.pending === 'number' && p.pending > 0) ? p.pending : 0;
           var pendNote = pend ? '<span style="color:#8aa3c4;font-weight:600;"> · ' + pend +
             ' pending (not counted)</span>' : '';
+          // The figure this popover was opened FROM is the published headline —
+          // the same ratio with flagship promises weighted by real-world impact.
+          // Showing only the raw ratio here made the explainer contradict the
+          // number the visitor just tapped, so name both when they differ.
+          var pubScore = (typeof window._pdxDisplayScore === 'function') ? window._pdxDisplayScore(p) : null;
+          var pubNote = (pubScore !== null && pubScore !== undefined && Math.round(pubScore) !== rate)
+            ? '<div class="pdx-pinfo-calc" style="margin-top:0.35rem;">Published follow-through: <span style="color:#f5c842;font-weight:700;">' +
+              Math.round(pubScore) + '%</span><span style="color:#8aa3c4;font-weight:600;"> · flagship promises are weighted by real-world impact, so the headline sits ' +
+              (Math.round(pubScore) < rate ? 'below' : 'above') + ' the raw ratio</span></div>'
+            : '';
           calcLine = '<div class="pdx-pinfo-calc">' + nm + ': <span style="color:#4ade80;font-weight:700;">' + k +
             '</span> ÷ (<span style="color:#4ade80;font-weight:700;">' + k + '</span> + <span style="color:#f87171;font-weight:700;">' +
-            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '%</span>' + pendNote + '</div>';
+            b + '</span>) = <span style="color:#f5c842;font-weight:700;">' + rate + '% raw</span>' + pendNote + '</div>' + pubNote;
         }
       }
     } catch (e) {}

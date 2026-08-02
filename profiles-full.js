@@ -3120,30 +3120,56 @@
   };
 
   // ════════════════════════════════════════════════════════════
-  // FOLLOW-THROUGH SUMMARY — the at-a-glance "did they actually do
-  // what they said?" read. Built from kept / broken / pending promise
-  // counts. Follow-Through Rate = Kept ÷ (Kept + Broken); pending
-  // promises are deliberately excluded so no one is credited or blamed
-  // for a promise that hasn't played out yet (matches the Promise %
-  // methodology). Shared by the profile hero and the browse cards.
+  // PROMISE FOLLOW-THROUGH — the at-a-glance "did they keep the
+  // promises they made?" read. Built from kept / broken / pending
+  // promise counts. Promise Follow-Through = Kept ÷ (Kept + Broken);
+  // pending promises are deliberately excluded so no one is credited or
+  // blamed for a promise that hasn't played out yet (matches the
+  // Promise % methodology). Shared by the profile hero and the browse cards.
+  //
+  // The verdict wording is scoped to PROMISES on purpose. "Keeps their word"
+  // is the claim the 🧾 Say-vs-Do lane makes from the broader public record;
+  // this lane only knows about discrete tracked promises, so it says so.
+  //
+  // ONE HEADLINE PER LANE: the optional `published` argument is the site's
+  // headline promise figure — window._pdxDisplayScore(p), the stored score with
+  // flagship promises weighted by real-world impact (see the Deep Dive, which
+  // has always said so). It differs from the raw ratio on most records with a
+  // resolved promise, so when the profile hero showed the published figure and
+  // this block computed its own raw one, a reader saw two different
+  // "promises kept" percentages side by side — Mike Lee 72% in the ring, 77%
+  // here — with the reconciliation buried in a collapsed panel. Pass
+  // `published` and every promise surface leads with the same number; `raw`
+  // stays on the object so the block can show the ratio it came from. Omit it
+  // (as the browse-card strip does) and the raw ratio is the headline, exactly
+  // as before.
   // ════════════════════════════════════════════════════════════
-  window._ftMeta = function(kept, broken, pending){
+  window._ftMeta = function(kept, broken, pending, published){
     kept = +kept || 0; broken = +broken || 0; pending = +pending || 0;
     var resolved = kept + broken;
-    var rate = resolved ? Math.round(kept / resolved * 100) : null;
+    var raw = resolved ? Math.round(kept / resolved * 100) : null;
+    // A published figure only counts when there is something to publish about;
+    // with nothing resolved the honesty guard has already returned null.
+    var pub = (published === null || published === undefined || published === '' || isNaN(+published))
+      ? null : Math.round(+published);
+    var rate = (resolved && pub !== null) ? pub : raw;
     var col = rate === null ? '#9fb4d4' : rate >= 70 ? '#4ade80' : rate >= 50 ? '#f5c842' : '#f87171';
-    var verdict = rate === null ? 'Tracking' : rate >= 70 ? 'Keeps Their Word' : rate >= 50 ? 'Mixed Record' : 'Breaks Promises';
+    var verdict = rate === null ? 'Tracking' : rate >= 70 ? 'Keeps Their Promises' : rate >= 50 ? 'Mixed Promise Record' : 'Breaks Promises';
     var sub = rate === null ? 'No promises have resolved yet — monitoring in progress.'
-            : rate >= 70 ? 'Mostly follows through on what they say.'
-            : rate >= 50 ? 'Follows through about half the time.'
-            : 'Frequently fails to follow through on what they say.';
+            : rate >= 70 ? 'Mostly follows through on the promises they make.'
+            : rate >= 50 ? 'Follows through on about half of their promises.'
+            : 'Frequently fails to follow through on the promises they make.';
     var ico = rate === null ? '🔍' : rate >= 70 ? '🤝' : rate >= 50 ? '⚖️' : '⚠️';
-    return { kept:kept, broken:broken, pending:pending, resolved:resolved, rate:rate, col:col, verdict:verdict, sub:sub, ico:ico };
+    return { kept:kept, broken:broken, pending:pending, resolved:resolved, rate:rate, raw:raw,
+             weighted:(rate !== null && raw !== null && rate !== raw), col:col, verdict:verdict, sub:sub, ico:ico };
   };
 
   // Prominent profile hero — the headline "Did they follow through?" block.
-  window._renderFollowThrough = function(kept, broken, pending, pid){
-    var m = window._ftMeta(kept, broken, pending);
+  // `published` is the profile's headline promise figure so this block and the
+  // hero ring above it cannot disagree; the raw ratio it was weighted from is
+  // stated inline rather than only inside the collapsed Deep Dive.
+  window._renderFollowThrough = function(kept, broken, pending, pid, published){
+    var m = window._ftMeta(kept, broken, pending, published);
     if (m.resolved === 0 && m.pending === 0) return '';
     var keptPct = m.resolved ? Math.round(m.kept / m.resolved * 100) : 0;
     var brokenPct = m.resolved ? 100 - keptPct : 0;
@@ -3152,19 +3178,23 @@
     var ftClick = ' role="button" tabindex="0"' +
       ' onclick="event.stopPropagation();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ')"' +
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window._pdxPromiseInfo(event,' + (pid ? '\'' + pid + '\'' : 'null') + ');}"' +
-      ' title="How is the Follow-Through Rate calculated?"';
+      ' title="How is Promise Follow-Through calculated?"';
     return '' +
       '<div style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(192,21,42,0.1),rgba(30,53,96,0.45));border:1px solid ' + m.col + '4d;border-radius:0.95rem;padding:1rem 1.1rem;box-shadow:0 0 22px ' + m.col + '14, inset 0 1px 0 rgba(255,255,255,0.04);">' +
         '<div style="display:flex;align-items:center;gap:0.95rem;margin-bottom:0.85rem;">' +
           '<div class="pdx-ft-rate-click"' + ftClick + ' style="cursor:pointer;flex-shrink:0;text-align:center;min-width:86px;background:rgba(10,15,30,0.55);border:1px solid ' + m.col + '55;border-radius:0.8rem;padding:0.5rem 0.6rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">' +
             '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2.5rem;color:' + m.col + ';line-height:1;text-shadow:0 0 16px ' + m.col + '40;">' + rateTxt + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Follow-Through Rate</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-top:0.15rem;">Promises Kept</div>' +
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7596c0;margin-top:0.12rem;">ⓘ How?</div>' +
           '</div>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">Did they actually follow through?</div>' +
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Promise Follow-Through · Did they keep what they promised?</div>' +
             '<div style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;letter-spacing:0.04em;color:' + m.col + ';line-height:1;">' + m.ico + ' ' + m.verdict + '</div>' +
-            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') + '</p>' +
+            '<p style="font-size:0.72rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + m.sub + (m.resolved ? ' Based on <strong style="color:#4ade80;">' + m.kept + ' kept</strong> vs <strong style="color:#f87171;">' + m.broken + ' broken</strong> of ' + m.resolved + ' resolved promise' + (m.resolved === 1 ? '' : 's') + '.' : '') +
+              // Same reconciliation the Deep Dive gives, stated where the number
+              // is, so the headline is never a figure the visible breakdown
+              // cannot produce.
+              (m.weighted ? ' That raw ratio is <strong style="color:#cbd9ec;">' + m.raw + '%</strong> — flagship promises are weighted by real-world impact, so the headline sits ' + (m.rate < m.raw ? 'below' : 'above') + ' it.' : '') + '</p>' +
           '</div>' +
         '</div>' +
         (m.resolved ? '<div style="display:flex;height:11px;border-radius:999px;overflow:hidden;background:rgba(10,15,30,0.8);margin-bottom:0.6rem;box-shadow:inset 0 1px 2px rgba(0,0,0,0.4);">' +
@@ -3268,6 +3298,10 @@
 
   // Compact card strip — one-line kept/broken read + a thin split bar so a
   // visitor can judge follow-through without opening the profile.
+  // Currently has no call sites. It reports the RAW ratio, not the published
+  // headline, so anything wiring it up beside a published figure should pass
+  // that figure through to _ftMeta as the fourth argument — otherwise the two
+  // surfaces print different percentages for the same lane.
   window._ftStrip = function(kept, broken, pending){
     var m = window._ftMeta(kept, broken, pending);
     if (m.resolved === 0) return '';
@@ -3488,13 +3522,20 @@
     window._pdxActiveFilter = 'all';
 
     // Promise Score only counts once a promise has resolved (kept/broken).
-    // With nothing resolved, treat the score as absent so the hero ring, the
-    // score bar and the "No record yet" framing all read honestly rather than
-    // surfacing a misleading percentage.
+    // With nothing resolved, treat the score as absent so the hero ring and the
+    // "No record yet" framing read honestly rather than surfacing a misleading
+    // percentage.
+    //
+    // NAMING: this number is the PROMISE lane and nothing else — Kept ÷ (Kept +
+    // Broken). It is deliberately never labelled a bare "Score" anywhere on the
+    // profile, because a profile carries three separate records and an unqualified
+    // "Score" reads as a verdict on all three:
+    //   🏛️ Official Record      — votes / formal actions        (consistency.js)
+    //   🧾 Say-vs-Do            — stance follow-through          (consistency.js)
+    //   🤝 Promise Follow-Through — kept vs broken promises      (this number)
     const scoreNum = window._pdxDisplayScore(p);
     const scoreText = scoreNum === null ? '—' : scoreNum + '%';
     const scoreColor = scoreNum === null ? '#9fb4d4' : scoreNum >= 70 ? '#4ade80' : scoreNum >= 50 ? '#f5c842' : '#f87171';
-    const barColor  = scoreNum === null ? 'linear-gradient(90deg,#334155,#64748b)' : scoreNum >= 70 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : scoreNum >= 50 ? 'linear-gradient(90deg,#b45309,#f5c842)' : 'linear-gradient(90deg,#991b1b,#f87171)';
     const pendingCount = typeof p.pending === 'number' ? p.pending : (p.promises ? p.promises.filter(r=>r.verdict==='pending').length : 0);
     // The denominator behind the headline percentage, so "100%" can never be read
     // as a broad record when it rests on a single resolved promise.
@@ -3529,7 +3570,7 @@
         </svg>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${scoreColor};line-height:1;">${scoreText}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Score</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Promises</div>
         </div>
       </div>
       ${scoreDenom ? `<div class="profile-score-denom">(${scoreDenom})</div>` : ''}
@@ -3783,25 +3824,29 @@
       : (_navEvidenceCount ? (_navEvidenceCount + ' receipts') : 'View'));
 
     const _navItems = [];
-    // Score — published promise %, with a trend arrow when a delta is known.
+    // Promises — the published promise follow-through %, with a trend arrow when a
+    // delta is known. Named for its lane, not "Score": the rail also carries the
+    // Official Record and Enactments lanes, and a bare "Score" beside them reads as
+    // an overall rating this number is not.
     if (scoreNum !== null) {
       let _navTrend = '';
       const _navDelta = (typeof p.scoreTrend === 'number') ? p.scoreTrend
         : (typeof p.scoreDelta === 'number') ? p.scoreDelta : null;
       if (_navDelta && _navDelta > 0) _navTrend = ' ↑';
       else if (_navDelta && _navDelta < 0) _navTrend = ' ↓';
-      _navItems.push({ target: 'pdxsec-score', icon: '📊', label: 'Score', value: scoreText + _navTrend, color: scoreColor });
+      _navItems.push({ target: 'pdxsec-score', icon: '🤝', label: 'Promises', value: scoreText + _navTrend, color: scoreColor });
     }
-    // Record — kept / broken counts + follow-through rate.
+    // Record — the kept / broken / pending COUNTS behind that percentage. The rate
+    // itself is deliberately not repeated here: it is the pill directly above, and
+    // showing it twice in one rail made one number look like two findings.
     {
       const _resolved = keptCount + brokenCount;
       if (_resolved > 0 || (p.promises && p.promises.length)) {
-        const _rate = _resolved ? (' · ' + Math.round(keptCount / _resolved * 100) + '%') : '';
         // Pending only appears when there's something outstanding, so the pill stays
-        // compact (e.g. "6K · 6B · 50%") but still surfaces the full kept/broken/pending
-        // read (e.g. "6K · 6B · 2P · 50%") the way the record section reports it.
+        // compact (e.g. "6K · 6B") but still surfaces the full kept/broken/pending
+        // read (e.g. "6K · 6B · 2P") the way the record section reports it.
         const _pend = (pendingAct > 0) ? (' · ' + pendingAct + 'P') : '';
-        _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend + _rate, color: '#f5c842' });
+        _navItems.push({ target: 'pdxsec-record', icon: '📋', label: 'Record', value: keptCount + 'K · ' + brokenCount + 'B' + _pend, color: '#f5c842' });
       }
     }
     // Positions — number of tracked key issues.
@@ -3985,26 +4030,25 @@
            the plain thin notice if the snapshot can't render. -->
       ${candidateSnapshot || thinNotice}
 
-      <!-- Follow-Through summary — the headline integrity read: did they
-           actually do what they said? Kept vs broken, a follow-through rate,
-           and a plain-language verdict, shown before anything else. -->
+      <!-- Promise Follow-Through summary — the promise lane's one and only headline:
+           kept vs broken, the resolved-only percentage, and a plain-language verdict
+           scoped to promises. The 🏛️ Official Record and 🧾 Say-vs-Do lanes have their
+           own sections further down and are never folded into this number. -->
       <span id="pdxsec-score" class="pdx-nav-anchor" aria-hidden="true"></span>
-      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id) : ''}
+      ${(typeof window._renderFollowThrough === 'function') ? window._renderFollowThrough((keptCount || p.kept || 0), (brokenCount || p.broken || 0), (pendingAct || pendingCount || 0), id, scoreNum) : ''}
 
-      <!-- Accountability of Truth Score (purple) — the headline objective rating, shown first -->
+      <!-- Accountability of Truth Score — retired as a headline number; the renderer
+           returns '' (see accountability-score.js). The container stays so
+           _refreshAccountabilityCard() keeps a valid target and the underlying
+           analysis remains reachable from the Spotlight section below. -->
       <div id="acct-inline-card">${(typeof window._renderAccountabilityCard === 'function') ? window._renderAccountabilityCard(id, p) : ''}</div>
 
-      <!-- Promise score bar — the FORMAL, in-office follow-through record (votes,
-           bills, official promises kept vs. broken). -->
-      ${scoreNum !== null ? `<div style="margin-bottom:1.25rem;">
-        <div style="display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#f5c842;margin-bottom:0.35rem;">
-          <span>🤝 Promise Follow-Through · In-office record</span><span style="color:${scoreColor};">${scoreText}</span>
-        </div>
-        <div style="height:6px;background:rgba(10,15,30,0.8);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${scoreNum}%;background:${barColor};border-radius:999px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);"></div>
-        </div>
-        <p style="font-size:0.64rem;color:#7e92b4;line-height:1.45;margin:0.4rem 0 0;">Kept ÷ (kept + broken) of ${p.name ? p.name.split(' ')[0] : 'their'} tracked campaign promises — pending promises are excluded. See the receipts below.</p>
-      </div>` : ''}
+      <!-- SCORING CLEANUP: the "🤝 Promise Follow-Through · In-office record" bar that
+           used to sit here rendered the SAME window._pdxDisplayScore() percentage that
+           the Follow-Through block above already shows — a third printing of one
+           number (hero ring, block, bar) that read as three separate findings. The
+           block above states the figure, its kept/broken denominator, and its
+           methodology, so the bar added nothing but repetition. Removed. -->
 
       <!-- Biography & signature quote — who they are, read early so the
            profile opens like an honest dossier: identity → record → person. -->
@@ -4104,7 +4148,10 @@
       <span id="pdxsec-impact" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._pdxMemberImpactsOverview === 'function') ? window._pdxMemberImpactsOverview(id) : ''}
 
-      <!-- The People's Mandate Alignment -->
+      <!-- Follow the Money — the campaign-finance Constituents-First lens. (The
+           four-tile People's Mandate scorecard this renderer used to emit is
+           retired: it re-presented Promise % and the retired Accountability
+           composite as if they were separate findings.) -->
       ${(typeof window._renderMandateAlignment === 'function') ? window._renderMandateAlignment(id, p) : ''}
 
       <!-- Follow the Money — Side by Side. Pairs the Constituents-First finance
@@ -4267,7 +4314,7 @@
               <div style="font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:white;margin-bottom:0.3rem;">Promise % = Kept ÷ (Kept + Broken)</div>
               <p style="font-size:0.74rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.5rem;"><strong style="color:#cbd9ec;">Pending items are ignored until they resolve</strong> — no one is credited or blamed for a promise that hasn't played out yet, so it stays out of the math.</p>
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:#cbd9ec;background:rgba(0,0,0,0.25);border-radius:0.45rem;padding:0.45rem 0.6rem;">
-                ${k} ÷ (${k} + ${b}) = <span style="color:${scoreColor};font-weight:700;">${rawScore}% raw</span>${scoreNum !== null ? ` · Published Promise Score <span style="color:${scoreColor};font-weight:700;">${scoreText}</span>` : ''}
+                ${k} ÷ (${k} + ${b}) = <span style="color:${scoreColor};font-weight:700;">${rawScore}% raw</span>${scoreNum !== null ? ` · Published Promise Follow-Through <span style="color:${scoreColor};font-weight:700;">${scoreText}</span>` : ''}
               </div>
               ${(scoreNum !== null && rawScore !== scoreNum) ? `<p style="font-size:0.68rem;color:#7596c0;line-height:1.5;margin:0.45rem 0 0;">Flagship promises are weighted by real-world impact, so the headline score can sit ${scoreNum < rawScore ? 'below' : 'above'} the raw ratio.</p>` : ''}
             </div>
@@ -4626,9 +4673,9 @@
       ${(function(){
         const spotlightData = (window.SPOTLIGHT_DATA = window.SPOTLIGHT_DATA || {});
         // ── In the Spotlight — politician-specific, accountability-linked ──────
-        // Surfaces THIS official's own record and ties it directly to the
-        // Accountability of Truth Score. The same kept/broken promises the score
-        // is computed from are shown here as the *drivers* of that score — each
+        // Surfaces THIS official's own record and ties it to the accountability
+        // analysis. The same kept/broken promises the analysis draws on are shown
+        // here as its *drivers* — each
         // tagged ▲/▼ and tappable to open the full accountability analysis. An
         // optional per-document `spotlight` array lets curators attach specific
         // issues/events and flag whether each helps or hurts the score (impact:
@@ -4637,7 +4684,7 @@
         // and on-document entries without an impact are shown as context. Falls
         // back to a clean, honest empty state when there is nothing to show.
         var slTitle = '<div class="modal-section-title">\u{1F526} In the Spotlight · Accountability</div>' +
-          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality that feed the <strong style="color:#c4b5fd;">Accountability Score</strong>, separate from the in-office Promise % record above.</p>';
+          '<p class="modal-section-sub">The integrity read — public statements, conduct and rhetoric vs. reality. This is the stance-follow-through lane, separate from the 🏛️ Official Record (votes and formal actions) and the 🤝 Promise Follow-Through record above.</p>';
         var safeSlId = String(id || '').replace(/[^a-zA-Z0-9_-]/g, '');
         var _slLast = (p && p.name) ? String(p.name).trim().split(/\s+/).pop() : 'this official';
 
@@ -4732,12 +4779,16 @@
           var bridge = '';
           var ilabel = (o.issueKey && typeof window._issueLabel === 'function') ? window._issueLabel(o.issueKey) : '';
           if (ilabel) {
-            var jumpAlign = "event.stopPropagation();var el=document.getElementById('alignment-modal-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});";
+            // Jumps to whichever position surface is mounted. The People's Mandate
+            // scorecard this used to target is retired, and its section now renders
+            // only when a finance signal exists, so Stance at a Glance is the honest
+            // first choice for "see this position in their record".
+            var jumpAlign = "event.stopPropagation();var el=document.getElementById('pdxsec-glance')||document.getElementById('pdxsec-positions')||document.getElementById('alignment-modal-section');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});";
             var hp = o.heldPosition;
             if (hp && (hp.stance === 'support' || hp.stance === 'oppose' || hp.stance === 'mixed')) {
               var _sm = { support:{ t:'✓ Supports', c:'74,222,128' }, oppose:{ t:'✗ Opposes', c:'248,113,113' }, mixed:{ t:'~ Mixed record', c:'245,200,66' } }[hp.stance];
               bridge = '<button type="button" onclick="' + jumpAlign + '"' +
-                ' title="' + _slLast + ' holds a tracked position on this issue — tap to compare it on the People’s Mandate Alignment."' +
+                ' title="' + _slLast + ' holds a tracked position on this issue — tap to see it in their stance record."' +
                 ' style="cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem;background:linear-gradient(90deg,rgba(245,200,66,0.08),rgba(167,139,250,0.1));border:1px solid rgba(167,139,250,0.34);border-left:3px solid rgba(245,200,66,0.6);border-radius:0.55rem;padding:0.4rem 0.55rem;">' +
                 '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#e3c97a;">🔗 Expands on ' + _slLast + '’s position</span>' +
                 '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.54rem;letter-spacing:0.05em;text-transform:uppercase;color:rgb(' + _sm.c + ');background:rgba(' + _sm.c + ',0.12);border:1px solid rgba(' + _sm.c + ',0.4);padding:0.05rem 0.4rem;border-radius:999px;">' + _sm.t + '</span>' +
@@ -4867,25 +4918,27 @@
         // news feed.
         function _slIntro() {
           return '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.9rem;">' +
-            'The personal-integrity record behind ' + _slLast + '’s Accountability Score — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> read, deliberately separate from the formal Promise % (votes, bills and official pledges). ' +
-            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the Accountability of Truth Score, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to compare that stance on the People’s Mandate Alignment.' +
+            'The personal-integrity record behind ' + _slLast + '’s accountability read — public statements, conduct and notable actions that show whether the words match the actions over time. This is the <em style="color:#c4b5fd;font-style:normal;">consistency &amp; character</em> lane, deliberately separate from the 🏛️ Official Record (votes and formal actions) and from 🤝 Promise Follow-Through (discrete promises kept vs. broken). ' +
+            'Items marked <span style="color:#4ade80;font-weight:700;">▲</span>/<span style="color:#f87171;font-weight:700;">▼</span> feed the accountability analysis, and a <span style="color:#c4b5fd;font-weight:700;">🔗 issue link</span> ties an item to a position ' + _slLast + ' holds — tap it to see that stance in their record.' +
           '</p>';
         }
 
-        // Closing tie-in: a one-tap jump up to the People's Mandate Alignment
-        // scorecard in the same modal, making explicit that these issues help
-        // explain how the official aligns with a voter's values.
+        // Closing tie-in: a one-tap jump back up to whichever record surface this
+        // modal actually mounted. The People's Mandate scorecard it used to point at
+        // is retired and its section only exists when a finance signal renders, so
+        // the fallbacks land on the Say-vs-Do feed, then the Promise Tracker gateway.
+        // A button that scrolls nowhere is worse than no button.
         function _slAlignFooter() {
           return '<div style="margin-top:0.85rem;display:flex;justify-content:center;">' +
-            '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🏛️ How these shape ' + _slLast + '’s alignment ↑</button>' +
+            '<button type="button" onclick="var el=document.getElementById(\'pdxsec-saydo\')||document.getElementById(\'pdxsec-promise-tracker\')||document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">🧾 How these fit ' + _slLast + '’s record ↑</button>' +
           '</div>';
         }
 
-        // Connective sub-header that names the link to the score and offers a
-        // one-tap jump into the full analysis.
+        // Connective sub-header that names the link to the accountability analysis
+        // and offers a one-tap jump into it.
         function _slDriverHeader() {
           return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.6rem;">' +
-              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Driving the Accountability Score</span>' +
+              '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#a78bfa;">🛡️ Driving the accountability read</span>' +
               '<button type="button" onclick="if(window.viewAccountabilityAnalysis)window.viewAccountabilityAnalysis(\'' + safeSlId + '\')" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#c4b5fd;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.4);padding:0.25rem 0.6rem;border-radius:999px;white-space:nowrap;">View Score Analysis →</button>' +
             '</div>';
         }
@@ -4904,7 +4957,7 @@
           else slBody += slThemeHtml;
           if (slNews.length) slBody += _slNewsHeader() + slNews.join('');
           return '<div class="modal-section" id="spotlight-modal-section">' + slTitle + _slIntro() + slBody +
-            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the Accountability of Truth Score — tap one to see it in the score breakdown, or open the full analysis above. Sources linked inline.</p>' +
+            '<p style="font-size:0.6rem;color:#4e72a0;line-height:1.5;margin:0.5rem 0 0;text-align:center;">Issues and events tied to this official’s record. Items marked ▲/▼ feed the accountability read — tap one to see it in the breakdown, or open the full analysis. Sources linked inline.</p>' +
             _slAlignFooter() +
           '</div>';
         }
@@ -4967,7 +5020,7 @@
           '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1.4rem 1rem;text-align:center;">' +
             '<div style="font-size:1.6rem;opacity:0.45;margin-bottom:0.35rem;">\u{1F526}</div>' +
             '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.05em;text-transform:uppercase;color:#9fb4d4;">No Spotlight items yet for ' + _slLast + '</div>' +
-            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0.85rem;">As this official’s record develops, notable bills, votes, and news will appear here — and any that affect the Accountability of Truth Score will be tagged and linked to it. In the meantime, you can still judge ' + _slLast + ' by your own values.</p>' +
+            '<p style="font-size:0.62rem;color:#4e72a0;line-height:1.5;margin:0.4rem 0 0.85rem;">As this official’s record develops, notable bills, votes, and news will appear here — and any that bear on their accountability read will be tagged and linked to it. In the meantime, you can still judge ' + _slLast + ' by your own values.</p>' +
             '<button type="button" onclick="var el=document.getElementById(\'alignment-modal-section\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;color:#f3b0bd;background:rgba(192,21,42,0.12);border:1px solid rgba(192,21,42,0.42);padding:0.32rem 0.75rem;border-radius:999px;white-space:nowrap;">💰 See the funding lens ↑</button>' +
           '</div>' +
         '</div>';
