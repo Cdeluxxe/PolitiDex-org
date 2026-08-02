@@ -1583,6 +1583,207 @@ if (craCard) {
     "arrival: opening the profile closes the sheet first, so the reader is not left under a modal");
 }
 
+// ── Guard 15 · the stated position has to be independent of the vote ─────────
+// The two cards that refuted themselves on public view were both caught in
+// fields guard 10 never read. These are the live shapes, reduced to the parts
+// the guard looks at.
+{
+  const HOUSE = "https://clerk.house.gov/Votes/2025190";
+  const item = { kind: "vote", chamber: "house", source: { url: HOUSE } };
+  const B = (pos) => RC.guards.blockDependentStance(pos, item);
+
+  eq(B(null), "", "guard 15: no stated position is guard 10's business, not this one");
+  eq(B({ text: "Warns the debt is unsustainable and backs spending cuts.",
+        source: { url: "https://lankford.senate.gov/news/press-releases/" } }), "",
+    "guard 15: a standing position in the member's own terms passes");
+
+  // kclark / healthcare, as it stands in the corpus: the stance's source IS the
+  // roll call the card cites, so the two halves of the card are one document.
+  has(B({ text: "As Minority Whip, worked to hold Democrats against the One Big Beautiful Bill Act.",
+         source: { url: HOUSE } }), "the very roll call this card cites",
+    "guard 15: a stated position sourced to the cited roll call is refused");
+  has(B({ text: "Backs spending cuts.", source: { url: "http://www.clerk.house.gov/Votes/2025190/" } }),
+    "the very roll call this card cites",
+    "guard 15: scheme, www and a trailing slash do not disguise the same address");
+
+  // durbin / healthcare: a different roll call, but still a roll call — the
+  // "stated position" is a vote record however it is written up.
+  has(B({ text: "Opposed the bill over its Medicaid reductions.",
+         source: { url: "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00372.htm" } }),
+    "sourced to a roll call", "guard 15: a stated position sourced to any roll call is refused");
+
+  // The evidence field, which guard 10 does not read.
+  has(B({ text: "Backs spending cuts.", evidence: "Recorded a Nay vote on H.R. 1, Roll Call 372.",
+         source: { url: "https://example.gov/statement" } }), "evidenced by",
+    "guard 15: a position whose evidence is a measure number is vote-derived");
+  has(B({ text: "Backs spending cuts.", evidence: "Recorded a Nay vote on the measure, Roll Call 372.",
+         source: { url: "https://example.gov/statement" } }), "evidenced by a vote",
+    "guard 15: and so is one whose evidence is a roll call cited without its number");
+
+  // jeffries / national_debt: nothing in text, evidence or source names a vote.
+  // What inverts the sign is that the position is a REACTION to one bill, so the
+  // stance word records support for that bill rather than for the goal the issue
+  // names — and the card then reads the word as if it were about the goal.
+  has(B({ text: "Anchored his opposition in the CBO's ~$3.4T deficit estimate.",
+         source: { url: "https://time.com/7299967/jeffries-speech/" } }), "reaction to one bill",
+    "guard 15: a position framed as opposition to a bill cannot stand in for a position on the issue");
+  eq(B({ text: "Says the annual defense authorization ensures the military has the resources it needs.",
+        evidence: "Statement on the FY25 National Defense Authorization Act.",
+        source: { url: "https://mikejohnson.house.gov/news/documentsingle.aspx?DocumentID=1492" } }), "",
+    "guard 15: naming a bill the member has commented on is not the same as reacting to the cited one");
+
+  // Guard 10's own text test, widened to the participle that walked through it.
+  has(RC.guards.blockStance("Advanced border bills, voting for the Laken Riley Act."),
+    "written as a vote", "guard 15: 'voting for' is the same circular receipt as 'voted for'");
+  eq(RC.guards.blockStance("A fiscal conservative who publishes an annual waste report."), "",
+    "guard 15: and prose that merely describes a record still passes");
+}
+
+// ── Guard 17 · measure↔issue topical holds ────────────────────────────────
+{
+  const P = RC.guards.wave1HoldPair;
+
+  eq(P(null, "tech_balance"), "", "guard 17: no item is not a mismatch");
+  eq(P({ number: "S. 1582" }, ""), "", "guard 17: no issue key is not a mismatch");
+
+  has(P({ number: "S. 1582" }, "tech_balance"), "stablecoin",
+    "guard 17: AI-guardrail stances judged by the GENIUS Act are held");
+  has(P({ number: "S. 1582" }, "tech_innovation"), "semiconductors",
+    "guard 17: chip-manufacturing stances judged by the GENIUS Act are held");
+  has(P({ number: "S. 146" }, "tech_balance"), "content-removal",
+    "guard 17: right-to-repair and export-control stances judged by TAKE IT DOWN are held");
+  has(P({ number: "H.R. 28" }, "public_schools"), "athletic eligibility",
+    "guard 17: a school-funding stance judged by a Title IX sports bill is held");
+  has(P({ number: "H.Amdt. 251" }, "foreign_balance"), "joint military exercises",
+    "guard 17: an arms-transfer stance judged by an exercise-cost amendment is held");
+  has(P({ number: "H.Amdt. 255" }, "healthcare"), "military health coverage",
+    "guard 17: a health-disparities stance judged by a TRICARE exclusion is held");
+  has(P({ number: "H.R. 3633" }, "econ_growth"), "digital-asset",
+    "guard 17: a domestic-manufacturing stance judged by a crypto market bill is held");
+
+  // The hold is per PAIR, not per key and not per measure — a repaired mapping
+  // lifts one card cluster and leaves the rest of the ledger untouched.
+  eq(P({ number: "S. 1582" }, "crypto_cbdc"), "",
+    "guard 17: the GENIUS Act still judges stances that are actually about stablecoins");
+  eq(P({ number: "H.R. 28" }, "lgbtq_rights"), "",
+    "guard 17: the same measure's on-point mapping is untouched");
+  eq(P({ number: "H.R. 1" }, "tech_balance"), "",
+    "guard 17: the same key under a different measure is untouched");
+  eq(P({ number: "H.R. 8800" }, "strong_defense"), "",
+    "guard 17: an on-topic pair is not held");
+
+  // Every key in the table must be the "<number> :: <issueKey>" shape the
+  // lookup builds, or the entry is dead weight that reads as a live hold.
+  for (const k of Object.keys(RC.guards.wave1HoldPairs)) {
+    ok(/^[^:]+ :: [a-z0-9_]+$/.test(k), "guard 17: hold key is well formed — " + k);
+    ok(String(RC.guards.wave1HoldPairs[k]).indexOf("held out of wave 1") === 0,
+      "guard 17: hold reason states it is a wave-1 hold — " + k);
+  }
+}
+
+// ── Guard 18 · curator housekeeping must not reach public text ────────────
+{
+  const P = RC.guards.publicRationale;
+
+  eq(P(""), "", "guard 18: nothing in, nothing out");
+  eq(P("Tightens immigration enforcement."), "Tightens immigration enforcement.",
+    "guard 18: a clean rationale is returned unchanged");
+
+  // The weighting frame goes; the caveat inside it stays, with its capital back.
+  eq(P("FY2027 National Defense Authorization Act — authorizes DoD military activities; a yea funds the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal."),
+     "FY2027 National Defense Authorization Act — authorizes DoD military activities; a yea funds the armed forces. This NDAA also carries unrelated social-policy riders, so passage is not a pure defense-posture signal.",
+    "guard 18: the weighting frame and its row cross-reference go, the caveat stays");
+  has(P("Reauthorizes demonstration authority. Weighted below a full-strength mapping on purpose: this is program administration, not a vote on benefit levels."),
+    "This is program administration, not a vote on benefit levels.",
+    "guard 18: an 'on purpose:' weighting frame is lifted the same way");
+  has(P("Continues federal spending at existing levels. Weighted low on purpose: the alternative on the floor was a lapse in appropriations, not spending cuts."),
+    "The alternative on the floor was a lapse in appropriations",
+    "guard 18: so is a weighting note with no number in it");
+  lacks(P("Would strike the appropriation; a yea defunds international climate finance. Weighted 75 because it is a single line item rather than a change in domestic climate policy."),
+    "Weighted", "guard 18: no weighting language survives in any form");
+
+  // Curator filing notes go whole — they are about the ledger, not the world.
+  lacks(P("Bars a district court from granting relief broader than the parties before it. Previously filed under \"Balance the Budget\", which the bill does not touch."),
+    "Previously filed", "guard 18: a 'previously filed under' note is dropped entirely");
+  lacks(P("A yea preserves that state option. Matches the direction already carried by this bill's \"Dual federal–state oversight\" provision row, which had no measure-level counterpart."),
+    "provision row", "guard 18: so is a cross-reference to a provision row the reader cannot see");
+  has(P("A yea preserves that state option. Matches the direction already carried by this bill's \"Dual federal–state oversight\" provision row, which had no measure-level counterpart."),
+    "A yea preserves that state option.", "guard 18: and the substantive sentence in front of it survives");
+
+  // Disclosure is about the world and is protected.
+  has(P("Recorded as a yea cutting against judicial checks on the executive; supporters make the opposite case, that one district judge should not set national policy. Previously filed under \"Balance the Budget\", which the bill does not touch."),
+    "supporters make the opposite case",
+    "guard 18: genuine public disclosure is not housekeeping and is kept");
+  has(P("Secondary: the same package also carries federal housing-assistance provisions, so a yea advances housing affordability."),
+    "The same package also carries", "guard 18: an internal section label is stripped and the sentence recapitalised");
+  lacks(P("Secondary: the same package also carries federal housing-assistance provisions, so a yea advances housing affordability."),
+    "Secondary:", "guard 18: and the label itself does not print");
+
+  // The backstop: anything the sanitizer does not know how to clean is refused
+  // rather than published.
+  const B = RC.guards.blockHousekeeping;
+  eq(B({ number: "H.R. 1", issues: [{ issueKey: "x", rationale: "Cuts federal spending." }] }, "x"), "",
+    "guard 18: a clean mapping is not blocked");
+  has(B({ number: "H.R. 1", title: "Weighted differently in the ledger" ,
+          issues: [{ issueKey: "x", rationale: "Cuts federal spending." }] }, "x"),
+    "measure title carries curator housekeeping",
+    "guard 18: housekeeping in the title is refused — no sanitizer touches the title");
+}
+
+// ── The public share gate ─────────────────────────────────────────────────
+{
+  const G = RC.publicShareBlock, T = RC.publicTier;
+  const base = () => ({
+    hasOffice: true, party: { label: "R" }, date: "2025-07-03",
+    source: { url: "https://clerk.house.gov/Votes/2025190" }, verifyUrl: "clerk.house.gov/Votes/2025190",
+    said: { text: "A fiscal conservative who backs spending cuts.", word: "Supports" },
+    facts: "Rescinds previously appropriated funds, cutting federal spending. — House · passed",
+    issueKey: "cut_spending", measureNumber: "H.R. 4", recordSummary: { total: 4 }
+  });
+
+  eq(G(null), "no card", "gate: nothing is not public");
+  eq(G(base()), "", "gate: a complete, deep, clean card is public");
+  eq(T(base()), "core", "gate: and four judged votes make it core");
+
+  const thin = base(); thin.recordSummary = { total: 1 };
+  eq(G(thin), "", "gate: one judged vote does not block — depth is preferred, not required");
+  eq(T(thin), "thin", "gate: it is labelled thin instead");
+
+  const noOffice = base(); noOffice.hasOffice = false;
+  has(G(noOffice), "member profile is incomplete", "gate: a card with no office line is not public");
+  eq(T(noOffice), "", "gate: and has no tier");
+  const noParty = base(); noParty.party = null;
+  has(G(noParty), "member profile is incomplete", "gate: nor is one with no party");
+  const noDate = base(); noDate.date = "";
+  has(G(noDate), "no vote date", "gate: nor is one with no vote date");
+  const noCite = base(); noCite.verifyUrl = "";
+  has(G(noCite), "no citation", "gate: nor is one a reader could not check");
+  const noSaid = base(); noSaid.said = { text: "  " };
+  has(G(noSaid), "no stated position", "gate: nor is one with nothing on the said side");
+
+  // The four trust criteria, re-asserted on the finished text.
+  const leaky = base(); leaky.facts = "Cuts spending. Weighted 60 rather than 100. — House · passed";
+  has(G(leaky), "curator housekeeping", "gate: housekeeping in the finished facts is caught at the door");
+  const circular = base(); circular.said = { text: "Voted for the Laken Riley Act.", word: "Supports" };
+  has(G(circular), "reads as a vote", "gate: a stance that is itself a vote is caught at the door");
+  const held = base(); held.issueKey = "gov_regulation";
+  has(G(held), "held out of wave 1", "gate: an umbrella issue key is not public");
+  const mismatch = base(); mismatch.issueKey = "tech_balance"; mismatch.measureNumber = "S. 1582";
+  has(G(mismatch), "held out of wave 1", "gate: a topical mismatch is not public");
+
+  // The starter five must survive the gate on the test fixture's own terms:
+  // the gate is a filter over cardsFor, never a separate list that can drift.
+  const built = RC.cardsFor("testrep");
+  const gated = RC.publicCardsFor("testrep");
+  ok(gated.length <= built.length, "gate: the public set is a subset of the built set");
+  gated.forEach(c => eq(G(c), "", "gate: every card it returns passes it — " + c.issueKey));
+  // Core before thin, so a surface taking the first card takes the strongest.
+  const tiers = gated.map(T);
+  ok(tiers.indexOf("thin") === -1 || tiers.indexOf("core") === -1 ||
+     tiers.lastIndexOf("core") < tiers.indexOf("thin"),
+    "gate: core cards are offered before thin ones");
+}
+
 // Reading the record must not mutate it.
 const recBefore = JSON.stringify(RECORDS);
 RC.audit("testrep"); RC.cardsFor("testrep"); RC.omnibus("testrep", "H.R. 1");

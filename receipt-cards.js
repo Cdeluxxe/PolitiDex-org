@@ -91,8 +91,102 @@
   // public wave either. Separate from BLOCKED_ISSUE_KEYS so the audit can say
   // which of the two it is, and so lifting a hold does not touch a guard.
   var WAVE1_HOLD_ISSUE_KEYS = {
-    america_first_fp: 'held out of wave 1 — the key still carries two readings (America-First framing and war-powers restraint), and a finished card cannot show which one the verdict was scored against'
+    america_first_fp: 'held out of wave 1 — the key still carries two readings (America-First framing and war-powers restraint), and a finished card cannot show which one the verdict was scored against',
+    // Three more of the same shape, found by reading every stance behind a live
+    // card on each key. The test is the `tariffs_authority` test above: can ONE
+    // measure mapping be right for every stance filed here? Where the answer is
+    // no, the key is an umbrella and the verdict is an accident of filing.
+    //
+    //   gov_regulation (42 cards, 22 members) — "Supports" is filed both by
+    //   members who want LESS regulation (Johnson's "commonsense deregulation",
+    //   Chip Roy on the administrative state) and by members who want MORE of it
+    //   (Klobuchar on antitrust, Peters on cyber-incident reporting, Pallone
+    //   "resisting broad deregulation"). A deregulatory CRA scores the first
+    //   group consistent and the second group consistent for the opposite reason.
+    //
+    //   states_federal_power (14 cards, 11 members) — the stances are about
+    //   different federal–state boundaries entirely: hemp rules, state AI laws,
+    //   western water, coal-ash permits, immigration enforcement. S. 1582's
+    //   stablecoin opt-in cannot adjudicate any of them but the one.
+    //
+    //   checks_balances (19 cards, 14 members) — collects war powers (Massie,
+    //   Khanna, AOC), nationwide injunctions (Jordan, Jayapal), the power of the
+    //   purse (Cole, Womack, Simpson) and tariff emergency powers (Jason Smith).
+    //   Mike Johnson is filed "Opposes" for saying the War Powers Act is
+    //   unconstitutional, then judged by a nationwide-injunctions bill.
+    //
+    // Held rather than blocked: none of these keys is broken in the way
+    // `tariffs_authority` is — they are over-broad, and splitting them is
+    // curation work, not a code fix.
+    gov_regulation: 'held out of wave 1 — the key collects pro-deregulation and pro-regulation stances under the same "Supports", so one measure mapping scores both as matching',
+    states_federal_power: 'held out of wave 1 — the stances filed here concern unrelated federal–state boundaries, so the cited vote settles at most one of them',
+    checks_balances: 'held out of wave 1 — the key spans war powers, nationwide injunctions and the power of the purse, and a finished card cannot show which of them the verdict was scored against'
   };
+
+  // ── Guard 17 · the stance and the vote are about different subjects ───────
+  // The umbrella-key holds above catch keys whose SAID side is incoherent. This
+  // catches the other direction: a key whose said side is perfectly coherent,
+  // paired with a measure that is about something else. The mapping may be a
+  // defensible aggregate signal inside the app; off-app it prints a member's
+  // position on subject A above a roll call on subject B.
+  //
+  // Every entry below was found by reading the stances behind the live cards on
+  // that pair against the measure's own title, not by string overlap. Keyed by
+  // "<measure number> :: <issue key>" so a repaired mapping lifts one pair, not
+  // a whole key, and so the audit can name the mismatch.
+  //
+  // Not repaired here: the request for this pass is explicit that new mappings
+  // are not to be invented, and none of these has an existing curated rationale
+  // that would support a corrected one.
+  var WAVE1_HOLD_PAIRS = {
+    // 31 cards. Every stance filed here is about AI, platform or child-safety
+    // guardrails — Wyden on algorithmic-impact assessments, Blackburn on the
+    // Kids Online Safety Act, Markey on children's online privacy. The GENIUS
+    // Act is a stablecoin reserve-and-disclosure statute. It does not adjudicate
+    // any of them.
+    'S. 1582 :: tech_balance': 'held out of wave 1 — the stances on this key are about AI and platform guardrails while the cited vote is a stablecoin statute, so the card would pair a position with a roll call on a different subject',
+    // 4 cards, 2 members, both of them CHIPS and Science Act authors writing
+    // about semiconductors and export controls.
+    'S. 1582 :: tech_innovation': 'held out of wave 1 — the stances on this key are about semiconductors and domestic chip manufacturing while the cited vote is a stablecoin statute',
+    // 10 cards. TAKE IT DOWN is a non-consensual-imagery takedown mandate; the
+    // stances behind it include right-to-repair, autonomous-systems policy and
+    // semiconductor export controls.
+    'S. 146 :: tech_balance': 'held out of wave 1 — the stances on this key range from right-to-repair to export controls while the cited vote is a content-removal mandate, so one mapping cannot be right for them',
+    // 2 cards. The measure is the Protection of Women and Girls in Sports Act;
+    // the stance is about school funding and student achievement. The same
+    // measure's lgbtq_rights mapping is on point and still ships.
+    'H.R. 28 :: public_schools': 'held out of wave 1 — the stance is about school funding and student achievement while the cited vote is on athletic eligibility under Title IX',
+    // 2 cards. H.Amdt. 251 (Crane) bars DoD from paying foreign personnel costs
+    // in joint exercises; the stance is about conditioning arms transfers.
+    'H.Amdt. 251 :: foreign_balance': 'held out of wave 1 — the stance is about conditioning arms transfers while the cited vote is on who pays for joint military exercises',
+    // 1 card. H.Amdt. 255 (Mace) excludes gender-related care from TRICARE; the
+    // stance is about minority health disparities.
+    'H.Amdt. 255 :: healthcare': 'held out of wave 1 — the stance is about minority health disparities while the cited vote narrows a specific category of military health coverage',
+    // 2 cards. The Digital Asset Market Clarity Act against a stance about
+    // rebuilding domestic manufacturing and chips.
+    'H.R. 3633 :: econ_growth': 'held out of wave 1 — the stances on this key are about domestic manufacturing while the cited vote is a digital-asset market-structure bill'
+  };
+
+  // ── Guard 16 · a mapping that records a framing, not an effect ────────────
+  // Some curated rationales do not say what the measure does. They say what one
+  // side SAID it does — and several say so explicitly:
+  //
+  //   H.J.Res. 88 · energy_production — "Supporters framed it as protecting
+  //   consumer choice and gasoline-vehicle access."   (39 live cards)
+  //   H.R. 1919 · tech_balance — "Recorded neutrally: critics argue a blanket
+  //   bar forecloses a payments technology other central banks are piloting."
+  //
+  // The curator's own words disclaim the directional claim; the card then prints
+  // that mapping as a verdict with a stamp on it. "Recorded neutrally" means
+  // recorded, not judged, and a share card is nothing but a judgment.
+  //
+  // Only mappings that LEAD with the framing are refused. A rationale that
+  // states the measure's own effect and then notes how a side characterised it
+  // — "Creates the first comprehensive U.S. market-structure regime for digital
+  // assets, which supporters say ends regulatory limbo" — is a fact with context
+  // attached, and it still ships.
+  var RATIONALE_NEUTRAL_RE = /recorded neutrally/i;
+  var RATIONALE_FRAMING_RE = /^\s*(?:framed by\s+)?(?:supporters?|opponents?|critics?|detractors?|proponents?|some\s+[a-z-]+(?:\s+[a-z-]+)?\s+(?:groups?|advocates?|universities|organizations?))\b/i;
 
   // ── Guard 4 · america_first_fp resting on a restraint position ────────────
   // `america_first_fp` is doing double duty, and the ledger shows it on BOTH
@@ -128,7 +222,10 @@
   // consistency.js locks. Any stance text that cites a measure number or opens
   // with a vote verb is refused as a SAID side.
   var MEASURE_CITE_RE = /\b(?:H\.?R\.?|S\.?|H\.?J\.?\s?Res\.?|S\.?J\.?\s?Res\.?|H\.?\s?Res\.?|S\.?\s?Res\.?|H\.?\s?Amdt\.?|S\.?\s?Amdt\.?|P\.?N\.?)\s?\d+/i;
-  var VOTE_VERB_RE = /\b(voted|vote[sd]? (?:for|against)|cosponsor|co-sponsor|sponsored|roll call)\b/i;
+  // "voting for the Laken Riley Act" is the same circular receipt as "voted for"
+  // it, and the old pattern read only the past tense — one live stance walked
+  // through the gap on that participle alone.
+  var VOTE_VERB_RE = /\b(vot(?:ed|ing)|vote[sd]? (?:for|against)|cosponsor|co-sponsor|sponsored|roll call)\b/i;
 
   // ── Guard 11 · duplicated measure identity ────────────────────────────────
   // Two vr_measures rows for the same bill number each carried the same curated
@@ -138,6 +235,42 @@
   // the client-side backstop for a database that has not applied it yet: if the
   // warm record set shows one bill NUMBER arriving under two different
   // measureIds on the same issue, no card cites that bill.
+
+  // ── Guard 15 · a stated position that is not independent of the vote ──────
+  // Guard 10 asks whether the SAID text is a vote. It reads one field. A stance
+  // row also carries `evidence` and `source`, and the two cards known to refute
+  // themselves on public view are both caught there rather than in the text:
+  //
+  //   kclark / healthcare — evidence "H.R. 1 passed 218–214, Roll Call 190",
+  //   source https://clerk.house.gov/Votes/2025190. That URL is, character for
+  //   character, the citation the card prints as the DID side. The card compares
+  //   a vote to a description of that same vote and stamps the result a
+  //   contradiction.
+  //
+  //   jeffries / national_debt — "Anchored HIS OPPOSITION in the CBO's ~$3.4T
+  //   deficit …". Opposition to H.R. 1, sourced to a TIME piece about the H.R. 1
+  //   speech. Filed as `national_debt: oppose`, which the engine reads as
+  //   opposing the GOAL, so his Nay on the debt-increasing bill scores as a
+  //   contradiction while the printed quote plainly agrees with the printed vote.
+  //
+  // Both are the same root cause: `issueStance` recording a position on a BILL
+  // where the issue key names a GOAL. That inverts the sign whenever the two
+  // point opposite ways, and it is not repairable from the sources on file —
+  // TIME establishes that Jeffries attacked H.R. 1 partly on deficit grounds,
+  // not that he holds debt reduction as an aim. So this refuses rather than
+  // rewrites: the four signals below are structural, they only ever remove a
+  // card, and a false positive costs a share instead of a reader's trust.
+  var ROLLCALL_URL_RE = /(clerk\.house\.gov\/votes\/|senate\.gov\/legislative\/lis\/roll_call_votes\/|roll_?call)/i;
+  // A standing position is stated in the member's own terms ("warns the debt is
+  // unsustainable"). These read instead as a reaction aimed at one legislative
+  // vehicle, which is a description of a vote however it is phrased. Deliberately
+  // narrow — three stances in the live corpus match, and all three are circular.
+  var REACTION_RE = [
+    /\b(?:his|her|their)\s+(?:opposition|support)\b/i,
+    /\bopposition to\b/i,
+    /\b(?:hold|held|holding|rally|rallied|whipp?(?:ed|ing)?)\b[^.;]{0,40}\bagainst\b/i,
+    /\b(?:against|behind|for) the\b[^.,;]{0,70}\bAct\b/i
+  ];
 
   // ══════════════════════════════════════════════════════════════════════════
   // small helpers — all read-only, all guarded (every source loads async)
@@ -277,6 +410,15 @@
     var print = printableUrl(url);
     if (!print || print.length > VERIFY_MAX) return null;
     return { url: url, print: print, label: label };
+  }
+  // Two addresses that resolve to the same page. Scheme, www and a trailing
+  // slash are the only differences the ledger actually shows between a stance
+  // source and the citation built from a roll call, so those are the only ones
+  // normalised — nothing about the path is loosened.
+  function sameAddress(a, b) {
+    var f = function (u) { return printableUrl(u).replace(/\/+$/, '').toLowerCase(); };
+    var x = f(a), y = f(b);
+    return !!x && x === y;
   }
   // The public roll-call page for this vote, or null when one cannot be derived.
   function canonicalCitation(item) {
@@ -507,6 +649,77 @@
     return t;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // Curator housekeeping vs public disclosure
+  // ══════════════════════════════════════════════════════════════════════════
+  // `vr_measure_issues.rationale` is a working field. It carries the sentence a
+  // card needs — what the measure does — and, in seventeen places, notes the
+  // curators wrote to each other: how heavily the mapping is weighted, which
+  // issue it used to be filed under, which provision row it lines up with.
+  // Inside the app those notes are provenance sitting next to the thing they
+  // qualify. On a card that has left the app they are a stranger's filing system
+  // printed as if it were a finding, and the weighting numbers in particular
+  // invite a reader to think a score they cannot see decided the verdict.
+  //
+  // The line between the two is whether the sentence is about the WORLD or about
+  // the LEDGER. "Supporters make the opposite case, that one district judge
+  // should not set national policy" is about the world: it is disclosure, it
+  // stays, and nothing below touches it. "Weighted 80 rather than 100" is about
+  // the ledger and goes.
+  //
+  // Where a housekeeping note carries a real caveat inside it, the caveat is
+  // kept and only the bookkeeping frame is removed — "Weighted 80 rather than
+  // 100 because this NDAA also carries unrelated social-policy riders (see
+  // H.Amdt. 254-256), so passage is not a pure defense-posture signal" ships as
+  // "This NDAA also carries unrelated social-policy riders, so passage is not a
+  // pure defense-posture signal." No word is added; the frame is cut, the
+  // remainder is given its capital back, and the seam is repaired by the same
+  // tidyRemainder that repairs the disapproval cut.
+  var HOUSEKEEPING_SENTENCE_RE = /(?:^|(?<=[.!?])\s*)[^.!?]*\b(?:previously filed under|provision row|no measure-level counterpart)\b[^.!?]*[.!?]\s*/gi;
+  var WEIGHT_FRAME_RE = /\bWeighted\b[^.!?]*?(?:\bon purpose\s*:|\bbecause\b|:)\s*/i;
+  var WEIGHT_SENTENCE_RE = /(?:^|(?<=[.!?])\s*)\s*Weighted\b[^.!?]*[.!?]\s*/gi;
+  var LABEL_PREFIX_RE = /^(?:secondary|primary|note|internal)\s*:\s*/i;
+  var XREF_PAREN_RE = /\s*\((?:see|cf\.?)\s[^)]*\)/gi;
+  // What must never survive into public text, whatever shape it arrives in.
+  var HOUSEKEEPING_LEAK_RE = /\b(?:weighted|previously filed under|provision row|recorded neutrally)\b|^(?:secondary|primary|note|internal)\s*:/i;
+
+  function publicRationale(raw) {
+    var t = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    t = t.replace(XREF_PAREN_RE, '');
+    t = t.replace(HOUSEKEEPING_SENTENCE_RE, '');
+    // Lift the caveat out of the weighting frame before dropping any sentence
+    // that is nothing but a weighting note.
+    var w = t.match(WEIGHT_FRAME_RE);
+    if (w) {
+      var head = t.slice(0, w.index);
+      var rest = t.slice(w.index + w[0].length);
+      if (rest) rest = rest.charAt(0).toUpperCase() + rest.slice(1);
+      t = tidyRemainder(head) + (head && rest ? ' ' : '') + rest;
+    }
+    t = t.replace(WEIGHT_SENTENCE_RE, '');
+    t = t.replace(LABEL_PREFIX_RE, '');
+    t = t.replace(/\s+/g, ' ').trim();
+    if (t) t = t.charAt(0).toUpperCase() + t.slice(1);
+    return tidyRemainder(t);
+  }
+
+  // Guard 18: does any public text still read as a note between curators?
+  // The sanitizer above knows the seventeen phrasings on file today. It cannot
+  // know the eighteenth, so the card is refused rather than published when a
+  // marker survives — including in the measure title, which no sanitizer touches.
+  function blockHousekeeping(item, issueKey) {
+    var m = mappingOn(item, issueKey);
+    var rat = publicRationale(m && m.rationale);
+    if (rat && HOUSEKEEPING_LEAK_RE.test(rat)) {
+      return 'the curated rationale still carries curator housekeeping after cleanup — internal weighting or filing notes cannot print as public evidence';
+    }
+    if (HOUSEKEEPING_LEAK_RE.test(String((item && item.title) || ''))) {
+      return 'the measure title carries curator housekeeping — internal notes cannot print as public evidence';
+    }
+    return '';
+  }
+
   function blockPlainEffect(item, issueKey) {
     if (!isDisapproval(item)) return '';
     if (yeaEffect(item, mappingOn(item, issueKey))) return '';
@@ -550,12 +763,59 @@
     return WAVE1_HOLD_ISSUE_KEYS[issueKey] || '';
   }
 
+  // Guard 17: is the cited measure about the same subject as the stance?
+  function wave1HoldPair(item, issueKey) {
+    var n = item && item.number ? String(item.number) : '';
+    if (!n || !issueKey) return '';
+    return WAVE1_HOLD_PAIRS[n + ' :: ' + issueKey] || '';
+  }
+
   // Guard 10: is this SAID side a stated position, rather than a vote?
   function blockStance(text) {
     var s = String(text || '').trim();
     if (!s) return 'no stated position on this issue to line the vote up against';
     if (MEASURE_CITE_RE.test(s)) return 'stated position cites a measure number — it is itself vote-derived, so the card would be circular';
     if (VOTE_VERB_RE.test(s)) return 'stated position is written as a vote — it is itself vote-derived, so the card would be circular';
+    return '';
+  }
+
+  // Guard 15: is this SAID side independent of the vote the card judges it against?
+  function blockDependentStance(pos, item) {
+    if (!pos) return '';
+    var surl = String((pos.source && pos.source.url) || '');
+    var cit = canonicalCitation(item);
+    var curl = cit ? cit.url : '';
+    if (surl && curl && sameAddress(surl, curl)) {
+      return 'stated position is sourced to the very roll call this card cites — the two halves are one document';
+    }
+    if (ROLLCALL_URL_RE.test(surl)) {
+      return 'stated position is sourced to a roll call — it is itself a vote, so the card would be circular';
+    }
+    var ev = String(pos.evidence || '');
+    if (ev) {
+      if (MEASURE_CITE_RE.test(ev)) return 'stated position is evidenced by a measure number — it is itself vote-derived, so the card would be circular';
+      if (VOTE_VERB_RE.test(ev)) return 'stated position is evidenced by a vote — it is itself vote-derived, so the card would be circular';
+    }
+    var txt = String(pos.text || '');
+    for (var i = 0; i < REACTION_RE.length; i++) {
+      if (REACTION_RE[i].test(txt)) {
+        return 'stated position reads as a reaction to one bill rather than a position on the issue — the stance word records support for or against that bill, not the goal, so the verdict can invert';
+      }
+    }
+    return '';
+  }
+
+  // Guard 16: does the mapping this card rests on state an effect, or a framing?
+  function blockFramedMapping(item, issueKey) {
+    var m = mappingOn(item, issueKey);
+    var r = m && m.rationale ? String(m.rationale) : '';
+    if (!r) return '';
+    if (RATIONALE_NEUTRAL_RE.test(r)) {
+      return 'the curated rationale for this mapping is recorded neutrally — it notes how a side characterised the measure rather than what the measure does, so it cannot carry a verdict';
+    }
+    if (RATIONALE_FRAMING_RE.test(r)) {
+      return "the curated rationale for this mapping leads with one side's framing rather than the measure's own effect, so the card would print an argument as a finding";
+    }
     return '';
   }
 
@@ -673,7 +933,7 @@
   var FACTS_PROTECTED = 2;
   function supportingParts(item, mapping) {
     var parts = [];
-    var rat = (mapping && mapping.rationale) ? String(mapping.rationale).replace(/\s+/g, ' ').trim() : '';
+    var rat = publicRationale(mapping && mapping.rationale);
     if (isDisapproval(item)) {
       var eff = yeaEffect(item, mapping);
       if (eff) {
@@ -811,13 +1071,17 @@
             blockIssue(pid, issueKey, pos && pos.text, item) ||
             (pos ? '' : 'no stated position on this issue to line the vote up against') ||
             blockStance(pos && pos.text) ||
+            blockDependentStance(pos, item) ||
             blockRecord(item) ||
             blockCitation(item) ||
             blockUnverifiedCitation(item) ||
             blockPlainEffect(item, issueKey) ||
+            blockFramedMapping(item, issueKey) ||
+            blockHousekeeping(item, issueKey) ||
             blockDuplicateIdentity(records, issueKey, item.number) ||
             stableVerdict(summary, want) ||
-            wave1Hold(issueKey);
+            wave1Hold(issueKey) ||
+            wave1HoldPair(item, issueKey);
           out.push(cand);
         });
     });
@@ -962,6 +1226,93 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE PUBLIC SHARE GATE  ·  eighteen guards decide what a card may SAY;
+  // this decides what leaves the building
+  // ──────────────────────────────────────────────────────────────────────────
+  // Everything above is about truth: a card that survives the guard chain is one
+  // whose stance, mapping, citation and verdict all hold up. That is necessary
+  // and it is not sufficient. A card can be entirely true and still be the wrong
+  // thing to put in front of a stranger — a member with one judged vote on the
+  // issue, where the verdict is a single roll call wearing the clothes of a
+  // pattern; a member whose own record in the app is incomplete, so the card
+  // prints without a party chip or an office line and looks like a draft.
+  //
+  // So the public set is gated a second time, and gated by allowlist: a card
+  // ships because it cleared this list, not because nothing objected. Adding a
+  // criterion here can only ever shrink the public set, and a card that stops
+  // meeting one stops shipping the moment the data changes — there is no stored
+  // list of blessed cards to go stale.
+  //
+  // The four hard criteria are the four the trust pass was run to establish:
+  // confirmed citation (guard 14), no sign inversion (guard 15), no topical
+  // mismatch (guards 16, 17 and the wave-1 key holds), no curator housekeeping
+  // (guard 18). All four are enforced upstream, so a built card already has
+  // them; they are re-asserted here on the finished text rather than trusted,
+  // because this is the last place to catch a renderer that reintroduced one.
+  //
+  // The fifth criterion — "≥2 judged votes" — is asked for as PREFERRED, not
+  // required, and it is treated that way: it ranks and labels rather than
+  // blocks. A single judged vote is not false, it is thin, and the honest
+  // handling of thin is to stop leading with it, not to pretend it is not there.
+  var PUBLIC_MIN_JUDGED = 2;
+
+  function publicShareBlock(card) {
+    if (!card) return 'no card';
+    if (!card.hasOffice || !card.party || !card.party.label) {
+      return 'member profile is incomplete — the card would print without party or office and read as a draft';
+    }
+    if (!card.date) return 'no vote date to print';
+    if (!card.source || !card.source.url || !card.verifyUrl) return 'no citation a reader could follow';
+    if (!card.said || !String(card.said.text || '').trim()) return 'no stated position to line the vote up against';
+    // Re-assert the trust criteria on the finished public text.
+    if (HOUSEKEEPING_LEAK_RE.test(String(card.facts || ''))) {
+      return 'finished fact text still carries curator housekeeping';
+    }
+    var circular = blockStance(card.said.text);
+    if (circular) return 'finished stance text reads as a vote — ' + circular;
+    if (WAVE1_HOLD_ISSUE_KEYS[card.issueKey]) return WAVE1_HOLD_ISSUE_KEYS[card.issueKey];
+    var pair = WAVE1_HOLD_PAIRS[String(card.measureNumber) + ' :: ' + card.issueKey];
+    if (pair) return pair;
+    return '';
+  }
+
+  // 'core'  — public and backed by a record, the set to publish FROM
+  // 'thin'  — public and true, but one judged vote deep; shareable in the app,
+  //           not something to lead a campaign with
+  // ''      — not public
+  function publicTier(card) {
+    if (publicShareBlock(card)) return '';
+    var total = (card.recordSummary && card.recordSummary.total) || 0;
+    return total >= PUBLIC_MIN_JUDGED ? 'core' : 'thin';
+  }
+
+  // Public cards, deepest record first, so a host surface that takes the first
+  // one takes the strongest one.
+  function publicCardsFor(pid, opts) {
+    return cardsFor(pid, opts)
+      .filter(function (c) { return !publicShareBlock(c); })
+      .sort(function (a, b) {
+        var d = (publicTier(a) === 'core' ? 0 : 1) - (publicTier(b) === 'core' ? 0 : 1);
+        return d || (b.score || 0) - (a.score || 0);
+      });
+  }
+  function publicOmnibus(pid, number) {
+    var o = omnibus(pid, number);
+    return (o && !publicShareBlock(o)) ? o : null;
+  }
+  // Why a BUILT card is not public, and how deep the ones that are go. Cards
+  // that never built are already in audit() with the guard reason that stopped
+  // them.
+  function publicAudit(pid) {
+    return cardsFor(pid).map(function (c) {
+      var r = publicShareBlock(c);
+      return { pid: c.pid, issueKey: c.issueKey, measure: c.measureNumber || '',
+               verdict: c.verdict && c.verdict.key, judged: (c.recordSummary || {}).total || 0,
+               tier: publicTier(c), publicEligible: !r, reason: r || 'public' };
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // WARMING  ·  the record has to be in the sync cache before a card exists
   // ──────────────────────────────────────────────────────────────────────────
   // Mirrors consistency.js's queueWarm: one attempt per member, resolves to
@@ -1069,14 +1420,23 @@
   // The one place a button's attributes are turned into a card, used by BOTH the
   // hydrator and the click delegate — so what a button reveals and what it shares
   // can never be two different things.
+  //
+  // This is also where the public gate becomes real rather than advisory. The
+  // affordance is the only sanctioned way out of the app, so filtering here
+  // filters every surface at once, and a card that is true but not cleared for
+  // the public wave simply has no Share button. When the host asked for a
+  // member's best card and that card is not public, the next public one is
+  // offered rather than none — the gate narrows what leaves, it does not
+  // silently drop a member who has a publishable card further down the list.
   function cardForButton(btn) {
     if (!btn) return null;
     var pid = btn.getAttribute('data-pid');
     if (!pid) return null;
     var iss = btn.getAttribute('data-issue') || '';
     var num = btn.getAttribute('data-measure') || '';
-    if (num) return omnibus(pid, num);
-    return iss ? find(pid, iss) : find(pid);
+    if (num) return publicOmnibus(pid, num);
+    var list = publicCardsFor(pid, iss ? { issueKey: iss } : {});
+    return list.length ? list[0] : null;
   }
 
   function dropBtn(btn) { if (btn && btn.parentNode) btn.parentNode.removeChild(btn); }
@@ -1214,6 +1574,13 @@
     omnibus: omnibus,
     find: find,
     audit: audit,
+    // public share gate — the tightened wave-1 allowlist
+    publicCardsFor: publicCardsFor,
+    publicOmnibus: publicOmnibus,
+    publicAudit: publicAudit,
+    publicShareBlock: publicShareBlock,
+    publicTier: publicTier,
+    PUBLIC_MIN_JUDGED: PUBLIC_MIN_JUDGED,
     // actions
     warm: warm,
     share: share,
@@ -1229,16 +1596,22 @@
       blockRecord: blockRecord,
       blockIssue: blockIssue,
       blockStance: blockStance,
+      blockDependentStance: blockDependentStance,
       blockCitation: blockCitation,
       blockUnverifiedCitation: blockUnverifiedCitation,
       unresolvedCitations: UNRESOLVED_CITATIONS,
       blockPlainEffect: blockPlainEffect,
+      blockFramedMapping: blockFramedMapping,
+      blockHousekeeping: blockHousekeeping,
+      publicRationale: publicRationale,
       blockDuplicateIdentity: blockDuplicateIdentity,
       stableVerdict: stableVerdict,
       wave1Hold: wave1Hold,
+      wave1HoldPair: wave1HoldPair,
       blockedMeasureTypes: BLOCKED_MEASURE_TYPES,
       blockedIssueKeys: BLOCKED_ISSUE_KEYS,
       wave1HoldIssueKeys: WAVE1_HOLD_ISSUE_KEYS,
+      wave1HoldPairs: WAVE1_HOLD_PAIRS,
       restraintPids: AFP_RESTRAINT_PIDS
     },
     VERDICTS: VERDICTS,
