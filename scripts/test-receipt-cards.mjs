@@ -762,12 +762,177 @@ for (const [what, pattern] of [
 lacks(mSection, "Republican", "method copy: no party characterization");
 lacks(mSection, "Democrat", "method copy: no party characterization");
 
-// ── Share text must not mislabel the feed it came from ────────────────────────
+// ── Share text: one standard shape, and it must not mislabel the feed ─────────
+// The caption is the half of a share that arrives as TEXT — pasted into a
+// message, quoted above a link, read aloud by a screen reader while the image is
+// still loading. It has to stand on its own, and it has to be the SAME shape
+// whichever verdict was reached: a caption whose wording shifts with the finding
+// is a caption doing rhetoric.
+//
+// Asserted on output. Grepping this module for the strings that build the
+// caption only ever proved that some branch mentions them.
 has(svd, "origin === 'official_record'", "share text: the caption branches on which feed the card came from");
 has(svd, "isRecordCard", "share text: one predicate decides, not a scattered check");
-has(svd, "🏛️", "share text: an Official Record card's text carries the record mark");
-has(svd, "verifyUrl", "share text: the pasted text carries the citable URL, not just the card image");
-has(svd, "r.source.url", "share text: pasted text prefers the FULL url — the card's elided one is not typable");
+{
+  const cards = RC.cardsFor("testrep");
+  const byVerdict = (k) => cards.find((c) => c.verdict.key === k);
+  const contra = byVerdict("contradicts");
+  const consis = byVerdict("consistent");
+  const omni = RC.omnibus("testrep", "H.R. 1");
+  ok(contra && consis && omni,
+    "share text: the fixture reaches all three record verdicts, so the shape is compared across them");
+
+  // The invariant skeleton. Every line here must appear on a contradiction, a
+  // consistency and a split card alike — including the two that make the claim
+  // checkable at all, the source URL and the path back to this same receipt.
+  const SKELETON = [
+    "🏛️ OFFICIAL RECORD — ",
+    "\nVerdict: ",
+    "\nTheir stated position: ",
+    "\nThe record: ",
+    "\nSource: ",
+    "\nHow this is judged: politidex.fyi/#methodology",
+    "\nCheck it yourself: https://politidex.fyi/#record=",
+  ];
+  for (const [label, card] of [["contradiction", contra], ["consistency", consis], ["omnibus", omni]]) {
+    const cap = R._caption(card);
+    for (const part of SKELETON) {
+      has(cap, part, `share text: the ${label} caption carries "${part.trim()}"`);
+    }
+    has(cap, card.issue.label,
+      `share text: the ${label} caption names the ISSUE — a quoted position and a bill number alone say nothing about what the pair is about`);
+    has(cap, card.source.url,
+      `share text: the ${label} caption carries the FULL source URL, scheme and all, so it is clickable from a paste`);
+    has(cap, card.saidNote,
+      `share text: the ${label} caption repeats the undated disclosure the image prints`);
+    has(cap, card.verdict.label,
+      `share text: the ${label} caption states the verdict in the same words the stamp does`);
+    // The verdict is reached by comparing a recorded STANCE against a vote, and
+    // the image prints that stance word ahead of the quote. A caption that
+    // printed only the quote made the same claim with its subject removed — a
+    // reader could not see what the vote was being held against.
+    ok(!card.said.word || cap.indexOf("Their stated position: " + card.said.word + " — “") > -1,
+      `share text: the ${label} caption carries the stance word the verdict is computed against, as the image does`);
+    // The old caption swapped "Record:" for "But the record:" on a negative
+    // finding — and on a split card inherited that choice from the say-vs-do
+    // verdict underneath it, so the wording moved for a reason no reader could
+    // see. Nothing about the vote changes with the verdict, so neither does the
+    // line reporting it.
+    lacks(cap, "But the record",
+      `share text: the ${label} caption reports the vote in the same words regardless of the finding`);
+    ok(cap.indexOf("🏛️ OFFICIAL RECORD") === 0,
+      `share text: the ${label} caption opens with the origin badge, so a truncating platform cannot hide which feed it came from`);
+    has(cap.split("\n")[0], card.name,
+      `share text: the ${label} caption's first line — the one that survives truncation — names the member`);
+  }
+
+  // A split card's whole point is WHICH issues moved which way. The old caption
+  // gave only counts, which is the one thing a reader cannot check.
+  const om = R._caption(omni);
+  has(om, "The same vote moved 5 mapped issues",
+    "share text: the split caption says how many issues the one vote moved");
+  for (const name of omni.split.advances.concat(omni.split.opposes)) {
+    has(om, name, `share text: the split caption names ${name} rather than counting it`);
+  }
+  has(om, "advances " + omni.split.advances.join(", "),
+    "share text: and says which way each group went, read off the stored mapping");
+  // The list is the context; the focus issue is the claim. On H.R. 1 the split
+  // runs to fourteen names and two of them read as synonyms on opposite sides,
+  // so the caption states outright which side the card's own issue landed on.
+  ok(["advances", "opposes"].includes(omni.split.focusEffect),
+    "share text: the split knows which side the card's own issue came down on");
+  has(om, "On " + omni.issue.label + " — the issue this card is about — the vote came down on the " +
+    omni.split.focusEffect + " side.",
+    "share text: and the caption says so, rather than leaving it to be found in the list");
+  eq(omni.split[omni.split.focusEffect][0], omni.issue.label,
+    "share text: the image's one-line row leads with that issue, so truncation cannot hide it");
+  lacks(R._caption(contra), "the issue this card is about",
+    "share text: an ordinary single-issue card has no split to locate, so it says nothing about sides");
+
+  // The CRA effect sentence. Guard 13 refuses any disapproval card without one,
+  // and the image prints it in its own tier — it must travel with the text too,
+  // because "voted Yea on S.J.Res. 18" tells a reader nothing on its own. Built
+  // here from a live card plus the fixture's own stored rationale: the two
+  // disapproval records in this file exist to trip the duplicate-identity guard,
+  // so no built card carries the slot, but the live Wave 1 set does.
+  {
+    const effect = "A yea removes the public-land management regulation.";
+    const cra = Object.assign({}, contra, { factParts: [effect, "Some Measure Title", "House · Passed"] });
+    has(R._caption(cra), "What a Yea did: " + effect,
+      "share text: a disapproval caption spells out what a Yea actually did");
+    lacks(R._caption(contra), "What a Yea did:",
+      "share text: and an ordinary bill's caption does not, because there is no such sentence to quote");
+  }
+
+  // The post. BOTH addresses are the point of it — the chamber's own record and
+  // the path back to the judging — so both are reserved out of the budget rather
+  // than left last in line for whatever the headline did not eat.
+  for (const [label, card] of [["contradiction", contra], ["omnibus", omni]]) {
+    const long = Object.assign({}, card, { headline: card.headline + " — " + "a very long question line".repeat(12) });
+    const tw = R._tweetText(long);
+    has(tw, card.source.url,
+      `share text: a ${label} post keeps its source URL even when the headline is far too long`);
+    ok(tw.endsWith(card.source.url),
+      `share text: and keeps it whole and last, where a client will linkify it`);
+    has(tw, "\nCheck: https://politidex.fyi/#record=",
+      `share text: a ${label} post also carries the path back to the receipt and the method behind it`);
+    ok(tw.indexOf("#record=" + card.pid) > -1,
+      `share text: pointed at THIS member's record, not at the homepage`);
+    ok(tw.length <= 280, `share text: while staying inside the post budget (${tw.length})`);
+    ok(R._tweetText(card).indexOf("🏛️ OFFICIAL RECORD") === 0,
+      `share text: a ${label} post is marked as Official Record, not as a curated receipt`);
+  }
+  // The headline is what gives way when the two addresses will not both fit —
+  // never one of the addresses, and never the vote. "H.R. 1 · On Passage of the
+  // Bill · Voted Yea" trimmed from the right loses "Voted Yea" first, which
+  // leaves a post that states a verdict and then declines to say what the member
+  // actually did. A Senate citation is the long case: ~86 chars of URL on its
+  // own, which is what broke the old 240-char ceiling.
+  {
+    const senate = Object.assign({}, contra, {
+      headline: "H.R. 1 · " + "On a Motion to Concur in a Very Long Question Line ".repeat(6) + "· Voted Yea",
+      source: { label: "U.S. Senate", url: "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00318.htm" },
+    });
+    const tw = R._tweetText(senate);
+    ok(tw.endsWith(senate.source.url), "share text: a long Senate URL still survives whole");
+    has(tw, "\nCheck: https://politidex.fyi/#record=", "share text: and so does the check path beside it");
+    ok(tw.length <= 280, `share text: on the longest citation shape in the ledger (${tw.length})`);
+    has(tw, "Voted Yea\n", "share text: and so does the vote — the headline is trimmed in the middle, not at the end");
+    has(tw, "H.R. 1 · ", "share text: with the measure number kept at the front where it leads");
+  }
+  // The middle-out trim, on its own.
+  eq(R._trimHeadline("H.R. 1 · On Passage · Voted Yea", 200), "H.R. 1 · On Passage · Voted Yea",
+    "share text: a headline that already fits is returned untouched");
+  {
+    const t = R._trimHeadline("H.R. 1 · On a Motion to Concur in the Senate Amendment to the Bill · Voted Nay", 46);
+    ok(t.length <= 46, `share text: the trimmed headline honours the budget (${t.length})`);
+    ok(t.startsWith("H.R. 1 · "), "share text: the measure number is reserved at the front");
+    ok(t.endsWith("· Voted Nay"), "share text: and the vote is reserved at the back");
+    ok(t.indexOf("Motion") > -1, "share text: what is left of the question still leads the middle");
+  }
+  eq(R._trimHeadline("Did another thing entirely, at length, in prose", 20).length <= 20, true,
+    "share text: a headline with no vote segment falls through to the ordinary trim");
+
+  // The boundary, from the other side: a curated Say-vs-Do receipt takes the
+  // original path and must not pick up any of the record wording.
+  const curated = {
+    name: "Rep. Curated Example", verdict: { key: "contradicts", label: "Says One Thing · Voted Another" },
+    said: { text: "A stated thing." }, headline: "Did another thing", impact: "negative",
+    date: "2025-03-01", source: { label: "Deseret News", url: "https://example.org/story" },
+  };
+  const cc = R._caption(curated);
+  ok(cc.indexOf("🧾 ") === 0, "share text: a curated receipt still opens with its own mark");
+  lacks(cc, "OFFICIAL RECORD", "share text: and is never labelled Official Record");
+  lacks(cc, "Their stated position:", "share text: it keeps its own past-tense framing");
+  has(cc, "Said: ", "share text: which is the wording it always used");
+  has(cc, "But the record: ", "share text: including the impact-keyed prefix, unchanged");
+  has(cc, "Checked on PolitiDex · politidex.fyi",
+    "share text: and its own closing line, unchanged");
+  lacks(cc, "How this is judged:",
+    "share text: the record feed's method line does not leak onto a curated receipt");
+  ok(R._tweetText(curated).indexOf("🧾 ") === 0,
+    "share text: the curated post is unchanged too");
+}
 
 // ── Wave 1 scope lock ────────────────────────────────────────────────────────
 ok(!!RC.guards.wave1HoldIssueKeys.america_first_fp,
@@ -872,8 +1037,11 @@ has(dated.saidNote, "does not claim it came before the vote",
 lacks(JSON.stringify(dated.said), "date", "chronology: no date is attached to the stated position");
 has(svd, "r.saidLabel || 'THEY SAID'", "chronology: the renderer honours the card's own said label");
 has(svd, "if (r.saidNote)", "chronology: the renderer draws the undated disclosure on the image");
-has(svd, "'Stated position: ' : 'Said: '", "chronology: the pasted caption uses the same present-tense framing");
-has(svd, "if (rec && r.saidNote)", "chronology: the pasted caption carries the disclosure too");
+// The caption is asserted on its OUTPUT (Part 4b below); here, only that the
+// two present-tense pieces reach it at all.
+has(R._caption(dated), "Their stated position:",
+  "chronology: the pasted caption uses the same present-tense framing");
+has(R._caption(dated), dated.saidNote, "chronology: the pasted caption carries the disclosure too");
 // A curated Say-vs-Do receipt sets neither field and is drawn exactly as before.
 ok(svd.indexOf("r.saidLabel ||") > 0 && svd.indexOf("saidLabel:") < 0,
   "chronology: saidLabel is read by the renderer and set only by the vote-derived feed");
@@ -919,6 +1087,49 @@ eq(RC.guards.blockPlainEffect({ kind: "vote", title: "Farm Bill", issues: [] }, 
 const craCard = RC.find("testrep", "lands_preserve");
 ok(!craCard || /^A yea removes/.test(craCard.facts),
   "plain english: on a disapproval card the operative effect is the first thing in the supporting line");
+
+// ── The seam left behind when the clause is lifted out ───────────────────────
+// Promoting the "a yea …" clause to its own tier cuts it out of the middle of a
+// curated sentence, and the punctuation that joined it stays behind. The live
+// ledger was printing one of these on a public-facing card — S.J.Res. 18's
+// rationale ends "…nullify a federal rule; a yea strikes the CFPB overdraft
+// regulation off the books.", and lifting the clause left "…federal rule; ."
+// with the semicolon and the full stop sitting next to each other.
+{
+  eq(RC.tidyRemainder("A CRA resolution whose effect is to nullify a federal rule; "),
+    "A CRA resolution whose effect is to nullify a federal rule.",
+    "plain english: the separator orphaned at the cut is removed and the sentence is closed");
+  eq(RC.tidyRemainder("A CRA resolution whose effect is to nullify a federal rule; ."),
+    "A CRA resolution whose effect is to nullify a federal rule.",
+    "plain english: and a full stop left stranded after it does not print as \"; .\"");
+  eq(RC.tidyRemainder("Rescinds unobligated balances, "), "Rescinds unobligated balances.",
+    "plain english: a trailing comma is treated the same way");
+  eq(RC.tidyRemainder("Already a whole sentence."), "Already a whole sentence.",
+    "plain english: a rationale that needed no repair is returned untouched");
+  eq(RC.tidyRemainder("Ends with a quote he called “unworkable”"),
+    "Ends with a quote he called “unworkable”.",
+    "plain english: closing punctuation is respected rather than counted as the end of the sentence");
+  eq(RC.tidyRemainder(" ;  . "), "",
+    "plain english: a remainder that is only punctuation drops out instead of shipping as a stray mark");
+  eq(RC.tidyRemainder(""), "", "plain english: nothing in, nothing out");
+  // The repair must not rewrite the curators' words — only the seam.
+  const src = "Congressional Review Act resolution repealing the IRS reporting rule; a yea rolls back the mandate.";
+  const kept = RC.tidyRemainder(src.replace(/\ba yea\b[^.;]*/i, ""));
+  eq(kept, "Congressional Review Act resolution repealing the IRS reporting rule.",
+    "plain english: the surviving clause is the curators' own, unedited");
+  lacks(kept, "yea", "plain english: and the promoted clause is not left duplicated behind it");
+  // Through the real builder, on the real shape: no card's supporting text may
+  // ship a dangling separator, whatever the ledger hands it.
+  const built = RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean);
+  ok(built.length > 0, "plain english: there are built cards to check the seam on");
+  for (const c of built) {
+    ok(!/[;,]\s*[.!?]/.test(c.facts), `plain english: ${c.measureNumber} prints no orphaned separator`);
+    for (const p of c.factParts) {
+      ok(!/^[\s;,.]+$/.test(p) || p === "",
+        `plain english: ${c.measureNumber} ships no fact segment that is only punctuation`);
+    }
+  }
+}
 if (craCard) {
   eq((craCard.facts.match(/a yea removes/gi) || []).length, 1,
     "plain english: the effect is stated once, not repeated out of the rationale it came from");
@@ -1095,17 +1306,63 @@ if (craCard) {
   // budget from "the protected prefix just fits" upward, the prefix is emitted
   // whole and nothing trails off. Below that line the fallback takes over, which
   // is the documented and unavoidable case.
+  //
+  // Read off the BLOCKS rather than off a joined string. Each segment now starts
+  // its own line and carries its own tier, so "the prefix is intact" is a claim
+  // about which segments were emitted and what text each one holds — a claim the
+  // blocks answer exactly, where a string prefix test would only be re-deriving
+  // the separator the renderer no longer uses.
   {
     const effecty = seg([new Array(40).fill("effect").join(" "), TITLE,
       new Array(60).fill("rationale").join(" "), "House · Passed"]);
-    const prefix = effecty.factParts.slice(0, 2).filter(Boolean).join(" — ");
-    const floor = R._wrapText(fake, prefix, W, 0).length;
+    const lineCount = (t) => R._wrapText(fake, t, W, 0).length;
+    const floor = lineCount(effecty.factParts[0]) + lineCount(TITLE);
     for (let b = floor; b <= floor + 4; b++) {
-      const got = R._factLines(fake, effecty, W, b).join(" ");
-      ok(got.indexOf(prefix) === 0,
-        `facts: at a ${b}-line budget the effect and title are emitted whole and first`);
-      ok(!/…$/.test(got), `facts: at a ${b}-line budget nothing trails off`);
+      const blocks = R._factBlocks(fake, effecty, W, b);
+      eq(blocks[0] && blocks[0].tier, "effect",
+        `facts: at a ${b}-line budget what a Yea did leads the block`);
+      eq(blocks[0] && blocks[0].text, effecty.factParts[0],
+        `facts: at a ${b}-line budget the effect sentence is emitted whole`);
+      eq(blocks[1] && blocks[1].tier, "title",
+        `facts: at a ${b}-line budget the title is its own tier, on its own line`);
+      eq(blocks[1] && blocks[1].text, TITLE,
+        `facts: at a ${b}-line budget the title is emitted whole`);
+      const got = R._factLines(fake, effecty, W, b);
+      ok(!/…$/.test(got[got.length - 1]), `facts: at a ${b}-line budget nothing trails off`);
+      ok(got.length <= b, `facts: at a ${b}-line budget the block stays inside the budget`);
     }
+    // One line under the floor is exactly where the documented fallback lives.
+    // Both protected segments still appear — a card that quietly stopped naming
+    // the bill would look like a card with nothing to say about it — and the cut
+    // is marked inside whichever segment the budget ran out in.
+    const under = R._factBlocks(fake, effecty, W, floor - 1);
+    eq(under.map((b) => b.tier).join(","), "effect,title",
+      "facts: below the floor neither protected segment is silently dropped");
+    eq(R._factLines(fake, effecty, W, floor - 1).length, floor - 1,
+      "facts: below the floor the budget is spent, not abandoned");
+    ok(under.some((b) => b.lines.some((l) => /…$/.test(l))),
+      "facts: and the one case that must truncate marks the cut where it happened");
+  }
+
+  // A segment never shares a line with the segment after it. This is the whole
+  // point of tiering: painted in three different weights and colours, two
+  // segments on one line would render as one line in two colours, which reads as
+  // a rendering fault rather than as a hierarchy.
+  {
+    const tiered = seg(["A yea repealed the rule.", TITLE, "Curated rationale.", "House · Passed"]);
+    const blocks = R._factBlocks(fake, tiered, W, 7);
+    eq(blocks.map((b) => b.tier).join(","), "effect,title,tail",
+      "facts: the block is emitted as effect, then title, then everything else");
+    eq(blocks[2].text, "Curated rationale. — House · Passed",
+      "facts: the supporting segments share the last tier and keep their separator");
+    for (const b of blocks) {
+      eq(b.lines.join(" "), b.text,
+        `facts: the ${b.tier} tier's lines reconstruct its own text and nothing else`);
+      ok(R._factTiers[b.tier], `facts: the ${b.tier} tier has a defined weight and colour`);
+    }
+    const tiers = blocks.map((b) => R._factTiers[b.tier]);
+    eq(new Set(tiers.map((t) => t.fill)).size, 3,
+      "facts: the three tiers are actually distinguishable — three colours, not one");
   }
 
   // Order matters: the tail goes before the rationale, and the title never goes.
@@ -1127,16 +1384,65 @@ if (craCard) {
   eq(forced.length, 2, "facts: an unfittable title fills the budget rather than blanking it");
   ok(/…$/.test(forced[1]), "facts: and says so with an ellipsis rather than stopping silently");
 
-  // A card from another feed carries no segments; it must render as before.
+  // A card from another feed carries no segments; it must render as before — the
+  // original single run, in the original colour, with nothing tiered onto it.
   eq(R._factLines(fake, { facts: "plain string" }, W, 3).join(" "), "plain string",
     "facts: a card with no segments keeps the original behaviour");
-
-  // No shipped card may be cut inside its protected prefix at the full budget.
-  for (const c of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
-    const lines = R._factLines(fake, c, W, 7).join(" ").replace(/…/g, "");
-    const prefix = (c.factParts || []).slice(0, 2).filter(Boolean).join(" — ").replace(/…/g, "");
-    ok(lines.startsWith(prefix), `facts: the ${c.issueKey} card renders its title whole`);
+  {
+    const curated = R._factBlocks(fake, { facts: "plain string" }, W, 3);
+    eq(curated.length, 1, "facts: a curated receipt is one block, not a tiered stack");
+    eq(curated[0].tier, "plain", "facts: and is painted in the tier it always was");
+    eq(R._factTiers.plain.fill, "#b7c6de",
+      "facts: the curated tier still carries the pre-existing supporting colour");
+    eq(R._factTiers.plain.font, '400 29px "Barlow", sans-serif',
+      "facts: and the pre-existing supporting font — curated cards render byte-identically");
   }
+
+  // No shipped card may be cut inside its protected prefix at the full budget,
+  // and each protected segment must arrive as its own block.
+  for (const c of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
+    const blocks = R._factBlocks(fake, c, W, 7);
+    const want = (c.factParts || []).slice(0, 2).filter(Boolean);
+    eq(blocks.slice(0, want.length).map((b) => b.text).join(" "), want.join(" "),
+      `facts: the ${c.issueKey} card renders its protected prefix whole, segment by segment`);
+    ok(!blocks.slice(0, want.length).some((b) => /…/.test(b.lines.join(""))),
+      `facts: and no ellipsis lands inside the ${c.issueKey} card's title or effect line`);
+  }
+}
+
+// ── Part 5b · nothing on the card is too small to read on a phone ─────────────
+// The canvas is authored at 1080×1350 and almost always consumed at a fraction
+// of that: a timeline thumbnail, a screenshot forwarded to a group chat. Every
+// point of type scale is therefore load-bearing, and the lines most tempting to
+// shrink — the undated-stance disclosure, the method link, the address — are
+// exactly the ones whose whole job is to be read. So the floor is asserted
+// against the source rather than trusted to review.
+//
+// This reads the renderer's font declarations directly. That is deliberate: the
+// alternative is a stub ctx recording every `font` assignment, which would only
+// prove the sizes the fixtures happen to reach, and the sizes worth protecting
+// live on optional branches.
+{
+  const FLOOR = 20;
+  const src = readFileSync(join(ROOT, "say-vs-do.js"), "utf8");
+  const body = src.slice(src.indexOf("function renderCanvas"), src.indexOf("function isRecordCard"));
+  ok(body.length > 2000, "legibility: the renderer body was located, so this sweep is not vacuous");
+  const sizes = [...body.matchAll(/\b(\d+)px "Barlow/g)].map((m) => Number(m[1]));
+  ok(sizes.length >= 12, "legibility: the renderer's type scale was read off the source");
+  for (const s of sizes) {
+    ok(s >= FLOOR, `legibility: no fixed type on the card is under ${FLOOR}px (found ${s}px)`);
+  }
+  // The address is the one line allowed to shrink, because it may never be
+  // elided — see the shrink loop. Its floor is lower, and stated.
+  const shrink = body.match(/for \(var vSize = (\d+); vSize > (\d+); vSize--\)/);
+  ok(!!shrink, "legibility: the address shrink loop is still the only variable type on the card");
+  eq(Number(shrink[1]), 22, "legibility: the address starts at the footer's body size");
+  ok(Number(shrink[2]) + 1 >= 15,
+    `legibility: and never shrinks below 15px (floor is ${Number(shrink[2]) + 1}px)`);
+  // The address shares its row with the right-hand origin mark, so its width
+  // budget has to account for that mark or a long Senate URL is overprinted.
+  has(body, "contentW - ctx.measureText(isRecordCard(r) ? 'OFFICIAL RECORD' : 'SAY vs. DO').width",
+    "legibility: the address is held clear of the origin watermark by measurement, not by a guessed margin");
 }
 
 // Method copy has to describe all three, or the card's method link points at a
@@ -1155,6 +1461,126 @@ if (craCard) {
   ]) {
     ok(pattern.test(mSec2), `method copy: covers ${what}`);
   }
+}
+
+// ══ 5c. ARRIVAL ══════════════════════════════════════════════════════════════
+// A share card's whole claim is "check it yourself", and the checking happens at
+// the far end of the link — on someone else's phone, with no PolitiDex history
+// behind it. Two things have to hold there or the claim is empty: the link must
+// open the SAME (member, issue) view the card was about, and that view must lead
+// somewhere. handleHash() opens the gap sheet directly over whatever page the app
+// happened to boot on, so dismissing it is a dead end unless the sheet says where
+// to go next.
+{
+  const C = ctx.window.PDXConsistency;
+  ok(!!C, "arrival: the consistency module that owns the landing view is loaded");
+  eq(typeof RC.handleHash, "function",
+    "arrival: the hash router is exposed, so the round trip is asserted and not assumed");
+
+  // ── The round trip, driven through the real router ──────────────────────────
+  // Every shippable card's own hash is fed to the real handleHash and the real
+  // openGap is spied on. This is the one contract that spans two files, so it is
+  // tested on behaviour rather than on the two halves agreeing in prose.
+  const shippable = RC.cardsFor("testrep")
+    .concat([RC.omnibus("testrep", "H.R. 1")])
+    .filter(Boolean);
+  ok(shippable.length >= 2, "arrival: there are cards to follow (contradiction, consistency, omnibus)");
+  const realOpen = C.openGap;
+  const realHash = ctx.location.hash;
+  const calls = [];
+  try {
+    C.openGap = function (pid, issue) { calls.push([pid, issue]); };
+    for (const card of shippable) {
+      const m = String(card.hash || "").match(/^#record=([^~&]+)~([^&]+)$/);
+      ok(!!m, `arrival: ${card.measureNumber} card carries a pid~issue record hash`);
+      if (!m) continue;
+      calls.length = 0;
+      ctx.location.hash = card.hash;
+      RC.handleHash();
+      eq(calls.length, 1, `arrival: following ${card.hash} opens exactly one view`);
+      eq((calls[0] || [])[0], m[1], "arrival: on the same member the card is about");
+      eq((calls[0] || [])[1], m[2], "arrival: on the same issue the card is about");
+    }
+    // A record link with no issue on it has nowhere specific to land, so it must
+    // NOT silently open some other issue's comparison — the profile is the honest
+    // fallback. handleHash's own branch already does this; assert it stays.
+    calls.length = 0;
+    let profiled = null;
+    const realProfile = ctx.window.showProfile;
+    ctx.window.showProfile = function (pid) { profiled = pid; };
+    try {
+      ctx.location.hash = "#record=testrep";
+      RC.handleHash();
+    } finally {
+      if (realProfile === undefined) delete ctx.window.showProfile;
+      else ctx.window.showProfile = realProfile;
+    }
+    eq(calls.length, 0, "arrival: an issue-less record link never guesses an issue to open");
+    eq(profiled, "testrep", "arrival: it lands on that member's profile instead");
+  } finally {
+    C.openGap = realOpen;
+    ctx.location.hash = realHash;
+  }
+
+  // ── The way out of the landing view ─────────────────────────────────────────
+  eq(typeof C.nextStepHtml, "function", "arrival: the landing view builds a next-step row");
+  const next = C.nextStepHtml("testrep", "national_debt");
+  has(next, "pdxgap-next", "arrival: the row is present on the sheet the deep link opens");
+  has(next, "Where to next", "arrival: and it is labelled, so it reads as a way out rather than as more content");
+  // Three concrete moves, widening: another issue on this member, the whole
+  // profile, your own delegation. Each has to point at a destination that
+  // already exists — a next step that opens nothing is worse than none.
+  has(next, 'data-pdxc-profile="testrep"', "arrival: next step — open this member's full profile");
+  has(next, 'href="#voter-hub"', "arrival: next step — find your own reps, at the app's real hub anchor");
+  has(next, "data-pdxc-gapclose", "arrival: leaving the sheet closes it first, so the hub is not left behind a modal");
+  // The "check another issue" step is conditional and NAMED. It needs a member
+  // with a scored record, which this harness deliberately does not stub globally
+  // — the guard tests must not see scores. So the two readers consistency.js
+  // scores through are stubbed for the length of this check and then removed:
+  // 'testrep' gets a real Official Record summary on two issues, which is the
+  // shape a Wave 1 arrival actually has (vote record, no curated Say-vs-Do).
+  const realSummary = ctx.window._pdxRecordIssueSummary;
+  const SCORED = { lower_taxes: { total: 2, consistent: 2, contradicts: 0, netVerdict: "consistent" },
+                   national_debt: { total: 2, consistent: 0, contradicts: 2, netVerdict: "contradicts" } };
+  let scoredNext;
+  try {
+    ctx.window._pdxRecordIssueSummary = (pid, key) =>
+      (pid === "testrep" ? SCORED[key] || null : null);
+    scoredNext = C.nextStepHtml("testrep", "national_debt");
+  } finally {
+    if (realSummary === undefined) delete ctx.window._pdxRecordIssueSummary;
+    else ctx.window._pdxRecordIssueSummary = realSummary;
+  }
+  const another = scoredNext.match(/data-pdxc-gap="([^"]+)" data-pdxc-gap-pid="testrep"/);
+  ok(!!another, "arrival: next step — check a second issue on this member");
+  eq(another && another[1], "lower_taxes",
+    "arrival: it offers the other scored issue, never the one already on screen");
+  if (another) {
+    const label = (ctx.window.ISSUE_MAP[another[1]] || {}).label || "";
+    ok(label && scoredNext.includes(label),
+      "arrival: the second issue is named on the button, not left as a generic 'another issue'");
+  }
+  // Fail closed the other way: with nothing else scored, the button that would
+  // open an empty comparison is not offered at all — the two unconditional steps
+  // still ship, so the sheet is never a dead end.
+  lacks(next, "data-pdxc-gap=", "arrival: no second-issue button when there is no second issue to open");
+  has(next, "data-pdxc-profile", "arrival: the unconditional steps ship regardless");
+
+  // The three controls are only real if something handles them. The gap sheet is
+  // built by innerHTML into a delegate-bound document, so the handlers live in
+  // consistency.js's click delegate, not on the nodes.
+  for (const [attr, what] of [
+    ["[data-pdxc-profile]", "the profile step"],
+    ["[data-pdxc-gapclose]", "the leave-the-sheet step"],
+    ["[data-pdxc-gap]", "the second-issue step"],
+  ]) {
+    has(consSrc, `closest('${attr}')`, `arrival: ${what} is wired into the click delegate`);
+  }
+  const dStart = consSrc.indexOf("function bindGateway");
+  const delegate = consSrc.slice(dStart, consSrc.indexOf("pdx-consistency-warm", dStart));
+  ok(delegate.length > 500, "arrival: the click delegate was located, so this check is not vacuous");
+  ok(delegate.indexOf("data-pdxc-profile") > -1 && delegate.indexOf("closeGap()") > -1,
+    "arrival: opening the profile closes the sheet first, so the reader is not left under a modal");
 }
 
 // Reading the record must not mutate it.

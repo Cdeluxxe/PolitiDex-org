@@ -401,6 +401,10 @@
   // toBlob()/share always succeed, even offline.
   // ══════════════════════════════════════════════════════════════════════════
   var SHARE_URL = 'https://politidex.fyi/';
+  // Ceiling for an Official Record post. tweetText() reserves both addresses out
+  // of this before the headline is measured — see the comment there for why both
+  // have to travel and why this is 280 rather than the old self-imposed 240.
+  var RECORD_POST_MAX = 280;
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
   var ACCENT = { contradicts: '#f87171', consistent: '#4ade80', flag: '#f59e0b', omnibus: '#a78bfa' };
   function accentOf(r) { return ACCENT[r.verdict.key] || '#f87171'; }
@@ -476,30 +480,96 @@
   // So when the card supplies `factParts` (see supportingParts in receipt-cards.js)
   // we spend the budget by SEGMENT instead. The first `factProtected` slots — what
   // a Yea did, and the title — always ship whole; the optional tail is dropped one
-  // segment at a time, longest-lived last, until the block wraps inside the
-  // budget. Nothing is ever cut mid-phrase, and a dropped rationale is a sentence
-  // the reader never sees rather than one that breaks off mid-word.
+  // segment at a time, longest-lived last, until the block fits the budget.
+  // Nothing is ever cut mid-phrase, and a dropped rationale is a sentence the
+  // reader never sees rather than one that breaks off mid-word.
+  //
+  // Each surviving segment also starts on its OWN line and carries its own TIER.
+  // Both are readability, and both are about the same failure: joined into one
+  // run with a single colour, the block is an undifferentiated paragraph in which
+  // the two clauses that carry the most weight — what a Yea did, and what the bill
+  // is called — are indistinguishable from the curator's rationale and from
+  // "House · Passed". Worse, a long effect sentence could leave the title starting
+  // three words before a wrap, so the measure's name straddled a line break for no
+  // reason but where the sentence in front of it happened to end. A reader
+  // scanning a phone-sized image for the bill should find it at the start of a
+  // line, in a weight that says it matters, every time.
+  //
+  // Every tier keeps the same 29px body size and 38px line height, so the budget
+  // stays one number and nothing on the card gets smaller: the hierarchy is
+  // carried by weight, colour and the line break, never by shrinking text toward
+  // illegibility. `plain` is the pre-existing single-run styling and is what a
+  // curated Say-vs-Do receipt still gets, unchanged.
   //
   // Ellipsis remains the fallback for the case the segments cannot fix: a title so
   // long the protected prefix alone overflows. Truncating there is still the right
   // call — the alternative is a blank block — but it is now rare and visible
   // rather than routine. Cards with no `factParts` keep the old behaviour exactly.
-  function factLines(ctx, r, maxW, maxLines) {
-    if (maxLines < 1) return [];
+  var FACT_LH = 38;
+  var FACT_TIERS = {
+    effect: { font: '600 29px "Barlow", sans-serif', fill: '#f5c842' },
+    title:  { font: '600 29px "Barlow", sans-serif', fill: '#e8eefc' },
+    tail:   { font: '400 29px "Barlow", sans-serif', fill: '#9fb4d4' },
+    plain:  { font: '400 29px "Barlow", sans-serif', fill: '#b7c6de' }
+  };
+  // [{ tier, text, lines }] in draw order, already fitted to `maxLines`.
+  function factBlocks(ctx, r, maxW, maxLines) {
+    if (!(maxLines >= 1)) return [];
     var parts = r && r.factParts;
-    if (!parts || !parts.length) return wrapText(ctx, r && r.facts, maxW, maxLines);
-    var prot = Math.max(0, Math.min(parts.length, r.factProtected == null ? 2 : r.factProtected));
-    var keep = parts.slice(0, prot).filter(Boolean);
-    var opt = parts.slice(prot).filter(Boolean);
-    // Longest first: try everything, then shed one trailing segment per pass.
-    for (var n = opt.length; n >= 0; n--) {
-      var text = keep.concat(opt.slice(0, n)).join(' — ');
-      if (!text) continue;
-      var lines = wrapText(ctx, text, maxW, 0);
-      if (lines.length <= maxLines) return lines;
+    // Measuring has to happen under the tier's own font or the budget is spent in
+    // the wrong units; the caller's font is put back so this stays a pure read.
+    var wrapAs = function (tier, text, cap) {
+      if (!text) return null;
+      var save = ctx.font;
+      ctx.font = FACT_TIERS[tier].font;
+      var lines = wrapText(ctx, text, maxW, cap || 0);
+      ctx.font = save;
+      return lines.length ? { tier: tier, text: text, lines: lines } : null;
+    };
+    if (!parts || !parts.length) {
+      var one = wrapAs('plain', (r && r.facts) || '', maxLines);
+      return one ? [one] : [];
     }
-    // Protected prefix alone still overflows — ellipsize it and say so honestly.
-    return wrapText(ctx, keep.join(' — ') || r.facts, maxW, maxLines);
+    var prot = Math.max(0, Math.min(parts.length, r.factProtected == null ? 2 : r.factProtected));
+    var head = [];
+    if (prot >= 1 && parts[0]) head.push(['effect', String(parts[0])]);
+    if (prot >= 2 && parts[1]) head.push(['title', String(parts[1])]);
+    // Beyond the protected prefix the segments are all supporting detail, so they
+    // share one tier and one run — the shedding order is what distinguishes them.
+    var opt = parts.slice(prot).filter(Boolean);
+    for (var n = opt.length; n >= 0; n--) {
+      var blocks = [], used = 0, i, b;
+      for (i = 0; i < head.length; i++) {
+        b = wrapAs(head[i][0], head[i][1]);
+        if (b) { blocks.push(b); used += b.lines.length; }
+      }
+      b = wrapAs('tail', opt.slice(0, n).join(' — '));
+      if (b) { blocks.push(b); used += b.lines.length; }
+      if (blocks.length && used <= maxLines) return blocks;
+    }
+    // Protected prefix alone still overflows. Spend the budget in order, keeping
+    // a line in reserve for each protected segment still to come so that none of
+    // them is silently dropped — a card that just stops naming the bill looks
+    // like a card that had nothing to say about it. Whichever segment the budget
+    // runs out inside is ellipsized, so the cut is visible where it happened.
+    // Rare by construction, and the same clause the joined-string version would
+    // have cut, so nothing became less visible by tiering the block.
+    var out = [], left = maxLines, blk, cap;
+    for (var h = 0; h < head.length && left > 0; h++) {
+      cap = Math.max(1, left - (head.length - 1 - h));
+      blk = wrapAs(head[h][0], head[h][1], cap);
+      if (!blk) continue;
+      out.push(blk); left -= blk.lines.length;
+    }
+    if (!out.length) { blk = wrapAs('plain', (r && r.facts) || '', maxLines); if (blk) out.push(blk); }
+    return out;
+  }
+  // The same fitted block as flat text. Used by the tests, which assert on what
+  // reaches the card rather than on how it is painted.
+  function factLines(ctx, r, maxW, maxLines) {
+    var out = [];
+    factBlocks(ctx, r, maxW, maxLines).forEach(function (b) { out = out.concat(b.lines); });
+    return out;
   }
   function initials(name) {
     var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -648,11 +718,14 @@
         y = drawLines(ctx, saidLines, x, y, 44) + 8;
         // The disclosure that goes with the relabelled block: said outright on the
         // image, because the image is what travels. Only vote-derived cards set it.
+        // Set two points larger than the footer's small print — it is a claim about
+        // what the card does NOT assert, and a caveat nobody can read at thumbnail
+        // size is a caveat the card may as well not be making.
         if (r.saidNote) {
-          ctx.font = '600 21px "Barlow Condensed", sans-serif';
+          ctx.font = '600 23px "Barlow Condensed", sans-serif';
           ctx.fillStyle = '#7596c0';
           ctx.fillText(wrapText(ctx, String(r.saidNote), contentW, 1)[0] || '', x, y);
-          y += 26;
+          y += 28;
         }
         y += 18;
       }
@@ -696,11 +769,18 @@
         y += 6;
       }
       if (r.facts || (r.factParts && r.factParts.length)) {
-        ctx.font = '400 29px "Barlow", sans-serif';
-        ctx.fillStyle = '#b7c6de';
-        var maxFactLines = Math.max(0, Math.floor((footTop - y - 10) / 38));
+        var maxFactLines = Math.max(0, Math.floor((footTop - y - 10) / FACT_LH));
         if (maxFactLines >= 1) {
-          drawLines(ctx, factLines(ctx, r, contentW, Math.min(maxFactLines, 7)), x, y, 38);
+          // One pass per tier. A curated receipt has no factParts, comes back as a
+          // single `plain` block, and is painted in exactly the font and colour it
+          // always was.
+          var by = y;
+          factBlocks(ctx, r, contentW, Math.min(maxFactLines, 7)).forEach(function (blk) {
+            var tier = FACT_TIERS[blk.tier] || FACT_TIERS.plain;
+            ctx.font = tier.font;
+            ctx.fillStyle = tier.fill;
+            by = drawLines(ctx, blk.lines, x, by, FACT_LH);
+          });
         }
       }
 
@@ -716,32 +796,43 @@
       var srcTxt = 'SOURCE: ' + srcLabel.toUpperCase() + (r.date ? '  ·  ' + String(r.date) : '');
       var srcClipped = wrapText(ctx, srcTxt, contentW, 1);
       ctx.fillText(srcClipped[0] || srcTxt, x, fy);
-      ctx.font = '600 22px "Barlow Condensed", sans-serif';
-      ctx.fillStyle = '#7596c0';
-      ctx.fillText('Verdict based on public record — check it yourself.', x, fy + 34);
       var my = fy + 34;
       // The citable URL itself, printed so the receipt survives being screenshotted
       // out of the app: "check it yourself" is only true if the address travels
       // with the image. Vote-derived cards always set this.
+      //
+      // It sits DIRECTLY under the SOURCE label. The label says which record this
+      // is; the address says where to go and read it. Anything set between them
+      // makes a reader scan for the one line that makes the card checkable, and on
+      // a phone that scan happens at thumbnail size.
       //
       // It is never wrapped and never ellipsized. A URL with a "…" in it is not
       // clickable, not typable, and quietly wrong — the reader has no way to know
       // what was removed. If the line is too wide it is SHRUNK to fit instead;
       // receipt-cards.js refuses any card whose address could not fit even so.
       if (r.verifyUrl) {
-        my += 30;
-        ctx.fillStyle = '#9fb4d4';
+        // This row is now shared with the OFFICIAL RECORD / SAY vs. DO mark on the
+        // right, which is painted after it and would otherwise overprint the end of
+        // a long address. Measure the mark rather than guessing a margin, so the
+        // clearance stays correct if that wording is ever changed.
+        ctx.font = '700 20px "Barlow Condensed", sans-serif';
+        var vMaxW = contentW - ctx.measureText(isRecordCard(r) ? 'OFFICIAL RECORD' : 'SAY vs. DO').width - 36;
+        ctx.fillStyle = '#cfe0f7';
         var vTxt = 'VERIFY: ' + String(r.verifyUrl);
         for (var vSize = 22; vSize > 14; vSize--) {
           ctx.font = '600 ' + vSize + 'px "Barlow Condensed", sans-serif';
-          if (ctx.measureText(vTxt).width <= contentW) break;
+          if (ctx.measureText(vTxt).width <= vMaxW) break;
         }
         ctx.fillText(vTxt, x, my);
+        my += 30;
       }
+      ctx.font = '600 22px "Barlow Condensed", sans-serif';
+      ctx.fillStyle = '#7596c0';
+      ctx.fillText('Verdict based on public record — check it yourself.', x, my);
       // Method stays visible on the card, not just in the app.
       if (r.method) {
         my += 28;
-        ctx.font = '600 20px "Barlow Condensed", sans-serif';
+        ctx.font = '600 21px "Barlow Condensed", sans-serif';
         ctx.fillStyle = '#7596c0';
         var mTxt = String(r.method);
         ctx.fillText(wrapText(ctx, mTxt, contentW, 1)[0] || mTxt, x, my);
@@ -794,33 +885,147 @@
     var url = isRecordCard(r) && full ? ' — ' + full : '';
     return lbl + (r.date ? ' (' + r.date + ')' : '') + url;
   }
-  function caption(r) {
+  function issueName(r) { return (r && r.issue && r.issue.label) || ''; }
+  // ── Official Record caption ─────────────────────────────────────────────────
+  // ONE shape for all three record verdicts — contradiction, consistency and the
+  // H.R. 1 omnibus split. The old caption varied its record-line prefix by
+  // r.impact, which meant the same underlying fact ("here is the vote") was
+  // introduced three different ways depending on which verdict had been reached,
+  // and on an omnibus card that prefix was inherited from the say-vs-do verdict
+  // underneath the split — so the wording moved for a reason no reader could see.
+  // Nothing about the vote changes with the verdict, so neither does the line
+  // that reports it. The VERDICT is stated once, in the lead, where it belongs.
+  //
+  // Every record caption carries, in this order and always:
+  //   · the origin badge, spelled out, so the caption is unmistakably not a
+  //     curated Say-vs-Do receipt even when the image is not visible
+  //   · the issue, which the old caption never named at all — a reader landing on
+  //     a quoted position and a bill number had no idea what the pair was about
+  //   · the stated position and its undated disclosure, verbatim from the card
+  //   · the record line, then — on a CRA or disapproval vote — the plain-English
+  //     effect sentence that the image prints in its own tier. That sentence is
+  //     the only thing standing between "voted Yea on S.J.Res.11" and a reader
+  //     who has no idea what a Yea on a resolution of disapproval does; it must
+  //     travel with the text, not only with the pixels
+  //   · on a split card, the mapped issues BY NAME rather than by count — "14
+  //     issues, advances 9, opposes 5" is a statistic, and the point of the card
+  //     is which ones
+  //   · the full source URL, the method path, and the deep link back to this same
+  //     receipt. All three, every time, scheme included so they are clickable.
+  //
+  // A curated 🧾 Say-vs-Do receipt takes the original path, unchanged.
+  function recordCaption(r) {
     var lines = [];
-    var rec = isRecordCard(r);
-    lines.push((rec ? '🏛️ ' : '🧾 ') + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
-    // "Said:" is past tense and the stance blocks are undated, so on a
-    // vote-derived card the caption uses the same present-tense framing the image
-    // does and carries the same disclosure. See r.saidNote in receipt-cards.js.
-    if (r.said) lines.push((rec ? 'Stated position: ' : 'Said: ') + '“' + trimTo(r.said.text, 150) + '”');
-    lines.push((r.impact === 'positive' ? 'Record: ' : 'But the record: ') + trimTo(r.headline, 150));
-    if (rec && r.saidNote) lines.push(r.saidNote);
-    lines.push('Source: ' + sourceLine(r));
-    // A split card's whole point is that one vote landed both ways, so the caption
-    // says so too rather than leaving the image to carry it alone.
-    if (rec && r.split) {
-      lines.push('Same vote, ' + r.split.count + ' mapped issues: advances ' +
-        r.split.advances.length + ', opposes ' + r.split.opposes.length + '.');
+    var iss = issueName(r);
+    // Two lines, not one. Every platform truncates a caption somewhere, and the
+    // half that has to survive is WHO and WHAT ISSUE — a verdict with no subject
+    // is a slogan. So the badge, the name and the issue lead, and the verdict
+    // follows on its own labelled line. Labelling it also keeps it readable as a
+    // finding rather than as a headline the account is asserting.
+    lines.push('🏛️ OFFICIAL RECORD — ' + r.name + (iss ? ' on ' + iss : ''));
+    lines.push('Verdict: ' + r.verdict.label);
+    if (r.said && r.said.text) {
+      // The image prints the stance word ahead of the quote — Opposes: “…” —
+      // because the verdict is computed against that word, not against the
+      // prose. A caption that drops it asks a reader to accept "Says One Thing ·
+      // Voted Another" with the one thing left out, and on a position whose
+      // plain reading runs the other way it leaves the card looking arbitrary
+      // when it is really disagreeing with a recorded stance. Same claim in the
+      // text half as in the pixels, or the two halves are not the same share.
+      lines.push('Their stated position: ' + (r.said.word ? r.said.word + ' — ' : '') +
+        '“' + trimTo(r.said.text, 150) + '”');
+      if (r.saidNote) lines.push(r.saidNote);
     }
-    if (rec && r.method) lines.push(r.method.replace(/^HOW THIS IS JUDGED:\s*/i, 'How this is judged: '));
+    lines.push('The record: ' + trimHeadline(r.headline, 150));
+    // factParts[0] is the "what a Yea did" slot and is empty on an ordinary bill.
+    var effect = r.factParts && r.factParts[0];
+    if (effect) lines.push('What a Yea did: ' + trimTo(String(effect), 200));
+    if (r.split && (r.split.advances.length || r.split.opposes.length)) {
+      var moved = [];
+      if (r.split.advances.length) moved.push('advances ' + r.split.advances.join(', '));
+      if (r.split.opposes.length) moved.push('opposes ' + r.split.opposes.join(', '));
+      lines.push('The same vote moved ' + r.split.count + ' mapped issues — ' + moved.join('; ') + '.');
+      // On a fourteen-issue package that list is long enough that a reader has to
+      // hunt through it for the one issue the card is actually judging — and on
+      // H.R. 1 two of the names ("Cut Federal Spending & Reduce Debt" and "Tackle
+      // the National Debt") land on OPPOSITE sides, which reads as a mistake
+      // until you know which one the card means. The image puts the focus issue
+      // first in its own coloured row; a pasted caption has no colour, so it says
+      // outright which side that issue came down on. Read off the stored mapping
+      // the row above was built from — nothing new is asserted.
+      var fx = r.split.focusEffect;
+      if ((fx === 'advances' || fx === 'opposes') && iss) {
+        lines.push('On ' + iss + ' — the issue this card is about — the vote came down on the ' + fx + ' side.');
+      }
+    }
+    lines.push('Source: ' + sourceLine(r));
+    if (r.method) lines.push(r.method.replace(/^HOW THIS IS JUDGED:\s*/i, 'How this is judged: '));
+    lines.push('Check it yourself: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL));
+    return lines.join('\n');
+  }
+  function caption(r) {
+    if (isRecordCard(r)) return recordCaption(r);
+    var lines = [];
+    lines.push('🧾 ' + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
+    if (r.said) lines.push('Said: “' + trimTo(r.said.text, 150) + '”');
+    lines.push((r.impact === 'positive' ? 'Record: ' : 'But the record: ') + trimTo(r.headline, 150));
+    lines.push('Source: ' + sourceLine(r));
     // Link straight back to THIS receipt, not just the homepage, so a share is
     // verifiable in one tap by whoever receives it.
     lines.push('Checked on PolitiDex · ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL).replace(/^https?:\/\//, ''));
     return lines.join('\n');
   }
+  // A record headline is "<measure> · <question> · Voted Yea". Three segments,
+  // and trimTo() eats them from the right — so the very first thing a too-long
+  // headline loses is WHICH WAY THEY VOTED, leaving a post that states a verdict
+  // and then declines to say what the member did. On a Senate citation, where the
+  // URL alone is ~86 characters, that is not a rare case: it is most of them.
+  //
+  // So the two ends are reserved and the QUESTION in the middle gives way, which
+  // is the segment a reader can recover from either link. Anything that is not
+  // this three-part shape (a curated receipt, a two-segment headline) falls
+  // through to the ordinary trim untouched.
+  function trimHeadline(h, max) {
+    var s = String(h || '');
+    if (s.length <= max) return s;
+    var seg = s.split(' · ');
+    if (seg.length < 3 || !/^Voted\b/i.test(seg[seg.length - 1])) return trimTo(s, max);
+    var head = seg[0], tail = seg[seg.length - 1];
+    var room = max - head.length - tail.length - 6;   // two ' · ' joiners
+    if (room < 8) return trimTo(head + ' · ' + tail, max);
+    return head + ' · ' + trimTo(seg.slice(1, -1).join(' · '), room) + ' · ' + tail;
+  }
+
   function tweetText(r) {
     var v = r.verdict.label.replace(' · ', ': ');
-    return trimTo((isRecordCard(r) ? '🏛️ ' : '🧾 ') + r.name + ' — ' + v + '. ' + r.headline +
-      ' (source: ' + sourceLine(r) + ')', 240);
+    if (!isRecordCard(r)) {
+      return trimTo('🧾 ' + r.name + ' — ' + v + '. ' + r.headline +
+        ' (source: ' + sourceLine(r) + ')', 240);
+    }
+    // The address is the entire point of the post, so it is reserved out of the
+    // budget and the headline is trimmed AROUND it. Composing the whole string
+    // and trimming the end — which is what this used to do — put the source URL
+    // last in line for the characters, so a long enough bill title would
+    // silently produce a post nobody could check.
+    var head = '🏛️ OFFICIAL RECORD — ' + r.name + (issueName(r) ? ' on ' + issueName(r) : '') +
+      ': ' + r.verdict.label + '. ';
+    // TWO addresses, both reserved, both whole. The chamber URL is where the
+    // vote is read off the government's own record; the politidex.fyi record
+    // link is where the judging is shown and this same receipt reopens. A post
+    // carrying only the first is a claim with a footnote to a page that never
+    // mentions us; one carrying only the second asks a reader to take our word
+    // for the vote. Wave 1's whole standard is that neither is enough alone, so
+    // both are subtracted before the headline gets any budget at all, and the
+    // headline — the one part a reader can reconstruct from either link — is
+    // what gives way when they will not all fit.
+    //
+    // 280 rather than the old 240: the two addresses cost about 130 characters
+    // on a Senate roll call before a word of content, and the previous ceiling
+    // was a self-imposed margin, not a platform limit. Trimming the headline to
+    // nothing to preserve a margin would defeat the reason the margin existed.
+    var tail = '\nCheck: ' + (receiptLink(r, '', { canonical: true }) || SHARE_URL) +
+      '\n' + ((r.source && r.source.url) || r.verifyUrl || '');
+    return head + trimHeadline(r.headline, Math.max(24, RECORD_POST_MAX - head.length - tail.length)) + tail;
   }
 
   function toast(msg) {
@@ -1330,7 +1535,16 @@
     // it, and that test needs to measure real wrapped output rather than grep
     // the call site. Callers outside the tests have no reason to use these.
     _wrapText: wrapText,
-    _factLines: factLines
+    _factLines: factLines,
+    _factBlocks: factBlocks,
+    _factTiers: FACT_TIERS,
+    // The caption is the half of a share that arrives as TEXT — in a paste, a
+    // quote-tweet, a group chat where the image is collapsed. It carries the
+    // source URL and the disclosures, so it is asserted on its output rather
+    // than by grepping this file for the strings that build it.
+    _caption: caption,
+    _tweetText: tweetText,
+    _trimHeadline: trimHeadline
   };
 
   // Initial mount + one delayed refresh so names/photos fill in once the live

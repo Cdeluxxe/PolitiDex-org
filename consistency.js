@@ -923,6 +923,23 @@
       '.pdxgap-share{margin-top:0.55rem;}' +
       '.pdxgap-share:empty{display:none;margin:0;}' +
       '.pdxgap-foot{font-size:0.66rem;color:#7e93b3;line-height:1.4;margin-top:0.85rem;padding-top:0.6rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      // ── Next step ───────────────────────────────────────────────────────────
+      // A shared #record= link opens this sheet over whatever page the reader
+      // happened to land on, so closing it drops them nowhere. This row is the
+      // way out: one line of three concrete moves, above the footer's fine print
+      // rather than buried in it. Sized for a thumb — the sheet is a mobile
+      // bottom sheet first — and wrapping rather than scrolling on narrow
+      // screens, so the third option is never the one that falls off the edge.
+      '.pdxgap-next{margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(255,255,255,0.08);}' +
+      '.pdxgap-next-h{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.08em;font-size:0.68rem;color:#8fa2c0;margin-bottom:0.45rem;}' +
+      '.pdxgap-next-row{display:flex;flex-wrap:wrap;gap:0.4rem;}' +
+      '.pdxgap-nx{display:inline-flex;align-items:center;gap:0.35rem;flex:1 1 auto;min-width:11rem;' +
+        'text-align:left;text-decoration:none;cursor:pointer;font-family:"Barlow Condensed",sans-serif;' +
+        'font-size:0.82rem;letter-spacing:0.01em;line-height:1.25;color:#dbe6f7;padding:0.5rem 0.6rem;' +
+        'border:1px solid rgba(127,180,255,0.28);border-radius:0.55rem;background:rgba(30,58,138,0.18);' +
+        'transition:background 0.15s,border-color 0.15s;}' +
+      '.pdxgap-nx:hover,.pdxgap-nx:focus-visible{background:rgba(30,58,138,0.34);border-color:rgba(127,180,255,0.5);}' +
+      '.pdxgap-nx-ico{flex:none;}' +
       // Phase 11 — methodology explainer content (rendered inside the shared sheet).
       '.pdxm-lead{font-size:0.8rem;color:#c6d4ec;line-height:1.45;margin:0.5rem 0 0.8rem;}' +
       '.pdxm-row{border-top:1px solid rgba(255,255,255,0.08);padding:0.6rem 0;}' +
@@ -1100,6 +1117,25 @@
         openGap(gap.getAttribute('data-pdxc-gap-pid') || '', gap.getAttribute('data-pdxc-gap') || '');
         return;
       }
+      // ── Next-step row inside the gap sheet ────────────────────────────────
+      // "Open the full profile" — the step back out for a reader who arrived on
+      // a shared #record= link, where the sheet is floating over whatever page
+      // the app happened to be showing. The sheet closes first: leaving it up
+      // over the profile it just navigated to would look like nothing happened.
+      var prof = e.target.closest && e.target.closest('[data-pdxc-profile]');
+      if (prof) {
+        e.preventDefault();
+        var ppid = prof.getAttribute('data-pdxc-profile') || '';
+        closeGap();
+        if (ppid && typeof window.showProfile === 'function') window.showProfile(ppid);
+        return;
+      }
+      // "Find your own reps" — a real anchor, so it keeps its href for a
+      // middle-click or a long-press. The sheet is modal, so it has to come
+      // down before the hub it points at is visible; the navigation itself is
+      // left to the browser.
+      var away = e.target.closest && e.target.closest('[data-pdxc-gapclose]');
+      if (away) { closeGap(); return; }
       var method = e.target.closest && e.target.closest('[data-pdxc-method]');
       if (method) { e.preventDefault(); openMethodology(); return; }
       var card = e.target.closest && e.target.closest('[data-pdxc-open]');
@@ -2295,9 +2331,65 @@
 
     return head +
       '<div class="pdxgap-sides">' + offSide + saySide + '</div>' +
+      _gapNextHtml(pid, issueKey) +
       '<div class="pdxgap-foot">🏛️ formal record and 🧾 public record are kept separate — this shows both side by side, it never blends them into one score. ' +
         LT('contradiction', 'What counts as a contradiction') + ' · ' +
         LHOWTO('say-vs-do', 'How to read this') + '</div>';
+  }
+
+  // ── One clear next step out of the gap sheet ────────────────────────────────
+  // A reader who followed a shared card's #record= link arrives here with no
+  // history: handleHash() in receipt-cards.js opens this sheet directly, so
+  // behind it is whatever page the app happened to be on. Dismissing the sheet
+  // used to be the only exit, and it led nowhere.
+  //
+  // Three moves, in widening order — stay on this member and check a second
+  // issue, step back to the whole profile, or leave and look up your own
+  // delegation. Each one is a real destination that already exists in the app;
+  // nothing here invents a surface.
+  //
+  // The first is offered ONLY when this member actually has another issue with a
+  // score behind it, and it names that issue outright. A "check another issue"
+  // button that opens an empty comparison is worse than no button, and a generic
+  // label makes a reader tap to find out what they get.
+  //
+  // Preference is by how much the next view will have to show: a diverging or
+  // mixed two-sided issue first, then any two-sided issue, then an issue carrying
+  // only an Official Record score. That last tier matters more than it looks — a
+  // Wave 1 share card IS an Official Record card, and the member behind one often
+  // has no curated Say-vs-Do at all, so a both-sides-only rule would leave exactly
+  // the arriving reader with no second issue to check.
+  function _gapNextHtml(pid, issueKey) {
+    var items = [];
+    var next = null;
+    try {
+      var d = divergenceData(pid);
+      var both = d.both;                     // already sorted by widest gap first
+      for (var i = 0; i < both.length && !next; i++) {
+        if (both[i].key !== issueKey && divRel(both[i].gap).key !== 'aligned') next = both[i].key;
+      }
+      for (var j = 0; j < both.length && !next; j++) {
+        if (both[j].key !== issueKey) next = both[j].key;
+      }
+      var off = d.offScored || [];
+      for (var k = 0; k < off.length && !next; k++) {
+        if (off[k].key !== issueKey) next = off[k].key;
+      }
+    } catch (e) {}
+    if (next) {
+      items.push('<button type="button" class="pdxgap-nx" data-pdxc-gap="' + esc(next) +
+        '" data-pdxc-gap-pid="' + esc(pid) + '">' +
+        '<span class="pdxgap-nx-ico" aria-hidden="true">⚖️</span>' +
+        '<span>Check ' + esc(_issueLabel(next)) + ' <span aria-hidden="true">→</span></span></button>');
+    }
+    items.push('<button type="button" class="pdxgap-nx" data-pdxc-profile="' + esc(pid) + '">' +
+      '<span class="pdxgap-nx-ico" aria-hidden="true">🏛️</span>' +
+      '<span>Open the full profile <span aria-hidden="true">→</span></span></button>');
+    items.push('<a class="pdxgap-nx" href="#voter-hub" data-pdxc-gapclose="1">' +
+      '<span class="pdxgap-nx-ico" aria-hidden="true">📍</span>' +
+      '<span>Find your own reps <span aria-hidden="true">→</span></span></a>');
+    return '<div class="pdxgap-next"><div class="pdxgap-next-h">Where to next</div>' +
+      '<div class="pdxgap-next-row">' + items.join('') + '</div></div>';
   }
 
   // A compact "compare the two records" cross-link, shown on a feed row ONLY when the
@@ -2483,6 +2575,12 @@
     // comparison rows and both feeds wire to this; exposed for any other surface too.
     openGap: openGap,
     closeGap: closeGap,
+    // Phase 8 (share): the gap sheet's "where to next" row, exposed as a pure
+    // string builder. A reader arriving on a shared #record= link has no history
+    // behind this sheet, so the row is the only exit — scripts/test-receipt-cards.mjs
+    // asserts it offers real destinations rather than a dead generic button, and
+    // it can be asserted without standing up a DOM.
+    nextStepHtml: _gapNextHtml,
     // Phase 11: the plain-language methodology / boundary explainer (opened from the
     // gateway's "How we score this" link; exposed so any surface can open it too).
     openMethodology: openMethodology,

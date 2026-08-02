@@ -485,7 +485,28 @@
     return null;
   }
 
-  // Guard 13: can a reader tell from the card what voting Yea actually did?
+  // What is left of a rationale once the "a yea …" clause has been lifted out of
+  // it and promoted to its own tier. Cutting a clause out of the middle or the
+  // end of a curated sentence leaves the punctuation that joined it behind, and
+  // that punctuation then prints. The live ledger had one of these on public
+  // view: "…whose entire operative effect is to nullify a federal rule; ." — the
+  // semicolon that introduced the clause, then the full stop that ended it, with
+  // nothing between them. A card that cannot punctuate itself is not evidence a
+  // reader will trust with anything harder.
+  //
+  // Only the seam is repaired: separators orphaned at the cut, then a full stop
+  // restored if the surviving words lost theirs. No word of the curators' text is
+  // rewritten, and a remainder that is only punctuation collapses to nothing so
+  // the segment drops out entirely rather than shipping as a stray mark.
+  function tidyRemainder(s) {
+    var t = String(s || '').replace(/\s+/g, ' ').trim();
+    t = t.replace(/[\s;,]+([.!?])\s*$/, '$1');   // "rule; ."  → "rule."
+    t = t.replace(/[\s;,]+$/, '');               // "rule;"    → "rule"
+    if (!/[A-Za-z0-9)\]"'”’]/.test(t)) return '';
+    if (!/[.!?]["'”’)\]]?$/.test(t)) t += '.';
+    return t;
+  }
+
   function blockPlainEffect(item, issueKey) {
     if (!isDisapproval(item)) return '';
     if (yeaEffect(item, mappingOn(item, issueKey))) return '';
@@ -657,7 +678,7 @@
       var eff = yeaEffect(item, mapping);
       if (eff) {
         parts.push(eff.text);
-        if (eff.fromSelected) rat = rat.replace(YEA_CLAUSE_RE, '').replace(/[\s;,]+$/, '').trim();
+        if (eff.fromSelected) rat = tidyRemainder(rat.replace(YEA_CLAUSE_RE, ''));
       }
     }
     // Index 1 is always the title slot, even when the measure has no operative-
@@ -1226,9 +1247,16 @@
     canonicalCitation: canonicalCitation,
     isDisapproval: isDisapproval,
     yeaEffect: yeaEffect,
+    tidyRemainder: tidyRemainder,
     proofLine: proofLine,
     splitFor: splitFor,
-    candidates: candidates
+    candidates: candidates,
+    // The arrival half of a share. A card's `hash` is what travels; handleHash is
+    // what the recipient's browser runs when they tap it. Exposed so
+    // scripts/test-receipt-cards.mjs can assert the round trip on the real router
+    // — card.hash in, openGap(pid, issue) out, same pid and same issue — instead
+    // of trusting that the two halves were written to agree.
+    handleHash: handleHash
   };
 
   function boot() {
