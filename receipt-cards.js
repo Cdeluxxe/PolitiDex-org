@@ -56,7 +56,9 @@
   // is share-eligible; 5–9 are structural minimums a shareable image needs to
   // survive being screenshotted away from the app. Guards 10 and 11 are two
   // additional exclusions found while wiring this up — both are documented in
-  // the same terms and both fail closed.
+  // the same terms and both fail closed. Guards 12 and 13 are what a SKEPTIC
+  // needs: an address that resolves to the roll call (12), and, on a disapproval
+  // resolution, a plain-English statement of what a Yea actually did (13).
   // ══════════════════════════════════════════════════════════════════════════
 
   // ── Guard 1 · nominations are never share-card eligible ───────────────────
@@ -191,12 +193,112 @@
     var m = s.match(/^(\d{4}-\d{2}-\d{2})/);
     return m ? m[1] : s;
   }
-  // congress.gov/roll-call-vote/119/house/113 — the URL with its scheme and any
-  // query string stripped, short enough to print on one footer line and still be
-  // typed into a browser by hand.
-  function shortUrl(u) {
-    var s = String(u || '').replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[?#].*$/, '').replace(/\/$/, '');
-    return s.length > 62 ? s.slice(0, 61) + '…' : s;
+  // ══════════════════════════════════════════════════════════════════════════
+  // CANONICAL CITATION  ·  the address printed on the image
+  // ──────────────────────────────────────────────────────────────────────────
+  // A card is only checkable if the URL on it lands a stranger on the roll call
+  // it quotes. The URL the ingest happened to store often does not: 136 of the
+  // roll calls in the ledger are sourced to `api.congress.gov/v3/house-vote/...`
+  // (a JSON endpoint that returns an API-key error in a browser), and a handful
+  // are sourced to a bill's all-actions page, a GovTrack bill page, or a member's
+  // own press release — none of which show the vote.
+  //
+  // So the citation is DERIVED, not copied, from the one thing that identifies a
+  // roll call unambiguously: (chamber, congress, session, roll number). Both
+  // public chambers publish a stable page keyed on exactly that, and both shapes
+  // are confirmed against roll calls already stored in this shape:
+  //
+  //   House   https://clerk.house.gov/Votes/<calendar year><roll>        (unpadded)
+  //   Senate  https://www.senate.gov/legislative/LIS/roll_call_votes/
+  //             vote<congress><session>/vote_<congress>_<session>_<roll>.htm
+  //                                                        (roll padded to five)
+  //
+  // The tuple comes from the record item when the server sends it, and is
+  // otherwise recovered from an api.congress.gov or GovTrack VOTE url, both of
+  // which encode it in their path. A URL already in canonical form is passed
+  // through untouched. Anything else yields null and guard 12 refuses the card:
+  // a receipt whose address does not resolve is worse than no receipt.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Both derived shapes stay well inside this; it exists so a future source shape
+  // cannot silently push the footer line past the card's printable width. The
+  // renderer additionally shrinks the line to fit — neither layer ever elides.
+  var VERIFY_MAX = 96;
+  var API_VOTE_RE = /api\.congress\.gov\/v3\/(house|senate)-vote\/(\d+)\/(\d+)\/(\d+)/i;
+  var GOVTRACK_VOTE_RE = /govtrack\.us\/congress\/votes\/(\d+)-(\d{4})\/([hs])(\d+)/i;
+  var CANON_CLERK_RE = /^https:\/\/clerk\.house\.gov\/Votes\/\d{5,}$/i;
+  var CANON_LIS_RE = /^https:\/\/(?:www\.)?senate\.gov\/legislative\/LIS\/roll_call_votes\/vote\d+\/vote_\d+_\d+_\d{5}\.htm$/i;
+
+  function intOf(v) {
+    var n = parseInt(v, 10);
+    return (isFinite(n) && n > 0) ? n : 0;
+  }
+  function padRoll(n) {
+    var s = String(n);
+    while (s.length < 5) s = '0' + s;
+    return s;
+  }
+  // Congress N convenes in 1789 + 2(N-1); its first session is that calendar year.
+  // Used only to recover a session from a GovTrack path, which carries the year
+  // instead. Returns 0 when the pair is not a session of that congress, so a bad
+  // parse fails closed rather than producing a URL for the wrong vote.
+  function sessionOfYear(congress, year) {
+    var s = year - (1789 + 2 * (congress - 1)) + 1;
+    return (s === 1 || s === 2) ? s : 0;
+  }
+  // (congress, session, roll) or null. Explicit fields first — they come straight
+  // from vr_rollcalls — then whatever the stored URL encodes.
+  function rollTuple(item) {
+    if (!item) return null;
+    var c = intOf(item.congress), s = intOf(item.session), r = intOf(item.rollNumber);
+    var url = String((item.source && item.source.url) || '');
+    if (!(c && s && r)) {
+      var a = url.match(API_VOTE_RE);
+      if (a) { c = intOf(a[2]); s = intOf(a[3]); r = intOf(a[4]); }
+    }
+    if (!(c && s && r)) {
+      var g = url.match(GOVTRACK_VOTE_RE);
+      if (g) { c = intOf(g[1]); r = intOf(g[4]); s = sessionOfYear(c, intOf(g[2])); }
+    }
+    return (c && s && r) ? { congress: c, session: s, roll: r } : null;
+  }
+  // scheme and www stripped so the address fits a footer line and still reads as
+  // something you can type. Nothing else is removed — no path is shortened and no
+  // ellipsis is ever added, because a URL you cannot retype is not a citation.
+  // (No source URL in the ledger carries a query or a fragment, and one that did
+  // would be refused below rather than silently truncated.)
+  function printableUrl(u) {
+    return String(u || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+  }
+  function cite(url, label) {
+    if (/[?#]/.test(url)) return null;         // a stripped query would cite the wrong thing
+    var print = printableUrl(url);
+    if (!print || print.length > VERIFY_MAX) return null;
+    return { url: url, print: print, label: label };
+  }
+  // The public roll-call page for this vote, or null when one cannot be derived.
+  function canonicalCitation(item) {
+    if (!item || item.kind !== 'vote') return null;
+    var url = String((item.source && item.source.url) || '').trim();
+    // Already the page we would have built.
+    if (CANON_CLERK_RE.test(url)) return cite(url, 'U.S. House Clerk');
+    if (CANON_LIS_RE.test(url)) return cite(url, 'U.S. Senate');
+    var t = rollTuple(item);
+    if (!t) return null;
+    var chamber = String(item.chamber || '').toLowerCase();
+    if (chamber === 'house') {
+      // The Clerk keys its vote pages on the CALENDAR year of the vote, not on the
+      // congress — so a card with no usable date has no derivable address.
+      var y = yearOf(item.date);
+      if (!y) return null;
+      return cite('https://clerk.house.gov/Votes/' + y + t.roll, 'U.S. House Clerk · roll call ' + t.roll);
+    }
+    if (chamber === 'senate') {
+      return cite('https://www.senate.gov/legislative/LIS/roll_call_votes/vote' + t.congress + t.session +
+        '/vote_' + t.congress + '_' + t.session + '_' + padRoll(t.roll) + '.htm',
+        'U.S. Senate · roll call ' + t.roll);
+    }
+    return null;
   }
   function positionMapFor(pid) {
     try {
@@ -257,6 +359,72 @@
     // look up, and the card's supporting line is built from the title.
     if (/^roll\s*call\b/i.test(String(item.title || ''))) return 'measure title is still provisional';
     return '';
+  }
+
+  // ── Guard 12 · the card must print an address that resolves ───────────────
+  // See CANONICAL CITATION above. Failing this means we know which roll call the
+  // card quotes but cannot point a stranger at a page that shows it — most often
+  // because the roll number was never captured (the vote is sourced to a bill's
+  // all-actions page or a chamber's vote index, neither of which identifies it).
+  function blockCitation(item) {
+    if (canonicalCitation(item)) return '';
+    var u = String((item && item.source && item.source.url) || '');
+    if (/api\.congress\.gov/i.test(u)) {
+      return 'the only stored source is an api.congress.gov endpoint and the roll-call number is missing, so no public roll-call page can be derived';
+    }
+    return 'no canonical public roll-call page can be derived for this vote (stored source is not a roll-call page and the roll number is missing)';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PLAIN-ENGLISH OPERATIVE EFFECT  ·  disapproval resolutions
+  // ──────────────────────────────────────────────────────────────────────────
+  // "Providing for congressional disapproval under chapter 8 of title 5, United
+  // States Code, of the rule submitted by the Internal Revenue Service relating
+  // to gross proceeds reporting by brokers…" tells a reader what the resolution
+  // is ABOUT. It does not tell them that voting Yea CANCELLED that rule — and on
+  // a Congressional Review Act resolution the direction is the whole meaning of
+  // the vote. A reader who does not already know how the CRA works can read the
+  // title, read "Voted Yea", and get the vote exactly backwards.
+  //
+  // So a disapproval card must carry a sentence that says what a Yea did, and
+  // that sentence is QUOTED, never composed: the curators already wrote one into
+  // vr_measure_issues.rationale ("…a yea rolls back the mandate", "…a yea strikes
+  // the CFPB overdraft regulation off the books"). The operative effect is a
+  // property of the MEASURE, not of the issue the card names, so any of the
+  // measure's own mappings may supply it — the card's own mapping is preferred,
+  // and the sentence is printed FIRST so it is the one clause that can never be
+  // pushed off the bottom of the supporting block. If no rationale states it,
+  // guard 13 refuses the card rather than letting the title speak for the vote.
+  // ══════════════════════════════════════════════════════════════════════════
+  var DISAPPROVAL_RE = /\b(?:disapprov|nullif)|terminat\w*\s+the\s+national\s+emergency/i;
+  var YEA_CLAUSE_RE = /\ba yea\b[^.;]*/i;
+
+  function isDisapproval(item) {
+    return !!(item && DISAPPROVAL_RE.test(String(item.title || '')));
+  }
+  // { text, fromSelected } or null. `text` is the curators' own clause, lifted
+  // whole and given a capital and a full stop; no wording is added to it.
+  function yeaEffect(item, mapping) {
+    var list = (item && Array.isArray(item.issues)) ? item.issues : [];
+    var ordered = [];
+    if (mapping) ordered.push(mapping);
+    list.forEach(function (m) { if (m && m !== mapping) ordered.push(m); });
+    for (var i = 0; i < ordered.length; i++) {
+      var raw = String((ordered[i] && ordered[i].rationale) || '').replace(/\s+/g, ' ').trim();
+      var hit = raw.match(YEA_CLAUSE_RE);
+      if (!hit) continue;
+      var s = hit[0].trim().replace(/[.;,]+$/, '');
+      if (!s) continue;
+      return { text: s.charAt(0).toUpperCase() + s.slice(1) + '.', fromSelected: i === 0 && !!mapping };
+    }
+    return null;
+  }
+
+  // Guard 13: can a reader tell from the card what voting Yea actually did?
+  function blockPlainEffect(item, issueKey) {
+    if (!isDisapproval(item)) return '';
+    if (yeaEffect(item, mappingOn(item, issueKey))) return '';
+    return 'this is a disapproval-style resolution and no curated rationale states in plain words what a Yea did — the title alone would let a reader read the vote backwards';
   }
 
   // Guards 3, 4: is this ISSUE key shippable for this member, on this record?
@@ -392,10 +560,24 @@
   // The supporting line under the headline: what the bill is, how the chamber
   // came down, and — when the mapping carries one — the curated rationale for why
   // this bill speaks to this issue. Every clause is quoted from stored data.
+  //
+  // On a disapproval resolution the curators' plain-English "what a Yea did"
+  // clause leads, because it is the clause a reader cannot reconstruct from the
+  // title and the only one the line budget must never drop. When that clause came
+  // from THIS mapping's own rationale, it is removed from the rationale so the
+  // card states it once rather than twice.
   function supportingText(item, mapping) {
     var bits = [];
+    var rat = (mapping && mapping.rationale) ? String(mapping.rationale).replace(/\s+/g, ' ').trim() : '';
+    if (isDisapproval(item)) {
+      var eff = yeaEffect(item, mapping);
+      if (eff) {
+        bits.push(eff.text);
+        if (eff.fromSelected) rat = rat.replace(YEA_CLAUSE_RE, '').replace(/[\s;,]+$/, '').trim();
+      }
+    }
     if (item.title) bits.push(String(item.title).replace(/\s+/g, ' ').trim());
-    if (mapping && mapping.rationale) bits.push(String(mapping.rationale).replace(/\s+/g, ' ').trim());
+    if (rat) bits.push(rat);
     var tail = [];
     if (item.chamber) tail.push(titleCase(item.chamber));
     if (item.result) tail.push(String(item.result));
@@ -414,7 +596,9 @@
     try { if (typeof window._getPhotoUrl === 'function') photo = window._getPhotoUrl(pid) || ''; } catch (e) {}
     var mapping = mappingOn(item, issueKey);
     var date = dayOf(item.date);
-    var srcUrl = (item.source && item.source.url) || '';
+    // Guard 12 has already refused anything this cannot resolve, so a built card
+    // always cites a page a stranger can open.
+    var citation = canonicalCitation(item) || { url: '', print: '', label: 'Official record' };
 
     return {
       // identity
@@ -424,22 +608,36 @@
       issueKey: issueKey, issue: issueMeta(issueKey),
       // SAID — the stated position, verbatim
       said: { text: stance.text || stance.topic || '', word: stanceWord(stance.stance) },
+      // ── Chronology honesty ────────────────────────────────────────────────
+      // Stance blocks carry no date — not one of the 5,041 in the corpus does. A
+      // card headed "THEY SAID" above a dated vote therefore asserts a sequence
+      // the data cannot support: a reader would take it to mean the words came
+      // first and the vote broke them, which on some of these pairs is simply not
+      // known. Inventing a date is out, and refusing every contradiction card
+      // would throw away the whole feed, so the card stops making the claim: a
+      // present-tense label for an undated position, and a line that says so
+      // outright. The verdict itself is unaffected — it never depended on order,
+      // only on whether the position and the vote point the same way.
+      saidLabel: 'THEIR STATED POSITION',
+      saidNote: 'Stated position is undated — this card does not claim it came before the vote.',
       // DID — bill, question, position, date
       headline: proofLine(item),
       facts: supportingText(item, mapping),
       why: '',
       date: date,
-      source: { url: srcUrl, label: (item.source && item.source.label) || 'Congress.gov' },
+      source: { url: citation.url, label: citation.label },
       // renderer hints
       category: 'official_record',
       impact: verdict.key === 'contradicts' ? 'negative' : 'positive',
       verdict: verdict,
-      verifyUrl: shortUrl(srcUrl),
+      verifyUrl: citation.print,
       method: 'HOW THIS IS JUDGED: ' + METHOD_URL,
       // Provenance a caller (or a test) can read without re-deriving it. `origin`
       // is what keeps this feed identifiable downstream: nothing that carries it
-      // may be counted into a Say-vs-Do score.
+      // may be counted into a Say-vs-Do score. `sourceStored` is the URL the
+      // ingest recorded — kept so the derivation is auditable, never printed.
       origin: 'official_record',
+      sourceStored: (item.source && item.source.url) || '',
       measureNumber: item.number || '',
       rollcallId: item.rollcallId || null,
       hash: '#' + SHARE_HASH + '=' + encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey),
@@ -491,12 +689,15 @@
           };
           // Guard order is the order a reader would check them in: is the issue
           // shippable, is there a real stated position, is the cited vote
-          // citable, is the identity clean, does the verdict hold.
+          // citable, can it be pointed at, does it read plainly, is the identity
+          // clean, does the verdict hold.
           cand.blocked =
             blockIssue(pid, issueKey, pos && pos.text, item) ||
             (pos ? '' : 'no stated position on this issue to line the vote up against') ||
             blockStance(pos && pos.text) ||
             blockRecord(item) ||
+            blockCitation(item) ||
+            blockPlainEffect(item, issueKey) ||
             blockDuplicateIdentity(records, issueKey, item.number) ||
             stableVerdict(summary, want) ||
             wave1Hold(issueKey);
@@ -911,6 +1112,8 @@
       blockRecord: blockRecord,
       blockIssue: blockIssue,
       blockStance: blockStance,
+      blockCitation: blockCitation,
+      blockPlainEffect: blockPlainEffect,
       blockDuplicateIdentity: blockDuplicateIdentity,
       stableVerdict: stableVerdict,
       wave1Hold: wave1Hold,
@@ -922,6 +1125,9 @@
     VERDICTS: VERDICTS,
     METHOD_URL: METHOD_URL,
     // pure, testable pieces
+    canonicalCitation: canonicalCitation,
+    isDisapproval: isDisapproval,
+    yeaEffect: yeaEffect,
     proofLine: proofLine,
     splitFor: splitFor,
     candidates: candidates

@@ -424,6 +424,12 @@
               isAmendment: m.measureType === 'amendment',
               parentMeasureId: (m.parentMeasureId == null) ? null : m.parentMeasureId,
               rollcallId: ref.rollcallId,
+              // The roll-call tuple, when the server carries it. receipt-cards.js
+              // builds the canonical clerk.house.gov / senate.gov page from it, and
+              // falls back to parsing rc.source.url when an older payload omits it.
+              congress: (rc.congress == null) ? null : rc.congress,
+              session: (rc.session == null) ? null : rc.session,
+              rollNumber: (rc.rollNumber == null) ? null : rc.rollNumber,
               issues: m.issues || [],
               source: rc.source || null
             });
@@ -450,6 +456,9 @@
               isAmendment: pm.measureType === 'amendment',
               parentMeasureId: (pm.parentMeasureId == null) ? null : pm.parentMeasureId,
               rollcallId: null,
+              congress: null,
+              session: null,
+              rollNumber: null,
               issues: pm.issues || [],
               source: ref.source || null
             });

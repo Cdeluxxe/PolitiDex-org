@@ -123,7 +123,7 @@ ctx.PROFILES = ctx.window.PROFILES = {
 const RECORDS = [
   // The workhorse: a real omnibus, five mapped issues, both directions.
   {
-    kind: "vote", measureId: 1, measureType: "bill", number: "H.R. 1",
+    kind: "vote", measureId: 1, congress: 119, session: 1, rollNumber: 190, measureType: "bill", number: "H.R. 1",
     title: "One Big Beautiful Bill Act", chamber: "house", result: "Passed",
     date: "2025-07-03", action: "On Passage", position: "yea",
     isProcedural: false, advanceInverted: false,
@@ -140,7 +140,7 @@ const RECORDS = [
   },
   // Guard 1 — a confirmation vote carrying a policy key at full weight.
   {
-    kind: "vote", measureId: 2, measureType: "nomination", number: "PN 100",
+    kind: "vote", measureId: 2, congress: 119, session: 1, rollNumber: 61, measureType: "nomination", number: "PN 100",
     title: "Nomination of a Secretary of Health and Human Services", chamber: "senate",
     result: "Confirmed", date: "2025-02-13", action: "On the Nomination", position: "yea",
     isProcedural: false, source: SRC("https://www.congress.gov/nomination/119th-congress/100"),
@@ -148,7 +148,7 @@ const RECORDS = [
   },
   // Guard 3 — the incoherent key.
   {
-    kind: "vote", measureId: 3, measureType: "resolution", number: "S.J.Res. 37",
+    kind: "vote", measureId: 3, congress: 119, session: 1, rollNumber: 129, measureType: "resolution", number: "S.J.Res. 37",
     title: "Terminating the national emergency underlying certain tariffs", chamber: "senate",
     result: "Rejected", date: "2025-04-30", action: "On Passage", position: "nay",
     isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37"),
@@ -156,7 +156,7 @@ const RECORDS = [
   },
   // Guard 4 — america_first_fp resting on the restraint stance above.
   {
-    kind: "vote", measureId: 4, measureType: "amendment", number: "H.Amdt. 252",
+    kind: "vote", measureId: 4, congress: 119, session: 1, rollNumber: 168, measureType: "amendment", number: "H.Amdt. 252",
     title: "Amendment prohibiting funds for unauthorized hostilities", chamber: "house",
     result: "Failed", date: "2025-06-18", action: "On Agreeing to the Amendment", position: "nay",
     isProcedural: false, source: SRC("https://www.congress.gov/amendment/119th-congress/house-amendment/252"),
@@ -167,7 +167,7 @@ const RECORDS = [
   },
   // Guard 6 — procedural question.
   {
-    kind: "vote", measureId: 5, measureType: "bill", number: "H.R. 22",
+    kind: "vote", measureId: 5, congress: 119, session: 1, rollNumber: 70, measureType: "bill", number: "H.R. 22",
     title: "SAVE Act", chamber: "house", result: "Failed",
     date: "2025-03-04", action: "On Motion to Recommit", position: "yea",
     isProcedural: true, source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/22"),
@@ -176,37 +176,43 @@ const RECORDS = [
   // Guard 11 — ONE bill number arriving through TWO measure ids, the client-side
   // backstop for a database that has not applied the identity-merge migration.
   {
-    kind: "vote", measureId: 56, measureType: "bill", number: "S.J.Res. 18",
+    kind: "vote", measureId: 56, congress: 119, session: 1, rollNumber: 200, measureType: "bill", number: "S.J.Res. 18",
     title: "Disapproving a rule on public land management", chamber: "senate",
     result: "Passed", date: "2025-05-08", action: "On Passage", position: "yea",
     isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18"),
-    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes" }],
+    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes",
+      // Guard 13 wants a plain-English operative effect on any disapproval-titled
+      // measure, and in production every mapping carries one.
+      rationale: "A Congressional Review Act resolution striking a federal rule; a yea removes the public-land management regulation." }],
   },
   {
-    kind: "vote", measureId: 141, measureType: "resolution", number: "S.J.Res. 18",
+    kind: "vote", measureId: 141, congress: 119, session: 1, rollNumber: 201, measureType: "resolution", number: "S.J.Res. 18",
     title: "Disapproving a rule on public land management", chamber: "senate",
     result: "Passed", date: "2025-05-08", action: "On Passage", position: "yea",
     isProcedural: false, source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18"),
-    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes" }],
+    issues: [{ issueKey: "lands_preserve", weight: 90, isPrimary: true, supportMeaning: "yea_opposes",
+      // Guard 13 wants a plain-English operative effect on any disapproval-titled
+      // measure, and in production every mapping carries one.
+      rationale: "A Congressional Review Act resolution striking a federal rule; a yea removes the public-land management regulation." }],
   },
   // Guard 9 — school_choice: two votes matching the stance, one against it. A
   // contradiction card exists locally but the NET record does not say contradicts.
   {
-    kind: "vote", measureId: 7, measureType: "bill", number: "H.R. 5",
+    kind: "vote", measureId: 7, congress: 119, session: 1, rollNumber: 247, measureType: "bill", number: "H.R. 5",
     title: "Educational Choice for Children Act", chamber: "house", result: "Passed",
     date: "2025-09-10", action: "On Passage", position: "yea", isProcedural: false,
     source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/5"),
     issues: [{ issueKey: "school_choice", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
   },
   {
-    kind: "vote", measureId: 8, measureType: "bill", number: "H.R. 6",
+    kind: "vote", measureId: 8, congress: 119, session: 1, rollNumber: 260, measureType: "bill", number: "H.R. 6",
     title: "Charter School Expansion Act", chamber: "house", result: "Passed",
     date: "2025-10-01", action: "On Passage", position: "yea", isProcedural: false,
     source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/6"),
     issues: [{ issueKey: "school_choice", weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
   },
   {
-    kind: "vote", measureId: 9, measureType: "bill", number: "H.R. 7",
+    kind: "vote", measureId: 9, congress: 119, session: 1, rollNumber: 271, measureType: "bill", number: "H.R. 7",
     title: "Public School Funding Floor Act", chamber: "house", result: "Passed",
     date: "2025-10-15", action: "On Passage", position: "yea", isProcedural: false,
     source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/7"),
@@ -222,7 +228,7 @@ ctx.ISSUE_STANCE_DATA.thinrep = [
 ];
 ctx.PROFILES.thinrep = { name: "Rep. Thin Record", office: "U.S. House", state: "OH", party: "D" };
 const THIN_RECORDS = [
-  { kind: "vote", measureId: 20, measureType: "bill", number: "H.R. 30", title: "Clean Grid Act",
+  { kind: "vote", measureId: 20, congress: 119, session: 1, rollNumber: 99, measureType: "bill", number: "H.R. 30", title: "Clean Grid Act",
     chamber: "house", result: "Passed", date: "2025-04-01", action: "On Passage", position: "yea",
     isProcedural: false, source: null,                    // guard 7 — no source URL
     issues: [{ issueKey: "climate_action", weight: 100, isPrimary: true, supportMeaning: "yea_opposes" }] },
@@ -444,11 +450,15 @@ if (contra) {
   has(contra.facts, "One Big Beautiful Bill Act", "cards: the supporting line names the measure");
   has(contra.facts, "CBO scores the package", "cards: the curated rationale for the mapping is carried through");
   has(contra.facts, "Passed", "cards: the chamber outcome is carried through");
-  // source URL + method link + mark
-  eq(contra.source.url, "https://www.congress.gov/bill/119th-congress/house-bill/1?q=1",
-    "cards: the full source URL is retained for the link");
-  eq(contra.verifyUrl, "congress.gov/bill/119th-congress/house-bill/1",
-    "cards: the printed URL drops the scheme and query so it fits and can be typed by hand");
+  // source URL + method link + mark. The stored source is a congress.gov BILL
+  // page — it does not show the vote — so what the card prints is the derived
+  // canonical roll-call page, and the stored URL is kept only for the audit.
+  eq(contra.source.url, "https://clerk.house.gov/Votes/2025190",
+    "cards: the cited URL is the chamber's own roll-call page, derived, not the stored source");
+  eq(contra.sourceStored, "https://www.congress.gov/bill/119th-congress/house-bill/1?q=1",
+    "cards: the URL the ingest recorded is retained so the derivation is auditable");
+  eq(contra.verifyUrl, "clerk.house.gov/Votes/2025190",
+    "cards: the printed URL drops only the scheme, so it can be typed by hand");
   has(contra.method, "#methodology", "cards: a method link is on the card itself, not only in the app");
   eq(contra.origin, "official_record", "cards: the card declares which system produced its verdict");
   // one claim per card
@@ -773,6 +783,164 @@ has(RC.guards.wave1Hold("america_first_fp"), "wave 1",
 eq(RC.guards.wave1Hold("lower_taxes"), "", "wave 1: the hold touches nothing outside its own key");
 eq(RC.guards.blockIssue("someone_else", "america_first_fp", "America First means putting our own workers first.", null), "",
   "wave 1: holding a key for wave 1 did not turn guard 4 into a blanket block");
+
+// ══ 7. CHECKABLE OFF-APP ═════════════════════════════════════════════════════
+// The three things a skeptic with only the image needs: an address that opens
+// the roll call, no claim about chronology the data cannot support, and — on a
+// resolution that cancels something — a sentence saying what a Yea did.
+
+// ── Part 1 · canonical citations ─────────────────────────────────────────────
+const cc = RC.canonicalCitation;
+const VOTE = (o) => ({ kind: "vote", chamber: "house", date: "2025-07-03", ...o });
+
+// Derived from the explicit tuple, whatever the stored URL happens to be.
+eq(cc(VOTE({ congress: 119, session: 1, rollNumber: 190, source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/1") })).url,
+  "https://clerk.house.gov/Votes/2025190", "citation: a House vote cites the Clerk's own vote page");
+eq(cc(VOTE({ chamber: "senate", congress: 119, session: 1, rollNumber: 7, source: SRC("https://x.test/whatever") })).url,
+  "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm",
+  "citation: a Senate vote cites the public LIS roll-call page, roll number padded to five");
+eq(cc(VOTE({ chamber: "senate", congress: 118, session: 2, rollNumber: 456, source: SRC("https://x.test/1") })).url,
+  "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00456.htm",
+  "citation: the LIS path is keyed on congress and session, not on the year");
+// The Clerk keys on the calendar year of the vote, so the date drives the path.
+eq(cc(VOTE({ date: "2024-11-12", congress: 118, session: 2, rollNumber: 456, source: SRC("https://x.test/1") })).url,
+  "https://clerk.house.gov/Votes/2024456", "citation: the Clerk path uses the vote's calendar year, roll unpadded");
+
+// Recovered from a URL that encodes the tuple, for a payload sent before the
+// server carried the fields.
+eq(cc(VOTE({ source: SRC("https://api.congress.gov/v3/house-vote/119/1/308"), date: "2025-12-02" })).url,
+  "https://clerk.house.gov/Votes/2025308", "citation: the tuple is recovered from an api.congress.gov path");
+eq(cc(VOTE({ source: SRC("https://www.govtrack.us/congress/votes/119-2025/h122"), date: "2025-05-08" })).url,
+  "https://clerk.house.gov/Votes/2025122", "citation: the tuple is recovered from a GovTrack VOTE path");
+// A GovTrack BILL page carries no roll call, so nothing may be derived from it.
+eq(cc(VOTE({ source: SRC("https://www.govtrack.us/congress/bills/119/hr3838") })), null,
+  "citation: a bill page is not a roll-call page — no address, no card");
+
+// Already canonical → passed through byte for byte.
+const passthru = "https://clerk.house.gov/Votes/2025190";
+eq(cc(VOTE({ source: SRC(passthru) })).url, passthru, "citation: an already-canonical Clerk URL is not rewritten");
+const lis = "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00478.htm";
+eq(cc(VOTE({ chamber: "senate", source: SRC(lis) })).url, lis, "citation: an already-canonical LIS URL is not rewritten");
+
+// Fail closed — every one of these is a real shape in the ledger.
+for (const [what, item] of [
+  ["a bill's all-actions page with no roll number",
+    VOTE({ chamber: "senate", source: SRC("https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37/all-actions") })],
+  ["a chamber's vote INDEX rather than a vote",
+    VOTE({ chamber: "senate", source: SRC("https://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.htm") })],
+  ["a member's own press release",
+    VOTE({ source: SRC("https://baumgartner.house.gov/media/press-releases/some-vote") })],
+  ["no source at all", VOTE({ source: null })],
+  ["a House vote with no date to key the Clerk path on",
+    VOTE({ date: null, congress: 119, session: 1, rollNumber: 190, source: SRC("https://x.test/1") })],
+  ["a chamber we do not have a public vote page for",
+    VOTE({ chamber: "", congress: 119, session: 1, rollNumber: 12, source: SRC("https://x.test/1") })],
+  ["a co-sponsorship, which has no roll call", { kind: "position", chamber: "house", source: SRC(passthru) }],
+]) {
+  eq(cc(item), null, `citation: fails closed on ${what}`);
+  ok(!!RC.guards.blockCitation(item), `citation: guard 12 blocks ${what}`);
+}
+has(RC.guards.blockCitation(VOTE({ source: SRC("https://api.congress.gov/v3/house-vote/119") })), "api.congress.gov",
+  "citation: guard 12 names the api endpoint when that is the reason, so the audit is actionable");
+eq(RC.guards.blockCitation(VOTE({ source: SRC(passthru) })), "", "citation: guard 12 passes a derivable vote");
+
+// Nothing an api endpoint or an ellipsis can reach the image through.
+for (const card of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
+  const where = card.issueKey;
+  lacks(card.verifyUrl, "api.congress.gov", `citation: no api endpoint is printed on the ${where} card`);
+  lacks(card.verifyUrl, "…", `citation: the printed URL on the ${where} card is not elided`);
+  ok(/^(clerk\.house\.gov|senate\.gov)\//.test(card.verifyUrl),
+    `citation: the ${where} card prints a chamber roll-call page`);
+  eq(card.verifyUrl, card.source.url.replace(/^https:\/\/(www\.)?/, ""),
+    `citation: the printed address and the linked address on the ${where} card are the same page`);
+  ok(card.source.label === "U.S. House Clerk" || /^U\.S\. (House Clerk|Senate) · roll call \d+$/.test(card.source.label),
+    `citation: the ${where} card's source label names the chamber page it cites`);
+}
+// The renderer must not re-introduce a truncation layer under the guard.
+const svdVerify = svd.slice(svd.indexOf("if (r.verifyUrl) {", svd.indexOf("function renderCanvas")));
+const svdVerifyBlock = svdVerify.slice(0, svdVerify.indexOf("if (r.method)"));
+lacks(svdVerifyBlock, "wrapText", "citation: the VERIFY line is not wrapped or ellipsized by the renderer");
+has(svdVerifyBlock, "measureText", "citation: the VERIFY line is measured and shrunk to fit instead");
+
+// ── Part 2 · chronology ──────────────────────────────────────────────────────
+// Not one stance block in the corpus carries a date, so no card may imply order.
+const dated = (RC.cardsFor("testrep")[0] || {});
+eq(dated.saidLabel, "THEIR STATED POSITION", "chronology: the said block is labelled in the present tense");
+has(dated.saidNote, "undated", "chronology: the card states on its face that the position is undated");
+has(dated.saidNote, "does not claim it came before the vote",
+  "chronology: the card disclaims the sequence rather than implying it");
+lacks(JSON.stringify(dated.said), "date", "chronology: no date is attached to the stated position");
+has(svd, "r.saidLabel || 'THEY SAID'", "chronology: the renderer honours the card's own said label");
+has(svd, "if (r.saidNote)", "chronology: the renderer draws the undated disclosure on the image");
+has(svd, "'Stated position: ' : 'Said: '", "chronology: the pasted caption uses the same present-tense framing");
+has(svd, "if (rec && r.saidNote)", "chronology: the pasted caption carries the disclosure too");
+// A curated Say-vs-Do receipt sets neither field and is drawn exactly as before.
+ok(svd.indexOf("r.saidLabel ||") > 0 && svd.indexOf("saidLabel:") < 0,
+  "chronology: saidLabel is read by the renderer and set only by the vote-derived feed");
+
+// ── Part 3 · what a Yea did ──────────────────────────────────────────────────
+const CRA_TITLE = "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to gross proceeds reporting by brokers";
+ok(RC.isDisapproval({ title: CRA_TITLE }), "plain english: a CRA disapproval title is recognised");
+ok(RC.isDisapproval({ title: "A joint resolution nullifying a rule on overdraft lending" }),
+  "plain english: a nullification title is recognised");
+ok(RC.isDisapproval({ title: "Terminating the national emergency underlying certain tariffs" }),
+  "plain english: a national-emergency termination is recognised");
+ok(!RC.isDisapproval({ title: "One Big Beautiful Bill Act" }),
+  "plain english: an ordinary bill is not swept into the disapproval rule");
+
+const craIssues = [
+  { issueKey: "tech_innovation", weight: 60, isPrimary: false,
+    rationale: "Supporters framed the rule as unworkable for decentralized software." },
+  { issueKey: "gov_regulation", weight: 100, isPrimary: true,
+    rationale: "Congressional Review Act resolution repealing the IRS reporting rule; a yea rolls back the mandate." },
+];
+const craItem = { kind: "vote", title: CRA_TITLE, issues: craIssues };
+// The effect is a property of the MEASURE, so any of its mappings may supply it.
+eq(RC.yeaEffect(craItem, craIssues[0]).text, "A yea rolls back the mandate.",
+  "plain english: the operative effect is borrowed from another mapping on the same measure");
+eq(RC.yeaEffect(craItem, craIssues[0]).fromSelected, false,
+  "plain english: the card knows the effect came from a sibling mapping, not its own");
+eq(RC.yeaEffect(craItem, craIssues[1]).fromSelected, true,
+  "plain english: a mapping's own rationale is preferred over a sibling's");
+ok(JSON.stringify(craIssues).includes("a yea rolls back the mandate"),
+  "plain english: the sentence is quoted from stored data, not composed");
+// Refuse when no curator ever wrote one down.
+const craMute = { kind: "vote", title: CRA_TITLE, issues: [{ issueKey: "gov_regulation",
+  rationale: "Supporters framed the rule as a drag on U.S. crypto development." }] };
+eq(RC.yeaEffect(craMute, craMute.issues[0]), null, "plain english: motivation is not an operative effect");
+has(RC.guards.blockPlainEffect(craMute, "gov_regulation"), "what a Yea did",
+  "plain english: guard 13 refuses a disapproval card that cannot say what a Yea did");
+eq(RC.guards.blockPlainEffect(craItem, "tech_innovation"), "",
+  "plain english: guard 13 passes when any mapping states the effect");
+eq(RC.guards.blockPlainEffect({ kind: "vote", title: "Farm Bill", issues: [] }, "any"), "",
+  "plain english: guard 13 touches nothing but disapproval-style measures");
+// End to end: the effect leads the supporting line, so the line budget can never
+// drop the one clause a reader cannot reconstruct from the title.
+const craCard = RC.find("testrep", "lands_preserve");
+ok(!craCard || /^A yea removes/.test(craCard.facts),
+  "plain english: on a disapproval card the operative effect is the first thing in the supporting line");
+if (craCard) {
+  eq((craCard.facts.match(/a yea removes/gi) || []).length, 1,
+    "plain english: the effect is stated once, not repeated out of the rationale it came from");
+}
+
+// Method copy has to describe all three, or the card's method link points at a
+// page that no longer matches the card.
+{
+  const mIdx2 = consSrc.indexOf("Cards you can share");
+  const mSec2 = consSrc.slice(mIdx2, consSrc.indexOf("'cards')", mIdx2) + 8);
+  for (const [what, pattern] of [
+    ["the canonical roll-call page rule", /clerk\.house\.gov/],
+    ["that a developer API endpoint is never printed", /developer API endpoint/i],
+    ["that URLs are never shortened", /never shortened/i],
+    ["the plain-English rule for disapproval resolutions", /what a Yea actually did/i],
+    ["that stated positions are undated", /undated/i],
+    // The copy is read out of the JS source, where an apostrophe is backslash-escaped.
+    ["that no date is invented", /can\\?'t source a date for/i],
+  ]) {
+    ok(pattern.test(mSec2), `method copy: covers ${what}`);
+  }
+}
 
 // Reading the record must not mutate it.
 const recBefore = JSON.stringify(RECORDS);

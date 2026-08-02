@@ -600,12 +600,24 @@
         ctx.fillStyle = '#60a5fa'; ctx.fillRect(x, y + 4, 5, 26);
         ctx.font = '800 22px "Barlow Condensed", sans-serif';
         ctx.fillStyle = '#7ab0f0';
-        ctx.fillText('THEY SAID', x + 18, y);
+        // Vote-derived cards override this label. "THEY SAID" is past tense above
+        // a dated vote, which reads as a sequence — and stance blocks carry no
+        // date, so that sequence is not something the data knows.
+        ctx.fillText(r.saidLabel || 'THEY SAID', x + 18, y);
         y += 36;
         ctx.font = 'italic 400 34px "Barlow", sans-serif';
         ctx.fillStyle = '#dbe6f7';
         var saidLines = wrapText(ctx, (r.said.word ? r.said.word + ': ' : '') + '“' + r.said.text + '”', contentW, 3);
-        y = drawLines(ctx, saidLines, x, y, 44) + 26;
+        y = drawLines(ctx, saidLines, x, y, 44) + 8;
+        // The disclosure that goes with the relabelled block: said outright on the
+        // image, because the image is what travels. Only vote-derived cards set it.
+        if (r.saidNote) {
+          ctx.font = '600 21px "Barlow Condensed", sans-serif';
+          ctx.fillStyle = '#7596c0';
+          ctx.fillText(wrapText(ctx, String(r.saidNote), contentW, 1)[0] || '', x, y);
+          y += 26;
+        }
+        y += 18;
       }
 
       // ── RECORD block ──
@@ -675,12 +687,20 @@
       // The citable URL itself, printed so the receipt survives being screenshotted
       // out of the app: "check it yourself" is only true if the address travels
       // with the image. Vote-derived cards always set this.
+      //
+      // It is never wrapped and never ellipsized. A URL with a "…" in it is not
+      // clickable, not typable, and quietly wrong — the reader has no way to know
+      // what was removed. If the line is too wide it is SHRUNK to fit instead;
+      // receipt-cards.js refuses any card whose address could not fit even so.
       if (r.verifyUrl) {
         my += 30;
-        ctx.font = '600 22px "Barlow Condensed", sans-serif';
         ctx.fillStyle = '#9fb4d4';
         var vTxt = 'VERIFY: ' + String(r.verifyUrl);
-        ctx.fillText(wrapText(ctx, vTxt, contentW, 1)[0] || vTxt, x, my);
+        for (var vSize = 22; vSize > 14; vSize--) {
+          ctx.font = '600 ' + vSize + 'px "Barlow Condensed", sans-serif';
+          if (ctx.measureText(vTxt).width <= contentW) break;
+        }
+        ctx.fillText(vTxt, x, my);
       }
       // Method stays visible on the card, not just in the app.
       if (r.method) {
@@ -731,9 +751,9 @@
   function isRecordCard(r) { return !!(r && r.origin === 'official_record'); }
   function sourceLine(r) {
     var lbl = (r.source && r.source.label) || (isRecordCard(r) ? 'the official record' : 'public record');
-    // The card IMAGE prints r.verifyUrl, which is elided to fit the card width.
-    // Pasted text has no width limit, so it carries the whole URL — an elided
-    // one is not clickable and not typable, which defeats the point of citing it.
+    // The card IMAGE prints r.verifyUrl — the same address with its scheme
+    // stripped so it fits one footer line. Pasted text has no width limit, so it
+    // carries the whole thing, https:// and all, ready to click.
     var full = (r.source && r.source.url) || r.verifyUrl || '';
     var url = isRecordCard(r) && full ? ' — ' + full : '';
     return lbl + (r.date ? ' (' + r.date + ')' : '') + url;
@@ -742,8 +762,12 @@
     var lines = [];
     var rec = isRecordCard(r);
     lines.push((rec ? '🏛️ ' : '🧾 ') + r.name + ' — ' + r.verdict.label.replace(' · ', ': '));
-    if (r.said) lines.push('Said: “' + trimTo(r.said.text, 150) + '”');
+    // "Said:" is past tense and the stance blocks are undated, so on a
+    // vote-derived card the caption uses the same present-tense framing the image
+    // does and carries the same disclosure. See r.saidNote in receipt-cards.js.
+    if (r.said) lines.push((rec ? 'Stated position: ' : 'Said: ') + '“' + trimTo(r.said.text, 150) + '”');
     lines.push((r.impact === 'positive' ? 'Record: ' : 'But the record: ') + trimTo(r.headline, 150));
+    if (rec && r.saidNote) lines.push(r.saidNote);
     lines.push('Source: ' + sourceLine(r));
     // A split card's whole point is that one vote landed both ways, so the caption
     // says so too rather than leaving the image to carry it alone.
