@@ -954,30 +954,59 @@ if (craCard) {
     eq(entry.measure || "", (ev && ev.pageMeasure) || "",
       "guard 14: the entry's page-measure matches the evidence it was taken from");
   }
-  // Measure-awareness, both directions. These two assertions are the whole reason
-  // the entries carry a measure: the repair migration and this file deploy
-  // independently, so the guard has to be correct BEFORE the ledger is fixed
-  // (refuse — the card would print the wrong bill) and AFTER (publish — the card
-  // and the page now name the same one), without a second deploy in between.
+  // Measure-awareness, both directions. This is the whole reason entries carry a
+  // measure: a repair migration and this file deploy independently, so the guard
+  // has to be correct BEFORE the ledger is fixed (refuse — the card would print the
+  // wrong bill) and AFTER (publish — card and page now name the same one), with no
+  // second deploy in between.
+  //
+  // Driven by FIXTURES, not by whatever the live list happens to hold. When the
+  // ledger is healthy that list is empty — as it is now that the Laken Riley repair
+  // has deployed — and a test that read its cases out of it would quietly stop
+  // checking anything at exactly the moment it still needs to work for the next
+  // conflict. The fixture is injected into the live object, exercised, and removed.
   {
-    const conflicted = Object.entries(denied).filter(([, e]) => e.measure);
-    ok(conflicted.length > 0, "guard 14: at least one refusal is a measure conflict");
-    for (const [url, entry] of conflicted) {
-      const sm = url.match(/vote_(\d+)_(\d+)_0*(\d+)\.htm$/);
-      const hm = url.match(/clerk\.house\.gov\/Votes\/(\d{4})(\d+)$/);
-      const base = sm
-        ? { chamber: "senate", congress: +sm[1], session: +sm[2], rollNumber: +sm[3] }
-        : { chamber: "house", congress: 119, session: 1, rollNumber: +hm[2] };
+    const CASES = [
+      { chamber: "senate", congress: 119, session: 1, rollNumber: 7,
+        wrong: "H.R. 29", pageMeasure: "S. 5",
+        why: "the roll-call page for this vote is recorded under a different measure number, so a reader following the citation would not find the bill named on the card" },
+      { chamber: "house", congress: 119, session: 1, rollNumber: 23,
+        wrong: "H.R. 29", pageMeasure: "S 5",
+        why: "the Clerk's record of this roll call is a vote on a different bill than the one named on the card, so a reader following the citation would not find the measure the card cites" },
+    ];
+    for (const c of CASES) {
       const at = (number) => ({ kind: "vote", date: "2025-01-20", number,
-        source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/29"), ...base });
-      eq(RC.canonicalCitation(at("H.R. 29")).url, url,
-        "guard 14: the refused address is one the deriver actually produces");
-      ok(!!RC.guards.blockUnverifiedCitation(at("H.R. 29")),
-        "guard 14: before the repair, a card naming the wrong measure is refused");
-      eq(RC.guards.blockUnverifiedCitation(at(entry.measure)), "",
-        "guard 14: after the repair, a card naming the measure the page names publishes");
-      eq(RC.guards.blockUnverifiedCitation(at(entry.measure.replace(/[.\s]/g, ""))), "",
-        "guard 14: agreement is judged on the bill token, not on chamber punctuation");
+        source: SRC("https://www.congress.gov/bill/119th-congress/house-bill/29"),
+        chamber: c.chamber, congress: c.congress, session: c.session, rollNumber: c.rollNumber });
+      const url = RC.canonicalCitation(at(c.wrong)).url;
+      ok(/^https:\/\/(www\.senate\.gov|clerk\.house\.gov)\//.test(url),
+        "guard 14: the fixture address is a real chamber roll-call page the deriver produces");
+      eq(RC.guards.blockUnverifiedCitation(at(c.wrong)), "",
+        "guard 14: with nothing listed, the citation is not blocked");
+      denied[url] = { measure: c.pageMeasure, why: c.why };
+      try {
+        ok(!!RC.guards.blockUnverifiedCitation(at(c.wrong)),
+          "guard 14: before the repair, a card naming the wrong measure is refused");
+        eq(RC.guards.blockUnverifiedCitation(at(c.pageMeasure)), "",
+          "guard 14: after the repair, a card naming the measure the page names publishes");
+        eq(RC.guards.blockUnverifiedCitation(at(c.pageMeasure.replace(/[.\s]/g, ""))), "",
+          "guard 14: agreement is judged on the bill token, not on chamber punctuation");
+        // The printable-form comparison the card-level sweep below depends on. Done
+        // here, against a live www address, because an empty denylist cannot prove it.
+        const printableKey = url.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+        ok(new Map(Object.entries(denied).map(([u, e]) =>
+          [u.replace(/^https?:\/\//i, "").replace(/^www\./i, ""), e])).has(printableKey),
+          "guard 14: the printable-form index resolves a www address (the card sweep is not vacuous)");
+        // An entry with no measure is refused outright — there is no ledger state
+        // that could come to agree with a dead link.
+        denied[url] = { why: c.why };
+        ok(!!RC.guards.blockUnverifiedCitation(at(c.pageMeasure)),
+          "guard 14: an entry with no measure refuses every card, however the ledger changes");
+      } finally {
+        delete denied[url];
+      }
+      eq(RC.guards.blockUnverifiedCitation(at(c.wrong)), "",
+        "guard 14: the fixture is removed again and leaves no residue");
     }
   }
   // Fail OPEN is the failure mode to fear here: an empty or mis-keyed denylist
@@ -998,13 +1027,13 @@ if (craCard) {
   // "https://" + card.verifyUrl reconstructs "https://senate.gov/…" and never
   // equals the "https://www.senate.gov/…" key it is meant to be tested against.
   // Comparing the raw strings made this assertion pass for every Senate citation
-  // no matter what the denylist said.
+  // no matter what the denylist said. That the printable index really does resolve
+  // a www address is proved by the fixture block above, which can hold an entry
+  // open long enough to check it; here the list is legitimately empty.
   const printable = (u) => String(u || "").replace(/^https?:\/\//i, "").replace(/^www\./i, "");
   const sameNum = (a, b) => String(a || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase()
     === String(b || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   const deniedByPrint = new Map(Object.entries(denied).map(([u, e]) => [printable(u), e]));
-  ok(deniedByPrint.has(printable("https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm")),
-    "guard 14: the printable-form index actually resolves a www address (the comparison is not vacuous)");
   for (const card of RC.cardsFor("testrep").concat([RC.omnibus("testrep", "H.R. 1")]).filter(Boolean)) {
     for (const u of [card.verifyUrl, card.source.url]) {
       const entry = deniedByPrint.get(printable(u));

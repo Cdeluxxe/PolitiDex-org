@@ -18,6 +18,9 @@
 //   node scripts/vr-check-citations.mjs            # check, print the table
 //   node scripts/vr-check-citations.mjs --write    # also write the snapshot
 //   node scripts/vr-check-citations.mjs --verify   # exit non-zero on drift
+//   node scripts/vr-check-citations.mjs --rehearse netlify/database/migrations/X.sql
+//                                                  # read the ledger as it will be
+//                                                  # after X deploys (never writes)
 //
 // A citation PASSES only when all of these hold:
 //   • the request returns 200 and is not redirected to the Senate's
@@ -39,7 +42,9 @@
 //
 // Corroboration comes from the structured record, not from the human page:
 //   • House — https://clerk.house.gov/evs/<year>/roll<NNN>.xml, field <legis-num>
-//   • Senate — the citation URL with .htm swapped for .xml, field <document_name>
+//   • Senate — the citation URL with .htm swapped for .xml, field <document_name>,
+//     falling back to <amendment_to_document_number> on an amendment vote, where
+//     the Senate omits <document_name> and names the bill being amended instead.
 // Both are stable, documented contracts. The Clerk's *human* page is a JS app whose
 // payload is not, which is why an earlier revision of this script could only mark
 // House measures `unconfirmed` and would have let the Laken Riley sibling through
@@ -70,6 +75,22 @@ const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '..'
 const OUT_PATH = path.join(ROOT, 'db', 'vr-citation-check.json');
 const WRITE = process.argv.includes('--write');
 const VERIFY = process.argv.includes('--verify');
+
+// --rehearse <file.sql> (repeatable) — read the ledger as it WILL be once those
+// migrations deploy, instead of as it is now. The migrations are applied to CLONES
+// of the vr_* tables inside a transaction that is always rolled back, so this stays
+// read-only and works with the read-only role. Use it to answer "does this
+// migration actually fix the rows it claims to?" before shipping it, rather than
+// finding out on the next sweep.
+//
+// A rehearsal describes a database that does not exist yet, so it may never
+// overwrite the committed snapshot: --write is refused below when --rehearse is on.
+const REHEARSE = process.argv.reduce((out, a, i) => {
+  if (a === '--rehearse' && process.argv[i + 1]) out.push(path.resolve(process.argv[i + 1]));
+  else if (a.startsWith('--rehearse=')) out.push(path.resolve(a.slice('--rehearse='.length)));
+  return out;
+}, []);
+const VR_TABLES = ['vr_measures', 'vr_rollcalls', 'vr_measure_issues', 'vr_measure_actions', 'vr_member_votes', 'vr_positions'];
 
 const UA = 'PolitiDex citation check (+https://politidex.fyi)';
 const TIMEOUT_MS = 30000;
@@ -190,8 +211,14 @@ function readRecord(chamber, xml) {
       rollNumber: tag(xml, 'rollcall-num'),
     };
   }
+  // On a Senate AMENDMENT vote there is no <document_name> at all: the Senate
+  // records the bill under amendment in <amendment_to_document_number>. That is the
+  // same relationship <legis-num> carries on the House side — the parent bill an
+  // amendment row corroborates through — so it is read as the measure when, and
+  // only when, <document_name> is absent. A bill vote is unaffected.
+  const doc = tag(xml, 'document_name');
   return {
-    measure: tag(xml, 'document_name'),
+    measure: doc || tag(xml, 'amendment_to_document_number'),
     question: tag(xml, 'question'),
     amendment: tag(xml, 'amendment_number'),
     result: tag(xml, 'vote_result'),
@@ -296,10 +323,34 @@ async function main() {
     console.error('NETLIFY_DB_URL is not set — cannot read the voting record.');
     process.exit(1);
   }
+  if (REHEARSE.length && WRITE) {
+    console.error('--rehearse describes a database that has not deployed yet; refusing to --write it over the committed snapshot.');
+    process.exit(1);
+  }
   const canonicalCitation = loadDeriver();
 
   const client = new pg.Client({ connectionString: process.env.NETLIFY_DB_URL, ssl: { rejectUnauthorized: false } });
   await client.connect();
+
+  if (REHEARSE.length) {
+    // Clone, migrate, read, roll back. INCLUDING ALL carries the indexes and
+    // defaults across; the id default is re-pointed at a temp sequence so INSERTs
+    // in a migration behave the way they will in production.
+    console.log('REHEARSAL — reading the ledger as it will be after:');
+    for (const f of REHEARSE) console.log('  ' + path.relative(ROOT, f));
+    await client.query('BEGIN');
+    for (const t of VR_TABLES) {
+      await client.query(`CREATE TEMP TABLE ${t} (LIKE public.${t} INCLUDING ALL)`);
+      await client.query(`CREATE TEMP SEQUENCE ${t}_seq_tmp`);
+      await client.query(`ALTER TABLE pg_temp.${t} ALTER COLUMN id SET DEFAULT nextval('${t}_seq_tmp')`);
+      await client.query(`INSERT INTO pg_temp.${t} SELECT * FROM public.${t}`);
+      await client.query(`SELECT setval('${t}_seq_tmp', coalesce((SELECT max(id) FROM pg_temp.${t}), 1))`);
+    }
+    await client.query('SET LOCAL search_path = pg_temp, public');
+    for (const f of REHEARSE) await client.query(fs.readFileSync(f, 'utf8'));
+    console.log('');
+  }
+
   // Every roll call a member vote hangs off — a superset of what is card-eligible
   // today, so a card that becomes eligible after a mapping or stance pass is
   // already checked rather than newly unverified.
@@ -313,6 +364,7 @@ async function main() {
      WHERE r.source_url IS NOT NULL
        AND EXISTS (SELECT 1 FROM vr_member_votes v WHERE v.rollcall_id = r.id)
      ORDER BY r.vote_date DESC NULLS LAST, r.id`)).rows;
+  if (REHEARSE.length) await client.query('ROLLBACK');
   await client.end();
 
   // Derive with the production function, then collapse to distinct addresses —

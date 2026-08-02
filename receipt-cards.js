@@ -392,32 +392,35 @@
   // would silently un-publish every newly ingested roll call until someone
   // re-ran a network script, which trades a rare wrong link for a routine
   // outage. The report says plainly which addresses were read and when.
+  //
+  // ENTRY SHAPE — { measure, why }. `measure` is the measure the CHAMBER'S OWN
+  // RECORD names for that roll call, copied from the evidence file's `pageMeasure`.
+  // It is what keeps this guard correct in both deploy orderings when a repair
+  // migration is in flight: while the ledger still names the wrong bill the card
+  // disagrees with the page and is refused, and the moment the migration lands and
+  // the card names what the page names, it publishes — no second deploy, and no
+  // window in which a card prints the wrong bill. An entry with no `measure` (a
+  // dead link, or a page that does not name its own roll call) is refused
+  // unconditionally, because there is nothing a corrected ledger could come to
+  // agree with.
   var UNRESOLVED_CITATIONS = {
-    // Senate roll call 119-1-7 (20 Jan 2025, 64-35) and House roll call 119-1-23
-    // (22 Jan 2025) are both votes on S. 5. The ledger attributed the first to
-    // H.R. 29 and the second to a "Senate Amendments to H.R. 29" row — same
-    // policy, same popular name, different bill — so the page a reader opens
-    // names a measure the card does not. The votes and the pages are both real;
-    // the link between them is what was wrong.
+    // Empty, and that is the healthy state — see the note above. It is not empty
+    // because the guard was relaxed: the sweep recorded in db/vr-citation-check.json
+    // fetched all 138 distinct citations, read each chamber's structured record, and
+    // refused none of them.
     //
-    // Each entry records the measure the CHAMBER'S OWN RECORD names, taken from
-    // db/vr-citation-check.json's `pageMeasure`. That is what makes this guard
-    // safe in both directions across the repair in migration
-    // 20260804000000_vr_repair_laken_riley_measure_identity.sql: while the ledger
-    // still says H.R. 29 the card disagrees with the page and is refused, and once
-    // the migration lands and the card says S. 5 it agrees with the page and
-    // publishes — with no second deploy needed and no window in which a card can
-    // print the wrong bill. An entry with no `measure` (a dead link, a page that
-    // does not name its own roll call) is refused unconditionally, because there
-    // is nothing a corrected ledger could come to agree with.
-    'https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00007.htm': {
-      measure: 'S. 5',
-      why: 'the roll-call page for this vote is recorded under a different measure number, so a reader following the citation would not find the bill named on the card'
-    },
-    'https://clerk.house.gov/Votes/202523': {
-      measure: 'S 5',
-      why: 'the Clerk\'s record of this roll call is a vote on a different bill than the one named on the card, so a reader following the citation would not find the measure the card cites'
-    }
+    // It previously held two entries, Senate roll 119-1-7 and House roll 119-1-23,
+    // both votes on S. 5 that the ledger had filed under H.R. 29. Migration
+    // 20260804000000_vr_repair_laken_riley_measure_identity.sql repaired the ledger
+    // and has deployed, so the cards and the chamber records now name the same bill
+    // and there is nothing left to refuse. The entries are dropped rather than kept
+    // as history because scripts/test-receipt-cards.mjs asserts this list is exactly
+    // the set of citations the evidence file could not confirm — a stale entry here
+    // is drift, and drift is the one thing that can make this guard wrong.
+    //
+    // The guard itself is unchanged and still fails closed: the next sweep that
+    // cannot confirm a citation puts it back, and the measure-aware behaviour is
+    // covered by fixtures in the test rather than by whatever happens to be listed.
   };
   // "S. 5", "S 5" and "S.5" are the same bill written three ways, and the two
   // chambers punctuate differently, so agreement is judged on the bare token.
