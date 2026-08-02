@@ -2327,12 +2327,7 @@ Object.assign((window.ACCT_SPOTLIGHT = window.ACCT_SPOTLIGHT || {}),
           headline:'Signed the "Most Favored Nation" drug-pricing order',
           facts:'On May 12, 2025, Trump signed an executive order reviving his "Most Favored Nation" drug-pricing policy, directing HHS to tie what the U.S. pays for certain medicines to the lower prices paid by other developed nations and to open direct-to-consumer sales at those prices.',
           why:'A signed action on prescription-drug costs is a documented, checkable step on a top pocketbook issue.',
-          source:{ label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/05/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients/' } },
-        { impact:'neutral', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'energy_production',
-          headline:'Declared a national energy emergency to expand production',
-          facts:'On his first day back in office, Trump signed the "Unleashing American Energy" and "National Energy Emergency" executive orders, moving to fast-track oil, gas and pipeline permitting, reopen federal lands and waters to drilling, and lift limits on liquefied-natural-gas exports.',
-          why:'Day-one energy orders are a concrete action delivering on a central production-and-costs promise.',
-          source:{ label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/01/unleashing-american-energy/' } }
+          source:{ label:'WhiteHouse.gov', url:'https://www.whitehouse.gov/presidential-actions/2025/05/delivering-most-favored-nation-prescription-drug-pricing-to-american-patients/' } }
       ],
       vance: [
         { impact:'neutral', category:'voting', date:'2025', tags:['Notable Actions'], issueKey:'lower_taxes',

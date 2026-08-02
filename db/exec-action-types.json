@@ -1,0 +1,99 @@
+{
+  "_purpose": "✒️ Executive Enactment Record — the action vocabulary and the source-of-record rule. Shipped as data (not buried in code) so the guards, the client renderer and the ingest Function all validate against ONE list, the way db/issue-keys.json already gates issue keys.",
+  "_readBy": [
+    "exec-record.js",
+    "scripts/test-exec-vocab.mjs",
+    "netlify/functions/voting-record.mts (query filter allow-lists)"
+  ],
+  "_whyClassesNeverMerge": "Signing a bill Congress passed and issuing an order alone are different claims about power. A combined 'N actions' figure would flatten shared authorship into sole authorship, so counts are always reported per class and never summed into one headline number.",
+
+  "actionClasses": {
+    "signed_law": {
+      "label": "Signed into law",
+      "verb": "Signed into law",
+      "authorship": "shared",
+      "authorshipNote": "Congress wrote and passed it; the signature endorsed it. Provisions are not individually endorsed — a multi-issue measure must show its per-issue directions.",
+      "measureTypes": ["bill", "resolution"],
+      "sourceOfRecord": "congress.gov bill page, carrying the Public Law number and the presidential action date",
+      "sourceHosts": ["www.congress.gov", "congress.gov"]
+    },
+    "vetoed_law": {
+      "label": "Vetoed",
+      "verb": "Vetoed",
+      "authorship": "shared",
+      "authorshipNote": "Blocked something Congress passed. The veto message is the statement of reasons and is part of the record.",
+      "measureTypes": ["bill", "resolution"],
+      "sourceOfRecord": "congress.gov bill page plus the veto message",
+      "sourceHosts": ["www.congress.gov", "congress.gov"]
+    },
+    "executive_order": {
+      "label": "Executive order",
+      "verb": "Signed Executive Order",
+      "authorship": "sole",
+      "authorshipNote": "Acted alone under claimed executive authority. Sole authorship, and therefore the class where the Standing axis carries the greatest weight.",
+      "measureTypes": ["executive_order"],
+      "sourceOfRecord": "federalregister.gov document page — the permanent legal citation of record",
+      "sourceHosts": ["www.federalregister.gov", "federalregister.gov"]
+    },
+    "directive": {
+      "label": "Directive",
+      "verb": "Issued a directive",
+      "authorship": "sole",
+      "authorshipNote": "Presidential memorandum, proclamation or agency direction — acting alone with a lesser instrument than an executive order.",
+      "measureTypes": ["proclamation", "memorandum"],
+      "sourceOfRecord": "federalregister.gov document page",
+      "sourceHosts": ["www.federalregister.gov", "federalregister.gov"]
+    }
+  },
+
+  "measureTypes": ["executive_order", "proclamation", "memorandum"],
+  "_measureTypesNote": "Additive to the existing bill | resolution | amendment | nomination | litigation set on vr_measures.measure_type. Precedent: measureType='litigation' with chamber='court' already lets a non-roll-call actor share the issue spine.",
+
+  "chambers": ["executive"],
+  "_chambersNote": "Additive to house | senate | joint | court.",
+
+  "positionActionTypes": ["signed", "vetoed", "issued"],
+  "_positionActionTypesNote": "Additive to vr_positions.action_type (sponsor | cosponsor | amicus | plaintiff | committee_vote | statement). vr_positions is already documented as 'non-roll-call actions that still count as doing', which is exactly what an executive action is.",
+
+  "issueDirections": {
+    "advances": "This action advances the issue.",
+    "opposes": "This action cuts against the issue."
+  },
+  "_issueDirectionsNote": "Reads vr_measure_issues.supportMeaning without renaming the column: yea_supports → advances, yea_opposes → opposes. Same data as the congressional lane, no vote word in the rendered vocabulary.",
+
+  "sourceRule": {
+    "_why": "Fail closed. An action whose primary source is a directory index or a press summary cannot be verified by the reader, so it is not publishable — the same discipline every vr_* table applies with its NOT NULL source_url.",
+    "primaryHosts": [
+      "www.congress.gov",
+      "congress.gov",
+      "www.federalregister.gov",
+      "federalregister.gov",
+      "www.supremecourt.gov",
+      "supremecourt.gov",
+      "www.courtlistener.com",
+      "courtlistener.com",
+      "storage.courtlistener.com",
+      "www.govinfo.gov",
+      "govinfo.gov",
+      "www.uscourts.gov",
+      "uscourts.gov"
+    ],
+    "_courtHostsWhy": "Added in Phase 3, when the standing of the wave-1 orders had to be established from rulings rather than asserted. A federal court's own document server is as primary as a source gets, and storage.courtlistener.com serves the byte-identical PDF of the same opinion under a stable path — the Phase 3 pass verified that the April 2025 D.D.C. opinion downloads identically (816,214 bytes) from ecf.dcd.uscourts.gov and from storage.courtlistener.com. Reading a ruling is the only way to tell 'blocked' from 'partly blocked' from 'in force', so the host list has to reach the rulings.",
+    "rejectedUrlPatterns": [
+      "^https?://[^/]+/?$",
+      "^https?://[^/]+/presidential-actions/?$",
+      "^https?://[^/]+/briefing-room/?$",
+      "/fact-sheet",
+      "/fact-sheets/",
+      "/press-release",
+      "/remarks/"
+    ],
+    "_rejectedWhy": {
+      "^https?://[^/]+/?$": "A bare host root cites nothing. Found in live curated data on the judicial-appointments item (https://www.congress.gov/).",
+      "^https?://[^/]+/presidential-actions/?$": "A directory index, not a document. Found in live curated data on cut_spending and tariffs_growth.",
+      "/fact-sheet": "A fact sheet is the administration describing its own order. Allowed as a labelled secondary link, never as the source of record. Found in live curated data on healthcare_costs."
+    },
+    "secondaryAllowed": true,
+    "secondaryMustBeLabelled": true
+  }
+}
