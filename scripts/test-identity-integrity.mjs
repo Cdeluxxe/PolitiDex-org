@@ -122,7 +122,22 @@ const memberMap = JSON.parse(read("db/vr-member-map.json"));
 // index.html is a single 60k-line document, not a module, so a table declared in it
 // is lifted out by brace-matching from its declaration and evaluated on its own.
 // Shared by ACCT_ALIAS below and by the Utah map invariants in section 10.
-const INDEX_HTML = read("index.html");
+//
+// The first-paint pass moved the largest inline <script> blocks out of the HTML
+// into external files loaded from the same document positions — so several of
+// these tables (ACCT_ALIAS, the Utah maps, PROFILES) now live in profiles-full.js
+// and its siblings rather than in the document itself. Nothing about their
+// content or load order changed, so the haystack is simply the document TOGETHER
+// WITH the local scripts it loads. Written this way it also survives the next
+// extraction without needing to be touched again.
+const INDEX_HTML = (() => {
+  const html = read("index.html");
+  const loaded = [...html.matchAll(/<script[^>]*\bsrc="\/?([^"/][^"]*\.js)"/g)]
+    .map((m) => m[1])
+    .filter((f, i, a) => a.indexOf(f) === i)
+    .map((f) => { try { return read(f); } catch { return ""; } });
+  return [html, ...loaded].join("\n");
+})();
 function liftObjectLiteral(decl, label) {
   const start = INDEX_HTML.indexOf(decl);
   if (start === -1) return null;

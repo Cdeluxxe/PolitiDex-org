@@ -40,15 +40,30 @@ import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// ── BROWSE_PHOTOS, parsed out of index.html ─────────────────────────────────
+// ── BROWSE_PHOTOS, parsed out of the page source ────────────────────────────
 // Same extraction scripts/vr-gen-member-map.mjs uses, so the two agree on what the
 // map contains. Values are single-quoted string literals, one entry per line.
-export function browsePhotos() {
+//
+// The map was declared in an inline <script> in index.html until the first-paint
+// pass moved the large inline blocks into external files loaded from the same
+// document positions; it now lives in compare-hub.js. Rather than hard-code that
+// filename, read the document TOGETHER WITH the local scripts it loads — the map
+// is "in the page" either way, and this survives the next move.
+export function pageSource() {
   const html = readFileSync(join(ROOT, "index.html"), "utf8");
+  const loaded = [...html.matchAll(/<script[^>]*\bsrc="\/?([^"/][^"]*\.js)"/g)]
+    .map((m) => m[1])
+    .filter((f, i, a) => a.indexOf(f) === i)
+    .map((f) => { try { return readFileSync(join(ROOT, f), "utf8"); } catch { return ""; } });
+  return [html, ...loaded].join("\n");
+}
+
+export function browsePhotos() {
+  const html = pageSource();
   const open = html.indexOf("var BROWSE_PHOTOS = {");
-  if (open === -1) throw new Error("BROWSE_PHOTOS map not found in index.html");
+  if (open === -1) throw new Error("BROWSE_PHOTOS map not found in index.html or the scripts it loads");
   const close = html.indexOf("\n    };", open);
-  if (close === -1) throw new Error("BROWSE_PHOTOS map is unterminated in index.html");
+  if (close === -1) throw new Error("BROWSE_PHOTOS map is unterminated");
   const out = {};
   for (const m of html.slice(open, close).matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*'([^']+)'/gm)) {
     out[m[1]] = m[2];

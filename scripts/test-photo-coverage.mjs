@@ -24,7 +24,7 @@
 // READ-ONLY, offline. No network, no key.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { browsePhotos, cmpData, arrivalSlugs, bundledPhoto } from "./audit-photo-coverage.mjs";
+import { browsePhotos, cmpData, arrivalSlugs, bundledPhoto, pageSource } from "./audit-photo-coverage.mjs";
 
 let pass = 0;
 const fails = [];
@@ -61,12 +61,12 @@ ok(malformed.length === 0,
 
 // ── No duplicate keys ───────────────────────────────────────────────────────
 // browsePhotos() returns an object, so a duplicate key would silently win and
-// quietly replace a curated photo. Count the source lines instead.
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const html = readFileSync(join(ROOT, "index.html"), "utf8");
+// quietly replace a curated photo. Count the source lines instead — reading the
+// same page source browsePhotos() parses, so the two cannot disagree about where
+// the map lives. (It moved from an inline block in index.html into compare-hub.js
+// during the first-paint pass; pageSource() spans the document and the scripts it
+// loads, so neither this check nor the parse cares which file it sits in.)
+const html = pageSource();
 const open = html.indexOf("var BROWSE_PHOTOS = {");
 const body = html.slice(open, html.indexOf("\n    };", open));
 const seen = new Set(); const dups = [];

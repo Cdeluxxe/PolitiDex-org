@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v33';
+const CACHE_VERSION = 'v34';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -45,6 +45,11 @@ const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 const SHELL_ASSETS = [
   '/',
   '/css/tailwind.css',
+  // The above-the-fold receipt. Parser-blocking in index.html, so on a repeat
+  // visit these two must come from the cache or they add latency to the very
+  // first paint they exist to improve. Both are tiny.
+  '/hero-receipt-data.js',
+  '/hero-receipt.js',
   // Main site CSS, externalized out of index.html (Run 1 perf pass) so it is
   // cached independently and no longer re-parsed with the 7 MB document.
   '/app.css',
