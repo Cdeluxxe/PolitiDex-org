@@ -944,6 +944,109 @@
           "rationale": "Establishes a disclosure-on-request regime for foreign influence in schools as a condition of federal education funding; a yea widens what schools must reveal."
         }
       ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Con.Res. 113",
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hconres/BILLSTATUS-119hconres113.xml",
+      "issues": [
+        {
+          "issueKey": "national_debt",
+          "weight": 85,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The FY2027 congressional budget resolution. Its published CRS summary states that it 'provides reconciliation instructions for legislation that increases the deficit', directing four House committees to report legislation increasing the deficit over FY2027-FY2036 by not more than specified amounts; a yea adopts a fiscal blueprint whose reconciliation instructions authorise deficit increases. Direction read off the summary, the mirror of the deficit-reducing instructions that set the direction on H.Con.Res. 14."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 7757",
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7757.xml",
+      "issues": [
+        {
+          "issueKey": "tech_balance",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The KIDS Act requires online platforms to adopt age-identification technology on sites where a third of the content is sexual material harmful to minors, to default minors' social-media accounts to settings that limit compulsive-usage features and adult contact, to give parents account and privacy controls, and to make AI chatbots disclose their nature to minors; a yea imposes those guardrails. Mapped to the key whose own vocabulary is age verification, social media, AI and guardrails."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 242",
+      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLS/119/2/hr/BILLS-119hr8800rh.xml",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Part A amendment No. 1 to H.R. 8800 (FY2027 NDAA), offered by Rep. Boebert as designee for the author, Rep. Roy: 'Strike section 1213 (and redesignate accordingly).' Section 1213 amends the FY2022 NDAA to move the Afghanistan War Commission's final-report deadline from 3 years to 4, so striking it keeps the 3-year deadline and a yea insists the commission's public report arrive on the schedule Congress originally set. Weighted below a full mapping because it changes when a report is delivered, not what must be disclosed."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 261",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt755/html/CRPT-119hrpt755.htm",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Part A amendment No. 44 to H.R. 8800 (Harrigan) adds 10 U.S.C. 2661(e): no federal funds may purchase, install, operate, maintain or contract for an automated speed enforcement camera system on a military installation, and any system already in operation must be decommissioned and removed within 180 days. A yea removes an automated camera-surveillance enforcement system and takes down the ones already running. Weighted low on purpose: the prohibition reaches military installations only, and the amendment expressly preserves cameras used for security, access control, force protection and criminal investigation — so it is not a vote on surveillance policy generally."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 266",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt755/html/CRPT-119hrpt755.htm",
+      "issues": [
+        {
+          "issueKey": "gov_waste",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Part A amendment No. 316 to H.R. 8800 (Grothman) requires the Secretary of Defense to report within 180 days on options for reducing the number of civilians employed by the Department by 200,000, including an assessment of current non-uniformed personnel levels and recommendations for achieving the reduction while maintaining readiness. A yea asks for a plan to shrink the civilian workforce. Weighted low on purpose: the amendment commissions a report, it does not reduce anything."
+        },
+        {
+          "issueKey": "cut_spending",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The report must include 'an analysis of the anticipated cost savings associated with such reductions', so the amendment puts a 200,000-position federal payroll reduction on the table as a savings measure and a yea backs studying it. Secondary and low-weight for the same reason as the primary — this is a reporting requirement, not a cut."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 87",
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt255/html/CRPT-119hrpt255.htm",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Part A amendment No. 15 to H.R. 3838 (Mace, Tenney) inserts a new section barring the Superintendent of a Service Academy from allowing a cadet or midshipman who is male to participate in any athletic program or activity designated exclusively for females, with 'male' and 'female' defined by reproductive biology; a yea restricts transgender participation. Same instrument and same direction as H.Amdt. 255 (Mace, DoDEA schools) and H.Amdt. 85 (Norman, EFMP care), both already mapped at full weight. Purpose text taken from the Rules Committee report accompanying H.Res. 682, because no source we previously held carried it — see migration 20260727000000, which created this measure row deliberately without a mapping."
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

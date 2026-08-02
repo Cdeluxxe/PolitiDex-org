@@ -13,13 +13,13 @@ counted, and every row it accounts for is marked `pending`.
 | | member-votes |
 |---|---|
 | Recorded yea/nay votes | 5,746 |
-| …on a measure with at least one issue mapping | 3,991 |
-| …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 2,233 |
+| …on a measure with at least one issue mapping | 4,209 |
+| …of which the mapping is curated but not yet deployed | 218 |
+| …**and** the member holds a stated position on that key (rankable) | 2,286 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **664**. People with at least one rankable record: **182**.
+Rankable (member, issue) pairs: **666**. People with at least one rankable record: **182**.
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -32,7 +32,20 @@ No measure carrying a vote is left without a title.
 
 ## Gap 1 — measures with votes and no issue mapping
 
-43 measure(s), 1,755 member-votes at stake.
+36 measure(s), 1,537 member-votes at stake.
+
+6 measure(s) carrying 218 member-votes have just left this
+list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are
+counted as mapped above rather than as a gap here.
+
+| member-votes | measure | keys awaiting deploy |
+|---:|---|---|
+| 38 | H.Amdt. 87 | `lgbtq_rights` |
+| 38 | H.Amdt. 261 | `privacy_rights` |
+| 37 | H.Amdt. 242 | `gov_transparency` |
+| 37 | H.Amdt. 266 | `gov_waste`, `cut_spending` |
+| 37 | H.Con.Res. 113 | `national_debt` |
+| 31 | H.R. 7757 | `tech_balance` |
 
 | member-votes | measure | title | |
 |---:|---|---|---|
@@ -40,24 +53,19 @@ No measure carrying a vote is left without a title.
 | 74 | H.Res. 1423 | Providing for consideration of the bill (H.R. 139) to make daylight savings time permanent |  |
 | 74 | H.Res. 1438 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |  |
 | 73 | H.Res. 682 | H.Res. 682 — Rule providing for consideration of H.R. 3838 and H.R. 3486 |  |
+| 71 | H.Res. 377 | Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the "Gu |  |
 | 70 | H.Res. 1398 | Providing for consideration of the bill (H.R. 8800) to authorize appropriations for fiscal |  |
 | 66 | H.Res. 1075 | H.Res. 1075 — Rule providing for consideration of H.R. 4626 and H.R. 4758 |  |
+| 38 | S. 1071 | National Defense Authorization Act for Fiscal Year 2026 |  |
 | 38 | H.R. 36 | H.R. 36 — MEGOBARI Act |  |
 | 38 | H.R. 530 | ACES Act |  |
-| 38 | (no number) | Election of the Speaker |  |
-| 38 | S. 1071 | National Defense Authorization Act for Fiscal Year 2026 |  |
 | 38 | H.R. 1402 | TICKET Act |  |
 | 38 | H.Amdt. 259 | H.Amdt. 259 (Issa) to H.R. 8800 — authorize the Secretary to approve any eligible investor |  |
-| 38 | H.Amdt. 261 | H.Amdt. 261 (Harrigan) to H.R. 8800 — prohibit the use of automated speed enforcement came |  |
-| 37 | H.Res. 377 | Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the "Gu |  |
 | 37 | H.R. 1503 | Stop Forced Organ Harvesting Act of 2025 |  |
-| 37 | H.Amdt. 242 | H.Amdt. 242 (Boebert) to H.R. 8800 — strike section 1213, relating to the deadline for the |  |
 | 37 | H.R. 7401 | Small Business Lending Fraud Prevention Act |  |
 | 37 | H.R. 1118 | Value Over Cost Act of 2026 |  |
 | 37 | H.Amdt. 243 | H.Amdt. 243 (Boebert) to H.R. 8800 — strike section 521 and replace it with a prohibition  |  |
 | 37 | H.Amdt. 245 | H.Amdt. 245 (Boebert) to H.R. 8800 — strike section 518, relating to the pilot program on  |  |
-| 37 | H.Amdt. 266 | H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report  |  |
-| 37 | H.Con.Res. 113 | Establishing the congressional budget for the United States Government for fiscal year 202 |  |
 | 36 | H.R. 973 | Setting Consumer Standards for Lithium-Ion Batteries Act |  |
 | 36 | H.R. 915 | Small Business Technological Advancement Act |  |
 | 36 | H.R. 2478 | Financial Exploitation Prevention Act of 2025 |  |
@@ -72,13 +80,11 @@ No measure carrying a vote is left without a title.
 | 34 | H.R. 3424 | H.R. 3424 — SPACE Act of 2025 |  |
 | 34 | H.R. 3425 | H.R. 3425 — Personnel Oversight and Shift Tracking Act of 2025 |  |
 | 34 | S. 2503 | ROTOR Act |  |
-| 34 | H.Res. 377 | Providing for consideration of the bill (H.R. 276) to rename the Gulf of Mexico as the "Gu |  |
 | 34 | H.R. 1676 | Make SWAPs Efficient Act of 2025 |  |
 | 34 | S. 356 | Secure Rural Schools Reauthorization Act of 2025 |  |
-| 33 | H.R. 5348 | H.R. 5348 — Social Security Child Protection Act of 2025 |  |
 | 33 | H.R. 4423 | H.R. 4423 — No New Burma Funds Act |  |
+| 33 | H.R. 5348 | H.R. 5348 — Social Security Child Protection Act of 2025 |  |
 | 32 | H.R. 7128 | TRIA Program Reauthorization Act of 2026 |  |
-| 31 | H.R. 7757 | KIDS Act |  |
 
 ## Gap 1b — measures mapped to exactly one issue
 
@@ -92,13 +98,17 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 | 74 | H.R. 6955 | econ_smallbiz |
 | 73 | H.R. 8800 | strong_defense |
 | 40 | H.R. 276 | america_first |
+| 38 | H.Amdt. 87 | lgbtq_rights |
 | 38 | H.Amdt. 97 | lands_preserve |
 | 38 | H.Amdt. 85 | lgbtq_rights |
 | 38 | H.Amdt. 253 | gun_rights |
 | 38 | H.Amdt. 257 | school_choice |
+| 38 | H.Amdt. 261 | privacy_rights |
+| 37 | H.Amdt. 242 | gov_transparency |
 | 37 | H.Amdt. 254 | lgbtq_rights |
 | 37 | H.Amdt. 256 | lgbtq_rights |
 | 37 | H.Amdt. 258 | religious_liberty |
+| 37 | H.Con.Res. 113 | national_debt |
 | 36 | H.R. 1005 | gov_transparency |
 | 36 | H.Amdt. 247 | checks_balances |
 | 36 | H.Amdt. 249 | states_federal_power |
@@ -106,13 +116,13 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 | 36 | H.R. 8884 | social_security |
 | 35 | H.Res. 1399 | gov_transparency |
 | 35 | H.R. 9237 | veterans |
+| 31 | H.R. 7757 | tech_balance |
 | 30 | H.R. 6329 | gov_transparency |
-| 18 | S.Amdt. 3428 | gov_transparency |
-| 17 | S. 2296 | strong_defense |
+| … | _2 more_ | |
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-5,471 (member, issue) pairs, 10,662 member-votes.
+5,524 (member, issue) pairs, 10,872 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
@@ -123,12 +133,13 @@ real, verifiable position exists. Do not fill these in by inference.
 | 10 | jason_smith | strong_defense | yes |
 | 10 | kclark | strong_defense | yes |
 | 10 | crockett | strong_defense | yes |
+| 10 | rob_bresnahan | cut_spending | yes |
+| 10 | rick_crawford | cut_spending | yes |
+| 10 | mike_ezell | cut_spending | yes |
+| 10 | trent_kelly | cut_spending | yes |
 | 9 | jim_jordan | strong_defense | yes |
+| 9 | crockett | cut_spending | yes |
 | 9 | crockett | gov_regulation | yes |
-| 9 | rob_bresnahan | cut_spending | yes |
-| 9 | rick_crawford | cut_spending | yes |
-| 9 | mike_ezell | cut_spending | yes |
-| 9 | trent_kelly | cut_spending | yes |
 | 9 | josh_brecheen | strong_defense | yes |
 | 9 | french_hill | strong_defense | yes |
 | 9 | maxine_waters | strong_defense | yes |
@@ -148,37 +159,36 @@ real, verifiable position exists. Do not fill these in by inference.
 | 9 | stephanie_bice | america_first_fp | yes |
 | 9 | trent_kelly | america_first_fp | yes |
 | 9 | troy_downing | america_first_fp | yes |
-| 8 | crockett | cut_spending | yes |
+| 8 | stephanie_bice | gov_regulation | yes |
+| 8 | rob_bresnahan | gov_regulation | yes |
+| 8 | don_davis | gov_regulation | yes |
+| 8 | frank_lucas | strong_defense | yes |
 | 8 | troy_downing | gov_regulation | yes |
-| 8 | mike_ezell | gov_regulation | yes |
+| 8 | scalise | gov_transparency | yes |
+| 8 | jim_jordan | gov_transparency | yes |
+| 8 | owens | gov_transparency | yes |
+| 8 | khanna | gov_transparency | yes |
+| 8 | rick_crawford | gov_regulation | yes |
+| 8 | josh_brecheen | gov_regulation | yes |
 | 8 | tom_cole | gov_regulation | yes |
 | 8 | kclark | gov_regulation | yes |
-| 8 | trent_kelly | gov_regulation | yes |
-| 8 | don_davis | gov_regulation | yes |
-| 8 | josh_brecheen | gov_regulation | yes |
-| 8 | rob_bresnahan | gov_regulation | yes |
-| 8 | rick_crawford | gov_regulation | yes |
-| 8 | stephanie_bice | gov_regulation | yes |
-| 8 | mike_simpson | gov_regulation | yes |
-| 8 | mike_flood | gov_regulation | yes |
 | 8 | michael_guest | gov_regulation | yes |
-| 8 | ryan_mackenzie | gov_regulation | yes |
+| 8 | mike_ezell | gov_regulation | yes |
+| 8 | mike_flood | gov_regulation | yes |
 | 8 | steve_womack | gov_regulation | yes |
+| 8 | mike_simpson | gov_regulation | yes |
+| 8 | ryan_mackenzie | gov_regulation | yes |
+| 8 | trent_kelly | gov_regulation | yes |
 | 8 | mariannette_miller_meeks | gov_regulation | yes |
 | 8 | boebert | strong_defense | yes |
-| 8 | frank_lucas | strong_defense | yes |
 | 8 | emmer | america_first_fp | yes |
 | 8 | frank_lucas | america_first_fp | yes |
 | 7 | emmer | climate_action | yes |
+| 7 | aoc | national_debt | yes |
 | 7 | emmer | states_federal_power | yes |
 | 7 | jim_jordan | climate_action | yes |
-| 7 | mike_johnson | gov_transparency | yes |
-| 7 | scalise | gov_transparency | yes |
-| 7 | jim_jordan | gov_transparency | yes |
-| 7 | owens | gov_transparency | yes |
-| 7 | khanna | gov_transparency | yes |
-| 7 | scott_perry | gov_regulation | yes |
-| … | _5,411 more_ | | |
+| 7 | boebert | gov_transparency | yes |
+| … | _5,464 more_ | | |
 
 ## Gap 2 rolled up by issue
 
@@ -189,29 +199,29 @@ real, verifiable position exists. Do not fill these in by inference.
 | 619 | climate_action | 202 |
 | 514 | cost_living | 206 |
 | 509 | energy_production | 170 |
+| 440 | national_debt | 125 |
 | 439 | strong_defense | 96 |
-| 414 | national_debt | 125 |
-| 404 | cut_spending | 116 |
-| 367 | gov_transparency | 112 |
+| 411 | cut_spending | 116 |
+| 400 | gov_transparency | 113 |
 | 326 | america_first_fp | 99 |
-| 282 | tough_on_crime | 106 |
+| 286 | tough_on_crime | 106 |
 | 267 | gov_services | 117 |
 | 265 | foreign_balance | 100 |
 | 261 | healthcare | 123 |
 | 253 | school_choice | 157 |
 | 243 | deportations | 135 |
+| 232 | lgbtq_rights | 74 |
 | 226 | checks_balances | 105 |
-| 194 | lgbtq_rights | 74 |
 | 186 | restraint | 118 |
 | 182 | border_security | 93 |
 | 180 | lands_energy | 136 |
 | 176 | family_support | 137 |
 | 170 | lower_taxes | 131 |
+| 160 | privacy_rights | 76 |
 | 145 | econ_smallbiz | 37 |
+| 142 | tech_balance | 127 |
 | 139 | free_speech | 127 |
 | 135 | america_first | 116 |
 | 135 | edu_college_cost | 135 |
 | 131 | tax_middle_class | 131 |
-| 128 | public_schools | 128 |
-| 123 | privacy_rights | 75 |
 

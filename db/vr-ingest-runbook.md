@@ -151,6 +151,34 @@ attribution without adding signal. And never stretch a bill onto an issue the sh
 vocabulary can't express — there is no `human_rights`, `foreign_aid` or `sanctions` key,
 so foreign-policy bills like H.R. 36 / H.R. 4423 stay unmapped rather than mis-keyed.
 
+### Two more rules, learned the hard way in the substantive-remainder pass
+
+3. **`gov_regulation` is about the regulatory question, not about every mandate.** Reserve
+   it for measures whose *primary operative purpose* is regulation itself: CRA
+   disapprovals, regulatory-budget caps, red-tape hotlines, rulemaking-quality bills.
+   Do **not** map a measure to it merely because the measure directs an agency to issue or
+   enforce a rule — that description fits most of the statute book, and it would turn a
+   member's deregulation stance into a contradiction on any safety vote. This is why
+   H.R. 973 (CPSC rule for micromobility batteries) and S. 2503 (ADS-B In equipment
+   requirement) are unmapped despite both being contested. Without the line, "creates a
+   federal mandate" sweeps in dozens of measures and the key stops meaning anything.
+4. **A truncated purpose line is not a mappable purpose.** The Congress.gov vote feed cuts
+   an amendment's purpose off, so amendments arrive as "strike section NNN, relating to …"
+   or trail off mid-clause. If the missing words carry the *direction* — which way a
+   deadline moves, which way a threshold goes — the amendment is not mappable from the
+   line alone. Read the struck section in the reported bill text
+   (`govinfo.gov/bulkdata/BILLS/119/2/hr/BILLS-119hr8800rh.xml` and siblings) and map from
+   that, or leave it unmapped. This both created a mapping (H.Amdt. 242: §1213 extends the
+   Afghanistan War Commission deadline 3→4 years, so striking it *keeps* the 3-year
+   deadline) and prevented a wrong one (H.Amdt. 245: §518 replaces universal urinalysis
+   with targeted voice-based screening, so `privacy_rights` points both ways at once).
+   When the truncation only hides a number and not the direction — H.Amdt. 266 asks for a
+   report on reducing DoD civilians "by…" — the mapping is safe at a low weight.
+
+`scripts/test-mapping-discipline.mjs` enforces the mechanical half of all of this: no
+"providing for consideration" resolution may ever be mapped, in a migration or in the
+curated seed, and every curated mapping must carry a rationale and an `https` source.
+
 ## Expected result — the ready-to-result comparisons
 
 Each becomes a real both-sided comparison the moment its member's formal record on the
