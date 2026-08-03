@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 108,
+  "count": 109,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -64,6 +64,7 @@
     "immig_legal",
     "immigration_reform",
     "infrastructure",
+    "israel_support",
     "justice_balance",
     "justice_reform",
     "lands_balance",
@@ -977,6 +978,26 @@
       "airport",
       "rebuild",
       "construction"
+    ],
+    "israel_support": [
+      "israel",
+      "israeli",
+      "pro-israel",
+      "u.s.-israel",
+      "israel aid",
+      "aid to israel",
+      "iron dome",
+      "david's sling",
+      "arrow-3",
+      "idf",
+      "iran",
+      "hamas",
+      "hezbollah",
+      "houthi",
+      "gaza",
+      "west bank",
+      "abraham accords",
+      "netanyahu"
     ],
     "justice_balance": [
       "public safety",

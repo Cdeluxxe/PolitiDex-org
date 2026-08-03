@@ -1,14 +1,18 @@
 {
-  "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `.map`; `members` is for human review only.",
-  "count": 63,
-  "serving119": 56,
+  "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
+  "count": 100,
+  "serving119": 91,
   "annotated": true,
+  "unadmittedPortraits": 73,
   "map": {
+    "A000148": "jake_auchincloss",
     "B000740": "stephanie_bice",
     "B000825": "boebert",
     "B001261": "barrasso",
     "B001288": "booker",
+    "B001298": "don_bacon",
     "B001317": "josh_brecheen",
+    "B001319": "britt",
     "B001327": "rob_bresnahan",
     "C001035": "collins",
     "C001053": "tom_cole",
@@ -24,51 +28,103 @@
     "D000634": "troy_downing",
     "E000235": "mike_ezell",
     "E000294": "emmer",
+    "E000295": "ernst",
     "F000474": "mike_flood",
     "F000479": "fetterman",
     "F000482": "julie_fedorchak",
     "G000359": "graham",
     "G000386": "grassley",
     "G000571": "tgabbard",
+    "G000574": "gallego",
     "G000578": "gaetz",
+    "G000583": "josh_gottheimer",
     "G000591": "michael_guest",
     "G000596": "mtg",
+    "G000599": "dan_goldman",
+    "H000874": "steny_hoyer",
     "H001072": "french_hill",
     "H001089": "hawley",
     "J000289": "jim_jordan",
+    "J000294": "jeffries",
+    "J000298": "jayapal",
     "J000299": "mike_johnson",
+    "K000377": "mark_kelly",
+    "K000384": "kaine",
     "K000388": "trent_kelly",
     "K000389": "khanna",
+    "K000394": "andy_kim",
     "K000404": "kennedy",
     "L000491": "frank_lucas",
+    "L000575": "lankford",
     "L000577": "lee",
+    "L000599": "mike_lawler",
+    "L000601": "greg_landsman",
+    "L000602": "summer_lee",
+    "M000355": "mcconnell",
+    "M001137": "meeks",
     "M001153": "murkowski",
+    "M001169": "chris_murphy",
     "M001184": "massie",
+    "M001199": "brian_mast",
     "M001209": "bmoore",
     "M001215": "mariannette_miller_meeks",
     "M001230": "ryan_mackenzie",
     "O000086": "owens",
     "O000172": "aoc",
+    "O000173": "omar",
     "O000174": "jon_ossoff",
     "P000603": "rand_paul",
     "P000605": "scott_perry",
+    "R000122": "reed",
+    "R000584": "risch",
     "R000595": "rubio",
+    "R000608": "rosen",
+    "S000033": "sanders",
+    "S000148": "schumer",
+    "S000510": "adam_smith",
     "S001148": "mike_simpson",
+    "S001150": "schiff",
     "S001176": "scalise",
+    "S001181": "shaheen",
+    "S001184": "tim_scott",
     "S001192": "cstewart",
     "S001195": "jason_smith",
+    "S001196": "stefanik",
+    "S001201": "tom_suozzi",
+    "S001208": "slotkin",
+    "S001215": "haley_stevens",
     "T000193": "bennie_thompson",
+    "T000250": "thune",
+    "T000481": "tlaib",
+    "T000486": "torres",
+    "V000128": "van_hollen",
+    "W000187": "maxine_waters",
+    "W000790": "warnock",
     "W000809": "steve_womack",
     "W000817": "warren",
     "W000821": "bruce_westerman",
-    "Z000017": "zeldin",
-    "S001150": "schiff",
-    "J000298": "jayapal",
-    "T000481": "tlaib",
-    "E000295": "ernst",
-    "W000187": "maxine_waters"
+    "W000823": "mike_waltz",
+    "Z000017": "zeldin"
   },
   "members": [
+    {
+      "bioguide": "S000510",
+      "slug": "adam_smith",
+      "name": "Adam Smith",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000394",
+      "slug": "andy_kim",
+      "name": "Andy Kim",
+      "chamber": "senate",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
     {
       "bioguide": "O000172",
       "slug": "aoc",
@@ -99,10 +155,10 @@
     {
       "bioguide": "M001209",
       "slug": "bmoore",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Ben McAdams",
+      "chamber": "house",
+      "state": "UT",
+      "party": "Democrat",
       "serving119": false
     },
     {
@@ -124,11 +180,47 @@
       "serving119": true
     },
     {
+      "bioguide": "M001199",
+      "slug": "brian_mast",
+      "name": "Brian J. Mast",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001319",
+      "slug": "britt",
+      "name": "Katie Boyd Britt",
+      "chamber": "senate",
+      "state": "AL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "W000821",
       "slug": "bruce_westerman",
       "name": "Bruce Westerman",
       "chamber": "house",
       "state": "AR",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001169",
+      "slug": "chris_murphy",
+      "name": "Christopher Murphy",
+      "chamber": "senate",
+      "state": "CT",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001035",
+      "slug": "collins",
+      "name": "Susan M. Collins",
+      "chamber": "senate",
+      "state": "ME",
       "party": "Republican",
       "serving119": true
     },
@@ -153,10 +245,10 @@
     {
       "bioguide": "S001192",
       "slug": "cstewart",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Chris Stewart",
+      "chamber": "house",
+      "state": "UT",
+      "party": "Republican",
       "serving119": false
     },
     {
@@ -165,6 +257,24 @@
       "name": "John R. Curtis",
       "chamber": "senate",
       "state": "UT",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000599",
+      "slug": "dan_goldman",
+      "name": "Daniel S. Goldman",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001298",
+      "slug": "don_bacon",
+      "name": "Don Bacon",
+      "chamber": "house",
+      "state": "NE",
       "party": "Republican",
       "serving119": true
     },
@@ -192,6 +302,15 @@
       "name": "Tom Emmer",
       "chamber": "house",
       "state": "MN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000295",
+      "slug": "ernst",
+      "name": "Joni Ernst",
+      "chamber": "senate",
+      "state": "IA",
       "party": "Republican",
       "serving119": true
     },
@@ -225,11 +344,20 @@
     {
       "bioguide": "G000578",
       "slug": "gaetz",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Matt Gaetz",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
       "serving119": false
+    },
+    {
+      "bioguide": "G000574",
+      "slug": "gallego",
+      "name": "Ruben Gallego",
+      "chamber": "senate",
+      "state": "AZ",
+      "party": "Democrat",
+      "serving119": true
     },
     {
       "bioguide": "G000359",
@@ -238,7 +366,7 @@
       "chamber": "senate",
       "state": "SC",
       "party": "Republican",
-      "serving119": true
+      "serving119": false
     },
     {
       "bioguide": "G000386",
@@ -247,6 +375,24 @@
       "chamber": "senate",
       "state": "IA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000601",
+      "slug": "greg_landsman",
+      "name": "Greg Landsman",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001215",
+      "slug": "haley_stevens",
+      "name": "Haley M. Stevens",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -259,12 +405,39 @@
       "serving119": true
     },
     {
+      "bioguide": "A000148",
+      "slug": "jake_auchincloss",
+      "name": "Jake Auchincloss",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "S001195",
       "slug": "jason_smith",
       "name": "Jason Smith",
       "chamber": "house",
       "state": "MO",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000298",
+      "slug": "jayapal",
+      "name": "Pramila Jayapal",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000294",
+      "slug": "jeffries",
+      "name": "Hakeem S. Jeffries",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -304,12 +477,30 @@
       "serving119": true
     },
     {
+      "bioguide": "G000583",
+      "slug": "josh_gottheimer",
+      "name": "Josh Gottheimer",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "F000482",
       "slug": "julie_fedorchak",
       "name": "Julie Fedorchak",
       "chamber": "house",
       "state": "ND",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000384",
+      "slug": "kaine",
+      "name": "Tim Kaine",
+      "chamber": "senate",
+      "state": "VA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -340,6 +531,15 @@
       "serving119": true
     },
     {
+      "bioguide": "L000575",
+      "slug": "lankford",
+      "name": "James Lankford",
+      "chamber": "senate",
+      "state": "OK",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "L000577",
       "slug": "lee",
       "name": "Mike Lee",
@@ -358,12 +558,48 @@
       "serving119": true
     },
     {
+      "bioguide": "K000377",
+      "slug": "mark_kelly",
+      "name": "Mark Kelly",
+      "chamber": "senate",
+      "state": "AZ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "M001184",
       "slug": "massie",
       "name": "Thomas Massie",
       "chamber": "house",
       "state": "KY",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000187",
+      "slug": "maxine_waters",
+      "name": "Maxine Waters",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M000355",
+      "slug": "mcconnell",
+      "name": "Mitch McConnell",
+      "chamber": "senate",
+      "state": "KY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001137",
+      "slug": "meeks",
+      "name": "Gregory W. Meeks",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -412,6 +648,15 @@
       "serving119": true
     },
     {
+      "bioguide": "L000599",
+      "slug": "mike_lawler",
+      "name": "Michael Lawler",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "S001148",
       "slug": "mike_simpson",
       "name": "Michael K. Simpson",
@@ -421,12 +666,21 @@
       "serving119": true
     },
     {
+      "bioguide": "W000823",
+      "slug": "mike_waltz",
+      "name": "Michael Waltz",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": false
+    },
+    {
       "bioguide": "G000596",
       "slug": "mtg",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Marjorie Taylor Greene",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
       "serving119": false
     },
     {
@@ -436,6 +690,15 @@
       "chamber": "senate",
       "state": "AK",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "O000173",
+      "slug": "omar",
+      "name": "Ilhan Omar",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -457,11 +720,29 @@
       "serving119": true
     },
     {
+      "bioguide": "R000122",
+      "slug": "reed",
+      "name": "Jack Reed",
+      "chamber": "senate",
+      "state": "RI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "C001087",
       "slug": "rick_crawford",
       "name": "Eric A. \"Rick\" Crawford",
       "chamber": "house",
       "state": "AR",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000584",
+      "slug": "risch",
+      "name": "James E. Risch",
+      "chamber": "senate",
+      "state": "ID",
       "party": "Republican",
       "serving119": true
     },
@@ -475,12 +756,21 @@
       "serving119": true
     },
     {
+      "bioguide": "R000608",
+      "slug": "rosen",
+      "name": "Jacky Rosen",
+      "chamber": "senate",
+      "state": "NV",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "R000595",
       "slug": "rubio",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Marco Rubio",
+      "chamber": "senate",
+      "state": "FL",
+      "party": "Republican",
       "serving119": false
     },
     {
@@ -493,6 +783,15 @@
       "serving119": true
     },
     {
+      "bioguide": "S000033",
+      "slug": "sanders",
+      "name": "Bernard Sanders",
+      "chamber": "senate",
+      "state": "VT",
+      "party": "Independent",
+      "serving119": true
+    },
+    {
       "bioguide": "S001176",
       "slug": "scalise",
       "name": "Steve Scalise",
@@ -502,12 +801,66 @@
       "serving119": true
     },
     {
+      "bioguide": "S001150",
+      "slug": "schiff",
+      "name": "Adam B. Schiff",
+      "chamber": "senate",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000148",
+      "slug": "schumer",
+      "name": "Charles E. Schumer",
+      "chamber": "senate",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "P000605",
       "slug": "scott_perry",
       "name": "Scott Perry",
       "chamber": "house",
       "state": "PA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001181",
+      "slug": "shaheen",
+      "name": "Jeanne Shaheen",
+      "chamber": "senate",
+      "state": "NH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001208",
+      "slug": "slotkin",
+      "name": "Elissa Slotkin",
+      "chamber": "senate",
+      "state": "MI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001196",
+      "slug": "stefanik",
+      "name": "Elise M. Stefanik",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H000874",
+      "slug": "steny_hoyer",
+      "name": "Steny H. Hoyer",
+      "chamber": "house",
+      "state": "MD",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -529,22 +882,49 @@
       "serving119": true
     },
     {
-      "bioguide": "C001035",
-      "slug": "collins",
-      "name": "Susan M. Collins",
-      "chamber": "senate",
-      "state": "ME",
-      "party": "Republican",
+      "bioguide": "L000602",
+      "slug": "summer_lee",
+      "name": "Summer L. Lee",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
       "serving119": true
     },
     {
       "bioguide": "G000571",
       "slug": "tgabbard",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
+      "name": "Tulsi Gabbard",
+      "chamber": "house",
+      "state": "HI",
+      "party": "Democrat",
       "serving119": false
+    },
+    {
+      "bioguide": "T000250",
+      "slug": "thune",
+      "name": "John Thune",
+      "chamber": "senate",
+      "state": "SD",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001184",
+      "slug": "tim_scott",
+      "name": "Tim Scott",
+      "chamber": "senate",
+      "state": "SC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000481",
+      "slug": "tlaib",
+      "name": "Rashida Tlaib",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Democrat",
+      "serving119": true
     },
     {
       "bioguide": "C001053",
@@ -553,6 +933,24 @@
       "chamber": "house",
       "state": "OK",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001201",
+      "slug": "tom_suozzi",
+      "name": "Thomas R. Suozzi",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000486",
+      "slug": "torres",
+      "name": "Ritchie Torres",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -574,6 +972,24 @@
       "serving119": true
     },
     {
+      "bioguide": "V000128",
+      "slug": "van_hollen",
+      "name": "Chris Van Hollen",
+      "chamber": "senate",
+      "state": "MD",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000790",
+      "slug": "warnock",
+      "name": "Raphael G. Warnock",
+      "chamber": "senate",
+      "state": "GA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "W000817",
       "slug": "warren",
       "name": "Elizabeth Warren",
@@ -585,56 +1001,11 @@
     {
       "bioguide": "Z000017",
       "slug": "zeldin",
-      "name": null,
-      "chamber": null,
-      "state": null,
-      "party": null,
-      "serving119": false
-    },
-    {
-      "bioguide": "S001150",
-      "slug": "schiff",
-      "name": "Adam Schiff",
-      "chamber": "senate",
-      "state": "CA",
-      "party": "Democrat",
-      "serving119": true
-    },
-    {
-      "bioguide": "J000298",
-      "slug": "jayapal",
-      "name": "Pramila Jayapal",
+      "name": "Lee M. Zeldin",
       "chamber": "house",
-      "state": "WA",
-      "party": "Democrat",
-      "serving119": true
-    },
-    {
-      "bioguide": "T000481",
-      "slug": "tlaib",
-      "name": "Rashida Tlaib",
-      "chamber": "house",
-      "state": "MI",
-      "party": "Democrat",
-      "serving119": true
-    },
-    {
-      "bioguide": "E000295",
-      "slug": "ernst",
-      "name": "Joni Ernst",
-      "chamber": "senate",
-      "state": "IA",
+      "state": "NY",
       "party": "Republican",
-      "serving119": true
-    },
-    {
-      "bioguide": "W000187",
-      "slug": "maxine_waters",
-      "name": "Maxine Waters",
-      "chamber": "house",
-      "state": "CA",
-      "party": "Democrat",
-      "serving119": true
+      "serving119": false
     }
   ],
   "_phase12_staged": {

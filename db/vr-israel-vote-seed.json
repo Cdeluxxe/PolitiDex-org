@@ -1,0 +1,6155 @@
+{
+ "_comment": "Roll calls for the Support for Israel issue vertical (issue key israel_support), 117th-119th Congress. Built by scripts/vr-build-israel-vote-seed.mjs from clerk.house.gov/evs and senate.gov roll_call_votes XML; roll numbers were read from each measure's own govinfo BILLSTATUS record and re-verified against the chamber's document before inclusion. Scope is U.S. support for Israel itself — security assistance, weapons transfers, and floor attempts to cut, block or condition that support. Iran war-powers resolutions, domestic antisemitism measures, member-discipline votes and rules are out of scope and are listed in declinedRollCalls with the reason. Two non-passage question forms are admitted, each for one measure shape and each carrying its own decisiveWhy: 'On Agreeing to the Amendment' for amendments, and 'On the Motion to Discharge' for joint resolutions, where the discharge vote is the only floor record an Arms Export Control Act disapproval resolution ever gets. memberVotes is already filtered to db/vr-member-map.json; unmapped members are counted in rosterSkipped and never guessed. isParty is computed from the full chamber tally, and totals is the full chamber tally, not the roster subset.",
+ "builtBy": "scripts/vr-build-israel-vote-seed.mjs",
+ "issueKey": "israel_support",
+ "congresses": [
+  117,
+  118,
+  119
+ ],
+ "parents": [
+  {
+   "id": "p815",
+   "number": "H.R. 815",
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "mustExist": "created by 20260810000000_vr_phase_a_117_118_landmarks.sql as P.L. 118-50"
+  },
+  {
+   "id": "p8595",
+   "number": "H.R. 8595",
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "mustExist": "already live as the FY2026 National Security, Department of State, and Related Programs appropriations bill"
+  },
+  {
+   "id": "p4665",
+   "number": "H.R. 4665",
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "create": {
+    "title": "Department of State, Foreign Operations, and Related Programs Appropriations Act, 2024",
+    "shortTitle": "Department of State, Foreign Operations, and Related Programs Appropriations Act, 2024",
+    "summary": "FY2024 appropriations for the Department of State, USAID, international organizations and foreign assistance accounts including Foreign Military Financing. Identity row only: it is created here so the floor amendments voted against it have a vehicle to hang from, and it carries no roll call and no issue mapping of its own in this pass.",
+    "introducedAt": "2023-07-14",
+    "status": "passed_house",
+    "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/4665",
+    "sourceLabel": "Congress.gov",
+    "externalIds": {
+     "congressGovId": "hr4665-118",
+     "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr4665.xml"
+    }
+   }
+  }
+ ],
+ "rollCallCount": 16,
+ "memberVoteCount": 713,
+ "reversals": [
+  {
+   "roll": "house 118/2 roll 152 (H.R. 8034)",
+   "declinedBy": "db/vr-phase-a-vote-seed.json",
+   "declinedWhy": "near-unanimous; no distinguishing signal",
+   "ingestedWhy": "That call was made for Phase A's general foreign-policy keys, where H.R. 8035's 311-112 Ukraine split already carried the supplemental's signal and 366-58 added nothing. Under israel_support the same 58 nays ARE the signal: they are the members who declined to fund Israel's missile defence on a bill that asked nothing else of them, which is precisely the distinction this key exists to record. Phase A's ledger entry is left standing as the honest record of why that pass passed on it."
+  }
+ ],
+ "declinedRollCalls": [
+  {
+   "number": "S.J.Res. 59",
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "roll": 328,
+   "totals": "47-53",
+   "why": "Iran war powers — directs removal of U.S. forces from hostilities, a question about American war powers rather than support for Israel; keeps its restraint / america_first_fp / strong_defense mappings"
+  },
+  {
+   "number": "H.Con.Res. 89",
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 282,
+   "totals": "214-208",
+   "why": "Iran war powers — same reasoning as S.J.Res. 59; keeps its restraint mapping"
+  },
+  {
+   "number": "H.R. 8369",
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 216,
+   "totals": "196-215",
+   "why": "motion to recommit — a procedural disposition, not a vote on the delivery requirement; roll 217 is the passage vote"
+  },
+  {
+   "number": "H.R. 6090",
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 165,
+   "totals": "320-91",
+   "why": "Antisemitism Awareness Act — campus speech and Title VI enforcement, a civil-rights question that belongs to rights_balance / free_speech, not to U.S. support for Israel"
+  },
+  {
+   "number": "H.Res. 883",
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 674,
+   "totals": "311-14",
+   "why": "resolution condemning antisemitism; out of scope for the same reason as H.R. 6090, and near-unanimous besides"
+  },
+  {
+   "number": "H.Res. 829",
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 590,
+   "totals": "222-186",
+   "why": "censure of a member — discipline, not policy"
+  },
+  {
+   "number": "H.Res. 845",
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 620,
+   "totals": "234-188",
+   "why": "censure of a member — discipline, not policy"
+  },
+  {
+   "number": "H.Res. 1160",
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 150,
+   "totals": "316-94",
+   "why": "rule providing for consideration of the four supplemental divisions — rules are not policy"
+  },
+  {
+   "number": "H.Amdt. 55",
+   "chamber": "house",
+   "congress": 119,
+   "session": 1,
+   "roll": 207,
+   "totals": "6-422",
+   "why": "strike Israeli Cooperative Programs funding — 6 yeas separates nobody, and it is not the only 119th record of the position (H.Amdt. 235 is)"
+  },
+  {
+   "number": "S.Amdt. 786",
+   "chamber": "senate",
+   "congress": 117,
+   "session": 1,
+   "roll": 314,
+   "totals": "97-3",
+   "why": "deficit-neutral reserve fund on the Jerusalem embassy — no operative effect and near-unanimous"
+  },
+  {
+   "number": "S.Amdt. 3383",
+   "chamber": "senate",
+   "congress": 117,
+   "session": 2,
+   "roll": 285,
+   "totals": "99-0",
+   "why": "deficit-neutral reserve fund on Hamas — no operative effect and unanimous"
+  },
+  {
+   "number": "S.Res. 504",
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "roll": 8,
+   "totals": "72-11",
+   "why": "motion to table a motion to discharge — two layers of procedure above the substance"
+  },
+  {
+   "number": "H.R. 340",
+   "chamber": "house",
+   "congress": 119,
+   "session": 1,
+   "roll": 41,
+   "totals": "363-46",
+   "why": "Hamas financing sanctions — adjacent, and a 363-46 margin carries little discriminating signal; queued rather than mapped"
+  },
+  {
+   "number": "H.Amdt. 1065",
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 328,
+   "totals": "217-193",
+   "why": "Gaza humanitarian pier oversight — a test of the administration's Gaza aid operation, not of U.S. support for Israel"
+  },
+  {
+   "number": "H.Amdt. 1052",
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 318,
+   "totals": "218-192",
+   "why": "sourcing of Gaza Health Ministry casualty statistics — messaging, no operative provision on support for Israel"
+  }
+ ],
+ "votes": [
+  {
+   "chamber": "house",
+   "congress": 117,
+   "session": 1,
+   "rollNumber": 275,
+   "voteDate": "2021-09-23T14:07:00-04:00",
+   "question": "On Motion to Suspend the Rules and Pass",
+   "voteDesc": "Making supplemental appropriations for the fiscal year ending September 30, 2022, and for other purposes",
+   "amendmentAuthor": null,
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "two_thirds",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 420,
+    "nay": 9,
+    "present": 2,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 210,
+     "nay": 8
+    },
+    "R": {
+     "yea": 210,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2021/roll275.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 117,
+    "chamber": "house",
+    "number": "H.R. 5323",
+    "parent": null,
+    "title": "Iron Dome Supplemental Appropriations Act, 2022",
+    "create": {
+     "title": "Iron Dome Supplemental Appropriations Act, 2022",
+     "shortTitle": "Iron Dome Supplemental Appropriations Act, 2022",
+     "summary": "Appropriates $1,000,000,000 to the Department of Defense, Procurement, Defense-Wide, to replace Iron Dome defense system interceptors and components expended during the May 2021 conflict, and for other Israeli cooperative missile-defense procurement, designated as an emergency requirement. Introduced as a standalone bill after Iron Dome replenishment was removed from the continuing resolution. Passed the House 420-9 under suspension of the rules on 2021-09-23; the Senate never voted it, and the replenishment was later funded in the FY2022 consolidated appropriations act.",
+     "introducedAt": "2021-09-21",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/5323",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr5323-117",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr5323.xml"
+     }
+    }
+   },
+   "chamberVoting": 432,
+   "rosterSkipped": 382,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "present",
+     "isParty": null
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001192",
+     "politicianId": "cstewart",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "Z000017",
+     "politicianId": "zeldin",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "rollNumber": 491,
+   "voteDate": "2023-09-28T22:03:00-04:00",
+   "question": "On Agreeing to the Amendment",
+   "voteDesc": "",
+   "amendmentAuthor": "Tenney of New York Part D Amendment No. 69",
+   "actionType": "amendment",
+   "result": "agreed_to",
+   "requiredMajority": "simple",
+   "admittedAs": "amendment",
+   "decisiveWhy": "An amendment has no passage vote; agreeing to it is its disposition, and this roll is the only floor record of the position. The repo already holds 28 amendment roll calls on this footing.",
+   "totals": {
+    "yea": 360,
+    "nay": 67,
+    "present": 0,
+    "notVoting": 11
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 141,
+     "nay": 67
+    },
+    "R": {
+     "yea": 219,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2023/roll491.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "amendment",
+    "congress": 118,
+    "chamber": "house",
+    "number": "H.Amdt. 478",
+    "parent": "p4665",
+    "title": "H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move the U.S. Embassy in Israel out of Jerusalem",
+    "create": {
+     "title": "H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move the U.S. Embassy in Israel out of Jerusalem",
+     "shortTitle": null,
+     "summary": "Amendment numbered 69 printed in Part D of House Report 118-216 to the FY2024 State and Foreign Operations appropriations bill, prohibiting the use of funds to relocate the United States Embassy in Israel out of Jerusalem. Agreed to 360-67 on 2023-09-28, with all 67 nays cast by Democrats.",
+     "introducedAt": "2023-09-27",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/amendment/118th-congress/house-amendment/478",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hamdt478-118",
+      "amendsBill": "hr4665-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr4665.xml"
+     }
+    }
+   },
+   "chamberVoting": 438,
+   "rosterSkipped": 381,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "rollNumber": 577,
+   "voteDate": "2023-11-02T17:44:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "",
+   "amendmentAuthor": null,
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 226,
+    "nay": 196,
+    "present": 0,
+    "notVoting": 11
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 12,
+     "nay": 194
+    },
+    "R": {
+     "yea": 214,
+     "nay": 2
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2023/roll577.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 118,
+    "chamber": "house",
+    "number": "H.R. 6126",
+    "parent": null,
+    "title": "Israel Security Supplemental Appropriations Act, 2024",
+    "create": {
+     "title": "Israel Security Supplemental Appropriations Act, 2024",
+     "shortTitle": "Israel Security Supplemental Appropriations Act, 2024",
+     "summary": "FY2024 emergency supplemental appropriations of approximately $14.3 billion for Israel, including Israeli cooperative missile-defense programs, Foreign Military Financing, and replacement of U.S. defense articles transferred to Israel, fully offset by rescinding an equal amount of Internal Revenue Service enforcement funding appropriated by the Inflation Reduction Act. Passed the House 226-196 on 2023-11-02; the Senate did not take it up.",
+     "introducedAt": "2023-10-30",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/6126",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr6126-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr6126.xml"
+     }
+    }
+   },
+   "chamberVoting": 433,
+   "rosterSkipped": 376,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 38,
+   "voteDate": "2024-02-06T18:50:00-05:00",
+   "question": "On Motion to Suspend the Rules and Pass",
+   "voteDesc": "Israel Security Supplemental Appropriations Act",
+   "amendmentAuthor": null,
+   "actionType": "passage",
+   "result": "failed",
+   "requiredMajority": "two_thirds",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 250,
+    "nay": 180,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 46,
+     "nay": 166
+    },
+    "R": {
+     "yea": 204,
+     "nay": 14
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2024/roll038.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 118,
+    "chamber": "house",
+    "number": "H.R. 7217",
+    "parent": null,
+    "title": "Israel Security Supplemental Appropriations Act, 2024",
+    "create": {
+     "title": "Israel Security Supplemental Appropriations Act, 2024",
+     "shortTitle": "Israel Security Supplemental Appropriations Act, 2024",
+     "summary": "FY2024 emergency supplemental appropriations of approximately $17.6 billion for Israel and for U.S. Central Command operations in the region, with no offset, brought up under suspension of the rules as a standalone alternative to the combined Ukraine/Israel/Indo-Pacific supplemental. Failed 250-180 on 2024-02-06, short of the two-thirds a suspension requires.",
+     "introducedAt": "2024-02-05",
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/7217",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr7217-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7217.xml"
+     }
+    }
+   },
+   "chamberVoting": 431,
+   "rosterSkipped": 374,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 152,
+   "voteDate": "2024-04-20T13:57:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "Israel Security Supplemental Appropriations Act, 2024",
+   "amendmentAuthor": null,
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 366,
+    "nay": 58,
+    "present": 0,
+    "notVoting": 7
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 173,
+     "nay": 37
+    },
+    "R": {
+     "yea": 193,
+     "nay": 21
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2024/roll152.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 118,
+    "chamber": "house",
+    "number": "H.R. 8034",
+    "parent": "p815",
+    "title": "Israel Security Supplemental Appropriations Act, 2024",
+    "create": {
+     "title": "Israel Security Supplemental Appropriations Act, 2024",
+     "shortTitle": "Israel Security Supplemental Appropriations Act, 2024",
+     "summary": "FY2024 emergency supplemental appropriations of approximately $26.4 billion responding to the situation in Israel: Israeli cooperative missile-defense programs including Iron Dome and David's Sling, procurement of Iron Beam, Foreign Military Financing for Israel, replacement of U.S. defense articles and services provided to Israel, U.S. Central Command operations, and humanitarian assistance for Gaza and other affected populations. Passed the House 366-58 on 2024-04-20 as a standalone division bill; H.Res. 1160 then folded this text into H.R. 815, which was enacted as Division A of P.L. 118-50, and H.R. 8034 itself was laid on the table. This is the only floor vote that recorded a position on the Israel division alone.",
+     "introducedAt": "2024-04-17",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8034",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr8034-118",
+      "parentBill": "hr815-118",
+      "enactedAs": "P.L. 118-50 division A",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8034.xml"
+     }
+    }
+   },
+   "chamberVoting": 431,
+   "rosterSkipped": 373,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 217,
+   "voteDate": "2024-05-16T17:00:00-04:00",
+   "question": "On Passage",
+   "voteDesc": "Israel Security Assistance Support Act",
+   "amendmentAuthor": null,
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 224,
+    "nay": 187,
+    "present": 0,
+    "notVoting": 19
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 16,
+     "nay": 184
+    },
+    "R": {
+     "yea": 208,
+     "nay": 3
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2024/roll217.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "bill",
+    "congress": 118,
+    "chamber": "house",
+    "number": "H.R. 8369",
+    "parent": null,
+    "title": "Israel Security Assistance Support Act",
+    "create": {
+     "title": "Israel Security Assistance Support Act",
+     "shortTitle": "Israel Security Assistance Support Act",
+     "summary": "Requires the President to deliver to Israel the defense articles and defense services that Congress has already authorized and appropriated, and withholds salaries and expenses funding from the Office of the Secretary of Defense, the Office of the Secretary of State and the National Security Council until the withheld shipments are delivered. Introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs. Passed the House 224-187 on 2024-05-16; the Senate did not take it up.",
+     "introducedAt": "2024-05-13",
+     "status": "passed_house",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8369",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "hr8369-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8369.xml"
+     }
+    }
+   },
+   "chamberVoting": 430,
+   "rosterSkipped": 372,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000578",
+     "politicianId": "gaetz",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000596",
+     "politicianId": "mtg",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 292,
+   "voteDate": "2024-11-20T18:17:00-05:00",
+   "question": "On the Motion to Discharge S.J.Res. 111",
+   "voteDesc": "Motion to Discharge S. J. Res. 111 from the Committee on Foreign Relations",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 18,
+    "nay": 79,
+    "present": 1,
+    "notVoting": 2
+   },
+   "partyTotals": {
+    "R": {
+     "yea": 0,
+     "nay": 47
+    },
+    "D": {
+     "yea": 16,
+     "nay": 30
+    },
+    "I": {
+     "yea": 2,
+     "nay": 2
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00292.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 118,
+    "chamber": "senate",
+    "number": "S.J.Res. 111",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2024-11-20, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/111",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres111-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres111.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 67,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000595",
+     "politicianId": "rubio",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 293,
+   "voteDate": "2024-11-20T19:25:00-05:00",
+   "question": "On the Motion to Discharge S.J.Res. 113",
+   "voteDesc": "Motion to Discharge S. J. Res. 113 from the Committee on Foreign Relations",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 19,
+    "nay": 78,
+    "present": 1,
+    "notVoting": 2
+   },
+   "partyTotals": {
+    "R": {
+     "yea": 0,
+     "nay": 47
+    },
+    "D": {
+     "yea": 17,
+     "nay": 29
+    },
+    "I": {
+     "yea": 2,
+     "nay": 2
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00293.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00293.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 118,
+    "chamber": "senate",
+    "number": "S.J.Res. 113",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including JDAM guidance kits and small-diameter bombs to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including JDAM guidance kits and small-diameter bombs to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services, including JDAM guidance kits and small-diameter bombs to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2024-11-20, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/113",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres113-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres113.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 67,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000595",
+     "politicianId": "rubio",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "rollNumber": 294,
+   "voteDate": "2024-11-20T20:17:00-05:00",
+   "question": "On the Motion to Discharge S.J.Res. 115",
+   "voteDesc": "Motion to Discharge S. J. Res. 115 from the Committee on Foreign Relations",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 17,
+    "nay": 80,
+    "present": 1,
+    "notVoting": 2
+   },
+   "partyTotals": {
+    "R": {
+     "yea": 0,
+     "nay": 47
+    },
+    "D": {
+     "yea": 15,
+     "nay": 31
+    },
+    "I": {
+     "yea": 2,
+     "nay": 2
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00294.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1182/vote_118_2_00294.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 118,
+    "chamber": "senate",
+    "number": "S.J.Res. 115",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed license amendment for the export of certain defense articles, defense services and technical data to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed license amendment for the export of certain defense articles, defense services and technical data to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a license amendment for the export of certain defense articles, defense services and technical data to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2024-11-20, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/115",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres115-118",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres115.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 67,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000595",
+     "politicianId": "rubio",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 165,
+   "voteDate": "2025-04-03T14:46:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 33",
+   "voteDesc": "Motion to Discharge: S.J. Res. 33",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 15,
+    "nay": 82,
+    "present": 1,
+    "notVoting": 2
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 14,
+     "nay": 28
+    },
+    "R": {
+     "yea": 0,
+     "nay": 53
+    },
+    "I": {
+     "yea": 1,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00165.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00165.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 33",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bomb bodies and guidance kits to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bomb bodies and guidance kits to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services, including bomb bodies and guidance kits to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2025-04-03, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/33",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres33-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres33.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 166,
+   "voteDate": "2025-04-03T15:24:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 26",
+   "voteDesc": "Motion to Discharge S.J. Res. 26",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 15,
+    "nay": 83,
+    "present": 1,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 14,
+     "nay": 29
+    },
+    "R": {
+     "yea": 0,
+     "nay": 53
+    },
+    "I": {
+     "yea": 1,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00166.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00166.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 26",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bulldozers and related equipment to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bulldozers and related equipment to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services, including bulldozers and related equipment to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2025-04-03, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/26",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres26-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres26.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 454,
+   "voteDate": "2025-07-30T21:12:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 41",
+   "voteDesc": "Motion to Discharge S. J. Res. 41",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 27,
+    "nay": 70,
+    "present": 0,
+    "notVoting": 3
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 25,
+     "nay": 17
+    },
+    "R": {
+     "yea": 0,
+     "nay": 53
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00454.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00454.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 41",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed the export of certain defense articles, including assault rifles to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed the export of certain defense articles, including assault rifles to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked the export of certain defense articles, including assault rifles to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2025-07-30, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/41",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres41-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres41.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 455,
+   "voteDate": "2025-07-30T21:42:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 34",
+   "voteDesc": "Motion to Discharge S. J. Res. 34",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 24,
+    "nay": 73,
+    "present": 0,
+    "notVoting": 3
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 22,
+     "nay": 20
+    },
+    "R": {
+     "yea": 0,
+     "nay": 53
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00455.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00455.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 34",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2025-07-30, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/34",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres34-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres34.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 80,
+   "voteDate": "2026-04-15T18:17:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 32",
+   "voteDesc": "Motion to Discharge S. J. Res. 32 from the Committee on Foreign Relations",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 40,
+    "nay": 59,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 38,
+     "nay": 7
+    },
+    "R": {
+     "yea": 0,
+     "nay": 52
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00080.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00080.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 32",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2026-04-15, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/32",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres32-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres32.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 81,
+   "voteDate": "2026-04-15T19:08:00-04:00",
+   "question": "On the Motion to Discharge S.J.Res. 138",
+   "voteDesc": "Motion to Discharge S. J. Res. 138 from the Committee on Foreign Relations",
+   "actionType": "motion",
+   "result": "rejected",
+   "requiredMajority": "simple",
+   "admittedAs": "discharge",
+   "decisiveWhy": "Under the Arms Export Control Act's expedited procedure a disapproval resolution the Foreign Relations Committee has not reported reaches the floor only on a motion to discharge, and the Senate has never carried one. The discharge vote is the entire substantive record of the arms-sale question — senators debate the sale itself and vote it up or down under this caption — not a procedural step toward a later vote that never comes.",
+   "totals": {
+    "yea": 36,
+    "nay": 63,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 34,
+     "nay": 11
+    },
+    "R": {
+     "yea": 0,
+     "nay": 52
+    },
+    "I": {
+     "yea": 2,
+     "nay": 0
+    }
+   },
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00081.htm",
+   "xmlUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00081.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 138",
+    "parent": null,
+    "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+    "create": {
+     "title": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
+     "shortTitle": null,
+     "summary": "Joint resolution of disapproval under section 36 of the Arms Export Control Act, which would have blocked a foreign military sale of certain defense articles and services to Israel. The motion to discharge it from the Committee on Foreign Relations was rejected on 2026-04-15, so the sale proceeded. A yea would have blocked the transfer.",
+     "introducedAt": null,
+     "status": "failed",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/138",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "congressGovId": "sjres138-119",
+      "billStatus": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres138.xml"
+     }
+    }
+   },
+   "chamberVoting": 100,
+   "rosterSkipped": 63,
+   "rosterAmbiguous": 0,
+   "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 243,
+   "voteDate": "2026-07-15T16:43:00-04:00",
+   "question": "On Agreeing to the Amendment",
+   "voteDesc": "",
+   "amendmentAuthor": "Massie of Kentucky Part A Amendment No. 8",
+   "actionType": "amendment",
+   "result": "failed",
+   "requiredMajority": "simple",
+   "admittedAs": "amendment",
+   "decisiveWhy": "An amendment has no passage vote; agreeing to it is its disposition. This roll and its 38 attributed member votes are already live — it is restated here so the Israel vertical's seed is complete, and every write for it is a no-op.",
+   "totals": {
+    "yea": 104,
+    "nay": 314,
+    "present": 10,
+    "notVoting": 9
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 103,
+     "nay": 98
+    },
+    "R": {
+     "yea": 1,
+     "nay": 215
+    },
+    "I": {
+     "yea": 0,
+     "nay": 1
+    }
+   },
+   "sourceUrl": "https://clerk.house.gov/evs/2026/roll243.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "amendment",
+    "congress": 119,
+    "chamber": "house",
+    "number": "H.Amdt. 235",
+    "parent": "p8595",
+    "mustExist": "already live from the 119th-Congress ingest, mapped to america_first_fp and cut_spending"
+   },
+   "chamberVoting": 437,
+   "rosterSkipped": 382,
+   "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000404",
+     "politicianId": "kennedy",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ]
+  }
+ ]
+}

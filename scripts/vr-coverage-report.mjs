@@ -125,6 +125,36 @@ function loadIssueSeed() {
   return out;
 }
 
+// Curated roll calls (`db/*-vote-seed.json`) reach the database the same way mappings
+// and identities do — by migration — so an ingest pass that has landed in the repo but
+// not yet deployed would read as having unlocked nothing at all, and the mapping pass it
+// was built to activate would still look inert. The seeds are overlaid here for the same
+// reason the other two are, and every vote they contribute is marked `pending` so votes
+// that are not yet in the database are never counted as though they were.
+//
+// De-duplication is per (roll call, member), keyed the way vr_member_votes' own unique
+// index is — NOT per roll call. Skipping a whole roll the moment it exists live was wrong
+// in a way that hid an entire pass: a roster expansion re-attributes the SAME roll calls
+// against more members, so every one of its rolls is already live and the 298 votes it
+// unlocked read as zero. Matching the table's actual grain means a seed can add members to
+// a deployed roll, and re-running after the deploy still stops double-counting on its own.
+function loadVoteSeeds() {
+  const dir = path.join(ROOT, 'db');
+  const out = [];
+  if (!fs.existsSync(dir)) return out;
+  for (const f of fs.readdirSync(dir).filter(n => /-vote-seed\.json$/.test(n)).sort()) {
+    try {
+      for (const v of (JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).votes || [])) {
+        if (v && v.measure && Array.isArray(v.memberVotes)) out.push({ ...v, seedFile: f });
+      }
+    } catch (e) { console.error(`  ! ${f} failed to load: ${e.message}`); }
+  }
+  return out;
+}
+
+const rollKey = v => `${v.chamber}|${v.congress}|${v.session}|${v.rollNumber ?? v.roll_number}`;
+const measureKey = m => `${m.congress}|${m.chamber}|${String(m.number || '').toLowerCase().replace(/[.\s]/g, '')}`;
+
 async function main() {
   if (!process.env.NETLIFY_DB_URL) {
     console.error('NETLIFY_DB_URL is not set — cannot read the voting record.');
@@ -164,6 +194,16 @@ async function main() {
     if (!mapping.has(r.measure_id)) mapping.set(r.measure_id, new Set());
     mapping.get(r.measure_id).add(r.issue_key);
   }
+  // Keyed exactly like the vr_member_votes unique index, so a seed attribution already
+  // ingested is recognised as live rather than added a second time — while an attribution
+  // the seed holds and the database does not still counts as pending, even on a roll call
+  // that deployed long ago.
+  const liveRolls = new Set((await client.query(
+    'SELECT chamber, congress, session, roll_number FROM vr_rollcalls')).rows.map(rollKey));
+  const liveMv = new Set((await client.query(`
+    SELECT r.chamber, r.congress, r.session, r.roll_number, v.politician_id
+      FROM vr_member_votes v JOIN vr_rollcalls r ON r.id = v.rollcall_id`))
+    .rows.map(r => rollKey(r) + '|' + r.politician_id));
   await client.end();
 
   // Overlay the committed issue seed for keys the live table does not carry yet.
@@ -178,6 +218,39 @@ async function main() {
     mapping.set(m.id, live);
     m.mappingPending = fresh;
   }
+
+  // Overlay the attributions the committed vote seeds hold and the database does not.
+  // A seed measure that does not exist live yet is synthesized under a negative id so
+  // its votes are counted somewhere, and given the seed's own mapping — the migration
+  // creates the real row, and until it runs there is nothing live to attach them to.
+  const measureByKey = new Map(measures.map(m => [measureKey(m), m]));
+  const pendingVoteMv = new Map();   // measureId → pending member-votes
+  let pendingRollCount = 0;          // roll calls not in the database at all
+  let reattributedRollCount = 0;     // deployed roll calls the seed adds members to
+  let synthId = -1;
+  for (const v of loadVoteSeeds()) {
+    const rk = rollKey(v);
+    const fresh = v.memberVotes.filter(mv => !liveMv.has(rk + '|' + mv.politicianId));
+    if (!fresh.length) continue;
+    let m = measureByKey.get(measureKey(v.measure));
+    if (!m) {
+      m = { id: synthId--, number: v.measure.number, congress: v.measure.congress,
+            chamber: v.measure.chamber, title: v.measure.title || v.measure.number,
+            rollcalls: 0, measurePending: true };
+      const seeded = issueSeed.lookup(m);
+      if (seeded && seeded.size) { mapping.set(m.id, new Set(seeded)); m.mappingPending = [...seeded]; }
+      measures.push(m);
+      measureById.set(m.id, m);
+      measureByKey.set(measureKey(m), m);
+    }
+    if (liveRolls.has(rk)) reattributedRollCount++; else pendingRollCount++;
+    for (const mv of fresh) {
+      if (mv.position !== 'yea' && mv.position !== 'nay') continue;
+      votes.push({ pid: mv.politicianId, mid: m.id, pending: true });
+      pendingVoteMv.set(m.id, (pendingVoteMv.get(m.id) || 0) + 1);
+    }
+  }
+  const pendingVoteTotal = [...pendingVoteMv.values()].reduce((a, b) => a + b, 0);
 
   const mvByMeasure = new Map();
   for (const v of votes) mvByMeasure.set(v.mid, (mvByMeasure.get(v.mid) || 0) + 1);
@@ -200,7 +273,9 @@ async function main() {
   // being rankable.
   const pairVotes = new Map();   // pid|issueKey → member-votes
   const usablePairs = new Set();
+  const usablePairsLive = new Set();   // pairs a deployed vote already supports
   let usableVotes = 0;
+  let usableVotesPending = 0;
   for (const v of votes) {
     const keys = mapping.get(v.mid);
     if (!keys) continue;
@@ -208,9 +283,16 @@ async function main() {
     for (const k of keys) {
       const id = v.pid + '|' + k;
       pairVotes.set(id, (pairVotes.get(id) || 0) + 1);
-      if (held && held.has(k)) { usableVotes++; usablePairs.add(id); }
+      if (held && held.has(k)) {
+        usableVotes++; usablePairs.add(id);
+        if (v.pending) usableVotesPending++; else usablePairsLive.add(id);
+      }
     }
   }
+  const pendingPairs = [...usablePairs].filter(id => !usablePairsLive.has(id));
+  const peopleAll = new Set([...usablePairs].map(s => s.split('|')[0]));
+  const peopleLive = new Set([...usablePairsLive].map(s => s.split('|')[0]));
+  const pendingPeople = [...peopleAll].filter(p => !peopleLive.has(p));
   const missingStance = [...pairVotes.entries()]
     .filter(([id]) => !usablePairs.has(id))
     .map(([id, mv]) => { const [pid, key] = id.split('|'); return { pid, key, mv, known: stances.has(pid) }; })
@@ -259,9 +341,9 @@ async function main() {
   p('');
   p('Stated positions come from the stance files in this checkout. Mappings and measure');
   p('titles come from the live database, overlaid with the curated seeds committed here');
-  p('(`db/vr-issue-seed.json`, `db/vr-measure-identity.json`) wherever the live row has');
-  p('not caught up — so a pass that has landed in the repo but not yet deployed is');
-  p('counted, and every row it accounts for is marked `pending`.');
+  p('(`db/vr-issue-seed.json`, `db/vr-measure-identity.json`, `db/*-vote-seed.json`)');
+  p('wherever the live row has not caught up — so a pass that has landed in the repo but');
+  p('not yet deployed is counted, and every row it accounts for is marked `pending`.');
 
   p('');
   p('## Where the ranking stands');
@@ -269,15 +351,37 @@ async function main() {
   p('| | member-votes |');
   p('|---|---|');
   p(`| Recorded yea/nay votes | ${num(totalMv)} |`);
+  p(`| …of which the votes themselves are seeded but not yet deployed | ${num(pendingVoteTotal)} |`);
   p(`| …on a measure with at least one issue mapping | ${num(mappedMv)} |`);
   p(`| …of which the mapping is curated but not yet deployed | ${num(pendingMapMv)} |`);
 
   p(`| …**and** the member holds a stated position on that key (rankable) | ${num(usableVotes)} |`);
+  p(`| …of which awaiting deploy | ${num(usableVotesPending)} |`);
   p(`| Blocked earlier than that — the measure has no real title yet | ${num(placeholderMv)} |`);
   p(`| …title resolved in \`db/vr-measure-identity.json\`, awaiting deploy | ${num(pendingMv)} |`);
   p('');
-  p(`Rankable (member, issue) pairs: **${num(usablePairs.size)}**. `
-    + `People with at least one rankable record: **${num(new Set([...usablePairs].map(s => s.split('|')[0])).size)}**.`);
+  p(`Rankable (member, issue) pairs: **${num(usablePairs.size)}**`
+    + (pendingPairs.length ? ` (${num(pendingPairs.length)} awaiting deploy)` : '') + '. '
+    + `People with at least one rankable record: **${num(peopleAll.size)}**`
+    + (pendingPeople.length ? ` (${num(pendingPeople.length)} awaiting deploy)` : '') + '.');
+  if (pendingRollCount || reattributedRollCount) {
+    p('');
+    const parts = [];
+    if (pendingRollCount) parts.push(`${pendingRollCount} seeded roll call(s) not yet in the database`);
+    if (reattributedRollCount) parts.push(`${reattributedRollCount} deployed roll call(s) the seed attributes to more members than the database holds`);
+    p(`${parts.join(', and ')} carry ${num(pendingVoteTotal)} yea/nay member-votes`);
+    p('that are committed in a vote seed and not live. They are counted above and listed');
+    p('here so the difference between "ingested" and "deployed" stays visible.');
+    p('');
+    p('| pending member-votes | measure | title | mapped |');
+    p('|---:|---|---|---|');
+    for (const [mid, mv] of [...pendingVoteMv.entries()].sort((a, b) => b[1] - a[1])) {
+      const m = measureById.get(mid) || {};
+      const keys = mapping.get(mid);
+      p(`| ${mv} | ${m.number || '(no number)'} | ${(m.title || '').replace(/\|/g, '\\|').slice(0, 60)} `
+        + `| ${keys ? keys.size + ' key(s)' : '`no`'}${m.measurePending ? ' `new measure`' : ''} |`);
+    }
+  }
   p('');
   p('## Gap 0 — measures still carrying a placeholder title');
   p('');
@@ -310,14 +414,16 @@ async function main() {
   p(`${unmapped.length} measure(s), ${num(unmapped.reduce((a, b) => a + b.mv, 0))} member-votes at stake.`);
   if (pendingMapRows.length) {
     p('');
-    p(`${pendingMapRows.length} measure(s) carrying ${num(pendingMapMv)} member-votes have just left this`);
+    p(`${pendingMapRows.length} measure(s) carrying ${num(pendingMapMv)} member-votes are not on this`);
     p('list: they are mapped in `db/vr-issue-seed.json` and awaiting deploy, so they are');
-    p('counted as mapped above rather than as a gap here.');
+    p('counted as mapped above rather than as a gap here. Rows marked `new measure` are');
+    p('created by the same migration that carries their votes, so they were never a gap.');
     p('');
-    p('| member-votes | measure | keys awaiting deploy |');
-    p('|---:|---|---|');
+    p('| member-votes | measure | keys awaiting deploy | |');
+    p('|---:|---|---|---|');
     for (const r of pendingMapRows) {
-      p(`| ${r.mv} | ${r.m.number || '(no number)'} | ${r.m.mappingPending.map(k => '`' + k + '`').join(', ')} |`);
+      p(`| ${r.mv} | ${r.m.number || '(no number)'} | ${r.m.mappingPending.map(k => '`' + k + '`').join(', ')} `
+        + `| ${r.m.measurePending ? '`new measure`' : ''} |`);
     }
   }
 

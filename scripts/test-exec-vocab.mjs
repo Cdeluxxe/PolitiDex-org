@@ -89,6 +89,10 @@ harvest(EX.SCOPE, "SCOPE");
 harvest(EX.VERDICTS, "VERDICTS");
 harvest(EX.STANDING, "STANDING");
 harvest(EX.CLASSES, "CLASSES");
+// The coverage gate renders prose on the same surface as the counts, so its wording
+// is subject to the same rules — a banner reading "coverage is weak" would smuggle a
+// graded adjective back onto a lane that forbids them.
+harvest(EX.COVERAGE, "COVERAGE");
 execStrings.push(["FRAMING", EX.FRAMING]);
 harvest(SUMKEYS.buckets, "summaryKeys.buckets");
 harvest(SUMKEYS.labelTemplates, "summaryKeys.labelTemplates");

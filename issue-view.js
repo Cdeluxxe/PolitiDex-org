@@ -1082,9 +1082,24 @@
     try { history.replaceState(null, '', location.pathname + location.search + hashFor()); } catch (e) {}
   }
   function toast(msg) { try { if (typeof window._showToast === 'function') window._showToast(msg); } catch (e) {} }
+  // The link that LEAVES the device. In-app links (linkFor / _syncHash above) stay
+  // on the hash, because that is what this view reads and what every already-shared
+  // link still uses. But a hash is invisible to a server, so a pasted ranking link
+  // could only ever unfurl as the generic site card — the query form carries the
+  // same issue, sub-issue, lens and scope somewhere the edge can read and preview,
+  // and share-links.js rebuilds the identical hash on arrival.
+  function shareLink() {
+    try {
+      var links = window.PDXShareLinks;
+      if (links && links.rank) {
+        return links.rank(_coreKey, { key: _focusKey, mode: _fMode, scope: _fScope });
+      }
+    } catch (e) {}
+    return linkFor();
+  }
   function shareRanking() {
     var iss = activeIssue();
-    var url = linkFor();
+    var url = shareLink();
     var title = iss ? ('Who backs up their words on ' + iss.text + ' — PolitiDex') : 'PolitiDex issue ranking';
     try {
       if (navigator.share) {

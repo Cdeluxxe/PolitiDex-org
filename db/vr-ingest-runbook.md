@@ -151,6 +151,332 @@ attribution without adding signal. And never stretch a bill onto an issue the sh
 vocabulary can't express — there is no `human_rights`, `foreign_aid` or `sanctions` key,
 so foreign-policy bills like H.R. 36 / H.R. 4423 stay unmapped rather than mis-keyed.
 
+### Two more rules, learned the hard way in the substantive-remainder pass
+
+3. **`gov_regulation` is about the regulatory question, not about every mandate.** Reserve
+   it for measures whose *primary operative purpose* is regulation itself: CRA
+   disapprovals, regulatory-budget caps, red-tape hotlines, rulemaking-quality bills.
+   Do **not** map a measure to it merely because the measure directs an agency to issue or
+   enforce a rule — that description fits most of the statute book, and it would turn a
+   member's deregulation stance into a contradiction on any safety vote. This is why
+   H.R. 973 (CPSC rule for micromobility batteries) and S. 2503 (ADS-B In equipment
+   requirement) are unmapped despite both being contested. Without the line, "creates a
+   federal mandate" sweeps in dozens of measures and the key stops meaning anything.
+4. **A truncated purpose line is not a mappable purpose.** The Congress.gov vote feed cuts
+   an amendment's purpose off, so amendments arrive as "strike section NNN, relating to …"
+   or trail off mid-clause. If the missing words carry the *direction* — which way a
+   deadline moves, which way a threshold goes — the amendment is not mappable from the
+   line alone. Read the struck section in the reported bill text
+   (`govinfo.gov/bulkdata/BILLS/119/2/hr/BILLS-119hr8800rh.xml` and siblings) and map from
+   that, or leave it unmapped. This both created a mapping (H.Amdt. 242: §1213 extends the
+   Afghanistan War Commission deadline 3→4 years, so striking it *keeps* the 3-year
+   deadline) and prevented a wrong one (H.Amdt. 245: §518 replaces universal urinalysis
+   with targeted voice-based screening, so `privacy_rights` points both ways at once).
+   When the truncation only hides a number and not the direction — H.Amdt. 266 asks for a
+   report on reducing DoD civilians "by…" — the mapping is safe at a low weight.
+
+### Three more rules, from the Phase A pass over the 117th–118th enacted landmarks
+
+5. **When opposition came from both flanks for opposite reasons, the headline key is
+   unreadable — map the provisions instead.** The Fiscal Responsibility Act (H.R. 3746)
+   passed 314-117 on Clerk roll 243/2023, and the party split was Republican 149-71,
+   Democratic 165-46. The nays were fiscal hawks who thought the caps too loose *and*
+   progressives objecting to the work requirements and the Mountain Valley Pipeline
+   ratification. A `national_debt` or `cut_spending` row set to `yea_supports` would score
+   the chamber's most debt-focused members as contradicting their own stance — precisely
+   inverted. The provision-level slices are unambiguous and are what the record gets:
+   `gov_regulation` (NEPA review limits), `energy_production` (Sec. 324), `gov_services`
+   (TANF/SNAP work requirements), `edu_college_cost` (student loan payment restart). The
+   test for this rule is not "was the vote close" but "did the two blocs of nays want
+   opposite things"; if they did, the headline key describes neither of them.
+6. **Take identity from the title as enacted, never the title as introduced.** Major
+   packages are routinely hung on unrelated shells. In this window alone: CHIPS rode
+   Legislative Branch appropriations, the FY22 NDAA rode a Pulse Memorial designation,
+   the Bipartisan Safer Communities Act rode a Tallahassee courthouse naming, the FY23
+   NDAA rode a rivers-and-harbors bill, the FY25 NDAA rode a wildlife habitat
+   reauthorization, and H.R. 815 rode a title 38 veterans reimbursement bill. Use BILLSTATUS
+   "Short Titles as Enacted", falling back to "Display Title", and record which in
+   `db/vr-measure-identity.json` under `identityTitleType`. The same care applies one step
+   further back, to *which bill* is the vehicle: the PACT Act is universally called
+   H.R. 3967, but H.R. 3967 has no `<laws>` entry and stops at "Passed Senate"; the enacted
+   text is S. 3373 (P.L. 117-168).
+7. **Some packages were never voted as packages.** The House built H.R. 815 out of four
+   separate division-level amendment votes under a special rule, and split CAA 2022
+   (H.R. 2471) across Clerk rolls 65 and 66 by groups of divisions. BILLSTATUS attributes
+   those rolls to the amendments and the rule, not to the vehicle, so H.R. 815's own
+   BILLSTATUS shows no House recorded vote at all. Before attaching a measure-level mapping
+   to a package, check whether a chamber-level vote on the whole thing exists. Where it
+   doesn't, map from the division short titles if they are specific enough to be sourceable
+   — and say in the migration that the rows have no House roll to attach to.
+
+### Three more rules, from the 117th–118th roll-call ingest
+
+8. **One decisive vote per chamber per measure — never the procedural rolls that
+   surround it.** BILLSTATUS returns every recorded vote a measure ever drew, and for a
+   landmark that is a flood: the Inflation Reduction Act has 41 Senate rolls, the American
+   Rescue Plan 38, both almost entirely vote-a-rama amendments; the FY24 NDAA drew roughly
+   40 House rolls. Ingest only the roll that decided the substance — final passage, the
+   motion to concur, or the conference report — and match the question against that list
+   explicitly rather than taking whatever roll BILLSTATUS lists last. Cloture motions,
+   budget-point-of-order waivers and motions to table say nothing about whether a member
+   supports what a bill *does*; scoring them is the same error as mapping a "providing for
+   consideration" rule, and it is excluded for the same reason. Amendment rolls that
+   genuinely divided the chamber are worth ingesting, but they need their own mapping
+   first — an unmapped amendment roll attached to the vehicle's keys would score members on
+   a question they never answered.
+9. **Verify every roll against the chamber's own record before trusting a recorded roll
+   number.** A roll number that arrived from a summary, an inventory table or an earlier
+   pass is a claim, not a fact. This pass carried a bad one: the Phase A inventory recorded
+   House roll 120/2024 for H.R. 7888, and the Clerk shows roll 120 is "Table Motion to
+   Reconsider" (259-128) while roll 119 is "On Passage" (273-147). The check that caught it
+   was mechanical and cheap — fetch the roll, then fail closed unless `<legis-num>` matches
+   the expected citation *and* `<vote-question>` matches the decisive-question pattern.
+   Build that assertion into the fetch, not into a later review step. Note also that the
+   Clerk's `legis-num` spelling is `H R 1319`, with the periods replaced by spaces rather
+   than stripped, and that `evs` is organised by calendar year:
+   `year = 2 × congress + 1787 + (session − 1)`.
+10. **Ingest a division as a child measure with a strict subset of the parent's keys.**
+   Where rule 7 applies and only the divisions were voted, create the division under
+   `vr_measures.parent_id` and map it to the keys its own text supports — dropping every
+   parent key that lives in a different division. H.R. 8035 (Ukraine, roll 151/2024,
+   311-112 with Republicans 101-112 against their own majority) is a child of H.R. 815 and
+   carries `foreign_balance`, `america_first_fp` and `restraint`, but not the parent's
+   `tech_balance` or `immig_fentanyl`, which are Divisions D and E. Divisions that passed
+   near-unanimously are not worth ingesting at all — 366-58, 385-34 and 360-58 distinguish
+   nobody — and declining them belongs in a ledger in the migration, not in silence.
+
+Two attribution rules that apply to every pass, not just this one: **the roster is the
+ceiling, not the chamber.** `db/vr-member-map.json` holds 63 entries, so a 435-member House
+roll yields at most 38 attributed votes and a 100-member Senate roll at most 18. Store the
+*full* chamber tallies in `vr_rollcalls.totals` and compute `is_party` from the full
+recorded vote before filtering to the roster, or a 220-211 passage vote will read as 33-0.
+And **the Senate's XML carries no bioguide id** — only last name, state and an LIS id — so
+attribution there resolves on (last name, state) against the roster and accepts unique hits
+only. Ambiguous and unknown members are skipped and counted, never guessed.
+
+`scripts/test-mapping-discipline.mjs` enforces the mechanical half of all of this: no
+"providing for consideration" resolution may ever be mapped, in a migration or in the
+curated seed, and every curated mapping must carry a rationale and an `https` source.
+
+## Backfilling the 117th and 118th — Phase A mapped and now scored, what's queued
+
+Until migration `20260810000000_vr_phase_a_117_118_landmarks.sql`, the Official Record
+held 128 measures in the 119th Congress, one in the 118th and none in the 117th. The
+"last six years" was, in the data, one Congress. Note the structural reason this could
+not be fixed with a seed edit: `applyCuratedIssueSeed()` matches existing rows and never
+creates a measure, so a seed entry for a 117th-Congress bill matches nothing and is a
+silent no-op. **Extending the window backwards requires a migration that creates the
+measure rows first.** The seed is a mirror, not a source, for anything pre-119th.
+
+Phase A created and mapped 15 enacted landmarks (51 issue rows) and moved rankable
+coverage by zero, because there were no 117th/118th member votes in `vr_member_votes` to
+score against. Migration `20260811000000_vr_phase_a_117_118_rollcalls.sql` closed that
+half: 29 decisive roll calls (each measure's House and Senate passage vote, plus the
+H.R. 8035 division), 731 attributed member-votes of which 722 are yea/nay, taking
+rankable member-votes from 2,286 to 2,644, rankable (member, issue) pairs from 666 to
+705, and people with at least one rankable record from 182 to 186. `cstewart`, `gaetz`,
+`rubio` and `zeldin` gained their first vote record of any kind.
+
+Two Phase A vehicles still have no House roll, for the reason rule 7 describes rather
+than any gap in the fetch: H.R. 7776's only House vote is roll 253/2022 on the
+rivers-and-harbors text the number carried before the NDAA replaced it, and the House
+never voted the H.R. 815 package at all. Both are scoreable on the Senate side.
+
+`scripts/vr-coverage-report.mjs` overlays `db/*-vote-seed.json` the same way it overlays
+the mapping and identity seeds, so a committed-but-undeployed ingest is counted and
+marked `pending` rather than reading as having changed nothing.
+
+Queued, in priority order:
+
+1. **The four appropriations omnibuses**, deferred on effort rather than declined on
+   merit: H.R. 2471 (P.L. 117-103), H.R. 2617 (P.L. 117-328), H.R. 4366 (P.L. 118-42),
+   H.R. 2882 (P.L. 118-47). Each bundles twelve appropriations divisions plus a tail of
+   authorizing divisions — CAA 2023 alone carries the Electoral Count Reform Act, the
+   Pregnant Workers Fairness Act, the PUMP Act and SECURE 2.0, and its Public Law summary
+   runs to 611,000 characters. H.R. 1968, the 119th full-year CR, was mapped to four keys
+   because its summary is short enough to read whole; the same is achievable here after a
+   division-by-division read, and mapping them from reputation instead is exactly what
+   rule 4 exists to prevent. Note rule 7 applies to at least CAA 2022.
+2. **Contested amendment rolls inside the Phase A set**, which rule 8 deliberately left
+   out because they need their own mappings first. The clearest candidate is House roll
+   114/2024 on H.R. 7888 — the warrant-requirement amendment that failed on a 212-212 tie,
+   a split no other vote in the set reproduces. Map the amendment, then ingest the roll.
+3. **The remaining divisions of the packages rule 7 and rule 10 describe** — H.R. 8034,
+   H.R. 8036 and H.R. 8038 under H.R. 815 (declined here for near-unanimity, so they need
+   a reason beyond completeness), and CAA 2022's rolls 65 and 66, which are still unmapped
+   and uningested.
+4. **Contested non-enacted measures of the 117th/118th.** Phase A took enacted landmarks
+   and major packages only, per the priority order. Failed cloture votes, failed passage
+   votes and contested amendments in those congresses are untouched.
+5. **The non-landmark backlog of both congresses.** Ordinary suspension-calendar bills,
+   committee-reported measures and the rest of the two congresses' recorded votes. Large,
+   and worth attempting only after the omnibuses, since those carry the most member-votes
+   per unit of curation.
+
+Declined outright, not queued: H.R. 3935, the FAA Reauthorization Act of 2024
+(P.L. 118-63). Its margin is fine — 351-69 on Clerk roll 364/2023 — but no `ISSUE_MAP`
+key expresses aviation policy, and attaching a 269,000-character programs bill to
+`infrastructure` (keywords: roads, bridges, grid, water systems) would be the stretch
+rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
+
+### Two rules from the first issue-first pass (Support for Israel)
+
+11. **A near-unanimous margin is near-unanimous *relative to the question being scored*.**
+   Rule 10 declined H.R. 8034 at 366-58 as distinguishing nobody, and for the general
+   foreign-policy keys that was right: H.R. 8035's 311-112 Ukraine split already carried
+   the supplemental's signal, and 366-58 added nothing to it. Under `israel_support` the
+   same 58 nays are the entire point — they are the members who declined to fund Israel's
+   missile defence on a bill that asked nothing else of them. So a decline recorded in a
+   ledger is scoped to the keys of the pass that recorded it, and a later issue-first pass
+   may reverse it. Reverse it *in writing*: `db/vr-israel-vote-seed.json` carries a
+   `reversals` block and the Phase A decline's `why` string now ends in "SUPERSEDED
+   2026-08", in both the builder and the seed. Never quietly rewrite the earlier judgement.
+12. **The decisive-question gate takes shape-gated exceptions, never a loosened regex.**
+   Rule 8 admits passage, concurrence and conference reports only. Two question forms
+   decide substance without being any of those, and `scripts/test-vr-vote-seed.mjs` now
+   admits each for exactly one measure shape: "On Agreeing to the Amendment" on an
+   `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge" on an `S.J.Res.`/`H.J.Res.`. The
+   second is the load-bearing one for arms-sale disapproval: under the Arms Export Control
+   Act the resolution is the only vehicle, the discharge motion is the only vote the Senate
+   ever takes on it, and a nay there is a recorded decision to let the sale proceed. Note
+   how narrow the gate is — "On the Motion to Discharge" on a *bill* still fails, because
+   there the discharge really is a step toward a later passage vote. Every roll admitted
+   under an exception must carry a `decisiveWhy` of at least 24 characters saying why the
+   question decided the substance; the test fails the seed otherwise.
+
+## Support for Israel — the first issue-complete vertical, and what's queued
+
+Migration `20260812000000_vr_israel_support_rollcalls.sql` ingests 16 decisive roll calls
+across the 117th–119th under one new `ISSUE_MAP` key, `israel_support`: six House rolls
+(H.R. 5323 Iron Dome 420-9; H.Amdt. 478 to the FY24 State-Foreign-Ops bill; H.R. 6126
+226-196; H.R. 7217 250-180; H.R. 8034 366-58; H.R. 8369 224-187), nine Senate discharge
+votes on arms-sale disapproval resolutions, and House roll 243/2026 on H.Amdt. 235, which
+was already live and is re-emitted as a no-op so the seed and the database agree. 415
+attributed member-votes at the time, all through the bioguide → roster path — **713 after
+the roster expansion below, on the same 16 rolls**. H.R. 8034 is created as a
+child of H.R. 815 under rule 10 and carries `israel_support` alone; the parent keeps its
+five existing keys and gains none, because the Israel money is Division A and nothing else.
+
+Coverage after that pass, measured rather than asserted: 60 of the 63 roster slugs were
+**scoreable** on the key (at least one yea/nay on a mapped measure), and **4** were
+rankable — schiff, fetterman, jayapal, tlaib. The binding constraint was not mapping work:
+of the 46 people holding a stated `israel_support` position, **42 had no bioguide → slug
+entry at all**, so no vote could ever attach to them no matter how many rolls were ingested.
+
+### The roster expansion — done, and what it taught
+
+Migration `20260813000000_vr_israel_roster_expansion_votes.sql` closed that gap for **37 of
+the 42**. All 37 are now attributable and all 37 are rankable on the key: `israel_support`
+rankable people went **4 → 41**, rankable (member, issue) pairs **693 → 731**, recorded
+yea/nay member-votes **6,840 → 7,132**, on the same 16 roll calls with no new curation.
+
+The five who cannot be attributed, on the record so nobody re-opens the question: hegseth,
+keith_kellogg, witkoff and zohran_mamdani have never served in Congress, so no Bioguide ID
+exists for them at all; **ratcliffe** does resolve (R000601) but his only service ended
+2020-05-22, entirely outside the 117th–119th window, so a roster entry could never carry a
+vote. An entry for appearances' sake is worse than the gap it papers over.
+
+13. **Roster admission is an explicit act, and drift in it is a real failure mode.**
+   `db/vr-member-map.json` had fallen **101 entries behind its own generator**: slug →
+   bioguide is read out of the congress-images portrait URLs in `BROWSE_PHOTOS`, portraits
+   kept being curated, and `scripts/vr-gen-member-map.mjs` was never re-run. That silence
+   *was* the 42-member gap. But a blind regenerate would have swept the roster 63 → ~164
+   and silently changed the Official Record for ~100 people no pass had reviewed. So the
+   ceiling is now stated in `db/vr-roster-admitted.json` and enforced both ways: a slug
+   admitted there with no readable Bioguide is a hard generator error, and a curated
+   portrait not admitted there is counted as `unadmittedPortraits` and attributes nothing.
+   `node scripts/vr-gen-member-map.mjs --check` exits 1 on drift — run it in any pass that
+   touches portraits. 73 admitted-eligible portraits remain as visible headroom.
+14. **A widening of the roster can LOSE a member.** Annotating former members out of
+   `legislators-historical.json` gave Rubio's roster row a state again, so he matched both
+   that row and the `SENATE_ALUMNI` stand-in, the (surname, state) resolver read two rows as
+   two people, and he was skipped as ambiguous on all three 118th arms-sale rolls — a
+   regression introduced by the same change that fixed 37 others. `senateLookup` is now
+   deduped by bioguide and ambiguity counts *distinct people*, not matching rows. Any pass
+   that widens the roster must re-check the members who were already attributed.
+15. **A Senate surname is not the last word of a name.** Senate roll-call XML carries no
+   bioguide, so a senator resolves on (surname, state) — and the Senate writes
+   `<last_name>Van Hollen</last_name>`. A last-word split yields "Hollen" and Chris Van
+   Hollen silently receives nothing on nine arms-sale rolls he actually voted on. The
+   builder keeps the roster's full name and compares it against the chamber's own surname
+   string, so multi-word and hyphenated surnames match whole.
+16. **De-duplicate an overlay at the grain of the table's unique index.**
+   `scripts/vr-coverage-report.mjs` skipped a whole seeded roll call the moment that roll
+   existed live, which is right for a new ingest and wrong for a re-attribution: every roll
+   in this pass was already deployed, so the 292 yea/nay votes it unlocked read as zero and
+   the pass looked inert. The overlay now keys on (roll call, member), matching
+   `vr_member_votes`' own unique index, and still stops double-counting after the deploy.
+
+### The Phase A re-attribution — done
+
+Migration `20260814000000_vr_phase_a_roster_expansion_votes.sql` closed the debt the roster
+expansion created. `db/vr-phase-a-vote-seed.json` was rebuilt against the 100-slug roster:
+the same 29 roll calls, the same questions, tallies and party-crossover flags, **731 → 1,217
+attributed member votes** (+486), distinct people **56 → 93**. Rankable (member, issue) pairs
+went **731 → 765** (+34) across 14 issue keys, spread over 19 people — the heaviest being
+`health_drug_prices` (6), `econ_workers` (5), `strong_defense` (5) and `veterans` (4).
+
+Nobody gained a *first* rankable record from it, and that is the expected answer rather than a
+disappointment: the same 37 members had already gained theirs from the Israel rolls one pass
+earlier. What this pass bought is breadth — those members can now be judged on domestic
+spending, defense authorisation, veterans' care and surveillance rather than on Israel alone.
+Phase A's curated issue rows were not touched; only who is recognised changed.
+
+17. **A member can be lost to a resolver bug on one seed and not another, so fix both.**
+   The Senate resolver exists in two builders. Fixing the last-word surname split and the
+   alumni duplication in `scripts/vr-build-israel-vote-seed.mjs` left the identical two
+   defects sitting in `scripts/vr-build-phase-a-vote-seed.mjs`, where they cost 30 more
+   member votes: Van Hollen was skipped on all 15 Phase A Senate rolls, and Rubio — who
+   *was* attributed on the narrow roster, because his un-annotated row carried no state —
+   would have been dropped as ambiguous the moment the widened roster gave it one. Verified
+   counterfactually against the real XML for senate 117/2/325: the old resolver resolves 29
+   of 100 senators and flags 1 ambiguous, the new one resolves 31 and flags none. When a
+   resolver is fixed, grep for every builder that carries a copy of it.
+18. **A roster admission is a debt against every seed already built.** Widening the roster
+   does not just unlock the pass that asked for it — it silently under-attributes every
+   existing seed, because each was filtered through the roster as it stood. The obligation
+   is now written down: after any change to `db/vr-roster-admitted.json`, re-run **every**
+   `db/*-vote-seed.json` builder and emit the differences, rather than only the seed the
+   admission was motivated by. Both re-attribution migrations are pure re-assertions with
+   `ON CONFLICT DO NOTHING`, so this is mechanical and safe to repeat.
+
+Queued, in priority order:
+
+1. **A stance pass over the 56 stance gaps.** These members already have judged votes on
+   the key and are one sourced sentence away from rankable. Highest-volume first: curtis
+   (12 judged, 100% pro-support), then barrasso, booker, collins, cruz, durbin, ernst,
+   graham, grassley, hawley, john_cornyn, jon_ossoff, lee, murkowski, rand_paul and warren
+   at 9 each; House at 7 each, including massie and maxine_waters at 14%, bennie_thompson
+   and kclark at 29%, aoc at 0%, khanna 17%, crockett and mtg 33%, boebert 67%,
+   scott_perry 83%. No position may be inferred from these numbers — that is precisely the
+   invention the mapping rules forbid. The votes say what to go looking for, not what the
+   member said.
+2. **H.R. 340** (Hamas financing sanctions, 363-46). Queued rather than mapped: the margin
+   is real and the subject is squarely on-key, but it needs its own read against rule 4
+   before a direction is coded.
+3. **The 117th column is one roll deep.** H.R. 5323 is the only 117th record on this issue,
+   and a 420-9 vote is a thin signal by design. Contested 117th measures touching Israel
+   aid, the Abraham Accords implementation bills and the Iron Dome supplemental's Senate
+   path are all uningested.
+4. **`is_primary` on H.Amdt. 235.** Its display-primary row is still `america_first_fp`
+   from the earlier pass, while its strongest signal is now `israel_support` at weight 95.
+   Moving it would be non-additive and purely cosmetic — `is_primary` drives sort order,
+   the "Primary" badge and the Legislation-library link, never scoring — so it waits for a
+   pass that is allowed to rewrite existing rows.
+5. **The remaining 73 unadmitted portraits.** Every one has a readable Bioguide and would
+   widen attribution across every ingested issue at once. Admission is cheap to write and
+   expensive to get wrong, so it belongs in a pass that can re-measure the whole record —
+   it must respect the photo gate in `scripts/test-photo-coverage.mjs`, which requires
+   a bundled face for every roster slug, and under rule 18 it must re-run every vote-seed
+   builder rather than just one.
+
+One naming collision a reader of the coverage table will trip over: the slug `kennedy` is
+**Kimberlyn King-Hinds** (K000404, House, MP), not Senator John Kennedy (K000393), who has
+no roster entry. That is why "Kennedy (LA)" on the nine Senate rolls resolves to nothing
+and is correctly skipped, and why `kennedy` shows a single House amendment vote. Pre-existing
+and out of scope for an additive pass, but it should be fixed before either name is
+published in a ranking.
+
 ## Expected result — the ready-to-result comparisons
 
 Each becomes a real both-sided comparison the moment its member's formal record on the

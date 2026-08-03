@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v34';
+const CACHE_VERSION = 'v37';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -71,6 +71,10 @@ const SHELL_ASSETS = [
   // when they are actually needed; those modules themselves stay on the runtime
   // stale-while-revalidate cache so they cost nothing on first paint.
   '/pdx-lazy-data.js',
+  // Deep-link resolution for shared links (?bill=/?receipt=/?record=/?rank= and
+  // the edge-resolved /vote/… address). Tiny, and it runs before every feature
+  // module, so a shared link opened offline still lands on the right record.
+  '/share-links.js',
   // Roster data (Run 2 perf: extracted from index.html). Precached because the
   // home directory/search needs it to boot; the larger Spotlight/accountability
   // data modules are left to the runtime stale-while-revalidate cache.

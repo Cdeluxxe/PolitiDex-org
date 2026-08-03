@@ -51,7 +51,7 @@
     enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending'
   };
   function statusLabel(s) { return STATUS[s] || (s ? String(s).replace(/_/g, ' ') : ''); }
-  function chamberLabel(c) { return c === 'house' ? 'House' : c === 'senate' ? 'Senate' : c === 'joint' ? 'Joint' : c === 'court' ? 'Court' : (c || ''); }
+  function chamberLabel(c) { return c === 'house' ? 'House' : c === 'senate' ? 'Senate' : c === 'joint' ? 'Joint' : c === 'court' ? 'Court' : c === 'executive' ? 'Executive' : (c || ''); }
   function fmtDate(iso) {
     if (!iso) return '';
     try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
@@ -205,11 +205,107 @@
   // its note and source. Degrades to nothing when there are none.
   var ACTION_LABEL = {
     statement: 'On record', committee_vote: 'Committee vote', amicus: 'Amicus brief',
-    plaintiff: 'Plaintiff', cosponsor: 'Cosponsor', sponsor: 'Sponsor'
+    plaintiff: 'Plaintiff', cosponsor: 'Cosponsor', sponsor: 'Sponsor',
+    // ✒️ Executive Enactment Record action types. vr_positions records the ACT of
+    // signing or issuing; there is no roll call behind either, and neither is ever
+    // rendered as one.
+    signed: 'Signed into law', issued: 'Issued', vetoed: 'Vetoed'
   };
+  // Actions that belong to the executive lane rather than the member lane.
+  var EXEC_ACTION_TYPES = { signed: 1, issued: 1, vetoed: 1 };
+  function isExecAction(p) { return !!(p && EXEC_ACTION_TYPES[p.actionType]); }
+
+  // ── Axis B · standing ───────────────────────────────────────────────────────
+  // What happened to a formal executive action AFTER it was signed or issued, from
+  // the append-only vr_exec_action_status log the measure API now serves. The labels
+  // come from the shipped PDXExecRecord.STANDING table so this panel and the profile
+  // lane cannot drift; with that global absent the raw token is humanized, which says
+  // the same thing in plainer type rather than guessing at a nicer one.
+  //
+  // LANE DISCIPLINE: no percentage, no ratio, and no vote language on any of this —
+  // an order that was signed was not voted on, and a court that blocked it did not
+  // hold a roll call.
+  function standingMeta(token) {
+    var t = String(token || '');
+    try {
+      var tbl = window.PDXExecRecord && window.PDXExecRecord.STANDING;
+      if (tbl && tbl[t]) return tbl[t];
+    } catch (e) {}
+    if (!t) return null;
+    return {
+      key: t, ico: '•', contested: false, cls: 'exec-unknown',
+      label: t.replace(/_/g, ' ').replace(/\b\w/, function (c) { return c.toUpperCase(); })
+    };
+  }
+  function standingChip(token) {
+    var meta = standingMeta(token);
+    if (!meta) return '';
+    return '<span class="bd-stand bd-stand-' + (meta.contested ? 'contested' : 'clear') + '">' +
+      esc(meta.ico) + ' ' + esc(meta.label) + '</span>';
+  }
+  function standingEntryHtml(s) {
+    var when = s.effectiveAt ? '<span class="bd-stand-when">' + esc(fmtDate(s.effectiveAt)) + '</span>' : '';
+    var who = s.authority ? '<span class="bd-stand-who">' + esc(s.authority) + '</span>' : '';
+    var src = (s.source && s.source.url)
+      ? '<a class="bd-src" href="' + escAttr(s.source.url) + '" target="_blank" rel="noopener">🔗 ' +
+        esc(s.source.label || 'Primary source') + '</a>' : '';
+    return '<div class="bd-stand-entry">' +
+      '<div class="bd-stand-head">' + standingChip(s.status) + when + who + '</div>' +
+      (s.note ? '<div class="bd-omni-why">' + esc(s.note) + '</div>' : '') +
+      (src ? '<div class="bd-stand-src">' + src + '</div>' : '') +
+    '</div>';
+  }
+  // The whole log, newest first, with the earlier entries collapsed. Every entry is a
+  // separate sourced change: an order that was in force, then partly blocked, is two
+  // facts, and showing only the latest throws away the one that explains it.
+  function standingHtml(p) {
+    var log = (p && p.standing) || [];
+    if (!log.length) {
+      // FAIL CLOSED. Nothing citable on file is not "in force" — it is unknown, and
+      // it says so rather than leaving the reader to assume the action is operative.
+      return '<div class="bd-stand-entry bd-stand-none">' +
+        '<span class="bd-stand bd-stand-none-chip">◌ No standing on file</span>' +
+        '<div class="bd-omni-why">Nothing on file records what happened to this action afterwards. ' +
+        'That is a gap in the record here, not a finding that it stands unchallenged.</div></div>';
+    }
+    var newest = log.slice().reverse();
+    var head = standingEntryHtml(newest[0]);
+    var rest = newest.slice(1);
+    if (!rest.length) return head;
+    return head + '<details class="bd-stand-more"><summary>' + rest.length +
+      ' earlier recorded change' + (rest.length !== 1 ? 's' : '') + '</summary>' +
+      rest.map(standingEntryHtml).join('') + '</details>';
+  }
+
+  // ✒️ The executive lane's own section: who signed or issued this measure, and where
+  // it stands now. Kept out of "Key member actions" because a president signing a law
+  // is not a member action, and the two lanes are never blended.
+  function execActionsSection(m, positions) {
+    var rows = (positions || []).filter(isExecAction);
+    if (!rows.length) return '';
+    var html = rows.map(function (p) {
+      var when = p.actedAt ? '<span class="bd-stand-when">' + esc(fmtDate(p.actedAt)) + '</span>' : '';
+      var src = (p.source && p.source.url)
+        ? '<a class="bd-src" href="' + escAttr(p.source.url) + '" target="_blank" rel="noopener">🔗 ' +
+          esc((p.source && p.source.label) || 'Official record') + '</a>' : '';
+      return '<div class="bd-omni-row">' +
+        '<div class="bd-omni-head">' +
+          '<button type="button" class="bd-vote-name" data-pid="' + escAttr(p.politicianId) + '">' + esc(nameFor(p.politicianId)) + '</button>' +
+          '<span class="bd-prov-tag">' + esc(ACTION_LABEL[p.actionType] || p.actionType) + '</span>' + when +
+        '</div>' +
+        (p.note ? '<div class="bd-omni-why">' + esc(p.note) + '</div>' : '') +
+        (src ? '<div class="bd-stand-src">' + src + '</div>' : '') +
+        '<div class="bd-stand-log">' + standingHtml(p) + '</div>' +
+      '</div>';
+    }).join('');
+    return '<section class="bd-sec"><h3 class="bd-h">✒️ Executive action &amp; where it stands</h3>' +
+      '<p class="bd-lead">The formal act of signing or issuing this measure, and what has happened to it since. ' +
+      'Each change is its own dated entry with its own primary source.</p>' + html + '</section>';
+  }
+
   function memberActionsSection(m, positions) {
     var rows = (positions || []).filter(function (p) {
-      return p.actionType && p.actionType !== 'sponsor' && p.actionType !== 'cosponsor';
+      return p.actionType && p.actionType !== 'sponsor' && p.actionType !== 'cosponsor' && !isExecAction(p);
     });
     if (!rows.length) return '';
     var html = rows.map(function (p) {
@@ -378,8 +474,23 @@
     if (votes) chips.push('<span class="bd-glance">👥 ' + votes + ' recorded votes</span>');
     var prov = (data.provisions || []).length;
     if (prov) chips.push('<span class="bd-glance">🧩 ' + prov + ' key provision' + (prov !== 1 ? 's' : '') + '</span>');
-    var pos = (data.positions || []).length;
+    var allPos = (data.positions || []);
+    var execPos = allPos.filter(isExecAction);
+    var pos = allPos.length - execPos.length;
     if (pos) chips.push('<span class="bd-glance">👤 ' + pos + ' member action' + (pos !== 1 ? 's' : '') + '</span>');
+    // Counted apart from member actions on purpose: signing or issuing is a formal
+    // executive act, not a member action, and the two units are never summed.
+    if (execPos.length) chips.push('<span class="bd-glance">✒️ ' + execPos.length + ' executive action' + (execPos.length !== 1 ? 's' : '') + '</span>');
+    // Axis B, at a glance: if anything on this measure is contested, say so here
+    // rather than only deep in the executive section. A reader who scans the strip
+    // and sees nothing takes the measure as settled.
+    var contested = 0;
+    (data.positions || []).forEach(function (p) {
+      var cur = p && p.standingCurrent;
+      var meta = cur ? standingMeta(cur.status) : null;
+      if (meta && meta.contested) contested++;
+    });
+    if (contested) chips.push('<span class="bd-glance bd-glance-contested">⚖ ' + contested + ' contested in court</span>');
     if (m.status) chips.push('<span class="bd-glance">🚦 ' + esc(statusLabel(m.status)) + '</span>');
     return chips.length ? '<div class="bd-glance-row">' + chips.join('') + '</div>' : '';
   }
@@ -419,6 +530,7 @@
       impactLedgerSection(data) +
       rollcallsSection(m, issues, data.rollcalls) +
       sponsorsSection(m, data.positions) +
+      execActionsSection(m, data.positions) +
       memberActionsSection(m, data.positions) +
       timelineSection(m, data.rollcalls, data.actions) +
       relatedSection(m, issues);
@@ -478,8 +590,16 @@
   }
 
   // A stable, shareable deep link to this bill (congress + number).
+  //
+  // The panel still RUNS on `#bill/<congress>/<number>` — every link already out
+  // there keeps working — but a hash never reaches a server, so a pasted hash link
+  // could only ever unfurl as the generic site card. What leaves the device is the
+  // query form (`/?bill=119/H.R. 1`), which the edge can read and preview and
+  // share-links.js converts straight back into the same hash on arrival.
   function shareUrl() {
     if (!_current) return location.href;
+    var links = G('PDXShareLinks');
+    if (links && links.bill) return links.bill(_current.congress, _current.number);
     return location.origin + location.pathname +
       '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
   }
@@ -738,7 +858,27 @@
       '.bd-btn:hover{background:rgba(159,180,212,.16);color:#fff;}' +
       '.bd-follow.is-on{color:#f6d873;background:rgba(245,200,66,.14);border-color:rgba(245,200,66,.45);}' +
       '.bd-prov-tag{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;' +
-        'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.16rem .45rem;}';
+        'background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.16rem .45rem;}' +
+      // ✒️ Axis B — standing. Contested reads amber (the same warning colour the
+      // profile lane uses for a contested record); settled reads teal; an unknown
+      // standing reads grey so it can never be mistaken for "in force".
+      '.bd-stand{display:inline-flex;align-items:center;gap:.28rem;font:700 .62rem/1 "Barlow Condensed",sans-serif;' +
+        'letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:.2rem .5rem;white-space:nowrap;}' +
+      '.bd-stand-clear{color:#9fdbd0;background:rgba(159,219,208,.12);border:1px solid rgba(159,219,208,.3);}' +
+      '.bd-stand-contested{color:#f5c842;background:rgba(245,200,66,.13);border:1px solid rgba(245,200,66,.36);}' +
+      '.bd-stand-none-chip{color:#93a4bd;background:rgba(147,164,189,.1);border:1px dashed rgba(147,164,189,.34);}' +
+      '.bd-stand-log{margin-top:.55rem;border-left:2px solid rgba(159,180,212,.18);padding-left:.6rem;}' +
+      '.bd-stand-entry{margin:.4rem 0;}' +
+      '.bd-stand-head{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;}' +
+      '.bd-stand-when{font:600 .68rem/1 "Barlow Condensed",sans-serif;color:#8aa0c4;letter-spacing:.03em;}' +
+      '.bd-stand-who{font:500 .72rem/1.3 "Barlow",sans-serif;color:#9fb4d4;}' +
+      '.bd-stand-src{margin-top:.3rem;}' +
+      '.bd-stand-more{margin-top:.4rem;}' +
+      '.bd-stand-more>summary{cursor:pointer;font:600 .68rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;' +
+        'text-transform:uppercase;color:#8aa0c4;}' +
+      '.bd-stand-more[open]>summary{color:#cbd9ec;}' +
+      '.bd-glance-contested{color:#f5c842;border-color:rgba(245,200,66,.36);}' +
+      '@media(max-width:520px){.bd-stand{white-space:normal;text-align:left;}.bd-stand-head{gap:.3rem;}}';
     var st = document.createElement('style');
     st.id = 'bd-css';
     st.textContent = css;

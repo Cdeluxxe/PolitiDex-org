@@ -237,6 +237,33 @@
       restraint:          { label: '🕊 Diplomacy & Restraint', chip: 'Prioritize diplomacy and limit foreign military intervention', cat: 'foreign', stanceKeys: [], keywords: ['diplomacy','restraint','end endless wars','foreign aid','intervention','peace','de-escalation','troops home','war powers','negotiation'] },
       america_first:      { label: '🇺🇸 America First', chip: 'Put U.S. interests first and avoid foreign entanglements', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign aid','sovereignty','national interest','entanglement','ukraine aid','nation building','trade','tariff','border'] },
       america_first_fp:   { label: '🌐 America First Foreign Policy', chip: 'Put U.S. interests first, end endless wars and rethink foreign aid commitments', cat: 'foreign', lean: 'R', stanceKeys: [], keywords: ['america first','foreign policy','endless wars','end endless wars','ukraine aid','foreign aid','nation building','sovereignty','national interest','no more wars','entanglement'] },
+      // Support for Israel gets its own key because the record already exists and is
+      // already being mis-filed. 76 sourced stances in ISSUE_STANCE_DATA mention Israel,
+      // and they sit under foreign_balance (43), strong_defense (28), restraint (3) and
+      // america_first_fp (2) — four general-posture chips, none of which those statements
+      // actually address. A senator who funds Israel's missile defense while pressing for
+      // conditions on offensive arms is not thereby endorsing "lead through NATO and
+      // allied diplomacy"; a member who votes for the Israel Security Supplemental is not
+      // thereby endorsing "maintain the strongest military and stand firm abroad". Filing
+      // Israel votes into those buckets moves members' percentages on issues the vote was
+      // not about — the identical failure the checks_balances comment below records for
+      // democracy_balance and gov_balance. It also collapses a real cross-party split:
+      // under foreign_balance, Tlaib and Gottheimer are scored on the same chip that
+      // neither of them was talking about.
+      // POLARITY: the chip states the SUPPORT direction, so every mapping is coded
+      // yea_supports = the vote favoured continued U.S. backing for Israel, and an
+      // Official Record % under this key means "this share of their judged votes favoured
+      // that backing" — not "this share agreed with a process".
+      // Deliberately carries NO `lean`: both the pro-Israel coalition and its critics are
+      // cross-party (progressive Democrats and America First Republicans vote together to
+      // strike Israel funding), so coding this D or R would be false signal.
+      // SCOPE: U.S. support for Israel itself — security assistance, weapons transfers and
+      // co-development, sanctions on its adversaries, and floor attempts to cut, block or
+      // condition that support. Domestic antisemitism measures are OUT of scope: they are
+      // civil-rights and campus-speech questions and belong to rights_balance /
+      // free_speech / religious_liberty, and pulling them in here would be the same
+      // force-fit in the opposite direction.
+      israel_support:     { label: '🇮🇱 Support for Israel', chip: 'Keep backing Israel with U.S. security aid, weapons and sanctions on its adversaries', cat: 'foreign', stanceKeys: [], keywords: ['israel','israeli','pro-israel','u.s.-israel','israel aid','aid to israel','iron dome','david\'s sling','arrow-3','idf','iran','hamas','hezbollah','houthi','gaza','west bank','abraham accords','netanyahu'] },
       veterans:           { label: '🎖 Take Care of Veterans', chip: 'Deliver better healthcare, benefits and support for the men and women who served', cat: 'foreign', stanceKeys: [], keywords: ['veteran','veterans','va','veterans affairs','gi bill','servicemember','service member','military families','va health','troops','wounded warrior','military service'] },
 
       // ── Technology & Privacy ──
@@ -355,8 +382,8 @@
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
-        blurb: 'National defense, alliances and diplomacy, America First priorities, and support for veterans.',
-        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','veterans'] },
+        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, and support for veterans.',
+        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 

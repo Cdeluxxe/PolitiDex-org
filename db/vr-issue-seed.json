@@ -1,992 +1,1892 @@
 {
-  "_comment": "Curated measure→issue mappings for the Voting Record 'stance vs. record' verdict. Applied by applyCuratedIssueSeed() in netlify/lib/vr-ingest.ts. Each entry attaches to EVERY real measure with the same (congress, chamber, canonical number) that already exists — created by the seed migration or by a live Congress.gov ingest. measureType is recorded for provenance but is deliberately NOT part of the match: a live ingest that files H.Res. 1399 as a 'bill' must still receive the curated mapping, and a number that exists twice must have both rows mapped rather than one silently missed. Entries that don't match anything yet are harmless no-ops until that roll call is ingested, so nothing here can invent a measure. supportMeaning is binary: 'yea_supports' (a yea advances the issue) or 'yea_opposes' (a yea cuts against it) — see _voteEffectiveSupport in stance-helpers.js.",
-  "measures": [
+ "_comment": "Curated measure→issue mappings for the Voting Record 'stance vs. record' verdict. Applied by applyCuratedIssueSeed() in netlify/lib/vr-ingest.ts. Each entry attaches to EVERY real measure with the same (congress, chamber, canonical number) that already exists — created by the seed migration or by a live Congress.gov ingest. measureType is recorded for provenance but is deliberately NOT part of the match: a live ingest that files H.Res. 1399 as a 'bill' must still receive the curated mapping, and a number that exists twice must have both rows mapped rather than one silently missed. Entries that don't match anything yet are harmless no-ops until that roll call is ingested, so nothing here can invent a measure. supportMeaning is binary: 'yea_supports' (a yea advances the issue) or 'yea_opposes' (a yea cuts against it) — see _voteEffectiveSupport in stance-helpers.js.",
+ "measures": [
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1",
+   "issues": [
     {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 1",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1",
-      "issues": [
-        {
-          "issueKey": "lower_taxes",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Extends and expands the 2017 individual and business tax cuts."
-        },
-        {
-          "issueKey": "cut_spending",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Enacts net spending reductions through budget reconciliation."
-        },
-        {
-          "issueKey": "healthcare",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Reduces federal Medicaid spending and tightens eligibility; a yea vote cuts against expanding healthcare access."
-        },
-        {
-          "issueKey": "border_security",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Provides new funding for border enforcement and immigration operations."
-        },
-        {
-          "issueKey": "lands_energy",
-          "weight": 40,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Expands onshore and offshore oil, gas, and coal leasing on federal land."
-        }
-      ]
+     "issueKey": "lower_taxes",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Extends and expands the 2017 individual and business tax cuts."
     },
     {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 29",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/29",
-      "issues": [
-        {
-          "issueKey": "deportations",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
-        },
-        {
-          "issueKey": "border_security",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Tightens immigration enforcement."
-        }
-      ]
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enacts net spending reductions through budget reconciliation."
     },
     {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S. 5",
-      "_comment": "The bill that actually became Public Law 119-1. H.R. 29 above is the House's own Laken Riley bill, which passed the House on 2025-01-07 and went no further; the Senate took up its own S. 5, amended it, and both chambers passed that. Senate roll 119/1/7 and House roll 119/1/23 are votes on S. 5, not on H.R. 29 — see migration 20260804000000_vr_repair_laken_riley_measure_identity.sql. These four mappings are carried from H.R. 29 because the curated rationale still describes S. 5's text; the values below are byte-identical to the ones that migration inserts, because applyCuratedIssueSeed() upserts with onConflictDoUpdate and would otherwise overwrite them on the next POST /seed-issues.",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5",
-      "issues": [
-        {
-          "issueKey": "deportations",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
-        },
-        {
-          "issueKey": "border_security",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Tightens immigration enforcement."
-        },
-        {
-          "issueKey": "tough_on_crime",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury.",
-          "_comment": "Restated from the CRS summary of Public Law 119-1 rather than copied from H.R. 29. H.R. 29's rationale enumerates the House bill's narrower trigger list; S. 5 as enacted adds larceny and the death/serious-bodily-injury clause via the Senate amendment (roll 119/1/6, Ernst, agreed 75-24). Reusing the H.R. 29 sentence here would have understated the enacted text."
-        },
-        {
-          "issueKey": "states_federal_power",
-          "weight": 40,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions; a yea expands state authority to contest federal enforcement choices in court."
-        }
-      ]
+     "issueKey": "healthcare",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Reduces federal Medicaid spending and tightens eligibility; a yea vote cuts against expanding healthcare access."
     },
     {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 22",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/22",
-      "issues": [
-        {
-          "issueKey": "election_integrity",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "SAVE Act — requires documentary proof of U.S. citizenship to register to vote in federal elections."
-        },
-        {
-          "issueKey": "voter_id",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Adds a citizenship-documentation requirement to voter registration."
-        },
-        {
-          "issueKey": "voting_access",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access."
-        }
-      ]
+     "issueKey": "border_security",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Provides new funding for border enforcement and immigration operations."
     },
     {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Con.Res. 14",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14",
-      "issues": [
-        {
-          "issueKey": "national_debt",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes."
-        },
-        {
-          "issueKey": "cut_spending",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Directs committees to find net spending reductions through reconciliation."
-        },
-        {
-          "issueKey": "lower_taxes",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Reserves reconciliation room to extend and expand the 2017 tax cuts."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.J.Res. 25",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/25",
-      "issues": [
-        {
-          "issueKey": "gov_regulation",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Congressional Review Act resolution repealing the IRS reporting rule for decentralized-finance brokers; a yea rolls back the mandate."
-        },
-        {
-          "issueKey": "tech_innovation",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Supporters framed the rule as unworkable for decentralized software and a drag on U.S. crypto development."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S.J.Res. 37",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37",
-      "issues": [
-        {
-          "issueKey": "tariffs_authority",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Reasserts congressional authority over tariffs by ending the emergency used to impose them; a yea rolls back the executive tariff action."
-        },
-        {
-          "issueKey": "econ_trade",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Removes the duties on Canadian imports; a yea favors lower trade barriers with a top trading partner."
-        },
-        {
-          "issueKey": "tariffs_prices",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Supporters argued the tariffs raise costs for U.S. consumers and businesses; a yea removes them."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S.J.Res. 59",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59",
-      "issues": [
-        {
-          "issueKey": "restraint",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Requires congressional authorization before military action against Iran; a yea favors restraint and a congressional check on war-making."
-        },
-        {
-          "issueKey": "america_first_fp",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "A yea presses against open-ended involvement in a new Middle East conflict."
-        },
-        {
-          "issueKey": "strong_defense",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Opponents held that constraining the commander-in-chief would weaken deterrence; a yea cuts against that view."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S. 129",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/129",
-      "issues": [
-        {
-          "issueKey": "tax_middle_class",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Exempts qualified tip income from federal income tax for tipped workers."
-        },
-        {
-          "issueKey": "cost_living",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Aims to raise take-home pay for service and hospitality workers."
-        },
-        {
-          "issueKey": "lower_taxes",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Reduces the federal tax burden on a category of earned income."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.J.Res. 88",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/88",
-      "issues": [
-        {
-          "issueKey": "climate_action",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Repeals the waiver behind California's EV sales mandate; a yea rolls back a major state climate rule."
-        },
-        {
-          "issueKey": "energy_production",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Supporters framed it as protecting consumer choice and gasoline-vehicle access."
-        },
-        {
-          "issueKey": "gov_regulation",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.J.Res. 89",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/89",
-      "issues": [
-        {
-          "issueKey": "climate_action",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Repeals the waiver behind California's zero-emission truck mandate; a yea rolls back a major state climate rule."
-        },
-        {
-          "issueKey": "energy_production",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Supporters framed it as easing costs on trucking and freight."
-        },
-        {
-          "issueKey": "gov_regulation",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S. 2296",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296",
-      "issues": [
-        {
-          "issueKey": "strong_defense",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Authorizes FY2026 appropriations for Department of Defense military activities, military construction, and Department of Energy defense activities (the NDAA); a yea funds and authorizes the armed forces."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S.Amdt. 3428",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/3428",
-      "issues": [
-        {
-          "issueKey": "gov_transparency",
-          "weight": 90,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Amendment (to H.R. 3944) to limit disclosures regarding earmarks; a yea reduces disclosure, cutting against transparency and anti-corruption."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 4758",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4758",
-      "issues": [
-        {
-          "issueKey": "climate_action",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Homeowner Energy Freedom Act repeals the DOE high-efficiency electric home rebate program, state home-energy contractor training grants and building energy code adoption assistance (IRA/P.L. 117-169); a yea rolls back federal climate/electrification programs."
-        },
-        {
-          "issueKey": "cut_spending",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The bill also rescinds unobligated balances for the rebate and building-energy-code programs, so a yea cancels appropriated federal spending."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 6329",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6329",
-      "issues": [
-        {
-          "issueKey": "gov_transparency",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Information Quality Assurance Act requires agencies to publish the critical factual material relied on in rulemaking and guidance, and to use the best reasonably available evidence; a yea expands disclosure of the government's factual basis."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 85",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/85",
-      "issues": [
-        {
-          "issueKey": "lgbtq_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 97",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
-      "issues": [
-        {
-          "issueKey": "lands_preserve",
-          "weight": 90,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 7008",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008",
-      "issues": [
-        {
-          "issueKey": "stock_trading_ban",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Stop Insider Trading Act amends chapter 131 of title 5 to bar Members of Congress, their spouses, and dependents from holding or trading covered individual stocks; a yea is a direct vote for the congressional stock-trading ban.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
-        },
-        {
-          "issueKey": "gov_transparency",
-          "weight": 60,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Secondary: the bill's enforcement machinery is disclosure-based — advance public notice of covered transactions and published divestiture certifications — so a yea also expands financial-disclosure transparency. Weighted below the primary because the bill is not a general transparency measure.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 8800",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800",
-      "issues": [
-        {
-          "issueKey": "strong_defense",
-          "weight": 80,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "FY2027 National Defense Authorization Act — authorizes DoD military activities, military construction, DOE defense activities, and personnel strengths; a yea funds and authorizes the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 1181",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181",
-      "issues": [
-        {
-          "issueKey": "gun_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Protecting Privacy in Purchases Act bars payment-card networks from requiring or assigning a merchant category code that singles out firearms retailers; a yea blocks a gun-purchase tracking mechanism that gun-rights groups oppose.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 9237",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237",
-      "issues": [
-        {
-          "issueKey": "veterans",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Take Care of America's Veterans Act amends titles 10 and 38 to improve veterans' benefits and VA administration; a yea expands veterans' benefits.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237"
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 6644",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644",
-      "issues": [
-        {
-          "issueKey": "housing_build",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "21st Century ROAD to Housing Act is a housing-supply package — it targets the regulatory and financing barriers to new residential construction; a yea is a vote to build more housing.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
-        },
-        {
-          "issueKey": "housing",
-          "weight": 80,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Secondary: the same package also carries affordability and federal housing-assistance provisions, so a yea advances housing affordability generally, not only new supply.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Con.Res. 89",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89",
-      "issues": [
-        {
-          "issueKey": "restraint",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Jayapal War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities with Iran; a yea ends US participation in an undeclared conflict.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89"
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Con.Res. 108",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108",
-      "issues": [
-        {
-          "issueKey": "restraint",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Tlaib War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon; a yea ends US participation in an undeclared conflict.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 254",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254",
-      "issues": [
-        {
-          "issueKey": "lgbtq_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Boebert amendment to H.R. 8800 (FY2027 NDAA) would codify Executive Order 14183, requiring all personnel to serve in accordance with their biological sex and thereby banning transgender service members; a yea removes an existing protection for transgender people.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 255",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255",
-      "issues": [
-        {
-          "issueKey": "lgbtq_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits gender-related medical care under TRICARE and bars TRICARE from covering gender-related procedures and treatments; a yea withdraws transgender health coverage.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 256",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256",
-      "issues": [
-        {
-          "issueKey": "lgbtq_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits male participation in female sports at Department of Defense Education Activity schools — a transgender sports-participation ban for military-dependent students; a yea restricts transgender participation.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 257",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257",
-      "issues": [
-        {
-          "issueKey": "school_choice",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "McDowell amendment to H.R. 8800 (FY2027 NDAA) would authorize the Secretary of Defense to establish a school choice pilot program for members of the Armed Forces; a yea creates a publicly funded school-choice program.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 253",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253",
-      "issues": [
-        {
-          "issueKey": "gun_rights",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Crank amendment to H.R. 8800 (FY2027 NDAA) establishes a presumption of approval for DoD servicemembers and civilian employees seeking their commander's authorization to carry personal firearms on military installations; a yea expands lawful carry.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 234",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234",
-      "issues": [
-        {
-          "issueKey": "climate_action",
-          "weight": 75,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Fine amendment to H.R. 8595 (FY2027 national security and State appropriations) would strike the $139,575,000 appropriation for the Global Environment Facility, the main US multilateral climate- and environment-finance channel; a yea defunds international climate finance. Weighted 75 because it is a single line item rather than a change in domestic climate policy.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234"
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 258",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258",
-      "issues": [
-        {
-          "issueKey": "religious_liberty",
-          "weight": 85,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Self amendment to H.R. 8800 (FY2027 NDAA) codifies protections and responsibilities for military chaplains and makes violations of those protections punishable under the Uniform Code of Military Justice; a yea strengthens statutory religious-exercise protection in the services.",
-          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258"
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 6955",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6955",
-      "issues": [
-        {
-          "issueKey": "econ_smallbiz",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Amends the Federal banking laws to widen small-business and Main Street access to capital; a yea backs that expansion of access."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Res. 1399",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-resolution/1399",
-      "issues": [
-        {
-          "issueKey": "gov_transparency",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Directs the Committee on Ethics to preserve and publicly release records of monetary settlements involving sexual harassment; a yea forces disclosure of settlements that are otherwise sealed."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 8884",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8884",
-      "issues": [
-        {
-          "issueKey": "social_security",
-          "weight": 70,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Amends title II of the Social Security Act to reauthorize demonstration authority for the disability insurance program; a yea keeps that Social Security program authority in place. Weighted below a full-strength mapping on purpose: this is program administration, not a vote on benefit levels."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 235",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/235",
-      "issues": [
-        {
-          "issueKey": "america_first_fp",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Prohibits funds appropriated by the Act from being used for Israel — a direct floor test of whether to continue a standing foreign-aid commitment."
-        },
-        {
-          "issueKey": "cut_spending",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The amendment reduces the Foreign Military Financing Program account by the corresponding amount; a yea cuts that spending."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 236",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/236",
-      "issues": [
-        {
-          "issueKey": "america_first_fp",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Prohibits funds appropriated by the Act from being used for Jordan — a direct floor test of whether to continue a standing foreign-aid commitment."
-        },
-        {
-          "issueKey": "cut_spending",
-          "weight": 55,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The amendment reduces the National Security Investment Programs and Foreign Military Financing accounts by the corresponding amounts; a yea cuts that spending."
-        }
-      ]
-    },
-    {
-      "measureType": "amendment",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.Amdt. 248",
-      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/248",
-      "issues": [
-        {
-          "issueKey": "energy_production",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Ensures the continued operation of the Santa Ynez production unit; a yea keeps a domestic oil production asset online rather than letting it shut down."
-        },
-        {
-          "issueKey": "strong_defense",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The amendment's stated purpose is protecting a critical component of the military's fuel supply chain; a yea backs that supply-chain security."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 2965",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2965",
-      "issues": [
-        {
-          "issueKey": "gov_regulation",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Establishes a small business regulatory budget, capping the regulatory cost federal agencies may impose; a yea constrains new regulation. Identified from the H.Res. 916 rule already in this record, which describes H.R. 2965 as the small business regulatory budget bill."
-        },
-        {
-          "issueKey": "econ_smallbiz",
-          "weight": 80,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The regulatory budget is scoped to the compliance burden borne by small businesses; a yea reduces that burden."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 4305",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4305",
-      "issues": [
-        {
-          "issueKey": "econ_smallbiz",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Creates an SBA hotline for small businesses to report federal rules they find burdensome; a yea backs that channel. Identified from the H.Res. 916 rule already in this record, which describes H.R. 4305 as the SBA Red Tape Hotline bill."
-        },
-        {
-          "issueKey": "gov_regulation",
-          "weight": 80,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "The hotline exists to surface federal red tape for repeal or revision; a yea advances that deregulatory review."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "senate",
-      "number": "S.J.Res. 18",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18",
-      "issues": [
-        {
-          "issueKey": "gov_regulation",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "A Congressional Review Act resolution whose entire operative effect is to nullify a federal rule; a yea strikes the CFPB overdraft regulation off the books."
-        },
-        {
-          "issueKey": "econ_corp_account",
-          "weight": 75,
-          "isPrimary": false,
-          "supportMeaning": "yea_opposes",
-          "rationale": "The nullified rule required very large financial institutions to cap overdraft charges at $5, justify a higher cap, or treat overdrafts as credit subject to Truth in Lending Act disclosure; a yea removes that constraint on what the largest banks may charge."
-        }
-      ]
-    },
-    {
-      "measureType": "resolution",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.J.Res. 78",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/78",
-      "issues": [
-        {
-          "issueKey": "lands_preserve",
-          "weight": 90,
-          "isPrimary": true,
-          "supportMeaning": "yea_opposes",
-          "rationale": "Removes Endangered Species Act protection from the San Francisco Bay-Delta longfin smelt by nullifying its listing; a yea strips a federal conservation protection. Mapped to the conservation key because the vocabulary has no dedicated wildlife or endangered-species key."
-        },
-        {
-          "issueKey": "gov_regulation",
-          "weight": 70,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "A Congressional Review Act resolution striking a federal agency rule; a yea removes the Fish and Wildlife Service regulation."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 1005",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1005",
-      "issues": [
-        {
-          "issueKey": "gov_transparency",
-          "weight": 90,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Requires public elementary and secondary schools to disclose funds received from, or contracts with, a foreign source; a yea compels disclosure that is currently not required."
-        }
-      ]
-    },
-    {
-      "measureType": "bill",
-      "congress": 119,
-      "chamber": "house",
-      "number": "H.R. 1049",
-      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1049",
-      "issues": [
-        {
-          "issueKey": "edu_parental",
-          "weight": 100,
-          "isPrimary": true,
-          "supportMeaning": "yea_supports",
-          "rationale": "Requires schools to notify parents of their right to request and receive information about foreign influence in their child's school; a yea creates a parental notification right that does not exist today."
-        },
-        {
-          "issueKey": "gov_transparency",
-          "weight": 65,
-          "isPrimary": false,
-          "supportMeaning": "yea_supports",
-          "rationale": "Establishes a disclosure-on-request regime for foreign influence in schools as a condition of federal education funding; a yea widens what schools must reveal."
-        }
-      ]
+     "issueKey": "lands_energy",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Expands onshore and offshore oil, gas, and coal leasing on federal land."
     }
-  ],
-  "_phase12_overlap_priority": {
-    "_note": "Phase 12 overlap-first ingest priorities. Point a keyed Congress.gov ingest at these issues first; each newly pulled measure should be issue-seeded to the overlap issue ONLY on a clear nexus, left unmapped otherwise. Existing seeds already cover election_integrity (H.R. 22 SAVE Act).",
-    "issues": [
-      "election_integrity",
-      "gov_transparency",
-      "foreign_balance",
-      "strong_defense",
-      "climate_action",
-      "stock_trading_ban"
-    ],
-    "stagedMembers": [
-      {
-        "slug": "schiff",
-        "issue": "gov_transparency"
-      },
-      {
-        "slug": "jayapal",
-        "issue": "foreign_balance"
-      },
-      {
-        "slug": "tlaib",
-        "issue": "foreign_balance"
-      },
-      {
-        "slug": "ernst",
-        "issue": "healthcare"
-      },
-      {
-        "slug": "maxine_waters",
-        "issue": "justice_balance"
-      },
-      {
-        "slug": "trent_kelly",
-        "issue": "strong_defense",
-        "status": "already both-sided (Phase 11)"
-      },
-      {
-        "slug": "rob_bresnahan",
-        "issue": "stock_trading_ban",
-        "status": "awaiting a verified bill number"
-      }
-    ]
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 29",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/29",
+   "issues": [
+    {
+     "issueKey": "deportations",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Tightens immigration enforcement."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 5",
+   "_comment": "The bill that actually became Public Law 119-1. H.R. 29 above is the House's own Laken Riley bill, which passed the House on 2025-01-07 and went no further; the Senate took up its own S. 5, amended it, and both chambers passed that. Senate roll 119/1/7 and House roll 119/1/23 are votes on S. 5, not on H.R. 29 — see migration 20260804000000_vr_repair_laken_riley_measure_identity.sql. These four mappings are carried from H.R. 29 because the curated rationale still describes S. 5's text; the values below are byte-identical to the ones that migration inserts, because applyCuratedIssueSeed() upserts with onConflictDoUpdate and would otherwise overwrite them on the next POST /seed-issues.",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/5",
+   "issues": [
+    {
+     "issueKey": "deportations",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Mandates detention and removal proceedings for covered unauthorized immigrants."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Tightens immigration enforcement."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Triggered by arrest for burglary, theft, larceny, shoplifting, assault of a law enforcement officer, or any crime resulting in death or serious bodily injury.",
+     "_comment": "Restated from the CRS summary of Public Law 119-1 rather than copied from H.R. 29. H.R. 29's rationale enumerates the House bill's narrower trigger list; S. 5 as enacted adds larceny and the death/serious-bodily-injury clause via the Senate amendment (roll 119/1/6, Ernst, agreed 75-24). Reusing the H.R. 29 sentence here would have understated the enacted text."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Gives state attorneys general standing to sue the federal government over certain immigration-detention and enforcement decisions; a yea expands state authority to contest federal enforcement choices in court."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 22",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/22",
+   "issues": [
+    {
+     "issueKey": "election_integrity",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SAVE Act — requires documentary proof of U.S. citizenship to register to vote in federal elections."
+    },
+    {
+     "issueKey": "voter_id",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Adds a citizenship-documentation requirement to voter registration."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Con.Res. 14",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/14",
+   "issues": [
+    {
+     "issueKey": "national_debt",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Directs committees to find net spending reductions through reconciliation."
+    },
+    {
+     "issueKey": "lower_taxes",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reserves reconciliation room to extend and expand the 2017 tax cuts."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 25",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/25",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Congressional Review Act resolution repealing the IRS reporting rule for decentralized-finance brokers; a yea rolls back the mandate."
+    },
+    {
+     "issueKey": "tech_innovation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Supporters framed the rule as unworkable for decentralized software and a drag on U.S. crypto development."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 37",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/37",
+   "issues": [
+    {
+     "issueKey": "tariffs_authority",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reasserts congressional authority over tariffs by ending the emergency used to impose them; a yea rolls back the executive tariff action."
+    },
+    {
+     "issueKey": "econ_trade",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Removes the duties on Canadian imports; a yea favors lower trade barriers with a top trading partner."
+    },
+    {
+     "issueKey": "tariffs_prices",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Supporters argued the tariffs raise costs for U.S. consumers and businesses; a yea removes them."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 59",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59",
+   "issues": [
+    {
+     "issueKey": "restraint",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires congressional authorization before military action against Iran; a yea favors restraint and a congressional check on war-making."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea presses against open-ended involvement in a new Middle East conflict."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Opponents held that constraining the commander-in-chief would weaken deterrence; a yea cuts against that view."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 129",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/129",
+   "issues": [
+    {
+     "issueKey": "tax_middle_class",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Exempts qualified tip income from federal income tax for tipped workers."
+    },
+    {
+     "issueKey": "cost_living",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Aims to raise take-home pay for service and hospitality workers."
+    },
+    {
+     "issueKey": "lower_taxes",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reduces the federal tax burden on a category of earned income."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 88",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/88",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the waiver behind California's EV sales mandate; a yea rolls back a major state climate rule."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Supporters framed it as protecting consumer choice and gasoline-vehicle access."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 89",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/89",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the waiver behind California's zero-emission truck mandate; a yea rolls back a major state climate rule."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Supporters framed it as easing costs on trucking and freight."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 2296",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Authorizes FY2026 appropriations for Department of Defense military activities, military construction, and Department of Energy defense activities (the NDAA); a yea funds and authorizes the armed forces."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 3428",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/senate-amendment/3428",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Amendment (to H.R. 3944) to limit disclosures regarding earmarks; a yea reduces disclosure, cutting against transparency and anti-corruption."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4758",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4758",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Homeowner Energy Freedom Act repeals the DOE high-efficiency electric home rebate program, state home-energy contractor training grants and building energy code adoption assistance (IRA/P.L. 117-169); a yea rolls back federal climate/electrification programs."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill also rescinds unobligated balances for the rebate and building-energy-code programs, so a yea cancels appropriated federal spending."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 6329",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6329",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Information Quality Assurance Act requires agencies to publish the critical factual material relied on in rulemaking and guidance, and to use the best reasonably available evidence; a yea expands disclosure of the government's factual basis."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 85",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/85",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 97",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
+   "issues": [
+    {
+     "issueKey": "lands_preserve",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 7008",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008",
+   "issues": [
+    {
+     "issueKey": "stock_trading_ban",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Stop Insider Trading Act amends chapter 131 of title 5 to bar Members of Congress, their spouses, and dependents from holding or trading covered individual stocks; a yea is a direct vote for the congressional stock-trading ban.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Secondary: the bill's enforcement machinery is disclosure-based — advance public notice of covered transactions and published divestiture certifications — so a yea also expands financial-disclosure transparency. Weighted below the primary because the bill is not a general transparency measure.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/7008"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 8800",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "FY2027 National Defense Authorization Act — authorizes DoD military activities, military construction, DOE defense activities, and personnel strengths; a yea funds and authorizes the armed forces. Weighted 80 rather than 100 because this NDAA also carries unrelated social-policy riders (see H.Amdt. 254-256), so passage is not a pure defense-posture signal.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8800"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1181",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Protecting Privacy in Purchases Act bars payment-card networks from requiring or assigning a merchant category code that singles out firearms retailers; a yea blocks a gun-purchase tracking mechanism that gun-rights groups oppose.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1181"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 9237",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237",
+   "issues": [
+    {
+     "issueKey": "veterans",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Take Care of America's Veterans Act amends titles 10 and 38 to improve veterans' benefits and VA administration; a yea expands veterans' benefits.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/9237"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 6644",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644",
+   "issues": [
+    {
+     "issueKey": "housing_build",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "21st Century ROAD to Housing Act is a housing-supply package — it targets the regulatory and financing barriers to new residential construction; a yea is a vote to build more housing.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
+    },
+    {
+     "issueKey": "housing",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Secondary: the same package also carries affordability and federal housing-assistance provisions, so a yea advances housing affordability generally, not only new supply.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Con.Res. 89",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89",
+   "issues": [
+    {
+     "issueKey": "restraint",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Jayapal War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities with Iran; a yea ends US participation in an undeclared conflict.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89"
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Con.Res. 108",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108",
+   "issues": [
+    {
+     "issueKey": "restraint",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Tlaib War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon; a yea ends US participation in an undeclared conflict.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/108"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 254",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Boebert amendment to H.R. 8800 (FY2027 NDAA) would codify Executive Order 14183, requiring all personnel to serve in accordance with their biological sex and thereby banning transgender service members; a yea removes an existing protection for transgender people.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/254"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 255",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits gender-related medical care under TRICARE and bars TRICARE from covering gender-related procedures and treatments; a yea withdraws transgender health coverage.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/255"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 256",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Mace amendment to H.R. 8800 (FY2027 NDAA) prohibits male participation in female sports at Department of Defense Education Activity schools — a transgender sports-participation ban for military-dependent students; a yea restricts transgender participation.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/256"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 257",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257",
+   "issues": [
+    {
+     "issueKey": "school_choice",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "McDowell amendment to H.R. 8800 (FY2027 NDAA) would authorize the Secretary of Defense to establish a school choice pilot program for members of the Armed Forces; a yea creates a publicly funded school-choice program.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/257"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 253",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Crank amendment to H.R. 8800 (FY2027 NDAA) establishes a presumption of approval for DoD servicemembers and civilian employees seeking their commander's authorization to carry personal firearms on military installations; a yea expands lawful carry.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/253"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 234",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Fine amendment to H.R. 8595 (FY2027 national security and State appropriations) would strike the $139,575,000 appropriation for the Global Environment Facility, the main US multilateral climate- and environment-finance channel; a yea defunds international climate finance. Weighted 75 because it is a single line item rather than a change in domestic climate policy.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/234"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 258",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258",
+   "issues": [
+    {
+     "issueKey": "religious_liberty",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Self amendment to H.R. 8800 (FY2027 NDAA) codifies protections and responsibilities for military chaplains and makes violations of those protections punishable under the Uniform Code of Military Justice; a yea strengthens statutory religious-exercise protection in the services.",
+     "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/258"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 6955",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6955",
+   "issues": [
+    {
+     "issueKey": "econ_smallbiz",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Amends the Federal banking laws to widen small-business and Main Street access to capital; a yea backs that expansion of access."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Res. 1399",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-resolution/1399",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Directs the Committee on Ethics to preserve and publicly release records of monetary settlements involving sexual harassment; a yea forces disclosure of settlements that are otherwise sealed."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 8884",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/8884",
+   "issues": [
+    {
+     "issueKey": "social_security",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Amends title II of the Social Security Act to reauthorize demonstration authority for the disability insurance program; a yea keeps that Social Security program authority in place. Weighted below a full-strength mapping on purpose: this is program administration, not a vote on benefit levels."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 235",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/235",
+   "issues": [
+    {
+     "issueKey": "america_first_fp",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Prohibits funds appropriated by the Act from being used for Israel — a direct floor test of whether to continue a standing foreign-aid commitment."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment reduces the Foreign Military Financing Program account by the corresponding amount; a yea cuts that spending."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 95,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr8595.xml",
+     "rationale": "Prohibits funds appropriated by the FY2026 National Security and State Department appropriations Act from being used for Israel and reduces the Foreign Military Financing Program account by $3.3 billion accordingly — a direct floor attempt to zero out U.S. security assistance to Israel. Failed 104-314 with 10 members voting present. A yea ends the assistance."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 236",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/236",
+   "issues": [
+    {
+     "issueKey": "america_first_fp",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Prohibits funds appropriated by the Act from being used for Jordan — a direct floor test of whether to continue a standing foreign-aid commitment."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment reduces the National Security Investment Programs and Foreign Military Financing accounts by the corresponding amounts; a yea cuts that spending."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 248",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/248",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Ensures the continued operation of the Santa Ynez production unit; a yea keeps a domestic oil production asset online rather than letting it shut down."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment's stated purpose is protecting a critical component of the military's fuel supply chain; a yea backs that supply-chain security."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 2965",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2965",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Establishes a small business regulatory budget, capping the regulatory cost federal agencies may impose; a yea constrains new regulation. Identified from the H.Res. 916 rule already in this record, which describes H.R. 2965 as the small business regulatory budget bill."
+    },
+    {
+     "issueKey": "econ_smallbiz",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The regulatory budget is scoped to the compliance burden borne by small businesses; a yea reduces that burden."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4305",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4305",
+   "issues": [
+    {
+     "issueKey": "econ_smallbiz",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Creates an SBA hotline for small businesses to report federal rules they find burdensome; a yea backs that channel. Identified from the H.Res. 916 rule already in this record, which describes H.R. 4305 as the SBA Red Tape Hotline bill."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The hotline exists to surface federal red tape for repeal or revision; a yea advances that deregulatory review."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 18",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A Congressional Review Act resolution whose entire operative effect is to nullify a federal rule; a yea strikes the CFPB overdraft regulation off the books."
+    },
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The nullified rule required very large financial institutions to cap overdraft charges at $5, justify a higher cap, or treat overdrafts as credit subject to Truth in Lending Act disclosure; a yea removes that constraint on what the largest banks may charge."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 78",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/78",
+   "issues": [
+    {
+     "issueKey": "lands_preserve",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes Endangered Species Act protection from the San Francisco Bay-Delta longfin smelt by nullifying its listing; a yea strips a federal conservation protection. Mapped to the conservation key because the vocabulary has no dedicated wildlife or endangered-species key."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A Congressional Review Act resolution striking a federal agency rule; a yea removes the Fish and Wildlife Service regulation."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1005",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1005",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires public elementary and secondary schools to disclose funds received from, or contracts with, a foreign source; a yea compels disclosure that is currently not required."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1049",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1049",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires schools to notify parents of their right to request and receive information about foreign influence in their child's school; a yea creates a parental notification right that does not exist today."
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Establishes a disclosure-on-request regime for foreign influence in schools as a condition of federal education funding; a yea widens what schools must reveal."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Con.Res. 113",
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hconres/BILLSTATUS-119hconres113.xml",
+   "issues": [
+    {
+     "issueKey": "national_debt",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The FY2027 congressional budget resolution. Its published CRS summary states that it 'provides reconciliation instructions for legislation that increases the deficit', directing four House committees to report legislation increasing the deficit over FY2027-FY2036 by not more than specified amounts; a yea adopts a fiscal blueprint whose reconciliation instructions authorise deficit increases. Direction read off the summary, the mirror of the deficit-reducing instructions that set the direction on H.Con.Res. 14."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 7757",
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/hr/BILLSTATUS-119hr7757.xml",
+   "issues": [
+    {
+     "issueKey": "tech_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The KIDS Act requires online platforms to adopt age-identification technology on sites where a third of the content is sexual material harmful to minors, to default minors' social-media accounts to settings that limit compulsive-usage features and adult contact, to give parents account and privacy controls, and to make AI chatbots disclose their nature to minors; a yea imposes those guardrails. Mapped to the key whose own vocabulary is age verification, social media, AI and guardrails."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 242",
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLS/119/2/hr/BILLS-119hr8800rh.xml",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Part A amendment No. 1 to H.R. 8800 (FY2027 NDAA), offered by Rep. Boebert as designee for the author, Rep. Roy: 'Strike section 1213 (and redesignate accordingly).' Section 1213 amends the FY2022 NDAA to move the Afghanistan War Commission's final-report deadline from 3 years to 4, so striking it keeps the 3-year deadline and a yea insists the commission's public report arrive on the schedule Congress originally set. Weighted below a full mapping because it changes when a report is delivered, not what must be disclosed."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 261",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt755/html/CRPT-119hrpt755.htm",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Part A amendment No. 44 to H.R. 8800 (Harrigan) adds 10 U.S.C. 2661(e): no federal funds may purchase, install, operate, maintain or contract for an automated speed enforcement camera system on a military installation, and any system already in operation must be decommissioned and removed within 180 days. A yea removes an automated camera-surveillance enforcement system and takes down the ones already running. Weighted low on purpose: the prohibition reaches military installations only, and the amendment expressly preserves cameras used for security, access control, force protection and criminal investigation — so it is not a vote on surveillance policy generally."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 266",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt755/html/CRPT-119hrpt755.htm",
+   "issues": [
+    {
+     "issueKey": "gov_waste",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Part A amendment No. 316 to H.R. 8800 (Grothman) requires the Secretary of Defense to report within 180 days on options for reducing the number of civilians employed by the Department by 200,000, including an assessment of current non-uniformed personnel levels and recommendations for achieving the reduction while maintaining readiness. A yea asks for a plan to shrink the civilian workforce. Weighted low on purpose: the amendment commissions a report, it does not reduce anything."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The report must include 'an analysis of the anticipated cost savings associated with such reductions', so the amendment puts a 200,000-position federal payroll reduction on the table as a savings measure and a yea backs studying it. Secondary and low-weight for the same reason as the primary — this is a reporting requirement, not a cut."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 87",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/CRPT-119hrpt255/html/CRPT-119hrpt255.htm",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Part A amendment No. 15 to H.R. 3838 (Mace, Tenney) inserts a new section barring the Superintendent of a Service Academy from allowing a cadet or midshipman who is male to participate in any athletic program or activity designated exclusively for females, with 'male' and 'female' defined by reproductive biology; a yea restricts transgender participation. Same instrument and same direction as H.Amdt. 255 (Mace, DoDEA schools) and H.Amdt. 85 (Norman, EFMP care), both already mapped at full weight. Purpose text taken from the Rules Committee report accompanying H.Res. 682, because no source we previously held carried it — see migration 20260727000000, which created this measure row deliberately without a mapping."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 1319",
+   "issues": [
+    {
+     "issueKey": "family_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title IX expands the child tax credit to $3,000 per child ($3,600 under age six), makes it fully refundable and advanceable, and provides the $1,400-per-person recovery rebates. Direct household support for families is the largest single line of the act."
+    },
+    {
+     "issueKey": "cost_living",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Recovery rebates, expanded earned income and child tax credits, and emergency rental and utility assistance are all directed at household costs during the pandemic."
+    },
+    {
+     "issueKey": "healthcare_costs",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title IX subtitle F expands Affordable Care Act premium tax credits for 2021 and 2022, removing the 400%-of-poverty eligibility cliff and subsidising COBRA continuation coverage."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The act was enacted through budget reconciliation as unoffset emergency spending; a yea adds to the deficit rather than reducing it. Weighted below the primary because the fiscal effect is a consequence of the relief, not its stated purpose."
+    },
+    {
+     "issueKey": "child_care",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title II provides child care stabilization funding, supplemental Child Care and Development Block Grant appropriations, and Head Start funding."
+    },
+    {
+     "issueKey": "public_schools",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title II establishes the Elementary and Secondary School Emergency Relief Fund for reopening and learning-loss mitigation, the largest federal appropriation to K-12 schools in the period."
+    },
+    {
+     "issueKey": "econ_workers",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title IX extends pandemic unemployment compensation programs and exempts a portion of 2020 unemployment benefits from income tax."
+    },
+    {
+     "issueKey": "econ_smallbiz",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title V funds the Restaurant Revitalization Fund, additional Paycheck Protection Program and Economic Injury Disaster Loan support, and the Shuttered Venue Operators Grant program."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr1319.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 3684",
+   "issues": [
+    {
+     "issueKey": "infrastructure",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act's opening paragraph enumerates roads, bridges, ports, airports, the electric grid and water systems as its subject; surface transportation reauthorization is Division A."
+    },
+    {
+     "issueKey": "transit",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division B reauthorizes federal public transportation programs and Division C funds passenger and freight rail, including the largest Amtrak investment since its creation."
+    },
+    {
+     "issueKey": "broadband",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division F establishes the Broadband Equity, Access, and Deployment program and the Affordable Connectivity Program to extend service to unserved and underserved areas."
+    },
+    {
+     "issueKey": "water",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division E funds drinking water and wastewater infrastructure, lead service line replacement, and Western water infrastructure including storage and drought resilience."
+    },
+    {
+     "issueKey": "disaster_resilience",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division D and Division J fund coastal resiliency, wildfire risk reduction, and grid hardening against extreme weather."
+    },
+    {
+     "issueKey": "climate_action",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act funds clean school buses, electric vehicle charging networks, weatherization, and legacy pollution remediation. Weighted as a secondary because these are components of an infrastructure package rather than its organising purpose."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The act's new spending was only partially offset; a yea increases the deficit. Weighted low for the same reason as the climate slice — it is a consequence, not the stated purpose."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3684.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 4346",
+   "issues": [
+    {
+     "issueKey": "tech_innovation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A funds domestic semiconductor fabrication and Division B authorises the federal science agencies' research and innovation programs. Semiconductor competitiveness is the act's named subject."
+    },
+    {
+     "issueKey": "econ_growth",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 103 expands financial assistance to incentivise investment in U.S. facilities and equipment for semiconductor production, including a dedicated program for mature technology nodes."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 102 establishes the CHIPS for America Defense Fund for the National Network for Microelectronics Research and Development, and the International Technology Security and Innovation Fund for secure semiconductor supply chains."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The act appropriates new unoffset funding for the CHIPS funds; a yea increases the deficit."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr4346.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 5376",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Subtitle D, Part 1 modifies and extends the production and investment tax credits for wind, solar, geothermal, biomass and hydropower, and the act's energy security title is its largest spending component."
+    },
+    {
+     "issueKey": "health_drug_prices",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 11001 requires CMS to negotiate maximum prices for high-spend brand-name Medicare drugs beginning in 2026, scaling from 10 drugs to 20 by 2029. The act also caps insulin cost sharing and Medicare Part D out-of-pocket spending."
+    },
+    {
+     "issueKey": "healthcare_costs",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 12001 extends through 2025 the expanded premium tax credit, including eligibility for taxpayers above 400% of the federal poverty line."
+    },
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 10101 imposes a 15% minimum tax on the adjusted financial statement income of corporations above $1 billion, and Sec. 10201 a 1% excise tax on publicly traded corporations' stock buybacks."
+    },
+    {
+     "issueKey": "lower_taxes",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same two sections are, on their face, corporate tax increases. Mapping both directions is deliberate: a corporate minimum tax is simultaneously an accountability measure and a tax increase, and the record should show both rather than pick the flattering one."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Part 6 raises offshore royalty rates but also directs Interior to accept the highest bid for Gulf of Mexico Lease Sale 257 and to hold Lease Sales 258, 259 and 261, and Sec. 50265 conditions new wind and solar rights-of-way on holding oil and gas lease sales."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title I, Subtitle A is captioned \"Deficit Reduction\" and contains the corporate minimum tax, the buyback excise tax and IRS enforcement funding. Weighted low because the act's net fiscal effect is contested, but the subtitle heading and its contents are what the enacted text says."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr5376.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "senate",
+   "number": "S. 2938",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title II requires enhanced background check review for purchasers under 21, creates federal straw purchasing and trafficking offenses, and closes the dating-partner gap in the domestic violence prohibitor."
+    },
+    {
+     "issueKey": "health_mental",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division A, Title I is a children and family mental health title: CCBHC demonstration extension, pediatric mental health care access grants, and Medicaid telehealth and school-based services guidance."
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same Title II provisions restrict firearms acquisition for 18-to-20-year-old purchasers and extend a possession prohibitor to a new class of persons; a yea narrows firearms access."
+    },
+    {
+     "issueKey": "public_schools",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act funds school safety programs and school-based mental health service capacity, including Medicaid guidance directed specifically at services delivered in schools."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s2938.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "senate",
+   "number": "S. 3373",
+   "issues": [
+    {
+     "issueKey": "veterans",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The entire act expands VA eligibility, presumptions of service connection and benefits for toxic-exposed veterans. Named subject, no ambiguity."
+    },
+    {
+     "issueKey": "healthcare",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The mechanism is an expansion of VA health care enrolment and treatment eligibility, not only cash benefits."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s3373.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 8404",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act repeals DOMA's man/woman definitions and requires interstate recognition of same-sex marriages. Mapped as a single key deliberately: a religious_liberty contradiction row would be false, because the enacted text expressly states it does not affect religious liberties and does not require religious organizations to provide goods or services for a marriage."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr8404.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 3076",
+   "issues": [
+    {
+     "issueKey": "gov_services",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act's purpose is to stabilise a universal public service: it removes the prepayment obligation that drove reported Postal Service losses, integrates postal retiree health coverage with Medicare, and requires six-day delivery."
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act requires the Postal Service to publish an online public dashboard of service-performance data by delivery unit."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr3076.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "senate",
+   "number": "S. 1605",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Annual defense authorization: end strengths, procurement, military construction and DOE national security programs. No national_debt row, because the BILLSTATUS summary lists programs without a topline figure and asserting one would be unsourced — the same reason H.R. 3838 carries a debt slice (its summary cites a topline) and this one does not."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/s/BILLSTATUS-117s1605.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 7776",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Annual defense authorization. Mapped on the enacted content only; the sole House roll BILLSTATUS attaches to this vehicle (roll 253/2022) is the suspension vote on the rivers-and-harbors bill the NDAA text later replaced, so no House margin is claimed for it."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr7776.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 3746",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division C, Title III is a permitting-reform title: it narrows the scope of National Environmental Policy Act administrative review, sets page and time limits on environmental reviews, and designates a lead agency. A yea reduces the regulatory review burden."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 324 ratifies every existing federal authorization for the Mountain Valley Pipeline, directs the issuance of any remaining ones, and removes them from judicial review."
+    },
+    {
+     "issueKey": "gov_services",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Division C tightens Temporary Assistance for Needy Families work requirements and raises the SNAP able-bodied-adults-without-dependents work-requirement age to 54 while reducing the discretionary exemption pool from 12% to 8%. A yea narrows safety-net eligibility, notwithstanding the new exemptions for homeless individuals, veterans and former foster youth."
+    },
+    {
+     "issueKey": "edu_college_cost",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Division B terminates the suspension of federal student loan payments and resumes interest accrual, and bars the Secretary from extending it further absent new statutory authority."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr3746.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 2670",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Annual defense authorization. Mapped to a single key: the enacted summary contains no Foreign Intelligence Surveillance Act section 702 provision (a search of the Public Law summary returns zero hits), so no privacy_rights slice is asserted."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr2670.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 5009",
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Annual defense authorization with an added servicemember quality-of-life title covering pay, housing and family support."
+    },
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 708 bars TRICARE from covering treatment for gender dysphoria that could result in sterilization for dependents under 18. This is the provision behind the vote's party inversion — Clerk roll 500/2024 split Republican 200-16 in favour and Democratic 81-124 against, the only NDAA in this window a majority of one party opposed."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr5009.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 7888",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The act extends warrantless section 702 collection for two years and broadens the electronic communications service provider definition. Held at 85 rather than 100 because the same act repeals \"abouts\" collection authority, imposes supervisory and attorney approval for U.S.-person queries, bars political appointees from sensitive-query approval, adds penalties and requires 180-day audits — the direction is a net extension of surveillance authority, but calling it unmixed would misstate the text."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act preserves a foreign intelligence collection authority the intelligence community identifies as a core counterterrorism and counterintelligence tool; a yea sustains it."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7888.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 815",
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Divisions A, B and C are security assistance appropriations for Israel, Ukraine and the Indo-Pacific respectively. A yea funds alliance commitments across three theatres."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The package is the largest single foreign-aid appropriation of the 118th Congress, and Division B is Ukraine security assistance specifically. A yea is a vote against the position that resources should be redirected from foreign aid to domestic priorities."
+    },
+    {
+     "issueKey": "restraint",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same three security-assistance divisions deepen U.S. involvement in two active conflicts and one deterrence posture; a yea is a vote against military restraint."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division D carries the Protecting Americans from Foreign Adversary Controlled Applications Act, requiring divestiture of foreign-adversary-controlled applications or prohibiting their distribution in the United States."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division E is the Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act: sanctions in response to the national emergency relating to fentanyl trafficking, plus anti-money-laundering measures against the transnational organizations involved."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 8035",
+   "_note": "Division B of H.R. 815 as a standalone bill. The House never voted the H.R. 815 package — it passed four division bills on 2024-04-20 and H.Res. 1160 combined them into the Senate amendment. Only this one divided the chamber (311-112, Republicans 101-112 against their own majority), so it is the House-side record of the Ukraine substance. Its keys are a strict subset of the parent's: no tech_balance and no immig_fentanyl, because the TikTok divestiture and the fentanyl sanctions are in Divisions D and E, which this bill does not contain.",
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "FY2024 supplemental appropriations for the Department of Defense, the State Department and USAID to respond to the conflict in Ukraine, including the Ukraine Security Assistance Initiative and replacement of defense articles already transferred. A yea funds an alliance commitment."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "This was the standalone Ukraine-aid vote, stripped of the Israel, Indo-Pacific and sanctions divisions that carried the rest of the package. A yea is a vote against the position that these resources belong at home rather than abroad."
+    },
+    {
+     "issueKey": "restraint",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The appropriation sustains U.S. military support to an active war and funds current U.S. operations in the region; a yea is a vote against military restraint."
+    }
+   ],
+   "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8035.xml"
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 5323",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/5323",
+   "_note": "The only 117th-Congress roll call in this vertical, and its discriminating power is weak: 420-9 under suspension. It is mapped because the mission's priority order puts enacted and funding measures first and this is the only record the 117th offers on the issue, not because nine nays separate a chamber. Read the 117th column of any israel_support score as thin.",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/117/hr/BILLSTATUS-117hr5323.xml",
+     "rationale": "Appropriates $1,000,000,000 to Procurement, Defense-Wide to replace Iron Dome interceptors and components Israel expended in the May 2021 conflict, and for Israeli cooperative missile-defense procurement, designated as an emergency requirement. Introduced as a standalone bill after the same money was stripped from the continuing resolution, so the vote is on Israeli missile defense and nothing else. A yea funds it."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.Amdt. 478",
+   "sourceUrl": "https://www.congress.gov/amendment/118th-congress/house-amendment/478",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr4665.xml",
+     "rationale": "Amendment numbered 69 printed in Part D of House Report 118-216 to the FY2024 State and Foreign Operations appropriations bill, prohibiting the use of funds to relocate the United States Embassy in Israel out of Jerusalem — an operative funding limitation locking in recognition of Jerusalem as the capital. Agreed to 360-67; every nay was a Democrat. A yea entrenches the recognition."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 6126",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/6126",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr6126.xml",
+     "rationale": "FY2024 emergency supplemental of roughly $14.3 billion for Israel: Israeli cooperative missile-defense programs, Foreign Military Financing, and replacement of U.S. defense articles transferred to Israel after October 7. A yea appropriates the aid."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr6126.xml",
+     "rationale": "The bill offsets every dollar by rescinding an equal amount of Internal Revenue Service enforcement funding appropriated by the Inflation Reduction Act, so a yea also cancels that appropriation. This offset, not the Israel aid, is what drew the 196 nays, and the mapping records it so the Israel reading is not the only meaning attached to the roll."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 7217",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/7217",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr7217.xml",
+     "rationale": "FY2024 emergency supplemental of roughly $17.6 billion for Israel and for U.S. Central Command operations in the region, with no offset, brought up under suspension as a standalone alternative to the combined Ukraine/Israel/Indo-Pacific package. Failed 250-180 against the two-thirds a suspension requires. A yea appropriates the aid."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 8034",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8034",
+   "_note": "The Israel division of the 2024 national-security supplemental, voted on its own. H.R. 815 keeps its five existing keys and is deliberately NOT given an israel_support row: it carried Ukraine, the Indo-Pacific, TikTok divest-or-ban and fentanyl sanctions alongside Israel, and no single verdict on Israel can be read out of a vote on all five. This bill is that verdict — 366-58 on Israel alone — and it became Division A of P.L. 118-50. Same construction as H.R. 8035, which carries the package's Ukraine substance.",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8034.xml",
+     "rationale": "FY2024 emergency supplemental of roughly $26.4 billion for the situation in Israel: Israeli cooperative missile-defense programs including Iron Dome and David's Sling, Iron Beam procurement, Foreign Military Financing for Israel, replacement of U.S. defense articles and services provided to Israel, U.S. Central Command operations, and humanitarian assistance for Gaza. Enacted as Division A of P.L. 118-50. The 58 nays are members who declined to fund Israel's defense on a bill that asked nothing else of them, which makes this the most direct enacted test of the issue in the window. A yea funds it."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 8369",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8369",
+   "_note": "Not mapped to checks_balances, though it does constrain executive discretion. That key is for separation-of-powers questions between the branches as such; a member voting to force out bombs the administration had paused is voting about Israel. Filing it under checks_balances would move percentages on an issue the vote was not about.",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8369.xml",
+     "rationale": "Requires the President to deliver to Israel the defense articles and services Congress has already authorized and appropriated, and withholds salaries-and-expenses funding from the Office of the Secretary of Defense, the Office of the Secretary of State and the National Security Council until the withheld shipments go out. Introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs. A yea forces the transfer."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 118,
+   "chamber": "senate",
+   "number": "S.J.Res. 111",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/111",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres111.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of tank rounds and 120mm mortar cartridges. The motion to discharge it from the Committee on Foreign Relations was rejected 18-79 on 2024-11-20, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 118,
+   "chamber": "senate",
+   "number": "S.J.Res. 113",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/113",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres113.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of JDAM guidance kits and small-diameter bombs. The motion to discharge it from the Committee on Foreign Relations was rejected 19-78 on 2024-11-20, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 118,
+   "chamber": "senate",
+   "number": "S.J.Res. 115",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/senate-joint-resolution/115",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/sjres/BILLSTATUS-118sjres115.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles, services and technical data under an export license amendment. The motion to discharge it from the Committee on Foreign Relations was rejected 17-80 on 2024-11-20, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 33",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/33",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres33.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of bomb bodies and guidance kits. The motion to discharge it from the Committee on Foreign Relations was rejected 15-82 on 2025-04-03, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 26",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/26",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres26.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of bulldozers and related equipment. The motion to discharge it from the Committee on Foreign Relations was rejected 15-83 on 2025-04-03, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 41",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/41",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres41.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of assault rifles. The motion to discharge it from the Committee on Foreign Relations was rejected 27-70 on 2025-07-30, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 34",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/34",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres34.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles and services. The motion to discharge it from the Committee on Foreign Relations was rejected 24-73 on 2025-07-30, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 32",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/32",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres32.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles and services. The motion to discharge it from the Committee on Foreign Relations was rejected 40-59 on 2026-04-15, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 138",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/138",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres138.xml",
+     "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles and services. The motion to discharge it from the Committee on Foreign Relations was rejected 36-63 on 2026-04-15, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
   }
+ ],
+ "_phase12_overlap_priority": {
+  "_note": "Phase 12 overlap-first ingest priorities. Point a keyed Congress.gov ingest at these issues first; each newly pulled measure should be issue-seeded to the overlap issue ONLY on a clear nexus, left unmapped otherwise. Existing seeds already cover election_integrity (H.R. 22 SAVE Act).",
+  "issues": [
+   "election_integrity",
+   "gov_transparency",
+   "foreign_balance",
+   "strong_defense",
+   "climate_action",
+   "stock_trading_ban"
+  ],
+  "stagedMembers": [
+   {
+    "slug": "schiff",
+    "issue": "gov_transparency"
+   },
+   {
+    "slug": "jayapal",
+    "issue": "foreign_balance"
+   },
+   {
+    "slug": "tlaib",
+    "issue": "foreign_balance"
+   },
+   {
+    "slug": "ernst",
+    "issue": "healthcare"
+   },
+   {
+    "slug": "maxine_waters",
+    "issue": "justice_balance"
+   },
+   {
+    "slug": "trent_kelly",
+    "issue": "strong_defense",
+    "status": "already both-sided (Phase 11)"
+   },
+   {
+    "slug": "rob_bresnahan",
+    "issue": "stock_trading_ban",
+    "status": "awaiting a verified bill number"
+   }
+  ]
+ }
 }

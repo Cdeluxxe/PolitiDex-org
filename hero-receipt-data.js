@@ -20,36 +20,6 @@
   if (window.PDX_HERO_RECEIPT) return;
   window.PDX_HERO_RECEIPT = [
     {
-      "pid": "wes_moore",
-      "issueKey": "veterans",
-      "name": "Wes Moore",
-      "sub": "Governor · Maryland",
-      "party": {
-        "label": "D",
-        "color": "#60a5fa"
-      },
-      "issue": {
-        "icon": "🎖",
-        "label": "Take Care of Veterans"
-      },
-      "said": {
-        "text": "An Army combat veteran, Moore prioritizes veterans’ services, jobs, and benefits.",
-        "word": "Supports"
-      },
-      "did": "Claimed a Bronze Star on a 2006 application he had not been awarded",
-      "date": "2024",
-      "source": {
-        "label": "The Baltimore Banner",
-        "url": "https://www.thebanner.com/politics-power/state-government/wes-moore-bronze-star-mistake-E2N3DU62XFDNTBYY3ZK2LBNQOU/"
-      },
-      "verdict": {
-        "key": "contradicts",
-        "cls": "v-contradicts",
-        "ico": "⚠",
-        "label": "Says One Thing · Does Another"
-      }
-    },
-    {
       "pid": "rob_bresnahan",
       "issueKey": "stock_trading_ban",
       "name": "Rob Bresnahan",
@@ -80,27 +50,27 @@
       }
     },
     {
-      "pid": "schiff",
-      "issueKey": "gov_transparency",
-      "name": "Adam Schiff",
-      "sub": "U.S. Senator · California",
+      "pid": "wes_moore",
+      "issueKey": "veterans",
+      "name": "Wes Moore",
+      "sub": "Governor · Maryland",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "issue": {
-        "icon": "🔍",
-        "label": "Transparency & Anti-Corruption"
+        "icon": "🎖",
+        "label": "Take Care of Veterans"
       },
       "said": {
-        "text": "A former House Intelligence chair, Schiff centers government accountability, ethics, and checks on executive power.",
+        "text": "An Army combat veteran, Moore prioritizes veterans’ services, jobs, and benefits.",
         "word": "Supports"
       },
-      "did": "Censured by the House over his Trump-Russia investigation claims",
-      "date": "2023",
+      "did": "Claimed a Bronze Star on a 2006 application he had not been awarded",
+      "date": "2024",
       "source": {
-        "label": "NPR",
-        "url": "https://www.npr.org/2023/06/21/1183564794/schiff-censure-house-republicans"
+        "label": "The Baltimore Banner",
+        "url": "https://www.thebanner.com/politics-power/state-government/wes-moore-bronze-star-mistake-E2N3DU62XFDNTBYY3ZK2LBNQOU/"
       },
       "verdict": {
         "key": "contradicts",
@@ -131,6 +101,36 @@
       "source": {
         "label": "The Salt Lake Tribune",
         "url": "https://www.sltrib.com/"
+      },
+      "verdict": {
+        "key": "contradicts",
+        "cls": "v-contradicts",
+        "ico": "⚠",
+        "label": "Says One Thing · Does Another"
+      }
+    },
+    {
+      "pid": "schiff",
+      "issueKey": "gov_transparency",
+      "name": "Adam Schiff",
+      "sub": "U.S. Senator · California",
+      "party": {
+        "label": "D",
+        "color": "#60a5fa"
+      },
+      "issue": {
+        "icon": "🔍",
+        "label": "Transparency & Anti-Corruption"
+      },
+      "said": {
+        "text": "A former House Intelligence chair, Schiff centers government accountability, ethics, and checks on executive power.",
+        "word": "Supports"
+      },
+      "did": "Censured by the House over his Trump-Russia investigation claims",
+      "date": "2023",
+      "source": {
+        "label": "NPR",
+        "url": "https://www.npr.org/2023/06/21/1183564794/schiff-censure-house-republicans"
       },
       "verdict": {
         "key": "contradicts",
