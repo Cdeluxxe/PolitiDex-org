@@ -33,8 +33,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { assertSeedPidsMatchMap } from "./vr-seed-pid-guard.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const SEED_PATH = "db/vr-israel-vote-seed.json";
 const seed = JSON.parse(readFileSync(join(ROOT, "db", "vr-israel-vote-seed.json"), "utf8"));
 const roster = JSON.parse(readFileSync(join(ROOT, "db", "vr-member-map.json"), "utf8"));
 const ROSTER = new Set(Object.values(roster.map));
@@ -50,6 +52,11 @@ if (orphans.size) {
   console.error(`✗ ${orphans.size} politician_id(s) in the seed are not on the roster: ${[...orphans].sort().join(", ")}`);
   process.exit(1);
 }
+
+// On-roster is not the same as correct. A seeded pid can name a real roster member and
+// still be the WRONG member for the Bioguide beside it, which is what the check above
+// cannot see — see scripts/vr-seed-pid-guard.mjs.
+const pidCheck = assertSeedPidsMatchMap(seed, roster, SEED_PATH);
 
 const L = [];
 const total = seed.votes.reduce((n, v) => n + v.memberVotes.length, 0);
@@ -136,4 +143,4 @@ L.push("END $$;");
 L.push("");
 
 process.stdout.write(L.join("\n"));
-console.error(`✓ ${seed.votes.length} rolls · ${total} member votes re-asserted · ${slugs.size} distinct slugs · roster ${ROSTER.size}`);
+console.error(`✓ ${seed.votes.length} rolls · ${total} member votes re-asserted · ${slugs.size} distinct slugs · roster ${ROSTER.size} · ${pidCheck.checked} bioguide→pid pairs agree with the member map`);

@@ -936,6 +936,194 @@ ok(profileChecked > 0,
   "profile resolution: at least one curated id resolved to a roster record, or this " +
   "check is vacuously green");
 
+// ── 12. The member map may not name a different person than the app profiles ──
+// The third face of this bug class, and the one that had no assertion until it fired.
+// Sections 1–11 police pid ↔ label and pid ↔ pid. This one polices bioguide ↔ pid: the
+// seam where scripts/vr-gen-member-map.mjs decides WHOSE roll-call votes get written
+// under a slug, read out of that slug's curated portrait URL.
+//
+// Point one slug's portrait at another member's photo file and the whole record moves:
+// `kennedy` (Rep. Mike Kennedy, R-UT-03, K000403) carried a portrait for K000404, so
+// 27 of Del. Kimberlyn King-Hinds's House votes were written under his id and scored
+// against his 16 stated positions on four issues. `bmoore` (Blake Moore, M001213)
+// pointed at M001209 — Ben McAdams, a Democrat who left in 2021.
+//
+// Nothing downstream can see it: the profile has real stances, the votes have real
+// source URLs, and both ends are internally consistent. The only in-repo witness is
+// that the generator ANNOTATES each entry with the authoritative name for the bioguide
+// it wrote — so the map already carries the contradiction in plain text, and the
+// kennedy entry read `"slug": "kennedy", "name": "Kimberlyn King-Hinds"` for weeks.
+// Comparing those two fields needs no network and no dataset: the surname the map
+// believes it mapped must appear in the name the app publishes for that slug.
+//
+// The generator now refuses to WRITE such a map (checkNamesAgree there does the same
+// comparison against legislators-current.json). This is the committed-file half, so a
+// map edited by hand, or regenerated while the dataset was unreachable, still fails CI.
+const spotlightNames = new Map();
+(function walk(node) {
+  if (!node || typeof node !== "object") return;
+  if (Array.isArray(node)) { for (const v of node) walk(v); return; }
+  if (typeof node.id === "string" && typeof node.name === "string" && !spotlightNames.has(node.id)) {
+    spotlightNames.set(node.id, node.name);
+  }
+  for (const v of Object.values(node)) walk(v);
+})(SPOTLIGHTS);
+
+// A slug's published name: the roster card first, then a spotlight card — a member can
+// carry a portrait and a stance block without a cmp-data record (haley_stevens), and
+// skipping those would leave exactly the kind of unchecked slug this section is for.
+const publishedName = (slug) =>
+  (ROSTER && ROSTER[slug] && ROSTER[slug].name) || spotlightNames.get(slug) || null;
+const surname = (s) => String(s || "")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase().replace(/[.,'’]/g, "").replace(/\s+/g, " ").trim();
+const SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
+
+let mapChecked = 0;
+const mapUnnamed = [];
+const bioSeen = new Map();
+for (const entry of memberMap.members || []) {
+  const { bioguide, slug, name } = entry || {};
+  if (!bioguide || !slug) continue;
+
+  // One bioguide, one slug — the other direction of the same defect: two slugs holding
+  // the same photo would split one member's votes across two profiles.
+  ok(!bioSeen.has(bioguide) || bioSeen.get(bioguide) === slug,
+    `member map: bioguide ${bioguide} is claimed by both '${bioSeen.get(bioguide)}' and ` +
+    `'${slug}' — one member's votes would be split across two profiles`);
+  bioSeen.set(bioguide, slug);
+
+  ok(memberMap.map?.[bioguide] === slug,
+    `member map: members[] says ${bioguide} → '${slug}' but map says ` +
+    `'${memberMap.map?.[bioguide] ?? "(absent)"}' — the ingest reads map, so the ` +
+    `reviewed block and the operative one disagree`);
+
+  const app = publishedName(slug);
+  if (!name || !app) { mapUnnamed.push(`${slug} (${bioguide})`); continue; }
+  mapChecked++;
+  // The map's annotation carries the full official name ("Blake D. Moore"); the app
+  // publishes the common form ("Blake Moore"). The surname is what must agree — and it
+  // is what disagrees when a portrait points at the wrong member. Generational suffixes
+  // come off first: the dataset's official name is "Robert P. Bresnahan, Jr.", and "jr"
+  // is not what the app is publishing instead of a surname.
+  const parts = surname(name).split(" ").filter((w) => !SUFFIXES.has(w));
+  const last = parts[parts.length - 1];
+  ok(surname(app).includes(last),
+    `member map: ${bioguide} → '${slug}' is annotated "${name}", but the app profiles ` +
+    `"${app}" — the portrait in BROWSE_PHOTOS names a different member, so this slug ` +
+    `would receive ${name}'s roll-call votes (run scripts/vr-gen-member-map.mjs)`);
+}
+ok(mapChecked > 50,
+  `member map: only ${mapChecked} of ${(memberMap.members || []).length} entries could be ` +
+  `cross-checked against a published name — this section is close to vacuous`);
+
+// ── 13. A vote seed's cached politician_id may not outlive a map correction ───
+// Section 12 proves the map names the right person. This one proves the vote seeds
+// still agree with it.
+//
+// Every seeded member vote carries both the Bioguide ID it was pulled for and the
+// politician_id the map resolved that Bioguide to AT PULL TIME. The Bioguide is the
+// fact; the pid is a cached lookup. Correct the map and every seed still holding the
+// old answer becomes a loaded gun: the vote-migration generators copy the cached pid
+// straight into SQL, so re-running one re-publishes the stale attribution as a fresh
+// migration — after a repair migration has already deleted those exact rows.
+//
+// That is the shape the kennedy collision took. db/vr-house-seed-119-s2.json paired
+// "K000404" (Del. Kimberlyn King-Hinds) with "kennedy" (Rep. Mike Kennedy) on 24 rows
+// and db/vr-israel-vote-seed.json on a 25th, all now removed. The generators refuse
+// on a mismatch (scripts/vr-seed-pid-guard.mjs), but nothing forces a generator to run
+// before a deploy — so the seeds are asserted here, from committed files, where every
+// push sees them.
+const VOTE_SEEDS = [
+  "db/vr-house-seed-119-s2.json",
+  "db/vr-house-seed-119-s2-earlier.json",
+  "db/vr-israel-vote-seed.json",
+  "db/vr-phase-a-vote-seed.json",
+  "db/vr-senate-seed.json",
+];
+let seedPairs = 0;
+for (const rel of VOTE_SEEDS) {
+  let seed;
+  try {
+    seed = JSON.parse(readFileSync(join(ROOT, rel), "utf8"));
+  } catch {
+    ok(false, `vote seed: ${rel} is missing or is not valid JSON`);
+    continue;
+  }
+  const stale = new Map(); // one failure per distinct disagreement, not per row
+  for (const v of seed.votes || []) {
+    for (const r of v.memberVotes || []) {
+      // No cached pid means the generator resolves this row from the Bioguide, which
+      // is always current — there is nothing here that can go stale.
+      if (r.politicianId == null || !r.bioguideId) continue;
+      seedPairs++;
+      const expected = Object.prototype.hasOwnProperty.call(memberMap.map || {}, r.bioguideId)
+        ? memberMap.map[r.bioguideId]
+        : null;
+      if (expected === r.politicianId) continue;
+      const key = `${r.bioguideId}|${r.politicianId}|${expected}`;
+      if (!stale.has(key)) stale.set(key, { ...r, expected, n: 0, where: `${v.session}/${v.rollNumber}` });
+      stale.get(key).n++;
+    }
+  }
+  for (const s of stale.values()) {
+    ok(false,
+      `vote seed: ${rel} attributes ${s.n} vote(s) by ${s.bioguideId} to '${s.politicianId}' ` +
+      `(first at roll ${s.where}), but db/vr-member-map.json resolves that Bioguide to ` +
+      `${s.expected === null ? "no roster slug" : `'${s.expected}'`} — regenerating this seed's ` +
+      `migration would publish one member's votes under another's name`);
+  }
+}
+ok(seedPairs > 1000,
+  `vote seeds: only ${seedPairs} bioguide→politician_id pair(s) found across ${VOTE_SEEDS.length} ` +
+  `seed file(s) — this section is close to vacuous`);
+
+// ── 14. The shipped stance shards may not fall behind their source ───────────
+// politician-stances.js is the CURATED source of truth; the page loads
+// politician-stances-core.js + -ext.js, which scripts/split-stances.mjs generates
+// from it. Nothing enforces that regeneration, and the failure is completely silent:
+// a curated card lands in the monolith, every offline census counts it, and the
+// browser never sees it. That is exactly what happened — 162 cards (97 israel_support,
+// 36 election_security, 29 voting_access) sat in the source while the shards the page
+// loads had none of them, so three passes of "coverage" were dark in the product.
+// Compared by (issueKey, topic) per politician, which is how findStance() addresses a
+// card, so a re-worded card is not a false positive but a NEW or MISSING card is caught.
+let shardsChecked = 0;
+{
+  const shardData = loadGlobal("politician-stances-core.js", "ISSUE_STANCE_DATA");
+  const extData = loadGlobal("politician-stances-ext.js", "ISSUE_STANCE_DATA");
+  const merged = {};
+  for (const src of [shardData, extData]) {
+    for (const pid of Object.keys(src || {})) {
+      merged[pid] = (merged[pid] || []).concat(src[pid] || []);
+    }
+  }
+  const MONO = loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
+  ok(MONO && Object.keys(MONO).length > 100, "stance shards: read the source monolith");
+  ok(Object.keys(merged).length > 100, "stance shards: read the two shipped chunks");
+  const cardKey = (c) => `${c && c.issueKey}|${c && c.topic}`;
+  const missing = new Map();   // issueKey → count
+  let missingTotal = 0, firstMissing = null;
+  for (const pid of Object.keys(MONO || {})) {
+    const shipped = new Set((merged[pid] || []).map(cardKey));
+    for (const c of MONO[pid] || []) {
+      if (shipped.has(cardKey(c))) continue;
+      missingTotal++;
+      missing.set(c.issueKey, (missing.get(c.issueKey) || 0) + 1);
+      if (!firstMissing) firstMissing = `${pid} · ${c.issueKey} · ${c.topic}`;
+    }
+  }
+  ok(missingTotal === 0,
+    `stance shards: ${missingTotal} curated card(s) exist in politician-stances.js but not in the ` +
+    `shards the page loads (${[...missing].map(([k, n]) => `${k}=${n}`).join(", ")}; first: ` +
+    `${firstMissing}) — run \`node scripts/split-stances.mjs\` to publish them`);
+  let orphanPids = 0;
+  for (const pid of Object.keys(merged)) if (!MONO[pid]) orphanPids++;
+  ok(orphanPids === 0,
+    `stance shards: ${orphanPids} politician(s) appear in the shards but not in the source monolith`);
+  shardsChecked = missingTotal === 0 ? Object.keys(MONO || {}).length : 0;
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);
@@ -955,6 +1143,12 @@ console.log(`  utah maps: ${infoChecked} sitting senator(s) and ${hInfoChecked} 
   `${rosterDistChecked} roster record(s) agree with the seat they are wired to · ` +
   `${krLocalChecked} regional Key Races race(s) agree with the info maps · ` +
   `${chamberChecked} entr(ies) checked for a cross-chamber collision`);
+console.log(`  member map: ${mapChecked} bioguide→pid entr(ies) agree with the name the app ` +
+  `publishes${mapUnnamed.length ? `, ${mapUnnamed.length} unnamed and unverifiable [${mapUnnamed.join(", ")}]` : ""}`);
+console.log(`  vote seeds: ${seedPairs} seeded bioguide→pid pair(s) across ${VOTE_SEEDS.length} ` +
+  `seed file(s) still agree with the member map`);
+console.log(`  stance shards: every curated card for ${shardsChecked} politician(s) in ` +
+  `politician-stances.js is present in the two chunks the page loads`);
 if (dupeTopics.length) {
   console.log(`  note: ${dupeTopics.length} stance block(s) repeat a topic string, so the later ` +
     `card is unreachable via findStance() — pre-existing, not merge-related:`);

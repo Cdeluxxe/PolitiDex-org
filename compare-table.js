@@ -260,6 +260,29 @@
     return out;
   }
 
+  // The two election facets are the one place in this table where the SAME word
+  // means opposite things from one row to the next: under 🔐 Election Security
+  // "Supports" is pro-safeguard, under 📩 Expand Voting Access it is pro-access.
+  // Side by side and unlabelled, a member who backs safeguards and opposes wider
+  // access reads as a self-contradiction, which is not what the cards say. This
+  // adds one line of direction copy to those two rows and nothing else — no
+  // change to the agreement maths, which compares within a row, never across.
+  function _cmpAxisHint(issueKey) {
+    const BA = window.PDXBallotAxes;
+    if (!BA || typeof BA.isAxisKey !== 'function') return '';
+    const e = (t) => String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    try {
+      if (!BA.isAxisKey(issueKey)) return '';
+      const mine = BA.axisMeta(issueKey === BA.KEYS.security ? 'security' : 'access');
+      const other = BA.axisMeta(issueKey === BA.KEYS.security ? 'access' : 'security');
+      if (!mine || !other) return '';
+      return '<div class="bax-tablehint">' + mine.icon + ' “Supports” here = '
+        + e(String(mine.dir.support).toLowerCase())
+        + '. Judged separately from ' + other.icon + ' ' + e(other.shortLabel.toLowerCase()) + '.</div>';
+    } catch (err) { return ''; }
+  }
+
   // Render one politician's stance cell for the issue comparison. When the Locker
   // holds receipts for this person on this issue, the cell becomes a one-tap
   // drill-in — closing the compare overlay and opening the Evidence Locker
@@ -852,6 +875,7 @@
           : '';
         const labelCell = `<td class="cmp-row-label cmp-issue-label">${iss.label}`
           + mineTag
+          + _cmpAxisHint(iss.issueKey)
           + (mandateTag ? `<div style="margin-top:0.25rem;">${mandateTag}</div>` : '')
           + `<div><span class="cmp-issue-agree-badge ${bm.cls}">${bm.ico} ${bm.lbl}</span></div>`
           + allEv + `</td>`;

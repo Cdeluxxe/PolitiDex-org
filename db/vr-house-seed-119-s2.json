@@ -5306,13 +5306,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -5610,13 +5603,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -5911,13 +5897,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "yea",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
           "isParty": "with_party"
         },
         {
@@ -6225,13 +6204,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -6534,13 +6506,6 @@
           "party": "D",
           "position": "nay",
           "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "against_party"
         },
         {
           "bioguideId": "K000389",
@@ -9576,13 +9541,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -9876,13 +9834,6 @@
           "bioguideId": "C001101",
           "politicianId": "kclark",
           "party": "D",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
           "position": "nay",
           "isParty": "with_party"
         },
@@ -10184,13 +10135,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -10485,13 +10429,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "yea",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
           "isParty": "with_party"
         },
         {
@@ -10792,13 +10729,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -11093,13 +11023,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
           "isParty": "with_party"
         },
         {
@@ -11407,13 +11330,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -11711,13 +11627,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -12011,13 +11920,6 @@
           "bioguideId": "C001101",
           "politicianId": "kclark",
           "party": "D",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
           "position": "nay",
           "isParty": "with_party"
         },
@@ -12319,13 +12221,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -12620,13 +12515,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
           "isParty": "with_party"
         },
         {
@@ -12934,13 +12822,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "against_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -13236,13 +13117,6 @@
           "party": "D",
           "position": "nay",
           "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "against_party"
         },
         {
           "bioguideId": "K000389",
@@ -13542,13 +13416,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -13843,13 +13710,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
           "isParty": "with_party"
         },
         {
@@ -15069,13 +14929,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -15370,13 +15223,6 @@
           "politicianId": "kclark",
           "party": "D",
           "position": "nay",
-          "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
           "isParty": "with_party"
         },
         {
@@ -15684,13 +15530,6 @@
           "isParty": "with_party"
         },
         {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "yea",
-          "isParty": "with_party"
-        },
-        {
           "bioguideId": "K000389",
           "politicianId": "khanna",
           "party": "D",
@@ -15993,13 +15832,6 @@
           "party": "D",
           "position": "nay",
           "isParty": "with_party"
-        },
-        {
-          "bioguideId": "K000404",
-          "politicianId": "kennedy",
-          "party": "R",
-          "position": "nay",
-          "isParty": "against_party"
         },
         {
           "bioguideId": "K000389",

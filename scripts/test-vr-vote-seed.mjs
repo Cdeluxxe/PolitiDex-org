@@ -53,13 +53,27 @@ const MAPPED = new Set((ISSUE_SEED.measures || [])
 // report. Deliberately narrow — anything else needs its own mapping before its own roll.
 const DECISIVE = /^(on passage|on the motion \(motion to concur|on motion to concur|on concurring|on the conference report|on motion to suspend the rules and (pass|agree|concur))/i;
 
+// ── PASSAGE FORMS ───────────────────────────────────────────────────────────
+// DECISIVE is written around the caption the two chambers use for a bill. The Senate does
+// not use it for every measure shape: it disposes of a joint resolution as "On the Joint
+// Resolution H.J.Res. NN", which is the up-or-down vote on the text itself — the same act
+// DECISIVE already admits under "On Passage", spelled differently. So these are passage,
+// not exceptions, and they carry no argumentative burden. Each is still gated on the
+// measure shape, so the caption alone can never admit a roll on something else. Nothing
+// procedural wears this caption: motions arrive as "On the Motion to …" and cloture as
+// "On Cloture Motion", and both stay out.
+const PASSAGE_FORMS = [
+  { name: 'joint resolution', question: /^on the joint resolution\b/i, number: /^(h|s)\.j\.\s*res\./i },
+];
+
 // ── EXCEPTIONS ──────────────────────────────────────────────────────────────
 // Two question forms sit outside DECISIVE while still being the whole substantive record
 // of what they decide. Each is admitted for ONE measure shape, so the caption alone can
 // never let a roll through, and each must ship a `decisiveWhy` on the vote — the reason
 // travels with the data instead of living only in a reviewer's memory.
 //
-//   amendment  "On Agreeing to the Amendment" on an H.Amdt./S.Amdt. measure. An amendment
+//   amendment  "On Agreeing to the Amendment" (House) or "On the Amendment" (Senate) on an
+//              H.Amdt./S.Amdt. measure — one act under two clerks' captions. An amendment
 //              never gets a passage vote; agreeing to it IS its disposition, and the
 //              alternative is a permanently unscoreable class of directional floor votes.
 //   discharge  "On the Motion to Discharge" on a joint resolution. Under the Arms Export
@@ -73,7 +87,7 @@ const DECISIVE = /^(on passage|on the motion \(motion to concur|on motion to con
 // Note how narrow the gate is: "On the Motion to Discharge" on a BILL still fails, because
 // there the discharge really is a step toward a later passage vote.
 const EXCEPTIONS = [
-  { name: 'amendment', question: /^on agreeing to the amendment/i, number: /^(h|s)\.\s*amdt\./i },
+  { name: 'amendment', question: /^on (agreeing to )?the amendment\b/i, number: /^(h|s)\.\s*amdt\./i },
   { name: 'discharge', question: /^on the motion to discharge/i, number: /^(h|s)\.j\.\s*res\./i },
 ];
 
@@ -155,13 +169,14 @@ for (const file of seedFiles) {
     // ── runbook rule 8: decisive questions only ───────────────────────────
     const question = String(v.question || '');
     const num = String(m.number || '');
+    const passageForm = PASSAGE_FORMS.find(p => p.question.test(question) && p.number.test(num));
     const exception = EXCEPTIONS.find(e => e.question.test(question) && e.number.test(num));
-    ok(DECISIVE.test(question) || !!exception,
+    ok(DECISIVE.test(question) || !!passageForm || !!exception,
       `${at}: question "${v.question}" is not a decisive vote — procedural rolls are not scoreable`);
     // An exception is a judgement about one measure shape, so it has to be argued in the
     // seed. Without this the two patterns would quietly widen into a loophole: any roll
     // captioned "On Agreeing to the Amendment" would pass review by matching a regex.
-    if (exception && !DECISIVE.test(question)) {
+    if (exception && !DECISIVE.test(question) && !passageForm) {
       ok(typeof v.decisiveWhy === 'string' && v.decisiveWhy.trim().length >= 24,
         `${at}: admitted under the ${exception.name} exception but carries no decisiveWhy — `
         + 'a non-passage question is only scoreable if the seed states why it decided the substance');

@@ -118,6 +118,19 @@
     { key: 'healthcare',  label: '🏥 Healthcare Costs',  test: function (k, d) { return d.cat === 'health' || (d.stanceKeys || []).indexOf('healthcare') !== -1; } },
     { key: 'energy',      label: '💧 Energy & Water',    test: function (k, d) { return d.cat === 'enviro' || d.cat === 'land'; } },
     { key: 'elections',   label: '🗳 Elections',         test: function (k, d) { return d.cat === 'democracy' || (d.stanceKeys || []).indexOf('campaign') !== -1; } },
+    // The two-axis elections vertical, promoted to its own chip. 'elections'
+    // above is the whole democracy category (campaign finance, term limits, the
+    // legacy election_integrity / voter_id keys); this one narrows to exactly the
+    // two facets that are scored independently — 🔐 safeguards and 📩 access — so
+    // a reader can reach both halves of the pair in one tap instead of finding
+    // them scattered through the wider category. Membership comes from
+    // PDXBallotAxes so the chip and the model can never disagree; the literal
+    // key test is the fallback when that module has not loaded.
+    { key: 'ballot',      label: '🗳 Security + Access', test: function (k) {
+        var BA = G('PDXBallotAxes');
+        if (BA && typeof BA.isAxisKey === 'function') { try { return BA.isAxisKey(k); } catch (e) {} }
+        return k === 'election_security' || k === 'voting_access';
+      } },
     // Institutional power. `cat` is 'reform' for these, which it shares with term
     // limits / ethics / court-reform issues, so the predicate matches on the two
     // keywords only the institutional keys carry ('separation of powers' for
@@ -341,6 +354,10 @@
       '</div>' +
       '<div class="sl-pol-sig">' + pill + '</div>' +
       texts +
+      // Where this member lands on the OTHER elections axis. Only ever non-empty
+      // on 🔐 election_security / 📩 voting_access, so it reads as a split flag
+      // exactly where a split can exist and adds nothing to any other issue.
+      axesCompanionHtml(p.id, issueKey) +
       // Voting-record rollup — filled in asynchronously by fillRecordCards once the
       // per-issue record fetch resolves. Stays empty (and invisible) for anyone with
       // no votes on record, so the card is unchanged when there's nothing to show.
@@ -413,6 +430,30 @@
     refreshAdopt(issueKey);   // immediate feedback (pdx-stances-change also refreshes)
   }
 
+  // ── Two-axis elections vertical (ballot-axes.js) ─────────────────────────
+  // 🔐 election_security and 📩 voting_access are separate ISSUE_MAP keys by
+  // design, so the Library — which shows one key at a time — is where the pair
+  // is easiest to miss. Both helpers below are guarded and return '' when
+  // ballot-axes.js is absent or the open issue is not one of the two facets.
+  function axesExplainerHtml(issueKey) {
+    var BA = G('PDXBallotAxes');
+    if (!BA || typeof BA.explainerHtml !== 'function' || typeof BA.isAxisKey !== 'function') return '';
+    try {
+      if (!BA.isAxisKey(issueKey)) return '';
+      // The cross-link opens the other axis inside the Library itself, so the
+      // reader stays in the surface they are already browsing.
+      return BA.explainerHtml({ activeKey: issueKey, onKey: 'data-sl-axis="%KEY%"' });
+    } catch (e) { return ''; }
+  }
+  // The "other axis" line under one member's card: where they land on the facet
+  // that is NOT currently on screen, flagged when the two point different ways.
+  function axesCompanionHtml(pid, issueKey) {
+    var BA = G('PDXBallotAxes');
+    if (!BA || typeof BA.companionHtml !== 'function') return '';
+    try { return BA.companionHtml(pid, issueKey, { record: polMeta(pid) }) || ''; }
+    catch (e) { return ''; }
+  }
+
   function detailHtml(issueKey) {
     var b = _index[issueKey]; var m = issueMeta(issueKey);
     var c = b.counts;
@@ -473,6 +514,13 @@
         '</div>' +
       '</div>' +
       adoptHtml(issueKey) +
+      // Two-axis explainer — shown only on 🔐 election_security and 📩
+      // voting_access. Those two keys are scored independently and read in
+      // OPPOSITE directions ("supports" = pro-safeguard on one, pro-access on the
+      // other), which is exactly the thing an issue-first surface hides: a reader
+      // lands on one key and never learns the other exists. This states the model
+      // and cross-links the paired axis in one tap. Additive — '' everywhere else.
+      axesExplainerHtml(issueKey) +
       '<div class="sl-jnav">' + jnav + '</div>' +
       // Issue-level distributional summary ("who this issue's measures affect").
       // Self-hydrating placeholder; hidden until data lands, so issues with no
@@ -706,6 +754,14 @@
       if (t.closest && t.closest('#sl-back')) { state.view = 'browse'; renderBrowse(); return; }
       var jump = t.closest && t.closest('[data-sl-jump]');
       if (jump) { var sec = el('sl-sec-' + jump.getAttribute('data-sl-jump')); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      // Two-axis cross-link: swap the detail view to the paired elections facet.
+      // Guarded on the index so a key with no cards can never open an empty detail.
+      var axis = t.closest && t.closest('[data-sl-axis]');
+      if (axis) {
+        var ak = axis.getAttribute('data-sl-axis');
+        if (_index && _index[ak]) renderDetail(ak);
+        return;
+      }
       var votes = t.closest && t.closest('[data-sl-votes]');
       if (votes) { openProfileVotes(votes.getAttribute('data-sl-votes'), votes.getAttribute('data-sl-vk')); return; }
       var prof = t.closest && t.closest('[data-sl-profile]');

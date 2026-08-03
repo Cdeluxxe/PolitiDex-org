@@ -140,9 +140,61 @@
       deportations:       { label: '🚨 Mass Deportations & Border Security', chip: 'Carry out large-scale deportations of people here illegally and fully lock down the border', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['deportation','deportations','mass deportation','mass deportations','border security','illegal immigration','ice','removal','remove','secure the border','interior enforcement'] },
 
       // ── Gun Policy ──
-      gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
+      // Firearms policy is TWO facets, not one axis, and the two existing keys already
+      // ARE those facets — so they are reused rather than replaced. gun_rights and
+      // gun_safety are descriptive of what a policy does ("the right to carry", "require
+      // background checks"), not movement brands, and every gun card in the library
+      // already sits on one of them. Introducing new keys would fragment 110+ cards and
+      // three existing vote mappings for no gain.
+      //   gun_rights  — the scope of the individual right to acquire, keep and carry.
+      //   gun_safety  — screening, removal and storage rules aimed at misuse.
+      // The two are scored independently. A record can be 'support' on both (the
+      // Bipartisan Safer Communities Act coalition: expanded background checks AND an
+      // explicit no-registry guarantee), 'oppose' on both, or one of each. Nothing in
+      // the scoring couples them, and a member's percentage under one facet says
+      // nothing about the other.
+      //
+      // WHAT "SUPPORTS" MEANS ON EACH AXIS, INDEPENDENTLY
+      // gun_rights — the chip states the PRO-RIGHTS direction. issueStance:'support' =
+      //   backs carry and self-defence rights (concealed/constitutional carry,
+      //   interstate reciprocity, carry on federal land or installations), backs Second
+      //   Amendment protections against registry, purchase-tracking and licensing
+      //   burdens, and opposes broad category bans on commonly-owned firearms or
+      //   magazines. 'oppose' = holds the right is narrower than that and backs those
+      //   restrictions. 'mixed' = backs the right but not a specific instrument (e.g.
+      //   pro-carry, pro-suppressor-ban). An Official Record % here means "this share of
+      //   their judged votes widened, or refused to narrow, the right".
+      // gun_safety — the chip states the PRO-REGULATION direction. issueStance:'support'
+      //   = backs background-check expansion, red-flag / extreme-risk orders,
+      //   assault-style and high-capacity-magazine restrictions, safe-storage
+      //   requirements, and trafficking / straw-purchase enforcement. 'oppose' = holds
+      //   those measures ineffective or unconstitutional. 'mixed' = backs some
+      //   instruments and not others (e.g. pro-trafficking-enforcement,
+      //   anti-red-flag). An Official Record % here means "this share of their judged
+      //   votes tightened rules aimed at misuse".
+      // These are NOT mirror images. Suppressor deregulation and ATF-rule repeal touch
+      // gun_rights alone; trafficking-enforcement funding and safe-storage grants touch
+      // gun_safety alone. Where a package genuinely does both in opposite directions —
+      // S. 2938 in the 117th, which expanded background checks while writing a
+      // no-registry guarantee into law — it is mapped to both facets with opposite
+      // supportMeaning rather than forced into one verdict.
+      //
+      // gun_balance is NOT a facet and stays exactly as it is. Its chip ("Keep legal gun
+      // ownership but require universal background checks and red-flag laws") is a
+      // composite verdict — it asserts a position on both axes at once, which is the
+      // thing the two-facet split exists to avoid. It remains a legacy middle key for
+      // the members whose stated position really is that blend; its cards count toward
+      // NEITHER facet's coverage, and no card was re-keyed off it.
+      // KNOWN ASYMMETRY: gun_rights carries lean:'R' and gun_safety lean:'D', so the two
+      // facets are not scored symmetrically — the same asymmetry election_security /
+      // voting_access carries. Both leans are left in place deliberately:
+      // _alignApplyLean multiplies lean into every Alignment score, so dropping either
+      // would silently move published percentages for every member already carrying a
+      // gun card. Removing them is a scoring change and belongs in its own pass, not in
+      // an additive content pass.
+      gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry','carry','right to carry','reciprocity','concealed carry reciprocity','self-defense','self defense','right to bear arms','magazine ban','gun ban','firearm registry','no registry','suppressor','hearing protection','atf','gun owner','law-abiding'] },
       gun_balance:        { label: '⚖️ Rights + Common-Sense Safety', chip: 'Keep legal gun ownership but require universal background checks and red-flag laws', cat: 'guns', stanceKeys: ['gun'], keywords: ['background check','gun safety','second amendment','firearm','responsible','red flag','mental health','common sense','gun reform'] },
-      gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
+      gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','universal background check','red flag','extreme risk','assault weapon','assault-style','high-capacity','high capacity magazine','safe storage','secure storage','gun trafficking','straw purchase','ghost gun','untraceable firearm','bump stock','gun violence','gun reform','boyfriend loophole'] },
 
       // ── Education ──
       school_choice:      { label: '🎓 School Choice & Education Freedom', chip: 'Fund vouchers and charters so families can pick their school', cat: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','education freedom','voucher','vouchers','school vouchers','charter','scholarship','homeschool','parental rights','parental choice'] },
@@ -283,9 +335,72 @@
       privacy_rights:     { label: '🔒 Privacy & Big-Tech Accountability', chip: 'Protect personal data and hold Big Tech accountable', cat: 'tech', stanceKeys: [], keywords: ['privacy','data privacy','surveillance','fisa','section 702','big tech','data','section 230','antitrust','consumer protection','encryption','warrant'] },
 
       // ── Elections & Democracy ──
+      // Election administration is TWO facets, not one axis. A record can be
+      // pro-safeguard and pro-access at the same time (the Utah vote-by-mail
+      // position — 24/7 video-surveilled drop boxes, an envelope-ID requirement AND
+      // universal mail ballots — is exactly that), or oppose both, or split them. A
+      // single blended chip cannot express any of those without editorializing, and
+      // democracy_balance's chip ("Require voter ID but keep early voting and mail
+      // ballots widely available") forces one composite verdict on members who never
+      // took a composite position. So the two facets are keyed separately:
+      //   election_security  — safeguards on who votes and how ballots are handled.
+      //   voting_access      — how easy it is to register and to cast a ballot.
+      // A member may be 'support' on both, 'oppose' on both, or one of each; nothing
+      // in the scoring couples them.
+      //
+      // election_security is a NEW key rather than a reuse of election_integrity or
+      // voter_id, for three reasons.
+      //   1. "Election integrity" is a movement brand, not a description of a policy.
+      //      Its chip narrows the facet to "voter ID and audits", which leaves
+      //      chain-of-custody, ballot-handling safeguards and anti-fraud enforcement
+      //      with nowhere to go, and it carries lean:'R' — a partisan prior on a
+      //      question that draws support across both parties in principle.
+      //   2. voter_id names one instrument (photo ID) and then duplicates
+      //      election_integrity's keyword list wholesale; every member carrying a
+      //      voter_id card also carries an election_integrity card saying the same
+      //      thing. A facet key has to be able to hold a chain-of-custody position
+      //      that has nothing to do with ID.
+      //   3. Both existing keys are already load-bearing on published pages, so they
+      //      are left exactly as they are. This is additive: no card is re-keyed, no
+      //      lean is changed, no score moves. The older keys keep their cards; new
+      //      sourced work lands on the facet keys.
+      // POLARITY: the chip states the PRO-SAFEGUARD direction, so issueStance:'support'
+      // = backs tighter verification and ballot-handling safeguards, 'oppose' = holds
+      // those safeguards are unnecessary or suppressive, 'mixed' = backs safeguards
+      // with reservations about a specific mechanism or a federal mandate. An Official
+      // Record % under this key means "this share of their judged votes favoured
+      // tighter safeguards".
+      // Deliberately carries NO `lean`, following israel_support: the coalitions are
+      // not clean party blocs — Republicans from universal-mail-ballot states have
+      // voted against federal restrictions on mail voting, and audit and
+      // chain-of-custody funding passes with cross-party majorities. Coding this R
+      // would import election_integrity's prior, which is the thing being avoided.
+      // SCOPE: eligibility verification (documentary proof of citizenship, ID),
+      // voter-roll maintenance, ballot chain-of-custody and handling rules,
+      // post-election audits and audit conditions on election funding, and
+      // enforcement against fraud or non-citizen voting. OUT of scope: campaign
+      // finance (campaign_finance), redistricting, certification of results and
+      // Electoral Count Act questions (checks_balances) — those are not
+      // administration of the ballot.
+      election_security:  { label: '🔐 Election Security & Ballot Safeguards', chip: 'Verify eligibility and secure how ballots are handled, tracked and audited', cat: 'democracy', stanceKeys: ['campaign'], keywords: ['election security','ballot security','chain of custody','ballot handling','proof of citizenship','documentary proof of citizenship','citizenship verification','noncitizen voting','non-citizen voting','voter id','voter identification','photo id','voter roll','voter rolls','list maintenance','post-election audit','risk-limiting audit','audit','signature verification','ballot tracking','drop box security','election funding conditions','voter fraud','election crimes'] },
       election_integrity: { label: '🗳 Election Integrity', chip: 'Secure elections with voter ID and audits', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['election integrity','voter id','election security','audit','clean elections','citizenship verification','ballot security','fraud','voter rolls'] },
       voter_id:           { label: '🪪 Voter ID & Election Integrity', chip: 'Require photo ID to vote and tighten safeguards against voter fraud', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['voter id','voter identification','photo id','election integrity','voter fraud','ballot security','clean elections','citizenship verification','proof of citizenship'] },
       democracy_balance:  { label: '⚖️ Secure & Accessible Voting', chip: 'Require voter ID but keep early voting and mail ballots widely available', cat: 'democracy', stanceKeys: ['termLimits','campaign'], keywords: ['voting','elections','secure','accessible','bipartisan','term limits','transparency','accountability','reform','campaign finance','redistricting','voter id','mail voting','early voting'] },
+      // voting_access IS the ballot_access facet — reused rather than duplicated. Its
+      // label is descriptive rather than branded, its scope already covers
+      // registration ease, early voting, mail ballots and drop boxes, its keywords
+      // already include 'ballot access', and every genuine stated access position in
+      // the library already sits here. A second key would fragment that record for no
+      // gain.
+      // POLARITY: the chip states the PRO-ACCESS direction — issueStance:'support' =
+      // backs easier registration and more ways to cast a ballot, 'oppose' = backs
+      // narrowing them, 'mixed' = backs access with conditions.
+      // KNOWN ASYMMETRY: this key carries lean:'D' while election_security carries no
+      // lean, so the two facets are not scored symmetrically. The lean is left in
+      // place deliberately — _alignApplyLean multiplies it into every Alignment score,
+      // so dropping it would silently move published percentages for every member
+      // already carrying a voting_access card. Removing it is a scoring change and
+      // belongs in its own pass, not in an additive content pass.
       voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] },
 
       // ── Government Reform & Term Limits ──
@@ -371,7 +486,7 @@
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
       { key: 'election_integrity', label: '🗳 Election Integrity',
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
-        keys: ['election_integrity','democracy_balance','voting_access','voter_id'] },
+        keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Who Decides',
         blurb: 'War powers, the power of the purse, congressional oversight, court orders, and the line between federal and state authority.',
         keys: ['checks_balances','states_federal_power'] },
@@ -2509,7 +2624,14 @@
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
       'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp', 'datacenter_growth',
-      'tariffs_growth', 'tariffs_prices'
+      'tariffs_growth', 'tariffs_prices',
+      // The two-axis elections vertical. Both are offered because they are scored
+      // independently and read in opposite directions — 🔐 "support" is
+      // pro-safeguard, 📩 "support" is pro-access — so a visitor who wants
+      // stricter verification AND easier registration can say exactly that
+      // instead of being forced onto one combined election axis. Quick Picks only
+      // offers chips; nothing here changes how any score is computed.
+      'election_security', 'voting_access'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
@@ -2520,7 +2642,8 @@
     // small 🔥 in Quick Picks so they're easy to spot as fresh, hot-topic picks.
     var ALIGN_HOT_ISSUES = {
       end_dei: 1, america_first_fp: 1, tariffs_china: 1, voter_id: 1,
-      tough_on_crime: 1, deportations: 1, tariffs_growth: 1, tariffs_prices: 1
+      tough_on_crime: 1, deportations: 1, tariffs_growth: 1, tariffs_prices: 1,
+      election_security: 1, voting_access: 1
     };
 
     function _alignRenderQuickPicks() {

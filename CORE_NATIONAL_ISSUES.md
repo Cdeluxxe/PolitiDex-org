@@ -27,7 +27,7 @@ lookup). Validated by `scripts/define-core-national-issues-jun2026.mjs`.
 | 6 | **Gun Rights & Gun Control** | `gun_rights`, `gun_balance`, `gun_safety` |
 | 7 | **Climate Change & Energy Policy** | `climate_action`, `enviro_energy`, `enviro_balance`, `lands_energy`, `disaster_resilience`, `water`, `water_storage` |
 | 8 | **Crime & Public Safety** | `back_police`, `justice_balance`, `justice_reform`, `cannabis_reform` |
-| 9 | **Election Integrity** | `election_integrity`, `democracy_balance`, `voting_access` |
+| 9 | **Election Integrity** | `election_integrity`, `election_security`, `democracy_balance`, `voting_access`, `voter_id` |
 | 10 | **Education & Parental Rights** | `school_choice`, `edu_balance`, `public_schools`, `edu_college_cost`, `edu_parental` |
 | 11 | **Civil Rights, Culture & DEI** | `religious_liberty`, `rights_balance`, `lgbtq_rights`, `free_speech`, `end_dei` |
 | 12 | **Foreign Policy & National Security** | `strong_defense`, `foreign_balance`, `restraint`, `america_first`, `america_first_fp`, `veterans` |

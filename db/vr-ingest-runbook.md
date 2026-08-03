@@ -334,8 +334,9 @@ rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
 12. **The decisive-question gate takes shape-gated exceptions, never a loosened regex.**
    Rule 8 admits passage, concurrence and conference reports only. Two question forms
    decide substance without being any of those, and `scripts/test-vr-vote-seed.mjs` now
-   admits each for exactly one measure shape: "On Agreeing to the Amendment" on an
-   `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge" on an `S.J.Res.`/`H.J.Res.`. The
+   admits each for exactly one measure shape: "On Agreeing to the Amendment" (House) or
+   "On the Amendment" (Senate) on an `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge"
+   on an `S.J.Res.`/`H.J.Res.`. The
    second is the load-bearing one for arms-sale disapproval: under the Arms Export Control
    Act the resolution is the only vehicle, the discharge motion is the only vote the Senate
    ever takes on it, and a nay there is a recorded decision to let the sale proceed. Note
@@ -343,6 +344,13 @@ rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
    there the discharge really is a step toward a later passage vote. Every roll admitted
    under an exception must carry a `decisiveWhy` of at least 24 characters saying why the
    question decided the substance; the test fails the seed otherwise.
+   Kept separate from the exceptions is a shorter `PASSAGE_FORMS` list, for captions that
+   *are* passage under a chamber's own house style rather than something argued into the
+   set. It holds one entry: "On the Joint Resolution" on an `H.J.Res.`/`S.J.Res.`, the
+   Senate's caption for the up-or-down vote on a joint resolution's text — the same act as
+   "On Passage", which is why it carries no `decisiveWhy`. It is still shape-gated, and
+   nothing procedural wears that caption: Senate motions read "On the Motion to …" and
+   cloture reads "On Cloture Motion". Both stay out.
 
 ## Support for Israel — the first issue-complete vertical, and what's queued
 
@@ -463,19 +471,66 @@ Queued, in priority order:
    Moving it would be non-additive and purely cosmetic — `is_primary` drives sort order,
    the "Primary" badge and the Legislation-library link, never scoring — so it waits for a
    pass that is allowed to rewrite existing rows.
-5. **The remaining 73 unadmitted portraits.** Every one has a readable Bioguide and would
+5. **The remaining 72 unadmitted portraits.** Every one has a readable Bioguide and would
    widen attribution across every ingested issue at once. Admission is cheap to write and
    expensive to get wrong, so it belongs in a pass that can re-measure the whole record —
    it must respect the photo gate in `scripts/test-photo-coverage.mjs`, which requires
    a bundled face for every roster slug, and under rule 18 it must re-run every vote-seed
    builder rather than just one.
 
-One naming collision a reader of the coverage table will trip over: the slug `kennedy` is
-**Kimberlyn King-Hinds** (K000404, House, MP), not Senator John Kennedy (K000393), who has
-no roster entry. That is why "Kennedy (LA)" on the nine Senate rolls resolves to nothing
-and is correctly skipped, and why `kennedy` shows a single House amendment vote. Pre-existing
-and out of scope for an additive pass, but it should be fixed before either name is
-published in a ranking.
+One naming collision a reader of the coverage table would have tripped over is now repaired,
+and the correction matters more than the original note. The slug `kennedy` is **Rep. Mike
+Kennedy** (K000403, R-UT-03) — the id cmp-data.js, the UT-03 ballot breakdown and 16 curated
+stance cards all belong to. Its portrait pointed at K000404, **Del. Kimberlyn King-Hinds**
+(R-MP), so `scripts/vr-gen-member-map.mjs` derived `K000404 → kennedy` and 27 of her House
+votes were written under his id, where they scored against his stated positions on four
+issues. The portrait is repointed, the map regenerated, and
+`20260815000000_vr_fix_kennedy_identity_collision.sql` removes those 27 rows; the 2 that
+survive (119/1 rolls 112 and 114, H.J.Res. 89 and 88) are his own, seeded by name and
+confirmed against the Clerk record. King-Hinds now resolves to no slug and is skipped.
+
+Senator **John Kennedy** (K000393, R-LA) is `kennedy_john`, and his 17 Senate votes were
+always attributed correctly — they were seeded by name, not through the map. He was simply
+absent from the map, so an automated Senate ingest would have skipped him; he is now admitted
+under the `kennedy_identity_aug2026` wave in `db/vr-roster-admitted.json` and K000393 resolves
+to his own id.
+
+Both defects are now unrepeatable rather than merely fixed: the generator refuses to write a
+map where an admitted slug's portrait Bioguide names someone else, and
+`scripts/test-identity-integrity.mjs` §12 asserts the same agreement from committed files
+alone. That check found a second live instance on its first run — `bmoore` (Blake Moore,
+M001213) pointing at M001209, Ben McAdams, a Democrat who left in 2021. No vote row needed
+repair there, because every `bmoore` row was seeded by name and verifies against the Clerk
+record as Blake Moore's own.
+
+### The vote seeds cache the map's answer, so they had to be corrected too
+
+Every `memberVotes` row in a vote seed carries both the `bioguideId` it was pulled for and
+the `politicianId` the map resolved that Bioguide to **at pull time**. The Bioguide is the
+fact; the pid is a cached lookup. Correcting the map does not update the seeds, and four
+generators — `vr-gen-house-migration.mjs`, `vr-gen-israel-vote-migration.mjs`,
+`vr-gen-phase-a-vote-migration.mjs`, `vr-gen-israel-roster-expansion-migration.mjs` — copy
+that cached field straight into SQL. Re-running any of them would have emitted the deleted
+rows again as a brand-new migration.
+
+So the 24 K000404 rows in `db/vr-house-seed-119-s2.json` and the 1 in
+`db/vr-israel-vote-seed.json` are removed (`memberVoteCount` 713 → 712, and roll 2/243's
+`rosterSkipped` 382 → 383), which is simply what a re-pull under the corrected map produces:
+both files already state that unmapped members are counted in `rosterSkipped` and never
+guessed, and an unmapped K000404 belongs in that count. Regenerating each migration now
+differs from the applied one only by those rows. No other member's row changes — `isParty`
+was computed from the full chamber tally, and `partyTotals` is retained per roll call, so
+neither depends on which members the roster happens to include.
+
+`scripts/vr-seed-pid-guard.mjs` makes all four generators exit non-zero, naming the offending
+rows, on any seeded pair the current map contradicts. It refuses rather than repairs on
+purpose: silently re-resolving would emit a migration whose rows disagree with the seed it
+claims to come from, and silently dropping the row would shrink a window the seed presents as
+a complete chamber tally. A mismatch means the seed needs re-pulling — an operator's call.
+`vr-gen-senate-migration.mjs` needs no guard; it resolves each pid from the Bioguide at
+generation time, so its output cannot outlive a map correction.
+`scripts/test-identity-integrity.mjs` §13 asserts the same across all five seeds (4,240
+pairs) on every push, so a stale seed does not have to wait for a generator run to surface.
 
 ## Expected result — the ready-to-result comparisons
 

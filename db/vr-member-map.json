@@ -1,9 +1,9 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 100,
-  "serving119": 91,
+  "count": 101,
+  "serving119": 93,
   "annotated": true,
-  "unadmittedPortraits": 73,
+  "unadmittedPortraits": 72,
   "map": {
     "A000148": "jake_auchincloss",
     "B000740": "stephanie_bice",
@@ -52,8 +52,9 @@
     "K000384": "kaine",
     "K000388": "trent_kelly",
     "K000389": "khanna",
+    "K000393": "kennedy_john",
     "K000394": "andy_kim",
-    "K000404": "kennedy",
+    "K000403": "kennedy",
     "L000491": "frank_lucas",
     "L000575": "lankford",
     "L000577": "lee",
@@ -66,7 +67,7 @@
     "M001169": "chris_murphy",
     "M001184": "massie",
     "M001199": "brian_mast",
-    "M001209": "bmoore",
+    "M001213": "bmoore",
     "M001215": "mariannette_miller_meeks",
     "M001230": "ryan_mackenzie",
     "O000086": "owens",
@@ -153,13 +154,13 @@
       "serving119": true
     },
     {
-      "bioguide": "M001209",
+      "bioguide": "M001213",
       "slug": "bmoore",
-      "name": "Ben McAdams",
+      "name": "Blake D. Moore",
       "chamber": "house",
       "state": "UT",
-      "party": "Democrat",
-      "serving119": false
+      "party": "Republican",
+      "serving119": true
     },
     {
       "bioguide": "B000825",
@@ -513,11 +514,20 @@
       "serving119": true
     },
     {
-      "bioguide": "K000404",
+      "bioguide": "K000403",
       "slug": "kennedy",
-      "name": "Kimberlyn King-Hinds",
+      "name": "Mike Kennedy",
       "chamber": "house",
-      "state": "MP",
+      "state": "UT",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000393",
+      "slug": "kennedy_john",
+      "name": "John Kennedy",
+      "chamber": "senate",
+      "state": "LA",
       "party": "Republican",
       "serving119": true
     },

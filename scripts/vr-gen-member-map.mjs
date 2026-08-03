@@ -25,7 +25,7 @@
 // ── Admission is scoped, and that scoping is the point ────────────────────────
 // Those two sources answer "whose Bioguide can we read?", which is a much larger set
 // than "whom is the ingest scoped to attribute". There are currently 173 curated
-// congressional portraits and the roster is 100. For a long time the difference was
+// congressional portraits and the roster is 101. For a long time the difference was
 // invisible drift: portraits kept being added, this script was not re-run, and the
 // committed map silently fell 101 members behind its own generator — which is exactly
 // why 37 members with stated positions could never receive a vote no matter how many
@@ -38,6 +38,11 @@
 //   • a portrait not admitted there is reported as unadmitted and attributes nothing.
 // Widening the roster is then a reviewable one-line-per-member diff in that file, and
 // never an accident of photo curation.
+//
+// ── And the portrait itself is cross-checked against the name the app publishes ──
+// Reading the Bioguide out of a portrait URL removes the name-matching guess, but it
+// makes the map exactly as right as the photo. See checkNamesAgree() below for the
+// failure that motivates it.
 //
 // Annotation (name/chamber/state/party, "serving in the 119th") is best-effort: if
 // legislators-current.json is present next to this script or fetchable, members[] is
@@ -55,6 +60,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "db", "vr-member-map.json");
@@ -152,10 +158,13 @@ function buildMap() {
     map[bio] = slug;
   }
   if (collisions.length) throw new Error("Bioguide collisions:\n  " + collisions.join("\n  "));
-  return { map, admitted, unadmitted };
+  return { map, admitted, unadmitted, slugToBio };
 }
 
-async function annotate(map, leg, hist) {
+// Bioguide → authoritative identity, current dataset winning over historical. Used both
+// to annotate the human-review block and to cross-check the portraits below, so the two
+// can never disagree about who a Bioguide is.
+function indexByBio(leg, hist) {
   const byBio = new Map();
   const index = (list, serving) => {
     for (const p of list || []) {
@@ -163,6 +172,7 @@ async function annotate(map, leg, hist) {
       if (byBio.has(p.id.bioguide)) continue; // current wins over historical
       byBio.set(p.id.bioguide, {
         name: p.name.official_full || `${p.name.first} ${p.name.last}`,
+        last: p.name.last || "",
         chamber: t.type === "sen" ? "senate" : "house",
         state: t.state,
         party: t.party,
@@ -172,6 +182,10 @@ async function annotate(map, leg, hist) {
   };
   index(leg, true);
   index(hist, false);
+  return byBio;
+}
+
+function annotate(map, byBio) {
   return Object.entries(map)
     .map(([bioguide, slug]) => {
       const a = byBio.get(bioguide);
@@ -188,15 +202,125 @@ async function annotate(map, leg, hist) {
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+// ── The name the app itself publishes for a slug ──────────────────────────────
+// cmp-data.js and spotlights-data.js are pure `Object.assign(window.X, {…})` data
+// modules — no DOM, no side effects — so they evaluate in a bare sandbox, the same way
+// scripts/gen-share-index.mjs reads them. CMP_DATA covers the compare roster; the
+// SPOTLIGHTS figure rows are walked afterwards because a member can carry a portrait
+// and a stance block without a compare card (haley_stevens today), and dropping those
+// would leave exactly the kind of unchecked slug this guard exists to catch.
+function rosterNames() {
+  try {
+    const sandbox = { window: {}, document: {}, console: { log() {}, warn() {}, error() {} } };
+    vm.createContext(sandbox);
+    for (const f of ["cmp-data.js", "spotlights-data.js"]) {
+      vm.runInContext(readFileSync(join(ROOT, f), "utf8"), sandbox, { filename: f });
+    }
+    const names = new Map();
+    for (const [slug, p] of Object.entries(sandbox.window.CMP_DATA || {})) {
+      if (p && typeof p.name === "string") names.set(slug, p.name);
+    }
+    const walk = (node) => {
+      if (Array.isArray(node)) return void node.forEach(walk);
+      if (!node || typeof node !== "object") return;
+      if (typeof node.id === "string" && typeof node.name === "string" && !names.has(node.id)) {
+        names.set(node.id, node.name);
+      }
+      for (const v of Object.values(node)) walk(v);
+    };
+    walk(sandbox.window.SPOTLIGHTS || {});
+    return names.size ? names : null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Does each portrait's Bioguide name the person the app profiles? ───────────
+// Deriving the map from a portrait URL removes the name-matching guess, but it makes the
+// map only as right as the photo. Point one slug's portrait at another member's file and
+// that member's entire voting record silently re-homes onto the wrong profile — and
+// nothing downstream looks wrong from either end: the profile has a full stance block,
+// the votes have a real source URL, they simply belong to different people. That is how
+// 27 of Del. Kimberlyn King-Hinds's (K000404) House votes came to be attributed to Rep.
+// Mike Kennedy (K000403) and scored against his stated positions on four issues, undone
+// in netlify/database/migrations/20260815000000_vr_fix_kennedy_identity_collision.sql.
+// The generator had even printed her name into the review block while writing his slug —
+// the map was wrong while its own annotation was right, which is the whole tell.
+//
+// So the authoritative surname for a mapped Bioguide must appear in the name the app
+// publishes for that slug. A disagreement on an ADMITTED slug is a hard error: that is a
+// live cross-person attribution. On an unadmitted portrait it is a warning, because those
+// attribute nothing yet — and admitting one turns this same check into the error.
+//
+// Best-effort in the same way annotation is: with no legislators dataset there is nothing
+// authoritative to compare against, so the check says it was skipped rather than passing
+// quietly, and it reports admitted slugs it could not cross-check for the same reason.
+const normName = (s) =>
+  String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[.,'’]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+function checkNamesAgree(slugToBio, admitted, byBio, names) {
+  if (!byBio.size || !names) {
+    const why = !byBio.size ? "legislators dataset unavailable" : "app roster names unreadable";
+    console.warn(`⚠ portrait identity cross-check SKIPPED (${why}) — the map was written without`);
+    console.warn("  verifying that each portrait's Bioguide names the person the app profiles");
+    return;
+  }
+  const errors = [];
+  const warnings = [];
+  const unverified = [];
+  let checked = 0;
+  for (const [slug, bio] of Object.entries(slugToBio)) {
+    const auth = byBio.get(bio);
+    const app = names.get(slug);
+    if (!auth || !app) {
+      if (admitted.has(slug)) {
+        unverified.push(`${slug} (${bio}${auth ? "" : " not in either legislators dataset"}${app ? "" : ", no published name"})`);
+      }
+      continue;
+    }
+    checked++;
+    if (auth.last && normName(app).includes(normName(auth.last))) continue;
+    const row = `${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but the app profiles "${app}"`;
+    (admitted.has(slug) ? errors : warnings).push(row);
+  }
+  if (errors.length) {
+    throw new Error(
+      `${errors.length} admitted slug(s) resolve to a Bioguide belonging to someone else — the ingest ` +
+      `would attribute one member's votes to another. Repoint the portrait in BROWSE_PHOTOS (or the ` +
+      `SEED_SLUGS entry) at the right Bioguide before regenerating:\n  ` + errors.join("\n  "));
+  }
+  console.log(`✓ portrait identity cross-check — ${checked} slug(s) agree with their Bioguide`);
+  if (warnings.length) {
+    console.warn(`⚠ ${warnings.length} UNADMITTED portrait(s) name a different member. Nothing is attributed`);
+    console.warn("  through them today, but admitting one as-is would misattribute that member's votes:");
+    for (const w of warnings) console.warn(`    ${w}`);
+  }
+  if (unverified.length) {
+    console.log(`  ${unverified.length} admitted slug(s) could not be cross-checked:`);
+    for (const u of unverified) console.log(`    ${u}`);
+  }
+}
+
 const check = process.argv.includes("--check");
-const { map, admitted, unadmitted } = buildMap();
+const { map, admitted, unadmitted, slugToBio } = buildMap();
 const leg = await loadLegislators();
 // Historical is only needed when a mapped member has left Congress, and it is a 13 MB
 // file — so it is fetched only if the current dataset left someone unannotated.
 const needHist = !!leg && Object.keys(map).some((b) => !leg.some((p) => p.id.bioguide === b));
 const hist = needHist ? await loadLegislators(LEG_HIST_LOCAL, LEG_HIST_URL) : null;
-const members = await annotate(map, leg, hist);
+const byBio = indexByBio(leg, hist);
+const members = annotate(map, byBio);
 const serving = members.filter((m) => m.serving119).length;
+
+// Run before anything is written or compared: a map that names the wrong person should
+// never reach the file, and --check should fail on one that already has.
+checkNamesAgree(slugToBio, admitted, byBio, rosterNames());
 
 // Provenance blocks in the previous file are carried forward: they record how earlier
 // waves were staged and reviewed, and regenerating the map is not a reason to lose that.

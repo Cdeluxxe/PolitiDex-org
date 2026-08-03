@@ -134,6 +134,13 @@
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
      "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access."
+    },
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires documentary proof of United States citizenship — a passport, a REAL ID showing citizenship, or a birth certificate presented with photo ID — before a state may register an applicant for a federal election, requires states to run a removal program against federal databases for non-citizens already on the rolls, and creates criminal penalties for officials who register an applicant without the documentation. Eligibility verification is the core of the safeguard facet, so a yea is a vote for tighter verification. Not marked primary only because election_integrity already holds that flag on this measure from an earlier pass and moving it would change a published mapping rather than add one."
     }
    ]
   },
@@ -1842,6 +1849,330 @@
      "supportMeaning": "yea_opposes",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres138.xml",
      "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles and services. The motion to discharge it from the Committee on Foreign Relations was rejected 36-63 on 2026-04-15, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 1",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "For the People Act of 2021. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration. Every one of those provisions widens a registration or casting pathway, so a yea is a vote to expand access. The bill's election-security title is deliberately NOT mapped: it mandates durable paper ballots and risk-limiting audits while the same bill permits a sworn statement in lieu of documentary ID and restricts list maintenance, so one yea covers both directions of the safeguard facet and records neither."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 4",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/4",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "John R. Lewis Voting Rights Advancement Act of 2021. Restores the Voting Rights Act preclearance regime with a rolling twenty-five-year coverage formula and adds a practice-based review list that gates specific access-narrowing changes — new documentary or photo-ID requirements, polling-place closures and consolidations, and voter-roll purges — behind federal review before they take effect, and restores a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, so it is mapped to the access facet only; mapping it to election_security would score members on a question the text does not ask."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 5746",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/5746",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Freedom to Vote: John R. Lewis Act, moved as a House amendment to the Senate amendment to H.R. 5746 — a shell bill whose Clerk vote description still reads 'NASA Enhanced Use Leasing Extension Act of 2021', so the roll is identified by citation and question rather than title. Requires automatic and same-day registration, a minimum of two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes per jurisdiction, and makes Election Day a public holiday. A yea is a vote to expand access. Its election-security title is not mapped, for the same internal-split reason as H.R. 1, whose text it incorporates."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 192",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/192",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Same text as H.R. 884 in the 119th Congress: amends the District of Columbia Home Rule Act to bar non-citizens from voting in District elections. A yea is a vote for citizenship verification as a condition of voting. Same Home Rule Act confound — a nay may be a home-rule position rather than a position on non-citizen voting — and it is recorded here for the same reason."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes a casting pathway created by District law; a yea narrows who may cast a ballot. Same Home Rule Act confound as above."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 8281",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8281",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SAVE Act, 118th Congress. Amends the National Voter Registration Act to require documentary proof of United States citizenship before a state may register an applicant for a federal election, requires states to establish a program to identify and remove non-citizens from existing rolls using federal immigration and Social Security databases, and creates criminal penalties for officials who register an applicant without the documentation. Eligibility verification and roll maintenance are both squarely in the safeguard facet, so a yea is a vote for tighter verification."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The documentary requirement must be satisfied in person at a registration office, which as a practical matter closes registration by mail and online to any applicant who cannot present documents there, and the acceptable-document list does not accommodate a citizen whose current legal name differs from the name on their birth certificate. The bill adds a barrier at the registration step, so a yea is a vote against easier registration. This is the opposite direction from the same measure's election_security row on purpose: the two facets are scored independently and this bill genuinely pulls them apart."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 884",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/884",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Amends the District of Columbia Home Rule Act to bar any individual who is not a United States citizen from voting in a District election, repealing the effect of the Local Resident Voting Rights Amendment Act of 2022. Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. Confound recorded rather than hidden: because the vehicle amends the Home Rule Act, a nay may express opposition to Congress overriding a local District enactment rather than support for non-citizen voting. The mapping is made on the operative election provision and no member's reason is inferred from the vote."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes an existing casting pathway: non-citizen District residents who registered under the 2022 local law lose the ability to vote in municipal elections. A yea narrows who may cast a ballot. Same Home Rule Act confound as the election_security row above."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S. 1383",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119s1383eah/html/BILLS-119s1383eah.htm",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SAVE America Act, the text the House substituted into S. 1383 on 2026-02-11 and passed 218-213 on roll 69. Mapped on the substitute's own provisions, read from the engrossed House amendment: a state \"shall not accept and process an application to register to vote in an election for Federal office unless the applicant presents documentary proof\" of citizenship under any registration method; a new HAVA section bars an official from providing a ballot to an in-person voter who does not present \"a valid physical photo identification\" and requires mail voters to enclose a copy or the last four Social Security digits with an affidavit; states must submit their full voter lists to the Department of Homeland Security for comparison against the SAVE system and remove non-citizens on verified information; and new criminal penalties reach an official who registers an applicant without the documentation. Verification at registration, identification at casting, roll maintenance and fraud enforcement are the four things this facet covers, and the substitute does all four in the same direction, so a yea is a vote for tighter safeguards. The Clerk's record for roll 69 still shows the Senate short title \"Veterans Accessibility Advisory Committee Act\" because S. 1383 was the vehicle; the substituted text is what the House voted on and what this mapping is made from."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The substitute adds a barrier at both steps this facet measures. At registration, a mail-form applicant must present proof \"in person to the office of the appropriate election official\" by the registration deadline, which closes mail and online registration to anyone who cannot appear; at casting, photo identification becomes a precondition for receiving an in-person ballot, and an in-person voter without one may only cast a provisional ballot and must cure it within three days. The bill's easing provisions were read and weighed rather than ignored: an alternative-evidence pathway on a perjury attestation, a required process for applicants whose documents carry a former name, free public access to a copier or scanner in government buildings, and exemptions for uniformed-services and certain elderly and disabled voters. Each of those accommodates the new requirement rather than widening access on its own, so the yea does not point both ways here and the facet is not declined the way it is on H.R. 1 and H.R. 5746. Weighted above H.R. 8281's 70 because that bill reached only the registration step while this one also conditions casting."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 8",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/8",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Bipartisan Background Checks Act of 2021, passed 227-203 on 2021-03-11. Section 3 adds a new subsection (aa) to 18 U.S.C. 922 making it unlawful for an unlicensed person to transfer a firearm to another unlicensed person unless a licensed importer, manufacturer or dealer first takes possession, runs the 922(t) background check as if the firearm came from its own inventory, and records the transfer. Background-check screening is the first thing this facet covers, and the bill extends it to the private-sale channel that 922(t) does not currently reach, so a yea tightens screening. Exceptions for close-family gifts, transfers by operation of law, temporary transfers to prevent imminent death or great bodily harm, and temporary transfers while hunting or at a range narrow the reach of the requirement but not its direction.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/8"
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same section conditions an otherwise-lawful transfer between two eligible private parties on a licensed dealer's involvement and a recorded transaction, which is a licensing and record burden on the acquisition step this facet protects — the reason the bill was opposed as a step toward a transfer registry. Weighted 55 and not higher because the operative text changes nothing else the facet measures: no new prohibited category of person or firearm, no category ban, and no restriction on carrying. A person eligible to acquire a firearm before the bill is eligible after it; only the channel changes.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/8"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 1446",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1446",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enhanced Background Checks Act of 2021, passed 219-210 on 2021-03-11. Replaces the three-business-day default-proceed period in 18 U.S.C. 922(t)(1)(B)(ii) — the window after which a dealer may complete a sale on a check that has returned no answer — with a minimum of ten business days, after which the prospective purchaser may petition for expedited review that gives the system a further ten days before the transfer may proceed. A yea gives an incomplete background check time to complete, which is the screening instrument this facet measures. The companion to H.R. 8 and voted the same day; H.R. 8 extends the check to a new channel, this bill strengthens the check itself, and the two are mapped separately because a member could and some did split them.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1446"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 7910",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/7910",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Protecting Our Kids Act, passed 223-204 on 2022-06-08 — the House's own six-title answer to Uvalde and Buffalo, and the broadest firearms package either chamber passed in the window. Every operative title is this facet in the tightening direction: Title I bars a licensed dealer from selling a semiautomatic centerfire rifle or shotgun that accepts a detachable magazine to anyone under 21; Title II creates federal straw-purchase and trafficking offences with penalties and forfeiture; Title III defines a ghost gun and brings assembling, molding, machining or 3D-printing a frame or receiver within \"manufacturing firearms\", with carve-outs for permanently inoperable firearms, those serialized under state law within thirty months and pre-1968 firearms; Title IV adds Ethan's Law, a new 18 U.S.C. 922(z)(4) offence for storing a firearm in a residence where the person knows or reasonably should know a minor is likely to gain access without permission or a resident is ineligible, with an express exception where the firearm is carried on or within immediate control of the person; Title V adds a bump stock to 26 U.S.C. 5845(a)(9); Title VI adds a new 18 U.S.C. 922(v) banning large-capacity ammunition feeding devices with a grandfather for devices lawfully possessed on or before enactment. Screening, trafficking enforcement and safe storage are three of the four things this facet covers and the bill does all three.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/7910"
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Three of the six operative titles remove firearms or configurations from lawful acquisition or possession by an eligible adult: Title I bars 18-to-20-year-olds from an entire class of long gun, Title V reclassifies a bump stock under the National Firearms Act, and Title VI bans large-capacity magazines outright going forward. Title III's extension of serialization to a self-made frame or receiver is a further condition on lawful acquisition. Weighted 80 rather than 100 because that is provision arithmetic and not a hedge: Title II (trafficking and straw purchases) and Title IV (safe storage) take nothing away from an eligible adult — trafficking was already unlawful conduct and the storage offence carries an express exception for a firearm kept on or within immediate control, so neither reaches the scope of the right. The bill's six title-retention roll calls (117-2 rolls 237 through 242) are the best provision-level evidence in the window and are deliberately NOT ingested, because a curated mapping attaches to a measure and every roll of that measure would inherit this composite direction; only the passage roll is ingested.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/7910"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 2377",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/2377",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Federal Extreme Risk Protection Order Act of 2021, passed 224-202 on 2022-06-09. Creates a new 18 U.S.C. 932 authorising a United States district court to bar a named person from possessing, receiving, shipping or transporting a firearm or ammunition, on petition by a family or household member or a law-enforcement officer, where the court finds the person poses a significant danger of causing personal injury to self or others; provides an ex parte track with a prompt follow-on hearing, requires surrender to a designated law-enforcement officer, and penalises a knowingly false petition. Red-flag and extreme-risk removal is named in this facet's scope, and this is the only federal extreme-risk bill either chamber voted in the window, so a yea is the cleanest available record on that instrument.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/2377"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 1808",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1808",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Assault Weapons Ban of 2022, passed 217-213 on 2022-07-29 — the first House passage of an assault-weapons ban since 1994. Bans the import, sale, manufacture, transfer and possession of a \"semiautomatic assault weapon\", defined by a one-feature test: a semiautomatic rifle able to accept a detachable magazine plus any one of a pistol grip, a forward grip, a folding, telescoping or detachable stock, a barrel shroud or a threaded barrel, with parallel definitions for pistols and shotguns and an enumerated model list. Assault-style restriction is named in this facet's scope; the bill is that instrument and nothing else, which is why the mapping is weight 100 with no other safety provision to slice.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1808"
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 95,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The clearest opposite-direction reading of either facet in this pass: a broad category ban on commonly-owned firearms is the exact instrument this facet's scope note names as the thing gun_rights support opposes, and a yea narrows what an eligible adult may lawfully acquire or keep. Weighted 95 rather than 100 only because the ban grandfathers firearms lawfully possessed on the date of enactment and exempts law enforcement and the armed forces, so it does not reach what a current owner already holds; the secure-storage condition on transferring a grandfathered firearm is the one place it does touch existing possession.",
+     "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1808"
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.J.Res. 44",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-joint-resolution/44",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Congressional Review Act joint resolution disapproving ATF final rule 2021R-08F, \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\". Passed the House 219-210 on 2023-06-13 and was DEFEATED in the Senate 49-50 on 2023-06-22, so this pass carries a recorded vote from both chambers on one measure. The rule reclassified a large share of braced pistols as short-barreled rifles subject to National Firearms Act registration and taxation, requiring owners to register, permanently alter or surrender a configuration they lawfully held. Voiding it removes a registration and tax-stamp obligation from a lawful configuration and, under 5 U.S.C. 801(b)(2), bars a substantially similar rule without new statutory authority — Second Amendment protection against registry and licensing burdens is named in this facet's scope, so a yea is a vote for the right as this facet defines it.",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-joint-resolution/44"
+    },
+    {
+     "issueKey": "gun_safety",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The rule the resolution voids is a screening-and-registration instrument: it brought a configuration into the National Firearms Act's registration, background-check and transfer-tax regime, and disapproval removes it and forecloses a substantially similar rule. That is this facet in the loosening direction, so a yea is scored as opposition here. Weighted 70 rather than matching the rights side, because the resolution changes no statute this facet measures — no background-check requirement, no removal process, no storage rule and no trafficking provision is touched. What it reaches is one agency's classification of one accessory, and the Congressional Review Act's all-or-nothing form gives a member no way to vote on the regime while rejecting the rule.",
+     "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-joint-resolution/44"
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 118,
+   "chamber": "senate",
+   "number": "S.Amdt. 1354",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1181/vote_118_1_00268.htm",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Kennedy amendment to the Military Construction, Veterans Affairs appropriations division of H.R. 4366, agreed to 53-45 on 2023-10-25 with eleven Democrats voting yea, and ENACTED as Section 413 of Division A of the Consolidated Appropriations Act, 2024 (P.L. 118-42, 138 Stat. 65). The enacted text bars using Division A funds to report to the Attorney General, for National Instant Criminal Background Check System purposes, that a person deemed mentally incapacitated, mentally incompetent or experiencing an extended loss of consciousness has been adjudicated a mental defective under 18 U.S.C. 922(d)(4) and (g)(4), unless a judicial authority has found the person is a danger to themselves or others. A yea restores the eligibility of veterans who were prohibited by an administrative fiduciary determination rather than a judicial finding, which is the scope of the right this facet measures. Mapped at 100 because the amendment does this one thing; it is also the only recorded vote in the window on a firearms provision that became law apart from S. 2938, which is why an amendment roll is admitted here at all. Its vehicle H.R. 4366 is deliberately left UNMAPPED: a vote on a multi-division appropriations act is not a firearms position.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-118publ42/html/PLAW-118publ42.htm"
+    },
+    {
+     "issueKey": "gun_safety",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The provision removes a class of record from the background-check system, so a yea loosens the screening instrument this facet measures. Weighted 75 rather than 100 because the removal is narrow and conditional in a way the headline is not: it reaches only Veterans Affairs fiduciary determinations under 38 U.S.C. 5502, leaves every other mental-health prohibitor and reporting channel intact, and preserves reporting where a judicial authority has found the person dangerous. As enacted it also ran only for the fiscal year the division funded — H.R. 1041 in the 119th is the attempt to make the same policy permanent law, which is why the two are mapped as a matched pair.",
+     "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-118publ42/html/PLAW-118publ42.htm"
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1041",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1041",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Veterans 2nd Amendment Protection Act, passed 216-201 on 2026-05-21. Adds a new 38 U.S.C. 5501B barring the Department of Veterans Affairs from transmitting a beneficiary's personally identifiable information to the Department of Justice for inclusion in the National Instant Criminal Background Check System on the basis of a 38 U.S.C. 5502 determination that the beneficiary cannot manage their own benefit payments and requires a fiduciary, unless a judge, magistrate or other judicial authority has found the beneficiary is a danger to themselves or others. A yea restores the eligibility of veterans prohibited by an administrative determination rather than a judicial finding. The permanent-law version of S.Amdt. 1354, which imposed the same policy for one fiscal year as an appropriations restriction; mapped identically so the pair is comparable across chambers and Congresses.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1041"
+    },
+    {
+     "issueKey": "gun_safety",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes a class of record from the background-check system permanently rather than for one fiscal year, so a yea loosens the screening instrument this facet measures. Weighted 75 for the same reason as its appropriations predecessor: the change reaches only Veterans Affairs fiduciary determinations, leaves every other mental-health prohibitor and reporting channel intact, and preserves reporting where a judicial authority has found the person dangerous.",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1041"
     }
    ]
   }
