@@ -16,9 +16,9 @@
     const LOCAL_PIDS = ['trump','curtis','lee','bmoore','cox','owens','maloy','jstevenson','tlee','sadams','jpetro','mschultz','tweiler','rward','dhenderson','sreyes','ddamschen','jdougall','lfillmore','wharper','amillner','gsnow','swaldrip','cmusselman','klisonbee','jburton','jellis','sstoddard','bperry','bscott','cpetersen'];
 
     const DISTRICT_HOUSE_REPS = {
-      district1: { pid: 'bmoore',  label: 'District 1', area: 'Weber, Davis & Northern Utah',  sublabel: 'U.S. House District 1 · Northern Utah',  photo: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg', desc: 'Financial executive turned congressman. Ways & Means Committee. Tax, water, and Hill AFB focused.' },
+      district1: { pid: 'bmoore',  label: 'District 1', area: 'Weber, Davis & Northern Utah',  sublabel: 'U.S. House District 1 · Northern Utah',  photo: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001213.jpg', desc: 'Financial executive turned congressman. Ways & Means Committee. Tax, water, and Hill AFB focused.' },
       district2: { pid: 'maloy',   label: 'District 2', area: 'Rural & Southern Utah',        sublabel: 'U.S. House District 2 · Rural / Southern Utah',   photo: 'https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg', desc: 'Utah attorney and first-term congresswoman. Public lands, Western water issues, and fiscal conservatism.' },
-      district3: { pid: 'kennedy', label: 'District 3', area: 'Provo, Utah County, Utah',     sublabel: 'U.S. House District 3 · Provo / Utah County',     photo: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000404.jpg', desc: 'Physician, attorney, and constitutional conservative. Healthcare reform and religious liberty champion.' },
+      district3: { pid: 'kennedy', label: 'District 3', area: 'Provo, Utah County, Utah',     sublabel: 'U.S. House District 3 · Provo / Utah County',     photo: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg', desc: 'Physician, attorney, and constitutional conservative. Healthcare reform and religious liberty champion.' },
       district4: { pid: 'owens',   label: 'District 4', area: 'Salt Lake & South Valley, Utah', sublabel: 'U.S. House District 4 · Salt Lake / South Valley', photo: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg', desc: 'Former NFL player turned congressman. Education freedom, school choice, and Second Amendment champion.' }
     };
     const STATEWIDE_META = {
@@ -65,12 +65,12 @@
       jason_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001195.jpg',
       owens: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg',
       maloy: 'https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg',
-      kennedy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000404.jpg',
+      kennedy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg',
       boebert: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000825.jpg',
       mtg: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000596.jpg',
       gaetz: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000578.jpg',
       tgabbard: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000571.jpg',
-      bmoore: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001209.jpg',
+      bmoore: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001213.jpg',
       cstewart: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001192.jpg',
       tlee: 'https://le.utah.gov/images/legislator/LEETR.jpg',
       sadams: 'https://le.utah.gov/images/legislator/ADAMSJS.jpg',

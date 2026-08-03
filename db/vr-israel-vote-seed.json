@@ -46,7 +46,7 @@
   }
  ],
  "rollCallCount": 16,
- "memberVoteCount": 713,
+ "memberVoteCount": 712,
  "reversals": [
   {
    "roll": "house 118/2 roll 152 (H.R. 8034)",
@@ -5762,7 +5762,7 @@
     "mustExist": "already live from the 119th-Congress ingest, mapped to america_first_fp and cut_spending"
    },
    "chamberVoting": 437,
-   "rosterSkipped": 382,
+   "rosterSkipped": 383,
    "memberVotes": [
     {
      "bioguideId": "S000510",
@@ -5930,13 +5930,6 @@
      "politicianId": "kclark",
      "party": "D",
      "position": "yea",
-     "isParty": "with_party"
-    },
-    {
-     "bioguideId": "K000404",
-     "politicianId": "kennedy",
-     "party": "R",
-     "position": "nay",
      "isParty": "with_party"
     },
     {

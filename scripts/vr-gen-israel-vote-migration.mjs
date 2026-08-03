@@ -35,10 +35,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
-
+import { assertSeedPidsMatchMap } from "./vr-seed-pid-guard.mjs";
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
-const seed = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-israel-vote-seed.json"), "utf8"));
+const SEED_PATH = "db/vr-israel-vote-seed.json";
+const seed = JSON.parse(fs.readFileSync(path.join(ROOT, SEED_PATH), "utf8"));
 const issueSeed = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-issue-seed.json"), "utf8"));
+const memberMap = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-member-map.json"), "utf8"));
+
+// The seed's politician_id is a cached map lookup, not a source. Refuse to generate
+// from a seed whose (bioguideId → politicianId) pairs the current map contradicts —
+// see scripts/vr-seed-pid-guard.mjs for why this refuses instead of re-resolving.
+const pidCheck = assertSeedPidsMatchMap(seed, memberMap, SEED_PATH);
 
 const q = (s) => "'" + String(s == null ? "" : s).replace(/'/g, "''") + "'";
 const qOrNull = (s) => (s == null || s === "" ? "NULL" : q(s));
@@ -292,4 +299,4 @@ w("  END IF;");
 w("END $$;");
 
 process.stdout.write(out.join("\n") + "\n");
-process.stderr.write(`${seed.votes.length} rolls · ${seed.memberVoteCount} member votes · ${measures.length} measures · ${mappedRows} issue rows · ${slugs.length} distinct slugs\n`);
+process.stderr.write(`${seed.votes.length} rolls · ${seed.memberVoteCount} member votes · ${measures.length} measures · ${mappedRows} issue rows · ${slugs.length} distinct slugs · ${pidCheck.checked} bioguide→pid pairs agree with the member map\n`);
