@@ -228,7 +228,15 @@
       short: 'For each bill-to-issue link, a curated call on whether passing the bill would advance that issue or cut against it.',
       long: 'It has to be decided per bill, not per issue: a Yea on one healthcare bill expands coverage and a Yea on another restricts it. The direction is recorded once, with the reason and the source.',
       why: 'When the direction is genuinely contestable, or the bill is too broad to pin to one clear effect, PolitiDex leaves it unmapped rather than guessing. An unmapped vote is honest; a wrongly-directed one would manufacture a false verdict.',
-      see: ['contradiction', 'yea', 'norecord']
+      see: ['contradiction', 'yea', 'norecord', 'twoaxis']
+    },
+    twoaxis: {
+      term: 'Election security vs. ballot access', kind: 'How we score', cat: 'What PolitiDex measures',
+      aka: ['two axes', 'two-axis', 'both axes'],
+      short: 'Elections are measured on two separate axes: 🔐 how ballots and eligibility are safeguarded, and 📩 how easy it is to register and cast a ballot. A member gets a position on each, not one combined score.',
+      long: 'The two axes ask different questions. Election security covers verifying eligibility, maintaining voter rolls, chain of custody for ballots, post-election audits and fraud enforcement. Ballot access covers registration, early voting, mail ballots, drop boxes and the deadlines for returning a ballot. One bill routinely moves both at once — adding a document requirement can tighten verification and narrow access in the same clause — so a Yea can advance one axis and cut against the other, and both readings are true.',
+      why: 'Collapsing the two into a single “election” score would force a false choice: someone who wants both stricter verification and easier registration would be unscoreable, and a member who tightened one while loosening the other would read as merely inconsistent. Kept apart, that pattern is visible instead of averaged away — and each axis is read in its own direction, so “supports” means pro-safeguard on one and pro-access on the other.',
+      see: ['supportmeaning', 'contradiction', 'officialrecord']
     },
     norecord: {
       term: 'No record yet / thin coverage', kind: 'Data honesty', cat: 'What PolitiDex measures',
@@ -836,7 +844,7 @@
 
     // Every priority concept the product promises to explain must be reachable.
     ['hr', 's', 'resolution', 'amendment', 'house', 'senate', 'rollcall', 'voicevote',
-     'omnibus', 'saydo', 'contradiction', 'procedural', 'recommit', 'norecord'
+     'omnibus', 'saydo', 'contradiction', 'procedural', 'recommit', 'norecord', 'twoaxis'
     ].forEach(function (k) { ok(!!GLOSSARY[k], 'priority concept "' + k + '" is covered'); });
 
     // The measure-number parser: prefix linked, number left as plain text.

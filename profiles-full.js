@@ -4185,6 +4185,18 @@
       <span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>
       ${(typeof window._renderStanceGlance === 'function') ? window._renderStanceGlance(id, p) : ''}
 
+      <!-- Elections — Two Axes. 🔐 election security and 📩 ballot access are
+           separate ISSUE_MAP keys scored in their own directions, so a member can
+           back tighter safeguards AND narrower access (or the reverse) without
+           contradicting themselves. This puts both sourced positions side by side
+           and names the relation — split / same direction / one axis on record —
+           right above the per-issue stance cards, where a reader would otherwise
+           meet the two halves pages apart. Rendered by ballot-axes.js; self-gates
+           to '' for anyone with no documented position on either axis. -->
+      ${(window.PDXBallotAxes && typeof window.PDXBallotAxes.profileHtml === 'function')
+        ? (function(){ try { return window.PDXBallotAxes.profileHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- Key Issue Stances -->
       ${(typeof window._renderIssueStances === 'function') ? window._renderIssueStances(id, p) : ''}
 

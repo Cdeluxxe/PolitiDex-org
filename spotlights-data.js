@@ -3891,7 +3891,8 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
             'The SAVE Act is not yet federal law — it has passed the House but stalled in the Senate, so it does not currently set nationwide rules.',
             'Requiring ID to vote is not the same as requiring proof of citizenship to register — they are different rules; the SAVE Act would do both.',
             'A REAL ID is not automatically proof of citizenship — it proves lawful residence, not citizenship, so on its own it would not satisfy the SAVE Act.',
-            '“No ID required” does not mean “no verification” — those states still confirm identity by signature match, registration records, or mailed inquiries.'
+            '“No ID required” does not mean “no verification” — those states still confirm identity by signature match, registration records, or mailed inquiries.',
+            'Security and access are not one dial with two ends — PolitiDex scores them as two separate axes (🔐 safeguards on how eligibility and ballots are handled, 📩 how easy it is to register and cast a ballot), because a single bill can tighten one and narrow the other in the same clause. An official can back both, oppose both, or split.'
           ],
           outro: 'What is genuinely at issue is how to balance confidence and security against access — and whether these rules should be set state by state or nationally.'
         },
@@ -3959,6 +3960,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
           { label: 'Trust in Institutions & the Decline of Social Capital', slug: 'trust-institutions-social-capital-2026' },
           { label: 'Government Corruption, Term Limits & Trust', slug: 'congressional-reform-corruption-trust-2026' },
           { label: 'Election Integrity & Ballot Security', issueKey: 'election_integrity' },
+          { label: 'Election Security & Ballot Safeguards', issueKey: 'election_security' },
           { label: 'Voter ID & Proof of Citizenship', issueKey: 'voter_id' },
           { label: 'Ballot Access & Voting Rights', issueKey: 'voting_access' },
           { label: 'The SAVE Act & Congressional Power' },
@@ -3968,7 +3970,7 @@ Object.assign((window.SPOTLIGHTS = window.SPOTLIGHTS || {}),
         standsOnIssue: {
           libraryKey: 'election_integrity',
           matchIssueKeys: ['election_integrity', 'election_security', 'voter_id', 'voting_access', 'democracy_balance'],
-          note: 'Stance chips read on stricter voter-ID and proof-of-citizenship rules: “Supports” = backs stricter ID/citizenship requirements, “Opposes” = favors broader ballot access, “Mixed” = somewhere in between. Positions and the say-vs-do verdict come from each official’s record; the Stance Library has the full spread.',
+          note: 'These chips read on stricter voter-ID and proof-of-citizenship rules: “Supports” = backs stricter ID/citizenship requirements, “Opposes” = favors broader ballot access, “Mixed” = somewhere in between. That single scale is a summary of this Spotlight’s question only. In the Stance Library the same officials are judged on two independent axes — 🔐 Election Security & Ballot Safeguards and 📩 Expand Voting Access — each read in its own direction, so “supports” there means pro-safeguard on one axis and pro-access on the other, and an official can be split across the two. Positions and the say-vs-do verdict come from each official’s record; the Stance Library has the full spread on both axes.',
           people: [
             { id: 'trump', name: 'Donald Trump', office: 'President of the United States', icon: '🇺🇸', topic: 'Voter ID & Proof of Citizenship', stance: 'supported' },
             { id: 'lee', name: 'Mike Lee', office: 'U.S. Senator · Utah', icon: '🏛', topic: 'Election Integrity & the SAVE Act', stance: 'supported' },

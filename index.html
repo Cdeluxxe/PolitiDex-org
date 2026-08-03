@@ -1778,6 +1778,9 @@ window.PDXLazy = (function () {
   <link rel="stylesheet" href="/ballot-actions.css" media="print" onload="this.media='all'" />
   <!-- Stance Library — issue-first browse view (see stance-library.js). -->
   <link rel="stylesheet" href="/stance-library.css" media="print" onload="this.media='all'" />
+  <!-- Ballot Axes — the two-axis elections read (see ballot-axes.js): profile
+       section, Stance Library explainer, and the "other axis" companion line. -->
+  <link rel="stylesheet" href="/ballot-axes.css" media="print" onload="this.media='all'" />
   <!-- My Stances — build & save your own positions on issues (see my-stances.js). -->
   <link rel="stylesheet" href="/my-stances.css" media="print" onload="this.media='all'" />
   <noscript>
@@ -1785,6 +1788,7 @@ window.PDXLazy = (function () {
     <link rel="stylesheet" href="/impact-tracker.css" />
     <link rel="stylesheet" href="/ballot-actions.css" />
     <link rel="stylesheet" href="/stance-library.css" />
+    <link rel="stylesheet" href="/ballot-axes.css" />
     <link rel="stylesheet" href="/my-stances.css" />
   </noscript>
   <!-- Say vs. Do — the contradiction receipt card (see say-vs-do.js). Kept
@@ -18159,6 +18163,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        PDX_ELECTION_DATA, PDXImpact and PDXStore (all defined earlier) for a
        private, opt-in contact + deadline-reminder layer. -->
   <script defer src="ballot-actions.js"></script>
+  <!-- Ballot Axes — the shared two-axis elections read (🔐 election security ·
+       📩 ballot access). `defer` places it after the data + engine layer, so
+       window._resolveStanceList and ISSUE_MAP exist by the time a profile opens
+       or the Stance Library mounts. Owns no data — pure read-only lens. -->
+  <script defer src="ballot-axes.js"></script>
   <!-- Stance Library — issue-first browse view. `defer` places it after the
        data + engine layer (politician-stances-core/ext.js, alignment-tool.js) and the
        inline PDXStance/PDXForum modules have all run, so every global it lenses

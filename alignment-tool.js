@@ -2572,7 +2572,14 @@
       'social_security', 'national_debt', 'cut_spending', 'property_tax', 'child_care',
       'immigration_reform', 'water', 'health_mental', 'gun_safety',
       'voter_id', 'tough_on_crime', 'end_dei', 'tariffs_china', 'america_first_fp', 'datacenter_growth',
-      'tariffs_growth', 'tariffs_prices'
+      'tariffs_growth', 'tariffs_prices',
+      // The two-axis elections vertical. Both are offered because they are scored
+      // independently and read in opposite directions — 🔐 "support" is
+      // pro-safeguard, 📩 "support" is pro-access — so a visitor who wants
+      // stricter verification AND easier registration can say exactly that
+      // instead of being forced onto one combined election axis. Quick Picks only
+      // offers chips; nothing here changes how any score is computed.
+      'election_security', 'voting_access'
     ];
     // Exposed so the per-politician alignment discovery modal (in the Key Races
     // script) can offer the same curated "popular issues" as tap-to-add chips when
@@ -2583,7 +2590,8 @@
     // small 🔥 in Quick Picks so they're easy to spot as fresh, hot-topic picks.
     var ALIGN_HOT_ISSUES = {
       end_dei: 1, america_first_fp: 1, tariffs_china: 1, voter_id: 1,
-      tough_on_crime: 1, deportations: 1, tariffs_growth: 1, tariffs_prices: 1
+      tough_on_crime: 1, deportations: 1, tariffs_growth: 1, tariffs_prices: 1,
+      election_security: 1, voting_access: 1
     };
 
     function _alignRenderQuickPicks() {

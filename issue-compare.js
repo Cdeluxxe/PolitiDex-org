@@ -283,6 +283,29 @@
         + '<span class="ic-opt-lbl">' + esc(lbl) + '</span>' + coverageTag(k) + '</button>';
     }).join('');
   }
+  // Two-axis elections note. 🔐 election_security and 📩 voting_access are
+  // separate keys read in opposite directions, and this surface compares ONE key
+  // at a time — so without a nudge a reader can compare a field on safeguards and
+  // never learn the access axis exists. Guarded: '' unless ballot-axes.js is
+  // loaded and the selected issue is one of the two facets.
+  function axisNoteHtml(issueKey) {
+    var BA = window.PDXBallotAxes;
+    if (!BA || !isFn(BA.isAxisKey) || !isFn(BA.axisMeta)) return '';
+    try {
+      if (!BA.isAxisKey(issueKey)) return '';
+      var otherKey = BA.otherKey(issueKey);
+      var mine = BA.axisMeta(issueKey === BA.KEYS.security ? 'security' : 'access');
+      var other = BA.axisMeta(otherKey === BA.KEYS.security ? 'security' : 'access');
+      if (!mine || !other) return '';
+      return '<div class="ic-axisnote">'
+        + '<span class="ic-axisnote-txt">Elections are scored on two independent axes. Here, <b>“supports”</b> means '
+        +   esc(String(mine.dir.support).toLowerCase()) + '. The other axis is judged separately.</span>'
+        + '<button type="button" class="ic-btn ic-btn--ghost" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(otherKey) + '\')">'
+        +   other.icon + ' Compare on ' + esc(other.shortLabel.toLowerCase()) + '</button>'
+        + '</div>';
+    } catch (e) { return ''; }
+  }
+
   function renderPicker() {
     if (!_state.issueKey || _state.pickerOpen) {
       return '<div class="ic-picker">'
@@ -300,7 +323,8 @@
       + '<div class="ic-current-main"><span class="ic-current-eyebrow">Comparing on</span>'
       +   '<div class="ic-current-issue">' + esc(issueLabel(_state.issueKey)) + ' ' + coverageTag(_state.issueKey) + '</div>' + mineTag + '</div>'
       + '<button type="button" class="ic-btn ic-btn--ghost" onclick="window.PDXIssueCompare.togglePicker(true)">Change issue</button>'
-      + '</div>';
+      + '</div>'
+      + axisNoteHtml(_state.issueKey);
   }
 
   /* ── render: field selector + filters ───────────────────────────────── */

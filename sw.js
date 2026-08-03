@@ -31,7 +31,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v37';
+const CACHE_VERSION = 'v38';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -56,6 +56,11 @@ const SHELL_ASSETS = [
   '/app-2.css',
   '/alignment-tool.css',
   '/stance-library.css',
+  // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
+  // section inside the profile and a header inside the Stance Library — both of which
+  // are precached — so leaving it to the runtime cache would mean the first offline
+  // profile view silently dropped the two-axis read.
+  '/ballot-axes.css',
   // Additive mobile performance & flow polish layer.
   '/mobile-polish.css',
   '/say-vs-do.css',
@@ -82,6 +87,7 @@ const SHELL_ASSETS = [
   '/stance-helpers.js',
   '/alignment-tool.js',
   '/stance-library.js',
+  '/ballot-axes.js',
   '/voting-record.js',
   '/say-vs-do.js',
   // Unified Say-vs-Do consistency (reconciles curated receipts + voting record

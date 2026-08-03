@@ -95,6 +95,17 @@
 .ic-current-issue { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.15rem; color: #eef4ff; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .ic-mine { display: inline-block; margin-top: 0.25rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid var(--c); padding: 0.08rem 0.5rem; border-radius: 999px; }
 
+/* Two-axis elections note — shown only when the selected issue is 🔐 election
+   security or 📩 ballot access (see ballot-axes.js), because those two keys are
+   scored independently and read in opposite directions. */
+.ic-axisnote {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.55rem;
+  margin-top: 0.5rem; padding: 0.55rem 0.7rem; border-radius: 0.6rem;
+  background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.24);
+}
+.ic-axisnote-txt { flex: 1; min-width: 12rem; font-size: 0.74rem; line-height: 1.55; color: #b9cae3; }
+.ic-axisnote-txt b { color: #eaf1ff; }
+
 /* ── field selector ────────────────────────────────────────────────────── */
 .ic-segs { display: grid; grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: 0.7rem; }
 .ic-seg {

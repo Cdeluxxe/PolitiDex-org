@@ -1078,6 +1078,52 @@ ok(seedPairs > 1000,
   `vote seeds: only ${seedPairs} bioguide→politician_id pair(s) found across ${VOTE_SEEDS.length} ` +
   `seed file(s) — this section is close to vacuous`);
 
+// ── 14. The shipped stance shards may not fall behind their source ───────────
+// politician-stances.js is the CURATED source of truth; the page loads
+// politician-stances-core.js + -ext.js, which scripts/split-stances.mjs generates
+// from it. Nothing enforces that regeneration, and the failure is completely silent:
+// a curated card lands in the monolith, every offline census counts it, and the
+// browser never sees it. That is exactly what happened — 162 cards (97 israel_support,
+// 36 election_security, 29 voting_access) sat in the source while the shards the page
+// loads had none of them, so three passes of "coverage" were dark in the product.
+// Compared by (issueKey, topic) per politician, which is how findStance() addresses a
+// card, so a re-worded card is not a false positive but a NEW or MISSING card is caught.
+let shardsChecked = 0;
+{
+  const shardData = loadGlobal("politician-stances-core.js", "ISSUE_STANCE_DATA");
+  const extData = loadGlobal("politician-stances-ext.js", "ISSUE_STANCE_DATA");
+  const merged = {};
+  for (const src of [shardData, extData]) {
+    for (const pid of Object.keys(src || {})) {
+      merged[pid] = (merged[pid] || []).concat(src[pid] || []);
+    }
+  }
+  const MONO = loadGlobal("politician-stances.js", "ISSUE_STANCE_DATA");
+  ok(MONO && Object.keys(MONO).length > 100, "stance shards: read the source monolith");
+  ok(Object.keys(merged).length > 100, "stance shards: read the two shipped chunks");
+  const cardKey = (c) => `${c && c.issueKey}|${c && c.topic}`;
+  const missing = new Map();   // issueKey → count
+  let missingTotal = 0, firstMissing = null;
+  for (const pid of Object.keys(MONO || {})) {
+    const shipped = new Set((merged[pid] || []).map(cardKey));
+    for (const c of MONO[pid] || []) {
+      if (shipped.has(cardKey(c))) continue;
+      missingTotal++;
+      missing.set(c.issueKey, (missing.get(c.issueKey) || 0) + 1);
+      if (!firstMissing) firstMissing = `${pid} · ${c.issueKey} · ${c.topic}`;
+    }
+  }
+  ok(missingTotal === 0,
+    `stance shards: ${missingTotal} curated card(s) exist in politician-stances.js but not in the ` +
+    `shards the page loads (${[...missing].map(([k, n]) => `${k}=${n}`).join(", ")}; first: ` +
+    `${firstMissing}) — run \`node scripts/split-stances.mjs\` to publish them`);
+  let orphanPids = 0;
+  for (const pid of Object.keys(merged)) if (!MONO[pid]) orphanPids++;
+  ok(orphanPids === 0,
+    `stance shards: ${orphanPids} politician(s) appear in the shards but not in the source monolith`);
+  shardsChecked = missingTotal === 0 ? Object.keys(MONO || {}).length : 0;
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ identity integrity: ${failures.length} failure(s), ${passed} passed\n`);
@@ -1101,6 +1147,8 @@ console.log(`  member map: ${mapChecked} bioguide→pid entr(ies) agree with the
   `publishes${mapUnnamed.length ? `, ${mapUnnamed.length} unnamed and unverifiable [${mapUnnamed.join(", ")}]` : ""}`);
 console.log(`  vote seeds: ${seedPairs} seeded bioguide→pid pair(s) across ${VOTE_SEEDS.length} ` +
   `seed file(s) still agree with the member map`);
+console.log(`  stance shards: every curated card for ${shardsChecked} politician(s) in ` +
+  `politician-stances.js is present in the two chunks the page loads`);
 if (dupeTopics.length) {
   console.log(`  note: ${dupeTopics.length} stance block(s) repeat a topic string, so the later ` +
     `card is unreachable via findStance() — pre-existing, not merge-related:`);
