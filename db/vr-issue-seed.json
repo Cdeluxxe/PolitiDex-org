@@ -134,6 +134,13 @@
      "isPrimary": false,
      "supportMeaning": "yea_opposes",
      "rationale": "Critics hold the documentation requirement narrows ballot access; a yea vote cuts against expanding voting access."
+    },
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires documentary proof of United States citizenship — a passport, a REAL ID showing citizenship, or a birth certificate presented with photo ID — before a state may register an applicant for a federal election, requires states to run a removal program against federal databases for non-citizens already on the rolls, and creates criminal penalties for officials who register an applicant without the documentation. Eligibility verification is the core of the safeguard facet, so a yea is a vote for tighter verification. Not marked primary only because election_integrity already holds that flag on this measure from an earlier pass and moving it would change a published mapping rather than add one."
     }
    ]
   },
@@ -1842,6 +1849,123 @@
      "supportMeaning": "yea_opposes",
      "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/119/sjres/BILLSTATUS-119sjres138.xml",
      "rationale": "Joint resolution of disapproval under section 36 of the Arms Export Control Act whose resolving clause would have blocked the certified transfer to Israel of defense articles and services. The motion to discharge it from the Committee on Foreign Relations was rejected 36-63 on 2026-04-15, and the sale proceeded. A yea blocks the weapons; a nay lets them go."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 1",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "For the People Act of 2021. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration. Every one of those provisions widens a registration or casting pathway, so a yea is a vote to expand access. The bill's election-security title is deliberately NOT mapped: it mandates durable paper ballots and risk-limiting audits while the same bill permits a sworn statement in lieu of documentary ID and restricts list maintenance, so one yea covers both directions of the safeguard facet and records neither."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 4",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/4",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "John R. Lewis Voting Rights Advancement Act of 2021. Restores the Voting Rights Act preclearance regime with a rolling twenty-five-year coverage formula and adds a practice-based review list that gates specific access-narrowing changes — new documentary or photo-ID requirements, polling-place closures and consolidations, and voter-roll purges — behind federal review before they take effect, and restores a private right of action. The bill adds no verification requirement, ballot-handling rule or audit provision of its own, so it is mapped to the access facet only; mapping it to election_security would score members on a question the text does not ask."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 117,
+   "chamber": "house",
+   "number": "H.R. 5746",
+   "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/5746",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Freedom to Vote: John R. Lewis Act, moved as a House amendment to the Senate amendment to H.R. 5746 — a shell bill whose Clerk vote description still reads 'NASA Enhanced Use Leasing Extension Act of 2021', so the roll is identified by citation and question rather than title. Requires automatic and same-day registration, a minimum of two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes per jurisdiction, and makes Election Day a public holiday. A yea is a vote to expand access. Its election-security title is not mapped, for the same internal-split reason as H.R. 1, whose text it incorporates."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 192",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/192",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Same text as H.R. 884 in the 119th Congress: amends the District of Columbia Home Rule Act to bar non-citizens from voting in District elections. A yea is a vote for citizenship verification as a condition of voting. Same Home Rule Act confound — a nay may be a home-rule position rather than a position on non-citizen voting — and it is recorded here for the same reason."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes a casting pathway created by District law; a yea narrows who may cast a ballot. Same Home Rule Act confound as above."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 118,
+   "chamber": "house",
+   "number": "H.R. 8281",
+   "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8281",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SAVE Act, 118th Congress. Amends the National Voter Registration Act to require documentary proof of United States citizenship before a state may register an applicant for a federal election, requires states to establish a program to identify and remove non-citizens from existing rolls using federal immigration and Social Security databases, and creates criminal penalties for officials who register an applicant without the documentation. Eligibility verification and roll maintenance are both squarely in the safeguard facet, so a yea is a vote for tighter verification."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The documentary requirement must be satisfied in person at a registration office, which as a practical matter closes registration by mail and online to any applicant who cannot present documents there, and the acceptable-document list does not accommodate a citizen whose current legal name differs from the name on their birth certificate. The bill adds a barrier at the registration step, so a yea is a vote against easier registration. This is the opposite direction from the same measure's election_security row on purpose: the two facets are scored independently and this bill genuinely pulls them apart."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 884",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/884",
+   "issues": [
+    {
+     "issueKey": "election_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Amends the District of Columbia Home Rule Act to bar any individual who is not a United States citizen from voting in a District election, repealing the effect of the Local Resident Voting Rights Amendment Act of 2022. Citizenship as a condition of casting a ballot is an eligibility safeguard, so a yea is a vote for tighter verification of who may vote. Confound recorded rather than hidden: because the vehicle amends the Home Rule Act, a nay may express opposition to Congress overriding a local District enactment rather than support for non-citizen voting. The mapping is made on the operative election provision and no member's reason is inferred from the vote."
+    },
+    {
+     "issueKey": "voting_access",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes an existing casting pathway: non-citizen District residents who registered under the 2022 local law lose the ability to vote in municipal elections. A yea narrows who may cast a ballot. Same Home Rule Act confound as the election_security row above."
     }
    ]
   }

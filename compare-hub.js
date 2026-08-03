@@ -6570,7 +6570,7 @@
       family: ['family', 'child care', 'childcare', 'paid leave', 'child tax credit', 'parental rights', 'pre-k', 'daycare'],
       tech: ['tech', 'technology', 'ai', 'artificial intelligence', 'privacy', 'big tech', 'social media', 'data privacy', 'crypto'],
       lands: ['public land', 'public lands', 'conservation', 'wilderness', 'national park', 'national monument', 'blm', 'forest', 'grazing'],
-      voting: ['voting', 'elections', 'voter id', 'election integrity', 'mail voting', 'early voting', 'ballot', 'redistricting', 'democracy']
+      voting: ['voting', 'elections', 'voter id', 'election integrity', 'election security', 'ballot access', 'proof of citizenship', 'mail voting', 'early voting', 'ballot', 'redistricting', 'democracy']
     };
 
     // Word-singularizer used so "guns"/"schools"/"taxes" reach the singular

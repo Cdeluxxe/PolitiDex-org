@@ -283,9 +283,72 @@
       privacy_rights:     { label: '🔒 Privacy & Big-Tech Accountability', chip: 'Protect personal data and hold Big Tech accountable', cat: 'tech', stanceKeys: [], keywords: ['privacy','data privacy','surveillance','fisa','section 702','big tech','data','section 230','antitrust','consumer protection','encryption','warrant'] },
 
       // ── Elections & Democracy ──
+      // Election administration is TWO facets, not one axis. A record can be
+      // pro-safeguard and pro-access at the same time (the Utah vote-by-mail
+      // position — 24/7 video-surveilled drop boxes, an envelope-ID requirement AND
+      // universal mail ballots — is exactly that), or oppose both, or split them. A
+      // single blended chip cannot express any of those without editorializing, and
+      // democracy_balance's chip ("Require voter ID but keep early voting and mail
+      // ballots widely available") forces one composite verdict on members who never
+      // took a composite position. So the two facets are keyed separately:
+      //   election_security  — safeguards on who votes and how ballots are handled.
+      //   voting_access      — how easy it is to register and to cast a ballot.
+      // A member may be 'support' on both, 'oppose' on both, or one of each; nothing
+      // in the scoring couples them.
+      //
+      // election_security is a NEW key rather than a reuse of election_integrity or
+      // voter_id, for three reasons.
+      //   1. "Election integrity" is a movement brand, not a description of a policy.
+      //      Its chip narrows the facet to "voter ID and audits", which leaves
+      //      chain-of-custody, ballot-handling safeguards and anti-fraud enforcement
+      //      with nowhere to go, and it carries lean:'R' — a partisan prior on a
+      //      question that draws support across both parties in principle.
+      //   2. voter_id names one instrument (photo ID) and then duplicates
+      //      election_integrity's keyword list wholesale; every member carrying a
+      //      voter_id card also carries an election_integrity card saying the same
+      //      thing. A facet key has to be able to hold a chain-of-custody position
+      //      that has nothing to do with ID.
+      //   3. Both existing keys are already load-bearing on published pages, so they
+      //      are left exactly as they are. This is additive: no card is re-keyed, no
+      //      lean is changed, no score moves. The older keys keep their cards; new
+      //      sourced work lands on the facet keys.
+      // POLARITY: the chip states the PRO-SAFEGUARD direction, so issueStance:'support'
+      // = backs tighter verification and ballot-handling safeguards, 'oppose' = holds
+      // those safeguards are unnecessary or suppressive, 'mixed' = backs safeguards
+      // with reservations about a specific mechanism or a federal mandate. An Official
+      // Record % under this key means "this share of their judged votes favoured
+      // tighter safeguards".
+      // Deliberately carries NO `lean`, following israel_support: the coalitions are
+      // not clean party blocs — Republicans from universal-mail-ballot states have
+      // voted against federal restrictions on mail voting, and audit and
+      // chain-of-custody funding passes with cross-party majorities. Coding this R
+      // would import election_integrity's prior, which is the thing being avoided.
+      // SCOPE: eligibility verification (documentary proof of citizenship, ID),
+      // voter-roll maintenance, ballot chain-of-custody and handling rules,
+      // post-election audits and audit conditions on election funding, and
+      // enforcement against fraud or non-citizen voting. OUT of scope: campaign
+      // finance (campaign_finance), redistricting, certification of results and
+      // Electoral Count Act questions (checks_balances) — those are not
+      // administration of the ballot.
+      election_security:  { label: '🔐 Election Security & Ballot Safeguards', chip: 'Verify eligibility and secure how ballots are handled, tracked and audited', cat: 'democracy', stanceKeys: ['campaign'], keywords: ['election security','ballot security','chain of custody','ballot handling','proof of citizenship','documentary proof of citizenship','citizenship verification','noncitizen voting','non-citizen voting','voter id','voter identification','photo id','voter roll','voter rolls','list maintenance','post-election audit','risk-limiting audit','audit','signature verification','ballot tracking','drop box security','election funding conditions','voter fraud','election crimes'] },
       election_integrity: { label: '🗳 Election Integrity', chip: 'Secure elections with voter ID and audits', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['election integrity','voter id','election security','audit','clean elections','citizenship verification','ballot security','fraud','voter rolls'] },
       voter_id:           { label: '🪪 Voter ID & Election Integrity', chip: 'Require photo ID to vote and tighten safeguards against voter fraud', cat: 'democracy', lean: 'R', stanceKeys: ['campaign'], keywords: ['voter id','voter identification','photo id','election integrity','voter fraud','ballot security','clean elections','citizenship verification','proof of citizenship'] },
       democracy_balance:  { label: '⚖️ Secure & Accessible Voting', chip: 'Require voter ID but keep early voting and mail ballots widely available', cat: 'democracy', stanceKeys: ['termLimits','campaign'], keywords: ['voting','elections','secure','accessible','bipartisan','term limits','transparency','accountability','reform','campaign finance','redistricting','voter id','mail voting','early voting'] },
+      // voting_access IS the ballot_access facet — reused rather than duplicated. Its
+      // label is descriptive rather than branded, its scope already covers
+      // registration ease, early voting, mail ballots and drop boxes, its keywords
+      // already include 'ballot access', and every genuine stated access position in
+      // the library already sits here. A second key would fragment that record for no
+      // gain.
+      // POLARITY: the chip states the PRO-ACCESS direction — issueStance:'support' =
+      // backs easier registration and more ways to cast a ballot, 'oppose' = backs
+      // narrowing them, 'mixed' = backs access with conditions.
+      // KNOWN ASYMMETRY: this key carries lean:'D' while election_security carries no
+      // lean, so the two facets are not scored symmetrically. The lean is left in
+      // place deliberately — _alignApplyLean multiplies it into every Alignment score,
+      // so dropping it would silently move published percentages for every member
+      // already carrying a voting_access card. Removing it is a scoring change and
+      // belongs in its own pass, not in an additive content pass.
       voting_access:      { label: '📩 Expand Voting Access', chip: 'Protect and expand access to the ballot box', cat: 'democracy', lean: 'D', stanceKeys: [], keywords: ['voting rights','voting access','ballot access','mail voting','early voting','automatic registration','john lewis','enfranchise','expand voting','democracy'] },
 
       // ── Government Reform & Term Limits ──
@@ -371,7 +434,7 @@
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
       { key: 'election_integrity', label: '🗳 Election Integrity',
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
-        keys: ['election_integrity','democracy_balance','voting_access','voter_id'] },
+        keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
       { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Who Decides',
         blurb: 'War powers, the power of the purse, congressional oversight, court orders, and the line between federal and state authority.',
         keys: ['checks_balances','states_federal_power'] },

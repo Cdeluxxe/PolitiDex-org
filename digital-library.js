@@ -746,7 +746,7 @@
     immigration:{ label: 'Immigration', icon: '🛂', color: '#fb923c', keys: ['border_security', 'deportations', 'immigration_reform', 'immig_fentanyl', 'immig_balance', 'immig_legal'] },
     energy:     { label: 'Energy & Environment', icon: '⚡', color: '#22d3ee', keys: ['energy_production', 'enviro_energy', 'climate_action', 'enviro_balance', 'lands_energy', 'lands_balance', 'lands_keep_public', 'lands_local', 'lands_preserve', 'water', 'water_storage', 'disaster_resilience'] },
     defense:    { label: 'Defense & Foreign', icon: '🛡️', color: '#93b4d6', keys: ['strong_defense', 'restraint', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans'] },
-    elections:  { label: 'Elections & Democracy', icon: '🗳️', color: '#a78bfa', keys: ['election_integrity', 'voter_id', 'voting_access', 'democracy_balance', 'gov_balance', 'campaign_finance', 'term_limits'] },
+    elections:  { label: 'Elections & Democracy', icon: '🗳️', color: '#a78bfa', keys: ['election_security', 'election_integrity', 'voter_id', 'voting_access', 'democracy_balance', 'gov_balance', 'campaign_finance', 'term_limits'] },
     government: { label: 'Government & Reform', icon: '⚖️', color: '#9ec8ff', keys: ['gov_regulation', 'reform_balance', 'end_dei', 'stock_trading_ban', 'scotus_reform', 'gov_transparency'] },
     education:  { label: 'Education', icon: '🎓', color: '#60a5fa', keys: ['public_schools', 'edu_balance', 'edu_college_cost', 'school_choice', 'edu_parental'] },
     tech:       { label: 'Technology', icon: '💻', color: '#5eead4', keys: ['tech_balance', 'tech_innovation', 'privacy_rights', 'free_speech', 'broadband', 'datacenter_growth', 'datacenter_power', 'datacenter_water'] },

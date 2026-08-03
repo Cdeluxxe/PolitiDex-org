@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 109,
+  "count": 110,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -32,6 +32,7 @@
     "edu_college_cost",
     "edu_parental",
     "election_integrity",
+    "election_security",
     "end_dei",
     "energy_production",
     "enviro_balance",
@@ -542,6 +543,32 @@
       "ballot security",
       "fraud",
       "voter rolls"
+    ],
+    "election_security": [
+      "election security",
+      "ballot security",
+      "chain of custody",
+      "ballot handling",
+      "proof of citizenship",
+      "documentary proof of citizenship",
+      "citizenship verification",
+      "noncitizen voting",
+      "non-citizen voting",
+      "voter id",
+      "voter identification",
+      "photo id",
+      "voter roll",
+      "voter rolls",
+      "list maintenance",
+      "post-election audit",
+      "risk-limiting audit",
+      "audit",
+      "signature verification",
+      "ballot tracking",
+      "drop box security",
+      "election funding conditions",
+      "voter fraud",
+      "election crimes"
     ],
     "end_dei": [
       "dei",
