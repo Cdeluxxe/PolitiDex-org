@@ -374,7 +374,12 @@ const run = async () => {
 
   const sw = read("sw.js");
   ok(/'\/share-anywhere\.js'/.test(sw), "wiring: the service worker precaches the resolver");
-  ok(/CACHE_VERSION = 'v40'/.test(sw), "wiring: the shell version is bumped so the new asset actually ships");
+  // A floor, not a pin: the point is that the shell version moved past the
+  // release that added this asset, so it actually ships. Pinning the exact
+  // version makes every later, unrelated bump fail here for no reason.
+  const swv = sw.match(/CACHE_VERSION\s*=\s*['"]v(\d+)['"]/);
+  ok(swv && Number(swv[1]) >= 40,
+     `wiring: the shell version is bumped so the new asset actually ships (found ${swv ? "v" + swv[1] : "none"})`);
 }
 
   // ── report ─────────────────────────────────────────────────────────────────

@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v40';
+const CACHE_VERSION = 'v41';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -109,6 +109,13 @@ const SHELL_ASSETS = [
   // back to a link-only share, which is a visible loss of function on a repeat
   // visit. Tiny, and it depends on nothing being cached alongside it.
   '/share-anywhere.js',
+  // The profile ordering layer (window.PDXProfileSpine) and its stylesheet.
+  // Precached together: without the script a repeat visitor gets the profile in
+  // its unordered build order, and without the stylesheet the stage rails,
+  // drawers and first-screen brief render unstyled. Both are small, and neither
+  // has a dependency that needs caching alongside it.
+  '/profile-spine.js',
+  '/profile-spine.css',
   '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',

@@ -1848,6 +1848,11 @@ window.PDXLazy = (function () {
        loads non-blocking. -->
   <link rel="stylesheet" href="/controversies.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/controversies.css" /></noscript>
+  <!-- Profile spine — the stage rails, the first-screen brief and the full-record
+       drawers that give a politician profile one reading order (profile-spine.js).
+       Modal-only, so it loads non-blocking like the rest of the profile CSS. -->
+  <link rel="stylesheet" href="/profile-spine.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/profile-spine.css" /></noscript>
   <!-- My Profile — the signed-in visitor's personal civic hub (read-only view). -->
   <link rel="stylesheet" href="/my-profile.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/my-profile.css" /></noscript>
@@ -18288,6 +18293,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        why it loads AFTER both of them. Its control is fail-open and fixed-size, so
        hydrating it cannot shift the layout on the mobile surfaces it appears on. -->
   <script defer src="share-anywhere.js"></script>
+  <!-- Profile spine (window.PDXProfileSpine) — the ordering layer for the profile
+       modal. It owns the canonical stage sequence (identity → the short version →
+       signature issues → where it is contested → official record → receipts →
+       money → you and them → the full record), splits the modal body on its
+       <!==PDXSP:stage==> sentinels and emits the chunks in that order, collects
+       deep-record blocks behind labelled drawers, and renders the first-screen
+       brief. It derives everything it says from the accessors the sections below
+       already use (PDXConsistency.divergence, _pdxControversyItems,
+       _resolveStanceList, PDXShareAnywhere) and asserts nothing of its own, so it
+       cannot claim more than the record supports. Loads after share-anywhere.js
+       because the brief's "share or inspect next" row is that control; profiles
+       open on user interaction, long after this defer script has run, and the
+       modal falls back to its previous unordered body if it is ever missing. -->
+  <script defer src="profile-spine.js"></script>
   <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
        no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
        PDXExecRecordUI). Three files, loaded in dependency order:

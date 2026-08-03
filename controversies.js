@@ -188,6 +188,15 @@
     try { return gather(id, p).length; } catch (e) { return 0; }
   };
 
+  // The same gathered, deduped, ranked items the section renders — exposed so the
+  // profile brief can name the single sharpest flashpoint above the fold without
+  // re-deriving it. Read-only: the brief formats what this returns and never
+  // re-ranks or re-verdicts it, so the headline at the top of a profile is always
+  // the first card of the section further down.
+  window._pdxControversyItems = function (id, p) {
+    try { return gather(id, p); } catch (e) { return []; }
+  };
+
   // ── card + action rail ──────────────────────────────────────────────────────
   function actionsHTML(id, it) {
     var acts = [];
