@@ -16,6 +16,8 @@
 //   * Only decisive questions are ingested (runbook rule 8). Cloture motions, motions
 //     to table and budget-point-of-order waivers say nothing about whether a member
 //     supports what a bill does, so a seed carrying one is a bug, not a judgement call.
+//     Two question forms outside that list are admitted, each gated on the measure's
+//     shape and each required to carry its own written justification — see EXCEPTIONS.
 //   * The roster is the ceiling, not the chamber. `totals` must be the FULL chamber
 //     tally, so it always exceeds the attributed count — if a 220-211 vote were stored
 //     as 33-0 the margin shown to a reader would be a fiction.
@@ -50,6 +52,31 @@ const MAPPED = new Set((ISSUE_SEED.measures || [])
 // A vote that decided the substance: final passage, a motion to concur, or a conference
 // report. Deliberately narrow — anything else needs its own mapping before its own roll.
 const DECISIVE = /^(on passage|on the motion \(motion to concur|on motion to concur|on concurring|on the conference report|on motion to suspend the rules and (pass|agree|concur))/i;
+
+// ── EXCEPTIONS ──────────────────────────────────────────────────────────────
+// Two question forms sit outside DECISIVE while still being the whole substantive record
+// of what they decide. Each is admitted for ONE measure shape, so the caption alone can
+// never let a roll through, and each must ship a `decisiveWhy` on the vote — the reason
+// travels with the data instead of living only in a reviewer's memory.
+//
+//   amendment  "On Agreeing to the Amendment" on an H.Amdt./S.Amdt. measure. An amendment
+//              never gets a passage vote; agreeing to it IS its disposition, and the
+//              alternative is a permanently unscoreable class of directional floor votes.
+//   discharge  "On the Motion to Discharge" on a joint resolution. Under the Arms Export
+//              Control Act's expedited procedure a disapproval resolution the Foreign
+//              Relations Committee has not reported reaches the floor only by discharge,
+//              and no such motion has ever carried — senators debate the arms sale itself
+//              and vote it up or down under this caption. Treating it as procedure would
+//              mean the Senate has no record on arms sales at all.
+//
+// Motions to recommit, motions to table, cloture and previous-question votes stay out.
+// Note how narrow the gate is: "On the Motion to Discharge" on a BILL still fails, because
+// there the discharge really is a step toward a later passage vote.
+const EXCEPTIONS = [
+  { name: 'amendment', question: /^on agreeing to the amendment/i, number: /^(h|s)\.\s*amdt\./i },
+  { name: 'discharge', question: /^on the motion to discharge/i, number: /^(h|s)\.j\.\s*res\./i },
+];
+
 const POSITIONS = new Set(['yea', 'nay', 'present', 'not_voting']);
 const PARTY_FLAGS = new Set(['with_party', 'against_party', null, undefined]);
 
@@ -119,15 +146,26 @@ for (const file of seedFiles) {
     ok(/^https:\/\/\S+$/.test(String(v.sourceUrl)), `${at}: sourceUrl is not an https URL`);
     ok(typeof v.sourceLabel === 'string' && v.sourceLabel.length > 0, `${at}: no sourceLabel`);
 
-    // ── runbook rule 8: decisive questions only ───────────────────────────
-    ok(DECISIVE.test(String(v.question || '')),
-      `${at}: question "${v.question}" is not a decisive vote — procedural rolls are not scoreable`);
-
     // ── the measure must be mapped, or these votes rank nothing ───────────
     const m = v.measure || {};
     ok(!!m.number && !!m.chamber && Number.isInteger(m.congress), `${at}: measure is not fully identified`);
     ok(MAPPED.has(mkey(m.congress, m.number)),
       `${at}: measure ${m.number} (${m.congress}th) has no mapping in db/vr-issue-seed.json`);
+
+    // ── runbook rule 8: decisive questions only ───────────────────────────
+    const question = String(v.question || '');
+    const num = String(m.number || '');
+    const exception = EXCEPTIONS.find(e => e.question.test(question) && e.number.test(num));
+    ok(DECISIVE.test(question) || !!exception,
+      `${at}: question "${v.question}" is not a decisive vote — procedural rolls are not scoreable`);
+    // An exception is a judgement about one measure shape, so it has to be argued in the
+    // seed. Without this the two patterns would quietly widen into a loophole: any roll
+    // captioned "On Agreeing to the Amendment" would pass review by matching a regex.
+    if (exception && !DECISIVE.test(question)) {
+      ok(typeof v.decisiveWhy === 'string' && v.decisiveWhy.trim().length >= 24,
+        `${at}: admitted under the ${exception.name} exception but carries no decisiveWhy — `
+        + 'a non-passage question is only scoreable if the seed states why it decided the substance');
+    }
 
     // ── the roster is the ceiling, not the chamber ────────────────────────
     const mvs = Array.isArray(v.memberVotes) ? v.memberVotes : [];

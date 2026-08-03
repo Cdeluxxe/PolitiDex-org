@@ -319,6 +319,87 @@ key expresses aviation policy, and attaching a 269,000-character programs bill t
 `infrastructure` (keywords: roads, bridges, grid, water systems) would be the stretch
 rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
 
+### Two rules from the first issue-first pass (Support for Israel)
+
+11. **A near-unanimous margin is near-unanimous *relative to the question being scored*.**
+   Rule 10 declined H.R. 8034 at 366-58 as distinguishing nobody, and for the general
+   foreign-policy keys that was right: H.R. 8035's 311-112 Ukraine split already carried
+   the supplemental's signal, and 366-58 added nothing to it. Under `israel_support` the
+   same 58 nays are the entire point — they are the members who declined to fund Israel's
+   missile defence on a bill that asked nothing else of them. So a decline recorded in a
+   ledger is scoped to the keys of the pass that recorded it, and a later issue-first pass
+   may reverse it. Reverse it *in writing*: `db/vr-israel-vote-seed.json` carries a
+   `reversals` block and the Phase A decline's `why` string now ends in "SUPERSEDED
+   2026-08", in both the builder and the seed. Never quietly rewrite the earlier judgement.
+12. **The decisive-question gate takes shape-gated exceptions, never a loosened regex.**
+   Rule 8 admits passage, concurrence and conference reports only. Two question forms
+   decide substance without being any of those, and `scripts/test-vr-vote-seed.mjs` now
+   admits each for exactly one measure shape: "On Agreeing to the Amendment" on an
+   `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge" on an `S.J.Res.`/`H.J.Res.`. The
+   second is the load-bearing one for arms-sale disapproval: under the Arms Export Control
+   Act the resolution is the only vehicle, the discharge motion is the only vote the Senate
+   ever takes on it, and a nay there is a recorded decision to let the sale proceed. Note
+   how narrow the gate is — "On the Motion to Discharge" on a *bill* still fails, because
+   there the discharge really is a step toward a later passage vote. Every roll admitted
+   under an exception must carry a `decisiveWhy` of at least 24 characters saying why the
+   question decided the substance; the test fails the seed otherwise.
+
+## Support for Israel — the first issue-complete vertical, and what's queued
+
+Migration `20260812000000_vr_israel_support_rollcalls.sql` ingests 16 decisive roll calls
+across the 117th–119th under one new `ISSUE_MAP` key, `israel_support`: six House rolls
+(H.R. 5323 Iron Dome 420-9; H.Amdt. 478 to the FY24 State-Foreign-Ops bill; H.R. 6126
+226-196; H.R. 7217 250-180; H.R. 8034 366-58; H.R. 8369 224-187), nine Senate discharge
+votes on arms-sale disapproval resolutions, and House roll 243/2026 on H.Amdt. 235, which
+was already live and is re-emitted as a no-op so the seed and the database agree. 415
+attributed member-votes, all through the bioguide → roster path. H.R. 8034 is created as a
+child of H.R. 815 under rule 10 and carries `israel_support` alone; the parent keeps its
+five existing keys and gains none, because the Israel money is Division A and nothing else.
+
+Coverage after this pass, measured rather than asserted: 60 of the 63 roster slugs are
+**scoreable** on the key (at least one yea/nay on a mapped measure), and **4** are
+rankable — schiff, fetterman, jayapal, tlaib. The binding constraint is not mapping work:
+of the 46 people holding a stated `israel_support` position, **42 have no bioguide → slug
+entry at all**, so no vote can ever attach to them no matter how many rolls are ingested.
+
+Queued, in priority order:
+
+1. **Roster expansion, which is the whole ballgame for this issue.** The 42 vote-gap names
+   include both party leaderships and most of the Senate's Israel-vocal members —
+   schumer, sanders, kaine, thune, van_hollen, warnock, chris_murphy, risch, lankford,
+   mcconnell, shaheen, reed, tim_scott, britt, rosen, mark_kelly, andy_kim, gallego, and
+   House members jeffries, stefanik, omar, torres, mike_lawler, josh_gottheimer, slotkin,
+   brian_mast, summer_lee, dan_goldman and others. Each needs one `db/vr-member-map.json`
+   entry; the 16 rolls already ingested would then score them with no new curation.
+2. **A stance pass over the 56 stance gaps.** These members already have judged votes on
+   the key and are one sourced sentence away from rankable. Highest-volume first: curtis
+   (12 judged, 100% pro-support), then barrasso, booker, collins, cruz, durbin, ernst,
+   graham, grassley, hawley, john_cornyn, jon_ossoff, lee, murkowski, rand_paul and warren
+   at 9 each; House at 7 each, including massie and maxine_waters at 14%, bennie_thompson
+   and kclark at 29%, aoc at 0%, khanna 17%, crockett and mtg 33%, boebert 67%,
+   scott_perry 83%. No position may be inferred from these numbers — that is precisely the
+   invention the mapping rules forbid. The votes say what to go looking for, not what the
+   member said.
+3. **H.R. 340** (Hamas financing sanctions, 363-46). Queued rather than mapped: the margin
+   is real and the subject is squarely on-key, but it needs its own read against rule 4
+   before a direction is coded.
+4. **The 117th column is one roll deep.** H.R. 5323 is the only 117th record on this issue,
+   and a 420-9 vote is a thin signal by design. Contested 117th measures touching Israel
+   aid, the Abraham Accords implementation bills and the Iron Dome supplemental's Senate
+   path are all uningested.
+5. **`is_primary` on H.Amdt. 235.** Its display-primary row is still `america_first_fp`
+   from the earlier pass, while its strongest signal is now `israel_support` at weight 95.
+   Moving it would be non-additive and purely cosmetic — `is_primary` drives sort order,
+   the "Primary" badge and the Legislation-library link, never scoring — so it waits for a
+   pass that is allowed to rewrite existing rows.
+
+One naming collision a reader of the coverage table will trip over: the slug `kennedy` is
+**Kimberlyn King-Hinds** (K000404, House, MP), not Senator John Kennedy (K000393), who has
+no roster entry. That is why "Kennedy (LA)" on the nine Senate rolls resolves to nothing
+and is correctly skipped, and why `kennedy` shows a single House amendment vote. Pre-existing
+and out of scope for an additive pass, but it should be fixed before either name is
+published in a ranking.
+
 ## Expected result — the ready-to-result comparisons
 
 Each becomes a real both-sided comparison the moment its member's formal record on the

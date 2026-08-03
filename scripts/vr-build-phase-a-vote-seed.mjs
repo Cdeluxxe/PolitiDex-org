@@ -92,6 +92,15 @@ const SELECTIONS = [
 // Peace through Strength 360-58) and a near-unanimous vote carries no signal that
 // distinguishes one member from another, which is the same rule that keeps
 // near-unanimous measures unmapped elsewhere in this repo.
+//
+// One of those three has since been reversed, and the entry below records it rather than
+// being quietly rewritten. H.R. 8034 IS ingested by db/vr-israel-vote-seed.json, because
+// "no distinguishing signal" was a judgement about THIS pass's keys: the supplemental's
+// foreign-policy signal was already carried by H.R. 8035's 311-112 Ukraine split, and
+// 366-58 added nothing to it. Under israel_support the same 58 nays are the entire point —
+// they are the members who declined to fund Israel's missile defence on a bill that asked
+// nothing else of them. A margin is not near-unanimous in the abstract; it is
+// near-unanimous relative to the question being scored.
 const DIVISIONS = [
   {
     number: "H.R. 8035", chamber: "house", congress: 118, session: 2, roll: 151,
@@ -103,7 +112,7 @@ const DIVISIONS = [
 ];
 
 const DECLINED = [
-  { number: "H.R. 8034", session: 2, roll: 152, totals: "366-58", why: "near-unanimous; no distinguishing signal" },
+  { number: "H.R. 8034", session: 2, roll: 152, totals: "366-58", why: "near-unanimous for this pass's general foreign-policy keys, where H.R. 8035's 311-112 Ukraine split already carried the supplemental's signal; SUPERSEDED 2026-08 and now ingested by db/vr-israel-vote-seed.json, where the 58 nays are the discriminating signal under israel_support" },
   { number: "H.R. 8036", session: 2, roll: 146, totals: "385-34", why: "near-unanimous; no distinguishing signal" },
   { number: "H.R. 8038", session: 2, roll: 145, totals: "360-58", why: "near-unanimous; no distinguishing signal" },
   { number: "H.R. 7776", session: 2, roll: 253, totals: "384-37", why: "vote on the rivers-and-harbors text this vehicle carried before the NDAA replaced it" },
