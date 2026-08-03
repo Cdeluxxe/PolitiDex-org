@@ -12,39 +12,39 @@ not yet deployed is counted, and every row it accounts for is marked `pending`.
 
 | | member-votes |
 |---|---|
-| Recorded yea/nay votes | 7,132 |
-| …of which the votes themselves are seeded but not yet deployed | 292 |
-| …on a measure with at least one issue mapping | 5,595 |
+| Recorded yea/nay votes | 7,614 |
+| …of which the votes themselves are seeded but not yet deployed | 482 |
+| …on a measure with at least one issue mapping | 6,077 |
 | …of which the mapping is curated but not yet deployed | 0 |
-| …**and** the member holds a stated position on that key (rankable) | 2,936 |
-| …of which awaiting deploy | 293 |
+| …**and** the member holds a stated position on that key (rankable) | 3,084 |
+| …of which awaiting deploy | 148 |
 | Blocked earlier than that — the measure has no real title yet | 0 |
 | …title resolved in `db/vr-measure-identity.json`, awaiting deploy | 0 |
 
-Rankable (member, issue) pairs: **731** (38 awaiting deploy). People with at least one rankable record: **193** (7 awaiting deploy).
+Rankable (member, issue) pairs: **765** (34 awaiting deploy). People with at least one rankable record: **193**.
 
-16 deployed roll call(s) the seed attributes to more members than the database holds carry 292 yea/nay member-votes
+29 deployed roll call(s) the seed attributes to more members than the database holds carry 482 yea/nay member-votes
 that are committed in a vote seed and not live. They are counted above and listed
 here so the difference between "ingested" and "deployed" stays visible.
 
 | pending member-votes | measure | title | mapped |
 |---:|---|---|---|
-| 21 | H.R. 8034 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) |
-| 21 | H.R. 8369 | Israel Security Assistance Support Act | 1 key(s) |
-| 20 | H.Amdt. 478 | H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move t | 1 key(s) |
-| 20 | H.R. 6126 | Israel Security Supplemental Appropriations Act, 2024 | 2 key(s) |
-| 20 | H.R. 7217 | Israel Security Supplemental Appropriations Act, 2024 | 1 key(s) |
-| 19 | S.J.Res. 33 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 19 | S.J.Res. 26 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 19 | S.J.Res. 32 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 19 | S.J.Res. 138 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 17 | H.R. 5323 | Iron Dome Supplemental Appropriations Act, 2022 | 1 key(s) |
-| 17 | H.Amdt. 235 | H.Amdt. 235 (Massie) to H.R. 8595 — prohibit funds appropria | 3 key(s) |
-| 16 | S.J.Res. 111 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 16 | S.J.Res. 113 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 16 | S.J.Res. 115 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 16 | S.J.Res. 41 | A joint resolution providing for congressional disapproval o | 1 key(s) |
-| 16 | S.J.Res. 34 | A joint resolution providing for congressional disapproval o | 1 key(s) |
+| 37 | H.R. 5009 | Servicemember Quality of Life Improvement and National Defen | 2 key(s) |
+| 36 | H.R. 3746 | Fiscal Responsibility Act of 2023 | 4 key(s) |
+| 36 | H.R. 2670 | National Defense Authorization Act for Fiscal Year 2024 | 1 key(s) |
+| 35 | H.R. 7888 | Reforming Intelligence and Securing America Act | 2 key(s) |
+| 32 | H.R. 1319 | American Rescue Plan Act of 2021 | 8 key(s) |
+| 32 | H.R. 3684 | Infrastructure Investment and Jobs Act | 7 key(s) |
+| 32 | S. 1605 | National Defense Authorization Act for Fiscal Year 2022 | 1 key(s) |
+| 32 | H.R. 3076 | Postal Service Reform Act of 2022 | 2 key(s) |
+| 32 | S. 2938 | Bipartisan Safer Communities Act | 4 key(s) |
+| 32 | S. 3373 | Sergeant First Class Heath Robinson Honoring our Promise to  | 2 key(s) |
+| 32 | H.R. 4346 | Chips and Science Act | 4 key(s) |
+| 32 | H.R. 5376 | Inflation Reduction Act of 2022 | 7 key(s) |
+| 31 | H.R. 8404 | Respect for Marriage Act | 1 key(s) |
+| 21 | H.R. 8035 | Ukraine Security Supplemental Appropriations Act, 2024 | 3 key(s) |
+| 15 | H.R. 7776 | James M. Inhofe National Defense Authorization Act for Fisca | 1 key(s) |
+| 15 | H.R. 815 | Making emergency supplemental appropriations for the fiscal  | 5 key(s) |
 
 ## Gap 0 — measures still carrying a placeholder title
 
@@ -105,18 +105,18 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 | member-votes | measure | key |
 |---:|---|---|
+| 90 | H.R. 2670 | strong_defense |
 | 83 | PN11-7 | strong_defense |
 | 83 | Kennedy — HHS | healthcare |
+| 81 | S. 1605 | strong_defense |
+| 79 | H.R. 8404 | lgbtq_rights |
 | 74 | H.R. 6955 | econ_smallbiz |
 | 73 | H.R. 8800 | strong_defense |
 | 58 | H.R. 8034 | israel_support |
 | 57 | H.Amdt. 478 | israel_support |
 | 56 | H.R. 7217 | israel_support |
 | 55 | H.R. 8369 | israel_support |
-| 54 | H.R. 2670 | strong_defense |
-| 49 | S. 1605 | strong_defense |
 | 49 | H.R. 5323 | israel_support |
-| 48 | H.R. 8404 | lgbtq_rights |
 | 40 | H.R. 276 | america_first |
 | 38 | H.Amdt. 87 | lgbtq_rights |
 | 38 | H.Amdt. 97 | lands_preserve |
@@ -134,7 +134,7 @@ second, genuinely-supported key is not overlooked on a high-traffic measure.
 
 ## Gap 2 — members with votes on an issue but no stated position
 
-6,394 (member, issue) pairs, 13,467 member-votes.
+7,081 (member, issue) pairs, 14,947 member-votes.
 Each row is one sourced position away from being judgeable — but only where a
 real, verifiable position exists. Do not fill these in by inference.
 
@@ -161,9 +161,16 @@ real, verifiable position exists. Do not fill these in by inference.
 | 12 | jon_ossoff | strong_defense | yes |
 | 12 | josh_brecheen | strong_defense | yes |
 | 12 | curtis | israel_support | yes |
+| 11 | thune | strong_defense | yes |
+| 11 | schumer | strong_defense | yes |
 | 11 | aoc | national_debt | yes |
 | 11 | murkowski | strong_defense | yes |
 | 11 | barrasso | strong_defense | yes |
+| 11 | lankford | strong_defense | yes |
+| 11 | mark_kelly | strong_defense | yes |
+| 11 | rosen | strong_defense | yes |
+| 11 | chris_murphy | strong_defense | yes |
+| 11 | van_hollen | strong_defense | yes |
 | 11 | schiff | strong_defense | yes |
 | 11 | rick_crawford | cut_spending | yes |
 | 11 | mike_ezell | cut_spending | yes |
@@ -172,6 +179,8 @@ real, verifiable position exists. Do not fill these in by inference.
 | 10 | crockett | cut_spending | yes |
 | 10 | crockett | gov_regulation | yes |
 | 10 | cruz | strong_defense | yes |
+| 10 | warnock | strong_defense | yes |
+| 10 | andy_kim | strong_defense | yes |
 | 10 | rob_bresnahan | cut_spending | yes |
 | 10 | bennie_thompson | america_first_fp | yes |
 | 10 | bruce_westerman | america_first_fp | yes |
@@ -185,55 +194,46 @@ real, verifiable position exists. Do not fill these in by inference.
 | 10 | scalise | america_first_fp | yes |
 | 10 | stephanie_bice | america_first_fp | yes |
 | 10 | trent_kelly | america_first_fp | yes |
+| 9 | schumer | national_debt | yes |
 | 9 | emmer | climate_action | yes |
 | 9 | jim_jordan | climate_action | yes |
 | 9 | grassley | national_debt | yes |
 | 9 | warren | national_debt | yes |
 | 9 | lee | national_debt | yes |
-| 9 | cruz | national_debt | yes |
-| 9 | collins | national_debt | yes |
-| 9 | booker | national_debt | yes |
-| 9 | durbin | national_debt | yes |
-| 9 | jon_ossoff | national_debt | yes |
-| 9 | fetterman | strong_defense | yes |
-| 9 | stephanie_bice | gov_regulation | yes |
-| 9 | don_davis | gov_regulation | yes |
-| 9 | scalise | gov_transparency | yes |
-| 9 | jim_jordan | gov_transparency | yes |
-| … | _6,334 more_ | | |
+| … | _7,021 more_ | | |
 
 ## Gap 2 rolled up by issue
 
 | member-votes | issue key | members missing a position |
 |---:|---|---:|
-| 712 | climate_action | 205 |
-| 703 | gov_regulation | 190 |
+| 774 | climate_action | 206 |
+| 738 | gov_regulation | 191 |
+| 730 | strong_defense | 107 |
+| 699 | national_debt | 137 |
+| 659 | energy_production | 175 |
 | 639 | states_federal_power | 199 |
-| 608 | strong_defense | 104 |
-| 598 | energy_production | 174 |
-| 591 | national_debt | 129 |
-| 559 | cost_living | 210 |
+| 589 | cost_living | 212 |
+| 472 | gov_transparency | 135 |
 | 456 | cut_spending | 122 |
-| 442 | gov_transparency | 117 |
-| 376 | america_first_fp | 117 |
+| 430 | gov_services | 143 |
+| 410 | america_first_fp | 120 |
+| 401 | lgbtq_rights | 119 |
+| 374 | foreign_balance | 134 |
 | 372 | israel_support | 56 |
-| 366 | gov_services | 123 |
-| 344 | foreign_balance | 116 |
-| 333 | lgbtq_rights | 95 |
-| 296 | healthcare | 128 |
+| 318 | healthcare | 135 |
+| 289 | public_schools | 161 |
 | 286 | tough_on_crime | 106 |
+| 271 | restraint | 142 |
+| 256 | family_support | 165 |
 | 253 | school_choice | 157 |
+| 244 | privacy_rights | 115 |
 | 243 | deportations | 135 |
-| 238 | restraint | 122 |
+| 229 | lower_taxes | 142 |
 | 226 | checks_balances | 105 |
-| 225 | public_schools | 152 |
-| 224 | family_support | 157 |
-| 209 | privacy_rights | 93 |
-| 199 | lower_taxes | 135 |
-| 194 | econ_smallbiz | 59 |
-| 188 | edu_college_cost | 159 |
+| 225 | econ_smallbiz | 90 |
+| 224 | edu_college_cost | 167 |
+| 194 | econ_corp_account | 137 |
 | 182 | border_security | 93 |
 | 180 | lands_energy | 136 |
-| 162 | econ_corp_account | 117 |
-| 157 | tech_balance | 128 |
+| 171 | tech_balance | 133 |
 

@@ -40,11 +40,17 @@
 // -----------
 // Member votes are filtered to db/vr-member-map.json. The House XML carries a bioguide
 // id per legislator (name-id), so the House side is a direct lookup. The Senate XML
-// carries no bioguide id, so senators are resolved by (last name, state) against the
+// carries no bioguide id, so senators are resolved by (surname, state) against the
 // roster and a hit is only accepted when it is UNIQUE — an ambiguous or unrecognized
 // member is skipped and counted, never guessed. is_party is computed from the FULL
-// chamber tally before filtering, so a 63-member roster subset can never mislabel a
-// party crossover.
+// chamber tally before filtering, so a roster subset can never mislabel a party
+// crossover, whatever size the roster happens to be.
+//
+// The roster is the ceiling, and it moves: db/vr-roster-admitted.json admitted 37 more
+// members after this seed was first built, so re-running this script re-attributes the
+// SAME 29 rolls against the wider roster and yields strictly more member votes. Nothing
+// about the selections, questions or tallies changes when it does — only who is
+// recognised. Re-run it after any roster admission.
 // ---------------------------------------------------------------------------
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -268,15 +274,36 @@ async function fetchHouse(number, measure, congress, session, roll) {
 }
 
 // ── Senate ──────────────────────────────────────────────────────────────────
-// The Senate XML has no bioguide id, so resolve by (last name, state) and require a
-// unique roster hit.
+// The Senate XML has no bioguide id, so a senator resolves on (surname, state) and a hit
+// is only accepted when it is unique. The surname cannot be taken as "the last word of
+// the roster name": the Senate writes <last_name>Van Hollen</last_name>, so a last-word
+// split yields "Hollen" and Chris Van Hollen silently receives nothing on every Phase A
+// Senate roll he actually voted on. The roster's full name is kept and compared against
+// the chamber's own surname string, so a multi-word or hyphenated surname matches whole.
+// Middle names and initials fall out of the comparison because it anchors on the tail.
 const senateRoster = ROSTER
   .filter((r) => r.chamber === "senate" && r.name && r.state)
-  .map((r) => ({ bioguide: r.bioguide, state: r.state, last: r.name.split(/\s+/).filter((w) => !/^[A-Z]\.$/.test(w)).slice(-1)[0] }));
+  .map((r) => ({ bioguide: r.bioguide, state: r.state, name: r.name }));
+const surnameMatches = (rosterName, xmlLast) => {
+  const a = String(rosterName).toLowerCase().replace(/\s+(jr|sr|ii|iii|iv)\.?$/, "");
+  const b = String(xmlLast).toLowerCase();
+  return a === b || a.endsWith(" " + b);
+};
 // Roster entries who sat in the Senate during the 117th/118th but whose row carries no
 // chamber/state because they have since left Congress for the executive branch.
-const SENATE_ALUMNI = [{ bioguide: "R000595", state: "FL", last: "Rubio" }];
-const senateLookup = [...senateRoster, ...SENATE_ALUMNI];
+//
+// An alumni entry is REDUNDANT once the roster row it stands in for carries a state again
+// — which is what happened when scripts/vr-gen-member-map.mjs started annotating former
+// members out of legislators-historical.json. Left un-deduped, Rubio then matched twice on
+// (surname, state), the resolver read two rows as two people, and he was skipped as
+// ambiguous on every Phase A Senate roll: a member LOST to a widening of the roster. So
+// the lookup is keyed by bioguide, and ambiguity below counts distinct people rather than
+// matching rows.
+const SENATE_ALUMNI = [{ bioguide: "R000595", state: "FL", name: "Marco Rubio" }];
+const senateLookup = [];
+for (const r of [...senateRoster, ...SENATE_ALUMNI]) {
+  if (!senateLookup.some((x) => x.bioguide === r.bioguide)) senateLookup.push(r);
+}
 
 async function fetchSenate(number, measure, congress, session, roll) {
   const base = `https://www.senate.gov/legislative/LIS/roll_call_votes/vote${congress}${session}/vote_${congress}_${session}_${String(roll).padStart(5, "0")}`;
@@ -309,13 +336,14 @@ async function fetchSenate(number, measure, congress, session, roll) {
     const f = m[1];
     const last = (tag(f, "last_name") || "").trim();
     const state = (tag(f, "state") || "").trim();
-    const hits = senateLookup.filter((r) => r.last === last && r.state === state);
-    if (hits.length > 1) {
+    const hits = senateLookup.filter((r) => surnameMatches(r.name, last) && r.state === state);
+    const people = [...new Set(hits.map((r) => r.bioguide))];
+    if (people.length > 1) {
       ambiguous++;
-      notes.push(`AMBIGUOUS senate ${congress}/${session}/${roll}: ${last} (${state}) matches ${hits.length} roster rows — skipped`);
+      notes.push(`AMBIGUOUS senate ${congress}/${session}/${roll}: ${last} (${state}) matches ${people.length} roster members — skipped`);
     }
     all.push({
-      bioguideId: hits.length === 1 ? hits[0].bioguide : null,
+      bioguideId: people.length === 1 ? people[0] : null,
       party: (tag(f, "party") || "").trim(),
       state,
       position: POS[(tag(f, "vote_cast") || "").trim()] || null,

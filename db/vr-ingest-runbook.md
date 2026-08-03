@@ -407,15 +407,42 @@ vote. An entry for appearances' sake is worse than the gap it papers over.
    the pass looked inert. The overlay now keys on (roll call, member), matching
    `vr_member_votes`' own unique index, and still stops double-counting after the deploy.
 
+### The Phase A re-attribution — done
+
+Migration `20260814000000_vr_phase_a_roster_expansion_votes.sql` closed the debt the roster
+expansion created. `db/vr-phase-a-vote-seed.json` was rebuilt against the 100-slug roster:
+the same 29 roll calls, the same questions, tallies and party-crossover flags, **731 → 1,217
+attributed member votes** (+486), distinct people **56 → 93**. Rankable (member, issue) pairs
+went **731 → 765** (+34) across 14 issue keys, spread over 19 people — the heaviest being
+`health_drug_prices` (6), `econ_workers` (5), `strong_defense` (5) and `veterans` (4).
+
+Nobody gained a *first* rankable record from it, and that is the expected answer rather than a
+disappointment: the same 37 members had already gained theirs from the Israel rolls one pass
+earlier. What this pass bought is breadth — those members can now be judged on domestic
+spending, defense authorisation, veterans' care and surveillance rather than on Israel alone.
+Phase A's curated issue rows were not touched; only who is recognised changed.
+
+17. **A member can be lost to a resolver bug on one seed and not another, so fix both.**
+   The Senate resolver exists in two builders. Fixing the last-word surname split and the
+   alumni duplication in `scripts/vr-build-israel-vote-seed.mjs` left the identical two
+   defects sitting in `scripts/vr-build-phase-a-vote-seed.mjs`, where they cost 30 more
+   member votes: Van Hollen was skipped on all 15 Phase A Senate rolls, and Rubio — who
+   *was* attributed on the narrow roster, because his un-annotated row carried no state —
+   would have been dropped as ambiguous the moment the widened roster gave it one. Verified
+   counterfactually against the real XML for senate 117/2/325: the old resolver resolves 29
+   of 100 senators and flags 1 ambiguous, the new one resolves 31 and flags none. When a
+   resolver is fixed, grep for every builder that carries a copy of it.
+18. **A roster admission is a debt against every seed already built.** Widening the roster
+   does not just unlock the pass that asked for it — it silently under-attributes every
+   existing seed, because each was filtered through the roster as it stood. The obligation
+   is now written down: after any change to `db/vr-roster-admitted.json`, re-run **every**
+   `db/*-vote-seed.json` builder and emit the differences, rather than only the seed the
+   admission was motivated by. Both re-attribution migrations are pure re-assertions with
+   `ON CONFLICT DO NOTHING`, so this is mechanical and safe to repeat.
+
 Queued, in priority order:
 
-1. **Re-attribute the Phase A roll calls against the widened roster.** The 37 new members
-   also voted on the 29 Phase A rolls, so `db/vr-phase-a-vote-seed.json` is now
-   under-attributed by construction — it was built against a 63-slug roster. Re-running
-   `scripts/vr-build-phase-a-vote-seed.mjs` and emitting a forward-only migration is the
-   single highest-yield follow-up, and it is mechanical: no new curation, no new rolls.
-   Deliberately left out of the Israel pass, which was scoped to Israel roll calls.
-2. **A stance pass over the 56 stance gaps.** These members already have judged votes on
+1. **A stance pass over the 56 stance gaps.** These members already have judged votes on
    the key and are one sourced sentence away from rankable. Highest-volume first: curtis
    (12 judged, 100% pro-support), then barrasso, booker, collins, cruz, durbin, ernst,
    graham, grassley, hawley, john_cornyn, jon_ossoff, lee, murkowski, rand_paul and warren
@@ -424,23 +451,24 @@ Queued, in priority order:
    scott_perry 83%. No position may be inferred from these numbers — that is precisely the
    invention the mapping rules forbid. The votes say what to go looking for, not what the
    member said.
-3. **H.R. 340** (Hamas financing sanctions, 363-46). Queued rather than mapped: the margin
+2. **H.R. 340** (Hamas financing sanctions, 363-46). Queued rather than mapped: the margin
    is real and the subject is squarely on-key, but it needs its own read against rule 4
    before a direction is coded.
-4. **The 117th column is one roll deep.** H.R. 5323 is the only 117th record on this issue,
+3. **The 117th column is one roll deep.** H.R. 5323 is the only 117th record on this issue,
    and a 420-9 vote is a thin signal by design. Contested 117th measures touching Israel
    aid, the Abraham Accords implementation bills and the Iron Dome supplemental's Senate
    path are all uningested.
-5. **`is_primary` on H.Amdt. 235.** Its display-primary row is still `america_first_fp`
+4. **`is_primary` on H.Amdt. 235.** Its display-primary row is still `america_first_fp`
    from the earlier pass, while its strongest signal is now `israel_support` at weight 95.
    Moving it would be non-additive and purely cosmetic — `is_primary` drives sort order,
    the "Primary" badge and the Legislation-library link, never scoring — so it waits for a
    pass that is allowed to rewrite existing rows.
-6. **The remaining 73 unadmitted portraits.** Every one has a readable Bioguide and would
+5. **The remaining 73 unadmitted portraits.** Every one has a readable Bioguide and would
    widen attribution across every ingested issue at once. Admission is cheap to write and
    expensive to get wrong, so it belongs in a pass that can re-measure the whole record —
-   and it must respect the photo gate in `scripts/test-photo-coverage.mjs`, which requires
-   a bundled face for every roster slug.
+   it must respect the photo gate in `scripts/test-photo-coverage.mjs`, which requires
+   a bundled face for every roster slug, and under rule 18 it must re-run every vote-seed
+   builder rather than just one.
 
 One naming collision a reader of the coverage table will trip over: the slug `kennedy` is
 **Kimberlyn King-Hinds** (K000404, House, MP), not Senator John Kennedy (K000393), who has

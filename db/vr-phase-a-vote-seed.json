@@ -7,7 +7,7 @@
   118
  ],
  "rollCallCount": 29,
- "memberVoteCount": 731,
+ "memberVoteCount": 1217,
  "declinedRollCalls": [
   {
    "number": "H.R. 8034",
@@ -95,7 +95,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -108,6 +108,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -176,8 +183,36 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -197,10 +232,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -249,8 +354,22 @@
     "phaseA": true
    },
    "chamberVoting": 432,
-   "rosterSkipped": 399,
+   "rosterSkipped": 382,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -273,6 +392,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -289,6 +415,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -322,6 +455,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -336,10 +490,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -378,6 +546,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -399,10 +574,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -441,6 +630,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -466,6 +676,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -526,7 +750,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -539,6 +763,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -607,11 +838,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "M001153",
@@ -628,10 +887,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -680,8 +1009,22 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 401,
+   "rosterSkipped": 384,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -699,6 +1042,13 @@
     {
      "bioguideId": "B000825",
      "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -723,6 +1073,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "E000294",
@@ -753,6 +1110,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -767,10 +1145,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -809,6 +1201,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -830,11 +1229,25 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "O000086",
@@ -872,6 +1285,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -897,6 +1331,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -952,8 +1400,22 @@
     "phaseA": true
    },
    "chamberVoting": 433,
-   "rosterSkipped": 400,
+   "rosterSkipped": 383,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -976,6 +1438,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -992,6 +1461,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -1025,6 +1501,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -1039,9 +1536,23 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -1081,6 +1592,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -1102,9 +1620,23 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
      "position": "nay",
      "isParty": "against_party"
     },
@@ -1144,6 +1676,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -1170,6 +1723,20 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "K000388",
@@ -1229,7 +1796,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -1245,6 +1812,13 @@
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001035",
@@ -1310,11 +1884,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -1331,9 +1933,79 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -1383,8 +2055,22 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 401,
+   "rosterSkipped": 384,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -1407,6 +2093,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -1423,6 +2116,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -1456,6 +2156,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -1470,11 +2191,25 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001101",
@@ -1512,6 +2247,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -1533,11 +2275,25 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "O000086",
@@ -1575,6 +2331,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -1599,6 +2376,20 @@
      "bioguideId": "C001053",
      "politicianId": "tom_cole",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -1660,7 +2451,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -1673,6 +2464,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -1741,11 +2539,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -1762,11 +2588,81 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "W000817",
@@ -1819,7 +2715,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -1832,6 +2728,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -1900,11 +2803,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "M001153",
@@ -1921,10 +2852,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -1973,8 +2974,22 @@
     "phaseA": true
    },
    "chamberVoting": 430,
-   "rosterSkipped": 397,
+   "rosterSkipped": 380,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -1997,6 +3012,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -2013,6 +3035,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -2046,6 +3075,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -2060,10 +3110,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2102,6 +3166,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -2123,10 +3194,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2165,6 +3250,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -2190,6 +3296,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2245,8 +3365,22 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 397,
+   "rosterSkipped": 380,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -2269,6 +3403,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -2288,6 +3429,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "E000294",
@@ -2318,6 +3466,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -2332,11 +3501,25 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001101",
@@ -2374,6 +3557,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -2402,11 +3592,25 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "O000086",
@@ -2444,6 +3648,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -2468,6 +3693,20 @@
      "bioguideId": "C001053",
      "politicianId": "tom_cole",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -2529,7 +3768,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -2542,6 +3781,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -2610,11 +3856,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "M001153",
@@ -2631,10 +3905,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2683,8 +4027,22 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 397,
+   "rosterSkipped": 380,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -2707,6 +4065,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -2723,6 +4088,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -2756,6 +4128,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -2770,10 +4163,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2812,6 +4219,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -2840,10 +4254,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -2882,6 +4310,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -2908,6 +4357,20 @@
      "party": "R",
      "position": "yea",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "K000388",
@@ -2967,7 +4430,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -2980,6 +4443,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -3048,11 +4518,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -3069,9 +4567,79 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -3126,7 +4694,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -3139,6 +4707,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -3207,8 +4782,36 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -3228,10 +4831,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3280,8 +4953,22 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 397,
+   "rosterSkipped": 380,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -3304,6 +4991,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -3320,6 +5014,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -3353,6 +5054,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -3367,10 +5089,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3409,6 +5145,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -3437,10 +5180,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3479,6 +5236,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -3504,6 +5282,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3564,7 +5356,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -3577,6 +5369,13 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -3645,8 +5444,36 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
@@ -3666,11 +5493,81 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
     },
     {
      "bioguideId": "W000817",
@@ -3718,8 +5615,22 @@
     "phaseA": true
    },
    "chamberVoting": 432,
-   "rosterSkipped": 398,
+   "rosterSkipped": 381,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -3742,6 +5653,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -3758,6 +5676,13 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "against_party"
@@ -3791,6 +5716,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -3805,10 +5751,24 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3847,6 +5807,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -3875,10 +5842,24 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -3917,6 +5898,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -3942,6 +5944,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -4002,7 +6018,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 84,
+   "rosterSkipped": 69,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -4018,6 +6034,13 @@
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001035",
@@ -4083,11 +6106,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -4104,9 +6155,79 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -4156,8 +6277,22 @@
     "phaseA": true
    },
    "chamberVoting": 435,
-   "rosterSkipped": 397,
+   "rosterSkipped": 377,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -4178,6 +6313,13 @@
      "party": "R",
      "position": "not_voting",
      "isParty": null
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "W000821",
@@ -4203,6 +6345,20 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -4243,6 +6399,34 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -4257,6 +6441,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
@@ -4269,6 +6460,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001101",
@@ -4301,6 +6499,13 @@
     {
      "bioguideId": "W000187",
      "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -4341,6 +6546,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001148",
      "politicianId": "mike_simpson",
      "party": "R",
@@ -4348,9 +6560,23 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -4390,6 +6616,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -4404,6 +6651,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "T000481",
      "politicianId": "tlaib",
      "party": "D",
@@ -4416,6 +6670,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "K000388",
@@ -4468,7 +6729,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 83,
+   "rosterSkipped": 67,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -4481,6 +6742,20 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -4556,11 +6831,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "M001153",
@@ -4577,10 +6880,80 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -4634,7 +7007,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 83,
+   "rosterSkipped": 67,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -4650,6 +7023,20 @@
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001035",
@@ -4722,11 +7109,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -4743,9 +7158,79 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -4795,8 +7280,22 @@
     "phaseA": true
    },
    "chamberVoting": 434,
-   "rosterSkipped": 397,
+   "rosterSkipped": 377,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -4819,6 +7318,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -4838,6 +7344,20 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "D000230",
@@ -4875,6 +7395,34 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -4889,6 +7437,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
@@ -4901,6 +7456,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001101",
@@ -4933,6 +7495,13 @@
     {
      "bioguideId": "W000187",
      "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -4973,8 +7542,22 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001148",
      "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -4983,6 +7566,13 @@
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
      "position": "nay",
      "isParty": "against_party"
     },
@@ -5022,6 +7612,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -5036,6 +7647,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "T000481",
      "politicianId": "tlaib",
      "party": "D",
@@ -5046,6 +7664,13 @@
      "bioguideId": "C001053",
      "politicianId": "tom_cole",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -5095,8 +7720,22 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 394,
+   "rosterSkipped": 373,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -5114,6 +7753,13 @@
     {
      "bioguideId": "B000825",
      "politicianId": "boebert",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
@@ -5138,6 +7784,20 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "D000230",
@@ -5175,6 +7835,34 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -5189,6 +7877,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
@@ -5201,6 +7896,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001101",
@@ -5238,6 +7940,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -5273,8 +7982,22 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001148",
      "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -5283,6 +8006,13 @@
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
      "position": "nay",
      "isParty": "against_party"
     },
@@ -5322,6 +8052,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -5336,6 +8087,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "T000481",
      "politicianId": "tlaib",
      "party": "D",
@@ -5346,6 +8104,20 @@
      "bioguideId": "C001053",
      "politicianId": "tom_cole",
      "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
      "position": "yea",
      "isParty": "with_party"
     },
@@ -5400,7 +8172,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 83,
+   "rosterSkipped": 67,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -5413,6 +8185,20 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
@@ -5488,11 +8274,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -5509,11 +8323,81 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "not_voting",
+     "isParty": null
     },
     {
      "bioguideId": "W000817",
@@ -5568,8 +8452,22 @@
     "phaseA": false
    },
    "chamberVoting": 431,
-   "rosterSkipped": 394,
+   "rosterSkipped": 373,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -5592,6 +8490,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -5608,6 +8513,20 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "against_party"
@@ -5648,6 +8567,34 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -5657,6 +8604,13 @@
     {
      "bioguideId": "J000298",
      "politicianId": "jayapal",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -5673,6 +8627,13 @@
      "politicianId": "josh_brecheen",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -5706,6 +8667,13 @@
     {
      "bioguideId": "W000187",
      "politicianId": "maxine_waters",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -5746,6 +8714,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001148",
      "politicianId": "mike_simpson",
      "party": "R",
@@ -5753,10 +8728,24 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "G000596",
      "politicianId": "mtg",
      "party": "R",
      "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "yea",
      "isParty": "with_party"
     },
     {
@@ -5795,6 +8784,27 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -5809,6 +8819,13 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "T000481",
      "politicianId": "tlaib",
      "party": "D",
@@ -5821,6 +8838,20 @@
      "party": "R",
      "position": "yea",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "K000388",
@@ -5873,7 +8904,7 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 83,
+   "rosterSkipped": 67,
    "rosterAmbiguous": 0,
    "memberVotes": [
     {
@@ -5886,6 +8917,20 @@
     {
      "bioguideId": "B001288",
      "politicianId": "booker",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
      "party": "D",
      "position": "yea",
      "isParty": "with_party"
@@ -5961,11 +9006,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -5982,11 +9055,81 @@
      "isParty": null
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "W000817",
@@ -6034,8 +9177,15 @@
     "phaseA": true
    },
    "chamberVoting": 431,
-   "rosterSkipped": 396,
+   "rosterSkipped": 376,
    "memberVotes": [
+    {
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
     {
      "bioguideId": "O000172",
      "politicianId": "aoc",
@@ -6058,6 +9208,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "W000821",
      "politicianId": "bruce_westerman",
      "party": "R",
@@ -6074,6 +9231,20 @@
     {
      "bioguideId": "C001114",
      "politicianId": "curtis",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -6107,6 +9278,34 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001195",
      "politicianId": "jason_smith",
      "party": "R",
@@ -6121,6 +9320,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "J000289",
      "politicianId": "jim_jordan",
      "party": "R",
@@ -6133,6 +9339,13 @@
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
+    },
+    {
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
     },
     {
      "bioguideId": "C001101",
@@ -6170,6 +9383,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "G000591",
      "politicianId": "michael_guest",
      "party": "R",
@@ -6205,8 +9425,22 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "S001148",
      "politicianId": "mike_simpson",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000823",
+     "politicianId": "mike_waltz",
      "party": "R",
      "position": "yea",
      "isParty": "with_party"
@@ -6217,6 +9451,13 @@
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "O000086",
@@ -6247,6 +9488,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "B000740",
      "politicianId": "stephanie_bice",
      "party": "R",
@@ -6261,6 +9523,13 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "T000481",
      "politicianId": "tlaib",
      "party": "D",
@@ -6272,6 +9541,20 @@
      "politicianId": "tom_cole",
      "party": "R",
      "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "position": "nay",
      "isParty": "with_party"
     },
     {
@@ -6325,9 +9608,16 @@
     "phaseA": true
    },
    "chamberVoting": 100,
-   "rosterSkipped": 82,
+   "rosterSkipped": 65,
    "rosterAmbiguous": 0,
    "memberVotes": [
+    {
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "position": "nay",
+     "isParty": "against_party"
+    },
     {
      "bioguideId": "B001261",
      "politicianId": "barrasso",
@@ -6341,6 +9631,20 @@
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "C001035",
@@ -6413,11 +9717,39 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "L000577",
      "politicianId": "lee",
      "party": "R",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "M001153",
@@ -6434,6 +9766,27 @@
      "isParty": "against_party"
     },
     {
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
      "bioguideId": "R000595",
      "politicianId": "rubio",
      "party": "R",
@@ -6441,11 +9794,60 @@
      "isParty": "with_party"
     },
     {
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
      "bioguideId": "S001150",
      "politicianId": "schiff",
      "party": "D",
      "position": "nay",
      "isParty": "against_party"
+    },
+    {
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "position": "yea",
+     "isParty": "with_party"
     },
     {
      "bioguideId": "W000817",
