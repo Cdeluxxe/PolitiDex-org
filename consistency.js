@@ -941,6 +941,9 @@
       '.pdxgap-rel-hero{display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;font-size:0.8rem;letter-spacing:0.01em;padding:0.24rem 0.6rem;border-radius:999px;color:var(--c,#9fb4d4);border:1px solid var(--c,#9fb4d4);background:rgba(10,15,30,0.55);}' +
       '.pdxgap-relpct{font-family:"Bebas Neue",sans-serif;font-size:1.05rem;line-height:0.9;letter-spacing:0.02em;}' +
       '.pdxgap-note{font-size:0.74rem;color:#c6d4ec;line-height:1.4;margin-top:0.45rem;}' +
+      // The header's person-level share row. Sits between the verdict chips and the
+      // explanatory note, which is where a reader's thumb already is on a phone.
+      '.pdxgap-hshare{margin-top:0.6rem;}' +
       '.pdxgap-note b{color:#f5d9a0;}' +
       '.pdxgap-sides{display:flex;flex-direction:column;gap:0.6rem;margin-top:0.7rem;}' +
       // Official-Record-only arrivals do NOT get a mostly-empty second column: the
@@ -1267,6 +1270,7 @@
       // also the moment a vote-derived share card can first be built. Re-run the
       // reveal pass over the freshly painted rows.
       _rcHydrateSoon();
+      _saHydrateSoon();
     });
   }
 
@@ -1632,6 +1636,31 @@
       var RC = window.PDXReceiptCards;
       if (!RC || typeof RC.hydrate !== 'function') return;
       setTimeout(function () { try { RC.hydrate(document); } catch (e) {} }, 0);
+    } catch (e) {}
+  }
+
+  // ── Person-level share affordance (share-anywhere.js) ───────────────────────
+  // The complement to _rcShareHtml rather than a replacement for it. That one is
+  // about a VOTE and is right to vanish when no vote qualifies; this one is about a
+  // PERSON, so it always has something to offer and never leaves the reader with no
+  // control at all. It is also fail-open and fixed-size, which is why it can sit in
+  // the gap sheet header: hydrating it changes an icon and an accessible name, not
+  // the height of a bottom sheet the reader is already looking at.
+  function _saShareHtml(pid, issueKey) {
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (!SA || typeof SA.buttonHtml !== 'function' || !pid) return '';
+      return '<div class="pdxgap-hshare">' +
+        SA.buttonHtml({ pid: pid, issueKey: issueKey || '', block: true, hint: true,
+                        text: 'Share this' }) +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+  function _saHydrateSoon() {
+    try {
+      var SA = window.PDXShareAnywhere;
+      if (!SA || typeof SA.hydrateSoon !== 'function') return;
+      SA.hydrateSoon(document);
     } catch (e) {}
   }
   // Jump into the full Voting Record, filtered to one issue when that section is live.
@@ -2569,6 +2598,18 @@
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        // Person-level share, at the TOP of the sheet. This is the surface a shared
+        // card lands on and the surface a phone reader reaches from the profile, and
+        // until now its only share sat at the bottom of the 🏛️ column — below the
+        // fold, and deleted outright whenever no Official Record card cleared the
+        // guards. So a reader who wanted to pass this on either had to scroll for
+        // the control or found none at all. PDXShareAnywhere always has an answer
+        // (record card → Say-vs-Do receipt → profile link) and says which one it is
+        // in the hint, and it never appears or disappears, so adding it here does
+        // not make this bottom sheet resize after it opens. The 🏛️ column keeps its
+        // own button unchanged: that one promises one specific vote and must stay
+        // fail-closed and Official-Record-only.
+        _saShareHtml(pid, issueKey) +
         gapNote +
       '</div>';
 
@@ -2785,6 +2826,10 @@
     // A reader arriving from a shared card's #record= link can reach this before the
     // vote record is warm, so the reveal pass runs on every open rather than once.
     _rcHydrateSoon();
+    // Same reason for the header's person-level control: it is already visible, and
+    // this is what upgrades its icon and accessible name from "profile link" to the
+    // card it can actually send once the record lands.
+    _saHydrateSoon();
   }
   function closeGap() {
     var back = document.getElementById('pdxc-gap-back');

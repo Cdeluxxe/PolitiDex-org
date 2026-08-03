@@ -34,7 +34,7 @@
 
 'use strict';
 
-const CACHE_VERSION = 'v39';
+const CACHE_VERSION = 'v40';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -103,6 +103,12 @@ const SHELL_ASSETS = [
   '/consistency.js',
   '/issue-view.js',
   '/journey.js',
+  // The one share resolver every surface now asks (window.PDXShareAnywhere).
+  // Precached because it renders the share control on the mobile compact sheets,
+  // the share sheet and the search action strips; without it those controls fall
+  // back to a link-only share, which is a visible loss of function on a repeat
+  // visit. Tiny, and it depends on nothing being cached alongside it.
+  '/share-anywhere.js',
   '/coverage.js',
   '/manifest.json',
   '/assets/icon.svg',

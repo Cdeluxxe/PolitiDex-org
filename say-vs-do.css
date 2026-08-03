@@ -277,6 +277,11 @@
 .svd-share-btn:active { transform: translateY(0); }
 .svd-share-btn.is-busy { filter: saturate(0.5) brightness(0.9); cursor: progress; }
 .svd-share-btn .svd-share-ico { font-size: 0.9rem; }
+/* Mobile-first: the receipt card's own share pill is the most-tapped share in the
+   app and was sized for a mouse. Same pill, a thumb-sized target. */
+@media (max-width: 640px) {
+  .svd-share-btn { min-height: 2.5rem; padding: 0.55rem 1rem; font-size: 0.78rem; }
+}
 
 /* Mini card — a small round share button pinned top-right. */
 .svd-mini-share {
@@ -290,6 +295,18 @@
 .svd-mini:hover .svd-mini-share { opacity: 1; }
 .svd-mini-share:hover { transform: scale(1.08); opacity: 1; }
 .svd-mini-share.is-busy { cursor: progress; }
+/* Touch devices never fire :hover, so the rule above left this button parked at
+   55% opacity forever — a share control that looked like a disabled decoration on
+   exactly the devices the mini cards are scrolled on. On any pointer that cannot
+   hover it is simply always at full strength, and it takes a 44px tap target with
+   it. Desktop keeps the quiet-until-hover treatment unchanged. */
+@media (hover: none) {
+  .svd-mini-share {
+    opacity: 1;
+    width: 2.75rem; height: 2.75rem; font-size: 1.05rem;
+    top: 0.25rem; right: 0.25rem;
+  }
+}
 
 /* Fallback destination menu (desktop / no file-share support). */
 .svd-share-menu {
@@ -464,4 +481,68 @@
 @media (prefers-reduced-motion: reduce) {
   .pdxrc-share-btn { transition: none; }
   .pdxrc-share-btn:hover { transform: none; }
+}
+
+/* ── Person-level share affordance (share-anywhere.js) ───────────────────────*/
+/* The complement to the two controls above: they each promise ONE artifact and
+   are right to be absent when that artifact does not exist, and this one promises
+   the best artifact a given person has, so it is always present.
+
+   Two rules matter more than the look.
+
+   1. FIXED SIZE. Unlike .pdxrc-share-btn this control never appears, never
+      disappears and never changes its visible label — hydration swaps a glyph
+      inside a fixed-width slot and repaints one text node inside a
+      height-reserved box. It therefore cannot contribute layout shift on the
+      mobile sheets it was added to, which is the whole reason it is fail-open
+      rather than fail-closed.
+   2. IT LOOKS LIKE NEITHER FEED. Gold is the curated Say-vs-Do receipt and steel
+      is the Official Record; a control that may send either must not pre-empt
+      that answer, so it is neutral slate and takes its accent from the tier only
+      once the tier is known. */
+.pdxsa-wrap { display: inline-flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.pdxsa-wrap-block { display: flex; width: 100%; }
+.pdxsa-share-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  cursor: pointer; min-height: 2.1rem; padding: 0.36rem 0.8rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.73rem;
+  letter-spacing: 0.05em; text-transform: uppercase; line-height: 1;
+  color: #e2e9f6; background: rgba(23, 34, 58, 0.72);
+  border: 1px solid var(--pdxsa-c, rgba(143, 165, 196, 0.45)); border-radius: 9999px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.pdxsa-share-btn:hover { background: rgba(23, 34, 58, 0.95); color: #fff; transform: translateY(-1px); }
+.pdxsa-share-btn:active { transform: translateY(0); }
+.pdxsa-share-btn:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+/* Busy is a filter and a cursor, never a label change — a control that renamed
+   itself to "Building…" would resize mid-gesture. */
+.pdxsa-share-btn.pdxsa-busy { cursor: progress; filter: saturate(0.55) brightness(0.9); }
+/* The icon slot is fixed-width so swapping 🔗 → 🏛️ → 🧾 cannot move the label. */
+.pdxsa-share-btn .pdxsa-ico {
+  flex: none; width: 1.05rem; text-align: center; font-size: 0.9rem; line-height: 1;
+}
+.pdxsa-share-btn .pdxsa-lbl { white-space: nowrap; }
+.pdxsa-share-btn.pdxsa-t-record  { --pdxsa-c: rgba(127, 180, 255, 0.55); }
+.pdxsa-share-btn.pdxsa-t-receipt { --pdxsa-c: rgba(245, 200, 66, 0.5); }
+.pdxsa-share-btn.pdxsa-t-link    { --pdxsa-c: rgba(143, 165, 196, 0.4); }
+.pdxsa-share-btn.pdxsa-block { width: 100%; min-height: 2.6rem; font-size: 0.78rem; }
+/* The honest hint. Its height is RESERVED in whole lines — 2 × the 1.35 line-height
+   here — so the text can be replaced when the record settles without the surrounding
+   sheet resizing. That reservation is what lets the fallback be stated in prose at
+   all. Whole lines rather than an eyeballed value: a box sized to N lines exactly
+   cannot be grown by any string that wraps to N or fewer. */
+.pdxsa-hint {
+  display: block; min-height: 2.7em;
+  font-size: 0.68rem; line-height: 1.35; color: #93a6c4;
+}
+@media (max-width: 640px) {
+  /* Mobile-first: clears the 44px touch guidance, and the hint gets a third
+     reserved line because the same sentence wraps earlier on a narrow sheet. */
+  .pdxsa-share-btn { min-height: 2.5rem; padding: 0.55rem 0.9rem; font-size: 0.77rem; }
+  .pdxsa-share-btn.pdxsa-block { min-height: 2.8rem; }
+  .pdxsa-hint { min-height: 4.05em; font-size: 0.7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdxsa-share-btn { transition: none; }
+  .pdxsa-share-btn:hover { transform: none; }
 }

@@ -5498,6 +5498,24 @@
     if (nameEl)  nameEl.textContent = name + (office ? ' · ' + office : '');
     if (linkEl)  linkEl.value = url;
     if (copyBtn) { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy'; }
+    // The share ARTIFACT — the image, not the link. Every compact card, browse
+    // row, comparison card and the profile modal header funnel into this one
+    // sheet, so this is the single place that makes the Official Record card /
+    // Say-vs-Do receipt reachable from all of them. PDXShareAnywhere resolves
+    // which pipeline can serve this person and prints an honest hint when neither
+    // can; the row is painted before the overlay is shown and its hint box has a
+    // reserved height, so the sheet does not resize when the record settles.
+    var artEl = document.getElementById('pdx-share-artifact');
+    if (artEl) {
+      var SA = window.PDXShareAnywhere;
+      if (SA && typeof SA.buttonHtml === 'function') {
+        artEl.innerHTML = SA.buttonHtml({ pid: id, block: true, hint: true, fallback: 'copy',
+                                          text: 'Share the card' });
+        try { SA.hydrateSoon(artEl); } catch (e) {}
+      } else {
+        artEl.innerHTML = '';
+      }
+    }
     // The native Web Share API ("More Options") is only offered where supported —
     // mostly mobile and some desktop browsers.
     if (nativeBtn) nativeBtn.style.display = (navigator.share) ? '' : 'none';

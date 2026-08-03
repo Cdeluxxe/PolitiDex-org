@@ -16392,12 +16392,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
   <!-- ═══════════════════════ SHARE SHEET ═══════════════════════ -->
   <div id="pdx-share-overlay" class="pdx-share-overlay" style="display:none;" onclick="if(event.target===this)window._pdxCloseShareSheet()">
-    <div class="pdx-share-sheet" role="dialog" aria-modal="true" aria-label="Share politician profile">
+    <div class="pdx-share-sheet" role="dialog" aria-modal="true" aria-label="Share this politician">
       <div class="pdx-share-head">
-        <div class="pdx-share-title">Share Profile</div>
+        <div class="pdx-share-title">Share</div>
         <button class="pdx-share-x" onclick="window._pdxCloseShareSheet()" aria-label="Close share">✕</button>
       </div>
       <div id="pdx-share-name" class="pdx-share-name"></div>
+      <!-- The ARTIFACT row. Every compact card, every browse row and the profile
+           modal header all open this one sheet, so putting the card share here is
+           what makes the image reachable from all of them at once instead of one
+           wiring job per surface. window.pdxSharePolitician fills it (see
+           profiles-full.js): PDXShareAnywhere decides which of the two share
+           pipelines can serve this person, and when neither can it says so in the
+           hint and shares the link below instead of offering a control that fails.
+           The row is always present and its hint has a reserved height, so the
+           sheet is the same size before and after that decision lands. -->
+      <div id="pdx-share-artifact" class="pdx-share-artifact"></div>
       <div class="pdx-share-linkrow">
         <input id="pdx-share-link" class="pdx-share-link" type="text" readonly onclick="this.select()" aria-label="Direct link to profile" />
         <button id="pdx-share-copy" class="pdx-share-copy" onclick="window._pdxCopyShareLink()">Copy</button>
@@ -18270,6 +18280,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        voting-record.js (records), say-vs-do.js (the renderer it hands cards to)
        and consistency.js (the shared proof vocabulary and openGap landing). -->
   <script defer src="receipt-cards.js"></script>
+  <!-- Share Anywhere (window.PDXShareAnywhere) — the one resolver that answers
+       "what is the strongest shareable artifact for this person?" for every
+       surface: the Official Record card (PDXReceiptCards), else the Say-vs-Do
+       receipt (PDXReceipts), else an honest profile link. It renders no image and
+       relaxes no guard — it only chooses between the two pipelines above, which is
+       why it loads AFTER both of them. Its control is fail-open and fixed-size, so
+       hydrating it cannot shift the layout on the mobile surfaces it appears on. -->
+  <script defer src="share-anywhere.js"></script>
   <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
        no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
        PDXExecRecordUI). Three files, loaded in dependency order:

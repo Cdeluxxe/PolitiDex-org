@@ -587,6 +587,27 @@
       return '';
     }
 
+    // The share action, named for what it will actually send. The tier is resolved
+    // synchronously from what is already loaded (PDXShareAnywhere.state), so a row
+    // whose person has a guard-cleared Official Record card says "Share the card"
+    // and a row whose person has nothing on file says "Share profile link" — the
+    // label is a promise the tap keeps. Search had no share action at all before
+    // this, which is why a reader who found someone here had to open the profile,
+    // find the header button and open a sheet before they could pass anything on.
+    function shareAct(pid, issueKey) {
+      var t = 'link';
+      try {
+        var SA = window.PDXShareAnywhere;
+        if (SA && typeof SA.state === 'function') {
+          var st = SA.state(pid, { issueKey: issueKey || '' });
+          if (st) t = st.tier;
+        }
+      } catch (e) {}
+      if (t === 'record') return { id: 'share', ico: '🏛️', label: 'Share the record card' };
+      if (t === 'receipt') return { id: 'share', ico: '🧾', label: 'Share the receipt' };
+      return { id: 'share', ico: '🔗', label: 'Share profile link' };
+    }
+
     // The ordered action list for an entry. `primary` gets the gold treatment;
     // `saved`/`on` reflect current state so the label flips to a confirmation.
     function actionsFor(e) {
@@ -596,11 +617,15 @@
         acts.push({ id: 'team', ico: on ? '★' : '＋', label: on ? 'On My Team' : 'Add to My Team', primary: !on, on: on });
         acts.push({ id: 'compare', ico: '⚖', label: 'Compare' });
         acts.push({ id: 'profile', ico: '👤', label: 'View full profile' });
+        acts.push(shareAct(e.id, ''));
       } else if (e.kind === 'stance') {
         var rs = isSavedEntry(e);
         acts.push({ id: 'save', ico: rs ? '✓' : '🔖', label: rs ? 'Saved to My Evidence' : 'Save this receipt', primary: !rs, saved: rs });
         acts.push({ id: 'evidence', ico: '🗄', label: 'View in Evidence Locker' });
         acts.push({ id: 'jump', ico: '👤', label: 'Jump to politician' });
+        // Scoped to the issue this row is about, so it shares THIS receipt rather
+        // than the person's strongest one on some other issue.
+        acts.push(shareAct(e.id, e.issueKey || ''));
       } else if (e.kind === 'spotlight') {
         var ss = isSavedEntry(e);
         acts.push({ id: 'save', ico: ss ? '✓' : '🔖', label: ss ? 'Saved' : 'Save this issue', primary: !ss, saved: ss });
@@ -697,6 +722,23 @@
         return;
       }
       if (id === 'profile' || id === 'jump') { navigate('pol', { id: e.id }); return; }
+      // Share whatever this person's strongest artifact is. The eye closes first:
+      // an image share hands off to the OS sheet and a link share opens the share
+      // overlay, and neither should have to layer over a search panel. Because the
+      // panel is gone by then the button is detached, so no element is passed as the
+      // busy/anchor target — PDXReceipts centres its desktop destination menu when
+      // it has nothing to anchor to.
+      if (id === 'share') {
+        var sid = e.id, siss = (e.kind === 'stance' ? (e.issueKey || '') : '');
+        close();
+        try {
+          var SA = window.PDXShareAnywhere;
+          if (SA && typeof SA.share === 'function') { SA.share(sid, null, { issueKey: siss }); return; }
+        } catch (err) {}
+        if (typeof window.pdxSharePolitician === 'function') window.pdxSharePolitician(sid);
+        else navigate('pol', { id: sid });
+        return;
+      }
       if (id === 'openbill') { close(); if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(e.number || e.id); else navigate('bill', { number: e.number, id: e.id }); return; }
       if (id === 'evidence') { close(); if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: e.id, issue: e.issueKey || '' }); else navigate('pol', { id: e.id }); return; }
       if (id === 'open') { if (e.kind === 'saved') openSaved(e.saved); else navigate('spotlight', { slug: e.slug }); return; }
