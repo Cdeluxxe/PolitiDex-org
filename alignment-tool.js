@@ -140,9 +140,61 @@
       deportations:       { label: '🚨 Mass Deportations & Border Security', chip: 'Carry out large-scale deportations of people here illegally and fully lock down the border', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['deportation','deportations','mass deportation','mass deportations','border security','illegal immigration','ice','removal','remove','secure the border','interior enforcement'] },
 
       // ── Gun Policy ──
-      gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry'] },
+      // Firearms policy is TWO facets, not one axis, and the two existing keys already
+      // ARE those facets — so they are reused rather than replaced. gun_rights and
+      // gun_safety are descriptive of what a policy does ("the right to carry", "require
+      // background checks"), not movement brands, and every gun card in the library
+      // already sits on one of them. Introducing new keys would fragment 110+ cards and
+      // three existing vote mappings for no gain.
+      //   gun_rights  — the scope of the individual right to acquire, keep and carry.
+      //   gun_safety  — screening, removal and storage rules aimed at misuse.
+      // The two are scored independently. A record can be 'support' on both (the
+      // Bipartisan Safer Communities Act coalition: expanded background checks AND an
+      // explicit no-registry guarantee), 'oppose' on both, or one of each. Nothing in
+      // the scoring couples them, and a member's percentage under one facet says
+      // nothing about the other.
+      //
+      // WHAT "SUPPORTS" MEANS ON EACH AXIS, INDEPENDENTLY
+      // gun_rights — the chip states the PRO-RIGHTS direction. issueStance:'support' =
+      //   backs carry and self-defence rights (concealed/constitutional carry,
+      //   interstate reciprocity, carry on federal land or installations), backs Second
+      //   Amendment protections against registry, purchase-tracking and licensing
+      //   burdens, and opposes broad category bans on commonly-owned firearms or
+      //   magazines. 'oppose' = holds the right is narrower than that and backs those
+      //   restrictions. 'mixed' = backs the right but not a specific instrument (e.g.
+      //   pro-carry, pro-suppressor-ban). An Official Record % here means "this share of
+      //   their judged votes widened, or refused to narrow, the right".
+      // gun_safety — the chip states the PRO-REGULATION direction. issueStance:'support'
+      //   = backs background-check expansion, red-flag / extreme-risk orders,
+      //   assault-style and high-capacity-magazine restrictions, safe-storage
+      //   requirements, and trafficking / straw-purchase enforcement. 'oppose' = holds
+      //   those measures ineffective or unconstitutional. 'mixed' = backs some
+      //   instruments and not others (e.g. pro-trafficking-enforcement,
+      //   anti-red-flag). An Official Record % here means "this share of their judged
+      //   votes tightened rules aimed at misuse".
+      // These are NOT mirror images. Suppressor deregulation and ATF-rule repeal touch
+      // gun_rights alone; trafficking-enforcement funding and safe-storage grants touch
+      // gun_safety alone. Where a package genuinely does both in opposite directions —
+      // S. 2938 in the 117th, which expanded background checks while writing a
+      // no-registry guarantee into law — it is mapped to both facets with opposite
+      // supportMeaning rather than forced into one verdict.
+      //
+      // gun_balance is NOT a facet and stays exactly as it is. Its chip ("Keep legal gun
+      // ownership but require universal background checks and red-flag laws") is a
+      // composite verdict — it asserts a position on both axes at once, which is the
+      // thing the two-facet split exists to avoid. It remains a legacy middle key for
+      // the members whose stated position really is that blend; its cards count toward
+      // NEITHER facet's coverage, and no card was re-keyed off it.
+      // KNOWN ASYMMETRY: gun_rights carries lean:'R' and gun_safety lean:'D', so the two
+      // facets are not scored symmetrically — the same asymmetry election_security /
+      // voting_access carries. Both leans are left in place deliberately:
+      // _alignApplyLean multiplies lean into every Alignment score, so dropping either
+      // would silently move published percentages for every member already carrying a
+      // gun card. Removing them is a scoring change and belongs in its own pass, not in
+      // an additive content pass.
+      gun_rights:         { label: '🔫 Protect Gun Rights', chip: 'Protect Second Amendment and the right to bear arms', cat: 'guns', lean: 'R', stanceKeys: ['gun'], keywords: ['gun rights','second amendment','2a','firearm','constitutional carry','nra','concealed carry','carry','right to carry','reciprocity','concealed carry reciprocity','self-defense','self defense','right to bear arms','magazine ban','gun ban','firearm registry','no registry','suppressor','hearing protection','atf','gun owner','law-abiding'] },
       gun_balance:        { label: '⚖️ Rights + Common-Sense Safety', chip: 'Keep legal gun ownership but require universal background checks and red-flag laws', cat: 'guns', stanceKeys: ['gun'], keywords: ['background check','gun safety','second amendment','firearm','responsible','red flag','mental health','common sense','gun reform'] },
-      gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','red flag','assault weapon','gun violence','gun reform'] },
+      gun_safety:         { label: '🦺 Stronger Gun Safety Laws', chip: 'Pass stronger gun safety laws to reduce gun violence', cat: 'guns', lean: 'D', stanceKeys: [], keywords: ['gun safety','gun control','background check','universal background check','red flag','extreme risk','assault weapon','assault-style','high-capacity','high capacity magazine','safe storage','secure storage','gun trafficking','straw purchase','ghost gun','untraceable firearm','bump stock','gun violence','gun reform','boyfriend loophole'] },
 
       // ── Education ──
       school_choice:      { label: '🎓 School Choice & Education Freedom', chip: 'Fund vouchers and charters so families can pick their school', cat: 'edu', lean: 'R', stanceKeys: [], keywords: ['school choice','education choice','education freedom','voucher','vouchers','school vouchers','charter','scholarship','homeschool','parental rights','parental choice'] },

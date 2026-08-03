@@ -334,8 +334,9 @@ rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
 12. **The decisive-question gate takes shape-gated exceptions, never a loosened regex.**
    Rule 8 admits passage, concurrence and conference reports only. Two question forms
    decide substance without being any of those, and `scripts/test-vr-vote-seed.mjs` now
-   admits each for exactly one measure shape: "On Agreeing to the Amendment" on an
-   `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge" on an `S.J.Res.`/`H.J.Res.`. The
+   admits each for exactly one measure shape: "On Agreeing to the Amendment" (House) or
+   "On the Amendment" (Senate) on an `H.Amdt.`/`S.Amdt.`, and "On the Motion to Discharge"
+   on an `S.J.Res.`/`H.J.Res.`. The
    second is the load-bearing one for arms-sale disapproval: under the Arms Export Control
    Act the resolution is the only vehicle, the discharge motion is the only vote the Senate
    ever takes on it, and a nay there is a recorded decision to let the sale proceed. Note
@@ -343,6 +344,13 @@ rule 2 forbids. Same reasoning as the S. 2503 ROTOR Act decline.
    there the discharge really is a step toward a later passage vote. Every roll admitted
    under an exception must carry a `decisiveWhy` of at least 24 characters saying why the
    question decided the substance; the test fails the seed otherwise.
+   Kept separate from the exceptions is a shorter `PASSAGE_FORMS` list, for captions that
+   *are* passage under a chamber's own house style rather than something argued into the
+   set. It holds one entry: "On the Joint Resolution" on an `H.J.Res.`/`S.J.Res.`, the
+   Senate's caption for the up-or-down vote on a joint resolution's text — the same act as
+   "On Passage", which is why it carries no `decisiveWhy`. It is still shape-gated, and
+   nothing procedural wears that caption: Senate motions read "On the Motion to …" and
+   cloture reads "On Cloture Motion". Both stay out.
 
 ## Support for Israel — the first issue-complete vertical, and what's queued
 
